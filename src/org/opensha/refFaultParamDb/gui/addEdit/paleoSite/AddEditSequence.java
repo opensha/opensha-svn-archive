@@ -33,7 +33,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ConstrainedStringListParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -350,7 +350,7 @@ ParameterChangeListener {
 		int i=0;
 		double sumProb = 0.0;
 		while(paramsIterator.hasNext()) {
-			missedProbs[i] = ((Double)((ParameterAPI)paramsIterator.next()).getValue()).doubleValue();
+			missedProbs[i] = ((Double)((Parameter)paramsIterator.next()).getValue()).doubleValue();
 			sumProb += missedProbs[i++];
 		}
 		if(Math.abs(sumProb-1)>tolerance)

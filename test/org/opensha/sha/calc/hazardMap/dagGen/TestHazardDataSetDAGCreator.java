@@ -18,7 +18,7 @@ import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.TestHazardCurveSetCalculator;
@@ -73,8 +73,8 @@ public class TestHazardDataSetDAGCreator {
 		for (Location loc : region) {
 			Site site = new Site(loc);
 			
-			site.addParameter((ParameterAPI)cb08.getParameter(Vs30_Param.NAME).clone());
-			site.addParameter((ParameterAPI)cb08.getParameter(DepthTo2pt5kmPerSecParam.NAME).clone());
+			site.addParameter((Parameter)cb08.getParameter(Vs30_Param.NAME).clone());
+			site.addParameter((Parameter)cb08.getParameter(DepthTo2pt5kmPerSecParam.NAME).clone());
 			
 			sites.add(site);
 		}
@@ -87,7 +87,7 @@ public class TestHazardDataSetDAGCreator {
 			for (SiteDataValueList<?> valList : vals) {
 				siteVals.add(valList.getValue(i));
 			}
-			Iterator<ParameterAPI<?>> it = sites.get(i).getParametersIterator();
+			Iterator<Parameter<?>> it = sites.get(i).getParametersIterator();
 			while (it.hasNext()) {
 				trans.setParameterValue(it.next(), siteVals);
 			}

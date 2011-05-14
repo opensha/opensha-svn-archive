@@ -26,8 +26,8 @@ import java.util.StringTokenizer;
 import javax.swing.JFrame;
 import javax.swing.ListModel;
 
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
@@ -43,12 +43,12 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 	
 	private boolean masterDisable = false;
 	
-	private ArrayList<ParameterAPI<?>> imts;
+	private ArrayList<Parameter<?>> imts;
 	
 	public IMT_ChooserPanel() {
 		super(null, "Selected IMT(s):");
 		imtGuiBean = new IMT_GuiBean(null);
-		imts = new ArrayList<ParameterAPI<?>>();
+		imts = new ArrayList<Parameter<?>>();
 		
 		this.setLowerPanel(imtGuiBean);
 	}
@@ -62,7 +62,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 	protected void rebuildList() {
 		Object names[] = new Object[imts.size()];
 		for (int i=0; i<imts.size(); i++) {
-			ParameterAPI<?> imt = imts.get(i);
+			Parameter<?> imt = imts.get(i);
 			names[i] = IM_EventSetOutputWriter.getRegularIMTString(imt) + " (HAZ01 code: " + IM_EventSetOutputWriter.getHAZ01IMTString(imt) + ")";
 		}
 		namesList.setListData(names);
@@ -71,11 +71,11 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 	@Override
 	public void addButton_actionPerformed() {
 		ListModel model = namesList.getModel();
-		DependentParameterAPI<?> newIMT = (DependentParameterAPI<?>) imtGuiBean.getIntensityMeasure();
-		DependentParameterAPI<?> clone = (DependentParameterAPI<?>) newIMT.clone();
-		ListIterator<ParameterAPI<?>> it = newIMT.getIndependentParametersIterator();
+		Parameter<?> newIMT = (Parameter<?>) imtGuiBean.getIntensityMeasure();
+		Parameter<?> clone = (Parameter<?>) newIMT.clone();
+		ListIterator<Parameter<?>> it = newIMT.getIndependentParametersIterator();
 		while (it.hasNext()) {
-			clone.addIndependentParameter((ParameterAPI<?>) it.next().clone());
+			clone.addIndependentParameter((Parameter<?>) it.next().clone());
 		}
 //		System.out.println("Adding " + clone.getClass().getName());
 		imts.add(clone);
@@ -106,12 +106,12 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 	public boolean shouldEnableAddButton() {
 		if (masterDisable)
 			return false;
-		ParameterAPI<?> imt = imtGuiBean.getIntensityMeasure();
-		for (ParameterAPI<?> oldIMT : imts) {
+		Parameter<?> imt = imtGuiBean.getIntensityMeasure();
+		for (Parameter<?> oldIMT : imts) {
 			if (imt.getName().equals(oldIMT.getName())) {
 				if (imt.getName().equals(SA_Param.NAME)) {
-					DependentParameterAPI<?> oldParam = (DependentParameterAPI<?>) oldIMT;
-					DependentParameterAPI<?> newParam = (DependentParameterAPI<?>) imt;
+					Parameter<?> oldParam = (Parameter<?>) oldIMT;
+					Parameter<?> newParam = (Parameter<?>) imt;
 					double oldPeriod = (Double) oldParam.getIndependentParameter(PeriodParam.NAME).getValue();
 					double newPeriod = (Double) imtGuiBean.getParameterList().getParameter(PeriodParam.NAME).getValue();
 					if (newPeriod == oldPeriod) {
@@ -142,7 +142,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 		// for one of the new IMRs
 		ArrayList<Integer> toRemove = new ArrayList<Integer>();
 		for (int i=imts.size()-1; i>=0; i--) {
-			ParameterAPI<?> imt = imts.get(i);
+			Parameter<?> imt = imts.get(i);
 			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 				if (!imr.isIntensityMeasureSupported(imt)) {
 					toRemove.add(i);
@@ -189,7 +189,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 //		System.out.println("pchange");
 		if (event.getNewValue().equals(SA_Param.NAME)) {
 //			System.out.println("Selected SA!");
-			ParameterAPI<?> periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
+			Parameter<?> periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
 			periodParam.addParameterChangeListener(this);
 		}
 //		System.out.println("ParamChange!!!!!!!!!");
@@ -198,7 +198,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 	
 	public ArrayList<String> getIMTStrings() {
 		ArrayList<String> strings = new ArrayList<String>();
-		for (ParameterAPI<?> param : imts) {
+		for (Parameter<?> param : imts) {
 			strings.add(IM_EventSetOutputWriter.getRegularIMTString(param));
 		}
 		return strings;

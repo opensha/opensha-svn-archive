@@ -26,12 +26,12 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.commons.param.constraint.impl.EstimateConstraint;
+import org.opensha.commons.param.editor.impl.ConstrainedEstimateParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.estimate.EstimateConstraint;
-import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.EstimateParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;

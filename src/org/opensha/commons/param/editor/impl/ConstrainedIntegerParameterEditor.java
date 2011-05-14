@@ -23,8 +23,8 @@ import java.awt.Color;
 
 import javax.swing.JComponent;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.util.ParamUtils;
 
@@ -63,7 +63,7 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 	 * Constructor that sets the parameter that it edits.
 	 * Only calls the super() function.
 	 */
-	public ConstrainedIntegerParameterEditor(ParameterAPI model)
+	public ConstrainedIntegerParameterEditor(Parameter model)
 	throws Exception{
 		super(model);
 		this.setParameter(model);
@@ -91,10 +91,10 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 		//Integer constraint declaration
 		IntegerConstraint constraint;
 		
-		ParameterAPI<Integer> param = getParameter();
+		Parameter<Integer> param = getParameter();
 
 		if( ParamUtils.isWarningParameterAPI( param ) ){
-			constraint = (IntegerConstraint)((WarningParameterAPI)param).getWarningConstraint();
+			constraint = (IntegerConstraint)((WarningParameter)param).getWarningConstraint();
 			if( constraint == null ) constraint = (IntegerConstraint) param.getConstraint();
 		}
 		else

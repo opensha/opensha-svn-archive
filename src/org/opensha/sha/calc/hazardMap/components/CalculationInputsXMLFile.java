@@ -14,8 +14,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -38,7 +38,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	private EqkRupForecastAPI erf;
 	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
 	private List<Site> sites;
-	private List<DependentParameterAPI<Double>> imts;
+	private List<Parameter<Double>> imts;
 	private CalculationSettings calcSettings;
 	private CurveResultsArchiver archiver;
 	
@@ -55,7 +55,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
 		List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
-		List<DependentParameterAPI<Double>> imts,
+		List<Parameter<Double>> imts,
 		List<Site> sites,
 		CalculationSettings calcSettings,
 		CurveResultsArchiver archiver) {
@@ -87,11 +87,11 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		return imrMaps;
 	}
 	
-	public void setIMTs(List<DependentParameterAPI<Double>> imts) {
+	public void setIMTs(List<Parameter<Double>> imts) {
 		this.imts = imts;
 	}
 	
-	public List<DependentParameterAPI<Double>> getIMTs() {
+	public List<Parameter<Double>> getIMTs() {
 		return this.imts;
 	}
 
@@ -173,13 +173,13 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		/* Load the IMRs							*/
 		Element imrsEl = root.element(XML_IMRS_NAME);
 		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =imrsFromXML(imrsEl);
-		ArrayList<ParameterAPI> paramsToAdd = new ArrayList<ParameterAPI>();
+		ArrayList<Parameter> paramsToAdd = new ArrayList<Parameter>();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+			ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 			while (it.hasNext()) {
-				ParameterAPI param = it.next();
+				Parameter param = it.next();
 				boolean add = true;
-				for (ParameterAPI prevParam : paramsToAdd) {
+				for (Parameter prevParam : paramsToAdd) {
 					if (param.getName().equals(prevParam.getName())) {
 						add = false;
 						break;
@@ -196,7 +196,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			imrMapsFromXML(imrs, imrMapsEl);
 		
 		/* Load the IMTs if applicaple				*/
-		List<DependentParameterAPI<Double>> imts = imtsFromXML(imrs.get(0), imrMapsEl);
+		List<Parameter<Double>> imts = imtsFromXML(imrs.get(0), imrMapsEl);
 		
 		/* Load the sites 							*/
 		Element sitesEl = root.element(Site.XML_METADATA_LIST_NAME);
@@ -252,7 +252,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	public static final String XML_IMR_MAPING_NAME = "IMR_Maping";
 	
 	public static Element imrMapToXML(Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map,
-			List<DependentParameterAPI<Double>> imts,
+			List<Parameter<Double>> imts,
 			Element root, int index) {
 		Element mapEl = root.addElement(XML_IMR_MAP_NAME);
 		mapEl.addAttribute("index", index + "");
@@ -271,7 +271,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		return root;
 	}
 	
-	public static DependentParameterAPI<Double> imtFromXML(
+	public static Parameter<Double> imtFromXML(
 			ScalarIntensityMeasureRelationshipAPI testIMR,
 			Element imrMapEl) {
 		Element imtElem = imrMapEl.element(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
@@ -284,33 +284,33 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 
 		testIMR.setIntensityMeasure(imtName);
 
-		DependentParameterAPI<Double> imt = (DependentParameterAPI<Double>) testIMR.getIntensityMeasure();
+		Parameter<Double> imt = (Parameter<Double>) testIMR.getIntensityMeasure();
 
 		imt.setValueFromXMLMetadata(imtElem);
 		
 		return imt;
 	}
 	
-	public static List<DependentParameterAPI<Double>> imtsFromXML(
+	public static List<Parameter<Double>> imtsFromXML(
 			ScalarIntensityMeasureRelationshipAPI testIMR,
 			Element imrMapsEl) {
-		ArrayList<DependentParameterAPI<Double>> imts = new ArrayList<DependentParameterAPI<Double>>();
+		ArrayList<Parameter<Double>> imts = new ArrayList<Parameter<Double>>();
 		
 		Iterator<Element> it = imrMapsEl.elementIterator(XML_IMR_MAP_NAME);
 		
 		// this makes sure they get loaded in correct order
-		HashMap<Integer, DependentParameterAPI<Double>> listsMap = 
-			new HashMap<Integer, DependentParameterAPI<Double>>();
+		HashMap<Integer, Parameter<Double>> listsMap = 
+			new HashMap<Integer, Parameter<Double>>();
 		while (it.hasNext()) {
 			Element imrMapEl = it.next();
 			int index = Integer.parseInt(imrMapEl.attributeValue("index"));
-			DependentParameterAPI<Double> imt = imtFromXML(testIMR, imrMapEl);
+			Parameter<Double> imt = imtFromXML(testIMR, imrMapEl);
 			if (imt == null)
 				return null;
-			listsMap.put(new Integer(index), (DependentParameterAPI<Double>) imt.clone());
+			listsMap.put(new Integer(index), (Parameter<Double>) imt.clone());
 		}
 		for (int i=0; i<listsMap.size(); i++) {
-			DependentParameterAPI<Double> imt = listsMap.get(i);
+			Parameter<Double> imt = listsMap.get(i);
 			String meta = imt.getName();
 			if (imt.getName().equals(SA_Param.NAME)) {
 				double period = (Double) imt.getIndependentParameter(PeriodParam.NAME).getValue();
@@ -356,7 +356,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	public static Element imrMapsToXML(
 			ArrayList<Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> maps,
-			List<DependentParameterAPI<Double>> imts, Element root) {
+			List<Parameter<Double>> imts, Element root) {
 		Element mapsEl = root.addElement(XML_IMR_MAP_LIST_NAME);
 		
 		for (int i=0; i<maps.size(); i++) {

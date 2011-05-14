@@ -23,8 +23,8 @@ import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListParameterEditor;
@@ -38,7 +38,7 @@ import org.opensha.commons.param.editor.impl.ParameterListParameterEditor;
  * @version 1.0
  */
 
-public class ParameterListParameter extends DependentParameter<ParameterList> {
+public class ParameterListParameter extends AbstractParameter<ParameterList> {
 
 
 	/**
@@ -89,7 +89,7 @@ public class ParameterListParameter extends DependentParameter<ParameterList> {
 	 *      a ParameterListParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<ParameterList> param) {
+	public int compareTo(Parameter<ParameterList> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if ( !( obj instanceof ParameterListParameter ) ) {

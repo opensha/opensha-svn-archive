@@ -34,8 +34,8 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -368,7 +368,7 @@ NamedObjectAPI {
 		String attenRelName = attenRel.getName();
 		if(attenRelName.equals(AS_1997_AttenRel.NAME)){
 
-			ParameterAPI siteParam = ((AS_1997_AttenRel)attenRel).getParameter
+			Parameter siteParam = ((AS_1997_AttenRel)attenRel).getParameter
 			(AS_1997_AttenRel.SITE_TYPE_NAME);
 			//set the site parameter to rock
 			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
@@ -390,7 +390,7 @@ NamedObjectAPI {
 		}
 		else if(attenRelName.equals(BJF_1997_AttenRel.NAME)){
 
-			ParameterAPI siteParam = ((BJF_1997_AttenRel)attenRel).getParameter
+			Parameter siteParam = ((BJF_1997_AttenRel)attenRel).getParameter
 			(Vs30_Param.NAME);
 			//set the site parameter to rock
 			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
@@ -411,7 +411,7 @@ NamedObjectAPI {
 		}
 		else 	if(attenRelName.equals(Campbell_1997_AttenRel.NAME)){
 
-			ParameterAPI siteParam = ((Campbell_1997_AttenRel)attenRel).getParameter
+			Parameter siteParam = ((Campbell_1997_AttenRel)attenRel).getParameter
 			(Campbell_1997_AttenRel.SITE_TYPE_NAME);
 			//set the site parameter to rock
 			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
@@ -724,12 +724,12 @@ NamedObjectAPI {
 		ListIterator siteTypeParamIterator = this.siteParams.getParametersIterator();
 
 		while(siteTypeParamIterator.hasNext()){
-			ParameterAPI siteParam = (ParameterAPI)siteTypeParamIterator.next();
+			Parameter siteParam = (Parameter)siteTypeParamIterator.next();
 			siteParamNames.add(siteParam.getName());
 		}
 		int numSiteParams = siteParamNames.size();
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			if (!(param.getName().equals(ComponentParam.NAME)))  {
 				boolean isSiteTypeParam = false;
 				for(int i=0;i<numSiteParams;++i){
@@ -749,7 +749,7 @@ NamedObjectAPI {
 		stdDevIndependentParams.clear();
 		it = attenRel.getStdDevIndependentParamsIterator();
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			if (!(param.getName().equals(ComponentParam.NAME)))  {
 				boolean isSiteTypeParam = false;
 				for(int i=0;i<numSiteParams;++i){
@@ -769,7 +769,7 @@ NamedObjectAPI {
 		exceedProbIndependentParams.clear();
 		it = attenRel.getExceedProbIndependentParamsIterator();
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			if (!(param.getName().equals(ComponentParam.NAME)))  {
 				boolean isSiteTypeParam = false;
 				for(int i=0;i<numSiteParams;++i){
@@ -802,7 +802,7 @@ NamedObjectAPI {
 		ListIterator lit = siteParams.getParametersIterator();
 		if(siteCorrectionModel.equals(this.BATURAY_STEWART_MODEL)){
 			while(lit.hasNext()){
-				ParameterAPI param = (ParameterAPI)lit.next();
+				Parameter param = (Parameter)lit.next();
 				meanIndependentParams.addParameter(param);
 				stdDevIndependentParams.addParameter(param);
 				exceedProbIndependentParams.addParameter(param);
@@ -810,7 +810,7 @@ NamedObjectAPI {
 		}
 		else{
 			while(lit.hasNext()){
-				ParameterAPI param = (ParameterAPI)lit.next();
+				Parameter param = (Parameter)lit.next();
 				if(!param.getName().equals(Vs30_Param.NAME) && 
 						!param.getName().equals(this.NUM_RUNS_PARAM_NAME)	&&
 						!param.getName().equals(this.softSoilParam.getName())){
@@ -889,7 +889,7 @@ NamedObjectAPI {
 		eqkRuptureParams.clear();
 		ListIterator it = attenRel.getEqkRuptureParamsIterator();
 		while (it.hasNext()) {
-			eqkRuptureParams.addParameter( (Parameter) it.next());
+			eqkRuptureParams.addParameter( (AbstractParameter) it.next());
 		}
 	}
 
@@ -901,7 +901,7 @@ NamedObjectAPI {
 		propagationEffectParams.clear();
 		ListIterator it = attenRel.getPropagationEffectParamsIterator();
 		while (it.hasNext()) {
-			propagationEffectParams.addParameter( (Parameter) it.next());
+			propagationEffectParams.addParameter( (AbstractParameter) it.next());
 		}
 
 	}
@@ -916,7 +916,7 @@ NamedObjectAPI {
 		supportedIMParams.clear();
 		Iterator it = attenRel.getSupportedIntensityMeasuresIterator();
 		while (it.hasNext()) {
-			ParameterAPI imParam = (ParameterAPI)it.next();
+			Parameter imParam = (Parameter)it.next();
 			if(imParam.getName().equals(SA_Param.NAME))
 				supportedIMParams.addParameter( imParam);
 		}
@@ -953,9 +953,9 @@ NamedObjectAPI {
 		otherParams.addParameter(siteEffectCorrectionParam);
 		otherParams.addParameter(componentParam);
 		Iterator it = attenRel.getOtherParamsIterator();
-		Parameter param;
+		AbstractParameter param;
 		while (it.hasNext()) {
-			param = (Parameter) it.next();
+			param = (AbstractParameter) it.next();
 			if (!ComponentParam.NAME.equals(param.getName())) {
 				otherParams.addParameter(param);
 			}

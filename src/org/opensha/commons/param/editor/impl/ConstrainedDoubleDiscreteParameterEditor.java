@@ -32,7 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
@@ -79,7 +79,7 @@ implements ItemListener
 	 * else a picklist of values to choose from are presented to the user.
 	 * A tooltip is given to the name label if model info is available.
 	 */
-	public ConstrainedDoubleDiscreteParameterEditor(ParameterAPI<Double> model)
+	public ConstrainedDoubleDiscreteParameterEditor(Parameter<Double> model)
 	throws ConstraintException {
 		super(model);
 	}
@@ -100,7 +100,7 @@ implements ItemListener
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<Double> param) {
+	public boolean isParameterSupported(Parameter<Double> param) {
 		if (param == null)
 			return false;
 		

@@ -42,7 +42,7 @@ import javax.swing.border.TitledBorder;
 import junk.nga.EqkRuptureFromNGA;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -334,7 +334,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
    * @param : Name of the Parameter
    * @returns the parameter with the name param
    */
-  public ParameterAPI getParameter(String param){
+  public Parameter getParameter(String param){
     return listEditor.getParameterList().getParameter(param);
   }
 

@@ -19,7 +19,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
@@ -778,7 +778,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		Iterator it = adjustableParams.getParametersIterator();
 		ArrayList<String> adjustableParamNames = new ArrayList<String>();
 		while(it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			adjustableParamNames.add(param.getName());
 		}
 

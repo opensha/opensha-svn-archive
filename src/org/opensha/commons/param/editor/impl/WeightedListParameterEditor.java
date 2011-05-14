@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.data.WeightedList;
 import org.opensha.commons.gui.WeightedListGUI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.WeightedListParameter;
 
@@ -38,7 +38,7 @@ public class WeightedListParameterEditor extends AbstractParameterEditor<Weighte
 		super();
 	}
 	
-	public WeightedListParameterEditor(ParameterAPI model) {
+	public WeightedListParameterEditor(Parameter model) {
 		super(model);
 	}
 	
@@ -74,7 +74,7 @@ public class WeightedListParameterEditor extends AbstractParameterEditor<Weighte
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<WeightedList<?>> param) {
+	public boolean isParameterSupported(Parameter<WeightedList<?>> param) {
 		if (param == null)
 			return false;
 		if (!(param.getValue() instanceof WeightedList))
@@ -96,7 +96,7 @@ public class WeightedListParameterEditor extends AbstractParameterEditor<Weighte
 	}
 	
 	private WeightedList<?> getList() {
-		ParameterAPI<WeightedList<?>> param = getParameter();
+		Parameter<WeightedList<?>> param = getParameter();
 		if (param == null)
 			return null;
 		else

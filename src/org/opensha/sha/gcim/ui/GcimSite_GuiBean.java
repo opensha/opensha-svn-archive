@@ -33,8 +33,8 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -142,9 +142,9 @@ public class GcimSite_GuiBean extends JPanel implements ParameterChangeListener,
 	 *            : Iterator over the site params in the IMR
 	 */
 	public void addSiteParams(Iterator it) {
-		Parameter tempParam;
+		AbstractParameter tempParam;
 		while (it.hasNext()) {
-			tempParam = (Parameter) it.next();
+			tempParam = (AbstractParameter) it.next();
 			if (!parameterList.containsParameter(tempParam)) { // if this does not exist already
 				tempParam.addParameterChangeListener(this);
 				parameterList.addParameter(tempParam);
@@ -203,9 +203,9 @@ public class GcimSite_GuiBean extends JPanel implements ParameterChangeListener,
 						}
 					}
 					if (!siteParamInGcimSiteParam) {
-						Iterator<ParameterAPI<?>> it = parameterList.getParametersIterator();
+						Iterator<Parameter<?>> it = parameterList.getParametersIterator();
 						while (it.hasNext()) {
-							ParameterAPI<?> siteParam = it.next();
+							Parameter<?> siteParam = it.next();
 							if (siteParam.getName()==paramName) {
 								//Add a ParameterChange listener (to the GcimEditIMiCtrlPanl and then add the param to the gcimSite
 								siteParam.addParameterChangeListener(this);
@@ -292,7 +292,7 @@ public class GcimSite_GuiBean extends JPanel implements ParameterChangeListener,
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = (ParameterAPI) e.getSource();
+		Parameter param = (Parameter) e.getSource();
 
 		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();

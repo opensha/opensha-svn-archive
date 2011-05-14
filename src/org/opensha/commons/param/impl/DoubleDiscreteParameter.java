@@ -25,9 +25,8 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -43,15 +42,15 @@ import org.opensha.commons.param.editor.impl.ConstrainedDoubleDiscreteParameterE
  *
  * @see DoubleParameter
  * @see DependentParameter
- * @see DependentParameterAPI
- * @see ParameterAPI
+ * @see Parameter
+ * @see Parameter
  * @author     Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
  */
 public class DoubleDiscreteParameter
-extends DependentParameter<Double>
-implements DependentParameterAPI<Double>, ParameterAPI<Double>
+extends AbstractParameter<Double>
+implements Parameter<Double>
 {
 
 	/**
@@ -297,7 +296,7 @@ implements DependentParameterAPI<Double>, ParameterAPI<Double>
 	 *      DoubleParameter
 	 */
 	@Override
-	public int compareTo(ParameterAPI<Double>param) {
+	public int compareTo(Parameter<Double>param) {
 //
 //		String S = C + ":compareTo(): ";
 //

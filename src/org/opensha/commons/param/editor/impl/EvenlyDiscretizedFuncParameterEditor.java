@@ -33,7 +33,7 @@ import javax.swing.JTextArea;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
@@ -107,7 +107,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEdito
      * Constructor that sets the parameter that it edits. An
      * Exception is thrown if the model is not an DiscretizedFuncParameter <p>
      */
-    public EvenlyDiscretizedFuncParameterEditor(ParameterAPI model) throws
+    public EvenlyDiscretizedFuncParameterEditor(Parameter model) throws
         Exception {
 
       super(model);
@@ -134,7 +134,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEdito
 
 
 
-    public void setParameter(ParameterAPI param) {
+    public void setParameter(Parameter param) {
 
       String S = C + ": Constructor(): ";
       if (D) System.out.println(S + "Starting:");

@@ -46,7 +46,7 @@ import javax.swing.event.TableModelListener;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.editor.impl.ArbitrarilyDiscretizedFuncTableModel.ArbitrarilyDiscretizedFuncTableCellRenderer;
 import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
@@ -96,7 +96,7 @@ implements ActionListener, DocumentListener, TableModelListener
 	 * Constructor that sets the parameter that it edits. An
 	 * Exception is thrown if the model is not an DiscretizedFuncParameter <p>
 	 */
-	public ArbitrarilyDiscretizedFuncParameterEditor(ParameterAPI<ArbitrarilyDiscretizedFunc> model)
+	public ArbitrarilyDiscretizedFuncParameterEditor(Parameter<ArbitrarilyDiscretizedFunc> model)
 	throws Exception {
 
 		super(model);
@@ -206,7 +206,7 @@ implements ActionListener, DocumentListener, TableModelListener
 
 	@Override
 	public boolean isParameterSupported(
-			ParameterAPI<ArbitrarilyDiscretizedFunc> param) {
+			Parameter<ArbitrarilyDiscretizedFunc> param) {
 		if (param == null)
 			return false;
 		

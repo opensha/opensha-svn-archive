@@ -236,7 +236,7 @@ NamedObjectAPI {
 
 		//      Ned replaced the following with what's below (so the dampingParam value is not part of the key)
 		/*
-     String key = ((DependentParameterAPI)im).getIndependentParametersKey();
+     String key = ((ParameterAPI)im).getIndependentParametersKey();
             if( coefficients.containsKey( key ) ) coeff = ( BJF_1997_AttenRelCoefficients )coefficients.get( key );
 
             else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );

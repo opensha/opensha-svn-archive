@@ -28,7 +28,7 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 
 /**
@@ -163,14 +163,14 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
         while(it.hasNext()){
 
             // This list's parameter
-            ParameterAPI param1 = (ParameterAPI)it.next();
+            Parameter param1 = (Parameter)it.next();
 
             // List may not contain parameter with this list's parameter name
             if ( !site.containsParameter(param1.getName()) ) return false;
 
             // Found two parameters with same name, check equals, actually redundent,
             // because that is what equals does
-            ParameterAPI param2 = (ParameterAPI)site.getParameter(param1.getName());
+            Parameter param2 = (Parameter)site.getParameter(param1.getName());
             if( !param1.equals(param2) ) return false;
 
             // Now try compare to to see if value the same, can fail if two values
@@ -216,8 +216,8 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
         int size = params.size();
         for(int i =0;i<size;++i) {
 
-            ParameterAPI param = (ParameterAPI)params.get(i);
-            site.addParameter( (ParameterAPI)param.clone() );
+            Parameter param = (Parameter)params.get(i);
+            site.addParameter( (Parameter)param.clone() );
         }
 
         return site;
@@ -228,21 +228,21 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
 		Element siteEl = root.addElement(XML_METADATA_NAME);
 		siteEl = getLocation().toXMLMetadata(siteEl);
 		Element paramsEl = siteEl.addElement(XML_PARAMS_NAME);
-		ListIterator<ParameterAPI<?>> paramIt = getParametersIterator();
+		ListIterator<Parameter<?>> paramIt = getParametersIterator();
 		while (paramIt.hasNext()) {
-			ParameterAPI param = paramIt.next();
+			Parameter param = paramIt.next();
 			paramsEl = param.toXMLMetadata(paramsEl);
 		}
 		return root;
 	}
 	
-	public static Site fromXMLMetadata(Element siteEl, ArrayList<ParameterAPI> paramsToAdd) {
+	public static Site fromXMLMetadata(Element siteEl, ArrayList<Parameter> paramsToAdd) {
 		Element locEl = siteEl.element(Location.XML_METADATA_NAME);
 		Location loc = Location.fromXMLMetadata(locEl);
 		Site site = new Site(loc);
 		
-		for (ParameterAPI param : paramsToAdd) {
-			site.addParameter((ParameterAPI)param.clone());
+		for (Parameter param : paramsToAdd) {
+			site.addParameter((Parameter)param.clone());
 		}
 		
 		Element paramsEl = siteEl.element(XML_PARAMS_NAME);
@@ -260,7 +260,7 @@ public class Site extends ParameterList implements NamedObjectAPI,Serializable,X
 		return root;
 	}
 	
-	public static ArrayList<Site> loadSitesFromXML(Element sitesEl, ArrayList<ParameterAPI> paramsToAdd) {
+	public static ArrayList<Site> loadSitesFromXML(Element sitesEl, ArrayList<Parameter> paramsToAdd) {
 		Iterator<Element> it = sitesEl.elementIterator(XML_METADATA_NAME);
 		
 		ArrayList<Site> sites = new ArrayList<Site>();

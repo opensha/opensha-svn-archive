@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.gem.GEM1.calc.gemHazardCalculator.GemComputeHazardLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe;
@@ -110,7 +110,7 @@ public class GemCalcSetup {
 			((WarningDoubleParameter)imr.getParameter(Vs30_Param.NAME)).setValueIgnoreWarning(760.0);
 			imr.setIntensityMeasure(PGA_Param.NAME);
 			//
-			Iterator<Parameter> iter = imr.getMeanIndependentParamsIterator();
+			Iterator<AbstractParameter> iter = imr.getMeanIndependentParamsIterator();
 			String dstStr = "";
 			while (iter.hasNext()) {
 				String strTmp = iter.next().getName();

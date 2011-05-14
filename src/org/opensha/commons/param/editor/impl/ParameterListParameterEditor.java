@@ -32,7 +32,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -80,11 +80,11 @@ ActionListener,ParameterChangeListener{
 	
 	private boolean useButton;
 
-	public ParameterListParameterEditor(ParameterAPI<ParameterList> model) {
+	public ParameterListParameterEditor(Parameter<ParameterList> model) {
 		this(model, true);
 	}
 	
-	public ParameterListParameterEditor(ParameterAPI<ParameterList> model, boolean useButton) {
+	public ParameterListParameterEditor(Parameter<ParameterList> model, boolean useButton) {
 		super(model);
 		this.useButton = useButton;
 		refreshParamEditor();
@@ -169,7 +169,7 @@ ActionListener,ParameterChangeListener{
 	protected void button_actionPerformed(ActionEvent e) {
 		ParameterList paramList = editor.getParameterList();
 		if (parameterChangeFlag) {
-			ParameterAPI<ParameterList> param = getParameter();
+			Parameter<ParameterList> param = getParameter();
 			param.setValue(paramList);
 			// this shouldn't be needed...setValue will fire the event
 //			param.firePropertyChange(new ParameterChangeEvent(param, param.getName(), param.getValue(), param.getValue()));
@@ -179,7 +179,7 @@ ActionListener,ParameterChangeListener{
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<ParameterList> param) {
+	public boolean isParameterSupported(Parameter<ParameterList> param) {
 		if (param == null)
 			return false;
 		
@@ -192,7 +192,7 @@ ActionListener,ParameterChangeListener{
 	@Override
 	protected JComponent buildWidget() {
 		ParameterList paramList = getParameter().getValue();
-		ListIterator<ParameterAPI<?>> it = paramList.getParametersIterator();
+		ListIterator<Parameter<?>> it = paramList.getParametersIterator();
 		while(it.hasNext())
 			it.next().addParameterChangeListener(this);
 		editor = new ParameterListEditor(paramList);
@@ -209,7 +209,7 @@ ActionListener,ParameterChangeListener{
 	@Override
 	protected JComponent updateWidget() {
 		ParameterList paramList = getParameter().getValue();
-		ListIterator<ParameterAPI<?>> it = paramList.getParametersIterator();
+		ListIterator<Parameter<?>> it = paramList.getParametersIterator();
 		while(it.hasNext())
 			it.next().addParameterChangeListener(this);
 		editor.setParameterList(paramList);

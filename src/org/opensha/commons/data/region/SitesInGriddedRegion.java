@@ -35,7 +35,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.util.SiteTranslator;
 
 /**
@@ -216,13 +216,13 @@ public class SitesInGriddedRegion implements Serializable {
 		String siteInfo=null;
 		if(!setSameSiteParams){
 			//getting the Site Parameters Iterator
-			Iterator<ParameterAPI<?>> it = site.getParametersIterator();
+			Iterator<Parameter<?>> it = site.getParametersIterator();
 			//checking to see if we are getting the correct value for willsSiteClassList and basin depth.
 			if(D){
 				System.out.println(site.getLocation().toString());
 			}
 			while(it.hasNext()) {
-				ParameterAPI tempParam = it.next();
+				Parameter tempParam = it.next();
 				
 				ArrayList<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 				for (SiteDataValueList<?> dataList : siteDataValueLists) {
@@ -232,9 +232,9 @@ public class SitesInGriddedRegion implements Serializable {
 				boolean flag = siteTranslator.setParameterValue(tempParam, datas);
 				
 				if (!flag) {
-					Iterator<ParameterAPI> it1 = defaultSiteParams.iterator();
+					Iterator<Parameter> it1 = defaultSiteParams.iterator();
 					while(it1.hasNext()){
-						ParameterAPI param = it1.next();
+						Parameter param = it1.next();
 						if(tempParam.getName().equals(param.getName()))
 							tempParam.setValue(param.getValue());
 					}
@@ -251,7 +251,7 @@ public class SitesInGriddedRegion implements Serializable {
 	public void addSiteParams(Iterator it) {
 		//iterator of all the site types supported by the selecetd IMR for that gridded region
 		while(it.hasNext()){
-			ParameterAPI tempParam=(ParameterAPI)it.next();
+			Parameter tempParam=(Parameter)it.next();
 			if(!site.containsParameter(tempParam))
 				site.addParameter(tempParam);
 		}
@@ -266,7 +266,7 @@ public class SitesInGriddedRegion implements Serializable {
 
 		ListIterator it1=site.getParametersIterator();
 		while(it1.hasNext())
-			site.removeParameter((ParameterAPI)it1.next());
+			site.removeParameter((Parameter)it1.next());
 	}
 
 	/**
@@ -319,9 +319,9 @@ public class SitesInGriddedRegion implements Serializable {
 		if (this.defaultSiteParams != null)
 			this.defaultSiteParams.clear();
 		else
-			this.defaultSiteParams = new ArrayList<ParameterAPI>();
-		for (ParameterAPI param : (ArrayList<ParameterAPI>)defaultSiteParams) {
-			this.defaultSiteParams.add((ParameterAPI)param.clone());
+			this.defaultSiteParams = new ArrayList<Parameter>();
+		for (Parameter param : (ArrayList<Parameter>)defaultSiteParams) {
+			this.defaultSiteParams.add((Parameter)param.clone());
 		}
 	}
 

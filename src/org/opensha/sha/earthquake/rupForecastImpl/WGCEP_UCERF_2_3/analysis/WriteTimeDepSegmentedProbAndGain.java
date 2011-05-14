@@ -31,7 +31,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -226,7 +226,7 @@ public class WriteTimeDepSegmentedProbAndGain {
 		Iterator it = adjustableParams.getParametersIterator();
 		adjustableParamNames = new ArrayList<String>();
 		while(it.hasNext()) {
-			 ParameterAPI param = (ParameterAPI)it.next();
+			 Parameter param = (Parameter)it.next();
 			 adjustableParamNames.add(param.getName());
 		 }
 		
@@ -234,7 +234,7 @@ public class WriteTimeDepSegmentedProbAndGain {
 		// add timespan parameters
 		it = ucerf2.getTimeSpan().getAdjustableParams().getParametersIterator();
 		while(it.hasNext()) {
-			 ParameterAPI param = (ParameterAPI)it.next();
+			 Parameter param = (Parameter)it.next();
 			 adjustableParamNames.add(param.getName());
 		 }
 		
@@ -419,7 +419,7 @@ public class WriteTimeDepSegmentedProbAndGain {
 				ucerf2.getParameter(paramName).setValue(options.getValue(i));	
 				newWt = weight * options.getWeight(i);
 				if(paramName.equalsIgnoreCase(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)) {
-					ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+					Parameter param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 					if(((Double)param.getValue()).doubleValue()==1e10) {
 						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0.0));
 						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0.0));	

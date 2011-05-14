@@ -11,7 +11,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
@@ -103,7 +103,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
      // set other params
      ListIterator lt = imr.getOtherParamsIterator();
      while(lt.hasNext()){
-       ParameterAPI tempParam=(ParameterAPI)lt.next();
+       Parameter tempParam=(Parameter)lt.next();
        imr_temp.getParameter(tempParam.getName()).setValue(tempParam.getValue());
      }
    // set IM

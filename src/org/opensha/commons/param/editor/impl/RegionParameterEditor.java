@@ -33,7 +33,7 @@ import javax.swing.JDialog;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -94,11 +94,11 @@ public class RegionParameterEditor
    *
    * @param model
    */
-  public RegionParameterEditor(ParameterAPI model) {
+  public RegionParameterEditor(Parameter model) {
     this(model, false);
   }
 
-  public RegionParameterEditor(ParameterAPI model, boolean showEditorAsPanel) {
+  public RegionParameterEditor(Parameter model, boolean showEditorAsPanel) {
     this.showEditorAsPanel = showEditorAsPanel;
     try {
       this.jbInit();
@@ -121,7 +121,7 @@ public class RegionParameterEditor
   /**
    * Set the values in the parameters in this parameterList parameter
    */
-  public void setParameter(ParameterAPI param) {
+  public void setParameter(Parameter param) {
     setParameterInEditor(param);
     this.param = (RegionParameter)param;
     // make the params editor
@@ -171,7 +171,7 @@ public class RegionParameterEditor
         getValue();
     ListIterator it = paramList.getParametersIterator();
     while (it.hasNext())
-      ( (ParameterAPI) it.next()).addParameterChangeListener(this);
+      ( (Parameter) it.next()).addParameterChangeListener(this);
     editor = new ParameterListEditor(paramList);
   }
 
@@ -240,7 +240,7 @@ public class RegionParameterEditor
    * gets the Parameter for the given paramName
    * @param paramName : Gets the parameter from this paramList
    */
-  public ParameterAPI getParameter(String paramName) {
+  public Parameter getParameter(String paramName) {
     return editor.getParameterList().getParameter(paramName);
   }
 

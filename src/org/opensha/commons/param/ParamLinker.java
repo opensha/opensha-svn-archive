@@ -20,22 +20,22 @@ public class ParamLinker<E> implements ParameterChangeListener {
 	
 	private static final boolean D = false;
 	
-	private ParameterAPI<E> parentParam;
-	private ParameterAPI<E> childParam;
-	private WarningParameterAPI<E> warnChild = null;
+	private Parameter<E> parentParam;
+	private Parameter<E> childParam;
+	private WarningParameter<E> warnChild = null;
 	
 	private boolean throwExceptions = true;
 	
-	public ParamLinker(ParameterAPI<E> parentParam, ParameterAPI<E> childParam) {
+	public ParamLinker(Parameter<E> parentParam, Parameter<E> childParam) {
 		this(parentParam, childParam, true);
 	}
 	
-	public ParamLinker(ParameterAPI<E> parentParam, ParameterAPI<E> childParam, boolean throwExceptions) {
+	public ParamLinker(Parameter<E> parentParam, Parameter<E> childParam, boolean throwExceptions) {
 		this.parentParam = parentParam;
 		this.childParam = childParam;
 		this.throwExceptions = throwExceptions;
-		if (childParam instanceof WarningParameterAPI) {
-			warnChild = (WarningParameterAPI<E>)childParam;
+		if (childParam instanceof WarningParameter) {
+			warnChild = (WarningParameter<E>)childParam;
 		}
 		E parentVal = parentParam.getValue();
 		E childVal = childParam.getValue();

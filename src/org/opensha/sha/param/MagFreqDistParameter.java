@@ -27,8 +27,8 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -59,7 +59,7 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
  */
 
 public class MagFreqDistParameter
-extends DependentParameter
+extends AbstractParameter
 implements java.io.Serializable
 {
 
@@ -551,7 +551,7 @@ implements java.io.Serializable
 
 		ListIterator it = newParamList.getParametersIterator();
 		while (it.hasNext()) {
-			ParameterAPI tempParam = (ParameterAPI) it.next();
+			Parameter tempParam = (Parameter) it.next();
 			parameterList.getParameter(tempParam.getName()).setValue(tempParam.
 					getValue());
 		}

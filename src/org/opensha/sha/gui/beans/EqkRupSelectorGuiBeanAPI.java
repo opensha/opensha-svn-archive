@@ -20,7 +20,7 @@
 package org.opensha.sha.gui.beans;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -80,7 +80,7 @@ public interface EqkRupSelectorGuiBeanAPI {
      * @param paramName
      * @returns the parameter from the parameterList with paramName.
      */
-    public ParameterAPI getParameter(String paramName);
+    public Parameter getParameter(String paramName);
 
     /**
      *

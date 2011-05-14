@@ -35,7 +35,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.ParameterListParameter;
 import org.opensha.commons.param.impl.TreeBranchWeightsParameter;
@@ -72,7 +72,7 @@ ActionListener, ItemListener{
 	private  JComboBox autoWeightComboBox;
 
 
-	public TreeBranchWeightsParameterEditor(ParameterAPI<ParameterList> model){
+	public TreeBranchWeightsParameterEditor(Parameter<ParameterList> model){
 		super(model, true);
 	}
 
@@ -175,7 +175,7 @@ ActionListener, ItemListener{
 		else return;
 		Iterator it = paramList.getParametersIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			param.setValue(new Double(weight));
 		}
 		autoWeightComboBox.setSelectedItem(this.AUTO_WEIGHTS_PARAM_NAME);
@@ -183,7 +183,7 @@ ActionListener, ItemListener{
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<ParameterList> param) {
+	public boolean isParameterSupported(Parameter<ParameterList> param) {
 		if (param == null)
 			return false;
 		

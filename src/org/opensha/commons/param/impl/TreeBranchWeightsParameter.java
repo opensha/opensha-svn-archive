@@ -23,7 +23,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.TreeBranchWeightsParameterEditor;
@@ -103,7 +103,7 @@ implements  java.io.Serializable{
 
 		ListIterator it  = value.getParametersIterator();
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			if(!(param instanceof DoubleParameter))
 				throw new RuntimeException(C+" Only DoubleParameter allowed in this Parameter");
 		}
@@ -120,7 +120,7 @@ implements  java.io.Serializable{
 		ListIterator it =paramList.getParametersIterator();
 		double paramsSum=0;
 		while(it.hasNext()){
-			paramsSum += ((Double)((ParameterAPI)it.next()).getValue()).doubleValue();
+			paramsSum += ((Double)((Parameter)it.next()).getValue()).doubleValue();
 		}
 		return isInTolerence(paramsSum);
 	}

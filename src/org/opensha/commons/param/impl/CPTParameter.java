@@ -4,14 +4,14 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import org.dom4j.Element;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.ListBasedConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedCPTParameterEditor;
 import org.opensha.commons.util.cpt.CPT;
 
-public class CPTParameter extends DependentParameter<CPT> {
+public class CPTParameter extends AbstractParameter<CPT> {
 	
 	/**
 	 * 
@@ -47,7 +47,7 @@ public class CPTParameter extends DependentParameter<CPT> {
 	}
 
 	@Override
-	public int compareTo(ParameterAPI<CPT> o) {
+	public int compareTo(Parameter<CPT> o) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -81,6 +81,12 @@ public class CPTParameter extends DependentParameter<CPT> {
 			throw new NoSuchElementException("No CPT named '"+name+"'");
 		}
 		throw new UnsupportedOperationException("Can't set by name without a constraint");
+	}
+
+	@Override
+	public Object clone() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

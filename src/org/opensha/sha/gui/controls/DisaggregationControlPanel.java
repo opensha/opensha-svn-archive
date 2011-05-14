@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -277,7 +277,7 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 	public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
 		StringBuffer b = new StringBuffer();
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();

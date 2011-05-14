@@ -33,7 +33,7 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.StringParameter;
 
@@ -65,7 +65,7 @@ public class CommentsParameterEditor extends AbstractParameterEditorOld
      * Constructor that sets the parameter that it edits. An
      * Exception is thrown if the model is not an String Parameter <p>
      */
-     public CommentsParameterEditor(ParameterAPI model) throws Exception {
+     public CommentsParameterEditor(Parameter model) throws Exception {
 
         super(model);
 
@@ -206,7 +206,7 @@ public class CommentsParameterEditor extends AbstractParameterEditorOld
 
 
     /** Sets the parameter to be edited. */
-    public void setParameter(ParameterAPI model) {
+    public void setParameter(Parameter model) {
         String S = C + ": setParameter(): ";
         if(D) System.out.println(S.concat("Starting"));
 

@@ -10,8 +10,8 @@ import java.util.Stack;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
@@ -53,7 +53,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 	public void testIMTList() {
 		ArrayList<String> supportedIMTs = gui.getSupportedIMTs();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			for (ParameterAPI<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
 				String imtName = imtParam.getName();
 				assertTrue("IMT '" + imtName + "' should be in list!",
 						supportedIMTs.contains(imtName));
@@ -195,7 +195,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 	private void testIMTSetCorrectly(String imtName, double period, ScalarIntensityMeasureRelationshipAPI imr) {
 		assertEquals("IMT not set properly!", imtName, imr.getIntensityMeasure().getName());
 		if (period >= 0) {
-			double myPeriod = (Double)((DependentParameterAPI<Double>)imr.getIntensityMeasure())
+			double myPeriod = (Double)((Parameter<Double>)imr.getIntensityMeasure())
 			.getIndependentParameter(PeriodParam.NAME).getValue();
 			assertEquals("Period not set properly!", period, myPeriod, 0.0);
 		}
@@ -210,7 +210,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 		
 		ArrayList<String> supportedIMTs = gui.getSupportedIMTs();
 		
-		for (ParameterAPI<?> imtParam : cb2008.getSupportedIntensityMeasuresList()) {
+		for (Parameter<?> imtParam : cb2008.getSupportedIntensityMeasuresList()) {
 			String imtName = imtParam.getName();
 			assertTrue("IMT '" + imtName + "' should be in list!",
 					supportedIMTs.contains(imtName));

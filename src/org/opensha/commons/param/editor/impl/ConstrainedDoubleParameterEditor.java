@@ -19,8 +19,8 @@
 
 package org.opensha.commons.param.editor.impl;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.util.ParamUtils;
 
@@ -58,7 +58,7 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor {
 	 * Constructor that sets the parameter that it edits.
 	 * Only calls the super() function.
 	 */
-	public ConstrainedDoubleParameterEditor(ParameterAPI model)
+	public ConstrainedDoubleParameterEditor(Parameter model)
 	throws Exception {
 		super(model);
 	}
@@ -88,7 +88,7 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor {
 		//Double constraint declaration
 		DoubleConstraint constraint;
 		if( ParamUtils.isWarningParameterAPI( getParameter() ) ){
-			constraint = (DoubleConstraint)((WarningParameterAPI)getParameter()).getWarningConstraint();
+			constraint = (DoubleConstraint)((WarningParameter)getParameter()).getWarningConstraint();
 			if( constraint == null ) constraint = (DoubleConstraint) getParameter().getConstraint();
 		}
 		else constraint = (DoubleConstraint) getParameter().getConstraint();

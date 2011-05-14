@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 
@@ -150,7 +150,7 @@ public class DataSetSelectionGuiBean {
 	 *
 	 * @return ParameterAPI
 	 */
-	public ParameterAPI getGeographicRegionSelectionParameter() {
+	public Parameter getGeographicRegionSelectionParameter() {
 		return geographicRegionSelectionParam;
 	}
 
@@ -158,7 +158,7 @@ public class DataSetSelectionGuiBean {
 	 *
 	 * @return ParameterAPI
 	 */
-	public ParameterAPI getEditionSelectionParameter() {
+	public Parameter getEditionSelectionParameter() {
 		return editionChoicesParam;
 	}
 

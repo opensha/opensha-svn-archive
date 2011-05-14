@@ -30,7 +30,7 @@ import javax.swing.JComboBox;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.LocationConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -86,7 +86,7 @@ public class ConstrainedLocationParameterEditor
      * else a picklist of values to choose from are presented to the user.
      * A tooltip is given to the name label if model info is available.
      */
-    public ConstrainedLocationParameterEditor(ParameterAPI model)
+    public ConstrainedLocationParameterEditor(Parameter model)
             throws ConstraintException {
 
         super(model);
@@ -111,7 +111,7 @@ public class ConstrainedLocationParameterEditor
      * else a picklist of values to choose from are presented to the user.
      * A tooltip is given to the name label if model info is available.
      */
-    public void setParameter(ParameterAPI model){
+    public void setParameter(Parameter model){
 
       String S = C + ": setParameter(): ";
       verifyModel(model);
@@ -133,7 +133,7 @@ public class ConstrainedLocationParameterEditor
      * LocationConstraint. Then the constraints are checked that
      * there is at least one. If any of these fails an error is thrown.
      */
-    private void verifyModel(ParameterAPI model) throws ConstraintException{
+    private void verifyModel(Parameter model) throws ConstraintException{
 
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");

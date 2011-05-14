@@ -37,8 +37,8 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.servlets.ScenarioShakeMapCalcServlet;
@@ -144,7 +144,7 @@ public class ScenarioShakeMapCalculator {
 				}
 				ListIterator it = attenRel.getIML_AtExceedProbIndependentParamsIterator();
 				while(it.hasNext()){
-					ParameterAPI param = (ParameterAPI)it.next();
+					Parameter param = (Parameter)it.next();
 					try {
 						fw.write(param.getName()+"\t");
 					} catch (IOException e) {
@@ -152,9 +152,9 @@ public class ScenarioShakeMapCalculator {
 						e.printStackTrace();
 					}
 				}
-				it = ((DependentParameter)attenRel.getIntensityMeasure()).getIndependentParametersIterator();
+				it = attenRel.getIntensityMeasure().getIndependentParametersIterator();
 				while(it.hasNext()){
-					ParameterAPI param = (ParameterAPI)it.next();
+					Parameter param = (Parameter)it.next();
 					try {
 						fw.write(param.getName()+"\t");
 					} catch (IOException e) {
@@ -362,7 +362,7 @@ public class ScenarioShakeMapCalculator {
 				fw.write(locFormat.format(loc.getLatitude())+"\t"+locFormat.format(loc.getLongitude())+"\t");
 				ListIterator it = imr.getIML_AtExceedProbIndependentParamsIterator();
 				while(it.hasNext()){
-					ParameterAPI param = (ParameterAPI)it.next();
+					Parameter param = (Parameter)it.next();
 					try {
 						fw.write(param.getValue()+"\t");
 					} catch (IOException e) {
@@ -370,9 +370,9 @@ public class ScenarioShakeMapCalculator {
 						e.printStackTrace();
 					}
 				}
-				it = ((DependentParameter)imr.getIntensityMeasure()).getIndependentParametersIterator();
+				it = imr.getIntensityMeasure().getIndependentParametersIterator();
 				while(it.hasNext()){
-					ParameterAPI param = (ParameterAPI)it.next();
+					Parameter param = (Parameter)it.next();
 					try {
 						fw.write(param.getValue()+"\t");
 					} catch (IOException e) {

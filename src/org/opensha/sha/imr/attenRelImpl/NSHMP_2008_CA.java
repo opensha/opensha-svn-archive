@@ -25,8 +25,8 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.RegionUtils;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -507,7 +507,7 @@ ParameterChangeListener {
 				if (!pList.containsParameter(pName)) continue;
 				// TODO above shouldn't be necessary; pLists should not throw
 				// exceptions fo missing parameters
-				ParameterAPI<?> param = ar.getOtherParamsList().getParameter(
+				Parameter<?> param = ar.getOtherParamsList().getParameter(
 					e.getParameterName());
 				if (param instanceof StringParameter) {
 					((StringParameter) param).setValue((String) e

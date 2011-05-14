@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -58,7 +58,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @return parameter iterator
 	 * @throws java.rmi.RemoteException
 	 */
-	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator()  throws java.rmi.RemoteException;
+	public ListIterator<Parameter<?>> getAdjustableParamsIterator()  throws java.rmi.RemoteException;
 
 
 	/**

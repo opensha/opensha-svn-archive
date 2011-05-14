@@ -41,7 +41,7 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 
 
 
@@ -160,7 +160,7 @@ public abstract class AbstractParameterEditorOld
     protected JComponent valueEditor = null;
 
     /** The internal parameter that this Editor is editing */
-    protected ParameterAPI model;
+    protected Parameter model;
 
     /**
      * Flag whether to catch errors when constraint error thrown. Resets
@@ -191,7 +191,7 @@ public abstract class AbstractParameterEditorOld
      *  then calls jbInit(). Throws a NullPointerException if the
      *  passed in parameter is null.
      */
-    public AbstractParameterEditorOld( ParameterAPI model ) {
+    public AbstractParameterEditorOld( Parameter model ) {
 
         String S = C + ": Constructor(model): ";
         if ( model == null ) throw new NullPointerException( S + "Input Parameter data cannot be null" );
@@ -262,7 +262,7 @@ public abstract class AbstractParameterEditorOld
      * the parameter and present, else uses the parameter name
      * @param model : Parameter
      */
-    public void setParameterInEditor(ParameterAPI model){
+    public void setParameterInEditor(Parameter model){
       String S = C + ": setParameter(): ";
       if ( model == null )
         throw new NullPointerException( S + "Input Parameter data cannot be null" );
@@ -284,7 +284,7 @@ public abstract class AbstractParameterEditorOld
      *  parameter name. This function actually just calls
      *  removeWidget() then addWidget() then setWidgetObject().
      */
-    public void setParameter( ParameterAPI model ) {
+    public void setParameter( Parameter model ) {
 
         setParameterInEditor(model);
         removeWidget();
@@ -340,7 +340,7 @@ public abstract class AbstractParameterEditorOld
     }
 
     /** Returns the parameter this editor is pointing to.  */
-    public ParameterAPI getParameter() { return model; }
+    public Parameter getParameter() { return model; }
 
     /** Returns the focusEnabled boolean indicating this is the GUI componet with the current focus */
     public boolean isFocusEnabled() { return focusEnabled; }

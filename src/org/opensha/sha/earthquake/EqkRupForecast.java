@@ -31,8 +31,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.MetadataLoader;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -72,7 +72,7 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	 *
 	 * @return
 	 */
-	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator() {
+	public ListIterator<Parameter<?>> getAdjustableParamsIterator() {
 		return adjustableParams.getParametersIterator();
 	}
 
@@ -101,7 +101,7 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	 * @return : ParamterAPI instance
 	 */
 	@SuppressWarnings("rawtypes")
-	public ParameterAPI getParameter(String paramName) {
+	public Parameter getParameter(String paramName) {
 		return adjustableParams.getParameter(paramName);
 	}
 
@@ -304,10 +304,10 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	public Element toXMLMetadata(Element root) {
 		Element xml = root.addElement(EqkRupForecast.XML_METADATA_NAME);
 		xml.addAttribute("className", this.getClass().getName());
-		ListIterator<ParameterAPI<?>> paramIt = this.getAdjustableParameterList().getParametersIterator();
-		Element paramsElement = xml.addElement(Parameter.XML_GROUP_METADATA_NAME);
+		ListIterator<Parameter<?>> paramIt = this.getAdjustableParameterList().getParametersIterator();
+		Element paramsElement = xml.addElement(AbstractParameter.XML_GROUP_METADATA_NAME);
 		while (paramIt.hasNext()) {
-			ParameterAPI<?> param = paramIt.next();
+			Parameter<?> param = paramIt.next();
 			paramsElement = param.toXMLMetadata(paramsElement);
 		}
 		xml = timeSpan.toXMLMetadata(xml);
@@ -322,7 +322,7 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 
 		// add params
 		System.out.println("Setting params...");
-		Element paramsElement = root.element(Parameter.XML_GROUP_METADATA_NAME);
+		Element paramsElement = root.element(AbstractParameter.XML_GROUP_METADATA_NAME);
 		ParameterList.setParamsInListFromXML(erf.getAdjustableParameterList(), paramsElement);
 
 		erf.setTimeSpan(TimeSpan.fromXMLMetadata(root.element("TimeSpan")));

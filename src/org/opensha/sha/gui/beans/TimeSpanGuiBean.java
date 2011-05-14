@@ -28,7 +28,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 
@@ -87,7 +87,7 @@ public class TimeSpanGuiBean extends JPanel {
 			// get the adjustable params and add them to the list
 			Iterator it = timeSpan.getAdjustableParamsIterator();
 			while (it.hasNext()) {
-				ParameterAPI param = (ParameterAPI) it.next();
+				Parameter param = (Parameter) it.next();
 				this.parameterList.addParameter(param);
 			}
 			this.remove(timespanEditor);

@@ -29,7 +29,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
@@ -63,11 +63,11 @@ public class XMLSaveLoadTest {
 						IntensityMeasureRelationship.fromXMLMetadata(imrElem, null);
 			imrElem.detach();
 			
-			Iterator<ParameterAPI<?>> it = imr.getOtherParamsIterator();
+			Iterator<Parameter<?>> it = imr.getOtherParamsIterator();
 			while (it.hasNext()) {
-				ParameterAPI<?> origParam = it.next();
+				Parameter<?> origParam = it.next();
 				Object origVal = origParam.getValue();
-				ParameterAPI<?> newParam = fromXML.getParameter(origParam.getName());
+				Parameter<?> newParam = fromXML.getParameter(origParam.getName());
 				Object newVal = newParam.getValue();
 				if (origVal == null) {
 					assertNull(newVal);

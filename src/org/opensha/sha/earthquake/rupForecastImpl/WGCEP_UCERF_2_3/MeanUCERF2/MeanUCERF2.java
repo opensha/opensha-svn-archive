@@ -20,7 +20,7 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.BooleanParameter;
@@ -618,7 +618,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			aperiodicity = ((Double)ucerf2.getParameter(UCERF2.APERIODICITY_PARAM_NAME).getValue()).doubleValue();
 		}
 		
-		ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+		Parameter param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 		
 		double minA_FaultRate1, minA_FaultRate2;
 		if(((Double)param.getValue()).doubleValue()==1e10) {

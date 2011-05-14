@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.border.Border;
 
 import org.opensha.commons.gui.LabeledBorderPanel;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 
 public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel implements ParameterEditor<E> {
 
@@ -20,7 +20,7 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private ParameterAPI<E> param;
+	private Parameter<E> param;
 
 	private JComponent widget;
 
@@ -49,7 +49,7 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 	 * 
 	 * @param param
 	 */
-	public AbstractParameterEditor(ParameterAPI<E> param) {
+	public AbstractParameterEditor(Parameter<E> param) {
 		super(new BorderLayout(), true, false);
 		this.setBackground(null);
 		editorPanel.setBackground(null);
@@ -84,12 +84,12 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 	}
 
 	@Override
-	public final ParameterAPI<E> getParameter() {
+	public final Parameter<E> getParameter() {
 		return param;
 	}
 
 	@Override
-	public final void setParameter(ParameterAPI<E> model) {
+	public final void setParameter(Parameter<E> model) {
 		if (!isParameterSupported(model)) {
 			if (model == null)
 				throw new IllegalArgumentException("null parameters not supported by this editor");
@@ -109,7 +109,7 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 	 * @param param
 	 * @return
 	 */
-	public abstract boolean isParameterSupported(ParameterAPI<E> param);
+	public abstract boolean isParameterSupported(Parameter<E> param);
 
 	protected void updateTitle() {
 		String label;

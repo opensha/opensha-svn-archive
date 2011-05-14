@@ -29,7 +29,7 @@ import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.IntegerParameter;
 
@@ -78,7 +78,7 @@ public class IntegerParameterEditor extends AbstractParameterEditor<Integer> imp
 	 * Note: When calling the super() constuctor addWidget() is called
 	 * which configures the IntegerTextField as the editor widget. <p>
 	 */
-	public IntegerParameterEditor(ParameterAPI model) throws Exception {
+	public IntegerParameterEditor(Parameter model) throws Exception {
 
 		super(model);
 
@@ -287,7 +287,7 @@ public class IntegerParameterEditor extends AbstractParameterEditor<Integer> imp
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<Integer> param) {
+	public boolean isParameterSupported(Parameter<Integer> param) {
 		if (param == null)
 			return false;
 		if (!(param.getValue() instanceof Integer))

@@ -13,7 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.impl.ParameterListParameter;
@@ -30,7 +30,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_Fau
  */
 public class GenerateTestExcelSheets {
 	private UCERF2 ucerf2;
-	private ParameterAPI magAreaRelParam, slipModelParam;
+	private Parameter magAreaRelParam, slipModelParam;
 	private ParameterListParameter segmentedRupModelParam;
 	private ParameterList adjustableParams;
 	private ArrayList aFaultSourceGenerators ;
@@ -403,7 +403,7 @@ public class GenerateTestExcelSheets {
 		int row = 3;
 		Iterator it = this.adjustableParams.getParametersIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			if(param.getName().equals(UCERF2.MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(UCERF2.SLIP_MODEL_TYPE_NAME) ||
 					param.getName().equals(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
 			metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());

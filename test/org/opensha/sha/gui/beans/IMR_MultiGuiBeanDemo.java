@@ -11,8 +11,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
@@ -118,32 +118,32 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 		} else if (e.getSource() == multiERFButton) {
 			bean.setTectonicRegions(multi.getIncludedTectonicRegionTypes());
 		} else if (e.getSource() == noIMTButton) {
-			DependentParameterAPI<Double> imt = null;
+			Parameter<Double> imt = null;
 			bean.setIMT(imt);
 		} else if (e.getSource() == pgaButton) {
 			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
-//			DependentParameterAPI<Double> imt = getIMT(PGA_Param.NAME, -1);
+//			ParameterAPI<Double> imt = getIMT(PGA_Param.NAME, -1);
 //			bean.setIMT(imt);
 		} else if (e.getSource() == mmiButton) {
 			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(MMI_Param.NAME);
-//			DependentParameterAPI<Double> imt = getIMT(ShakeMap_2003_AttenRel.MMI_NAME, -1);;
+//			ParameterAPI<Double> imt = getIMT(ShakeMap_2003_AttenRel.MMI_NAME, -1);;
 //			bean.setIMT(imt);
 		} else if (e.getSource() == sa10Button) {
 			imtBean.getParameterList().getParameter(IMT_NewGuiBean.IMT_PARAM_NAME).setValue(SA_Param.NAME);
 			imtBean.getParameterList().getParameter(PeriodParam.NAME).setValue(new Double(1.0));
 			imtBean.refreshParamEditor();
-//			DependentParameterAPI<Double> imt = getIMT(SA_Param.NAME, 1.0);
+//			ParameterAPI<Double> imt = getIMT(SA_Param.NAME, 1.0);
 //			bean.setIMT(imt);
 		}
 	}
 	
-	public DependentParameterAPI<Double> getIMT(String name, double period) {
+	public Parameter<Double> getIMT(String name, double period) {
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 			try {
 				imr.setIntensityMeasure(name);
-				DependentParameterAPI<Double> imt = (DependentParameterAPI<Double>) imr.getIntensityMeasure();
+				Parameter<Double> imt = (Parameter<Double>) imr.getIntensityMeasure();
 				if (period > 0) {
-					ParameterAPI<Double> periodParam = imt.getIndependentParameter(PeriodParam.NAME);
+					Parameter<Double> periodParam = imt.getIndependentParameter(PeriodParam.NAME);
 					periodParam.setValue(period);
 				}
 				return imt;

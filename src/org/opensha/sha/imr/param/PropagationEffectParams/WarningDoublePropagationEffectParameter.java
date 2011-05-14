@@ -25,8 +25,8 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -58,7 +58,7 @@ import org.opensha.commons.param.impl.WarningDoubleParameter;
  */
 public abstract class WarningDoublePropagationEffectParameter
 extends PropagationEffectParameter<Double>
-implements WarningParameterAPI<Double>
+implements WarningParameter<Double>
 {
 
 	private transient ParameterEditor<Double> paramEdit = null;
@@ -281,7 +281,7 @@ implements WarningParameterAPI<Double>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	public int compareTo(ParameterAPI<Double> obj) {
+	public int compareTo(Parameter<Double> obj) {
 
 		String S = C + ":compareTo(): ";
 
@@ -343,7 +343,7 @@ implements WarningParameterAPI<Double>
 			throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
 		}
 
-		ParameterAPI p = (ParameterAPI) obj;
+		Parameter p = (Parameter) obj;
 		String otherName = (p).getName();
 		if ( ( compareTo(p) == 0 ) && getName().equals( otherName ) ) {
 			return true;

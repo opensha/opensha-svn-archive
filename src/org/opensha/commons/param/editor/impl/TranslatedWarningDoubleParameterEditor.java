@@ -20,7 +20,7 @@
 package org.opensha.commons.param.editor.impl;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.impl.TranslatedWarningDoubleParameter;
 import org.opensha.commons.param.translate.TranslatorAPI;
@@ -71,7 +71,7 @@ public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoublePar
 	 * Note: When calling the super() constuctor addWidget() is called
 	 * which configures the IntegerTextField as the editor widget. <p>
 	 */
-	public TranslatedWarningDoubleParameterEditor(ParameterAPI model)
+	public TranslatedWarningDoubleParameterEditor(Parameter model)
 	throws Exception
 	{ super(model); }
 

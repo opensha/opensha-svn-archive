@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.estimate;
+package org.opensha.commons.param.constraint.impl;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
@@ -29,7 +29,6 @@ import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
-import org.opensha.commons.param.constraint.impl.StringConstraint;
 
 
 /**
@@ -50,7 +49,11 @@ import org.opensha.commons.param.constraint.impl.StringConstraint;
 
 public class EstimateConstraint extends AbstractParameterConstraint<Estimate> {
 	
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Class name for debugging. */
     protected final static String C = "DoubleEstimateConstraint";
     /** If true print out debug statements. */
     protected final static boolean D = false;

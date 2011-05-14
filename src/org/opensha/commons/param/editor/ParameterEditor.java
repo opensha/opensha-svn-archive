@@ -22,7 +22,7 @@ package org.opensha.commons.param.editor;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 
 /**
  * <b>Title:</b> ParameterEditorAPI<p>
@@ -67,10 +67,10 @@ public interface ParameterEditor<E> {
     public void refreshParamEditor();
 
     /** Returns the parameter that is stored internally that this GUI widget is editing */
-    public ParameterAPI<E> getParameter();
+    public Parameter<E> getParameter();
 
     /** Sets the parameter that is stored internally for this GUI widget to edit */
-    public void setParameter( ParameterAPI<E> model );
+    public void setParameter( Parameter<E> model );
 
 
     /** Sets the focusEnabled boolean indicating this is the GUI componet with the current focus */

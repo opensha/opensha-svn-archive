@@ -27,7 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 
 
@@ -57,7 +57,7 @@ ItemListener{
 	
 	private JCheckBox widget;
 
-	public BooleanParameterEditor(ParameterAPI<Boolean> model){
+	public BooleanParameterEditor(Parameter<Boolean> model){
 		super(model);
 	}
 
@@ -71,7 +71,7 @@ ItemListener{
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<Boolean> param) {
+	public boolean isParameterSupported(Parameter<Boolean> param) {
 		if (param == null)
 			return false;
 		if (!(param.getValue() instanceof Boolean))

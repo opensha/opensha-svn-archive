@@ -15,8 +15,8 @@ import javax.swing.JComboBox;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
@@ -185,13 +185,13 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 				demoTRTs.size(), event.getOldValue().size());
 		
 		/*		Test IMT changes firing events				*/
-		gui.setIMT((DependentParameterAPI<Double>) gui.getSelectedIMR().getIntensityMeasure());
+		gui.setIMT((Parameter<Double>) gui.getSelectedIMR().getIntensityMeasure());
 		assertEquals("Should not fire event setting IMT to current IMT", 0, eventStack.size());
 		
 		ScalarIntensityMeasureRelationshipAPI shakeMapIMR =
 			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
 		shakeMapIMR.setIntensityMeasure(MMI_Param.NAME);
-		DependentParameterAPI<Double> mmiIMR = (DependentParameterAPI<Double>) shakeMapIMR.getIntensityMeasure();
+		Parameter<Double> mmiIMR = (Parameter<Double>) shakeMapIMR.getIntensityMeasure();
 		gui.setIMT(mmiIMR);
 		assertEquals("Should fire event setting IMT to MMI when IMR doesn't support it", 1, eventStack.size());
 		event = eventStack.pop();
@@ -204,7 +204,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		ScalarIntensityMeasureRelationshipAPI cb2008 =
 			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, CB_2008_AttenRel.NAME);
 		cb2008.setIntensityMeasure(PGA_Param.NAME);
-		DependentParameterAPI<Double> pgaIMR = (DependentParameterAPI<Double>) cb2008.getIntensityMeasure();
+		Parameter<Double> pgaIMR = (Parameter<Double>) cb2008.getIntensityMeasure();
 		gui.setIMT(pgaIMR);
 		assertEquals("Should not fire event setting IMT to one supported by current IMR", 0, eventStack.size());
 		gui.setIMT(null);
@@ -224,9 +224,9 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		ScalarIntensityMeasureRelationshipAPI shakeMapIMR =
 			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
 		shakeMapIMR.setIntensityMeasure(PGA_Param.NAME);
-		DependentParameterAPI<Double> pgaIMR = (DependentParameterAPI<Double>) shakeMapIMR.getIntensityMeasure();
+		Parameter<Double> pgaIMR = (Parameter<Double>) shakeMapIMR.getIntensityMeasure();
 		shakeMapIMR.setIntensityMeasure(MMI_Param.NAME);
-		DependentParameterAPI<Double> mmiIMR = (DependentParameterAPI<Double>) shakeMapIMR.getIntensityMeasure();
+		Parameter<Double> mmiIMR = (Parameter<Double>) shakeMapIMR.getIntensityMeasure();
 		gui.setIMT(mmiIMR);
 		
 		try {
@@ -338,12 +338,12 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	}
 	
 	private void verifyParamEditor(ParameterListEditor paramEdit, ScalarIntensityMeasureRelationshipAPI imr) {
-		for (ParameterAPI<?> param : imr.getOtherParamsList()) {
+		for (Parameter<?> param : imr.getOtherParamsList()) {
 			assertTrue("Param '" + param.getName() + "' from IMR isn't in the param list!",
 					paramEdit.getParameterList().containsParameter(param));
 		}
 		
-		for (ParameterAPI<?> param : paramEdit.getParameterList()) {
+		for (Parameter<?> param : paramEdit.getParameterList()) {
 			assertTrue("Param '" + param.getName() + "' from param list isn't in the IMR!",
 					imr.getOtherParamsList().containsParameter(param));
 		}
@@ -353,17 +353,17 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	public void testMultiIMRSiteParams() {
 		setupMultipleDiffIMRs();
 		
-		Iterator<ParameterAPI<?>> siteParamIt;
+		Iterator<Parameter<?>> siteParamIt;
 		
 		for (ScalarIntensityMeasureRelationshipAPI imr : gui.getIMRMap().values()) {
-			ListIterator<ParameterAPI<?>> mySiteParamIt = imr.getSiteParamsIterator();
+			ListIterator<Parameter<?>> mySiteParamIt = imr.getSiteParamsIterator();
 			
 			while (mySiteParamIt.hasNext()) {
-				ParameterAPI<?> myParam = mySiteParamIt.next();
+				Parameter<?> myParam = mySiteParamIt.next();
 				siteParamIt = gui.getMultiIMRSiteParamIterator();
 				boolean found = false;
 				while (siteParamIt.hasNext()) {
-					ParameterAPI<?> param = siteParamIt.next();
+					Parameter<?> param = siteParamIt.next();
 					if (myParam.getName().equals(param.getName())) {
 						found = true;
 						break;
@@ -395,7 +395,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	private void checkMetaForIMR(ScalarIntensityMeasureRelationshipAPI imr, String meta) {
 		assertTrue("Metadata doesn't contain IMR name!", meta.contains(imr.getName()));
 		
-		for (ParameterAPI<?> param : imr.getOtherParamsList()) {
+		for (Parameter<?> param : imr.getOtherParamsList()) {
 			if (param.getName().equals(SigmaTruncLevelParam.NAME))
 				continue;
 			if (param.getName().equals(TectonicRegionTypeParam.NAME))

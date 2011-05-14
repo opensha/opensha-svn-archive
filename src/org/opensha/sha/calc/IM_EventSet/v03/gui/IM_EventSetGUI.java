@@ -44,7 +44,7 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalculation;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
@@ -308,8 +308,8 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 						EqkRupForecastAPI erf = erfs.get(0);
 						this.erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(erf.getName());
 						EqkRupForecastBaseAPI myERF = erfGuiBean.getSelectedERF_Instance();
-						for (ParameterAPI myParam : myERF.getAdjustableParameterList()) {
-							for (ParameterAPI xmlParam : erf.getAdjustableParameterList()) {
+						for (Parameter myParam : myERF.getAdjustableParameterList()) {
+							for (Parameter xmlParam : erf.getAdjustableParameterList()) {
 								if (myParam.getName().equals(xmlParam.getName())) {
 									myParam.setValue(xmlParam.getValue());
 								}

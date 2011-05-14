@@ -38,7 +38,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
@@ -340,7 +340,7 @@ public class LocationGuiBean
 
     StringBuffer b = new StringBuffer();
 
-    ParameterAPI param = (ParameterAPI) event.getSource();
+    Parameter param = (Parameter) event.getSource();
     Object oldValue = event.getOldValue();
     String oldValueStr = null;
     if (oldValue != null) {

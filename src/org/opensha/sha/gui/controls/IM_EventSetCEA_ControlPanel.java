@@ -24,7 +24,7 @@ import java.awt.Component;
 
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -116,7 +116,7 @@ public class IM_EventSetCEA_ControlPanel extends ConfirmDialogControlPanel {
 		erfPanel.getParameter(erfPanel.RAKE_PARAM_NAME).setValue(new Double(90));
 
 		IM_EventSetScenarioForCEA eventSet = new IM_EventSetScenarioForCEA(); 
-		ParameterAPI param = erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME);
+		Parameter param = erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME);
 		eventSet.createSimpleFaultParam((SimpleFaultParameter)param);
 
 		erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));

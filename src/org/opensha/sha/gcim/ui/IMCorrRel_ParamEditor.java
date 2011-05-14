@@ -1,7 +1,7 @@
 package org.opensha.sha.gcim.ui;
 
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -45,7 +45,7 @@ public class IMCorrRel_ParamEditor extends ParameterListEditor implements Parame
 		}
 		ParameterList paramList = imCorrRel.getOtherParamsList();
 		this.setParameterList(paramList);
-		for (ParameterAPI<?> param : paramList) {
+		for (Parameter<?> param : paramList) {
 			if (param.getName().equals(SigmaTruncTypeParam.NAME)) {
 				String val = (String)param.getValue();
 				param.addParameterChangeListener(this);

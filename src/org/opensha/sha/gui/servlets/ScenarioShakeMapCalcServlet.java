@@ -38,7 +38,7 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
@@ -323,7 +323,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 			// set other params
 			ListIterator lt = imr.getOtherParamsIterator();
 			while (lt.hasNext()) {
-				ParameterAPI tempParam = (ParameterAPI) lt.next();
+				Parameter tempParam = (Parameter) lt.next();
 				imr_temp.getParameter(tempParam.getName()).setValue(tempParam.getValue());
 			}
 			// set IM

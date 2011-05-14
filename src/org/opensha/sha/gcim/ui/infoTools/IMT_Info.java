@@ -5,7 +5,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.ASI_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.CAV_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.DSI_Param;
@@ -147,7 +147,7 @@ public final class IMT_Info {
 	 * @param param : Selected IMT Param
 	 * @return
 	 */
-	public  ArbitrarilyDiscretizedFunc getDefaultHazardCurve(ParameterAPI imtParam){
+	public  ArbitrarilyDiscretizedFunc getDefaultHazardCurve(Parameter imtParam){
 		String paramVal =(String)imtParam.getValue();
 		return getDefaultHazardCurve(paramVal);
 	}
@@ -506,7 +506,7 @@ public final class IMT_Info {
 	 * @return true if the selected IMT is PGA, PGV or SA
 	 * else returns false
 	 */
-	public static boolean isIMT_LogNormalDist(ParameterAPI imtParam){
+	public static boolean isIMT_LogNormalDist(Parameter imtParam){
 		String paramVal =(String)imtParam.getValue();
 		return isIMT_LogNormalDist(paramVal);
 	}

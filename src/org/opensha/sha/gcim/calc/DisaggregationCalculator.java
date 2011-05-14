@@ -36,8 +36,8 @@ import org.apache.commons.lang.NotImplementedException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.disaggregation.DisaggregationPlotData;
 import org.opensha.sha.calc.disaggregation.DisaggregationSourceRuptureComparator;
@@ -220,9 +220,9 @@ implements DisaggregationCalculatorAPI {
 			imr.setUserMaxDistance(maxDist);
 
 		// set iml in imr
-		ParameterAPI<Double> im = TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
-		if (im instanceof WarningParameterAPI<?>) {
-			WarningParameterAPI<Double> warnIM = (WarningParameterAPI<Double>)im;
+		Parameter<Double> im = TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
+		if (im instanceof WarningParameter<?>) {
+			WarningParameter<Double> warnIM = (WarningParameter<Double>)im;
 			warnIM.setValueIgnoreWarning(new Double(iml));
 		} else {
 			im.setValue(new Double(iml));

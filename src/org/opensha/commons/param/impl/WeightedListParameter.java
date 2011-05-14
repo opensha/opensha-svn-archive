@@ -2,12 +2,12 @@ package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.WeightedList;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.WeightedListParameterEditor;
 
-public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>> {
+public class WeightedListParameter<E> extends AbstractParameter<WeightedList<E>> {
 	
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>
 	}
 
 	@Override
-	public int compareTo(ParameterAPI<WeightedList<E>> param) {
+	public int compareTo(Parameter<WeightedList<E>> param) {
 		return 0;
 	}
 
@@ -65,6 +65,12 @@ public class WeightedListParameter<E> extends DependentParameter<WeightedList<E>
 		} else {
 			return name+" = "+"null";
 		}
+	}
+
+	@Override
+	public Object clone() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

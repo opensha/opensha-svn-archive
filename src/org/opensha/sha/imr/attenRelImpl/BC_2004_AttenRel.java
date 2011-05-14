@@ -28,7 +28,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -327,7 +327,7 @@ NamedObjectAPI {
 		String ignoreStr1 = as_1997_attenRel.SITE_TYPE_NAME;
 		String ignoreStr2 = ComponentParam.NAME;
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			if (!ignoreStr1.equals(param.getName()) &&
 					!ignoreStr2.equals(param.getName())) {
 				meanIndependentParams.addParameter(param);
@@ -344,7 +344,7 @@ NamedObjectAPI {
 
 		it = as_1997_attenRel.getStdDevIndependentParamsIterator();
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			if (!ignoreStr1.equals(param.getName()) &&
 					!ignoreStr2.equals(param.getName())) {
 				stdDevIndependentParams.addParameter(param);
@@ -361,7 +361,7 @@ NamedObjectAPI {
 		exceedProbIndependentParams.clear();
 		it = as_1997_attenRel.getExceedProbIndependentParamsIterator();
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			if (!ignoreStr1.equals(param.getName()) &&
 					!ignoreStr2.equals(param.getName())) {
 				exceedProbIndependentParams.addParameter(param);
@@ -431,7 +431,7 @@ NamedObjectAPI {
 		eqkRuptureParams.clear();
 		ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();
 		while (it.hasNext()) {
-			eqkRuptureParams.addParameter( (Parameter) it.next());
+			eqkRuptureParams.addParameter( (AbstractParameter) it.next());
 		}
 	}
 
@@ -443,7 +443,7 @@ NamedObjectAPI {
 		propagationEffectParams.clear();
 		ListIterator it = as_1997_attenRel.getPropagationEffectParamsIterator();
 		while (it.hasNext()) {
-			propagationEffectParams.addParameter( (Parameter) it.next());
+			propagationEffectParams.addParameter( (AbstractParameter) it.next());
 		}
 
 	}
@@ -458,7 +458,7 @@ NamedObjectAPI {
 		supportedIMParams.clear();
 		Iterator it = as_1997_attenRel.getSupportedIntensityMeasuresIterator();
 		while (it.hasNext()) {
-			supportedIMParams.addParameter( (Parameter) it.next());
+			supportedIMParams.addParameter( (AbstractParameter) it.next());
 		}
 	}
 
@@ -482,9 +482,9 @@ NamedObjectAPI {
 		otherParams.clear();
 		otherParams.addParameter(componentParam);
 		Iterator it = as_1997_attenRel.getOtherParamsIterator();
-		Parameter param;
+		AbstractParameter param;
 		while (it.hasNext()) {
-			param = (Parameter) it.next();
+			param = (AbstractParameter) it.next();
 			if (!ComponentParam.NAME.equals(param.getName())) {
 				otherParams.addParameter(param);
 			}

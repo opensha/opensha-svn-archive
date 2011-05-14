@@ -68,7 +68,7 @@ import org.opensha.commons.param.constraint.ParameterConstraint;
  * @version 1.0
  */
 
-public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
+public class ParameterList implements Serializable, Iterable<Parameter<?>> {
 
 
 	// *******************/
@@ -85,7 +85,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	protected final static boolean D = false;
 
 	/** Internal vector list of parameters. */
-	protected ArrayList<ParameterAPI<?>> params = new ArrayList<ParameterAPI<?>>();
+	protected ArrayList<Parameter<?>> params = new ArrayList<Parameter<?>>();
 
 	/** Internal list of constraint name mapped to parameter name. */
 	protected Hashtable<String, String> constraintNameMap = new Hashtable<String, String>();
@@ -111,9 +111,9 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	 */
 	public void addParameterList(ParameterList list2) throws ParameterException{
 
-		ListIterator<ParameterAPI<?>> it = list2.getParametersIterator();
+		ListIterator<Parameter<?>> it = list2.getParametersIterator();
 		while( it.hasNext() ){
-			ParameterAPI<?> param = (ParameterAPI<?>)it.next();
+			Parameter<?> param = (Parameter<?>)it.next();
 			if( !this.containsParameter(param) ){ this.addParameter(param); }        }
 
 	}
@@ -124,7 +124,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	 * name from the parameter, the constraint name is mapped to the parameter
 	 * name.
 	 */
-	public void addParameter(ParameterAPI param) throws ParameterException{
+	public void addParameter(Parameter param) throws ParameterException{
 
 		String S = C + ": addParameter(): ";
 
@@ -161,12 +161,12 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	}
 
 	/** Returns parameter if exist else throws exception. */
-	public ParameterAPI getParameter(String name) throws ParameterException {
+	public Parameter getParameter(String name) throws ParameterException {
 
 		name = getParameterName( name );
 		int index = getIndexOf(name);
 		if( index!=-1 ) {
-			ParameterAPI param = (ParameterAPI)params.get(index);
+			Parameter param = (Parameter)params.get(index);
 			return param;
 		}
 		else{
@@ -183,7 +183,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		name = getParameterName( name );
 		int index = getIndexOf(name);
 		if( (index!=-1) ) {
-			ParameterAPI param = (ParameterAPI)params.get(index);
+			Parameter param = (Parameter)params.get(index);
 			Object obj = param.getValue();
 			return obj;
 		}
@@ -202,7 +202,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		name = getParameterName( name );
 		int index = getIndexOf(name);
 		if( index !=-1 ) {
-			ParameterAPI param = (ParameterAPI)params.get(index);
+			Parameter param = (Parameter)params.get(index);
 			param.setValue(value);
 		}
 		else{
@@ -219,7 +219,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		name = getParameterName( name );
 		int index = getIndexOf(name);
 		if( index!=-1) {
-			ParameterAPI param = (ParameterAPI)params.get(index);
+			Parameter param = (Parameter)params.get(index);
 			String str = param.getType();
 			return str;
 		}
@@ -231,7 +231,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 
 
 	/** Checks if the parameter exists in the list. Returns true if it does, else returns false. */
-	public boolean containsParameter(ParameterAPI param){
+	public boolean containsParameter(Parameter param){
 
 		String name = param.getName();
 		int index = getIndexOf(name);
@@ -250,7 +250,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 
 
 	/** Removes parameter if it exists, else throws exception. */
-	public void removeParameter(ParameterAPI param) throws ParameterException {
+	public void removeParameter(Parameter param) throws ParameterException {
 		String name = param.getName();
 		removeParameter(name);
 	}
@@ -270,7 +270,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	 * Updates an existing parameter with the new value.
 	 * Throws parameter exception if parameter doesn't exist.
 	 */
-	public void updateParameter(ParameterAPI param) throws ParameterException {
+	public void updateParameter(Parameter param) throws ParameterException {
 		String name = param.getName();
 		removeParameter(name);
 		addParameter(param);
@@ -280,12 +280,12 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	 * Returns an iterator of all parameters in the list. Returns the list in
 	 * the order the elements were added.
 	 */
-	public ListIterator<ParameterAPI<?>> getParametersIterator(){
+	public ListIterator<Parameter<?>> getParametersIterator(){
 
-		ArrayList<ParameterAPI<?>> v = new ArrayList<ParameterAPI<?>>();
+		ArrayList<Parameter<?>> v = new ArrayList<Parameter<?>>();
 		int size = this.params.size();
 		for(int i = 0; i<size;++i) {
-			ParameterAPI obj = params.get(i);
+			Parameter obj = params.get(i);
 			v.add(obj);
 		}
 
@@ -300,7 +300,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	 * @param parameterName : Name of the parameter that is being removed
 	 * @param param : New parameter that is replacing the old parameter
 	 */
-	public void replaceParameter( String parameterName, ParameterAPI param ) {
+	public void replaceParameter( String parameterName, Parameter param ) {
 
 		parameterName = getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
@@ -333,14 +333,14 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 
 		ParameterList paramList = (ParameterList) obj;
 
-		ListIterator<ParameterAPI<?>> it = paramList.getParametersIterator();
+		ListIterator<Parameter<?>> it = paramList.getParametersIterator();
 
 		if(size() != paramList.size())
 			return -1;
 
 		while(it.hasNext()){
-			ParameterAPI param1 = (ParameterAPI)it.next();
-			ParameterAPI param2 = (ParameterAPI)getParameter(param1.getName());
+			Parameter param1 = (Parameter)it.next();
+			Parameter param2 = (Parameter)getParameter(param1.getName());
 			result = param2.compareTo(param1);
 			if(result !=0)
 				break;
@@ -359,7 +359,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		ArrayList<String> v = new ArrayList<String>();
 		int size = this.params.size();
 		for(int i = 0; i<size;++i) {
-			ParameterAPI obj = (ParameterAPI)params.get(i);
+			Parameter obj = (Parameter)params.get(i);
 			v.add(obj.getName());
 		}
 		return v.listIterator();
@@ -415,12 +415,12 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		ParameterList list = (ParameterList) obj;
 		if(size() != list.size() ) return false;
 		// forward compare
-		for (ParameterAPI<?> p:list) {
+		for (Parameter<?> p:list) {
 			if (!containsParameter(p.getName())) return false;
 			if (!getParameter(p.getName()).equals(p)) return false;
 		}
 		// reverse compare
-		for (ParameterAPI<?> p:this) {
+		for (Parameter<?> p:this) {
 			if (!list.containsParameter(p.getName())) return false;
 			if (!list.getParameter(p.getName()).equals(p)) return false;
 		}
@@ -439,11 +439,11 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		if( this.size() != list.size() ) return false;
 
 		// Check each individual Parameter
-		ListIterator<ParameterAPI<?>> it = this.getParametersIterator();
+		ListIterator<Parameter<?>> it = this.getParametersIterator();
 		while(it.hasNext()){
 
 			// This list's parameter
-			ParameterAPI<?> param1 = it.next();
+			Parameter<?> param1 = it.next();
 
 			// List may not contain parameter with this list's parameter name
 			if ( !list.containsParameter(param1.getName()) ) return false;
@@ -466,8 +466,8 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		if( this.size() < 1 ) return list;
 		int size = this.params.size();
 		for(int i = 0; i<size;++i) {
-			ParameterAPI param = (ParameterAPI)params.get(i);
-			list.addParameter( (ParameterAPI)param.clone() );
+			Parameter param = (Parameter)params.get(i);
+			list.addParameter( (Parameter)param.clone() );
 		}
 
 		return list;
@@ -485,7 +485,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 
 		int vectorSize = params.size();
 		for(int i = 0; i<vectorSize;++i) {
-			ParameterAPI param = (ParameterAPI)params.get(i);
+			Parameter param = (Parameter)params.get(i);
 			v.add(param.getName());
 		}
 
@@ -496,7 +496,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 			if(D) System.out.println(S + "Next Parameter Key = " + key);
 
 			int index = getIndexOf(key);
-			ParameterAPI param = (ParameterAPI)params.get(index);
+			Parameter param = (Parameter)params.get(index);
 			ParameterConstraint constraint = param.getConstraint();
 
 			boolean ok = true;
@@ -552,7 +552,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 		StringBuffer metaData = new StringBuffer();
 		boolean first = true;
 		for(int i=0;i<size;++i){
-			ParameterAPI tempParam=(ParameterAPI)params.get(i);
+			Parameter tempParam=(Parameter)params.get(i);
 			if(first){
 				metaData.append(tempParam.getMetadataString());
 				first = false;
@@ -569,7 +569,7 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	private int getIndexOf(String key) {
 		int size = params.size();
 		for(int i=0;i<size;++i) {
-			ParameterAPI param = (ParameterAPI)params.get(i);
+			Parameter param = (Parameter)params.get(i);
 			if(key.equalsIgnoreCase(param.getName()))
 				return i;
 		}
@@ -577,13 +577,13 @@ public class ParameterList implements Serializable, Iterable<ParameterAPI<?>> {
 	}
 
 
-	public Iterator<ParameterAPI<?>> iterator() {
+	public Iterator<Parameter<?>> iterator() {
 		return this.params.iterator();
 	}
 
 	public static boolean setParamsInListFromXML(ParameterList paramList, Element paramListEl) {
 		boolean failure = false;
-		for (ParameterAPI<?> param : paramList) {
+		for (Parameter<?> param : paramList) {
 			Iterator<Element> it = paramListEl.elementIterator();
 			boolean matched = false;
 			while (it.hasNext()) {

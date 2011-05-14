@@ -34,8 +34,8 @@ import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
@@ -245,7 +245,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 
 	    Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
 	    while (it.hasNext()) {
-	      ParameterAPI tempParam = (ParameterAPI) it.next();
+	      Parameter tempParam = (Parameter) it.next();
 	      //adding the site Params from the CVM, if site is out the range of CVM then it
 	      //sets the site with whatever site Parameter Value user has choosen in the application
 	      SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
@@ -283,7 +283,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 				Site site = new Site();
 				Iterator it = attenRel.getSiteParamsIterator(); // get site params for this IMR
 			    while (it.hasNext()) {
-			      ParameterAPI tempParam = (ParameterAPI) it.next();
+			      Parameter tempParam = (Parameter) it.next();
 			      site.addParameter(tempParam);
 			    }
 				for(int j=0;j<imtSupported.size();++j){
@@ -349,7 +349,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 
     String S = " : parameterChangeWarning(): ";
 
-    WarningParameterAPI param = e.getWarningParameter();
+    WarningParameter param = e.getWarningParameter();
 
     //System.out.println(b);
     param.setValueIgnoreWarning(e.getNewValue());

@@ -20,9 +20,9 @@
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -44,7 +44,7 @@ import org.opensha.sha.earthquake.EqkRupture;
  */
 
 public abstract class PropagationEffectParameter<E> extends
-		DependentParameter<E> implements PropagationEffectParameterAPI<E> {
+		AbstractParameter<E> implements PropagationEffectParameterAPI<E> {
 
     /* *******************/
     /** @todo  Variables */

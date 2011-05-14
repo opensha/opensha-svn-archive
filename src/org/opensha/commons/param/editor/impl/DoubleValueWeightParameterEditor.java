@@ -24,7 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 import org.opensha.commons.data.ValueWeight;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleValueWeightConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -76,7 +76,7 @@ public class DoubleValueWeightParameterEditor extends AbstractParameterEditorOld
      * Constructor that sets the parameter that it edits.
      *
      */
-     public DoubleValueWeightParameterEditor(ParameterAPI model) throws Exception {
+     public DoubleValueWeightParameterEditor(Parameter model) throws Exception {
         super(model);
         //this.setParameter(model);
     }
@@ -92,7 +92,7 @@ public class DoubleValueWeightParameterEditor extends AbstractParameterEditorOld
       *  parameter name. This function actually just calls
       *  removeWidget() then addWidget() then setWidgetObject().
       */
-     public void setParameter( ParameterAPI model ) {
+     public void setParameter( Parameter model ) {
     	 this.model = model;
     	 // create params for value and weight
     	 createValueAndWeightParams();

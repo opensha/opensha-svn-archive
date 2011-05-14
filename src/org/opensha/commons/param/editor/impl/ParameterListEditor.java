@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterEditor;
 
@@ -169,7 +169,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 			ParameterEditor editor = it.next();
 			if ( editor.isVisible() ) {
-				ParameterAPI param = ( ParameterAPI ) editor.getParameter();
+				Parameter param = ( Parameter ) editor.getParameter();
 				visibles.addParameter( param );
 			}
 		}
@@ -232,7 +232,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	 * @param parameterName : Name of the parameter that is being removed
 	 * @param param : New parameter that is replacing the old parameter
 	 */
-	public void replaceParameterForEditor( String parameterName, ParameterAPI param ) {
+	public void replaceParameterForEditor( String parameterName, Parameter param ) {
 
 		parameterName = this.parameterList.getParameterName( parameterName );
 		int index = getIndexOf(parameterName);
@@ -263,7 +263,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 		
 		int counter = 0;
 		
-		for (ParameterAPI<?> param : parameterList) {
+		for (Parameter<?> param : parameterList) {
 			ParameterEditor paramEdit = param.getEditor();
 			//paramEdit.setVisible(true);
 			if (paramEdit == null)

@@ -28,7 +28,7 @@ import javax.swing.JComponent;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 
 /**
@@ -77,7 +77,7 @@ public class DoubleParameterEditor extends AbstractParameterEditor<Double> imple
 	 * Note: When calling the super() constuctor addWidget() is called
 	 * which configures the NumericTextField as the editor widget. <p>
 	 */
-	public DoubleParameterEditor(ParameterAPI model) throws Exception {
+	public DoubleParameterEditor(Parameter model) throws Exception {
 
 		super(model);
 	}
@@ -243,7 +243,7 @@ public class DoubleParameterEditor extends AbstractParameterEditor<Double> imple
 //	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<Double> param) {
+	public boolean isParameterSupported(Parameter<Double> param) {
 		if (param == null)
 			return false;
 		

@@ -37,7 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -262,7 +262,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 */
 	private void setParamsInForecast() throws InvocationTargetException{
 
-		ParameterAPI chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
+		Parameter chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
 		parameterList = new ParameterList();
 		parameterList.addParameter(chooseERF_Param);
 		// get the selected forecast
@@ -273,7 +273,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		// make the parameters visible based on selected forecast
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			//System.out.println("Param Name: "+param.getName());
 			//if(param.getName().equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
 			param.addParameterChangeListener(this);
@@ -359,7 +359,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		ListIterator lit = parameterList.getParametersIterator();
 		while(lit.hasNext()){
-			ParameterAPI param=(ParameterAPI)lit.next();
+			Parameter param=(Parameter)lit.next();
 			if(param instanceof MagFreqDistParameter){
 				MagFreqDistParameterEditor magDistEditor=((MagFreqDistParameterEditor)listEditor.getParameterEditor(param.getName()));
 				return magDistEditor;
@@ -380,7 +380,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		ListIterator lit = parameterList.getParametersIterator();
 		while(lit.hasNext()){
-			ParameterAPI param=(ParameterAPI)lit.next();
+			Parameter param=(Parameter)lit.next();
 			if(param instanceof SimpleFaultParameter){
 				SimpleFaultParameterEditor simpleFaultEditor = ((SimpleFaultParameterEditor)listEditor.getParameterEditor(param.getName()));
 				return simpleFaultEditor;
@@ -493,7 +493,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
 		ParameterConstraint constraint = param.getConstraint();
@@ -674,7 +674,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * @param paramName
 	 * @returns the parameter with the ParamName
 	 */
-	public ParameterAPI getParameter(String paramName){
+	public Parameter getParameter(String paramName){
 		if(this.parameterList.containsParameter(paramName)){
 			if(listEditor.getParameterEditor(paramName).isVisible()){
 				return parameterList.getParameter(paramName);

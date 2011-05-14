@@ -26,8 +26,8 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringListConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -51,7 +51,7 @@ import org.opensha.commons.param.editor.impl.ConstrainedStringListParameterEdito
  * @version 1.0
  */
 
-public class StringListParameter extends DependentParameter<List<String>> {
+public class StringListParameter extends AbstractParameter<List<String>> {
 
   /**
 	 * 
@@ -211,7 +211,7 @@ public class StringListParameter extends DependentParameter<List<String>> {
      * @see                            Comparable
      */
     @Override
-    public int compareTo(ParameterAPI<List<String>> param) {
+    public int compareTo(Parameter<List<String>> param) {
 //
 //        String S = C + ":compareTo(): ";
 //

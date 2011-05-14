@@ -22,10 +22,8 @@ package org.opensha.commons.param.impl;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerDiscreteConstraint;
@@ -46,21 +44,21 @@ import org.opensha.commons.param.editor.impl.IntegerParameterEditor;
  * stored in the constraint that setting the parameter's value cannnt exceed.
  * If no constraint object is present then all values are permitted. <p>
  *
- * This class also extends DependentParameter so it may have a list of
+ * This class also extends Parameter so it may have a list of
  * independent parameters that it depends upon. <p>
  *
  * @see DependentParameter
- * @see DependentParameterAPI
- * @see ParameterAPI
  * @see Parameter
+ * @see Parameter
+ * @see AbstractParameter
  * @see IntegerConstraint
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */
 public class IntegerParameter
-extends DependentParameter<Integer>
-implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
+extends AbstractParameter<Integer>
+implements Parameter<Integer>
 {
 
 	/**
@@ -397,7 +395,7 @@ implements DependentParameterAPI<Integer>, ParameterAPI<Integer>
 	 * to use.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<Integer> param) {
+	public int compareTo(Parameter<Integer> param) {
 //
 //		String S = C + ":compareTo(): ";
 //

@@ -45,7 +45,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
  * @version 1.0
  */
 
-public interface WarningParameterAPI<E> extends ParameterAPI<E> {
+public interface WarningParameter<E> extends Parameter<E> {
 
     /** Sets a flag to ignore the warning - overides constraint */
     public void setIgnoreWarning(boolean ignoreWarning);

@@ -27,8 +27,8 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
@@ -45,7 +45,7 @@ import org.opensha.commons.param.editor.impl.ParameterListParameterEditor;
  * @version 1.0
  */
 
-public class LocationParameter extends DependentParameter<Location> {
+public class LocationParameter extends AbstractParameter<Location> {
 
 
 	/**
@@ -72,9 +72,9 @@ public class LocationParameter extends DependentParameter<Location> {
 	protected ParameterListParameter locationParameterListParameter;
 
 	//location parameters
-	protected ParameterAPI latParam;
-	protected ParameterAPI lonParam;
-	protected ParameterAPI depthParam;
+	protected Parameter latParam;
+	protected Parameter lonParam;
+	protected Parameter depthParam;
 
 	//location object, value of this parameter
 	private Location location;
@@ -253,7 +253,7 @@ public class LocationParameter extends DependentParameter<Location> {
 	 * But if constraint is not null, then it returns the instance of LocationParameter with constraints,
 	 * similar to String parameter with constraints.
 	 */
-	public ParameterAPI getLocationParameter(){
+	public Parameter getLocationParameter(){
 		if(constraint == null)
 			return locationParameterListParameter;
 		else
@@ -346,7 +346,7 @@ public class LocationParameter extends DependentParameter<Location> {
 	 *      a LocationParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<Location> param) {
+	public int compareTo(Parameter<Location> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if (! (obj instanceof LocationParameter)) {

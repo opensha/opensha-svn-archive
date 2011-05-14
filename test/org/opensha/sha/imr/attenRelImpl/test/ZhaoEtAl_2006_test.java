@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.DataUtils;
@@ -329,13 +329,13 @@ public class ZhaoEtAl_2006_test {
 	private static ArrayList<Double> getPeriods(ScalarIntensityMeasureRelationshipAPI imr) {
 		// Get the list of periods available for the selected IMR
 		ArrayList<Double> per = new ArrayList<Double>();
-		ListIterator<ParameterAPI<?>> it = imr.getSupportedIntensityMeasuresIterator();
+		ListIterator<Parameter<?>> it = imr.getSupportedIntensityMeasuresIterator();
 		while(it.hasNext()){
-			DependentParameterAPI tempParam = (DependentParameterAPI)it.next();
+			Parameter tempParam = (Parameter)it.next();
 			if (tempParam.getName().equalsIgnoreCase(SA_Param.NAME)){
 				ListIterator it1 = tempParam.getIndependentParametersIterator();
 				while(it1.hasNext()){
-					ParameterAPI independentParam = (ParameterAPI)it1.next();
+					Parameter independentParam = (Parameter)it1.next();
 					if (independentParam.getName().equalsIgnoreCase(PeriodParam.NAME)){
 						ArrayList<Double> saPeriodVector = ((DoubleDiscreteParameter)independentParam).getAllowedDoubles();
 

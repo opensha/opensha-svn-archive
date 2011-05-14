@@ -22,7 +22,7 @@ package org.opensha.sha.param.editor;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -43,7 +43,7 @@ public interface MagDistParameterEditorAPI {
 
 
     /** Returns the parameter that is stored internally that this GUI widget is editing */
-    public void setParameter( ParameterAPI model );
+    public void setParameter( Parameter model );
 
     /**
      * Checks whether you want to show the Mag Freq Dist Param Editor as button or a panel
@@ -137,10 +137,10 @@ public interface MagDistParameterEditorAPI {
     public ParameterList getParamterList();
 
     /** Returns each parameter for the MagFreqDist */
-    public ParameterAPI getParameter(String name) throws ParameterException;
+    public Parameter getParameter(String name) throws ParameterException;
 
     /** Sets the parameter that is stored internally for this GUI widget to edit */
-    public ParameterAPI getParameter();
+    public Parameter getParameter();
 
 
     /** returns the parameterlist */

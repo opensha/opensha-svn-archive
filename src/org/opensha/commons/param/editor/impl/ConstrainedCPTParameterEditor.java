@@ -8,7 +8,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
 import org.opensha.commons.mapping.gmt.gui.CPTListCellRenderer;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.ListBasedConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
@@ -23,12 +23,12 @@ public class ConstrainedCPTParameterEditor extends AbstractParameterEditor<CPT> 
 	
 	private JComboBox combo;
 	
-	public ConstrainedCPTParameterEditor(ParameterAPI<CPT> param) {
+	public ConstrainedCPTParameterEditor(Parameter<CPT> param) {
 		super(param);
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<CPT> param) {
+	public boolean isParameterSupported(Parameter<CPT> param) {
 		if (param == null)
 			return false;
 		

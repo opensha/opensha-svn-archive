@@ -6,8 +6,8 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -28,7 +28,7 @@ import org.opensha.commons.param.impl.WarningDoubleParameter;
  */
 public abstract class AbstractDoublePropEffectParam extends
 		PropagationEffectParameter<Double> implements
-		WarningParameterAPI<Double> {
+		WarningParameter<Double> {
 
 	private transient ParameterEditor<Double> paramEdit = null;
 
@@ -253,7 +253,7 @@ public abstract class AbstractDoublePropEffectParam extends
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<Double> param) {
+	public int compareTo(Parameter<Double> param) {
 //
 //		String S = C + ":compareTo(): ";
 //

@@ -37,8 +37,8 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
@@ -478,7 +478,7 @@ implements ParameterChangeWarningListener {
 
 		Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
 		while (it.hasNext()) {
-			ParameterAPI tempParam = (ParameterAPI) it.next();
+			Parameter tempParam = (Parameter) it.next();
 			
 			// we currently can't set Depth to Vs=1.0 km/sec, so skip
 			if (tempParam.getName().equals(DepthTo1pt0kmPerSecParam.NAME))
@@ -735,7 +735,7 @@ implements ParameterChangeWarningListener {
 
 		String S = " : parameterChangeWarning(): ";
 
-		WarningParameterAPI param = e.getWarningParameter();
+		WarningParameter param = e.getWarningParameter();
 
 		param.setValueIgnoreWarning(e.getNewValue());
 

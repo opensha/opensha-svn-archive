@@ -32,7 +32,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -564,7 +564,7 @@ NamedObjectAPI {
 			);
 		}
 
-		double exceedProb = ( (Double) ( (ParameterAPI) exceedProbParam).getValue()).
+		double exceedProb = ( (Double) ( (Parameter) exceedProbParam).getValue()).
 		doubleValue();
 		double stRndVar;
 		String sigTrType = (String) sigmaTruncTypeParam.getValue();
@@ -586,7 +586,7 @@ NamedObjectAPI {
 				stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
 			}
 			else {
-				double numSig = ( (Double) ( (ParameterAPI) sigmaTruncLevelParam).
+				double numSig = ( (Double) ( (Parameter) sigmaTruncLevelParam).
 						getValue()).doubleValue();
 				if (sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {
 					stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig,

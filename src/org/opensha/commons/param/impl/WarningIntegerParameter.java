@@ -26,8 +26,8 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
@@ -79,7 +79,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
  */
 
 public class WarningIntegerParameter extends IntegerParameter implements
-		WarningParameterAPI<Integer> {
+		WarningParameter<Integer> {
 
     /**
 	 * 
@@ -642,8 +642,8 @@ public class WarningIntegerParameter extends IntegerParameter implements
         ListIterator it = this.getIndependentParametersIterator();
         while( it.hasNext() ){
 
-            ParameterAPI p1 = (ParameterAPI)it.next();
-            ParameterAPI p2 = (ParameterAPI)p1.clone();
+            Parameter p1 = (Parameter)it.next();
+            Parameter p2 = (Parameter)p1.clone();
             param.addIndependentParameter(p2);
 
         }

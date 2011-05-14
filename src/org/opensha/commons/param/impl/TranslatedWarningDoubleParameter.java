@@ -26,7 +26,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.TranslateException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.constraint.ParameterConstraint;
@@ -570,7 +570,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
         return param.getIndependentParametersIterator();}
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public ParameterAPI getIndependentParameter(String name)throws ParameterException{
+    public Parameter getIndependentParameter(String name)throws ParameterException{
         return param.getIndependentParameter(name);}
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
@@ -578,7 +578,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
         param.setIndependentParameters(list);}
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public void addIndependentParameter(ParameterAPI parameter) throws ParameterException{
+    public void addIndependentParameter(Parameter parameter) throws ParameterException{
         param.addIndependentParameter(parameter) ;}
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
@@ -674,7 +674,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
      * @throws  ClassCastException  Thrown if the object type of the parameter
      *      argument are not the same.
      */
-	public int compareTo(ParameterAPI<Double> param) {
+	public int compareTo(Parameter<Double> param) {
 		return this.param.compareTo(param);
 	}
 
@@ -717,7 +717,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
       metadata.append(getName()+" [ ");
       ListIterator list = getIndependentParametersIterator();
       while(list.hasNext()){
-        ParameterAPI tempParam = (ParameterAPI)list.next();
+        Parameter tempParam = (Parameter)list.next();
         metadata.append(tempParam.getMetadataString()+" ; ");
        /* Note that the getmetadatSring is called here rather than the
           getDependentParamMetadataString() method becuase the former is
@@ -735,7 +735,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     }
 
 	public Element toXMLMetadata(Element root) {
-		return toXMLMetadata(root, ParameterAPI.XML_METADATA_NAME);
+		return toXMLMetadata(root, Parameter.XML_METADATA_NAME);
 	}
 	
 	public Element toXMLMetadata(Element root, String elementName) {

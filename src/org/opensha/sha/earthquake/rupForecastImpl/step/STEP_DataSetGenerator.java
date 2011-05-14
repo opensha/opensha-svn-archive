@@ -40,8 +40,8 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
@@ -139,7 +139,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       SiteTranslator siteTrans= new SiteTranslator();
       while(it.hasNext()){
         //adding the clone of the site parameters to the list
-        ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)it.next()).clone();
+        Parameter tempParam = (Parameter)((Parameter)it.next()).clone();
         //getting the Site Param Value corresponding to the Will Site Class "DE" for the seleted IMR  from the SiteTranslator
         siteTrans.setParameterValue(tempParam,siteTrans.WILLS_DE,Double.NaN);
         defaultSiteParams.add(tempParam);
@@ -1578,7 +1578,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
     String S =  " : parameterChangeWarning(): ";
 
-    WarningParameterAPI param = e.getWarningParameter();
+    WarningParameter param = e.getWarningParameter();
 
     //System.out.println(b);
     param.setValueIgnoreWarning(e.getNewValue());

@@ -55,8 +55,8 @@ import javax.swing.border.LineBorder;
 
 import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -148,7 +148,7 @@ IMCorrRelChangeListener{
 	protected GcimSite_GuiBean siteGuiBean;
 	private Site parentSite;
 	private Site gcimSite;
-	private DependentParameterAPI<Double> parentIMj;
+	private Parameter<Double> parentIMj;
 	private ArrayList<String> ParentIMiList;
 	private ArrayList<String> ParentIMiListCurrentIMiRemoved;
 
@@ -259,7 +259,7 @@ IMCorrRelChangeListener{
 		for (int m=0; m<numIMikCorrRelsToSet; m++) {
 			HashMap<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
 				IMikCorrRelMapList.get(m);
-			DependentParameterAPI<Double> imi = parent.getImiParam(m);
+			Parameter<Double> imi = parent.getImiParam(m);
 			imtGuiBean.setIMTsinIMCorrRels(IMikCorrRelMap, imi);
 		}
 		//end of setting IMTsinIMCorrRels for off-diagonal CorrRels
@@ -304,7 +304,7 @@ IMCorrRelChangeListener{
 			for (int m=0; m<numIMikCorrRelsToSet; m++) {
 				HashMap<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
 					IMikCorrRelMapList.get(m);
-				DependentParameterAPI<Double> imi = parent.getImiParam(m);
+				Parameter<Double> imi = parent.getImiParam(m);
 				imtGuiBean.setIMTsinIMCorrRels(IMikCorrRelMap, imi);
 			}
 			//end of setting IMTsinIMCorrRels for off-diagonal CorrRels
@@ -426,13 +426,13 @@ IMCorrRelChangeListener{
 		//Loop over all of the ImCorrRels
 		for (ImCorrelationRelationship imCorrRel : imCorrRels) {
 			//For each IMCorrRel loop over the supported IMjs
-			ArrayList<ParameterAPI<?>> imjParamList = imCorrRel.getSupportedIntensityMeasuresjList();
+			ArrayList<Parameter<?>> imjParamList = imCorrRel.getSupportedIntensityMeasuresjList();
 			for (int i = 0; i<imjParamList.size(); i++) {
-				ParameterAPI<?> imjParam = imjParamList.get(i);
+				Parameter<?> imjParam = imjParamList.get(i);
 				//Check if the imjParam is the imjName
 				if (imjParam.getName()==parentIMj.getName()) {
-					ArrayList<ParameterAPI<?>> imiParamList = imCorrRel.getSupportedIntensityMeasuresiList();
-					ParameterAPI<?> imiParam = imiParamList.get(i);
+					ArrayList<Parameter<?>> imiParamList = imCorrRel.getSupportedIntensityMeasuresiList();
+					Parameter<?> imiParam = imiParamList.get(i);
 					//Check if the imiParam is that set in the IMT_GuiBean
 					if (imiParam.getName()==imtGuiBean.getSelectedIMT()) {
 						imCorrRelGuiBean.setSelectedSingleIMCorrRel(imCorrRel.getName());
@@ -456,13 +456,13 @@ IMCorrRelChangeListener{
 		//Loop over all of the ImCorrRels
 		for (ImCorrelationRelationship imCorrRel : imCorrRels) {
 			//For each IMCorrRel loop over the supported IMjs (i.e. IMks)
-			ArrayList<ParameterAPI<?>> imkParamList = imCorrRel.getSupportedIntensityMeasuresjList();
+			ArrayList<Parameter<?>> imkParamList = imCorrRel.getSupportedIntensityMeasuresjList();
 			for (int i = 0; i<imkParamList.size(); i++) {
-				ParameterAPI<?> imkParam = imkParamList.get(i);
+				Parameter<?> imkParam = imkParamList.get(i);
 				//Check if the imkParam is the imkName
 				if (imkParam.getName()==imkName) {
-					ArrayList<ParameterAPI<?>> imiParamList = imCorrRel.getSupportedIntensityMeasuresiList();
-					ParameterAPI<?> imiParam = imiParamList.get(i);
+					ArrayList<Parameter<?>> imiParamList = imCorrRel.getSupportedIntensityMeasuresiList();
+					Parameter<?> imiParam = imiParamList.get(i);
 					//Check if the imiParam is that set in the IMT_GuiBean
 					if (imiParam.getName()==imtGuiBean.getSelectedIMT()) {
 						imCorrRelGuiBean.setSelectedSingleIMikCorrRel(index, imCorrRel);
@@ -594,7 +594,7 @@ IMCorrRelChangeListener{
 	 * 
 	 * @returns the selected IMi
 	 */
-	public DependentParameterAPI<Double> getSelectedIM() {
+	public Parameter<Double> getSelectedIM() {
 		if (D) 
 			System.out.println("getting the current IM: " + imtGuiBean.getSelectedIM());
 		return imtGuiBean.getSelectedIM();
@@ -691,7 +691,7 @@ IMCorrRelChangeListener{
 			for (int m=0; m<numIMikCorrRelsToSet; m++) {
 				HashMap<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
 					IMikCorrRelMapList.get(m);
-				DependentParameterAPI<Double> imi = parent.getImiParam(m);
+				Parameter<Double> imi = parent.getImiParam(m);
 				imtGuiBean.setIMTsinIMCorrRels(IMikCorrRelMap, imi);
 			}
 			//end of setting IMTsinIMCorrRels for off-diagonal CorrRels
@@ -739,7 +739,7 @@ IMCorrRelChangeListener{
 	 * This method gets the IMjName from the main hazard calcs, used to determine which other IMj are
 	 * allowable
 	 */
-	public DependentParameterAPI<Double> getParentIMjName() {
+	public Parameter<Double> getParentIMjName() {
 		this.parentIMj = parent.getParentIMj();
 		return parentIMj;
 	}
@@ -755,7 +755,7 @@ IMCorrRelChangeListener{
 	/** 
 	 * THis methods returns the IM parameter which is currently selected in the IMT GUI
 	 */
-	public DependentParameterAPI<Double> getIMTSelectedInIMTGUI() {
+	public Parameter<Double> getIMTSelectedInIMTGUI() {
 		 return imtGuiBean.getSelectedIM();
 	}
 	

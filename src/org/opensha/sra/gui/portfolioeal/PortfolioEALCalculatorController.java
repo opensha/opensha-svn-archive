@@ -20,8 +20,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
@@ -199,7 +199,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 		aString += formatOutput( view.getIMR().getIMRBean().getParameterList().getParametersIterator(), "Intesity Measure Relationship");
 		
 		// Get formatted output for the IMT
-		aString += formatOutput( ((DependentParameterAPI)view.getIMR().getIMRBean().getSelectedIMR_Instance().getIntensityMeasure()).getIndependentParametersIterator(), "Intesity Measure Type");
+		aString += formatOutput( ((Parameter)view.getIMR().getIMRBean().getSelectedIMR_Instance().getIntensityMeasure()).getIndependentParametersIterator(), "Intesity Measure Type");
 		
 		// Get formatted output for the Site(s)
 		for( Site assetSite : portfolio.getSiteList()) {
@@ -238,7 +238,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 	 * @param type     	The name of what is being formatted
 	 * @return 		   	The formatted string that will be used in the ouput
 	 */
-	private String formatOutput( ListIterator<ParameterAPI<?>> paramIterator, String type ) {
+	private String formatOutput( ListIterator<Parameter<?>> paramIterator, String type ) {
 		aString = type + " Parameter List\n-------------------\n";
 		if ( type.equals("Site") ) {
 			if ( site.getName() != null ) aString += "Name: " + site.getName() + "\n";
@@ -246,7 +246,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 			aString += "Longitude: " + site.getLocation().getLongitude() + "\n";
 		}
 		while( paramIterator.hasNext() ) {
-			ParameterAPI<?> next = paramIterator.next();
+			Parameter<?> next = paramIterator.next();
 			aString += next.getName() + ": " + next.getValue() + "\n";
 		}
 		aString += "\n";

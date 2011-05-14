@@ -34,7 +34,7 @@ import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
@@ -288,7 +288,7 @@ implements ParameterChangeWarningListener {
 //			String per10str = per10int + "";
 //			if (per10str.length() < 2)
 //				per10str = "0" + per10str;
-////			DependentParameterAPI imtParam = (DependentParameterAPI)attenRel.getIntensityMeasure();
+////			ParameterAPI imtParam = (ParameterAPI)attenRel.getIntensityMeasure();
 ////			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
 //			imt += per10str;
 //		}
@@ -498,7 +498,7 @@ implements ParameterChangeWarningListener {
 
 		String S = " : parameterChangeWarning(): ";
 
-		WarningParameterAPI param = e.getWarningParameter();
+		WarningParameter param = e.getWarningParameter();
 
 		param.setValueIgnoreWarning(e.getNewValue());
 

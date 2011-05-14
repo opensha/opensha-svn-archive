@@ -22,8 +22,8 @@ package org.opensha.commons.param.impl;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.EvenlyDiscretizedFuncParameterEditor;
@@ -45,7 +45,7 @@ import org.opensha.commons.param.editor.impl.EvenlyDiscretizedFuncParameterEdito
  */
 
 public class EvenlyDiscretizedFuncParameter extends
-		DependentParameter<EvenlyDiscretizedFunc> {
+		AbstractParameter<EvenlyDiscretizedFunc> {
 
 	/**
 	 * 
@@ -150,7 +150,7 @@ public class EvenlyDiscretizedFuncParameter extends
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	public int compareTo(ParameterAPI<EvenlyDiscretizedFunc> param) {
+	public int compareTo(Parameter<EvenlyDiscretizedFunc> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if ( !( obj instanceof EvenlyDiscretizedFunc ) ) {

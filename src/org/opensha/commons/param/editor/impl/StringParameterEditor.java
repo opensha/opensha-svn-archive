@@ -30,7 +30,7 @@ import javax.swing.border.Border;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.StringParameter;
 
@@ -78,7 +78,7 @@ extends AbstractParameterEditor<String> implements FocusListener, KeyListener
 	 * Note: When calling the super() constuctor addWidget() is called
 	 * which configures the IntegerTextField as the editor widget. <p>
 	 */
-	public StringParameterEditor(ParameterAPI model) throws Exception{
+	public StringParameterEditor(Parameter model) throws Exception{
 
 		super(model);
 	}
@@ -187,7 +187,7 @@ extends AbstractParameterEditor<String> implements FocusListener, KeyListener
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<String> param) {
+	public boolean isParameterSupported(Parameter<String> param) {
 		if ( getParameter() != null &&  !( getParameter() instanceof StringParameter))
 			return false;
 		return true;

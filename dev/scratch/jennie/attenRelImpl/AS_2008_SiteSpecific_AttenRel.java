@@ -11,7 +11,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -367,7 +367,7 @@ NamedObjectAPI {
 		//   String ignoreStr1 = as_2008_Vs30_Param.NAME;
 		//   String ignoreStr2 = as_2008_attenRel.COMPONENT_NAME;
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			//     if (!ignoreStr1.equals(param.getName()) &&
 			//         !ignoreStr2.equals(param.getName())) {
 			meanIndependentParams.addParameter(param);
@@ -387,7 +387,7 @@ NamedObjectAPI {
 
 		it = as_2008_attenRel.getStdDevIndependentParamsIterator();
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			//      if (!ignoreStr1.equals(param.getName()) &&
 			//          !ignoreStr2.equals(param.getName())) {
 			stdDevIndependentParams.addParameter(param);
@@ -405,7 +405,7 @@ NamedObjectAPI {
 		exceedProbIndependentParams.clear();
 		it = as_2008_attenRel.getExceedProbIndependentParamsIterator();
 		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
+			AbstractParameter param = (AbstractParameter) it.next();
 			//      if (!ignoreStr1.equals(param.getName()) &&
 			//          !ignoreStr2.equals(param.getName())) {
 			exceedProbIndependentParams.addParameter(param);
@@ -489,7 +489,7 @@ NamedObjectAPI {
 
 		ListIterator it = as_2008_attenRel.getSiteParamsIterator();
 		while (it.hasNext()) {
-			siteParams.addParameter( (Parameter) it.next());
+			siteParams.addParameter( (AbstractParameter) it.next());
 		}
 
 	}
@@ -506,7 +506,7 @@ NamedObjectAPI {
 		eqkRuptureParams.clear();
 		ListIterator it = as_2008_attenRel.getEqkRuptureParamsIterator();
 		while (it.hasNext()) {
-			eqkRuptureParams.addParameter( (Parameter) it.next());
+			eqkRuptureParams.addParameter( (AbstractParameter) it.next());
 		}
 	}
 
@@ -518,7 +518,7 @@ NamedObjectAPI {
 		propagationEffectParams.clear();
 		ListIterator it = as_2008_attenRel.getPropagationEffectParamsIterator();
 		while (it.hasNext()) {
-			propagationEffectParams.addParameter( (Parameter) it.next());
+			propagationEffectParams.addParameter( (AbstractParameter) it.next());
 		}
 		// this is a pointer to that in as_2008_attenRel for local access 
 		distanceRupParam = (DistanceRupParameter) as_2008_attenRel.getParameter(distanceRupParam.NAME);
@@ -535,7 +535,7 @@ NamedObjectAPI {
 		supportedIMParams.clear();
 		Iterator it = as_2008_attenRel.getSupportedIntensityMeasuresIterator();
 		while (it.hasNext()) {
-			supportedIMParams.addParameter( (Parameter) it.next());
+			supportedIMParams.addParameter( (AbstractParameter) it.next());
 		}
 	}
 
@@ -557,9 +557,9 @@ NamedObjectAPI {
 		otherParams.clear();
 		otherParams.addParameter(componentParam);
 		Iterator it = as_2008_attenRel.getOtherParamsIterator();
-		Parameter param;
+		AbstractParameter param;
 		while (it.hasNext()) {
-			param = (Parameter) it.next();
+			param = (AbstractParameter) it.next();
 			if (!ComponentParam.NAME.equals(param.getName())) {
 				otherParams.addParameter(param);
 			}

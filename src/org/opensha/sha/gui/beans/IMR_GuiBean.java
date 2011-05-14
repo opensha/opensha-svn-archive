@@ -32,9 +32,9 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -156,7 +156,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 			Iterator it1 = imr.getSiteParamsIterator();
 			// add change fail listener to the site parameters for this IMR
 			while(it1.hasNext()) {
-				ParameterAPI param = (ParameterAPI)it1.next();
+				Parameter param = (Parameter)it1.next();
 				param.addParameterChangeFailListener(this);
 			}
 		}
@@ -198,7 +198,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		 */
 		ListIterator lt = imr.getOtherParamsIterator();
 		while(lt.hasNext()){
-			ParameterAPI tempParam=(ParameterAPI)lt.next();
+			Parameter tempParam=(Parameter)lt.next();
 			//adding the parameter to the parameterList.
 			tempParam.addParameterChangeListener(this);
 			parameterList.addParameter(tempParam);
@@ -254,7 +254,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	   */
 	  public boolean isIntensityMeasureSupported(AttenuationRelationship attenRel,String intensityMeasure, double period){
 		  if(attenRel.isIntensityMeasureSupported(intensityMeasure)){
-			ParameterAPI imParam = attenRel.getSupportedIntensityMeasuresList().getParameter(intensityMeasure);
+			Parameter imParam = attenRel.getSupportedIntensityMeasuresList().getParameter(intensityMeasure);
 			if(imParam.getName().equals(SA_Param.NAME)){
 		        if (attenRel.getParameter(PeriodParam.NAME).isAllowed(period)) {
 		          return true;
@@ -290,7 +290,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 				Iterator it1 = imr.getSiteParamsIterator();
 				// add change fail listener to the site parameters for this IMR
 				while(it1.hasNext()) {
-					ParameterAPI param = (ParameterAPI)it1.next();
+					Parameter param = (Parameter)it1.next();
 					param.addParameterChangeFailListener(this);
 				}
 			}
@@ -332,7 +332,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		 */
 		ListIterator lt = imr.getOtherParamsIterator();
 		while(lt.hasNext()){
-			ParameterAPI tempParam=(ParameterAPI)lt.next();
+			Parameter tempParam=(Parameter)lt.next();
 			//adding the parameter to the parameterList.
 			tempParam.addParameterChangeListener(this);
 			parameterList.addParameter(tempParam);
@@ -432,14 +432,14 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		System.out.println("yo - pcw");
 		String S = C + " : parameterChangeWarning(): ";
 		if(D) System.out.println(S + "Starting");
-		WarningParameterAPI param = e.getWarningParameter();
+		WarningParameter param = e.getWarningParameter();
 
 		//check if this parameter exists in the site param list of this IMR
 		// if it does not then set its value using ignore warning
 		Iterator it = this.getSelectedIMR_Instance().getSiteParamsIterator();
 		boolean found = false;
 		while(it.hasNext() && !found)
-			if(param.getName().equalsIgnoreCase(((ParameterAPI)it.next()).getName()))
+			if(param.getName().equalsIgnoreCase(((Parameter)it.next()).getName()))
 				found = true;
 		if(!found) {
 			param.setValueIgnoreWarning(e.getNewValue());
@@ -532,7 +532,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
 		ParameterConstraint constraint = param.getConstraint();
@@ -546,7 +546,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		boolean found = false;
 		// see whether this parameter exists in site param list for this IMR
 		while(it.hasNext() && !found)
-			if(((ParameterAPI)it.next()).getName().equalsIgnoreCase(name))
+			if(((Parameter)it.next()).getName().equalsIgnoreCase(name))
 				found = true;
 
 		// if this parameter for which failure was issued does not exist in

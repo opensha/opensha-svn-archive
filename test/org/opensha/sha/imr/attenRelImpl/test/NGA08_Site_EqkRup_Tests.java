@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -121,27 +121,27 @@ public class NGA08_Site_EqkRup_Tests {
 		
 		// Create the test Site object & add the site-related parameters to the Site
 		site = new Site();
-		ListIterator<ParameterAPI<?>> it = as08.getSiteParamsIterator();
+		ListIterator<Parameter<?>> it = as08.getSiteParamsIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			if(!site.containsParameter(param)) site.addParameter(param);
 		}
 
 		it = cb08.getSiteParamsIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			if(!site.containsParameter(param)) site.addParameter(param);
 		}
 
 		it = cy08.getSiteParamsIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			if(!site.containsParameter(param)) site.addParameter(param);
 		}
 
 		it = ba08.getSiteParamsIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			if(!site.containsParameter(param)) site.addParameter(param);
 		}
 
@@ -355,9 +355,9 @@ public class NGA08_Site_EqkRup_Tests {
 	private boolean checkAttenRel(int lat, int lon, AttenuationRelationship attenRel) {
 		
 		// Check the Earthquake Rupture Parameters
-		ListIterator<ParameterAPI<?>> it = attenRel.getEqkRuptureParamsIterator();
+		ListIterator<Parameter<?>> it = attenRel.getEqkRuptureParamsIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			
 			if(param.getName().equals(AftershockParam.NAME)) {
 				Boolean ashock = (Boolean)param.getValue();
@@ -427,7 +427,7 @@ public class NGA08_Site_EqkRup_Tests {
 		// Check the Site Parameters
 		it = attenRel.getSiteParamsIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			
 			if(param.getName().equals(Vs30_TypeParam.NAME)) {
 				String vs30_type_value = (String)param.getValue();
@@ -475,7 +475,7 @@ public class NGA08_Site_EqkRup_Tests {
 		else dRupMinusDX = (dRup-dX)/dRup;
 		
 		while(it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			
 			if(param.getName().equals(HangingWallFlagParam.NAME)) {
 				int value;

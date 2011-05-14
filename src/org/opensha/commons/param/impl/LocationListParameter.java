@@ -24,8 +24,8 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 
@@ -38,7 +38,7 @@ import org.opensha.commons.param.editor.AbstractParameterEditorOld;
  * @version 1.0
  */
 
-public class LocationListParameter extends DependentParameter<LocationList> {
+public class LocationListParameter extends AbstractParameter<LocationList> {
 
 
 	/**
@@ -98,7 +98,7 @@ public class LocationListParameter extends DependentParameter<LocationList> {
 	 *      a ParameterListParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<LocationList> param) {
+	public int compareTo(Parameter<LocationList> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if ( !( obj instanceof LocationListParameter ) ) {

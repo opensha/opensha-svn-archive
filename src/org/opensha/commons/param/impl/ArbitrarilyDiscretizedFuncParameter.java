@@ -22,8 +22,8 @@ package org.opensha.commons.param.impl;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ArbitrarilyDiscretizedFuncParameterEditor;
 
@@ -40,7 +40,7 @@ import org.opensha.commons.param.editor.impl.ArbitrarilyDiscretizedFuncParameter
  * @version 1.0
  */
 
-public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter<ArbitrarilyDiscretizedFunc>
+public class ArbitrarilyDiscretizedFuncParameter extends AbstractParameter<ArbitrarilyDiscretizedFunc>
 implements java.io.Serializable{
 
 
@@ -107,7 +107,7 @@ implements java.io.Serializable{
 	 *      a ParameterListParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<ArbitrarilyDiscretizedFunc> param) {
+	public int compareTo(Parameter<ArbitrarilyDiscretizedFunc> param) {
 		// TODO I don't think this even does a full comparison; should it
 		// be value by value
 		

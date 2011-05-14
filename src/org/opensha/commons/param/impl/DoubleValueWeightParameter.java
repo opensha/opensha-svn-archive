@@ -8,9 +8,8 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleValueWeightConstraint;
@@ -29,8 +28,8 @@ import org.opensha.commons.param.editor.impl.DoubleValueWeightParameterEditor;
  *  @author vipingupta
  *
  */
-public class DoubleValueWeightParameter extends DependentParameter
-				implements DependentParameterAPI, ParameterAPI {
+public class DoubleValueWeightParameter extends AbstractParameter
+				implements Parameter {
 	  /**
 	 * 
 	 */

@@ -23,7 +23,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -104,7 +104,7 @@ public class EqkRupture implements java.io.Serializable {
      * This is a common performance enhancement, because in general, not all
      * aspects of a program are used per user session.
      */
-    public void addParameter(ParameterAPI<?> parameter){
+    public void addParameter(Parameter<?> parameter){
         if( otherParams == null) otherParams = new ParameterList();
         if(!otherParams.containsParameter(parameter)){
             otherParams.addParameter(parameter);
@@ -112,7 +112,7 @@ public class EqkRupture implements java.io.Serializable {
         else{ otherParams.updateParameter(parameter); }
     }
 
-    public void removeParameter(ParameterAPI<?> parameter){
+    public void removeParameter(Parameter<?> parameter){
         if( otherParams == null) return;
         otherParams.removeParameter(parameter);
     }
@@ -123,7 +123,7 @@ public class EqkRupture implements java.io.Serializable {
      * have been Added, this doesn't convey any more information than the
      * short name to me.
      */
-    public ListIterator<ParameterAPI<?>> getAddedParametersIterator(){
+    public ListIterator<Parameter<?>> getAddedParametersIterator(){
         if( otherParams == null) return null;
         else{ return otherParams.getParametersIterator(); }
     }

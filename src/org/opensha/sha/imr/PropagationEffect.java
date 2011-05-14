@@ -24,7 +24,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -249,7 +249,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	 * This sets the value of the passed in parameter with that computed internally.
 	 * This ignores warnings exceptions.
 	 */
-	public void setParamValue( ParameterAPI param ) {
+	public void setParamValue( Parameter param ) {
 
 		if(param instanceof AbstractDoublePropEffectParam)
 			((AbstractDoublePropEffectParam)param).setValueIgnoreWarning((Double)getParamValue(param.getName()));
@@ -281,7 +281,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	 * @param param
 	 * @return
 	 */
-	public boolean isParamSupported( ParameterAPI param ) {
+	public boolean isParamSupported( Parameter param ) {
 		return isParamSupported(param.getName());
 	}
 

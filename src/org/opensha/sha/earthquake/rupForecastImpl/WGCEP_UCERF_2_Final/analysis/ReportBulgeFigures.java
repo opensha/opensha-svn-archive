@@ -14,7 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.impl.ParameterListParameter;
@@ -51,7 +51,7 @@ public class ReportBulgeFigures {
 		ParameterList paramList = ucerf2.getAdjustableParameterList();
 		Iterator it = paramList.getParametersIterator();
 		while(it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			paramNames.add(param.getName());
 		}
 

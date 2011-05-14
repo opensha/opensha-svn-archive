@@ -37,9 +37,9 @@ import org.apache.commons.lang.NotImplementedException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
@@ -238,9 +238,9 @@ implements DisaggregationCalculatorAPI{
 
 		// set iml in imrs
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values()) {
-			ParameterAPI<Double> im = imr.getIntensityMeasure();
-			if (im instanceof WarningParameterAPI<?>) {
-				WarningParameterAPI<Double> warnIM = (WarningParameterAPI<Double>)im;
+			Parameter<Double> im = imr.getIntensityMeasure();
+			if (im instanceof WarningParameter<?>) {
+				WarningParameter<Double> warnIM = (WarningParameter<Double>)im;
 				warnIM.setValueIgnoreWarning(new Double(iml));
 			} else {
 				im.setValue(new Double(iml));

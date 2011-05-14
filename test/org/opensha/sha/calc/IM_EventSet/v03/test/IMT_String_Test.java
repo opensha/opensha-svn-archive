@@ -22,8 +22,8 @@ package org.opensha.sha.calc.IM_EventSet.v03.test;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -37,11 +37,11 @@ public class IMT_String_Test {
 	}
 	
 	private void checkIsSetCorrectly(double period) {
-		ParameterAPI<?> imt = cb08.getIntensityMeasure();
+		Parameter<?> imt = cb08.getIntensityMeasure();
 		assertEquals(SA_Param.NAME, imt.getName());
-		assertTrue(imt instanceof DependentParameterAPI);
-		DependentParameterAPI<?> depIMT = (DependentParameterAPI<?>)imt;
-		ParameterAPI<?> periodParam = depIMT.getIndependentParameter(PeriodParam.NAME);
+		assertTrue(imt instanceof Parameter);
+		Parameter<?> depIMT = (Parameter<?>)imt;
+		Parameter<?> periodParam = depIMT.getIndependentParameter(PeriodParam.NAME);
 		double imtPer = (Double)periodParam.getValue();
 		System.out.println("got: " + imtPer + " sec, expecting: " + period + " sec");
 		assertEquals(period, imtPer, 0);

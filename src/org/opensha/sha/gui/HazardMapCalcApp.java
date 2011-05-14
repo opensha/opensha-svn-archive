@@ -70,7 +70,7 @@ import org.opensha.commons.gridComputing.GridResources;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
@@ -757,12 +757,12 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 			if (imt == null)
 				System.out.println("NULL IMT!!!");
 			imr.setIntensityMeasure(imt);
-			ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(DampingParam.NAME);
+			Parameter dampingParam = imtGuiBean.getParameterList().getParameter(DampingParam.NAME);
 			if (dampingParam != null) {
 				double damping = (Double)dampingParam.getValue();
 				imr.getParameter(DampingParam.NAME).setValue(damping);
 			}
-			ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
+			Parameter periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
 			if (periodParam != null) {
 				double period = (Double)periodParam.getValue();
 				imr.getParameter(PeriodParam.NAME).setValue(period);

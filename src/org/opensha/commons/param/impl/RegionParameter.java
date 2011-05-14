@@ -28,8 +28,8 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.LocationConstraint;
@@ -44,7 +44,7 @@ import org.opensha.commons.param.editor.impl.RegionParameterEditor;
  * @version 1.0
  */
 
-public class RegionParameter extends DependentParameter<Region> {
+public class RegionParameter extends AbstractParameter<Region> {
 
 
 	/**
@@ -76,10 +76,10 @@ public class RegionParameter extends DependentParameter<Region> {
 			new Double(-90), new Double(90), new Double(34.7));
 
 	//location parameters
-	protected ParameterAPI minLatParam;
-	protected ParameterAPI maxLatParam;
-	protected ParameterAPI minLonParam;
-	protected ParameterAPI maxLonParam;
+	protected Parameter minLatParam;
+	protected Parameter maxLatParam;
+	protected Parameter minLonParam;
+	protected Parameter maxLonParam;
 
 	//location object, value of this parameter
 	private Region region;
@@ -161,7 +161,7 @@ public class RegionParameter extends DependentParameter<Region> {
 	 * But if constraint is not null, then it returns the instance of LocationParameter with constraints,
 	 * similar to String parameter with constraints.
 	 */
-	public ParameterAPI getRegionParameter(){
+	public Parameter getRegionParameter(){
 		if(constraint == null)
 			return regionParameterListParameter;
 		else
@@ -268,7 +268,7 @@ public class RegionParameter extends DependentParameter<Region> {
 	 *      a LocationParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<Region> param) {
+	public int compareTo(Parameter<Region> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if (! (obj instanceof RegionParameter)) {

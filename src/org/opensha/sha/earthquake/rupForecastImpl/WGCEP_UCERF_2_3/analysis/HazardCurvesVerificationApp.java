@@ -13,7 +13,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.DoubleParameter;
@@ -209,7 +209,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	 */
 	public void parameterChangeWarning(ParameterChangeWarningEvent e) {
 		String S = " : parameterChangeWarning(): ";
-		WarningParameterAPI param = e.getWarningParameter();
+		WarningParameter param = e.getWarningParameter();
 		param.setValueIgnoreWarning(e.getNewValue());
 	}
 	

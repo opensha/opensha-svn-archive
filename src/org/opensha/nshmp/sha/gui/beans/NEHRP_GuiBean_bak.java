@@ -42,7 +42,7 @@ import javax.swing.border.TitledBorder;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -483,7 +483,7 @@ public class NEHRP_GuiBean_bak
       ParameterList paramList = locGuiBean.getLocationParameters();
       ListIterator it = paramList.getParametersIterator();
       while (it.hasNext()) {
-        ParameterAPI param = (ParameterAPI) it.next();
+        Parameter param = (Parameter) it.next();
         param.addParameterChangeListener(this);
       }
 

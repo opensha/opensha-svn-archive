@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 
 /**
@@ -85,7 +85,7 @@ public class ParameterEditorFactory {
      * editor is returned as an ParameterEditor.
      *
      */
-     public static AbstractParameterEditorOld getEditor(ParameterAPI param) throws ParameterException {
+     public static AbstractParameterEditorOld getEditor(Parameter param) throws ParameterException {
 
         // Debugging
         String S = C + ": getEditor(): ";

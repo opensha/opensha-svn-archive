@@ -61,7 +61,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.UserAuthDialog;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -940,10 +940,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public String getCurveParametersInfoAsHTML(AttenuationRelationship imr, EqkRupForecast erf, Site site) {
-		ListIterator<ParameterAPI<?>> imrIt = imr.getOtherParamsIterator();
+		ListIterator<Parameter<?>> imrIt = imr.getOtherParamsIterator();
 		String imrMetadata = "IMR = " + imr.getName() + "; ";
 		while (imrIt.hasNext()) {
-			ParameterAPI tempParam = imrIt.next();
+			Parameter tempParam = imrIt.next();
 			imrMetadata += tempParam.getName() + " = " + tempParam.getValue();
 		}
 		String siteMetadata = site.getParameterListMetadataString();
@@ -951,10 +951,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		String imtMetadata = "IMT = " + imtName;
 		if (imtName.toLowerCase().equals("sa")) {
 			imtMetadata += "; ";
-			ParameterAPI damp = imr.getParameter(DampingParam.NAME);
+			Parameter damp = imr.getParameter(DampingParam.NAME);
 			if (damp != null)
 				imtMetadata += damp.getName() + " = " + damp.getValue() + "; ";
-			ParameterAPI period = imr.getParameter(PeriodParam.NAME);
+			Parameter period = imr.getParameter(PeriodParam.NAME);
 			imtMetadata += period.getName() + " = " + period.getValue();
 		}
 //		imr.get
@@ -1029,9 +1029,9 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 						"Manually Set Vs30 Value"));
 			}
 			
-			Iterator<ParameterAPI<?>> it = attenRel.getSiteParamsIterator(); // get site params for this IMR
+			Iterator<Parameter<?>> it = attenRel.getSiteParamsIterator(); // get site params for this IMR
 			while(it.hasNext()) {
-				ParameterAPI tempParam = it.next();
+				Parameter tempParam = it.next();
 				if(!site.containsParameter(tempParam))
 					site.addParameter(tempParam);
 				//adding the site Params from the CVM, if site is out the range of CVM then it

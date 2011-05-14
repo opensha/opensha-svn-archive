@@ -7,7 +7,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -236,9 +236,9 @@ public class computeHazard implements Runnable {
 			//initialize site parameters for attenuation relation
 			for(int is=0;is<siteList.size();is++){
 				// set site parameters
-				ListIterator<ParameterAPI<?>> it = as_1997.getSiteParamsIterator();
+				ListIterator<Parameter<?>> it = as_1997.getSiteParamsIterator();
 		        while (it.hasNext()) {
-			           ParameterAPI param = it.next();
+			           Parameter param = it.next();
 			           if (!siteList.get(i).containsParameter(param))
 				           siteList.get(i).addParameter(param);
 		        }

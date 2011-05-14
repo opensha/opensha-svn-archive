@@ -8,7 +8,7 @@ import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -179,7 +179,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 					
 					double mLnIML = imr.getMean();
 					if (D) System.out.println("mLnIML: " + mLnIML);
-					ParameterAPI<String> stdParam = imr.getParameter(StdDevTypeParam.NAME);
+					Parameter<String> stdParam = imr.getParameter(StdDevTypeParam.NAME);
 					stdParam.setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
 					double std = imr.getStdDev();
 					if (D) System.out.println("ln STD: " + std);

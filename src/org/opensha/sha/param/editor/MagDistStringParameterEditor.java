@@ -25,7 +25,7 @@ import java.util.Vector;
 import javax.swing.JComboBox;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
@@ -49,12 +49,12 @@ import org.opensha.sha.param.MagDistStringParameter;
 public class MagDistStringParameterEditor extends
 ConstrainedStringParameterEditor {
 
-	public MagDistStringParameterEditor(ParameterAPI param) {
+	public MagDistStringParameterEditor(Parameter param) {
 		super(param);
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<String> param) {
+	public boolean isParameterSupported(Parameter<String> param) {
 		String S = C + ": Constructor(model): ";
 		if(D) System.out.println(S + "Starting");
 

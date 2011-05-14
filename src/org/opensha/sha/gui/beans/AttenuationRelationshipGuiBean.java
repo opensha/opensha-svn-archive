@@ -48,10 +48,10 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -165,7 +165,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	public final static String IMT_EDITOR_TITLE =  "Set IMT";
 
 	//stores the IMT Params for the choosen IMR
-	private ArrayList<ParameterAPI> imtParam;
+	private ArrayList<Parameter> imtParam;
 
 
 	private JPanel imrPanel = new JPanel();
@@ -324,7 +324,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 				// add change fail listener to the site parameters for this IMR
 				while(it1.hasNext()) {
-					ParameterAPI param = (ParameterAPI)it1.next();
+					Parameter param = (Parameter)it1.next();
 					param.addParameterChangeFailListener(this);
 				}
 			}
@@ -388,7 +388,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		 */
 		ListIterator lt = imr.getOtherParamsIterator();
 		while(lt.hasNext()){
-			ParameterAPI tempParam=(ParameterAPI)lt.next();
+			Parameter tempParam=(Parameter)lt.next();
 			//adding the parameter to the parameterList.
 			tempParam.addParameterChangeListener(this);
 			singleAttenRelParamList.addParameter(tempParam);
@@ -452,7 +452,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			ListIterator it =((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getOtherParamsIterator();
 			//iterating over all the Attenuation relationship parameters for the IMR.
 			while(it.hasNext()){
-				ParameterAPI tempParam  = (ParameterAPI)it.next();
+				Parameter tempParam  = (Parameter)it.next();
 
 				/*if(!tempParam.getName().equals(SigmaTruncLevelParam.NAME) &&
            !tempParam.getName().equals(SigmaTruncTypeParam.NAME))*/
@@ -626,14 +626,14 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		//vector to store all the IMT's supported by an IMR
 		ArrayList<String> imt=new ArrayList<String>();
-		imtParam = new ArrayList<ParameterAPI>();
+		imtParam = new ArrayList<Parameter>();
 		for(int i=0;i<numSupportedAttenRels;++i){
-			Iterator<ParameterAPI<?>> it =
+			Iterator<Parameter<?>> it =
 				((ScalarIntensityMeasureRelationshipAPI)attenRelsSupported.get(i)).getSupportedIntensityMeasuresIterator();
 
 			//loop over each IMT and get their independent parameters
 			while ( it.hasNext() ) {
-				DependentParameterAPI param = (DependentParameterAPI) it.next();
+				Parameter param = (Parameter) it.next();
 
 				String imtName = param.getName();
 				DoubleParameter param1 = null;
@@ -643,7 +643,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 				//parameter.
 				if (imt.contains(imtName)) {
 					// this means that we already have this IMT
-					for (ParameterAPI tempParam : imtParam) {
+					for (Parameter tempParam : imtParam) {
 						if (tempParam.getName().equals(imtName)) {
 							param1 = (DoubleParameter)tempParam;
 							break;
@@ -693,7 +693,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 				ListIterator it2 = param.getIndependentParametersIterator();
 				if(D) System.out.println("IMT is:"+param.getName());
 				while ( it2.hasNext() ) {
-					ParameterAPI param2 = (ParameterAPI ) it2.next();
+					Parameter param2 = (Parameter ) it2.next();
 					DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
 					// add all the periods relating to the SA
 					ArrayList allowedValues = values.getAllowedValues();
@@ -715,7 +715,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 					 * new constraint for the independent parameter.
 					 */
 					if(param1.containsIndependentParameter(independentParam.getName())){
-						ParameterAPI tempParam = param1.getIndependentParameter(independentParam.getName());
+						Parameter tempParam = param1.getIndependentParameter(independentParam.getName());
 						ArrayList paramVals = ((DoubleDiscreteConstraint)tempParam.getConstraint()).getAllowedValues();
 						//keeps track if the constraint of the independent param has been changed.
 						boolean changedFlag = false;
@@ -752,9 +752,9 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		Iterator it=imtParam.iterator();
 		while(it.hasNext()){
-			Iterator it1=((DependentParameterAPI)it.next()).getIndependentParametersIterator();
+			Iterator it1=((Parameter)it.next()).getIndependentParametersIterator();
 			while(it1.hasNext()){
-				ParameterAPI tempParam = (ParameterAPI)it1.next();
+				Parameter tempParam = (Parameter)it1.next();
 				imtParamList.addParameter(tempParam);
 				tempParam.addParameterChangeListener(this);
 			}
@@ -844,7 +844,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 *
 	 * @returns the Selected IMT Parameter
 	 */
-	public ParameterAPI getSelectedIMTparam(){
+	public Parameter getSelectedIMTparam(){
 		return imtParamList.getParameter(IMT_PARAM_NAME);
 	}
 
@@ -853,7 +853,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 * @param paramName
 	 * @returns the parameter with the paramName from the IMT parameter list
 	 */
-	public ParameterAPI getParameter(String paramName){
+	public Parameter getParameter(String paramName){
 		return imtParamList.getParameter(paramName);
 	}
 
@@ -870,7 +870,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
 		ParameterConstraint constraint = param.getConstraint();
@@ -893,7 +893,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		boolean found = false;
 		// see whether this parameter exists in site param list for this IMR
 		while(it.hasNext() && !found)
-			if(((ParameterAPI)it.next()).getName().equalsIgnoreCase(name))
+			if(((Parameter)it.next()).getName().equalsIgnoreCase(name))
 				found = true;
 
 		// if this parameter for which failure was issued does not exist in
@@ -929,7 +929,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 		String S = C + " : parameterChangeWarning(): ";
-		WarningParameterAPI param = e.getWarningParameter();
+		WarningParameter param = e.getWarningParameter();
 
 		//check if this parameter exists in the site param list of this IMR
 		// if it does not then set its value using ignore warningAttenuationRelationshipAPI imr ;
@@ -947,7 +947,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		ListIterator it = imr.getSiteParamsIterator();
 		boolean found = false;
 		while(it.hasNext() && !found)
-			if(param.getName().equalsIgnoreCase(((ParameterAPI)it.next()).getName()))
+			if(param.getName().equalsIgnoreCase(((Parameter)it.next()).getName()))
 				found = true;
 		if(!found) {
 			param.setValueIgnoreWarning(e.getNewValue());
@@ -1083,7 +1083,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 * set the IMT parameter in selected IMR's
 	 */
 	public void setIMT() {
-		ParameterAPI param = getSelectedIntensityMeasure();
+		Parameter param = getSelectedIntensityMeasure();
 		ArrayList selectedAttenRels = getSelectedIMRs();
 		int size = selectedAttenRels.size();
 		for(int i=0;i<size;++i)
@@ -1095,7 +1095,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 * gets the selected Intensity Measure Parameter and its dependent Parameter
 	 * @return
 	 */
-	public ParameterAPI getSelectedIntensityMeasure(){
+	public Parameter getSelectedIntensityMeasure(){
 		String selectedImt = imtParamList.getValue(this.IMT_PARAM_NAME).toString();
 		//set all the  parameters related to this IMT
 		return getSelectedIntensityMeasure(selectedImt);
@@ -1118,10 +1118,10 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 * for given IMT name
 	 * @param imtName
 	 */
-	public ParameterAPI getSelectedIntensityMeasure(String imtName){
+	public Parameter getSelectedIntensityMeasure(String imtName){
 		Iterator it= imtParam.iterator();
 		while(it.hasNext()){
-			DependentParameterAPI param=(DependentParameterAPI)it.next();
+			Parameter param=(Parameter)it.next();
 			if(param.getName().equalsIgnoreCase(imtName))
 				return param;
 		}
@@ -1152,15 +1152,15 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			ScalarIntensityMeasureRelationshipAPI attenRelApp = (ScalarIntensityMeasureRelationshipAPI)attenRel.get(i);
 			ListIterator it = attenRelApp.getSiteParamsIterator();
 			while(it.hasNext()){
-				ParameterAPI tempParam = (ParameterAPI)it.next();
+				Parameter tempParam = (Parameter)it.next();
 				boolean flag = true;
 				//iterating over all the added siteParams to check if we have added that
 				//site param before.
 				for(int j=0;j<siteParams.size();++j)
-					if(tempParam.getName().equals(((ParameterAPI)siteParams.get(j)).getName()))
+					if(tempParam.getName().equals(((Parameter)siteParams.get(j)).getName()))
 						flag= false;
 				if(flag){
-					ParameterAPI param = (ParameterAPI)tempParam.clone();
+					Parameter param = (Parameter)tempParam.clone();
 					param.addParameterChangeFailListener(this);
 					siteParams.add(param);
 				}
@@ -1211,7 +1211,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 		//making all the IMT parameters invisible
 		while(it.hasNext())
-			imtEditorParamListEditor.setParameterVisible(((ParameterAPI)it.next()).getName(),false);
+			imtEditorParamListEditor.setParameterVisible(((Parameter)it.next()).getName(),false);
 
 		//making the choose IMT parameter visible
 		imtEditorParamListEditor.setParameterVisible(IMT_PARAM_NAME,true);
@@ -1219,11 +1219,11 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		it=imtParam.iterator();
 		//for the selected IMT making its independent parameters visible
 		while(it.hasNext()){
-			DependentParameterAPI param=(DependentParameterAPI)it.next();
+			Parameter param=(Parameter)it.next();
 			if(param.getName().equalsIgnoreCase(imtName)){
 				Iterator it1=param.getIndependentParametersIterator();
 				while(it1.hasNext())
-					imtEditorParamListEditor.setParameterVisible(((ParameterAPI)it1.next()).getName(),true);
+					imtEditorParamListEditor.setParameterVisible(((Parameter)it1.next()).getName(),true);
 			}
 		}
 
@@ -1269,7 +1269,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 * parameters default values, else disable the choice of that AttenuationRelationship.
 	 */
 	private void selectIMRsForChoosenIMT(){
-		ParameterAPI param = getSelectedIntensityMeasure();
+		Parameter param = getSelectedIntensityMeasure();
 		//Iterating over all the supported AttenRels to check if they support the selected IMT
 		String paramName = param.getName();
 
@@ -1329,7 +1329,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 * @return
 	 */
 	private ArrayList getAttenRelsSupportedForSelectedIM(){
-		ParameterAPI param = getSelectedIntensityMeasure();
+		Parameter param = getSelectedIntensityMeasure();
 		//Iterating over all the supported AttenRels to check if they support the selected IMT
 		String paramName = param.getName();
 		attenRelsSupportedForIM = new ArrayList();
@@ -1375,7 +1375,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		int paramSize = imtEditorParamListEditor.getVisibleParameters().size();
 		while(it.hasNext()){
 			//iterates over all the visible parameters
-			ParameterAPI tempParam = (ParameterAPI)it.next();
+			Parameter tempParam = (Parameter)it.next();
 			//if the param name is IMT Param then it is the Dependent param
 			if(tempParam.getName().equals(this.IMT_PARAM_NAME)){
 				metadata = tempParam.getName()+" = "+(String)tempParam.getValue();

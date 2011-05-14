@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -142,7 +142,7 @@ public class MagDistStringParameter extends StringParameter {
      * @see                            Comparable
      */
     @Override
-    public int compareTo(ParameterAPI<String> param) {
+    public int compareTo(Parameter<String> param) {
 //
 //        String S = C + ":compareTo(): ";
 //

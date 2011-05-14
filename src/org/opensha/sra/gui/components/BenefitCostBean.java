@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -110,14 +110,14 @@ public class BenefitCostBean implements GuiBeanAPI {
 	/** Gets the bean's current vulnerability model */
 	public AbstractVulnerability getCurrentVulnModel() { return getVulnModel(CURRENT); }
 	/** Gets the bean's current vulnerability parameter */
-	public ParameterAPI getCurrentVulnParam() { return getVulnerabilityParameter(CURRENT); }
+	public Parameter getCurrentVulnParam() { return getVulnerabilityParameter(CURRENT); }
 	/** Gets the bean's current replacement cost */
 	public double getCurrentReplaceCost() { return getReplaceCost(CURRENT); }
 	
 	/** Gets the bean's retrofitted vulnerability model */
 	public AbstractVulnerability getRetroVulnModel() { return getVulnModel(RETRO); }
 	/** Gets the bean's retrofitted vulnerability parameter */
-	public ParameterAPI getRetroVulnParam() { return getVulnerabilityParameter(RETRO); }
+	public Parameter getRetroVulnParam() { return getVulnerabilityParameter(RETRO); }
 	/** Gets the bean's retrofitted replacement cost */
 	public double getRetroReplaceCost() { return getReplaceCost(RETRO); }
 	
@@ -196,7 +196,7 @@ public class BenefitCostBean implements GuiBeanAPI {
 	 * @return The underlying <code>ParameterAPI</code> that is used by the VulnerabilityBean.
 	 * @throws IllegalArgumentException If the given <code>design</code> is not supported.
 	 */
-	public ParameterAPI getVulnerabilityParameter(int design) throws IllegalArgumentException {
+	public Parameter getVulnerabilityParameter(int design) throws IllegalArgumentException {
 		if(design == CURRENT) {
 			return structNow.getVulnerabilityBean().getParameter();
 		} else if (design == RETRO) {

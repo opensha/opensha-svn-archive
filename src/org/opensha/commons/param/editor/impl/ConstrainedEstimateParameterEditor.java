@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.editor.estimate;
+package org.opensha.commons.param.editor.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -52,19 +52,19 @@ import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.impl.EstimateConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
-import org.opensha.commons.param.estimate.EstimateConstraint;
-import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.EstimateParameter;
 import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -88,6 +88,11 @@ import org.opensha.sha.gui.infoTools.EstimateViewer;
 public class ConstrainedEstimateParameterEditor  extends AbstractParameterEditorOld
 implements ParameterChangeListener,
 ParameterChangeFailListener, ActionListener{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private EstimateParameter estimateParam;
 
@@ -225,12 +230,12 @@ ParameterChangeFailListener, ActionListener{
 	public ConstrainedEstimateParameterEditor() {
 	}
 
-	public ConstrainedEstimateParameterEditor(ParameterAPI model) {
+	public ConstrainedEstimateParameterEditor(Parameter model) {
 		this(model, false);
 	}
 
 	//constructor taking the Parameter as the input argument
-	public ConstrainedEstimateParameterEditor(ParameterAPI model,
+	public ConstrainedEstimateParameterEditor(Parameter model,
 			boolean showEditorAsPanel){
 		this.model = model;
 		this.showEditorAsPanel = showEditorAsPanel;
@@ -242,7 +247,7 @@ ParameterChangeFailListener, ActionListener{
 		}
 	}
 
-	public void setParameter(ParameterAPI param)  {
+	public void setParameter(Parameter param)  {
 		this.model = param; 
 		String S = C + ": Constructor(): ";
 		if ( D ) System.out.println( S + "Starting:" );
@@ -1036,7 +1041,7 @@ ParameterChangeFailListener, ActionListener{
 			throw new RuntimeException(probParamName+MSG_VALUE_MISSING_SUFFIX);
 	}
 
-	private double getValueForParameter(Parameter param) {
+	private double getValueForParameter(AbstractParameter param) {
 		Object val = param.getValue();
 		if(val==null) return Double.NaN;
 		else return ((Double)val).doubleValue();

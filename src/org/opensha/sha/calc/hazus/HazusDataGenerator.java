@@ -26,8 +26,8 @@ import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazusMapCalculator;
@@ -108,7 +108,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     SiteTranslator siteTrans = new SiteTranslator();
     while (it.hasNext()) {
       //adding the clone of the site parameters to the list
-      ParameterAPI tempParam = (ParameterAPI) ( (ParameterAPI) it.next()).clone();
+      Parameter tempParam = (Parameter) ( (Parameter) it.next()).clone();
       //getting the Site Param Value corresponding to the default Wills site class selected by the user
       // for the seleted IMR  from the SiteTranslator
       siteTrans.setParameterValue(tempParam, SiteTranslator.WILLS_DE, Double.NaN);
@@ -169,7 +169,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
     String S =  " : parameterChangeWarning(): ";
 
-    WarningParameterAPI param = e.getWarningParameter();
+    WarningParameter param = e.getWarningParameter();
 
     //System.out.println(b);
     param.setValueIgnoreWarning(e.getNewValue());

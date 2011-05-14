@@ -31,8 +31,8 @@ import org.apache.commons.math.random.NormalizedRandomGenerator;
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -749,7 +749,7 @@ public class GcimCalculator {
 	}
 	
 	private static void setSAPeriodInIMR(ScalarIntensityMeasureRelationshipAPI imr, double period) {
-		((DependentParameterAPI<Double>)imr.getIntensityMeasure())
+		((Parameter<Double>)imr.getIntensityMeasure())
 		.getIndependentParameter(PeriodParam.NAME).setValue(new Double(period));
 	}
 	

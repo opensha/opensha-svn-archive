@@ -25,8 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.NtoNMap;
@@ -72,7 +72,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 
 	private HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap;
 
-	private DependentParameterAPI<Double> imt = null;
+	private Parameter<Double> imt = null;
 	
 	private int maxChooserChars = Integer.MAX_VALUE;
 	
@@ -706,7 +706,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * 
 	 * @return
 	 */
-	public Iterator<ParameterAPI<?>> getMultiIMRSiteParamIterator() {
+	public Iterator<Parameter<?>> getMultiIMRSiteParamIterator() {
 		return getMultiIMRSiteParamIterator(imrMap);
 	}
 
@@ -716,12 +716,12 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * @param imrMap
 	 * @return
 	 */
-	public static Iterator<ParameterAPI<?>> getMultiIMRSiteParamIterator(
+	public static Iterator<Parameter<?>> getMultiIMRSiteParamIterator(
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
-		ArrayList<ParameterAPI<?>> params = new ArrayList<ParameterAPI<?>>();
+		ArrayList<Parameter<?>> params = new ArrayList<Parameter<?>>();
 		for (TectonicRegionType trt : imrMap.keySet()) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
-			ListIterator<ParameterAPI<?>> siteParams = imr.getSiteParamsIterator();
+			ListIterator<Parameter<?>> siteParams = imr.getSiteParamsIterator();
 			while (siteParams.hasNext()) {
 				params.add(siteParams.next());
 			}
@@ -755,7 +755,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * 
 	 * @param newIMT - new IMT, or null to enable all IMRs
 	 */
-	public void setIMT(DependentParameterAPI<Double> newIMT) {
+	public void setIMT(Parameter<Double> newIMT) {
 		this.imt = newIMT;
 
 		for (int i=0; i<imrs.size(); i++) {

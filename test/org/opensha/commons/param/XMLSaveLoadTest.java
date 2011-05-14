@@ -18,7 +18,7 @@ import org.opensha.commons.util.XMLUtils;
 
 public class XMLSaveLoadTest {
 	
-	private void testXMLSave(ParameterAPI param1, ParameterAPI param2) {
+	private void testXMLSave(Parameter param1, Parameter param2) {
 		Object origVal = param1.getValue();
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
@@ -26,7 +26,7 @@ public class XMLSaveLoadTest {
 		
 		param1.toXMLMetadata(root);
 		
-		param2.setValueFromXMLMetadata(root.element(Parameter.XML_METADATA_NAME));
+		param2.setValueFromXMLMetadata(root.element(AbstractParameter.XML_METADATA_NAME));
 		
 		String cname = ClassUtils.getClassNameWithoutPackage(param1.getClass());
 		

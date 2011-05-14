@@ -39,7 +39,7 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
@@ -225,7 +225,7 @@ public class ParameterApplet
         return list;
     }
 
-    private ParameterAPI makeLocationParameter() {
+    private Parameter makeLocationParameter() {
   	  String name = "Location Parameter";
         paramCount++;
         LocationParameter param = new LocationParameter("Location Param", "Lat", "Lon", "Depth", 34.0, -120.0, 0.0);
@@ -235,7 +235,7 @@ public class ParameterApplet
         return param;
   }
     
-    private ParameterAPI makeRegionParameter() {
+    private Parameter makeRegionParameter() {
     	  String name = "Region Parameter";
           paramCount++;
           RegionParameter param = null;
@@ -254,7 +254,7 @@ public class ParameterApplet
           return param;
     }
     
-    private ParameterAPI makeDoubleValueWeightParameter() {
+    private Parameter makeDoubleValueWeightParameter() {
     	  String name = "Double Value Weight Parameter";
           paramCount++;
           DoubleValueWeightParameter param = new DoubleValueWeightParameter( name, 0, 1, 0 , 1000, "mm/yr", new ValueWeight( 0.5, 99.9 ) );
@@ -265,7 +265,7 @@ public class ParameterApplet
     }
     
     
-    private ParameterAPI makeParameterListParameter(){
+    private Parameter makeParameterListParameter(){
       DoubleParameter param1 = new DoubleParameter("param1",new Double(.01));
       DoubleParameter param2 = new DoubleParameter("param2",new Double(.02));
       ParameterList paramList = new ParameterList();
@@ -276,7 +276,7 @@ public class ParameterApplet
     }
     
     /** Makes a parameter example of this type */
-    private ParameterAPI makeArbitrarilyDiscretizedFuncParameter() {
+    private Parameter makeArbitrarilyDiscretizedFuncParameter() {
     	ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
         func.setName("test func");
         func.set(20.0, 5.0);
@@ -288,7 +288,7 @@ public class ParameterApplet
      
 
     /** Makes a parameter example of this type */
-    private ParameterAPI makeConstrainedDoubleDiscreteParameter() {
+    private Parameter makeConstrainedDoubleDiscreteParameter() {
         String name = "Constrained Double Discrete Parameter";
         String value = "12.1";
         paramCount++;
@@ -306,7 +306,7 @@ public class ParameterApplet
     }
 
     /** Makes a parameter example of this type */
-    private ParameterAPI makeIntegerParameter() {
+    private Parameter makeIntegerParameter() {
         String name = "Integer Parameter";
         String value = "1" + paramCount;
         paramCount++;
@@ -318,16 +318,16 @@ public class ParameterApplet
     }
 
     /** Makes the parameter example of type EvenlyGriddedSurface **/
-    private ParameterAPI makeEvenlyGriddedsurfaceParameter(){
+    private Parameter makeEvenlyGriddedsurfaceParameter(){
 
       String name = "Simple Fault Parameter";
-      ParameterAPI param = new SimpleFaultParameter(name,null);
+      Parameter param = new SimpleFaultParameter(name,null);
       paramCount++;
       return param;
     }
 
     /** Makes a parameter example of this type */
-    private ParameterAPI makeConstrainedIntegerParameter() {
+    private Parameter makeConstrainedIntegerParameter() {
         String name = "Constrained Integer Parameter";
         String value = "1" + paramCount;
         paramCount++;
@@ -340,7 +340,7 @@ public class ParameterApplet
     }
 
     /** Makes a Parameter example for the Warning Integer Type */
-    private ParameterAPI makeWarningIntegerParameter(){
+    private Parameter makeWarningIntegerParameter(){
       String name = "Warning Integer Parameter";
       String value = "1" + paramCount;
       paramCount++;
@@ -356,7 +356,7 @@ public class ParameterApplet
     }
 
     /** Makes a Parameter example for the Warning Integer Type */
-    private ParameterAPI makeWarningDoubleParameter(){
+    private Parameter makeWarningDoubleParameter(){
       String name = "Warning Double Parameter";
       String value = "1" + paramCount;
       paramCount++;
@@ -372,7 +372,7 @@ public class ParameterApplet
     }
 
     /** Makes a parameter example of this type */
-    private ParameterAPI makeDoubleParameter() {
+    private Parameter makeDoubleParameter() {
         String name = "Constrained Double Parameter";
         String value = "12." + paramCount;
         paramCount++;
@@ -386,7 +386,7 @@ public class ParameterApplet
 
 
     /** Makes a parameter example of this type */
-    private ParameterAPI makeStringParameter() {
+    private Parameter makeStringParameter() {
         String name = "String Parameter (" + paramCount + ")";
         String value = "Value " + paramCount;
         paramCount++;
@@ -397,7 +397,7 @@ public class ParameterApplet
     }
 
     /** Makes a parameter example of this type */
-    private ParameterAPI makeConstrainedStringParameter
+    private Parameter makeConstrainedStringParameter
             ( StringConstraint constraint ) {
         String name = "Constrained String Parameter";
         String value = "Value " + paramCount;
@@ -481,7 +481,7 @@ public class ParameterApplet
         b.append( " doesn't allow the value: " );
         b.append( e.getBadValue().toString() );
         b.append( ". \nChoose within constraints:\n" );
-        b.append( ( ( ParameterAPI ) e.getSource() ).getConstraint().toString() );
+        b.append( ( ( Parameter ) e.getSource() ).getConstraint().toString() );
 
         JOptionPane.showMessageDialog(
                 this, b.toString(),

@@ -27,8 +27,8 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -51,7 +51,7 @@ import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
  * @version    1.0
  */
 
-public class DoubleParameter extends DependentParameter<Double> {
+public class DoubleParameter extends AbstractParameter<Double> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -385,7 +385,7 @@ public class DoubleParameter extends DependentParameter<Double> {
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<Double> param) {
+	public int compareTo(Parameter<Double> param) {
 //
 //		String S = C + ":compareTo(): ";
 //

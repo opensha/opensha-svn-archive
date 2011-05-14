@@ -40,8 +40,8 @@ import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -90,7 +90,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
 	//Site Params ArrayList
-	ArrayList<ParameterAPI<?>> siteParams ;
+	ArrayList<Parameter<?>> siteParams ;
 
 	//Static String for setting the site Params
 	public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
@@ -191,10 +191,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @param it : Iterator over the site params in the IMR
 	 */
 	public void addSiteParams(Iterator it) {
-		Parameter tempParam;
+		AbstractParameter tempParam;
 		ArrayList siteTempVector= new ArrayList();
 		while(it.hasNext()) {
-			tempParam = (Parameter)it.next();
+			tempParam = (AbstractParameter)it.next();
 			if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
 				parameterList.addParameter(tempParam);
 				//adding the parameter to the vector,
@@ -216,12 +216,12 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @param it : Iterator over the site params in the IMR
 	 */
 	public void addSiteParamsClone(Iterator it) {
-		Parameter tempParam;
+		AbstractParameter tempParam;
 		ArrayList v= new ArrayList();
 		while(it.hasNext()) {
-			tempParam = (Parameter)it.next();
+			tempParam = (AbstractParameter)it.next();
 			if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
-				Parameter cloneParam = (Parameter)tempParam.clone();
+				AbstractParameter cloneParam = (AbstractParameter)tempParam.clone();
 				parameterList.addParameter(cloneParam);
 				//adding the cloned parameter in the siteList.
 				v.add(cloneParam);
@@ -282,10 +282,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		ListIterator it  = parameterList.getParametersIterator();
 		// clone the paramters
 		while(it.hasNext()){
-			ParameterAPI tempParam= (ParameterAPI)it.next();
+			Parameter tempParam= (Parameter)it.next();
 			for(int i=0;i<newSiteVector.size();++i){
 				if(!((Site)newSiteVector.get(i)).containsParameter(tempParam))
-					((Site)newSiteVector.get(i)).addParameter((ParameterAPI)tempParam.clone());
+					((Site)newSiteVector.get(i)).addParameter((Parameter)tempParam.clone());
 			}
 		}
 		return newSiteVector.iterator();
@@ -306,7 +306,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		//becuase all the sites will be having the same site Parameter
 		Iterator it = siteParams.iterator();
 		while(it.hasNext())
-			v.add(((ParameterAPI)it.next()).clone());
+			v.add(((Parameter)it.next()).clone());
 		sites.addSiteParams(v.iterator());
 	}
 
@@ -326,7 +326,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
 		ParameterConstraint constraint = param.getConstraint();
@@ -355,7 +355,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @param e Description of the parameter
 	 */
 	public void parameterChange(ParameterChangeEvent e){
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 		if(param.getName().equals(SITE_PARAM_NAME))
 			setSiteParamsVisible();
@@ -410,7 +410,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			}
 			ArrayList defaultSiteParams = new ArrayList();
 			for(int i=0;i<siteParams.size();++i){
-				ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)siteParams.get(i)).clone();
+				Parameter tempParam = (Parameter)((Parameter)siteParams.get(i)).clone();
 				tempParam.setValue(parameterList.getParameter(this.DEFAULT+tempParam.getName()).getValue());
 				defaultSiteParams.add(tempParam);
 			}
@@ -434,14 +434,14 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		if(((String)siteParam.getValue()).equals(SET_ALL_SITES)){
 			while(it.hasNext()){
 				//removing the default Site Type Params if same site is to be applied to whole region
-				ParameterAPI tempParam= (ParameterAPI)it.next();
+				Parameter tempParam= (Parameter)it.next();
 				if(tempParam.getName().startsWith(this.DEFAULT))
 					parameterList.removeParameter(tempParam.getName());
 			}
 			//Adding the Site related params to the ParameterList
 			ListIterator it1 = siteParams.listIterator();
 			while(it1.hasNext()){
-				ParameterAPI tempParam = (ParameterAPI)it1.next();
+				Parameter tempParam = (Parameter)it1.next();
 				if(!parameterList.containsParameter(tempParam.getName()))
 					parameterList.addParameter(tempParam);
 			}
@@ -452,7 +452,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			while(it.hasNext()){
 				//adds the default site Parameters becuase each site will have different site types and default value
 				//has to be given if site lies outside the bounds of CVM
-				ParameterAPI tempParam= (ParameterAPI)it.next();
+				Parameter tempParam= (Parameter)it.next();
 				if(!tempParam.getName().equalsIgnoreCase(this.MAX_LATITUDE) &&
 						!tempParam.getName().equalsIgnoreCase(this.MIN_LATITUDE) &&
 						!tempParam.getName().equalsIgnoreCase(this.MAX_LONGITUDE) &&
@@ -468,7 +468,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 						siteTrans.setParameterValue(tempParam,siteTrans.WILLS_DE,Double.NaN);
 
 					//creating the new Site Param, with "Default " added to its name, with existing site Params
-					ParameterAPI newParam = (ParameterAPI)tempParam.clone();
+					Parameter newParam = (Parameter)tempParam.clone();
 					//If the parameterList already contains the site param with the "Default" name, then no need to change the existing name.
 					if(!newParam.getName().startsWith(this.DEFAULT))
 						newParam.setName(this.DEFAULT+newParam.getName());

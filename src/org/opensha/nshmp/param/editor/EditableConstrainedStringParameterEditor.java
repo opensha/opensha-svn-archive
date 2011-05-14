@@ -23,7 +23,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 
 /**
@@ -43,7 +43,7 @@ public class EditableConstrainedStringParameterEditor extends ConstrainedStringP
 	 * @param model
 	 * @throws ConstraintException
 	 */
-	public EditableConstrainedStringParameterEditor(ParameterAPI model) throws ConstraintException {
+	public EditableConstrainedStringParameterEditor(Parameter model) throws ConstraintException {
 		super(model);
 	}
 

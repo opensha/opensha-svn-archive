@@ -17,19 +17,20 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.param.estimate;
+package org.opensha.commons.param.impl;
 
 import java.util.ArrayList;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.EstimateConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
-import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedEstimateParameterEditor;
 
 
 
@@ -43,9 +44,13 @@ import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEdi
  * @version 1.0
  */
 
-public class EstimateParameter extends DependentParameter<Estimate> {
+public class EstimateParameter extends AbstractParameter<Estimate> {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
 	protected final static String C = "EstimateParameter";
 	/** If true print out debug statements. */
@@ -190,7 +195,7 @@ public class EstimateParameter extends DependentParameter<Estimate> {
 
 
 	@Override
-	public int compareTo(ParameterAPI<Estimate> param) {
+	public int compareTo(Parameter<Estimate> param) {
 		/**@todo Implement this org.opensha.param.Parameter abstract method*/
 		throw new java.lang.UnsupportedOperationException(
 		"Method compareTo() not yet implemented.");

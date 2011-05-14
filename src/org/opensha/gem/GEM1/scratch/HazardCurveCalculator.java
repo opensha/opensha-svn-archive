@@ -31,7 +31,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -750,7 +750,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		Site site = new Site();
 		ListIterator it = imr.getSiteParamsIterator();
 		while(it.hasNext())
-			site.addParameter((ParameterAPI)it.next());
+			site.addParameter((Parameter)it.next());
 		site.setLocation(new Location(34,-118));
 
 		EqkRupForecast eqkRupForecast = new Frankel96_EqkRupForecast();

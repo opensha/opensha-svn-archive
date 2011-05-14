@@ -19,8 +19,8 @@
 
 package org.opensha.commons.util;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
@@ -47,7 +47,7 @@ public class ParamUtils {
      * @param           The parameter to verify
      * @return          boolean true if is either parameter type, else false
      */
-    public static boolean isDoubleOrDoubleDiscreteConstraint(ParameterAPI param) {
+    public static boolean isDoubleOrDoubleDiscreteConstraint(Parameter param) {
         if( isDoubleConstraint(param) || isDoubleDiscreteConstraint(param) ) return true;
         else return false;
     }
@@ -57,7 +57,7 @@ public class ParamUtils {
      * @param           The parameter to verify
      * @return          boolean true if constraint is DOubleConstraint, false otherwise.
      */
-    public static boolean isDoubleConstraint(ParameterAPI param) {
+    public static boolean isDoubleConstraint(Parameter param) {
         ParameterConstraint constraint = param.getConstraint();
         if ( constraint instanceof DoubleConstraint ) return true;
         else return false;
@@ -68,7 +68,7 @@ public class ParamUtils {
      * @param           The parameter to verify
      * @return          boolean if is either parameter type
      */
-    public static boolean isDoubleDiscreteConstraint(ParameterAPI param) {
+    public static boolean isDoubleDiscreteConstraint(Parameter param) {
         ParameterConstraint constraint = param.getConstraint();
         if ( constraint instanceof DoubleDiscreteConstraint ) return true;
         else return false;
@@ -79,8 +79,8 @@ public class ParamUtils {
      * @param           The parameter to verify
      * @return          boolean if is either parameter type
      */
-    public static boolean isWarningParameterAPI(ParameterAPI param) {
-        if ( param instanceof WarningParameterAPI ) return true;
+    public static boolean isWarningParameterAPI(Parameter param) {
+        if ( param instanceof WarningParameter ) return true;
         else return false;
     }
 

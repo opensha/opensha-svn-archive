@@ -2,7 +2,7 @@ package org.opensha.sha.gui.infoTools;
 
 import org.apache.commons.math.util.MathUtils;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
@@ -151,7 +151,7 @@ public final class IMT_Info {
 	 * @return
 	 */
 	public ArbitrarilyDiscretizedFunc getDefaultHazardCurve(
-			ParameterAPI imtParam) {
+			Parameter imtParam) {
 		String paramVal = imtParam.getName();
 		return getDefaultHazardCurve(paramVal);
 	}
@@ -344,7 +344,7 @@ public final class IMT_Info {
 	 * @param imtParam : IMT Parameter
 	 * @return true if the selected IMT is PGA, PGV or SA else returns false
 	 */
-	public static boolean isIMT_LogNormalDist(ParameterAPI imtParam) {
+	public static boolean isIMT_LogNormalDist(Parameter imtParam) {
 		String paramVal = (String) imtParam.getValue();
 		return isIMT_LogNormalDist(paramVal);
 	}

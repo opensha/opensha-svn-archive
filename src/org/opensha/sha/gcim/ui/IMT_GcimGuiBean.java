@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
 
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -54,7 +54,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	private ParameterList imtParams;
 	
 	private StringParameter imtParameter;
-	private DependentParameterAPI<Double> imj; //The IMj parameter from the main hazard calc
+	private Parameter<Double> imj; //The IMj parameter from the main hazard calc
 	private ArrayList<String> currentIMiList; //The currently assigned list of IMi's
 	
 	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
@@ -71,7 +71,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imr
 	 */
 	public IMT_GcimGuiBean(ScalarIntensityMeasureRelationshipAPI imr, ImCorrelationRelationship imCorrRel,
-			DependentParameterAPI<Double> imj, ArrayList<String> currentIMiList) {
+			Parameter<Double> imj, ArrayList<String> currentIMiList) {
 		this(wrapInList(imr), wrapInList(imCorrRel), imj, currentIMiList);
 	}
 	
@@ -83,7 +83,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imCorrRelGuiBean
 	 */
 	public IMT_GcimGuiBean(IMR_MultiGuiBean imrGuiBean, IMCorrRel_MultiGuiBean imCorrRelGuiBean,
-			DependentParameterAPI<Double> imj, ArrayList<String> currentIMiList) {
+			Parameter<Double> imj, ArrayList<String> currentIMiList) {
 		this(imrGuiBean.getIMRs(),imCorrRelGuiBean.getIMCorrRels(), imj, currentIMiList);
 		this.addIMTChangeListener(imrGuiBean);
 		this.addIMTChangeListener(imCorrRelGuiBean);
@@ -97,7 +97,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrs
 	 */
 	public IMT_GcimGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs, 
-			ArrayList<ImCorrelationRelationship> imCorrRels, DependentParameterAPI<Double> imj,
+			ArrayList<ImCorrelationRelationship> imCorrRels, Parameter<Double> imj,
 			ArrayList<String> currentIMiList) {
 		this.setTitle(TITLE);
 		this.imj = imj;
@@ -149,19 +149,19 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		//Loop over all of the ImCorrRels
 		for (ImCorrelationRelationship imCorrRel : imCorrRels) {
 			//For each IMCorrRel loop over the supported IMjs
-			ArrayList<ParameterAPI<?>> imjParamList = imCorrRel.getSupportedIntensityMeasuresjList();
+			ArrayList<Parameter<?>> imjParamList = imCorrRel.getSupportedIntensityMeasuresjList();
 			for (int i = 0; i<imjParamList.size(); i++) {
-				ParameterAPI<?> imjParam = imjParamList.get(i);
+				Parameter<?> imjParam = imjParamList.get(i);
 				//Check if the imjParam is the imjName
 				if (imjParam.getName()==imj.getName()) {
 					//Now get the IMi pair that goes with this IMj
-					ParameterAPI<?> imiParam = imCorrRel.getSupportedIntensityMeasuresiList().get(i);
+					Parameter<?> imiParam = imCorrRel.getSupportedIntensityMeasuresiList().get(i);
 					//Hence this correlation relationship supports both imjName and imiParamName, now
 					//check to see if any IMRs support this imiParamName
 					for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 						//Loop over the IMR supported IMis
 						ParameterList imiIMRParamList = imr.getSupportedIntensityMeasuresList();
-						for (ParameterAPI<?> imiIMRParam : imiIMRParamList) {
+						for (Parameter<?> imiIMRParam : imiIMRParamList) {
 						//for (int j = 0; j<imiIMRParamList.size(); j++) {
 							//ParameterAPI<?> imiIMRParam = imiIMRParamList.getParameter(j);
 							if (imiIMRParam.getName()==imiParam.getName()) {
@@ -192,7 +192,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		imiParamList = imiParamList_IMjSupport;
 		ArrayList<String> imiParamList_IMkNoSupport = new ArrayList<String>();
 		if (numCurrentIMis>0) {
-			for (ParameterAPI<?> imiParam : imiParamList_IMjSupport) {
+			for (Parameter<?> imiParam : imiParamList_IMjSupport) {
 			//for (int i=0; i<numIMiWithIMjSupport; i++){
 				String imiName = imiParamList_IMjSupport.getParameterName(imiParam.getName());
 				//String imiName = imiParamList_IMjSupport.getParameterName(i);
@@ -203,13 +203,13 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 					//Loop over the IMCorrRels to see if any support IMi and IMk
 					for (ImCorrelationRelationship imCorrRel : imCorrRels) {
 						//For each IMCorrRel loop over the supported IMks
-						ArrayList<ParameterAPI<?>> imkParamList = imCorrRel.getSupportedIntensityMeasuresjList();
+						ArrayList<Parameter<?>> imkParamList = imCorrRel.getSupportedIntensityMeasuresjList();
 						for (int m = 0; m<imkParamList.size(); m++) {
-							ParameterAPI<?> imkParam = imkParamList.get(m);
+							Parameter<?> imkParam = imkParamList.get(m);
 							//Check if the imkParam is the imkName
 							if (imkParam.getName()==imkName) {
 								//If so then check if the imiParam is the imiName
-								ParameterAPI<?> imiParamM = imCorrRel.getSupportedIntensityMeasuresiList().get(m);
+								Parameter<?> imiParamM = imCorrRel.getSupportedIntensityMeasuresiList().get(m);
 								if (imiParamM.getName()==imiName) {
 									imiHasIMkSupport = true;
 								}
@@ -232,7 +232,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		if (commonParamsOnly) {
 			// now we weed out the ones that aren't supported by everyone
 			ParameterList toBeRemoved = new ParameterList();
-			for (ParameterAPI param : imiParamList) {
+			for (Parameter param : imiParamList) {
 				boolean remove = false;
 				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 					if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
@@ -253,12 +253,12 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 				}
 			}
 			// now we remove them
-			for (ParameterAPI badParam : toBeRemoved) {
+			for (Parameter badParam : toBeRemoved) {
 				imiParamList.removeParameter(badParam.getName());
 			}
 			saPeriods = getCommonPeriods(imrs);
 		} else {
-			for (ParameterAPI<?> param : imiParamList) {
+			for (Parameter<?> param : imiParamList) {
 				if (param.getName().equals(SA_Param.NAME)) {
 					oldSAParam = (SA_Param) param;
 					break;
@@ -289,7 +289,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		ParameterList finalParamList = new ParameterList();
 		
 		ArrayList<String> imtNames = new ArrayList<String>();
-		for (ParameterAPI<?> param : imiParamList) {
+		for (Parameter<?> param : imiParamList) {
 			imtNames.add(param.getName());
 		}
 		
@@ -298,7 +298,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 				(String)imtNames.get(0));
 		imtParameter.addParameterChangeListener(this);
 		finalParamList.addParameter(imtParameter);
-		for (ParameterAPI<?> param : imiParamList) {
+		for (Parameter<?> param : imiParamList) {
 			finalParamList.addParameter(param);
 		}
 		updateGUI();
@@ -312,10 +312,10 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		// now add the independent params for the selected IMT
 		String imtName = imtParameter.getValue();
 //		System.out.println("Updating GUI for: " + imtName);
-		DependentParameterAPI<?> imtParam = (DependentParameterAPI<?>) imtParams.getParameter(imtName);
-		ListIterator<ParameterAPI<?>> paramIt = imtParam.getIndependentParametersIterator();
+		Parameter<?> imtParam = (Parameter<?>) imtParams.getParameter(imtName);
+		ListIterator<Parameter<?>> paramIt = imtParam.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
-			ParameterAPI<?> param = paramIt.next();
+			Parameter<?> param = paramIt.next();
 			if (param.getName().equals(PeriodParam.NAME)) {
 				PeriodParam periodParam = (PeriodParam) param;
 				ArrayList<Double> periods = currentSupportedPeriods;
@@ -371,10 +371,10 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		
 		// now add the independent params for the selected IMT
 		String imtName = imtParameter.getValue();
-		DependentParameterAPI<?> imtParam = (DependentParameterAPI<?>) imtParams.getParameter(imtName);
-		ListIterator<ParameterAPI<?>> paramIt = imtParam.getIndependentParametersIterator();
+		Parameter<?> imtParam = (Parameter<?>) imtParams.getParameter(imtName);
+		ListIterator<Parameter<?>> paramIt = imtParam.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
-			ParameterAPI<?> param = paramIt.next();
+			Parameter<?> param = paramIt.next();
 			if (param.getName().equals(PeriodParam.NAME)) {
 				PeriodParam periodParam = (PeriodParam) param;
 				periodParam.setValue(period);
@@ -400,8 +400,8 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @return The selected intensity measure parameter
 	 */
 	@SuppressWarnings("unchecked")
-	public DependentParameterAPI<Double> getSelectedIM() {
-		return (DependentParameterAPI<Double>) imtParams.getParameter(getSelectedIMT());
+	public Parameter<Double> getSelectedIM() {
+		return (Parameter<Double>) imtParams.getParameter(getSelectedIMT());
 	}
 
 	@Override
@@ -457,7 +457,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imr
 	 */
 	public void setIMTsInIMCorrRel(ImCorrelationRelationship imCorrRel, 
-			DependentParameterAPI<Double> imj) {
+			Parameter<Double> imj) {
 		setIMTsinIMCorrRel(getSelectedIM(), imj, imCorrRel);
 	}
 	
@@ -476,7 +476,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrMap
 	 */
 	public void setIMTsinIMCorrRels(HashMap<TectonicRegionType, ImCorrelationRelationship> imCorrRelMap,
-			DependentParameterAPI<Double> imj) {
+			Parameter<Double> imj) {
 		setIMTsInIMCorrRels(getSelectedIM(), imj, imCorrRelMap);
 	}
 	
@@ -492,17 +492,17 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imr
 	 */
 	@SuppressWarnings("unchecked")
-	public static void setIMTinIMR(DependentParameterAPI<Double> imt,ScalarIntensityMeasureRelationshipAPI imr) {
+	public static void setIMTinIMR(Parameter<Double> imt,ScalarIntensityMeasureRelationshipAPI imr) {
 		if (D) 
 			System.out.println("Setting the imr (" + imr + ") with imt (" + imt + ")");
 		
 		imr.setIntensityMeasure(imt.getName());
-		DependentParameterAPI<Double> newIMT = (DependentParameterAPI<Double>) imr.getIntensityMeasure();
+		Parameter<Double> newIMT = (Parameter<Double>) imr.getIntensityMeasure();
 		
-		ListIterator<ParameterAPI<?>> paramIt = newIMT.getIndependentParametersIterator();
+		ListIterator<Parameter<?>> paramIt = newIMT.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
-			ParameterAPI toBeSet = paramIt.next();
-			ParameterAPI newVal = imt.getIndependentParameter(toBeSet.getName());
+			Parameter toBeSet = paramIt.next();
+			Parameter newVal = imt.getIndependentParameter(toBeSet.getName());
 			
 			toBeSet.setValue(newVal.getValue());
 		}
@@ -519,28 +519,28 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void setIMTsinIMCorrRel(
-			DependentParameterAPI<Double> imti, DependentParameterAPI<Double> imtj,
+			Parameter<Double> imti, Parameter<Double> imtj,
 			ImCorrelationRelationship imCorrRel) {
 		
 		//IMi
 		imCorrRel.setIntensityMeasurei(imti.getName());
-		DependentParameterAPI<Double> newIMTi = (DependentParameterAPI<Double>) imCorrRel.getIntensityMeasurei();
+		Parameter<Double> newIMTi = (Parameter<Double>) imCorrRel.getIntensityMeasurei();
 		
-		ListIterator<ParameterAPI<?>> paramIti = newIMTi.getIndependentParametersIterator();
+		ListIterator<Parameter<?>> paramIti = newIMTi.getIndependentParametersIterator();
 		while (paramIti.hasNext()) {
-			ParameterAPI toBeSet = paramIti.next();
-			ParameterAPI newVal = imti.getIndependentParameter(toBeSet.getName());
+			Parameter toBeSet = paramIti.next();
+			Parameter newVal = imti.getIndependentParameter(toBeSet.getName());
 			toBeSet.setValue(newVal.getValue());
 		}
 		
 		//IMj
 		imCorrRel.setIntensityMeasurej(imtj.getName());
-		DependentParameterAPI<Double> newIMTj = (DependentParameterAPI<Double>) imCorrRel.getIntensityMeasurej();
+		Parameter<Double> newIMTj = (Parameter<Double>) imCorrRel.getIntensityMeasurej();
 		
-		ListIterator<ParameterAPI<?>> paramItj = newIMTj.getIndependentParametersIterator();
+		ListIterator<Parameter<?>> paramItj = newIMTj.getIndependentParametersIterator();
 		while (paramItj.hasNext()) {
-			ParameterAPI toBeSet = paramItj.next();
-			ParameterAPI newVal = imtj.getIndependentParameter(toBeSet.getName());
+			Parameter toBeSet = paramItj.next();
+			Parameter newVal = imtj.getIndependentParameter(toBeSet.getName());
 			toBeSet.setValue(newVal.getValue());
 		}
 	}
@@ -552,7 +552,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrMap
 	 */
 	public static void setIMTinIMRs(
-			DependentParameterAPI<Double> imt,
+			Parameter<Double> imt,
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
 		for (TectonicRegionType trt : imrMap.keySet()) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
@@ -567,7 +567,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrMap
 	 */
 	public static void setIMTsInIMCorrRels(
-			DependentParameterAPI<Double> imti, DependentParameterAPI<Double> imtj,
+			Parameter<Double> imti, Parameter<Double> imtj,
 			HashMap<TectonicRegionType, ImCorrelationRelationship> imCorrRelMap) {
 		for (TectonicRegionType trt : imCorrRelMap.keySet()) {
 			ImCorrelationRelationship imCorrRel = imCorrRelMap.get(trt);

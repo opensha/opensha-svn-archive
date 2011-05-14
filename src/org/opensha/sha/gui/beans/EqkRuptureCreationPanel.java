@@ -29,7 +29,7 @@ import java.util.ListIterator;
 import javax.swing.JPanel;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -418,7 +418,7 @@ public class EqkRuptureCreationPanel
    * @param paramName
    * @returns the parameter from the parameterList with paramName.
    */
-  public ParameterAPI getParameter(String paramName) {
+  public Parameter getParameter(String paramName) {
     if (parameterList.containsParameter(paramName)) {
       if (listEditor.getParameterEditor(paramName).isVisible()) {
         return parameterList.getParameter(paramName);

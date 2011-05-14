@@ -35,7 +35,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
@@ -76,9 +76,9 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		IM_EventSetOutputWriter.setIMTFromString(imt, imr);
 		site = new Site(new Location(34d, -118d));
 		
-		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+		ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		while (it.hasNext()) {
-			ParameterAPI<?> param = it.next();
+			Parameter<?> param = it.next();
 			site.addParameter(param);
 		}
 		sites = new ArrayList<Site>();

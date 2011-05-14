@@ -56,7 +56,7 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gui.DisclaimerDialog;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -707,7 +707,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * Returns the selected IM in the IMR GuiBean
 	 * @return
 	 */
-	public ParameterAPI getSelectedIntensityMeasure(){
+	public Parameter getSelectedIntensityMeasure(){
 		return imrGuiBean.getSelectedIntensityMeasure();
 	}
 

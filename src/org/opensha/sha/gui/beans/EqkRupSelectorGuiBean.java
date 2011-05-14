@@ -31,7 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
@@ -310,7 +310,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	 * @param paramName
 	 * @returns the parameter from list of visible parameters in the rupture selector/creator GUI.
 	 */
-	public ParameterAPI getParameter(String paramName){
+	public Parameter getParameter(String paramName){
 		if(paramName.equals(this.RUPTURE_SELECTOR_PARAM_NAME))
 			return ruptureSelectorParam;
 		else{

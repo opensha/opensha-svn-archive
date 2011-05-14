@@ -15,7 +15,7 @@ import org.dom4j.Element;
 import org.junit.Before;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
@@ -57,12 +57,12 @@ public class TestHazardCurveSetCalculator extends TestCase {
 		ba08.setParamDefaults();
 		
 		cb08.setIntensityMeasure(SA_Param.NAME);
-		((DependentParameter<Double>)cb08.getIntensityMeasure())
-				.getIndependentParameter(PeriodParam.NAME).setValue((Object)new Double(1.0));
+		cb08.getIntensityMeasure()
+				.getIndependentParameter(PeriodParam.NAME).setValue(new Double(1.0));
 		
 		ba08.setIntensityMeasure(SA_Param.NAME);
-		((DependentParameter<Double>)ba08.getIntensityMeasure())
-				.getIndependentParameter(PeriodParam.NAME).setValue((Object)new Double(1.0));
+		ba08.getIntensityMeasure()
+				.getIndependentParameter(PeriodParam.NAME).setValue(new Double(1.0));
 		
 		map1.put(TectonicRegionType.ACTIVE_SHALLOW, cb08);
 		map2.put(TectonicRegionType.ACTIVE_SHALLOW, ba08);

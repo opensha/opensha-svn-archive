@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.params.MaxDistanceParam;
@@ -67,7 +67,7 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 			Location loc = new Location(surfLoc.getLatitude(), surfLoc.getLongitude());
 			site = new Site(loc);
 			FakeTRTBasedIMR imr = new FakeTRTBasedIMR(TectonicRegionType.ACTIVE_SHALLOW);
-			for (ParameterAPI<?> param : imr.getSiteParamsList())
+			for (Parameter<?> param : imr.getSiteParamsList())
 				site.addParameter(param);
 			IMT_Info imtInfo = new IMT_Info();
 			func = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure());

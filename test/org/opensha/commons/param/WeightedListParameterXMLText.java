@@ -81,7 +81,7 @@ public class WeightedListParameterXMLText {
 			assertFalse("weights shouldn't match at first", (float)list1234.getWeight(i) == (float)list4321.getWeight(i));
 		}
 		
-		param2.setValueFromXMLMetadata(root.element(Parameter.XML_METADATA_NAME));
+		param2.setValueFromXMLMetadata(root.element(AbstractParameter.XML_METADATA_NAME));
 	
 		for (int i=0; i<list1234.size(); i++) {
 			assertEquals("weights not set correctly!", list1234.getWeight(i), list4321.getWeight(i), 0.00001);

@@ -26,8 +26,8 @@ import java.util.ListIterator;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.ASI_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.CAV_Param;
@@ -139,7 +139,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 * @return                      The found parameter
 	 * @throws ParameterException   If parameter with that name doesn't exist
 	 */
-	public ParameterAPI getParameter(String name) throws ParameterException {
+	public Parameter getParameter(String name) throws ParameterException {
 		for (int i=0; i<supportedIMjParams.size(); i++) {
 			//Put the ith value in a parameter list (its the only entry so this 
 			//is somewhat redundant, but it means that existing similar code can be used)
@@ -150,10 +150,10 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 			}
 			catch (ParameterException e) {}
 
-			ListIterator<ParameterAPI<?>> it = supportedImParams.getParametersIterator();
+			ListIterator<Parameter<?>> it = supportedImParams.getParametersIterator();
 			while (it.hasNext()) {
 
-				DependentParameterAPI param = (DependentParameterAPI) it.next();
+				Parameter param = (Parameter) it.next();
 				if (param.containsIndependentParameter(name)) {
 					return param.getIndependentParameter(name);
 				}
@@ -176,7 +176,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 *  specification quite general and flexible.  IMRs compute the probability
 	 *  of exceeding the "value" field of this im Parameter.
 	 */
-	protected ParameterAPI imi;
+	protected Parameter imi;
 	
 	/**
 	 *  Intensity Measurej.  This is a specification of the type of shaking one
@@ -184,7 +184,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 *  specification quite general and flexible.  IMRs compute the probability
 	 *  of exceeding the "value" field of this im Parameter.
 	 */
-	protected ParameterAPI imj;
+	protected Parameter imj;
 
 	protected boolean intensityMeasureiChanged;
 	
@@ -196,7 +196,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 *
 	 * @return    The intensityMeasure Parameter
 	 */
-	public ParameterAPI getIntensityMeasurei() {
+	public Parameter getIntensityMeasurei() {
 		return imi;
 	}
 	
@@ -206,7 +206,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 *
 	 * @return    The intensityMeasure Parameter
 	 */
-	public ParameterAPI getIntensityMeasurej() {
+	public Parameter getIntensityMeasurej() {
 		return imj;
 	}
 	
@@ -216,7 +216,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 *
 	 * @return    The Supported Intensity-Measures i Iterator
 	 */
-	public ArrayList<ParameterAPI<?>> getSupportedIntensityMeasuresiList() {
+	public ArrayList<Parameter<?>> getSupportedIntensityMeasuresiList() {
 		return supportedIMiParams;
 	}
 	
@@ -226,7 +226,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 *
 	 * @return    The Supported Intensity-Measures j Iterator
 	 */
-	public ArrayList<ParameterAPI<?>> getSupportedIntensityMeasuresjList() {
+	public ArrayList<Parameter<?>> getSupportedIntensityMeasuresjList() {
 		return supportedIMjParams;
 	}
 	
@@ -267,7 +267,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 		for (int i=0; i<supportedIMjParams.size(); i++) {
 			if (supportedIMjParams.get(i).getName()==intensityMeasurejName) {
 				intensityMeasurejNameFound = true;
-				imj = (ParameterAPI<?>) supportedIMjParams.get(i);
+				imj = (Parameter<?>) supportedIMjParams.get(i);
 				intensityMeasurejChanged = true;
 				break;
 			}
@@ -310,11 +310,11 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	/**
 	 *  This creates the supported intensity-measure i ParameterList.   
 	 */
-	protected ArrayList<ParameterAPI<?>> supportedIMiParams = new ArrayList<ParameterAPI<?>>();
+	protected ArrayList<Parameter<?>> supportedIMiParams = new ArrayList<Parameter<?>>();
 	/**
 	 *  This creates the supported intensity-measure j ParameterList.  
 	 */
-	protected ArrayList<ParameterAPI<?>> supportedIMjParams = new ArrayList<ParameterAPI<?>>();
+	protected ArrayList<Parameter<?>> supportedIMjParams = new ArrayList<Parameter<?>>();
 
 	/**
 	 * ParameterList of other parameters.
@@ -330,7 +330,7 @@ public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
 	 *
 	 * @return    Iterator for otherParameters
 	 */
-	public ListIterator<ParameterAPI<?>> getOtherParamsIterator() {
+	public ListIterator<Parameter<?>> getOtherParamsIterator() {
 		return otherParams.getParametersIterator();
 	}
 	

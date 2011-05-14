@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
 
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -119,7 +119,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		ArrayList<Double> saPeriods;
 		ParameterList paramList = new ParameterList();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			for (ParameterAPI<?> param : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> param : imr.getSupportedIntensityMeasuresList()) {
 				if (paramList.containsParameter(param.getName())) {
 					// it's already in there, do nothing
 				} else {
@@ -132,7 +132,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		if (commonParamsOnly) {
 			// now we weed out the ones that aren't supported by everyone
 			ParameterList toBeRemoved = new ParameterList();
-			for (ParameterAPI param : paramList) {
+			for (Parameter param : paramList) {
 				boolean remove = false;
 				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 					if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
@@ -153,12 +153,12 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 				}
 			}
 			// now we remove them
-			for (ParameterAPI badParam : toBeRemoved) {
+			for (Parameter badParam : toBeRemoved) {
 				paramList.removeParameter(badParam.getName());
 			}
 			saPeriods = getCommonPeriods(imrs);
 		} else {
-			for (ParameterAPI<?> param : paramList) {
+			for (Parameter<?> param : paramList) {
 				if (param.getName().equals(SA_Param.NAME)) {
 					oldSAParam = (SA_Param) param;
 					break;
@@ -186,7 +186,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		ParameterList finalParamList = new ParameterList();
 		
 		ArrayList<String> imtNames = new ArrayList<String>();
-		for (ParameterAPI<?> param : paramList) {
+		for (Parameter<?> param : paramList) {
 			imtNames.add(param.getName());
 		}
 		
@@ -195,7 +195,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 				(String)imtNames.get(0));
 		imtParameter.addParameterChangeListener(this);
 		finalParamList.addParameter(imtParameter);
-		for (ParameterAPI<?> param : paramList) {
+		for (Parameter<?> param : paramList) {
 			finalParamList.addParameter(param);
 		}
 		updateGUI();
@@ -209,10 +209,10 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		// now add the independent params for the selected IMT
 		String imtName = imtParameter.getValue();
 //		System.out.println("Updating GUI for: " + imtName);
-		DependentParameterAPI<?> imtParam = (DependentParameterAPI<?>) imtParams.getParameter(imtName);
-		ListIterator<ParameterAPI<?>> paramIt = imtParam.getIndependentParametersIterator();
+		Parameter<?> imtParam = (Parameter<?>) imtParams.getParameter(imtName);
+		ListIterator<Parameter<?>> paramIt = imtParam.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
-			ParameterAPI<?> param = paramIt.next();
+			Parameter<?> param = paramIt.next();
 			if (param.getName().equals(PeriodParam.NAME)) {
 				PeriodParam periodParam = (PeriodParam) param;
 				ArrayList<Double> periods = currentSupportedPeriods;
@@ -266,8 +266,8 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @return The selected intensity measure parameter
 	 */
 	@SuppressWarnings("unchecked")
-	public DependentParameterAPI<Double> getSelectedIM() {
-		return (DependentParameterAPI<Double>) imtParams.getParameter(getSelectedIMT());
+	public Parameter<Double> getSelectedIM() {
+		return (Parameter<Double>) imtParams.getParameter(getSelectedIMT());
 	}
 
 	@Override
@@ -334,15 +334,15 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void setIMTinIMR(
-			DependentParameterAPI<Double> imt,
+			Parameter<Double> imt,
 			ScalarIntensityMeasureRelationshipAPI imr) {
 		imr.setIntensityMeasure(imt.getName());
-		DependentParameterAPI<Double> newIMT = (DependentParameterAPI<Double>) imr.getIntensityMeasure();
+		Parameter<Double> newIMT = (Parameter<Double>) imr.getIntensityMeasure();
 		
-		ListIterator<ParameterAPI<?>> paramIt = newIMT.getIndependentParametersIterator();
+		ListIterator<Parameter<?>> paramIt = newIMT.getIndependentParametersIterator();
 		while (paramIt.hasNext()) {
-			ParameterAPI toBeSet = paramIt.next();
-			ParameterAPI newVal = imt.getIndependentParameter(toBeSet.getName());
+			Parameter toBeSet = paramIt.next();
+			Parameter newVal = imt.getIndependentParameter(toBeSet.getName());
 			
 			toBeSet.setValue(newVal.getValue());
 		}
@@ -355,7 +355,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrMap
 	 */
 	public static void setIMTinIMRs(
-			DependentParameterAPI<Double> imt,
+			Parameter<Double> imt,
 			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
 		for (TectonicRegionType trt : imrMap.keySet()) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);

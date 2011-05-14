@@ -20,8 +20,8 @@
 package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.BooleanParameterEditor;
 
@@ -34,7 +34,7 @@ import org.opensha.commons.param.editor.impl.BooleanParameterEditor;
  * @version 1.0
  */
 
-public class BooleanParameter extends DependentParameter<Boolean> {
+public class BooleanParameter extends AbstractParameter<Boolean> {
 
 	/**
 	 * 
@@ -70,7 +70,7 @@ public class BooleanParameter extends DependentParameter<Boolean> {
 	}
 
 	@Override
-	public int compareTo(ParameterAPI<Boolean> param) {
+	public int compareTo(Parameter<Boolean> param) {
 		return value.compareTo(param.getValue());
 //		if (param instanceof BooleanParameter)
 //			return value.compareTo(((BooleanParameter)obj).getValue());

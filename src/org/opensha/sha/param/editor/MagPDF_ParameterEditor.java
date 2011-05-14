@@ -31,7 +31,7 @@ import javax.swing.JOptionPane;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -102,14 +102,14 @@ public class MagPDF_ParameterEditor
 
   }
 
-  public MagPDF_ParameterEditor(ParameterAPI model) {
+  public MagPDF_ParameterEditor(Parameter model) {
     super(model);
     setParameter(model);
   }
 
 
   /** Returns the parameter that is stored internally that this GUI widget is editing */
-  public void setParameter( ParameterAPI param ){
+  public void setParameter( Parameter param ){
 
     String S = C + ": Constructor(): ";
     if (D) System.out.println(S + "Starting:");
@@ -221,7 +221,7 @@ public class MagPDF_ParameterEditor
 
     ListIterator it = parameterList.getParametersIterator();
     while (it.hasNext()) {
-      ParameterAPI param = (ParameterAPI) it.next();
+      Parameter param = (Parameter) it.next();
       param.addParameterChangeFailListener(this);
       param.addParameterChangeListener(this);
     }
@@ -242,7 +242,7 @@ public class MagPDF_ParameterEditor
     // Turn off all parameters - start fresh, then make visible as required below
     ListIterator it = parameterList.getParametersIterator();
     while (it.hasNext())
-      editor.setParameterVisible( ( (ParameterAPI) it.next()).getName(), false);
+      editor.setParameterVisible( ( (Parameter) it.next()).getName(), false);
 
     // make the min, max, num and select dist to be visible
     editor.setParameterVisible(MagFreqDistParameter.MIN, true);
@@ -449,7 +449,7 @@ public class MagPDF_ParameterEditor
 
     StringBuffer b = new StringBuffer();
 
-    ParameterAPI param = (ParameterAPI) e.getSource();
+    Parameter param = (Parameter) e.getSource();
     ParameterConstraint constraint = param.getConstraint();
     String oldValueStr = e.getOldValue().toString();
     String badValueStr = e.getBadValue().toString();
@@ -521,7 +521,7 @@ public class MagPDF_ParameterEditor
   }
 
   /** Returns each parameter for the MagFreqDist */
-  public ParameterAPI getParameter(String name) throws ParameterException {
+  public Parameter getParameter(String name) throws ParameterException {
     return parameterList.getParameter(name);
   }
 

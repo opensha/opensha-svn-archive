@@ -32,7 +32,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
@@ -159,9 +159,9 @@ public class HardCodedScenarioShakeMapGen {
 		sites.addSiteParams(attenRel.getSiteParamsIterator());
 		sites.setSiteDataValueLists(valsLists);
 		
-		ArrayList<ParameterAPI<?>> defaultSiteParams = new ArrayList<ParameterAPI<?>>();
-		for (ParameterAPI<?> param : attenRel.getSiteParamsList()) {
-			defaultSiteParams.add((ParameterAPI<?>) param.clone());
+		ArrayList<Parameter<?>> defaultSiteParams = new ArrayList<Parameter<?>>();
+		for (Parameter<?> param : attenRel.getSiteParamsList()) {
+			defaultSiteParams.add((Parameter<?>) param.clone());
 		}
 		sites.setDefaultSiteParams(defaultSiteParams);
 		

@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -53,7 +53,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	public final static String IMT_EDITOR_TITLE =  "Set IMT";
 
 	//stores the IMT Params for the choosen IMR
-	private ArrayList<ParameterAPI> imtParam;
+	private ArrayList<Parameter> imtParam;
 
 	// imr for which IMT is to be displayed
 	private ScalarIntensityMeasureRelationshipAPI imr;
@@ -65,7 +65,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public IMT_GuiBean(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI<?>> supportedIntensityMeasureIt) {
+	public IMT_GuiBean(ScalarIntensityMeasureRelationshipAPI imr,Iterator<Parameter<?>> supportedIntensityMeasureIt) {
 		setIM(imr,supportedIntensityMeasureIt );
 	}
 	
@@ -85,7 +85,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public void setIM(ScalarIntensityMeasureRelationshipAPI imr,Iterator<ParameterAPI<?>> supportedIntensityMeasureIt){
+	public void setIM(ScalarIntensityMeasureRelationshipAPI imr,Iterator<Parameter<?>> supportedIntensityMeasureIt){
 		this.imr = imr;
 		init_imtParamListAndEditor(imr.getSupportedIntensityMeasuresList());
 	}
@@ -108,7 +108,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		double defaultPeriod = -1;
 		ParameterList paramList = new ParameterList();
 		for (ScalarIntensityMeasureRelationshipAPI imr : multipleIMRs) {
-			for (ParameterAPI param : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter param : imr.getSupportedIntensityMeasuresList()) {
 				if (paramList.containsParameter(param.getName())) {
 					// it's already in there
 				} else {
@@ -135,7 +135,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		// now we weed out the ones that aren't supported by everyone
 		ParameterList toBeRemoved = new ParameterList();
 		SA_Param replaceSA = null;
-		for (ParameterAPI param : paramList) {
+		for (Parameter param : paramList) {
 			boolean remove = false;
 			for (ScalarIntensityMeasureRelationshipAPI imr : multipleIMRs) {
 				if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
@@ -178,7 +178,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		if (replaceSA != null)
 			paramList.replaceParameter(replaceSA.getName(), replaceSA);
 		// now we remove them
-		for (ParameterAPI badParam : toBeRemoved) {
+		for (Parameter badParam : toBeRemoved) {
 			paramList.removeParameter(badParam.getName());
 		}
 		
@@ -195,27 +195,27 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 
 		//vector to store all the IMT's supported by an IMR
 		ArrayList<String> imt=new ArrayList<String>();
-		imtParam = new ArrayList<ParameterAPI>();
+		imtParam = new ArrayList<Parameter>();
 
 
 
 
 		//loop over each IMT and get their independent parameters
-		for (ParameterAPI param : newIMTParams) {
+		for (Parameter param : newIMTParams) {
 //		while ( it.hasNext() ) {
-//			DependentParameterAPI param = ( DependentParameterAPI ) it.next();
+//			ParameterAPI param = ( ParameterAPI ) it.next();
 			DoubleDiscreteParameter param1=new DoubleDiscreteParameter(param.getName());
 
 			// add all the independent parameters related to this IMT
 			// NOTE: this will only work for DoubleDiscrete independent parameters; it's not general!
 			// this also converts these DoubleDiscreteParameters to StringParameters
-			if (param instanceof DependentParameterAPI) {
-				DependentParameterAPI depParam = (DependentParameterAPI)param;
-				ListIterator<ParameterAPI> indepIt = depParam.getIndependentParametersIterator();
+			if (param instanceof Parameter) {
+				Parameter depParam = (Parameter)param;
+				ListIterator<Parameter> indepIt = depParam.getIndependentParametersIterator();
 				if(D) System.out.println("IMT is:"+param.getName());
 				while ( indepIt.hasNext() ) {
 
-					ParameterAPI param2 = indepIt.next();
+					Parameter param2 = indepIt.next();
 					DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
 					// add all the periods relating to the SA
 					DoubleDiscreteParameter independentParam = new DoubleDiscreteParameter(param2.getName(),
@@ -244,10 +244,10 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		 * parameters to add them to the common ArrayList to display in the IMT Panel
 		 **/
 
-		for (ParameterAPI param : imtParam) {
-			if (param instanceof DependentParameterAPI) {
-				DependentParameterAPI depParam = (DependentParameterAPI)param;
-				Iterator<ParameterAPI> indepParamsIt = depParam.getIndependentParametersIterator();
+		for (Parameter param : imtParam) {
+			if (param instanceof Parameter) {
+				Parameter depParam = (Parameter)param;
+				Iterator<Parameter> indepParamsIt = depParam.getIndependentParametersIterator();
 				while (indepParamsIt.hasNext())
 					parameterList.addParameter(indepParamsIt.next());
 			}
@@ -272,7 +272,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 
 		//making all the IMT parameters invisible
 		while(it.hasNext())
-			setParameterVisible(((ParameterAPI)it.next()).getName(),false);
+			setParameterVisible(((Parameter)it.next()).getName(),false);
 
 		//making the choose IMT parameter visible
 		setParameterVisible(IMT_PARAM_NAME,true);
@@ -280,11 +280,11 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		it=imtParam.iterator();
 		//for the selected IMT making its independent parameters visible
 		while(it.hasNext()){
-			DependentParameterAPI param=(DependentParameterAPI)it.next();
+			Parameter param=(Parameter)it.next();
 			if(param.getName().equalsIgnoreCase(imtName)){
 				Iterator it1=param.getIndependentParametersIterator();
 				while(it1.hasNext())
-					setParameterVisible(((ParameterAPI)it1.next()).getName(),true);
+					setParameterVisible(((Parameter)it1.next()).getName(),true);
 			}
 		}
 	}
@@ -326,7 +326,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * set the IMT parameter in IMR
 	 */
 	public void setIMT() {
-		ParameterAPI param = getIntensityMeasure();
+		Parameter param = getIntensityMeasure();
 		if (imr != null) {
 			imr.setIntensityMeasure(param);
 		} else {
@@ -347,12 +347,12 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * gets the selected Intensity Measure Parameter and its dependent Parameter
 	 * @return
 	 */
-	public ParameterAPI getIntensityMeasure(){
+	public Parameter getIntensityMeasure(){
 		String selectedImt = parameterList.getValue(IMT_PARAM_NAME).toString();
 		//set all the  parameters related to this IMT
 		Iterator it= imtParam.iterator();
 		while(it.hasNext()){
-			DependentParameterAPI param=(DependentParameterAPI)it.next();
+			Parameter param=(Parameter)it.next();
 			if(param.getName().equalsIgnoreCase(selectedImt))
 				return param;
 		}
@@ -371,7 +371,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		int paramSize = getVisibleParameters().size();
 		while(it.hasNext()){
 			//iterates over all the visible parameters
-			ParameterAPI tempParam = (ParameterAPI)it.next();
+			Parameter tempParam = (Parameter)it.next();
 			//if the param name is IMT Param then it is the Dependent param
 			if(tempParam.getName().equals(this.IMT_PARAM_NAME)){
 				metadata = tempParam.getName()+" = "+(String)tempParam.getValue();

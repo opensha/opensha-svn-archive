@@ -51,7 +51,7 @@ import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.commons.gui.UserAuthDialog;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.http.HTTPAuthenticator;
 import org.opensha.commons.util.http.InstallSSLCert;
@@ -318,21 +318,21 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 		if (imt == null)
 			System.out.println("NULL IMT!!!");
 		imr.setIntensityMeasure(imt);
-		ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(DampingParam.NAME);
+		Parameter dampingParam = imtGuiBean.getParameterList().getParameter(DampingParam.NAME);
 		if (dampingParam != null) {
 			double damping = (Double)dampingParam.getValue();
 			imr.getParameter(DampingParam.NAME).setValue(damping);
 		}
-		ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
+		Parameter periodParam = imtGuiBean.getParameterList().getParameter(PeriodParam.NAME);
 		if (periodParam != null) {
 			double period = (Double)periodParam.getValue();
 			imr.getParameter(PeriodParam.NAME).setValue(period);
 		}
-		ArrayList<ParameterAPI> siteParams = sitesGuiBean.getSiteParams();
-		Iterator<ParameterAPI<?>> imrParams = imr.getSiteParamsIterator();
+		ArrayList<Parameter> siteParams = sitesGuiBean.getSiteParams();
+		Iterator<Parameter<?>> imrParams = imr.getSiteParamsIterator();
 		while (imrParams.hasNext()) {
-			ParameterAPI imrParam = imrParams.next();
-			for (ParameterAPI param : siteParams) {
+			Parameter imrParam = imrParams.next();
+			for (Parameter param : siteParams) {
 				String siteParamName = param.getName();
 				if (siteParamName.endsWith(imrParam.getName())) {
 					System.out.println("Setting IMR param: " + imrParam.getName() + " to: " + param.getValue());

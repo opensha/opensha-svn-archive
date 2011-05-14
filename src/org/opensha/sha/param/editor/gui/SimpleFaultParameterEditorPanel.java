@@ -29,7 +29,7 @@ import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -133,14 +133,14 @@ ActionListener {
 	public SimpleFaultParameterEditorPanel() {}
 
 	//constructor taking the Parameter as the input argument
-	public SimpleFaultParameterEditorPanel(ParameterAPI model){
+	public SimpleFaultParameterEditorPanel(Parameter model){
 		super(model);
 	}
 
 	/**
 	 * Set the values in the Parameters for the EvenlyGridded Surface
 	 */
-	public void setParameter(ParameterAPI param)  {
+	public void setParameter(Parameter param)  {
 
 		String S = C + ": Constructor(): ";
 		if ( D ) System.out.println( S + "Starting:" );
@@ -227,7 +227,7 @@ ActionListener {
 		ParameterList paramList = surfaceParam.getFaultTraceParamList();
 		ListIterator it  = paramList.getParametersIterator();
 		while (it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editor = new ParameterListEditor(paramList);
 		editor.setTitle(SIMPLE_FAULT_EDITOR_TITLE);
 
@@ -273,14 +273,14 @@ ActionListener {
 		ParameterListParameter latParam = (ParameterListParameter)surfaceParam.getLatParam();
 		ListIterator it = latParam.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForLats = new ParameterListParameterEditor(latParam);
 		//editorForLats.setTitle(this.LAT_EDITOR_TITLE);
 
 		ParameterListParameter lonParam = (ParameterListParameter)surfaceParam.getLonParam();
 		it = lonParam.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForLons = new ParameterListParameterEditor(lonParam);
 		//editorForLons.setTitle(this.LON_EDITOR_TITLE);
 		editorForLats.validate();
@@ -330,7 +330,7 @@ ActionListener {
 		ParameterListParameter parameterListParameterForDips = (ParameterListParameter)surfaceParam.getDipParam();
 		ListIterator it = parameterListParameterForDips.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForDips = new ParameterListParameterEditor(parameterListParameterForDips);
 		editorForDips.validate();
 		editorForDips.revalidate();
@@ -346,7 +346,7 @@ ActionListener {
 		ParameterListParameter parameterListParameterForDepths = (ParameterListParameter)surfaceParam.getDepthParam();
 		ListIterator it = parameterListParameterForDepths.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForDepths = new ParameterListParameterEditor(parameterListParameterForDepths);
 		editorForDepths.validate();
 		editorForDepths.revalidate();
@@ -519,7 +519,7 @@ ActionListener {
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();

@@ -3,13 +3,13 @@ package org.opensha.commons.param.impl;
 import java.io.File;
 
 import org.dom4j.Element;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.FileParameterEditor;
 
 @Deprecated
-public class FileParameter extends Parameter<File> {
+public class FileParameter extends AbstractParameter<File> {
 	
 	/**
 	 * 
@@ -26,7 +26,7 @@ public class FileParameter extends Parameter<File> {
 	}
 
 	@Override
-	public int compareTo(ParameterAPI<File> param) {
+	public int compareTo(Parameter<File> param) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

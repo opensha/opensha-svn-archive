@@ -8,7 +8,7 @@ import java.util.ListIterator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -65,7 +65,7 @@ public class MultiIMR_ParamTest {
 		for (ArrayList<ScalarIntensityMeasureRelationshipAPI> bundle : bundles) {
 			MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(bundle);
 			
-			for (ParameterAPI<?> imt : multi.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> imt : multi.getSupportedIntensityMeasuresList()) {
 				for (ScalarIntensityMeasureRelationshipAPI imr : bundle) {
 					assertTrue("IMT '"+imt.getName()+"' is included but not supported by imr '"+imr.getName()+"'",
 							imr.isIntensityMeasureSupported(imt));
@@ -109,7 +109,7 @@ public class MultiIMR_ParamTest {
 	
 	private void trySet(MultiIMR_Averaged_AttenRel multi, String paramName, Object value) {
 		try {
-			ParameterAPI param = multi.getParameter(paramName);
+			Parameter param = multi.getParameter(paramName);
 			if (param.isAllowed(value))
 				param.setValue(value);
 			else
@@ -128,11 +128,11 @@ public class MultiIMR_ParamTest {
 		}
 	}
 	
-	private void testParamConsistancy(ListIterator<ParameterAPI<?>> it, ScalarIntensityMeasureRelationshipAPI imr2) {
+	private void testParamConsistancy(ListIterator<Parameter<?>> it, ScalarIntensityMeasureRelationshipAPI imr2) {
 		while (it.hasNext()) {
-			ParameterAPI param1 = it.next();
+			Parameter param1 = it.next();
 			try {
-				ParameterAPI param2 = imr2.getParameter(param1.getName());
+				Parameter param2 = imr2.getParameter(param1.getName());
 				// this imr has it also
 				assertEquals("Param '"+param1.getName() +"' not propogated correctly!", param1.getValue(), param2.getValue());
 			} catch (ParameterException e) {}

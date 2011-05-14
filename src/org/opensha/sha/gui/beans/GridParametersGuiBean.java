@@ -31,7 +31,7 @@ import org.opensha.commons.gridComputing.ResourceProviderEditor;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.commons.gridComputing.SubmitHostEditor;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -193,7 +193,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
 		ParameterConstraint constraint = param.getConstraint();
@@ -222,7 +222,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @param e Description of the parameter
 	 */
 	public void parameterChange(ParameterChangeEvent e){
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 		if(param == rpPresets) {
 			String name = (String)rpPresets.getValue();
