@@ -598,9 +598,10 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	//    	}
 	//    }
 	
-	
 	/*
+	 * **********************************************************************
 	 *	The following is code from DependentParameter.java 
+	 * **********************************************************************
 	 */
 	
 	/**
