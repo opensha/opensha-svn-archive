@@ -1031,14 +1031,15 @@ public class GraphPanel extends JSplitPane {
 			fileName = chooser.getSelectedFile().getAbsolutePath();
 			CustomFileFilter filter = (CustomFileFilter) chooser.getFileFilter();
 			String ext = filter.getExtension();
+			System.out.println(ext);
 			if (!fileName.toLowerCase().endsWith(ext)) {
 				fileName = fileName + ext;
 			}
-			if (ext.equals("pdf")) {
+			if (ext.equals(".pdf")) {
 				saveAsPDF(fileName);
-			} else if (ext.equals("png")) {
+			} else if (ext.equals(".png")) {
 				saveAsPNG(fileName);
-			} else if (ext.equals("txt")) {
+			} else if (ext.equals(".txt")) {
 				DataUtil.save(fileName, dataTextArea.getText());
 			} else {
 				throw new RuntimeException("Unknown extension selected: "+ext);
