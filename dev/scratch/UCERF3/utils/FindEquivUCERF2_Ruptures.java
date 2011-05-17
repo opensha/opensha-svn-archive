@@ -986,12 +986,68 @@ public class FindEquivUCERF2_Ruptures {
 	}
 	
 	
+	public static void plotMFD_InRegionNearNorthridge() {
+
+		Region region = new Region(new Location(34.25,-119.15),new Location(34.55,-118.35));
+
+		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		meanUCERF2.getTimeSpan().setDuration(30.0);
+		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
+		meanUCERF2.updateForecast();
+		
+		ArrayList<String> srcNamesList = new ArrayList<String>();
+
+		SummedMagFreqDist magFreqDist = new SummedMagFreqDist(5.05, 36, 0.1);
+		double duration = meanUCERF2.getTimeSpan().getDuration();
+		for (int s = 0; s < meanUCERF2.getNumSources(); ++s) {
+			ProbEqkSource source = meanUCERF2.getSource(s);
+			for (int r = 0; r < source.getNumRuptures(); ++r) {
+				ProbEqkRupture rupture = source.getRupture(r);
+				double mag = rupture.getMag();
+				double equivRate = rupture.getMeanAnnualRate(duration);
+				EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+				double ptRate = equivRate/rupSurface.size();
+				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+				while (it.hasNext()) {
+					//discard the pt if outside the region 
+					if (!region.contains(it.next()))
+						continue;
+					magFreqDist.addResampledMagRate(mag, ptRate, true);
+					if(!srcNamesList.contains(source.getName()))
+							srcNamesList.add(source.getName());
+				}
+			}
+		}
+		
+		String info  = "Sources in box:\n\n";
+		for(String name:srcNamesList)
+			info += "\t"+name+"\n";
+
+		magFreqDist.setInfo(info);
+		ArrayList funcs = new ArrayList();
+		funcs.add(magFreqDist);
+		funcs.add(magFreqDist.getCumRateDistWithOffset());			
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate");
+		graph.setYLog(true);
+		graph.setY_AxisRange(1e-8, 1.0);
+
+	}
+
+
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
+		plotMFD_InRegionNearNorthridge();
 		
 //		FindEquivUCERF2_Ruptures test = new FindEquivUCERF2_Ruptures();
 
