@@ -5,7 +5,7 @@ package org.opensha.sha.earthquake.calc;
 
 import java.util.Iterator;
 
-import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -36,7 +36,7 @@ public class MomentInRegionCalc {
 			numRups = erf.getNumRuptures(srcIndex);
 			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
 				ProbEqkRupture rupture = erf.getRupture(srcIndex, rupIndex);
-				rupMoment = MomentMagCalc.getMoment(rupture.getMag());
+				rupMoment = MagUtils.magToMoment(rupture.getMag());
 				Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 				totRupLocs=0;
 				rupLocsInside=0;

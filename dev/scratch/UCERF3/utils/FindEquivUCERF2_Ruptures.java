@@ -14,11 +14,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -401,7 +401,7 @@ public class FindEquivUCERF2_Ruptures {
 				double ddw = rup.getRuptureSurface().getSurfaceWidth();
 				double len = rup.getRuptureSurface().getSurfaceLength();
 				double mag = ((int)(rup.getMag()*100.0))/100.0;	// nice value for writing
-				totMoRate += MomentMagCalc.getMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
+				totMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
 				srcIndexOfUCERF2_Rup[rupIndex] = s;
 				rupIndexOfUCERF2_Rup[rupIndex] = r;;
 				magOfUCERF2_Rup[rupIndex] = rup.getMag();
@@ -415,7 +415,7 @@ public class FindEquivUCERF2_Ruptures {
 					String errorString = rupIndex+":\t"+"Sub-Seismogenic Rupture:  ddw="+ddw+"\t"+srcDDW+"\t"+len+"\t"+(float)mag+"\tiRup="+r+"\tiSrc="+s+"\t("+src.getName()+")\n";
 					if(D) System.out.print(errorString);
 					resultsString.add(errorString);
-					partMoRate += MomentMagCalc.getMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
+					partMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
 					continue;
 				}
 				FaultTrace rupTrace = rup.getRuptureSurface().getRowAsTrace(0);
@@ -726,11 +726,11 @@ public class FindEquivUCERF2_Ruptures {
 				if(ucerf2_rupUsed[r]) throw new RuntimeException("Error - UCERF2 rutpure already used");
 				ucerf2_rupUsed[r] = true;
 				totRate+=rateOfUCERF2_Rup[r];
-				totMoRate+=rateOfUCERF2_Rup[r]*MomentMagCalc.getMoment(magOfUCERF2_Rup[r]);
+				totMoRate+=rateOfUCERF2_Rup[r]*MagUtils.magToMoment(magOfUCERF2_Rup[r]);
 				mfdOfAssocRupsWithOrigMags.addResampledMagRate(magOfUCERF2_Rup[r], rateOfUCERF2_Rup[r], true);
 			}
 			double aveMoment = totMoRate/totRate;
-			double mag = MomentMagCalc.getMag(aveMoment);
+			double mag = MagUtils.momentToMag(aveMoment);
 			double[] result = new double[2];
 			result[0]=mag;
 			result[1]=totRate;

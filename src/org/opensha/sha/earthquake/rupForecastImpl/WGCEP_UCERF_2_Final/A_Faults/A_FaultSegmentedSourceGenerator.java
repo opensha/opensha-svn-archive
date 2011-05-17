@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.commons.calc.nnls.NNLSWrapper;
@@ -32,6 +31,7 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalModel;
@@ -268,7 +268,7 @@ public class A_FaultSegmentedSourceGenerator {
 			rupMeanMo = new double[num_rup];
 			for(int rup=0; rup <num_rup; rup++) {
 				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6) + meanMagCorrection;
-				rupMeanMo[rup] = aveSlipCorr*MomentMagCalc.getMoment(rupMeanMag[rup]);   // increased if magSigma >0
+				rupMeanMo[rup] = aveSlipCorr*MagUtils.magToMoment(rupMeanMag[rup]);   // increased if magSigma >0
 			}
 		}
 		
@@ -987,7 +987,7 @@ public class A_FaultSegmentedSourceGenerator {
 			else throw new RuntimeException("Invalid Rake:"+rake+", index="+rupIndex+", name="+getLongRupName(rupIndex));
 			strBuffer.append(rakeStr+"\t"+"1"+"\t"+segmentData.getFaultName()+";"+this.getLongRupName(rupIndex)+"\n");
 			// get the rate needed by NSHMP code (rate assuming no aleatory uncertainty)
-			double fixRate = rupMoRate[rupIndex]/MomentMagCalc.getMoment(rupMeanMag[rupIndex]);
+			double fixRate = rupMoRate[rupIndex]/MagUtils.magToMoment(rupMeanMag[rupIndex]);
 			strBuffer.append((float)this.getRupMeanMag(rupIndex)+"\t"+(float)fixRate+"\t"+wt+"\n");
 			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
 			// dip, Down dip width, upper seismogenic depth, rup Area
@@ -1088,7 +1088,7 @@ public class A_FaultSegmentedSourceGenerator {
 				}
 			}
 			// reduce moment by aveSlipCorr to reduce mag, so that ave slip in final MFD is correct
-			rupMeanMag[rup] = MomentMagCalc.getMag(rupMeanMo[rup]/aveSlipCorr);	//
+			rupMeanMag[rup] = MagUtils.momentToMag(rupMeanMo[rup]/aveSlipCorr);	//
 		}
 	}
 	
@@ -1477,7 +1477,7 @@ public class A_FaultSegmentedSourceGenerator {
 			rupSlipDist[rup] = new ArbitrarilyDiscretizedFunc();
 			for(int imag=0; imag<rupMagFreqDist[rup].getNum(); ++imag) {
 				if(rupMagFreqDist[rup].getY(imag)==0) continue; // if rate is 0, do not find the slip for this mag
-				double moment = MomentMagCalc.getMoment(rupMagFreqDist[rup].getX(imag));
+				double moment = MagUtils.magToMoment(rupMagFreqDist[rup].getX(imag));
 				double slip = FaultMomentCalc.getSlip(rupArea[rup], moment);
 				rupSlipDist[rup].set(slip, rupMagFreqDist[rup].getY(imag));
 			}
@@ -1778,7 +1778,7 @@ public class A_FaultSegmentedSourceGenerator {
 			int num=0;
 			for(double mag = 7.0; mag <7.0+DELTA_MAG-0.001; mag +=0.01) {
 				GaussianMagFreqDist magFreqDist = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, mag, magSigma, 1.0, magTruncLevel, 2);
-				temp = magFreqDist.getTotalMomentRate()/(magFreqDist.getTotalIncrRate()*MomentMagCalc.getMoment(mag));
+				temp = magFreqDist.getTotalMomentRate()/(magFreqDist.getTotalIncrRate()*MagUtils.magToMoment(mag));
 				num +=1;
 				sum += temp;
 				// System.out.println("ratio: "+ temp + "  "+mag);

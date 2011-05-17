@@ -2,7 +2,6 @@ package org.opensha.commons.calc;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.opensha.commons.geo.LocationUtilsTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -10,7 +9,6 @@ import org.opensha.commons.geo.LocationUtilsTest;
 	TestFractileCurveCalculator.class,
 	TestFunctionListCalc.class,
 	TestGaussianDistCalc.class,
-	TestMomentMagCalc.class
 })
 
 public class CalcSuite

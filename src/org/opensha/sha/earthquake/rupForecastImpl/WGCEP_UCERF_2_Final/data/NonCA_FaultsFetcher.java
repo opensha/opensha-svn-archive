@@ -6,7 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -85,7 +85,7 @@ public class NonCA_FaultsFetcher  implements java.io.Serializable {
 				if(srcTypeId==1) { // Char case
 					mag = Double.parseDouble(tokenizer.nextToken().trim());
 					double rate = Double.parseDouble(tokenizer.nextToken().trim());
-					double moRate = rate*MomentMagCalc.getMoment(mag);
+					double moRate = rate*MagUtils.magToMoment(mag);
 					double wt = Double.parseDouble(tokenizer.nextToken().trim());
 					double wt2 = 1;
 					if(mag > 6.5) wt2 = 0.666;

@@ -20,8 +20,8 @@
 package org.opensha.sha.magdist;
 
 
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -127,7 +127,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
      */
 
     public double getMomentRate(double mag) throws Point2DException{
-      return getIncrRate(mag) * MomentMagCalc.getMoment(mag);
+      return getIncrRate(mag) * MagUtils.magToMoment(mag);
     }
 
 
@@ -138,7 +138,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
      */
 
     public double getMomentRate(int index) {
-      return getIncrRate(index) * MomentMagCalc.getMoment(getX(index));
+      return getIncrRate(index) * MagUtils.magToMoment(getX(index));
     }
 
 

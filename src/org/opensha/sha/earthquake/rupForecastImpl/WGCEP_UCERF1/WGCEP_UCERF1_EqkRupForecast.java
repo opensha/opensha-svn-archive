@@ -27,9 +27,9 @@ import java.util.EventObject;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.BooleanParameter;
@@ -509,7 +509,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 
           mag=Double.parseDouble(st.nextToken());
           charRate=Double.parseDouble(st.nextToken());
-          moRate = charRate*MomentMagCalc.getMoment(mag);
+          moRate = charRate*MagUtils.magToMoment(mag);
           minMag = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
           maxMag = mag + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue() + aleWidth*0.05;
 
@@ -525,7 +525,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
             st = new StringTokenizer((String) inputFaultFileLines2.get(it.nextIndex()-1));
             mag2=Double.parseDouble(st.nextToken());
             charRate2=Double.parseDouble(st.nextToken());
-            moRate2 = charRate2*MomentMagCalc.getMoment(mag2);
+            moRate2 = charRate2*MagUtils.magToMoment(mag2);
             minMag2 = mag2 + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
             maxMag2 = mag2 + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue() + aleWidth*0.05;
           }
