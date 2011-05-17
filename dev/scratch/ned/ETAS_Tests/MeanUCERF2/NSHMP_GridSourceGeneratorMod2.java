@@ -42,13 +42,15 @@ public class NSHMP_GridSourceGeneratorMod2 extends NSHMP_GridSourceGenerator {
 	 *  1) occurrences of Mmin "5.0" changed to "2.5".
 	 *  2) "B_VAL" replaced with 1.0 (previously it was 0.8)
 	 *  3) added scaleFactor to increase a-values for consistency with cum rates including aftershocks
+	 *     (scaleFactor = 29.6 gives a total rate >= M5 of 6.8, which is the value including aftershocks
+	 *     given in the Summary of Appendix I of UCERF2).
 	 *  
 	 */
 	public SummedMagFreqDist getTotMFD_atLoc(int locIndex, boolean includeC_zones, 
 			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources, 
 			boolean include_agrd_deeps_out) {
 
-		double scaleFactor = 35;
+		double scaleFactor = 29.6;
 
 		// find max mag among all contributions
 		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
