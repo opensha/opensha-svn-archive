@@ -32,6 +32,7 @@ import org.opensha.commons.geo.RegionTest;
 	Point2DToleranceSortedListTest.class,
 	TimeSpanTests.class,
 	XY_DataSetTests.class,
+	WeightedListTest.class,
 	
 	// siteData
 	SiteDataProvidersTest.class,
