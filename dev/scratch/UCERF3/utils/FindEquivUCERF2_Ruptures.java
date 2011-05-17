@@ -3,6 +3,7 @@
  */
 package scratch.UCERF3.utils;
 
+import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -31,7 +32,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import scratch.UCERF3.utils.ModUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -1029,12 +1032,27 @@ public class FindEquivUCERF2_Ruptures {
 		magFreqDist.setInfo(info);
 		ArrayList funcs = new ArrayList();
 		funcs.add(magFreqDist);
-		funcs.add(magFreqDist.getCumRateDistWithOffset());			
+		funcs.add(magFreqDist.getCumRateDist());			
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
+		graph.setY_AxisRange(1e-6, 0.1);
+		graph.setX_AxisRange(5, 8);
+		/**/
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(
+				PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,Color.BLUE, 1.0, 1));
+		curveCharacteristics.add(new PlotCurveCharacterstics(
+				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.BLACK, 4.0, 1));
+		graph.setPlottingFeatures(curveCharacteristics);
+		
 		graph.setYLog(true);
-		graph.setY_AxisRange(1e-8, 1.0);
+		try {
+			graph.saveAsPDF("MFD_NearNorthridgeUCERF2.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
