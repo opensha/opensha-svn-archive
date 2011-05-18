@@ -35,9 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -208,7 +206,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 	private GeoDataSet getXYZDataForPGV(ArrayList<AttenuationRelationship> selectedIMRs,
 			ArrayList<Double> selectedWts, SitesInGriddedRegion region, EqkRupture rupture,
 			boolean isProbAtIML, double value, ScenarioShakeMapCalculator calc)
-	throws RegionConstraintException, ParameterException {
+	throws ParameterException {
 
 		//ArrayList for the Attenuations supporting and not supporting PGV
 		ArrayList<AttenuationRelationship> attenRelsSupportingPGV =

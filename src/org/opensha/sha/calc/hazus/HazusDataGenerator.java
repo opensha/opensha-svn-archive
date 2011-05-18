@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
@@ -61,7 +60,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private USGS_Combined_2004_AttenRel attenRel;
   private SitesInGriddedRegion sites;
 
-  public HazusDataGenerator() throws RegionConstraintException {
+  public HazusDataGenerator() {
 
     createAttenRel_Instance();
     createERF_Instance();
@@ -87,7 +86,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     try {
       HazusDataGenerator hazusDataGenerator1 = new HazusDataGenerator();
     }
-    catch (RegionConstraintException ex) {
+    catch (Exception ex) {
       System.out.println(ex.getMessage());
       System.exit(0);
     }
@@ -146,7 +145,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   }
 
 
- private void createRegion() throws RegionConstraintException{
+ private void createRegion() {
 	 //	make the Gridded Region object
 //	  GriddedRegion eggr = 
 //		  new GriddedRegion(

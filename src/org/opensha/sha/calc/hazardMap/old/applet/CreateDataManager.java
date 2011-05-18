@@ -42,7 +42,6 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gridComputing.GridResources;
@@ -56,7 +55,6 @@ import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.http.HTTPAuthenticator;
 import org.opensha.commons.util.http.InstallSSLCert;
 import org.opensha.commons.util.http.StaticPasswordAuthenticator;
-import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.old.servlet.ManagementServletAccessor;
@@ -73,7 +71,6 @@ import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.util.TRTUtils;
 
 public class CreateDataManager extends StepManager implements ScalarIMRChangeListener {
 	
@@ -199,7 +196,7 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 	private Step createRegionStep() {
 		try {
 			sitesGuiBean = this.hazard.createSitesGUIBean(regions);
-		} catch (RegionConstraintException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 //		JPanel regionPanel = new JPanel();
@@ -296,7 +293,7 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 		frame.setVisible(true);
 	}
 	
-	public Document getSubmitDoc(String name, String email) throws InvocationTargetException, RuntimeException, RegionConstraintException {
+	public Document getSubmitDoc(String name, String email) throws InvocationTargetException {
 		String id = System.currentTimeMillis() + "";
 		
 		Document document = XMLUtils.createDocumentWithRoot();
@@ -415,13 +412,13 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 		} catch (RuntimeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (RegionConstraintException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

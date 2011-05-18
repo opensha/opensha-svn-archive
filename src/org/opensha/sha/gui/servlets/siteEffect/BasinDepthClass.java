@@ -24,10 +24,8 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -61,8 +59,7 @@ public final class BasinDepthClass {
    * @param fileName : Name of the Basin Depth file
    */
   public BasinDepthClass(double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing,String fileName) throws
-      RegionConstraintException {
+                                      double maxLat, double gridSpacing,String fileName) {
 
     prepareSitesInput(minLon,maxLon,minLat,maxLat,gridSpacing);
     basinDepthFile = fileName;
@@ -93,8 +90,7 @@ public final class BasinDepthClass {
    * @return
    */
   private void prepareSitesInput(double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing) throws
-      RegionConstraintException {
+                                      double maxLat, double gridSpacing) {
 
     locations = new ArrayList<Location>();
     //GriddedRegion region = new GriddedRegion(minLat,maxLat,minLon,maxLon,gridSpacing);

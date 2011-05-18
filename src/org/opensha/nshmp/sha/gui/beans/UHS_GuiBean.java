@@ -40,7 +40,6 @@ import javax.swing.JSplitPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterAPI;
@@ -136,7 +135,7 @@ AnalysisOptionsGuiBeanAPI {
 			datasetGui.createDataSetEditor();
 			try{
 				createLocation();
-			}catch(RegionConstraintException ex){
+			}catch(Exception ex){
 				ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
 						"Exception occured while initializing the  region parameters in NSHMP application." +
 				"Parameters values have not been set yet.");
@@ -307,7 +306,7 @@ AnalysisOptionsGuiBeanAPI {
 			try {
 				createLocation();
 			}
-			catch (RegionConstraintException ex) {
+			catch (Exception ex) {
 				//ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
 				//"Exception occured while initializing the  region parameters in NSHMP application." +
 				//"Parameters values have not been set yet.");
@@ -350,7 +349,7 @@ AnalysisOptionsGuiBeanAPI {
 	/**
 	 * Creating the location gui bean
 	 */
-	protected void createLocation() throws RegionConstraintException {
+	protected void createLocation() {
 		Region region = getRegionConstraint();
 
 		if (region != null) {
@@ -376,8 +375,7 @@ AnalysisOptionsGuiBeanAPI {
 	 *
 	 * @return RectangularGeographicRegion
 	 */
-	protected Region getRegionConstraint() throws
-	RegionConstraintException {
+	protected Region getRegionConstraint() {
 		return RegionUtil.getRegionConstraint(selectedRegion);
 	}
 

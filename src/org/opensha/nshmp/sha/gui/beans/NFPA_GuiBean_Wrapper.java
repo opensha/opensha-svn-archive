@@ -21,7 +21,6 @@ package org.opensha.nshmp.sha.gui.beans;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Region;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
 import org.opensha.nshmp.util.GlobalConstants;
@@ -61,8 +60,7 @@ public class NFPA_GuiBean_Wrapper extends ASCE7_GuiBean {
 	*
 	* @return RectangularGeographicRegion
 	*/
-	protected Region getRegionConstraint() throws
-		RegionConstraintException {
+	protected Region getRegionConstraint() {
 
 		if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
 			selectedRegion.equals(GlobalConstants.ALASKA) ||

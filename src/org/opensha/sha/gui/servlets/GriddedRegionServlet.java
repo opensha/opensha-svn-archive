@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValueList;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
@@ -102,12 +101,11 @@ public class GriddedRegionServlet extends HttpServlet {
 			outputToApplet.writeObject(regionFileWithAbsolutePath);
 			outputToApplet.close();
 
-		}catch(RegionConstraintException e){
-			e.printStackTrace();
-			outputToApplet.writeObject(e);
-			outputToApplet.close();
-		}
-		catch (Exception e) {
+//		}catch(RegionConstraintException e){
+//			e.printStackTrace();
+//			outputToApplet.writeObject(e);
+//			outputToApplet.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 			outputToApplet.writeObject(e);
 			outputToApplet.close();
@@ -133,7 +131,7 @@ public class GriddedRegionServlet extends HttpServlet {
 	 * return the GriddedRegion Object.
 	 * @param dataVals 
 	 */
-	private SitesInGriddedRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams, ArrayList<SiteDataValueList<?>> dataVals) throws RegionConstraintException {
+	private SitesInGriddedRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams, ArrayList<SiteDataValueList<?>> dataVals) {
 		double minLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LATITUDE).getValue()).doubleValue();
 		double maxLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LATITUDE).getValue()).doubleValue();
 		double minLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).getValue()).doubleValue();

@@ -48,11 +48,9 @@ import javax.swing.border.EtchedBorder;
 
 import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -200,7 +198,7 @@ public class HazusDataSetCalcApp extends JFrame
     try {
       this.initGriddedRegionGuiBean();
     }
-    catch (RegionConstraintException ex) {
+    catch (Exception ex) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,ex,
           "Exception occured while initializing the  region parameters in Hazard Dataset Calc App"+
           " Parameters values have not been set yet.");
@@ -307,7 +305,7 @@ public class HazusDataSetCalcApp extends JFrame
    * Initialise the Gridded Region sites gui bean
    *
    */
-  private void initGriddedRegionGuiBean() throws RegionConstraintException {
+  private void initGriddedRegionGuiBean() {
     // get the selected IMR
      attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object

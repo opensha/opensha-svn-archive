@@ -39,10 +39,7 @@ import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
-import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -108,7 +105,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 //		this.setSize(500, 800);
 	}
 	
-	private void makeMap(ArrayList<Double> zVals, LocationList locs, String label, String meta) throws RegionConstraintException {
+	private void makeMap(ArrayList<Double> zVals, LocationList locs, String label, String meta) {
 		ParameterAPI customParam = mapBean.getParameterList().getParameter(
 				GMT_MapGenerator.CUSTOM_SCALE_LABEL_PARAM_CHECK_NAME);
 		// if the user didn't specify a custom one, then do it for them
@@ -133,7 +130,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 		customParam.setValue(custom);
 	}
 	
-	private void makeCombinedMap() throws RegionConstraintException, IOException {
+	private void makeCombinedMap() throws IOException {
 		ArrayList<SiteDataAPI<?>> providers = dataBean.getSelectedProviders();
 		ArrayList<SiteDataValueList<Double>> valListList = new ArrayList<SiteDataValueList<Double>>();
 		
@@ -191,21 +188,20 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 					String meta = doubProvider.getName();
 					
 					makeMap(zVals, locs, label, meta);
-				} catch (RegionConstraintException e1) {
-					e1.printStackTrace();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}
 		} else if (e.getSource() == mapMultiButton) {
 			try {
 				makeCombinedMap();
-			} catch (RegionConstraintException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		} else if (e.getSource() == regionButton) {

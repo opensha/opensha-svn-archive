@@ -2,7 +2,6 @@ package junk;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 
 /**
@@ -45,7 +44,7 @@ public final class TestSiteTypeServlets {
   /**
    * Test class default constructor
    */
-  public TestSiteTypeServlets() throws RegionConstraintException {
+  public TestSiteTypeServlets() {
     //gets the site type values from the servlet
     getValuesForSiteTypeFromServlets();
     //gets the site type values from file
@@ -72,7 +71,7 @@ public final class TestSiteTypeServlets {
    * gets the Wills site and basin depth information from the site type files
    * on the local system.
    */
-  public void getValuesForSiteType() throws RegionConstraintException {
+  public void getValuesForSiteType() {
 
     willsSiteClassFromFile = ConnectToCVM.getWillsSiteType(MIN_LON,MAX_LON,MIN_LAT,MAX_LAT,
         GRIDSPACING,WILLS_SITE_CLASS_FILE);

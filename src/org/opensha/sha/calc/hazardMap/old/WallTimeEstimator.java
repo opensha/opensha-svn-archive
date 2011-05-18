@@ -24,7 +24,6 @@ import java.util.Random;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.old.grid.HazardMapPortionCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -60,7 +59,7 @@ public class WallTimeEstimator {
 				calc.getHazardCurve(hazFunction, sites.getSite(siteNum), attenRel, erf);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-			} catch (RegionConstraintException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			

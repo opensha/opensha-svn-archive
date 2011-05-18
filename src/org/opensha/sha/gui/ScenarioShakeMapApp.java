@@ -54,7 +54,6 @@ import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
@@ -284,7 +283,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		try {
 			this.initGriddedRegionGuiBean();
 		}
-		catch (RegionConstraintException ex) {
+		catch (Exception ex) {
 			step = 0;
 			ex.printStackTrace();
 			BugReport bug = new BugReport(ex, "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
@@ -430,7 +429,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * Initialise the Gridded Region sites gui bean
 	 *
 	 */
-	protected void initGriddedRegionGuiBean() throws RegionConstraintException {
+	protected void initGriddedRegionGuiBean() {
 
 		// create the Site Gui Bean object
 		sitesGuiBean = new SitesInGriddedRectangularRegionGuiBean(siteDataGUIBean);
@@ -571,12 +570,12 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 			JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		catch(RegionConstraintException ee){
-			//ee.printStackTrace();
-			step =0;
-			JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Site",JOptionPane.ERROR_MESSAGE);
-			return;
-		}
+//		catch(RegionConstraintException ee){
+//			//ee.printStackTrace();
+//			step =0;
+//			JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Site",JOptionPane.ERROR_MESSAGE);
+//			return;
+//		}
 		catch(RuntimeException ee){
 			step =0;
 			JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.ERROR_MESSAGE);
@@ -613,7 +612,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * Updates the Sites Values for each site in the region chosen by the user
 	 *
 	 */
-	protected void getGriddedRegionSites() throws RuntimeException, RegionConstraintException {
+	protected void getGriddedRegionSites() {
 		//if calculation have to be done on the local system
 		if(!calculationFromServer)
 			griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
@@ -652,7 +651,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * @param attenRel : Selected AttenuationRelationships
 	 * @param imt : Selected IMT
 	 */
-	public Object generateShakeMap(ArrayList attenRel, ArrayList attenRelWts, String imt) throws ParameterException,RuntimeException, RegionConstraintException {
+	public Object generateShakeMap(ArrayList attenRel, ArrayList attenRelWts, String imt) throws ParameterException {
 		try {
 			double value=imlProbValue;
 			//if the IMT selected is Log supported then take the log if Prob @ IML
@@ -760,8 +759,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * corresponding relative wts.
 	 * This function also gets the mode of map calculation ( on server or on local machine)
 	 */
-	public void getGriddedSitesMapTypeAndSelectedAttenRels() throws
-	RegionConstraintException, RuntimeException {
+	public void getGriddedSitesMapTypeAndSelectedAttenRels() {
 		//gets the IML or Prob selected value
 		getIMLorProb();
 
@@ -800,22 +798,23 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		try {
 			getGriddedSitesMapTypeAndSelectedAttenRels();
 		}
-		catch (RegionConstraintException ee) {
-			step = 0;
-			/*ExceptionWindow bugWindow = new ExceptionWindow(this, ee,
-          mapParametersInfo);
-      bugWindow.setVisible(true);
-      bugWindow.pack();*/
-
-			JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
-					JOptionPane.ERROR_MESSAGE);
-			ee.printStackTrace();
-			addButton.setEnabled(true);
-			return;
-		}
+//		catch (RegionConstraintException ee) {
+//			step = 0;
+//			/*ExceptionWindow bugWindow = new ExceptionWindow(this, ee,
+//          mapParametersInfo);
+//      bugWindow.setVisible(true);
+//      bugWindow.pack();*/
+//
+//			JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
+//					JOptionPane.ERROR_MESSAGE);
+//			ee.printStackTrace();
+//			addButton.setEnabled(true);
+//			return;
+//		}
 		catch (RuntimeException ee) {
-			JOptionPane.showMessageDialog(this, ee.getMessage(), "Server Problem",
+			JOptionPane.showMessageDialog(this, ee.getMessage(), "Input or Server Problem",
 					JOptionPane.INFORMATION_MESSAGE);
+			ee.printStackTrace();
 			addButton.setEnabled(true);
 			return;
 		}
@@ -849,7 +848,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	/**
 	 * when the generate Map button is pressed
 	 */
-	protected void addButton() throws RegionConstraintException, ParameterException,
+	protected void addButton() throws ParameterException,
 	RuntimeException {
 		timer.start();
 		step = 1;

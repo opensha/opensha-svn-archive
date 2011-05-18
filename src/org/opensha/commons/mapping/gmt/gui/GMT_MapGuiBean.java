@@ -25,9 +25,7 @@ import java.util.ListIterator;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.ParameterAPI;
@@ -188,7 +186,7 @@ ParameterChangeListener {
 		}
 	}
 
-	public GriddedRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
+	public GriddedRegion getEvenlyGriddedGeographicRegion() {
 		return gmtMap.getEvenlyGriddedGeographicRegion();
 	}
 	

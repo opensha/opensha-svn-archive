@@ -64,7 +64,6 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gridComputing.GridResources;
 import org.opensha.commons.gridComputing.ResourceProvider;
@@ -74,7 +73,6 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.old.HazardMapMetadataJobCreator;
@@ -294,7 +292,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 		try {
 			this.initGriddedRegionGuiBean();
 		}
-		catch (RegionConstraintException ex) {
+		catch (Exception ex) {
 			ExceptionWindow bugWindow = new ExceptionWindow(this,ex,
 					"Exception occured while initializing the  region parameters in Hazard Dataset Calc App"+
 			" Parameters values have not been set yet.");
@@ -477,7 +475,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 	 * Initialise the Gridded Region sites gui bean
 	 *
 	 */
-	private void initGriddedRegionGuiBean() throws RegionConstraintException {
+	private void initGriddedRegionGuiBean() {
 		// get the selected IMR
 		attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
 		// create the Site Gui Bean object
@@ -844,13 +842,16 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 		} catch (RuntimeException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (RegionConstraintException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+//		} catch (RegionConstraintException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}

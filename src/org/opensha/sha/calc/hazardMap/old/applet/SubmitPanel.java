@@ -38,7 +38,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import org.dom4j.Document;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 
@@ -128,10 +127,10 @@ public class SubmitPanel extends JPanel implements ActionListener {
 			} catch (RuntimeException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (RegionConstraintException e1) {
+			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (IOException e1) {
+			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
