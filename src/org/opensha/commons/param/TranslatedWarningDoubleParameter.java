@@ -24,9 +24,7 @@ import java.util.ListIterator;
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.TranslateException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.ParameterEditorAPI;
 import org.opensha.commons.param.editor.TranslatedWarningDoubleParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -187,7 +185,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
      * @return                The reverse translated min value.
      * @exception  Exception  Thrown if any mathmatical exceptions occur.
      */
-    public Double getWarningMin() throws TranslateException, Exception {
+    public Double getWarningMin() throws Exception {
         Double min = (Double)param.getWarningMin();
         if( min  == null || !translate ) return min;
         else return new Double( trans.reverse( min.doubleValue() ) );
@@ -219,7 +217,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
      * @return                The reverse translated max value.
      * @exception  Exception  Thrown if any mathmatical exceptions occur.
      */
-    public Double getWarningMax() throws TranslateException {
+    public Double getWarningMax() {
         Double max = (Double)param.getWarningMax();
         if( max  == null || !translate ) return max;
         else return new Double( trans.reverse( max.doubleValue() ) );
