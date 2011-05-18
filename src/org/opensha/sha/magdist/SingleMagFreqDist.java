@@ -19,6 +19,8 @@
 
 package org.opensha.sha.magdist;
 
+import java.awt.geom.Point2D;
+
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
@@ -159,6 +161,33 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    double totMoRate= this.rate * MagUtils.magToMoment(this.mag);
    return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
  }
+
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(Point2D point) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(double x, double y) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(int index, double y) {
+		throw new UnsupportedOperationException();
+	}
 
 
  /**

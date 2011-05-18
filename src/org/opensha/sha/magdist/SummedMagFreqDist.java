@@ -25,10 +25,9 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.MagFreqDistException;
 
 
 
@@ -206,45 +205,32 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     	 }
    }
 
-   /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the SummedMagFreqDist class and calling the set functions of this from outside
-   * @param point
-   * @throws MagFreqDistException
-   */
-  public void set(Point2D point) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the SummedMagFreqDist from outside this class");
-  }
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(Point2D point) {
+		throw new UnsupportedOperationException();
+	}
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the SummedMagFreqDist class and calling the set functions of this from outside
-   * @param x
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(double x,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the SummedMagFreqDist from outside this class");
-  }
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(double x, double y) {
+		throw new UnsupportedOperationException();
+	}
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the SummedMagFreqDist class and calling the set functions of this from outside
-   * @param index
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(int index,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the SummedMagFreqDist from outside this class");
-  }
-
-
-
-
-
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(int index, double y) {
+		throw new UnsupportedOperationException();
+	}
 
    /**
     * removes this distribution from the list

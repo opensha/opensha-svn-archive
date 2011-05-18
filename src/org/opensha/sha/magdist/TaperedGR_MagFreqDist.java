@@ -22,10 +22,9 @@ package org.opensha.sha.magdist;
 
 import java.awt.geom.Point2D;
 
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.MagFreqDistException;
 
 /**
  * <p>Title: TaperedGR_MagFreqDist </p>
@@ -163,7 +162,7 @@ public class TaperedGR_MagFreqDist
    */
   public void setAllButCornerMag(double magLower, double totMoRate,
 		  double totCumRate, double bValue) throws
-		  MagFreqDistException, XY_DataSetException,
+		  XY_DataSetException,
 		  Point2DException {
 	  
 	  this.magLower = magLower;
@@ -221,41 +220,32 @@ public class TaperedGR_MagFreqDist
 //		System.out.println(tgr.toString());
 	}
 
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(Point2D point) {
+		throw new UnsupportedOperationException();
+	}
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
-   * @param point
-   * @throws MagFreqDistException
-   */
-  public void set(Point2D point) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
-  }
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(double x, double y) {
+		throw new UnsupportedOperationException();
+	}
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
-   * @param x
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(double x, double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
-  }
-
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside.
-   * @param index
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(int index, double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
-  }
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(int index, double y) {
+		throw new UnsupportedOperationException();
+	}
 
   /**
    * private function to set the rate values
