@@ -400,6 +400,7 @@
 		<unjar src="${lib.dir}/guava-r09.jar" dest="${build}" />
 		<unjar src="${lib.dir}/servlet.jar" dest="${build}" />
 		<unjar src="${lib.dir}/Jama-1.0.2.jar" dest="${build}" />
+		<unjar src="${lib.dir}/mysql-connector-java-5.1.16-bin.jar" dest="${build}" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
