@@ -18,12 +18,13 @@
  ******************************************************************************/
 
 package org.opensha.commons.data;
+
+import static com.google.common.base.Preconditions.*;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-
-import org.opensha.commons.exceptions.InvalidArrayShapeException;
 
 /**
  *  <b>Title:</b> Container2D<p>
@@ -95,34 +96,23 @@ public class Container2D<T> implements Container2DAPI<T>, Serializable, NamedObj
 
 
 	/**
-	 *  Constructor for the Container2D object that allows setting the grid
-	 *  dimensions of row and column.
-	 *
-	 * @param  numRows                         Number of rows for the grid
-	 * @param  numCols                         Number of columsn for the grid
-	 * @exception  InvalidArrayShapeException  Thrown if rows or columns < 0
-	 * @exception  OutOfMemoryError            Thrown if rows * cols > maximum long value
-	 * allowed by java JVM.
+	 * Constructs a new <code>Container2D</code> with the supplied dimensions.
+	 * 
+	 * @param numRows number of rows
+	 * @param numCols number of columns
+	 * @exception IllegalArgumentException if <code>numRows</code> or
+	 *            <code>numCols</code> are less than 1, or if
+	 *            <code>(numRows * numCols)</code> exceeds the allowable 32-bit
+	 *            address space [2147483647].
 	 */
-	public Container2D( int numRows, int numCols ) throws InvalidArrayShapeException, OutOfMemoryError {
-
-		String S = C + ": Constructor(rows, cols): ";
-		if ( numRows < 0 ) {
-			throw new InvalidArrayShapeException( S + "Number of rows cannot be negative" );
-		}
-		if ( numCols < 0 ) {
-			throw new InvalidArrayShapeException( S + "Number of columns cannot be negative" );
-		}
-
-		size = ( long ) numRows * ( long ) numCols;
-		if ( size > 2147483647L ) {
-			throw new OutOfMemoryError( S + "Number of rows * columns cannot be greater than " + 2147483647L );
-		}
-
+	public Container2D(int numRows, int numCols) {
+		checkArgument(numRows > 0, "Number of rows must be greater than 0");
+		checkArgument(numCols > 0, "Number of columns must be greater than 0");
+		checkArgument((((long) numRows * (long) numCols) < 2147483647L),
+			"Container size exceeds allowable 32-bit address space");
 		this.numRows = numRows;
 		this.numCols = numCols;
 		data = new Object[numRows * numCols];
-
 	}
 
 	/** Sets the name of this container */
