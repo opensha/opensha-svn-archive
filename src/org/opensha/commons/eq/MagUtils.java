@@ -10,8 +10,8 @@ package org.opensha.commons.eq;
 public class MagUtils {
 
 	/**
-	 * Convert moment magnitude, M<sub>w</sub>, to seismic moment M<sub>
-	 * <em>0</em></sub>.
+	 * Convert moment magnitude,
+	 * <em>M<em><sub>W</sub>, to seismic moment, <em>M</em><sub> 0</sub>.
 	 * @param magnitude to convert
 	 * @return the equivalent seismic moment in Newton-meters
 	 */
@@ -20,8 +20,8 @@ public class MagUtils {
 	}
 
 	/**
-	 * Convert seismic moment, M<sub><em>0</em></sub>, to moment magnutude,
-	 * M<sub>w</sub>.
+	 * Convert seismic moment, <em>M</em><sub>0</sub>, to moment magnitude,
+	 * <em>M</em><sub>w</sub>.
 	 * @param moment to convert (in Newton-meters)
 	 * @return the equivalent moment magnitude
 	 */
