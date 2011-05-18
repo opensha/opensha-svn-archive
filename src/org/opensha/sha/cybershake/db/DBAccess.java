@@ -282,7 +282,7 @@ public class DBAccess implements Runnable{
                 throw new IOException();
             }
         } catch (Exception e) {
-            throw new IOException();
+            throw new IOException(e);
         }
 
         // Fire up the background housekeeping thread
@@ -624,6 +624,7 @@ public class DBAccess implements Runnable{
             if(debugLevel > 0) {
                 log.println("Error creating connection: " + e2);
             }
+            throw new RuntimeException(e2);
         }
 
         log.println(now.toString() + "  Opening connection " + String.valueOf(i) +
