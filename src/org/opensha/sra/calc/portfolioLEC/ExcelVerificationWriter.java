@@ -50,8 +50,8 @@ public class ExcelVerificationWriter {
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			for (int rupID=0; rupID<erf.getNumRuptures(sourceID); rupID++) {
 				int colNum = 1+myRupID;
-				rupIDRow.getCell(colNum).setCellValue(""+myRupID++);
-				rupProbRow.getCell(colNum).setCellValue(""+erf.getRupture(sourceID, rupID).getProbability());
+				rupIDRow.getCell(colNum).setCellValue(myRupID++);
+				rupProbRow.getCell(colNum).setCellValue(erf.getRupture(sourceID, rupID).getProbability());
 			}
 		}
 		
