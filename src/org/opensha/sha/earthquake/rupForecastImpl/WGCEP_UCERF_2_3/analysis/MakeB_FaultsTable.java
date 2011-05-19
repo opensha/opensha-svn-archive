@@ -13,9 +13,9 @@ import java.util.StringTokenizer;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -215,7 +215,7 @@ public class MakeB_FaultsTable {
 				if(srcTypeId==1) { // Char case
 					mag = Double.parseDouble(tokenizer.nextToken().trim());
 					double rate = Double.parseDouble(tokenizer.nextToken().trim());
-					moRate = rate*MomentMagCalc.getMoment(mag);
+					moRate = rate*MagUtils.magToMoment(mag);
 					double wt = Double.parseDouble(tokenizer.nextToken().trim());
 					double wt2 = 1;
 					if(mag > 6.5) wt2 = 0.666;

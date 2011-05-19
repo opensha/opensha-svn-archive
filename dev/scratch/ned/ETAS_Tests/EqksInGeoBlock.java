@@ -17,7 +17,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 /**
- * This class store information about all ruptures that nucleate inside this geographic block
+ * This class store information about all ruptures that nucleate inside this geographic block.
  * @author field
  *
  */

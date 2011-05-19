@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterList;
@@ -96,14 +95,13 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
 
 
   //Construct the application
-  public HazardMapUsingGridStandaloneApplicationUsingFrankel02() throws
-      RegionConstraintException {
+  public HazardMapUsingGridStandaloneApplicationUsingFrankel02()	 {
     init();
     run();
   }
 
   //Initialize the application
-  public void init() throws RegionConstraintException {
+  public void init() {
     try{
       initIMRGuiBean();
     }catch(RuntimeException e){
@@ -128,7 +126,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
     try {
       new HazardMapUsingGridStandaloneApplicationUsingFrankel02();
     }
-    catch (RegionConstraintException ex) {
+    catch (Exception ex) {
       System.out.println(ex.getMessage());
       ex.printStackTrace();
       System.exit(0);
@@ -142,7 +140,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
    * Initialise the Gridded Region sites gui bean
    *
    */
-  private void initGriddedRegionGuiBean() throws RegionConstraintException {
+  private void initGriddedRegionGuiBean() {
 
     //make the Gridded Region object
 //	  GriddedRegion eggr = 

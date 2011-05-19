@@ -12,11 +12,11 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.nnls.NNLSWrapper;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
@@ -175,7 +175,7 @@ public class SoSAF_SubSectionInversion {
 			rupMeanMo = new double[num_rup];
 			for(int rup=0; rup <num_rup; rup++) {
 				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6);
-				rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup]);   // increased if magSigma >0
+				rupMeanMo[rup] = MagUtils.magToMoment(rupMeanMag[rup]);   // increased if magSigma >0
 			}
 		}
 

@@ -29,9 +29,7 @@ import java.util.ArrayList;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.siteData.AbstractSiteData;
-import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -196,7 +194,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		return new WillsMap2006(useServlet, fileName);
 	}
 	
-	public static void main(String[] args) throws IOException, RegionConstraintException {
+	public static void main(String[] args) throws IOException {
 		
 		WillsMap2006 map = new WillsMap2006();
 		

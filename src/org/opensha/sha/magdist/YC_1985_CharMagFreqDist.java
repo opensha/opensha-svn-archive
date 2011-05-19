@@ -22,10 +22,9 @@ package org.opensha.sha.magdist;
 
 import java.awt.geom.Point2D;
 
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.MagFreqDistException;
 
 
 
@@ -197,45 +196,32 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
         this.scaleToCumRate(magUpper-deltaMagChar,totCharRate);
    }
 
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(Point2D point) {
+		throw new UnsupportedOperationException();
+	}
 
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(double x, double y) {
+		throw new UnsupportedOperationException();
+	}
 
-
-
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of this class and calling the set functions of this from outside
-   * @param point
-   * @throws MagFreqDistException
-   */
-  public void set(Point2D point) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the YC_1985_CharMagFreqDist from outside this class");
-  }
-
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of this class and calling the set functions of this from outside
-   * @param x
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(double x,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the YC_1985_CharMagFreqDist from outside this class");
-  }
-
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of this class and calling the set functions of this from outside.
-   * @param index
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(int index,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the YC_1985_CharMagFreqDist from outside this class");
-  }
-
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(int index, double y) {
+		throw new UnsupportedOperationException();
+	}
 
   /**
     * private function to set the rate values

@@ -25,7 +25,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -67,8 +66,7 @@ public final class WillsSiteClass {
 	 * @param fileName : Name of the Wills Site Class file
 	 */
 	public WillsSiteClass(double minLon, double maxLon, double minLat,
-			double maxLat, double gridSpacing,String fileName) throws
-			RegionConstraintException {
+			double maxLat, double gridSpacing,String fileName) {
 
 		prepareSitesInput(minLon,maxLon,minLat,maxLat,gridSpacing);
 		willsSiteClassFile = fileName;
@@ -100,8 +98,7 @@ public final class WillsSiteClass {
 	 * @return
 	 */
 	private void prepareSitesInput(double minLon, double maxLon, double minLat,
-			double maxLat, double gridSpacing) throws
-			RegionConstraintException {
+			double maxLat, double gridSpacing) {
 
 		locations = new ArrayList<Location>();
 //		GriddedRegion region = 

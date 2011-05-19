@@ -21,9 +21,9 @@ import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
@@ -444,11 +444,11 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			summaryString+="Segment  Mag       Ave-slip (m) for  ("+magAreaRel.getName()+")\n";
 			for(int j=0; j<numSegs; ++j) {
 				double mag = magAreaRel.getMedianMag(segmetedFaultData.getSegmentArea(j)/1e6);
-				double moment = MomentMagCalc.getMoment(mag);
+				double moment = MagUtils.magToMoment(mag);
 				summaryString+=(j+1)+"              "+MAG_FORMAT.format(mag)+"      "+SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getSegmentArea(j), moment))+"\n";
 			}
 			double mag = magAreaRel.getMedianMag(segmetedFaultData.getTotalArea()/1e6);
-			double moment = MomentMagCalc.getMoment(mag);
+			double moment = MagUtils.magToMoment(mag);
 			summaryString+="All            "+MAG_FORMAT.format(mag)+"      "+SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getTotalArea(), moment))+"\n\n";		
 		}
 		String text = MSG_ASEIS_REDUCES_SLIPRATE;

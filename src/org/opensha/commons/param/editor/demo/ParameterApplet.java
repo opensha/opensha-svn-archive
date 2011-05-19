@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
@@ -244,7 +243,7 @@ public class ParameterApplet
 		} catch (ConstraintException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (RegionConstraintException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

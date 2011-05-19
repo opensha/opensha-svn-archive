@@ -19,6 +19,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -546,9 +547,10 @@ public class ETAS_Simulator {
 	public void writeAftershockDataToFile(ArrayList<PrimaryAftershock> events, String filePathAndName) {
 		try{
 			FileWriter fw1 = new FileWriter(filePathAndName);
-			fw1.write("id\ttime\tlat\tlon\tdepth\tmag\tParentID\tGeneration\tdistToParent\tERF_srcID\tERF_rupID\tERF_SrcName\n");
+			fw1.write("id\ttime\tlat\tlon\tdepth\tmag\tParentID\tGeneration\tdistToMainShock\tdistToParent\tERF_srcID\tERF_rupID\tERF_SrcName\n");
 			for(PrimaryAftershock event: events) {
 				Location hLoc = event.getHypocenterLocation();
+				double dist = LocationUtils.distanceToSurfFast(hLoc, mainShock.getRuptureSurface());
 				fw1.write(event.getID()+"\t"+(float)event.getOriginTime()+"\t"
 						+(float)hLoc.getLatitude()+"\t"
 						+(float)hLoc.getLongitude()+"\t"
@@ -556,6 +558,7 @@ public class ETAS_Simulator {
 						+(float)event.getMag()+"\t"
 						+event.getParentID()+"\t"
 						+event.getGeneration()+"\t"
+						+(float)dist+"\t"
 						+(float)event.getDistanceToParent()+"\t"
 						+event.getERF_SourceIndex()+"\t"
 						+event.getERF_RupIndex()+"\t"
@@ -686,8 +689,11 @@ public class ETAS_Simulator {
 		meanUCERF2.updateForecast();
 		double runtime = (System.currentTimeMillis()-startRunTime)/1000;
 		System.out.println("ERF instantiation took "+runtime+" seconds");
+		
+		double cumRate = Math.round(10*ERF_Calculator.getTotalMFD_ForERF(meanUCERF2, 2.05,8.95, 70, true).getCumRate(5.05))/10.0;
+		System.out.println("\nCumRate >= M5 for MeanUCERF2_ETAS: "+cumRate+"  (should be 6.8)\n");
 				
-
+		
 		
 		/*
 		// print info about sources
@@ -704,7 +710,7 @@ public class ETAS_Simulator {
 		
 
 		// Create the ETAS simulator
-		int srcID_ToIgnore = -1; // landers
+		int srcID_ToIgnore = -1; // none
 //		int srcID_ToIgnore = 195; // landers
 //		int srcID_ToIgnore = 223; // Northridge
 		// SSAF is 42 to 98
@@ -736,22 +742,22 @@ public class ETAS_Simulator {
 		mainShock = meanUCERF2.getSource(68).getRupture(4);
 		etasSimulator.runTests(mainShock,"SSAF Wall-to-wall Rupture; M="+mainShock.getMag(), null);
 
-*/
+
 		// 195	Landers Rupture	 #rups=46 (rup 41 for M 7.25)
 		mainShock = meanUCERF2.getSource(195).getRupture(41);
 		double distDecay = 1.7;
 		double minDist = 0.3;
 		String info = "Landers Rupture (M="+mainShock.getMag()+"); distDecay="+distDecay;
 		etasSimulator.runTests(mainShock,info, 195, rootDir+"Landers_decay1pt7_withSrc/",distDecay,minDist);
-		
-/*				
+	*/
+				
 		// 223	Northridge	 #rups=13	(rup 8 for M 6.75)
 		mainShock = meanUCERF2.getSource(223).getRupture(8);
-		double distDecay = 2.0;
-		double minDist = 0.5;
+		double distDecay = 1.7;
+		double minDist = 0.3;
 		String info = "Northridge Rupture (M="+mainShock.getMag()+"); distDecay="+distDecay;
-		etasSimulator.runTests(mainShock,info, 223, rootDir+"Northridge_decay2pt0_withSrc/",distDecay,minDist);
- 
+		etasSimulator.runTests(mainShock,info, 223, rootDir+"Northridge_decay1pt7_withSrc/",distDecay,minDist);
+		/*
 		
 
 		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping rupture I could find)

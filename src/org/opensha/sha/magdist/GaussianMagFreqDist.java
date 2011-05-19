@@ -24,25 +24,22 @@ import java.awt.geom.Point2D;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.MagFreqDistException;
-
-
-
-
 
 /**
- * <p>Title:GaussianMagFreqDist </p>
- *
- * <p>Description: This assumes a Gaussian distribution with a given mean and standard deviation, with
- * the option of being truncated at some number of standard deviations(one or two sided truncation).
- * The trucation levels are rounded to the nearest point, and these are given non-zero rates (zeros
- * are above and below these points.  The mean can be any value (it doesn not have to exactly equal
- * one of the descrete x-axis values).
- *
- * @author : Nitin Gupta (Aug,8,2002) & Ned Field (Nov, 21, 2002)
- * @version 1.0
+ * This class represents a Gaussian magnitude-frequency distribution (MFD). It's
+ * standard properties are mean and standard deviation, and it may optionally be
+ * truncated at some number of standard deviations (one or two sided). Trucation
+ * levels are rounded to the nearest point, and given non-zero rates (zeros are
+ * above and below these points). The mean can be any value (it doesn't have to
+ * exactly equal one of the descrete x-axis values).
+ * <br/><br/>
+ * This MFD does not permit independent setting of values.
+ * 
+ * @author Nitin Gupta (Aug,8,2002)
+ * @author Ned Field (Nov, 21, 2002)
+ * @author Peter Powers
+ * @version $Id$
  */
-
 public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
   public  static String NAME = "Gaussian Dist";
@@ -307,41 +304,32 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
   }
 
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(Point2D point) {
+		throw new UnsupportedOperationException();
+	}
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
-   * @param point
-   * @throws MagFreqDistException
-   */
-  public void set(Point2D point) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
-  }
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(double x, double y) {
+		throw new UnsupportedOperationException();
+	}
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
-   * @param x
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(double x,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
-  }
-
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
-   * @param index
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(int index,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
-  }
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(int index, double y) {
+		throw new UnsupportedOperationException();
+	}
 
   /**
    * This functions call the method set(int,double) in the EvenlyDiscretized class

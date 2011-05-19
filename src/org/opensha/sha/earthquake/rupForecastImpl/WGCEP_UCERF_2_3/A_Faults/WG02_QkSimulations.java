@@ -22,9 +22,9 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -215,11 +215,11 @@ public class WG02_QkSimulations {
 	 */
 	public double getSimMoRate(double[] rupMag){
 		double totMoment = 0;
-		for(int i=0;i<eventIndex.length;i++) totMoment += MomentMagCalc.getMoment(rupMag[eventIndex[i]]);
+		for(int i=0;i<eventIndex.length;i++) totMoment += MagUtils.magToMoment(rupMag[eventIndex[i]]);
 		double moRate = totMoment/eventYear[eventYear.length-1];
 		
 		totMoment = 0;
-		for(int i=0;i<eventIndex.length-1;i++) totMoment += MomentMagCalc.getMoment(rupMag[eventIndex[i]]);
+		for(int i=0;i<eventIndex.length-1;i++) totMoment += MagUtils.magToMoment(rupMag[eventIndex[i]]);
 		double moRate2 = totMoment/eventYear[eventYear.length-1];
 		System.out.println("MoRateRange:"+(float)moRate2+"   "+(float)moRate);
 		
@@ -265,7 +265,7 @@ public class WG02_QkSimulations {
 		double[] segMag = {7.16886,7.24218,7.52195,7.37158};
 		double[] segRate = new double[segMoRate.length];
 		for(int i=0;i<segRate.length;i++) {
-			segRate[i] = segMoRate[i]/(MomentMagCalc.getMoment(segMag[i])*10000000);
+			segRate[i] = segMoRate[i]/(MagUtils.magToMoment(segMag[i])*10000000);
 //			System.out.println("seg "+i+" rate = "+segRate[i]);
 		}
 		double[] rupRate = {segRate[0],segRate[1],segRate[2],segRate[3],0,0,0,0,0,0};
@@ -307,7 +307,7 @@ public class WG02_QkSimulations {
 		}
 		
 		double totMoRate = 0;
-		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MomentMagCalc.getMoment(rupMag[i]);
+		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MagUtils.magToMoment(rupMag[i]);
 		System.out.println("Tot Moment rates: orig, sim, and sim/orig");
 		double simMoRate = this.getSimMoRate(rupMag);
 		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
@@ -407,7 +407,7 @@ public class WG02_QkSimulations {
 		}
 		
 		double totMoRate = 0;
-		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MomentMagCalc.getMoment(rupMag[i]);
+		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MagUtils.magToMoment(rupMag[i]);
 		System.out.println("Tot Moment rates: orig, sim, and sim/orig");
 		double simMoRate = this.getSimMoRate(rupMag);
 		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
@@ -492,7 +492,7 @@ public class WG02_QkSimulations {
 		
 		
 		double totMoRate = 0;
-		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MomentMagCalc.getMoment(rupMag[i]);
+		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MagUtils.magToMoment(rupMag[i]);
 		System.out.println("Tot Moment rates: orig, sim, and sim/orig");
 		double simMoRate = this.getSimMoRate(rupMag);
 		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));

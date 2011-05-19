@@ -15,7 +15,7 @@ public class BeanSuite {
 
 	public static void main(String args[])
 	{
-		org.junit.runner.JUnitCore.runClasses(CalcSuite.class);
+		org.junit.runner.JUnitCore.runClasses(BeanSuite.class);
 	}
 
 }

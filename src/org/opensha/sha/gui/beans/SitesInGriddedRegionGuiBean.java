@@ -29,7 +29,6 @@ import javax.swing.JOptionPane;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -129,7 +128,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 	private StringParameter regionSelect;
 
-	public SitesInGriddedRegionGuiBean(ArrayList<Region> presets) throws RegionConstraintException {
+	public SitesInGriddedRegionGuiBean(ArrayList<Region> presets) {
 		ArrayList<String> presetsStr = new ArrayList<String>();
 		presetsStr.add(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
 		//		presetsStr.add(SitesInGriddedRegionGuiBean.CUSTOM_NAME);
@@ -191,7 +190,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	/**
 	 * constuctor which builds up mapping between IMRs and their related sites
 	 */
-	public SitesInGriddedRegionGuiBean() throws RegionConstraintException {
+	public SitesInGriddedRegionGuiBean() {
 		this(generateDefaultRegions());
 	}
 
@@ -358,8 +357,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * So, we update the site object as well
 	 *
 	 */
-	private void updateGriddedSiteParams() throws
-	RegionConstraintException {
+	private void updateGriddedSiteParams() {
 
 		ArrayList<Parameter> v= new ArrayList<Parameter>();
 		createAndUpdateSites();
@@ -418,7 +416,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private boolean updateNumSites() {
 		try {
 			createAndUpdateSites();
-		} catch (RegionConstraintException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -483,7 +481,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * Max Lat is Less than Min Lonb then it throws an exception.
 	 * @return
 	 */
-	private void createAndUpdateSites() throws RegionConstraintException {
+	private void createAndUpdateSites() {
 		if (regionSelect == null)
 			System.out.println("REGION SELECT NULL");
 		if (regionSelect.getValue() == null)
@@ -530,7 +528,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @return the object for the SitesInGriddedRectangularRegion class
 	 */
-	public SitesInGriddedRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
+	public SitesInGriddedRegion getGriddedRegionSite() {
 
 		updateGriddedSiteParams();
 

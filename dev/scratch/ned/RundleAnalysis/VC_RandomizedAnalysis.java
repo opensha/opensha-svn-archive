@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.faultSurface.FaultTrace;
 
@@ -251,7 +251,7 @@ public class VC_RandomizedAnalysis {
       }
       eventAveSlips[i]=(totPot/totArea);   //meters
       eventAreas[i]=totArea;             //meters-sq
-      eventMags[i]= MomentMagCalc.getMag(FaultMomentCalc.getMoment(totArea,totPot/totArea));
+      eventMags[i]= MagUtils.momentToMag(FaultMomentCalc.getMoment(totArea,totPot/totArea));
       eventYearPred1[i] = (totPot+sum1)/totPotRate;
       eventYearPred2[i] = sum2/totArea;
       aveLastEvTime1[i] = sumForT_last1/totPotRate;

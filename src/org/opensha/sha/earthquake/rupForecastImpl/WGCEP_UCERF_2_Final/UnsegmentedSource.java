@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -33,6 +32,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -535,7 +535,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			else rupture = getRupture(rupIndex);
 			EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
 			area = rupSurface.getSurfaceLength()*rupSurface.getSurfaceWidth();
-			moRate = MomentMagCalc.getMoment(rupture.getMag());
+			moRate = MagUtils.magToMoment(rupture.getMag());
 			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);
 			slip = FaultMomentCalc.getSlip(area*1e6,moRate);
 			slipRate = rupture.getMeanAnnualRate(this.duration)*slip;
@@ -880,7 +880,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			IncrementalMagFreqDist visibleSegMFD =  visibleSegSourceMFD[seg];
 			for(int i=0; i<segMFD.getNum(); ++i) {
 				double mag = segMFD.getX(i);
-				double moment = MomentMagCalc.getMoment(mag);
+				double moment = MagUtils.magToMoment(mag);
 				double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*1e6, moment);
 				segSlipDist[seg].set(slip, segMFD.getY(i));
 				segVisibleSlipDist[seg].set(slip, visibleSegMFD.getY(i));
@@ -920,7 +920,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 				Location surfaceLoc = (Location)it.next();
 				if(LocationUtils.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
 					double area = rupture.getRuptureSurface().getSurfaceLength()*rupture.getRuptureSurface().getSurfaceWidth();
-					double slip = FaultMomentCalc.getSlip(area*1e6,MomentMagCalc.getMoment(rupture.getMag()));
+					double slip = FaultMomentCalc.getSlip(area*1e6,MagUtils.magToMoment(rupture.getMag()));
 					slipRate+= rupture.getMeanAnnualRate(this.duration)*slip;
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
 					//	rupture.getMeanAnnualRate(this.duration));
@@ -1108,7 +1108,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.segmentData.getFaultName()+"\n");
 		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
 		double moRate = sourceMFD.getTotalMomentRate();
-		double rate = moRate/MomentMagCalc.getMoment(sourceMag);
+		double rate = moRate/MagUtils.magToMoment(sourceMag);
 		double wt = 1.0;
 		strBuffer.append((float)sourceMag+"\t"+rate+"\t"+wt+"\t"+(float)moRate+"\n");
 		UCERF2_Final_StirlingGriddedSurface surface = (UCERF2_Final_StirlingGriddedSurface)this.getSourceSurface();

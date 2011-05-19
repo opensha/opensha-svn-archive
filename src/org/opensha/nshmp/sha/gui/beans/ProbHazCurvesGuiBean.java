@@ -41,7 +41,6 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
@@ -181,7 +180,7 @@ AnalysisOptionsGuiBeanAPI {
 		try {
 			createLocation();
 		}
-		catch (RegionConstraintException ex1) {
+		catch (Exception ex1) {
 			ExceptionWindow bugWindow = new ExceptionWindow(this, ex1.getStackTrace(),
 					"Exception occured while initializing the  region parameters in NSHMP application." +
 			"Parameters values have not been set yet.");
@@ -418,7 +417,7 @@ AnalysisOptionsGuiBeanAPI {
 			try {
 				createLocation();
 			}
-			catch (RegionConstraintException ex) {
+			catch (Exception ex) {
 				ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
 						"Exception occured while initializing the  region parameters in NSHMP application." +
 				"Parameters values have not been set yet.");
@@ -475,7 +474,7 @@ AnalysisOptionsGuiBeanAPI {
 	/**
 	 * Creating the location gui bean
 	 */
-	private void createLocation() throws RegionConstraintException {
+	private void createLocation() {
 		Region region = RegionUtil.getRegionConstraint(
 				selectedRegion);
 		if (region != null) {

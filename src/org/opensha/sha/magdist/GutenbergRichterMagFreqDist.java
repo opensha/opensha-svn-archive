@@ -20,10 +20,9 @@
 package org.opensha.sha.magdist;
 
 
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.MagFreqDistException;
 
 
 /**
@@ -181,7 +180,7 @@ public class GutenbergRichterMagFreqDist
   public void setAllButMagUpper(double magLower, double totMoRate,
                                 double totCumRate,
                                 double bValue, boolean relaxTotMoRate) throws
-      MagFreqDistException, XY_DataSetException,
+      XY_DataSetException,
       Point2DException {
 
     if (D) System.out.println("magLower = " + magLower);
@@ -229,7 +228,7 @@ public class GutenbergRichterMagFreqDist
       if (diff2 < diff1) index--;
     }
     else
-      throw new MagFreqDistException("Moment rate not attainable");
+      throw new RuntimeException("Moment rate not attainable");
 
     magUpper = getX(index);
 

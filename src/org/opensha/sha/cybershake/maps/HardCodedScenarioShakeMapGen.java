@@ -23,14 +23,10 @@ import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.Region;
-import org.opensha.commons.mapping.gmt.GMT_Map.HighwayFile;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
@@ -43,11 +39,8 @@ import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
-import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -206,7 +199,7 @@ public class HardCodedScenarioShakeMapGen {
 	private static GeoDataSet computeBaseMap(EqkRupture rup,
 			AttenuationRelationship attenRel,
 			SitesInGriddedRegion sites,
-			boolean isProbAtIML,double value) throws ParameterException, RegionConstraintException {
+			boolean isProbAtIML,double value) throws ParameterException {
 		ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator();
 		
 		ArrayList<AttenuationRelationship> selectedAttenRels = new ArrayList<AttenuationRelationship>();
@@ -246,12 +239,11 @@ public class HardCodedScenarioShakeMapGen {
 	/**
 	 * @param args
 	 * @throws IOException 
-	 * @throws RegionConstraintException 
 	 * @throws ParameterException 
 	 * @throws ClassNotFoundException 
 	 * @throws DocumentException 
 	 */
-	public static void main(String[] args) throws IOException, ParameterException, RegionConstraintException, ClassNotFoundException, DocumentException {
+	public static void main(String[] args) throws IOException, ParameterException, ClassNotFoundException, DocumentException {
 //		int sourceID = 89;
 //		int rupID = 3;
 //		Location hypo = new Location(35.849, -120.3858, 15.5655);

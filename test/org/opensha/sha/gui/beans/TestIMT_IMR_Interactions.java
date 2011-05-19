@@ -33,10 +33,7 @@ public class TestIMT_IMR_Interactions {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		imrs = inst.createIMRClassInstance(null);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			imr.setParamDefaults();
-		}
+		imrs = TestIMR_MultiGuiBean.getBuildIMRs();
 		demoTRTs = new ArrayList<TectonicRegionType>();
 		demoTRTs.add(TectonicRegionType.ACTIVE_SHALLOW);
 		demoTRTs.add(TectonicRegionType.STABLE_SHALLOW);
@@ -144,7 +141,8 @@ public class TestIMT_IMR_Interactions {
 		assertFalse("CB 2008 shouldn't support MMI", imrGui.getSelectedIMR().isIntensityMeasureSupported(MMI_Param.NAME));
 		
 		imtGui.setSelectedIMT(MMI_Param.NAME);
-		assertTrue("IMT changed to MII, but selected IMR doesn't support it and was not changed.",
+		assertTrue("IMT changed to MMI, but selected IMR doesn't support it and was not changed" +
+				" (but should have been).",
 				imrGui.getSelectedIMR().isIntensityMeasureSupported(MMI_Param.NAME));
 		
 		imtGui.setSelectedIMT(SA_Param.NAME);
@@ -154,6 +152,9 @@ public class TestIMT_IMR_Interactions {
 	public void testSetSAWithNonSAIMRSelected() {
 		// this tests settting IMT to SA with an IMR selected that doesn't support SA
 		
+		if (!imtGui.getSupportedIMTs().contains(SA_InterpolatedParam.NAME))
+			// if interpolated SA isn't in the list, skip this test.
+			return;
 		imtGui.setSelectedIMT(SA_InterpolatedParam.NAME);
 		assertTrue("IMT changed to interpolated, but selected IMR doesn't support it and was not changed.",
 				imrGui.getSelectedIMR().isIntensityMeasureSupported(SA_InterpolatedParam.NAME));

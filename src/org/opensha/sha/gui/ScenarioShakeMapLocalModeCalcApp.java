@@ -19,29 +19,22 @@
 
 package org.opensha.sha.gui;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.Toolkit;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gui.DisclaimerDialog;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestGEM_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestSubductionZoneERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.util.IconFetcher;
 
 /**
@@ -115,8 +108,7 @@ extends ScenarioShakeMapApp {
 	 * corresponding relative wts.
 	 * This function also gets the mode of map calculation ( on server or on local machine)
 	 */
-	public void getGriddedSitesMapTypeAndSelectedAttenRels() throws
-	RegionConstraintException, RuntimeException {
+	public void getGriddedSitesMapTypeAndSelectedAttenRels() {
 		//gets the IML or Prob selected value
 		getIMLorProb();
 

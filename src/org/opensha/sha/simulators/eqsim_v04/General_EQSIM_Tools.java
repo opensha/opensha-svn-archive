@@ -16,7 +16,6 @@ import org.apache.commons.math.MathException;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2007_MagAreaRel;
@@ -27,6 +26,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
@@ -1495,7 +1495,7 @@ public class General_EQSIM_Tools {
 					double slip = slipList.get(e); // this is in meters
 					moment += FaultMomentCalc.getMoment(area*1e6, slip);	// convert area to meters squared
 				}
-				double computedMag = MomentMagCalc.getMag(moment);
+				double computedMag = MagUtils.momentToMag(moment);
 				double diff = Math.abs(eventMag-computedMag);
 				if(diff> maxMagDiff) maxMagDiff = diff;
 			}

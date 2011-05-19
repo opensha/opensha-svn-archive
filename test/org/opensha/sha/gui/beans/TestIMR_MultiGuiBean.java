@@ -19,6 +19,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -46,14 +47,23 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	IMR_MultiGuiBean gui;
 	
 	Stack<ScalarIMRChangeEvent> eventStack = new Stack<ScalarIMRChangeEvent>();
+	
+	protected static ArrayList<ScalarIntensityMeasureRelationshipAPI> getBuildIMRs() {
+		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
+		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = inst.createIMRClassInstance(null);
+		for (int i=imrs.size()-1; i>=0; i--) {
+			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			if (imr instanceof CyberShakeIMR)
+				imrs.remove(i);
+			else
+				imr.setParamDefaults();
+		}
+		return imrs;
+	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		imrs = inst.createIMRClassInstance(null);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			imr.setParamDefaults();
-		}
+		imrs = getBuildIMRs();
 		demoTRTs = new ArrayList<TectonicRegionType>();
 		demoTRTs.add(TectonicRegionType.ACTIVE_SHALLOW);
 		demoTRTs.add(TectonicRegionType.STABLE_SHALLOW);

@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -147,6 +149,9 @@ public class PortfolioLossExceedenceCurveCalculator {
 		// loop over sources
 		
 		PortfolioRuptureResults[][] rupResults = new PortfolioRuptureResults[erf.getNumSources()][];
+		
+		// used later
+		NormalDistributionImpl normDist = new NormalDistributionImpl();
 		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource src = erf.getSource(sourceID);
@@ -403,21 +408,28 @@ public class PortfolioLossExceedenceCurveCalculator {
 				ArbDiscrEmpiricalDistFunc distFunc = new ArbDiscrEmpiricalDistFunc();
 				for (int k=0; k<51; k++) {
 					double x = Math.pow(10d, -5d + 0.1 * k);
-					double inside = (Math.log(x) * sumMeanValues / thetaSubLgivenS) / betaSubLgivenS;
+					double inside = Math.log(x * sumMeanValues / thetaSubLgivenS) / betaSubLgivenS;
 					distFunc.set(x, inside);
 				}
-				ArbitrarilyDiscretizedFunc normCumDist = distFunc.getNormalizedCumDist();
-				for (int k=0; k<51; k++) {
-					double x = normCumDist.getX(k);
-					double y = normCumDist.getY(k);
-					normCumDist.set(x, 1-y);
+				if (D) System.out.println("distFunc: (part of eqn 44)\n" + distFunc);
+				ArbitrarilyDiscretizedFunc exceedanceProbs = new ArbitrarilyDiscretizedFunc();
+				for (int k=0; k<distFunc.getNum(); k++) {
+					double x = distFunc.getX(k);
+					double y = distFunc.getY(k);
+					double val;
+					try {
+						val = normDist.cumulativeProbability(y);
+					} catch (MathException e) {
+						throw new RuntimeException(e);
+					}
+					exceedanceProbs.set(x, 1-val);
 				}
 				
-				if (D) System.out.println("normCumDist: (eqn 44)\n" + normCumDist);
+				if (D) System.out.println("exceedanceProbs: (eqn 44)\n" + exceedanceProbs);
 				
 				
 				PortfolioRuptureResults rupResult =
-					new PortfolioRuptureResults(assetRupResults, l, lSquared, l_indv, normCumDist,
+					new PortfolioRuptureResults(assetRupResults, l, lSquared, l_indv, exceedanceProbs,
 							w0, wi, e_LgivenS, e_LSuqaredGivenS, varLgivenS, deltaSquaredSubLgivenS,
 							thetaSubLgivenS, betaSubLgivenS);
 				rupResults[sourceID][rupID] = rupResult;

@@ -21,6 +21,7 @@ a:visited { color: #A8003B; }
 
 body      { background-color: #FFFFFF; font-family: "Droid Serif"; font-size: 0.95em;}
 code, pre { font-family: "Droid Sans"; font-size: 0.95em; line-height: 1.3em; }
+sub       { font-size: 0.7em; }
 hr        { height: 1px; border-width: 0; color: #CBD4E4; background-color: #CBD4E4; }
 table[border="1"] { border: 0px solid #91a4c5; border-collapse:collapse; }
 table[border="1"] td { padding: 4px 6px; }

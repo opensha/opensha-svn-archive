@@ -24,7 +24,6 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -40,9 +39,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -62,8 +59,8 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ListUtils;
-import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.cpt.CPT;
 
 /**
@@ -930,7 +927,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 	}
 
-	public GriddedRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
+	public GriddedRegion getEvenlyGriddedGeographicRegion() {
 		// Get the limits and discretization of the map
 		double minLat = ((Double) minLatParam.getValue()).doubleValue();
 		double maxLat = ((Double) maxLatParam.getValue()).doubleValue();

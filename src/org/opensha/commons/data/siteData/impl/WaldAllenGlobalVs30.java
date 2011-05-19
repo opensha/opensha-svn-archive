@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -335,7 +334,8 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 			return;
 		if (D) System.out.println("WaldRefreshParams start...");
 		String val = (String)coeffPresetParam.getValue();
-		ParameterEditor funcEditor = this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
+		ParameterEditor<ArbitrarilyDiscretizedFunc> funcEditor =
+			this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
 		funcEditor.setEnabled(val == COEFF_CUSTOM_NAME);
 		if (D) System.out.println("WaldRefreshParams refreshing params...");
 //		funcEditor.refreshParamEditor();
@@ -370,7 +370,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		refreshParams();
 	}
 	
-	public static void main(String args[]) throws IOException, RegionConstraintException {
+	public static void main(String args[]) throws IOException {
 		WaldAllenGlobalVs30 data = new WaldAllenGlobalVs30();
 		data.setActiveCoefficients();
 //		data.setStableCoefficients();

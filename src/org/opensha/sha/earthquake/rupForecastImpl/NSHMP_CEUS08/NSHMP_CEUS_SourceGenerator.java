@@ -11,7 +11,6 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -65,7 +64,7 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 	ArrayList<ProbEqkSource> CharlSources;
 
 
-	public NSHMP_CEUS_SourceGenerator() throws RegionConstraintException {
+	public NSHMP_CEUS_SourceGenerator() {
 			super(new Location(24.6, -115),
 					new Location(50, -65),
 					0.1, new Location(0,0));

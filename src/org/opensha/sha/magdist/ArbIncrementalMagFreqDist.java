@@ -19,8 +19,8 @@
 
 package org.opensha.sha.magdist;
 
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
@@ -115,7 +115,7 @@ public class ArbIncrementalMagFreqDist
 	  if(preserveRates)
 		  set(index,this.getY(index)+ rate);
 	  else {
-		  double newRate = rate*MomentMagCalc.getMoment(mag)/MomentMagCalc.getMoment(this.getX(index));
+		  double newRate = rate*MagUtils.magToMoment(mag)/MagUtils.magToMoment(this.getX(index));
 		  set(index,this.getY(index)+ newRate);
 	  }
   }

@@ -35,7 +35,6 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -1367,7 +1366,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    */
   private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion sites,
                                      EqkRupForecast eqkRupForecast) throws
-      RegionConstraintException, ParameterException {
+       ParameterException {
 
     ArrayList probVals = new ArrayList();
     double MAX_DISTANCE = 200;

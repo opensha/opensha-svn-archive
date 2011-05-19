@@ -39,7 +39,6 @@ import javax.swing.JSplitPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
@@ -166,7 +165,7 @@ public class NEHRP_GuiBean_bak
       try {
         createLocation();
       }
-      catch (RegionConstraintException ex) {
+      catch (Exception ex) {
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
@@ -392,7 +391,7 @@ public class NEHRP_GuiBean_bak
       try {
         createLocation();
       }
-      catch (RegionConstraintException ex) {
+      catch (Exception ex) {
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
@@ -422,7 +421,7 @@ public class NEHRP_GuiBean_bak
       try {
         createLocation();
       }
-      catch (RegionConstraintException ex) {
+      catch (Exception ex) {
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
@@ -470,7 +469,7 @@ public class NEHRP_GuiBean_bak
   /**
    * Creating the location gui bean
    */
-  protected void createLocation() throws RegionConstraintException {
+  protected void createLocation() {
 	  Region region = getRegionConstraint();
 
     if (region != null) {
@@ -500,8 +499,7 @@ public class NEHRP_GuiBean_bak
    *
    * @return RectangularGeographicRegion
    */
-  protected Region getRegionConstraint() throws
-      RegionConstraintException {
+  protected Region getRegionConstraint() {
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||

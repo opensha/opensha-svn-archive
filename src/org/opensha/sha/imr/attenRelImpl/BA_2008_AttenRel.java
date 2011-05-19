@@ -181,7 +181,7 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 	@Override
 	public void setSite(Site site) throws ParameterException {
 		this.site = site;
-		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
 			.getValue());
 		setPropagationEffectParams();
 	}
@@ -198,7 +198,7 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 			throws InvalidRangeException, ParameterException {
 		site = propEffect.getSite();
 		eqkRupture = propEffect.getEqkRupture();
-		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
 			.getValue());
 		magParam.setValueIgnoreWarning(eqkRupture.getMag());
 		setFaultTypeFromRake(eqkRupture.getAveRake());

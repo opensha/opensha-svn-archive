@@ -28,10 +28,12 @@ import org.opensha.commons.geo.RegionTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	Container2DTest.class,
 	DataPoint2DTests.class,
 	Point2DToleranceSortedListTest.class,
 	TimeSpanTests.class,
 	XY_DataSetTests.class,
+	WeightedListTest.class,
 	
 	// siteData
 	SiteDataProvidersTest.class,

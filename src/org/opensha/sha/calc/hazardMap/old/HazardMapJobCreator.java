@@ -40,7 +40,6 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gridComputing.ResourceProvider;
@@ -367,7 +366,7 @@ public class HazardMapJobCreator {
 					String jobDir = "curves/" + lat + "/";
 					String name = jobDir + lat + "_" + lon + ".txt";
 					outfiles.add(name);
-				} catch (RegionConstraintException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -505,7 +504,7 @@ public class HazardMapJobCreator {
 		for (int i=startIndex; i<=endIndex; i++) {
 			try {
 				locs.add(sites.getSite(i).getLocation());
-			} catch (RegionConstraintException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

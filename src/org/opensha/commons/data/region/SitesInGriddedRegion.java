@@ -32,7 +32,6 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.Parameter;
@@ -211,7 +210,7 @@ public class SitesInGriddedRegion implements Serializable {
 	 * @param index
 	 * @returns site at the index
 	 */
-	public Site getSite(int index) throws RegionConstraintException {
+	public Site getSite(int index) {
 		site.setLocation(region.locationForIndex(index));
 		String siteInfo=null;
 		if(!setSameSiteParams){

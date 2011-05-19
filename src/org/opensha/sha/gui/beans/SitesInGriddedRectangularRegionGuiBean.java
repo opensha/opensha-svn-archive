@@ -37,7 +37,6 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.AbstractParameter;
@@ -129,14 +128,14 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	/**
 	 * constuctor which builds up mapping between IMRs and their related sites
 	 */
-	public SitesInGriddedRectangularRegionGuiBean() throws RegionConstraintException {
+	public SitesInGriddedRectangularRegionGuiBean() {
 		this(null);
 	}
 
 	/**
 	 * constuctor which builds up mapping between IMRs and their related sites
 	 */
-	public SitesInGriddedRectangularRegionGuiBean(OrderedSiteDataGUIBean dataGuiBean) throws RegionConstraintException {
+	public SitesInGriddedRectangularRegionGuiBean(OrderedSiteDataGUIBean dataGuiBean) {
 		this.dataGuiBean = dataGuiBean;
 
 		if (dataGuiBean == null) {
@@ -297,8 +296,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * So, we update the site object as well
 	 *
 	 */
-	private void updateGriddedSiteParams() throws
-	RegionConstraintException {
+	private void updateGriddedSiteParams() {
 
 		ArrayList v= new ArrayList();
 		createAndUpdateSites();
@@ -367,7 +365,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * Max Lat is Less than Min Lonb then it throws an exception.
 	 * @return
 	 */
-	private void createAndUpdateSites() throws RegionConstraintException {
+	private void createAndUpdateSites() {
 
 		double minLatitude= ((Double)minLat.getValue()).doubleValue();
 		double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
@@ -388,7 +386,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @return the object for the SitesInGriddedRectangularRegion class
 	 */
-	public SitesInGriddedRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
+	public SitesInGriddedRegion getGriddedRegionSite() {
 		updateGriddedSiteParams();
 		if(((String)siteParam.getValue()).equals(SET_ALL_SITES)) {
 			//if the site params does not need to be set from the CVM
@@ -572,7 +570,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * returns the path to the file where that gridded object is stored.
 	 * @return
 	 */
-	public String openConnectionToServer() throws RegionConstraintException, RuntimeException{
+	public String openConnectionToServer() {
 
 		//checks the values of the Lat and Lon to see if user has filled in the values correctly.
 		//checkLatLonParamValues();
@@ -637,16 +635,17 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			//if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
 			inputToServlet.close();
 
-			if(regionFilePath instanceof RegionConstraintException)
-				throw (RegionConstraintException)regionFilePath;
-			else if(regionFilePath instanceof String)
+//			if(regionFilePath instanceof Exception)
+//				throw (Exception) regionFilePath;
+//			else 
+			if(regionFilePath instanceof String)
 				return (String)regionFilePath;
 			else
 				throw (Exception)regionFilePath;
 		}
-		catch(RegionConstraintException e){
-			throw new RegionConstraintException(e.getMessage());
-		}
+//		catch(RegionConstraintException e){
+//			throw new RegionConstraintException(e.getMessage());
+//		}
 		catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("Server is down , please try again later");

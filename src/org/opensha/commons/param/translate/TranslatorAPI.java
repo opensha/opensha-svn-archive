@@ -19,7 +19,6 @@
 
 package org.opensha.commons.param.translate;
 
-import org.opensha.commons.exceptions.TranslateException;
 
 /**
  * <b>Title:</b> TranslatorAPI<p>
@@ -56,14 +55,13 @@ public interface TranslatorAPI {
      * Perform the mathmatical operation on the val - such as take the log.
      * This translates the value to the translated space.
      */
-    public double translate(double val) throws TranslateException;
+    public double translate(double val);
 
     /**
      * Performs the reverse mathmatical function on a val. The value is
      * assumed to be in the translated space. This operation returns it
      * to normal space. For example this function will take a log value
      * and translate it back to a normal value.
-     * @throws TranslateException
      */
-    public double reverse(double val) throws TranslateException;
+    public double reverse(double val);
 }

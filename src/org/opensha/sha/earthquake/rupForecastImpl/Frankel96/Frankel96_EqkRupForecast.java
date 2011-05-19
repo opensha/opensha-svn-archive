@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.impl.DoubleParameter;
@@ -331,7 +331,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
           if(faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag>6.5){
             // divide the rate according the faction assigned to GR dist
             double rate = (1.0-fracGR)*charRate;
-            double moRate = fracGR*charRate*MomentMagCalc.getMoment(mag);
+            double moRate = fracGR*charRate*MagUtils.magToMoment(mag);
 
             // make the GR source
             if(moRate>0.0) {

@@ -26,7 +26,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
@@ -54,8 +53,7 @@ public final class ConnectToCVM {
    * @throws Exception
    */
   public static ArrayList getWillsSiteType(double minLon,double maxLon,double minLat,double maxLat,
-                              double gridSpacing, String fileName) throws
-      RegionConstraintException {
+                              double gridSpacing, String fileName) {
 
     //creating the objct for the Wills Site Class
     WillsSiteClass willsSiteClass = new  WillsSiteClass(minLon, maxLon, minLat, maxLat, gridSpacing,fileName);
@@ -76,8 +74,7 @@ public final class ConnectToCVM {
    * @throws Exception
    */
   public static ArrayList getBasinDepth(double minLon,double maxLon,double minLat,double maxLat,
-                              double gridSpacing, String fileName) throws
-      RegionConstraintException {
+                              double gridSpacing, String fileName) {
 
     //creating the object for the Basin Depth Class
     BasinDepthClass basinDepthClass = new  BasinDepthClass(minLon, maxLon, minLat, maxLat, gridSpacing,fileName);

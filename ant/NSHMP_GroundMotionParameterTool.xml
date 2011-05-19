@@ -142,7 +142,6 @@
 		<include name="org/opensha/commons/exceptions/MagFreqDistException*"/>
 		<include name="org/opensha/commons/exceptions/NotResizableException*"/>
 		<include name="org/opensha/commons/exceptions/ParameterException*"/>
-		<include name="org/opensha/commons/exceptions/RegionConstraintException*"/>
 		<include name="org/opensha/commons/exceptions/TranslateException*"/>
 		<include name="org/opensha/commons/exceptions/WarningException*"/>
 		<include name="org/opensha/commons/metadata/XMLSaveable*"/>

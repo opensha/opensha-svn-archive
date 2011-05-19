@@ -22,8 +22,6 @@ package org.opensha.commons.data;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import org.opensha.commons.exceptions.NamedObjectException;
-
 /**
  * <b>Title:</b> NamedObjectComparator<p>
  *
@@ -76,27 +74,16 @@ public class NamedObjectComparator implements Comparator<NamedObjectAPI>, Serial
      * @return                           +1 if the first object name > second
      *      object name, 0 if the two names are equal, and -1 if the first
      *      object name is < the second object's name, alphabetically.
-     * @exception  NamedObjectException  Is thrown if either object doesn't
-     *      implement NamedObjectAPI.
      * @see                              Comparable
      * @see                              NamedObjectAPI
      */
-    public int compare( NamedObjectAPI o1, NamedObjectAPI o2 ) throws NamedObjectException {
+    public int compare( NamedObjectAPI o1, NamedObjectAPI o2 ) {
 
         String S = C + ":compare(): ";
         if ( D ) {
             System.out.println( S + "Starting" );
         }
         int result = 0;
-
-        if ( !( o1 instanceof NamedObjectAPI ) ) {
-            throw new NamedObjectException( S + "First object doesn't implement NamedObjectAPI, unable to use. " + o1.getClass().getName() );
-        }
-
-        if ( !( o2 instanceof NamedObjectAPI ) ) {
-            throw new NamedObjectException
-                    ( S + "Second object doesn't implement NamedObjectAPI, unable to use. " + o2.getClass().getName() );
-        }
 
         if ( D ) {
             System.out.println( S + "O1 = " + o1.toString() );

@@ -27,7 +27,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -35,7 +34,6 @@ import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
@@ -107,7 +105,7 @@ public class ScenarioShakeMapCalculator {
 			ArrayList<Double> attenRelWts,
 			SitesInGriddedRegion sites,
 			EqkRupture rupture,
-			boolean isProbAtIML,double value) throws ParameterException, RegionConstraintException {
+			boolean isProbAtIML,double value) throws ParameterException {
 
 		numSites = sites.getRegion().getNodeCount();
 

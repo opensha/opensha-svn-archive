@@ -25,7 +25,6 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.AbstractParameter;
@@ -117,7 +116,7 @@ public class RegionParameter extends AbstractParameter<Region> {
 	}
 
 	public RegionParameter(String name, String units,
-			double minLat, double maxLat, double minLon, double maxLon) throws ConstraintException, RegionConstraintException {
+			double minLat, double maxLat, double minLon, double maxLon) throws ConstraintException {
 		super(name, null, units, new Region(
 				new Location(minLat,minLon),
 				new Location(maxLat, maxLon)));

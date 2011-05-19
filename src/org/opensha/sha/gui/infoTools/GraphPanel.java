@@ -62,6 +62,7 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.Range;
@@ -423,6 +424,9 @@ public class GraphPanel extends JSplitPane {
 		//histograms
 		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM)){
 			XYBarRenderer HISTOGRAM_RENDERER = new XYBarRenderer();
+			HISTOGRAM_RENDERER.setShadowVisible(false);
+			HISTOGRAM_RENDERER.setMargin(0.1);
+			HISTOGRAM_RENDERER.setBarPainter(new StandardXYBarPainter());
 			setRendererInPlot(color, functionIndex, HISTOGRAM_RENDERER);
 		}
 		//histograms
@@ -1031,14 +1035,15 @@ public class GraphPanel extends JSplitPane {
 			fileName = chooser.getSelectedFile().getAbsolutePath();
 			CustomFileFilter filter = (CustomFileFilter) chooser.getFileFilter();
 			String ext = filter.getExtension();
+			System.out.println(ext);
 			if (!fileName.toLowerCase().endsWith(ext)) {
 				fileName = fileName + ext;
 			}
-			if (ext.equals("pdf")) {
+			if (ext.equals(".pdf")) {
 				saveAsPDF(fileName);
-			} else if (ext.equals("png")) {
+			} else if (ext.equals(".png")) {
 				saveAsPNG(fileName);
-			} else if (ext.equals("txt")) {
+			} else if (ext.equals(".txt")) {
 				DataUtil.save(fileName, dataTextArea.getText());
 			} else {
 				throw new RuntimeException("Unknown extension selected: "+ext);

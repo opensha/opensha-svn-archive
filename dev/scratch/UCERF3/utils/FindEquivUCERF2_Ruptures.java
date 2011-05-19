@@ -3,6 +3,7 @@
  */
 package scratch.UCERF3.utils;
 
+import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -13,11 +14,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -31,7 +32,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import scratch.UCERF3.utils.ModUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -398,7 +401,7 @@ public class FindEquivUCERF2_Ruptures {
 				double ddw = rup.getRuptureSurface().getSurfaceWidth();
 				double len = rup.getRuptureSurface().getSurfaceLength();
 				double mag = ((int)(rup.getMag()*100.0))/100.0;	// nice value for writing
-				totMoRate += MomentMagCalc.getMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
+				totMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
 				srcIndexOfUCERF2_Rup[rupIndex] = s;
 				rupIndexOfUCERF2_Rup[rupIndex] = r;;
 				magOfUCERF2_Rup[rupIndex] = rup.getMag();
@@ -412,7 +415,7 @@ public class FindEquivUCERF2_Ruptures {
 					String errorString = rupIndex+":\t"+"Sub-Seismogenic Rupture:  ddw="+ddw+"\t"+srcDDW+"\t"+len+"\t"+(float)mag+"\tiRup="+r+"\tiSrc="+s+"\t("+src.getName()+")\n";
 					if(D) System.out.print(errorString);
 					resultsString.add(errorString);
-					partMoRate += MomentMagCalc.getMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
+					partMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
 					continue;
 				}
 				FaultTrace rupTrace = rup.getRuptureSurface().getRowAsTrace(0);
@@ -723,11 +726,11 @@ public class FindEquivUCERF2_Ruptures {
 				if(ucerf2_rupUsed[r]) throw new RuntimeException("Error - UCERF2 rutpure already used");
 				ucerf2_rupUsed[r] = true;
 				totRate+=rateOfUCERF2_Rup[r];
-				totMoRate+=rateOfUCERF2_Rup[r]*MomentMagCalc.getMoment(magOfUCERF2_Rup[r]);
+				totMoRate+=rateOfUCERF2_Rup[r]*MagUtils.magToMoment(magOfUCERF2_Rup[r]);
 				mfdOfAssocRupsWithOrigMags.addResampledMagRate(magOfUCERF2_Rup[r], rateOfUCERF2_Rup[r], true);
 			}
 			double aveMoment = totMoRate/totRate;
-			double mag = MomentMagCalc.getMag(aveMoment);
+			double mag = MagUtils.momentToMag(aveMoment);
 			double[] result = new double[2];
 			result[0]=mag;
 			result[1]=totRate;
@@ -986,12 +989,83 @@ public class FindEquivUCERF2_Ruptures {
 	}
 	
 	
+	public static void plotMFD_InRegionNearNorthridge() {
+
+		Region region = new Region(new Location(34.25,-119.15),new Location(34.55,-118.35));
+
+		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		meanUCERF2.getTimeSpan().setDuration(30.0);
+		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
+		meanUCERF2.updateForecast();
+		
+		ArrayList<String> srcNamesList = new ArrayList<String>();
+
+		SummedMagFreqDist magFreqDist = new SummedMagFreqDist(5.05, 36, 0.1);
+		double duration = meanUCERF2.getTimeSpan().getDuration();
+		for (int s = 0; s < meanUCERF2.getNumSources(); ++s) {
+			ProbEqkSource source = meanUCERF2.getSource(s);
+			for (int r = 0; r < source.getNumRuptures(); ++r) {
+				ProbEqkRupture rupture = source.getRupture(r);
+				double mag = rupture.getMag();
+				double equivRate = rupture.getMeanAnnualRate(duration);
+				EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+				double ptRate = equivRate/rupSurface.size();
+				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+				while (it.hasNext()) {
+					//discard the pt if outside the region 
+					if (!region.contains(it.next()))
+						continue;
+					magFreqDist.addResampledMagRate(mag, ptRate, true);
+					if(!srcNamesList.contains(source.getName()))
+							srcNamesList.add(source.getName());
+				}
+			}
+		}
+		
+		String info  = "Sources in box:\n\n";
+		for(String name:srcNamesList)
+			info += "\t"+name+"\n";
+
+		magFreqDist.setInfo(info);
+		ArrayList funcs = new ArrayList();
+		funcs.add(magFreqDist);
+		funcs.add(magFreqDist.getCumRateDist());			
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate");
+		graph.setY_AxisRange(1e-6, 0.1);
+		graph.setX_AxisRange(5, 8);
+		/**/
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(
+				PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,Color.BLUE, 1.0, 1));
+		curveCharacteristics.add(new PlotCurveCharacterstics(
+				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.BLACK, 4.0, 1));
+		graph.setPlottingFeatures(curveCharacteristics);
+		
+		graph.setYLog(true);
+		try {
+			graph.saveAsPDF("MFD_NearNorthridgeUCERF2.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
+		plotMFD_InRegionNearNorthridge();
 		
 //		FindEquivUCERF2_Ruptures test = new FindEquivUCERF2_Ruptures();
 

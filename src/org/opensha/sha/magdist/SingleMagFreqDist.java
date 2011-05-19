@@ -19,7 +19,9 @@
 
 package org.opensha.sha.magdist;
 
-import org.opensha.commons.calc.MomentMagCalc;
+import java.awt.geom.Point2D;
+
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -79,7 +81,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   public SingleMagFreqDist(double min,int num,double delta, double mag,double moRate)
                            throws InvalidRangeException,Point2DException {
     super(min,num,delta);
-    rate = moRate/MomentMagCalc.getMoment(mag);
+    rate = moRate/MagUtils.magToMoment(mag);
     setMagAndRate(mag, rate);
   }
 
@@ -120,7 +122,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param moRate
    */
   public void setMagAndMomentRate(double mag,double moRate) throws Point2DException{
-    this.rate=moRate/MomentMagCalc.getMoment(mag);
+    this.rate=moRate/MagUtils.magToMoment(mag);
     setMagAndRate(mag,rate);
   }
 
@@ -135,7 +137,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    */
   public void setRateAndMomentRate(double rate,double moRate, boolean relaxTotMoRate) throws Point2DException{
 
-    this.mag = MomentMagCalc.getMag(moRate/rate);
+    this.mag = MagUtils.momentToMag(moRate/rate);
     int index = (int) Math.rint((mag - minX)/delta);
     if (relaxTotMoRate)
       setMagAndRate(getX(index),rate);
@@ -156,9 +158,36 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   * @return the total information stored in the class in form of a string
   */
  public String getDefaultInfo() {
-   double totMoRate= this.rate * MomentMagCalc.getMoment(this.mag);
+   double totMoRate= this.rate * MagUtils.magToMoment(this.mag);
    return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
  }
+
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(Point2D point) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(double x, double y) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Overriden to prevent value setting.
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void set(int index, double y) {
+		throw new UnsupportedOperationException();
+	}
 
 
  /**

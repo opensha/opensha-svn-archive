@@ -17,35 +17,25 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.calc;
+package org.opensha.sha.magdist;
 
-/**
- * <p>Title: MomentMagCalc </p>
- * <p>Description: This is a utility to calculate moment (in SI units: Newton-Meters) for a given magnitude or vice versa</p>
- *
- * @author Vipin Gupta
- * @created    August 7, 2002
- * @version 1.0
- */
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public final class MomentMagCalc {
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+	GaussianMagFreqDistTest.class,
+	SingleMagFreqDistTest.class,
+	SummedMagFreqDistTest.class,
+	TaperedGR_MagFreqDistTest.class,
+	YC_1985_CharMagFreqDistTest.class
+})
 
- /**
-  * This function calculates the moment for the given magnitude
-  * @param mag: Magnitude
-  * @returns Moment in Newton-Meters
-  */
- public static double getMoment(double mag) {
-    return (Math.pow(10,1.5*mag+9.05));
- }
+public class MFD_Suite
+{
 
- /**
-  * This function calculates the magnitude for the given moment
-  * @param moment : Moment in Newton-Meters
-  * @returns magnitude for the given moment
-  */
- public static double getMag(double moment) {
-   return (Math.log(moment)/Math.log(10)-9.05)/1.5;
- }
-
+	public static void main(String args[])
+	{
+		org.junit.runner.JUnitCore.runClasses(MFD_Suite.class);
+	}
 }

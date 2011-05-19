@@ -1601,7 +1601,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		if(xyNewDatasetControl == null)
 			xyNewDatasetControl = new XY_ValuesControlPanel(this,this);
 
-		xyNewDatasetControl.getComponent().setVisible(true);
+		xyNewDatasetControl.showControlPanel();// getComponent().setVisible(true);
 
 	}
 

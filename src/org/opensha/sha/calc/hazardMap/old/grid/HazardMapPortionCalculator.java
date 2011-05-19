@@ -30,14 +30,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -311,7 +310,7 @@ public class HazardMapPortionCalculator {
 //							}
 //						}
 //					}
-				} catch (RegionConstraintException e) {
+				} catch (Exception e) {
 					System.out.println("No More Sites!");
 					break;
 				}

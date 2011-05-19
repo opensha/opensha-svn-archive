@@ -40,9 +40,7 @@ import javax.swing.Timer;
 
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -179,7 +177,7 @@ implements Runnable{
 	 * @param selectedAttenRelsWts : List of teh wts of the selected AttenRels
 	 */
 	private void generateHazusFiles(ArrayList selectedAttenRels,ArrayList selectedAttenRelWts) throws
-	ParameterException, RuntimeException, RegionConstraintException {
+	ParameterException {
 
 		//metadata String
 		metadata="<br>Hazus Metadata: \n<br>"+
@@ -211,7 +209,7 @@ implements Runnable{
 	 * @param selectedAttenRels
 	 */
 	private void doCalcForPGV(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWts) throws
-	ParameterException, RuntimeException, RegionConstraintException {
+	ParameterException {
 
 		step =4;
 		metadata += "IMT = PGV"+"<br>\n";
@@ -294,7 +292,7 @@ implements Runnable{
 			ArrayList attenRelsNotSupportingPGV,
 			ArrayList attenRelListPGV_Wts,
 			ArrayList attenRelListNot_PGV_Wts) throws
-			RegionConstraintException, ParameterException, RuntimeException {
+			ParameterException {
 
 		//contains the list of all the selected AttenuationRelationship models
 		ArrayList attenRelList = new ArrayList();
@@ -334,7 +332,7 @@ implements Runnable{
 	 * @param selectedAttenRels: List of AttenuationRelation models
 	 */
 	private void hazusCalcForPGA(ArrayList selectedAttenRels,ArrayList selectedAttenRelsWt) throws
-	RegionConstraintException, ParameterException, RuntimeException {
+	ParameterException {
 		step =5;
 		int size = selectedAttenRels.size();
 		for(int i=0;i<size;++i)
@@ -353,7 +351,7 @@ implements Runnable{
 	 * @param selectedAttenRels: List of AttenuationRelation models
 	 */
 	private void hazusCalcForSA(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWt) throws
-	RegionConstraintException, ParameterException, RuntimeException {
+	ParameterException {
 		//Doing for SA
 		step =2;
 		int size = selectedAttenRels.size();
@@ -388,8 +386,7 @@ implements Runnable{
 	 * @param pgvSupported : Checks if the list of the AttenRels support PGV
 	 * @return
 	 */
-	private GeoDataSet hazusCalcForPGV(ArrayList attenRelList, ArrayList attenRelWtList,boolean pgvSupported) throws
-	RegionConstraintException, ParameterException, RuntimeException {
+	private GeoDataSet hazusCalcForPGV(ArrayList attenRelList, ArrayList attenRelWtList,boolean pgvSupported) throws ParameterException {
 		//if the PGV is supportd by the AttenuationRelationships
 		GeoDataSet pgvDataSet = null;
 		int size = attenRelList.size();
@@ -491,13 +488,13 @@ implements Runnable{
 		try {
 			runToGenerateShapeFilesAndMaps();
 		}
-		catch (RegionConstraintException ee) {
-			JOptionPane.showMessageDialog(frame, ee.getMessage(), "Input Error",
-					JOptionPane.ERROR_MESSAGE);
-			step = 0;
-		}
+//		catch (RegionConstraintException ee) {
+//			JOptionPane.showMessageDialog(frame, ee.getMessage(), "Input Error",
+//					JOptionPane.ERROR_MESSAGE);
+//			step = 0;
+//		}
 		catch (RuntimeException ee) {
-			JOptionPane.showMessageDialog(frame, ee.getMessage(), "Server Problem",
+			JOptionPane.showMessageDialog(frame, ee.getMessage(), "Input or Server Problem",
 					JOptionPane.INFORMATION_MESSAGE);
 			step = 0;
 		}
@@ -510,8 +507,7 @@ implements Runnable{
 	 * This method creates the shapefiles data for Hazus and scenario shake maps
 	 * for the same data.
 	 */
-	public void runToGenerateShapeFilesAndMaps() throws RegionConstraintException,
-	RuntimeException {
+	public void runToGenerateShapeFilesAndMaps() {
 		getRegionAndMapType();
 		//checks if the calculation are to be done on the server
 		calcOnServer = application.doCalculationOnServer();
@@ -556,8 +552,7 @@ implements Runnable{
 	/**
 	 * Creates the dataset to generate the shape files that goes as input to Hazus.
 	 */
-	public void generateShapeFilesForHazus() throws RegionConstraintException,
-	ParameterException, RuntimeException {
+	public void generateShapeFilesForHazus() throws ParameterException {
 
 		//keeps tracks if the user has pressed the button to generate the xyz dataset
 		//for prodcing the shapefiles for Hazus.
@@ -584,8 +579,7 @@ implements Runnable{
 	 * This function sets the Gridded region Sites and the type of plot user wants to see
 	 * IML@Prob or Prob@IML and it value.
 	 */
-	public void getRegionAndMapType() throws RuntimeException,
-	RegionConstraintException {
+	public void getRegionAndMapType() {
 		application.getGriddedSitesMapTypeAndSelectedAttenRels();
 		step =1;
 		if(timer !=null)

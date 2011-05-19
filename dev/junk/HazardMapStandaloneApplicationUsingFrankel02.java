@@ -25,7 +25,6 @@ package junk;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterList;
@@ -90,14 +89,13 @@ public class HazardMapStandaloneApplicationUsingFrankel02
 
 
   //Construct the application
-  public HazardMapStandaloneApplicationUsingFrankel02() throws
-      RegionConstraintException {
+  public HazardMapStandaloneApplicationUsingFrankel02() {
     init();
     run();
   }
 
   //Initialize the application
-  public void init() throws RegionConstraintException {
+  public void init() {
     try{
       initIMRGuiBean();
     }catch(RuntimeException e){
@@ -137,7 +135,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
    * Initialise the Gridded Region sites gui bean
    *
    */
-  private void initGriddedRegionGuiBean() throws RegionConstraintException {
+  private void initGriddedRegionGuiBean() {
 
     //make the Gridded Region object
 //	  GriddedRegion eggr = 

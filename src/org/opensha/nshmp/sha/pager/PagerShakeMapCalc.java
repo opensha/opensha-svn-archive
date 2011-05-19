@@ -32,9 +32,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -415,8 +413,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 	 *
 	 * @return XYZ_DataSetAPI
 	 */
-	private GeoDataSet pagerShakeMapCalc() throws RegionConstraintException,
-	ParameterException {
+	private GeoDataSet pagerShakeMapCalc() throws ParameterException {
 
 		PropagationEffect propagationEffect = new PropagationEffect();
 
@@ -604,7 +601,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 		catch (ParameterException ex1) {
 			System.out.println(ex1.getMessage());
 		}
-		catch (RegionConstraintException ex1) {
+		catch (Exception ex1) {
 			System.out.println(ex1.getMessage());
 		}
 		pagershakemapcalc.createMedianFile(xyzDataSet);

@@ -29,7 +29,6 @@ import java.util.ListIterator;
 
 import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -295,8 +294,7 @@ public class ERF2RuptureForSTF_Generator {
    * provided distance.
    * @return RectangularGeographicRegion
    */
-  public Region getSiteRegionBounds() throws
-      RegionConstraintException {
+  public Region getSiteRegionBounds() {
     int numSources = eqkRupForecast.getNumSources();
 
     double minLat = Double.POSITIVE_INFINITY;
@@ -358,8 +356,7 @@ public class ERF2RuptureForSTF_Generator {
    * region extends.
    * @return double
    */
-  public double getMaxDepthForRuptureInRegionBounds() throws
-      RegionConstraintException {
+  public double getMaxDepthForRuptureInRegionBounds() {
     if(maxDepth == 0)
       getSiteRegionBounds();
     return maxDepth;
@@ -478,7 +475,7 @@ public class ERF2RuptureForSTF_Generator {
         }
 
       }
-      catch (RegionConstraintException ex) {
+      catch (Exception ex) {
         ex.printStackTrace();
       }
       try {

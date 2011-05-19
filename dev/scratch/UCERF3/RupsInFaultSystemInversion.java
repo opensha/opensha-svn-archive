@@ -14,10 +14,10 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
@@ -626,7 +626,7 @@ public class RupsInFaultSystemInversion {
 				}
 				rupMeanMag[rupIndex] = mag;
 //				rupMeanMag[rupIndex] = magAreaRel.getMedianMag(totArea*1e-6);
-				rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex]);
+				rupMeanMoment[rupIndex] = MagUtils.magToMoment(rupMeanMag[rupIndex]);
 				rupTotMoRateAvail[rupIndex]=totMoRate;
 				// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed elsewhere); 
 				// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion

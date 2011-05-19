@@ -212,7 +212,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 	@Override
 	public void setSite(Site site) throws ParameterException {
 		this.site = site;
-		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
 			.getValue());
 		depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double) site
 			.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue());
@@ -233,7 +233,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 		this.propEffect = propEffect;
 		site = propEffect.getSite();
 		eqkRupture = propEffect.getEqkRupture();
-		vs30Param.setValue((Double) site.getParameter(Vs30_Param.NAME)
+		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
 			.getValue());
 		depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double) site
 			.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue());

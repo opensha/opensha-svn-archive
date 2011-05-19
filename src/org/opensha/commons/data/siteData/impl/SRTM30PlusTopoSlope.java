@@ -29,7 +29,6 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
-import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -174,7 +173,7 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 		return val != null && !Double.isNaN(val);
 	}
 	
-	public static void main(String args[]) throws IOException, RegionConstraintException {
+	public static void main(String args[]) throws IOException {
 		SRTM30PlusTopography tdata = new SRTM30PlusTopography();
 		SRTM30PlusTopoSlope data = new SRTM30PlusTopoSlope();
 		
