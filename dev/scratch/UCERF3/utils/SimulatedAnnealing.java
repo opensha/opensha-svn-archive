@@ -1,6 +1,7 @@
 package scratch.UCERF3.utils;
 
 import org.apache.commons.math.linear.OpenMapRealMatrix;
+import org.apache.commons.math.linear.RealMatrix;
 
 public class SimulatedAnnealing {
 
@@ -27,6 +28,8 @@ public class SimulatedAnnealing {
 		// int numiter = 100000;
 		
 		long runTime = System.currentTimeMillis();
+		
+		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... \n");
 		
 		if(D) System.out.println("Total number of iterations = " + numiter);
 		
@@ -96,7 +99,17 @@ public class SimulatedAnnealing {
 			}
 			xnew[index] += perturb[index];
 			
+			// RealMatrix doesn't work for some reason... using OpenMapRealMatrix instead.
+			// RealMatrix xnew_clone1 = new RealMatrix(1,nCol); // duplicate of double[] xnew in RealMatrix form (for multiplication with sparse matrix A)
+			OpenMapRealMatrix xnew_clone = new OpenMapRealMatrix(nCol,1); 
+			for (i=0; i<nCol; i++) {
+				xnew_clone.setEntry(i, 0, xnew[i]);
+			}
+			
+			
 			// Calculate "energy" of new model (high misfit -> high energy)
+			
+			/*  // Old NON-SPARSE CODE
 			Enew = 0;
 			for (i = 0; i < nRow; i++) {
 				syn[i] = 0;
@@ -106,6 +119,17 @@ public class SimulatedAnnealing {
 				misfit[i] = syn[i] - d[i];  // misfit between synthetics and data
 				Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 			}
+			*/ 
+			
+			// SPARSE IMPLEMENTATION (at least for multiplication of A and xnew -- rest is still clumsy)
+			OpenMapRealMatrix syn_clone = A.multiply(xnew_clone);
+			Enew = 0;
+			for (i = 0; i < nRow; i++) {
+				syn[i] = syn_clone.getEntry(i,0);
+				misfit[i] = syn[i] - d[i];  // misfit between synthetics and data
+				Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
+			}
+			
 			//Enew = Math.sqrt(Enew);
 			
 			// Is this a new best?
