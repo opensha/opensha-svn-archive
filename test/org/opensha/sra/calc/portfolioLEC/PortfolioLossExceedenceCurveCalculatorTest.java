@@ -1,6 +1,8 @@
-package org.opensha.sra.calc;
+package org.opensha.sra.calc.portfolioLEC;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.junit.BeforeClass;
@@ -11,6 +13,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.ERFTestSubset;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -30,6 +34,8 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 	private static Portfolio portfolio;
 	
 	private static boolean smallERF = true;
+	
+	private static HashMap<ProbEqkRupture, ArbitrarilyDiscretizedFunc> refExceedProbs;
 	
 	@BeforeClass
 	public static void setUp() throws Exception {
@@ -88,14 +94,42 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 		portfolio.add(asset1);
 		Asset asset2 = new Asset(1, "House 2", AssetCategory.BUILDING, value2, vuln2, site2);
 		portfolio.add(asset2);
+		
+		// ********** REFERENCE RESULTS FROM KEITH'S SPREADSHEET **********
+		ArrayList<ProbEqkRupture> rupList = new ArrayList<ProbEqkRupture>();
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			rupList.addAll(erf.getSource(sourceID).getRuptureList());
+		}
+		
+		refExceedProbs = new HashMap<ProbEqkRupture, ArbitrarilyDiscretizedFunc>();
+		
+		// TODO: actually use vals from spreadsheet, not my vals
+	}
+	
+	private void testRupResult(PortfolioRuptureResults rupResult, ProbEqkRupture rup) {
+		
 	}
 	
 	@Test
 	public void testCalc() {
 		PortfolioLossExceedenceCurveCalculator calc = new PortfolioLossExceedenceCurveCalculator();
 		
-		ArbitrarilyDiscretizedFunc curve = calc.calcProbabilityOfExceedanceCurve(imr, erf, portfolio, null);
+		PortfolioRuptureResults[][] rupResults = calc.calculateCurve(imr, erf, portfolio, null);
+		
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			ProbEqkSource source = erf.getSource(sourceID);
+			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+				ProbEqkRupture rup = source.getRupture(rupID);
+				PortfolioRuptureResults rupResult = rupResults[sourceID][rupID];
+				
+				testRupResult(rupResult, rup);
+			}
+		}
+		
+		ArbitrarilyDiscretizedFunc curve = calc.calcProbabilityOfExceedanceCurve(rupResults, erf);
 		System.out.println(curve);
 	}
+	
+//	public static void write
 
 }

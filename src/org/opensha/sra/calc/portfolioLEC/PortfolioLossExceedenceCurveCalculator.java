@@ -43,7 +43,7 @@ import org.opensha.sra.vulnerability.models.SimpleVulnerability;
 public class PortfolioLossExceedenceCurveCalculator {
 	
 	public static final boolean D = true;
-	public static final boolean WRITE_EXCEL_FILE = true;
+	public static final boolean WRITE_EXCEL_FILE = false;
 	
 	// TODO allow user to specify?
 	private static double valueCoefficientOfVariation = 0.15;
@@ -53,7 +53,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 
 	// TODO TectonicRegionType support?
 	
-	private PortfolioRuptureResults[][] calculateCurve(
+	protected PortfolioRuptureResults[][] calculateCurve(
 			ScalarIntensityMeasureRelationshipAPI imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
@@ -471,15 +471,9 @@ public class PortfolioLossExceedenceCurveCalculator {
 		return str;
 	}
 	
-	public ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
-			ScalarIntensityMeasureRelationshipAPI imr,
-			EqkRupForecastAPI erf,
-			Portfolio portfolio,
-			DiscretizedFuncAPI function) {
-		
-		PortfolioRuptureResults[][] rupResults = calculateCurve(imr, erf, portfolio, function);
-		
-		ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
+	protected ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
+			PortfolioRuptureResults[][] rupResults, EqkRupForecastAPI erf) {
+ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 		
 		// init the curve x values
 		ArbitrarilyDiscretizedFunc firstExceed = rupResults[0][0].getExceedanceProbs();
@@ -533,6 +527,17 @@ public class PortfolioLossExceedenceCurveCalculator {
 		}
 		
 		return curve;
+	}
+	
+	public ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
+			ScalarIntensityMeasureRelationshipAPI imr,
+			EqkRupForecastAPI erf,
+			Portfolio portfolio,
+			DiscretizedFuncAPI function) {
+		
+		PortfolioRuptureResults[][] rupResults = calculateCurve(imr, erf, portfolio, function);
+		
+		return calcProbabilityOfExceedanceCurve(rupResults, erf);
 	}
 	
 	public ArbitrarilyDiscretizedFunc calcFrequencyOfExceedanceCurve(
