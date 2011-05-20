@@ -108,16 +108,28 @@ public class HardCodedTest {
 		return imr;
 	}
 	
-	private static ScalarIntensityMeasureRelationshipAPI getNGA_2008IMR(boolean propEffectSpeedup) {
-//		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel(null);
-		ScalarIntensityMeasureRelationshipAPI imr = new NGA_2008_Averaged_AttenRel_NoAS(null);
+	private static ScalarIntensityMeasureRelationshipAPI getNGA_2008IMR(
+			boolean propEffectSpeedup, boolean includeAS) {
+		ScalarIntensityMeasureRelationshipAPI imr;
+		if (includeAS)
+			imr = new NGA_2008_Averaged_AttenRel(null);
+		else
+			imr = new NGA_2008_Averaged_AttenRel_NoAS(null);
 		imr.setParamDefaults();
 		imr.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(propEffectSpeedup);
 		return imr;
 	}
 
 	private static ScalarIntensityMeasureRelationshipAPI getIMR(String name, double sigmaTrunc, boolean propEffectSpeedup){
-		ScalarIntensityMeasureRelationshipAPI attenRel = getNGA_2008IMR(propEffectSpeedup);
+		ScalarIntensityMeasureRelationshipAPI attenRel;
+		if (name.equals(NSHMP_08_NAME))
+			attenRel = getUSGSCombined2008IMR();
+		else if (name.equals(MultiIMR_NAME))
+			attenRel = getNGA_2008IMR(propEffectSpeedup, true);
+		else if (name.equals(MultiIMR_NO_AS_NAME))
+			attenRel = getNGA_2008IMR(propEffectSpeedup, false);
+		else
+			throw new IllegalArgumentException("Not valid IMR: "+name);
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getUSGSCombined2008IMR();
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
 		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
