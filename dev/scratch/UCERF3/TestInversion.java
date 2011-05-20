@@ -154,6 +154,15 @@ public class TestInversion {
 				nCalFaultSectionPrefData.add(sectData);
 		}
 		
+		
+		// REMOVE CREEPING SECTION for now (aseismicity not incorporated correctly)
+		if (D)System.out.println("Removing SAF Creeping Section.");
+		for(int i=0; i< nCalFaultSectionPrefData.size();i++) {
+			if (nCalFaultSectionPrefData.get(i).getSectionId() == 57)
+				nCalFaultSectionPrefData.remove(i);
+		}
+		
+		
 		/*	*/	  
 		  // write sections IDs and names
 		if (D) {
