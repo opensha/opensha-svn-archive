@@ -162,32 +162,36 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
  }
 
-	/**
-	 * Overriden to prevent value setting.
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public void set(Point2D point) {
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * Overriden to prevent value setting.
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public void set(double x, double y) {
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * Overriden to prevent value setting.
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public void set(int index, double y) {
-		throw new UnsupportedOperationException();
-	}
+ 
+//	TODO: Should these overrides be implemented? Their quick addition had
+//	consequences in (at least) Frankel Adjustable 2002 ERF and needs to be
+//	revisited
+//	/**
+//	 * Overriden to prevent value setting.
+//	 * @throws UnsupportedOperationException
+//	 */
+//	@Override
+//	public void set(Point2D point) {
+//		throw new UnsupportedOperationException();
+//	}
+//
+//	/**
+//	 * Overriden to prevent value setting.
+//	 * @throws UnsupportedOperationException
+//	 */
+//	@Override
+//	public void set(double x, double y) {
+//		throw new UnsupportedOperationException();
+//	}
+//
+//	/**
+//	 * Overriden to prevent value setting.
+//	 * @throws UnsupportedOperationException
+//	 */
+//	@Override
+//	public void set(int index, double y) {
+//		throw new UnsupportedOperationException();
+//	}
 
 
  /**
