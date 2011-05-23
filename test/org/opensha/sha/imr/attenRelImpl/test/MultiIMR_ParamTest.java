@@ -11,7 +11,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -21,8 +21,8 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 public class MultiIMR_ParamTest {
 	
-	private static ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
-	private static ArrayList<ArrayList<ScalarIntensityMeasureRelationshipAPI>> bundles;
+	private static ArrayList<ScalarIMR> imrs;
+	private static ArrayList<ArrayList<ScalarIMR>> bundles;
 	
 	private static int imrs_per_bundle = 3;
 
@@ -32,7 +32,7 @@ public class MultiIMR_ParamTest {
 		imrs = inst.createIMRClassInstance(null);
 		
 		for (int i=imrs.size()-1; i>=0; i--) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			if (imr instanceof MultiIMR_Averaged_AttenRel)
 				imrs.remove(i);
 			else if (imr instanceof CyberShakeIMR)
@@ -43,15 +43,15 @@ public class MultiIMR_ParamTest {
 		
 //		Collections.shuffle(imrs);
 		
-		bundles = new ArrayList<ArrayList<ScalarIntensityMeasureRelationshipAPI>>();
+		bundles = new ArrayList<ArrayList<ScalarIMR>>();
 		
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> mimrs = null;
+		ArrayList<ScalarIMR> mimrs = null;
 		for (int i=0; i<imrs.size(); i++) {
 			if (i % imrs_per_bundle == 0) {
 				if (mimrs != null) {
 					bundles.add(mimrs);
 				}
-				mimrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+				mimrs = new ArrayList<ScalarIMR>();
 			}
 			mimrs.add(imrs.get(i));
 		}
@@ -62,16 +62,16 @@ public class MultiIMR_ParamTest {
 	
 	@Test
 	public void testSetIMTs() {
-		for (ArrayList<ScalarIntensityMeasureRelationshipAPI> bundle : bundles) {
+		for (ArrayList<ScalarIMR> bundle : bundles) {
 			MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(bundle);
 			
 			for (Parameter<?> imt : multi.getSupportedIntensityMeasuresList()) {
-				for (ScalarIntensityMeasureRelationshipAPI imr : bundle) {
+				for (ScalarIMR imr : bundle) {
 					assertTrue("IMT '"+imt.getName()+"' is included but not supported by imr '"+imr.getName()+"'",
 							imr.isIntensityMeasureSupported(imt));
 				}
 				multi.setIntensityMeasure(imt);
-				for (ScalarIntensityMeasureRelationshipAPI imr : bundle) {
+				for (ScalarIMR imr : bundle) {
 					assertEquals("IMT not set correctly!", imt.getName(), imr.getIntensityMeasure().getName());
 				}
 			}
@@ -80,7 +80,7 @@ public class MultiIMR_ParamTest {
 	
 	@Test
 	public void testInitialConsist() {
-		for (ArrayList<ScalarIntensityMeasureRelationshipAPI> bundle : bundles) {
+		for (ArrayList<ScalarIMR> bundle : bundles) {
 			MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(bundle);
 			testParamConsistancy(multi, bundle);
 		}
@@ -88,7 +88,7 @@ public class MultiIMR_ParamTest {
 	
 	@Test
 	public void testChangeProp() {
-		for (ArrayList<ScalarIntensityMeasureRelationshipAPI> bundle : bundles) {
+		for (ArrayList<ScalarIMR> bundle : bundles) {
 			MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(bundle);
 			trySet(multi, StdDevTypeParam.NAME, StdDevTypeParam.STD_DEV_TYPE_INTRA);
 			testParamConsistancy(multi, bundle);
@@ -120,15 +120,15 @@ public class MultiIMR_ParamTest {
 	}
 	
 	private void testParamConsistancy(MultiIMR_Averaged_AttenRel multi,
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> bundle) {
-		for (ScalarIntensityMeasureRelationshipAPI imr : bundle) {
+			ArrayList<ScalarIMR> bundle) {
+		for (ScalarIMR imr : bundle) {
 			testParamConsistancy(multi.getSiteParamsIterator(), imr);
 			testParamConsistancy(multi.getOtherParamsIterator(), imr);
 			testParamConsistancy(multi.getEqkRuptureParamsIterator(), imr);
 		}
 	}
 	
-	private void testParamConsistancy(ListIterator<Parameter<?>> it, ScalarIntensityMeasureRelationshipAPI imr2) {
+	private void testParamConsistancy(ListIterator<Parameter<?>> it, ScalarIMR imr2) {
 		while (it.hasNext()) {
 			Parameter param1 = it.next();
 			try {

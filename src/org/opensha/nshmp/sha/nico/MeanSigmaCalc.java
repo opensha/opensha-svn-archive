@@ -49,7 +49,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
@@ -176,7 +176,7 @@ public class MeanSigmaCalc
                              "Rupture_Prob.txt");
 
     for (int i = 0; i < numIMRs; ++i) {
-      ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)
+      ScalarIMR attenRel = (ScalarIMR)
           supportedAttenuationsList.get(i);
       attenRel.setParamDefaults();
       generateMeanAndSigmaFile(attenRel,dirName+SystemUtils.FILE_SEPARATOR);
@@ -192,7 +192,7 @@ public class MeanSigmaCalc
    * @param willsClass
    * @param basinDepth
    */
-  protected void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr,
+  protected void setSiteParamsInIMR(ScalarIMR imr,
                                   String willsClass) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -269,7 +269,7 @@ public class MeanSigmaCalc
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  protected void generateMeanAndSigmaFile(ScalarIntensityMeasureRelationshipAPI imr,String dirName) {
+  protected void generateMeanAndSigmaFile(ScalarIMR imr,String dirName) {
 
     // get total number of sources
     int numSources = frankelForecast.getNumSources();

@@ -37,7 +37,7 @@ import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AbstractIMR;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 
 /**
@@ -54,7 +54,7 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 	public AttenRelSaver() {
 		super();
 		bean = createIMR_GUI_Bean();
-		ScalarIntensityMeasureRelationshipAPI imr = bean.getSelectedIMR_Instance();
+		ScalarIMR imr = bean.getSelectedIMR_Instance();
 		imtBean = new IMT_GuiBean(imr, imr.getSupportedIntensityMeasuresIterator());
 		super.init();
 	}
@@ -63,7 +63,7 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 		return new IMR_GuiBean(this);
 	}
 	
-	public ScalarIntensityMeasureRelationshipAPI getSelectedAttenRel() {
+	public ScalarIMR getSelectedAttenRel() {
 		return bean.getSelectedIMR_Instance();
 	}
 

@@ -21,7 +21,7 @@ import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.AbstractIMR;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
@@ -36,7 +36,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	private EqkRupForecastAPI erf;
-	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Site> sites;
 	private List<Parameter<Double>> imts;
 	private CalculationSettings calcSettings;
@@ -46,7 +46,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	private String serializedERFFile;
 	
 	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
-			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Site> sites,
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver) {
@@ -54,7 +54,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	}
 	
 	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
-		List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+		List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 		List<Parameter<Double>> imts,
 		List<Site> sites,
 		CalculationSettings calcSettings,
@@ -83,7 +83,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		this.serializedERFFile = serializedERFFile;
 	}
 
-	public List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getIMRMaps() {
+	public List<HashMap<TectonicRegionType, ScalarIMR>> getIMRMaps() {
 		return imrMaps;
 	}
 	
@@ -127,16 +127,16 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			throw new ClassCastException("Currently only EqkRupForecast subclasses can be saved" +
 			" to XML.");
 		}
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
-			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
-		ArrayList<Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> newList =
-			new ArrayList<Map<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
-		for (HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> map : imrMaps) {
+		ArrayList<ScalarIMR> imrs =
+			new ArrayList<ScalarIMR>();
+		ArrayList<Map<TectonicRegionType, ScalarIMR>> newList =
+			new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
+		for (HashMap<TectonicRegionType,ScalarIMR> map : imrMaps) {
 			newList.add(map);
 			for (TectonicRegionType tect : map.keySet()) {
-				ScalarIntensityMeasureRelationshipAPI imr = map.get(tect);
+				ScalarIMR imr = map.get(tect);
 				boolean add = true;
-				for (ScalarIntensityMeasureRelationshipAPI newIMR : imrs) {
+				for (ScalarIMR newIMR : imrs) {
 					if (newIMR.getShortName().equals(imr.getShortName())) {
 						add = false;
 						break;
@@ -172,9 +172,9 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		
 		/* Load the IMRs							*/
 		Element imrsEl = root.element(XML_IMRS_NAME);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =imrsFromXML(imrsEl);
+		ArrayList<ScalarIMR> imrs =imrsFromXML(imrsEl);
 		ArrayList<Parameter> paramsToAdd = new ArrayList<Parameter>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 			while (it.hasNext()) {
 				Parameter param = it.next();
@@ -192,7 +192,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		
 		/* Load the IMR Maps						*/
 		Element imrMapsEl = root.element(XML_IMR_MAP_LIST_NAME);
-		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps =
+		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps =
 			imrMapsFromXML(imrs, imrMapsEl);
 		
 		/* Load the IMTs if applicaple				*/
@@ -215,11 +215,11 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	public static final String XML_IMRS_NAME = "IMRs";
 	
-	public static Element imrsToXML(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+	public static Element imrsToXML(ArrayList<ScalarIMR> imrs,
 			Element root) {
 		Element imrsEl = root.addElement(XML_IMRS_NAME);
 		
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (imr instanceof AbstractIMR) {
 				AbstractIMR attenRel = (AbstractIMR)imr;
 				attenRel.toXMLMetadata(imrsEl);
@@ -232,16 +232,16 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		return root;
 	}
 	
-	public static ArrayList<ScalarIntensityMeasureRelationshipAPI> imrsFromXML(Element imrsEl) throws InvocationTargetException {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
-			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+	public static ArrayList<ScalarIMR> imrsFromXML(Element imrsEl) throws InvocationTargetException {
+		ArrayList<ScalarIMR> imrs =
+			new ArrayList<ScalarIMR>();
 		
 		Iterator<Element> it = imrsEl.elementIterator();
 		while (it.hasNext()) {
 			Element imrEl = it.next();
 			
-			ScalarIntensityMeasureRelationshipAPI imr = 
-				(ScalarIntensityMeasureRelationshipAPI) AbstractIMR.fromXMLMetadata(imrEl, null);
+			ScalarIMR imr = 
+				(ScalarIMR) AbstractIMR.fromXMLMetadata(imrEl, null);
 			imrs.add(imr);
 		}
 		
@@ -251,7 +251,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	public static final String XML_IMR_MAP_NAME = "IMR_Map";
 	public static final String XML_IMR_MAPING_NAME = "IMR_Maping";
 	
-	public static Element imrMapToXML(Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map,
+	public static Element imrMapToXML(Map<TectonicRegionType, ScalarIMR> map,
 			List<Parameter<Double>> imts,
 			Element root, int index) {
 		Element mapEl = root.addElement(XML_IMR_MAP_NAME);
@@ -259,7 +259,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		
 		for (TectonicRegionType tect : map.keySet()) {
 			Element mapingEl = mapEl.addElement(XML_IMR_MAPING_NAME);
-			ScalarIntensityMeasureRelationshipAPI imr = map.get(tect);
+			ScalarIMR imr = map.get(tect);
 			mapingEl.addAttribute("tectonicRegionType", tect.toString());
 			mapingEl.addAttribute("imr", imr.getShortName());
 		}
@@ -272,7 +272,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	}
 	
 	public static Parameter<Double> imtFromXML(
-			ScalarIntensityMeasureRelationshipAPI testIMR,
+			ScalarIMR testIMR,
 			Element imrMapEl) {
 		Element imtElem = imrMapEl.element(AbstractIMR.XML_METADATA_IMT_NAME);
 		if (imtElem == null)
@@ -292,7 +292,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	}
 	
 	public static List<Parameter<Double>> imtsFromXML(
-			ScalarIntensityMeasureRelationshipAPI testIMR,
+			ScalarIMR testIMR,
 			Element imrMapsEl) {
 		ArrayList<Parameter<Double>> imts = new ArrayList<Parameter<Double>>();
 		
@@ -323,10 +323,10 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		return imts;
 	}
 	
-	public static HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMapFromXML(
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs, Element imrMapEl) {
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+	public static HashMap<TectonicRegionType, ScalarIMR> imrMapFromXML(
+			ArrayList<ScalarIMR> imrs, Element imrMapEl) {
+		HashMap<TectonicRegionType, ScalarIMR> map =
+			new HashMap<TectonicRegionType, ScalarIMR>();
 		
 		Iterator<Element> it = imrMapEl.elementIterator(XML_IMR_MAPING_NAME);
 		
@@ -337,8 +337,8 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			String imrName = mappingEl.attributeValue("imr");
 			
 			TectonicRegionType tect = TectonicRegionType.getTypeForName(tectName);
-			ScalarIntensityMeasureRelationshipAPI imr = null;
-			for (ScalarIntensityMeasureRelationshipAPI testIMR : imrs) {
+			ScalarIMR imr = null;
+			for (ScalarIMR testIMR : imrs) {
 				if (imrName.equals(testIMR.getShortName())) {
 					imr = testIMR;
 					break;
@@ -355,33 +355,33 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	public static final String XML_IMR_MAP_LIST_NAME = "IMR_Maps";
 	
 	public static Element imrMapsToXML(
-			ArrayList<Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> maps,
+			ArrayList<Map<TectonicRegionType, ScalarIMR>> maps,
 			List<Parameter<Double>> imts, Element root) {
 		Element mapsEl = root.addElement(XML_IMR_MAP_LIST_NAME);
 		
 		for (int i=0; i<maps.size(); i++) {
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map = maps.get(i);
+			Map<TectonicRegionType, ScalarIMR> map = maps.get(i);
 			mapsEl = imrMapToXML(map, imts, mapsEl, i);
 		}
 		
 		return root;
 	}
 	
-	public static ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMapsFromXML(
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+	public static ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMapsFromXML(
+			ArrayList<ScalarIMR> imrs,
 			Element imrMapsEl) {
-		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> maps =
-			new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
+		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> maps =
+			new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
 		
 		Iterator<Element> it = imrMapsEl.elementIterator(XML_IMR_MAP_NAME);
 		
 		// this makes sure they get loaded in correct order
-		HashMap<Integer, HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> mapsMap = 
-			new HashMap<Integer, HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
+		HashMap<Integer, HashMap<TectonicRegionType,ScalarIMR>> mapsMap = 
+			new HashMap<Integer, HashMap<TectonicRegionType,ScalarIMR>>();
 		while (it.hasNext()) {
 			Element imrMapEl = it.next();
 			int index = Integer.parseInt(imrMapEl.attributeValue("index"));
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map = imrMapFromXML(imrs, imrMapEl);
+			HashMap<TectonicRegionType, ScalarIMR> map = imrMapFromXML(imrs, imrMapEl);
 			mapsMap.put(new Integer(index), map);
 		}
 		for (int i=0; i<mapsMap.size(); i++) {

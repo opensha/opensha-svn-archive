@@ -78,7 +78,7 @@ import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -954,7 +954,7 @@ extends ControlPanel implements ParameterChangeListener {
 
 	private void setIMR_Params(){
 		IMR_MultiGuiBean imrGui = application.getIMRGuiBeanInstance();
-		ScalarIntensityMeasureRelationshipAPI imr = imrGui.getSelectedIMR();
+		ScalarIMR imr = imrGui.getSelectedIMR();
 //		SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED;
 
 		try {

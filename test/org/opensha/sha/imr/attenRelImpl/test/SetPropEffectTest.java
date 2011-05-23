@@ -21,7 +21,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.test.MultiIMR_CalcTest.IMR_PROP;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -31,8 +31,8 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 @RunWith(Parameterized.class)
 public class SetPropEffectTest {
 	
-	private ScalarIntensityMeasureRelationshipAPI imr1;
-	private ScalarIntensityMeasureRelationshipAPI imr2;
+	private ScalarIMR imr1;
+	private ScalarIMR imr2;
 	
 	private static EqkRupForecast erf;
 	private static Site site;
@@ -65,21 +65,21 @@ public class SetPropEffectTest {
 	}
 
 	@Parameters
-	public static Collection<ScalarIntensityMeasureRelationshipAPI[]> data() {
+	public static Collection<ScalarIMR[]> data() {
 		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs1 = inst.createIMRClassInstance(null);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs2 = inst.createIMRClassInstance(null);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI[]> ret = new ArrayList<ScalarIntensityMeasureRelationshipAPI[]>();
+		ArrayList<ScalarIMR> imrs1 = inst.createIMRClassInstance(null);
+		ArrayList<ScalarIMR> imrs2 = inst.createIMRClassInstance(null);
+		ArrayList<ScalarIMR[]> ret = new ArrayList<ScalarIMR[]>();
 		
 		site = new Site(new Location(34, -118));
 		for (int i=0; i<imrs1.size(); i++) {
-			ScalarIntensityMeasureRelationshipAPI imr1 = imrs1.get(i);
+			ScalarIMR imr1 = imrs1.get(i);
 //			if (!imr1.getName().equals(BA_2008_AttenRel.NAME))
 //				continue;
 			imr1.setParamDefaults();
-			ScalarIntensityMeasureRelationshipAPI imr2 = imrs2.get(i);
+			ScalarIMR imr2 = imrs2.get(i);
 			imr2.setParamDefaults();
-			ScalarIntensityMeasureRelationshipAPI[] array = { imr1, imr2 };
+			ScalarIMR[] array = { imr1, imr2 };
 			ret.add(array);
 			
 			ListIterator<Parameter<?>> siteParamIt = imr1.getSiteParamsIterator();
@@ -93,8 +93,8 @@ public class SetPropEffectTest {
 		return ret;
 	}
 	
-	public SetPropEffectTest(ScalarIntensityMeasureRelationshipAPI imr1,
-			ScalarIntensityMeasureRelationshipAPI imr2) {
+	public SetPropEffectTest(ScalarIMR imr1,
+			ScalarIMR imr2) {
 		this.imr1 = imr1;
 		this.imr2 = imr2;
 	}

@@ -17,7 +17,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -59,7 +59,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 
 public class ToroEtAl_1997_AttenRel
     extends AttenuationRelationship implements
-    ScalarIntensityMeasureRelationshipAPI,
+    ScalarIMR,
     NamedObjectAPI, ParameterChangeListener {
 
 

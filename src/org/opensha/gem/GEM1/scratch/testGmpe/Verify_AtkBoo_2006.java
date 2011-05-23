@@ -18,7 +18,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.StressDropParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -372,7 +372,7 @@ public class Verify_AtkBoo_2006 {
 	 * @param imr
 	 * @param dst
 	 */
-	public static void ComputeSpectrum(ScalarIntensityMeasureRelationshipAPI imr, double dst){
+	public static void ComputeSpectrum(ScalarIMR imr, double dst){
 		ArrayList<Double> per = getPeriods(imr);
 		for (int i = 0; i < per.size(); i++){	 
 	        double tmp = per.get(i);
@@ -392,7 +392,7 @@ public class Verify_AtkBoo_2006 {
 	 * @param imr
 	 * @return
 	 */
-	private static ArrayList<Double> getPeriods(ScalarIntensityMeasureRelationshipAPI imr) {
+	private static ArrayList<Double> getPeriods(ScalarIMR imr) {
 		// Get the list of periods available for the selected IMR
 		ArrayList<Double> per = new ArrayList<Double>();
 		ListIterator<Parameter<?>> it = imr.getSupportedIntensityMeasuresIterator();

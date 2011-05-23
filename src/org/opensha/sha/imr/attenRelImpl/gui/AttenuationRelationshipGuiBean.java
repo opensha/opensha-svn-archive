@@ -62,7 +62,7 @@ import org.opensha.commons.param.impl.TranslatedWarningDoubleParameter;
 import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ParamUtils;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
@@ -130,7 +130,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	 *  The AttenuationRelationship is what will perform the exceedence probability
 	 *  calculations as needed by the Gui.
 	 */
-	protected ScalarIntensityMeasureRelationshipAPI attenRel = null;
+	protected ScalarIMR attenRel = null;
 
 	/**
 	 *  This is the paramater list editor that contains all the control
@@ -211,7 +211,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		// Create AttenRel class dynamically from string name
 		if ( className == null || className.equals( "" ) )
 			throw new ParameterException( S + "AttenRel Class name cannot be empty or null" );
-		attenRel = ( ScalarIntensityMeasureRelationshipAPI ) createAttenRelClassInstance( className,  (org.opensha.commons.param.event.ParameterChangeWarningListener)applet );
+		attenRel = ( ScalarIMR ) createAttenRelClassInstance( className,  (org.opensha.commons.param.event.ParameterChangeWarningListener)applet );
 		attenRel.setParamDefaults();
 
 		// Create the control parameters for this attenRel
@@ -348,7 +348,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	 *
 	 * @return    The attenRel value
 	 */
-	public ScalarIntensityMeasureRelationshipAPI getAttenRel() {
+	public ScalarIMR getAttenRel() {
 		return attenRel;
 	}
 

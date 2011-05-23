@@ -46,7 +46,7 @@ import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
 public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, GraphPanelAPI, PlotControllerAPI {
@@ -55,7 +55,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 	
 	File outputDir;
 	EqkRupForecastAPI erf;
-	ScalarIntensityMeasureRelationshipAPI imr;
+	ScalarIMR imr;
 	Site site;
 	ArrayList<Site> sites;
 	ArrayList<ArrayList<SiteDataValue<?>>> sitesData;
@@ -111,7 +111,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		
 		runHAZ01A();
 		String fileName = outputDir.getAbsolutePath() + File.separator + HAZ01Writer.HAZ01A_FILE_NAME;
-		ScalarIntensityMeasureRelationshipAPI hIMR = new HAZ01A_FakeAttenRel(fileName);
+		ScalarIMR hIMR = new HAZ01A_FakeAttenRel(fileName);
 		EqkRupForecastAPI hERF = new HAZ01A_FakeERF(erf);
 		hERF.updateForecast();
 		

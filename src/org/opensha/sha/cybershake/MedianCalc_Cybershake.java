@@ -49,7 +49,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.SiteTranslator;
@@ -256,7 +256,7 @@ public class MedianCalc_Cybershake
           listenerClass};
       Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
       Constructor con = imrClass.getConstructor(params);
-      ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI) con.newInstance(paramObjects);
+      ScalarIMR attenRel = (ScalarIMR) con.newInstance(paramObjects);
       /*attenRel.getParameter(SigmaTruncTypeParam.NAME).
           setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
       attenRel.getParameter(SigmaTruncLevelParam.NAME).
@@ -392,7 +392,7 @@ public class MedianCalc_Cybershake
 
     int numIMTs = supportedIMTs.size();
     for (int i = 0; i < numIMRs; ++i) {
-      ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)
+      ScalarIMR attenRel = (ScalarIMR)
           supportedAttenuationsList.get(i);
       attenRel.setParamDefaults();
       attenRel.setUserMaxDistance(sourceCutOffDistance);
@@ -414,7 +414,7 @@ public class MedianCalc_Cybershake
    * @param willsClass
    * @param basinDepth
    */
-  protected void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr,
+  protected void setSiteParamsInIMR(ScalarIMR imr,
                                   String willsClass, Double basinDepth) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -477,7 +477,7 @@ public class MedianCalc_Cybershake
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  protected void generateMedian(ScalarIntensityMeasureRelationshipAPI imr,
+  protected void generateMedian(ScalarIMR imr,
                                           String imtLine,
                                           String dirName) {
 

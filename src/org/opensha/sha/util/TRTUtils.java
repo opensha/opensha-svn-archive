@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 
 public class TRTUtils {
@@ -17,10 +17,10 @@ public class TRTUtils {
 	 * @return mapping of IMR's to TRT's with only a single mapping of active shallow to the 
 	 * given IMR.
 	 */
-	public static HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>
-	wrapInHashMap(ScalarIntensityMeasureRelationshipAPI imr) {
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+	public static HashMap<TectonicRegionType, ScalarIMR>
+	wrapInHashMap(ScalarIMR imr) {
+		HashMap<TectonicRegionType, ScalarIMR> imrMap =
+			new HashMap<TectonicRegionType, ScalarIMR>();
 		// The type of tectonic region here is of no consequence (it just a dummy value)
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
 		return imrMap;
@@ -39,15 +39,15 @@ public class TRTUtils {
 	 * @see setTRTinIMR
 	 */
 	@SuppressWarnings("unchecked")
-	public static ScalarIntensityMeasureRelationshipAPI getIMRforTRT(
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+	public static ScalarIMR getIMRforTRT(
+			Map<TectonicRegionType, ScalarIMR> imrMap,
 			TectonicRegionType trt) {
 
 		if (trt == null)
 			// TODO maybe figure out another way to handle this?
 			throw new IllegalArgumentException("Tectonic Region Type cannot be null!");
 
-		ScalarIntensityMeasureRelationshipAPI imr;
+		ScalarIMR imr;
 		if(imrMap.size()>1) {
 			imr = imrMap.get(trt);
 		} else {  // only one IMR, so force all sources to be used with this one and assume the TectonicRegionTypeParam has already been set (e.g., in the gui)
@@ -64,7 +64,7 @@ public class TRTUtils {
 	 * @param imr - Intensity Measure Relationship in which to set the TRT
 	 * @param trt - Tectonic Region Type to set in the IMR
 	 */
-	public static void setTRTinIMR(ScalarIntensityMeasureRelationshipAPI imr, TectonicRegionType trt,
+	public static void setTRTinIMR(ScalarIMR imr, TectonicRegionType trt,
 			NonSupportedTRT_OptionsParam nonSupportedTRT_OptionsParam,
 			TectonicRegionType originalTRT) {
 		TectonicRegionTypeParam trtParam = (TectonicRegionTypeParam) imr.getParameter(TectonicRegionTypeParam.NAME);
@@ -90,8 +90,8 @@ public class TRTUtils {
 	 * 
 	 * @return mapping of IMRs to their currently set TRT
 	 */
-	public static HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> getTRTsSetInIMRs (
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+	public static HashMap<ScalarIMR, TectonicRegionType> getTRTsSetInIMRs (
+			Map<TectonicRegionType, ScalarIMR> imrMap) {
 
 		return getTRTsSetInIMR(imrMap.values());
 	}
@@ -106,12 +106,12 @@ public class TRTUtils {
 	 * 
 	 * @return mapping of IMRs to their currently set TRT
 	 */
-	public static HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> getTRTsSetInIMR(
-			Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
-		HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> map =
-			new HashMap<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType>();
+	public static HashMap<ScalarIMR, TectonicRegionType> getTRTsSetInIMR(
+			Collection<ScalarIMR> imrs) {
+		HashMap<ScalarIMR, TectonicRegionType> map =
+			new HashMap<ScalarIMR, TectonicRegionType>();
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			TectonicRegionTypeParam trtParam = (TectonicRegionTypeParam) imr.getParameter(TectonicRegionTypeParam.NAME);
 			if (trtParam.getValue() == null)
 				trtParam.setValueAsDefault();
@@ -129,8 +129,8 @@ public class TRTUtils {
 	 * @param trtValues - IMR to TRT mapping to reset
 	 * @see getTRTsSetInIMR
 	 */
-	public static void resetTRTsInIMRs(Map<ScalarIntensityMeasureRelationshipAPI, TectonicRegionType> trtValues) {
-		for (ScalarIntensityMeasureRelationshipAPI imr : trtValues.keySet()) {
+	public static void resetTRTsInIMRs(Map<ScalarIMR, TectonicRegionType> trtValues) {
+		for (ScalarIMR imr : trtValues.keySet()) {
 			TectonicRegionTypeParam trtParam = (TectonicRegionTypeParam) imr.getParameter(TectonicRegionTypeParam.NAME);
 			trtParam.setValue(trtValues.get(imr));
 		}
@@ -143,8 +143,8 @@ public class TRTUtils {
 	 * @param imrMap - Mapping of IMR's to TRT's
 	 * @return first IMR in the map
 	 */
-	public static ScalarIntensityMeasureRelationshipAPI getFirstIMR(
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+	public static ScalarIMR getFirstIMR(
+			Map<TectonicRegionType, ScalarIMR> imrMap) {
 		return imrMap.values().iterator().next();
 	}
 }

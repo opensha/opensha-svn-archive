@@ -34,7 +34,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.util.TRTUtils;
@@ -72,20 +72,20 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 
 	public void updateIM() {
 		//get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 //		imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
 	}
 
 	public void updateSiteParams() {
 		//get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		updateSiteParams(imr);
 //		sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 //		sitesGuiBean.validate();
 //		sitesGuiBean.repaint();
 	}
 	
-	private void updateSiteParams(ScalarIntensityMeasureRelationshipAPI imr) {
+	private void updateSiteParams(ScalarIMR imr) {
 		ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		ParameterList list = new ParameterList();
 		while (it.hasNext()) {
@@ -99,7 +99,7 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		this.validate();
 	}
 	
-	private boolean shouldEnableAddButton(ScalarIntensityMeasureRelationshipAPI imr) {
+	private boolean shouldEnableAddButton(ScalarIMR imr) {
 		ListModel model = namesList.getModel();
 		boolean match = false;
 		for (int i=0; i<model.getSize(); i++) {
@@ -126,15 +126,15 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 
 	public void imrChange(
 			ScalarIMRChangeEvent event) {
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = event.getNewIMRs();
-		ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getFirstIMR(imrMap);
+		HashMap<TectonicRegionType, ScalarIMR> imrMap = event.getNewIMRs();
+		ScalarIMR imr = TRTUtils.getFirstIMR(imrMap);
 		addButton.setEnabled(shouldEnableAddButton(imr));
 	}
 
 	@Override
 	public void addButton_actionPerformed() {
 		ListModel model = namesList.getModel();
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		Object names[] = new Object[model.getSize()+1];
 		for (int i=0; i<model.getSize(); i++) {
 			names[i] = model.getElementAt(i);
@@ -148,7 +148,7 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 	@Override
 	public void removeButton_actionPerformed() {
 		ListModel model = namesList.getModel();
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		Object names[] = new Object[model.getSize()-1];
 		int selected = namesList.getSelectedIndex();
 		int cnt = 0;
@@ -170,12 +170,12 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		updateIMTs();
 	}
 	
-	public void setForIMRS(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
+	public void setForIMRS(ArrayList<ScalarIMR> imrs) {
 		this.clear();
 		String names[] = new String[imrs.size()];
 		for (int i=0; i<imrs.size(); i++) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
-			ScalarIntensityMeasureRelationshipAPI myIMR = imrGuiBean.getIMR_Instance(imr.getName());
+			ScalarIMR imr = imrs.get(i);
+			ScalarIMR myIMR = imrGuiBean.getIMR_Instance(imr.getName());
 			ListIterator<Parameter<?>> paramIt = myIMR.getOtherParamsIterator();
 			while (paramIt.hasNext()) {
 				Parameter param = paramIt.next();
@@ -187,9 +187,9 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		this.imrGuiBean.refreshParamEditor();
 	}
 	
-	public ArrayList<ScalarIntensityMeasureRelationshipAPI> getSelectedIMRs() {
+	public ArrayList<ScalarIMR> getSelectedIMRs() {
 		ListModel model = namesList.getModel();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		ArrayList<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 		for (int i=0; i<model.getSize(); i++) {
 			String name = (String)model.getElementAt(i);
 			imrs.add(imrGuiBean.getIMR_Instance(name));
@@ -198,13 +198,13 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 	}
 	
 	private void updateIMTs() {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = getSelectedIMRs();
+		ArrayList<ScalarIMR> imrs = getSelectedIMRs();
 		imtChooser.setIMRs(imrs);
 	}
 
 	@Override
 	public boolean shouldEnableAddButton() {
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		return shouldEnableAddButton(imr);
 	}
 

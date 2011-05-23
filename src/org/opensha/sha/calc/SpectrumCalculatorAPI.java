@@ -29,7 +29,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 public interface SpectrumCalculatorAPI extends Remote{
   /**
@@ -50,7 +50,7 @@ public interface SpectrumCalculatorAPI extends Remote{
    * @return
    */
   public DiscretizedFuncAPI getDeterministicSpectrumCurve(Site site,
-      ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture, boolean probAtIML,
+      ScalarIMR imr, EqkRupture rupture, boolean probAtIML,
       double imlProbVal) throws RemoteException;
 
   /**
@@ -67,7 +67,7 @@ public interface SpectrumCalculatorAPI extends Remote{
    */
   public DiscretizedFuncAPI getIML_SpectrumCurve(DiscretizedFuncAPI
                                                  spectrumFunction, Site site,
-                                                 ScalarIntensityMeasureRelationshipAPI imr,
+                                                 ScalarIMR imr,
                                                  EqkRupForecastAPI
                                                  eqkRupForecast, double probVal,
                                                  ArrayList supportedSA_Periods) throws
@@ -84,7 +84,7 @@ public interface SpectrumCalculatorAPI extends Remote{
    * @return
    */
   public DiscretizedFuncAPI getSpectrumCurve(Site site,
-                                             ScalarIntensityMeasureRelationshipAPI imr,
+                                             ScalarIMR imr,
                                              EqkRupForecastAPI eqkRupForecast,
                                              double imlVal,
                                              ArrayList supportedSA_Periods)

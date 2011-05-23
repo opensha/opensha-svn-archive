@@ -19,7 +19,7 @@ import org.opensha.sha.earthquake.griddedForecast.MagFreqDistsForFocalMechs;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMAreaSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -95,8 +95,8 @@ public class TestFhcc {
 		}
 		
 		// Create the imrMap
-		Map<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> imrMap = 
-			new HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>();
+		Map<TectonicRegionType,ScalarIMR> imrMap = 
+			new HashMap<TectonicRegionType,ScalarIMR>();
 		BA_2008_AttenRel imr = new BA_2008_AttenRel(null);   
         imr.setParamDefaults();
         imr.setIntensityMeasure("PGA");

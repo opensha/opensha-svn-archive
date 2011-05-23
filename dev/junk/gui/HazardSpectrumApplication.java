@@ -99,7 +99,7 @@ import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 /**
@@ -827,7 +827,7 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 
 		// if IMR selection changed, update the site parameter list and supported IMT
 		if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+			ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 			//set the intensity measure for the IMR
 			imr.setIntensityMeasure(SA_Param.NAME);
 			//gets the SA Period Values for the IMR
@@ -1032,7 +1032,7 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	 * Gets the SA Period Values for the IMR
 	 * @param imr
 	 */
-	private void getSA_PeriodForIMR(ScalarIntensityMeasureRelationshipAPI imr){
+	private void getSA_PeriodForIMR(ScalarIMR imr){
 		ListIterator it =imr.getSupportedIntensityMeasuresIterator();
 		while(it.hasNext()){
 			Parameter  tempParam = (Parameter)it.next();
@@ -1058,7 +1058,7 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	 * @param eqkRupForecast : List of Eqk Rup forecasts
 	 */
 	private void handleForecastList(Site site,
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			EqkRupForecastBaseAPI eqkRupForecast,
 			double imlProbValue,boolean imlAtProb,
 			boolean probAtIML) {
@@ -1352,7 +1352,7 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	private void initSiteGuiBean() {
 
 		// get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		// create the Site Gui Bean object
 		siteGuiBean = new Site_GuiBean();
 		siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
@@ -1771,7 +1771,7 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	 */
 	public void updateSiteParams() {
 		//get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 		siteGuiBean.validate();
 		siteGuiBean.repaint();

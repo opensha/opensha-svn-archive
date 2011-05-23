@@ -37,7 +37,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
@@ -82,7 +82,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 @Deprecated
 public class AS_2005_AttenRel
     extends AttenuationRelationship implements
-    ScalarIntensityMeasureRelationshipAPI,
+    ScalarIMR,
     NamedObjectAPI, ParameterChangeListener {
 
   // Debugging stuff

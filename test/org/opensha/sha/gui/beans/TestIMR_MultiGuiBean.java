@@ -22,7 +22,7 @@ import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
@@ -39,7 +39,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	
-	static ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
+	static ArrayList<ScalarIMR> imrs;
 	static ArrayList<TectonicRegionType> demoTRTs;
 	static ArrayList<TectonicRegionType> demoTRTsNoSub;
 	static ArrayList<TectonicRegionType> demoSingleTRT;
@@ -48,11 +48,11 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	
 	Stack<ScalarIMRChangeEvent> eventStack = new Stack<ScalarIMRChangeEvent>();
 	
-	protected static ArrayList<ScalarIntensityMeasureRelationshipAPI> getBuildIMRs() {
+	protected static ArrayList<ScalarIMR> getBuildIMRs() {
 		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = inst.createIMRClassInstance(null);
+		ArrayList<ScalarIMR> imrs = inst.createIMRClassInstance(null);
 		for (int i=imrs.size()-1; i>=0; i--) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			if (imr instanceof CyberShakeIMR)
 				imrs.remove(i);
 			else
@@ -93,8 +93,8 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		
 		assertFalse("Checkbox should not be showing with no TRTs", gui.isCheckBoxVisible());
 		
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = gui.getIMRMap();
-		ScalarIntensityMeasureRelationshipAPI singleIMR = gui.getSelectedIMR();
+		HashMap<TectonicRegionType, ScalarIMR> imrMap = gui.getIMRMap();
+		ScalarIMR singleIMR = gui.getSelectedIMR();
 		
 		assertEquals("IMRMap should be of size 1 with no TRTs", 1, imrMap.size());
 		assertEquals("Single IMR not returning same as first from Map",
@@ -162,7 +162,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		assertEquals("Event stack should be empty to start", 0, eventStack.size());
 		
 		/*		Test IMR changes firing events				*/
-		ScalarIntensityMeasureRelationshipAPI prevIMR = gui.getSelectedIMR();
+		ScalarIMR prevIMR = gui.getSelectedIMR();
 		gui.setSelectedSingleIMR(BA_2008_AttenRel.NAME);
 		assertEquals("Changing IMR should fire a single event", 1, eventStack.size());
 		ScalarIMRChangeEvent event = eventStack.pop();
@@ -198,8 +198,8 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		gui.setIMT((Parameter<Double>) gui.getSelectedIMR().getIntensityMeasure());
 		assertEquals("Should not fire event setting IMT to current IMT", 0, eventStack.size());
 		
-		ScalarIntensityMeasureRelationshipAPI shakeMapIMR =
-			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
+		ScalarIMR shakeMapIMR =
+			(ScalarIMR) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
 		shakeMapIMR.setIntensityMeasure(MMI_Param.NAME);
 		Parameter<Double> mmiIMR = (Parameter<Double>) shakeMapIMR.getIntensityMeasure();
 		gui.setIMT(mmiIMR);
@@ -211,8 +211,8 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 				TRTUtils.getFirstIMR(event.getOldValue()).isIntensityMeasureSupported(mmiIMR));
 		
 		// now lets change back to something that they both support
-		ScalarIntensityMeasureRelationshipAPI cb2008 =
-			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, CB_2008_AttenRel.NAME);
+		ScalarIMR cb2008 =
+			(ScalarIMR) ListUtils.getObjectByName(imrs, CB_2008_AttenRel.NAME);
 		cb2008.setIntensityMeasure(PGA_Param.NAME);
 		Parameter<Double> pgaIMR = (Parameter<Double>) cb2008.getIntensityMeasure();
 		gui.setIMT(pgaIMR);
@@ -231,8 +231,8 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		gui.setSelectedSingleIMR(BA_2008_AttenRel.NAME);
 		assertEquals("Single IMR not set correctly!", BA_2008_AttenRel.NAME, gui.getSelectedIMR().getName());
 		
-		ScalarIntensityMeasureRelationshipAPI shakeMapIMR =
-			(ScalarIntensityMeasureRelationshipAPI) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
+		ScalarIMR shakeMapIMR =
+			(ScalarIMR) ListUtils.getObjectByName(imrs, ShakeMap_2003_AttenRel.NAME);
 		shakeMapIMR.setIntensityMeasure(PGA_Param.NAME);
 		Parameter<Double> pgaIMR = (Parameter<Double>) shakeMapIMR.getIntensityMeasure();
 		shakeMapIMR.setIntensityMeasure(MMI_Param.NAME);
@@ -308,7 +308,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		for (TectonicRegionType trt : demoTRTs) {
 			chooser = gui.getChooser(trt);
 			for (int i=0; i<imrs.size(); i++) {
-				ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+				ScalarIMR imr = imrs.get(i);
 				gui.setIMR(imr.getName(), trt);
 				assertTrue("Chooser renderer should be an EnableableCellRenderer",
 						chooser.getRenderer() instanceof EnableableCellRenderer);
@@ -347,7 +347,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		verifyParamEditor(gui.getParamEdit(), imrs.get(ListUtils.getIndexByName(imrs, ZhaoEtAl_2006_AttenRel.NAME)));
 	}
 	
-	private void verifyParamEditor(ParameterListEditor paramEdit, ScalarIntensityMeasureRelationshipAPI imr) {
+	private void verifyParamEditor(ParameterListEditor paramEdit, ScalarIMR imr) {
 		for (Parameter<?> param : imr.getOtherParamsList()) {
 			assertTrue("Param '" + param.getName() + "' from IMR isn't in the param list!",
 					paramEdit.getParameterList().containsParameter(param));
@@ -365,7 +365,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		
 		Iterator<Parameter<?>> siteParamIt;
 		
-		for (ScalarIntensityMeasureRelationshipAPI imr : gui.getIMRMap().values()) {
+		for (ScalarIMR imr : gui.getIMRMap().values()) {
 			ListIterator<Parameter<?>> mySiteParamIt = imr.getSiteParamsIterator();
 			
 			while (mySiteParamIt.hasNext()) {
@@ -395,14 +395,14 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		
 		String meta = gui.getIMRMetadataHTML();
 		
-		for (ScalarIntensityMeasureRelationshipAPI imr : gui.getIMRMap().values())
+		for (ScalarIMR imr : gui.getIMRMap().values())
 			checkMetaForIMR(imr, meta);
 		
 		for (TectonicRegionType trt : demoTRTs)
 			assertTrue("Metadata doesn't contain TRT: " + trt.toString(), meta.contains(trt.toString()));
 	}
 	
-	private void checkMetaForIMR(ScalarIntensityMeasureRelationshipAPI imr, String meta) {
+	private void checkMetaForIMR(ScalarIMR imr, String meta) {
 		assertTrue("Metadata doesn't contain IMR name!", meta.contains(imr.getName()));
 		
 		for (Parameter<?> param : imr.getOtherParamsList()) {

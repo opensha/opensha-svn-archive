@@ -39,7 +39,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -119,7 +119,7 @@ public class HazusMapCalculator {
      * @return
    */
   public void getHazardMapCurves(SitesInGriddedRegion sites,
-                                 ScalarIntensityMeasureRelationshipAPI imr,
+                                 ScalarIMR imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
 
@@ -172,7 +172,7 @@ public class HazusMapCalculator {
    */
   public void getHazardMapCurves(String dirName,
 		  SitesInGriddedRegion sites,
-                                 ScalarIntensityMeasureRelationshipAPI imr,
+                                 ScalarIMR imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
 
@@ -221,7 +221,7 @@ public class HazusMapCalculator {
    *
    */
   private void calculate( SitesInGriddedRegion sites,
-                          ScalarIntensityMeasureRelationshipAPI imr,
+                          ScalarIMR imr,
                           EqkRupForecast eqkRupForecast) {
 
     try{
@@ -315,7 +315,7 @@ public class HazusMapCalculator {
    * @return
    */
   public DiscretizedFuncAPI[] getSiteHazardCurve(Site site,
-                                           ScalarIntensityMeasureRelationshipAPI imr,
+                                           ScalarIMR imr,
                                            EqkRupForecastAPI eqkRupForecast)  {
 
 

@@ -43,7 +43,7 @@ import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.BakerJayaram08_ImCorrRel;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.DSI_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodInterpolatedParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_InterpolatedParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
@@ -77,7 +77,7 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 public class DSI_AttenRelWrapper
     extends AttenuationRelationship implements
-    ScalarIntensityMeasureRelationshipAPI,
+    ScalarIMR,
     NamedObjectAPI, ParameterChangeListener {
 
   // Debugging stuff

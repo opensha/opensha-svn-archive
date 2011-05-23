@@ -48,7 +48,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
@@ -240,13 +240,13 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @return
 	 */
 	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+			Site site, ScalarIMR imr, 
 			EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException{
 
 		// make hashtable with single IMR (so we can use the other method)
-		Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		Map<TectonicRegionType, ScalarIMR> imrMap =
+			new HashMap<TectonicRegionType, ScalarIMR>();
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);  // The type of tectonic region here is of no consequence (it just a dummy value)
 		return getHazardCurve(hazFunction, site, imrMap, eqkRupForecast);
 	}
@@ -276,7 +276,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	public DiscretizedFuncAPI getHazardCurve(
 			DiscretizedFuncAPI hazFunction,
 			Site site,
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
+			Map<TectonicRegionType, ScalarIMR> imrMap, 
 			EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException{
 
 		//	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
@@ -310,7 +310,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 		// initialize IMRs w/ max distance, site, and reset parameter listeners 
 		// (the latter allows server versions to listen to parameter changes)
-		for (ScalarIntensityMeasureRelationshipAPI imr:imrMap.values()) {
+		for (ScalarIMR imr:imrMap.values()) {
 			imr.resetParameterEventListeners();
 			imr.setUserMaxDistance(maxDistance);
 			imr.setSite(site);
@@ -351,7 +351,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 			// set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRforTRT(imrMap, trt);
+			ScalarIMR imr = TRTUtils.getIMRforTRT(imrMap, trt);
 
 			// compute the source's distance from the site and skip if it's too far away
 			distance = source.getMinDistance(site);
@@ -478,7 +478,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @return
 	 */
 	public DiscretizedFuncAPI getAverageEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+			Site site, ScalarIMR imr, 
 			EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException{
 
@@ -529,7 +529,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @return
 	 */
 	public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+			Site site, ScalarIMR imr, 
 			ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
 	throws java.rmi.RemoteException{
 
@@ -631,7 +631,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @return
 	 */
 	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture) throws
+			Site site, ScalarIMR imr, EqkRupture rupture) throws
 			java.rmi.RemoteException {
 
 		System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
@@ -743,7 +743,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		includeMagDistFilterParam.setValue(false);
 		numStochEventSetRealizationsParam.setValue(numIterations);
 
-		ScalarIntensityMeasureRelationshipAPI imr = new BJF_1997_AttenRel(this); 
+		ScalarIMR imr = new BJF_1997_AttenRel(this); 
 		imr.setParamDefaults();
 		imr.setIntensityMeasure("PGA");
 

@@ -15,7 +15,7 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
@@ -69,7 +69,7 @@ public class TestHazardCurveMultiIMRs {
 		
 		
 		// make sure that every IMR site param is in the GUI
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRMap().values()) {
+		for (ScalarIMR imr : imrGui.getIMRMap().values()) {
 			ListIterator<Parameter<?>> mySiteParamsIt = imr.getSiteParamsIterator();
 			
 			while (mySiteParamsIt.hasNext()) {
@@ -93,7 +93,7 @@ public class TestHazardCurveMultiIMRs {
 		app.run();
 		
 		// make sure that every site param got set correctly in the IMRs!
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRMap().values()) {
+		for (ScalarIMR imr : imrGui.getIMRMap().values()) {
 			ListIterator<Parameter<?>> mySiteParamsIt = imr.getSiteParamsIterator();
 			
 			System.out.println("Testing site params for " + imr.getName());

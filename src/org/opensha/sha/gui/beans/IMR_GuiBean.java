@@ -48,7 +48,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -83,7 +83,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	public final static String IMR_EDITOR_TITLE =  "Set IMR";
 
 	//saves the IMR objects, to the parameters related to an IMR.
-	private ArrayList<ScalarIntensityMeasureRelationshipAPI> supportedAttenRels ;
+	private ArrayList<ScalarIMR> supportedAttenRels ;
 	// this flag is needed else messages are shown twice on focus lost
 	private boolean inParameterChangeWarning = false;
 
@@ -94,7 +94,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	private IMR_GuiBeanAPI application;
 	private boolean isFirstTimeLaunched = true;
 	
-	private ScalarIntensityMeasureRelationshipAPI currentAttenRel = null;
+	private ScalarIMR currentAttenRel = null;
 
 	/**
 	 * class default constructor
@@ -130,7 +130,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		application  = api;
 		attenRelInstances = new AttenuationRelationshipsInstance(classNames);
 		supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
-		for (ScalarIntensityMeasureRelationshipAPI imr : supportedAttenRels) {
+		for (ScalarIMR imr : supportedAttenRels) {
 			imr.setParamDefaults();
 		}
 	}
@@ -149,7 +149,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		ArrayList supportedIMRNames = new ArrayList();
 		while(it.hasNext()){
 			// make the IMR objects as needed to get the site params later
-			ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI )it.next();
+			ScalarIMR imr = (ScalarIMR )it.next();
 			if(isFirstTimeLaunched)
 				imr.setParamDefaults();
 			supportedIMRNames.add(imr.getName());
@@ -181,7 +181,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 
 
 		// initalize imr
-		ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)attenRels.get(0);
+		ScalarIMR imr = (ScalarIMR)attenRels.get(0);
 
 		// find & set the selectedIMR
 		imr = this.getSelectedIMR_Instance();
@@ -284,7 +284,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 			ArrayList supportedIMRNames = new ArrayList();
 			while(it.hasNext()){
 				// make the IMR objects as needed to get the site params later
-				ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI )it.next();
+				ScalarIMR imr = (ScalarIMR )it.next();
 				imr.setParamDefaults();
 				supportedIMRNames.add(imr.getName());
 				Iterator it1 = imr.getSiteParamsIterator();
@@ -315,7 +315,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		// now find the selceted IMR and add the parameters related to it
 
 		// initalize imr
-		ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)supportedAttenRels.get(0);
+		ScalarIMR imr = (ScalarIMR)supportedAttenRels.get(0);
 
 		// find & set the selectedIMR
 		imr = this.getSelectedIMR_Instance();
@@ -541,7 +541,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		String name = param.getName();
 
 		// only show messages for visible site parameters
-		ScalarIntensityMeasureRelationshipAPI imr = getSelectedIMR_Instance();
+		ScalarIMR imr = getSelectedIMR_Instance();
 		ListIterator it = imr.getSiteParamsIterator();
 		boolean found = false;
 		// see whether this parameter exists in site param list for this IMR
@@ -586,7 +586,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * This method will return the instance of selected IMR
 	 * @return : Selected IMR instance
 	 */
-	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR_Instance() {
+	public ScalarIMR getSelectedIMR_Instance() {
 		String selectedIMR = getSelectedIMR_Name();
 		return getIMR_Instance(selectedIMR);
 	}
@@ -604,11 +604,11 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * This method will return the instance of selected IMR
 	 * @return : Selected IMR instance
 	 */
-	public ScalarIntensityMeasureRelationshipAPI getIMR_Instance(String name) {
-		ScalarIntensityMeasureRelationshipAPI imr = null;
+	public ScalarIMR getIMR_Instance(String name) {
+		ScalarIMR imr = null;
 		int size = supportedAttenRels.size();
 		for(int i=0; i<size ; ++i) {
-			imr = (ScalarIntensityMeasureRelationshipAPI)supportedAttenRels.get(i);
+			imr = (ScalarIMR)supportedAttenRels.get(i);
 			if(imr.getName().equalsIgnoreCase(name))
 				break;
 		}
@@ -620,7 +620,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 *
 	 * @return
 	 */
-	public ArrayList<ScalarIntensityMeasureRelationshipAPI> getSupportedIMRs() {
+	public ArrayList<ScalarIMR> getSupportedIMRs() {
 		return supportedAttenRels;
 	}
 	
@@ -632,15 +632,15 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		listeners.remove(listener);
 	}
 	
-	public void fireAttenuationRelationshipChangedEvent(ScalarIntensityMeasureRelationshipAPI oldAttenRel,
-			ScalarIntensityMeasureRelationshipAPI newAttenRel) {
+	public void fireAttenuationRelationshipChangedEvent(ScalarIMR oldAttenRel,
+			ScalarIMR newAttenRel) {
 		if (listeners.size() == 0)
 			return;
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldMap =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		HashMap<TectonicRegionType, ScalarIMR> oldMap =
+			new HashMap<TectonicRegionType, ScalarIMR>();
 		oldMap.put(TectonicRegionType.ACTIVE_SHALLOW, oldAttenRel);
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newMap =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		HashMap<TectonicRegionType, ScalarIMR> newMap =
+			new HashMap<TectonicRegionType, ScalarIMR>();
 		oldMap.put(TectonicRegionType.ACTIVE_SHALLOW, newAttenRel);
 		ScalarIMRChangeEvent event = new ScalarIMRChangeEvent(this, oldMap, newMap);
 		

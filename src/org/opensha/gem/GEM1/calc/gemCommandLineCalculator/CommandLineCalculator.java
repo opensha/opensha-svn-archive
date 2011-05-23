@@ -41,7 +41,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMAreaSourceData;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.util.TectonicRegionType;
@@ -514,9 +514,9 @@ public class CommandLineCalculator {
 		return erf;
 	}
 	
-	private static HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> sampleGemLogicTreeGMPE(HashMap<TectonicRegionType,GemLogicTree<ScalarIntensityMeasureRelationshipAPI>> listLtGMPE){
+	private static HashMap<TectonicRegionType,ScalarIMR> sampleGemLogicTreeGMPE(HashMap<TectonicRegionType,GemLogicTree<ScalarIMR>> listLtGMPE){
 		
-		HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> hm = new HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>();
+		HashMap<TectonicRegionType,ScalarIMR> hm = new HashMap<TectonicRegionType,ScalarIMR>();
 		
 		// loop over tectonic regions
 		Iterator<TectonicRegionType> iter = listLtGMPE.keySet().iterator();
@@ -526,13 +526,13 @@ public class CommandLineCalculator {
 			TectonicRegionType trt = iter.next();
 			
 			// get corresponding logic tree
-			GemLogicTree<ScalarIntensityMeasureRelationshipAPI> ltGMPE = (GemLogicTree<ScalarIntensityMeasureRelationshipAPI>) listLtGMPE.get(trt);
+			GemLogicTree<ScalarIMR> ltGMPE = (GemLogicTree<ScalarIMR>) listLtGMPE.get(trt);
 			
 			// sample the first branching level
 			int branch = ltGMPE.sampleBranchingLevel(0);
 			
 			// select the corresponding gmpe from the end-branch mapping
-			ScalarIntensityMeasureRelationshipAPI gmpe = ltGMPE.getEBMap().get(Integer.toString(branch));
+			ScalarIMR gmpe = ltGMPE.getEBMap().get(Integer.toString(branch));
 			
 			hm.put(trt, gmpe);
 		}

@@ -16,7 +16,7 @@ import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
@@ -29,7 +29,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestIMT_NewGuiBean implements IMTChangeListener {
 
-	static ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
+	static ArrayList<ScalarIMR> imrs;
 
 	Stack<IMTChangeEvent> eventStack = new Stack<IMTChangeEvent>();
 
@@ -39,7 +39,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 	public static void setUpBeforeClass() {
 		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
 		imrs = inst.createIMRClassInstance(null);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setParamDefaults();
 		}
 	}
@@ -52,7 +52,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 	@Test
 	public void testIMTList() {
 		ArrayList<String> supportedIMTs = gui.getSupportedIMTs();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
 				String imtName = imtParam.getName();
 				assertTrue("IMT '" + imtName + "' should be in list!",
@@ -68,7 +68,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 		SA_Param saParam = (SA_Param) gui.getSelectedIM();
 		PeriodParam periodParam = saParam.getPeriodParam();
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (!imr.isIntensityMeasureSupported(SA_Param.NAME))
 				continue;
 			imr.setIntensityMeasure(SA_Param.NAME);
@@ -87,7 +87,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 		SA_Param saParam = (SA_Param) gui.getSelectedIM();
 		PeriodParam periodParam = saParam.getPeriodParam();
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (!imr.isIntensityMeasureSupported(SA_Param.NAME))
 				continue;
 			imr.setIntensityMeasure(SA_Param.NAME);
@@ -140,8 +140,8 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 
 	@Test
 	public void testIMTSetting() {
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = 
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		HashMap<TectonicRegionType, ScalarIMR> imrMap = 
+			new HashMap<TectonicRegionType, ScalarIMR>();
 
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW,
 				imrs.get(ListUtils.getIndexByName(imrs, CB_2008_AttenRel.NAME)));
@@ -183,16 +183,16 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 	}
 
 	private void testSetIMT(String imtName, double period,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+			HashMap<TectonicRegionType, ScalarIMR> imrMap) {
 		setIMTinGUI(imtName, period);
 		gui.setIMTinIMRs(imrMap);
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values()) {
+		for (ScalarIMR imr : imrMap.values()) {
 			testIMTSetCorrectly(imtName, period, imr);
 		}
 	}
 	
-	private void testIMTSetCorrectly(String imtName, double period, ScalarIntensityMeasureRelationshipAPI imr) {
+	private void testIMTSetCorrectly(String imtName, double period, ScalarIMR imr) {
 		assertEquals("IMT not set properly!", imtName, imr.getIntensityMeasure().getName());
 		if (period >= 0) {
 			double myPeriod = (Double)((Parameter<Double>)imr.getIntensityMeasure())
@@ -203,7 +203,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 	
 	@Test
 	public void testSingleIMR() {
-		ScalarIntensityMeasureRelationshipAPI cb2008 =
+		ScalarIMR cb2008 =
 			imrs.get(ListUtils.getIndexByName(imrs, CB_2008_AttenRel.NAME));
 		
 		gui = new IMT_NewGuiBean(cb2008);

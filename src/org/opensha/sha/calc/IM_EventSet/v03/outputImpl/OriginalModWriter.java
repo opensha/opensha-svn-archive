@@ -35,7 +35,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -51,7 +51,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 
 	@Override
 	public void writeFiles(ArrayList<EqkRupForecastAPI> erfs,
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels, ArrayList<String> imts)
+			ArrayList<ScalarIMR> attenRels, ArrayList<String> imts)
 			throws IOException {
 		logger.log(Level.INFO, "Writing old format files files");
 		outputDir = null;
@@ -70,7 +70,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 			this.writeOriginalRupDistFile(erf);
 			int numIMTs = imts.size();
 			for (int i = 0; i < attenRels.size(); ++i) {
-				ScalarIntensityMeasureRelationshipAPI attenRel = attenRels.get(i);
+				ScalarIMR attenRel = attenRels.get(i);
 				for (int j = 0; j < numIMTs; ++j) {
 					this.writeOriginalMeanSigmaFiles(erf, attenRel, imts.get(j));
 				}
@@ -88,7 +88,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 	 * @param attenRel
 	 * @throws IOException
 	 */
-	private void writeOriginalMeanSigmaFiles(EqkRupForecastAPI erf, ScalarIntensityMeasureRelationshipAPI attenRel, String imt) throws IOException {
+	private void writeOriginalMeanSigmaFiles(EqkRupForecastAPI erf, ScalarIMR attenRel, String imt) throws IOException {
 		setIMTFromString(imt, attenRel);
 		logger.log(Level.INFO, "Writing Mean/Sigma file for " + attenRel.getShortName() + ", " + imt);
 		ArrayList<Parameter> defaultSiteParams = getDefaultSiteParams(attenRel);

@@ -52,7 +52,7 @@ import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
@@ -343,7 +343,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 		/*   the following settings apply to most test cases; these are subsequently
         overridded where needed below */
 		imrGuiBean.setSelectedSingleIMR(SadighEtAl_1997_AttenRel.NAME);
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR();
 		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 		imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
 		imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
@@ -579,7 +579,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 
 		// ******* Set the IMR, IMT, & Site-Related Parameters (except lat and lon) first ************
 		imrGuiBean.setSelectedSingleIMR(SadighEtAl_1997_AttenRel.NAME);
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR();
 		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 		imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
 		imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);

@@ -21,7 +21,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
@@ -34,7 +34,7 @@ import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,
+public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements ScalarIMR,
 NamedObjectAPI, ParameterChangeListener {
 
 	// Debugging stuff

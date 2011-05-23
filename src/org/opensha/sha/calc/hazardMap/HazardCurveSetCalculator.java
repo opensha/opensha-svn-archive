@@ -17,7 +17,7 @@ import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
@@ -31,21 +31,21 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HazardCurveSetCalculator {
 	
 	private EqkRupForecastAPI erf;
-	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Parameter<Double>> imts;
 	private CurveResultsArchiver archiver;
 	private CalculationSettings calcSettings;
 	private HazardCurveCalculator calc;
 	
 	public HazardCurveSetCalculator(EqkRupForecastAPI erf,
-			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 			CurveResultsArchiver archiver,
 			CalculationSettings calcSettings) {
 		this(erf, imrMaps, null, archiver, calcSettings);
 	}
 	
 	public HazardCurveSetCalculator(EqkRupForecastAPI erf,
-			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
+			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Parameter<Double>> imts,
 			CurveResultsArchiver archiver,
 			CalculationSettings calcSettings) {
@@ -81,13 +81,13 @@ public class HazardCurveSetCalculator {
 			if (siteCount % 10 == 0)
 				System.gc();
 			int imrMapCount = 0;
-			for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap : imrMaps) {
+			for (HashMap<TectonicRegionType, ScalarIMR> imrMap : imrMaps) {
 				if (imts != null) {
 					// if a different IMT has been specified for each imr map then we must set it
 					Parameter<Double> newIMT = imts.get(imrMapCount);
 //					System.out.println("Setting IMT to " + newIMT.getName());
 					for (TectonicRegionType trt : imrMap.keySet()) {
-						ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+						ScalarIMR imr = imrMap.get(trt);
 						imr.setIntensityMeasure(newIMT.getName());
 						Parameter<Double> imt = (Parameter<Double>) imr.getIntensityMeasure();
 						ListIterator<Parameter<?>> it = newIMT.getIndependentParametersIterator();

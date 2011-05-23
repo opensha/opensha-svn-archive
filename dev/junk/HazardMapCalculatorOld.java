@@ -31,7 +31,7 @@ import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.infoTools.HazardMapCalcPostProcessing;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 
 
@@ -93,7 +93,7 @@ public class HazardMapCalculatorOld {
    */
   public void getHazardMapCurves(boolean imtLogFlag, double [] xValues,
 		  SitesInGriddedRegion griddedSites,
-                                 ScalarIntensityMeasureRelationshipAPI imr,
+                                 ScalarIMR imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
 
@@ -133,7 +133,7 @@ public class HazardMapCalculatorOld {
    */
   public void getHazardMapCurves(String dirName, boolean imtLogFlag, double [] xValues,
 		  SitesInGriddedRegion griddedSites,
-                                 ScalarIntensityMeasureRelationshipAPI imr,
+                                 ScalarIMR imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo, String email) {
     newDir=  new String(dirName);
@@ -160,7 +160,7 @@ public class HazardMapCalculatorOld {
    */
   private void calculate( boolean imtLogFlag, double [] xValues,
 		  SitesInGriddedRegion sites,
-                                  ScalarIntensityMeasureRelationshipAPI imr,
+                                  ScalarIMR imr,
                                   EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo, String email) {
     Site site;

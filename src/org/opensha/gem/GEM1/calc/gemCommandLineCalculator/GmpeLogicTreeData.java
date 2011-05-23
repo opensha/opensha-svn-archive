@@ -21,7 +21,7 @@ import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranch;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranchingLevel;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
@@ -37,7 +37,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class GmpeLogicTreeData {
 	
 	// gmpe logic tree
-	private HashMap<TectonicRegionType,GemLogicTree<ScalarIntensityMeasureRelationshipAPI>> gmpeLogicTreeHashMap;
+	private HashMap<TectonicRegionType,GemLogicTree<ScalarIMR>> gmpeLogicTreeHashMap;
 	
 	// comment line identifier
 	private static String comment = "//";
@@ -53,7 +53,7 @@ public class GmpeLogicTreeData {
 			double vs30) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException{
 		
 		// instatiate gmpe logic tree
-		gmpeLogicTreeHashMap = new HashMap<TectonicRegionType,GemLogicTree<ScalarIntensityMeasureRelationshipAPI>>();
+		gmpeLogicTreeHashMap = new HashMap<TectonicRegionType,GemLogicTree<ScalarIMR>>();
         
         String sRecord = null;
         
@@ -240,7 +240,7 @@ public class GmpeLogicTreeData {
 	 * @throws ConstraintException 
 	 */
 	
-	private GemLogicTree<ScalarIntensityMeasureRelationshipAPI> createGmpeLogicTree(String gmpeNames, String gmpeWeights, String component, String intensityMeasureType,
+	private GemLogicTree<ScalarIMR> createGmpeLogicTree(String gmpeNames, String gmpeWeights, String component, String intensityMeasureType,
 			double period, double damping, String truncType, double truncLevel, String stdType,
 			double vs30) throws ClassNotFoundException, InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException, ConstraintException, ParameterException, IOException{
 		
@@ -258,8 +258,8 @@ public class GmpeLogicTreeData {
     	}
     	
     	// create logic tree
-    	GemLogicTree<ScalarIntensityMeasureRelationshipAPI> gmpeLogicTree
-    	 = new GemLogicTree<ScalarIntensityMeasureRelationshipAPI>();
+    	GemLogicTree<ScalarIMR> gmpeLogicTree
+    	 = new GemLogicTree<ScalarIMR>();
     	
     	// create branching level
         GemLogicTreeBranchingLevel branchingLevel = new GemLogicTreeBranchingLevel(1,"Gmpe Uncertainties",-1);
@@ -289,7 +289,7 @@ public class GmpeLogicTreeData {
     	gmpeLogicTree.addBranchingLevel(branchingLevel);
 
     	// create hashtable with gmpe
-    	Hashtable<String,ScalarIntensityMeasureRelationshipAPI> gmpeHashTable = new Hashtable<String,ScalarIntensityMeasureRelationshipAPI>();
+    	Hashtable<String,ScalarIMR> gmpeHashTable = new Hashtable<String,ScalarIMR>();
     	// loop over branches
     	for(int i=0;i<numBranch;i++){
     		
@@ -437,7 +437,7 @@ public class GmpeLogicTreeData {
 		return null;
 	}
 	
-	public HashMap<TectonicRegionType,GemLogicTree<ScalarIntensityMeasureRelationshipAPI>> getGmpeLogicTreeHashMap(){
+	public HashMap<TectonicRegionType,GemLogicTree<ScalarIMR>> getGmpeLogicTreeHashMap(){
 		return this.gmpeLogicTreeHashMap;
 	}
 	

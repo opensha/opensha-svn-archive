@@ -36,7 +36,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 
 /**
@@ -68,7 +68,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
 			//get the sites for which this needs to be calculated
 			Site site = (Site) inputFromApplet.readObject();
 			//get the selected IMR
-			ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)
+			ScalarIMR imr = (ScalarIMR)
 			inputFromApplet.readObject();
 			//get the selected EqkRupForecast
 			Object obj = inputFromApplet.readObject();
@@ -115,7 +115,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
 	 * @param function
 	 * @param maxDistance
 	 */
-	private void getHazardCurve(ScalarIntensityMeasureRelationshipAPI imr,EqkRupForecastAPI eqkRupForecast,
+	private void getHazardCurve(ScalarIMR imr,EqkRupForecastAPI eqkRupForecast,
 			Site site,ArbitrarilyDiscretizedFunc function,double maxDistance){
 		try{
 			HazardCurveCalculator calc = new HazardCurveCalculator();

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 
 /**
@@ -54,7 +54,7 @@ public class HazardMapCalcServlet extends HttpServlet {
       SitesInGriddedRegion sites = (SitesInGriddedRegion) inputFromApplet.
                                    readObject();
       //get the selected IMR
-      ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI)
+      ScalarIMR imr = (ScalarIMR)
                                        inputFromApplet.readObject();
       //get the selected EqkRupForecast
       Object obj = inputFromApplet.readObject();

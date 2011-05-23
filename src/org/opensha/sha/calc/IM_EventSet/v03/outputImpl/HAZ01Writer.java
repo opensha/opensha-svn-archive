@@ -37,7 +37,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -55,7 +55,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 
 	@Override
 	public void writeFiles(ArrayList<EqkRupForecastAPI> erfs,
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels, ArrayList<String> imts) throws IOException {
+			ArrayList<ScalarIMR> attenRels, ArrayList<String> imts) throws IOException {
 		logger.log(Level.INFO, "Writing HAZ01 files");
 		// TODO Auto-generated method stub
 		String fileA = this.calc.getOutputDir().getAbsolutePath() + File.separator + HAZ01A_FILE_NAME;
@@ -95,7 +95,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			erfstr += erf.getName();
 		}
 		String attenrelstr = null;
-		for (ScalarIntensityMeasureRelationshipAPI attenRel : attenRels) {
+		for (ScalarIMR attenRel : attenRels) {
 			if (attenrelstr == null)
 				attenrelstr = "";
 			else
@@ -112,7 +112,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			EqkRupForecastAPI erf = erfs.get(erfID);
 			logger.log(Level.INFO, "Updating forecast for ERF: " + erf.getName());
 			erf.updateForecast();
-			for (ScalarIntensityMeasureRelationshipAPI attenRel : attenRels) {
+			for (ScalarIMR attenRel : attenRels) {
 //				logger.log(Level.FINEST, "Writing portion for IMR: " + attenRel.getName());
 				for (String imt : imts) {
 //					logger.log(Level.FINEST, "Writing portion for IMT: " + imt);
@@ -129,7 +129,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 	}
 	
 	private int writeHAZ01A_Part(FileWriter fw, int lineID, String imt, String erfName,
-				EqkRupForecastAPI erf, ScalarIntensityMeasureRelationshipAPI attenRel) throws IOException {
+				EqkRupForecastAPI erf, ScalarIMR attenRel) throws IOException {
 		logger.log(Level.INFO, "Writing HAZ01A portion for ERF: " + erf.getName() + ", IMR: " + attenRel.getShortName()
 				+ ", IMT: " + imt);
 //		System.out.println("Writing portion of file for erf: " +  erf.getName() +

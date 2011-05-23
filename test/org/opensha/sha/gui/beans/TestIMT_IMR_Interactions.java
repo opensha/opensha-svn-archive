@@ -11,7 +11,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.ChooserComboBox;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
@@ -24,7 +24,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestIMT_IMR_Interactions {
 
-	static ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
+	static ArrayList<ScalarIMR> imrs;
 	static ArrayList<TectonicRegionType> demoTRTs;
 
 	IMR_MultiGuiBean imrGui;
@@ -50,7 +50,7 @@ public class TestIMT_IMR_Interactions {
 	@Test
 	public void testIMTList() {
 		ArrayList<String> supportedIMTs = imtGui.getSupportedIMTs();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRs()) {
+		for (ScalarIMR imr : imrGui.getIMRs()) {
 			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
 				String imtName = imtParam.getName();
 				assertTrue("IMT '" + imtName + "' should be in list!",
@@ -63,7 +63,7 @@ public class TestIMT_IMR_Interactions {
 	public void testSingleIMRPeriods() {
 		imtGui.setSelectedIMT(SA_Param.NAME);
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (imr.isIntensityMeasureSupported(SA_Param.NAME)) {
 				imrGui.setSelectedSingleIMR(imr.getName());
 
@@ -117,7 +117,7 @@ public class TestIMT_IMR_Interactions {
 		SA_Param saParam = (SA_Param) imtGui.getSelectedIM();
 		PeriodParam periodParam = saParam.getPeriodParam();
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRMap().values()) {
+		for (ScalarIMR imr : imrGui.getIMRMap().values()) {
 			imr.setIntensityMeasure(SA_Param.NAME);
 			SA_Param mySAParam = (SA_Param) imr.getIntensityMeasure();
 			PeriodParam myPeriodParam = mySAParam.getPeriodParam();
@@ -183,7 +183,7 @@ public class TestIMT_IMR_Interactions {
 //			System.out.println("setting to " + imtName + " currently: " + imtGui.getSelectedIMT());
 			imtGui.setSelectedIMT(imtName);
 			
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRs()) {
+			for (ScalarIMR imr : imrGui.getIMRs()) {
 				boolean shouldBeEnabled = imr.isIntensityMeasureSupported(imtName);
 				assertTrue("IMR enabled is inconsistent!",
 						shouldBeEnabled == imrGui.isIMREnabled(imr.getName()));

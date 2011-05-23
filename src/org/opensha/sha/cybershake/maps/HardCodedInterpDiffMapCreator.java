@@ -41,7 +41,7 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
 import org.opensha.sha.imr.AttenRelImpl;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
@@ -176,7 +176,7 @@ public class HardCodedInterpDiffMapCreator {
 	}
 	
 	private static GeoDataSet loadBaseMap(
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			boolean isProbAt_IML,
 			double level,
 			int imTypeID) throws SQLException {
@@ -245,7 +245,7 @@ public class HardCodedInterpDiffMapCreator {
 		return new PSXYSymbol(pt, Symbol.STAR, width, penWidth, penColor, fillColor);
 	}
 	
-	protected static void setTruncation(ScalarIntensityMeasureRelationshipAPI imr, double trunc) {
+	protected static void setTruncation(ScalarIMR imr, double trunc) {
 		imr.getParameter(SigmaTruncLevelParam.NAME).setValue(trunc);
 		if (trunc < 0)
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
@@ -287,7 +287,7 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig config = null;
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
-			ScalarIntensityMeasureRelationshipAPI baseMapIMR = AttenRelImpl.CB_2008.instance(null);
+			ScalarIMR baseMapIMR = AttenRelImpl.CB_2008.instance(null);
 			baseMapIMR.setParamDefaults();
 			setTruncation(baseMapIMR, 3.0);
 			String customLabel = "3sec SA, 2% in 50 yrs";
@@ -316,7 +316,7 @@ public class HardCodedInterpDiffMapCreator {
 	
 	protected static String getMap(boolean logPlot, int imTypeID,
 			Double customMin, Double customMax, boolean isProbAt_IML,
-			double val, ScalarIntensityMeasureRelationshipAPI baseMapIMR, ModProbConfig config,
+			double val, ScalarIMR baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
 			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		boolean singleDay = config != null;

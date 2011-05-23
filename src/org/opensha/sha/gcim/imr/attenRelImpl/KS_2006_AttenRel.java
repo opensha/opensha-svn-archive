@@ -39,7 +39,7 @@ import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds575_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds595_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
@@ -84,7 +84,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 public class KS_2006_AttenRel
     extends AttenuationRelationship implements
-    ScalarIntensityMeasureRelationshipAPI,
+    ScalarIMR,
     NamedObjectAPI, ParameterChangeListener {
 
   // Debugging stuff

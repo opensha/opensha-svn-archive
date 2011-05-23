@@ -29,7 +29,7 @@ import java.util.Comparator;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
@@ -169,11 +169,11 @@ public class AttenuationRelationshipsInstance {
 	 *
 	 */
 
-	public ArrayList<ScalarIntensityMeasureRelationshipAPI> 
+	public ArrayList<ScalarIMR> 
 			createIMRClassInstance(ParameterChangeWarningListener listener){
 		
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> AttenRelObjects = 
-			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		ArrayList<ScalarIMR> AttenRelObjects = 
+			new ArrayList<ScalarIMR>();
 		String S = C + ": createIMRClassInstance(): ";
 		int size = supportedAttenRelClasses.size();
 		
@@ -237,7 +237,7 @@ public class AttenuationRelationshipsInstance {
 	}
 
 	private static class ImrComparator implements 
-			Comparator<ScalarIntensityMeasureRelationshipAPI>, Serializable {
+			Comparator<ScalarIMR>, Serializable {
 
 		/**
 		 * 
@@ -245,8 +245,8 @@ public class AttenuationRelationshipsInstance {
 		private static final long serialVersionUID = 1L;
 
 		public int compare(
-				ScalarIntensityMeasureRelationshipAPI imr1,
-				ScalarIntensityMeasureRelationshipAPI imr2) {
+				ScalarIMR imr1,
+				ScalarIMR imr2) {
 			return imr1.getName().compareToIgnoreCase(imr2.getName());
 		}
 	}

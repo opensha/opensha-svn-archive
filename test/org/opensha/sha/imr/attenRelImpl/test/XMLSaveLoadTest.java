@@ -33,7 +33,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AbstractIMR;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 public class XMLSaveLoadTest {
 
@@ -49,17 +49,17 @@ public class XMLSaveLoadTest {
 	
 	@Test
 	public void testIMRSaveLoad() throws InvocationTargetException {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = attenRelInst.createIMRClassInstance(null);
+		ArrayList<ScalarIMR> imrs = attenRelInst.createIMRClassInstance(null);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
 		
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			System.out.println("Handling '" + imr.getName() + "'");
 			imr.setParamDefaults();
 			imr.toXMLMetadata(root);
 			Element imrElem = root.element(AbstractIMR.XML_METADATA_NAME);
-			ScalarIntensityMeasureRelationshipAPI fromXML = (ScalarIntensityMeasureRelationshipAPI)
+			ScalarIMR fromXML = (ScalarIMR)
 						AbstractIMR.fromXMLMetadata(imrElem, null);
 			imrElem.detach();
 			

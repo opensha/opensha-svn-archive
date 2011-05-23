@@ -21,7 +21,7 @@ import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.sra.vulnerability.Vulnerability;
 
@@ -192,7 +192,7 @@ public class Asset implements Cloneable {
 	 * @return The EAL for the asset.  This will be summed up with all of the EAL's
 	 * for the other assets in the list.
 	 */
-	public double calculateEAL( ScalarIntensityMeasureRelationshipAPI imr, double distance, Site site, EqkRupForecastBaseAPI erf, PortfolioEALCalculatorController controller ) {
+	public double calculateEAL( ScalarIMR imr, double distance, Site site, EqkRupForecastBaseAPI erf, PortfolioEALCalculatorController controller ) {
 		// Edit the site with the asset values
 		siteSetup(site);
 		Site newSite = getSite();

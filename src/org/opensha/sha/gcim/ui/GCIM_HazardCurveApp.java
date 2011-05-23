@@ -170,7 +170,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
@@ -1422,11 +1422,11 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		}
 
 		// get the selected IMR
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap = imrGuiBean.getIMRMap();
+		HashMap<TectonicRegionType, ScalarIMR> imrMap = imrGuiBean.getIMRMap();
 		// this first IMR from the map...note this should ONLY be used for getting settings
 		// common to all IMRS (such as units), and not for calculation (except in deterministic
 		// calc with no trt's selected)
-		ScalarIntensityMeasureRelationshipAPI firstIMRFromMap = TRTUtils.getFirstIMR(imrMap);
+		ScalarIMR firstIMRFromMap = TRTUtils.getFirstIMR(imrMap);
 
 		// make a site object to pass to IMR
 		Site site = siteGuiBean.getSite();
@@ -1496,7 +1496,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 				} else { // deterministic
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
-					ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR();
+					ScalarIMR imr = imrGuiBean.getSelectedIMR();
 					ProbEqkRupture rupture = (ProbEqkRupture) this.erfRupSelectorGuiBean.getRupture();
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
 					.getHazardCurve(hazFunction, site, imr, rupture);
@@ -1711,7 +1711,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			double deltaApproxZVal = gcimControlPanel.getDeltaApproxZ();
 			int numGcimRealizations = gcimControlPanel.getNumGcimRealizations();
 			ArrayList<String> imiTypes = gcimControlPanel.getImiTypes(); 
-			ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imiMapAttenRels = 
+			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiMapAttenRels = 
 					gcimControlPanel.getImris();
 			
 			ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijCorrRels = 
@@ -1956,7 +1956,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	 *            : List of Eqk Rup forecasts
 	 */
 	protected void handleForecastList(Site site,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+			HashMap<TectonicRegionType, ScalarIMR> imrMap,
 			EqkRupForecastBaseAPI eqkRupForecast) {
 
 		ERF_EpistemicList erfList = (ERF_EpistemicList) eqkRupForecast;
@@ -2132,8 +2132,8 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	 */
 	protected void initIMR_GuiBean() {
 		AttenuationRelationshipsInstance instances = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = instances.createIMRClassInstance(null);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		ArrayList<ScalarIMR> imrs = instances.createIMRClassInstance(null);
+		for (ScalarIMR imr : imrs) {
 			imr.setParamDefaults();
 		}
 		// TODO add make the multi imr bean handle warnings

@@ -23,7 +23,7 @@ import java.util.EventObject;
 import java.util.HashMap;
 
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**

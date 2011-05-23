@@ -36,7 +36,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -74,7 +74,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 
 public class DahleEtAl_1995_AttenRel
 extends AttenuationRelationship implements
-ScalarIntensityMeasureRelationshipAPI,
+ScalarIMR,
 NamedObjectAPI {
 
 	// debugging stuff:

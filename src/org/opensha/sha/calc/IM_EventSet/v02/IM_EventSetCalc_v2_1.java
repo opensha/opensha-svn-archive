@@ -52,7 +52,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
@@ -345,7 +345,7 @@ implements ParameterChangeWarningListener {
 					listenerClass};
 			Class imrClass = Class.forName(AttenRelClassName);
 			Constructor con = imrClass.getConstructor(params);
-			ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI) con.newInstance(paramObjects);
+			ScalarIMR attenRel = (ScalarIMR) con.newInstance(paramObjects);
 			if(attenRel.getName().equals(USGS_Combined_2004_AttenRel.NAME))
 				throw new RuntimeException("Cannot use "+USGS_Combined_2004_AttenRel.NAME+" in calculation of Mean and Sigma");
 			//setting the Attenuation with the default parameters
@@ -453,7 +453,7 @@ implements ParameterChangeWarningListener {
 
 		int numIMTs = supportedIMTs.size();
 		for (int i = 0; i < numIMRs; ++i) {
-			ScalarIntensityMeasureRelationshipAPI attenRel = (ScalarIntensityMeasureRelationshipAPI)
+			ScalarIMR attenRel = (ScalarIMR)
 			chosenAttenuationsList.get(i);
 			attenRel.setUserMaxDistance(sourceCutOffDistance);
 			for (int j = 0; j < numIMTs; ++j) {
@@ -473,7 +473,7 @@ implements ParameterChangeWarningListener {
 	 * @param willsClass
 	 * @param basinDepth
 	 */
-	private void setSiteParamsInIMR(ScalarIntensityMeasureRelationshipAPI imr,
+	private void setSiteParamsInIMR(ScalarIMR imr,
 			String willsClass) {
 
 		Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -541,7 +541,7 @@ implements ParameterChangeWarningListener {
 	 * @param imr AttenuationRelationshipAPI
 	 * @param dirName String
 	 */
-	private void generateMeanAndSigmaFile(ScalarIntensityMeasureRelationshipAPI imr,
+	private void generateMeanAndSigmaFile(ScalarIMR imr,
 			String imtLine,
 			String dirName) {
 

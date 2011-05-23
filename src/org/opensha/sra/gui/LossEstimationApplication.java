@@ -93,7 +93,7 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
@@ -855,7 +855,7 @@ IMR_GuiBeanAPI{
 
 		// if IMR selection changed, update the site parameter list and supported IMT
 		if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+			ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 			siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 			siteGuiBean.validate();
 			siteGuiBean.repaint();
@@ -867,7 +867,7 @@ IMR_GuiBeanAPI{
 			if(currentIMT.equals(SA_Param.NAME))
 				currentPeriod = currentModel.getPeriod();
 			imrGuiBean.setIMRParamListAndEditor(currentIMT, currentIMT, currentPeriod, currentPeriod);
-			ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+			ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 			siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 			siteGuiBean.validate();
 			siteGuiBean.repaint();
@@ -936,7 +936,7 @@ IMR_GuiBeanAPI{
 
 
 		// get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 
 		// make a site object to pass to IMR
 		Site site = siteGuiBean.getSite();
@@ -995,7 +995,7 @@ IMR_GuiBeanAPI{
 	//  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
 	//		  Site site,EqkRupForecastBaseAPI forecast,ScalarIntensityMeasureRelationshipAPI imr){
 	private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, double[] imls,
-			Site site,EqkRupForecastBaseAPI forecast,ScalarIntensityMeasureRelationshipAPI imr){
+			Site site,EqkRupForecastBaseAPI forecast,ScalarIMR imr){
 		// initialize the values in condProbfunc with log values as passed in hazFunction
 		// intialize the hazard function
 		ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -1117,7 +1117,7 @@ IMR_GuiBeanAPI{
 	protected void initSiteGuiBean() {
 
 		// get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		// create the Site Gui Bean object
 		siteGuiBean = new Site_GuiBean();
 		siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
@@ -1658,7 +1658,7 @@ IMR_GuiBeanAPI{
 	 */
 	public void updateSiteParams() {
 		//get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 		siteGuiBean.validate();
 		siteGuiBean.repaint();

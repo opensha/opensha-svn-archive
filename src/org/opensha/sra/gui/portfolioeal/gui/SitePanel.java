@@ -6,7 +6,7 @@ import java.awt.Insets;
 
 import javax.swing.JPanel;
 
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 /**
  * This class creates an instance of <code>SiteGuiBeanFacade</code>.
@@ -28,7 +28,7 @@ public class SitePanel {
 	 * 
 	 * @param imr The intensity measure relationship used; gotten from the view
 	 */
-	public SitePanel(ScalarIntensityMeasureRelationshipAPI imr) {
+	public SitePanel(ScalarIMR imr) {
 		BCR_ApplicationFacade bcr = BCR_ApplicationFacade.getBCR();
 		//siteBean = new Site_GuiBean();
 		siteBean = new SiteGuiBeanFacade();

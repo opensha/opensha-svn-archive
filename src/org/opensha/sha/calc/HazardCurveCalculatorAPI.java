@@ -31,7 +31,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 
@@ -154,7 +154,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @return
 	 */
 	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
+			Site site, ScalarIMR imr, EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException ;
 
 	/**
@@ -193,7 +193,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	public DiscretizedFuncAPI getHazardCurve(
 			DiscretizedFuncAPI hazFunction,
 			Site site,
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap, 
+			Map<TectonicRegionType, ScalarIMR> imrMap, 
 			EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException;
 
 
@@ -211,7 +211,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 */
 	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI
 			hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, EqkRupture rupture) throws
+			Site site, ScalarIMR imr, EqkRupture rupture) throws
 			java.rmi.RemoteException;
 
 
@@ -258,7 +258,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @throws java.rmi.RemoteException
 	 */
 	public DiscretizedFuncAPI getAverageEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+			Site site, ScalarIMR imr, 
 			EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException;
 
@@ -282,7 +282,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @throws java.rmi.RemoteException
 	 */
 	public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
-			Site site, ScalarIntensityMeasureRelationshipAPI imr, 
+			Site site, ScalarIMR imr, 
 			ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
 	throws java.rmi.RemoteException;
 

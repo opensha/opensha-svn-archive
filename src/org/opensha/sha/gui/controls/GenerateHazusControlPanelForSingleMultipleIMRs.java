@@ -44,7 +44,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -304,16 +304,16 @@ implements Runnable{
 		int size = attenRelsSupportingPGV.size();
 
 		for(int i=0;i<size;++i){
-			((ScalarIntensityMeasureRelationshipAPI)attenRelsSupportingPGV.get(i)).setIntensityMeasure(PGV_Param.NAME);
-			attenRelList.add((ScalarIntensityMeasureRelationshipAPI)attenRelsSupportingPGV.get(i));
+			((ScalarIMR)attenRelsSupportingPGV.get(i)).setIntensityMeasure(PGV_Param.NAME);
+			attenRelList.add((ScalarIMR)attenRelsSupportingPGV.get(i));
 			attenRelWtList.add(attenRelListPGV_Wts.get(i));
 		}
 
 		//setting the IMT to SA-1sec for the AttenRels not supporting PGV
 		size = attenRelsNotSupportingPGV.size();
 		for(int i=0;i<size;++i){
-			((ScalarIntensityMeasureRelationshipAPI)attenRelsNotSupportingPGV.get(i)).setIntensityMeasure(SA_Param.NAME);
-			attenRelList.add((ScalarIntensityMeasureRelationshipAPI)attenRelsNotSupportingPGV.get(i));
+			((ScalarIMR)attenRelsNotSupportingPGV.get(i)).setIntensityMeasure(SA_Param.NAME);
+			attenRelList.add((ScalarIMR)attenRelsNotSupportingPGV.get(i));
 			attenRelWtList.add(attenRelListNot_PGV_Wts.get(i));
 		}
 		//setting the SA period to 1.0 for the atten rels not supporting PGV
@@ -336,7 +336,7 @@ implements Runnable{
 		step =5;
 		int size = selectedAttenRels.size();
 		for(int i=0;i<size;++i)
-			((ScalarIntensityMeasureRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(PGA_Param.NAME);
+			((ScalarIMR)selectedAttenRels.get(i)).setIntensityMeasure(PGA_Param.NAME);
 
 		if(!calcOnServer) //if calculation are not to be done on the server
 			pga_xyzdata = (GeoDataSet)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,PGA_Param.NAME);
@@ -356,7 +356,7 @@ implements Runnable{
 		step =2;
 		int size = selectedAttenRels.size();
 		for(int i=0;i<size;++i)
-			((ScalarIntensityMeasureRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(SA_Param.NAME);
+			((ScalarIMR)selectedAttenRels.get(i)).setIntensityMeasure(SA_Param.NAME);
 
 		//Doing for SA-0.3sec
 		setSA_PeriodForSelectedIMRs(selectedAttenRels,0.3);
@@ -392,14 +392,14 @@ implements Runnable{
 		int size = attenRelList.size();
 		if(pgvSupported){
 			for(int i=0;i<size;++i)
-				((ScalarIntensityMeasureRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(PGV_Param.NAME);
+				((ScalarIMR)attenRelList.get(i)).setIntensityMeasure(PGV_Param.NAME);
 
 			pgvDataSet = (GeoDataSet)application.generateShakeMap(attenRelList,attenRelWtList,PGV_Param.NAME);
 			//metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 		}
 		else{ //if the List of the attenRels does not support IMT then use SA at 1sec for PGV
 			for(int i=0;i<size;++i)
-				((ScalarIntensityMeasureRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(SA_Param.NAME);
+				((ScalarIMR)attenRelList.get(i)).setIntensityMeasure(SA_Param.NAME);
 			this.setSA_PeriodForSelectedIMRs(attenRelList,1.0);
 
 			pgvDataSet = (GeoDataSet)application.generateShakeMap(attenRelList,attenRelWtList,SA_Param.NAME);
@@ -418,7 +418,7 @@ implements Runnable{
 	private void setSA_PeriodForSelectedIMRs(ArrayList selectedAttenRels, double period) {
 		int size = selectedAttenRels.size();
 		for(int i=0;i<size;++i)
-			((ScalarIntensityMeasureRelationshipAPI)selectedAttenRels.get(i)).getParameter(PeriodParam.NAME).setValue(new Double(period));
+			((ScalarIMR)selectedAttenRels.get(i)).getParameter(PeriodParam.NAME).setValue(new Double(period));
 	}
 
 

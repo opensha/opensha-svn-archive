@@ -48,7 +48,7 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.SiteTranslator;
 
 public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, ListSelectionListener {
@@ -60,7 +60,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 
 	private OrderedSiteDataProviderList list;
 	
-	private Collection<ScalarIntensityMeasureRelationshipAPI> imrs;
+	private Collection<ScalarIMR> imrs;
 	
 	private SiteDataTypeParameterNameMap map = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
 	
@@ -91,7 +91,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	}
 	
 	public OrderedSiteDataGUIBean(OrderedSiteDataProviderList list,
-			Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+			Collection<ScalarIMR> imrs) {
 		super(new BorderLayout());
 		
 		this.imrs = imrs;
@@ -212,13 +212,13 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		dataList.validate();
 	}
 	
-	public void setIMR(ScalarIntensityMeasureRelationshipAPI imr) {
-		Collection<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+	public void setIMR(ScalarIMR imr) {
+		Collection<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 		imrs.add(imr);
 		setIMR(imrs);
 	}
 	
-	public void setIMR(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+	public void setIMR(Collection<ScalarIMR> imrs) {
 		if (imrs != null && imrs.contains(null))
 			imrs.remove(null);
 		if (imrs != null && imrs.isEmpty())

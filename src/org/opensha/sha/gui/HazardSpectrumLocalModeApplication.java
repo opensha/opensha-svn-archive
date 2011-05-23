@@ -56,7 +56,7 @@ import org.opensha.sha.gui.controls.PlottingOptionControl;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.util.IconFetcher;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
@@ -237,7 +237,7 @@ extends HazardCurveLocalModeApplication {
 		}
 
 		// get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR();
 
 		getSA_PeriodForIMR(imr);
 
@@ -503,7 +503,7 @@ extends HazardCurveLocalModeApplication {
 	 * Gets the SA Period Values for the IMR
 	 * @param imr
 	 */
-	private void getSA_PeriodForIMR(ScalarIntensityMeasureRelationshipAPI imr) {
+	private void getSA_PeriodForIMR(ScalarIMR imr) {
 		ListIterator it = imr.getSupportedIntensityMeasuresIterator();
 		while (it.hasNext()) {
 			Parameter tempParam = (Parameter) it.next();
@@ -528,7 +528,7 @@ extends HazardCurveLocalModeApplication {
 	 * @param eqkRupForecast : List of Eqk Rup forecasts
 	 */
 	protected void handleForecastList(Site site,
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			EqkRupForecastBaseAPI forecast,
 			double imlProbValue) {
 

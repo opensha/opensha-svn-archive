@@ -46,7 +46,7 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
@@ -312,10 +312,10 @@ extends HttpServlet implements ParameterChangeWarningListener {
 		 */
 		ListIterator it = selectedAttenRels.listIterator();
 		while (it.hasNext()) {
-			ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI) it.next();
+			ScalarIMR imr = (ScalarIMR) it.next();
 
-			ScalarIntensityMeasureRelationshipAPI imr_temp =
-				(ScalarIntensityMeasureRelationshipAPI) createIMRClassInstance(imr.getClass().
+			ScalarIMR imr_temp =
+				(ScalarIMR) createIMRClassInstance(imr.getClass().
 						getName(), this);
 
 			// set other params

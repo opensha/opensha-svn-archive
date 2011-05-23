@@ -32,7 +32,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
@@ -56,16 +56,16 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	private ArrayList<Parameter> imtParam;
 
 	// imr for which IMT is to be displayed
-	private ScalarIntensityMeasureRelationshipAPI imr;
+	private ScalarIMR imr;
 
-	private ArrayList<ScalarIntensityMeasureRelationshipAPI> multipleIMRs;
+	private ArrayList<ScalarIMR> multipleIMRs;
 
 	/**
 	 * constructor: accepts AttenuationRelationshipAPI and supprtedIntensity Measure type
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public IMT_GuiBean(ScalarIntensityMeasureRelationshipAPI imr,Iterator<Parameter<?>> supportedIntensityMeasureIt) {
+	public IMT_GuiBean(ScalarIMR imr,Iterator<Parameter<?>> supportedIntensityMeasureIt) {
 		setIM(imr,supportedIntensityMeasureIt );
 	}
 	
@@ -74,7 +74,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public IMT_GuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> multipleIMRs) {
+	public IMT_GuiBean(ArrayList<ScalarIMR> multipleIMRs) {
 		setIM(multipleIMRs);
 	}
 
@@ -85,7 +85,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public void setIM(ScalarIntensityMeasureRelationshipAPI imr,Iterator<Parameter<?>> supportedIntensityMeasureIt){
+	public void setIM(ScalarIMR imr,Iterator<Parameter<?>> supportedIntensityMeasureIt){
 		this.imr = imr;
 		init_imtParamListAndEditor(imr.getSupportedIntensityMeasuresList());
 	}
@@ -97,7 +97,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 * @param imr Choosen AttenuationRelationship
 	 * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
 	 */
-	public void setIM(ArrayList<ScalarIntensityMeasureRelationshipAPI> multipleIMRs) {
+	public void setIM(ArrayList<ScalarIMR> multipleIMRs) {
 		if (multipleIMRs == null || multipleIMRs.size() == 0)
 			return;
 		this.imr = null;
@@ -107,7 +107,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		ArrayList<Double> saPeriods = new ArrayList<Double>();
 		double defaultPeriod = -1;
 		ParameterList paramList = new ParameterList();
-		for (ScalarIntensityMeasureRelationshipAPI imr : multipleIMRs) {
+		for (ScalarIMR imr : multipleIMRs) {
 			for (Parameter param : imr.getSupportedIntensityMeasuresList()) {
 				if (paramList.containsParameter(param.getName())) {
 					// it's already in there
@@ -137,7 +137,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		SA_Param replaceSA = null;
 		for (Parameter param : paramList) {
 			boolean remove = false;
-			for (ScalarIntensityMeasureRelationshipAPI imr : multipleIMRs) {
+			for (ScalarIMR imr : multipleIMRs) {
 				if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
 					remove = true;
 					break;
@@ -152,7 +152,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 			}
 			ArrayList<Double> badPeriods = new ArrayList<Double>();
 			if (param.getName().equals(SA_Param.NAME)) {
-				for (ScalarIntensityMeasureRelationshipAPI imr : multipleIMRs) {
+				for (ScalarIMR imr : multipleIMRs) {
 					SA_Param saParam = (SA_Param) imr.getSupportedIntensityMeasuresList().getParameter(SA_Param.NAME);
 					PeriodParam periodParam = saParam.getPeriodParam();
 					ArrayList<Double> periods = periodParam.getSupportedPeriods();
@@ -330,7 +330,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		if (imr != null) {
 			imr.setIntensityMeasure(param);
 		} else {
-			for (ScalarIntensityMeasureRelationshipAPI imr : multipleIMRs) {
+			for (ScalarIMR imr : multipleIMRs) {
 				imr.setIntensityMeasure(param.getName());
 				if (param instanceof SA_Param) {
 					SA_Param saParam = (SA_Param) param;

@@ -30,7 +30,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
@@ -41,7 +41,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class TestHazardDataSetDAGCreator {
 	
 	protected static EqkRupForecastAPI erf;
-	protected static ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	protected static ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	protected static ArrayList<Site> sites;
 	protected static CalculationSettings calcSettings;
 	protected static CurveResultsArchiver archiver;
@@ -61,9 +61,9 @@ public class TestHazardDataSetDAGCreator {
 		cb08.setIntensityMeasure(SA_Param.NAME);
 		SA_Param.setPeriodInSA_Param(cb08.getIntensityMeasure(), 3.0);
 		
-		imrMaps = new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
-		HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> imrMap =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		imrMaps = new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+		HashMap<TectonicRegionType,ScalarIMR> imrMap =
+			new HashMap<TectonicRegionType, ScalarIMR>();
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, cb08);
 		imrMaps.add(imrMap);
 		

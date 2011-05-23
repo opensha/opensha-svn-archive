@@ -9,7 +9,7 @@ import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranch;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranchingLevel;
 import org.opensha.gem.GEM1.scratch.AtkBoo_2006_AttenRel;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
@@ -19,8 +19,8 @@ import org.opensha.sha.util.TectonicRegionType;
 public class GemGmpe {
 	
     // logic tree for GMPE
-    private GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLT =
-    	new GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
+    private GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLT =
+    	new GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>>();
 	
 	public GemGmpe(){
 		
@@ -50,16 +50,16 @@ public class GemGmpe {
 	    ar4.setParamDefaults();
 	    
         // HashMap containing relationship between attenuation relationship and tectonic region type
-        HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map1 = 
-        	      new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+        HashMap<TectonicRegionType, ScalarIMR> map1 = 
+        	      new HashMap<TectonicRegionType, ScalarIMR>();
         map1.put(TectonicRegionType.ACTIVE_SHALLOW,ar1);
         map1.put(TectonicRegionType.STABLE_SHALLOW,ar4);
 	    map1.put(TectonicRegionType.SUBDUCTION_SLAB, ar3);
 	    map1.put(TectonicRegionType.SUBDUCTION_INTERFACE, ar3);
 	    
         // HashMap containing relationship between attenuation relationship and tectonic region type
-        HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map2 = 
-        	      new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+        HashMap<TectonicRegionType, ScalarIMR> map2 = 
+        	      new HashMap<TectonicRegionType, ScalarIMR>();
         map2.put(TectonicRegionType.ACTIVE_SHALLOW,ar2);
         map2.put(TectonicRegionType.STABLE_SHALLOW,ar4);
 	    map2.put(TectonicRegionType.SUBDUCTION_SLAB, ar3);
@@ -84,7 +84,7 @@ public class GemGmpe {
 	}
 	
 	// return the logic tree
-	public GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> getGemLogicTree(){
+	public GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> getGemLogicTree(){
 		return gmpeLT;
 	}
 	

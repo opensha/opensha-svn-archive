@@ -35,7 +35,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -75,7 +75,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 
 public class BC_2004_AttenRel
-extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,
+extends AttenuationRelationship implements ScalarIMR,
 NamedObjectAPI {
 
 	// debugging stuff:

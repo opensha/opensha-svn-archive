@@ -6,7 +6,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
@@ -20,18 +20,18 @@ public class IMR_ParamEditor extends ParameterListEditor implements ParameterCha
 
 	public static final String DEFAULT_NAME = "IMR Params";
 	
-	private ScalarIntensityMeasureRelationshipAPI imr;
+	private ScalarIMR imr;
 	
 	public IMR_ParamEditor() {
 		this(null);
 	}
 	
-	public IMR_ParamEditor(ScalarIntensityMeasureRelationshipAPI imr) {
+	public IMR_ParamEditor(ScalarIMR imr) {
 		setTitle(DEFAULT_NAME);
 		this.setIMR(imr);
 	}
 	
-	public void setIMR(ScalarIntensityMeasureRelationshipAPI imr) {
+	public void setIMR(ScalarIMR imr) {
 		if (imr == this.imr) {
 			this.validate();
 			return;

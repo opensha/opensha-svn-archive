@@ -27,7 +27,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -64,7 +64,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * @return boolean
 	 */
 	public boolean disaggregate(double iml, Site site,
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			EqkRupForecast eqkRupForecast,
 			ParameterList calcParams) throws java.rmi.RemoteException;
 
@@ -81,7 +81,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * @return boolean
 	 */
 	public boolean disaggregate(double iml, Site site,
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+			Map<TectonicRegionType, ScalarIMR> imrMap,
 			EqkRupForecast eqkRupForecast,
 			ParameterList calcParams) throws java.rmi.RemoteException;
 

@@ -40,7 +40,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.gcim.imr.param.EqkRuptureParams.FocalDepthParam;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
@@ -95,7 +95,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class McVerryetal_2000_AttenRel
     extends AttenuationRelationship implements
-    ScalarIntensityMeasureRelationshipAPI,
+    ScalarIMR,
     NamedObjectAPI, ParameterChangeListener {
 
   // Debugging stuff

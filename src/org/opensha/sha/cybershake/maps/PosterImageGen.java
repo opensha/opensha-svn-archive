@@ -16,7 +16,7 @@ import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.imr.AttenRelImpl;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 public class PosterImageGen {
 
@@ -64,7 +64,7 @@ public class PosterImageGen {
 		
 		boolean gainOnly = false;
 		
-		ScalarIntensityMeasureRelationshipAPI baseMapIMR = AttenRelImpl.CB_2008.instance(null);
+		ScalarIMR baseMapIMR = AttenRelImpl.CB_2008.instance(null);
 		baseMapIMR.setParamDefaults();
 		HardCodedInterpDiffMapCreator.setTruncation(baseMapIMR, 3.0);
 		

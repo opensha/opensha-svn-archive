@@ -21,7 +21,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.gem.GEM1.calc.gemOutput.GEMHazardCurveRepository;
 import org.opensha.gem.GEM1.commons.UnoptimizedDeepCopy;
 import org.opensha.gem.GEM1.scratch.HazardCurveCalculator;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -54,7 +54,7 @@ public class GemComputeHazard implements Runnable {
 	ArrayList<GEMSourceData> sourceList;
 	
 	// attenuation relationship vs. tectonic region map
-	public HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> gmpeMap;
+	public HashMap<TectonicRegionType,ScalarIMR> gmpeMap;
 	
 	// intensity measure level list
 	private ArbitrarilyDiscretizedFunc imlList;
@@ -73,7 +73,7 @@ public class GemComputeHazard implements Runnable {
 	 * @param ERF
 	 * @param AttenRel
 	 */
-     public GemComputeHazard(int nproc, ArrayList<Site> siteList, EqkRupForecast ERF, HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> gmpeMap,ArbitrarilyDiscretizedFunc imlList, double maxSourceDist){	
+     public GemComputeHazard(int nproc, ArrayList<Site> siteList, EqkRupForecast ERF, HashMap<TectonicRegionType,ScalarIMR> gmpeMap,ArbitrarilyDiscretizedFunc imlList, double maxSourceDist){	
     	
     	// GMPE units (extracted from the first GMPE)
 		Set<TectonicRegionType> gmpeLabels = gmpeMap.keySet();
@@ -105,7 +105,7 @@ public class GemComputeHazard implements Runnable {
 		this.maxSourceDist = maxSourceDist;
 	}
      
-     public GemComputeHazard(int nproc, ArrayList<Site> siteList, ArrayList<GEMSourceData> sourceList, HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> gmpeMap,ArbitrarilyDiscretizedFunc imlList, double maxSourceDist){	
+     public GemComputeHazard(int nproc, ArrayList<Site> siteList, ArrayList<GEMSourceData> sourceList, HashMap<TectonicRegionType,ScalarIMR> gmpeMap,ArbitrarilyDiscretizedFunc imlList, double maxSourceDist){	
      	
      	// GMPE units (extracted from the first GMPE)
  		Set<TectonicRegionType> gmpeLabels = gmpeMap.keySet();
@@ -178,8 +178,8 @@ public class GemComputeHazard implements Runnable {
         
         //***************** GMPE *****************//
         // GMPEs needs a deep copy
-        HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> gmpeMapThread;
-        gmpeMapThread = (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>) UnoptimizedDeepCopy.copy(gmpeMap);
+        HashMap<TectonicRegionType,ScalarIMR> gmpeMapThread;
+        gmpeMapThread = (HashMap<TectonicRegionType, ScalarIMR>) UnoptimizedDeepCopy.copy(gmpeMap);
 				
 		// loop over sites where to compute hazard
 		for(int i=start; i<end;i+=1){
@@ -199,7 +199,7 @@ public class GemComputeHazard implements Runnable {
 	        
 	        // temporary: we convert the HashMap into a Hashtable to accomodate what has been done 
 	        // in the OpenSHA hazard curve calculator
-	        Hashtable<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> gmpeTmp = new  Hashtable<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>();
+	        Hashtable<TectonicRegionType,ScalarIMR> gmpeTmp = new  Hashtable<TectonicRegionType,ScalarIMR>();
 			iterGmpeLabel = gmpeLabels.iterator(); 		
 			while(iterGmpeLabel.hasNext()){
 				TectonicRegionType trt = iterGmpeLabel.next();

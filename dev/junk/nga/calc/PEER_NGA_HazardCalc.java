@@ -8,7 +8,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -43,7 +43,7 @@ public class PEER_NGA_HazardCalc {
 	 * @return
 	 */
 	public  GeoDataSet getXYZData(EqkRuptureFromNGA rupture,
-			ScalarIntensityMeasureRelationshipAPI imr,boolean isProbAtIML,double value){
+			ScalarIMR imr,boolean isProbAtIML,double value){
 
 		//instance of the XYZ dataset to store the Lat, Lon and IML or Prob based n what the user has choosen
 		//XYZ_DataSetAPI xyzDataSet;

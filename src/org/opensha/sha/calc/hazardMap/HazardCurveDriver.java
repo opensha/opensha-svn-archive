@@ -14,7 +14,7 @@ import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -33,7 +33,7 @@ public class HazardCurveDriver {
 	
 	private List<Site> sites;
 	private EqkRupForecastAPI erf;
-	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Parameter<Double>> imts;
 	private HazardCurveSetCalculator calc;
 	private CurveResultsArchiver archiver;

@@ -34,7 +34,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -56,19 +56,19 @@ public abstract class IM_EventSetOutputWriter {
 		this.calc = calc;
 	}
 	
-	public abstract void writeFiles(ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels,
+	public abstract void writeFiles(ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIMR> attenRels,
 			ArrayList<String> imts) throws IOException;
 	
-	public void writeFiles(EqkRupForecastAPI erf, ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels,
+	public void writeFiles(EqkRupForecastAPI erf, ArrayList<ScalarIMR> attenRels,
 			ArrayList<String> imts) throws IOException {
 		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
 		erfs.add(erf);
 		writeFiles(erfs, attenRels, imts);
 	}
 	
-	public void writeFiles(EqkRupForecastAPI erf, ScalarIntensityMeasureRelationshipAPI imr,
+	public void writeFiles(EqkRupForecastAPI erf, ScalarIMR imr,
 			String imt) throws IOException {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		ArrayList<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 		imrs.add(imr);
 		ArrayList<String> imts = new ArrayList<String>();
 		imts.add(imt);
@@ -123,7 +123,7 @@ public abstract class IM_EventSetOutputWriter {
 	 * @param imtLine
 	 * @param attenRel
 	 */
-	public static void setIMTFromString(String imtStr, ScalarIntensityMeasureRelationshipAPI attenRel) {
+	public static void setIMTFromString(String imtStr, ScalarIMR attenRel) {
 		String imt = imtStr.trim();
 		if ((imt.startsWith("SA") || imt.startsWith("SD"))) {
 			logger.log(Level.FINE, "Parsing IMT with Period: " + imt);
@@ -160,7 +160,7 @@ public abstract class IM_EventSetOutputWriter {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected ArrayList<Parameter> getDefaultSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel) {
+	protected ArrayList<Parameter> getDefaultSiteParams(ScalarIMR attenRel) {
 		logger.log(Level.FINE, "Storing default IMR site related params.");
 		ListIterator<Parameter<?>> siteParamsIt = attenRel.getSiteParamsIterator();
 		ArrayList<Parameter> defaultSiteParams = new ArrayList<Parameter>();
@@ -178,7 +178,7 @@ public abstract class IM_EventSetOutputWriter {
 	 * @param defaultSiteParams
 	 */
 	@SuppressWarnings("unchecked")
-	protected void setSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel, ArrayList<Parameter> defaultSiteParams) {
+	protected void setSiteParams(ScalarIMR attenRel, ArrayList<Parameter> defaultSiteParams) {
 		logger.log(Level.FINE, "Restoring default IMR site related params.");
 		for (Parameter param : defaultSiteParams) {
 			Parameter attenParam = attenRel.getParameter(param.getName());
@@ -194,7 +194,7 @@ public abstract class IM_EventSetOutputWriter {
 	 * @param attenRel
 	 * @return
 	 */
-	protected ArrayList<Site> getInitializedSites(ScalarIntensityMeasureRelationshipAPI attenRel) {
+	protected ArrayList<Site> getInitializedSites(ScalarIMR attenRel) {
 		logger.log(Level.FINE, "Retrieving and setting Site related params for IMR");
 		// get the list of sites
 		ArrayList<Site> sites = this.calc.getSites();

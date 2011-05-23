@@ -14,7 +14,7 @@ import org.opensha.gem.GEM1.calc.gemHazardCalculator.GemComputeHazardLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe2;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
@@ -90,7 +90,7 @@ public class GemCalcSetup {
 		double mmin = 5.0;
 		double mmax = 7.0;
 		double step = 0.2;
-		HashMap<String, HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> map = 
+		HashMap<String, HashMap<TectonicRegionType, ScalarIMR>> map = 
 			gemGmpeLT.getGemLogicTree().getEBMap();
 		
 		//
@@ -102,9 +102,9 @@ public class GemCalcSetup {
 		
 		for (String str: map.keySet()){
 			// Get Hash Map
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> mapImr = map.get(str);
+			HashMap<TectonicRegionType, ScalarIMR> mapImr = map.get(str);
 			// 
-			ScalarIntensityMeasureRelationshipAPI imr = mapImr.get(TectonicRegionType.ACTIVE_SHALLOW);
+			ScalarIMR imr = mapImr.get(TectonicRegionType.ACTIVE_SHALLOW);
 			System.out.println(imr.getName());
 			// Set parameters
 			((WarningDoubleParameter)imr.getParameter(Vs30_Param.NAME)).setValueIgnoreWarning(760.0);

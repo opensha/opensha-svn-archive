@@ -41,7 +41,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -67,7 +67,7 @@ public class HazardMapPortionCalculator {
 	private SitesInGriddedRegion sites;
 	
 	private EqkRupForecastAPI erf;
-	private ScalarIntensityMeasureRelationshipAPI imr;
+	private ScalarIMR imr;
 	private double maxDistance;
 	private String outputDir;
 	private ArbitrarilyDiscretizedFunc hazFunction;
@@ -84,7 +84,7 @@ public class HazardMapPortionCalculator {
 	 * @param outputDir - directory to store results (or empty string for current working directory)
 	 */
 	public HazardMapPortionCalculator(SitesInGriddedRegion sites, EqkRupForecastAPI erf,
-			ScalarIntensityMeasureRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction,
+			ScalarIMR imr, ArbitrarilyDiscretizedFunc hazFunction,
 			SiteDataValueListList siteDataValues, double maxDistance, String outputDir) {
 		this.sites = sites;
 		

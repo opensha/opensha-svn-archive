@@ -27,7 +27,7 @@ import org.opensha.sha.gcim.imr.attenRelImpl.SI_WrapperAttenRel.BA_2008_SI_Atten
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.ASI_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.SI_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -36,7 +36,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class HardCodedGCIMTest {
 	
-	private static void setSAPeriodInIMR(ScalarIntensityMeasureRelationshipAPI imr, double period) {
+	private static void setSAPeriodInIMR(ScalarIMR imr, double period) {
 		((Parameter<Double>)imr.getIntensityMeasure())
 		.getIndependentParameter(PeriodParam.NAME).setValue(new Double(period));
 	}
@@ -47,7 +47,7 @@ public class HardCodedGCIMTest {
 	 * @param imri
 	 * @param site
 	 */
-	private static void overrideSiteParams(ScalarIntensityMeasureRelationshipAPI imri,
+	private static void overrideSiteParams(ScalarIMR imri,
 			Site site) {
 			//loop over all of the site parameters of imri
 			ListIterator<Parameter<?>> imriParamIt = imri.getSiteParamsIterator();
@@ -82,10 +82,10 @@ public class HardCodedGCIMTest {
 //		EqkRupForecast erf = new Frankel96_AdjustableEqkRupForecast();
 		erf.updateForecast();
 		ArbitrarilyDiscretizedFunc magDistFilter = null;
-		ScalarIntensityMeasureRelationshipAPI imr = new CB_2008_AttenRel(null);
+		ScalarIMR imr = new CB_2008_AttenRel(null);
 		imr.setParamDefaults();
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap
-				= new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		HashMap<TectonicRegionType, ScalarIMR> imrMap
+				= new HashMap<TectonicRegionType, ScalarIMR>();
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
 		double period_IMj = 1.0;
 		double maxDist = 200.0;
@@ -114,8 +114,8 @@ public class HardCodedGCIMTest {
 		int numIMi = 6;
 
 		//Create arrays to store the IMi, AttenRel, CorrRel, and perio (is IMi is SA) for each IMi of interest
-		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imiMapAttenRels = 
-					new ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>>();
+		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiMapAttenRels = 
+					new ArrayList<HashMap<TectonicRegionType, ScalarIMR>>();
 		ArrayList<String> imiTypes = new ArrayList<String>();
 //		ArrayList<ImCorrelationRelationship> imijCorrRels = new ArrayList<ImCorrelationRelationship>();
 		ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijMapCorrRels = 
@@ -124,7 +124,7 @@ public class HardCodedGCIMTest {
 		
 		String imiType;
 		double imiPeriod;
-		ScalarIntensityMeasureRelationshipAPI imri;
+		ScalarIMR imri;
 		ImCorrelationRelationship imijCorrRel;
 		
 //		The lines below would be parsed from the Hazard curve GUI: GCIM control panel
@@ -133,8 +133,8 @@ public class HardCodedGCIMTest {
 		imiType=SA_Param.NAME;
 		imiPeriod = 0.1;
 		imri = new CB_2008_AttenRel(null);
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imriMap
-						= new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		HashMap<TectonicRegionType, ScalarIMR> imriMap
+						= new HashMap<TectonicRegionType, ScalarIMR>();
 		imriMap.put(TectonicRegionType.ACTIVE_SHALLOW, imri);
 		imijCorrRel = new BakerJayaram08_ImCorrRel();
 		HashMap<TectonicRegionType, ImCorrelationRelationship> imijCorrRelMap
@@ -150,7 +150,7 @@ public class HardCodedGCIMTest {
 		imiType=SA_Param.NAME;
 		imiPeriod = 0.2;
 		imri = new CB_2008_AttenRel(null);
-		imriMap = new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		imriMap = new HashMap<TectonicRegionType, ScalarIMR>();
 		imriMap.put(TectonicRegionType.ACTIVE_SHALLOW, imri);
 		imijCorrRel = new BakerJayaram08_ImCorrRel();
 		imijCorrRelMap = new HashMap<TectonicRegionType, ImCorrelationRelationship>();
@@ -165,7 +165,7 @@ public class HardCodedGCIMTest {
 		imiType=SA_Param.NAME;
 		imiPeriod = 1.0;
 		imri = new CB_2008_AttenRel(null);
-		imriMap = new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+		imriMap = new HashMap<TectonicRegionType, ScalarIMR>();
 		imriMap.put(TectonicRegionType.ACTIVE_SHALLOW, imri);
 		imijCorrRel = new BakerJayaram08_ImCorrRel();
 		imijCorrRelMap = new HashMap<TectonicRegionType, ImCorrelationRelationship>();

@@ -19,7 +19,7 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 public class HazardCurveBean implements GuiBeanAPI, IMR_GuiBeanAPI {
 	private JPanel embedVis = null;
@@ -207,7 +207,7 @@ public class HazardCurveBean implements GuiBeanAPI, IMR_GuiBeanAPI {
 
 	/** See the general contract in IMR_GuiBeanAPI */
 	public void updateSiteParams() {
-		ScalarIntensityMeasureRelationshipAPI imr = imrBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrBean.getSelectedIMR_Instance();
 		siteBean.replaceSiteParams(imr.getSiteParamsIterator());
 		siteBean.validate();
 		siteBean.repaint();

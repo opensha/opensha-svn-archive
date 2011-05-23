@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.AttenRelImpl;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 public class AttenRels2DB {
 	
@@ -21,7 +21,7 @@ public class AttenRels2DB {
 		this.db = db;
 	}
 	
-	public int insertAttenRel(ScalarIntensityMeasureRelationshipAPI imr) throws SQLException {
+	public int insertAttenRel(ScalarIMR imr) throws SQLException {
 		// first make sure we haven't tried inserting it before
 		int attenRelID = getAttenRelIDWithZeroParams(imr.getShortName());
 		if (attenRelID >= 0) {
@@ -56,7 +56,7 @@ public class AttenRels2DB {
 		return -1;
 	}
 	
-	public int getAttenRelID(ScalarIntensityMeasureRelationshipAPI imr) throws SQLException {
+	public int getAttenRelID(ScalarIMR imr) throws SQLException {
 		ArrayList<Integer> ids = getAttenRelIDs(imr.getShortName());
 		
 		for (int attenRelID : ids) {
@@ -139,7 +139,7 @@ public class AttenRels2DB {
 		return ids;
 	}
 	
-	private void insertAttenRelMetadata(int attenRelID, ScalarIntensityMeasureRelationshipAPI imr)
+	private void insertAttenRelMetadata(int attenRelID, ScalarIMR imr)
 	throws SQLException {
 		String sql = "INSERT INTO "+ATTEN_REL_METADATA_TABLE_NAME+" VALUES ";
 		
@@ -184,7 +184,7 @@ public class AttenRels2DB {
 //		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		try {
 			AttenRels2DB atten2db = new AttenRels2DB(db);
-			ScalarIntensityMeasureRelationshipAPI imr = AttenRelImpl.NGA_2008_4AVG.instance(null);
+			ScalarIMR imr = AttenRelImpl.NGA_2008_4AVG.instance(null);
 			imr.setParamDefaults();
 //			atten2db.insertAttenRelMetadata(0, imr);
 			atten2db.insertAttenRel(imr);

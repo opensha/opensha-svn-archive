@@ -47,7 +47,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
@@ -165,7 +165,7 @@ implements DisaggregationCalculatorAPI {
 	 * @return boolean
 	 */
 	public boolean disaggregate(double iml, Site site,
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			EqkRupForecast eqkRupForecast,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) 
 			throws java.rmi.RemoteException {
@@ -176,7 +176,7 @@ implements DisaggregationCalculatorAPI {
 	public boolean disaggregate(
 			double iml,
 			Site site,
-			Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap,
+			Map<TectonicRegionType, ScalarIMR> imrMap,
 			EqkRupForecast eqkRupForecast, double maxDist,
 			ArbitrarilyDiscretizedFunc magDistFilter) throws RemoteException {
 
@@ -205,7 +205,7 @@ implements DisaggregationCalculatorAPI {
 		//resetting the Parameter change Listeners on the AttenuationRelationship
 		//parameters. This allows the Server version of our application to listen to the
 		//parameter changes.
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values())
+		for (ScalarIMR imr : imrMap.values())
 			( (AttenuationRelationship) imr).resetParameterEventListeners();
 
 
@@ -216,7 +216,7 @@ implements DisaggregationCalculatorAPI {
 		
 		// set the maximum distance in the attenuation relationship
 		// (Note- other types of IMRs may not have this method so we should really check type here)
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values())
+		for (ScalarIMR imr : imrMap.values())
 			imr.setUserMaxDistance(maxDist);
 
 		// set iml in imr
@@ -244,7 +244,7 @@ implements DisaggregationCalculatorAPI {
 		// init the current rupture number (also for progress bar)
 		currRuptures = 0;
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrMap.values()) {
+		for (ScalarIMR imr : imrMap.values()) {
 			try {
 				// set the site in IMR
 				imr.setSite(site);
@@ -297,7 +297,7 @@ implements DisaggregationCalculatorAPI {
 			
 			// set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRforTRT(imrMap, trt);
+			ScalarIMR imr = TRTUtils.getIMRforTRT(imrMap, trt);
 
 //			if (numSourcesToShow > 0)
 //				sourceDissaggMap.put(sourceName, new ArrayList());

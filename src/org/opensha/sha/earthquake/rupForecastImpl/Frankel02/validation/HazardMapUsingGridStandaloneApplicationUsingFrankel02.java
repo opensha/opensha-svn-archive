@@ -39,7 +39,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
@@ -325,7 +325,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
   * sets up the connection with the servlet on the server (gravity.usc.edu)
   */
  private void sendParametersToServlet(SitesInGriddedRegion regionSites,
-                                       ScalarIntensityMeasureRelationshipAPI imr,
+                                       ScalarIMR imr,
                                        String eqkRupForecastLocation) {
 
    try{

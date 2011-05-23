@@ -15,7 +15,7 @@ import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sra.asset.Asset;
 import org.opensha.sra.asset.MonetaryHighLowValue;
@@ -54,7 +54,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 	// TODO TectonicRegionType support?
 	
 	protected PortfolioRuptureResults[][] calculateCurve(
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
 			DiscretizedFuncAPI function) {
@@ -530,7 +530,7 @@ ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 	}
 	
 	public ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
 			DiscretizedFuncAPI function) {
@@ -541,7 +541,7 @@ ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 	}
 	
 	public ArbitrarilyDiscretizedFunc calcFrequencyOfExceedanceCurve(
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
 			DiscretizedFuncAPI function) {

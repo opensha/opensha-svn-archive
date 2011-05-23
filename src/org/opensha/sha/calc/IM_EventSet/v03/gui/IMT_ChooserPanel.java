@@ -32,7 +32,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -127,7 +127,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 		return true;
 	}
 	
-	public void setIMRs(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
+	public void setIMRs(ArrayList<ScalarIMR> imrs) {
 		// this stes the IMRs in the IMT gui bean (so that only ones that work for all
 		// IMRs can be used.
 		imtGuiBean.setIM(imrs);
@@ -143,7 +143,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 		ArrayList<Integer> toRemove = new ArrayList<Integer>();
 		for (int i=imts.size()-1; i>=0; i--) {
 			Parameter<?> imt = imts.get(i);
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			for (ScalarIMR imr : imrs) {
 				if (!imr.isIntensityMeasureSupported(imt)) {
 					toRemove.add(i);
 					break;
@@ -173,7 +173,7 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(400, 600);
 		
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		ArrayList<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 		CB_2008_AttenRel cb08 = new CB_2008_AttenRel(null);
 		cb08.setParamDefaults();
 		imrs.add(cb08);

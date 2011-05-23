@@ -18,7 +18,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
@@ -48,7 +48,7 @@ public class HazardProfileCalculator implements ParameterChangeWarningListener {
 	private final DecimalFormat periodFormat = new DecimalFormat("0.0");
 	
 	private MeanUCERF2 meanUCERF2;
-	private ScalarIntensityMeasureRelationshipAPI imr;
+	private ScalarIMR imr;
 	private HazardCurveCalculator hazardCurveCalculator;
 	
 	/*

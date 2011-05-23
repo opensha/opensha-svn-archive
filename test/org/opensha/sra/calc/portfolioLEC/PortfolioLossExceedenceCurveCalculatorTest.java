@@ -16,7 +16,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sra.asset.Asset;
 import org.opensha.sra.asset.AssetCategory;
@@ -30,7 +30,7 @@ import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor
 public class PortfolioLossExceedenceCurveCalculatorTest {
 
 	private static EqkRupForecastAPI erf;
-	private static ScalarIntensityMeasureRelationshipAPI imr;
+	private static ScalarIMR imr;
 	private static Portfolio portfolio;
 	
 	private static boolean smallERF = true;

@@ -83,7 +83,7 @@ import org.opensha.sha.gcim.imCorrRel.event.IMCorrRelChangeEvent;
 import org.opensha.sha.gcim.imCorrRel.event.IMCorrRelChangeListener;
 import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.BakerJayaram08_ImCorrRel;
 import org.opensha.sha.gcim.ui.infoTools.ImCorrelationRelationshipsInstance;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
@@ -183,7 +183,7 @@ IMCorrRelChangeListener{
 		
 		// Use the imiNumber to get the previously defined info (IMT, IMR, IMCorrRel, Site params)
 		HashMap<TectonicRegionType, ImCorrelationRelationship> imijCorrRels = parent.getImijCorrRel(index);
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imiAttenRels = parent.getImiAttenRel(index);
+		HashMap<TectonicRegionType, ScalarIMR> imiAttenRels = parent.getImiAttenRel(index);
 		String imiType = parent.getImiType(index);
 		
 		//First need to init the GUI
@@ -206,7 +206,7 @@ IMCorrRelChangeListener{
 		
 		//Now that the GUI is init come back and feed in the correct details
 		ImCorrelationRelationship firstIMCorrRelFromMap = Utils.getFirstIMCorrRel(imijCorrRels);
-		ScalarIntensityMeasureRelationshipAPI firstIMRFromMap = TRTUtils.getFirstIMR(imiAttenRels);
+		ScalarIMR firstIMRFromMap = TRTUtils.getFirstIMR(imiAttenRels);
 		
 		imtGuiBean.setSelectedIMT(imiType);
 		
@@ -240,7 +240,7 @@ IMCorrRelChangeListener{
 		} else {
 			imrGuiBean.setMultipleIMRs(true);
 			for (TectonicRegionType trt : imiAttenRels.keySet()) {
-				ScalarIntensityMeasureRelationshipAPI imr = imiAttenRels.get(trt);
+				ScalarIMR imr = imiAttenRels.get(trt);
 				imrGuiBean.setIMR(imr.getName(), trt);
 			}
 		}
@@ -385,8 +385,8 @@ IMCorrRelChangeListener{
 	public boolean setDefaultIMRinGUI() {
 		//find the first IMR which supports the given IMi
 		AttenuationRelationshipsInstance instances = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = instances.createIMRClassInstance(null);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		ArrayList<ScalarIMR> imrs = instances.createIMRClassInstance(null);
+		for (ScalarIMR imr : imrs) {
 			//Loop over the IMR supported IMis
 			if(imr.isIntensityMeasureSupported(imtGuiBean.getSelectedIMT())) {
 				imrGuiBean.setSelectedSingleIMR(imr.getName());
@@ -516,8 +516,8 @@ IMCorrRelChangeListener{
 	 */
 	protected void initIMR_GuiBean() {
 		AttenuationRelationshipsInstance instances = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = instances.createIMRClassInstance(null);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		ArrayList<ScalarIMR> imrs = instances.createIMRClassInstance(null);
+		for (ScalarIMR imr : imrs) {
 			imr.setParamDefaults();
 		}
 
@@ -603,7 +603,7 @@ IMCorrRelChangeListener{
 	/**
 	 * This returns the selected IMR map
 	 */
-	public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getSelectedIMRMap() {
+	public HashMap<TectonicRegionType, ScalarIMR> getSelectedIMRMap() {
 		if (D) 
 			System.out.println("getting the current IMRmap: " + imrGuiBean.getIMRMap());
 		return imrGuiBean.getIMRMap();

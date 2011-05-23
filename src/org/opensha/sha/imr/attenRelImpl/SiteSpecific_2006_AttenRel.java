@@ -48,7 +48,7 @@ import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
@@ -88,7 +88,7 @@ import org.opensha.sha.util.SiteTranslator;
 
 
 public class SiteSpecific_2006_AttenRel
-extends AttenuationRelationship implements ScalarIntensityMeasureRelationshipAPI,ParameterChangeListener,
+extends AttenuationRelationship implements ScalarIMR,ParameterChangeListener,
 NamedObjectAPI {
 
 	// debugging stuff:
@@ -230,7 +230,7 @@ NamedObjectAPI {
 	"given Rock AttenuationRelationships ";
 
 	//Rock AttenuationRealtiobnships instances
-	private ScalarIntensityMeasureRelationshipAPI attenRel;
+	private ScalarIMR attenRel;
 
 	private SiteTranslator vs30Trans = new SiteTranslator();
 
@@ -504,11 +504,11 @@ NamedObjectAPI {
 	 * This method will return the instance of selected IMR
 	 * @return : Selected IMR instance
 	 */
-	public ScalarIntensityMeasureRelationshipAPI getSelectedIMR_Instance(String selectedIMR) {
-		ScalarIntensityMeasureRelationshipAPI imr = null;
+	public ScalarIMR getSelectedIMR_Instance(String selectedIMR) {
+		ScalarIMR imr = null;
 		int size = this.attenRelObjects.size();
 		for(int i=0; i<size ; ++i) {
-			imr = (ScalarIntensityMeasureRelationshipAPI)attenRelObjects.get(i);
+			imr = (ScalarIMR)attenRelObjects.get(i);
 			if(imr.getName().equalsIgnoreCase(selectedIMR))
 				break;
 		}

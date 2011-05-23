@@ -76,7 +76,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.gui.infoTools.UserAuthorizationCheckWindow;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 /**
  * <p>Title: HazardDataSetCalcCondorApp</p>
@@ -699,7 +699,7 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 				//meaning it is safe to proceeed with the calculation and the name of the dataset that user
 				//has specified.
 				// get the selected IMR
-				ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+				ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 				step =2;
 				//gets the instance of the selected ERF
 				String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
@@ -783,7 +783,7 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	 * sets up the connection with the servlet on the server (gravity.usc.edu)
 	 */
 	private void sendParametersToServlet(SitesInGriddedRegion regionSites,
-			ScalarIntensityMeasureRelationshipAPI imr,
+			ScalarIMR imr,
 			String eqkRupForecastLocation) {
 
 		try{
@@ -914,7 +914,7 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	 */
 	public void updateIM() {
 		//get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
 	}
 
@@ -926,7 +926,7 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	 */
 	public void updateSiteParams() {
 		//get the selected IMR
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 		sitesGuiBean.validate();
 		sitesGuiBean.repaint();

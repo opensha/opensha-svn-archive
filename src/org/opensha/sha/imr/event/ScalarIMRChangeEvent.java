@@ -22,7 +22,7 @@ package org.opensha.sha.imr.event;
 import java.util.EventObject;
 import java.util.HashMap;
 
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -39,11 +39,11 @@ import org.opensha.sha.util.TectonicRegionType;
 public class ScalarIMRChangeEvent extends EventObject {
 
     /** New value for the Parameter. */
-	HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newIMRMap;
+	HashMap<TectonicRegionType, ScalarIMR> newIMRMap;
 //    private ScalarIntensityMeasureRelationshipAPI newAttenRel;
 
     /** Old value for the Parameter. */
-	HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldIMRMap;
+	HashMap<TectonicRegionType, ScalarIMR> oldIMRMap;
 //    private ScalarIntensityMeasureRelationshipAPI oldAttenRel;
 
 
@@ -56,8 +56,8 @@ public class ScalarIMRChangeEvent extends EventObject {
      */
     public ScalarIMRChangeEvent(
             Object reference,
-            HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> oldIMRMap,
-            HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> newIMRMap
+            HashMap<TectonicRegionType, ScalarIMR> oldIMRMap,
+            HashMap<TectonicRegionType, ScalarIMR> newIMRMap
              ) {
         super( reference );
         this.oldIMRMap = oldIMRMap;
@@ -70,7 +70,7 @@ public class ScalarIMRChangeEvent extends EventObject {
      *
      * @return    New AttentuationRelationship
      */
-    public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getNewIMRs() {
+    public HashMap<TectonicRegionType, ScalarIMR> getNewIMRs() {
         return newIMRMap;
     }
 
@@ -80,7 +80,7 @@ public class ScalarIMRChangeEvent extends EventObject {
      *
      * @return    Old AttentuationRelationship
      */
-    public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getOldValue() {
+    public HashMap<TectonicRegionType, ScalarIMR> getOldValue() {
         return oldIMRMap;
     }
 }

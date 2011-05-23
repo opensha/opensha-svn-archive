@@ -18,7 +18,7 @@ import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodInterpolatedParam;
@@ -57,7 +57,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	private Parameter<Double> imj; //The IMj parameter from the main hazard calc
 	private ArrayList<String> currentIMiList; //The currently assigned list of IMi's
 	
-	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
+	private ArrayList<ScalarIMR> imrs;
 	private ArrayList<ImCorrelationRelationship> imCorrRels;
 	
 	private ArrayList<IMTChangeListener> listeners = new ArrayList<IMTChangeListener>();
@@ -70,7 +70,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imr
 	 */
-	public IMT_GcimGuiBean(ScalarIntensityMeasureRelationshipAPI imr, ImCorrelationRelationship imCorrRel,
+	public IMT_GcimGuiBean(ScalarIMR imr, ImCorrelationRelationship imCorrRel,
 			Parameter<Double> imj, ArrayList<String> currentIMiList) {
 		this(wrapInList(imr), wrapInList(imCorrRel), imj, currentIMiList);
 	}
@@ -96,7 +96,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrs
 	 */
-	public IMT_GcimGuiBean(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs, 
+	public IMT_GcimGuiBean(ArrayList<ScalarIMR> imrs, 
 			ArrayList<ImCorrelationRelationship> imCorrRels, Parameter<Double> imj,
 			ArrayList<String> currentIMiList) {
 		this.setTitle(TITLE);
@@ -105,10 +105,10 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		setIMRsIMCorrRels(imrs, imCorrRels);
 	}
 	
-	private static ArrayList<ScalarIntensityMeasureRelationshipAPI> wrapInList(
-			ScalarIntensityMeasureRelationshipAPI imr) {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
-			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+	private static ArrayList<ScalarIMR> wrapInList(
+			ScalarIMR imr) {
+		ArrayList<ScalarIMR> imrs =
+			new ArrayList<ScalarIMR>();
 		imrs.add(imr);
 		return imrs;
 	}
@@ -127,7 +127,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imr
 	 */
-	public void setIMRIMCorrRel(ScalarIntensityMeasureRelationshipAPI imr,
+	public void setIMRIMCorrRel(ScalarIMR imr,
 			ImCorrelationRelationship imCorrRel) {
 		this.setIMRsIMCorrRels(wrapInList(imr),wrapInList(imCorrRel));
 	}
@@ -138,7 +138,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrs, imCorrRels
 	 */
-	public void setIMRsIMCorrRels(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+	public void setIMRsIMCorrRels(ArrayList<ScalarIMR> imrs,
 			ArrayList<ImCorrelationRelationship> imCorrRels) {
 		this.imrs = imrs;
 		this.imCorrRels = imCorrRels;
@@ -158,7 +158,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 					Parameter<?> imiParam = imCorrRel.getSupportedIntensityMeasuresiList().get(i);
 					//Hence this correlation relationship supports both imjName and imiParamName, now
 					//check to see if any IMRs support this imiParamName
-					for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+					for (ScalarIMR imr : imrs) {
 						//Loop over the IMR supported IMis
 						ParameterList imiIMRParamList = imr.getSupportedIntensityMeasuresList();
 						for (Parameter<?> imiIMRParam : imiIMRParamList) {
@@ -234,7 +234,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 			ParameterList toBeRemoved = new ParameterList();
 			for (Parameter param : imiParamList) {
 				boolean remove = false;
-				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+				for (ScalarIMR imr : imrs) {
 					if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
 						remove = true;
 						break;
@@ -447,7 +447,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imr
 	 */
-	public void setIMTinIMR(ScalarIntensityMeasureRelationshipAPI imr) {
+	public void setIMTinIMR(ScalarIMR imr) {
 		setIMTinIMR(getSelectedIM(), imr);
 	}
 	
@@ -466,7 +466,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrMap
 	 */
-	public void setIMTinIMRs(HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+	public void setIMTinIMRs(HashMap<TectonicRegionType, ScalarIMR> imrMap) {
 		setIMTinIMRs(getSelectedIM(), imrMap);
 	}
 	
@@ -492,7 +492,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imr
 	 */
 	@SuppressWarnings("unchecked")
-	public static void setIMTinIMR(Parameter<Double> imt,ScalarIntensityMeasureRelationshipAPI imr) {
+	public static void setIMTinIMR(Parameter<Double> imt,ScalarIMR imr) {
 		if (D) 
 			System.out.println("Setting the imr (" + imr + ") with imt (" + imt + ")");
 		
@@ -553,9 +553,9 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	public static void setIMTinIMRs(
 			Parameter<Double> imt,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap) {
+			HashMap<TectonicRegionType, ScalarIMR> imrMap) {
 		for (TectonicRegionType trt : imrMap.keySet()) {
-			ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
+			ScalarIMR imr = imrMap.get(trt);
 			setIMTinIMR(imt, imr);
 		}
 	}
@@ -593,13 +593,13 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrs
 	 * @return
 	 */
-	public static ArrayList<Double> getCommonPeriods(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+	public static ArrayList<Double> getCommonPeriods(Collection<ScalarIMR> imrs) {
 		ArrayList<Double> allPeriods = getAllSupportedPeriods(imrs);
 		
 		ArrayList<Double> commonPeriods = new ArrayList<Double>();
 		for (Double period : allPeriods) {
 			boolean include = true;
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			for (ScalarIMR imr : imrs) {
 				imr.setIntensityMeasure(SA_Param.NAME);
 				SA_Param saParam = (SA_Param)imr.getIntensityMeasure();
 				PeriodParam periodParam = saParam.getPeriodParam();
@@ -622,9 +622,9 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrs
 	 * @return
 	 */
-	public static ArrayList<Double> getAllSupportedPeriods(Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+	public static ArrayList<Double> getAllSupportedPeriods(Collection<ScalarIMR> imrs) {
 		ArrayList<Double> periods = new ArrayList<Double>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (imr.isIntensityMeasureSupported(SA_Param.NAME)) {
 				imr.setIntensityMeasure(SA_Param.NAME);
 				SA_Param saParam = (SA_Param)imr.getIntensityMeasure();

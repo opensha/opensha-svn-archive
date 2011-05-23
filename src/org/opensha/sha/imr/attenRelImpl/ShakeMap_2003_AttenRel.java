@@ -43,7 +43,7 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.calc.Wald_MMI_Calc;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -118,7 +118,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 
 public class ShakeMap_2003_AttenRel
 extends AttenuationRelationship implements
-ScalarIntensityMeasureRelationshipAPI,
+ScalarIMR,
 NamedObjectAPI {
 
 	// debugging stuff:

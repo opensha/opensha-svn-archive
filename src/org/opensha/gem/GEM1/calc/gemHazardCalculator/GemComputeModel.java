@@ -32,14 +32,14 @@ import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTreeBranchingLevel;
 import org.opensha.gem.GEM1.calc.gemOutput.GEMHazardCurveRepositoryList;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.gem.GEM1.util.SiteParams;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class GemComputeModel {
 
 	private GemLogicTree<ArrayList<GEMSourceData>> modelLogicTree;
-	private GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLogicTree;
+	private GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLogicTree;
 	private ArrayList<Site> hazSite;
 	private double[] probLevel;
 	private CalculationSettings calcSet;
@@ -60,7 +60,7 @@ public class GemComputeModel {
 	 * @throws IOException 
 	 */
 	public GemComputeModel(GemLogicTree<ArrayList<GEMSourceData>> modelLogicTree,
-			GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLogicTree,
+			GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLogicTree,
 			ArrayList<Site> hazSite,
 			double[] probLevel,
 			String outDir,
@@ -140,7 +140,7 @@ public class GemComputeModel {
 	 * @throws IOException 
 	 */
 	public GemComputeModel(String gemLogicTreeFile, 
-			GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLogicTree,
+			GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLogicTree,
 			double latmin, double latmax, double lonmin, double lonmax, double delta,
 			double[] probLevel,
 			String outDir,
@@ -176,7 +176,7 @@ public class GemComputeModel {
 	 */
 	public GemComputeModel(ArrayList<GEMSourceData> srcList,
 			String modelName,
-			GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLogicTree,
+			GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLogicTree,
 			double latmin, double latmax, double lonmin, double lonmax, double delta,
 			double[] probLevel,
 			String outDir,
@@ -227,7 +227,7 @@ public class GemComputeModel {
 	 */
 	public GemComputeModel(ArrayList<GEMSourceData> srcList,
 			String modelName,
-			GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLogicTree,
+			GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLogicTree,
 			ArrayList<Site> hazSite,
 			double[] probLevel,
 			String outDir,

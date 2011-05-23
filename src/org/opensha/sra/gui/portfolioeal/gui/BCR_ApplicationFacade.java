@@ -2,7 +2,7 @@ package org.opensha.sra.gui.portfolioeal.gui;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sra.gui.BCR_Application;
 
 /**
@@ -46,7 +46,7 @@ public class BCR_ApplicationFacade extends BCR_Application {
 	 * method is still called because of coupling in other classes.
 	 */
 	public void updateSiteParams() {
-		ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 		siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 		siteGuiBean.validate();
 	    siteGuiBean.repaint();
@@ -84,7 +84,7 @@ public class BCR_ApplicationFacade extends BCR_Application {
 	  String name = event.getParameterName();
 
 	  if ( name.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-		  ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+		  ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 	      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	      siteGuiBean.validate();
 	      siteGuiBean.repaint();

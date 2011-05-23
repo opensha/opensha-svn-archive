@@ -10,7 +10,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -19,7 +19,7 @@ public class Fhcc {
 	private static double MAXDISTANCE = 200.0;
 	private static boolean INFO = false;
 	private ArrayList<Site> siteArr;
-	private Map<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> imrMap;
+	private Map<TectonicRegionType,ScalarIMR> imrMap;
 	private EqkRupForecastAPI eqkRupForecast;
 	private ArrayList<Double> imlList;  // Currently not used
 
@@ -31,7 +31,7 @@ public class Fhcc {
 	 */
 	public Fhcc(
 			ArrayList<Site> siteArr,
-			Map<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI> imrMap, 
+			Map<TectonicRegionType,ScalarIMR> imrMap, 
 			EqkRupForecastAPI eqkRupForecast) {	
 		this.eqkRupForecast = eqkRupForecast;
 		this.imrMap = imrMap;
@@ -48,7 +48,7 @@ public class Fhcc {
 		boolean flag = true;
 		
 		// Initializing the IMRs
-		for (ScalarIntensityMeasureRelationshipAPI imr:imrMap.values()) {
+		for (ScalarIMR imr:imrMap.values()) {
 			imr.resetParameterEventListeners();
 			imr.setUserMaxDistance(MAXDISTANCE);
 		}
@@ -73,7 +73,7 @@ public class Fhcc {
 			
 			// Set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imr = TRTUtils.getIMRforTRT(imrMap, trt);
+			ScalarIMR imr = TRTUtils.getIMRforTRT(imrMap, trt);
 			
 			// Find the sites at a distance lower than the threshold distance
 			ArrayList<Integer> siteIdxList = new ArrayList<Integer>();

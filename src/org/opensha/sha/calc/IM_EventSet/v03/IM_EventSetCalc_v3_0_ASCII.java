@@ -47,7 +47,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkR
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
@@ -92,7 +92,7 @@ implements ParameterChangeWarningListener {
 	protected EqkRupForecastAPI forecast;
 
 	//supported Attenuations
-	protected ArrayList<ScalarIntensityMeasureRelationshipAPI> chosenAttenuationsList;
+	protected ArrayList<ScalarIMR> chosenAttenuationsList;
 
 	//some static IMT names
 	protected ArrayList<String> supportedIMTs;
@@ -313,7 +313,7 @@ implements ParameterChangeWarningListener {
 	 */
 	private void setIMR(String str) {
 		if(chosenAttenuationsList == null)
-			chosenAttenuationsList = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+			chosenAttenuationsList = new ArrayList<ScalarIMR>();
 		String imrName = str.trim();
 		//System.out.println(imrName);
 		//System.out.println(imNames.get(1));

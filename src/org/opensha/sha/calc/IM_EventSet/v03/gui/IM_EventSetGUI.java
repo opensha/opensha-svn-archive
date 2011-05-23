@@ -54,7 +54,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 public class IM_EventSetGUI extends JFrame implements ActionListener {
 	
@@ -157,7 +157,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
 		erfs.add(erf);
 		
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = imrChooser.getSelectedIMRs();
+		ArrayList<ScalarIMR> imrs = imrChooser.getSelectedIMRs();
 		
 		ArrayList<String> imts = imtChooser.getIMTStrings();
 		ArrayList<Location> locs = sitesPanel.getLocs();
@@ -170,7 +170,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 	}
 	
 	private boolean isReadyForCalc(ArrayList<Location> locs, ArrayList<ArrayList<SiteDataValue<?>>> dataLists,
-			EqkRupForecastAPI erf, ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs, ArrayList<String> imts) {
+			EqkRupForecastAPI erf, ArrayList<ScalarIMR> imrs, ArrayList<String> imts) {
 		
 		if (locs.size() < 1) {
 			JOptionPane.showMessageDialog(this, "You must add at least 1 site!", "No Sites Selected!",
@@ -206,7 +206,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 			ArrayList<Location> locs = null;
 			ArrayList<ArrayList<SiteDataValue<?>>> dataLists = null;
 			EqkRupForecastAPI erf = null;
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = null;
+			ArrayList<ScalarIMR> imrs = null;
 			ArrayList<String> imts = null;
 			try {
 				locs = sitesPanel.getLocs();
@@ -322,7 +322,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 					}
 					
 					// imrs
-					ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = calc.getIMRs();
+					ArrayList<ScalarIMR> imrs = calc.getIMRs();
 					imrChooser.setForIMRS(imrs);
 					
 					// imts

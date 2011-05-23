@@ -17,7 +17,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_Adjustable
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
@@ -40,7 +40,7 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 	private Frankel96_AdjustableEqkRupForecast frankel = new Frankel96_AdjustableEqkRupForecast();
 	private MultiERFDummy multi = new MultiERFDummy();
 	
-	ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
+	ArrayList<ScalarIMR> imrs;
 	
 	private IMR_MultiGuiBean bean;
 	
@@ -51,7 +51,7 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 		
 		AttenuationRelationshipsInstance attenRelInst = new AttenuationRelationshipsInstance();
 		imrs = attenRelInst.createIMRClassInstance(null);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs)
+		for (ScalarIMR imr : imrs)
 			imr.setParamDefaults();
 		
 		bean = new IMR_MultiGuiBean(imrs);
@@ -138,7 +138,7 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 	}
 	
 	public Parameter<Double> getIMT(String name, double period) {
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			try {
 				imr.setIntensityMeasure(name);
 				Parameter<Double> imt = (Parameter<Double>) imr.getIntensityMeasure();

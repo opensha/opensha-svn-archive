@@ -42,7 +42,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -167,7 +167,7 @@ ParameterChangeListener {
 		pgaParam.setValueAsDefault();
 		pgvParam.setValueAsDefault();
 		
-		for (ScalarIntensityMeasureRelationshipAPI ar : arList) {
+		for (ScalarIMR ar : arList) {
 			ar.setParamDefaults();
 		}
 	}
@@ -485,7 +485,7 @@ ParameterChangeListener {
 	public void setIntensityMeasure(String intensityMeasureName)
 			throws ParameterException {
 		super.setIntensityMeasure(intensityMeasureName);
-		for (ScalarIntensityMeasureRelationshipAPI ar : arList) {
+		for (ScalarIMR ar : arList) {
 			ar.setIntensityMeasure(intensityMeasureName);
 		}
 	}

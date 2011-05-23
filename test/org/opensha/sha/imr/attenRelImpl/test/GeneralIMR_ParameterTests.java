@@ -28,7 +28,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
@@ -81,14 +81,14 @@ public class GeneralIMR_ParameterTests {
 	}
 
 	@Parameters
-	public static Collection<ScalarIntensityMeasureRelationshipAPI[]> data() {
+	public static Collection<ScalarIMR[]> data() {
 		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = inst.createIMRClassInstance(null);
+		ArrayList<ScalarIMR> imrs = inst.createIMRClassInstance(null);
 
-		ArrayList<ScalarIntensityMeasureRelationshipAPI[]> ret = new ArrayList<ScalarIntensityMeasureRelationshipAPI[]>();
+		ArrayList<ScalarIMR[]> ret = new ArrayList<ScalarIMR[]>();
 
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			ScalarIntensityMeasureRelationshipAPI[] theIMR = { imr };
+		for (ScalarIMR imr : imrs) {
+			ScalarIMR[] theIMR = { imr };
 			ret.add(theIMR);
 		}
 
@@ -97,9 +97,9 @@ public class GeneralIMR_ParameterTests {
 
 	private String name;
 	private String shortName;
-	private ScalarIntensityMeasureRelationshipAPI imr;
+	private ScalarIMR imr;
 
-	public GeneralIMR_ParameterTests(ScalarIntensityMeasureRelationshipAPI imr) {
+	public GeneralIMR_ParameterTests(ScalarIMR imr) {
 		this.imr = imr;
 		this.name = imr.getName();
 		this.shortName = imr.getShortName();
@@ -113,7 +113,7 @@ public class GeneralIMR_ParameterTests {
 		}
 	}
 
-	private static ParameterList getAllIMRParams(ScalarIntensityMeasureRelationshipAPI imr) {
+	private static ParameterList getAllIMRParams(ScalarIMR imr) {
 		ParameterList list = new ParameterList();
 
 		try {

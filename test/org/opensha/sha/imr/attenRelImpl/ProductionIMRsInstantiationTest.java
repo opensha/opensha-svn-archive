@@ -12,7 +12,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.imr.AttenRelImpl;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 @RunWith(Parameterized.class)
 public class ProductionIMRsInstantiationTest {
@@ -36,7 +36,7 @@ public class ProductionIMRsInstantiationTest {
 	
 	@Test
 	public void testInstantiation() {
-		ScalarIntensityMeasureRelationshipAPI imr = impl.instance(null);
+		ScalarIMR imr = impl.instance(null);
 		assertNotNull("IMR instance returned is NULL!", imr);
 		imr.setParamDefaults();
 	}

@@ -42,7 +42,7 @@ import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
 import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.util.SiteTranslator;
@@ -71,8 +71,8 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	private static final String SET_DEFAULT = SET_SELECTED_IMR;
 	private JComboBox allSingleComboBox;
 	
-	private Collection<ScalarIntensityMeasureRelationshipAPI> selectedIMRs;
-	private Collection<ScalarIntensityMeasureRelationshipAPI> allIMRs;
+	private Collection<ScalarIMR> selectedIMRs;
+	private Collection<ScalarIMR> allIMRs;
 	
 	private SiteTranslator trans = null;
 	

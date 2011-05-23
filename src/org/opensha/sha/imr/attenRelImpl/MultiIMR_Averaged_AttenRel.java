@@ -27,7 +27,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
@@ -54,21 +54,21 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	
 	private static final boolean D = false;
 	
-	private ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs;
-	private WeightedList<ScalarIntensityMeasureRelationshipAPI> weights;
+	private ArrayList<ScalarIMR> imrs;
+	private WeightedList<ScalarIMR> weights;
 	
 	public static final String IMR_WEIGHTS_PARAM_NAME = "IMR Weights";
-	private WeightedListParameter<ScalarIntensityMeasureRelationshipAPI> weightsParam;
+	private WeightedListParameter<ScalarIMR> weightsParam;
 	
 	public static final String PROP_EFFECT_SPEEDUP_PARAM_NAME = "Prop. Effect. Speedup";
 	public static final Boolean PROP_EFFECT_SPEEDUP_DEFAULT = true;
 	private BooleanParameter propEffectSpeedupParam;
 	
-	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs) {
+	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIMR> imrs) {
 		this(imrs, null);
 	}
 	
-	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIMR> imrs,
 			ArrayList<Double> weights) {
 		
 		if (imrs == null)
@@ -78,7 +78,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		
 		if (D) System.out.println(SHORT_NAME+": const called with " + imrs.size() + " imrs");
 		if (D)
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs)
+			for (ScalarIMR imr : imrs)
 				System.out.println(" * " + imr.getName());
 		
 		this.imrs = imrs;
@@ -95,8 +95,8 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	
 	public void setWeights(ArrayList<Double> newWeights) {
 		if (weights == null) {
-			weights = new WeightedList<ScalarIntensityMeasureRelationshipAPI>();
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs)
+			weights = new WeightedList<ScalarIMR>();
+			for (ScalarIMR imr : imrs)
 				weights.add(imr, 1.0d);
 		}
 		if (newWeights == null) {
@@ -121,16 +121,16 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 	@Override
 	protected void initSiteParams() {
-		HashMap<String, ArrayList<ScalarIntensityMeasureRelationshipAPI>> paramNameIMRMap =
-			new HashMap<String, ArrayList<ScalarIntensityMeasureRelationshipAPI>>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		HashMap<String, ArrayList<ScalarIMR>> paramNameIMRMap =
+			new HashMap<String, ArrayList<ScalarIMR>>();
+		for (ScalarIMR imr : imrs) {
 			ListIterator<Parameter<?>> siteParamsIt = imr.getSiteParamsIterator();
 			while (siteParamsIt.hasNext()) {
 				Parameter<?> siteParam = siteParamsIt.next();
 				String name = siteParam.getName();
 				if (!paramNameIMRMap.containsKey(name))
-					paramNameIMRMap.put(name, new ArrayList<ScalarIntensityMeasureRelationshipAPI>());
-				ArrayList<ScalarIntensityMeasureRelationshipAPI> imrsForParam = paramNameIMRMap.get(name);
+					paramNameIMRMap.put(name, new ArrayList<ScalarIMR>());
+				ArrayList<ScalarIMR> imrsForParam = paramNameIMRMap.get(name);
 				imrsForParam.add(imr);
 			}
 		}
@@ -139,7 +139,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (String paramName : paramNameIMRMap.keySet()) {
 			if (D) System.out.println(SHORT_NAME+": initializing site param: " + paramName);
 			// if it's a special case, lets use the param we already have
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = paramNameIMRMap.get(paramName);
+			ArrayList<ScalarIMR> imrs = paramNameIMRMap.get(paramName);
 			Object defaultVal = imrs.get(0).getParameter(paramName).getDefaultValue();
 			if (defaultVal == null)
 				defaultVal = imrs.get(0).getParameter(paramName).getValue();
@@ -161,7 +161,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 //			}
 			
 			for (int i=1; i<imrs.size(); i++) {
-				ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+				ScalarIMR imr = imrs.get(i);
 				Parameter imrParam = imr.getParameter(paramName);
 				trySetDefault(defaultVal, imrParam);
 				// link the master param to this imr's param
@@ -208,7 +208,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	protected void initSupportedIntensityMeasureParams() {
 		ParameterList imrTempList = null;
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imrTempList = removeNonCommonParams(imrTempList, imr.getSupportedIntensityMeasuresIterator());
 		}
 		
@@ -266,7 +266,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 				saParam = new SA_Param(saPeriodParam, saDampingParam);
 				saParam.setNonEditable();
 				supportedIMParams.addParameter(saParam);
-				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+				for (ScalarIMR imr : imrs) {
 					Parameter<Double> imrPeriodParam = imr.getParameter(PeriodParam.NAME);
 					trySetDefault(saPeriodParam, imrPeriodParam);
 					new ParamLinker<Double>(saPeriodParam, imrPeriodParam);
@@ -274,7 +274,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			} else if (name.equals(SA_InterpolatedParam.NAME)) {
 				double greatestMin = Double.MIN_VALUE;
 				double smallestMax = Double.MAX_VALUE;
-				for (ScalarIntensityMeasureRelationshipAPI imr: imrs) {
+				for (ScalarIMR imr: imrs) {
 					SA_InterpolatedParam interParam = 
 						(SA_InterpolatedParam)imr.getParameter(SA_InterpolatedParam.NAME);
 					try {
@@ -297,7 +297,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 					new PeriodInterpolatedParam(greatestMin, smallestMax,
 							defaultPeriod, false);
 				periodInterpParam.setValueAsDefault();
-				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+				for (ScalarIMR imr : imrs) {
 					Parameter<Double> imrPeriodParam = imr.getParameter(PeriodInterpolatedParam.NAME);
 					trySetDefault(periodInterpParam, imrPeriodParam);
 					new ParamLinker<Double>(periodInterpParam, imrPeriodParam);
@@ -376,13 +376,13 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		propEffectSpeedupParam.setDefaultValue(PROP_EFFECT_SPEEDUP_DEFAULT);
 		otherParams.addParameter(propEffectSpeedupParam);
 		
-		weightsParam = new WeightedListParameter<ScalarIntensityMeasureRelationshipAPI>(IMR_WEIGHTS_PARAM_NAME, null);
+		weightsParam = new WeightedListParameter<ScalarIMR>(IMR_WEIGHTS_PARAM_NAME, null);
 		weightsParam.setValue(weights);
 		otherParams.addParameter(weightsParam);
 		
 		HashMap<String, ArrayList<Parameter<?>>> newParams = new HashMap<String, ArrayList<Parameter<?>>>();
 		// now gather new params from IMRs
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			for (Parameter<?> param : imr.getOtherParamsList()) {
 				if (otherParams.containsParameter(param))
 					continue;
@@ -481,7 +481,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	private void linkParams(Iterable<Parameter<?>> params) {
 		for (Parameter masterParam : params) {
 			masterParam.setValueAsDefault();
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			for (ScalarIMR imr : imrs) {
 				try {
 					Parameter imrParam = imr.getParameter(masterParam.getName());
 					trySetDefault(masterParam, imrParam);
@@ -504,7 +504,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		if (propEffectSpeedupParam.getValue() && propEffect.getSite() != null) {
 			setPropagationEffect(propEffect);
 		} else {
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			for (ScalarIMR imr : imrs) {
 				imr.setEqkRupture(eqkRupture);
 			}
 		}
@@ -522,7 +522,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		if (propEffectSpeedupParam.getValue() && propEffect.getEqkRupture() != null) {
 			setPropagationEffect(propEffect);
 		} else {
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			for (ScalarIMR imr : imrs) {
 				imr.setSite(site);
 			}
 		}
@@ -531,7 +531,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	public void setPropagationEffect(PropagationEffect propEffect) {
 		this.propEffect = propEffect;
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setPropagationEffect(propEffect);
 		}
 	}
@@ -546,7 +546,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	public void setIntensityMeasure(Parameter intensityMeasure)
 			throws ParameterException, ConstraintException {
 		super.setIntensityMeasure(intensityMeasure);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setIntensityMeasure(intensityMeasure);
 		}
 	}
@@ -555,7 +555,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	public void setIntensityMeasure(String intensityMeasureName)
 			throws ParameterException {
 		super.setIntensityMeasure(intensityMeasureName);
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setIntensityMeasure(intensityMeasureName);
 		}
 	}
@@ -566,7 +566,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	 * @param i index of the IMR to check
 	 * @return true if it can be skipped (zero weight)
 	 */
-	private boolean canSkipIMR(ScalarIntensityMeasureRelationshipAPI imr) {
+	private boolean canSkipIMR(ScalarIMR imr) {
 		return canSkipIMR(imrs.indexOf(imr));
 	}
 	
@@ -605,7 +605,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			means[i] = imr.getMean();
 		}
 		return getWeightedValue(means);
@@ -617,7 +617,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			std[i] = imr.getStdDev();
 		}
 		return getWeightedValue(std);
@@ -629,7 +629,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			vals[i] = imr.getEpsilon();
 		}
 		return getWeightedValue(vals);
@@ -641,7 +641,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			vals[i] = imr.getEpsilon(iml);
 		}
 		return getWeightedValue(vals);
@@ -652,7 +652,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			DiscretizedFuncAPI intensityMeasureLevels)
 			throws ParameterException {
 		ArrayList<DiscretizedFuncAPI> funcs = new ArrayList<DiscretizedFuncAPI>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (canSkipIMR(imr)) {
 				funcs.add(null);
 			} else {
@@ -678,7 +678,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			vals[i] = imr.getExceedProbability();
 		}
 		return getWeightedValue(vals);
@@ -698,7 +698,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			vals[i] = imr.getExceedProbability(iml);
 		}
 		return getWeightedValue(vals);
@@ -710,7 +710,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			vals[i] = imr.getIML_AtExceedProb();
 		}
 		return getWeightedValue(vals);
@@ -723,7 +723,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		for (int i=0; i<imrs.size(); i++) {
 			if (canSkipIMR(i))
 				continue;
-			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
+			ScalarIMR imr = imrs.get(i);
 			vals[i] = imr.getIML_AtExceedProb(exceedProb);
 		}
 		return getWeightedValue(vals);
@@ -750,28 +750,28 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 	@Override
 	public void setIntensityMeasureLevel(Double iml) throws ParameterException {
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setIntensityMeasureLevel(iml);
 		}
 	}
 
 	@Override
 	public void setIntensityMeasureLevel(Object iml) throws ParameterException {
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setIntensityMeasureLevel(iml);
 		}
 	}
 
 	@Override
 	public void setSiteLocation(Location loc) {
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setSiteLocation(loc);
 		}
 	}
 
 	@Override
 	public void setUserMaxDistance(double maxDist) {
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setUserMaxDistance(maxDist);
 		}
 	}
@@ -792,7 +792,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		if (weightsParam.getValue() == null)
 			weightsParam.setValue(weights);
 //			throw new IllegalStateException("weights param value can't be null!");
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			imr.setParamDefaults();
 		}
 	}

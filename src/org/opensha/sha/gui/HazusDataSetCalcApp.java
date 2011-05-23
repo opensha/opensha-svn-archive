@@ -63,7 +63,7 @@ import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 /**
  * <p>Title: HuzusDataSetCalcApp</p>
@@ -478,7 +478,7 @@ public class HazusDataSetCalcApp extends JFrame
      HazusMapCalculator hazusCalc = new HazusMapCalculator();
      hazusCalc.setMaxSourceDistance(maxDistance.doubleValue());
      String dirName = datasetIdText.getText().trim();
-     ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
      SitesInGriddedRegion griddedSites = sitesGuiBean.getGriddedRegionSite();
      EqkRupForecast eqkRupForecast = (EqkRupForecast) erfGuiBean.getSelectedERF();
      step =0;
@@ -537,7 +537,7 @@ public class HazusDataSetCalcApp extends JFrame
   */
  public void updateSiteParams() {
    //get the selected IMR
-	ScalarIntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
 	sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
 	sitesGuiBean.validate();
     sitesGuiBean.repaint();

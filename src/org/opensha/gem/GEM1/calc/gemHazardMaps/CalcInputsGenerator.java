@@ -22,7 +22,7 @@ import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class CalcInputsGenerator {
@@ -30,10 +30,10 @@ public class CalcInputsGenerator {
 	public static void main(String args[]) throws IOException {
 		try {
 			/*			GMPEs				 */
-			GemLogicTree<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> gmpeTree
+			GemLogicTree<HashMap<TectonicRegionType, ScalarIMR>> gmpeTree
 			= new GemGmpe().getGemLogicTree();
-			ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> maps =
-				new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
+			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> maps =
+				new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
 			maps.add(gmpeTree.getEBMap().get("1"));
 			maps.add(gmpeTree.getEBMap().get("2"));
 			org.opensha.gem.GEM1.commons.CalculationSettings calcSet =
@@ -73,9 +73,9 @@ public class CalcInputsGenerator {
 			for (Location loc : region.getNodeList()) {
 				Site site = new Site(loc);
 				// USE DEFAULT SITE VALUES!
-				for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map : maps) {
+				for (HashMap<TectonicRegionType, ScalarIMR> map : maps) {
 					for (TectonicRegionType tect : map.keySet()) {
-						ScalarIntensityMeasureRelationshipAPI imr = map.get(tect);
+						ScalarIMR imr = map.get(tect);
 						ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 						while (it.hasNext()) {
 							Parameter param = it.next();

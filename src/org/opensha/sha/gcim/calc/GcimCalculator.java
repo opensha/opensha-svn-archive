@@ -38,7 +38,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gcim.Utils;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_InterpolatedParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -72,14 +72,14 @@ public class GcimCalculator {
 	protected final static String C = "GcimCalculator";
 	protected final static boolean D = false;
 	
-	private Map<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrjMap;
+	private Map<TectonicRegionType, ScalarIMR> imrjMap;
 	private double[][] pRup_IMj, rupCdf, epsilonIMj;
 	private double[] sourceCdf;
 	private double[][] randIMiRealizations, randIMiRealizationStdevs;
 	private int randSourceId, randRupId;
 	private int numIMi = 0, num_z, numGcimRealizations;
 	private int currentIMi = -1;
-	private ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imiAttenRels;
+	private ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiAttenRels;
 	private ArrayList<String> imiTypes;
 	private ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijCorrRels;
 	private double[][] imiArray, cdfIMi_IMjArray;
@@ -118,12 +118,12 @@ public class GcimCalculator {
 	 * @throws IOException
 	 */
 	public void getRuptureContributions(double iml, Site site,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrjMap, EqkRupForecast eqkRupForecast,
+			HashMap<TectonicRegionType, ScalarIMR> imrjMap, EqkRupForecast eqkRupForecast,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) throws java.rmi.RemoteException {
 		
 		//IMj the GCIM is to be conditioned on
 		this.imrjMap = imrjMap;
-		ScalarIntensityMeasureRelationshipAPI firstIMRFromMap = TRTUtils.getFirstIMR(imrjMap);
+		ScalarIMR firstIMRFromMap = TRTUtils.getFirstIMR(imrjMap);
 		
 		//Site and earthquake rupture forecast
 		this.site = site;
@@ -197,7 +197,7 @@ public class GcimCalculator {
 	 * @return boolean
 	 */
 	public boolean getMultipleGcims(int numIMi,	
-			ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imiAttenRels,
+			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiAttenRels,
 			ArrayList<String> imiTypes, ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijCorrRels,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) {
 		
@@ -211,7 +211,7 @@ public class GcimCalculator {
 			this.currentIMi = i+1;  //For updating the progress bar
 			
 			//Get the IMi, AttenRel, CorrRel, (and period later if IMi is SA)
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imriMap = imiAttenRels.get(i);
+			HashMap<TectonicRegionType, ScalarIMR> imriMap = imiAttenRels.get(i);
 			HashMap<TectonicRegionType, ImCorrelationRelationship> corrImijMap = imijCorrRels.get(i);
 			
 			//Calculate the GCIM distribution for the given IMi
@@ -235,12 +235,12 @@ public class GcimCalculator {
 	 * @param magDistFilter: Magnitude-Distance filter for sources
 	 * @return boolean
 	 */
-	public boolean getSingleGcim(int imiNumber, HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imriMap,
+	public boolean getSingleGcim(int imiNumber, HashMap<TectonicRegionType, ScalarIMR> imriMap,
 			HashMap<TectonicRegionType, ImCorrelationRelationship> imijCorrRelMap,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) {	
 		
 		//Set the site in imri
-		for (ScalarIntensityMeasureRelationshipAPI imri:imriMap.values()) {
+		for (ScalarIMR imri:imriMap.values()) {
 			imri.resetParameterEventListeners();
 			imri.setUserMaxDistance(maxDist);
 			imri.setSite(site);
@@ -276,7 +276,7 @@ public class GcimCalculator {
 
 	        // set the IMR according to the tectonic region of the source (if there is more than one)
 			TectonicRegionType trt = source.getTectonicRegionType();
-			ScalarIntensityMeasureRelationshipAPI imri = TRTUtils.getIMRforTRT(imriMap, trt);
+			ScalarIMR imri = TRTUtils.getIMRforTRT(imriMap, trt);
 			ImCorrelationRelationship imijCorrRel = Utils.getIMCorrRelForTRT(imijCorrRelMap, trt);
 			
 			//compute the correlation coefficient between lnIMi and lnIMj for the given source  
@@ -360,7 +360,7 @@ public class GcimCalculator {
 	 * @return boolean
 	 */
 	public boolean getGcimRealizations(int numGcimRealizations, int numIMi,	
-			ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imiAttenRels,
+			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiAttenRels,
 			ArrayList<String> imiTypes, ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijCorrRels,
 			ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imikCorrRels, 
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) {
@@ -389,11 +389,11 @@ public class GcimCalculator {
 			for (int i=0; i<numIMi; i++) {
 				
 				//Get the IMi, AttenRel, CorrRel, (and period later if IMi is SA)
-				HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imriMap = imiAttenRels.get(i);
+				HashMap<TectonicRegionType, ScalarIMR> imriMap = imiAttenRels.get(i);
 				HashMap<TectonicRegionType, ImCorrelationRelationship> corrImijMap = imijCorrRels.get(i);
 				
 				//Set the site in imri
-				for (ScalarIntensityMeasureRelationshipAPI imri:imriMap.values()) {
+				for (ScalarIMR imri:imriMap.values()) {
 					imri.resetParameterEventListeners();
 					imri.setUserMaxDistance(maxDist);
 					imri.setSite(site);
@@ -401,7 +401,7 @@ public class GcimCalculator {
 
 			    // set the IMR according to the tectonic region of the source (if there is more than one)
 				TectonicRegionType trt = source.getTectonicRegionType();
-				ScalarIntensityMeasureRelationshipAPI imri = TRTUtils.getIMRforTRT(imriMap, trt);
+				ScalarIMR imri = TRTUtils.getIMRforTRT(imriMap, trt);
 				ImCorrelationRelationship imijCorrRel = Utils.getIMCorrRelForTRT(corrImijMap, trt);
 					
 				//compute the correlation coefficient between lnIMi and lnIMj for the given source  
@@ -587,8 +587,8 @@ public class GcimCalculator {
 		String[] IMiNames = new String[numIMi];
 		for (int i=0; i<numIMi; i++) {
 			
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imriMap = imiAttenRels.get(i);
-			ScalarIntensityMeasureRelationshipAPI firstIMRiFromMap = TRTUtils.getFirstIMR(imriMap);
+			HashMap<TectonicRegionType, ScalarIMR> imriMap = imiAttenRels.get(i);
+			ScalarIMR firstIMRiFromMap = TRTUtils.getFirstIMR(imriMap);
 			
 			GcimResultsString += "--------------------------------------------------" + "\n";
 			//Get the IM name for printing
@@ -748,7 +748,7 @@ public class GcimCalculator {
 		System.out.println(GcimResultsString);
 	}
 	
-	private static void setSAPeriodInIMR(ScalarIntensityMeasureRelationshipAPI imr, double period) {
+	private static void setSAPeriodInIMR(ScalarIMR imr, double period) {
 		((Parameter<Double>)imr.getIntensityMeasure())
 		.getIndependentParameter(PeriodParam.NAME).setValue(new Double(period));
 	}

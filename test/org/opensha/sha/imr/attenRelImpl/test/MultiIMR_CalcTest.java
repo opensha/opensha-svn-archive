@@ -20,7 +20,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -76,15 +76,15 @@ public class MultiIMR_CalcTest {
 		hc = new HazardCurveCalculator();
 	}
 	
-	private static MultiIMR_Averaged_AttenRel buildMulti(ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+	private static MultiIMR_Averaged_AttenRel buildMulti(ArrayList<ScalarIMR> imrs,
 			Boolean propEffectSpeedup) {
 		MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(imrs);
 		multi.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(propEffectSpeedup);
 		return multi;
 	}
 
-	protected static ArrayList<ScalarIntensityMeasureRelationshipAPI> createNGAs(boolean setParamDefaults) {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+	protected static ArrayList<ScalarIMR> createNGAs(boolean setParamDefaults) {
+		ArrayList<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 
 		imrs.add(new CB_2008_AttenRel(null));
 		imrs.add(new BA_2008_AttenRel(null));
@@ -92,7 +92,7 @@ public class MultiIMR_CalcTest {
 		imrs.add(new AS_2008_AttenRel(null));
 
 		if (setParamDefaults) {
-			for (ScalarIntensityMeasureRelationshipAPI imr : imrs)
+			for (ScalarIMR imr : imrs)
 				imr.setParamDefaults();
 		}
 
@@ -126,8 +126,8 @@ public class MultiIMR_CalcTest {
 
 	@Test
 	public void testMultiIMRs_SA01() throws RemoteException {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> ngas1 = createNGAs(true);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> ngas2 = createNGAs(true);
+		ArrayList<ScalarIMR> ngas1 = createNGAs(true);
+		ArrayList<ScalarIMR> ngas2 = createNGAs(true);
 		testMultiIMRAverageCurve(buildMulti(ngas1, false), ngas2, SA_Param.NAME, 1.0);
 	}
 
@@ -172,10 +172,10 @@ public class MultiIMR_CalcTest {
 	}
 
 	private void doHC_NGA_Test(String imt, double period) throws RemoteException {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs1 = createNGAs(true);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs2 = createNGAs(true);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs3 = createNGAs(true);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs4 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs1 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs2 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs3 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs4 = createNGAs(true);
 		for (int i=0; i<imrs1.size(); i++)
 			testSingleIMRHazardCurve(imrs1.get(i),
 					getMulti(imrs2.get(i)),
@@ -184,10 +184,10 @@ public class MultiIMR_CalcTest {
 	}
 
 	private void doVal_NGA_Test(String imt, double period, IMR_PROP prop) throws RemoteException {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs1 = createNGAs(true);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs2 = createNGAs(true);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs3 = createNGAs(true);
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs4 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs1 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs2 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs3 = createNGAs(true);
+		ArrayList<ScalarIMR> imrs4 = createNGAs(true);
 		for (int i=0; i<imrs1.size(); i++)
 			testSingleIMRIndVal(imrs1.get(i),
 					getMulti(imrs2.get(i)),
@@ -195,18 +195,18 @@ public class MultiIMR_CalcTest {
 					imt, period, prop);
 	}
 
-	private MultiIMR_Averaged_AttenRel getMulti(ScalarIntensityMeasureRelationshipAPI imr) {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
-			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+	private MultiIMR_Averaged_AttenRel getMulti(ScalarIMR imr) {
+		ArrayList<ScalarIMR> imrs =
+			new ArrayList<ScalarIMR>();
 		imrs.add(imr);
 		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs, false);
 		return multi;
 	}
 
-	private MultiIMR_Averaged_AttenRel getMulti(ScalarIntensityMeasureRelationshipAPI imr1,
-			ScalarIntensityMeasureRelationshipAPI imr2) {
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs =
-			new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+	private MultiIMR_Averaged_AttenRel getMulti(ScalarIMR imr1,
+			ScalarIMR imr2) {
+		ArrayList<ScalarIMR> imrs =
+			new ArrayList<ScalarIMR>();
 		imrs.add(imr1);
 		imrs.add(imr2);
 		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs, false);
@@ -220,7 +220,7 @@ public class MultiIMR_CalcTest {
 		EXCEED_PROB;
 	}
 
-	private void testSingleIMRIndVal(ScalarIntensityMeasureRelationshipAPI imr,
+	private void testSingleIMRIndVal(ScalarIMR imr,
 			MultiIMR_Averaged_AttenRel multi,
 			MultiIMR_Averaged_AttenRel multis,
 			String imt, double period, IMR_PROP prop) throws RemoteException {
@@ -290,12 +290,12 @@ public class MultiIMR_CalcTest {
 	}
 
 	private void testMultiIMRAverageCurve(MultiIMR_Averaged_AttenRel multi,
-			ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs,
+			ArrayList<ScalarIMR> imrs,
 			String imt, double period) throws RemoteException {
 
 		IMT_Info imtInfo = new IMT_Info();
 		ArrayList<DiscretizedFuncAPI> singleCurves = new ArrayList<DiscretizedFuncAPI>();
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			setIMT(imr, imt, period);
 			DiscretizedFuncAPI singleCurve = imtInfo.getDefaultHazardCurve(imt);
 			hc.getHazardCurve(singleCurve, site, imr, erf);
@@ -354,7 +354,7 @@ public class MultiIMR_CalcTest {
 
 	}
 
-	private void testSingleIMRHazardCurve(ScalarIntensityMeasureRelationshipAPI imr,
+	private void testSingleIMRHazardCurve(ScalarIMR imr,
 			MultiIMR_Averaged_AttenRel multi,
 			MultiIMR_Averaged_AttenRel multis,
 			String imt, double period) throws RemoteException {
@@ -400,7 +400,7 @@ public class MultiIMR_CalcTest {
 
 	}
 
-	protected static void setIMT(ScalarIntensityMeasureRelationshipAPI imr, String imt, double period) {
+	protected static void setIMT(ScalarIMR imr, String imt, double period) {
 		imr.setIntensityMeasure(imt);
 		if (period >= 0) {
 			Parameter<Double> imtParam = (Parameter<Double>) imr.getIntensityMeasure();
@@ -435,7 +435,7 @@ public class MultiIMR_CalcTest {
 
 		IMT_Info imtInfo = new IMT_Info();
 
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		ArrayList<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 		imrs.add(cb08_multi);
 		imrs.add(ba08_multi);
 

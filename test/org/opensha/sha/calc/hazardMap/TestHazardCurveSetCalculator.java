@@ -25,7 +25,7 @@ import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -37,20 +37,20 @@ import org.opensha.sha.util.TectonicRegionType;
 public class TestHazardCurveSetCalculator extends TestCase {
 	
 	private EqkRupForecastAPI erf;
-	private ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
+	private ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	private ArrayList<Site> sites;
 	private CalculationSettings calcSettings;
 	private CurveResultsArchiver archiver;
 	
 	private String xmlFile;
 
-	public static ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getIMRMaps() {
-		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
-		imrMaps = new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map1 =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map2 =
-			new HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>();
+	public static ArrayList<HashMap<TectonicRegionType, ScalarIMR>> getIMRMaps() {
+		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
+		imrMaps = new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+		HashMap<TectonicRegionType, ScalarIMR> map1 =
+			new HashMap<TectonicRegionType, ScalarIMR>();
+		HashMap<TectonicRegionType, ScalarIMR> map2 =
+			new HashMap<TectonicRegionType, ScalarIMR>();
 		CB_2008_AttenRel cb08 = new CB_2008_AttenRel(null);
 		cb08.setParamDefaults();
 		BA_2008_AttenRel ba08 = new BA_2008_AttenRel(null);
@@ -78,7 +78,7 @@ public class TestHazardCurveSetCalculator extends TestCase {
 		
 		imrMaps = getIMRMaps();
 		
-		ScalarIntensityMeasureRelationshipAPI cb08 = imrMaps.get(0).get(TectonicRegionType.ACTIVE_SHALLOW);
+		ScalarIMR cb08 = imrMaps.get(0).get(TectonicRegionType.ACTIVE_SHALLOW);
 		
 		Location loc = new Location(34, -118);
 		

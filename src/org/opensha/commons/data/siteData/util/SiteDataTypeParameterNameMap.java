@@ -26,7 +26,7 @@ import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.NtoNMap;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
@@ -105,7 +105,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @param attenRel
 	 * @return
 	 */
-	public boolean isTypeApplicable(String type, ScalarIntensityMeasureRelationshipAPI attenRel) {
+	public boolean isTypeApplicable(String type, ScalarIMR attenRel) {
 		ListIterator<Parameter<?>> it = attenRel.getSiteParamsIterator();
 		while (it.hasNext()) {
 			Parameter param = it.next();
@@ -124,8 +124,8 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isTypeApplicable(String type,
-			Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+			Collection<ScalarIMR> imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (isTypeApplicable(type, imr))
 				return true;
 		}
@@ -140,7 +140,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @param attenRel
 	 * @return
 	 */
-	public boolean isTypeApplicable(SiteDataValue<?> value, ScalarIntensityMeasureRelationshipAPI attenRel) {
+	public boolean isTypeApplicable(SiteDataValue<?> value, ScalarIMR attenRel) {
 		return isTypeApplicable(value.getDataType(), attenRel);
 	}
 	
@@ -153,7 +153,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isTypeApplicable(SiteDataValue<?> value,
-			Collection<ScalarIntensityMeasureRelationshipAPI> imrs) {
+			Collection<ScalarIMR> imrs) {
 		return isTypeApplicable(value.getDataType(), imrs);
 	}
 	

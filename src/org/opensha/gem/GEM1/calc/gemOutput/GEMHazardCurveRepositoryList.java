@@ -9,7 +9,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTree;
 import org.opensha.gem.GEM1.commons.UnoptimizedDeepCopy;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 public class GEMHazardCurveRepositoryList {
@@ -50,7 +50,7 @@ public class GEMHazardCurveRepositoryList {
 	 * 
 	 * @return				meanhc - Mean hazard curve on each node of the grid
 	 */
-	public GEMHazardCurveRepository getMeanHazardCurve(GemLogicTree<ArrayList<GEMSourceData>> ilTree, GemLogicTree<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> gmpeLT){
+	public GEMHazardCurveRepository getMeanHazardCurve(GemLogicTree<ArrayList<GEMSourceData>> ilTree, GemLogicTree<HashMap<TectonicRegionType, ScalarIMR>> gmpeLT){
 		
 		// define GEMHazardCurveRepository for storing the mean hazard map
 		// the initialization is done considering the first HazardCurveRepository in the HazardCurveRepositoryList
@@ -181,13 +181,13 @@ public class GEMHazardCurveRepositoryList {
 	 * @param 				inputToERFLT - 
 	 * @return 				meanHM
 	 */
-	public ArrayList<Double> getMeanHazardMap(double probEx, GemLogicTree<ArrayList<GEMSourceData>> inputToERFLT, GemLogicTree<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> gmpeLT){
+	public ArrayList<Double> getMeanHazardMap(double probEx, GemLogicTree<ArrayList<GEMSourceData>> inputToERFLT, GemLogicTree<HashMap<TectonicRegionType, ScalarIMR>> gmpeLT){
 		GEMHazardCurveRepository meanHC = getMeanHazardCurve(inputToERFLT,gmpeLT);
 		ArrayList<Double> meanHM = meanHC.getHazardMap(probEx);
 		return meanHM;
 	}
 	
-	public ArrayList<Double> getMeanGroundMotionMap(double probEx, GemLogicTree<ArrayList<GEMSourceData>> ilTree, GemLogicTree<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> gmpeLT){
+	public ArrayList<Double> getMeanGroundMotionMap(double probEx, GemLogicTree<ArrayList<GEMSourceData>> ilTree, GemLogicTree<HashMap<TectonicRegionType, ScalarIMR>> gmpeLT){
 		
 		// instantiate mean hazard map
 		ArrayList<Double> meanHM =hcRepList.get(0).getHazardMap(probEx);

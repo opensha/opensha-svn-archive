@@ -69,7 +69,7 @@ import org.opensha.sha.gcim.imr.attenRelImpl.SI_WrapperAttenRel.BA_2008_SI_Atten
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.ASI_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.SI_Param;
 import org.opensha.sha.gcim.ui.infoTools.ImCorrelationRelationshipsInstance;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodInterpolatedParam;
@@ -137,8 +137,8 @@ public class GcimControlPanel extends ControlPanel
 	
 	//Main four Array lists for storing IMT, IMR, IMCorrRel details
 	private ArrayList<String> imiTypes = new ArrayList<String>();
-	private ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imiMapAttenRels = 
-		new ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>>();
+	private ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiMapAttenRels = 
+		new ArrayList<HashMap<TectonicRegionType, ScalarIMR>>();
 	private ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijMapCorrRels = 
 		new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
 	//Correlation relations for off-diagonal terms i.e. IMi,IMk|Rup=rup,IMj=imj
@@ -357,7 +357,7 @@ public class GcimControlPanel extends ControlPanel
 	/**
 	 * Returns the array list of the IMRi's corresponding to the IMi's 
 	 */
-	public ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> getImris(){
+	public ArrayList<HashMap<TectonicRegionType, ScalarIMR>> getImris(){
 		if (D) {
 			System.out.println("Getting the IMiAttenRels");
 			for (int i=0; i<getNumIMi(); i++) {
@@ -779,7 +779,7 @@ public class GcimControlPanel extends ControlPanel
 	/**
 	 * This method returns the imiAttenRel from the imiMapAttenRels array list for a given index
 	 */
-	public HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> getImiAttenRel(int index) {
+	public HashMap<TectonicRegionType, ScalarIMR> getImiAttenRel(int index) {
 		if (D)
 			System.out.println("Getting index " + index + " of IMiAttenRelMap which has value: " +imiMapAttenRels.get(index));
 		return imiMapAttenRels.get(index);
@@ -938,7 +938,7 @@ public class GcimControlPanel extends ControlPanel
 	 */
 	private void resetGcimControlPanelArrays() {
 		imiTypes = new ArrayList<String>();
-		imiMapAttenRels = new ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>>();
+		imiMapAttenRels = new ArrayList<HashMap<TectonicRegionType, ScalarIMR>>();
 		imijMapCorrRels = new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
 		imikjMapCorrRels = new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
 		
@@ -954,7 +954,7 @@ public class GcimControlPanel extends ControlPanel
 	 */
 	public boolean isParentIMjGcimSupported() {
 		AttenuationRelationshipsInstance imrInstances = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = imrInstances.createIMRClassInstance(null);
+		ArrayList<ScalarIMR> imrs = imrInstances.createIMRClassInstance(null);
 		
 		ImCorrelationRelationshipsInstance imCorrRelInstances = new ImCorrelationRelationshipsInstance();
 		ArrayList<ImCorrelationRelationship> imCorrRels = imCorrRelInstances.createImCorrRelClassInstance(null);
@@ -970,7 +970,7 @@ public class GcimControlPanel extends ControlPanel
 				if (imjImCorrRelParam.getName()==parentIMj.getName()) {
 					//Now check if any IMRs support the IMj
 					//Loop over all of the ImCorrRels
-					for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+					for (ScalarIMR imr : imrs) {
 						ParameterList imjImrParamList = imr.getSupportedIntensityMeasuresList();
 						for (Parameter<?> imjImrParam : imjImrParamList) {
 						//for (int j = 0; j<imjImrParamList.size(); j++) {

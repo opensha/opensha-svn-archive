@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 
 /**
@@ -72,7 +72,7 @@ public class Portfolio {
 	 * @param erf The erf gotten from the view
 	 * @param controller The controller
 	 */
-	public double calculatePortfolioEAL( ScalarIntensityMeasureRelationshipAPI imr, double value,
+	public double calculatePortfolioEAL( ScalarIMR imr, double value,
 										 Site site, EqkRupForecastBaseAPI erf,
 										 PortfolioEALCalculatorController controller ) {
 		String toWrite = "";

@@ -48,7 +48,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.PropagationEffect;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.util.SiteTranslator;
@@ -70,7 +70,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 	 */
 	private SitesInGriddedRegion sites; //Geographic Region
 	private EqkRupture rupture; //EqkRupture
-	private ScalarIntensityMeasureRelationshipAPI attenRel; //Attenunation Relationship to be used.
+	private ScalarIMR attenRel; //Attenunation Relationship to be used.
 	private boolean imlAtProb; //checks what to plot IML_At_Prob or Prob_At_IML
 	private double imlProbVal; //if IML@Prob needs to be calculated the Prob val
 	//will be given,else IML val will be given
@@ -262,7 +262,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 			Class[] params = new Class[]{ listenerClass };
 			Class imrClass = Class.forName(attenRelClassPackage+AttenRelClassName);
 			Constructor con = imrClass.getConstructor( params );
-			attenRel = (ScalarIntensityMeasureRelationshipAPI)con.newInstance( paramObjects );
+			attenRel = (ScalarIMR)con.newInstance( paramObjects );
 			//setting the Attenuation with the default parameters
 			attenRel.setParamDefaults();
 		} catch ( ClassCastException e ) {

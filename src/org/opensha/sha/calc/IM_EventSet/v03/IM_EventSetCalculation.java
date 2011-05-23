@@ -37,7 +37,7 @@ import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.AbstractIMR;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 
 public class IM_EventSetCalculation implements XMLSaveable {
 	
@@ -53,12 +53,12 @@ public class IM_EventSetCalculation implements XMLSaveable {
 	private ArrayList<Location> sites;
 	private ArrayList<ArrayList<SiteDataValue<?>>> sitesData;
 	private ArrayList<EqkRupForecastAPI> erfs;
-	private ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels;
+	private ArrayList<ScalarIMR> attenRels;
 	private ArrayList<String> imts;
 	private OrderedSiteDataProviderList providers;
 	
 	public IM_EventSetCalculation(ArrayList<Location> sites, ArrayList<ArrayList<SiteDataValue<?>>> sitesData,
-			ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIntensityMeasureRelationshipAPI> attenRels,
+			ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIMR> attenRels,
 			ArrayList<String> imts, OrderedSiteDataProviderList providers) {
 		this.sites = sites;
 		this.sitesData = sitesData;
@@ -84,7 +84,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		
 		// IMRs
 		Element imrsEL = el.addElement(XML_IMRS_NAME);
-		for (ScalarIntensityMeasureRelationshipAPI attenRel : attenRels) {
+		for (ScalarIMR attenRel : attenRels) {
 			attenRel.toXMLMetadata(imrsEL);
 		}
 		
@@ -135,11 +135,11 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		// IMRs
 		Element imrsEl = eventSetEl.element(XML_IMRS_NAME);
 		Iterator<Element> imrElIt = imrsEl.elementIterator();
-		ArrayList<ScalarIntensityMeasureRelationshipAPI> imrs = new ArrayList<ScalarIntensityMeasureRelationshipAPI>();
+		ArrayList<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 		while (imrElIt.hasNext()) {
 			Element imrEl = imrElIt.next();
 			try {
-				ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI) AbstractIMR.fromXMLMetadata(imrEl, null);
+				ScalarIMR imr = (ScalarIMR) AbstractIMR.fromXMLMetadata(imrEl, null);
 				imrs.add(imr);
 			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
@@ -207,7 +207,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		return erfs;
 	}
 
-	public ArrayList<ScalarIntensityMeasureRelationshipAPI> getIMRs() {
+	public ArrayList<ScalarIMR> getIMRs() {
 		return attenRels;
 	}
 
@@ -227,7 +227,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		for (EqkRupForecastAPI erf : calc.getErfs()) {
 			System.out.println("Loaded ERF: " + erf.getName());
 		}
-		for (ScalarIntensityMeasureRelationshipAPI imr : calc.getIMRs()) {
+		for (ScalarIMR imr : calc.getIMRs()) {
 			System.out.println("Loaded IMR: " + imr.getName());
 		}
 		for (String imt : calc.getIMTs()) {

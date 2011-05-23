@@ -33,7 +33,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
@@ -88,29 +88,29 @@ public class HardCodedTest {
 		return getUCERF2(years, startYear, includeBackSeis);
 	}
 	
-	private static ScalarIntensityMeasureRelationshipAPI getUSGSCombined2004IMR() {
-		ScalarIntensityMeasureRelationshipAPI attenRel = new USGS_Combined_2004_AttenRel(null);
+	private static ScalarIMR getUSGSCombined2004IMR() {
+		ScalarIMR attenRel = new USGS_Combined_2004_AttenRel(null);
 		attenRel.setParamDefaults();
 		attenRel.getParameter(ComponentParam.NAME).
 				setValue(ComponentParam.COMPONENT_AVE_HORZ);
 		return attenRel;
 	}
 	
-	private static ScalarIntensityMeasureRelationshipAPI getUSGSCombined2008IMR() {
-		ScalarIntensityMeasureRelationshipAPI attenRel = new NSHMP_2008_CA(null);
+	private static ScalarIMR getUSGSCombined2008IMR() {
+		ScalarIMR attenRel = new NSHMP_2008_CA(null);
 		attenRel.setParamDefaults();
 		return attenRel;
 	}
 	
-	private static ScalarIntensityMeasureRelationshipAPI getCB_2008IMR() {
-		ScalarIntensityMeasureRelationshipAPI imr = new CB_2008_AttenRel(null);
+	private static ScalarIMR getCB_2008IMR() {
+		ScalarIMR imr = new CB_2008_AttenRel(null);
 		imr.setParamDefaults();
 		return imr;
 	}
 	
-	private static ScalarIntensityMeasureRelationshipAPI getNGA_2008IMR(
+	private static ScalarIMR getNGA_2008IMR(
 			boolean propEffectSpeedup, boolean includeAS) {
-		ScalarIntensityMeasureRelationshipAPI imr;
+		ScalarIMR imr;
 		if (includeAS)
 			imr = new NGA_2008_Averaged_AttenRel(null);
 		else
@@ -120,8 +120,8 @@ public class HardCodedTest {
 		return imr;
 	}
 
-	private static ScalarIntensityMeasureRelationshipAPI getIMR(String name, double sigmaTrunc, boolean propEffectSpeedup){
-		ScalarIntensityMeasureRelationshipAPI attenRel;
+	private static ScalarIMR getIMR(String name, double sigmaTrunc, boolean propEffectSpeedup){
+		ScalarIMR attenRel;
 		if (name.equals(NSHMP_08_NAME))
 			attenRel = getUSGSCombined2008IMR();
 		else if (name.equals(MultiIMR_NAME))
@@ -203,11 +203,11 @@ public class HardCodedTest {
 //		SiteDataValue<?> hardcodedVal = null;
 		
 		double sigmaTrunc = 3;
-		ScalarIntensityMeasureRelationshipAPI imr = getIMR(imrStr, sigmaTrunc, propEffectSpeedup);
-		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap =
+		ScalarIMR imr = getIMR(imrStr, sigmaTrunc, propEffectSpeedup);
+		HashMap<TectonicRegionType, ScalarIMR> imrMap =
 			TRTUtils.wrapInHashMap(imr);
-		ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps = 
-			new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
+		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps = 
+			new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
 		imrMaps.add(imrMap);
 		
 		Iterator<Parameter<?>> imrSiteParamsIt = imr.getSiteParamsIterator();

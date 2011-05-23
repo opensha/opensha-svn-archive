@@ -34,7 +34,7 @@ import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
@@ -323,7 +323,7 @@ implements java.io.Serializable {
 	 * @param data data value used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, SiteDataValue<?> data) {
+	public boolean setAllSiteParams(ScalarIMR imr, SiteDataValue<?> data) {
 		Collection<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
 		return setAllSiteParams(imr, datas);
@@ -337,7 +337,7 @@ implements java.io.Serializable {
 	 * @param data data value used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(Collection<ScalarIntensityMeasureRelationshipAPI> imrs,
+	public boolean setAllSiteParams(Collection<ScalarIMR> imrs,
 			SiteDataValue<?> data) {
 		Collection<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
@@ -352,7 +352,7 @@ implements java.io.Serializable {
 	 * @param datas collection of data values used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, Collection<SiteDataValue<?>> datas) {
+	public boolean setAllSiteParams(ScalarIMR imr, Collection<SiteDataValue<?>> datas) {
 		boolean setSomething = false;
 		
 		ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
@@ -374,11 +374,11 @@ implements java.io.Serializable {
 	 * @param datas collection of data values used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(Collection<ScalarIntensityMeasureRelationshipAPI> imrs,
+	public boolean setAllSiteParams(Collection<ScalarIMR> imrs,
 			Collection<SiteDataValue<?>> datas) {
 		boolean setSomething = false;
 		
-		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
+		for (ScalarIMR imr : imrs) {
 			if (this.setAllSiteParams(imr, datas))
 				setSomething = true;
 		}

@@ -32,7 +32,7 @@ import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
@@ -68,7 +68,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 
 public class WC94_DisplMagRel
 extends AttenuationRelationship implements
-ScalarIntensityMeasureRelationshipAPI,
+ScalarIMR,
 NamedObjectAPI {
 
 	// debugging stuff:

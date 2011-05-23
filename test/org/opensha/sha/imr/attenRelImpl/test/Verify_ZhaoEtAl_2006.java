@@ -23,7 +23,7 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -577,7 +577,7 @@ public class Verify_ZhaoEtAl_2006 {
 	 * @param stressDrop
 	 * @throws IOException  
 	 */
-	public static void ComputeSpectrum(ScalarIntensityMeasureRelationshipAPI imr, double dst,
+	public static void ComputeSpectrum(ScalarIMR imr, double dst,
 			String tecEnvStr, String fleNme) throws IOException {
 		ArrayList<Double> per = getPeriods(imr);
 		BufferedWriter outFle = new BufferedWriter(new FileWriter(fleNme));
@@ -604,7 +604,7 @@ public class Verify_ZhaoEtAl_2006 {
 	 * @param imr
 	 * @return
 	 */
-	private static ArrayList<Double> getPeriods(ScalarIntensityMeasureRelationshipAPI imr) {
+	private static ArrayList<Double> getPeriods(ScalarIMR imr) {
 		// Get the list of periods available for the selected IMR
 		ArrayList<Double> per = new ArrayList<Double>();
 		ListIterator<Parameter<?>> it = imr.getSupportedIntensityMeasuresIterator();

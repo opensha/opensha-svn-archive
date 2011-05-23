@@ -30,7 +30,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -53,7 +53,7 @@ public interface GcimCalculatorAPI extends Remote{
 	 * @throws IOException
 	 */
 	public void getRuptureContributions(double iml, Site site,
-			HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrjMap, EqkRupForecast eqkRupForecast,
+			HashMap<TectonicRegionType, ScalarIMR> imrjMap, EqkRupForecast eqkRupForecast,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) throws java.rmi.RemoteException;
 			
 	/**
@@ -68,7 +68,7 @@ public interface GcimCalculatorAPI extends Remote{
 	 * @return boolean
 	 */
 	public boolean getMultipleGcims(int numIMi,	
-			ArrayList<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imiAttenRels,
+			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiAttenRels,
 			ArrayList<String> imiTypes, ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijCorrRels,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter);
 
@@ -84,7 +84,7 @@ public interface GcimCalculatorAPI extends Remote{
 	 * @param magDistFilter: Magnitude-Distance filter for sources
 	 * @return boolean
 	 */
-	public boolean getSingleGcim(int imiNumber, HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imriMap,
+	public boolean getSingleGcim(int imiNumber, HashMap<TectonicRegionType, ScalarIMR> imriMap,
 			HashMap<TectonicRegionType, ImCorrelationRelationship> imijCorrRelMap,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter);
 	

@@ -16,7 +16,7 @@ import org.opensha.sha.cybershake.db.AttenRels2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.imr.AttenRelImpl;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
@@ -56,7 +56,7 @@ public class ARCurveInserter {
 		return map;
 	}
 	
-	private static void setTruncation(ScalarIntensityMeasureRelationshipAPI imr, double trunc) {
+	private static void setTruncation(ScalarIMR imr, double trunc) {
 		imr.getParameter(SigmaTruncLevelParam.NAME).setValue(trunc);
 		if (trunc < 0)
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
@@ -71,7 +71,7 @@ public class ARCurveInserter {
 	 */
 	public static void main(String[] args) throws IOException {
 		String dir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
-		ScalarIntensityMeasureRelationshipAPI imr = AttenRelImpl.NGA_2008_4AVG.instance(null);
+		ScalarIMR imr = AttenRelImpl.NGA_2008_4AVG.instance(null);
 		imr.setParamDefaults();
 		setTruncation(imr, 3.0);
 		int erfID = 35;

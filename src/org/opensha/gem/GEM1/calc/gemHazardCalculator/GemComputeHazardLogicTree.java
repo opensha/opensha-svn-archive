@@ -22,7 +22,7 @@ import org.opensha.gem.GEM1.util.IMLListParams;
 import org.opensha.gem.GEM1.util.IntensityMeasureParams;
 import org.opensha.gem.GEM1.util.SiteParams;
 import org.opensha.gem.GEM1.util.SourceType;
-import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -33,7 +33,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class GemComputeHazardLogicTree {
 
 	private GemLogicTree<ArrayList<GEMSourceData>> ilt;
-	private GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLT;
+	private GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLT;
     private CalculationSettings calcSet;
 	
 	/**
@@ -45,7 +45,7 @@ public class GemComputeHazardLogicTree {
 	 * @param AttenRel
 	 */
 	public GemComputeHazardLogicTree(GemLogicTree<ArrayList<GEMSourceData>> inputToERFLT,
-			GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLT, CalculationSettings calcSet){
+			GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLT, CalculationSettings calcSet){
 		this.ilt = inputToERFLT;
 		this.gmpeLT = gmpeLT;
         this.calcSet = calcSet;
@@ -160,7 +160,7 @@ public class GemComputeHazardLogicTree {
 //		return hcRepList;
 //	}
 	
-	public static void setGmpeParams(GemLogicTree<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>> gmpeLT, CalculationSettings calcSet){
+	public static void setGmpeParams(GemLogicTree<HashMap<TectonicRegionType,ScalarIMR>> gmpeLT, CalculationSettings calcSet){
 		
 	    // loop over Gmpes logic tree end-branches
 		for(int ig=0;ig<gmpeLT.getEBMap().size();ig++){
