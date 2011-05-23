@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -36,10 +36,10 @@ public class AddSiteDataPanel extends ParameterListEditor {
 	
 	static {
 		siteDataTypes = new ArrayList<String>();
-		siteDataTypes.add(SiteDataAPI.TYPE_VS30);
-		siteDataTypes.add(SiteDataAPI.TYPE_WILLS_CLASS);
-		siteDataTypes.add(SiteDataAPI.TYPE_DEPTH_TO_2_5);
-		siteDataTypes.add(SiteDataAPI.TYPE_DEPTH_TO_1_0);
+		siteDataTypes.add(SiteData.TYPE_VS30);
+		siteDataTypes.add(SiteData.TYPE_WILLS_CLASS);
+		siteDataTypes.add(SiteData.TYPE_DEPTH_TO_2_5);
+		siteDataTypes.add(SiteData.TYPE_DEPTH_TO_1_0);
 	}
 	
 	StringParameter typeSelector;
@@ -52,8 +52,8 @@ public class AddSiteDataPanel extends ParameterListEditor {
 		typeSelector = new StringParameter("Site Data Type", siteDataTypes, siteDataTypes.get(0));
 		
 		ArrayList<String> measTypes = new ArrayList<String>();
-		measTypes.add(SiteDataAPI.TYPE_FLAG_INFERRED);
-		measTypes.add(SiteDataAPI.TYPE_FLAG_MEASURED);
+		measTypes.add(SiteData.TYPE_FLAG_INFERRED);
+		measTypes.add(SiteData.TYPE_FLAG_MEASURED);
 		
 		measSelector = new StringParameter("Site Data Measurement Type", measTypes, measTypes.get(0));
 		
@@ -82,7 +82,7 @@ public class AddSiteDataPanel extends ParameterListEditor {
 		valStr = valStr.trim();
 		Object val;
 		
-		if (type.equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+		if (type.equals(SiteData.TYPE_WILLS_CLASS)) {
 			if (!SiteTranslator.wills_vs30_map.containsKey(valStr))
 				throw new RuntimeException("'" + valStr + "' is not a valid Wills Site Class!");
 			val = valStr;

@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.ServerPrefUtils;
@@ -43,11 +43,11 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	
 	public static String OP_GET_CLOSEST = "Get Closest Location";
 	
-	private SiteDataAPI<Element> data;
+	private SiteData<Element> data;
 	
 	private String debugName;
 	
-	public AbstractSiteDataServlet(SiteDataAPI<Element> data) {
+	public AbstractSiteDataServlet(SiteData<Element> data) {
 		super();
 		
 		this.data = data;
@@ -58,7 +58,7 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 		// if you use this, you better set the data!
 	}
 	
-	public void setData(SiteDataAPI<Element> data) {
+	public void setData(SiteData<Element> data) {
 		this.data = data;
 		this.debugName = data.getShortName() + " servlet";
 	}

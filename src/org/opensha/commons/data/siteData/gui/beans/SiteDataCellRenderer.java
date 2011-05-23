@@ -27,7 +27,7 @@ import java.util.HashMap;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 
 public class SiteDataCellRenderer extends DefaultListCellRenderer {
 	
@@ -43,12 +43,12 @@ public class SiteDataCellRenderer extends DefaultListCellRenderer {
 	public static HashMap<String, Color> TYPE_COLOR_MAP = new HashMap<String, Color>();
 	
 	static {
-		TYPE_COLOR_MAP.put(SiteDataAPI.TYPE_VS30, new Color(255, 200, 200));
-		TYPE_COLOR_MAP.put(SiteDataAPI.TYPE_WILLS_CLASS, new Color(200, 255, 200));
-		TYPE_COLOR_MAP.put(SiteDataAPI.TYPE_DEPTH_TO_2_5, new Color(200, 200, 255));
-		TYPE_COLOR_MAP.put(SiteDataAPI.TYPE_DEPTH_TO_1_0, new Color(255, 195, 150));
-		TYPE_COLOR_MAP.put(SiteDataAPI.TYPE_ELEVATION, new Color(255, 255, 115));
-		TYPE_COLOR_MAP.put(SiteDataAPI.TYPE_TOPOGRAPHIC_SLOPE, new Color(150, 255, 255));
+		TYPE_COLOR_MAP.put(SiteData.TYPE_VS30, new Color(255, 200, 200));
+		TYPE_COLOR_MAP.put(SiteData.TYPE_WILLS_CLASS, new Color(200, 255, 200));
+		TYPE_COLOR_MAP.put(SiteData.TYPE_DEPTH_TO_2_5, new Color(200, 200, 255));
+		TYPE_COLOR_MAP.put(SiteData.TYPE_DEPTH_TO_1_0, new Color(255, 195, 150));
+		TYPE_COLOR_MAP.put(SiteData.TYPE_ELEVATION, new Color(255, 255, 115));
+		TYPE_COLOR_MAP.put(SiteData.TYPE_TOPOGRAPHIC_SLOPE, new Color(150, 255, 255));
 	}
 	
 	public SiteDataCellRenderer(ArrayList<String> types, ArrayList<Boolean> enabled, ArrayList<Boolean> applicable) {

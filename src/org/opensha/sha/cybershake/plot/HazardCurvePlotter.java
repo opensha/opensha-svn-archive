@@ -52,7 +52,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
@@ -199,7 +199,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	private OrderedSiteDataProviderList getProviders() {
 		if (dataProviders == null) {
-			ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+			ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 			
 			/*		Wills 2006 Map (2000 as backup)	 */
 			// try the 2006 map first
@@ -212,7 +212,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			
 			/*		CVM4 Depth to 2.5 (CVM2 as backup)	 */
 			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5)));
+				providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
 			} catch (IOException e) {
 				e.printStackTrace();
 				try {
@@ -224,7 +224,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			
 			/*		CVM4 Depth to 1.0					 */
 			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0)));
+				providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -1025,7 +1025,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			ArrayList<SiteDataValue<?>> datas = providers.getBestAvailableData(loc);
 			
 			if (manualVs30 > 0) {
-				datas.add(new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, manualVs30,
+				datas.add(new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, manualVs30,
 						"Manually Set Vs30 Value"));
 			}
 			

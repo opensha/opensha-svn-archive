@@ -149,9 +149,9 @@ public class SiteDataValueListList implements XMLSaveable {
 		vals.add(5.5);
 		vals.add(6.5);
 		
-		SiteDataValueList<Double> list = new SiteDataValueList<Double>(SiteDataAPI.TYPE_VS30, "Asdfs", vals, null);
-		SiteDataValueList<Double> list2 = new SiteDataValueList<Double>(SiteDataAPI.TYPE_VS30, "Asdfs", vals, null);
-		SiteDataValueList<Double> list3 = new SiteDataValueList<Double>(SiteDataAPI.TYPE_VS30, "Asdfs", vals, null);
+		SiteDataValueList<Double> list = new SiteDataValueList<Double>(SiteData.TYPE_VS30, "Asdfs", vals, null);
+		SiteDataValueList<Double> list2 = new SiteDataValueList<Double>(SiteData.TYPE_VS30, "Asdfs", vals, null);
+		SiteDataValueList<Double> list3 = new SiteDataValueList<Double>(SiteData.TYPE_VS30, "Asdfs", vals, null);
 		
 		ArrayList<SiteDataValueList<?>> lists = new ArrayList<SiteDataValueList<?>>();
 		lists.add(list);

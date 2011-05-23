@@ -14,7 +14,7 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.siteData.AbstractSiteData;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
@@ -183,7 +183,7 @@ public class HardCodedTest {
 		if (vs30Str.equals("null"))
 			hardcodedVal = null;
 		else
-			hardcodedVal = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED,
+			hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED,
 					Double.parseDouble(vs30Str));
 		String dirName = args[5];
 		
@@ -232,23 +232,23 @@ public class HardCodedTest {
 		String spacingFile = "/home/scec-00/kmilner/hazMaps/"+spacingCode+"grid.csv";
 		LocationList locs = loadCSV(new File(spacingFile));
 		
-		ArrayList<SiteDataAPI<?>> provs = null;
+		ArrayList<SiteData<?>> provs = null;
 		if (hardcodedVal == null) {
-			provs = new ArrayList<SiteDataAPI<?>>();
+			provs = new ArrayList<SiteData<?>>();
 			SiteDataTypeParameterNameMap siteDataMap = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
-			if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_VS30, imr))
+			if (siteDataMap.isTypeApplicable(SiteData.TYPE_VS30, imr))
 				provs.add(new WillsMap2006());
-			if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_2_5, imr))
-				provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
-			if (siteDataMap.isTypeApplicable(SiteDataAPI.TYPE_DEPTH_TO_1_0, imr))
-				provs.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+			if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_2_5, imr))
+				provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+			if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_1_0, imr))
+				provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 		}
 		
 		if (constrainBasinMin) {
 			// constrain basin depth to default minimums
-			for (SiteDataAPI<?> prov : provs) {
-				if (prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
-						|| prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
+			for (SiteData<?> prov : provs) {
+				if (prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_2_5)
+						|| prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_1_0)) {
 					Parameter<Double> minBasinParam = null;
 					try {
 						minBasinParam = prov.getAdjustableParameterList()
@@ -259,10 +259,10 @@ public class HardCodedTest {
 						while (siteParamsIt.hasNext()) {
 							Parameter<?> param = siteParamsIt.next();
 							if (param.getName().equals(DepthTo2pt5kmPerSecParam.NAME)
-									&& prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+									&& prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_2_5)) {
 								minBasinParam.setValue((Double)param.getValue());
 							} else if (param.getName().equals(DepthTo1pt0kmPerSecParam.NAME)
-									&& prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
+									&& prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_1_0)) {
 								Double minVal = (Double)param.getValue();
 								// convert from KM to M
 								minVal *= 1000;
@@ -276,7 +276,7 @@ public class HardCodedTest {
 		
 		ArrayList<SiteDataValue<?>>[] siteData = new ArrayList[locs.size()];
 		if (hardcodedVal == null) {
-			for (SiteDataAPI<?> prov : provs) {
+			for (SiteData<?> prov : provs) {
 				SiteDataValueList<?> vals = prov.getAnnotatedValues(locs);
 				for (int i=0; i<siteData.length; i++) {
 					if (siteData[i] == null)

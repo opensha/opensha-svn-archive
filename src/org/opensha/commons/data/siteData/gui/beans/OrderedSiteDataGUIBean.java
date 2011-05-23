@@ -43,7 +43,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.geo.Location;
@@ -72,7 +72,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	
 	private JButton helpButton = new JButton("Help");
 	
-	private SiteDataAPI<?> currentData;
+	private SiteData<?> currentData;
 	
 	private JTextArea metadataArea = new JTextArea(8, 50);
 	
@@ -187,7 +187,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		
 		int num = 1;
 		for (int i=0; i<list.size(); i++) {
-			SiteDataAPI<?> provider = list.getProvider(i);
+			SiteData<?> provider = list.getProvider(i);
 			cellRenderer.setType(i, provider.getDataType());
 			if (imrs == null || map.isTypeApplicable(provider.getDataType(), imrs)) {
 				if (list.isEnabled(i)) {
@@ -240,7 +240,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 			int selected[] = new int[indexes.length];
 			int maxIndex = list.size() - 1;
 			
-			ArrayList<SiteDataAPI<?>> toMove = new ArrayList<SiteDataAPI<?>>();
+			ArrayList<SiteData<?>> toMove = new ArrayList<SiteData<?>>();
 			for (int index : indexes)
 				toMove.add(list.getProvider(index));
 			
@@ -251,7 +251,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 				else
 					j = toMove.size() - 1 - i;
 				
-				SiteDataAPI<?> data = toMove.get(j);
+				SiteData<?> data = toMove.get(j);
 				
 				int index = list.getIndexOf(data);
 				if (up) {
@@ -308,7 +308,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		upButton.setEnabled(somethingSelected);
 		downButton.setEnabled(somethingSelected);
 		
-		SiteDataAPI<?> newData = list.getProvider(index);
+		SiteData<?> newData = list.getProvider(index);
 		if (newData != currentData) {
 			currentData = newData;
 			updateDataGUI();
@@ -423,15 +423,15 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		JOptionPane.showMessageDialog(parent, comp, "Site Data Values", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
-	public SiteDataAPI<?> getSelectedProvider() {
+	public SiteData<?> getSelectedProvider() {
 		int index = this.dataList.getSelectedIndex();
 		if (index < 0)
 			return null;
 		return list.getProvider(index);
 	}
 	
-	public ArrayList<SiteDataAPI<?>> getSelectedProviders() {
-		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+	public ArrayList<SiteData<?>> getSelectedProviders() {
+		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 		int indexes[] = this.dataList.getSelectedIndices();
 		Arrays.sort(indexes);
 		for (int index : indexes) {

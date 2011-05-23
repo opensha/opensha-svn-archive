@@ -34,7 +34,7 @@ import javax.swing.JOptionPane;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.geo.GriddedRegion;
@@ -529,7 +529,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			//if we are setting each site using the Wills site type. basin depth is taken as default.
 			dataProviders = (OrderedSiteDataProviderList)dataProviders.clone();
 			for (int i=0; i<dataProviders.size(); i++) {
-				if (dataProviders.getProvider(i).getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5))
+				if (dataProviders.getProvider(i).getDataType().equals(SiteData.TYPE_DEPTH_TO_2_5))
 					dataProviders.setEnabled(i, false);
 			}
 		}

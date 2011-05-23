@@ -41,7 +41,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
@@ -333,7 +333,7 @@ public class SitesPanel extends JPanel implements ListSelectionListener, ActionL
 		
 		sites.addSite(new Location(34, -118), null);
 		ArrayList<SiteDataValue<?>> vals = new ArrayList<SiteDataValue<?>>();
-		vals.add(new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0));
+		vals.add(new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760.0));
 		sites.addSite(new Location(34, -118.1), vals);
 		
 		frame.setContentPane(sites);

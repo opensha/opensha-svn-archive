@@ -27,7 +27,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
@@ -122,8 +122,8 @@ public class SitesInGriddedRegion implements Serializable {
 				for (String wills : willsSiteClass) {
 					willsData.add(wills);
 				}
-				siteDataValueLists.add(new SiteDataValueList<String>(SiteDataAPI.TYPE_WILLS_CLASS,
-						SiteDataAPI.TYPE_FLAG_MEASURED, willsData, null));
+				siteDataValueLists.add(new SiteDataValueList<String>(SiteData.TYPE_WILLS_CLASS,
+						SiteData.TYPE_FLAG_MEASURED, willsData, null));
 			}
 			//If basin depth Values are not null, then fill in their values
 			if(bd !=null){
@@ -131,8 +131,8 @@ public class SitesInGriddedRegion implements Serializable {
 				for (double basin : bd) {
 					basinData.add(basin);
 				}
-				siteDataValueLists.add(new SiteDataValueList<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
-						SiteDataAPI.TYPE_FLAG_MEASURED, basinData, null));
+				siteDataValueLists.add(new SiteDataValueList<Double>(SiteData.TYPE_DEPTH_TO_2_5,
+						SiteData.TYPE_FLAG_MEASURED, basinData, null));
 			}
 		}
 	}
@@ -148,7 +148,7 @@ public class SitesInGriddedRegion implements Serializable {
 			if (!providers.isEnabled(i)) {
 				continue;
 			}
-			SiteDataAPI<?> provider = providers.getProvider(i);
+			SiteData<?> provider = providers.getProvider(i);
 			
 			ArrayList<?> vals = provider.getValues(locList);
 			siteDataValueLists.add(new SiteDataValueList(vals, provider));
@@ -176,7 +176,7 @@ public class SitesInGriddedRegion implements Serializable {
 	 */
 	@Deprecated
 	public void setSiteParamsForRegionFromServlet(boolean connectForBasinDepth){
-		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 		try {
 			providers.add(new WillsMap2006());
 		} catch (IOException e) {
@@ -184,7 +184,7 @@ public class SitesInGriddedRegion implements Serializable {
 		}
 		if (connectForBasinDepth) {
 			try {
-				providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+				providers.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

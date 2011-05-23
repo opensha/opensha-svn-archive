@@ -35,7 +35,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
@@ -131,7 +131,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 	}
 	
 	private void makeCombinedMap() throws IOException {
-		ArrayList<SiteDataAPI<?>> providers = dataBean.getSelectedProviders();
+		ArrayList<SiteData<?>> providers = dataBean.getSelectedProviders();
 		ArrayList<SiteDataValueList<Double>> valListList = new ArrayList<SiteDataValueList<Double>>();
 		
 		GriddedRegion region = mapBean.getEvenlyGriddedGeographicRegion();
@@ -139,7 +139,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 
 		String meta = "Combined map from the following providers (sorted by priority):\n\n";
 		for (int i=0; i<providers.size(); i++) {
-			SiteDataAPI<Double> doubProvider = (SiteDataAPI<Double>)providers.get(i);
+			SiteData<Double> doubProvider = (SiteData<Double>)providers.get(i);
 			meta += i + ". " + doubProvider.getName();
 			ArrayList<Double> doubVals = doubProvider.getValues(locs);
 			
@@ -166,13 +166,13 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == mapButton) {
 			System.out.println("Making a map...");
-			ArrayList<SiteDataAPI<?>> providers = dataBean.getSelectedProviders();
+			ArrayList<SiteData<?>> providers = dataBean.getSelectedProviders();
 			if (providers.size() == 0) {
 				System.out.println("No data provider selected!");
 				return;
 			}
-			for (SiteDataAPI<?> provider : providers) {
-				SiteDataAPI<Double> doubProvider = (SiteDataAPI<Double>)provider;
+			for (SiteData<?> provider : providers) {
+				SiteData<Double> doubProvider = (SiteData<Double>)provider;
 				try {
 					String label = doubProvider.getName() + " -  " + doubProvider.getDataType();
 					
@@ -205,7 +205,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 				e1.printStackTrace();
 			}
 		} else if (e.getSource() == regionButton) {
-			SiteDataAPI<?> provider = dataBean.getSelectedProvider();
+			SiteData<?> provider = dataBean.getSelectedProvider();
 			if (provider == null) {
 				System.out.println("No data provider selected!");
 				return;
@@ -241,11 +241,11 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 		regionButton.setEnabled(selected);
 		// we enable the combined map button only if there are multiple providers,
 		// and they all have the same type
-		ArrayList<SiteDataAPI<?>> providers = dataBean.getSelectedProviders();
+		ArrayList<SiteData<?>> providers = dataBean.getSelectedProviders();
 		if (selected && providers.size() > 1) {
 			String type = providers.get(0).getDataType();
 			boolean enable = true;
-			for (SiteDataAPI<?> provider : providers) {
+			for (SiteData<?> provider : providers) {
 				if (!provider.getDataType().equals(type)) {
 					enable = false;
 					break;

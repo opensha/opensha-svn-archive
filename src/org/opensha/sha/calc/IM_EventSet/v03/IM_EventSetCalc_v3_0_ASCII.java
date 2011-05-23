@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -164,7 +164,7 @@ implements ParameterChangeWarningListener {
 		providers = OrderedSiteDataProviderList.createCompatibilityProviders(false);
 		// disable non-Vs30 providers
 		for (int i=0; i<providers.size(); i++) {
-			if (!providers.getProvider(i).getDataType().equals(SiteDataAPI.TYPE_VS30))
+			if (!providers.getProvider(i).getDataType().equals(SiteData.TYPE_VS30))
 				providers.setEnabled(i, false);
 		}
 	}
@@ -256,13 +256,13 @@ implements ParameterChangeWarningListener {
 		}
 		if (SiteTranslator.wills_vs30_map.keySet().contains(dataVal)) {
 			// this is a wills class
-			dataVals.add(new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS,
-					SiteDataAPI.TYPE_FLAG_MEASURED, dataVal));
+			dataVals.add(new SiteDataValue<String>(SiteData.TYPE_WILLS_CLASS,
+					SiteData.TYPE_FLAG_MEASURED, dataVal));
 		} else {
 			try {
 				double vs30 = Double.parseDouble(dataVal);
-				dataVals.add(new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
-						SiteDataAPI.TYPE_FLAG_MEASURED, vs30));
+				dataVals.add(new SiteDataValue<Double>(SiteData.TYPE_VS30,
+						SiteData.TYPE_FLAG_MEASURED, vs30));
 			} catch (NumberFormatException e) {
 //				e.printStackTrace();
 				System.err.println("*** WARNING: Site Wills/Vs30 value unknown: " + dataVal);

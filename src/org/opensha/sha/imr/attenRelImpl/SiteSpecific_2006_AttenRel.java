@@ -29,7 +29,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -370,8 +370,8 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 			Parameter siteParam = ((AS_1997_AttenRel)attenRel).getParameter
 			(AS_1997_AttenRel.SITE_TYPE_NAME);
 			//set the site parameter to rock
-			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
-					SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
+			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteData.TYPE_VS30,
+					SiteData.TYPE_FLAG_INFERRED, 760d);
 			vs30Trans.setParameterValue(siteParam, val);
 			// set the component to ave horz
 			attenRel.getParameter(ComponentParam.NAME).setValue(
@@ -392,8 +392,8 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 			Parameter siteParam = ((BJF_1997_AttenRel)attenRel).getParameter
 			(Vs30_Param.NAME);
 			//set the site parameter to rock
-			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
-					SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
+			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteData.TYPE_VS30,
+					SiteData.TYPE_FLAG_INFERRED, 760d);
 			vs30Trans.setParameterValue(siteParam, val);
 			// set the component to ave horz
 			attenRel.getParameter(ComponentParam.NAME).setValue(
@@ -413,8 +413,8 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 			Parameter siteParam = ((Campbell_1997_AttenRel)attenRel).getParameter
 			(Campbell_1997_AttenRel.SITE_TYPE_NAME);
 			//set the site parameter to rock
-			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
-					SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
+			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteData.TYPE_VS30,
+					SiteData.TYPE_FLAG_INFERRED, 760d);
 			vs30Trans.setParameterValue(siteParam, val);
 			// set the component to ave horz
 			attenRel.getParameter(ComponentParam.NAME).setValue(

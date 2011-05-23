@@ -50,11 +50,11 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 	private String sourceName = null;
 	private LocationList locs = null;
 	
-	public SiteDataValueList(ArrayList<E> values, SiteDataAPI<E> source) {
+	public SiteDataValueList(ArrayList<E> values, SiteData<E> source) {
 		this(values, source, null);
 	}
 	
-	public SiteDataValueList(ArrayList<E> values, SiteDataAPI<E> source, LocationList locs) {
+	public SiteDataValueList(ArrayList<E> values, SiteData<E> source, LocationList locs) {
 		this(source.getDataType(), source.getDataMeasurementType(), values, source.getName(), locs);
 	}
 	
@@ -201,7 +201,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 					continue;
 			} else if (val instanceof String) {
 				String sVal = (String)val;
-				if (dataType.equals(SiteDataAPI.TYPE_VS30)) {
+				if (dataType.equals(SiteData.TYPE_VS30)) {
 					if (sVal.equals("NA"))
 						continue;
 				} else {
@@ -231,13 +231,13 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 		
 		boolean isDouble = false;
 		boolean isString = false;
-		if (type.equals(SiteDataAPI.TYPE_VS30))
+		if (type.equals(SiteData.TYPE_VS30))
 			isDouble = true;
-		else if (type.equals(SiteDataAPI.TYPE_WILLS_CLASS))
+		else if (type.equals(SiteData.TYPE_WILLS_CLASS))
 			isString = true;
-		else if (type.equals(SiteDataAPI.TYPE_DEPTH_TO_2_5))
+		else if (type.equals(SiteData.TYPE_DEPTH_TO_2_5))
 			isDouble = true;
-		else if (type.equals(SiteDataAPI.TYPE_DEPTH_TO_1_0))
+		else if (type.equals(SiteData.TYPE_DEPTH_TO_1_0))
 			isDouble = true;
 		else
 			throw new RuntimeException("Type '" + type + "' unknown, cannot load from XML!");
@@ -261,7 +261,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 		} else if (isString) {
 			vals = new ArrayList<String>();
 			for (int i=0; i<num; i++) {
-				if (type.equals(SiteDataAPI.TYPE_WILLS_CLASS))
+				if (type.equals(SiteData.TYPE_WILLS_CLASS))
 					vals.add("NA");
 				else
 					vals.add("");
@@ -304,7 +304,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 		vals.add(new Double(0.05));
 		locs.add(new Location(34, -120.1));
 		
-		SiteDataValueList<Double> list = new SiteDataValueList<Double>(SiteDataAPI.TYPE_VS30, "asdfas", vals, null, locs);
+		SiteDataValueList<Double> list = new SiteDataValueList<Double>(SiteData.TYPE_VS30, "asdfas", vals, null, locs);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();

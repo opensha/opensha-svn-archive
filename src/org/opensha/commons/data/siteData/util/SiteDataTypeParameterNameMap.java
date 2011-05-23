@@ -22,7 +22,7 @@ package org.opensha.commons.data.siteData.util;
 import java.util.Collection;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.NtoNMap;
@@ -188,17 +188,17 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	public static void main(String args[]) {
 		SiteDataTypeParameterNameMap map = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
 		
-		map.printParamsForType(SiteDataAPI.TYPE_VS30);
-		map.printParamsForType(SiteDataAPI.TYPE_WILLS_CLASS);
-		map.printParamsForType(SiteDataAPI.TYPE_DEPTH_TO_2_5);
-		map.printParamsForType(SiteDataAPI.TYPE_DEPTH_TO_1_0);
+		map.printParamsForType(SiteData.TYPE_VS30);
+		map.printParamsForType(SiteData.TYPE_WILLS_CLASS);
+		map.printParamsForType(SiteData.TYPE_DEPTH_TO_2_5);
+		map.printParamsForType(SiteData.TYPE_DEPTH_TO_1_0);
 		
 		map.printTypesForParams(Vs30_Param.NAME);
 		
-		map.printValidTest(SiteDataAPI.TYPE_VS30, Vs30_Param.NAME);
-		map.printValidTest(SiteDataAPI.TYPE_WILLS_CLASS, Campbell_1997_AttenRel.SITE_TYPE_NAME);
-		map.printValidTest(SiteDataAPI.TYPE_VS30, Campbell_1997_AttenRel.SITE_TYPE_NAME);
-		map.printValidTest(SiteDataAPI.TYPE_DEPTH_TO_2_5, Vs30_Param.NAME);
+		map.printValidTest(SiteData.TYPE_VS30, Vs30_Param.NAME);
+		map.printValidTest(SiteData.TYPE_WILLS_CLASS, Campbell_1997_AttenRel.SITE_TYPE_NAME);
+		map.printValidTest(SiteData.TYPE_VS30, Campbell_1997_AttenRel.SITE_TYPE_NAME);
+		map.printValidTest(SiteData.TYPE_DEPTH_TO_2_5, Vs30_Param.NAME);
 		
 		System.out.println("Size: " + map.size());
 	}

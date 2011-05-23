@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
@@ -160,7 +160,7 @@ public class HazardCurveFetcher {
 //		fetcher.saveAllCurvesToDir(outDir);
 		
 		WillsMap2006 wills = new WillsMap2006();
-		CVM4BasinDepth cvm = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
+		CVM4BasinDepth cvm = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
 		
 		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
 		String tot = "";

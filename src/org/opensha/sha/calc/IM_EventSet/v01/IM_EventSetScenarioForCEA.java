@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -248,8 +248,8 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	      Parameter tempParam = (Parameter) it.next();
 	      //adding the site Params from the CVM, if site is out the range of CVM then it
 	      //sets the site with whatever site Parameter Value user has choosen in the application
-	      SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
-	    		  SiteDataAPI.TYPE_FLAG_INFERRED, new Double(vs30));
+	      SiteDataValue<Double> val = new SiteDataValue<Double>(SiteData.TYPE_VS30,
+	    		  SiteData.TYPE_FLAG_INFERRED, new Double(vs30));
 	      boolean flag = siteTranslator.setParameterValue(tempParam, val);
 
 	      if (!flag) {

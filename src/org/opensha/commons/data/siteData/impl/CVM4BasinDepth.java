@@ -31,7 +31,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -238,7 +238,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		CVM4BasinDepth local = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, false);
+		CVM4BasinDepth local = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5, false);
 		
 		int cnt = 0;
 		for (long pos=0; pos<MAX_FILE_POS; pos+=4) {

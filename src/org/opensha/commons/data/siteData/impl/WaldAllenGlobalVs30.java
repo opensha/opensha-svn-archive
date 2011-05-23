@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.siteData.AbstractSiteData;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -66,7 +66,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 	private SRTM30TopoSlope srtm30_Slope = null;
 	private SRTM30PlusTopoSlope srtm30plus_Slope = null;
 	
-	private SiteDataAPI<Double> slopeProvider;
+	private SiteData<Double> slopeProvider;
 	
 	private ArbitrarilyDiscretizedFunc coeffFunc;
 	

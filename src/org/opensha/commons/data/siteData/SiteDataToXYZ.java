@@ -37,12 +37,12 @@ import org.opensha.commons.geo.LocationList;
  */
 public class SiteDataToXYZ {
 	
-	public static void writeXYZ(SiteDataAPI<?> data, GriddedRegion region,
+	public static void writeXYZ(SiteData<?> data, GriddedRegion region,
 			String fileName) throws IOException {
 		writeXYZ(data, region, fileName, true);
 	}
 	
-	public static void writeXYZ(SiteDataAPI<?> data, double gridSpacing,
+	public static void writeXYZ(SiteData<?> data, double gridSpacing,
 			String fileName) throws IOException {
 		GriddedRegion region =
 				new GriddedRegion(
@@ -50,7 +50,7 @@ public class SiteDataToXYZ {
 		writeXYZ(data, region, fileName, true);
 	}
 	
-	public static void writeXYZ(SiteDataAPI<?> data, GriddedRegion region,
+	public static void writeXYZ(SiteData<?> data, GriddedRegion region,
 			String fileName, boolean latFirst) throws IOException {
 		FileWriter fw = new FileWriter(fileName);
 		LocationList locs = region.getNodeList();

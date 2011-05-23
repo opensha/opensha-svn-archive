@@ -45,7 +45,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
  *
  * @param <Element>
  */
-public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> {
+public abstract class AbstractSiteData<Element> implements SiteData<Element> {
 	
 	protected ParameterList paramList;
 	protected ParameterListEditor paramEdit = null;
@@ -282,13 +282,13 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 		return root;
 	}
 	
-	public static SiteDataAPI<?> fromXMLMetadata(org.dom4j.Element dataElem) throws IOException {
+	public static SiteData<?> fromXMLMetadata(org.dom4j.Element dataElem) throws IOException {
 		String name = dataElem.attributeValue("Name");
 		int cacheSize = Integer.parseInt(dataElem.attributeValue("CacheSize"));
 		
 		org.dom4j.Element paramsEl = dataElem.element("DataParameters");
 		
-		SiteDataAPI<?> provider;
+		SiteData<?> provider;
 		if (name.equals(CVM2BasinDepth.NAME)) {
 			provider = CVM2BasinDepth.fromXMLParams(paramsEl);
 		} else if (name.equals(CVM4BasinDepth.NAME)) {

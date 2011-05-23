@@ -37,7 +37,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
 import org.opensha.commons.geo.Location;
@@ -513,7 +513,7 @@ public class HazardMapJobCreator {
 		ArrayList<SiteDataValueList<?>> datas = new ArrayList<SiteDataValueList<?>>(); 
 		
 		for (int i=0; i<this.siteDataList.size(); i++) {
-			SiteDataAPI<?> provider = siteDataList.getProvider(i);
+			SiteData<?> provider = siteDataList.getProvider(i);
 			if (siteDataList.isEnabled(i)) {
 				try {
 					SiteDataValueList<?> data = provider.getAnnotatedValues(locs);

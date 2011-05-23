@@ -15,7 +15,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
@@ -100,14 +100,14 @@ public class HardCodedScenarioShakeMapGen {
 		return realAR;
 	}
 	
-	private static SiteDataValueList<?> getData(SiteDataAPI<?> prov, GriddedRegion region)
+	private static SiteDataValueList<?> getData(SiteData<?> prov, GriddedRegion region)
 	throws DocumentException, IOException {
 		String cacheDir = "/home/kevin/CyberShake/M8/region/";
 		String fName = cacheDir + prov.getShortName();
 		String type = prov.getDataType();
-		if (type.equals(SiteDataAPI.TYPE_DEPTH_TO_2_5))
+		if (type.equals(SiteData.TYPE_DEPTH_TO_2_5))
 			fName += "_2.5";
-		else if (type.equals(SiteDataAPI.TYPE_DEPTH_TO_1_0))
+		else if (type.equals(SiteData.TYPE_DEPTH_TO_1_0))
 			fName += "_1.0";
 		fName += "_"+region.getName()+".xml";
 		
@@ -118,7 +118,7 @@ public class HardCodedScenarioShakeMapGen {
 			Element root = doc.getRootElement();
 			return SiteDataValueList.fromXMLMetadata(root.element(SiteDataValueList.XML_METADATA_NAME));
 		}
-		if (prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5) || prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
+		if (prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_2_5) || prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_1_0)) {
 			prov.getAdjustableParameterList().getParameter(CVM4BasinDepth.PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME).setValue(1.0);
 		}
 		System.out.println("Getting values for: " + prov.getName() + " (" + prov.getDataType() + ")");
@@ -136,10 +136,10 @@ public class HardCodedScenarioShakeMapGen {
 		
 		valLists.add(getData(new WillsMap2006(), region));
 		valLists.add(getData(new WaldAllenGlobalVs30(), region));
-		valLists.add(getData(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5), region));
-		valLists.add(getData(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0), region));
-		valLists.add(getData(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5), region));
-		valLists.add(getData(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0), region));
+		valLists.add(getData(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5), region));
+		valLists.add(getData(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0), region));
+		valLists.add(getData(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5), region));
+		valLists.add(getData(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_1_0), region));
 		
 		return valLists;
 	}

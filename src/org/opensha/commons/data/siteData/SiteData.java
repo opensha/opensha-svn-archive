@@ -42,7 +42,7 @@ import org.opensha.commons.param.editor.impl.ParameterListEditor;
  *
  * @param <Element>
  */
-public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
+public interface SiteData<Element> extends NamedObjectAPI, XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "SiteDataAPI";
 	

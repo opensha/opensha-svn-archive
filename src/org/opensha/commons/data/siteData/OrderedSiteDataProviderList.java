@@ -48,18 +48,18 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 
-public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XMLSaveable, Cloneable {
+public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSaveable, Cloneable {
 	
 	public static final String XML_METADATA_NAME = "OrderedSiteDataProviderList";
 	
 	// ordered list of providers...0 is highest priority
-	private ArrayList<SiteDataAPI<?>> providers;
+	private ArrayList<SiteData<?>> providers;
 	private ArrayList<Boolean> enabled = new ArrayList<Boolean>();
 	private boolean checkValues = true;
 	
 	private ArrayList<ChangeListener> changeListeners = null;
 	
-	public OrderedSiteDataProviderList(ArrayList<SiteDataAPI<?>> providers) {
+	public OrderedSiteDataProviderList(ArrayList<SiteData<?>> providers) {
 		this.providers = providers;
 		for (int i=0; i<providers.size(); i++)
 			enabled.add(true);
@@ -71,11 +71,11 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * 
 	 * @return
 	 */
-	public SiteDataAPI<?> getProviderForLocation(Location loc) {
+	public SiteData<?> getProviderForLocation(Location loc) {
 		for (int i=0; i<providers.size(); i++) {
 			if (!this.isEnabled(i))
 				continue;
-			SiteDataAPI<?> data = providers.get(i);
+			SiteData<?> data = providers.get(i);
 			
 			Region region = data.getApplicableRegion();
 			// skip this one if the site's not in it's applicable region
@@ -97,7 +97,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		for (int i=0; i<providers.size(); i++) {
 			if (!this.isEnabled(i))
 				continue;
-			SiteDataAPI provider = providers.get(i);
+			SiteData provider = providers.get(i);
 			
 			SiteDataValue<?> val = this.getCheckedDataFromProvider(provider, loc);
 			
@@ -107,11 +107,11 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		return null;
 	}
 	
-	private SiteDataValue<?> getCheckedDataFromProvider(SiteDataAPI provider, Location loc) throws IOException {
+	private SiteDataValue<?> getCheckedDataFromProvider(SiteData provider, Location loc) throws IOException {
 		return getCheckedDataFromProvider(provider, loc, checkValues);
 	}
 	
-	private SiteDataValue<?> getCheckedDataFromProvider(SiteDataAPI provider, Location loc, boolean checkValid) throws IOException {
+	private SiteDataValue<?> getCheckedDataFromProvider(SiteData provider, Location loc, boolean checkValid) throws IOException {
 		if (provider.hasDataForLocation(loc, false)) {
 			SiteDataValue<?> val = provider.getAnnotatedValue(loc);
 			if (!checkValid || provider.isValueValid(val.getValue())) {
@@ -132,7 +132,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	public ArrayList<SiteDataValueList<?>> getAllAvailableData(LocationList locs) throws IOException {
 		ArrayList<SiteDataValueList<?>> datas = new ArrayList<SiteDataValueList<?>>();
 		
-		for (SiteDataAPI<?> prov : providers) {
+		for (SiteData<?> prov : providers) {
 			
 			datas.add(prov.getAnnotatedValues(locs));
 		}
@@ -152,7 +152,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		for (int i=0; i<providers.size(); i++) {
 			if (!this.isEnabled(i))
 				continue;
-			SiteDataAPI<?> provider = providers.get(i);
+			SiteData<?> provider = providers.get(i);
 			try {
 				SiteDataValue<?> val = provider.getAnnotatedValue(loc);
 				if (val != null) {
@@ -184,7 +184,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		for (int i=0; i<providers.size(); i++) {
 			if (!this.isEnabled(i))
 				continue;
-			SiteDataAPI<?> provider = providers.get(i);
+			SiteData<?> provider = providers.get(i);
 			String type = provider.getDataType();
 			// if we already have this data type, then skip it
 			if (completedTypes.contains(type))
@@ -228,37 +228,37 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		return providers.size();
 	}
 	
-	public ArrayList<SiteDataAPI<?>> getList() {
-		ArrayList<SiteDataAPI<?>> list = new ArrayList<SiteDataAPI<?>>();
+	public ArrayList<SiteData<?>> getList() {
+		ArrayList<SiteData<?>> list = new ArrayList<SiteData<?>>();
 		for (int i=0; i<providers.size(); i++) {
 			if (!this.isEnabled(i))
 				continue;
-			SiteDataAPI<?> data = providers.get(i);
+			SiteData<?> data = providers.get(i);
 			list.add(data);
 		}
 		return list;
 	}
 	
-	public int getIndexOf(SiteDataAPI<?> data) {
+	public int getIndexOf(SiteData<?> data) {
 		return providers.indexOf(data);
 	}
 	
-	public SiteDataAPI<?> remove(int index) {
+	public SiteData<?> remove(int index) {
 		this.enabled.remove(index);
 		return this.providers.remove(index);
 	}
 	
-	public void add(SiteDataAPI<?> data) {
+	public void add(SiteData<?> data) {
 		this.providers.add(data);
 		this.enabled.add(true);
 	}
 	
-	public void add(int index, SiteDataAPI<?> data) {
+	public void add(int index, SiteData<?> data) {
 		this.providers.add(index, data);
 		this.enabled.add(index, true);
 	}
 	
-	public void set(int index, SiteDataAPI<?> data) {
+	public void set(int index, SiteData<?> data) {
 		this.providers.set(index, data);
 		fireChangeEvent();
 	}
@@ -274,9 +274,9 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	}
 	
 	public void swap(int index1, int index2) {
-		SiteDataAPI<?> one = providers.get(index1);
+		SiteData<?> one = providers.get(index1);
 		boolean enabledOne = enabled.get(index1);
-		SiteDataAPI<?> two = providers.get(index2);
+		SiteData<?> two = providers.get(index2);
 		boolean enabledTwo = enabled.get(index2);
 		
 		providers.set(index1, two);
@@ -286,7 +286,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		enabled.set(index2, new Boolean(enabledOne));
 	}
 	
-	public SiteDataAPI<?> getProvider(int index) {
+	public SiteData<?> getProvider(int index) {
 		return providers.get(index);
 	}
 	
@@ -307,7 +307,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		return false;
 	}
 
-	public Iterator<SiteDataAPI<?>> iterator() {
+	public Iterator<SiteData<?>> iterator() {
 		return providers.iterator();
 	}
 	
@@ -328,7 +328,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * @return
 	 */
 	public static OrderedSiteDataProviderList createSiteDataProviderDefaults() {
-		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 		
 		/*		Wills 2006			*/
 		try {
@@ -346,25 +346,25 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		}
 		/*		CVM 4 Depth 2.5		*/
 		try {
-			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+			providers.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/*		CVM 4 Depth 1.0		*/
 		try {
-			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+			providers.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/*		USGS Bay Area Depth 2.5		*/
 		try {
-			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+			providers.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/*		USGS Bay Area Depth 1.0		*/
 		try {
-			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
+			providers.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -385,7 +385,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * @return
 	 */
 	public static OrderedSiteDataProviderList createSiteDataMapProviders() {
-		ArrayList<SiteDataAPI<?>> providers = createDebugSiteDataProviders().getList();
+		ArrayList<SiteData<?>> providers = createDebugSiteDataProviders().getList();
 		
 		for (int i=0; i<providers.size(); i++) {
 			if (providers.get(i).getName() == WillsMap2000.NAME) {
@@ -445,7 +445,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * @return
 	 */
 	public static OrderedSiteDataProviderList createCompatibilityProviders(boolean useOldData) {
-		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 		
 		if (useOldData) {
 			/*		Wills 2000			*/
@@ -465,7 +465,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 			}
 			/*		CVM 4				*/
 			try {
-				providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+				providers.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -486,7 +486,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	public void printList() {
 		int size = size();
 		for (int i=0; i<size; i++) {
-			SiteDataAPI<?> provider = this.getProvider(i);
+			SiteData<?> provider = this.getProvider(i);
 			boolean enabled = this.isEnabled(i);
 			
 			if (enabled)
@@ -500,7 +500,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * Removes all providers that are currently disabled
 	 */
 	public void removeDisabledProviders() {
-		ArrayList<SiteDataAPI<?>> newProvs = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<SiteData<?>> newProvs = new ArrayList<SiteData<?>>();
 		ArrayList<Boolean> newEnabled = new ArrayList<Boolean>();
 		
 		for (int i=0; i<providers.size(); i++) {
@@ -518,7 +518,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	public String toString() {
 		String str =  "OrderedSiteDataProviderList - " + size() + " providers.\n";
 		for (int i=0; i<size(); i++) {
-			SiteDataAPI<?> prov = this.getProvider(i);
+			SiteData<?> prov = this.getProvider(i);
 			String enabledStr;
 			if (isEnabled(i))
 				enabledStr = " (enabled)";
@@ -550,7 +550,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 */
 	@Override
 	public OrderedSiteDataProviderList clone() {
-		ArrayList<SiteDataAPI<?>> list = (ArrayList<SiteDataAPI<?>>)this.providers.clone();
+		ArrayList<SiteData<?>> list = (ArrayList<SiteData<?>>)this.providers.clone();
 		
 		OrderedSiteDataProviderList newList = new OrderedSiteDataProviderList(list);
 		
@@ -567,7 +567,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		Element listEl = el.addElement("ProviderList");
 		
 		for (int i=0; i<size(); i++) {
-			SiteDataAPI<?> provider = this.getProvider(i);
+			SiteData<?> provider = this.getProvider(i);
 			
 			Element provEl = listEl.addElement("Provider");
 			provEl.addAttribute("Priority", i + "");
@@ -584,7 +584,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		
 		Iterator<Element> it = listEl.elementIterator();
 		
-		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 		ArrayList<Boolean> enableds = new ArrayList<Boolean>();
 		ArrayList<Integer> priorities = new ArrayList<Integer>();
 		
@@ -592,20 +592,20 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 			Element provEl = it.next();
 			int priority = Integer.parseInt(provEl.attributeValue("Priority"));
 			boolean enabled = Boolean.parseBoolean(provEl.attributeValue("Enabled"));
-			Element subEl = provEl.element(SiteDataAPI.XML_METADATA_NAME);
+			Element subEl = provEl.element(SiteData.XML_METADATA_NAME);
 			
-			SiteDataAPI<?> provider = AbstractSiteData.fromXMLMetadata(subEl);
+			SiteData<?> provider = AbstractSiteData.fromXMLMetadata(subEl);
 			
 			providers.add(provider);
 			priorities.add(priority);
 			enableds.add(enabled);
 		}
 		
-		ArrayList<SiteDataAPI<?>> ordered = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<SiteData<?>> ordered = new ArrayList<SiteData<?>>();
 		ArrayList<Boolean> orderedEnableds = new ArrayList<Boolean>();
 		
 		for (int i=0; i<providers.size(); i++) {
-			SiteDataAPI<?> provider = null;
+			SiteData<?> provider = null;
 			boolean enabled = false;
 			for (int j=0; j<priorities.size(); j++) {
 				int priority = priorities.get(j);
@@ -640,13 +640,13 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * @param newList
 	 */
 	public void mergeWith(OrderedSiteDataProviderList newList) {
-		ArrayList<SiteDataAPI<?>> toAdd = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<SiteData<?>> toAdd = new ArrayList<SiteData<?>>();
 		
 		for (int j=0; j<newList.size(); j++) {
-			SiteDataAPI<?> newProv = newList.getProvider(j);
+			SiteData<?> newProv = newList.getProvider(j);
 			boolean shouldAdd = true;
 			for (int i=0; i<this.size(); i++) {
-				SiteDataAPI<?> curProv = this.getProvider(i);
+				SiteData<?> curProv = this.getProvider(i);
 				if (curProv.getName().equals(newProv.getName())) {
 					this.set(i, newProv);
 					shouldAdd = false;

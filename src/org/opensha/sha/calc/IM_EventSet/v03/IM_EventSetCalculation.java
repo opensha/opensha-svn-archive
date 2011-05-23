@@ -29,7 +29,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -242,7 +242,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 						" (" + val.getDataMeasurementType() + ")");
 			}
 		}
-		for (SiteDataAPI<?> provider : calc.getProviders()) {
+		for (SiteData<?> provider : calc.getProviders()) {
 			System.out.println("Loaded Site Data Provider: " + provider.getName());
 		}
 	}

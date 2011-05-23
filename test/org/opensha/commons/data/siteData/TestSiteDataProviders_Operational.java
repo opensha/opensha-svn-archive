@@ -62,7 +62,7 @@ public class TestSiteDataProviders_Operational {
 	 * @param prov
 	 * @throws IOException
 	 */
-	private void testProv(SiteDataAPI prov) throws IOException {
+	private void testProv(SiteData prov) throws IOException {
 		ArrayList<?> vals = prov.getValues(locs);
 		
 		boolean hasOneValid = false;
@@ -81,13 +81,13 @@ public class TestSiteDataProviders_Operational {
 		assertTrue("At least one 'valid' value per test is expected.", hasOneValid);
 	}
 	
-	private void testProvTimed(SiteDataAPI prov, int timeoutSeconds) throws Throwable {
+	private void testProvTimed(SiteData prov, int timeoutSeconds) throws Throwable {
 		TestUtils.runTestWithTimer("runTest", new TestProvClass(prov), timeoutSeconds);
 	}
 	
 	private class TestProvClass {
-		SiteDataAPI prov;
-		public TestProvClass(SiteDataAPI prov) {
+		SiteData prov;
+		public TestProvClass(SiteData prov) {
 			this.prov = prov;
 		}
 		
@@ -106,28 +106,28 @@ public class TestSiteDataProviders_Operational {
 	
 	@Test
 	public void testCVM4_2_5() throws Throwable {
-		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
+		CVM4BasinDepth prov = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
 		
 		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
 	public void testCVM4_1_0() throws Throwable {
-		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
+		CVM4BasinDepth prov = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
 		
 		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
 	public void testUSGSBayArea_2_5() throws Throwable {
-		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
+		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
 		
 		testProvTimed(prov, TIMEOUT_TIME);
 	}
 	
 	@Test
 	public void testUSGSBayArea_1_0() throws Throwable {
-		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
+		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
 		
 		testProvTimed(prov, TIMEOUT_TIME);
 	}

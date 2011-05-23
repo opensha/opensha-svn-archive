@@ -39,7 +39,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
  *
  * @param <Element>
  */
-public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, ParameterChangeListener {
+public class CachedSiteDataWrapper<Element> implements SiteData<Element>, ParameterChangeListener {
 	
 	/**
 	 * 
@@ -51,16 +51,16 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 	
 	private int cacheSize;
 	private int cacheSizeMinusOne;
-	private SiteDataAPI<Element> provider;
+	private SiteData<Element> provider;
 	
 	private ArrayList<Location> locsCache = new ArrayList<Location>();
 	private ArrayList<Element> dataCache = new ArrayList<Element>();
 	
-	public CachedSiteDataWrapper(SiteDataAPI<Element> provider) {
+	public CachedSiteDataWrapper(SiteData<Element> provider) {
 		this(provider, 5);
 	}
 	
-	public CachedSiteDataWrapper(SiteDataAPI<Element> provider, int cacheSize) {
+	public CachedSiteDataWrapper(SiteData<Element> provider, int cacheSize) {
 		this.cacheSize = cacheSize;
 		cacheSizeMinusOne = cacheSize - 1;
 		this.provider = provider;

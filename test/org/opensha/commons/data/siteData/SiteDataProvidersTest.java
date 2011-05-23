@@ -53,7 +53,7 @@ public class SiteDataProvidersTest {
 		locs.add(loc5);
 	}
 	
-	private void testProv(SiteDataAPI<?> prov, ArrayList<?> expectedVals) throws IOException {
+	private void testProv(SiteData<?> prov, ArrayList<?> expectedVals) throws IOException {
 		ArrayList<?> vals = prov.getValues(locs);
 		
 		for (int i=0; i<expectedVals.size(); i++) {
@@ -88,7 +88,7 @@ public class SiteDataProvidersTest {
 	
 	@Test
 	public void testCVM4_2_5() throws IOException {
-		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
+		CVM4BasinDepth prov = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
 		
 		ArrayList<Double> vals = new ArrayList<Double>();
 		
@@ -103,7 +103,7 @@ public class SiteDataProvidersTest {
 	
 	@Test
 	public void testCVM4_1_0() throws IOException {
-		CVM4BasinDepth prov = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
+		CVM4BasinDepth prov = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
 		
 		ArrayList<Double> vals = new ArrayList<Double>();
 		
@@ -118,7 +118,7 @@ public class SiteDataProvidersTest {
 	
 	@Test
 	public void testUSGSBayArea_2_5() throws IOException {
-		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
+		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
 		
 		ArrayList<Double> vals = new ArrayList<Double>();
 		
@@ -133,7 +133,7 @@ public class SiteDataProvidersTest {
 	
 	@Test
 	public void testUSGSBayArea_1_0() throws IOException {
-		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0);
+		USGSBayAreaBasinDepth prov = new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
 		
 		ArrayList<Double> vals = new ArrayList<Double>();
 		

@@ -37,7 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.calc.IM_EventSet.v03.SiteFileLoader;
@@ -86,8 +86,8 @@ public class SiteImporterPanel extends JPanel implements ActionListener {
 		buttonPanel.add(rightButtonPanel, BorderLayout.EAST);
 		
 		String measTypes[] = new String[2];
-		measTypes[0] = SiteDataAPI.TYPE_FLAG_INFERRED;
-		measTypes[1] = SiteDataAPI.TYPE_FLAG_MEASURED;
+		measTypes[0] = SiteData.TYPE_FLAG_INFERRED;
+		measTypes[1] = SiteData.TYPE_FLAG_MEASURED;
 		measChooser = new JComboBox(measTypes);
 		JPanel measPanel = new JPanel();
 		measPanel.setLayout(new BoxLayout(measPanel, BoxLayout.X_AXIS));

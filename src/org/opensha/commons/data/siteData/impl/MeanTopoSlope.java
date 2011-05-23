@@ -22,7 +22,7 @@ package org.opensha.commons.data.siteData.impl;
 import java.io.IOException;
 
 import org.opensha.commons.data.siteData.AbstractSiteData;
-import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.util.MeanTopoSlopeCalculator;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -31,7 +31,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 
 public class MeanTopoSlope extends AbstractSiteData<Double> {
 	
-	SiteDataAPI<Double> topoSlopeProvider = null;
+	SiteData<Double> topoSlopeProvider = null;
 	MeanTopoSlopeCalculator calc = null;
 	
 	public static final String PARAM_RADIUS_NAME = "Single Location Radius (KM)";
@@ -56,7 +56,7 @@ public class MeanTopoSlope extends AbstractSiteData<Double> {
 		this(new SRTM30PlusTopoSlope());
 	}
 	
-	public MeanTopoSlope(SiteDataAPI<Double> topoSlopeProvider) {
+	public MeanTopoSlope(SiteData<Double> topoSlopeProvider) {
 		this.topoSlopeProvider = topoSlopeProvider;
 		calc = new MeanTopoSlopeCalculator(topoSlopeProvider);
 		
