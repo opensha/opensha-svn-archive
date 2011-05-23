@@ -17,9 +17,11 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.earthquake;
+package org.opensha.sha.earthquake.util;
 
 import java.util.Comparator;
+
+import org.opensha.sha.earthquake.EqkRupture;
 
 /**
  * <p>Title: EqkRuptureMagComparator</p>

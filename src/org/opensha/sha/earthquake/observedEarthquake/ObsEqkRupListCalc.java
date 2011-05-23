@@ -21,7 +21,7 @@ package org.opensha.sha.earthquake.observedEarthquake;
 
 import java.util.Collections;
 
-import org.opensha.sha.earthquake.EqkRuptureMagComparator;
+import org.opensha.sha.earthquake.util.EqkRuptureMagComparator;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**

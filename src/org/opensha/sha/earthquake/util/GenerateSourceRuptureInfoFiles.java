@@ -17,12 +17,15 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.earthquake;
+package org.opensha.sha.earthquake.util;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 
 
@@ -68,7 +71,7 @@ public class GenerateSourceRuptureInfoFiles {
   public void createERF_MetadataFile(String directoryPath,EqkRupForecast forecast){
 
     String forecastMetadata = "EqkRupForecast Name= "+forecast.getName()+"\n";
-    forecastMetadata += forecast.adjustableParams.getParameterListMetadataString();
+    forecastMetadata += forecast.getAdjustableParameterList().getParameterListMetadataString();
     String timeSpanMetadata = forecast.getTimeSpan().getAdjustableParams().getParameterListMetadataString();
     FileWriter fw = null;
     try {

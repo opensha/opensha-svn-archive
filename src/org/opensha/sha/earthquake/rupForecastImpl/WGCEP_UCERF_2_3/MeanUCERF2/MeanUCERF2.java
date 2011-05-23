@@ -30,7 +30,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkSourceAPI;
+import org.opensha.sha.earthquake.EqkSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -951,7 +951,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	}
 
 	public void writeFaultSourceSurfaceOutlines() {
-		ArrayList<EqkSourceAPI> allFltSources = new ArrayList<EqkSourceAPI>();
+		ArrayList<EqkSource> allFltSources = new ArrayList<EqkSource>();
 		allFltSources.addAll(aFaultSegmentedSources);
 		allFltSources.addAll(aFaultUnsegmentedSources);
 		allFltSources.addAll(bFaultSources);
@@ -959,7 +959,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		try {
 			FileWriter fw = new FileWriter("meanUCERF2_FltSrcSurfOutln.txt");
 			for(int isrc=0; isrc<allFltSources.size(); isrc++) {
-				EqkSourceAPI source = allFltSources.get(isrc);
+				EqkSource source = allFltSources.get(isrc);
 				LocationList locList = source.getSourceSurface().getSurfacePerimeterLocsList();
 				System.out.println("# "+source.getName());
 				fw.write("# "+source.getName()+"\n");

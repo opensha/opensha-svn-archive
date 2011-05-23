@@ -19,6 +19,7 @@
 
 package org.opensha.sha.earthquake;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -36,7 +37,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public interface EqkSourceAPI extends Named{
+public interface EqkSource extends Named, Serializable {
 
 
   /**

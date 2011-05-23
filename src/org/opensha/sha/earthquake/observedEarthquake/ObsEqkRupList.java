@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.earthquake.EqkRuptureMagComparator;
+import org.opensha.sha.earthquake.util.EqkRuptureMagComparator;
 
 /**
  * <p>Title: ObsEqkRupList</p>

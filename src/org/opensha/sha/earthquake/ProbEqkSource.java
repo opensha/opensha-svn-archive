@@ -41,7 +41,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public abstract class ProbEqkSource implements EqkSourceAPI, Named {
+public abstract class ProbEqkSource implements EqkSource, Named {
 
 	/**
 	 * 
