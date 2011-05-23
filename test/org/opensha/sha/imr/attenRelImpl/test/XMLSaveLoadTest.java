@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 public class XMLSaveLoadTest {
@@ -58,9 +58,9 @@ public class XMLSaveLoadTest {
 			System.out.println("Handling '" + imr.getName() + "'");
 			imr.setParamDefaults();
 			imr.toXMLMetadata(root);
-			Element imrElem = root.element(IntensityMeasureRelationship.XML_METADATA_NAME);
+			Element imrElem = root.element(AbstractIMR.XML_METADATA_NAME);
 			ScalarIntensityMeasureRelationshipAPI fromXML = (ScalarIntensityMeasureRelationshipAPI)
-						IntensityMeasureRelationship.fromXMLMetadata(imrElem, null);
+						AbstractIMR.fromXMLMetadata(imrElem, null);
 			imrElem.detach();
 			
 			Iterator<Parameter<?>> it = imr.getOtherParamsIterator();

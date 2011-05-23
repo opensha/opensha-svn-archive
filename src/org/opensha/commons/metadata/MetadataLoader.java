@@ -31,7 +31,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 public class MetadataLoader implements ParameterChangeWarningListener {
@@ -103,7 +103,7 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 		try {
 			SAXReader reader = new SAXReader();
 	        Document document = reader.read(new File("output.xml"));
-	        IntensityMeasureRelationship imr = IntensityMeasureRelationship.fromXMLMetadata(document.getRootElement().element(IntensityMeasureRelationship.XML_METADATA_NAME), new MetadataLoader());
+	        AbstractIMR imr = AbstractIMR.fromXMLMetadata(document.getRootElement().element(AbstractIMR.XML_METADATA_NAME), new MetadataLoader());
 	        System.out.println("Name: " + imr.getName());
 	        System.out.println("IMT: " + imr.getIntensityMeasure().getName());
 	        System.out.println("Period: " + imr.getParameter(PeriodParam.NAME).getValue());

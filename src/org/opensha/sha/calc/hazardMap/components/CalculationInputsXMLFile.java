@@ -20,7 +20,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -220,8 +220,8 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		Element imrsEl = root.addElement(XML_IMRS_NAME);
 		
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			if (imr instanceof IntensityMeasureRelationship) {
-				IntensityMeasureRelationship attenRel = (IntensityMeasureRelationship)imr;
+			if (imr instanceof AbstractIMR) {
+				AbstractIMR attenRel = (AbstractIMR)imr;
 				attenRel.toXMLMetadata(imrsEl);
 			} else {
 				throw new ClassCastException("Currently only IntensityMeasureRelationship subclasses can be saved" +
@@ -241,7 +241,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			Element imrEl = it.next();
 			
 			ScalarIntensityMeasureRelationshipAPI imr = 
-				(ScalarIntensityMeasureRelationshipAPI) IntensityMeasureRelationship.fromXMLMetadata(imrEl, null);
+				(ScalarIntensityMeasureRelationshipAPI) AbstractIMR.fromXMLMetadata(imrEl, null);
 			imrs.add(imr);
 		}
 		
@@ -265,7 +265,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		}
 		
 		if (imts != null) {
-			imts.get(index).toXMLMetadata(mapEl, IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+			imts.get(index).toXMLMetadata(mapEl, AbstractIMR.XML_METADATA_IMT_NAME);
 		}
 		
 		return root;
@@ -274,7 +274,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	public static Parameter<Double> imtFromXML(
 			ScalarIntensityMeasureRelationshipAPI testIMR,
 			Element imrMapEl) {
-		Element imtElem = imrMapEl.element(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+		Element imtElem = imrMapEl.element(AbstractIMR.XML_METADATA_IMT_NAME);
 		if (imtElem == null)
 			return null;
 		

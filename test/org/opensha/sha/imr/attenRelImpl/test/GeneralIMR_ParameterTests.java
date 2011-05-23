@@ -26,7 +26,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
@@ -117,7 +117,7 @@ public class GeneralIMR_ParameterTests {
 		ParameterList list = new ParameterList();
 
 		try {
-			list.addParameter(imr.getParameter(IntensityMeasureRelationship.EXCEED_PROB_NAME));
+			list.addParameter(imr.getParameter(AbstractIMR.EXCEED_PROB_NAME));
 		} catch (Exception e) {}
 
 		try {

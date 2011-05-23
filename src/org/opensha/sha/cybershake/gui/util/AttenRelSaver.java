@@ -36,7 +36,7 @@ import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 
@@ -92,7 +92,7 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 		
 		Document doc = reader.read(file);
 		
-		Element el = doc.getRootElement().element(IntensityMeasureRelationship.XML_METADATA_NAME);
+		Element el = doc.getRootElement().element(AbstractIMR.XML_METADATA_NAME);
 		
 		return (AttenuationRelationship)AttenuationRelationship.fromXMLMetadata(el, new FakeParameterListener());
 	}

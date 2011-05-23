@@ -29,7 +29,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.AbstractIMR;
 
 /**
  * <p>Title: IMLorProbSelectorGuiBean</p>
@@ -51,8 +51,8 @@ ParameterChangeListener{
 	public final static String MAP_TYPE = "Map Type";
 	private final static String IML="IML";
 	private final static String MAP_INFO="Set What To Plot";
-	private final static Double MIN_PROB = IntensityMeasureRelationship.EXCEED_PROB_MIN;
-	private final static Double MAX_PROB = IntensityMeasureRelationship.EXCEED_PROB_MAX;
+	private final static Double MIN_PROB = AbstractIMR.EXCEED_PROB_MIN;
+	private final static Double MAX_PROB = AbstractIMR.EXCEED_PROB_MAX;
 	private final static Double DEFAULT_PROB= new Double(.5);
 	private final static Double DEFAULT_IML = new Double(.1);
 

@@ -216,7 +216,7 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 
 public abstract class AttenuationRelationship
-extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationshipAPI {
+extends AbstractIMR implements ScalarIntensityMeasureRelationshipAPI {
 
 	/**
 	 *  Classname constant used for debugging statements

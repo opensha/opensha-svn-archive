@@ -67,7 +67,7 @@ import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
  * @see        IntensityMeasureRelationshipAPI
  */
 
-public abstract class IntensityMeasureRelationship
+public abstract class AbstractIMR
 implements IntensityMeasureRelationshipAPI {
 
 	private final static String NAME = "Intensity Measure Relationship";
@@ -156,7 +156,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *  No-Arg Constructor for the IntensityMeasureRelationship object. This only
 	 *  creates one parameter (exceedProbParam) used by some subclasses.
 	 */
-	public IntensityMeasureRelationship() {
+	public AbstractIMR() {
 		exceedProbParam = new DoubleParameter(EXCEED_PROB_NAME, EXCEED_PROB_MIN, EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
 		exceedProbParam.setInfo(EXCEED_PROB_INFO);
 		exceedProbParam.setNonEditable();
@@ -555,7 +555,7 @@ implements IntensityMeasureRelationshipAPI {
 	 * This converts the IMR to an XML representation in an Element object
 	 */
 	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(IntensityMeasureRelationship.XML_METADATA_NAME);
+		Element xml = root.addElement(AbstractIMR.XML_METADATA_NAME);
 		xml.addAttribute("className", this.getClass().getName());
 		ListIterator paramIt = this.getOtherParamsIterator();
 		Element paramsElement = xml.addElement(AbstractParameter.XML_GROUP_METADATA_NAME);
@@ -564,14 +564,14 @@ implements IntensityMeasureRelationshipAPI {
 			paramsElement = param.toXMLMetadata(paramsElement);
 		}
 		paramIt = this.getSiteParamsIterator();
-		Element siteParamsElement = xml.addElement(IntensityMeasureRelationship.XML_METADATA_SITE_PARAMETERS_NAME);
+		Element siteParamsElement = xml.addElement(AbstractIMR.XML_METADATA_SITE_PARAMETERS_NAME);
 		while (paramIt.hasNext()) {
 			AbstractParameter param = (AbstractParameter)paramIt.next();
 			siteParamsElement = param.toXMLMetadata(siteParamsElement);
 		}
 		Parameter imt = this.getIntensityMeasure();
 		if (imt != null)
-			imt.toXMLMetadata(xml, IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+			imt.toXMLMetadata(xml, AbstractIMR.XML_METADATA_IMT_NAME);
 		//	  ParameterAPI period = this.getParameter(PeriodParam.NAME);
 		//	  if (period != null)
 		//		  imtElem.addAttribute(PeriodParam.NAME.replaceAll(" ", ""), period.getValue().toString());
@@ -581,14 +581,14 @@ implements IntensityMeasureRelationshipAPI {
 		return root;
 	}
 
-	public static IntensityMeasureRelationship fromXMLMetadata(Element root, ParameterChangeWarningListener listener) throws InvocationTargetException {
+	public static AbstractIMR fromXMLMetadata(Element root, ParameterChangeWarningListener listener) throws InvocationTargetException {
 		String className = root.attribute("className").getValue();
 		System.out.println("Loading IMR: " + className);
 		ArrayList<Object> args = new ArrayList<Object>();
 		ArrayList<String> argNames = new ArrayList<String>();
 		args.add(listener);
 		argNames.add(ParameterChangeWarningListener.class.getName());
-		IntensityMeasureRelationship imr = (IntensityMeasureRelationship)MetadataLoader.createClassInstance(className, args, argNames);
+		AbstractIMR imr = (AbstractIMR)MetadataLoader.createClassInstance(className, args, argNames);
 		imr.setParamDefaults();
 
 		// add params
@@ -616,7 +616,7 @@ implements IntensityMeasureRelationshipAPI {
 		}
 
 		System.out.println("Setting site params...");
-		Element siteParamsElement = root.element(IntensityMeasureRelationship.XML_METADATA_SITE_PARAMETERS_NAME);
+		Element siteParamsElement = root.element(AbstractIMR.XML_METADATA_SITE_PARAMETERS_NAME);
 		if (siteParamsElement != null) {
 			paramIt = imr.getSiteParamsIterator();
 			while (paramIt.hasNext()) {
@@ -639,7 +639,7 @@ implements IntensityMeasureRelationshipAPI {
 		}
 
 		// set IMT
-		Element imtElem = root.element(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+		Element imtElem = root.element(AbstractIMR.XML_METADATA_IMT_NAME);
 		if (imtElem != null) {
 			String imtName = imtElem.attributeValue("name");
 

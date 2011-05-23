@@ -36,7 +36,7 @@ import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.imr.IntensityMeasureRelationship;
+import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 public class IM_EventSetCalculation implements XMLSaveable {
@@ -139,7 +139,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		while (imrElIt.hasNext()) {
 			Element imrEl = imrElIt.next();
 			try {
-				ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI) IntensityMeasureRelationship.fromXMLMetadata(imrEl, null);
+				ScalarIntensityMeasureRelationshipAPI imr = (ScalarIntensityMeasureRelationshipAPI) AbstractIMR.fromXMLMetadata(imrEl, null);
 				imrs.add(imr);
 			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
