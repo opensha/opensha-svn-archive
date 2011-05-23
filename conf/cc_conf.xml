@@ -10,9 +10,12 @@
 
 	<!-- These builds are run based on modifications to the repository -->
 	<project name="OpenSHA-continuous" buildafterfailed="false" requiremodification="true">
+		<listeners>
+			<currentbuildstatuslistener
+          		file="${logdir}/buildstatus.txt"/>
+        </listeners>
 	
 		<bootstrappers>
-			<currentbuildstatusbootstrapper file="${logdir}/buildstatus.txt"/>
 			<svnbootstrapper file="ant/cc-build-test.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/build.xml"
@@ -58,8 +61,12 @@
 	<!-- These tests will run at set times/days, regardless of repository modifications -->
 	<project name="OpenSHA-nightly" buildafterfailed="false" requiremodification="false">
 	
+		<listeners>
+			<currentbuildstatuslistener
+          		file="${logdir}/buildstatus.txt"/>
+        </listeners>
+	
 		<bootstrappers>
-			<currentbuildstatusbootstrapper file="${logdir}/buildstatus.txt"/>
 			<svnbootstrapper file="ant/cc-build.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/build.xml"
@@ -121,8 +128,12 @@
 	<!-- These tests will run on a regular schedule, regardless of repository modifications -->
 	<project name="OpenSHA-operational" buildafterfailed="false" requiremodification="false">
 	
+		<listeners>
+			<currentbuildstatuslistener
+          		file="${logdir}/buildstatus.txt"/>
+        </listeners>
+	
 		<bootstrappers>
-			<currentbuildstatusbootstrapper file="${logdir}/buildstatus.txt"/>
 			<svnbootstrapper file="ant/cc-build.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/build.xml"
