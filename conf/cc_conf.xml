@@ -39,7 +39,6 @@
 		</log>
 
 		<publishers>
-			<currentbuildstatuspublisher file="${logdir}/buildstatus.txt" />
 
 			<htmlemail mailhost="localhost"
 						returnaddress="${returnaddress}"
@@ -106,7 +105,6 @@
 		</log>
 
 		<publishers>
-			<currentbuildstatuspublisher file="${logdir}/buildstatus.txt" />
 
 			<htmlemail mailhost="localhost"
 						returnaddress="${returnaddress}"
@@ -159,7 +157,6 @@
 		</log>
 
 		<publishers>
-			<currentbuildstatuspublisher file="${logdir}/buildstatus.txt" />
 
 			<htmlemail mailhost="localhost"
 						returnaddress="${returnaddress}"
