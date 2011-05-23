@@ -127,7 +127,7 @@ public class XYDataWindow extends JFrame {
 
   /**
    *
-   * @returns the XY Data set that user entered.
+   * @return the XY Data set that user entered.
    */
   public XYSeries getDataSet() throws NumberFormatException, NullPointerException{
     series = new XYSeries("Random Data");

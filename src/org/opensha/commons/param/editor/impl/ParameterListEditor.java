@@ -145,7 +145,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 	/**
 	 *
 	 * @param paramName
-	 * @returns the index of the parameter Name in the ArrayList
+	 * @return the index of the parameter Name in the ArrayList
 	 */
 	private int getIndexOf(String paramName){
 		int size =  parametersName.size();

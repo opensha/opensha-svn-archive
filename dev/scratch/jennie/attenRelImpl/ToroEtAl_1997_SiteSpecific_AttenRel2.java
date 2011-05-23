@@ -572,7 +572,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel2
   /**
    * get the name of this IMR
    *
-   * @returns the name of this IMR
+   * @return the name of this IMR
    */
   public String getName() {
     return NAME;

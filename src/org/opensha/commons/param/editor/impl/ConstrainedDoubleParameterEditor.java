@@ -82,7 +82,7 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor {
 	//    }
 	
 	/**
-	 * @returns the DoubleConstraint
+	 * @return the DoubleConstraint
 	 */
 	protected DoubleConstraint getConstraint(){
 		//Double constraint declaration

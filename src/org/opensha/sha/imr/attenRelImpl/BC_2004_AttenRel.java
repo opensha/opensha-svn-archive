@@ -492,7 +492,7 @@ public class BC_2004_AttenRel extends AttenuationRelationship {
 	/**
 	 * get the name of this IMR
 	 *
-	 * @returns the name of this IMR
+	 * @return the name of this IMR
 	 */
 	public String getName() {
 		return NAME;

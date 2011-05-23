@@ -73,7 +73,7 @@ public class PEER_LogicTreeServerBasedERF_List extends PEER_LogicTreeERF_List {
   /**
    *
    * @param index
-   * @returns the instance of the remotely existing ERF in the ERF List
+   * @return the instance of the remotely existing ERF in the ERF List
    * on the server given the index. It also sets the timespan in the returned ERF.
    * **NOTE: All the functionality in this functionlity remains same as that of getERF but only differs
    * when returning each ERF from the ERF List. getERF() return the instance of the

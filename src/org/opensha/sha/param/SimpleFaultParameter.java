@@ -295,7 +295,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the ParameterList comprising of following parameters:
+	 * @return the ParameterList comprising of following parameters:
 	 * 1)name of the fault
 	 * 2)Grid Spacing
 	 * 3)Num of the Flt Trace
@@ -307,7 +307,7 @@ java.io.Serializable{
 
 	/**
 	 * returns ParameterListParameter
-	 * @returns the Parameter comprising of all the latitudes
+	 * @return the Parameter comprising of all the latitudes
 	 */
 	public Parameter getLatParam(){
 		return parameterListParameterForLats;
@@ -315,7 +315,7 @@ java.io.Serializable{
 
 	/**
 	 * returns ParameterListParameter
-	 * @returns the Parameter comprising of all the longitudes
+	 * @return the Parameter comprising of all the longitudes
 	 */
 	public Parameter getLonParam(){
 		return parameterListParameterForLons;
@@ -323,7 +323,7 @@ java.io.Serializable{
 
 	/**
 	 * returns ParameterListParameter
-	 * @returns the Parameter comprising of all the depths
+	 * @return the Parameter comprising of all the depths
 	 */
 	public Parameter getDepthParam(){
 		return parameterListParameterForDepths;
@@ -331,7 +331,7 @@ java.io.Serializable{
 
 	/**
 	 * returns ParameterListParameter
-	 * @returns the Parameter comprising of all the dips
+	 * @return the Parameter comprising of all the dips
 	 */
 	public Parameter getDipParam(){
 		return parameterListParameterForDips;
@@ -339,7 +339,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the parameter for the number of Dips
+	 * @return the parameter for the number of Dips
 	 */
 	public Parameter getNumDipParam(){
 		return numDipParam;
@@ -347,7 +347,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the parameter for selected fault type
+	 * @return the parameter for selected fault type
 	 */
 	public Parameter getFaultTypeParam(){
 		return faultTypeParam;
@@ -355,7 +355,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the parameter for Dip direction
+	 * @return the parameter for Dip direction
 	 */
 	public Parameter getDipDirectionParam(){
 		return dipDirectionParam;
@@ -684,7 +684,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the fault trace
+	 * @return the fault trace
 	 */
 	public FaultTrace getFaultTrace(){
 		return fltTrace;
@@ -692,7 +692,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the Upper Siesmogenic depth
+	 * @return the Upper Siesmogenic depth
 	 */
 	public double getUpperSiesmogenicDepth(){
 		return upperSies;
@@ -700,7 +700,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the Lower Siesmogenic depth
+	 * @return the Lower Siesmogenic depth
 	 */
 	public double getLowerSiesmogenicDepth(){
 		return lowerSies;
@@ -727,7 +727,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the name of the fault
+	 * @return the name of the fault
 	 */
 	public String getFaultName(){
 		return (String)parameterList.getParameter(this.FAULT_NAME).getValue();
@@ -817,7 +817,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the ArrayList containing the values for all the specified Latitudes
+	 * @return the ArrayList containing the values for all the specified Latitudes
 	 */
 	public ArrayList getLatParamVals(){
 		return prevLats;
@@ -825,7 +825,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the ArrayList containing the values for all the specified Longitudes
+	 * @return the ArrayList containing the values for all the specified Longitudes
 	 */
 	public ArrayList getLonParamVals(){
 		return prevLons;
@@ -833,7 +833,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the ArrayList containing the values for all the specified Dips
+	 * @return the ArrayList containing the values for all the specified Dips
 	 */
 	public ArrayList getDipParamVals(){
 		return prevDips;
@@ -841,7 +841,7 @@ java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the ArrayList containing the values for all the specified Depths
+	 * @return the ArrayList containing the values for all the specified Depths
 	 */
 	public ArrayList getDepthParamVals(){
 		return prevDepths;
@@ -851,7 +851,7 @@ java.io.Serializable{
 	 * This overrides the getmetadataString() method because the value here
 	 * does not have an ASCII representation (and we need to know the values
 	 * of the independent parameter instead).
-	 * @returns Sstring
+	 * @return Sstring
 	 */
 	public String getMetadataString() {
 		return getDependentParamMetadataString();

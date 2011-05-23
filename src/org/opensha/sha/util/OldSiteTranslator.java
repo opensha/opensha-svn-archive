@@ -143,7 +143,7 @@ public class OldSiteTranslator
    * @param willsClass - a String with one of the folowing ("E", "DE", "D", "CD", "C", "BC", or "B")
    * @param basinDepth - Depth (in meters) to where Vs = 2.5-km/sec
    *
-   * @returns a boolean to tell if setting the value was successful (if false
+   * @return a boolean to tell if setting the value was successful (if false
    * it means the parameter value was not changed).  A basinDepth value of NaN is allowed
    * (it will not cause the returned value to be false).
    * 

@@ -664,7 +664,7 @@ public class HazardCurve2DB {
 	}
 	
 	/**
-	 * @returns the supported SA Period as list of strings.
+	 * @return the supported SA Period as list of strings.
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs(int runID) {
 		long startTime = System.currentTimeMillis();
@@ -705,7 +705,7 @@ public class HazardCurve2DB {
 	}
 	
 	/**
-	 * @returns the supported SA Period as list of strings.
+	 * @return the supported SA Period as list of strings.
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int rupVarID, int sgtVariation, int velModelID) {
 		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVariation, rupVarID, velModelID, null, null, null, null);

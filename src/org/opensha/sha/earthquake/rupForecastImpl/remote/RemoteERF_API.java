@@ -122,7 +122,7 @@ public interface RemoteERF_API  extends Remote{
    /**
     *
     * @param paramName
-    * @returns the Parameter from the parameter list with param name.
+    * @return the Parameter from the parameter list with param name.
     */
    public Parameter getParameter(String paramName) throws RemoteException;
 

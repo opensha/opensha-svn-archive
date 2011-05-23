@@ -424,7 +424,7 @@ implements Runnable{
 
 	/**
 	 *
-	 * @returns the metadata for the IMT GUI if this control panel is selected
+	 * @return the metadata for the IMT GUI if this control panel is selected
 	 */
 	public String getIMT_Metadata(){
 		return metadata;
@@ -433,7 +433,7 @@ implements Runnable{
 
 	/**
 	 *
-	 * @returns the XYZ data set for the SA-0.3sec if calculation are to be done local machine,
+	 * @return the XYZ data set for the SA-0.3sec if calculation are to be done local machine,
 	 * else the String to the object file on the server.
 	 */
 	public Object getXYZ_DataForSA_03(){
@@ -588,7 +588,7 @@ implements Runnable{
 
 	/**
 	 *
-	 * @returns if the generate shape files for Hazus being done.
+	 * @return if the generate shape files for Hazus being done.
 	 * If returns then files for hazus will be generated else if returns
 	 * false then files are not being generated.
 	 */

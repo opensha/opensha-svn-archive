@@ -50,7 +50,7 @@ public class HazardCurveComputation {
 
 	/**
 	 * 
-	 * @returns the List of supported Peak amplitudes
+	 * @return the List of supported Peak amplitudes
 	 */
 	public ArrayList<CybershakeIM> getSupportedSA_PeriodStrings(){
 
@@ -59,7 +59,7 @@ public class HazardCurveComputation {
 
 	/**
 	 * 
-	 * @returns the List of supported Peak amplitudes for a given site, ERF ID, SGT Var ID, and Rup Var ID
+	 * @return the List of supported Peak amplitudes for a given site, ERF ID, SGT Var ID, and Rup Var ID
 	 */
 	public ArrayList<CybershakeIM> getSupportedSA_PeriodStrings(int runID){
 

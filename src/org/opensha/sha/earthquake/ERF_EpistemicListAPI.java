@@ -46,7 +46,7 @@ public interface ERF_EpistemicListAPI extends EqkRupForecastBaseAPI{
   /**
    *
    * @param index
-   * @returns the instance of the remotely existing ERF in the ERF List
+   * @return the instance of the remotely existing ERF in the ERF List
    * on the server given the index.
    * **NOTE: All the functionality in this functionality remains same as that of getERF but only differs
    * when returning each ERF from the ERF List. getERF() return the instance of the

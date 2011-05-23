@@ -638,7 +638,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 	/**
 	 *
-	 * @returns the GMT Params List
+	 * @return the GMT Params List
 	 */
 	public ParameterList getAdjustableParamsList(){
 		return adjustableParams;
@@ -646,7 +646,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 	/**
 	 *
-	 * @returns the image file name
+	 * @return the image file name
 	 */
 	public String getImageFileName(){
 		return this.JPG_FILE_NAME;
@@ -654,7 +654,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 	/**
 	 *
-	 * @returns the ArrayList containing the Metadata Info
+	 * @return the ArrayList containing the Metadata Info
 	 */
 	protected ArrayList getMapInfoLines(){
 		ArrayList metadataFilesLines = new ArrayList();
@@ -873,7 +873,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 	/**
 	 *
-	 * @returns the WebAddress to the files if the person used the GMT webservice,
+	 * @return the WebAddress to the files if the person used the GMT webservice,
 	 * to download all the files
 	 */
 	public String getGMTFilesWebAddress(){

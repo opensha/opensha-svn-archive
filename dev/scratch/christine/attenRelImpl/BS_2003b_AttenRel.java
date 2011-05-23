@@ -632,7 +632,7 @@ public class BS_2003b_AttenRel
   /**
    * get the name of this IMR
    *
-   * @returns the name of this IMR
+   * @return the name of this IMR
    */
   public String getName() {
     return NAME;

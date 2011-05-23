@@ -33,7 +33,7 @@ public class TSurface {
 
   /**
    *
-   * @returns the name of the fault which is represented as the TSurf object.
+   * @return the name of the fault which is represented as the TSurf object.
    */
   public String getFaultName(){
     return TSurfFaultName;
@@ -41,7 +41,7 @@ public class TSurface {
 
   /**
    *
-   * @returns the array of the VRTX objects creating the TSurface
+   * @return the array of the VRTX objects creating the TSurface
    */
   public Vertex[] getAllTSurfVRTX(){
     return TSurf_VRTX;
@@ -49,7 +49,7 @@ public class TSurface {
 
   /**
    *
-   * @returns the array of the TRGL objects creating the TSurface
+   * @return the array of the TRGL objects creating the TSurface
    */
   public Triangle[] getAllTSurfTRGL(){
     return TSurf_TRGL;
@@ -59,7 +59,7 @@ public class TSurface {
   /**
    *
    * @param vrtxID : VRTX id as given in the TSurf file
-   * @returns the Vertex object for the given vrtxID.
+   * @return the Vertex object for the given vrtxID.
    */
   public Vertex getVRTX(int vrtxID){
     return TSurf_VRTX[vrtxID];
@@ -69,7 +69,7 @@ public class TSurface {
   /**
    *
    * @param ith : index of the requested triangle
-   * @returns the Vertex array constituting the actual vertex objects
+   * @return the Vertex array constituting the actual vertex objects
    * for the ith Triangle.
    * ***Note: No Cloning of the VRTX object is done, they are passed by reference
    */

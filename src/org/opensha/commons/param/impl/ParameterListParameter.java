@@ -187,7 +187,7 @@ public class ParameterListParameter extends AbstractParameter<ParameterList> {
 
 	/**
 	 *
-	 * @returns the parameterList contained in this parameter
+	 * @return the parameterList contained in this parameter
 	 */
 	public ParameterList getParameter(){
 		return (ParameterList)getValue();
@@ -205,7 +205,7 @@ public class ParameterListParameter extends AbstractParameter<ParameterList> {
 	 * This overrides the getmetadataString() method because the value here
 	 * does not have an ASCII representation (and we need to know the values
 	 * of the independent parameter instead).
-	 * @returns Sstring
+	 * @return Sstring
 	 */
 	public String getMetadataString() {
 		return getDependentParamMetadataString();

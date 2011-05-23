@@ -71,7 +71,7 @@ public class Vertex {
 
   /**
    *
-   * @returns the Id of the VRTX
+   * @return the Id of the VRTX
    */
   public int getVrtxId(){
    return vrtxId;
@@ -79,7 +79,7 @@ public class Vertex {
 
   /**
    *
-   * @returns the location of the VRTX
+   * @return the location of the VRTX
    */
   public Location getLocation(){
     return new Location(lat,lon,depth);

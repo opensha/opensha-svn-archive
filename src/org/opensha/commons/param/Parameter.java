@@ -286,7 +286,7 @@ public interface Parameter<E> extends
 
     /**
      *
-     * @returns the matadata string for parameter.
+     * @return the matadata string for parameter.
      * This function returns the metadata which can be used to reset the values
      * of the parameters created.
      * *NOTE : Look at the function getMetadataXML() which return the values of

@@ -272,7 +272,7 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 
 	/**
 	 *
-	 * @returns the adjustable ParameterList for the ERF
+	 * @return the adjustable ParameterList for the ERF
 	 */
 	public ParameterList getAdjustableParameterList() {
 		return this.adjustableParams;

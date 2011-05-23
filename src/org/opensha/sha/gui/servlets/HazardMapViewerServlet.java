@@ -135,7 +135,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
 	/**
 	 *
-	 * @returns the Map label based on the selected Map Type( Prob@IML or IML@Prob)
+	 * @return the Map label based on the selected Map Type( Prob@IML or IML@Prob)
 	 */
 	private String getMapLabel(boolean isProbAtIML){
 		//making the map

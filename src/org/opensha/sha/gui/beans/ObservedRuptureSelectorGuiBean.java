@@ -312,7 +312,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
 
   /**
    *
-   * @returns the selected Rupture
+   * @return the selected Rupture
    */
   public EqkRupture getSelectedRupture(){
     return rupture;
@@ -321,7 +321,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
 
   /**
    *
-   * @returns the Metadata String of parameters that constitute the making of this
+   * @return the Metadata String of parameters that constitute the making of this
    * ERF_RupSelectorGUI  bean.
    */
   public String getParameterListMetadataString(){
@@ -332,7 +332,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
   /**
    *
    * @param : Name of the Parameter
-   * @returns the parameter with the name param
+   * @return the parameter with the name param
    */
   public Parameter getParameter(String param){
     return listEditor.getParameterList().getParameter(param);
@@ -341,7 +341,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
 
   /**
    *
-   * @returns the EqkRupture
+   * @return the EqkRupture
    */
   public EqkRupture getRupture(){
     return rupture;

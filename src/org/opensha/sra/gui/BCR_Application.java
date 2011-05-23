@@ -571,7 +571,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the application component
+	 * @return the application component
 	 */
 	protected Component getApplicationComponent(){
 		return this;
@@ -1049,7 +1049,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	public String getParametersInfoAsString(){
 		return getMapParametersInfoAsHTML().replaceAll("<br>",SystemUtils.LINE_SEPARATOR);
@@ -1058,7 +1058,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	public String getMapParametersInfoAsHTML(){
 		String imrMetadata;

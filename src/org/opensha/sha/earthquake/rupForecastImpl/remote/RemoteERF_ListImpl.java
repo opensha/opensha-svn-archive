@@ -162,7 +162,7 @@ public class RemoteERF_ListImpl
 
   /**
    *
-   * @returns the adjustable ParameterList for the ERF
+   * @return the adjustable ParameterList for the ERF
    */
   public ParameterList getAdjustableParameterList() {
     return erfList.getAdjustableParameterList();
@@ -188,7 +188,7 @@ public class RemoteERF_ListImpl
   /**
    *
    * @param paramName
-   * @returns the Parameter from the parameter list with param name.
+   * @return the Parameter from the parameter list with param name.
    */
   public Parameter getParameter(String paramName) throws RemoteException {
     // TODO Auto-generated method stub

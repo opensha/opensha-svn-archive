@@ -965,7 +965,7 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 	/**
 	 * get the name of this IMR
 	 *
-	 * @returns the name of this IMR
+	 * @return the name of this IMR
 	 */
 	public String getName() {
 		return NAME;

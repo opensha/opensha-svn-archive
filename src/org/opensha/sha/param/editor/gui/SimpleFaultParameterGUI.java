@@ -177,7 +177,7 @@ public class SimpleFaultParameterGUI extends JDialog{
 
 	/**
 	 *
-	 * @returns the Object for the SimpleFaultEditorPanel which actually contains the
+	 * @return the Object for the SimpleFaultEditorPanel which actually contains the
 	 * values of the parameter for the SimpleFaultParameter
 	 */
 	public SimpleFaultParameterEditorPanel getSimpleFaultEditorPanel(){

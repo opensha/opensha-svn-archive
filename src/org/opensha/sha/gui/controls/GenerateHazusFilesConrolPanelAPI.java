@@ -43,7 +43,7 @@ public interface GenerateHazusFilesConrolPanelAPI {
 
   /**
    *
-   * @returns the selected Attenuationrelationship model within the application
+   * @return the selected Attenuationrelationship model within the application
    */
   public AttenuationRelationship getSelectedAttenuationRelationship();
 

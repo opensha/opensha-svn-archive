@@ -95,7 +95,7 @@ public class HazardMapSubmissionMethods extends JFrame {
 
   /**
    *
-   * @returns the selected option String choosen by the user
+   * @return the selected option String choosen by the user
    * to calculate Hazard Map.
    */
   public String getMapCalculationOption(){

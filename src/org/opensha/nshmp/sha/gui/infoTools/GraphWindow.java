@@ -321,7 +321,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the Range for the X-Axis
+   * @return the Range for the X-Axis
    */
   public Range getX_AxisRange() {
     return graphPanel.getX_AxisRange();
@@ -329,7 +329,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the Range for the Y-Axis
+   * @return the Range for the Y-Axis
    */
   public Range getY_AxisRange() {
     return graphPanel.getY_AxisRange();
@@ -426,7 +426,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the Min X-Axis Range Value, if custom Axis is choosen
+   * @return the Min X-Axis Range Value, if custom Axis is choosen
    */
   public double getUserMinX() {
     return minXValue;
@@ -434,7 +434,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the Max X-Axis Range Value, if custom axis is choosen
+   * @return the Max X-Axis Range Value, if custom axis is choosen
    */
   public double getUserMaxX() {
     return maxXValue;
@@ -442,7 +442,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the Min Y-Axis Range Value, if custom axis is choosen
+   * @return the Min Y-Axis Range Value, if custom axis is choosen
    */
   public double getUserMinY() {
     return minYValue;
@@ -450,7 +450,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the Max Y-Axis Range Value, if custom axis is choosen
+   * @return the Max Y-Axis Range Value, if custom axis is choosen
    */
   public double getUserMaxY() {
     return maxYValue;
@@ -458,7 +458,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the plotting feature like width, color and shape type of each
+   * @return the plotting feature like width, color and shape type of each
    * curve in list.
    */
   public ArrayList getPlottingFeatures() {
@@ -467,7 +467,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns the X Axis Label
+   * @return the X Axis Label
    */
   public String getXAxisLabel() {
     return xAxisName;
@@ -475,7 +475,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns Y Axis Label
+   * @return Y Axis Label
    */
   public String getYAxisLabel() {
     return yAxisName;
@@ -483,7 +483,7 @@ public class GraphWindow
 
   /**
    *
-   * @returns plot Title
+   * @return plot Title
    */
   public String getPlotLabel() {
     return plotTitle;

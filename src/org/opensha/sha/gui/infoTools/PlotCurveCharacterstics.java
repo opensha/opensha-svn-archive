@@ -191,7 +191,7 @@ public class PlotCurveCharacterstics {
 
   /**
    *
-   * @returns the shape of curve like line, dashed, triangle
+   * @return the shape of curve like line, dashed, triangle
    */
   public String getCurveType(){
     return curveType;
@@ -199,7 +199,7 @@ public class PlotCurveCharacterstics {
 
   /**
    *
-   * @returns the curve color
+   * @return the curve color
    */
   public Color getCurveColor(){
     return curveColor;
@@ -207,7 +207,7 @@ public class PlotCurveCharacterstics {
 
   /**
    *
-   * @returns the curve line width
+   * @return the curve line width
    */
   public double getCurveWidth(){
     return curveWidth;
@@ -224,7 +224,7 @@ public class PlotCurveCharacterstics {
 
   /**
    *
-   * @returns the name of curve
+   * @return the name of curve
    */
   public String getCurveName(){
     return curveName;
@@ -243,7 +243,7 @@ public class PlotCurveCharacterstics {
 
   /**
    *
-   * @returns the number of curves with same number curve plotting characterstics
+   * @return the number of curves with same number curve plotting characterstics
    */
   public int getNumContinuousCurvesWithSameCharacterstics(){
     return numCurvesWithSamePlottingFeatures;

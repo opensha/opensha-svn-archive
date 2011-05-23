@@ -601,7 +601,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the instance of the ERF_GuiBean that holds all the Adjustable Params
+	 * @return the instance of the ERF_GuiBean that holds all the Adjustable Params
 	 * for the selecetd ERF.
 	 */
 	public ERF_GuiBean getERF_ParamEditor(){
@@ -611,7 +611,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	/**
 	 * First gets the selected index rupture from the source, so that user
 	 * gets the metadata for the rupture selected in this GUI bean.
-	 * @returns the Metadata String of parameters that constitute the making of this
+	 * @return the Metadata String of parameters that constitute the making of this
 	 * ERF_RupSelectorGUI  bean.
 	 */
 	public String getParameterListMetadataString() {
@@ -727,7 +727,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	/**
 	 *
 	 * @param : Name of the Parameter
-	 * @returns the parameter with the name param
+	 * @return the parameter with the name param
 	 */
 	public Parameter getParameter(String param){
 		return listEditor.getParameterList().getParameter(param);
@@ -736,7 +736,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	/**
 	 *
 	 * @param paramName
-	 * @returns the ParameterEditor associated with paramName
+	 * @return the ParameterEditor associated with paramName
 	 */
 	public ParameterEditor getParameterEditor(String paramName){
 		return listEditor.getParameterEditor(paramName);
@@ -746,7 +746,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the EqkRupforecast model
+	 * @return the EqkRupforecast model
 	 */
 	public EqkRupForecastAPI getSelectedERF_Instance() {
 		EqkRupForecastAPI erfAPI=null;
@@ -764,7 +764,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	 * handle to the source from outside then looped over all the rupture then
 	 * also this GUI bean will return the rupture with ith index from the source
 	 * as given in GUI bean.
-	 * @returns the ProbEqkRupture Object
+	 * @return the ProbEqkRupture Object
 	 */
 	public EqkRupture getRupture() {
 		//getting the selected rupture for the source
@@ -797,7 +797,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the visible parameters in the list
+	 * @return the visible parameters in the list
 	 */
 	public ParameterList getVisibleParameterList(){
 		return listEditor.getVisibleParameters();
@@ -806,7 +806,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the selected source number for the EarthquakeRuptureForecast
+	 * @return the selected source number for the EarthquakeRuptureForecast
 	 */
 	public int getSourceIndex(){
 		String sourceValue = (String)listEditor.getParameterList().getParameter(this.SOURCE_PARAM_NAME).getValue();
@@ -816,7 +816,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the selected rupture number for the selected source.
+	 * @return the selected rupture number for the selected source.
 	 */
 	public int getRuptureIndex(){
 		int ruptureIndex = ((Integer)listEditor.getParameterList().getParameter(this.RUPTURE_PARAM_NAME).getValue()).intValue();
@@ -825,7 +825,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the Hypocenter Location if selected else return null
+	 * @return the Hypocenter Location if selected else return null
 	 */
 	public Location getHypocenterLocation(){
 		if(this.hypoCentreCheck.isSelected())
@@ -836,7 +836,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the panel which allows user to select Eqk rupture from existing
+	 * @return the panel which allows user to select Eqk rupture from existing
 	 * ERF models
 	 */
 	public EqkRupSelectorGuiBeanAPI getEqkRuptureSelectorPanel(){
@@ -845,7 +845,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the timespan Metadata for the selected Rupture.
+	 * @return the timespan Metadata for the selected Rupture.
 	 * If no timespan exists for the rupture then it returns the Message:
 	 * "No Timespan exists for the selected Rupture".
 	 */

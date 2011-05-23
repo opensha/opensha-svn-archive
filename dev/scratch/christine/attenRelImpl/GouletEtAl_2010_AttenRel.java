@@ -476,7 +476,7 @@ public class GouletEtAl_2010_AttenRel
   /**
    * get the name of this IMR
    *
-   * @returns the name of this IMR
+   * @return the name of this IMR
    */
   public String getName() {
     return NAME;

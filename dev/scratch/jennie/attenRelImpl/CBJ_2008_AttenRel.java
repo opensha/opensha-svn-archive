@@ -817,7 +817,7 @@ public class CBJ_2008_AttenRel
   /**
    * get the name of this IMR
    *
-   * @returns the name of this IMR
+   * @return the name of this IMR
    */
   public String getName() {
     return NAME;
@@ -1087,7 +1087,7 @@ public class CBJ_2008_AttenRel
   /**
    * 
    * @throws MalformedURLException if returned URL is not a valid URL.
-   * @returns the URL to the AttenuationRelationship document on the Web.
+   * @return the URL to the AttenuationRelationship document on the Web.
    */
   public URL getAttenuationRelationshipURL() throws MalformedURLException{
 	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CB_2008.html");

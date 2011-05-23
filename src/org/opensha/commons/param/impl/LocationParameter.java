@@ -448,7 +448,7 @@ public class LocationParameter extends AbstractParameter<Location> {
 	 * This overrides the getmetadataString() method because the value here
 	 * does not have an ASCII representation (and we need to know the values
 	 * of the independent parameter instead).
-	 * @returns String
+	 * @return String
 	 */
 	public String getMetadataString() {
 		if(constraint == null)

@@ -971,7 +971,7 @@ ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the Min X-Axis Range Value, if custom Axis is choosen
+	 * @return the Min X-Axis Range Value, if custom Axis is choosen
 	 */
 	public double getUserMinX() {
 		if(isIncrRatePlot)
@@ -984,7 +984,7 @@ ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the Max X-Axis Range Value, if custom axis is choosen
+	 * @return the Max X-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxX() {
 		if(isIncrRatePlot)
@@ -997,7 +997,7 @@ ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the Min Y-Axis Range Value, if custom axis is choosen
+	 * @return the Min Y-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMinY() {
 		if(isIncrRatePlot)
@@ -1010,7 +1010,7 @@ ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the Max X-Axis Range Value, if custom axis is choosen
+	 * @return the Max X-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxY() {
 		if(isIncrRatePlot)

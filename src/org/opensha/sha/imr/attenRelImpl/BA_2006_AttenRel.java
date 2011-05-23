@@ -524,7 +524,7 @@ public class BA_2006_AttenRel extends AttenuationRelationship implements
   /**
    * get the name of this IMR
    *
-   * @returns the name of this IMR
+   * @return the name of this IMR
    */
   public String getName() {
     return NAME;
@@ -704,7 +704,7 @@ public class BA_2006_AttenRel extends AttenuationRelationship implements
   /**
    * 
    * @throws MalformedURLException if returned URL is not a valid URL.
-   * @returns the URL to the AttenuationRelationship document on the Web.
+   * @return the URL to the AttenuationRelationship document on the Web.
    */
   public URL getInfoURL() throws MalformedURLException{
 	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/BA_2006.html");

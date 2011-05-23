@@ -344,7 +344,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the tick label font
+	 * @return the tick label font
 	 * Default is 10
 	 */
 	public int getTickLabelFontSize(){
@@ -354,7 +354,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the axis label font size
+	 * @return the axis label font size
 	 * Default is 12
 	 */
 	public int getPlotLabelFontSize(){

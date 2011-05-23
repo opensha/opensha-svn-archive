@@ -259,7 +259,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 	/**
 	 *
-	 * @returns the Hypocenter Location if selected else return null
+	 * @return the Hypocenter Location if selected else return null
 	 */
 	public Location getHypocenterLocation(){
 		return eqkRupturePanel.getHypocenterLocation();
@@ -267,7 +267,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 	/**
 	 *
-	 * @returns the EqkRupture Object
+	 * @return the EqkRupture Object
 	 */
 	public EqkRupture getRupture(){
 		return eqkRupturePanel.getRupture();
@@ -287,7 +287,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 	/**
 	 *
-	 * @returns the timespan Metadata for the selected Rupture.
+	 * @return the timespan Metadata for the selected Rupture.
 	 * If no timespan exists for the rupture then it returns the Message:
 	 * "No Timespan exists for the selected Rupture".
 	 */
@@ -298,7 +298,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 	/**
 	 *
-	 * @returns the Metadata String of parameters that constitute the making of this
+	 * @return the Metadata String of parameters that constitute the making of this
 	 * ERF_RupSelectorGUI  bean.
 	 */
 	public String getParameterListMetadataString(){
@@ -308,7 +308,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	/**
 	 *
 	 * @param paramName
-	 * @returns the parameter from list of visible parameters in the rupture selector/creator GUI.
+	 * @return the parameter from list of visible parameters in the rupture selector/creator GUI.
 	 */
 	public Parameter getParameter(String paramName){
 		if(paramName.equals(this.RUPTURE_SELECTOR_PARAM_NAME))
@@ -321,7 +321,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	/**
 	 *
 	 * @param paramName
-	 * @returns the ParameterEditor associated with paramName
+	 * @return the ParameterEditor associated with paramName
 	 */
 	public ParameterEditor getParameterEditor(String paramName){
 		if(paramName.equals(RUPTURE_SELECTOR_PARAM_NAME))
@@ -333,7 +333,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 	/**
 	 *
-	 * @returns the instance to the Selected mode of Rupture calculator.
+	 * @return the instance to the Selected mode of Rupture calculator.
 	 * If user has chosen to get the Eqk rupture from ERF model,then the
 	 * returned  EqkRupSelectorGuiBeanAPI will the instance of EqkRuptureFromERFSelectorPanel.
 	 * Else if the user to selected to create his own rupture then returned API will
@@ -362,7 +362,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 	/**
 	 *
-	 * @returns the visible parameters in the list
+	 * @return the visible parameters in the list
 	 */
 	public ParameterList getVisibleParameterList(){
 		return eqkRupturePanel.getVisibleParameterList();
@@ -370,7 +370,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 	/**
 	 *
-	 * @returns the parameterlist editor
+	 * @return the parameterlist editor
 	 */
 	public ParameterListEditor getVisibleParameterListEditor(){
 		return eqkRupturePanel.getParameterListEditor();

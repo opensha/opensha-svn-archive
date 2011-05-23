@@ -180,7 +180,7 @@ implements java.io.Serializable{
 
 	/**
 	 *
-	 * @returns the ArbitrarilyDiscretizedFunc contained in this parameter
+	 * @return the ArbitrarilyDiscretizedFunc contained in this parameter
 	 */
 	public ArbitrarilyDiscretizedFunc getParameter(){
 		return (ArbitrarilyDiscretizedFunc)getValue();
@@ -198,7 +198,7 @@ implements java.io.Serializable{
 	 * This overrides the getmetadataString() method because the value here
 	 * does not have an ASCII representation (and we need to know the values
 	 * of the independent parameter instead).
-	 * @returns Sstring
+	 * @return Sstring
 	 */
 	public String getMetadataString() {
 		return getDependentParamMetadataString();

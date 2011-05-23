@@ -542,7 +542,7 @@ ActionListener,ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns axis label font size
+	 * @return axis label font size
 	 */
 	public int getAxisLabelFontSize(){
 		return  Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
@@ -550,7 +550,7 @@ ActionListener,ParameterChangeListener{
 
 	/**
 	 *Set axis label font size
-	 * @returns 
+	 * @return 
 	 */
 	public void setAxisLabelFontSize(int fontSize){
 		axisLabelsFontSizeParam.setValue(""+fontSize);
@@ -558,7 +558,7 @@ ActionListener,ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns axis label font size
+	 * @return axis label font size
 	 */
 	public int getPlotLabelFontSize(){
 		return  Integer.parseInt((String)plotLabelsFontSizeParam.getValue());
@@ -575,7 +575,7 @@ ActionListener,ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the tick label font size
+	 * @return the tick label font size
 	 */
 	public int getTickLabelFontSize(){
 		return  Integer.parseInt((String)tickFontSizeParam.getValue());
@@ -601,7 +601,7 @@ ActionListener,ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the X Axis Label
+	 * @return the X Axis Label
 	 */
 	public String getXAxisLabel(){
 		if(xAxisLabel !=null)
@@ -611,7 +611,7 @@ ActionListener,ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns Y Axis Label
+	 * @return Y Axis Label
 	 */
 	public String getYAxisLabel(){
 		if(yAxisLabel !=null)
@@ -621,7 +621,7 @@ ActionListener,ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns plot Title
+	 * @return plot Title
 	 */
 	public String getPlotLabel(){
 		if(plotLabel !=null)

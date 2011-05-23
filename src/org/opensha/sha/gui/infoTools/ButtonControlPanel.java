@@ -311,7 +311,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
 	/**
 	 *
-	 * @returns the axis label font size
+	 * @return the axis label font size
 	 * Default is 12
 	 */
 	public int getAxisLabelFontSize(){
@@ -324,7 +324,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
 	/**
 	 *
-	 * @returns the tick label font
+	 * @return the tick label font
 	 * Default is 10
 	 */
 	public int getTickLabelFontSize(){
@@ -338,7 +338,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
 	/**
 	 *
-	 * @returns the axis label font size
+	 * @return the axis label font size
 	 * Default is 12
 	 */
 	public int getPlotLabelFontSize(){
@@ -395,7 +395,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
 	/**
 	 *
-	 * @returns the X Axis Label
+	 * @return the X Axis Label
 	 */
 	public String getXAxisLabel(){
 		return application.getXAxisLabel();
@@ -403,7 +403,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
 	/**
 	 *
-	 * @returns Y Axis Label
+	 * @return Y Axis Label
 	 */
 	public String getYAxisLabel(){
 		return application.getYAxisLabel();
@@ -411,7 +411,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
 	/**
 	 *
-	 * @returns plot Title
+	 * @return plot Title
 	 */
 	public String getPlotLabel(){
 		return application.getPlotLabel();

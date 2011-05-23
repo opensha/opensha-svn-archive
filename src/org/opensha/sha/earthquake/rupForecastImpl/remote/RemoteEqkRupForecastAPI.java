@@ -40,13 +40,13 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
 
   /**
    *
-   * @returns the total number os sources
+   * @return the total number os sources
    */
   public int getNumSources() throws RemoteException;
 
   /**
    *
-   * @returns the sourceList
+   * @return the sourceList
    */
   public ArrayList getSourceList() throws RemoteException;
 
@@ -86,7 +86,7 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
   /**
    *
    * @param iSource
-   * @returns the number of ruptures for the ithSource
+   * @return the number of ruptures for the ithSource
    */
   public int getNumRuptures(int iSource) throws RemoteException;
 
@@ -96,7 +96,7 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
    *
    * @param iSource
    * @param nRupture
-   * @returns the ProbEqkRupture object for the ithSource and nth rupture
+   * @return the ProbEqkRupture object for the ithSource and nth rupture
    */
   public ProbEqkRupture getRupture(int iSource,int nRupture) throws RemoteException;
 

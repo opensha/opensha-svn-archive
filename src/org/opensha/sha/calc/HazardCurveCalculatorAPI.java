@@ -47,7 +47,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	/**
 	 * Get the adjustable parameter list of calculation parameters
 	 *
-	 * @returns the adjustable ParameterList
+	 * @return the adjustable ParameterList
 	 * @throws java.rmi.RemoteException
 	 */
 	public ParameterList getAdjustableParams()  throws java.rmi.RemoteException;

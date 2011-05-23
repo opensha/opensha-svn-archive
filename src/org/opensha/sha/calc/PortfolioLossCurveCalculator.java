@@ -267,7 +267,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 
 	/**
 	 *
-	 * @returns the current rupture being traversed
+	 * @return the current rupture being traversed
 	 * @throws java.rmi.RemoteException
 	 */
 	public int getCurrRuptures() throws java.rmi.RemoteException{
@@ -276,7 +276,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 
 	/**
 	 *
-	 * @returns the total number of ruptures in the earthquake rupture forecast model
+	 * @return the total number of ruptures in the earthquake rupture forecast model
 	 * @throws java.rmi.RemoteException
 	 */
 	public int getTotRuptures() throws java.rmi.RemoteException{

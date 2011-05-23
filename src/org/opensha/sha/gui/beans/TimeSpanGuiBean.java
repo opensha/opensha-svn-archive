@@ -129,7 +129,7 @@ public class TimeSpanGuiBean extends JPanel {
 
 	/**
 	 * 
-	 * @returns the ParameterList
+	 * @return the ParameterList
 	 */
 	public ParameterList getParameterList() {
 		return this.parameterList;
@@ -137,7 +137,7 @@ public class TimeSpanGuiBean extends JPanel {
 
 	/**
 	 * 
-	 * @returns the ParameterListEditor
+	 * @return the ParameterListEditor
 	 */
 	public ParameterListEditor getParameterListEditor() {
 		return this.editor;
@@ -145,7 +145,7 @@ public class TimeSpanGuiBean extends JPanel {
 
 	/**
 	 * 
-	 * @returns the Visible parameters metadata
+	 * @return the Visible parameters metadata
 	 */
 	public String getParameterListMetadataString() {
 		if (timeSpan != null) {

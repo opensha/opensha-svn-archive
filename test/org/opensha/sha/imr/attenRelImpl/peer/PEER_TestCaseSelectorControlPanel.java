@@ -1371,7 +1371,7 @@
 //
 //  /**
 //   *
-//   * @returns the ArrayList of the PEER Test Case set One
+//   * @return the ArrayList of the PEER Test Case set One
 //   */
 //  public ArrayList getPEER_SetOneTestCasesNames(){
 //   return this.peerTestSetOne;
@@ -1380,7 +1380,7 @@
 //
 //  /**
 //   *
-//   * @returns the ArrayList of the PEER Test Case set Two
+//   * @return the ArrayList of the PEER Test Case set Two
 //   */
 //  public ArrayList getPEER_SetTwoTestCasesNames(){
 //   return this.peerTestSetTwo;

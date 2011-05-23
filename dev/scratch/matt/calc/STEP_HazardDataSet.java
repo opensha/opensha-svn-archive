@@ -279,7 +279,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
 	 * @param sites
 	 * @param eqkRupForecast : STEP Forecast
-	 * @returns the ArrayList of Probability values for the given region
+	 * @return the ArrayList of Probability values for the given region
 	 *           --in the same order of the region grids
 	 */
 	public double[] clacProbVals(AttenuationRelationship imr,SitesInGriddedRegion sites,

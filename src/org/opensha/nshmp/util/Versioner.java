@@ -84,7 +84,7 @@ public class Versioner {
 
 	/**
 	 * Returns the value of connection
-	 * @returns connection boolean true if successfully connected to server, false otherwise
+	 * @return connection boolean true if successfully connected to server, false otherwise
 	 */
 	public boolean check() {
 		return connection;

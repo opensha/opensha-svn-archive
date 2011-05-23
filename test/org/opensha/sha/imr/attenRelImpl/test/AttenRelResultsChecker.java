@@ -377,7 +377,7 @@ public class AttenRelResultsChecker {
 
 	/**
 	 *
-	 * @returns the formatted String for the Failed test result
+	 * @return the formatted String for the Failed test result
 	 */
 	public String getFailedTestParamsSettings(){
 		return this.failedParamsSetting;
@@ -429,7 +429,7 @@ public class AttenRelResultsChecker {
 
 	/**
 	 *
-	 * @returns the name and value for the independent params setting for the test cases
+	 * @return the name and value for the independent params setting for the test cases
 	 */
 	private String getIndependentParametersValueForTest(){
 		String independentParamValue="";
@@ -444,7 +444,7 @@ public class AttenRelResultsChecker {
 
 	/**
 	 *
-	 * @returns the name and Value for the control params setting of the test cases IMR
+	 * @return the name and Value for the control params setting of the test cases IMR
 	 */
 	private String getControlParametersValueForTest(){
 		return this.intensityMeasureName+";"+this.yControlName+"\n\t";
@@ -452,7 +452,7 @@ public class AttenRelResultsChecker {
 
 	/**
 	 *
-	 * @returns the ArrayList that contains the Values for control param value for all the test cases
+	 * @return the ArrayList that contains the Values for control param value for all the test cases
 	 */
 
 	public ArrayList getControlParamsValueForAllTests(){
@@ -461,7 +461,7 @@ public class AttenRelResultsChecker {
 
 	/**
 	 *
-	 * @returns the ArrayList that contains the Values for independent param value for all the test cases
+	 * @return the ArrayList that contains the Values for independent param value for all the test cases
 	 */
 	public ArrayList getIndependentParamsValueForAllTests(){
 		return this.independentParamVector;
@@ -469,7 +469,7 @@ public class AttenRelResultsChecker {
 
 	/**
 	 *
-	 * @returns the ArrayList for the testCases number that failed
+	 * @return the ArrayList for the testCases number that failed
 	 */
 	/* public ArrayList getFailedTestResultNumberList(){
     return this.testCaseNumberVector;

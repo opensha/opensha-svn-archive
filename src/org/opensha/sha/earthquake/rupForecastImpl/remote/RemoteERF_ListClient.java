@@ -222,7 +222,7 @@ ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the adjustable ParameterList for the ERF
+	 * @return the adjustable ParameterList for the ERF
 	 */
 	public ParameterList getAdjustableParameterList(){
 		try{

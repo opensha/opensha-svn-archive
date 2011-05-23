@@ -411,7 +411,7 @@ ParameterChangeListener{
 
 	/**
 	 *
-	 * @returns the instance to the remote ERF on the server
+	 * @return the instance to the remote ERF on the server
 	 */
 	public RemoteEqkRupForecastAPI getERF_Server(){
 		return this.erfServer;

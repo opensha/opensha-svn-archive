@@ -90,7 +90,7 @@ public class GenerateSourceRuptureInfoFiles {
    * in each line of file
    * @param directoryPath String path to the directory where files are to be created
    * @param forecast EqkRupForecast : Earthquake Rupture Forecast
-   * @returns the path to the source directory, where al the information about the
+   * @return the path to the source directory, where al the information about the
    * ruptures will be stored
    */
   public void createSourceListFile(String directoryPath,EqkRupForecast forecast) {

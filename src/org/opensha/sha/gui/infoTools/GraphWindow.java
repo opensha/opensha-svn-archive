@@ -361,7 +361,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the Range for the X-Axis
+	 * @return the Range for the X-Axis
 	 */
 	public Range getX_AxisRange() {
 		return graphPanel.getX_AxisRange();
@@ -369,7 +369,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the Range for the Y-Axis
+	 * @return the Range for the Y-Axis
 	 */
 	public Range getY_AxisRange() {
 		return graphPanel.getY_AxisRange();
@@ -457,7 +457,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the Min X-Axis Range Value, if custom Axis is chosen
+	 * @return the Min X-Axis Range Value, if custom Axis is chosen
 	 */
 	public double getUserMinX() {
 		return minXValue;
@@ -465,7 +465,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the Max X-Axis Range Value, if custom axis is chosen
+	 * @return the Max X-Axis Range Value, if custom axis is chosen
 	 */
 	public double getUserMaxX() {
 		return maxXValue;
@@ -473,7 +473,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the Min Y-Axis Range Value, if custom axis is chosen
+	 * @return the Min Y-Axis Range Value, if custom axis is chosen
 	 */
 	public double getUserMinY() {
 		return minYValue;
@@ -481,7 +481,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the Max Y-Axis Range Value, if custom axis is chosen
+	 * @return the Max Y-Axis Range Value, if custom axis is chosen
 	 */
 	public double getUserMaxY() {
 		return maxYValue;
@@ -489,7 +489,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the plotting feature like width, color and shape type of each
+	 * @return the plotting feature like width, color and shape type of each
 	 * curve in list.
 	 */
 	public ArrayList getPlottingFeatures() {
@@ -498,7 +498,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the X Axis Label
+	 * @return the X Axis Label
 	 */
 	public String getXAxisLabel() {
 		return xAxisName;
@@ -506,7 +506,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns Y Axis Label
+	 * @return Y Axis Label
 	 */
 	public String getYAxisLabel() {
 		return yAxisName;
@@ -514,7 +514,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns plot Title
+	 * @return plot Title
 	 */
 	public String getPlotLabel() {
 		return plotTitle;
@@ -582,7 +582,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the tick label font
+	 * @return the tick label font
 	 * Default is 10
 	 */
 	public int getTickLabelFontSize(){
@@ -592,7 +592,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	/**
 	 *
-	 * @returns the axis label font size
+	 * @return the axis label font size
 	 * Default is 12
 	 */
 	public int getPlotLabelFontSize(){

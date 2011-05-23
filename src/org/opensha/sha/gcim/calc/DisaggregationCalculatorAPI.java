@@ -190,7 +190,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
 
 	/**
 	 *
-	 * @returns resultant disaggregation in a String format.
+	 * @return resultant disaggregation in a String format.
 	 * @throws java.rmi.RemoteException
 	 */
 	public String getMeanAndModeInfo() throws java.rmi.RemoteException;

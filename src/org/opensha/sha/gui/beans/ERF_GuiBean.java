@@ -353,7 +353,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * then checks if the magFreqDistParameter exists inside it , if so then returns the MagEditor
 	 * else return null.  The only reason this is public is because at least one control panel
 	 * (for the PEER test cases) needs access.
-	 * @returns MagFreDistParameterEditor
+	 * @return MagFreDistParameterEditor
 	 */
 	public MagFreqDistParameterEditor getMagDistEditor(){
 
@@ -374,7 +374,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * then checks if the simpleFaultParameter exists inside it , if so then returns the
 	 * SimpleFaultParameterEditor else return null.  The only reason this is public is
 	 * because at least one control panel (for the PEER test cases) needs access.
-	 * @returns SimpleFaultParameterEditor
+	 * @return SimpleFaultParameterEditor
 	 */
 	public SimpleFaultParameterEditor getSimpleFaultParamEditor(){
 
@@ -623,7 +623,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 	/**
 	 *
-	 * @returns the List of ERF parameters
+	 * @return the List of ERF parameters
 	 */
 	public ParameterList getERFParameterList(){
 		return parameterList;
@@ -631,7 +631,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 	/**
 	 *
-	 * @returns the parameter list editor for ERF parameters
+	 * @return the parameter list editor for ERF parameters
 	 */
 	public ParameterListEditor getERFParameterListEditor(){
 		return listEditor;
@@ -663,7 +663,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 	/**
 	 *
-	 * @returns the selected ERF timespan gui bean object
+	 * @return the selected ERF timespan gui bean object
 	 */
 	public TimeSpanGuiBean getSelectedERFTimespanGuiBean(){
 		return timeSpanGuiBean;
@@ -672,7 +672,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	/**
 	 *
 	 * @param paramName
-	 * @returns the parameter with the ParamName
+	 * @return the parameter with the ParamName
 	 */
 	public Parameter getParameter(String paramName){
 		if(this.parameterList.containsParameter(paramName)){

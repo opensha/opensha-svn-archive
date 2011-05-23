@@ -534,7 +534,7 @@ public class ParameterList implements Serializable, Iterable<Parameter<?>> {
 	 * the parematerList and get their metadata in the
 	 * string format.
 	 *
-	 * @returns the metadata string for the parameterList
+	 * @return the metadata string for the parameterList
 	 *
 	 * Metadata returned from this function can only be used
 	 * to set the values of the parameters, cannot be used to

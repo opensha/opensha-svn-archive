@@ -329,7 +329,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * @param pgv_xyzDataVals  : XYZ data for the PGV
 	 * @param gmtFileLines     : Script lines to be executed on the server
 	 * @param metadataLines    : MetadataLines
-	 * @returns the webaddress of the Directory as the link to where all the
+	 * @return the webaddress of the Directory as the link to where all the
 	 * output files are generated
 	 * @throws RuntimeException
 	 */

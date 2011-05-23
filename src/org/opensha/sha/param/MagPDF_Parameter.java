@@ -346,7 +346,7 @@ implements java.io.Serializable
 
 	/**
 	 *
-	 * @returns the adjustable parameterlist
+	 * @return the adjustable parameterlist
 	 */
 	public ParameterList getAdjustableParams(){
 		return parameterList;
@@ -692,7 +692,7 @@ implements java.io.Serializable
 	 * This overrides the getmetadataString() method because the value here
 	 * does not have an ASCII representation (and we need to know the values
 	 * of the independent parameter instead).
-	 * @returns Sstring
+	 * @return Sstring
 	 */
 	public String getMetadataString() {
 		return getDependentParamMetadataString();

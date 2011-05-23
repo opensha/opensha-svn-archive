@@ -209,7 +209,7 @@ public class LocationListParameter extends AbstractParameter<LocationList> {
 
 	/**
 	 *
-	 * @returns the locationList contained in this parameter
+	 * @return the locationList contained in this parameter
 	 */
 	public LocationList getParameter(){
 		return (LocationList)getValue();
@@ -227,7 +227,7 @@ public class LocationListParameter extends AbstractParameter<LocationList> {
 	 * This overrides the getmetadataString() method because the value here
 	 * does not have an ASCII representation (and we need to know the values
 	 * of the independent parameter instead).
-	 * @returns Sstring
+	 * @return Sstring
 	 */
 	public String getMetadataString() {
 		return getDependentParamMetadataString();

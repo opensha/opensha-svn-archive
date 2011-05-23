@@ -658,7 +658,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 
 	/**
 	 *
-	 * @returns the selected IMT
+	 * @return the selected IMT
 	 */
 	public String getSelectedIMT() {
 		return imtGuiBean.getSelectedIMT();
@@ -686,7 +686,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 
 	/**
 	 *
-	 * @returns the selected Attenuationrelationship model
+	 * @return the selected Attenuationrelationship model
 	 */
 	public AttenuationRelationship getSelectedAttenuationRelationship(){
 		return attenRel;
@@ -1012,7 +1012,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 	/**
 	 * Returns the metadata associated with this calculation
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	public String getParametersInfo() {
 		String lf = SystemUtils.LINE_SEPARATOR;

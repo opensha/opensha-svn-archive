@@ -32,7 +32,7 @@ public interface SiteInfo2DBAPI {
 	 * @param siteShortName
 	 * @param lat
 	 * @param lon
-	 * @returns the Site Id for the last inserted Site
+	 * @return the Site Id for the last inserted Site
 	 */
 	public int insertSite(String siteName, String siteShortName,double lat,double lon);
 	
@@ -121,7 +121,7 @@ public interface SiteInfo2DBAPI {
 	
 	/**
 	 * 
-	 * @returns the ArrayList of short site names for all Cybershake
+	 * @return the ArrayList of short site names for all Cybershake
 	 */
 	public ArrayList<String> getAllSites();
 	
@@ -146,7 +146,7 @@ public interface SiteInfo2DBAPI {
 	
 	/**
 	 * 
-	 * @returns the Arraylist of all cybershake site locations
+	 * @return the Arraylist of all cybershake site locations
 	 */
 	public LocationList getAllSitesLocation();
 	
@@ -154,14 +154,14 @@ public interface SiteInfo2DBAPI {
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
-	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public ArrayList<Integer> getSrcIdsForSite(String siteShortName, int erf_ID);
 	
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
-	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public ArrayList<Integer> getSrcIdsForSite(int siteID, int erf_ID);
 	
@@ -169,7 +169,7 @@ public interface SiteInfo2DBAPI {
 	 * 
 	 * @param siteShortName
 	 * @param srcId
-	 * @returns the list of rupture ids 
+	 * @return the list of rupture ids 
 	 */
 	public ArrayList<Integer> getRupIdsForSite(int siteID, int erf_ID, int srcId);
 	
@@ -177,14 +177,14 @@ public interface SiteInfo2DBAPI {
 	 * 
 	 * @param siteShortName
 	 * @param srcId
-	 * @returns the list of rupture ids 
+	 * @return the list of rupture ids 
 	 */
 	public ArrayList<Integer> getRupIdsForSite(String siteShortName, int erf_ID, int srcId);
 	
 	/**
 	 * 
 	 * @param site
-	 * @returns the Location for the given cybershake site location
+	 * @return the Location for the given cybershake site location
 	 */
 	public Location getLocationForSite(String site);
 	

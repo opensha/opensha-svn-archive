@@ -206,7 +206,7 @@ public class EvenlyDiscretizedFuncParameter extends
 
 	/**
 	 *
-	 * @returns the EvenlyDiscretizedFunc contained in this parameter
+	 * @return the EvenlyDiscretizedFunc contained in this parameter
 	 */
 	public EvenlyDiscretizedFunc getParameter(){
 		return (EvenlyDiscretizedFunc)getValue();
@@ -224,7 +224,7 @@ public class EvenlyDiscretizedFuncParameter extends
 	 * This overrides the getmetadataString() method because the value here
 	 * does not have an ASCII representation (and we need to know the values
 	 * of the independent parameter instead).
-	 * @returns Sstring
+	 * @return Sstring
 	 */
 	public String getMetadataString() {
 		String metadata = getDependentParamMetadataString();

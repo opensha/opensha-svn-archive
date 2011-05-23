@@ -32,25 +32,25 @@ public interface GraphPanelAPI {
 
   /**
    *
-   * @returns the Min X-Axis Range Value, if custom Axis is choosen
+   * @return the Min X-Axis Range Value, if custom Axis is choosen
    */
   public double getUserMinX();
 
   /**
    *
-   * @returns the Max X-Axis Range Value, if custom axis is choosen
+   * @return the Max X-Axis Range Value, if custom axis is choosen
    */
   public double getUserMaxX();
 
   /**
    *
-   * @returns the Min Y-Axis Range Value, if custom axis is choosen
+   * @return the Min Y-Axis Range Value, if custom axis is choosen
    */
   public double getUserMinY();
 
   /**
    *
-   * @returns the Max Y-Axis Range Value, if custom axis is choosen
+   * @return the Max Y-Axis Range Value, if custom axis is choosen
    */
   public double getUserMaxY();
 

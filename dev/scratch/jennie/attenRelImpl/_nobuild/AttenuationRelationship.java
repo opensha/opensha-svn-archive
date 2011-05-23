@@ -1238,7 +1238,7 @@ public abstract class AttenuationRelationship
   /**
    * 
    * @throws MalformedURLException if returned URL is not a valid URL.
-   * @returns the URL to the AttenuationRelationship document on the Web.
+   * @return the URL to the AttenuationRelationship document on the Web.
    */
   public URL getAttenuationRelationshipURL() throws MalformedURLException{
 	  return null;

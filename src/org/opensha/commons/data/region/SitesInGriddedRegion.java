@@ -208,7 +208,7 @@ public class SitesInGriddedRegion implements Serializable {
 	 * reason, it then uses the default value provided by the user for that parameter or any other site parameter for that 
 	 * AttenuationRelationship.
 	 * @param index
-	 * @returns site at the index
+	 * @return site at the index
 	 */
 	public Site getSite(int index) {
 		site.setLocation(region.locationForIndex(index));

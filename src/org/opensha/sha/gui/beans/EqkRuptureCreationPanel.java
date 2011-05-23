@@ -332,7 +332,7 @@ public class EqkRuptureCreationPanel
 
   /**
    *
-   * @returns the Hypocenter Location if selected else return null
+   * @return the Hypocenter Location if selected else return null
    */
   public Location getHypocenterLocation() {
     return (Location)hypocenterLocationParam.getValue();
@@ -350,7 +350,7 @@ public class EqkRuptureCreationPanel
 
   /**
    *
-   * @returns the EqkRupture Object
+   * @return the EqkRupture Object
    */
   public EqkRupture getRupture() {
     createRupture();
@@ -359,7 +359,7 @@ public class EqkRuptureCreationPanel
 
   /**
    *
-   * @returns the timespan Metadata for the selected Rupture.
+   * @return the timespan Metadata for the selected Rupture.
    * If no timespan exists for the rupture then it returns the Message:
    * "No Timespan exists for the selected Rupture".
    */
@@ -393,7 +393,7 @@ public class EqkRuptureCreationPanel
 
   /**
    *
-   * @returns the panel which allows user to select Eqk rupture from existing
+   * @return the panel which allows user to select Eqk rupture from existing
    * ERF models
    */
   public EqkRupSelectorGuiBeanAPI getEqkRuptureSelectorPanel() {
@@ -402,7 +402,7 @@ public class EqkRuptureCreationPanel
 
   /**
    *
-   * @returns the Metadata String of parameters that constitute the making of this
+   * @return the Metadata String of parameters that constitute the making of this
    * ERF_RupSelectorGUI  bean.
    */
   public String getParameterListMetadataString() {
@@ -416,7 +416,7 @@ public class EqkRuptureCreationPanel
   /**
    *
    * @param paramName
-   * @returns the parameter from the parameterList with paramName.
+   * @return the parameter from the parameterList with paramName.
    */
   public Parameter getParameter(String paramName) {
     if (parameterList.containsParameter(paramName)) {
@@ -431,7 +431,7 @@ public class EqkRuptureCreationPanel
   /**
    *
    * @param paramName
-   * @returns the ParameterEditor associated with paramName
+   * @return the ParameterEditor associated with paramName
    */
   public ParameterEditor getParameterEditor(String paramName) {
     if (parameterList.containsParameter(paramName)) {
@@ -444,7 +444,7 @@ public class EqkRuptureCreationPanel
 
   /**
    *
-   * @returns the visible parameters in the list
+   * @return the visible parameters in the list
    */
   public ParameterList getVisibleParameterList() {
     return listEditor.getVisibleParameters();
@@ -452,7 +452,7 @@ public class EqkRuptureCreationPanel
 
   /**
    *
-   * @returns the parameterlist editor
+   * @return the parameterlist editor
    */
   public ParameterListEditor getParameterListEditor() {
     return listEditor;

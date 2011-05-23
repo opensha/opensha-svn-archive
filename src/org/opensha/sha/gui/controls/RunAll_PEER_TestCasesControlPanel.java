@@ -86,7 +86,7 @@ public class RunAll_PEER_TestCasesControlPanel extends ControlPanel {
 
 	/**
 	 *
-	 * @returns true if we have to run all the PEER test cases
+	 * @return true if we have to run all the PEER test cases
 	 */
 	public boolean runAllPEER_TestCases(){
 		if(this.runPEERcheck.isSelected())

@@ -274,7 +274,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    *
-   * @returns the cumulative rate at magLower
+   * @return the cumulative rate at magLower
    */
 
   public double getTotCumRate() {
@@ -284,7 +284,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
 
   /**
-   * @returns the bValue for this distribution
+   * @return the bValue for this distribution
    */
   public double get_bValue() {
     return bValue;
@@ -292,7 +292,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    *
-   * @returns the magLower : lowest magnitude that has non zero rate
+   * @return the magLower : lowest magnitude that has non zero rate
    */
   public double getMagLower() {
     return magLower;
@@ -300,7 +300,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    *
-   * @returns the magUpper : highest magnitude that has non zero rate
+   * @return the magUpper : highest magnitude that has non zero rate
    */
   public double getMagUpper() {
     return magUpper;
@@ -308,7 +308,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    *
-   * @returns the magPrime
+   * @return the magPrime
    */
   public double getMagPrime() {
     return magPrime;
@@ -316,7 +316,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    *
-   * @returns the deltaMagPrime
+   * @return the deltaMagPrime
    */
   public double getDeltaMagPrime() {
     return deltaMagPrime;
@@ -324,7 +324,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    *
-   * @returns the deltaMagChar
+   * @return the deltaMagChar
    */
   public double getDeltaMagChar() {
     return deltaMagChar;

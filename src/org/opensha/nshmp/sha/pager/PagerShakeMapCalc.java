@@ -512,7 +512,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
 	/**
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	private String getMapParametersInfo() {
 
@@ -548,7 +548,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 	}
 	/**
 	 *
-	 * @returns the Adjustable parameters for the ScenarioShakeMap calculator
+	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	private ParameterList getCalcAdjustableParams(){
 		return calc.getAdjustableParams();
@@ -557,7 +557,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
 	/**
 	 *
-	 * @returns the Metadata string for the Calculation Settings Adjustable Params
+	 * @return the Metadata string for the Calculation Settings Adjustable Params
 	 */
 	private String getCalcParamMetadataString(){
 		return getCalcAdjustableParams().getParameterListMetadataString();

@@ -36,19 +36,19 @@ public interface GraphWindowAPI {
 
   /**
    *
-   * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
+   * @return the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
    */
   public ArrayList getCurveFunctionList();
 
   /**
    *
-   * @returns the boolean: Log for X-Axis Selected
+   * @return the boolean: Log for X-Axis Selected
    */
   public boolean getXLog();
 
   /**
    *
-   * @returns the boolean: Log for Y-Axis Selected
+   * @return the boolean: Log for Y-Axis Selected
    */
   public boolean getYLog();
 
@@ -60,7 +60,7 @@ public interface GraphWindowAPI {
 
   /**
    *
-   * @returns the plotting feature like width, color and shape type of each
+   * @return the plotting feature like width, color and shape type of each
    * curve in list.
    */
    public ArrayList getPlottingFeatures();
@@ -68,31 +68,31 @@ public interface GraphWindowAPI {
 
   /**
    *
-   * @returns boolean: Checks if Custom Axis is selected
+   * @return boolean: Checks if Custom Axis is selected
    */
   public boolean isCustomAxis();
 
   /**
    *
-   * @returns the Min X-Axis Range Value, if custom Axis is choosen
+   * @return the Min X-Axis Range Value, if custom Axis is choosen
    */
   public double getUserMinX();
 
   /**
    *
-   * @returns the Max X-Axis Range Value, if custom axis is choosen
+   * @return the Max X-Axis Range Value, if custom axis is choosen
    */
   public double getUserMaxX();
 
   /**
    *
-   * @returns the Min Y-Axis Range Value, if custom axis is choosen
+   * @return the Min Y-Axis Range Value, if custom axis is choosen
    */
   public double getUserMinY();
 
   /**
    *
-   * @returns the Max Y-Axis Range Value, if custom axis is choosen
+   * @return the Max Y-Axis Range Value, if custom axis is choosen
    */
   public double getUserMaxY();
 

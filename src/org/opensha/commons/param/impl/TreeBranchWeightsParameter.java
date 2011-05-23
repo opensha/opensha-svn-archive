@@ -112,7 +112,7 @@ implements  java.io.Serializable{
 
 	/**
 	 *
-	 * @returns true if the Branch Weight Values sum to One, inside the parameterList
+	 * @return true if the Branch Weight Values sum to One, inside the parameterList
 	 * lie within the range of "1".
 	 * else return false.
 	 */

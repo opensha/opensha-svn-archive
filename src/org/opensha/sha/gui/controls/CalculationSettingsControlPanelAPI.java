@@ -32,13 +32,13 @@ public interface CalculationSettingsControlPanelAPI {
 
   /**
    *
-   * @returns the Adjustable parameters for the Hazardcurve and Scenarioshakemap calculator
+   * @return the Adjustable parameters for the Hazardcurve and Scenarioshakemap calculator
    */
   public ParameterList getCalcAdjustableParams();
 
   /**
    *
-   * @returns the Metadata string for the Calculation Settings Adjustable Params
+   * @return the Metadata string for the Calculation Settings Adjustable Params
    */
   public String getCalcParamMetadataString();
 

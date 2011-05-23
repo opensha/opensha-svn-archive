@@ -170,7 +170,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 
 	/**
 	 *
-	 * @returns the adjustable ParameterList for the ERF
+	 * @return the adjustable ParameterList for the ERF
 	 */
 	public ParameterList getAdjustableParameterList(){
 		return this.adjustableParams;
@@ -267,7 +267,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 	/**
 	 *
 	 * @param index
-	 * @returns the instance of the remotely existing ERF in the ERF List
+	 * @return the instance of the remotely existing ERF in the ERF List
 	 * on the server given the index.
 	 * **NOTE: All the functionality in this functionlity remains same as that of getERF but only differs
 	 * when returning each ERF from the ERF List. getERF() return the instance of the

@@ -1362,7 +1362,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
    * @param region
    * @param eqkRupForecast : STEP Forecast
-   * @returns the ArrayList of Probability values for the given region
+   * @return the ArrayList of Probability values for the given region
    */
   private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion sites,
                                      EqkRupForecast eqkRupForecast) throws
@@ -1454,7 +1454,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
    * @param region
    * @param eqkRupForecast : STEP Forecast
-   * @returns the ArrayList of Probability values for the given region
+   * @return the ArrayList of Probability values for the given region
    */
   private double[] getProbVals_faster(FileWriter fw,ShakeMap_2003_AttenRel imr,SitesInGriddedRegion sites,
                                      EqkRupForecast eqkRupForecast){

@@ -43,19 +43,19 @@ public interface PlotColorAndLineTypeSelectorControlPanelAPI {
 
    /**
     *
-    * @returns the X Axis Label
+    * @return the X Axis Label
     */
    public String getXAxisLabel();
 
    /**
     *
-    * @returns Y Axis Label
+    * @return Y Axis Label
     */
    public String getYAxisLabel();
 
    /**
     *
-    * @returns plot Title
+    * @return plot Title
     */
    public String getPlotLabel();
 

@@ -180,7 +180,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 
 	/**
 	 *
-	 * @returns the metadata for the IMT GUI if this control panel is selected
+	 * @return the metadata for the IMT GUI if this control panel is selected
 	 */
 	public String getIMT_Metadata(){
 		return metadata;
@@ -189,7 +189,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 
 	/**
 	 *
-	 * @returns the XYZ data set for the SA-0.3sec
+	 * @return the XYZ data set for the SA-0.3sec
 	 */
 	public GeoDataSet getXYZ_DataForSA_03(){
 		return sa03_xyzdata;
@@ -247,7 +247,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 
 	/**
 	 *
-	 * @returns if the user has pressed the button to generate the xyz dataset
+	 * @return if the user has pressed the button to generate the xyz dataset
 	 * for prodcing the shapefiles for Hazus
 	 */
 	public boolean isHazusShapeFilesButtonPressed(){

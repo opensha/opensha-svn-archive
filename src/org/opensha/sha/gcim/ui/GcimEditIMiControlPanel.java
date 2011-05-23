@@ -583,7 +583,7 @@ IMCorrRelChangeListener{
 
 	/**
 	 * 
-	 * @returns the selected IMiType
+	 * @return the selected IMiType
 	 */
 	public String getSelectedIMT() {
 		if (D) 
@@ -592,7 +592,7 @@ IMCorrRelChangeListener{
 	}
 	/**
 	 * 
-	 * @returns the selected IMi
+	 * @return the selected IMi
 	 */
 	public Parameter<Double> getSelectedIM() {
 		if (D) 

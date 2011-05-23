@@ -52,7 +52,7 @@ public class Triangle {
 
   /**
    *
-   * @returns the array of VRTX ids constituting the triangle
+   * @return the array of VRTX ids constituting the triangle
    */
   public int[] getTRGL(){
     int[] vertex_id = new int[3];

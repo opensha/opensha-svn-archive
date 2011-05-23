@@ -65,7 +65,7 @@ public class CybershakeSiteInfo2DB {
 	 * @param siteShortName
 	 * @param siteLat
 	 * @param siteLon
-	 * @returns the SiteId from the database
+	 * @return the SiteId from the database
 	 */
 	public int  putCybershakeLocationInDB(String siteName,String siteShortName,double siteLat,double siteLon){
 	    return site2db.insertSite(siteName, siteShortName, siteLat, siteLon);
@@ -442,7 +442,7 @@ public class CybershakeSiteInfo2DB {
 	
 	/**
 	 * 
-	 * @returns the list of cybershake sites
+	 * @return the list of cybershake sites
 	 */
 	public ArrayList<String> getCS_SitesList(){
 		return site2db.getAllSites();
@@ -451,7 +451,7 @@ public class CybershakeSiteInfo2DB {
 	
 	/**
 	 * 
-	 * @returns the list of all Cybershake Site Locations
+	 * @return the list of all Cybershake Site Locations
 	 */
 	public LocationList getCS_SitesListLocations(){
 		return site2db.getAllSitesLocation();
@@ -460,7 +460,7 @@ public class CybershakeSiteInfo2DB {
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
-	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public ArrayList<Integer> getSrcIDsForSite(String csSiteName, int erfID){;
 		return site2db.getSrcIdsForSite(csSiteName, erfID);
@@ -470,7 +470,7 @@ public class CybershakeSiteInfo2DB {
 	 * 
 	 * @param siteShortName
 	 * @param srcId
-	 * @returns the list of rupture ids 
+	 * @return the list of rupture ids 
 	 */
 	public ArrayList<Integer> getRupIDsForSite(String csSiteName, int erfID, int srcID){
 		return site2db.getRupIdsForSite(csSiteName, erfID, srcID);
@@ -480,7 +480,7 @@ public class CybershakeSiteInfo2DB {
 	/**
 	 * 
 	 * @param csSiteName
-	 * @returns the Geographic locaton for the given Cybershake site
+	 * @return the Geographic locaton for the given Cybershake site
 	 */
 	public Location getCyberShakeSiteLocation(String csSiteName){
 		return site2db.getLocationForSite(csSiteName);

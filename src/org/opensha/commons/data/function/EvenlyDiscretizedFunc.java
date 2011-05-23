@@ -672,7 +672,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 
 	/**
 	 *
-	 * @returns value of each point in the function in String format
+	 * @return value of each point in the function in String format
 	 */
 	public String getMetadataString(){
 		StringBuffer b = new StringBuffer();

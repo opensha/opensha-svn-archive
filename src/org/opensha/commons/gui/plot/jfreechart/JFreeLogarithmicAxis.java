@@ -268,7 +268,7 @@ public class JFreeLogarithmicAxis extends LogAxis {
 
 	/**
 	 *
-	 * @returns true if minorAxis tick labels are to shown, false if they
+	 * @return true if minorAxis tick labels are to shown, false if they
 	 * are not to be shown.
 	 */
 	public boolean getMinorAxisTickLabelFlag() {

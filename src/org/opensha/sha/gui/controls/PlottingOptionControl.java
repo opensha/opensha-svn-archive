@@ -120,7 +120,7 @@ public class PlottingOptionControl extends ControlPanel {
 
 	/**
 	 *
-	 * @returns the selected option String choosen by the user
+	 * @return the selected option String choosen by the user
 	 * to calculate Hazard Map.
 	 */
 	public String getSelectedOption(){

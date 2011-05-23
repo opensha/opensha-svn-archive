@@ -392,7 +392,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
  /**
   * Returns the metadata associated with this calculation
   *
-  * @returns the String containing the values selected for different parameters
+  * @return the String containing the values selected for different parameters
   */
  public String getParametersInfo() {
    return "IMR Param List:\n"+

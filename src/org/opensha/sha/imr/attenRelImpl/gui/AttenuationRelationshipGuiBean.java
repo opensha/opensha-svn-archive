@@ -231,7 +231,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	/**
 	 * 
 	 * @throws MalformedURLException if returned URL is not a valid URL.
-	 * @returns the URL to the selected AttenuationRelationship document on the Web.
+	 * @return the URL to the selected AttenuationRelationship document on the Web.
 	 * If AttenuationRelationship specific URL does not exist then it returns
 	 * generic AttenuationRelationship URL.
 	 */
@@ -565,7 +565,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	 * This method is very similar to the getChoosenFunction(), but only varies in the
 	 * fact that it return back single double value where as getChoosenfunction returns a
 	 * function.
-	 * @returns the single value if the user has selected the choice to "Individual Value"
+	 * @return the single value if the user has selected the choice to "Individual Value"
 	 * on the X-Axis. It then calls the corresponding Y-Axis selected method.
 	 */
 	public double getChosenValue(){

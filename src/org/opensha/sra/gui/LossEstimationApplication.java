@@ -745,7 +745,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the application component
+	 * @return the application component
 	 */
 	protected Component getApplicationComponent(){
 		return this;
@@ -1266,7 +1266,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the Range for the X-Axis
+	 * @return the Range for the X-Axis
 	 */
 	public Range getX_AxisRange(){
 		return graphPanel.getX_AxisRange();
@@ -1274,7 +1274,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the Range for the Y-Axis
+	 * @return the Range for the Y-Axis
 	 */
 	public Range getY_AxisRange(){
 		return graphPanel.getY_AxisRange();
@@ -1317,7 +1317,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the boolean: Log for X-Axis Selected
+	 * @return the boolean: Log for X-Axis Selected
 	 */
 	public boolean getXLog(){
 		return xLog;
@@ -1325,7 +1325,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the boolean: Log for Y-Axis Selected
+	 * @return the boolean: Log for Y-Axis Selected
 	 */
 	public boolean getYLog(){
 		return yLog;
@@ -1333,7 +1333,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns boolean: Checks if Custom Axis is selected
+	 * @return boolean: Checks if Custom Axis is selected
 	 */
 	public boolean isCustomAxis(){
 		return customAxis;
@@ -1341,7 +1341,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the Min X-Axis Range Value, if custom Axis is choosen
+	 * @return the Min X-Axis Range Value, if custom Axis is choosen
 	 */
 	public double getUserMinX(){
 		return minXValue;
@@ -1349,7 +1349,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the Max X-Axis Range Value, if custom axis is choosen
+	 * @return the Max X-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxX(){
 		return maxXValue;
@@ -1357,7 +1357,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the Min Y-Axis Range Value, if custom axis is choosen
+	 * @return the Min Y-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMinY(){
 		return minYValue;
@@ -1365,7 +1365,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the Max Y-Axis Range Value, if custom axis is choosen
+	 * @return the Max Y-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxY(){
 		return maxYValue;
@@ -1374,7 +1374,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the X Axis Label
+	 * @return the X Axis Label
 	 */
 	public String getXAxisLabel(){
 		return xAxisName;
@@ -1382,7 +1382,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns Y Axis Label
+	 * @return Y Axis Label
 	 */
 	public String getYAxisLabel(){
 		return yAxisName;
@@ -1390,7 +1390,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns plot Title
+	 * @return plot Title
 	 */
 	public String getPlotLabel(){
 		return TITLE;
@@ -1423,7 +1423,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	public String getParametersInfoAsString(){
 		return getMapParametersInfoAsHTML().replaceAll(
@@ -1433,7 +1433,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	public String getMapParametersInfoAsHTML(){
 		String imrMetadata;
@@ -1465,7 +1465,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
+	 * @return the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
 	 */
 	public ArrayList getCurveFunctionList(){
 		return functionList;
@@ -1497,7 +1497,7 @@ IMR_GuiBeanAPI{
 
 	/**
 	 *
-	 * @returns the list PlotCurveCharacterstics that contain the info about
+	 * @return the list PlotCurveCharacterstics that contain the info about
 	 * plotting the curve like plot line color , its width and line type.
 	 */
 	public ArrayList getPlottingFeatures(){

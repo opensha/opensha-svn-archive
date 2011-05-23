@@ -85,7 +85,7 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 	}
 
 	/**
-	 * @returns the IntegerConstraint
+	 * @return the IntegerConstraint
 	 */
 	protected IntegerConstraint getConstraint(){
 		//Integer constraint declaration

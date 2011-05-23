@@ -40,14 +40,14 @@ public interface EqkRupSelectorGuiBeanAPI {
 
     /**
      *
-     * @returns the Hypocenter Location if selected else return null
+     * @return the Hypocenter Location if selected else return null
      */
     public Location getHypocenterLocation();
 
 
     /**
      *
-     * @returns the panel which allows user to select Eqk rupture from existing
+     * @return the panel which allows user to select Eqk rupture from existing
      * ERF models
      */
     public EqkRupSelectorGuiBeanAPI getEqkRuptureSelectorPanel();
@@ -56,14 +56,14 @@ public interface EqkRupSelectorGuiBeanAPI {
 
     /**
      *
-     * @returns the Metadata String of parameters that constitute the making of this
+     * @return the Metadata String of parameters that constitute the making of this
      * ERF_RupSelectorGUI  bean.
      */
     public String getParameterListMetadataString();
 
     /**
      *
-     * @returns the timespan Metadata for the selected Rupture.
+     * @return the timespan Metadata for the selected Rupture.
      * If no timespan exists for the rupture then it returns the Message:
      * "No Timespan exists for the selected Rupture".
      */
@@ -71,33 +71,33 @@ public interface EqkRupSelectorGuiBeanAPI {
 
     /**
      *
-     * @returns the EqkRupture Object
+     * @return the EqkRupture Object
      */
     public EqkRupture getRupture();
 
     /**
      *
      * @param paramName
-     * @returns the parameter from the parameterList with paramName.
+     * @return the parameter from the parameterList with paramName.
      */
     public Parameter getParameter(String paramName);
 
     /**
      *
      * @param paramName
-     * @returns the ParameterEditor associated with paramName
+     * @return the ParameterEditor associated with paramName
      */
     public ParameterEditor getParameterEditor(String paramName);
 
     /**
      *
-     * @returns the visible parameters in the list
+     * @return the visible parameters in the list
      */
     public ParameterList getVisibleParameterList();
 
     /**
      *
-     * @returns the parameterlist editor
+     * @return the parameterlist editor
      */
     public ParameterListEditor getParameterListEditor();
 

@@ -1224,7 +1224,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 
 	/**
 	 *
-	 * @returns the ArrayList of the PEER Test Case set One
+	 * @return the ArrayList of the PEER Test Case set One
 	 */
 	public ArrayList<String> getPEER_SetOneTestCasesNames(){
 		return this.peerTestSetOne;
@@ -1233,7 +1233,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 
 	/**
 	 *
-	 * @returns the ArrayList of the PEER Test Case set Two
+	 * @return the ArrayList of the PEER Test Case set Two
 	 */
 	public ArrayList<String> getPEER_SetTwoTestCasesNames(){
 		return this.peerTestSetTwo;

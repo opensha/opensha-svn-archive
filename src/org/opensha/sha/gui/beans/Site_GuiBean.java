@@ -309,7 +309,7 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 
 	/**
 	 * 
-	 * @returns the site ParamListEditor
+	 * @return the site ParamListEditor
 	 */
 	public ParameterListEditor getParameterListEditor() {
 		return parameterEditor;

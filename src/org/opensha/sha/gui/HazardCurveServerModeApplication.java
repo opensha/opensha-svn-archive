@@ -1102,7 +1102,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the application component
+	 * @return the application component
 	 */
 	protected Component getApplicationComponent() {
 		return this;
@@ -2041,7 +2041,7 @@ ScalarIMRChangeListener {
 	/**
 	 *
 	 * @throws RemoteException 
-	 * @returns the Adjustable parameters for the ScenarioShakeMap calculator
+	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
 		try {
@@ -2056,7 +2056,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 *
-	 * @returns the Metadata string for the Calculation Settings Adjustable Params
+	 * @return the Metadata string for the Calculation Settings Adjustable Params
 	 */
 	public String getCalcParamMetadataString(){
 		ParameterList params = getCalcAdjustableParams();
@@ -2070,7 +2070,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the selected IMT
+	 * @return the selected IMT
 	 */
 	public String getSelectedIMT() {
 		return imtGuiBean.getSelectedIMT();
@@ -2107,7 +2107,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the Range for the X-Axis
+	 * @return the Range for the X-Axis
 	 */
 	public Range getX_AxisRange() {
 		return graphPanel.getX_AxisRange();
@@ -2115,7 +2115,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the Range for the Y-Axis
+	 * @return the Range for the Y-Axis
 	 */
 	public Range getY_AxisRange() {
 		return graphPanel.getY_AxisRange();
@@ -2275,7 +2275,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the boolean: Log for X-Axis Selected
+	 * @return the boolean: Log for X-Axis Selected
 	 */
 	public boolean getXLog() {
 		return xLog;
@@ -2283,7 +2283,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the boolean: Log for Y-Axis Selected
+	 * @return the boolean: Log for Y-Axis Selected
 	 */
 	public boolean getYLog() {
 		return yLog;
@@ -2291,7 +2291,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns boolean: Checks if Custom Axis is selected
+	 * @return boolean: Checks if Custom Axis is selected
 	 */
 	public boolean isCustomAxis() {
 		return customAxis;
@@ -2299,7 +2299,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the Min X-Axis Range Value, if custom Axis is choosen
+	 * @return the Min X-Axis Range Value, if custom Axis is choosen
 	 */
 	public double getUserMinX() {
 		return minXValue;
@@ -2307,7 +2307,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the Max X-Axis Range Value, if custom axis is choosen
+	 * @return the Max X-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxX() {
 		return maxXValue;
@@ -2315,7 +2315,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the Min Y-Axis Range Value, if custom axis is choosen
+	 * @return the Min Y-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMinY() {
 		return minYValue;
@@ -2323,7 +2323,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the Max Y-Axis Range Value, if custom axis is choosen
+	 * @return the Max Y-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxY() {
 		return maxYValue;
@@ -2331,7 +2331,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the X Axis Label
+	 * @return the X Axis Label
 	 */
 	public String getXAxisLabel() {
 		return xAxisName;
@@ -2339,7 +2339,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns Y Axis Label
+	 * @return Y Axis Label
 	 */
 	public String getYAxisLabel() {
 		return yAxisName;
@@ -2347,7 +2347,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns plot Title
+	 * @return plot Title
 	 */
 	public String getPlotLabel() {
 		return TITLE;
@@ -2379,7 +2379,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the String containing the values selected for different
+	 * @return the String containing the values selected for different
 	 *          parameters
 	 */
 	public String getParametersInfoAsString() {
@@ -2389,7 +2389,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the String containing the values selected for different
+	 * @return the String containing the values selected for different
 	 *          parameters
 	 */
 	public String getMapParametersInfoAsHTML() {
@@ -2447,7 +2447,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the List for all the ArbitrarilyDiscretizedFunctions and
+	 * @return the List for all the ArbitrarilyDiscretizedFunctions and
 	 *          Weighted Function list.
 	 */
 	public ArrayList<Object> getCurveFunctionList() {
@@ -2470,7 +2470,7 @@ ScalarIMRChangeListener {
 
 	/**
 	 * 
-	 * @returns the list PlotCurveCharacterstics that contain the info about
+	 * @return the list PlotCurveCharacterstics that contain the info about
 	 *          plotting the curve like plot line color , its width and line
 	 *          type.
 	 */

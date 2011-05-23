@@ -25,12 +25,12 @@ import java.util.ArrayList;
 public interface PeakAmplitudesFromDBAPI {
 
 	/**
-	 * @returns the supported SA Period as list of strings.
+	 * @return the supported SA Period as list of strings.
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs();
 	
 	/**
-	 * @returns the supported SA Period as list of strings.
+	 * @return the supported SA Period as list of strings.
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs(int runID);
 	
@@ -39,7 +39,7 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @param erfId
 	 * @param srcId
 	 * @param rupId
-	 * @returns the rupture variation ids for the rupture
+	 * @return the rupture variation ids for the rupture
 	 */
 	public ArrayList<Integer> getRupVarationsForRupture(int erfId,int srcId, int rupId);
 	
@@ -50,7 +50,7 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @param srcId
 	 * @param rupId
 	 * @param rupVarId
-	 * @returns the IM Value for the particular IM type
+	 * @return the IM Value for the particular IM type
 	 */
 	public double getIM_Value(int runID, int srcId,int rupId,int rupVarId, CybershakeIM im);
 	
@@ -61,7 +61,7 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @param srcId
 	 * @param rupId
 	 * @throws SQLException 
-	 * @returns the a list of IM Values for the particular IM type
+	 * @return the a list of IM Values for the particular IM type
 	 */
 	public ArrayList<Double> getIM_Values(int runID, int srcId,int rupId, CybershakeIM im) throws SQLException;
 	

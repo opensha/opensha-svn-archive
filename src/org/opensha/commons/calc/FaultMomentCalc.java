@@ -39,7 +39,7 @@ public final static double SHEAR_MODULUS = 3.0e10;
   * if slip rate is given rather than slip.
   * @param area: the fault area (in square Meters)
   * @param slip: the ave slip (in Meters)
-  * @returns Moment (in Newton-Meters) or moment rate if slip-rate given.
+  * @return Moment (in Newton-Meters) or moment rate if slip-rate given.
   */
   public static double getMoment(double area, double slip) {
     return SHEAR_MODULUS*slip*area;
@@ -51,7 +51,7 @@ public final static double SHEAR_MODULUS = 3.0e10;
    * 
    * @param area: the fault area (in square Meters)
    * @param moment:(in Newton-Meters) or moment rate 
-   * @returns Slip (in meters) or slip rate if moment-rate is given
+   * @return Slip (in meters) or slip rate if moment-rate is given
    */
   public static double getSlip(double area, double moment) {
 	  return moment/(area*SHEAR_MODULUS);

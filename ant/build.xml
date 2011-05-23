@@ -447,7 +447,8 @@
 			version="true" 
 			use="true"
 			windowtitle="OpenSHA"
-			maxmemory="512m">
+			maxmemory="512m"
+			verbose="false">
 			
 			<fileset dir="${src}" defaultexcludes="yes">
 				<include name="**/*.java" />

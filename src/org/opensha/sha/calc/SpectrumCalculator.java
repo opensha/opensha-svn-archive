@@ -96,7 +96,7 @@ implements SpectrumCalculatorAPI {
 
 	/**
 	 *
-	 * @returns the adjustable ParameterList
+	 * @return the adjustable ParameterList
 	 */
 	public ParameterList getAdjustableParams()  throws java.rmi.RemoteException{
 		return this.adjustableParams;
@@ -105,7 +105,7 @@ implements SpectrumCalculatorAPI {
 
 	/**
 	 *
-	 * @returns This was created so new instances of this calculator could be
+	 * @return This was created so new instances of this calculator could be
 	 * given pointers to a set of parameter that already exist.
 	 */
 	public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException{
@@ -551,7 +551,7 @@ implements SpectrumCalculatorAPI {
 
 	/**
 	 *
-	 * @returns the current rupture being traversed
+	 * @return the current rupture being traversed
 	 * @throws java.rmi.RemoteException
 	 */
 	public int getCurrRuptures() throws java.rmi.RemoteException {
@@ -560,7 +560,7 @@ implements SpectrumCalculatorAPI {
 
 	/**
 	 *
-	 * @returns the total number of ruptures in the earthquake rupture forecast model
+	 * @return the total number of ruptures in the earthquake rupture forecast model
 	 * @throws java.rmi.RemoteException
 	 */
 	public int getTotRuptures() throws java.rmi.RemoteException {

@@ -327,7 +327,7 @@ implements ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the fractile values for fractiles needed to be calculated
+	 * @return the fractile values for fractiles needed to be calculated
 	 */
 	public ArrayList<Double> getSelectedFractileValues(){
 		return fractileValues;

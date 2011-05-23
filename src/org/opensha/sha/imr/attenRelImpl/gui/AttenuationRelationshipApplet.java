@@ -1367,7 +1367,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
+	 * @return the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
 	 */
 	public ArrayList getCurveFunctionList(){
 		return functionList;
@@ -1435,7 +1435,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the Range for the X-Axis
+	 * @return the Range for the X-Axis
 	 */
 	public Range getX_AxisRange(){
 		return graphPanel.getX_AxisRange();
@@ -1443,7 +1443,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the Range for the Y-Axis
+	 * @return the Range for the Y-Axis
 	 */
 	public Range getY_AxisRange(){
 		return graphPanel.getY_AxisRange();
@@ -1451,7 +1451,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the Min X-Axis Range Value, if custom Axis is choosen
+	 * @return the Min X-Axis Range Value, if custom Axis is choosen
 	 */
 	public double getUserMinX(){
 		return minXValue;
@@ -1459,7 +1459,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the Max X-Axis Range Value, if custom axis is choosen
+	 * @return the Max X-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxX(){
 		return maxXValue;
@@ -1467,7 +1467,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the Min Y-Axis Range Value, if custom axis is choosen
+	 * @return the Min Y-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMinY(){
 		return minYValue;
@@ -1475,7 +1475,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the Max Y-Axis Range Value, if custom axis is choosen
+	 * @return the Max Y-Axis Range Value, if custom axis is choosen
 	 */
 	public double getUserMaxY(){
 		return maxYValue;
@@ -1511,7 +1511,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns boolean: Checks if Custom Axis is selected
+	 * @return boolean: Checks if Custom Axis is selected
 	 */
 	public boolean isCustomAxis(){
 		return customAxis;
@@ -1521,7 +1521,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the boolean: Log for X-Axis Selected
+	 * @return the boolean: Log for X-Axis Selected
 	 */
 	public boolean getXLog(){
 		return xLog;
@@ -1530,7 +1530,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the boolean: Log for Y-Axis Selected
+	 * @return the boolean: Log for Y-Axis Selected
 	 */
 	public boolean getYLog(){
 		return yLog;
@@ -1538,7 +1538,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns the plotting feature like width, color and shape type of each
+	 * @return the plotting feature like width, color and shape type of each
 	 * curve in list.
 	 */
 	public ArrayList getPlottingFeatures(){
@@ -1546,7 +1546,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	}
 	/**
 	 *
-	 * @returns the X Axis Label
+	 * @return the X Axis Label
 	 */
 	public String getXAxisLabel(){
 		return xAxisName;
@@ -1554,7 +1554,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns Y Axis Label
+	 * @return Y Axis Label
 	 */
 	public String getYAxisLabel(){
 		return yAxisName;
@@ -1562,7 +1562,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	/**
 	 *
-	 * @returns plot Title
+	 * @return plot Title
 	 */
 	public String getPlotLabel(){
 		return plotTitle;

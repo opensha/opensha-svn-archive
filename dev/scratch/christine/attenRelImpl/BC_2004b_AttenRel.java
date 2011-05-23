@@ -482,7 +482,7 @@ public class BC_2004b_AttenRel
   /**
    * get the name of this IMR
    *
-   * @returns the name of this IMR
+   * @return the name of this IMR
    */
   public String getName() {
     return NAME;

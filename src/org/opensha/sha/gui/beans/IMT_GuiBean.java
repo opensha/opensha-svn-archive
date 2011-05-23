@@ -363,7 +363,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 
 	/**
 	 *
-	 * @returns the Metadata string for the IMT Gui Bean
+	 * @return the Metadata string for the IMT Gui Bean
 	 */
 	public String getParameterListMetadataString(){
 		String metadata=null;

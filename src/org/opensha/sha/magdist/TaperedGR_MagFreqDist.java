@@ -284,7 +284,7 @@ public class TaperedGR_MagFreqDist
 
   /**
    *
-   * @returns the cumulative rate at magLower
+   * @return the cumulative rate at magLower
    */
 
   public double getTotCumRate() throws Point2DException {
@@ -292,7 +292,7 @@ public class TaperedGR_MagFreqDist
   }
 
   /**
-   * @returns th bValue for this distribution
+   * @return th bValue for this distribution
    */
 
   public double get_bValue() {
@@ -301,7 +301,7 @@ public class TaperedGR_MagFreqDist
 
   /**
    *
-   * @returns the magLower : lowest magnitude that has non zero rate
+   * @return the magLower : lowest magnitude that has non zero rate
    */
   public double getMagLower() {
     return magLower;
@@ -309,7 +309,7 @@ public class TaperedGR_MagFreqDist
 
   /**
    *
-   * @returns the magCorner : highest magnitude that has non zero rate
+   * @return the magCorner : highest magnitude that has non zero rate
    */
   public double getmagCorner() {
     return magCorner;

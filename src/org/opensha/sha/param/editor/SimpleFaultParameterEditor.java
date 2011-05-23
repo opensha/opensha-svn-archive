@@ -120,7 +120,7 @@ public class SimpleFaultParameterEditor extends AbstractParameterEditorOld
 
   /**
    *
-   * @returns the instance of the SimpleFaultEditorPanel that actually contains
+   * @return the instance of the SimpleFaultEditorPanel that actually contains
    * all the parameters for the Surface parameter
    */
   public SimpleFaultParameterEditorPanel getParameterEditorPanel(){

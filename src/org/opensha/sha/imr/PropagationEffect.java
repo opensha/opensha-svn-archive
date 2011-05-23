@@ -424,7 +424,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
 	/**
 	 *
-	 * @returns the adjustable ParameterList
+	 * @return the adjustable ParameterList
 	 */
 	public ParameterList getAdjustableParameterList(){
 		return this.adjustableParams;

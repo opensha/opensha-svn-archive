@@ -491,7 +491,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 
 	/**
 	 *
-	 * @returns the matadata string for parameter.
+	 * @return the matadata string for parameter.
 	 * This function returns the metadata which can be used to reset the values
 	 * of the parameters created.
 	 * *NOTE : Look at the function getMetadataXML() which return the values of
@@ -642,7 +642,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	/**
 	 *
 	 * @param paramName
-	 * @returns the index of the parameter Name in the ArrayList
+	 * @return the index of the parameter Name in the ArrayList
 	 */
 	private int getIndexOf(String paramName){
 		int size =  independentParameters.size();
@@ -655,7 +655,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 
 	/**
 	 *
-	 * @returns the dependent parameter name and all its independent Params Values.
+	 * @return the dependent parameter name and all its independent Params Values.
 	 */
 	public String getIndependentParametersKey(){
 
@@ -767,7 +767,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 
 	/**
 	 *
-	 * @returns the independent parameter list for the dependent parameter
+	 * @return the independent parameter list for the dependent parameter
 	 */
 	public ParameterList getIndependentParameterList(){
 		Iterator it = independentParameters.iterator();

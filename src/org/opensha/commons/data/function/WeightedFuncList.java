@@ -239,7 +239,7 @@ public class WeightedFuncList {
 
 	/**
 	 * Calculates mean fractile
-	 * @returns the mean fractile from the list of functions.
+	 * @return the mean fractile from the list of functions.
 	 */
 	public void addMean(){
 		setFractileCurveCalcuations();
@@ -280,7 +280,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns the mean fractile function if it was computed
+	 * @return the mean fractile function if it was computed
 	 */
 	public DiscretizedFunc getMean(){
 		if(isMeanFractileCalculated)
@@ -291,7 +291,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns the relative weights array associated with each function in the list.
+	 * @return the relative weights array associated with each function in the list.
 	 */
 	public ArrayList getRelativeWtList(){
 		return relativeWts;
@@ -299,7 +299,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns the number of functions in the list with relative wts associated with them
+	 * @return the number of functions in the list with relative wts associated with them
 	 */
 	public int getNumWeightedFunctions(){
 		return functionList.size();
@@ -307,7 +307,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns total number of functions for which fractile was computed
+	 * @return total number of functions for which fractile was computed
 	 * This number return does not take into account if mean fractile was calculated.
 	 */
 	public int getNumFractileFunctions(){
@@ -351,7 +351,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns boolean. true if mean curve was calculated and false if not.
+	 * @return boolean. true if mean curve was calculated and false if not.
 	 */
 	public boolean isMeanFunctionCalculated(){
 		return isMeanFractileCalculated;
@@ -367,7 +367,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns the info associated with this weighted function list, otherwise
+	 * @return the info associated with this weighted function list, otherwise
 	 * return null.
 	 */
 	public String getInfo(){
@@ -403,7 +403,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns the info about number of functions in
+	 * @return the info about number of functions in
 	 * weighted function list and their weights.
 	 */
 	public String getFunctionTraceInfo(){
@@ -412,7 +412,7 @@ public class WeightedFuncList {
 
 	/**
 	 *
-	 * @returns the info about the mean function in weighted function list.
+	 * @return the info about the mean function in weighted function list.
 	 */
 	public String getMeanFunctionInfo(){
 		return meanFunction.getInfo();

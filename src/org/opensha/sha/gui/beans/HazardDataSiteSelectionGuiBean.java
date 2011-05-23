@@ -268,7 +268,7 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
 
    /**
     *
-    * @returns the selected dataset name
+    * @return the selected dataset name
     */
    private String geSelectedDataSetName(){
      String name = "Selected DataSet: " +selectedDataSet+"\t";

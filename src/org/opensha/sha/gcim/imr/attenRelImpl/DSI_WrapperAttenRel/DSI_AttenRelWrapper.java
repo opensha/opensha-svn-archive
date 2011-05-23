@@ -382,7 +382,7 @@ public class DSI_AttenRelWrapper
   /**
    * get the name of this IMR
    *
-   * @returns the name of this IMR
+   * @return the name of this IMR
    */
   public String getName() {
     return NAME;
@@ -426,7 +426,7 @@ public class DSI_AttenRelWrapper
   /**
    * This provides a URL where more info on this model can be obtained
    * @throws MalformedURLException if returned URL is not a valid URL.
-   * @returns the URL to the AttenuationRelationship document on the Web.
+   * @return the URL to the AttenuationRelationship document on the Web.
    */
   public URL getInfoURL() throws MalformedURLException{
 	  return new URL(URL_INFO_STRING);

@@ -771,7 +771,7 @@ public class GraphPanel extends JSplitPane {
 	 * @param funcList
 	 * @param xAxisName
 	 * @param yAxisName
-	 * @returns data to be shown in the data window
+	 * @return data to be shown in the data window
 	 */
 	private String showDataInWindow(ArrayList funcList,String xAxisName,String yAxisName){
 
@@ -904,7 +904,7 @@ public class GraphPanel extends JSplitPane {
 	}
 	/**
 	 *
-	 * @returns the Range for the X-Axis
+	 * @return the Range for the X-Axis
 	 */
 	public Range getX_AxisRange(){
 		return xAxis.getRange();
@@ -912,7 +912,7 @@ public class GraphPanel extends JSplitPane {
 
 	/**
 	 *
-	 * @returns the Range for the Y-Axis
+	 * @return the Range for the Y-Axis
 	 */
 	public Range getY_AxisRange(){
 		return yAxis.getRange();
@@ -921,7 +921,7 @@ public class GraphPanel extends JSplitPane {
 
 	/**
 	 *
-	 * @returns the list PlotCurveCharacterstics that contain the info about
+	 * @return the list PlotCurveCharacterstics that contain the info about
 	 * plotting the curve like plot line color , its width and line type.
 	 */
 	public ArrayList<PlotCurveCharacterstics> getCurvePlottingCharacterstic(){
@@ -1159,7 +1159,7 @@ public class GraphPanel extends JSplitPane {
 
 	/**
 	 *
-	 * @returns the XAxis Label if not null
+	 * @return the XAxis Label if not null
 	 * else return null
 	 */
 	public String getXAxisLabel(){
@@ -1170,7 +1170,7 @@ public class GraphPanel extends JSplitPane {
 
 	/**
 	 *
-	 * @returns the YAxis Label if not null
+	 * @return the YAxis Label if not null
 	 * else return null
 	 */
 	public String getYAxisLabel(){
@@ -1181,7 +1181,7 @@ public class GraphPanel extends JSplitPane {
 
 	/**
 	 *
-	 * @returns the chart Title if not null
+	 * @return the chart Title if not null
 	 * else return null
 	 */
 	public String getPlotLabel(){

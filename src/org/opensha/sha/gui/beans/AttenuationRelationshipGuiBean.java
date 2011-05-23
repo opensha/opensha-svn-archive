@@ -427,7 +427,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the Object for the supported Attenuation Relationships in a ArrayList
+	 * @return the Object for the supported Attenuation Relationships in a ArrayList
 	 */
 	public ArrayList getSupportedAttenuationRelationships(){
 		return attenRelsSupported;
@@ -842,7 +842,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the Selected IMT Parameter
+	 * @return the Selected IMT Parameter
 	 */
 	public Parameter getSelectedIMTparam(){
 		return imtParamList.getParameter(IMT_PARAM_NAME);
@@ -851,7 +851,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	/**
 	 *
 	 * @param paramName
-	 * @returns the parameter with the paramName from the IMT parameter list
+	 * @return the parameter with the paramName from the IMT parameter list
 	 */
 	public Parameter getParameter(String paramName){
 		return imtParamList.getParameter(paramName);
@@ -1053,7 +1053,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the selected IMRs instances in the ArrayList
+	 * @return the selected IMRs instances in the ArrayList
 	 */
 	public ArrayList getSelectedIMRs(){
 
@@ -1104,7 +1104,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns true if single attenuation relationship GUI is selected else
+	 * @return true if single attenuation relationship GUI is selected else
 	 * returns false if multiple attenuation relationship GUI is selected.
 	 */
 	public boolean isSingleAttenRelTypeSelected(){
@@ -1133,7 +1133,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the site parameters iterator for the selected AttenuationRelationships
+	 * @return the site parameters iterator for the selected AttenuationRelationships
 	 * It also avoids the duplicity of the site params if AttenuationRelationships
 	 * share them.
 	 */
@@ -1183,7 +1183,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the ParameterList editor of the Single AttenuationRelationship
+	 * @return the ParameterList editor of the Single AttenuationRelationship
 	 * if multiple attenuationrelationship panel is selected then it return null.
 	 * so in order for the person to actally get the handle to the single AttenRel
 	 * paramlist editor, we have to first select the Single AttenRel Gui Panel and
@@ -1231,7 +1231,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the normalised weights for each selected attenuationRelationship
+	 * @return the normalised weights for each selected attenuationRelationship
 	 */
 	public ArrayList getSelectedIMR_Weights(){
 		ArrayList wtsList = new ArrayList();
@@ -1257,7 +1257,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the Intensity Measure Parameter Editor
+	 * @return the Intensity Measure Parameter Editor
 	 */
 	public ParameterListEditor getIntensityMeasureParamEditor(){
 		return imtEditorParamListEditor;
@@ -1345,7 +1345,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the Metadata string for the IMR Gui Bean
+	 * @return the Metadata string for the IMR Gui Bean
 	 */
 	public String getIMR_ParameterListMetadataString(){
 		String metadata = "";
@@ -1367,7 +1367,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 	/**
 	 *
-	 * @returns the Metadata string for the IMT Gui Bean
+	 * @return the Metadata string for the IMT Gui Bean
 	 */
 	public String getIMT_ParameterListMetadataString(){
 		String metadata="";

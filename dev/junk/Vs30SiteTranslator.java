@@ -107,7 +107,7 @@ public class Vs30SiteTranslator implements java.io.Serializable{
    * @param vs30
    * @param basinDepth
    *
-   * @returns the boolean which is required in the case of the HazardCurveApp
+   * @return the boolean which is required in the case of the HazardCurveApp
    * to tell the user that site is in the water.
    */
   public boolean setSiteParams(Parameter tempParam, double vs30,double basinDepth ){

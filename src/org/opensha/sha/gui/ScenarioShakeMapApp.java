@@ -869,7 +869,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	/**
 	 *
-	 * @returns the Map label based on the selected Map Type( Prob@IML or IML@Prob)
+	 * @return the Map label based on the selected Map Type( Prob@IML or IML@Prob)
 	 */
 	protected String getMapLabel(){
 		//making the map
@@ -885,7 +885,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	/**
 	 *
-	 * @returns the Adjustable parameters for the ScenarioShakeMap calculator
+	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
 		return shakeMapCalc.getAdjustableParams();
@@ -894,7 +894,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	/**
 	 *
-	 * @returns the Metadata string for the Calculation Settings Adjustable Params
+	 * @return the Metadata string for the Calculation Settings Adjustable Params
 	 */
 	public String getCalcParamMetadataString(){
 		return getCalcAdjustableParams().getParameterListMetadataString();
@@ -970,7 +970,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	/**
 	 *
-	 * @returns the selected Attenuationrelationship model
+	 * @return the selected Attenuationrelationship model
 	 */
 	public ArrayList getSelectedAttenuationRelationships(){
 		attenRel = imrGuiBean.getSelectedIMRs();
@@ -979,7 +979,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	/**
 	 *
-	 * @returns the selected AttenuationRelationship wts
+	 * @return the selected AttenuationRelationship wts
 	 */
 	public ArrayList getSelectedAttenuationRelationshipsWts(){
 		attenRelWts = imrGuiBean.getSelectedIMR_Weights();
@@ -988,7 +988,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 
 	/**
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	public String getMapParametersInfoAsHTML(){
 

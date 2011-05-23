@@ -36,13 +36,13 @@ public interface EqkRupForecastAPI extends EqkRupForecastBaseAPI{
 
      /**
       *
-      * @returns the total number os sources
+      * @return the total number os sources
       */
      public int getNumSources();
 
      /**
       *
-      * @returns the sourceList
+      * @return the sourceList
       */
      public ArrayList<? extends ProbEqkSource> getSourceList();
 
@@ -64,7 +64,7 @@ public interface EqkRupForecastAPI extends EqkRupForecastBaseAPI{
      /**
       *
       * @param iSource
-      * @returns the number of ruptures for the ithSource
+      * @return the number of ruptures for the ithSource
       */
      public int getNumRuptures(int iSource);
 
@@ -73,7 +73,7 @@ public interface EqkRupForecastAPI extends EqkRupForecastBaseAPI{
       *
       * @param iSource
       * @param nRupture
-      * @returns the ProbEqkRupture object for the ithSource and nth rupture
+      * @return the ProbEqkRupture object for the ithSource and nth rupture
       */
      public ProbEqkRupture getRupture(int iSource,int nRupture);
      

@@ -569,7 +569,7 @@ ParameterChangeListener{
 
 	   /**
 	    *
-	    * @returns the plotting feature like width, color and shape type of each
+	    * @return the plotting feature like width, color and shape type of each
 	    * curve in list.
 	    */
 	   public ArrayList getPlottingFeatures() {
@@ -588,7 +588,7 @@ ParameterChangeListener{
 
 	   /**
 	    *
-	    * @returns the X Axis Label
+	    * @return the X Axis Label
 	    */
 	   public String getXAxisLabel() {
 		   int selectedIndex = this.plotTabPane.getSelectedIndex();
@@ -597,7 +597,7 @@ ParameterChangeListener{
 
 	   /**
 	    *
-	    * @returns Y Axis Label
+	    * @return Y Axis Label
 	    */
 	   public String getYAxisLabel() {
 		   int selectedIndex = this.plotTabPane.getSelectedIndex();
@@ -606,7 +606,7 @@ ParameterChangeListener{
 
 	   /**
 	    *
-	    * @returns plot Title
+	    * @return plot Title
 	    */
 	   public String getPlotLabel() {
 		   int selectedIndex = this.plotTabPane.getSelectedIndex();

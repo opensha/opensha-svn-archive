@@ -95,7 +95,7 @@ extends HazardCurveLocalModeApplication {
 	/**
 	 *
 	 * @throws RemoteException 
-	 * @returns the Adjustable parameters for the ScenarioShakeMap calculator
+	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
 		try {
@@ -653,7 +653,7 @@ extends HazardCurveLocalModeApplication {
 
 	/**
 	 *
-	 * @returns the String containing the values selected for different parameters
+	 * @return the String containing the values selected for different parameters
 	 */
 	public String getMapParametersInfoAsHTML() {
 		String imrMetadata;

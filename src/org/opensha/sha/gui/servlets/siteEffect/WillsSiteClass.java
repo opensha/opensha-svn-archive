@@ -122,7 +122,7 @@ public final class WillsSiteClass {
 
 	/**
 	 *
-	 * @returns the ArrayList of the Wills Site Class Value for each site in the
+	 * @return the ArrayList of the Wills Site Class Value for each site in the
 	 * gridded region.
 	 */
 	public ArrayList<String> getWillsSiteClass() {

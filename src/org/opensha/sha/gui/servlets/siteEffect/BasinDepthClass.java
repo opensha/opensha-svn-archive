@@ -111,7 +111,7 @@ public final class BasinDepthClass {
 
   /**
    *
-   * @returns the ArrayList of the Basin Depth values for each site in the
+   * @return the ArrayList of the Basin Depth values for each site in the
    * gridded region.
    */
   public ArrayList getBasinDepth() {

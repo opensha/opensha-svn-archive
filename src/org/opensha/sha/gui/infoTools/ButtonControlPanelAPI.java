@@ -68,7 +68,7 @@ public interface ButtonControlPanelAPI extends AxisLimitsControlPanelAPI{
 
    /**
     *
-    * @returns the plotting feature like width, color and shape type of each
+    * @return the plotting feature like width, color and shape type of each
     * curve in list.
     */
    public ArrayList getPlottingFeatures();
@@ -81,19 +81,19 @@ public interface ButtonControlPanelAPI extends AxisLimitsControlPanelAPI{
 
    /**
     *
-    * @returns the X Axis Label
+    * @return the X Axis Label
     */
    public String getXAxisLabel();
 
    /**
     *
-    * @returns Y Axis Label
+    * @return Y Axis Label
     */
    public String getYAxisLabel();
 
    /**
     *
-    * @returns plot Title
+    * @return plot Title
     */
    public String getPlotLabel();
 

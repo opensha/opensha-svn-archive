@@ -67,7 +67,7 @@ public class WeightedFuncListforPlotting extends WeightedFuncList{
 
   /**
    *
-   * @returns true if individual plots need to be plotted , else return false
+   * @return true if individual plots need to be plotted , else return false
    */
   public boolean areIndividualCurvesToPlot(){
     return individualCurvesToPlot;
@@ -75,7 +75,7 @@ public class WeightedFuncListforPlotting extends WeightedFuncList{
 
   /**
    *
-   * @returns true if fractile plots need to be plotted, else return false
+   * @return true if fractile plots need to be plotted, else return false
    */
   public boolean areFractilesToPlot(){
     return fractilesToPlot;
@@ -83,7 +83,7 @@ public class WeightedFuncListforPlotting extends WeightedFuncList{
 
   /**
    *
-   * @returns true if mean curve needs to be plotted, else return false.
+   * @return true if mean curve needs to be plotted, else return false.
    */
   public boolean isMeanToPlot(){
     return meantoPlot;

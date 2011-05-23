@@ -99,7 +99,7 @@ public class ScenarioShakeMapCalculator {
 	 * @param isProbAtIML : if true the prob at the specified IML value (next param) will
 	 * be computed; if false the IML at the specified Prob value (next param) will be computed.
 	 * @param value : the IML or Prob to compute the map for.
-	 * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
+	 * @return the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
 	 */
 	public GeoDataSet getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
 			ArrayList<Double> attenRelWts,
@@ -252,7 +252,7 @@ public class ScenarioShakeMapCalculator {
 	 * @param isProbAtIML : if true the prob at the specified IML value (next param) will
 	 * be computed; if false the IML at the specified Prob value (next param) will be computed.
 	 * @param value : the IML or Prob to compute the map for.
-	 * @returns the String  : Absolute path to ArbDiscretized XYZ dataset file on the server
+	 * @return the String  : Absolute path to ArbDiscretized XYZ dataset file on the server
 	 */
 	public String getScenarioShakeMapDataUsingServer(ArrayList selectedAttenRels, ArrayList attenRelWts,
 			String griddedRegionSitesFile,EqkRupture rupture,
@@ -347,7 +347,7 @@ public class ScenarioShakeMapCalculator {
 	 * @param imr selected IMR object.
 	 * @param isProbAtIML : if true the prob at the specified IML value (next param) will
 	 * be computed; if false the IML at the specified Prob value will be computed.
-	 * @returns computed value for the exceed Prob or IML based on above argument.
+	 * @return computed value for the exceed Prob or IML based on above argument.
 	 * @throws ParameterException
 	 */
 	private double scenarioShakeMapDataCalc(PropagationEffect propagationEffect,
@@ -406,7 +406,7 @@ public class ScenarioShakeMapCalculator {
 
 	/**
 	 *
-	 * @returns the total number of sites in the region
+	 * @return the total number of sites in the region
 	 */
 	public int getNumSites(){
 		return numSites;
@@ -415,7 +415,7 @@ public class ScenarioShakeMapCalculator {
 
 	/**
 	 *
-	 * @returns the current site being processed
+	 * @return the current site being processed
 	 */
 	public int getCurrentSite(){
 		return currentSiteBeingProcessed ;
@@ -423,7 +423,7 @@ public class ScenarioShakeMapCalculator {
 
 	/**
 	 *
-	 * @returns true if calculations for all the sites are done
+	 * @return true if calculations for all the sites are done
 	 * else return false.
 	 */
 	public boolean done(){
@@ -434,7 +434,7 @@ public class ScenarioShakeMapCalculator {
 
 	/**
 	 *
-	 * @returns the ParameterList for the Propagation Effect.
+	 * @return the ParameterList for the Propagation Effect.
 	 * But later we will be creating a adjustable parameterlist for the calculator.
 	 */
 	public ParameterList getAdjustableParams(){

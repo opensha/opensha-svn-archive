@@ -166,7 +166,7 @@ public class EqkRuptureFromNGA extends EqkRupture {
 
   /**
    *
-   * @returns the list of rake for each observed location
+   * @return the list of rake for each observed location
    */
   public ArrayList getObservedRuptureSiteRakeList(){
     return observeredRuptureRakeList;
@@ -174,7 +174,7 @@ public class EqkRuptureFromNGA extends EqkRupture {
 
   /**
    *
-   * @returns the list of IM values for each observed location of the rupture
+   * @return the list of IM values for each observed location of the rupture
    */
   public ArrayList getObservedRuptureSiteIMList(){
     return observedRuptureIM_ValuesList;
@@ -184,7 +184,7 @@ public class EqkRuptureFromNGA extends EqkRupture {
 
   /**
    *
-   * @returns the information for the rupture
+   * @return the information for the rupture
    */
   public String getInfo() {
     String info1, info2;

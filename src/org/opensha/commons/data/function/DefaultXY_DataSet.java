@@ -203,7 +203,7 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	
 	/**
 	 *
-	 * @returns value of each point in the function in String format
+	 * @return value of each point in the function in String format
 	 */
 	public String getMetadataString(){
 		StringBuffer b = new StringBuffer();

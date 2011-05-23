@@ -41,7 +41,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param siteShortName
 	 * @param lat
 	 * @param lon
-	 * @returns the Site Id for the last inserted Site
+	 * @return the Site Id for the last inserted Site
 	 */
 	public int insertSite(String siteName, String siteShortName, double lat,
 			double lon) {
@@ -405,7 +405,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 
 	/**
 	 * 
-	 * @returns the list of all cybershake site locations
+	 * @return the list of all cybershake site locations
 	 */
 	public LocationList getAllSitesLocation() {
 //		 gets the last auto increment id from Sites table
@@ -437,7 +437,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 
 	/**
 	 * 
-	 * @returns the ArrayList of short site names for all Cybershake
+	 * @return the ArrayList of short site names for all Cybershake
 	 */
 	public ArrayList<String> getAllSites() {	
 //		 gets the last auto increment id from Sites table
@@ -467,7 +467,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * 
 	 * @param siteShortName
 	 * @param srcId
-	 * @returns the list of rupture ids 
+	 * @return the list of rupture ids 
 	 */
 	public ArrayList<Integer> getRupIdsForSite(String siteShortName, int erf_id, int srcId) {
 		int siteId = this.getSiteId(siteShortName);
@@ -478,7 +478,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * 
 	 * @param siteShortName
 	 * @param srcId
-	 * @returns the list of rupture ids 
+	 * @return the list of rupture ids 
 	 */
 	public ArrayList<Integer> getRupIdsForSite(int siteID, int erf_id, int srcId) {
 		String sql = "Select Rupture_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " + 
@@ -508,7 +508,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
-	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public void getSrcIfoForSite(String siteShortName, int erf_id, ArrayList<Integer> ids) {
 		int siteId = this.getSiteId(siteShortName);
@@ -518,7 +518,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
-	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public void getSrcIfoForSite(int siteID, int erf_id, ArrayList<Integer> ids) {
 		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " +
@@ -547,7 +547,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
-	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public ArrayList<Integer> getSrcIdsForSite(String siteShortName, int erf_id) {
 		int siteId = this.getSiteId(siteShortName);
@@ -557,7 +557,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
-	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public ArrayList<Integer> getSrcIdsForSite(int  siteID, int erf_id) {
 		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " +
@@ -588,7 +588,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	/**
 	 * 
 	 * @param site
-	 * @returns the Location for the given cybershake site location
+	 * @return the Location for the given cybershake site location
 	 */
 	public Location getLocationForSite(String site){
 		 String sql = "SELECT CS_Site_Lat,CS_Site_Lon from CyberShake_Sites WHERE CS_Short_Name = '"+site+"'";

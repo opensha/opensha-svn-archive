@@ -61,7 +61,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	/**
 	 * Returns the list of the Observed events above/at the given magnitude.
 	 * @param mag double Magnitude
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * above a given magnitude
 	 */
 	public ObsEqkRupList getObsEqkRupsAboveMag(double mag) {
@@ -78,7 +78,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	/**
 	 * Returns the list of the Observed events below the given magnitude.
 	 * @param mag double Magnitude
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * below a given magnitude
 	 */
 	public ObsEqkRupList getObsEqkRupsBelowMag(double mag) {
@@ -98,7 +98,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	 * It includes lower magnitude in the range but excludes the upper magnitude.
 	 * @param mag1 double lower magnitude
 	 * @param mag2 double upper magnitude
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * between 2 given magnitudes.
 	 */
 	public ObsEqkRupList getObsEqkRupsBetweenMag(double mag1, double mag2) {
@@ -117,7 +117,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	/**
 	 * Returns the list of Observed events before a given time period
 	 * @param cal GregorianCalendar Time Period
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * before a given time period
 	 */
 	public ObsEqkRupList getObsEqkRupsBefore(GregorianCalendar cal) {
@@ -138,7 +138,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	/**
 	 * Returns the list of Observed events after a given time period
 	 * @param cal GregorianCalendar Time Period
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * after a given time period
 	 */
 	public ObsEqkRupList getObsEqkRupsAfter(GregorianCalendar cal) {
@@ -158,7 +158,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	 * Returns the list of the Observed events between 2 given time periods.
 	 * @param cal1 GregorianCalendar Time Period
 	 * @param cal2 GregorianCalendar Time Period
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * between 2 given time periods.
 	 */
 	public ObsEqkRupList getObsEqkRupsBetween(GregorianCalendar cal1,
@@ -178,7 +178,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	/**
 	 * Returns the list of the Observed events inside a given geographic region
 	 * @param region Region
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * inside a given region.
 	 */
 	public ObsEqkRupList getObsEqkRupsInside(Region region) {
@@ -197,7 +197,7 @@ public class ObsEqkRupList implements java.io.Serializable{
 	/**
 	 * Returns the list of the Observed events outside a given geographic region
 	 * @param region Region
-	 * @returns the subset of total observed events as ObsEqkRupList list
+	 * @return the subset of total observed events as ObsEqkRupList list
 	 * outside a given region.
 	 */
 	public ObsEqkRupList getObsEqkRupsOutside(Region region) {

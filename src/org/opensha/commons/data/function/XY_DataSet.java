@@ -145,7 +145,7 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable {
 	/**
 	 * prints out the state of the list, such as number of points,
 	 * the value of each point, etc.
-	 * @returns value of each point in the function in String format
+	 * @return value of each point in the function in String format
 	 */
 	public String getMetadataString();
 	

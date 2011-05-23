@@ -246,7 +246,7 @@ public class RegionParameterEditor
 
   /**
    *
-   * @returns the parameterList contained in this editor.
+   * @return the parameterList contained in this editor.
    */
   public ParameterList getParameterList() {
     return editor.getParameterList();
