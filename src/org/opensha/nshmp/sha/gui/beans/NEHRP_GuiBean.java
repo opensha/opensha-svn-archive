@@ -42,12 +42,12 @@ import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 import org.opensha.nshmp.exceptions.LocationErrorException;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
@@ -523,7 +523,7 @@ public class NEHRP_GuiBean
       ParameterList paramList = locGuiBean.getLocationParameters();
       ListIterator it = paramList.getParametersIterator();
       while (it.hasNext()) {
-        ParameterAPI param = (ParameterAPI) it.next();
+        Parameter param = (Parameter) it.next();
         param.addParameterChangeListener(this);
       }
 

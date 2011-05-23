@@ -10,8 +10,8 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
@@ -32,7 +32,7 @@ public class HazardCurveSetCalculator {
 	
 	private EqkRupForecastAPI erf;
 	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
-	private List<DependentParameterAPI<Double>> imts;
+	private List<Parameter<Double>> imts;
 	private CurveResultsArchiver archiver;
 	private CalculationSettings calcSettings;
 	private HazardCurveCalculator calc;
@@ -46,7 +46,7 @@ public class HazardCurveSetCalculator {
 	
 	public HazardCurveSetCalculator(EqkRupForecastAPI erf,
 			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
-			List<DependentParameterAPI<Double>> imts,
+			List<Parameter<Double>> imts,
 			CurveResultsArchiver archiver,
 			CalculationSettings calcSettings) {
 		this.erf = erf;
@@ -84,22 +84,22 @@ public class HazardCurveSetCalculator {
 			for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> imrMap : imrMaps) {
 				if (imts != null) {
 					// if a different IMT has been specified for each imr map then we must set it
-					DependentParameterAPI<Double> newIMT = imts.get(imrMapCount);
+					Parameter<Double> newIMT = imts.get(imrMapCount);
 //					System.out.println("Setting IMT to " + newIMT.getName());
 					for (TectonicRegionType trt : imrMap.keySet()) {
 						ScalarIntensityMeasureRelationshipAPI imr = imrMap.get(trt);
 						imr.setIntensityMeasure(newIMT.getName());
-						DependentParameterAPI<Double> imt = (DependentParameterAPI<Double>) imr.getIntensityMeasure();
-						ListIterator<ParameterAPI<?>> it = newIMT.getIndependentParametersIterator();
+						Parameter<Double> imt = (Parameter<Double>) imr.getIntensityMeasure();
+						ListIterator<Parameter<?>> it = newIMT.getIndependentParametersIterator();
 						while (it.hasNext()) {
-							ParameterAPI<?> depParam = it.next();
+							Parameter<?> depParam = it.next();
 							imt.getIndependentParameter(depParam.getName()).setValue(depParam.getValue());
 						}
 					}
 				}
 				imrMapCount++;
-				DependentParameterAPI<Double> imtParam =
-					(DependentParameterAPI<Double>) TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
+				Parameter<Double> imtParam =
+					(Parameter<Double>) TRTUtils.getFirstIMR(imrMap).getIntensityMeasure();
 				String imt = imtParam.getName();
 				String imtMeta = imtParam.getName();
 				if (imtParam instanceof SA_Param) {

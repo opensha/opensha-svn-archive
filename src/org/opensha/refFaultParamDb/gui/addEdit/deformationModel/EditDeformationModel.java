@@ -17,11 +17,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;

@@ -33,16 +33,16 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
 /**
@@ -136,9 +136,9 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 	 *            : Iterator over the site params in the IMR
 	 */
 	public void addSiteParams(Iterator it) {
-		Parameter tempParam;
+		AbstractParameter tempParam;
 		while (it.hasNext()) {
-			tempParam = (Parameter) it.next();
+			tempParam = (AbstractParameter) it.next();
 			if (!parameterList.containsParameter(tempParam)) { // if this does
 																// not exist
 																// already
@@ -171,13 +171,13 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 	 *            : Iterator over the site params in the IMR
 	 */
 	public void addSiteParamsClone(Iterator it) {
-		Parameter tempParam;
+		AbstractParameter tempParam;
 		while (it.hasNext()) {
-			tempParam = (Parameter) it.next();
+			tempParam = (AbstractParameter) it.next();
 			if (!parameterList.containsParameter(tempParam)) { // if this does
 																// not exist
 																// already
-				Parameter cloneParam = (Parameter) tempParam.clone();
+				AbstractParameter cloneParam = (AbstractParameter) tempParam.clone();
 				/*
 				 * if(tempParam instanceof StringParameter) { StringParameter
 				 * strConstraint = (StringParameter)tempParam;
@@ -253,7 +253,7 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 
 		// clone the paramters
 		while (it.hasNext())
-			newSite.addParameter((ParameterAPI) ((ParameterAPI) it.next())
+			newSite.addParameter((Parameter) ((Parameter) it.next())
 					.clone());
 		return site;
 	}
@@ -281,9 +281,9 @@ public class Site_GuiBean extends JPanel implements ParameterChangeListener,
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = (ParameterAPI) e.getSource();
+		Parameter param = (Parameter) e.getSource();
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();

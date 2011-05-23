@@ -24,11 +24,11 @@ import java.awt.Component;
 
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
-import org.opensha.commons.param.CPTParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.sha.calc.IM_EventSet.v01.IM_EventSetScenarioForCEA;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.gui.beans.AttenuationRelationshipGuiBean;
@@ -101,7 +101,7 @@ public class IM_EventSetCEA_ControlPanel extends ConfirmDialogControlPanel {
 		//making the ERF Gui Bean Adjustable Param not visible to the user, becuase
 		//this control panel will set the values by itself.
 		//This is done in the EqkRupSelectorGuiBean
-		ParameterEditorAPI paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
+		ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
 		paramEditor.setValue(erfGuiBean.CREATE_RUPTURE);
 		paramEditor.refreshParamEditor();
 		EqkRuptureCreationPanel erfPanel= (EqkRuptureCreationPanel)erfGuiBean.getEqkRuptureSelectorPanel();
@@ -116,7 +116,7 @@ public class IM_EventSetCEA_ControlPanel extends ConfirmDialogControlPanel {
 		erfPanel.getParameter(erfPanel.RAKE_PARAM_NAME).setValue(new Double(90));
 
 		IM_EventSetScenarioForCEA eventSet = new IM_EventSetScenarioForCEA(); 
-		ParameterAPI param = erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME);
+		Parameter param = erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME);
 		eventSet.createSimpleFaultParam((SimpleFaultParameter)param);
 
 		erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));

@@ -5,9 +5,9 @@ import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 
-public class MockStringParameterEditor extends NewParameterEditor<String> {
+public class MockStringParameterEditor extends AbstractParameterEditor<String> {
 	
 	private JPanel widget;
 	
@@ -20,7 +20,7 @@ public class MockStringParameterEditor extends NewParameterEditor<String> {
 		this(null);
 	}
 
-	public MockStringParameterEditor(ParameterAPI<String> param) {
+	public MockStringParameterEditor(Parameter<String> param) {
 		super(param);
 		
 		updateWidgetStack = new Stack<Long>();
@@ -31,7 +31,7 @@ public class MockStringParameterEditor extends NewParameterEditor<String> {
 	}
 
 	@Override
-	public boolean isParameterSupported(ParameterAPI<String> param) {
+	public boolean isParameterSupported(Parameter<String> param) {
 		if (paramSupportedReturn == null)
 			paramSupportedReturn = true;
 		return paramSupportedReturn;

@@ -27,16 +27,16 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.EvenlyDiscretizedFuncParameter;
-import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -59,7 +59,7 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
  */
 
 public class MagFreqDistParameter
-extends DependentParameter
+extends AbstractParameter
 implements java.io.Serializable
 {
 
@@ -168,7 +168,7 @@ implements java.io.Serializable
 	 */
 	private ParameterList parameterList = new ParameterList();
 
-	private transient ParameterEditor paramEdit = null;
+	private transient AbstractParameterEditorOld paramEdit = null;
 
 
 	/**
@@ -274,7 +274,7 @@ implements java.io.Serializable
 	 *  Sets the constraint if it is a StringConstraint and the parameter
 	 *  is currently editable.
 	 */
-	public void setConstraint(ParameterConstraintAPI constraint)
+	public void setConstraint(ParameterConstraint constraint)
 	throws ParameterException, EditableException
 	{
 
@@ -551,7 +551,7 @@ implements java.io.Serializable
 
 		ListIterator it = newParamList.getParametersIterator();
 		while (it.hasNext()) {
-			ParameterAPI tempParam = (ParameterAPI) it.next();
+			Parameter tempParam = (Parameter) it.next();
 			parameterList.getParameter(tempParam.getName()).setValue(tempParam.
 					getValue());
 		}
@@ -1065,7 +1065,7 @@ implements java.io.Serializable
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null)
 			paramEdit = new MagFreqDistParameterEditor(this);
 		return paramEdit;

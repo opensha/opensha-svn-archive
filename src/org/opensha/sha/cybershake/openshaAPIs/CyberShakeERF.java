@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.cybershake.db.CybershakeERF;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;

@@ -38,7 +38,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.LogicTreeMFDsPlotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.ReportBulgeFigures;

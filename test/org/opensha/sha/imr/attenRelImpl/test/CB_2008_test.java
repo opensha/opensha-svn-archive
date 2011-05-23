@@ -30,9 +30,9 @@ import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
-import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.AttenuationRelationship;

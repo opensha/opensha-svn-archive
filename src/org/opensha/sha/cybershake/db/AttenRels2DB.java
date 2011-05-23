@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.AttenRelImpl;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
@@ -68,7 +68,7 @@ public class AttenRels2DB {
 				String pval = param[1];
 				
 				try {
-					ParameterAPI<?> imrParam = imr.getParameter(pname);
+					Parameter<?> imrParam = imr.getParameter(pname);
 					String imrParamVal = imrParam.getValue().toString();
 					if (!imrParamVal.equals(pval)) {
 						// there's a chance that it's truncated
@@ -144,7 +144,7 @@ public class AttenRels2DB {
 		String sql = "INSERT INTO "+ATTEN_REL_METADATA_TABLE_NAME+" VALUES ";
 		
 		boolean first = true;
-		for (ParameterAPI<?> param : imr.getOtherParamsList()) {
+		for (Parameter<?> param : imr.getOtherParamsList()) {
 			if (first) {
 				first = false;
 				sql += "\n";

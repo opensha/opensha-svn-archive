@@ -18,10 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.apache.commons.lang.StringUtils;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;

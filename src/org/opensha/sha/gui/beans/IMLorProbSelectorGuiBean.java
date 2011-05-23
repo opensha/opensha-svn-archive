@@ -21,13 +21,13 @@ package org.opensha.sha.gui.beans;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 

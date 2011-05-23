@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.ChooserComboBox;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
@@ -51,7 +51,7 @@ public class TestIMT_IMR_Interactions {
 	public void testIMTList() {
 		ArrayList<String> supportedIMTs = imtGui.getSupportedIMTs();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRs()) {
-			for (ParameterAPI<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
 				String imtName = imtParam.getName();
 				assertTrue("IMT '" + imtName + "' should be in list!",
 						supportedIMTs.contains(imtName));

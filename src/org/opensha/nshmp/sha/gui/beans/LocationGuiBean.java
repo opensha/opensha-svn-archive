@@ -38,17 +38,17 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
-import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
+import org.opensha.commons.param.editor.impl.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.nshmp.exceptions.LocationErrorException;
 
 /**
@@ -340,7 +340,7 @@ public class LocationGuiBean
 
     StringBuffer b = new StringBuffer();
 
-    ParameterAPI param = (ParameterAPI) event.getSource();
+    Parameter param = (Parameter) event.getSource();
     Object oldValue = event.getOldValue();
     String oldValueStr = null;
     if (oldValue != null) {
@@ -352,7 +352,7 @@ public class LocationGuiBean
 
     //if Lat and Lon parameter constraints are violated
     if (!name.equals(ZIP_CODE_PARAM_NAME)) {
-      ParameterConstraintAPI constraint = param.getConstraint();
+      ParameterConstraint constraint = param.getConstraint();
       b.append("The value ");
       b.append(badValueStr);
       b.append(" is not permitted for '");

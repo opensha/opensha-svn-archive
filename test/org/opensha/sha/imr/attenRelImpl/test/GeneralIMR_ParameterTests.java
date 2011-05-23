@@ -16,9 +16,9 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
@@ -105,9 +105,9 @@ public class GeneralIMR_ParameterTests {
 		this.shortName = imr.getShortName();
 	}
 
-	private static void addAllForIt(ParameterList list, Iterator<ParameterAPI<?>> it) {
+	private static void addAllForIt(ParameterList list, Iterator<Parameter<?>> it) {
 		while (it.hasNext()) {
-			ParameterAPI<?> param = it.next();
+			Parameter<?> param = it.next();
 			if (!list.containsParameter(param))
 				list.addParameter(param);
 		}
@@ -143,7 +143,7 @@ public class GeneralIMR_ParameterTests {
 
 		ParameterList params = getAllIMRParams(imr);
 
-		for (ParameterAPI<?> param : params) {
+		for (Parameter<?> param : params) {
 			if (param.getValue() == null) {
 				assertTrue(shortName+": param '"+param.getName()
 						+"' value is null, but null isn't allowed!", param.isNullAllowed());
@@ -158,7 +158,7 @@ public class GeneralIMR_ParameterTests {
 	
 	@Test
 	public void testSupportedIMs() {
-		for (ParameterAPI<?> im : imr.getSupportedIntensityMeasuresList()) {
+		for (Parameter<?> im : imr.getSupportedIntensityMeasuresList()) {
 			try {
 				imr.setIntensityMeasure(im);
 			} catch (ParameterException e) {
@@ -170,9 +170,9 @@ public class GeneralIMR_ParameterTests {
 	private Site createSite(Location loc) {
 		Site site = new Site(loc);
 		
-		Iterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+		Iterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		while (it.hasNext()) {
-			ParameterAPI<?> param = (ParameterAPI)it.next().clone();
+			Parameter<?> param = (Parameter)it.next().clone();
 			if (param instanceof DoubleParameter) {
 				DoubleParameter dparam = (DoubleParameter)param;
 				double rVal = Math.random();
@@ -194,7 +194,7 @@ public class GeneralIMR_ParameterTests {
 	private void assertDistanceParamsValid(Site site, EqkRupture rup) {
 		PropagationEffect peffect = new PropagationEffect(site, rup);
 		
-		for (ParameterAPI<?> param : getAllIMRParams(imr)) {
+		for (Parameter<?> param : getAllIMRParams(imr)) {
 			try {
 				Object val = peffect.getParamValue(param.getName());
 				if (val instanceof Double) {
@@ -218,7 +218,7 @@ public class GeneralIMR_ParameterTests {
 	public void testSetSiteRup() {
 		imr.setParamDefaults();
 		
-		ParameterAPI<?> im = imr.getSupportedIntensityMeasuresIterator().next();
+		Parameter<?> im = imr.getSupportedIntensityMeasuresIterator().next();
 		
 		Site site = createSite(new Location(34, -118));
 		
@@ -287,9 +287,9 @@ public class GeneralIMR_ParameterTests {
 	}
 	
 	private void verifySiteParams(Site site) {
-		Iterator<ParameterAPI<?>> it = site.getParametersIterator();
+		Iterator<Parameter<?>> it = site.getParametersIterator();
 		while (it.hasNext()) {
-			ParameterAPI<?> param = it.next();
+			Parameter<?> param = it.next();
 			
 			assertEquals(shortName+": param '"+param.getName()+"' not set with setSite",
 					param.getValue(), imr.getParameter(param.getName()).getValue());

@@ -9,11 +9,11 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_tests
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.gem.GEM1.util.SourceType;
 import org.opensha.sha.earthquake.EqkRupForecast;

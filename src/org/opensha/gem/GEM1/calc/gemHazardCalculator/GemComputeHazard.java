@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 //import org.opensha.sha.calc.HazardCurveCalculator;
@@ -189,9 +189,9 @@ public class GemComputeHazard implements Runnable {
 			Iterator<TectonicRegionType> iterGmpeLabel = gmpeLabels.iterator(); 
 			//initialize site parameters for each attenuation relation
 			while(iterGmpeLabel.hasNext()){
-				ListIterator<ParameterAPI<?>> it = gmpeMapThread.get(iterGmpeLabel.next()).getSiteParamsIterator();
+				ListIterator<Parameter<?>> it = gmpeMapThread.get(iterGmpeLabel.next()).getSiteParamsIterator();
 		        while (it.hasNext()) {
-			           ParameterAPI param = it.next();
+			           Parameter param = it.next();
 			           if (!siteList.get(i).containsParameter(param))
 				           siteList.get(i).addParameter(param);
 		        }

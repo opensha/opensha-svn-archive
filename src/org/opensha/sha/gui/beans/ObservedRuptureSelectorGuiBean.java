@@ -42,14 +42,14 @@ import javax.swing.border.TitledBorder;
 import junk.nga.EqkRuptureFromNGA;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 
 
@@ -271,7 +271,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
     // get the panel for increasing the font and border
     // this is hard coding for increasing the IMR font
     // the colors used here are from ParameterEditor
-    ParameterEditorAPI<?> paramEdit = listEditor.getParameterEditor(RUPTURE_PARAM_NAME);
+    ParameterEditor<?> paramEdit = listEditor.getParameterEditor(RUPTURE_PARAM_NAME);
     TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
     titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
     Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
@@ -334,7 +334,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
    * @param : Name of the Parameter
    * @returns the parameter with the name param
    */
-  public ParameterAPI getParameter(String param){
+  public Parameter getParameter(String param){
     return listEditor.getParameterList().getParameter(param);
   }
 

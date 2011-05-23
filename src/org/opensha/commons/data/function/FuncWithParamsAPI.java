@@ -19,7 +19,7 @@
 
 package org.opensha.commons.data.function;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 
 /**
@@ -36,7 +36,7 @@ import org.opensha.commons.param.ParameterList;
  *
  * @author Steven W. Rock
  * @see ParameterList
- * @see ParameterAPI
+ * @see Parameter
  * @version 1.0
  */
 

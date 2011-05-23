@@ -19,8 +19,8 @@
 
 package org.opensha.sha.util;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
@@ -149,7 +149,7 @@ public class OldSiteTranslator
    * 
    * ***NOTE: THIS NEEDS TO FIXED TO HANDLE THE SOFT SOIL CASE FOR CHOI AND STEWART MODEL 
    */
-  public boolean setParameterValue(ParameterAPI param, String willsClass,
+  public boolean setParameterValue(Parameter param, String willsClass,
                                    double basinDepth) {
 
     // shorten name for convenience
@@ -334,7 +334,7 @@ public class OldSiteTranslator
    * This will test the translation from all wills categories for the parameter given
    * @param param
    */
-  public void test(ParameterAPI param) {
+  public void test(Parameter param) {
     System.out.println(param.getName() + "  Parameter (basin depth = NaN):");
     if (setParameterValue(param, WILLS_B, Double.NaN)) {
       System.out.println("\t" + WILLS_B + " --> " + param.getValue());

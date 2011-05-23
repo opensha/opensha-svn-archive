@@ -21,7 +21,7 @@ package org.opensha.commons.param.event;
 
 import java.util.EventObject;
 
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 
 /**
  *  <b>Title:</b> ParameterChangeWarningEvent<p>
@@ -40,7 +40,7 @@ public class ParameterChangeWarningEvent extends EventObject {
     /**
      *  Name of Parameter tried to change.
      */
-    private WarningParameterAPI param;
+    private WarningParameter param;
 
     /**
      *  New value for the Parameter that failed.
@@ -63,7 +63,7 @@ public class ParameterChangeWarningEvent extends EventObject {
      */
     public ParameterChangeWarningEvent(
             Object reference,
-            WarningParameterAPI param,
+            WarningParameter param,
             Object oldValue,
             Object newValue
              ) {
@@ -79,7 +79,7 @@ public class ParameterChangeWarningEvent extends EventObject {
      *
      * @return    Name of Parameter tried to change
      */
-    public WarningParameterAPI getWarningParameter() {
+    public WarningParameter getWarningParameter() {
         return param;
     }
 

@@ -8,13 +8,17 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.junit.Test;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.XMLUtils;
 
 
 public class XMLSaveLoadTest {
 	
-	private void testXMLSave(ParameterAPI param1, ParameterAPI param2) {
+	private void testXMLSave(Parameter param1, Parameter param2) {
 		Object origVal = param1.getValue();
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
@@ -22,7 +26,7 @@ public class XMLSaveLoadTest {
 		
 		param1.toXMLMetadata(root);
 		
-		param2.setValueFromXMLMetadata(root.element(Parameter.XML_METADATA_NAME));
+		param2.setValueFromXMLMetadata(root.element(AbstractParameter.XML_METADATA_NAME));
 		
 		String cname = ClassUtils.getClassNameWithoutPackage(param1.getClass());
 		

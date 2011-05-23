@@ -28,7 +28,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 
@@ -190,7 +190,7 @@ public class RemoteERF_ListImpl
    * @param paramName
    * @returns the Parameter from the parameter list with param name.
    */
-  public ParameterAPI getParameter(String paramName) throws RemoteException {
+  public Parameter getParameter(String paramName) throws RemoteException {
     // TODO Auto-generated method stub
     return erfList.getParameter(paramName);
   }

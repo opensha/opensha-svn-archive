@@ -19,7 +19,7 @@
 
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 /**
  * DistRupMinusDistX_OverRupParam - this represents distance X (relative to  

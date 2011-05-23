@@ -32,12 +32,12 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.MetadataLoader;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 
@@ -142,7 +142,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *  specification quite general and flexible.  IMRs compute the probability
 	 *  of exceeding the "value" field of this im Parameter.
 	 */
-	protected ParameterAPI im;
+	protected Parameter im;
 
 	//this flag keeps track of whether the intensity measure has changed
 	protected boolean intensityMeasureChanged;
@@ -267,7 +267,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The intensityMeasure Parameter
 	 */
-	public ParameterAPI getIntensityMeasure() {
+	public Parameter getIntensityMeasure() {
 		return im;
 	}
 
@@ -281,14 +281,14 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @param  intensityMeasure  The new intensityMeasure Parameter
 	 */
-	public void setIntensityMeasure(ParameterAPI intensityMeasure) throws
+	public void setIntensityMeasure(Parameter intensityMeasure) throws
 	ParameterException, ConstraintException {
 
 		if (isIntensityMeasureSupported(intensityMeasure)) {
 			setIntensityMeasure(intensityMeasure.getName());
-			ListIterator it = ( (DependentParameterAPI) intensityMeasure).getIndependentParametersIterator();
+			ListIterator it = ( (Parameter) intensityMeasure).getIndependentParametersIterator();
 			while (it.hasNext()) {
-				ParameterAPI param = (ParameterAPI) it.next();
+				Parameter param = (Parameter) it.next();
 				getParameter(param.getName()).setValue(param.getValue());
 			}
 		}
@@ -338,15 +338,15 @@ implements IntensityMeasureRelationshipAPI {
 	 * @param  intensityMeasure  Description of the Parameter
 	 * @return                   True if this is a supported IMT
 	 */
-	public boolean isIntensityMeasureSupported(ParameterAPI intensityMeasure) {
+	public boolean isIntensityMeasureSupported(Parameter intensityMeasure) {
 
 		if (supportedIMParams.containsParameter(intensityMeasure)) {
 			//		  System.out.println("got here");
-			int numIndParams = ((DependentParameterAPI)supportedIMParams.getParameter(intensityMeasure.getName())).getNumIndependentParameters();
+			int numIndParams = ((Parameter)supportedIMParams.getParameter(intensityMeasure.getName())).getNumIndependentParameters();
 			//ParameterAPI param = supportedIMParams.getParameter( intensityMeasure.getName() );
-			ListIterator it = ( (DependentParameterAPI) intensityMeasure).getIndependentParametersIterator();
+			ListIterator it = ( (Parameter) intensityMeasure).getIndependentParametersIterator();
 			while (it.hasNext()) {
-				ParameterAPI param = (ParameterAPI) it.next();
+				Parameter param = (Parameter) it.next();
 				if (getParameter(param.getName()).isAllowed(param.getValue())) {
 					continue;
 				}
@@ -355,7 +355,7 @@ implements IntensityMeasureRelationshipAPI {
 				}
 			}
 			// now check to make sure both have the same number of independent params
-			if(( (DependentParameterAPI) intensityMeasure).getNumIndependentParameters() == numIndParams)
+			if(( (Parameter) intensityMeasure).getNumIndependentParameters() == numIndParams)
 				return true;
 			else
 				return false;
@@ -401,7 +401,7 @@ implements IntensityMeasureRelationshipAPI {
 	 * @exception  IMRException         Description of the Exception
 	 * @exception  ConstraintException  Description of the Exception
 	 */
-	public void setAll(EqkRupture eqkRupture, Site site, ParameterAPI intensityMeasure
+	public void setAll(EqkRupture eqkRupture, Site site, Parameter intensityMeasure
 	) throws ParameterException, IMRException, ConstraintException {
 		setSite(site);
 		setEqkRupture(eqkRupture);
@@ -415,7 +415,7 @@ implements IntensityMeasureRelationshipAPI {
 	 * @return                      The found parameter
 	 * @throws ParameterException   If parameter with that name doesn't exist
 	 */
-	public ParameterAPI getParameter(String name) throws ParameterException {
+	public Parameter getParameter(String name) throws ParameterException {
 
 		// check whether it's the exceedProbParam
 		if (name.equals(EXCEED_PROB_NAME)) {
@@ -442,10 +442,10 @@ implements IntensityMeasureRelationshipAPI {
 		}
 		catch (ParameterException e) {}
 
-		ListIterator<ParameterAPI<?>> it = supportedIMParams.getParametersIterator();
+		ListIterator<Parameter<?>> it = supportedIMParams.getParametersIterator();
 		while (it.hasNext()) {
 
-			DependentParameterAPI param = (DependentParameterAPI) it.next();
+			Parameter param = (Parameter) it.next();
 			if (param.containsIndependentParameter(name)) {
 				return param.getIndependentParameter(name);
 			}
@@ -466,7 +466,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The Site Parameters Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getSiteParamsIterator() {
+	public ListIterator<Parameter<?>> getSiteParamsIterator() {
 		return siteParams.getParametersIterator();
 	}
 	
@@ -483,7 +483,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    Iterator for otherParameters
 	 */
-	public ListIterator<ParameterAPI<?>> getOtherParamsIterator() {
+	public ListIterator<Parameter<?>> getOtherParamsIterator() {
 		return otherParams.getParametersIterator();
 	}
 	
@@ -496,7 +496,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The EqkRupture Parameters Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getEqkRuptureParamsIterator() {
+	public ListIterator<Parameter<?>> getEqkRuptureParamsIterator() {
 		return eqkRuptureParams.getParametersIterator();
 	}
 	
@@ -512,7 +512,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The Propagation Effect Parameters Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getPropagationEffectParamsIterator() {
+	public ListIterator<Parameter<?>> getPropagationEffectParamsIterator() {
 		return propagationEffectParams.getParametersIterator();
 	}
 	
@@ -527,7 +527,7 @@ implements IntensityMeasureRelationshipAPI {
 	 *
 	 * @return    The Supported Intensity-Measures Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getSupportedIntensityMeasuresIterator() {
+	public ListIterator<Parameter<?>> getSupportedIntensityMeasuresIterator() {
 		return supportedIMParams.getParametersIterator();
 	}
 
@@ -548,18 +548,18 @@ implements IntensityMeasureRelationshipAPI {
 		Element xml = root.addElement(IntensityMeasureRelationship.XML_METADATA_NAME);
 		xml.addAttribute("className", this.getClass().getName());
 		ListIterator paramIt = this.getOtherParamsIterator();
-		Element paramsElement = xml.addElement(Parameter.XML_GROUP_METADATA_NAME);
+		Element paramsElement = xml.addElement(AbstractParameter.XML_GROUP_METADATA_NAME);
 		while (paramIt.hasNext()) {
-			Parameter param = (Parameter)paramIt.next();
+			AbstractParameter param = (AbstractParameter)paramIt.next();
 			paramsElement = param.toXMLMetadata(paramsElement);
 		}
 		paramIt = this.getSiteParamsIterator();
 		Element siteParamsElement = xml.addElement(IntensityMeasureRelationship.XML_METADATA_SITE_PARAMETERS_NAME);
 		while (paramIt.hasNext()) {
-			Parameter param = (Parameter)paramIt.next();
+			AbstractParameter param = (AbstractParameter)paramIt.next();
 			siteParamsElement = param.toXMLMetadata(siteParamsElement);
 		}
-		ParameterAPI imt = this.getIntensityMeasure();
+		Parameter imt = this.getIntensityMeasure();
 		if (imt != null)
 			imt.toXMLMetadata(xml, IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
 		//	  ParameterAPI period = this.getParameter(PeriodParam.NAME);
@@ -583,10 +583,10 @@ implements IntensityMeasureRelationshipAPI {
 
 		// add params
 		System.out.println("Setting params...");
-		Element paramsElement = root.element(Parameter.XML_GROUP_METADATA_NAME);
+		Element paramsElement = root.element(AbstractParameter.XML_GROUP_METADATA_NAME);
 		ListIterator paramIt = imr.getOtherParamsIterator();
 		while (paramIt.hasNext()) {
-			Parameter param = (Parameter)paramIt.next();
+			AbstractParameter param = (AbstractParameter)paramIt.next();
 			if (param.getName().equals(TectonicRegionTypeParam.NAME))
 				continue;
 			System.out.println("Setting param " + param.getName());
@@ -610,7 +610,7 @@ implements IntensityMeasureRelationshipAPI {
 		if (siteParamsElement != null) {
 			paramIt = imr.getSiteParamsIterator();
 			while (paramIt.hasNext()) {
-				Parameter param = (Parameter)paramIt.next();
+				AbstractParameter param = (AbstractParameter)paramIt.next();
 				System.out.println("Setting param " + param.getName());
 				Iterator<Element> it = siteParamsElement.elementIterator();
 				while (it.hasNext()) {
@@ -637,7 +637,7 @@ implements IntensityMeasureRelationshipAPI {
 
 			imr.setIntensityMeasure(imtName);
 
-			ParameterAPI<?> imt = imr.getIntensityMeasure();
+			Parameter<?> imt = imr.getIntensityMeasure();
 
 			imt.setValueFromXMLMetadata(imtElem);
 		}

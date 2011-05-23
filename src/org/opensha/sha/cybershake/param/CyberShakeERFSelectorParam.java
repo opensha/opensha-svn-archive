@@ -21,8 +21,8 @@ package org.opensha.sha.cybershake.param;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.cybershake.db.CybershakeERF;
 
 public class CyberShakeERFSelectorParam extends StringParameter {

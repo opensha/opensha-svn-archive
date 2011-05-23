@@ -34,17 +34,17 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.util.SiteTranslator;
 
 
@@ -84,7 +84,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
 	//Site Params ArrayList
-	ArrayList<ParameterAPI> siteParams = new ArrayList<ParameterAPI>();
+	ArrayList<Parameter> siteParams = new ArrayList<Parameter>();
 
 	//Static String for setting the site Params
 	public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
@@ -226,10 +226,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private void reloadSiteParams() {
 		boolean useData = this.isUseSiteData();
 		
-		Iterator<ParameterAPI<?>> it = parameterList.getParametersIterator();
+		Iterator<Parameter<?>> it = parameterList.getParametersIterator();
 		
 		while (it.hasNext()) {
-			ParameterAPI<?> param = it.next();
+			Parameter<?> param = it.next();
 			
 			if (isSiteParam(param)) {
 				parameterList.removeParameter(param);
@@ -248,7 +248,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		}
 		
 		// now make sure they're all there...
-		for (ParameterAPI param : siteParams) {
+		for (Parameter param : siteParams) {
 			if (!parameterList.containsParameter(param)) {
 				if (isSiteParam(param)) {
 					String name = param.getName();
@@ -278,13 +278,13 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @param it
 	 */
-	public void replaceSiteParams(Iterator<ParameterAPI<?>> it) {
+	public void replaceSiteParams(Iterator<Parameter<?>> it) {
 		boolean useData = this.isUseSiteData();
 		
 		// first remove all the parameters except latitude and longitude
-		Iterator<ParameterAPI<?>> siteIt = parameterList.getParametersIterator();
+		Iterator<Parameter<?>> siteIt = parameterList.getParametersIterator();
 		while(siteIt.hasNext()) { // remove all the parameters except latitude and longitude and gridSpacing
-			ParameterAPI<?> param = siteIt.next();
+			Parameter<?> param = siteIt.next();
 			if(isSiteParam(param)) {
 				parameterList.removeParameter(param);
 				System.out.println("Removed: " + param.getName());
@@ -295,7 +295,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 		// now add all the new params
 		while (it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next().clone();
+			Parameter param = (Parameter)it.next().clone();
 			String name = param.getName();
 			if (useData) {
 				if (!name.startsWith(DEFAULT))
@@ -342,10 +342,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		ListIterator it  = parameterList.getParametersIterator();
 		// clone the paramters
 		while(it.hasNext()){
-			ParameterAPI tempParam= (ParameterAPI)it.next();
+			Parameter tempParam= (Parameter)it.next();
 			for(int i=0;i<newSiteVector.size();++i){
 				if(!((Site)newSiteVector.get(i)).containsParameter(tempParam))
-					((Site)newSiteVector.get(i)).addParameter((ParameterAPI)tempParam.clone());
+					((Site)newSiteVector.get(i)).addParameter((Parameter)tempParam.clone());
 			}
 		}
 		return newSiteVector.iterator();
@@ -359,18 +359,18 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 */
 	private void updateGriddedSiteParams() {
 
-		ArrayList<ParameterAPI> v= new ArrayList<ParameterAPI>();
+		ArrayList<Parameter> v= new ArrayList<Parameter>();
 		createAndUpdateSites();
 		//getting the site params for the first element of the siteVector
 		//becuase all the sites will be having the same site Parameter
-		Iterator<ParameterAPI> it = siteParams.iterator();
+		Iterator<Parameter> it = siteParams.iterator();
 		while(it.hasNext())
-			v.add((ParameterAPI)it.next());
+			v.add((Parameter)it.next());
 		gridRegion.addSiteParams(v.iterator());
 	}
 
 
-	public ArrayList<ParameterAPI> getSiteParams() {
+	public ArrayList<Parameter> getSiteParams() {
 		return siteParams;
 	}
 
@@ -389,10 +389,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();
@@ -437,7 +437,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @param e Description of the parameter
 	 */
 	public void parameterChange(ParameterChangeEvent e){
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 		boolean update = false;
 
@@ -535,7 +535,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		return gridRegion;
 	}
 	
-	private boolean isSiteParam(ParameterAPI param) {
+	private boolean isSiteParam(Parameter param) {
 		String name = param.getName();
 		
 //		System.out.println("Is site param: " + name);

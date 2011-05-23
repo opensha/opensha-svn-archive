@@ -1,7 +1,7 @@
 package org.opensha.sha.calc.params;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.commons.param.impl.ArbitrarilyDiscretizedFuncParameter;
 
 public class MagDistCutoffParam extends ArbitrarilyDiscretizedFuncParameter {
 	

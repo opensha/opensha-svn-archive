@@ -24,16 +24,16 @@ import java.util.ArrayList;
 
 import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.ParameterListParameter;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.ParameterListParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
@@ -55,7 +55,7 @@ import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
  * @version 1.0
  */
 
-public class SimpleFaultParameter extends DependentParameter implements ParameterChangeListener,
+public class SimpleFaultParameter extends AbstractParameter implements ParameterChangeListener,
 java.io.Serializable{
 
 	/** Class name for debugging. */
@@ -165,7 +165,7 @@ java.io.Serializable{
 	private ArrayList prevDepths;
 	private ArrayList prevDips;
 
-	private transient ParameterEditor paramEdit= null;
+	private transient AbstractParameterEditorOld paramEdit= null;
 
 	/**
 	 *  No constraints specified for this parameter. Sets the name of this
@@ -309,7 +309,7 @@ java.io.Serializable{
 	 * returns ParameterListParameter
 	 * @returns the Parameter comprising of all the latitudes
 	 */
-	public ParameterAPI getLatParam(){
+	public Parameter getLatParam(){
 		return parameterListParameterForLats;
 	}
 
@@ -317,7 +317,7 @@ java.io.Serializable{
 	 * returns ParameterListParameter
 	 * @returns the Parameter comprising of all the longitudes
 	 */
-	public ParameterAPI getLonParam(){
+	public Parameter getLonParam(){
 		return parameterListParameterForLons;
 	}
 
@@ -325,7 +325,7 @@ java.io.Serializable{
 	 * returns ParameterListParameter
 	 * @returns the Parameter comprising of all the depths
 	 */
-	public ParameterAPI getDepthParam(){
+	public Parameter getDepthParam(){
 		return parameterListParameterForDepths;
 	}
 
@@ -333,7 +333,7 @@ java.io.Serializable{
 	 * returns ParameterListParameter
 	 * @returns the Parameter comprising of all the dips
 	 */
-	public ParameterAPI getDipParam(){
+	public Parameter getDipParam(){
 		return parameterListParameterForDips;
 	}
 
@@ -341,7 +341,7 @@ java.io.Serializable{
 	 *
 	 * @returns the parameter for the number of Dips
 	 */
-	public ParameterAPI getNumDipParam(){
+	public Parameter getNumDipParam(){
 		return numDipParam;
 	}
 
@@ -349,7 +349,7 @@ java.io.Serializable{
 	 *
 	 * @returns the parameter for selected fault type
 	 */
-	public ParameterAPI getFaultTypeParam(){
+	public Parameter getFaultTypeParam(){
 		return faultTypeParam;
 	}
 
@@ -357,7 +357,7 @@ java.io.Serializable{
 	 *
 	 * @returns the parameter for Dip direction
 	 */
-	public ParameterAPI getDipDirectionParam(){
+	public Parameter getDipDirectionParam(){
 		return dipDirectionParam;
 	}
 
@@ -870,7 +870,7 @@ java.io.Serializable{
 		return false;
 	}
 
-	public ParameterEditor getEditor() {
+	public AbstractParameterEditorOld getEditor() {
 		if (paramEdit == null)
 			paramEdit = new SimpleFaultParameterEditor(this);
 		return paramEdit;

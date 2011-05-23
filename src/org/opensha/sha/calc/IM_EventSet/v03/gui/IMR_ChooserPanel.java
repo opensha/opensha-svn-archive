@@ -29,9 +29,9 @@ import javax.swing.JPanel;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -86,10 +86,10 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 	}
 	
 	private void updateSiteParams(ScalarIntensityMeasureRelationshipAPI imr) {
-		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+		ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		ParameterList list = new ParameterList();
 		while (it.hasNext()) {
-			ParameterAPI<?> param = it.next();
+			Parameter<?> param = it.next();
 //			System.out.println("adding: " + param.getName());
 			list.addParameter(param);
 		}
@@ -176,9 +176,9 @@ public class IMR_ChooserPanel extends NamesListPanel implements IMR_GuiBeanAPI, 
 		for (int i=0; i<imrs.size(); i++) {
 			ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
 			ScalarIntensityMeasureRelationshipAPI myIMR = imrGuiBean.getIMR_Instance(imr.getName());
-			ListIterator<ParameterAPI<?>> paramIt = myIMR.getOtherParamsIterator();
+			ListIterator<Parameter<?>> paramIt = myIMR.getOtherParamsIterator();
 			while (paramIt.hasNext()) {
-				ParameterAPI param = paramIt.next();
+				Parameter param = paramIt.next();
 				param.setValue(imr.getParameter(param.getName()).getValue());
 			}
 			names[i] = imr.getName();

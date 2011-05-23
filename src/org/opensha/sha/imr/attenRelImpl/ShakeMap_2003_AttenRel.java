@@ -32,13 +32,13 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -734,7 +734,7 @@ NamedObjectAPI {
 	public double getIML_AtExceedProb() throws ParameterException {
 
 		if (im.getName().equals(MMI_Param.NAME)) {
-			double exceedProb = ( (Double) ( (ParameterAPI) exceedProbParam).getValue()).
+			double exceedProb = ( (Double) ( (Parameter) exceedProbParam).getValue()).
 			doubleValue();
 			if (exceedProb == 0.5) {
 				if (sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {

@@ -23,8 +23,8 @@ import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
@@ -210,9 +210,9 @@ public class HardCodedTest {
 			new ArrayList<HashMap<TectonicRegionType,ScalarIntensityMeasureRelationshipAPI>>();
 		imrMaps.add(imrMap);
 		
-		Iterator<ParameterAPI<?>> imrSiteParamsIt = imr.getSiteParamsIterator();
+		Iterator<Parameter<?>> imrSiteParamsIt = imr.getSiteParamsIterator();
 		while (imrSiteParamsIt.hasNext()) {
-			ParameterAPI<?> param =imrSiteParamsIt.next();
+			Parameter<?> param =imrSiteParamsIt.next();
 			String paramName = param.getName();
 			if (nullBasin && (paramName.equals(DepthTo2pt5kmPerSecParam.NAME)
 								|| paramName.equals(DepthTo1pt0kmPerSecParam.NAME))) {
@@ -249,15 +249,15 @@ public class HardCodedTest {
 			for (SiteDataAPI<?> prov : provs) {
 				if (prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)
 						|| prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
-					ParameterAPI<Double> minBasinParam = null;
+					Parameter<Double> minBasinParam = null;
 					try {
 						minBasinParam = prov.getAdjustableParameterList()
 							.getParameter(AbstractSiteData.PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME);
 					} catch (ParameterException e) {}
 					if (minBasinParam != null) {
-						ListIterator<ParameterAPI<?>> siteParamsIt = imr.getSiteParamsIterator();
+						ListIterator<Parameter<?>> siteParamsIt = imr.getSiteParamsIterator();
 						while (siteParamsIt.hasNext()) {
-							ParameterAPI<?> param = siteParamsIt.next();
+							Parameter<?> param = siteParamsIt.next();
 							if (param.getName().equals(DepthTo2pt5kmPerSecParam.NAME)
 									&& prov.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
 								minBasinParam.setValue((Double)param.getValue());
@@ -306,11 +306,11 @@ public class HardCodedTest {
 		for (int i=0; i<locs.size(); i++) {
 			Location loc = locs.get(i);
 			Site site = new Site(loc);
-			ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+			ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 			ArrayList<SiteDataValue<?>> datas = siteData[i];
 			while (it.hasNext()) {
-				ParameterAPI<?> siteParam = it.next();
-				ParameterAPI clonedParam = (ParameterAPI) siteParam.clone();
+				Parameter<?> siteParam = it.next();
+				Parameter clonedParam = (Parameter) siteParam.clone();
 				String paramName = siteParam.getName();
 				if (nullBasin &&
 						(paramName.equals(DepthTo2pt5kmPerSecParam.NAME)

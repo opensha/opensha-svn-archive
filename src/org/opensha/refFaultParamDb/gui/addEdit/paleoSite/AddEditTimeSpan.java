@@ -28,7 +28,7 @@ import java.awt.Insets;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.TimeGuiBean;

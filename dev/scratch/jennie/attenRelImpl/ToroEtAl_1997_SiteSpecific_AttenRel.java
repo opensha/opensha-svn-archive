@@ -11,12 +11,12 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -362,7 +362,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 //    String ignoreStr1 = toroEtAl_1997_Vs30_Param.NAME;
 //    String ignoreStr2 = toroEtAl_1997_attenRel.COMPONENT_NAME;
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
+      AbstractParameter param = (AbstractParameter) it.next();
  //     if (!ignoreStr1.equals(param.getName()) &&
  //         !ignoreStr2.equals(param.getName())) {
         meanIndependentParams.addParameter(param);
@@ -382,7 +382,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     
     it = toroEtAl_1997_attenRel.getStdDevIndependentParamsIterator();
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
+      AbstractParameter param = (AbstractParameter) it.next();
  //     if (!ignoreStr1.equals(param.getName()) &&
  //         !ignoreStr2.equals(param.getName())) {
         stdDevIndependentParams.addParameter(param);
@@ -400,7 +400,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     exceedProbIndependentParams.clear();
     it = toroEtAl_1997_attenRel.getExceedProbIndependentParamsIterator();
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
+      AbstractParameter param = (AbstractParameter) it.next();
  //     if (!ignoreStr1.equals(param.getName()) &&
  //         !ignoreStr2.equals(param.getName())) {
         exceedProbIndependentParams.addParameter(param);
@@ -494,7 +494,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	  eqkRuptureParams.clear();
 	  ListIterator it = toroEtAl_1997_attenRel.getEqkRuptureParamsIterator();
 	  while (it.hasNext()) {
-		  eqkRuptureParams.addParameter( (Parameter) it.next());
+		  eqkRuptureParams.addParameter( (AbstractParameter) it.next());
 	  }
   }
 
@@ -506,7 +506,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     propagationEffectParams.clear();
     ListIterator it = toroEtAl_1997_attenRel.getPropagationEffectParamsIterator();
     while (it.hasNext()) {
-      propagationEffectParams.addParameter( (Parameter) it.next());
+      propagationEffectParams.addParameter( (AbstractParameter) it.next());
     }
     // this is a pointer to that in toroEtAl_1997_attenRel for local access 
     distanceJBParam = (DistanceJBParameter) toroEtAl_1997_attenRel.getParameter(distanceJBParam.NAME);
@@ -523,7 +523,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     supportedIMParams.clear();
     Iterator it = toroEtAl_1997_attenRel.getSupportedIntensityMeasuresIterator();
     while (it.hasNext()) {
-      supportedIMParams.addParameter( (Parameter) it.next());
+      supportedIMParams.addParameter( (AbstractParameter) it.next());
     }
   }
 

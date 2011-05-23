@@ -29,10 +29,10 @@ import java.util.ListIterator;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
@@ -228,7 +228,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return true if the parameter was set, false otherwise
 	 */
-	public boolean setParameterValue(ParameterAPI param, SiteDataValue<?> data) {
+	public boolean setParameterValue(Parameter param, SiteDataValue<?> data) {
 		ArrayList<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
 		return setParameterValue(param, datas);
@@ -252,7 +252,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return true if the parameter was set, false otherwise
 	 */
-	public boolean setParameterValue(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setParameterValue(Parameter param, Collection<SiteDataValue<?>> datas) {
 		String paramName = param.getName();
 		if (D) System.out.println("setSiteParamsForData: Handling parameter: " + paramName);
 		
@@ -355,10 +355,10 @@ implements java.io.Serializable {
 	public boolean setAllSiteParams(ScalarIntensityMeasureRelationshipAPI imr, Collection<SiteDataValue<?>> datas) {
 		boolean setSomething = false;
 		
-		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+		ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		
 		while (it.hasNext()) {
-			ParameterAPI param = it.next();
+			Parameter param = it.next();
 			if (this.setParameterValue(param, datas))
 				setSomething = true;
 		}
@@ -412,9 +412,9 @@ implements java.io.Serializable {
 		return vsValue != null && !vsValue.isNaN() && vsValue > 0;
 	}
 	
-	private static void setValueIgnoreWarning(ParameterAPI param, Object value) {
-		if (param instanceof WarningParameterAPI)
-			((WarningParameterAPI)param).setValueIgnoreWarning(value);
+	private static void setValueIgnoreWarning(Parameter param, Object value) {
+		if (param instanceof WarningParameter)
+			((WarningParameter)param).setValueIgnoreWarning(value);
 		else
 			param.setValue(value);
 	}
@@ -430,7 +430,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setVS30Param(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setVS30Param(Parameter param, Collection<SiteDataValue<?>> datas) {
 		Double vsValue = null;
 		
 		// iterate over the data finding the first one you can use
@@ -468,7 +468,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setVS30FlagParam(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setVS30FlagParam(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// Follow the same methodology as that used to set the Vs30 param so we make sure we get the flag
 		// from the vs data source that was actually used
 		
@@ -506,7 +506,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setDepthTo2p5Param(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setDepthTo2p5Param(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// this will get the first (highest priority) data that works
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
@@ -529,7 +529,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setDepthTo1p0Param(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setDepthTo1p0Param(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// this will get the first (highest priority) data that works
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
@@ -568,7 +568,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setAS_SiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setAS_SiteType(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
@@ -626,7 +626,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setSCEMY_SiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setSCEMY_SiteType(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
@@ -680,7 +680,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setCampbellBasinDepth(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setCampbellBasinDepth(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
@@ -734,7 +734,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setCampbellSiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setCampbellSiteType(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
@@ -800,7 +800,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setCB03SiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setCB03SiteType(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
@@ -855,7 +855,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setWillsSiteTypeName(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setWillsSiteTypeName(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// if we have a wills class, use that
 		SiteDataValue<?> willsData = getDataForType(datas, SiteDataAPI.TYPE_WILLS_CLASS);
 		if (willsData != null) {
@@ -892,7 +892,7 @@ implements java.io.Serializable {
 	 * @param datas
 	 * @return
 	 */
-	public boolean setCS05SoftSoil(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
+	public boolean setCS05SoftSoil(Parameter param, Collection<SiteDataValue<?>> datas) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
@@ -931,7 +931,7 @@ implements java.io.Serializable {
 	 * new structure.
 	 */
 	@Deprecated
-	public boolean setParameterValue(ParameterAPI param, String willsClass,
+	public boolean setParameterValue(Parameter param, String willsClass,
 			double basinDepth) {
 		
 		SiteDataValue<?> willsData = null;
@@ -969,7 +969,7 @@ implements java.io.Serializable {
 	 * This will test the translation from all wills categories for the parameter given
 	 * @param param
 	 */
-	public void test(ParameterAPI param) {
+	public void test(Parameter param) {
 		System.out.println(param.getName() + "  Parameter (basin depth = NaN):");
 		if (setParameterValue(param, WILLS_B, Double.NaN)) {
 			System.out.println("\t" + WILLS_B + " --> " + param.getValue());
@@ -1059,8 +1059,8 @@ implements java.io.Serializable {
 		}
 	}
 	
-	private ArrayList<ParameterAPI> getTableParameters() {
-		ArrayList<ParameterAPI> params = new ArrayList<ParameterAPI>();
+	private ArrayList<Parameter> getTableParameters() {
+		ArrayList<Parameter> params = new ArrayList<Parameter>();
 		
 		String attenNames = "";
 		
@@ -1116,9 +1116,9 @@ implements java.io.Serializable {
 		return params;
 	}
 	
-	private String getTableValLine(ArrayList<ParameterAPI> params, SiteDataValue<?> val) {
+	private String getTableValLine(ArrayList<Parameter> params, SiteDataValue<?> val) {
 		String line = val.getValue() + "";
-		for (ParameterAPI param : params) {
+		for (Parameter param : params) {
 			boolean flag = setParameterValue(param, val);
 			if (flag)
 				line += "," + param.getValue();
@@ -1129,7 +1129,7 @@ implements java.io.Serializable {
 	}
 	
 	private void generateConversionTables() throws IOException {
-		ArrayList<ParameterAPI> params = getTableParameters();
+		ArrayList<Parameter> params = getTableParameters();
 		
 		// the last one here is just a string param with the names of the atten rels.
 		// get the value then remove it from the list.
@@ -1141,7 +1141,7 @@ implements java.io.Serializable {
 		
 		String empty = "";
 		String paramNames = "";
-		for (ParameterAPI param : params) {
+		for (Parameter param : params) {
 			paramNames += "," + param.getName();
 			empty += ",";
 		}

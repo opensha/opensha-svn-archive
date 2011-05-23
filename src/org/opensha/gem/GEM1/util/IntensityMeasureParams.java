@@ -1,6 +1,6 @@
 package org.opensha.gem.GEM1.util;
 
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 public enum IntensityMeasureParams {
 	

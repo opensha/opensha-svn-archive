@@ -20,11 +20,11 @@
 package org.opensha.sha.gui.beans;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.sha.earthquake.EqkRupture;
 
 /**
@@ -80,14 +80,14 @@ public interface EqkRupSelectorGuiBeanAPI {
      * @param paramName
      * @returns the parameter from the parameterList with paramName.
      */
-    public ParameterAPI getParameter(String paramName);
+    public Parameter getParameter(String paramName);
 
     /**
      *
      * @param paramName
      * @returns the ParameterEditor associated with paramName
      */
-    public ParameterEditorAPI getParameterEditor(String paramName);
+    public ParameterEditor getParameterEditor(String paramName);
 
     /**
      *

@@ -19,7 +19,7 @@
 
 package org.opensha.sha.imr.param.PropagationEffectParams;
 
-import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.impl.BooleanParameter;
 
 /**
  * HangingWallFlagParam parameter - indicates whether a site is 

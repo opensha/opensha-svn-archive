@@ -25,9 +25,9 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 
@@ -76,7 +76,7 @@ public class DistRupMinusJB_OverRupParameter extends AbstractDoublePropEffectPar
 
 
     /** Constructor that sets up constraints. This is a constrained parameter. */
-    public DistRupMinusJB_OverRupParameter(ParameterConstraintAPI warningConstraint)
+    public DistRupMinusJB_OverRupParameter(ParameterConstraint warningConstraint)
         throws ConstraintException
     {
 		super(NAME);
@@ -90,7 +90,7 @@ public class DistRupMinusJB_OverRupParameter extends AbstractDoublePropEffectPar
     }
     
     /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-    public DistRupMinusJB_OverRupParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+    public DistRupMinusJB_OverRupParameter(ParameterConstraint warningConstraint, double defaultValue)
         throws ConstraintException
     {
 		super(NAME);
@@ -170,7 +170,7 @@ public class DistRupMinusJB_OverRupParameter extends AbstractDoublePropEffectPar
     public String getType() {
         String type = "DoubleParameter";
         // Modify if constrained
-        ParameterConstraintAPI constraint = this.constraint;
+        ParameterConstraint constraint = this.constraint;
         if (constraint != null) type = "Constrained" + type;
         return type;
     }

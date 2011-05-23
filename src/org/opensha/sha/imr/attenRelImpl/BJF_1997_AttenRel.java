@@ -31,9 +31,9 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -236,7 +236,7 @@ NamedObjectAPI {
 
 		//      Ned replaced the following with what's below (so the dampingParam value is not part of the key)
 		/*
-     String key = ((DependentParameterAPI)im).getIndependentParametersKey();
+     String key = ((ParameterAPI)im).getIndependentParametersKey();
             if( coefficients.containsKey( key ) ) coeff = ( BJF_1997_AttenRelCoefficients )coefficients.get( key );
 
             else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );

@@ -19,8 +19,8 @@
 
 package org.opensha.sha.gcim.imr.param.IntensityMeasureParams;
 
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 
 /**
  * This constitutes the natural-log Displacement Spectrum Intensity intensity measure

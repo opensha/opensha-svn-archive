@@ -37,17 +37,17 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -262,7 +262,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 */
 	private void setParamsInForecast() throws InvocationTargetException{
 
-		ParameterAPI chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
+		Parameter chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
 		parameterList = new ParameterList();
 		parameterList.addParameter(chooseERF_Param);
 		// get the selected forecast
@@ -273,7 +273,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		// make the parameters visible based on selected forecast
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			//System.out.println("Param Name: "+param.getName());
 			//if(param.getName().equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
 			param.addParameterChangeListener(this);
@@ -310,7 +310,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
 		
-		ParameterEditorAPI<?> edit = listEditor.getParameterEditor(ERF_PARAM_NAME);
+		ParameterEditor<?> edit = listEditor.getParameterEditor(ERF_PARAM_NAME);
 		TitledBorder titledBorder1 = new TitledBorder(
 				BorderFactory.createLineBorder(
 						new Color( 80, 80, 140 ),3),ERF_PARAM_NAME);
@@ -359,7 +359,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		ListIterator lit = parameterList.getParametersIterator();
 		while(lit.hasNext()){
-			ParameterAPI param=(ParameterAPI)lit.next();
+			Parameter param=(Parameter)lit.next();
 			if(param instanceof MagFreqDistParameter){
 				MagFreqDistParameterEditor magDistEditor=((MagFreqDistParameterEditor)listEditor.getParameterEditor(param.getName()));
 				return magDistEditor;
@@ -380,7 +380,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		ListIterator lit = parameterList.getParametersIterator();
 		while(lit.hasNext()){
-			ParameterAPI param=(ParameterAPI)lit.next();
+			Parameter param=(Parameter)lit.next();
 			if(param instanceof SimpleFaultParameter){
 				SimpleFaultParameterEditor simpleFaultEditor = ((SimpleFaultParameterEditor)listEditor.getParameterEditor(param.getName()));
 				return simpleFaultEditor;
@@ -493,10 +493,10 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();
@@ -674,7 +674,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * @param paramName
 	 * @returns the parameter with the ParamName
 	 */
-	public ParameterAPI getParameter(String paramName){
+	public Parameter getParameter(String paramName){
 		if(this.parameterList.containsParameter(paramName)){
 			if(listEditor.getParameterEditor(paramName).isVisible()){
 				return parameterList.getParameter(paramName);

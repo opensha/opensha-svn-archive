@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.AttenuationRelationship;
 
 import scratch.matt.calc.STEP_HazardDataSet;
@@ -48,7 +48,7 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		
 		while(itSite.hasNext()){
 			//adding the clone of the site parameters to the list
-			ParameterAPI param = (ParameterAPI)((ParameterAPI)itSite.next());
+			Parameter param = (Parameter)((Parameter)itSite.next());
 			assertNotNull("site param is not null",param.getValue() );
 			//logger.info("site param " +  param.getInfo() + " = " + param.getValue() );			
 		}
@@ -56,7 +56,7 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		ListIterator itRupt = attenrel.getEqkRuptureParamsIterator();
 		while(itRupt.hasNext()){
 			//adding the clone of the site parameters to the list
-			ParameterAPI param = (ParameterAPI)((ParameterAPI)itRupt.next());
+			Parameter param = (Parameter)((Parameter)itRupt.next());
 			assertNotNull("rupture param is not null", param.getValue() );
 			//logger.info("rupture param " +  param.getInfo() + " = " + param.getValue()  );			
 		}
@@ -64,14 +64,14 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		ListIterator itOther = attenrel.getOtherParamsIterator();
 		while(itOther.hasNext()){
 			//adding the clone of the site parameters to the list
-			ParameterAPI param = (ParameterAPI)((ParameterAPI)itOther.next());
+			Parameter param = (Parameter)((Parameter)itOther.next());
 			//assertNotNull("other param is not null", param.getValue() );				
 		}
 		
 		ListIterator itExceed = attenrel.getExceedProbIndependentParamsIterator();
 		while(itExceed.hasNext()){
 			//adding the clone of the site parameters to the list
-			ParameterAPI param = (ParameterAPI)((ParameterAPI)itExceed.next());
+			Parameter param = (Parameter)((Parameter)itExceed.next());
 			//assertNotNull("ExceedProbIndependent param should not be null", param.getValue() );
 					
 		}
@@ -79,14 +79,14 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		ListIterator itIML = attenrel.getIML_AtExceedProbIndependentParamsIterator();
 		while(itIML.hasNext()){
 			//adding the clone of the site parameters to the list
-			ParameterAPI param = (ParameterAPI)((ParameterAPI)itIML.next());
+			Parameter param = (Parameter)((Parameter)itIML.next());
 			//logger.info("IML_AtExceedProbIndependent param " +  param.getInfo()  + " = " + param.getValue() );			
 		}
 		
 		ListIterator itPropagation = attenrel.getPropagationEffectParamsIterator();
 		while(itPropagation.hasNext()){
 			//adding the clone of the site parameters to the list
-			ParameterAPI param = (ParameterAPI)((ParameterAPI)itPropagation.next());
+			Parameter param = (Parameter)((Parameter)itPropagation.next());
 			assertNotNull("PropagationEffect param is not null", param.getValue() );
 			//logger.info("PropagationEffect param " +  param.getInfo()  + " = " + param.getValue() );			
 		}

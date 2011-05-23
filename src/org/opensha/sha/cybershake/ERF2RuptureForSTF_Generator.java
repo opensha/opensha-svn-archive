@@ -33,7 +33,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -171,7 +171,7 @@ public class ERF2RuptureForSTF_Generator {
         //filling the metadata for ERF params.
         ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
         while (it.hasNext()) {
-          ParameterAPI param = (ParameterAPI) it.next();
+          Parameter param = (Parameter) it.next();
           erfString += param.getName() + "=" + param.getValue() + "\n";
         }
         fw.write(erfString);
@@ -511,7 +511,7 @@ public class ERF2RuptureForSTF_Generator {
     ListIterator it = rupture.getAddedParametersIterator();
     if (it != null) {
       while (it.hasNext()) {
-        ParameterAPI param = (ParameterAPI) it.next();
+        Parameter param = (Parameter) it.next();
         rupInfo += param.getName() + "=" + param.getValue() + "\n";
       }
     }

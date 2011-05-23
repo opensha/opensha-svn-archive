@@ -30,8 +30,8 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -77,14 +77,14 @@ public abstract class IM_EventSetOutputWriter {
 	
 	public abstract String getName();
 	
-	public static String getHAZ01IMTString(ParameterAPI<?> param) {
+	public static String getHAZ01IMTString(Parameter<?> param) {
 		String imt = param.getName();
 		
-		if (param instanceof DependentParameterAPI) {
-			DependentParameterAPI<?> depParam = (DependentParameterAPI<?>)param;
-			ListIterator<ParameterAPI<?>> it = depParam.getIndependentParametersIterator();
+		if (param instanceof Parameter) {
+			Parameter<?> depParam = (Parameter<?>)param;
+			ListIterator<Parameter<?>> it = depParam.getIndependentParametersIterator();
 			while (it.hasNext()) {
-				ParameterAPI<?> dep = it.next();
+				Parameter<?> dep = it.next();
 				if (dep.getName().equals(PeriodParam.NAME)) {
 					double period = (Double)dep.getValue();
 					int p10 = (int)(period * 10.0 + 0.5);
@@ -99,14 +99,14 @@ public abstract class IM_EventSetOutputWriter {
 		return imt;
 	}
 	
-	public static String getRegularIMTString(ParameterAPI<?> param) {
+	public static String getRegularIMTString(Parameter<?> param) {
 		String imt = param.getName();
 		
-		if (param instanceof DependentParameterAPI) {
-			DependentParameterAPI<?> depParam = (DependentParameterAPI<?>)param;
-			ListIterator<ParameterAPI<?>> it = depParam.getIndependentParametersIterator();
+		if (param instanceof Parameter) {
+			Parameter<?> depParam = (Parameter<?>)param;
+			ListIterator<Parameter<?>> it = depParam.getIndependentParametersIterator();
 			while (it.hasNext()) {
-				ParameterAPI<?> dep = it.next();
+				Parameter<?> dep = it.next();
 				if (dep.getName().equals(PeriodParam.NAME)) {
 					double period = (Double)dep.getValue();
 					imt += " " + (float)period;
@@ -142,7 +142,7 @@ public abstract class IM_EventSetOutputWriter {
 				period = Double.parseDouble(perSt) / 10;
 			}
 			attenRel.setIntensityMeasure(theIMT);
-			DependentParameterAPI imtParam = (DependentParameterAPI)attenRel.getIntensityMeasure();
+			Parameter imtParam = (Parameter)attenRel.getIntensityMeasure();
 			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
 			logger.log(Level.FINE, "Parsed IMT with Period: " + imt + " => " + theIMT + ", period: " + period);
 //			System.out.println("imtstr: " + imt + ", " + attenRel.getIntensityMeasure().getName()
@@ -160,13 +160,13 @@ public abstract class IM_EventSetOutputWriter {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected ArrayList<ParameterAPI> getDefaultSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel) {
+	protected ArrayList<Parameter> getDefaultSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel) {
 		logger.log(Level.FINE, "Storing default IMR site related params.");
-		ListIterator<ParameterAPI<?>> siteParamsIt = attenRel.getSiteParamsIterator();
-		ArrayList<ParameterAPI> defaultSiteParams = new ArrayList<ParameterAPI>();
+		ListIterator<Parameter<?>> siteParamsIt = attenRel.getSiteParamsIterator();
+		ArrayList<Parameter> defaultSiteParams = new ArrayList<Parameter>();
 
 		while (siteParamsIt.hasNext()) {
-			defaultSiteParams.add((ParameterAPI) siteParamsIt.next().clone());
+			defaultSiteParams.add((Parameter) siteParamsIt.next().clone());
 		}
 
 		return defaultSiteParams;
@@ -178,10 +178,10 @@ public abstract class IM_EventSetOutputWriter {
 	 * @param defaultSiteParams
 	 */
 	@SuppressWarnings("unchecked")
-	protected void setSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel, ArrayList<ParameterAPI> defaultSiteParams) {
+	protected void setSiteParams(ScalarIntensityMeasureRelationshipAPI attenRel, ArrayList<Parameter> defaultSiteParams) {
 		logger.log(Level.FINE, "Restoring default IMR site related params.");
-		for (ParameterAPI param : defaultSiteParams) {
-			ParameterAPI attenParam = attenRel.getParameter(param.getName());
+		for (Parameter param : defaultSiteParams) {
+			Parameter attenParam = attenRel.getParameter(param.getName());
 			attenParam.setValue(param.getValue());
 		}
 	}
@@ -201,17 +201,17 @@ public abstract class IM_EventSetOutputWriter {
 		ArrayList<ArrayList<SiteDataValue<?>>> sitesData = this.calc.getSitesData();
 
 		// we need to make sure that the site has parameters for this atten rel
-		ListIterator<ParameterAPI<?>> siteParamsIt = attenRel.getSiteParamsIterator();
+		ListIterator<Parameter<?>> siteParamsIt = attenRel.getSiteParamsIterator();
 		while (siteParamsIt.hasNext()) {
-			ParameterAPI attenParam = siteParamsIt.next();
+			Parameter attenParam = siteParamsIt.next();
 			for (int i=0; i<sites.size(); i++) {
 				Site site = sites.get(i);
 				ArrayList<SiteDataValue<?>> siteData = sitesData.get(i);
-				ParameterAPI siteParam;
+				Parameter siteParam;
 				if (site.containsParameter(attenParam.getName())) {
 					siteParam = site.getParameter(attenParam.getName());
 				} else {
-					siteParam = (ParameterAPI)attenParam.clone();
+					siteParam = (Parameter)attenParam.clone();
 					site.addParameter(siteParam);
 				}
 				// now try to set this parameter from the site data

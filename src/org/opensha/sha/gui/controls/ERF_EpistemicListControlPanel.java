@@ -37,8 +37,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.sha.gui.HazardCurveServerModeApplication;
@@ -184,9 +184,9 @@ implements ParameterChangeFailListener{
 	public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
 		StringBuffer b = new StringBuffer();
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();

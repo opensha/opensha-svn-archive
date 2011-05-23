@@ -7,7 +7,7 @@ import java.util.ListIterator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
@@ -70,10 +70,10 @@ public class TestHazardCurveMultiIMRs {
 		
 		// make sure that every IMR site param is in the GUI
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRMap().values()) {
-			ListIterator<ParameterAPI<?>> mySiteParamsIt = imr.getSiteParamsIterator();
+			ListIterator<Parameter<?>> mySiteParamsIt = imr.getSiteParamsIterator();
 			
 			while (mySiteParamsIt.hasNext()) {
-				ParameterAPI<?> mySiteParam = mySiteParamsIt.next();
+				Parameter<?> mySiteParam = mySiteParamsIt.next();
 				assertTrue("Site param '" + mySiteParam.getName() + "' not in site GUI!",
 						siteParamList.containsParameter(mySiteParam.getName()));
 			}
@@ -94,12 +94,12 @@ public class TestHazardCurveMultiIMRs {
 		
 		// make sure that every site param got set correctly in the IMRs!
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrGui.getIMRMap().values()) {
-			ListIterator<ParameterAPI<?>> mySiteParamsIt = imr.getSiteParamsIterator();
+			ListIterator<Parameter<?>> mySiteParamsIt = imr.getSiteParamsIterator();
 			
 			System.out.println("Testing site params for " + imr.getName());
 			
 			while (mySiteParamsIt.hasNext()) {
-				ParameterAPI<?> mySiteParam = mySiteParamsIt.next();
+				Parameter<?> mySiteParam = mySiteParamsIt.next();
 				System.out.println(mySiteParam.getName() + ": " + mySiteParam.getValue());
 				if (mySiteParam.getName().equals(Vs30_Param.NAME)) {
 					assertEquals("Vs30 not equal!", vs30_val, (Double)mySiteParam.getValue());

@@ -37,29 +37,29 @@ import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DiscreteParameterConstraintAPI;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.TranslatedWarningDoubleParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
-import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.param.impl.TranslatedWarningDoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ParamUtils;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -161,7 +161,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	/**
 	 *  Placeholder for currently selected IM
 	 */
-	protected ParameterAPI selectedIM = null;
+	protected Parameter selectedIM = null;
 
 	/**
 	 *  ParameterList of all independent parameters
@@ -308,7 +308,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	private void setParamsInIteratorVisible( ListIterator it ) {
 
 		while ( it.hasNext() ) {
-			String name = ( ( ParameterAPI ) it.next() ).getName();
+			String name = ( ( Parameter ) it.next() ).getName();
 			independentsEditor.setParameterVisible( name, true );
 		}
 
@@ -329,7 +329,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	 *
 	 * @return    The selectedIMParameter value
 	 */
-	public ParameterAPI getSelectedIMParam() {
+	public Parameter getSelectedIMParam() {
 		selectedIM = this.controlsParamList.getParameter(IM_NAME);
 		return selectedIM;
 	}
@@ -421,7 +421,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		String imName = getGraphControlsParamValue( IM );
 
 		// Get choosen intensity measure parameter to extract units
-		ParameterAPI imParam = this.attenRel.getParameter( imName );
+		Parameter imParam = this.attenRel.getParameter( imName );
 		String imUnits = imParam.getUnits();
 
 		// if IML at exceed Prob. is chosen, then only show IM
@@ -452,7 +452,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		String xAxisName = getGraphControlsParamValue( X_AXIS );
 
 		// get the parameter, units, add to label string
-		ParameterAPI param = attenRel.getParameter( xAxisName );
+		Parameter param = attenRel.getParameter( xAxisName );
 		String units = param.getUnits();
 		if ( StringUtils.isNotEmpty( units ) )
 			xAxisName += " (" + units + ')';
@@ -518,7 +518,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		if ( D ) System.out.println( S + "Type = " + type );
 
 		// Get X-Axis parameter
-		ParameterAPI xAxisParam = attenRel.getParameter( xAxisName );
+		Parameter xAxisParam = attenRel.getParameter( xAxisName );
 
 		// Ensure X-Axis constraint Double or DoubleDiscrete Constraint
 		if ( !ParamUtils.isDoubleOrDoubleDiscreteConstraint( xAxisParam ) )
@@ -537,7 +537,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		 * types.
 		 */
 		if( translateAttenRel){
-			ParameterAPI imParam = (ParameterAPI)attenRel.getIntensityMeasure().clone();
+			Parameter imParam = (Parameter)attenRel.getIntensityMeasure().clone();
 			if( imParam instanceof WarningDoubleParameter){
 
 				WarningDoubleParameter warnParam = (WarningDoubleParameter)imParam;
@@ -600,7 +600,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		 * types.
 		 */
 		if( translateAttenRel){
-			ParameterAPI imParam = (ParameterAPI)attenRel.getIntensityMeasure().clone();
+			Parameter imParam = (Parameter)attenRel.getIntensityMeasure().clone();
 			if( imParam instanceof WarningDoubleParameter){
 
 				WarningDoubleParameter warnParam = (WarningDoubleParameter)imParam;
@@ -632,7 +632,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	 * @return                          The meansForXAxis value
 	 * @exception  ConstraintException  Description of the Exception
 	 */
-	private DiscretizedFuncAPI getFunctionForXAxis( ParameterAPI xAxisParam, int type )
+	private DiscretizedFuncAPI getFunctionForXAxis( Parameter xAxisParam, int type )
 	throws ConstraintException {
 
 		// Starting
@@ -687,7 +687,7 @@ ParameterChangeListener, ParameterChangeFailListener
 			if( translateAttenRel){
 
 
-				ParameterAPI imParam = (ParameterAPI)attenRel.getIntensityMeasure().clone();
+				Parameter imParam = (Parameter)attenRel.getIntensityMeasure().clone();
 
 				String xAxisName = xAxisParam.getName();
 				String imName = imParam.getName();
@@ -701,19 +701,19 @@ ParameterChangeListener, ParameterChangeFailListener
 
 
 					// Calculate min and max values from constraint
-					MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameterAPI)transParam );
+					MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameter)transParam );
 					function = buildFunction( transParam, type, function, minmaxdelta );
 
 				}
 				else{
 					// Calculate min and max values from constraint
-					MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameterAPI)xAxisParam );
+					MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameter)xAxisParam );
 					function = buildFunction( xAxisParam, type, function, minmaxdelta );
 				}
 			}
 			else{
 				// Calculate min and max values from constraint
-				MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameterAPI)xAxisParam );
+				MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameter)xAxisParam );
 				function = buildFunction( xAxisParam, type, function, minmaxdelta );
 			}
 
@@ -805,18 +805,18 @@ ParameterChangeListener, ParameterChangeFailListener
 
 
 	private ArbDiscrFuncWithParams buildFunction(
-			ParameterAPI xAxisParam,
+			Parameter xAxisParam,
 			int type,
 			ArbDiscrFuncWithParams function,
 			MinMaxDelta minmaxdelta ){
 
 		// Fetch the independent variable selected in the x-axis choice
-		ParameterAPI independentParam = attenRel.getParameter( xAxisParam.getName() );
+		Parameter independentParam = attenRel.getParameter( xAxisParam.getName() );
 		Object oldVal = independentParam.getValue();
 
 		int index=0;
 
-		ParameterAPI<Double> paramToSet = null;
+		Parameter<Double> paramToSet = null;
 
 		if( independentParam instanceof WarningDoubleParameter &&
 				xAxisParam instanceof TranslatedWarningDoubleParameter){
@@ -875,7 +875,7 @@ ParameterChangeListener, ParameterChangeFailListener
 
 
 		if( ParamUtils.isWarningParameterAPI( independentParam ) ){
-			( (WarningParameterAPI) independentParam ).setValueIgnoreWarning(oldVal);
+			( (WarningParameter) independentParam ).setValueIgnoreWarning(oldVal);
 		}
 		else independentParam.setValue( oldVal );
 
@@ -1008,11 +1008,11 @@ ParameterChangeListener, ParameterChangeFailListener
 		// IM Choices picklist Parameter - Note these choices are now all DoubleParameters
 		// Selected is first returned from ListIterator
 		boolean first = true;
-		DependentParameterAPI imParam = null;
+		Parameter imParam = null;
 		String name = "";
 		StringConstraint imConstraint = new StringConstraint();
 		while ( supportedIntensityMeasureIterator.hasNext() ) {
-			DependentParameterAPI param = ( DependentParameterAPI ) supportedIntensityMeasureIterator.next();
+			Parameter param = ( Parameter ) supportedIntensityMeasureIterator.next();
 			name = param.getName();
 			if ( first ) {
 				first = false;
@@ -1030,7 +1030,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		String val = null;
 		name = null;
 		while ( meanIndependentParamsIterator.hasNext() ) {
-			ParameterAPI param = ( ParameterAPI ) meanIndependentParamsIterator.next();
+			Parameter param = ( Parameter ) meanIndependentParamsIterator.next();
 			// Fix so that all data types can be supported on x-axis
 			if ( !( param instanceof StringParameter ) ) {
 				name = param.getName();
@@ -1048,7 +1048,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		while ( imParamsIterator.hasNext() ) {
 			Object obj = imParamsIterator.next();
 
-			ParameterAPI param = ( ParameterAPI ) obj;
+			Parameter param = ( Parameter ) obj;
 			// Fix so that all data types can be supported on x-axis
 			if ( !( param instanceof StringParameter ) ) {
 				name = param.getName();
@@ -1114,7 +1114,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		// Add mean parameters
 		ListIterator it = attenRel.getMeanIndependentParamsIterator();
 		while ( it.hasNext() ) {
-			ParameterAPI param = ( ParameterAPI ) it.next();
+			Parameter param = ( Parameter ) it.next();
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1125,7 +1125,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		// Add std parameters
 		it = attenRel.getStdDevIndependentParamsIterator();
 		while ( it.hasNext() ) {
-			ParameterAPI param = ( DependentParameterAPI ) it.next();
+			Parameter param = ( Parameter ) it.next();
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1136,7 +1136,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		// Add additional exceedence probability parameters
 		it = attenRel.getExceedProbIndependentParamsIterator();
 		while ( it.hasNext() ) {
-			ParameterAPI param = ( DependentParameterAPI ) it.next();
+			Parameter param = ( Parameter ) it.next();
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1147,7 +1147,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		// Add IML at exceedence probability parameters
 		it = attenRel.getIML_AtExceedProbIndependentParamsIterator();
 		while ( it.hasNext() ) {
-			ParameterAPI param = ( DependentParameterAPI ) it.next();
+			Parameter param = ( Parameter ) it.next();
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1158,7 +1158,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		// Add im parameters and their independent parameters
 		it = attenRel.getSupportedIntensityMeasuresIterator();
 		while ( it.hasNext() ) {
-			DependentParameterAPI param = ( DependentParameterAPI ) it.next();
+			Parameter param = ( Parameter ) it.next();
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			// System.out.println(param.getName());
@@ -1177,7 +1177,7 @@ ParameterChangeListener, ParameterChangeFailListener
 
 			ListIterator it2 = param.getIndependentParametersIterator();
 			while ( it2.hasNext() ) {
-				ParameterAPI param2 = ( ParameterAPI ) it2.next();
+				Parameter param2 = ( Parameter ) it2.next();
 				//    System.out.println(param2.getName());
 				if ( !( independentParams.containsParameter( param2.getName() ) ) )
 					independentParams.addParameter( param2 );
@@ -1234,12 +1234,12 @@ ParameterChangeListener, ParameterChangeFailListener
 		// below should be true, not false.
 		ListIterator it = this.independentParams.getParametersIterator();
 		while ( it.hasNext() )
-			independentsEditor.setParameterVisible( ( ( ParameterAPI ) it.next() ).getName(), false );
+			independentsEditor.setParameterVisible( ( ( Parameter ) it.next() ).getName(), false );
 
-		DependentParameterAPI imParam = null;
+		Parameter imParam = null;
 
 		// Add im parameters independent parameters to list
-		imParam = ( DependentParameterAPI ) attenRel.getParameter( imName );
+		imParam = ( Parameter ) attenRel.getParameter( imName );
 		ListIterator imIt = imParam.getIndependentParametersIterator();
 		setParamsInIteratorVisible( imIt );
 
@@ -1255,7 +1255,7 @@ ParameterChangeListener, ParameterChangeFailListener
 			setParamsInIteratorVisible( attenRel.getExceedProbIndependentParamsIterator() );
 
 			// Hardcoded for special values
-			ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
+			ParameterEditor paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
 			if( paramEditor != null ){
 				String value = paramEditor.getParameter().getValue().toString();
 				toggleSigmaLevelBasedOnTypeValue(value);
@@ -1265,7 +1265,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		else if ( yAxisName.equals( Y_AXIS_V4 ) ) {
 			setParamsInIteratorVisible( attenRel.getIML_AtExceedProbIndependentParamsIterator());
 			// Hardcoded for special values
-			ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
+			ParameterEditor paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
 			if( paramEditor != null ){
 				String value = paramEditor.getParameter().getValue().toString();
 				toggleSigmaLevelBasedOnTypeValue(value);
@@ -1387,13 +1387,13 @@ ParameterChangeListener, ParameterChangeFailListener
 
 			add = true;
 
-			ParameterAPI param = ( ParameterAPI ) it.next();
+			Parameter param = ( Parameter ) it.next();
 			if ( !( param instanceof StringParameter ) && !( param instanceof BooleanParameter)) {
 
 				// If DoubleDiscreteConstraint check that it has more than one value to plot on xaxis
-				ParameterConstraintAPI constraint = param.getConstraint();
-				if ( constraint instanceof DiscreteParameterConstraintAPI ) {
-					int size = ( ( DiscreteParameterConstraintAPI ) constraint ).getAllowedValues().size();
+				ParameterConstraint constraint = param.getConstraint();
+				if ( constraint instanceof DiscreteParameterConstraint ) {
+					int size = ( ( DiscreteParameterConstraint ) constraint ).getAllowedValues().size();
 					if ( size < 2 )
 						add = false;
 				}
@@ -1465,7 +1465,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		 * @param  param                    Description of the Parameter
 		 * @exception  ConstraintException  Description of the Exception
 		 */
-		public MinMaxDelta( ParameterAPI param ) throws ConstraintException {
+		public MinMaxDelta( Parameter param ) throws ConstraintException {
 
 			// Make sure this parameter has a constraint from which we can extract a Double value
 			if ( !ParamUtils.isDoubleOrDoubleDiscreteConstraint( param ) )
@@ -1492,7 +1492,7 @@ ParameterChangeListener, ParameterChangeFailListener
 			else{
 
 				// Extract constraint
-				ParameterConstraintAPI constraint = param.getConstraint();
+				ParameterConstraint constraint = param.getConstraint();
 
 				// Get min/max from Double Constraint
 				if ( ParamUtils.isDoubleConstraint( param ) ) {
@@ -1534,7 +1534,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		 * @param  param                    Description of the Parameter
 		 * @exception  ConstraintException  Description of the Exception
 		 */
-		public MinMaxDelta( WarningParameterAPI param ) throws ConstraintException{
+		public MinMaxDelta( WarningParameter param ) throws ConstraintException{
 			// Determine min and max ranges with which to iterate over
 			min = 0;
 			max = 1;
@@ -1556,7 +1556,7 @@ ParameterChangeListener, ParameterChangeFailListener
 
 				// Extract constraint
 				//ParameterConstraintAPI constraint =
-				ParameterConstraintAPI constraint = param.getWarningConstraint();
+				ParameterConstraint constraint = param.getWarningConstraint();
 				if( constraint == null ) constraint = param.getConstraint();
 
 				// Get min/max from Double Constraint

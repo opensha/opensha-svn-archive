@@ -28,7 +28,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 
 /**
  * This is the basic API for a class that provides site type information,

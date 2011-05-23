@@ -6,18 +6,18 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraint;
-import org.opensha.commons.param.WarningDoubleParameter;
-import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
-import org.opensha.commons.param.editor.DoubleParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
+import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 
 /**
  * Add comments here
@@ -28,9 +28,9 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
  */
 public abstract class AbstractDoublePropEffectParam extends
 		PropagationEffectParameter<Double> implements
-		WarningParameterAPI<Double> {
+		WarningParameter<Double> {
 
-	private transient ParameterEditorAPI<Double> paramEdit = null;
+	private transient ParameterEditor<Double> paramEdit = null;
 
 	/** The warning constraint for this Parameter. */
 	protected DoubleConstraint warningConstraint = null;
@@ -108,7 +108,7 @@ public abstract class AbstractDoublePropEffectParam extends
 	 * @throws ParameterException   Thrown if the constraint is not a DoubleConstraint
 	 * @throws EditableException    Thrown if the isEditable flag set to false.
 	 */
-	public void setWarningConstraint(ParameterConstraint warningConstraint)
+	public void setWarningConstraint(AbstractParameterConstraint warningConstraint)
 	throws ParameterException, EditableException
 	{
 		if( !this.editable ) throw new EditableException(C + ": setStrings(): " +
@@ -118,7 +118,7 @@ public abstract class AbstractDoublePropEffectParam extends
 	}
 
 	/** Returns the warning constraint. May return null. */
-	public ParameterConstraint getWarningConstraint() throws ParameterException{
+	public AbstractParameterConstraint getWarningConstraint() throws ParameterException{
 		return warningConstraint;
 	}
 
@@ -253,7 +253,7 @@ public abstract class AbstractDoublePropEffectParam extends
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
 	@Override
-	public int compareTo(ParameterAPI<Double> param) {
+	public int compareTo(Parameter<Double> param) {
 //
 //		String S = C + ":compareTo(): ";
 //
@@ -338,7 +338,7 @@ public abstract class AbstractDoublePropEffectParam extends
 	 */
 	//public abstract Object clone();
 
-	public ParameterEditorAPI<Double> getEditor() {
+	public ParameterEditor<Double> getEditor() {
 		if (paramEdit == null) {
 			try {
 				if (constraint == null)

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ERFTestSubset;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -83,11 +83,11 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 		Site site2 = new Site(new Location(34.1, -117.9));
 		Vulnerability vuln2 = accessor.getVuln("C1H-h-COM10-DF");
 		
-		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+		ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		while (it.hasNext()) {
-			ParameterAPI<?> param = it.next();
-			site1.addParameter((ParameterAPI)param.clone());
-			site2.addParameter((ParameterAPI)param.clone());
+			Parameter<?> param = it.next();
+			site1.addParameter((Parameter)param.clone());
+			site2.addParameter((Parameter)param.clone());
 		}
 		
 		Asset asset1 = new Asset(0, "House 1", AssetCategory.BUILDING, value1, vuln1, site1);

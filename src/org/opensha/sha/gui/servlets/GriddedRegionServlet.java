@@ -35,7 +35,7 @@ import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ServerPrefUtils;
@@ -160,7 +160,7 @@ public class GriddedRegionServlet extends HttpServlet {
 			//for any site we don't get the site value then apply this default value.
 			ArrayList defaultSiteParams = new ArrayList();
 			for(int i=0;i<siteParams.size();++i){
-				ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)siteParams.get(i)).clone();
+				Parameter tempParam = (Parameter)((Parameter)siteParams.get(i)).clone();
 				tempParam.setValue(paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.DEFAULT+tempParam.getName()).getValue());
 				defaultSiteParams.add(tempParam);
 			}

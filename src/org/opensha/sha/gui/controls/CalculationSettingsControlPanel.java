@@ -29,7 +29,7 @@ import java.awt.Window;
 import javax.swing.JFrame;
 
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 
 /**
  * <p>Title: CalculationSettingsControlPanel</p>

@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.param.SimpleFaultParameter;
 
@@ -64,7 +64,7 @@ public class SimpleFaultParameterGUI extends JDialog{
 	SimpleFaultParameterEditorPanel faultEditorPanel;
 
 	//Constructor that takes the Object for the SimpleFaultParameter
-	public SimpleFaultParameterGUI(ParameterAPI surfaceParam) {
+	public SimpleFaultParameterGUI(Parameter surfaceParam) {
 		this.setModal(true);
 		try {
 			jbInit();
@@ -171,7 +171,7 @@ public class SimpleFaultParameterGUI extends JDialog{
 	 * Sets the Value of the SimpleFaultParameter
 	 * @param param
 	 */
-	public void setParameter(ParameterAPI param){
+	public void setParameter(Parameter param){
 		faultEditorPanel.setParameter(param);
 	}
 

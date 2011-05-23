@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 
@@ -65,7 +65,7 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 		cacheSizeMinusOne = cacheSize - 1;
 		this.provider = provider;
 		ParameterList params = this.provider.getAdjustableParameterList();
-		for (ParameterAPI<?> param : params) {
+		for (Parameter<?> param : params) {
 			param.addParameterChangeListener(this);
 		}
 	}

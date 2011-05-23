@@ -37,8 +37,8 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
@@ -197,7 +197,7 @@ public class MeanSigmaCalc
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while (it.hasNext()) {
-      ParameterAPI tempParam = (ParameterAPI) it.next();
+      Parameter tempParam = (Parameter) it.next();
       //adding the site Params from the CVM, if site is out the range of CVM then it
       //sets the site with whatever site Parameter Value user has choosen in the application
       boolean flag = siteTranslator.setParameterValue(tempParam, willsClass,
@@ -425,7 +425,7 @@ public class MeanSigmaCalc
 
     String S = " : parameterChangeWarning(): ";
 
-    WarningParameterAPI param = e.getWarningParameter();
+    WarningParameter param = e.getWarningParameter();
 
     //System.out.println(b);
     param.setValueIgnoreWarning(e.getNewValue());

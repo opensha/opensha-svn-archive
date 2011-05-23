@@ -1,7 +1,7 @@
 package junk;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel;
@@ -110,7 +110,7 @@ public class Vs30SiteTranslator implements java.io.Serializable{
    * @returns the boolean which is required in the case of the HazardCurveApp
    * to tell the user that site is in the water.
    */
-  public boolean setSiteParams(ParameterAPI tempParam, double vs30,double basinDepth ){
+  public boolean setSiteParams(Parameter tempParam, double vs30,double basinDepth ){
     boolean isDefaultVs30 = false;
 
     //if(D) System.out.println("Site: "+s.getLocation().toString()+"; vs30: "+vs30+"; basinDepth: "+basinDepth);

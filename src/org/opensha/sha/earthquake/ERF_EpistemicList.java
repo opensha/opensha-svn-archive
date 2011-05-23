@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -117,7 +117,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 	 * return the list of adjustable params
 	 * @return
 	 */
-	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator() {
+	public ListIterator<Parameter<?>> getAdjustableParamsIterator() {
 		return adjustableParams.getParametersIterator();
 	}
 
@@ -235,7 +235,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 	 * @return : ParamterAPI instance
 	 */
 	@SuppressWarnings("rawtypes")
-	public ParameterAPI getParameter(String paramName) {
+	public Parameter getParameter(String paramName) {
 		return adjustableParams.getParameter(paramName);
 	}
 

@@ -28,9 +28,9 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
@@ -85,7 +85,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
 
 
     /** Constructor that sets up constraints. This is a constrained parameter. */
-    public DistanceX_Parameter(ParameterConstraintAPI warningConstraint)
+    public DistanceX_Parameter(ParameterConstraint warningConstraint)
         throws ConstraintException
     {
 		super(NAME);
@@ -99,7 +99,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
     }
     
     /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-    public DistanceX_Parameter(ParameterConstraintAPI warningConstraint, double defaultValue)
+    public DistanceX_Parameter(ParameterConstraint warningConstraint, double defaultValue)
         throws ConstraintException
     {
 		super(NAME);
@@ -220,7 +220,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
     public String getType() {
         String type = "DoubleParameter";
         // Modify if constrained
-        ParameterConstraintAPI constraint = this.constraint;
+        ParameterConstraint constraint = this.constraint;
         if (constraint != null) type = "Constrained" + type;
         return type;
     }

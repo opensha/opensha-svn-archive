@@ -27,7 +27,7 @@ import org.opensha.commons.data.siteData.util.MeanTopoSlopeCalculator;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 public class MeanTopoSlope extends AbstractSiteData<Double> {
 	

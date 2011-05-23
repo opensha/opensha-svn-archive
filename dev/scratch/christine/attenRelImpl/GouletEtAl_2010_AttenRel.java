@@ -11,11 +11,11 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -308,7 +308,7 @@ public class GouletEtAl_2010_AttenRel
 //    String ignoreStr1 = cb_2008_attenRel.SITE_TYPE_NAME;
 //    String ignoreStr2 = cb_2008_attenRel.COMPONENT_NAME;
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
+      AbstractParameter param = (AbstractParameter) it.next();
 //      if (!ignoreStr1.equals(param.getName()) &&
 //          !ignoreStr2.equals(param.getName())) {
         meanIndependentParams.addParameter(param);
@@ -325,7 +325,7 @@ public class GouletEtAl_2010_AttenRel
     
     it = cb_2008_attenRel.getStdDevIndependentParamsIterator();
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
+      AbstractParameter param = (AbstractParameter) it.next();
 //      if (!ignoreStr1.equals(param.getName()) &&
 //          !ignoreStr2.equals(param.getName())) {
         stdDevIndependentParams.addParameter(param);
@@ -342,7 +342,7 @@ public class GouletEtAl_2010_AttenRel
     exceedProbIndependentParams.clear();
     it = cb_2008_attenRel.getExceedProbIndependentParamsIterator();
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
+      AbstractParameter param = (AbstractParameter) it.next();
 //      if (!ignoreStr1.equals(param.getName()) &&
 //          !ignoreStr2.equals(param.getName())) {
         exceedProbIndependentParams.addParameter(param);
@@ -398,7 +398,7 @@ public class GouletEtAl_2010_AttenRel
 
     ListIterator it = cb_2008_attenRel.getSiteParamsIterator();
 	  while (it.hasNext()) {
-		  siteParams.addParameter( (Parameter) it.next());
+		  siteParams.addParameter( (AbstractParameter) it.next());
 	  }
 
 
@@ -414,7 +414,7 @@ public class GouletEtAl_2010_AttenRel
     eqkRuptureParams.clear();
     ListIterator it = cb_2008_attenRel.getEqkRuptureParamsIterator();
     while (it.hasNext()) {
-      eqkRuptureParams.addParameter( (Parameter) it.next());
+      eqkRuptureParams.addParameter( (AbstractParameter) it.next());
     }
   }
 
@@ -426,7 +426,7 @@ public class GouletEtAl_2010_AttenRel
     propagationEffectParams.clear();
     ListIterator it = cb_2008_attenRel.getPropagationEffectParamsIterator();
     while (it.hasNext()) {
-      propagationEffectParams.addParameter( (Parameter) it.next());
+      propagationEffectParams.addParameter( (AbstractParameter) it.next());
     }
 
   }
@@ -441,7 +441,7 @@ public class GouletEtAl_2010_AttenRel
     supportedIMParams.clear();
     Iterator it = cb_2008_attenRel.getSupportedIntensityMeasuresIterator();
     while (it.hasNext()) {
-      supportedIMParams.addParameter( (Parameter) it.next());
+      supportedIMParams.addParameter( (AbstractParameter) it.next());
     }
   }
 
@@ -464,9 +464,9 @@ public class GouletEtAl_2010_AttenRel
     otherParams.clear();
     otherParams.addParameter(componentParam);
     Iterator it = cb_2008_attenRel.getOtherParamsIterator();
-    Parameter param;
+    AbstractParameter param;
     while (it.hasNext()) {
-      param = (Parameter) it.next();
+      param = (AbstractParameter) it.next();
       if (!ComponentParam.NAME.equals(param.getName())) {
         otherParams.addParameter(param);
       }

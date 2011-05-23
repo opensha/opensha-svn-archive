@@ -28,7 +28,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -278,7 +278,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
 
    String S =  " : parameterChangeWarning(): ";
 
-   WarningParameterAPI param = e.getWarningParameter();
+   WarningParameter param = e.getWarningParameter();
 
    //System.out.println(b);
    param.setValueIgnoreWarning(e.getNewValue());

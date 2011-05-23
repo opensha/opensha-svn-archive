@@ -60,11 +60,11 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
@@ -1035,11 +1035,11 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	private void getSA_PeriodForIMR(ScalarIntensityMeasureRelationshipAPI imr){
 		ListIterator it =imr.getSupportedIntensityMeasuresIterator();
 		while(it.hasNext()){
-			DependentParameterAPI  tempParam = (DependentParameterAPI)it.next();
+			Parameter  tempParam = (Parameter)it.next();
 			if(tempParam.getName().equalsIgnoreCase(this.SA_NAME)){
 				ListIterator it1 = tempParam.getIndependentParametersIterator();
 				while(it1.hasNext()){
-					ParameterAPI independentParam = (ParameterAPI)it1.next();
+					Parameter independentParam = (Parameter)it1.next();
 					if(independentParam.getName().equalsIgnoreCase(this.SA_PERIOD)){
 						saPeriodVector = ((DoubleDiscreteParameter)independentParam).getAllowedDoubles();
 						numSA_PeriodVals = saPeriodVector.size();

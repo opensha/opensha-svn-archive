@@ -9,8 +9,8 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -37,7 +37,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class HardCodedGCIMTest {
 	
 	private static void setSAPeriodInIMR(ScalarIntensityMeasureRelationshipAPI imr, double period) {
-		((DependentParameterAPI<Double>)imr.getIntensityMeasure())
+		((Parameter<Double>)imr.getIntensityMeasure())
 		.getIndependentParameter(PeriodParam.NAME).setValue(new Double(period));
 	}
 	
@@ -50,15 +50,15 @@ public class HardCodedGCIMTest {
 	private static void overrideSiteParams(ScalarIntensityMeasureRelationshipAPI imri,
 			Site site) {
 			//loop over all of the site parameters of imri
-			ListIterator<ParameterAPI<?>> imriParamIt = imri.getSiteParamsIterator();
-			ListIterator<ParameterAPI<?>> siteParamIt = site.getParametersIterator();
+			ListIterator<Parameter<?>> imriParamIt = imri.getSiteParamsIterator();
+			ListIterator<Parameter<?>> siteParamIt = site.getParametersIterator();
 			while (imriParamIt.hasNext()) {
-				ParameterAPI<?> siteParamImri = imriParamIt.next();
+				Parameter<?> siteParamImri = imriParamIt.next();
 //				site.addParameter((ParameterAPI)siteParam.clone());
 				//for each imri site parameter, see if it is imrj, and if it is then set it to that and
 				//make it non-ediatable
 				while (siteParamIt.hasNext()) {
-					ParameterAPI<?> siteParam = siteParamIt.next();
+					Parameter<?> siteParam = siteParamIt.next();
 					if (siteParamImri == siteParam) {
 //						imri.set
 //						.addParameter((ParameterAPI)siteParam.clone());
@@ -94,10 +94,10 @@ public class HardCodedGCIMTest {
 		setSAPeriodInIMR(imr, period_IMj);
 		
 		Site site = new Site(new Location(34, -118));
-		ListIterator<ParameterAPI<?>> paramIt = imr.getSiteParamsIterator();
+		ListIterator<Parameter<?>> paramIt = imr.getSiteParamsIterator();
 		while (paramIt.hasNext()) {
-			ParameterAPI<?> siteParam = paramIt.next();
-			site.addParameter((ParameterAPI)siteParam.clone());
+			Parameter<?> siteParam = paramIt.next();
+			site.addParameter((Parameter)siteParam.clone());
 		}
 		IMT_Info imtInfo = new IMT_Info();
 		ArbitrarilyDiscretizedFunc hazFunction = imtInfo.getDefaultHazardCurve(SA_Param.NAME);

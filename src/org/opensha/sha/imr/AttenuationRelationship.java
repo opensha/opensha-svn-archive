@@ -31,8 +31,8 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.AbstractParameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -535,7 +535,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 				return GaussianDistCalc.getExceedProb(stRndVar);
 			}
 			else {
-				double numSig = ( (Double) ( (ParameterAPI) sigmaTruncLevelParam).
+				double numSig = ( (Double) ( (Parameter) sigmaTruncLevelParam).
 						getValue()).doubleValue();
 				if (sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {
 					return GaussianDistCalc.getExceedProb(stRndVar, 1, numSig);
@@ -644,7 +644,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 			);
 		}
 
-		double exceedProb = ( (Double) ( (ParameterAPI) exceedProbParam).getValue()).
+		double exceedProb = ( (Double) ( (Parameter) exceedProbParam).getValue()).
 		doubleValue();
 		double stRndVar;
 		String sigTrType = (String) sigmaTruncTypeParam.getValue();
@@ -661,7 +661,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 				stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
 			}
 			else {
-				double numSig = ( (Double) ( (ParameterAPI) sigmaTruncLevelParam).
+				double numSig = ( (Double) ( (Parameter) sigmaTruncLevelParam).
 						getValue()).doubleValue();
 				if (sigTrType.equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {
 					stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig,
@@ -701,7 +701,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Params Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getMeanIndependentParamsIterator() {
+	public ListIterator<Parameter<?>> getMeanIndependentParamsIterator() {
 		return meanIndependentParams.getParametersIterator();
 	}
 	
@@ -717,7 +717,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Parameters Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getStdDevIndependentParamsIterator() {
+	public ListIterator<Parameter<?>> getStdDevIndependentParamsIterator() {
 		return stdDevIndependentParams.getParametersIterator();
 	}
 	
@@ -733,7 +733,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Params Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getExceedProbIndependentParamsIterator() {
+	public ListIterator<Parameter<?>> getExceedProbIndependentParamsIterator() {
 		return exceedProbIndependentParams.getParametersIterator();
 	}
 	
@@ -749,7 +749,7 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	 *
 	 * @return    The Independent Params Iterator
 	 */
-	public ListIterator<ParameterAPI<?>> getIML_AtExceedProbIndependentParamsIterator() {
+	public ListIterator<Parameter<?>> getIML_AtExceedProbIndependentParamsIterator() {
 		return imlAtExceedProbIndependentParams.getParametersIterator();
 	}
 	
@@ -766,9 +766,9 @@ extends IntensityMeasureRelationship implements ScalarIntensityMeasureRelationsh
 	public String getAllParamMetadata() {
 		String metadata = imlAtExceedProbIndependentParams.getParameterListMetadataString();
 		metadata += "; " + im.getMetadataString() + " [ ";
-		Iterator it = ( (DependentParameter) im).getIndependentParametersIterator();
+		Iterator it = im.getIndependentParametersIterator();
 		while (it.hasNext()) {
-			metadata += ( (ParameterAPI) it.next()).getMetadataString() + "; ";
+			metadata += ( (Parameter) it.next()).getMetadataString() + "; ";
 		}
 		metadata = metadata.substring(0, metadata.length() - 2);
 		metadata += " ]";

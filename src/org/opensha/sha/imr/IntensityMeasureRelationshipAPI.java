@@ -28,7 +28,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupture;
 
@@ -120,7 +120,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @param  intensityMeasure  The new intensityMeasure Parameter
    */
-  public void setIntensityMeasure(ParameterAPI intensityMeasure) throws
+  public void setIntensityMeasure(Parameter intensityMeasure) throws
       ParameterException;
 
   /**
@@ -139,7 +139,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The intensityMeasure Parameter
    */
-  public ParameterAPI getIntensityMeasure();
+  public Parameter getIntensityMeasure();
 
   /**
    *  Checks whether the intensity measure passed in is supported (checking
@@ -151,7 +151,7 @@ public interface IntensityMeasureRelationshipAPI
    * @param  intensityMeasure  Description of the Parameter
    * @return                   True if this is a supported IMT
    */
-  public boolean isIntensityMeasureSupported(ParameterAPI type);
+  public boolean isIntensityMeasureSupported(Parameter type);
   
   /**
    * Checks if the Parameter is a supported intensity-Measure (checking
@@ -170,7 +170,7 @@ public interface IntensityMeasureRelationshipAPI
    * @param  site                   The new Site
    * @param  intensityMeasure       The new IM
    */
-  public void setAll(EqkRupture EqkRupture, Site site, ParameterAPI intensityMeasure);
+  public void setAll(EqkRupture EqkRupture, Site site, Parameter intensityMeasure);
   
 
   /**
@@ -180,7 +180,7 @@ public interface IntensityMeasureRelationshipAPI
    * @return                      The found parameter
    * @throws ParameterException   If parameter with that name doesn't exist
    */
-  public ParameterAPI getParameter(String name) throws ParameterException;
+  public Parameter getParameter(String name) throws ParameterException;
 
   /**
    * This sets the defaults for all the parameters.
@@ -202,7 +202,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Site Parameters Iterator
    */
-  public ListIterator<ParameterAPI<?>> getSiteParamsIterator();
+  public ListIterator<Parameter<?>> getSiteParamsIterator();
 
   /**
    *  Returns an iterator over all other parameters.  Other parameters are those
@@ -213,7 +213,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    Iterator for otherParameters
    */
-  public ListIterator<ParameterAPI<?>> getOtherParamsIterator();
+  public ListIterator<Parameter<?>> getOtherParamsIterator();
   
   /**
    *  Returns an ParameterList of all other parameters.  Other parameters are those
@@ -231,7 +231,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Earthquake-Rupture Parameters Iterator
    */
-  public ListIterator<ParameterAPI<?>> getEqkRuptureParamsIterator();
+  public ListIterator<Parameter<?>> getEqkRuptureParamsIterator();
 
   /**
    *  Returns the iterator over all Propagation-Effect related parameters
@@ -240,7 +240,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Propagation Effect Parameters Iterator
    */
-  public ListIterator<ParameterAPI<?>> getPropagationEffectParamsIterator();
+  public ListIterator<Parameter<?>> getPropagationEffectParamsIterator();
 
   /**
    *  Returns the iterator over all supported Intensity-Measure
@@ -248,7 +248,7 @@ public interface IntensityMeasureRelationshipAPI
    *
    * @return    The Supported Intensity-Measures Iterator
    */
-  public ListIterator<ParameterAPI<?>> getSupportedIntensityMeasuresIterator();
+  public ListIterator<Parameter<?>> getSupportedIntensityMeasuresIterator();
   
   /**
    *  Returns a list of all supported Intensity-Measure

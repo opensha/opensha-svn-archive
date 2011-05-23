@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -15,7 +15,7 @@ public class ERFSaveAndSerializeTest {
 	
 	public ERFSaveAndSerializeTest() {
 		EqkRupForecastAPI erf = new MeanUCERF2();
-		ParameterAPI backgroundParam = erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME);
+		Parameter backgroundParam = erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME);
 		backgroundParam.setValue(UCERF2.BACK_SEIS_INCLUDE);
 		System.out.println("Background Seismicity: " + backgroundParam.getValue());
 		

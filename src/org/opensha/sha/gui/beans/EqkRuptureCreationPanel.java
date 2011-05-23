@@ -29,17 +29,17 @@ import java.util.ListIterator;
 import javax.swing.JPanel;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.LocationParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.LocationParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.PointSurface;
@@ -418,7 +418,7 @@ public class EqkRuptureCreationPanel
    * @param paramName
    * @returns the parameter from the parameterList with paramName.
    */
-  public ParameterAPI getParameter(String paramName) {
+  public Parameter getParameter(String paramName) {
     if (parameterList.containsParameter(paramName)) {
       if (listEditor.getParameterEditor(paramName).isVisible()) {
         return parameterList.getParameter(paramName);
@@ -433,7 +433,7 @@ public class EqkRuptureCreationPanel
    * @param paramName
    * @returns the ParameterEditor associated with paramName
    */
-  public ParameterEditorAPI getParameterEditor(String paramName) {
+  public ParameterEditor getParameterEditor(String paramName) {
     if (parameterList.containsParameter(paramName)) {
       if (listEditor.getParameterEditor(paramName).isVisible()) {
         return listEditor.getParameterEditor(paramName);

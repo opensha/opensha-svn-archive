@@ -26,7 +26,7 @@ import java.rmi.RemoteException;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 
 /**
@@ -124,7 +124,7 @@ public interface RemoteERF_API  extends Remote{
     * @param paramName
     * @returns the Parameter from the parameter list with param name.
     */
-   public ParameterAPI getParameter(String paramName) throws RemoteException;
+   public Parameter getParameter(String paramName) throws RemoteException;
 
 
 }

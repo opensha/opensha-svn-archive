@@ -21,7 +21,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;

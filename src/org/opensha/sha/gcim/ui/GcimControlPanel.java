@@ -42,21 +42,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerConstraint;
-import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.IntegerConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
@@ -150,7 +150,7 @@ public class GcimControlPanel extends ControlPanel
 	//The Site object used in gcim calculations
 	private Site gcimSite;
 	//The IMj for which the main hazard calcs are done
-	private DependentParameterAPI<Double> parentIMj;
+	private Parameter<Double> parentIMj;
 	private static final String GCIM_SUPPORTED_NAME = "Gcim Distributions";
 	private static final String GCIM_NOT_SUPPORTED_IMJ = "Not supported for this IMj";
 	
@@ -285,9 +285,9 @@ public class GcimControlPanel extends ControlPanel
 	public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
 		StringBuffer b = new StringBuffer();
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();
@@ -585,7 +585,7 @@ public class GcimControlPanel extends ControlPanel
 				String newName = i+1 + ". " + imtName;
 				
 				//Get the imt parameter for this imtName
-				ParameterAPI<Double> imti = TRTUtils.getFirstIMR(imiMapAttenRels.get(i)).getIntensityMeasure();
+				Parameter<Double> imti = TRTUtils.getFirstIMR(imiMapAttenRels.get(i)).getIntensityMeasure();
 				if (imtName == SA_Param.NAME) {
 					String periodVal="";
 					try {
@@ -768,12 +768,12 @@ public class GcimControlPanel extends ControlPanel
 	 * This method returns the imi Parameter by getting the IMi from the imiMapAttenRels array list
 	 *  for a given index
 	 */
-	public DependentParameterAPI<Double> getImiParam(int index) {
+	public Parameter<Double> getImiParam(int index) {
 		if (D) {
 			System.out.println("Current IMR is " + TRTUtils.getFirstIMR(imiMapAttenRels.get(index)));
 			System.out.println("Current IMi is " + TRTUtils.getFirstIMR(imiMapAttenRels.get(index)).getIntensityMeasure());
 		}
-		return (DependentParameterAPI<Double>) TRTUtils.getFirstIMR(imiMapAttenRels.get(index)).getIntensityMeasure();
+		return (Parameter<Double>) TRTUtils.getFirstIMR(imiMapAttenRels.get(index)).getIntensityMeasure();
 	}
 	
 	/**
@@ -879,7 +879,7 @@ public class GcimControlPanel extends ControlPanel
 	 * This method gets the IMjName from the main hazard calcs, used to determine which other IMj are
 	 * allowable
 	 */
-	public DependentParameterAPI<Double> getParentIMj() {
+	public Parameter<Double> getParentIMj() {
 		this.parentIMj = parent.getIMTGuiBeanInstance().getSelectedIM();
 		return parentIMj;
 	}
@@ -889,8 +889,8 @@ public class GcimControlPanel extends ControlPanel
 	 */
 	public void checkParentIMj() {
 		//Get the old and new IMj's
-		DependentParameterAPI<Double> oldParentIMj = this.parentIMj;
-		DependentParameterAPI<Double> newParentIMj = parent.getIMTGuiBeanInstance().getSelectedIM();
+		Parameter<Double> oldParentIMj = this.parentIMj;
+		Parameter<Double> newParentIMj = parent.getIMTGuiBeanInstance().getSelectedIM();
 		//Now compare
 		boolean oldNewIMjSame = true;
 		
@@ -898,13 +898,13 @@ public class GcimControlPanel extends ControlPanel
 			oldNewIMjSame = false;
 		} else {
 			//Names are the same now check dependent parameters
-			ListIterator<DependentParameterAPI<?>> oldParentIMjParamsIt = oldParentIMj.getIndependentParametersIterator();
+			ListIterator<Parameter<?>> oldParentIMjParamsIt = oldParentIMj.getIndependentParametersIterator();
 			//Loop over the oldParentIMj params
 			while (oldParentIMjParamsIt.hasNext()) {
 				boolean newOldParentIMjContainParam = false;
 				String oldParentIMjParamName = oldParentIMjParamsIt.next().toString();
 				//Now loop over the newParentIMj params
-				ListIterator<DependentParameterAPI<?>> newParentIMjParamsIt = newParentIMj.getIndependentParametersIterator();
+				ListIterator<Parameter<?>> newParentIMjParamsIt = newParentIMj.getIndependentParametersIterator();
 				while (newParentIMjParamsIt.hasNext()) {
 					String newParentIMjParamName = newParentIMjParamsIt.next().toString();
 					//Are the parameter names the same?
@@ -963,16 +963,16 @@ public class GcimControlPanel extends ControlPanel
 		//Loop over all of the ImCorrRels
 		for (ImCorrelationRelationship imCorrRel : imCorrRels) {
 			//For each IMCorrRel loop over the supported IMjs
-			ArrayList<ParameterAPI<?>> imjImCorrRelParamList =imCorrRel.getSupportedIntensityMeasuresjList();
+			ArrayList<Parameter<?>> imjImCorrRelParamList =imCorrRel.getSupportedIntensityMeasuresjList();
 			for (int i = 0; i<imjImCorrRelParamList.size(); i++) {
-				ParameterAPI<?> imjImCorrRelParam = imjImCorrRelParamList.get(i);
+				Parameter<?> imjImCorrRelParam = imjImCorrRelParamList.get(i);
 				//Check if the imjParam is the imjName
 				if (imjImCorrRelParam.getName()==parentIMj.getName()) {
 					//Now check if any IMRs support the IMj
 					//Loop over all of the ImCorrRels
 					for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 						ParameterList imjImrParamList = imr.getSupportedIntensityMeasuresList();
-						for (ParameterAPI<?> imjImrParam : imjImrParamList) {
+						for (Parameter<?> imjImrParam : imjImrParamList) {
 						//for (int j = 0; j<imjImrParamList.size(); j++) {
 							//ParameterAPI<?> imjImrParam = imjImrParamList.getParameter(j);
 							//Check if the imjParam is the imjName

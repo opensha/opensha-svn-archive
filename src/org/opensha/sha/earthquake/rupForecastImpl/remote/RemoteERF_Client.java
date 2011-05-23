@@ -29,7 +29,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -83,7 +83,7 @@ ParameterChangeListener{
 
 		ListIterator it = adjustableParams.getParametersIterator();
 		while (it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 	}
 
 
@@ -96,7 +96,7 @@ ParameterChangeListener{
 			ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
 			ListIterator it = timeSpanParamList.getParametersIterator();
 			while (it.hasNext())
-				( (ParameterAPI) it.next()).addParameterChangeListener(this);
+				( (Parameter) it.next()).addParameterChangeListener(this);
 		}
 	}
 
@@ -116,7 +116,7 @@ ParameterChangeListener{
 		adjustableParams = erfServer.getAdjustableParameterList();
 		ListIterator it = adjustableParams.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 
 	}
 
@@ -126,7 +126,7 @@ ParameterChangeListener{
 	 * @param paramName : Name of the parameter needed from adjustable param list
 	 * @return : ParamterAPI instance
 	 */
-	public ParameterAPI getParameter(String paramName) {
+	public Parameter getParameter(String paramName) {
 		try {
 			return erfServer.getParameter(paramName);
 		}

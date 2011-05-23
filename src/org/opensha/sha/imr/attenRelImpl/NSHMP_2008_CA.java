@@ -25,17 +25,17 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.RegionUtils;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -507,7 +507,7 @@ ParameterChangeListener {
 				if (!pList.containsParameter(pName)) continue;
 				// TODO above shouldn't be necessary; pLists should not throw
 				// exceptions fo missing parameters
-				ParameterAPI<?> param = ar.getOtherParamsList().getParameter(
+				Parameter<?> param = ar.getOtherParamsList().getParameter(
 					e.getParameterName());
 				if (param instanceof StringParameter) {
 					((StringParameter) param).setValue((String) e

@@ -7,8 +7,8 @@ package scratch.christine.URS;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;

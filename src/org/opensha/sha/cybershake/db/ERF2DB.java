@@ -29,7 +29,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeProbEqkSource;
@@ -893,7 +893,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
 		//adding the forecast parameters
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			Object paramValue = param.getValue();
 			if(paramValue instanceof String)
 				paramValue = ((String)paramValue).replaceAll("'", "");
@@ -904,7 +904,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		it = eqkRupForecast.getTimeSpan().getAdjustableParamsIterator();
 		//adding the timespan parameters
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			String paramType = param.getType();
 			paramType = paramType.replaceAll("Parameter", "");
 			insertERFParams(erfId, param.getName(), param.getValue().toString(), paramType,param.getUnits());

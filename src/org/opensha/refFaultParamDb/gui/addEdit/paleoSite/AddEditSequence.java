@@ -33,16 +33,16 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringListParameter;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
-import org.opensha.commons.param.editor.ParameterListEditor;
-import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringListParameterEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.StringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringListParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
@@ -350,7 +350,7 @@ ParameterChangeListener {
 		int i=0;
 		double sumProb = 0.0;
 		while(paramsIterator.hasNext()) {
-			missedProbs[i] = ((Double)((ParameterAPI)paramsIterator.next()).getValue()).doubleValue();
+			missedProbs[i] = ((Double)((Parameter)paramsIterator.next()).getValue()).doubleValue();
 			sumProb += missedProbs[i++];
 		}
 		if(Math.abs(sumProb-1)>tolerance)

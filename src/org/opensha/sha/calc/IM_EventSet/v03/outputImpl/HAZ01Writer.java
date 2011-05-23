@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -135,7 +135,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 //		System.out.println("Writing portion of file for erf: " +  erf.getName() +
 //				", imr: " + attenRel.getShortName() + ", imt: " + imt);
 		setIMTFromString(imt, attenRel);
-		ArrayList<ParameterAPI> defaultSiteParams = getDefaultSiteParams(attenRel);
+		ArrayList<Parameter> defaultSiteParams = getDefaultSiteParams(attenRel);
 		
 		ArrayList<Site> sites = getInitializedSites(attenRel);
 		

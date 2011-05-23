@@ -25,8 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.NtoNMap;
@@ -78,8 +78,8 @@ public class IMCorrRel_MultiGuiBean extends LabeledBoxPanel implements ActionLis
 	private ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imikCorrRelMap =
 		new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
 
-	private DependentParameterAPI<Double> imti = null;
-	private DependentParameterAPI<Double> imtj = null;
+	private Parameter<Double> imti = null;
+	private Parameter<Double> imtj = null;
 	
 	private int maxChooserChars = Integer.MAX_VALUE;
 	
@@ -91,7 +91,7 @@ public class IMCorrRel_MultiGuiBean extends LabeledBoxPanel implements ActionLis
 	 * @param imCorrRels
 	 */
 	public IMCorrRel_MultiGuiBean(ArrayList<ImCorrelationRelationship> imCorrRels, 
-			DependentParameterAPI<Double> imtj) {
+			Parameter<Double> imtj) {
 		this.imCorrRels = imCorrRels;
 		this.imtj = imtj;
 		imCorrRelEnables = new ArrayList<Boolean>();
@@ -769,13 +769,13 @@ public class IMCorrRel_MultiGuiBean extends LabeledBoxPanel implements ActionLis
 		if (imti == null)
 			return true;
 		else {
-			ArrayList<ParameterAPI<?>> imjImCorrRelParamList = imCorrRel.getSupportedIntensityMeasuresjList();
+			ArrayList<Parameter<?>> imjImCorrRelParamList = imCorrRel.getSupportedIntensityMeasuresjList();
 			for (int j = 0; j<imjImCorrRelParamList.size(); j++) {
-				ParameterAPI<?> imjImCorrRelParam = imjImCorrRelParamList.get(j);
+				Parameter<?> imjImCorrRelParam = imjImCorrRelParamList.get(j);
 				
 				if (imjImCorrRelParam.getName()==imtj.getName()) {
-					ArrayList<ParameterAPI<?>> imiImCorrRelParamList = imCorrRel.getSupportedIntensityMeasuresiList();
-					ParameterAPI<?> imiImCorrRelParam = imiImCorrRelParamList.get(j);
+					ArrayList<Parameter<?>> imiImCorrRelParamList = imCorrRel.getSupportedIntensityMeasuresiList();
+					Parameter<?> imiImCorrRelParam = imiImCorrRelParamList.get(j);
 					if (imiImCorrRelParam.getName()==imti.getName()) {
 						return true;
 					}
@@ -791,7 +791,7 @@ public class IMCorrRel_MultiGuiBean extends LabeledBoxPanel implements ActionLis
 	 * 
 	 * @param newIMTi - new IMTi, or null to enable all IMCorrRels
 	 */
-	public void setIMTi(DependentParameterAPI<Double> newIMTi) {
+	public void setIMTi(Parameter<Double> newIMTi) {
 		this.imti = newIMTi;
 
 		for (int i=0; i<imCorrRels.size(); i++) {

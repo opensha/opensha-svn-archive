@@ -25,9 +25,9 @@ import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**
@@ -200,7 +200,7 @@ public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 	public String getType() {
 		String type = "DoubleParameter";
 		// Modify if constrained
-		ParameterConstraintAPI constraint = this.constraint;
+		ParameterConstraint constraint = this.constraint;
 		if (constraint != null) type = "Constrained" + type;
 		return type;
 	}

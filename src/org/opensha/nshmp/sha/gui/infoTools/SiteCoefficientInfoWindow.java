@@ -50,9 +50,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.util.GlobalConstants;
 

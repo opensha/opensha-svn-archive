@@ -19,7 +19,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -169,7 +169,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		Iterator it = adjustableParams.getParametersIterator();
 		adjustableParamNames = new ArrayList<String>();
 		while(it.hasNext()) {
-			 ParameterAPI param = (ParameterAPI)it.next();
+			 Parameter param = (Parameter)it.next();
 			 adjustableParamNames.add(param.getName());
 		 }
 		// add column for each parameter name. Also add a initial blank row for writing figure names
@@ -769,7 +769,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			if(constantParamName!=null && (!paramList.containsParameter(constantParamName)))
 				continue;
 			if(constantParamName!=null) {
-				ParameterAPI param = paramList.getParameter(constantParamName);
+				Parameter param = paramList.getParameter(constantParamName);
 				if(!param.getValue().equals(value)) continue;
 				wt = wt/paramWt;
 			}

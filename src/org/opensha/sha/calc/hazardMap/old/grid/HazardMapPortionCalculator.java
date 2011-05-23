@@ -38,7 +38,7 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -123,7 +123,7 @@ public class HazardMapPortionCalculator {
 			System.out.println("ERF Params:");
 			Iterator erfIt = erf.getAdjustableParamsIterator();
 			while (erfIt.hasNext()) {
-				ParameterAPI param = (ParameterAPI)erfIt.next();
+				Parameter param = (Parameter)erfIt.next();
 				System.out.println(param.getName() + ": " + param.getValue());
 			}
 			try {
@@ -155,16 +155,16 @@ public class HazardMapPortionCalculator {
 			
 			// use the CVM
 			SiteTranslator siteTranslator = new SiteTranslator();
-			ArrayList<ParameterAPI> defaultSiteParams = null;
+			ArrayList<Parameter> defaultSiteParams = null;
 			boolean hasSiteData = siteDataValues != null;
 			if (hasSiteData) {
-				Iterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+				Iterator<Parameter<?>> it = imr.getSiteParamsIterator();
 				
-				defaultSiteParams = new ArrayList<ParameterAPI>();
+				defaultSiteParams = new ArrayList<Parameter>();
 				while (it.hasNext()) {
-					ParameterAPI param = it.next();
+					Parameter param = it.next();
 					System.out.println("Loaded default param: " + param.getName() + ", Value: " + param.getValue());
-					defaultSiteParams.add((ParameterAPI)param.clone());
+					defaultSiteParams.add((Parameter)param.clone());
 				}
 			}
 			
@@ -215,9 +215,9 @@ public class HazardMapPortionCalculator {
 							for (SiteDataValue<?> val : datas) {
 								System.out.println("\t" + val.getDataType() + ": " + val.getValue());
 							}
-							Iterator<ParameterAPI<?>> it = site.getParametersIterator();
+							Iterator<Parameter<?>> it = site.getParametersIterator();
 							while (it.hasNext()) {
-								ParameterAPI param = it.next();
+								Parameter param = it.next();
 								
 								boolean flag = siteTranslator.setParameterValue(param, datas);
 								System.out.println("Setting " + param.getName() + " from site data: " + flag);
@@ -225,7 +225,7 @@ public class HazardMapPortionCalculator {
 									// if we couldn't set the parameter from this set of data, then we need
 									// to use the default value
 									boolean success = false;
-									for (ParameterAPI defaultParam : defaultSiteParams) {
+									for (Parameter defaultParam : defaultSiteParams) {
 										if (defaultParam.getName().equals(param.getName())) {
 											System.out.println("Setting " + param.getName() + " to default: " + defaultParam.getValue());
 											param.setValue(defaultParam.getValue());
@@ -317,7 +317,7 @@ public class HazardMapPortionCalculator {
 				Iterator it = site.getParametersIterator();
 				System.out.println("Site Parameters:");
 				while (it.hasNext()) {
-					ParameterAPI param = (ParameterAPI)it.next();
+					Parameter param = (Parameter)it.next();
 					System.out.println(param.getName() + ": " + param.getValue());
 				}
 				
@@ -382,7 +382,7 @@ public class HazardMapPortionCalculator {
 					Iterator it2 = site.getParametersIterator();
 					System.err.println("Site Parameters:");
 					while (it2.hasNext()) {
-						ParameterAPI param = (ParameterAPI)it2.next();
+						Parameter param = (Parameter)it2.next();
 						System.err.println(param.getName() + ": " + param.getValue());
 					}
 //					System.err.println("SKIPPING!!!");

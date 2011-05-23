@@ -13,8 +13,8 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.XY_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
@@ -93,11 +93,11 @@ public class Asset implements Cloneable {
 	 */
 	public void setAssetParameters( String[] assetList ) {
 		ParameterList list = getParameterList();
-		ListIterator<ParameterAPI<?>> iter = list.getParametersIterator();
+		ListIterator<Parameter<?>> iter = list.getParametersIterator();
 		Integer i = 0;
 		Object val = null;
 		while( iter.hasNext() ) {
-			ParameterAPI param = iter.next();
+			Parameter param = iter.next();
 			if ( param.getType().equals("IntegerParameter") ) {
 				val = Integer.parseInt(assetList[i]);
 			}
@@ -123,8 +123,8 @@ public class Asset implements Cloneable {
 	 * @return The created parameter, based on the name
 	 * @see ParameterParser
 	 */
-	private Parameter createParameter( String paramName ) {
-		Parameter param = null;
+	private AbstractParameter createParameter( String paramName ) {
+		AbstractParameter param = null;
 		ParameterParser parameterParser = ParameterParser.getParameterParser();
 		Class<?> c = null;
 		try {
@@ -132,7 +132,7 @@ public class Asset implements Cloneable {
 			c = Class.forName( className );
 			Class<?>[] paramTypes = {String.class};
 			Constructor<?> cons = c.getConstructor(paramTypes);
-			param = (Parameter) cons.newInstance(paramName);
+			param = (AbstractParameter) cons.newInstance(paramName);
 		} catch( Exception e ) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Parameter type" + paramName + " in file not reckognized!", "Error", JOptionPane.ERROR_MESSAGE );

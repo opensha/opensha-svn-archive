@@ -15,9 +15,9 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gridComputing.condor.DAG;
 import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
@@ -101,7 +101,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 */
 	public HazusDataSetDAGCreator(EqkRupForecastAPI erf,
 			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
-			List<DependentParameterAPI<Double>> imts,
+			List<Parameter<Double>> imts,
 			List<Site> sites,
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver,
@@ -182,13 +182,13 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			throw new RuntimeException("imrMaps must contain exactly 4 elements");
 	}
 	
-	public static List<DependentParameterAPI<Double>> validateIMTList(List<DependentParameterAPI<Double>> imts) {
+	public static List<Parameter<Double>> validateIMTList(List<Parameter<Double>> imts) {
 		if (imts.size() != 4)
 			throw new IllegalArgumentException("IMT list must be of size 4");
 		
 		for (int i=0; i<4; i++) {
 			DoubleParameter periodParam = null;
-			DependentParameterAPI<Double> imt = imts.get(i);
+			Parameter<Double> imt = imts.get(i);
 			switch (i) {
 			
 			case 0:
@@ -218,31 +218,31 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		return imts;
 	}
 	
-	public static ArrayList<DependentParameterAPI<Double>> getIMTList(
+	public static ArrayList<Parameter<Double>> getIMTList(
 			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps) {
 		HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map0 = imrMaps.get(0);
 		ScalarIntensityMeasureRelationshipAPI testIMR = map0.get(map0.keySet().iterator().next());
 		
-		ArrayList<DependentParameterAPI<Double>> imts = new ArrayList<DependentParameterAPI<Double>>();
+		ArrayList<Parameter<Double>> imts = new ArrayList<Parameter<Double>>();
 		
 		testIMR.setIntensityMeasure(PGA_Param.NAME);
-		imts.add((DependentParameterAPI<Double>) testIMR.getIntensityMeasure().clone());
+		imts.add((Parameter<Double>) testIMR.getIntensityMeasure().clone());
 		
 		testIMR.setIntensityMeasure(PGV_Param.NAME);
-		imts.add((DependentParameterAPI<Double>) testIMR.getIntensityMeasure().clone());
+		imts.add((Parameter<Double>) testIMR.getIntensityMeasure().clone());
 		
-		DependentParameterAPI<Double> saParam;
-		ParameterAPI<Double> periodParam;
+		Parameter<Double> saParam;
+		Parameter<Double> periodParam;
 		
 		testIMR.setIntensityMeasure(SA_Param.NAME);
-		saParam = (DependentParameterAPI<Double>) testIMR.getIntensityMeasure().clone();
-		periodParam = (ParameterAPI<Double>) saParam.getIndependentParameter(PeriodParam.NAME);
+		saParam = (Parameter<Double>) testIMR.getIntensityMeasure().clone();
+		periodParam = (Parameter<Double>) saParam.getIndependentParameter(PeriodParam.NAME);
 		periodParam.setValue(0.3);
 		imts.add(saParam);
 		
 		testIMR.setIntensityMeasure(SA_Param.NAME);
-		saParam = (DependentParameterAPI<Double>) testIMR.getIntensityMeasure().clone();
-		periodParam = (ParameterAPI<Double>) saParam.getIndependentParameter(PeriodParam.NAME);
+		saParam = (Parameter<Double>) testIMR.getIntensityMeasure().clone();
+		periodParam = (Parameter<Double>) saParam.getIndependentParameter(PeriodParam.NAME);
 		periodParam.setValue(1.0);
 		imts.add(saParam);
 		

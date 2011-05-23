@@ -6,7 +6,7 @@ import javax.swing.JComponent;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 public class NewParameterEditorTest {
 

@@ -36,7 +36,7 @@ import javax.swing.JTextPane;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
@@ -191,7 +191,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while(it.hasNext()) {
-      ParameterAPI tempParam = (ParameterAPI)it.next();
+      Parameter tempParam = (Parameter)it.next();
       System.out.println("Param:"+tempParam.getName());
       //adding the site Params from the CVM, if site is out the range of CVM then it
       //sets the site with whatever site Parameter Value user has choosen in the application

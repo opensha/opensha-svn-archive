@@ -45,20 +45,19 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.UserAuthDialog;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeERF;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
-import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.ERF2DBAPI;
@@ -73,9 +72,7 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
 import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
-import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
-import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
@@ -178,20 +175,20 @@ extends ControlPanel implements ParameterChangeListener {
 	GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 	//Database connection 
-	private static final DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+	private static DBAccess db;
 
 	/**
 	 * Handle to Cybershake Sites info in DB
 	 */
-	private CybershakeSiteInfo2DB csSites = new CybershakeSiteInfo2DB(db);
+	private CybershakeSiteInfo2DB csSites;
 	
-	HazardCurve2DB curve2db = new HazardCurve2DB(db);
+	HazardCurve2DB curve2db;
 
-	private ERF2DBAPI erf2db = new ERF2DB(db);
+	private ERF2DBAPI erf2db;
 
-	private HazardCurveComputation hazCurve = new HazardCurveComputation(db);
-	private Runs2DB runs2db = new Runs2DB(db);
-	private PeakAmplitudesFromDBAPI peakAmps2DB = hazCurve.getPeakAmpsAccessor();
+	private HazardCurveComputation hazCurve;
+	private Runs2DB runs2db;
+	private PeakAmplitudesFromDBAPI peakAmps2DB;
 
 	//current selection of site, srcId and rupId from the cyberShake database
 	private CybershakeSite selectedSite;
@@ -219,6 +216,13 @@ extends ControlPanel implements ParameterChangeListener {
 	}
 	
 	public void doinit() {
+		db = org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication.db;
+		csSites = new CybershakeSiteInfo2DB(db);
+		curve2db = new HazardCurve2DB(db);
+		erf2db = new ERF2DB(db);
+		hazCurve = new HazardCurveComputation(db);
+		runs2db = new Runs2DB(db);
+		peakAmps2DB = hazCurve.getPeakAmpsAccessor();
 		frame = new JFrame();
 		frame.setTitle(NAME);
 		try {
@@ -1058,7 +1062,8 @@ extends ControlPanel implements ParameterChangeListener {
 		DBAccess db = null;
 		while (fail) {
 			try {
-				db = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
+				db = new DBAccess(org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication.HOST_NAME,
+						org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
 				fail = false;
 			} catch (IOException e) {
 				e.printStackTrace();

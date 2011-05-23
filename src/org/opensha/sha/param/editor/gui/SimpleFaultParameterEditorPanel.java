@@ -29,24 +29,24 @@ import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.ParameterListParameter;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.editor.IntegerParameterEditor;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
-import org.opensha.commons.param.editor.ParameterEditorAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
-import org.opensha.commons.param.editor.ParameterListParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.IntegerParameterEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.ParameterListParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.param.SimpleFaultParameter;
 
 
@@ -59,7 +59,7 @@ import org.opensha.sha.param.SimpleFaultParameter;
  * @version 1.0
  */
 
-public class SimpleFaultParameterEditorPanel extends ParameterEditor
+public class SimpleFaultParameterEditorPanel extends AbstractParameterEditorOld
 implements ParameterChangeListener,
 ParameterChangeFailListener,
 ActionListener {
@@ -127,20 +127,20 @@ ActionListener {
 	 * DoubleParameter for Ave. Dip Direction, if the person has selected
 	 * Stirling Fault Model
 	 */
-	private ParameterEditorAPI<Double> dipDirectionParamEditor ;
+	private ParameterEditor<Double> dipDirectionParamEditor ;
 
 
 	public SimpleFaultParameterEditorPanel() {}
 
 	//constructor taking the Parameter as the input argument
-	public SimpleFaultParameterEditorPanel(ParameterAPI model){
+	public SimpleFaultParameterEditorPanel(Parameter model){
 		super(model);
 	}
 
 	/**
 	 * Set the values in the Parameters for the EvenlyGridded Surface
 	 */
-	public void setParameter(ParameterAPI param)  {
+	public void setParameter(Parameter param)  {
 
 		String S = C + ": Constructor(): ";
 		if ( D ) System.out.println( S + "Starting:" );
@@ -227,7 +227,7 @@ ActionListener {
 		ParameterList paramList = surfaceParam.getFaultTraceParamList();
 		ListIterator it  = paramList.getParametersIterator();
 		while (it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editor = new ParameterListEditor(paramList);
 		editor.setTitle(SIMPLE_FAULT_EDITOR_TITLE);
 
@@ -273,14 +273,14 @@ ActionListener {
 		ParameterListParameter latParam = (ParameterListParameter)surfaceParam.getLatParam();
 		ListIterator it = latParam.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForLats = new ParameterListParameterEditor(latParam);
 		//editorForLats.setTitle(this.LAT_EDITOR_TITLE);
 
 		ParameterListParameter lonParam = (ParameterListParameter)surfaceParam.getLonParam();
 		it = lonParam.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForLons = new ParameterListParameterEditor(lonParam);
 		//editorForLons.setTitle(this.LON_EDITOR_TITLE);
 		editorForLats.validate();
@@ -330,7 +330,7 @@ ActionListener {
 		ParameterListParameter parameterListParameterForDips = (ParameterListParameter)surfaceParam.getDipParam();
 		ListIterator it = parameterListParameterForDips.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForDips = new ParameterListParameterEditor(parameterListParameterForDips);
 		editorForDips.validate();
 		editorForDips.revalidate();
@@ -346,7 +346,7 @@ ActionListener {
 		ParameterListParameter parameterListParameterForDepths = (ParameterListParameter)surfaceParam.getDepthParam();
 		ListIterator it = parameterListParameterForDepths.getParametersIterator();
 		while(it.hasNext())
-			((ParameterAPI)it.next()).addParameterChangeListener(this);
+			((Parameter)it.next()).addParameterChangeListener(this);
 		editorForDepths = new ParameterListParameterEditor(parameterListParameterForDepths);
 		editorForDepths.validate();
 		editorForDepths.revalidate();
@@ -519,8 +519,8 @@ ActionListener {
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
-		ParameterConstraintAPI constraint = param.getConstraint();
+		Parameter param = ( Parameter ) e.getSource();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();

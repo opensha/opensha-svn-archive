@@ -26,11 +26,11 @@ import java.util.Iterator;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ParamOptions;
@@ -211,7 +211,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 				ucerf2.getParameter(paramName).setValue(options.getValue(i));	
 				newWt = weight * options.getWeight(i);
 				if(paramName.equalsIgnoreCase(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)) {
-					ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+					Parameter param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 					if(((Double)param.getValue()).doubleValue()==1e10) {
 						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0.0));
 						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0.0));	
@@ -271,7 +271,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 	public EqkRupForecastAPI getERF(int index) {
 		Iterator it = logicTreeParamList.get(index).getParametersIterator();
 		while(it.hasNext()) {
-			Parameter param = (Parameter)it.next();
+			AbstractParameter param = (AbstractParameter)it.next();
 			ucerf2.getParameter(param.getName()).setValue(param.getValue());
 		}
 		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, backSeisParam.getValue());

@@ -31,11 +31,11 @@ import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 /**
  * Abstract implementation of SiteDataAPI. It handles some of the basic methods, such as
@@ -272,10 +272,10 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 		org.dom4j.Element paramsEl = el.addElement("DataParameters");
 		addXMLParameters(paramsEl);
 		
-		Iterator<ParameterAPI<?>> paramIt = this.paramList.iterator();
-		org.dom4j.Element paramsElement = el.addElement(Parameter.XML_GROUP_METADATA_NAME);
+		Iterator<Parameter<?>> paramIt = this.paramList.iterator();
+		org.dom4j.Element paramsElement = el.addElement(AbstractParameter.XML_GROUP_METADATA_NAME);
 		while (paramIt.hasNext()) {
-			ParameterAPI param = paramIt.next();
+			Parameter param = paramIt.next();
 			paramsElement = param.toXMLMetadata(paramsElement);
 		}
 		
@@ -307,8 +307,8 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 		
 		// add params
 //		System.out.println("Setting params...");
-		org.dom4j.Element paramsElement = dataElem.element(Parameter.XML_GROUP_METADATA_NAME);
-		for (ParameterAPI param : provider.getAdjustableParameterList()) {
+		org.dom4j.Element paramsElement = dataElem.element(AbstractParameter.XML_GROUP_METADATA_NAME);
+		for (Parameter param : provider.getAdjustableParameterList()) {
 //			System.out.println("Setting param " + param.getName());
 			Iterator<org.dom4j.Element> it = paramsElement.elementIterator();
 			while (it.hasNext()) {

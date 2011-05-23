@@ -1,8 +1,8 @@
 package org.opensha.sha.calc.params;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.impl.StringParameter;
 
 public class NonSupportedTRT_OptionsParam extends StringParameter {
 	

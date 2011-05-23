@@ -28,7 +28,7 @@ import java.util.logging.Level;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -91,7 +91,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 	private void writeOriginalMeanSigmaFiles(EqkRupForecastAPI erf, ScalarIntensityMeasureRelationshipAPI attenRel, String imt) throws IOException {
 		setIMTFromString(imt, attenRel);
 		logger.log(Level.INFO, "Writing Mean/Sigma file for " + attenRel.getShortName() + ", " + imt);
-		ArrayList<ParameterAPI> defaultSiteParams = getDefaultSiteParams(attenRel);
+		ArrayList<Parameter> defaultSiteParams = getDefaultSiteParams(attenRel);
 
 		ArrayList<Site> sites = getInitializedSites(attenRel);
 		
@@ -99,7 +99,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 		boolean hasInterIntra = stdDevParam.isAllowed(StdDevTypeParam.STD_DEV_TYPE_INTER) &&
 									stdDevParam.isAllowed(StdDevTypeParam.STD_DEV_TYPE_INTRA);
 		
-		ParameterAPI<?> im = attenRel.getIntensityMeasure();
+		Parameter<?> im = attenRel.getIntensityMeasure();
 		String fname = attenRel.getShortName();
 		StringTokenizer imtTok = new StringTokenizer(imt);
 		if (imtTok.countTokens() > 1) {

@@ -44,7 +44,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 
 public class SiteDataMapApplet extends Applet implements ActionListener, ListSelectionListener {
@@ -106,7 +106,7 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 	}
 	
 	private void makeMap(ArrayList<Double> zVals, LocationList locs, String label, String meta) {
-		ParameterAPI customParam = mapBean.getParameterList().getParameter(
+		Parameter customParam = mapBean.getParameterList().getParameter(
 				GMT_MapGenerator.CUSTOM_SCALE_LABEL_PARAM_CHECK_NAME);
 		// if the user didn't specify a custom one, then do it for them
 		boolean custom = (Boolean)customParam.getValue();

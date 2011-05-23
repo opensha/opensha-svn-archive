@@ -27,9 +27,9 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.commons.param.impl.DoubleParameter;
 
 public class AddSitePanel extends JPanel {
 	

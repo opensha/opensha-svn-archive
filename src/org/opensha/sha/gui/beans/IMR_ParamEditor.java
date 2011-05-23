@@ -1,9 +1,9 @@
 package org.opensha.sha.gui.beans;
 
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
@@ -44,7 +44,7 @@ public class IMR_ParamEditor extends ParameterListEditor implements ParameterCha
 		}
 		ParameterList paramList = imr.getOtherParamsList();
 		this.setParameterList(paramList);
-		for (ParameterAPI<?> param : paramList) {
+		for (Parameter<?> param : paramList) {
 			if (param.getName().equals(SigmaTruncTypeParam.NAME)) {
 				String val = (String)param.getValue();
 				toggleSigmaLevelBasedOnTypeValue(val);

@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
@@ -34,7 +34,7 @@ public class HazardCurveDriver {
 	private List<Site> sites;
 	private EqkRupForecastAPI erf;
 	private List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
-	private List<DependentParameterAPI<Double>> imts;
+	private List<Parameter<Double>> imts;
 	private HazardCurveSetCalculator calc;
 	private CurveResultsArchiver archiver;
 	private CalculationSettings calcSettings;

@@ -11,10 +11,10 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
@@ -193,7 +193,7 @@ public class HazardProfileCalculator implements ParameterChangeWarningListener {
 	@Override
 	public void parameterChangeWarning(ParameterChangeWarningEvent e) {
 		String S = " : parameterChangeWarning(): ";
-		WarningParameterAPI param = e.getWarningParameter();
+		WarningParameter param = e.getWarningParameter();
 		param.setValueIgnoreWarning(e.getNewValue());
 	}
 	

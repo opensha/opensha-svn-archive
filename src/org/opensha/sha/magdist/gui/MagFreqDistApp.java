@@ -51,13 +51,13 @@ import javax.swing.event.ChangeEvent;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -478,7 +478,7 @@ ParameterChangeListener{
 
 		this.magDistEditor = magDistEditor;
 		ParameterListEditor listEditor = magDistEditor.createMagFreqDistParameterEditor();
-		ParameterAPI distParam = listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).getParameter();
+		Parameter distParam = listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).getParameter();
 		distParam.addParameterChangeListener(this);
 		ArrayList allowedVals = ((StringConstraint)listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).
 				getParameter().getConstraint()).getAllowedValues();

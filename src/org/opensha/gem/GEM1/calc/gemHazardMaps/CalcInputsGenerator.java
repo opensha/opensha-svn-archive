@@ -11,7 +11,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.gem.GEM1.calc.gemHazardCalculator.GemComputeHazardLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.GemLogicTree;
 import org.opensha.gem.GEM1.calc.gemLogicTree.gemLogicTreeImpl.gmpe.GemGmpe;
@@ -76,9 +76,9 @@ public class CalcInputsGenerator {
 				for (HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI> map : maps) {
 					for (TectonicRegionType tect : map.keySet()) {
 						ScalarIntensityMeasureRelationshipAPI imr = map.get(tect);
-						ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+						ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 						while (it.hasNext()) {
-							ParameterAPI param = it.next();
+							Parameter param = it.next();
 							try {
 								site.getParameter(param.getName());
 							} catch (ParameterException e) {

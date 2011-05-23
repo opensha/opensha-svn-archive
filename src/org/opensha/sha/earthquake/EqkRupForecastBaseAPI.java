@@ -27,7 +27,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -93,7 +93,7 @@ public interface EqkRupForecastBaseAPI extends NamedObjectAPI{
 	 *
 	 * @return
 	 */
-	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator();
+	public ListIterator<Parameter<?>> getAdjustableParamsIterator();
 
 	/**
 	 * Gets the Adjustable parameter list for the ERF

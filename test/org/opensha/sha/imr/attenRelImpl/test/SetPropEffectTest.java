@@ -13,7 +13,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -82,9 +82,9 @@ public class SetPropEffectTest {
 			ScalarIntensityMeasureRelationshipAPI[] array = { imr1, imr2 };
 			ret.add(array);
 			
-			ListIterator<ParameterAPI<?>> siteParamIt = imr1.getSiteParamsIterator();
+			ListIterator<Parameter<?>> siteParamIt = imr1.getSiteParamsIterator();
 			while (siteParamIt.hasNext()) {
-				ParameterAPI<?> param = siteParamIt.next();
+				Parameter<?> param = siteParamIt.next();
 				if (!site.containsParameter(param))
 					site.addParameter(param);
 			}

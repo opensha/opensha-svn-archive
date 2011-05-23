@@ -28,8 +28,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterGUI;
 
@@ -43,7 +43,7 @@ import org.opensha.sha.param.editor.gui.SimpleFaultParameterGUI;
  * @version 1.0
  */
 
-public class SimpleFaultParameterEditor extends ParameterEditor
+public class SimpleFaultParameterEditor extends AbstractParameterEditorOld
     implements ActionListener {
 
 
@@ -58,14 +58,14 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   public SimpleFaultParameterEditor() {}
 
   //constructor taking the Parameter as the input argument
-  public SimpleFaultParameterEditor(ParameterAPI model){
+  public SimpleFaultParameterEditor(Parameter model){
     super(model);
   }
 
   /**
    * Set the values in the Parameters for the EvenlyGridded Surface
    */
-  public void setParameter(ParameterAPI param)  {
+  public void setParameter(Parameter param)  {
     setParameterInEditor(param);
     valueEditor = new JButton(param.getName());
     ((JButton)valueEditor).addActionListener(this);

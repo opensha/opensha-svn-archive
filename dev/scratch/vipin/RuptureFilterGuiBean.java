@@ -7,11 +7,11 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.StringParameter;
 
 /**
  * <p>Title: RuptureFilterGuiBean.java </p>

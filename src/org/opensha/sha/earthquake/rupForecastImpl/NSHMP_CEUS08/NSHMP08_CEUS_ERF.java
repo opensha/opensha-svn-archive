@@ -22,7 +22,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.NSHMP_CEUS08;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;

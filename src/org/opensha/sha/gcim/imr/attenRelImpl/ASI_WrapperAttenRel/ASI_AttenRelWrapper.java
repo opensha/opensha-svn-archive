@@ -28,12 +28,12 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleConstraint;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -165,7 +165,7 @@ public class ASI_AttenRelWrapper
   // NOTE not sure this is the right way to be listening to any parameter
   // changes
   private void addParameterListener(ParameterList list) {
-	  for (ParameterAPI<?> p : list) {
+	  for (Parameter<?> p : list) {
 		  p.addParameterChangeListener(this);
 	  }
   }
@@ -301,12 +301,12 @@ public class ASI_AttenRelWrapper
 		  //sum over the periods to account for Sa covariance
 		  
 
-		  ParameterAPI newIMTi = (ParameterAPI) corr.getIntensityMeasurei();
+		  Parameter newIMTi = (Parameter) corr.getIntensityMeasurei();
 		  ((SA_InterpolatedParam)newIMTi).getPeriodInterpolatedParam().setValue(ti[i]);  
 		  
 		  for (int j=0; j<i;j++) {
 			  //calculate correlation between log SA at two periods
-			  ParameterAPI<?> newIMTj = (ParameterAPI<?>) corr.getIntensityMeasurej();
+			  Parameter<?> newIMTj = (Parameter<?>) corr.getIntensityMeasurej();
 				((SA_InterpolatedParam)newIMTj).getPeriodInterpolatedParam().setValue(ti[j]);
 
 			  double rhoLnSa = corr.getImCorrelation();

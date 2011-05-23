@@ -16,7 +16,7 @@ import org.opensha.commons.gridComputing.condor.DAG;
 import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
 import org.opensha.commons.gridComputing.condor.DAG.DAG_ADD_LOCATION;
 import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
-import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
@@ -45,7 +45,7 @@ public class HazardDataSetDAGCreator {
 
 	protected EqkRupForecastAPI erf;
 	protected List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps;
-	private List<DependentParameterAPI<Double>> imts;
+	private List<Parameter<Double>> imts;
 
 	protected List<Site> sites;
 	protected CalculationSettings calcSettings;
@@ -91,7 +91,7 @@ public class HazardDataSetDAGCreator {
 	 */
 	public HazardDataSetDAGCreator(EqkRupForecastAPI erf,
 			List<HashMap<TectonicRegionType, ScalarIntensityMeasureRelationshipAPI>> imrMaps,
-			List<DependentParameterAPI<Double>> imts,
+			List<Parameter<Double>> imts,
 			List<Site> sites,
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver,

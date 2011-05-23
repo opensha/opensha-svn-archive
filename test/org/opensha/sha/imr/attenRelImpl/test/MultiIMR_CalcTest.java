@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -403,7 +403,7 @@ public class MultiIMR_CalcTest {
 	protected static void setIMT(ScalarIntensityMeasureRelationshipAPI imr, String imt, double period) {
 		imr.setIntensityMeasure(imt);
 		if (period >= 0) {
-			DependentParameterAPI<Double> imtParam = (DependentParameterAPI<Double>) imr.getIntensityMeasure();
+			Parameter<Double> imtParam = (Parameter<Double>) imr.getIntensityMeasure();
 			imtParam.getIndependentParameter(PeriodParam.NAME).setValue(period);
 		}
 	}

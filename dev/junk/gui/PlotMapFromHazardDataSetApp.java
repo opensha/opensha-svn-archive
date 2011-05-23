@@ -57,8 +57,8 @@ import javax.swing.border.EtchedBorder;
 
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;

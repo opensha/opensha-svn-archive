@@ -65,10 +65,10 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.ParameterConstraintAPI;
-import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.constraint.ParameterConstraint;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
@@ -1051,10 +1051,10 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 		StringBuffer b = new StringBuffer();
 
-		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		Parameter param = ( Parameter ) e.getSource();
 
 
-		ParameterConstraintAPI constraint = param.getConstraint();
+		ParameterConstraint constraint = param.getConstraint();
 		String oldValueStr = e.getOldValue().toString();
 		String badValueStr = e.getBadValue().toString();
 		String name = param.getName();
@@ -1094,7 +1094,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 		StringBuffer b = new StringBuffer();
 
-		WarningParameterAPI param = e.getWarningParameter();
+		WarningParameter param = e.getWarningParameter();
 
 
 		try{

@@ -12,15 +12,15 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.BooleanParameter;
-import org.opensha.commons.param.DoubleDiscreteConstraint;
 import org.opensha.commons.param.ParamLinker;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.WeightedListParameter;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.param.impl.WeightedListParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -124,9 +124,9 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		HashMap<String, ArrayList<ScalarIntensityMeasureRelationshipAPI>> paramNameIMRMap =
 			new HashMap<String, ArrayList<ScalarIntensityMeasureRelationshipAPI>>();
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			ListIterator<ParameterAPI<?>> siteParamsIt = imr.getSiteParamsIterator();
+			ListIterator<Parameter<?>> siteParamsIt = imr.getSiteParamsIterator();
 			while (siteParamsIt.hasNext()) {
-				ParameterAPI<?> siteParam = siteParamsIt.next();
+				Parameter<?> siteParam = siteParamsIt.next();
 				String name = siteParam.getName();
 				if (!paramNameIMRMap.containsKey(name))
 					paramNameIMRMap.put(name, new ArrayList<ScalarIntensityMeasureRelationshipAPI>());
@@ -143,7 +143,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			Object defaultVal = imrs.get(0).getParameter(paramName).getDefaultValue();
 			if (defaultVal == null)
 				defaultVal = imrs.get(0).getParameter(paramName).getValue();
-			ParameterAPI masterParam = imrs.get(0).getParameter(paramName);
+			Parameter masterParam = imrs.get(0).getParameter(paramName);
 //			if (paramName.equals(Vs30_Param.NAME)) {
 //				vs30Param = masterParam;
 //			} else if (paramName.equals(Vs30_TypeParam.NAME)) {
@@ -162,7 +162,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			
 			for (int i=1; i<imrs.size(); i++) {
 				ScalarIntensityMeasureRelationshipAPI imr = imrs.get(i);
-				ParameterAPI imrParam = imr.getParameter(paramName);
+				Parameter imrParam = imr.getParameter(paramName);
 				trySetDefault(defaultVal, imrParam);
 				// link the master param to this imr's param
 				new ParamLinker(masterParam, imrParam);
@@ -179,7 +179,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	 * @param it
 	 * @return
 	 */
-	private static ParameterList removeNonCommonParams(ParameterList params, ListIterator<ParameterAPI<?>> it) {
+	private static ParameterList removeNonCommonParams(ParameterList params, ListIterator<Parameter<?>> it) {
 		if (params == null) {
 			params = new ParameterList();
 			while (it.hasNext())
@@ -189,17 +189,17 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		
 		ParameterList paramsToKeep = new ParameterList();
 		while (it.hasNext()) {
-			ParameterAPI<?> param = it.next();
+			Parameter<?> param = it.next();
 			paramsToKeep.addParameter(param);
 		}
 		ParameterList paramsToRemove = new ParameterList();
 		
-		for (ParameterAPI<?> param : params) {
+		for (Parameter<?> param : params) {
 			if (!paramsToKeep.containsParameter(param))
 				paramsToRemove.addParameter(param);
 		}
 		
-		for (ParameterAPI<?> param : paramsToRemove)
+		for (Parameter<?> param : paramsToRemove)
 			params.removeParameter(param);
 		
 		return params;
@@ -239,7 +239,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		
 		supportedIMParams.clear();
 		// now init the params
-		for (ParameterAPI<?> imrParam : imrTempList) {
+		for (Parameter<?> imrParam : imrTempList) {
 			String name = imrParam.getName();
 			if (D) System.out.println(SHORT_NAME+": initializing IM param: " + name);
 			if (name.equals(PGA_Param.NAME)) {
@@ -267,7 +267,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 				saParam.setNonEditable();
 				supportedIMParams.addParameter(saParam);
 				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-					ParameterAPI<Double> imrPeriodParam = imr.getParameter(PeriodParam.NAME);
+					Parameter<Double> imrPeriodParam = imr.getParameter(PeriodParam.NAME);
 					trySetDefault(saPeriodParam, imrPeriodParam);
 					new ParamLinker<Double>(saPeriodParam, imrPeriodParam);
 				}
@@ -298,7 +298,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 							defaultPeriod, false);
 				periodInterpParam.setValueAsDefault();
 				for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-					ParameterAPI<Double> imrPeriodParam = imr.getParameter(PeriodInterpolatedParam.NAME);
+					Parameter<Double> imrPeriodParam = imr.getParameter(PeriodInterpolatedParam.NAME);
 					trySetDefault(periodInterpParam, imrPeriodParam);
 					new ParamLinker<Double>(periodInterpParam, imrPeriodParam);
 				}
@@ -321,7 +321,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 		// params that the mean depends upon
 		meanIndependentParams.clear();
-		for (ParameterAPI<?> siteParam : siteParams) {
+		for (Parameter<?> siteParam : siteParams) {
 			meanIndependentParams.addParameter(siteParam);
 		}
 		if (componentParam != null)
@@ -336,7 +336,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 		// params that the exceed. prob. depends upon
 		exceedProbIndependentParams.clear();
-		for (ParameterAPI<?> siteParam : siteParams) {
+		for (Parameter<?> siteParam : siteParams) {
 			exceedProbIndependentParams.addParameter(siteParam);
 		}
 		if (componentParam != null)
@@ -355,11 +355,11 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 	}
 	
-	private static void trySetDefault(ParameterAPI master, ParameterAPI child) {
+	private static void trySetDefault(Parameter master, Parameter child) {
 		trySetDefault(master.getDefaultValue(), child);
 	}
 	
-	private static void trySetDefault(Object defaultVal, ParameterAPI param) {
+	private static void trySetDefault(Object defaultVal, Parameter param) {
 		try {
 			param.setDefaultValue(defaultVal);
 		} catch (EditableException e) {}
@@ -380,15 +380,15 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		weightsParam.setValue(weights);
 		otherParams.addParameter(weightsParam);
 		
-		HashMap<String, ArrayList<ParameterAPI<?>>> newParams = new HashMap<String, ArrayList<ParameterAPI<?>>>();
+		HashMap<String, ArrayList<Parameter<?>>> newParams = new HashMap<String, ArrayList<Parameter<?>>>();
 		// now gather new params from IMRs
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
-			for (ParameterAPI<?> param : imr.getOtherParamsList()) {
+			for (Parameter<?> param : imr.getOtherParamsList()) {
 				if (otherParams.containsParameter(param))
 					continue;
 				if (!newParams.containsKey(param.getName()))
-					newParams.put(param.getName(), new ArrayList<ParameterAPI<?>>());
-				ArrayList<ParameterAPI<?>> params = newParams.get(param.getName());
+					newParams.put(param.getName(), new ArrayList<Parameter<?>>());
+				ArrayList<Parameter<?>> params = newParams.get(param.getName());
 				params.add(param);
 				
 //				if (componentParam == null && param instanceof ComponentParam) {
@@ -402,17 +402,17 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			}
 		}
 		for (String paramName : newParams.keySet()) {
-			ArrayList<ParameterAPI<?>> params = newParams.get(paramName);
+			ArrayList<Parameter<?>> params = newParams.get(paramName);
 			StringConstraint sconst = null;
 			String sDefault = null;
-			ParameterAPI masterParam = params.get(0);
+			Parameter masterParam = params.get(0);
 			if (params.size() > 1) {
 				// this param is common to multiple IMRs
 				if (params.get(0) instanceof StringParameter) {
 					// hack to make string params consistant
 					boolean allCommon = true;
 					ArrayList<String> commonVals = null;
-					for (ParameterAPI<?> param : params) {
+					for (Parameter<?> param : params) {
 						StringConstraint sconst_temp = (StringConstraint)param.getConstraint();
 						ArrayList<String> myVals = sconst_temp.getAllowedValues();
 						if (commonVals == null)
@@ -469,7 +469,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			if (sDefault != null)
 				masterParam.setValue(sDefault);
 			masterParam.setValueAsDefault();
-			for (ParameterAPI<?> param : params) {
+			for (Parameter<?> param : params) {
 				if (masterParam == param)
 					continue;
 				new ParamLinker(masterParam, param);
@@ -478,12 +478,12 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		}
 	}
 	
-	private void linkParams(Iterable<ParameterAPI<?>> params) {
-		for (ParameterAPI masterParam : params) {
+	private void linkParams(Iterable<Parameter<?>> params) {
+		for (Parameter masterParam : params) {
 			masterParam.setValueAsDefault();
 			for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {
 				try {
-					ParameterAPI imrParam = imr.getParameter(masterParam.getName());
+					Parameter imrParam = imr.getParameter(masterParam.getName());
 					trySetDefault(masterParam, imrParam);
 					// link them
 					new ParamLinker(masterParam, imrParam);
@@ -514,7 +514,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	public void setSite(Site site) {
 		this.site = site;
 		
-		for (ParameterAPI param : siteParams) {
+		for (Parameter param : siteParams) {
 			param.setValue(site.getParameter(param.getName()).getValue());
 		}
 		
@@ -543,7 +543,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	}
 
 	@Override
-	public void setIntensityMeasure(ParameterAPI intensityMeasure)
+	public void setIntensityMeasure(Parameter intensityMeasure)
 			throws ParameterException, ConstraintException {
 		super.setIntensityMeasure(intensityMeasure);
 		for (ScalarIntensityMeasureRelationshipAPI imr : imrs) {

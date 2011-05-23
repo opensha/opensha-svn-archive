@@ -8,11 +8,11 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.ParameterListParameter;
-import org.opensha.commons.param.StringConstraint;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.impl.ParameterListParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_FaultsFetcher;
@@ -24,7 +24,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_Fau
  */
 public class GenPredErrAnalysisTool {
 	private UCERF2 ucerf2;
-	private ParameterAPI magAreaRelParam, slipModelParam;
+	private Parameter magAreaRelParam, slipModelParam;
 	private ParameterListParameter segmentedRupModelParam;
 	private ParameterList adjustableParams;
 	private ArrayList aFaultSourceGenerators ;

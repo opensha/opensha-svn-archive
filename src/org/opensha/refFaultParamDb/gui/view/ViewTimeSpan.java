@@ -27,7 +27,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.gui.TitledBorderPanel;
-import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;

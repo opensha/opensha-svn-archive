@@ -1,7 +1,7 @@
 package org.opensha.sha.calc.params;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.param.IntegerParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
 
 public class NumStochasticEventSetsParam extends IntegerParameter {
 

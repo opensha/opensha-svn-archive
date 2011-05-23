@@ -32,11 +32,11 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.FaultException;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.TreeBranchWeightsParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.param.impl.TreeBranchWeightsParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.sha.earthquake.ERF_EpistemicList;

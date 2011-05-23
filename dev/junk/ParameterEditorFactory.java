@@ -4,8 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.ParameterAPI;
-import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 
 /**
  * <b>Title:</b> ParameterEditorFactory<p>
@@ -85,7 +85,7 @@ public class ParameterEditorFactory {
      * editor is returned as an ParameterEditor.
      *
      */
-     public static ParameterEditor getEditor(ParameterAPI param) throws ParameterException {
+     public static AbstractParameterEditorOld getEditor(Parameter param) throws ParameterException {
 
         // Debugging
         String S = C + ": getEditor(): ";
@@ -106,8 +106,8 @@ public class ParameterEditorFactory {
         Object obj = getClassInstance(c);
 
         // Cast to ParameterEditor and add param to editor
-        if(obj instanceof ParameterEditor){
-            ParameterEditor editor = (ParameterEditor)obj;
+        if(obj instanceof AbstractParameterEditorOld){
+            AbstractParameterEditorOld editor = (AbstractParameterEditorOld)obj;
             editor.setParameter(param);
             return editor;
         }

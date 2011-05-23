@@ -20,7 +20,7 @@
 package org.opensha.sha.gcim.imCorrRel.imCorrRelImpl;
 
 
-import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.ASI_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.CAV_Param;

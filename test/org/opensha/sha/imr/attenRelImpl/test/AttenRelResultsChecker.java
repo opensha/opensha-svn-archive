@@ -30,14 +30,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.param.DependentParameterAPI;
-import org.opensha.commons.param.DoubleDiscreteParameter;
-import org.opensha.commons.param.DoubleParameter;
-import org.opensha.commons.param.IntegerParameter;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.StringParameter;
-import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.impl.DoubleDiscreteParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
@@ -115,7 +115,7 @@ public class AttenRelResultsChecker {
 		//adding the ExceedProb Params to the ParamList
 		ListIterator it =imr.getExceedProbIndependentParamsIterator();
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			if ( !( list.containsParameter( param.getName() ) ) )
 				list.addParameter( param );
 		}
@@ -123,7 +123,7 @@ public class AttenRelResultsChecker {
 		//adding the IML@ Exceed Prob params to the ParamList
 		it =imr.getIML_AtExceedProbIndependentParamsIterator();
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			if ( !( list.containsParameter( param.getName() ) ) )
 				list.addParameter( param );
 		}
@@ -131,7 +131,7 @@ public class AttenRelResultsChecker {
 		//adding the mean Independent params to the ParamList
 		it =imr.getMeanIndependentParamsIterator();
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			if ( !( list.containsParameter( param.getName() ) ) )
 				list.addParameter( param );
 		}
@@ -139,7 +139,7 @@ public class AttenRelResultsChecker {
 		//adding the Std. Dev Independent params to the ParamList
 		it =imr.getStdDevIndependentParamsIterator();
 		while(it.hasNext()){
-			ParameterAPI param = (ParameterAPI)it.next();
+			Parameter param = (Parameter)it.next();
 			if ( !( list.containsParameter( param.getName() ) ) )
 				list.addParameter( param );
 		}
@@ -217,7 +217,7 @@ public class AttenRelResultsChecker {
 					ListIterator supportedIntensityMeasureIterator =imr.getSupportedIntensityMeasuresIterator();
 					//Adding the independent Parameters to the param List
 					while ( supportedIntensityMeasureIterator.hasNext() ) {
-						DependentParameterAPI param = ( DependentParameterAPI ) supportedIntensityMeasureIterator.next();
+						Parameter param = ( Parameter ) supportedIntensityMeasureIterator.next();
 						//System.out.println("Intensity Measure Param Name:"+param.getName());
 						if(param.getName().equalsIgnoreCase(intensityMeasureName)){
 							//adding the intensity measure parameter
@@ -226,7 +226,7 @@ public class AttenRelResultsChecker {
 							Iterator it=param.getIndependentParametersIterator();
 							//adding the independent Params for the intensity Measure Param
 							while(it.hasNext()){
-								ParameterAPI  tempParam =(ParameterAPI)it.next();
+								Parameter  tempParam =(Parameter)it.next();
 								if(!list.containsParameter(tempParam))
 									this.list.addParameter(tempParam);
 							}
@@ -255,7 +255,7 @@ public class AttenRelResultsChecker {
 					//System.out.println("ParameterVal: "+paramVal);
 					//we only need to get the parameters whose names have been given in the
 					//file, result of the params will be set with the default values
-					ParameterAPI tempParam = list.getParameter(paramName);
+					Parameter tempParam = list.getParameter(paramName);
 
 					//setting the value of the param based on which type it is: StringParameter,
 					//DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
@@ -400,7 +400,7 @@ public class AttenRelResultsChecker {
 		 * types.
 		 */
 
-		ParameterAPI imParam = (ParameterAPI)imr.getIntensityMeasure();
+		Parameter imParam = (Parameter)imr.getIntensityMeasure();
 		if( imParam instanceof WarningDoubleParameter){
 			WarningDoubleParameter warnParam = (WarningDoubleParameter)imParam;
 			if(((Double)imParam.getValue()).doubleValue() >0)
@@ -436,7 +436,7 @@ public class AttenRelResultsChecker {
 
 		ListIterator it  = list.getParametersIterator();
 		while(it.hasNext()){
-			ParameterAPI tempParam = (ParameterAPI)it.next();
+			Parameter tempParam = (Parameter)it.next();
 			independentParamValue +=tempParam.getName()+" = "+tempParam.getValue()+"\n\t";
 		}
 		return independentParamValue +"\n\t";

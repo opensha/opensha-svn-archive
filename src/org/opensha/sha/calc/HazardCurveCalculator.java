@@ -32,7 +32,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
@@ -591,7 +591,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	}
 
 	@Override
-	public ListIterator<ParameterAPI<?>> getAdjustableParamsIterator()  throws java.rmi.RemoteException{
+	public ListIterator<Parameter<?>> getAdjustableParamsIterator()  throws java.rmi.RemoteException{
 		return adjustableParams.getParametersIterator();
 	}
 
@@ -611,7 +611,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		imr.setIntensityMeasure("PGA");
 
 		Site site = new Site();
-		ListIterator<ParameterAPI<?>> it = imr.getSiteParamsIterator();
+		ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		while(it.hasNext())
 			site.addParameter(it.next());
 		site.setLocation(new Location(34,-118));
