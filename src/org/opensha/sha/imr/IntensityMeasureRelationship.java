@@ -19,6 +19,7 @@
 
 package org.opensha.sha.imr;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ListIterator;
@@ -44,7 +45,7 @@ import org.opensha.sha.earthquake.EqkRupture;
  */
 
 public interface IntensityMeasureRelationship
-    extends Named, XMLSaveable, Comparable<IntensityMeasureRelationship> {
+    extends Named, Serializable, XMLSaveable, Comparable<IntensityMeasureRelationship> {
 
   /**
    *  Returns a reference to the current Site object of the IMR

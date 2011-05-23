@@ -20,7 +20,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2007_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-import org.opensha.commons.data.NamedObjectComparator;
+import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -461,7 +461,7 @@ public class General_EQSIM_Tools {
 		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
 
 		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		Collections.sort(allFaultSectionPrefData, new NamedComparator());
 
 		/*		  
 		  // write sections IDs and names

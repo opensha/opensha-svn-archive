@@ -19,6 +19,8 @@
 
 package org.opensha.commons.calc.magScalingRelations;
 
+import java.io.Serializable;
+
 import org.opensha.commons.data.Named;
 import org.opensha.commons.util.FaultUtils;
 
@@ -35,7 +37,7 @@ import org.opensha.commons.util.FaultUtils;
  * @version 1.0
  */
 
-public abstract class MagScalingRelationship implements Named  {
+public abstract class MagScalingRelationship implements Named, Serializable {
 
     final static String C = "MagScalingRelationship";
 

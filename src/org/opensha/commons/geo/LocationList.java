@@ -19,6 +19,7 @@
 
 package org.opensha.commons.geo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,7 +40,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @author Steven W. Rock
  * @version $Id$
  */
-public class LocationList extends ArrayList<Location> implements XMLSaveable {
+public class LocationList extends ArrayList<Location> implements XMLSaveable, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

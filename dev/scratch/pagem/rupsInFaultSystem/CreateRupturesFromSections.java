@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-import org.opensha.commons.data.NamedObjectComparator;
+import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -188,7 +188,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 
 		  //Alphabetize:
-		  Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		  Collections.sort(allFaultSectionPrefData, new NamedComparator());
 		  
 /*		  
 		  // write sections IDs and names

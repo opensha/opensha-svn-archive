@@ -19,6 +19,8 @@
 
 package org.opensha.commons.param.constraint;
 
+import java.io.Serializable;
+
 import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.EditableException;
 
@@ -35,7 +37,7 @@ import org.opensha.commons.exceptions.EditableException;
  * @version    1.0
  */
 
-public interface ParameterConstraint<E> extends Named{
+public interface ParameterConstraint<E> extends Named, Serializable {
 
     /**  Every parameter constraint has a name, this function returns that name.  */
     public String getName();

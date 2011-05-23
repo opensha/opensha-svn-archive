@@ -19,6 +19,7 @@
 
 package org.opensha.commons.param;
 
+import java.io.Serializable;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
@@ -83,7 +84,8 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 public interface Parameter<E> extends
 		Named,
 		Comparable<Parameter<E>>,
-		XMLSaveable {
+		XMLSaveable,
+		Serializable {
 
     /** Every parameter has a name, this function gets that name. */
     public String getName();

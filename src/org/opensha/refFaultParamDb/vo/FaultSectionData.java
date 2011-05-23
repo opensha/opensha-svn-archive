@@ -19,6 +19,8 @@
 
 package org.opensha.refFaultParamDb.vo;
 
+import java.io.Serializable;
+
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
@@ -35,7 +37,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  * @version 1.0
  */
 
-public class FaultSectionData implements Cloneable, Named {
+public class FaultSectionData implements Cloneable, Named, Serializable {
 
 	private int sectionId=-1;
 	private String sectionName;

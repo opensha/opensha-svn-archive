@@ -15,8 +15,8 @@ import scratch.UCERF3.utils.FaultSectionDataWriter;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.commons.data.NamedObjectComparator;
-import org.opensha.commons.data.NamedObjectComparator;
+import org.opensha.commons.data.NamedComparator;
+import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
@@ -130,7 +130,7 @@ public class TestInversion {
 		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 
 		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		Collections.sort(allFaultSectionPrefData, new NamedComparator());
 		
 		// remove those with no slip rate if appropriate
 		if(!includeSectionsWithNaN_slipRates) {
@@ -222,7 +222,7 @@ public class TestInversion {
 		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 
 		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		Collections.sort(allFaultSectionPrefData, new NamedComparator());
 
 		/*	*/	  
 		  // write sections IDs and names

@@ -20,6 +20,7 @@
 package org.opensha.sha.earthquake;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -41,7 +42,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public interface EqkRupForecastBaseAPI extends Named{
+public interface EqkRupForecastBaseAPI extends Named, Serializable {
 	
 	/**
 	 * To increase load time for applications, the name of each ERF should be stored

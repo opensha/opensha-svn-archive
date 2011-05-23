@@ -40,7 +40,7 @@ import java.util.Comparator;
  * @version    1.0
  */
 
-public class NamedObjectComparator implements Comparator<Named>, Serializable {
+public class NamedComparator implements Comparator<Named>, Serializable {
 
     /**
 	 * 

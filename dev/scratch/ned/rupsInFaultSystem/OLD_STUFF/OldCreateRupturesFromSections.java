@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.opensha.commons.data.NamedObjectComparator;
+import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -115,7 +115,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		Collections.sort(allFaultSectionPrefData, new NamedComparator());
 
 		// find and print max Down-dip width
 		double maxDDW=0;

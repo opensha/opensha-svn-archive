@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.opensha.commons.data.NamedObjectComparator;
+import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
@@ -24,7 +24,7 @@ public class DefModelPtFileWriter {
 		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
 
 		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedObjectComparator());
+		Collections.sort(allFaultSectionPrefData, new NamedComparator());
 
 		/*		  
 		  // write sections IDs and names

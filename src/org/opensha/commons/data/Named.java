@@ -19,8 +19,6 @@
 
 package org.opensha.commons.data;
 
-import java.io.Serializable;
-
 /**
  *  <b>Title:</b> Named<p>
  *
@@ -33,7 +31,7 @@ import java.io.Serializable;
  * @version    1.0
  */
 
-public interface Named extends Serializable {
+public interface Named {
     /** Returns the name of this object */
     public String getName();
 }
