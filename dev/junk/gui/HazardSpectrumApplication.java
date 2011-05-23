@@ -57,7 +57,7 @@ import javax.swing.border.Border;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.param.Parameter;
@@ -1166,7 +1166,7 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	 *
 	 * @param originalFunc :  this is the function with X values set
 	 */
-	private void initX_Values(DiscretizedFuncAPI arb, double imlProbVal,boolean imlAtProb,
+	private void initX_Values(DiscretizedFunc arb, double imlProbVal,boolean imlAtProb,
 			boolean probAtIML){
 
 		if(probAtIML) //prob@iml

@@ -6,7 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui;
 import javax.swing.table.AbstractTableModel;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 
 /**
@@ -18,11 +18,11 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 public class ProbsTableModel extends AbstractTableModel {
 	private double[] mags = { 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0 };
 	private String[] columns = { "Mags", "A-Faults", "B-Faults", "Non-CA B-Faults", "C-Zones", "Background", "Total"};
-	private DiscretizedFuncAPI data[];
+	private DiscretizedFunc data[];
 	
 	public ProbsTableModel(UCERF2 ucerf2) {
 		int numDataCols = columns.length-1;
-		data = new DiscretizedFuncAPI[numDataCols];
+		data = new DiscretizedFunc[numDataCols];
 		for(int i=0; i<numDataCols; ++i)
 			data[i] = getDiscretizedFunc();
 			
@@ -34,7 +34,7 @@ public class ProbsTableModel extends AbstractTableModel {
 		ucerf2.getTotalProb(data[5], null);
 	}
 	
-	private DiscretizedFuncAPI getDiscretizedFunc() {
+	private DiscretizedFunc getDiscretizedFunc() {
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		for(int i=0; i<mags.length; ++i) func.set(mags[i], 1.0);
 		return func;

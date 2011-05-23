@@ -62,7 +62,7 @@ import javax.swing.border.Border;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
 import org.opensha.commons.param.Parameter;
@@ -1209,12 +1209,12 @@ CurveDisplayAppAPI,GraphWindowAPI {
 				ListIterator it = functionList.listIterator();
 				while( it.hasNext() ){
 
-					DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
+					DiscretizedFunc func = (DiscretizedFunc)it.next();
 					if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
 
 				}
 			}
-			DiscretizedFuncAPI function =null;
+			DiscretizedFunc function =null;
 			try{
 
 				/**

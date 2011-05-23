@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.Parameter;
@@ -212,9 +212,9 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param hazFunction Discretized Hazard Function
 	 * @return DiscretizedFuncAPI Annualized Rate Curve
 	 */
-	public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
+	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) 
 	throws java.rmi.RemoteException{
-		DiscretizedFuncAPI annualizedRateFunc = (DiscretizedFuncAPI)hazFunction.deepClone();
+		DiscretizedFunc annualizedRateFunc = (DiscretizedFunc)hazFunction.deepClone();
 		int size = annualizedRateFunc.getNum();
 		for(int i=0;i<size;++i){
 			annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);
@@ -239,7 +239,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param eqkRupForecast: selected Earthquake rup forecast
 	 * @return
 	 */
-	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
 			EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException{
@@ -273,8 +273,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param eqkRupForecast: selected Earthquake rup forecast
 	 * @return
 	 */
-	public DiscretizedFuncAPI getHazardCurve(
-			DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getHazardCurve(
+			DiscretizedFunc hazFunction,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap, 
 			EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException{
@@ -477,7 +477,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param eqkRupForecast: selected Earthquake rup forecast
 	 * @return
 	 */
-	public DiscretizedFuncAPI getAverageEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getAverageEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
 			EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException{
@@ -489,8 +489,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
 
 		int numEventSets = numStochEventSetRealizationsParam.getValue();
-		DiscretizedFuncAPI hazCurve;
-		hazCurve = (DiscretizedFuncAPI)hazFunction.deepClone();
+		DiscretizedFunc hazCurve;
+		hazCurve = (DiscretizedFunc)hazFunction.deepClone();
 		initDiscretizeValues(hazFunction, 0);
 		int numPts=hazCurve.getNum();
 		// for progress bar
@@ -528,7 +528,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param updateCurrRuptures: tells whether to update current ruptures (for the getCurrRuptures() method used for progress bars)
 	 * @return
 	 */
-	public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
 			ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
 	throws java.rmi.RemoteException{
@@ -630,7 +630,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param rupture: Single Earthquake Rupture
 	 * @return
 	 */
-	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, EqkRupture rupture) throws
 			java.rmi.RemoteException {
 
@@ -694,7 +694,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 *
 	 * @param arb
 	 */
-	protected void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+	protected void initDiscretizeValues(DiscretizedFunc arb, double val){
 		int num = arb.getNum();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);

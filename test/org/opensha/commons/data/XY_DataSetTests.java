@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 
 import com.google.common.collect.Lists;
 
@@ -24,26 +24,26 @@ public class XY_DataSetTests {
 	private static List<Double> list_short = Lists.newArrayList(0d,1d,2d);
 	
 	@Test (expected = NullPointerException.class)
-	public void testXYdsNPE1() { new XY_DataSet(arr, arr_null); }
+	public void testXYdsNPE1() { new DefaultXY_DataSet(arr, arr_null); }
 	@Test (expected = NullPointerException.class)
-	public void testXYdsNPE2() { new XY_DataSet(arr_null, arr); }
+	public void testXYdsNPE2() { new DefaultXY_DataSet(arr_null, arr); }
 	@Test (expected = NullPointerException.class)
-	public void testXYdsNPE3() { new XY_DataSet(list, list_null); }
+	public void testXYdsNPE3() { new DefaultXY_DataSet(list, list_null); }
 	@Test (expected = NullPointerException.class)
-	public void testXYdsNPE4() { new XY_DataSet(list_null, list); }
+	public void testXYdsNPE4() { new DefaultXY_DataSet(list_null, list); }
 
 	@Test (expected = IllegalArgumentException.class)
-	public void testXYdsIAE1() { new XY_DataSet(arr, arr_empty); }
+	public void testXYdsIAE1() { new DefaultXY_DataSet(arr, arr_empty); }
 	@Test (expected = IllegalArgumentException.class)
-	public void testXYdsIAE2() { new XY_DataSet(arr_empty, arr); }
+	public void testXYdsIAE2() { new DefaultXY_DataSet(arr_empty, arr); }
 	@Test (expected = IllegalArgumentException.class)
-	public void testXYdsIAE3() { new XY_DataSet(arr, arr_short); }
+	public void testXYdsIAE3() { new DefaultXY_DataSet(arr, arr_short); }
 	@Test (expected = IllegalArgumentException.class)
-	public void testXYdsIAE4() { new XY_DataSet(list, list_empty); }
+	public void testXYdsIAE4() { new DefaultXY_DataSet(list, list_empty); }
 	@Test (expected = IllegalArgumentException.class)
-	public void testXYdsIAE5() { new XY_DataSet(list_empty, list); }
+	public void testXYdsIAE5() { new DefaultXY_DataSet(list_empty, list); }
 	@Test (expected = IllegalArgumentException.class)
-	public void testXYdsIAE6() { new XY_DataSet(list, list_short); }
+	public void testXYdsIAE6() { new DefaultXY_DataSet(list, list_short); }
 
 	// TODO implementation tests
 }

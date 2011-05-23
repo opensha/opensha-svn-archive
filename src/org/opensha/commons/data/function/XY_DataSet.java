@@ -1,224 +1,193 @@
 package org.opensha.commons.data.function;
 
-import static com.google.common.base.Preconditions.*;
-
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Iterator;
-import java.util.List;
+import java.util.ListIterator;
 
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
-import org.dom4j.Element;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.Point2DException;
+import org.opensha.commons.metadata.XMLSaveable;
 
-import com.google.common.primitives.Doubles;
+public interface XY_DataSet extends Named, XMLSaveable, Serializable {
 
-/**
- * Container for a data set of (X,Y) values. Internally, value pairs are stored
- * as {@link Point2D}s.
- * 
- * @author Peter Powers
- * @author Kevin Milner
- * @version $Id$
- */
-public class XY_DataSet extends AbstractXY_DataSet {
-	
-	private static final long serialVersionUID = 1L;
-	
-	private ArrayList<Point2D> points;
-//	private MinMaxAveTracker xTracker;
-//	private MinMaxAveTracker yTracker;
-	// TODO clean
-	
-	private SummaryStatistics xStats;
-	private SummaryStatistics yStats;
-		
+	/* ******************************/
+	/* Basic Fields Getters/Setters */
+	/* ******************************/
+
+	/** Sets the name of this function. */
+	public void setName( String name );
+
+	/** Sets the info string of this function. */
+	public void setInfo( String info );
+	/** Returns the info of this function.  */
+	public String getInfo();
+
+
+	/* ******************************/
+	/* Metrics about list as whole  */
+	/* ******************************/
+
+	/** returns the number of points in this function list */
+	public int getNum();
+
+	/** return the minimum x value along the x-axis */
+	public double getMinX();
+
+	/** return the maximum x value along the x-axis */
+	public double getMaxX();
+
+	/** return the minimum y value along the y-axis */
+	public double getMinY();
+
+	/** return the maximum y value along the y-axis */
+	public double getMaxY();
+
+
+
+	/* ******************/
+	/* Point Accessors  */
+	/* ******************/
+
+	/** Returns the nth (x,y) point in the Function by index */
+	public Point2D get(int index);
+
+	/** Returns the x-value given an index */
+	public double getX(int index);
+
+	/** Returns the y-value given an index */
+	public double getY(int index);
+
+
+	/* ***************/
+	/* Point Setters */
+	/* ***************/
+
+	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
+	public void set(Point2D point) throws Point2DException;
+
 	/**
-	 * Initializes a new, empty data set.
+	 * Creates a new DataPoint, then either adds it if it doesn't exist,
+	 * or replaces an existing one, within tolerance
 	 */
-	public XY_DataSet() { init(); }
+	public void set(double x, double y) throws Point2DException;
+
+	/** Replaces a DataPoint y-value at the specifed index. */
+	public void set(int index, double Y);
+
+
+
+	/* **********/
+	/* Queries  */
+	/* **********/
 
 	/**
-	 * Initializes a new data set with the supplied <code>List</code>s of x and
-	 * y data
-	 * @param x values
-	 * @param y values
-	 * @throws NullPointerException if either data list is null
-	 * @throws IllegalArgumentException if either data list is empty
+	 * Determine wheither a point exists in the list,
+	 * as determined by it's x-value within tolerance.
 	 */
-	public XY_DataSet(List<Double> x, List<Double> y) {
-		this(Doubles.toArray(x), Doubles.toArray(y));
-	}	
+	public boolean hasPoint(Point2D point);
+
 
 	/**
-	 * Initializes a new data set with the supplied arrays of x and
-	 * y data
-	 * @param x values
-	 * @param y values
+	 * Determine wheither a point exists in the list,
+	 * as determined by it's x-value within tolerance.
 	 */
-	public XY_DataSet(double[] x, double[] y) {
-		checkNotNull(x, "Supplied x-values are null");
-		checkNotNull(y, "Supplied y-values are null");
-		checkArgument(x.length > 0, "Supplied x-values are empty");
-		checkArgument(y.length > 0, "Supplied y-values are empty");
-		checkArgument(x.length == y.length, "%s [x=%s, y=%s]",
-			"Supplied data sets are different sizes", x.length, y.length);
-		init();
-		for (int i = 0; i < x.length; i++) {
-			set(x[i], y[i]);
-		}
-	}
+	public boolean hasPoint(double x, double y);
 
-	private void init() {
-		points = new ArrayList<Point2D>();
-		xStats = new SummaryStatistics();
-		yStats = new SummaryStatistics();
-		
-//		xTracker = new MinMaxAveTracker();
-//		yTracker = new MinMaxAveTracker();
-	}
 
-	@Override
-	public XY_DataSetAPI deepClone() {
-		XY_DataSet xy = new XY_DataSet();
-		for (Point2D pt : points) {
-			xy.set(pt);
-		}
-		xy.setName(getName());
-		xy.setInfo(getInfo());
-		xy.setXAxisName(getXAxisName());
-		xy.setYAxisName(getYAxisName());
-		return xy;
-	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof XY_DataSet))
-			return false;
-		XY_DataSet function = (XY_DataSet)obj;
-		if( !getName().equals(function.getName() )  ) return false;
+	/* ************/
+	/* Iterators  */
+	/* ************/
 
-		if( !getInfo().equals(function.getInfo() )  ) return false;
-		return true;
-	}
+	/**
+	 * Returns an iterator over all datapoints in the list. Results returned
+	 * in sorted order.
+	 * @return
+	 */
+	public Iterator<Point2D> getPointsIterator();
 
-	@Override
-	public Point2D get(int index) {
-		return points.get(index);
-	}
- 
-	@Override
-	public double getMaxX() {
-		return xStats.getMax();
-	}
 
-	@Override
-	public double getMaxY() {
-		return yStats.getMax();
-	}
+	/**
+	 * Returns an iterator over all x-values in the list. Results returned
+	 * in sorted order.
+	 * @return
+	 */
+	public ListIterator<Double> getXValuesIterator();
 
-	@Override
-	public double getMinX() {
-		return xStats.getMin();
-	}
 
-	@Override
-	public double getMinY() {
-		return yStats.getMin();
-	}
+	/**
+	 * Returns an iterator over all y-values in the list. Results returned
+	 * in sorted order along the x-axis.
+	 * @return
+	 */
+	public ListIterator<Double> getYValuesIterator();
 
-	@Override
-	public int getNum() {
-		return points.size();
-	}
 
-	@Override
-	public Iterator<Point2D> getPointsIterator() {
-		return points.iterator();
-	}
 
-	@Override
-	public double getX(int index) {
-		return get(index).getX();
-	}
+	/* **************************/
+	/* Standard Java Functions  */
+	/* **************************/
 
-	@Override
-	public double getY(int index) {
-		return get(index).getY();
-	}
-
-	@Override
-	public boolean hasPoint(Point2D point) {
-		return points.contains(point);
-	}
-
-	@Override
-	public boolean hasPoint(double x, double y) {
-		return hasPoint(new Point2D.Double(x, y));
-	}
-
-	@Override
-	public void set(Point2D point) throws Point2DException {
-		points.add(point);
-		xStats.addValue(point.getX());
-		yStats.addValue(point.getY());
-	}
-
-	@Override
-	public void set(double x, double y) throws Point2DException {
-		set(new Point2D.Double(x, y));
-	}
-
-	@Override
-	public void set(int index, double y) {
-		throw new UnsupportedOperationException();
-//		Point2D point = get(index);
-//		if (point != null)
-//			point.setLocation(point.getX(), y);
-//		else
-//			throw new IndexOutOfBoundsException();
-	}
-
-	@Override
-	public Element toXMLMetadata(Element root) {
-		throw new RuntimeException("not supported");
-	}
-	
 	/**
 	 * Standard java function, usually used for debugging, prints out
 	 * the state of the list, such as number of points, the value of each point, etc.
-	 * @return
 	 */
-	public String toString(){
-		StringBuffer b = new StringBuffer();
-		//Iterator it2 = this.getPointsIterator();
+	public String toString();
 
-		b.append("Name: " + getName() + '\n');
-		b.append("Num Points: " + getNum() + '\n');
-		b.append("Info: " + getInfo() + "\n\n");
-		b.append("X, Y Data:" + '\n');
-		b.append(getMetadataString()+ '\n');
-		return b.toString();
-	}
-	
+//	/**
+//	 * Determines if two lists are equal. Typical implementation would verify
+//	 * same number of points, and the all points are equal, using the DataPoint2D
+//	 * equals() function.
+//	 */
+//	public boolean equals( XY_DataSetAPI function );
+
 	/**
-	 *
+	 * prints out the state of the list, such as number of points,
+	 * the value of each point, etc.
 	 * @returns value of each point in the function in String format
 	 */
-	public String getMetadataString(){
-		StringBuffer b = new StringBuffer();
-		Iterator<Point2D> it2 = this.getPointsIterator();
+	public String getMetadataString();
+	
+	/**
+	 * This function returns a new copy of this list, including copies
+	 * of all the points. A shallow clone would only create a new DiscretizedFunc
+	 * instance, but would maintain a reference to the original points. <p>
+	 *
+	 * Since this is a clone, you can modify it without changing the original.
+	 */
+	public XY_DataSet deepClone();
 
-		while(it2.hasNext()){
-
-			Point2D point = (Point2D)it2.next();
-			double x = point.getX();
-			double y = point.getY();
-			b.append((float) x + "\t  " + (float) y + '\n');
-		}
-		return b.toString();
-	}
-
-
+	/**
+	 * It finds out whether the X values are within tolerance of an integer value
+	 * @param tolerance tolerance value to consider  rounding errors
+	 *
+	 * @return true if all X values are within the tolerance of an integer value
+	 * else returns false
+	 */
+	public boolean areAllXValuesInteger(double tolerance);
+	
+	/**
+	 * Sets the name of the X Axis
+	 * @param xName String
+	 */
+	public void setXAxisName(String xName);
+	
+	/**
+	 * Gets the name of the X Axis
+	 */
+	public String getXAxisName();
+	
+	/**
+	 * Sets the name of the X Axis
+	 * @param xName String
+	 */
+	public void setYAxisName(String xName);
+	
+	/**
+	 * Gets the name of the Y Axis
+	 */
+	public String getYAxisName();
+	
 
 }

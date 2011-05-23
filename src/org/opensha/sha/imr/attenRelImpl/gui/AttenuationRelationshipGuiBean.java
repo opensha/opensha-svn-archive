@@ -34,7 +34,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.lang.StringUtils;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
@@ -493,7 +493,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	 * @return                          The choosenFunction value
 	 * @exception  ConstraintException  Description of the Exception
 	 */
-	public DiscretizedFuncAPI getChoosenFunction()
+	public DiscretizedFunc getChoosenFunction()
 	throws ConstraintException {
 
 		// Starting
@@ -525,7 +525,7 @@ ParameterChangeListener, ParameterChangeFailListener
 			throw new ConstraintException( S + "X-Axis must contain double or double discrete constraint." );
 
 		// Get the Discretized Function - calculation done here
-		DiscretizedFuncAPI function = getFunctionForXAxis( xAxisParam, type );
+		DiscretizedFunc function = getFunctionForXAxis( xAxisParam, type );
 
 		// Clone the parameter list used to calculate this Discretized Function
 		ParameterList clones = independentsEditor.getVisibleParametersCloned();
@@ -632,7 +632,7 @@ ParameterChangeListener, ParameterChangeFailListener
 	 * @return                          The meansForXAxis value
 	 * @exception  ConstraintException  Description of the Exception
 	 */
-	private DiscretizedFuncAPI getFunctionForXAxis( Parameter xAxisParam, int type )
+	private DiscretizedFunc getFunctionForXAxis( Parameter xAxisParam, int type )
 	throws ConstraintException {
 
 		// Starting

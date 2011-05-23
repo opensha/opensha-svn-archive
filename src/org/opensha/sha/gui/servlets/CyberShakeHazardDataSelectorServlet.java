@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 
@@ -104,7 +104,7 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
 			else if(functionDesired.equalsIgnoreCase(GET_HAZARD_DATA)) {
 				String siteName = (String)inputFromApplet.readObject();
 				String saPeriod = (String)inputFromApplet.readObject();
-				DiscretizedFuncAPI fileData = readHazardDataSet(siteName,saPeriod);
+				DiscretizedFunc fileData = readHazardDataSet(siteName,saPeriod);
 				ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
 				// report to the user whether the operation was successful or not
 				// get an ouput stream from the applet
@@ -117,7 +117,7 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
 				String srcIndex = (String)inputFromApplet.readObject();
 				Integer rupIndex = (Integer)inputFromApplet.readObject();
 				ArrayList imlVals = (ArrayList)inputFromApplet.readObject();
-				DiscretizedFuncAPI fileData = readDeterministicDataSet(siteName,saPeriod,srcIndex,rupIndex,imlVals);
+				DiscretizedFunc fileData = readDeterministicDataSet(siteName,saPeriod,srcIndex,rupIndex,imlVals);
 				ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
 				// report to the user whether the operation was successful or not
 				// get an ouput stream from the applet
@@ -144,11 +144,11 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
 	 * @param saPeriod String SA period for which hazard data needs to be read.
 	 * @return ArrayList
 	 */
-	public DiscretizedFuncAPI readHazardDataSet(String siteName,String saPeriod){
+	public DiscretizedFunc readHazardDataSet(String siteName,String saPeriod){
 		String saPeriodFile = hazardDataFilesStartString+saPeriod;
 		String fileToRead = this.CYBERSHAKE_HAZARD_DATASET+siteName+"/"+saPeriodFile;
 		ArrayList fileLines = null;
-		DiscretizedFuncAPI func = null;
+		DiscretizedFunc func = null;
 		try {
 			fileLines = FileUtils.loadFile(fileToRead);
 		}
@@ -180,13 +180,13 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
 	 * @return ArrayList of data read from seismogram file.
 	 */
 
-	public DiscretizedFuncAPI readDeterministicDataSet(String siteName,
+	public DiscretizedFunc readDeterministicDataSet(String siteName,
 			String saPeriod,
 			String srcIndex, Integer rupIndex,
 			ArrayList imlVals) {
 
 		String fileName = CYBERSHAKE_HAZARD_DATASET+siteName+"/iml.txt";
-		DiscretizedFuncAPI func = null;
+		DiscretizedFunc func = null;
 		try{
 			FileWriter fw = new FileWriter(fileName);
 			int size = imlVals.size();

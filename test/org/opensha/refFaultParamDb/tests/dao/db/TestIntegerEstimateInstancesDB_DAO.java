@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.data.estimate.IntegerEstimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.EstimateInstancesDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
@@ -98,7 +98,7 @@ public class TestIntegerEstimateInstancesDB_DAO {
 		actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey1);
 		assertNotNull("should not be null as estimate exists with id ="+primaryKey1,actualReturn);
 		IntegerEstimate estimate  = (IntegerEstimate)actualReturn.getEstimate();
-		DiscretizedFuncAPI func1 =  estimate.getValues();
+		DiscretizedFunc func1 =  estimate.getValues();
 		assertEquals(1, (int)func1.getX(0));
 		assertEquals(0, (int)func1.getY(0));
 		assertEquals(2, (int)func1.getX(1));
@@ -108,7 +108,7 @@ public class TestIntegerEstimateInstancesDB_DAO {
 		actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey2);
 		assertNotNull("should not be null as estimate exists with id ="+primaryKey2,actualReturn);
 		estimate  = (IntegerEstimate)actualReturn.getEstimate();
-		DiscretizedFuncAPI func2 =  estimate.getValues();
+		DiscretizedFunc func2 =  estimate.getValues();
 		assertEquals(1, (int)func2.getX(0));
 		assertEquals(0, (int)func2.getY(0));
 		assertEquals(4, (int)func2.getX(1));

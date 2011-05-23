@@ -13,7 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
@@ -66,11 +66,11 @@ public class UCERF2_DataForComparisonFetcher {
 	 * @param includeAftershocks
 	 * @return
 	 */
-	public static DiscretizedFuncAPI getHalf_UCERF2_ObsIncrMFDs(boolean includeAftershocks) {
+	public static DiscretizedFunc getHalf_UCERF2_ObsIncrMFDs(boolean includeAftershocks) {
 		UCERF2 ucerf2 = new UCERF2();
-		ArrayList<DiscretizedFuncAPI> funcs = new ArrayList<DiscretizedFuncAPI>();
+		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		funcs.addAll(ucerf2.getObsIncrMFD(includeAftershocks));
-		for(DiscretizedFuncAPI func:funcs) {
+		for(DiscretizedFunc func:funcs) {
 			for(int i=0;i<func.getNum();i++) func.set(i,func.getY(i)*0.5);
 			func.setInfo("  ");
 		}
@@ -89,10 +89,10 @@ public class UCERF2_DataForComparisonFetcher {
 	 * @param includeAftershocks
 	 * @return
 	 */
-	public static ArrayList<DiscretizedFuncAPI> getHalf_UCERF2_ObsCumMFDs(boolean includeAftershocks) {
-		ArrayList<DiscretizedFuncAPI> funcs = new ArrayList<DiscretizedFuncAPI>();
+	public static ArrayList<DiscretizedFunc> getHalf_UCERF2_ObsCumMFDs(boolean includeAftershocks) {
+		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		funcs.addAll(UCERF2.getObsCumMFD(includeAftershocks));
-		for(DiscretizedFuncAPI func:funcs) {
+		for(DiscretizedFunc func:funcs) {
 			for(int i=0;i<func.getNum();i++) func.set(i,func.getY(i)*0.5);
 			func.setInfo("  ");
 		}

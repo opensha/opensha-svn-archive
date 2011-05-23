@@ -26,7 +26,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -95,9 +95,9 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 * @param hazFunction Discretized Hazard Function
 	 * @return DiscretizedFuncAPI Annualized Rate Curve
 	 */
-	public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
+	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) 
 	throws java.rmi.RemoteException{
-		DiscretizedFuncAPI annualizedRateFunc = (DiscretizedFuncAPI)hazFunction.deepClone();
+		DiscretizedFunc annualizedRateFunc = (DiscretizedFunc)hazFunction.deepClone();
 		int size = annualizedRateFunc.getNum();
 		for(int i=0;i<size;++i){
 			annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);
@@ -116,7 +116,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 * @param eqkRupForecast: selected Earthquake rup forecast
 	 * @return
 	 */
-	public DiscretizedFuncAPI getLossCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getLossCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException{
 		// TODO Replace site with Portfolio
@@ -296,7 +296,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 *
 	 * @param arb
 	 */
-	protected void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+	protected void initDiscretizeValues(DiscretizedFunc arb, double val){
 		int num = arb.getNum();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);

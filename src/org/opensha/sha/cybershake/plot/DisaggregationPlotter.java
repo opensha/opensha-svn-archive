@@ -17,7 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.FileUtils;
@@ -218,7 +218,7 @@ public class DisaggregationPlotter {
 			System.out.println("IMR Metadata: "+imr.getAllParamMetadata());
 			
 			int curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
-			DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
+			DiscretizedFunc curve = curve2db.getHazardCurve(curveID);
 			
 			imlToProbsMap = new HashMap<Double, Double>();
 			// convert prob values to IMLs

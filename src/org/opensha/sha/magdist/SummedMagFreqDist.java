@@ -22,7 +22,7 @@ package org.opensha.sha.magdist;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -169,7 +169,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * @param preserveRates specifies whether to preserve rates or moment rates
     */
 
-   public void addResampledMagFreqDist(DiscretizedFuncAPI func, boolean preserveRates) {
+   public void addResampledMagFreqDist(DiscretizedFunc func, boolean preserveRates) {
 
      for (int i=0;i<func.getNum();++i) {     // add the y values from this new distribution
     	 addResampledMagRate(func.getX(i), func.getY(i), preserveRates);

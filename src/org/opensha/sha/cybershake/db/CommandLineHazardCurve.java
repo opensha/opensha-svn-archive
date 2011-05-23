@@ -28,7 +28,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.Parameter;
@@ -89,7 +89,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		for(int i=0; i<function.getNum();++i)
 			imlVals.add(function.getX(i));
 		CybershakeIM im = new CybershakeIM(21, "spectral acceleration", 3.00003, "cm per sec squared");
-		DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, velModelID, im);
+		DiscretizedFunc cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, velModelID, im);
 		System.out.println("Writing out CS file.");
 		try {
 		    FileWriter fr = new FileWriter(siteName + "_cybershake.txt");
@@ -117,7 +117,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 			}
 
 			//log the IML valuesbefore passing to HazardCurveCalculator
-			DiscretizedFuncAPI logIML_Func = new ArbitrarilyDiscretizedFunc();
+			DiscretizedFunc logIML_Func = new ArbitrarilyDiscretizedFunc();
 			for(int i=0; i<function.getNum(); ++i)
 				logIML_Func.set(Math.log(function.getX(i)), 1);
 			
@@ -125,7 +125,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 			hazCurveCalc.getHazardCurve(logIML_Func, site, imr, meanUCERF2);
 			
 			// Unlog the IML values. The Y Values we get from hazardCurveCalculator are unmodified
-			DiscretizedFuncAPI hazFunc = new ArbitrarilyDiscretizedFunc();
+			DiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 			for(int i=0; i<function.getNum(); ++i)
 				hazFunc.set(function.getX(i), logIML_Func.getY(i));
 			

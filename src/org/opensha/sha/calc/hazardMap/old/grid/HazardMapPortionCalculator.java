@@ -32,7 +32,7 @@ import java.util.Iterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueListList;
@@ -488,7 +488,7 @@ public class HazardMapPortionCalculator {
 	 * @param arb
 	 * @return A function with points (Log(x), 1)
 	 */
-	public static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFuncAPI arb) {
+	public static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFunc arb) {
 		ArbitrarilyDiscretizedFunc new_func = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
 //		if (this.xLogFlag) {

@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.data.estimate.FractileListEstimate;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.EstimateInstancesDB_DAO;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
@@ -99,7 +99,7 @@ public class TestFractileListEstimateInstancesDB_DAO {
 		actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey1);
 		assertNotNull("should not be null as estimate exists with id ="+primaryKey1,actualReturn);
 		FractileListEstimate estimate  = (FractileListEstimate)actualReturn.getEstimate();
-		DiscretizedFuncAPI func1 =  estimate.getValues();
+		DiscretizedFunc func1 =  estimate.getValues();
 		double tolerance = 0.00001;
 		assertEquals(1, func1.getX(0),tolerance);
 		assertEquals(0.1, func1.getY(0),tolerance);
@@ -110,7 +110,7 @@ public class TestFractileListEstimateInstancesDB_DAO {
 		actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey2);
 		assertNotNull("should not be null as estimate exists with id ="+primaryKey2,actualReturn);
 		estimate  = (FractileListEstimate)actualReturn.getEstimate();
-		DiscretizedFuncAPI func2 =  estimate.getValues();
+		DiscretizedFunc func2 =  estimate.getValues();
 		assertEquals(1, func2.getX(0),tolerance);
 		assertEquals(0.4, func2.getY(0), tolerance);
 		assertEquals(4, func2.getX(1), tolerance);

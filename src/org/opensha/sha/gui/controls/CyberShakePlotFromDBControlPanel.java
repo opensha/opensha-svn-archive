@@ -41,7 +41,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.UserAuthDialog;
@@ -119,7 +119,7 @@ extends ControlPanel implements ParameterChangeListener {
 	String prevUser = "";
 	String prevPass = "";
 	
-	DiscretizedFuncAPI currentHazardCurve;
+	DiscretizedFunc currentHazardCurve;
 
 	JPanel guiPanel = new JPanel();
 	JButton submitButton = new JButton();
@@ -634,8 +634,8 @@ extends ControlPanel implements ParameterChangeListener {
 	 * @return ArrayList Hazard Data
 	 * @throws RuntimeException
 	 */
-	private DiscretizedFuncAPI getHazardData(ArrayList imlVals) {
-		DiscretizedFuncAPI cyberShakeHazardData = null;
+	private DiscretizedFunc getHazardData(ArrayList imlVals) {
+		DiscretizedFunc cyberShakeHazardData = null;
 		boolean dbCurve = false;
 		
 		int siteID = this.selectedSite.id;
@@ -680,9 +680,9 @@ extends ControlPanel implements ParameterChangeListener {
 	 * @return ArbitrarilyDiscretizedFunc Determinitic curve data
 	 * @throws RuntimeException
 	 */
-	private DiscretizedFuncAPI getDeterministicData(ArrayList imlVals) throws
+	private DiscretizedFunc getDeterministicData(ArrayList imlVals) throws
 	RuntimeException {
-		DiscretizedFuncAPI cyberShakeDeterminicticHazardCurve = hazCurve.computeDeterministicCurve(imlVals, selectedSite.short_name,
+		DiscretizedFunc cyberShakeDeterminicticHazardCurve = hazCurve.computeDeterministicCurve(imlVals, selectedSite.short_name,
 				this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario, selectedVelModel,
 				selectedSrcId, selectedRupId, im);
 
@@ -819,7 +819,7 @@ extends ControlPanel implements ParameterChangeListener {
 	 */
 	private void submitButton_actionPerformed(ActionEvent actionEvent) {
 		ArrayList imlVals = application.getIML_Values();
-		DiscretizedFuncAPI curveData = null;
+		DiscretizedFunc curveData = null;
 
 		String infoString = "Site: "+ sites.get(siteNames.indexOf((String)siteSelectionParam.getValue())) + ";\n";
 		infoString += "ERF: " + this.selectedERF + ";\n";

@@ -1,14 +1,9 @@
 package org.opensha.commons.data.function;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.dom4j.Element;
-import org.opensha.commons.exceptions.Point2DException;
-
-public abstract class AbstractXY_DataSet implements XY_DataSetAPI {
+public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 	/**
 	 * 

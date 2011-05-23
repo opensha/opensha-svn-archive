@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.math.stat.StatUtils;
-import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 
 import com.google.common.primitives.Ints;
 
@@ -200,7 +200,7 @@ public class DataUtils {
 	 *         the bin <code>size</code> is &lt;1, or the <code>origin</code> is
 	 *         greater than all <code>data</code> values
 	 */
-	public static XY_DataSet nearestNeighborHist(double[] data, double origin,
+	public static DefaultXY_DataSet nearestNeighborHist(double[] data, double origin,
 			int size) {
 		checkNotNull(data, "Supplied data is null");
 		checkArgument(data.length > 0, "Supplied data is empty");
@@ -233,7 +233,7 @@ public class DataUtils {
 			x.add(StatUtils.percentile(localData, datIdx, size, 50.0));
 		}
 		// bail on empty distribution
-		return (x.isEmpty()) ? null : new XY_DataSet(x, y);
+		return (x.isEmpty()) ? null : new DefaultXY_DataSet(x, y);
 	}
 
 	/**

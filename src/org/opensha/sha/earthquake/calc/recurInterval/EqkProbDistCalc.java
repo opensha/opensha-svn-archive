@@ -19,7 +19,7 @@
 
 package org.opensha.sha.earthquake.calc.recurInterval;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeListener;

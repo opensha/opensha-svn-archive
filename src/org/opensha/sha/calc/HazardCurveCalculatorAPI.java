@@ -26,7 +26,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -136,7 +136,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @return annualized rates for the given hazard function
 	 * @throws java.rmi.RemoteException
 	 */
-	public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
+	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) 
 	throws java.rmi.RemoteException;
 
 	/**
@@ -153,7 +153,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @param eqkRupForecast: selected Earthquake rup forecast
 	 * @return
 	 */
-	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException ;
 
@@ -190,8 +190,8 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @throws NullPointerException if there are multiple IMRs in the mapping, but no mapping exists for
 	 * a soruce in the ERF.
 	 */
-	public DiscretizedFuncAPI getHazardCurve(
-			DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getHazardCurve(
+			DiscretizedFunc hazFunction,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap, 
 			EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException;
@@ -209,7 +209,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * the <code>hazFunction</code> param.
 	 * @throws java.rmi.RemoteException
 	 */
-	public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI
+	public DiscretizedFunc getHazardCurve(DiscretizedFunc
 			hazFunction,
 			Site site, ScalarIMR imr, EqkRupture rupture) throws
 			java.rmi.RemoteException;
@@ -257,7 +257,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * the <code>hazFunction</code> param.
 	 * @throws java.rmi.RemoteException
 	 */
-	public DiscretizedFuncAPI getAverageEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getAverageEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
 			EqkRupForecastAPI eqkRupForecast)
 	throws java.rmi.RemoteException;
@@ -281,7 +281,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * the <code>hazFunction</code> param.
 	 * @throws java.rmi.RemoteException
 	 */
-	public DiscretizedFuncAPI getEventSetHazardCurve(DiscretizedFuncAPI hazFunction,
+	public DiscretizedFunc getEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
 			ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
 	throws java.rmi.RemoteException;

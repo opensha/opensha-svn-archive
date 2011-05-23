@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.LocationUtils;
@@ -338,8 +338,8 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	 * @return                         The function filled in
 	 * @exception  ParameterException  Description of the Exception
 	 */
-	public DiscretizedFuncAPI getExceedProbabilities(
-			DiscretizedFuncAPI intensityMeasureLevels
+	public DiscretizedFunc getExceedProbabilities(
+			DiscretizedFunc intensityMeasureLevels
 	) throws ParameterException {
 		checkInit();
 		

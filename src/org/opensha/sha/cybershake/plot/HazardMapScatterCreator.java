@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.XYZClosestPointFinder;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
@@ -40,7 +40,7 @@ public class HazardMapScatterCreator {
 	public static final Color BLANK_COLOR = Color.WHITE;
 	
 	ArrayList<CybershakeSite> sites;
-	ArrayList<DiscretizedFuncAPI> funcs;
+	ArrayList<DiscretizedFunc> funcs;
 	ArrayList<Double> vals;
 	
 	ArrayList<CybershakeSite> allSites = null;
@@ -102,7 +102,7 @@ public class HazardMapScatterCreator {
 	
 	private void printCurves() {
 		for (int i=0; i<funcs.size(); i++) {
-			DiscretizedFuncAPI func = funcs.get(i);
+			DiscretizedFunc func = funcs.get(i);
 			CybershakeSite site = sites.get(i);
 			
 			System.out.println("SITE: " + site);

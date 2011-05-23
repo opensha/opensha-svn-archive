@@ -6,8 +6,8 @@ import java.util.Random;
 import javax.swing.JFrame;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.XY_DataSet;
-import org.opensha.commons.data.function.XY_DataSetAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
@@ -38,11 +38,11 @@ public class ScatterGraphTest implements GraphPanelAPI, PlotControllerAPI {
 		frame.validate();
 	}
 	
-	private ArrayList<XY_DataSetAPI> getFuncList() {
-		ArrayList<XY_DataSetAPI> funcs = new ArrayList<XY_DataSetAPI>();
+	private ArrayList<XY_DataSet> getFuncList() {
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
 		
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-		XY_DataSet scatter = new XY_DataSet();
+		DefaultXY_DataSet scatter = new DefaultXY_DataSet();
 		for (double x=0; x<getUserMaxX(); x++) {
 			double y = x * 0.8;
 			y += r.nextDouble() - 0.5d;

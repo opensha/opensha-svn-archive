@@ -29,7 +29,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.jfree.data.Range;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
@@ -256,7 +256,7 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	   * 
 	   * @param func
 	   */
-	  public void addFunc(DiscretizedFuncAPI func) {
+	  public void addFunc(DiscretizedFunc func) {
 		  funcList.add(func);
 		  this.addGraphPanel();
 	  }

@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -69,7 +69,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
   private static String  C = new String("Point2Vert_SS_FaultPoisSource");
   private boolean D = false;
 
-  private DiscretizedFuncAPI magFreqDist;
+  private DiscretizedFunc magFreqDist;
   private static final double aveDip=90;
   private double fracStrikeSlip=0.0;
   private double fracNormal=0.0;
@@ -108,7 +108,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
    * @param duration - the forecast duration
    * @param magCutOff - below (and eqaul) to this value a PointSurface will be applied
    */
-  public CEUS_Point2Vert_FaultPoisSource(Location loc, DiscretizedFuncAPI magFreqDist,
+  public CEUS_Point2Vert_FaultPoisSource(Location loc, DiscretizedFunc magFreqDist,
                                        MagLengthRelationship magLengthRelationship,
                                        double strike, double duration, double magCutOff
                                        ,double fracStrikeSlip, double fracNormal,double fracReverse){
@@ -137,7 +137,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
     * @param duration - the forecast duration
     * @param magCutOff - below (and equal) to this value a PointSurface will be applied
     */
-   public CEUS_Point2Vert_FaultPoisSource(Location loc, DiscretizedFuncAPI magFreqDist,
+   public CEUS_Point2Vert_FaultPoisSource(Location loc, DiscretizedFunc magFreqDist,
                                         MagLengthRelationship magLengthRelationship,
                                         double duration, double magCutOff,double fracStrikeSlip,
                                         double fracNormal,double fracReverse, boolean isCrossHair){
@@ -161,7 +161,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
     * @param magLengthRelationship
     * @param duration
     */
-   public void setAll(Location loc, DiscretizedFuncAPI magFreqDist,
+   public void setAll(Location loc, DiscretizedFunc magFreqDist,
                       MagLengthRelationship magLengthRelationship,
                       double duration,double fracStrikeSlip,
                       double fracNormal,double fracReverse) {
@@ -184,7 +184,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
     * @param strike
     * @param duration
     */
-  public void setAll(Location loc, DiscretizedFuncAPI magFreqDist,
+  public void setAll(Location loc, DiscretizedFunc magFreqDist,
                      MagLengthRelationship magLengthRelationship,
                      double strike, double duration,double fracStrikeSlip,
                      double fracNormal,double fracReverse) {

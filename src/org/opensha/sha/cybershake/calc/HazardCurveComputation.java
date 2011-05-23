@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.cybershake.bombay.BombayBeachHazardCurveCalc;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -75,7 +75,7 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, String site,int erfId, int sgtVariation, int rvid,
+	public DiscretizedFunc computeDeterministicCurve(ArrayList<Double> imlVals, String site,int erfId, int sgtVariation, int rvid,
 			int velModelID, int srcId,int rupId,CybershakeIM imType){
 		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid, velModelID);
 		if (run == null)
@@ -100,7 +100,7 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, int runID,
+	public DiscretizedFunc computeDeterministicCurve(ArrayList<Double> imlVals, int runID,
 			int srcId,int rupId,CybershakeIM imType){
 		CybershakeRun run = runs2db.getRun(runID);
 		if (run == null)
@@ -118,10 +118,10 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> xVals, CybershakeRun run,
+	public DiscretizedFunc computeDeterministicCurve(ArrayList<Double> xVals, CybershakeRun run,
 			int srcId,int rupId,CybershakeIM imType){
 
-		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int numIMLs  = xVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set((xVals.get(i)).doubleValue(), 1.0);
 
@@ -153,7 +153,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,String erfName,int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imlVals, String site,String erfName,int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
 		return computeHazardCurve(imlVals, site, erfId, sgtVariation, rvid, velModelID, imType);
@@ -166,7 +166,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,int erfId,int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imlVals, String site,int erfId,int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
 		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid, velModelID);
 		if (run == null)
 			return null;
@@ -181,7 +181,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, int runID, CybershakeIM imType){
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imlVals, int runID, CybershakeIM imType){
 		CybershakeRun run = runs2db.getRun(runID);
 		if (run == null)
 			return null;
@@ -196,8 +196,8 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> xVals, CybershakeRun run, CybershakeIM imType){
-		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> xVals, CybershakeRun run, CybershakeIM imType){
+		DiscretizedFunc hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int siteID = run.getSiteID();
 		int erfID = run.getERFID();
 		int runID = run.getRunID();
@@ -244,7 +244,7 @@ public class HazardCurveComputation {
 	}
 	
 	public static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
-			DiscretizedFuncAPI hazardFunc, double qkProb,
+			DiscretizedFunc hazardFunc, double qkProb,
 			int sourceID, int rupID, RuptureVariationProbabilityModifier rupProbVarMod) {
 		if (rupProbVarMod == null) {
 			// we don't have a rupture variation probability modifier
@@ -291,7 +291,7 @@ public class HazardCurveComputation {
 	}
 	
 	public static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
-			DiscretizedFuncAPI hazardFunc, double qkProb) {
+			DiscretizedFunc hazardFunc, double qkProb) {
 		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 		for (double val : imVals) {
 			function.set(val/CONVERSION_TO_G,1);
@@ -299,7 +299,7 @@ public class HazardCurveComputation {
 		setIMLProbs(xVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
 	}
 	
-	public static DiscretizedFuncAPI setIMLProbs( ArrayList<Double> imlVals,DiscretizedFuncAPI hazFunc,
+	public static DiscretizedFunc setIMLProbs( ArrayList<Double> imlVals,DiscretizedFunc hazFunc,
 			ArbitrarilyDiscretizedFunc normalizedFunc, double rupProb) {
 		// find prob. for each iml value
 		int numIMLs  = imlVals.size();

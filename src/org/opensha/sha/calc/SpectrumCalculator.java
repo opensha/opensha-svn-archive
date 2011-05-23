@@ -26,7 +26,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -156,7 +156,7 @@ implements SpectrumCalculatorAPI {
 	 * @param eqkRupForecast: selected Earthquake rup forecast
 	 * @return
 	 */
-	public DiscretizedFuncAPI getIML_SpectrumCurve(DiscretizedFuncAPI spectrumFunction,
+	public DiscretizedFunc getIML_SpectrumCurve(DiscretizedFunc spectrumFunction,
 			Site site,
 			ScalarIMR imr,
 			EqkRupForecastAPI eqkRupForecast,
@@ -172,15 +172,15 @@ implements SpectrumCalculatorAPI {
 		 */
 		boolean poissonSource = false;
 		//creates a new Arb function with X value being in Log scale and Y values as 1.0
-		DiscretizedFuncAPI tempSpecFunc =initDiscretizedValuesToLog(spectrumFunction,1.0);
+		DiscretizedFunc tempSpecFunc =initDiscretizedValuesToLog(spectrumFunction,1.0);
 
 		int numSAPeriods = supportedSA_Periods.size();
-		DiscretizedFuncAPI[] hazFunction = new ArbitrarilyDiscretizedFunc[numSAPeriods];
-		DiscretizedFuncAPI[] sourceHazFunc = new ArbitrarilyDiscretizedFunc[numSAPeriods];
+		DiscretizedFunc[] hazFunction = new ArbitrarilyDiscretizedFunc[numSAPeriods];
+		DiscretizedFunc[] sourceHazFunc = new ArbitrarilyDiscretizedFunc[numSAPeriods];
 
 		for(int i=0;i<numSAPeriods;++i){
-			hazFunction[i] = (DiscretizedFuncAPI)tempSpecFunc.deepClone();
-			sourceHazFunc[i] = (DiscretizedFuncAPI)tempSpecFunc.deepClone();
+			hazFunction[i] = (DiscretizedFunc)tempSpecFunc.deepClone();
+			sourceHazFunc[i] = (DiscretizedFunc)tempSpecFunc.deepClone();
 		}
 		ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc)
 		tempSpecFunc.deepClone();
@@ -333,7 +333,7 @@ implements SpectrumCalculatorAPI {
 
 		//creating the temp functionlist that gets the linear X Value for each SA-Period
 		//spectrum curve.
-		DiscretizedFuncAPI[] tempHazFunction = new ArbitrarilyDiscretizedFunc[numSAPeriods];
+		DiscretizedFunc[] tempHazFunction = new ArbitrarilyDiscretizedFunc[numSAPeriods];
 		for(int j=0;j<numSAPeriods;++j){
 			tempHazFunction[j] = new ArbitrarilyDiscretizedFunc();
 			for (i = 0; i < numPoints; ++i) {
@@ -342,7 +342,7 @@ implements SpectrumCalculatorAPI {
 		}
 		//creating the Spectrum function by interpolating in Log space the IML vals
 		//for the given prob. value. It is done for each SA period function.
-		DiscretizedFuncAPI imlSpectrumFunction = new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc imlSpectrumFunction = new ArbitrarilyDiscretizedFunc();
 		for(int j=0;j<numSAPeriods;++j){
 			double val = tempHazFunction[j].getFirstInterpolatedX_inLogXLogYDomain(probVal);
 			imlSpectrumFunction.set(((Double)supportedSA_Periods.get(j)).doubleValue(), val);
@@ -359,7 +359,7 @@ implements SpectrumCalculatorAPI {
 	 *
 	 * @param arb
 	 */
-	private void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+	private void initDiscretizeValues(DiscretizedFunc arb, double val){
 		int num = arb.getNum();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);
@@ -373,8 +373,8 @@ implements SpectrumCalculatorAPI {
 	 * @param val double values to initialize the Y value of the Arb function with.
 	 * @return DiscretizedFuncAPI Arb function with X values being the log scale.
 	 */
-	private DiscretizedFuncAPI initDiscretizedValuesToLog(DiscretizedFuncAPI linearFunc,double val){
-		DiscretizedFuncAPI toXLogFunc = new ArbitrarilyDiscretizedFunc();
+	private DiscretizedFunc initDiscretizedValuesToLog(DiscretizedFunc linearFunc,double val){
+		DiscretizedFunc toXLogFunc = new ArbitrarilyDiscretizedFunc();
 		if (IMT_Info.isIMT_LogNormalDist(SA_Param.NAME))
 			for (int i = 0; i < linearFunc.getNum(); ++i)
 				toXLogFunc.set(Math.log(linearFunc.getX(i)), val);
@@ -393,7 +393,7 @@ implements SpectrumCalculatorAPI {
 	 * @param eqkRupForecast: selected Earthquake rup forecast
 	 * @return
 	 */
-	public DiscretizedFuncAPI getSpectrumCurve(Site site,
+	public DiscretizedFunc getSpectrumCurve(Site site,
 			ScalarIMR imr,
 			EqkRupForecastAPI eqkRupForecast,
 			double imlVal,
@@ -401,7 +401,7 @@ implements SpectrumCalculatorAPI {
 			RemoteException {
 
 		//creating the Master function that initializes the Function with supported SA Periods Vals
-		DiscretizedFuncAPI hazFunction = new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 		initDiscretizeValues(hazFunction, supportedSA_Periods, 1.0);
 		int numPoints = hazFunction.getNum();
 
@@ -434,7 +434,7 @@ implements SpectrumCalculatorAPI {
 
 
 		//Source func
-		DiscretizedFuncAPI sourceHazFunc = new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc sourceHazFunc = new ArbitrarilyDiscretizedFunc();
 		initDiscretizeValues(sourceHazFunc,supportedSA_Periods,0.0);
 
 		// get total number of sources
@@ -502,11 +502,11 @@ implements SpectrumCalculatorAPI {
 				// set the EqkRup in the IMR
 				imr.setEqkRupture(rupture);
 
-				DiscretizedFuncAPI condProbFunc = null;
+				DiscretizedFunc condProbFunc = null;
 
 
 				// get the conditional probability of exceedance from the IMR
-				condProbFunc = (DiscretizedFuncAPI) imr.getSA_ExceedProbSpectrum(Math.log(
+				condProbFunc = (DiscretizedFunc) imr.getSA_ExceedProbSpectrum(Math.log(
 						imlVal));
 				// For poisson source
 				if(poissonSource) {
@@ -574,7 +574,7 @@ implements SpectrumCalculatorAPI {
 	 *
 	 * @param arb
 	 */
-	private void initDiscretizeValues(DiscretizedFuncAPI arb, ArrayList supportedSA_Periods,
+	private void initDiscretizeValues(DiscretizedFunc arb, ArrayList supportedSA_Periods,
 			double val){
 		int num = supportedSA_Periods.size();
 		for(int i=0;i<num;++i)
@@ -592,7 +592,7 @@ implements SpectrumCalculatorAPI {
 	 * @param rupture: Single Earthquake Rupture
 	 * @return
 	 */
-	public DiscretizedFuncAPI getDeterministicSpectrumCurve(
+	public DiscretizedFunc getDeterministicSpectrumCurve(
 			Site site, ScalarIMR imr, EqkRupture rupture,
 			boolean probAtIML, double imlProbVal)  throws RemoteException{
 
@@ -612,12 +612,12 @@ implements SpectrumCalculatorAPI {
 		// set the EqkRup in the IMR
 		imr.setEqkRupture(rupture);
 
-		DiscretizedFuncAPI hazFunction = null;
+		DiscretizedFunc hazFunction = null;
 		if(probAtIML)
 			// get the conditional probability of exceedance from the IMR
-			hazFunction = (DiscretizedFuncAPI) imr.getSA_ExceedProbSpectrum(Math.log(imlProbVal));
+			hazFunction = (DiscretizedFunc) imr.getSA_ExceedProbSpectrum(Math.log(imlProbVal));
 		else{
-			hazFunction = (DiscretizedFuncAPI) imr.getSA_IML_AtExceedProbSpectrum(
+			hazFunction = (DiscretizedFunc) imr.getSA_IML_AtExceedProbSpectrum(
 					imlProbVal);
 			int numPoints = hazFunction.getNum();
 			for(int i=0;i<numPoints;++i){

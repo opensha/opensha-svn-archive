@@ -2,7 +2,7 @@ package junk.deformationModel;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -29,7 +29,7 @@ public class DeformationModelCalc {
 	 * @param westLoc West Location of the cross Section
 	 * @return
 	 */
-	public DiscretizedFuncAPI getDistanceSlipFunc(Location eastLoc, Location westLoc) {
+	public DiscretizedFunc getDistanceSlipFunc(Location eastLoc, Location westLoc) {
 		EvenlyDiscretizedFunc evenlyDiscFunc = new EvenlyDiscretizedFunc(0, 
 				LocationUtils.horzDistanceFast(eastLoc, westLoc),
 				NUM);
@@ -99,7 +99,7 @@ public class DeformationModelCalc {
 		Location loc1 = new Location(34, -118);
 		Location loc2 = new Location(34, -117);
 		DeformationModelCalc calc = new DeformationModelCalc();
-		DiscretizedFuncAPI func = calc.getDistanceSlipFunc(loc1, loc2);
+		DiscretizedFunc func = calc.getDistanceSlipFunc(loc1, loc2);
 		System.out.println(func);
 	}
 }

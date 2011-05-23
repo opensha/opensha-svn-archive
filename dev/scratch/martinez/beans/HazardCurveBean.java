@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
@@ -113,9 +113,9 @@ public class HazardCurveBean implements GuiBeanAPI, IMR_GuiBeanAPI {
 	
 	/* Public Utility Fucntions */
 	
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imls) {
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imls) {
 		isHazardCalcComplete = false;
-		DiscretizedFuncAPI newFunc = new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
 		for(int i = 0; i < imls.size(); ++i)
 			newFunc.set(imls.get(i), 0.0);
 		

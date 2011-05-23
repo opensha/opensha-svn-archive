@@ -49,8 +49,8 @@ import org.opensha.commons.calc.FunctionListCalc;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
@@ -515,7 +515,7 @@ ActionListener {
 
 				// tempName is the filename to be added
 				// add this file to the function list
-				DiscretizedFuncAPI func = loadFile(tempName);
+				DiscretizedFunc func = loadFile(tempName);
 				func.setName(testSubmitterName);
 				functions.add(func);
 
@@ -597,7 +597,7 @@ ActionListener {
 				if(D) System.out.println(S+":numFunc:"+numFunc);
 				//getting the correct filename to read the data from
 				for(int j=0; j<numFunc; ++j) {
-					XY_DataSetAPI func= functions.get(j);
+					XY_DataSet func= functions.get(j);
 					if (D) System.out.println(S+":checkText:"+checkText+",func.getName():"+func.getName());
 					if(checkText.equalsIgnoreCase(func.getName())) {
 						if(checkBox.isSelected())  {
@@ -732,7 +732,7 @@ ActionListener {
 	 * @param fileName : filename to be loaded
 	 * @return
 	 */
-	private DiscretizedFuncAPI loadFile(String fileName) {
+	private DiscretizedFunc loadFile(String fileName) {
 
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		try{

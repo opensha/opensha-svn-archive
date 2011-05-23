@@ -6,7 +6,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.WeightedList;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.IMRException;
@@ -648,21 +648,21 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	}
 
 	@Override
-	public DiscretizedFuncAPI getExceedProbabilities(
-			DiscretizedFuncAPI intensityMeasureLevels)
+	public DiscretizedFunc getExceedProbabilities(
+			DiscretizedFunc intensityMeasureLevels)
 			throws ParameterException {
-		ArrayList<DiscretizedFuncAPI> funcs = new ArrayList<DiscretizedFuncAPI>();
+		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		for (ScalarIMR imr : imrs) {
 			if (canSkipIMR(imr)) {
 				funcs.add(null);
 			} else {
-				funcs.add(imr.getExceedProbabilities((DiscretizedFuncAPI)intensityMeasureLevels.deepClone()));
+				funcs.add(imr.getExceedProbabilities((DiscretizedFunc)intensityMeasureLevels.deepClone()));
 			}
 		}
 		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
 			double[] vals = new double[imrs.size()];
 			for (int j=0; j<funcs.size(); j++) {
-				DiscretizedFuncAPI func = funcs.get(j);
+				DiscretizedFunc func = funcs.get(j);
 				if (func != null)
 					vals[j] = func.getY(i);
 			}
@@ -730,14 +730,14 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	}
 
 	@Override
-	public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml)
+	public DiscretizedFunc getSA_ExceedProbSpectrum(double iml)
 			throws ParameterException, IMRException {
 		// TODO implement
 		throw new UnsupportedOperationException("getSA_IML_AtExceedProbSpectrum is unsupported for "+C);
 	}
 
 	@Override
-	public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb)
+	public DiscretizedFunc getSA_IML_AtExceedProbSpectrum(double exceedProb)
 			throws ParameterException, IMRException {
 		// TODO implement
 		throw new UnsupportedOperationException("getSA_IML_AtExceedProbSpectrum is unsupported for "+C);

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
@@ -294,17 +294,17 @@ public class MultiIMR_CalcTest {
 			String imt, double period) throws RemoteException {
 
 		IMT_Info imtInfo = new IMT_Info();
-		ArrayList<DiscretizedFuncAPI> singleCurves = new ArrayList<DiscretizedFuncAPI>();
+		ArrayList<DiscretizedFunc> singleCurves = new ArrayList<DiscretizedFunc>();
 		for (ScalarIMR imr : imrs) {
 			setIMT(imr, imt, period);
-			DiscretizedFuncAPI singleCurve = imtInfo.getDefaultHazardCurve(imt);
+			DiscretizedFunc singleCurve = imtInfo.getDefaultHazardCurve(imt);
 			hc.getHazardCurve(singleCurve, site, imr, erf);
 			singleCurves.add(singleCurve);
 		}
-		DiscretizedFuncAPI averageCurve = CurveAverager.averageCurves(singleCurves);
+		DiscretizedFunc averageCurve = CurveAverager.averageCurves(singleCurves);
 		averageCurve.setName("Average value curve");
 		setIMT(multi, imt, period);
-		DiscretizedFuncAPI multiCurve = imtInfo.getDefaultHazardCurve(imt);
+		DiscretizedFunc multiCurve = imtInfo.getDefaultHazardCurve(imt);
 		multiCurve.setName("Curve calculated with MultiIMR_Averaged_AttenRel");
 		hc.getHazardCurve(multiCurve, site, multi, erf);
 
@@ -334,7 +334,7 @@ public class MultiIMR_CalcTest {
 				tracker1.addValue(diff);
 			}
 			String singleVals = null;
-			for (DiscretizedFuncAPI singleCurve : singleCurves) {
+			for (DiscretizedFunc singleCurve : singleCurves) {
 				if (singleVals == null)
 					singleVals = "";
 				else
@@ -365,9 +365,9 @@ public class MultiIMR_CalcTest {
 
 		IMT_Info imtInfo = new IMT_Info();
 
-		DiscretizedFuncAPI curve1 = imtInfo.getDefaultHazardCurve(imt);
-		DiscretizedFuncAPI curve2 = imtInfo.getDefaultHazardCurve(imt);
-		DiscretizedFuncAPI curve3 = imtInfo.getDefaultHazardCurve(imt);
+		DiscretizedFunc curve1 = imtInfo.getDefaultHazardCurve(imt);
+		DiscretizedFunc curve2 = imtInfo.getDefaultHazardCurve(imt);
+		DiscretizedFunc curve3 = imtInfo.getDefaultHazardCurve(imt);
 		hc.getHazardCurve(curve1, site, imr, erf);
 		hc.getHazardCurve(curve2, site, multi, erf);
 		hc.getHazardCurve(curve3, site, multis, erf);
@@ -445,9 +445,9 @@ public class MultiIMR_CalcTest {
 		setIMT(cb08_master, imt, period);
 		setIMT(ba08_master, imt, period);
 
-		DiscretizedFuncAPI multiFunc = imtInfo.getDefaultHazardCurve(imt);
-		DiscretizedFuncAPI cb08Func = imtInfo.getDefaultHazardCurve(imt);
-		DiscretizedFuncAPI ba08Func = imtInfo.getDefaultHazardCurve(imt);
+		DiscretizedFunc multiFunc = imtInfo.getDefaultHazardCurve(imt);
+		DiscretizedFunc cb08Func = imtInfo.getDefaultHazardCurve(imt);
+		DiscretizedFunc ba08Func = imtInfo.getDefaultHazardCurve(imt);
 
 		hc.getHazardCurve(multiFunc, site, multiIMR, erf);
 		hc.getHazardCurve(cb08Func, site, cb08_master, erf);

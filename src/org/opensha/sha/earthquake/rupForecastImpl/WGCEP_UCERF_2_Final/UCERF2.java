@@ -19,7 +19,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WGCEP_2007
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
@@ -1615,7 +1615,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param magProbDist
 	 * @param region
 	 */
-	public void getTotal_B_FaultsProb(DiscretizedFuncAPI magProbDist, 
+	public void getTotal_B_FaultsProb(DiscretizedFunc magProbDist, 
 			Region region) {
 		int numMags = magProbDist.getNum();
 		for(int i=0; i<numMags; ++i) {
@@ -1674,7 +1674,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param region
 	 */
 	public void getProbsForB_Fault(String bFaultName,
-			DiscretizedFuncAPI magProbDist, Region region ) {
+			DiscretizedFunc magProbDist, Region region ) {
 		int numMags = magProbDist.getNum();
 		for(int srcIndex=0; srcIndex < bFaultSources.size(); srcIndex++) {
 			if(bFaultSources.get(srcIndex).getFaultSegmentData().getFaultName().equals(bFaultName)) {
@@ -1690,7 +1690,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 	
 
-	public void getTotal_NonCA_B_FaultsProb(DiscretizedFuncAPI magProbDist, Region region) {
+	public void getTotal_NonCA_B_FaultsProb(DiscretizedFunc magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
@@ -1707,7 +1707,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param magProbDist
 	 * @param region
 	 */
-	public void getTotal_A_FaultsProb(DiscretizedFuncAPI magProbDist, 
+	public void getTotal_A_FaultsProb(DiscretizedFunc magProbDist, 
 			Region region) {
 		int numMags = magProbDist.getNum();
 		for(int i=0; i<numMags; ++i) {
@@ -1732,7 +1732,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param magProbDist
 	 * @param region
 	 */
-	public void getProbForA_Fault(String aFaultName, DiscretizedFuncAPI magProbDist, 
+	public void getProbForA_Fault(String aFaultName, DiscretizedFunc magProbDist, 
 			Region region) {
 		int numMags = magProbDist.getNum();
 		for(int srcIndex=0; srcIndex < aFaultSourceGenerators.size(); srcIndex++) {
@@ -1752,8 +1752,8 @@ public class UCERF2 extends EqkRupForecast {
 			else  { // Unsegmented source
 				UnsegmentedSource unsegmentedSrc = (UnsegmentedSource)source;
 				if(aFaultName.equalsIgnoreCase("San Jacinto")) {
-					DiscretizedFuncAPI sj1 = (DiscretizedFuncAPI)magProbDist.deepClone();
-					DiscretizedFuncAPI sj2 = (DiscretizedFuncAPI)magProbDist.deepClone();
+					DiscretizedFunc sj1 = (DiscretizedFunc)magProbDist.deepClone();
+					DiscretizedFunc sj2 = (DiscretizedFunc)magProbDist.deepClone();
 					getProbForA_Fault("San Jacinto (SB to C)", sj1, region);
 					getProbForA_Fault("San Jacinto (CC to SM)", sj2, region);
 					for(int i=0; i<numMags; ++i) {
@@ -1775,7 +1775,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 
 	// this assumes not time dependence
-	public void getTotal_BackgroundProb(DiscretizedFuncAPI magProbDist, Region region) {
+	public void getTotal_BackgroundProb(DiscretizedFunc magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
 //		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 //		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
@@ -1791,7 +1791,7 @@ public class UCERF2 extends EqkRupForecast {
 	
 
 	// this assumes not time dependence
-	public void getTotal_BackgroundMFD(DiscretizedFuncAPI magFreqDist, Region region) {
+	public void getTotal_BackgroundMFD(DiscretizedFunc magFreqDist, Region region) {
 		int numMags = magFreqDist.getNum();
 //		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 //		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
@@ -1805,7 +1805,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 
 	// this assumes no time dependence
-	public void getTotal_C_ZoneProb(DiscretizedFuncAPI magProbDist, Region region) {
+	public void getTotal_C_ZoneProb(DiscretizedFunc magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
 		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotalC_ZoneMFD_InRegion(region);
 		for(int i=0; i<numMags; ++i) {
@@ -1816,13 +1816,13 @@ public class UCERF2 extends EqkRupForecast {
 		}
 	}
 
-	public void getTotalProb(DiscretizedFuncAPI magProbDist, Region region) {
+	public void getTotalProb(DiscretizedFunc magProbDist, Region region) {
 		int numMags = magProbDist.getNum();
-		DiscretizedFuncAPI bFaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
-		DiscretizedFuncAPI nonCA_B_FaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
-		DiscretizedFuncAPI aFaultsProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
-		DiscretizedFuncAPI bckProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
-		DiscretizedFuncAPI cZoneProbDist = (DiscretizedFuncAPI)magProbDist.deepClone();
+		DiscretizedFunc bFaultsProbDist = (DiscretizedFunc)magProbDist.deepClone();
+		DiscretizedFunc nonCA_B_FaultsProbDist = (DiscretizedFunc)magProbDist.deepClone();
+		DiscretizedFunc aFaultsProbDist = (DiscretizedFunc)magProbDist.deepClone();
+		DiscretizedFunc bckProbDist = (DiscretizedFunc)magProbDist.deepClone();
+		DiscretizedFunc cZoneProbDist = (DiscretizedFunc)magProbDist.deepClone();
 		
 		getTotal_B_FaultsProb(bFaultsProbDist, region);
 		getTotal_NonCA_B_FaultsProb(nonCA_B_FaultsProbDist, region);

@@ -36,7 +36,7 @@ import org.opensha.commons.param.ParameterList;
  * input argument values that went into calculating the IMR.<p>
  *
  * @see EvenlyDiscretizedFunc
- * @see FuncWithParamsAPI
+ * @see FuncWithParams
  * @see AbstractDiscretizedFunc
  * @see DiscretizedFuncAPIFunc
  * @see ParameterList
@@ -46,7 +46,7 @@ import org.opensha.commons.param.ParameterList;
 
 public class EvenlyDiscrFuncWithParams
     extends EvenlyDiscretizedFunc
-    implements FuncWithParamsAPI
+    implements FuncWithParams
 {
 
     /**
@@ -102,7 +102,7 @@ public class EvenlyDiscrFuncWithParams
      * Returns true if two DefaultXYDiscretizedFunction2D
      * have the same independent parameters; name and value.
      */
-    public boolean equalParameterNamesAndValues(FuncWithParamsAPI function){
+    public boolean equalParameterNamesAndValues(FuncWithParams function){
         if( function.getParametersString().equals( getParametersString() ) ) return true;
         else return false;
     }
@@ -111,7 +111,7 @@ public class EvenlyDiscrFuncWithParams
      * Returns true if the second function has the same named
      * parameters in it's list, values may be different.
      */
-    public boolean equalParameterNames(FuncWithParamsAPI function){
+    public boolean equalParameterNames(FuncWithParams function){
         return function.getParameterList().equalNames( this.getParameterList() );
     }
 
@@ -122,7 +122,7 @@ public class EvenlyDiscrFuncWithParams
      * Returns a copy of this and all points in this DiscretizedFunction.
      * Also clones each parameter in the parameter list.
      */
-    public DiscretizedFuncAPI deepClone(){
+    public DiscretizedFunc deepClone(){
 
         EvenlyDiscrFuncWithParams f = new EvenlyDiscrFuncWithParams(
              minX, num, delta
@@ -151,7 +151,7 @@ public class EvenlyDiscrFuncWithParams
      * by the DiscretizedFunction2DAPIList to determine if it should add a new function
      * to the list.
      */
-    public boolean equals(FuncWithParamsAPI function){
+    public boolean equals(FuncWithParams function){
         String S = C + ": equals():";
         return function.getParameterList().equals( this.list );
     }

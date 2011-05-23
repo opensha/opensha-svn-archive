@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 
 public class HazardCurveComputation {
 
@@ -74,7 +74,7 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, String site,int erfId,
+	public DiscretizedFunc computeDeterministicCurve(ArrayList<Double> imlVals, String site,int erfId,
 			int sgtVariation, int rvid,
 			int velModelID, int srcId,int rupId,CybershakeIM imType){
 		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid, velModelID);
@@ -100,7 +100,7 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, int runID,
+	public DiscretizedFunc computeDeterministicCurve(ArrayList<Double> imlVals, int runID,
 			int srcId,int rupId,CybershakeIM imType){
 		CybershakeRun run = runs2db.getRun(runID);
 		if (run == null)
@@ -118,10 +118,10 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList<Double> imlVals, CybershakeRun run,
+	public DiscretizedFunc computeDeterministicCurve(ArrayList<Double> imlVals, CybershakeRun run,
 			int srcId,int rupId,CybershakeIM imType){
 
-		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set((imlVals.get(i)).doubleValue(), 1.0);
 
@@ -151,7 +151,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,String erfName,
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imlVals, String site,String erfName,
 			int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
@@ -165,7 +165,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, String site,int erfId,
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imlVals, String site,int erfId,
 			int sgtVariation, int rvid, int velModelID, CybershakeIM imType){
 		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid, velModelID);
 		if (run == null)
@@ -181,7 +181,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, int runID, CybershakeIM imType){
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imlVals, int runID, CybershakeIM imType){
 		CybershakeRun run = runs2db.getRun(runID);
 		if (run == null)
 			return null;
@@ -196,8 +196,8 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList<Double> imlVals, CybershakeRun run, CybershakeIM imType){
-		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
+	public DiscretizedFunc computeHazardCurve(ArrayList<Double> imlVals, CybershakeRun run, CybershakeIM imType){
+		DiscretizedFunc hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int siteID = run.getSiteID();
 		int erfID = run.getERFID();
 		int runID = run.getRunID();
@@ -242,7 +242,7 @@ public class HazardCurveComputation {
 		return hazardFunc;
 	}
 
-	public static DiscretizedFuncAPI setIMLProbs( ArrayList<Double> imlVals,DiscretizedFuncAPI hazFunc,
+	public static DiscretizedFunc setIMLProbs( ArrayList<Double> imlVals,DiscretizedFunc hazFunc,
 			ArbitrarilyDiscretizedFunc normalizedFunc, double rupProb) {
 		// find prob. for each iml value
 		int numIMLs  = imlVals.size();

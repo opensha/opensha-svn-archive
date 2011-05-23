@@ -18,7 +18,7 @@ import javax.naming.OperationNotSupportedException;
 
 import org.apache.commons.lang.StringUtils;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
@@ -380,11 +380,11 @@ ParameterChangeListener {
 	}
 
 	@Override
-	public DiscretizedFuncAPI getExceedProbabilities(DiscretizedFuncAPI imls)
+	public DiscretizedFunc getExceedProbabilities(DiscretizedFunc imls)
 			throws ParameterException {
 		
 		// function collator with associated weights
-		Map<DiscretizedFuncAPI, Double> funcs = new HashMap<DiscretizedFuncAPI, Double>();
+		Map<DiscretizedFunc, Double> funcs = new HashMap<DiscretizedFunc, Double>();
 		
 		double imrWeight = 1 / (double) arList.size();
 		
@@ -397,14 +397,14 @@ ParameterChangeListener {
 			for (AttenuationRelationship ar : arList) {
 				for (int i=0; i<3; i++) {
 					imrUncert = imrUncertSign[i] * uncert;
-					DiscretizedFuncAPI func = (DiscretizedFuncAPI) imls.deepClone();
+					DiscretizedFunc func = (DiscretizedFunc) imls.deepClone();
 					funcs.put(ar.getExceedProbabilities(func), imrWeight * imrUncertWeights[i]);
 				}
 			}
 		} else {
 			imrUncert = 0;
 			for (AttenuationRelationship ar : arList) {
-				DiscretizedFuncAPI func = (DiscretizedFuncAPI) imls.deepClone();
+				DiscretizedFunc func = (DiscretizedFunc) imls.deepClone();
 				funcs.put(ar.getExceedProbabilities(func), imrWeight);
 			}
 		}
@@ -412,7 +412,7 @@ ParameterChangeListener {
 		// populate original
 		for (int i=0; i<imls.getNum(); i++) {
 			double val = 0.0;
-			for (DiscretizedFuncAPI f : funcs.keySet()) {
+			for (DiscretizedFunc f : funcs.keySet()) {
 				val += f.getY(i) * funcs.get(f);
 			}
 			imls.set(i, val);
@@ -451,13 +451,13 @@ ParameterChangeListener {
 	}
 
 	@Override
-	public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml)
+	public DiscretizedFunc getSA_ExceedProbSpectrum(double iml)
 			throws ParameterException, IMRException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb)
+	public DiscretizedFunc getSA_IML_AtExceedProbSpectrum(double exceedProb)
 			throws ParameterException, IMRException {
 		throw new UnsupportedOperationException();
 	}

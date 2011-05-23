@@ -49,7 +49,7 @@ import org.dom4j.DocumentException;
 import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteData;
@@ -510,7 +510,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			if (calcOnly)
 				continue;
 			boolean textOnly = types.size() == 1 && types.get(0) == PlotType.TXT;
-			ArrayList<DiscretizedFuncAPI> curves = this.plotCurve(curveID, run,
+			ArrayList<DiscretizedFunc> curves = this.plotCurve(curveID, run,
 					compCurveIDs, runCompares, textOnly);
 			if (curves == null) {
 				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
@@ -668,7 +668,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				for (int i=0; i<func.getNum(); i++)
 					imVals.add(func.getX(i));
 				
-				DiscretizedFuncAPI curve = curveCalc.computeHazardCurve(imVals, run, im);
+				DiscretizedFunc curve = curveCalc.computeHazardCurve(imVals, run, im);
 				HazardCurve2DB curve2db_write = new HazardCurve2DB(writeDB);
 				System.out.println("Inserting curve into database...");
 				if (curveID >= 0) {
@@ -699,27 +699,27 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		this.plotCurve(curveID, run);
 	}
 	
-	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run) {
+	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run) {
 		return plotCurve(curveID, run, false);
 	}
 	
 	ArrayList<String> curveNames = new ArrayList<String>();
 	
-	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run, boolean textOnly) {
+	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run, boolean textOnly) {
 		return plotCurve(curveID, run, null, null, textOnly);
 	}
 	
-	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run,
+	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run,
 			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly) {
 		curveNames.clear();
 		System.out.println("Fetching Curve!");
-		DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
+		DiscretizedFunc curve = curve2db.getHazardCurve(curveID);
 		
-		ArrayList<DiscretizedFuncAPI> compCurves;
+		ArrayList<DiscretizedFunc> compCurves;
 		if (compCurveIDs != null) {
-			compCurves = new ArrayList<DiscretizedFuncAPI>();
+			compCurves = new ArrayList<DiscretizedFunc>();
 			for (int compCurveID : compCurveIDs) {
-				DiscretizedFuncAPI compCurve = curve2db.getHazardCurve(compCurveID);
+				DiscretizedFunc compCurve = curve2db.getHazardCurve(compCurveID);
 				compCurves.add(compCurve);
 			}
 		} else {
@@ -747,7 +747,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		csSite = site2db.getSiteFromDB(siteID);
 		
-		ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
+		ArrayList<DiscretizedFunc> curves = new ArrayList<DiscretizedFunc>();
 		curves.add(curve);
 		curveNames.add("CyberShake Hazard Curve. Site: " + csSite.toString());
 		
@@ -755,7 +755,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			for (int i=0; i<compCurves.size(); i++) {
 				int compCurveID = compCurveIDs.get(i);
 				CybershakeRun compRun = compRuns.get(i);
-				DiscretizedFuncAPI compCurve = compCurves.get(i);
+				DiscretizedFunc compCurve = compCurves.get(i);
 				curves.add(compCurve);
 				CybershakeSite compSite = site2db.getSiteFromDB(compRun.getSiteID());
 				String curveName = "CyberShake Comparison Hazard Curve. Site: " + compSite.toString();
@@ -829,7 +829,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
 	}
 	
-	private void plotCurvesToTXT(String outFile, ArrayList<DiscretizedFuncAPI> curves) throws IOException {
+	private void plotCurvesToTXT(String outFile, ArrayList<DiscretizedFunc> curves) throws IOException {
 		System.out.println("Saving TXT to: " + outFile);
 		
 		boolean useNames = false;
@@ -841,7 +841,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		fw.write("# Curves: " + curves.size() + "\n");
 		
 		for (int i=0; i<curves.size(); i++) {
-			DiscretizedFuncAPI curve = curves.get(i);
+			DiscretizedFunc curve = curves.get(i);
 			
 			String header = "# Name: ";
 			if (useNames)
@@ -859,7 +859,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	private void plotCurvesToGraphPanel( ArrayList<PlotCurveCharacterstics> chars, CybershakeIM im,
-			ArrayList<DiscretizedFuncAPI> curves, String title) {
+			ArrayList<DiscretizedFunc> curves, String title) {
 		
 		String xAxisName = HazardCurvePlotCharacteristics.getReplacedXAxisLabel(plotChars.getXAxisLabel(), im.getVal());
 		
@@ -886,7 +886,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return (periodInt / 100) + "";
 	}
 	
-	private ArrayList<String> plotComparisions(ArrayList<DiscretizedFuncAPI> curves, CybershakeIM im, int curveID, ArrayList<PlotCurveCharacterstics> chars) {
+	private ArrayList<String> plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im, int curveID, ArrayList<PlotCurveCharacterstics> chars) {
 		ArrayList<String> names = new ArrayList<String>();
 		System.out.println("Setting ERF Params");
 		this.setERFParams();
@@ -1147,7 +1147,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	 * @param arb
 	 * @return A function with points (Log(x), 1)
 	 */
-	private ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFuncAPI arb) {
+	private ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFunc arb) {
 		ArbitrarilyDiscretizedFunc new_func = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
 		if (this.xLogFlag) {
@@ -1167,7 +1167,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	 * @return
 	 */
 	private ArbitrarilyDiscretizedFunc unLogFunction(
-			DiscretizedFuncAPI oldHazFunc, DiscretizedFuncAPI logHazFunction) {
+			DiscretizedFunc oldHazFunc, DiscretizedFunc logHazFunction) {
 		int numPoints = oldHazFunc.getNum();
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA

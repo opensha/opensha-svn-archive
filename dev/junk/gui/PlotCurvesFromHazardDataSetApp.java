@@ -48,7 +48,7 @@ import javax.swing.border.Border;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.beans.HazardDataSiteSelectionGuiBean;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
@@ -427,7 +427,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
       if ( D ) System.out.println( S + "Starting" );
 
 
-      DiscretizedFuncAPI function =null;
+      DiscretizedFunc function =null;
       try{
         //getting the function from the site for the selected site.
         function = siteGuiBean.getChoosenFunction();

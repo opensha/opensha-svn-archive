@@ -24,7 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
@@ -42,7 +42,7 @@ public class HazardCurveFetcher {
 	
 	ArrayList<Integer> ids;
 	ArrayList<CybershakeSite> sites;
-	ArrayList<DiscretizedFuncAPI> funcs;
+	ArrayList<DiscretizedFunc> funcs;
 	
 	ArrayList<CybershakeSite> allSites = null;
 	
@@ -60,7 +60,7 @@ public class HazardCurveFetcher {
 	private void init(ArrayList<Integer> ids) {
 		this.ids = ids;
 		sites = new ArrayList<CybershakeSite>();
-		funcs = new ArrayList<DiscretizedFuncAPI>();
+		funcs = new ArrayList<DiscretizedFunc>();
 		ArrayList<Integer> siteIDs = new ArrayList<Integer>();
 		System.out.println("Start loop...");
 		for (int i=ids.size()-1; i>=0; i--) {
@@ -70,7 +70,7 @@ public class HazardCurveFetcher {
 				continue;
 			}
 			sites.add(site2db.getSiteFromDB(curve2db.getSiteIDFromCurveID(id)));
-			DiscretizedFuncAPI curve = curve2db.getHazardCurve(id);
+			DiscretizedFunc curve = curve2db.getHazardCurve(id);
 			funcs.add(curve);
 		}
 	}
@@ -82,7 +82,7 @@ public class HazardCurveFetcher {
 	
 	public ArrayList<Double> getSiteValues(boolean isProbAt_IML, double val) {
 		ArrayList<Double> vals = new ArrayList<Double>();
-		for (DiscretizedFuncAPI func : funcs) {
+		for (DiscretizedFunc func : funcs) {
 			vals.add(HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val));
 		}
 		return vals;
@@ -96,7 +96,7 @@ public class HazardCurveFetcher {
 		return sites;
 	}
 
-	public ArrayList<DiscretizedFuncAPI> getFuncs() {
+	public ArrayList<DiscretizedFunc> getFuncs() {
 		return funcs;
 	}
 	
@@ -107,7 +107,7 @@ public class HazardCurveFetcher {
 		return allSites;
 	}
 	
-	public void writeCurveToFile(DiscretizedFuncAPI curve, String fileName) throws IOException {
+	public void writeCurveToFile(DiscretizedFunc curve, String fileName) throws IOException {
 		FileWriter fw = new FileWriter(fileName);
 		
 		for (int i = 0; i < curve.getNum(); ++i)
@@ -125,11 +125,11 @@ public class HazardCurveFetcher {
 		if (!outDir.endsWith(File.separator))
 			outDir += File.separator;
 		
-		ArrayList<DiscretizedFuncAPI> curves = this.getFuncs();
+		ArrayList<DiscretizedFunc> curves = this.getFuncs();
 		ArrayList<CybershakeSite> curveSites = this.getCurveSites();
 		
 		for (int i=0; i<curves.size(); i++) {
-			DiscretizedFuncAPI curve = curves.get(i);
+			DiscretizedFunc curve = curves.get(i);
 			CybershakeSite site = curveSites.get(i);
 			
 			String fileName = outDir + site.short_name + "_" + site.lat + "_" + site.lon + ".txt";

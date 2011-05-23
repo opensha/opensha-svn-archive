@@ -60,7 +60,7 @@ import org.opensha.commons.util.FileUtils;
  * @version 1.0
  */
 
-public abstract class AbstractDiscretizedFunc extends AbstractXY_DataSet implements DiscretizedFuncAPI,
+public abstract class AbstractDiscretizedFunc extends AbstractXY_DataSet implements DiscretizedFunc,
 Named,java.io.Serializable{
 
 	private static final long serialVersionUID = 2798699443929196424l;
@@ -120,9 +120,9 @@ Named,java.io.Serializable{
 //			return true;
 		if (this == obj)
 			return true;
-		if (!(obj instanceof DiscretizedFuncAPI))
+		if (!(obj instanceof DiscretizedFunc))
 			return false;
-		DiscretizedFuncAPI function = (DiscretizedFuncAPI)obj;
+		DiscretizedFunc function = (DiscretizedFunc)obj;
 		
 		// now check names equal
 		if (!isSameWithNull(getName(), function.getName()))
@@ -207,7 +207,7 @@ Named,java.io.Serializable{
 		return func;
 	}
 
-	public static void writeSimpleFuncFile(DiscretizedFuncAPI func, String fileName) throws IOException {
+	public static void writeSimpleFuncFile(DiscretizedFunc func, String fileName) throws IOException {
 		File outFile = new File(fileName);
 		FileWriter fr = new FileWriter(outFile);
 		for (int i = 0; i < func.getNum(); ++i)

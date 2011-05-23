@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.StringParameterEditor;
@@ -182,7 +182,7 @@ public class BenefitCostBean implements GuiBeanAPI {
 	 * depending on the value of <code>design</code>.
 	 * @throws IllegalArgumentException If the given <code>design</code> is not supported.
 	 */
-	public DiscretizedFuncAPI getSupportedIMLevels(int design) throws IllegalArgumentException {
+	public DiscretizedFunc getSupportedIMLevels(int design) throws IllegalArgumentException {
 		if(design == CURRENT)
 			return structNow.getVulnerabilityModel().getHazardTemplate();
 		else if (design == RETRO)

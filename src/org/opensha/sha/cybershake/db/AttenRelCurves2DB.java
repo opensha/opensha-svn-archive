@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
@@ -28,20 +28,20 @@ public class AttenRelCurves2DB {
 	}
 	
 	public void insertARCurves(Date date, int datasetID, int imTypeID,
-			Map<Location, ? extends DiscretizedFuncAPI> map) throws SQLException {
+			Map<Location, ? extends DiscretizedFunc> map) throws SQLException {
 		
-		ArrayList<DiscretizedFuncAPI> curvesToInsert = new ArrayList<DiscretizedFuncAPI>();
+		ArrayList<DiscretizedFunc> curvesToInsert = new ArrayList<DiscretizedFunc>();
 		ArrayList<Location> locsToInsert = new ArrayList<Location>();
 		
 		while (map.size() > 0) {
 			if (curvesToInsert.size() == CURVE_BUNDLE_SIZE) {
 				doInsertBundle(date, datasetID, imTypeID, curvesToInsert, locsToInsert);
-				curvesToInsert = new ArrayList<DiscretizedFuncAPI>();
+				curvesToInsert = new ArrayList<DiscretizedFunc>();
 				locsToInsert = new ArrayList<Location>();
 			}
 			
 			Location loc = map.keySet().iterator().next();
-			DiscretizedFuncAPI curve = map.remove(loc);
+			DiscretizedFunc curve = map.remove(loc);
 			
 			curvesToInsert.add(curve);
 			locsToInsert.add(loc);
@@ -53,7 +53,7 @@ public class AttenRelCurves2DB {
 	}
 	
 	private void doInsertBundle(Date date, int datasetID, int imTypeID,
-			ArrayList<DiscretizedFuncAPI> curves, ArrayList<Location> locs) throws SQLException {
+			ArrayList<DiscretizedFunc> curves, ArrayList<Location> locs) throws SQLException {
 		System.out.println("Inserting IDs for "+curves.size()+" curves");
 		HashMap<Location, Integer> ids = insertCurveIDsForLocs(date, datasetID, imTypeID, locs);
 		System.out.println("Done inserting IDs");
@@ -62,7 +62,7 @@ public class AttenRelCurves2DB {
 					+" (AR_Hazard_Curve_ID, X_Value, Y_Value) VALUES");
 		
 		for (int i=0; i<curves.size(); i++) {
-			DiscretizedFuncAPI curve = curves.get(i);
+			DiscretizedFunc curve = curves.get(i);
 			Location loc = locs.get(i);
 			
 			Integer arCurveID = ids.get(loc);

@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.calc.hazardMap.CurveMultiplier;
 
 public class CurveDirMultiplier {
@@ -31,9 +31,9 @@ public class CurveDirMultiplier {
 		for(File curve : dirList){
 			// make sure it's a subdirectory
 			if (!curve.isDirectory() && curve.getName().endsWith(".txt")) {
-				DiscretizedFuncAPI func =
+				DiscretizedFunc func =
 					ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(curve.getAbsolutePath());
-				DiscretizedFuncAPI newFunc = CurveMultiplier.multiplyCurve(func, factor);
+				DiscretizedFunc newFunc = CurveMultiplier.multiplyCurve(func, factor);
 				String newFileName = outputDir + curve.getName();
 				ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(newFunc, newFileName);
 				System.out.println("processed " + curve.getName() + " had " + func.getNum() + " has " + newFunc.getNum());

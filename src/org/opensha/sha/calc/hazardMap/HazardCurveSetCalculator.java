@@ -9,7 +9,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -142,7 +142,7 @@ public class HazardCurveSetCalculator {
 	 * @param arb
 	 * @return A function with points (Log(x), 1)
 	 */
-	public static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFuncAPI arb) {
+	public static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFunc arb) {
 		ArbitrarilyDiscretizedFunc new_func = new ArbitrarilyDiscretizedFunc();
 		// TODO: we need to check if the log should be taken for all IMTs GEM will be using!
 		// take log only if it is PGA, PGV or SA

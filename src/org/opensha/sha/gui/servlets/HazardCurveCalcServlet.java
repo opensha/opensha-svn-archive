@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -120,7 +120,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
 		try{
 			HazardCurveCalculator calc = new HazardCurveCalculator();
 			calc.setMaxSourceDistance(maxDistance);
-			calc.getHazardCurve((DiscretizedFuncAPI)function,site,imr,(EqkRupForecastAPI)eqkRupForecast);
+			calc.getHazardCurve((DiscretizedFunc)function,site,imr,(EqkRupForecastAPI)eqkRupForecast);
 		}catch(RemoteException e){
 			e.printStackTrace();
 		}

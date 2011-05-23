@@ -28,7 +28,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -106,7 +106,7 @@ public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObjec
    * @param eqkRupForecast: selected Earthquake rup forecast
    * @return
    */
-  public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
+  public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
                              Site site, ScalarIMR imr, EqkRupForecastAPI eqkRupForecast)
   throws java.rmi.RemoteException{
 
@@ -323,7 +323,7 @@ public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObjec
    *
    * @param arb
    */
-  private void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+  private void initDiscretizeValues(DiscretizedFunc arb, double val){
     int num = arb.getNum();
     for(int i=0;i<num;++i)
       arb.set(i,val);

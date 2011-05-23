@@ -52,7 +52,7 @@ import org.opensha.commons.param.ParameterList;
  */
 public class ArbDiscrFuncWithParams
     extends ArbitrarilyDiscretizedFunc
-    implements FuncWithParamsAPI
+    implements FuncWithParams
 {
 
 
@@ -131,7 +131,7 @@ public class ArbDiscrFuncWithParams
     /** Returns true if the second function has the same named parameter values. One
      * current use is to determine if two XYDiscretizedFunction2DAPIs are the same.
      */
-    public boolean equalParameterNamesAndValues(FuncWithParamsAPI function){
+    public boolean equalParameterNamesAndValues(FuncWithParams function){
         if( function.getParametersString().equals( getParametersString() ) ) return true;
         else return false;
     }
@@ -140,7 +140,7 @@ public class ArbDiscrFuncWithParams
      * Returns true if the second function has the same named parameters in
      * it's list, values may be different
      */
-    public boolean equalParameterNames(FuncWithParamsAPI function){
+    public boolean equalParameterNames(FuncWithParams function){
         return function.getParameterList().equalNames( this.getParameterList() );
     }
 
@@ -181,7 +181,7 @@ public class ArbDiscrFuncWithParams
      * by the DiscretizedFunction2DAPIList to determine if it should add a new function
      * to the list.
      */
-    public boolean equalParameters(FuncWithParamsAPI function){
+    public boolean equalParameters(FuncWithParams function){
         String S = C + ": equalParameters():";
         return function.getParameterList().equals( this.list );
     }

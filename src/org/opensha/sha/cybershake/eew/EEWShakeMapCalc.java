@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
@@ -111,7 +111,7 @@ public class EEWShakeMapCalc {
 				
 				String fname = dir + File.separator + "run_"+run.getRunID()+".txt";
 				File file = new File(fname);
-				DiscretizedFuncAPI curve;
+				DiscretizedFunc curve;
 				if (file.exists()) {
 					curve = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(fname);
 				} else {
@@ -132,7 +132,7 @@ public class EEWShakeMapCalc {
 		return imtInfo.getDefaultHazardCurve(SA_Param.NAME);
 	}
 	
-	private DiscretizedFuncAPI getCurve(CybershakeRun run) {
+	private DiscretizedFunc getCurve(CybershakeRun run) {
 		System.out.println("calculating curve for run " + run.getRunID());
 		ArrayList<Double> xVals = new ArrayList<Double>();
 		ArbitrarilyDiscretizedFunc curve = getXVals();

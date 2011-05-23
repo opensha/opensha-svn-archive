@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
@@ -89,7 +89,7 @@ public class LossCurveBean implements GuiBeanAPI {
 	 * @see HazardCurveBean
 	 * @param hazFunc The given Hazard Curve to compute for
 	 */
-	public DiscretizedFuncAPI computeLossCurve(DiscretizedFuncAPI hazFunc) {
+	public DiscretizedFunc computeLossCurve(DiscretizedFunc hazFunc) {
 		return calculator.getLossCurve(
 				(ArbitrarilyDiscretizedFunc) hazFunc, vulnBean.getCurrentModel());
 	}

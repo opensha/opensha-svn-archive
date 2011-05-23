@@ -21,7 +21,7 @@ package org.opensha.sha.imr;
 
 import java.util.ListIterator;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
@@ -110,8 +110,8 @@ public interface ScalarIMR extends IntensityMeasureRelationship {
 	 * @param  intensityMeasureLevel  The function to be filled in
 	 * @return                        The same function
 	 */
-	public DiscretizedFuncAPI getExceedProbabilities(
-			DiscretizedFuncAPI intensityMeasureLevels
+	public DiscretizedFunc getExceedProbabilities(
+			DiscretizedFunc intensityMeasureLevels
 	);
 
 	/**
@@ -121,7 +121,7 @@ public interface ScalarIMR extends IntensityMeasureRelationship {
 	 * @param exceedProb
 	 * @return DiscretizedFuncAPI - the IML function
 	 */
-	public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws
+	public DiscretizedFunc getSA_IML_AtExceedProbSpectrum(double exceedProb) throws
 	ParameterException,
 	IMRException;
 
@@ -133,7 +133,7 @@ public interface ScalarIMR extends IntensityMeasureRelationship {
 	 *
 	 * @return     DiscretizedFuncAPI - The hazard spectrum
 	 */
-	public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
+	public DiscretizedFunc getSA_ExceedProbSpectrum(double iml) throws ParameterException,
 	IMRException ;
 
 

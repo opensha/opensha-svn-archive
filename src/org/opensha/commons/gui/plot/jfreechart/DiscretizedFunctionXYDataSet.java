@@ -28,7 +28,7 @@ import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.TableXYDataset;
 import org.opensha.commons.data.Named;
-import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
@@ -127,7 +127,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 
 
 	/** Returns an iterator of all DiscretizedFunction2Ds in the list */
-	public ListIterator<XY_DataSetAPI> listIterator() { return functions.listIterator(); }
+	public ListIterator<XY_DataSet> listIterator() { return functions.listIterator(); }
 
 
 
@@ -164,7 +164,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 	public int getItemCount( int series ) {
 		int num = -1;
 		if ( series < functions.size() ) {
-			XY_DataSetAPI f = functions.get( series );
+			XY_DataSet f = functions.get( series );
 			num = f.getNum();
 			if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero( f, xLog, yLog) ) num -= 1;
 		}
@@ -202,7 +202,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 	public double getXValue( int series, int item ) {
 
 		if ( series < functions.size() ) {
-			XY_DataSetAPI dataset = functions.get( series );
+			XY_DataSet dataset = functions.get( series );
 			if( dataset != null){
 
 				if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero(dataset, xLog, yLog) )
@@ -232,7 +232,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 	public double getYValue( int series, int item ) {
 
 		if ( series < functions.size() ) {
-			XY_DataSetAPI dataset = functions.get( series );
+			XY_DataSet dataset = functions.get( series );
 			if(dataset != null){
 
 				if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero(dataset, xLog, yLog) )
@@ -262,7 +262,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 	 * on if xLog and yLog are true, and the first point x or y values are zero.
 	 * If these conditions are met, true is returned, false otherwise.
 	 */
-	protected final static boolean isAdjustedIndexIfFirstXZero(XY_DataSetAPI func, boolean xLog, boolean yLog){
+	protected final static boolean isAdjustedIndexIfFirstXZero(XY_DataSet func, boolean xLog, boolean yLog){
 
 		// if xlog and first x value = 0 increment index, even if y first value not zero,
 		// and vice versa fro yLog. This call used by both getXValue and getYValue
@@ -384,7 +384,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 	 */
 	public double getStartXValue(int series, int item) {
 		double x = ((Double)getXValue(series,item)).doubleValue();
-		XY_DataSetAPI dataset = functions.get( series );
+		XY_DataSet dataset = functions.get( series );
 		if( dataset != null && dataset instanceof EvenlyDiscretizedFunc)
 			x = x - ((EvenlyDiscretizedFunc)dataset).getDelta()/2;
 		return x;
@@ -402,7 +402,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 	 */
 	public double getEndXValue(int series, int item) {
 		double x = ((Double)getXValue(series,item)).doubleValue();
-		XY_DataSetAPI dataset = functions.get( series );
+		XY_DataSet dataset = functions.get( series );
 		if( dataset != null && dataset instanceof EvenlyDiscretizedFunc)
 			x = x + ((EvenlyDiscretizedFunc)dataset).getDelta()/2;
 		return x;

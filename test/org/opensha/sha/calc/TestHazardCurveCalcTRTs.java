@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -44,7 +44,7 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 	
 	private static HashMap<TectonicRegionType, ERFTestSubset> singleERFMaps;
 	private static Site site;
-	private static DiscretizedFuncAPI func;
+	private static DiscretizedFunc func;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() {

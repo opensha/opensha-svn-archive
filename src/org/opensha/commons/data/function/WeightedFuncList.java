@@ -88,7 +88,7 @@ public class WeightedFuncList {
 
 		//if the size of both list are same then add them to their corresponding lists.
 		for(int i=0;i<size;++i){
-			XY_DataSetAPI function = funcList.get(i);
+			XY_DataSet function = funcList.get(i);
 			if(isFuncAllowed(function))
 				functionList.add(function);
 			else
@@ -143,7 +143,7 @@ public class WeightedFuncList {
 	 * @param relWt
 	 * @param func
 	 */
-	public void add(double relWt,DiscretizedFuncAPI func){
+	public void add(double relWt,DiscretizedFunc func){
 		relativeWts.add(new Double(relWt));
 		if(isFuncAllowed(func))
 			functionList.add(func);
@@ -179,11 +179,11 @@ public class WeightedFuncList {
 	 * @param function
 	 * @return
 	 */
-	public boolean isFuncAllowed(XY_DataSetAPI function){
+	public boolean isFuncAllowed(XY_DataSet function){
 		// check  that all curves in list have same number of X values
 		int listSize= functionList.size();
 		if(listSize !=0){
-			int numPoints = ((DiscretizedFuncAPI)functionList.get(0)).getNum();
+			int numPoints = ((DiscretizedFunc)functionList.get(0)).getNum();
 			if(function.getNum()!=numPoints)
 				return false;
 		}
@@ -282,7 +282,7 @@ public class WeightedFuncList {
 	 *
 	 * @returns the mean fractile function if it was computed
 	 */
-	public DiscretizedFuncAPI getMean(){
+	public DiscretizedFunc getMean(){
 		if(isMeanFractileCalculated)
 			return meanFunction;
 		return null;

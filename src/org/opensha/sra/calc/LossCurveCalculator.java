@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 
 import org.opensha.sra.fragility.FragilityModel;
 import org.opensha.sra.vulnerability.AbstractVulnerability;

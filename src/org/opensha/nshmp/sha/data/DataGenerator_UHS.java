@@ -40,8 +40,8 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
@@ -412,8 +412,8 @@ public class DataGenerator_UHS
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
-		 XY_DataSetAPI saFunc = null;
-		 XY_DataSetAPI sdFunc = null;
+		 XY_DataSet saFunc = null;
+		 XY_DataSet sdFunc = null;
 		 String curGridSpacing = "";
 		 try {
 			 HazardDataMinerAPI miner = new HazardDataMinerServletMode();
@@ -514,7 +514,7 @@ public class DataGenerator_UHS
                                            boolean isApproxUHSFunctionNeeded,
                                            boolean isSDSpectrumFunctionNeeded,
                                            boolean isSMSpectrumFunctionNeeded) {
-    ArrayList<DiscretizedFuncAPI> functions = new ArrayList<DiscretizedFuncAPI>();
+    ArrayList<DiscretizedFunc> functions = new ArrayList<DiscretizedFunc>();
     if (isUHSFunctionNeeded) {
       functions.add(saFunction);
       functions.add(saSdFunction);

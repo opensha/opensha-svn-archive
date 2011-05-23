@@ -32,7 +32,7 @@ import javax.swing.Timer;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.Parameter;
@@ -246,7 +246,7 @@ extends HazardCurveLocalModeApplication {
 
 		//initialize the values in condProbfunc with log values as passed in hazFunction
 		// intialize the hazard function
-		DiscretizedFuncAPI hazFunction =null;
+		DiscretizedFunc hazFunction =null;
 
 		//what selection does the user have made, IML@Prob or Prob@IML
 		String imlOrProb = imlProbGuiBean.getSelectedOption();
@@ -295,7 +295,7 @@ extends HazardCurveLocalModeApplication {
 			try {
 				if (isProbabilisticCurve){
 					if(probAtIML)
-						hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
+						hazFunction = (DiscretizedFunc) calc.getSpectrumCurve(
 								site, imr, (EqkRupForecastAPI) forecast,
 								imlProbValue,saPeriodVector);
 					else{
@@ -321,10 +321,10 @@ extends HazardCurveLocalModeApplication {
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
 					if (probAtIML)//if the user has selected prob@IML
-						hazFunction = (DiscretizedFuncAPI) calc.getDeterministicSpectrumCurve(
+						hazFunction = (DiscretizedFunc) calc.getDeterministicSpectrumCurve(
 								site, imr,rupture,  probAtIML, imlProbValue);
 					else //if the user has selected IML@prob
-						hazFunction = (DiscretizedFuncAPI) calc.getDeterministicSpectrumCurve(
+						hazFunction = (DiscretizedFunc) calc.getDeterministicSpectrumCurve(
 								site, imr,rupture,probAtIML, imlProbValue);
 
 					progressCheckBox.setSelected(true);
@@ -551,12 +551,12 @@ extends HazardCurveLocalModeApplication {
 		for (int i = 0; i < numERFsInEpistemicList; ++i) {
 			//current ERF's being used to calculated Hazard Curve
 			currentERFInEpistemicListForHazardCurve = i;
-			DiscretizedFuncAPI hazFunction = null;
+			DiscretizedFunc hazFunction = null;
 
 			try {
 
 				if (probAtIML)
-					hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
+					hazFunction = (DiscretizedFunc) calc.getSpectrumCurve(
 							site, imr, erfList.getERF(i),
 							imlProbValue, saPeriodVector);
 				else {
@@ -639,7 +639,7 @@ extends HazardCurveLocalModeApplication {
 	 *
 	 * @param originalFunc :  this is the function with X values set
 	 */
-	private void initX_Values(DiscretizedFuncAPI arb){
+	private void initX_Values(DiscretizedFunc arb){
 
 		//iml@Prob then we have to interpolate over a range of X-Values
 		if (!useCustomX_Values)

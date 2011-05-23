@@ -31,7 +31,7 @@ import org.jfree.chart.ChartUtilities;
 import org.junit.Test;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
@@ -181,7 +181,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		System.out.println("Max Diff %: " + maxPDiff);
 	}
 	
-	private static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFuncAPI arb) {
+	private static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFunc arb) {
 		ArbitrarilyDiscretizedFunc new_func = new ArbitrarilyDiscretizedFunc();
 		for (int i = 0; i < arb.getNum(); ++i)
 			new_func.set(Math.log(arb.getX(i)), 1);
@@ -189,7 +189,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 	}
 	
 	private static ArbitrarilyDiscretizedFunc unLogFunction(
-			DiscretizedFuncAPI oldHazFunc, DiscretizedFuncAPI logHazFunction) {
+			DiscretizedFunc oldHazFunc, DiscretizedFunc logHazFunction) {
 		int numPoints = oldHazFunc.getNum();
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 		for (int i = 0; i < numPoints; ++i) {

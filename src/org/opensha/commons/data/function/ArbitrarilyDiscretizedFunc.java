@@ -616,7 +616,7 @@ if(debug) {
 	 * that each point x value is the same. This requires
 	 * the two lists to have the same number of points.
 	 */
-	public boolean equalXValues(DiscretizedFuncAPI function){
+	public boolean equalXValues(DiscretizedFunc function){
 		// String S = C + ": equalXValues():";
 		if( this.getNum() != function.getNum() ) return false;
 		Iterator it = this.getPointsIterator();
@@ -736,7 +736,7 @@ if(debug) {
 	 * of the new ArbitrarilyDiscretizedFunc.
 	 * @return ArbitrarilyDiscretizedFunc new ArbitrarilyDiscretizedFunc
 	 */
-	public ArbitrarilyDiscretizedFunc getYY_Function(DiscretizedFuncAPI function){
+	public ArbitrarilyDiscretizedFunc getYY_Function(DiscretizedFunc function){
 
 		if(getNum() !=function.getNum())
 			throw new InvalidRangeException("This operation cannot be performed on functions "+

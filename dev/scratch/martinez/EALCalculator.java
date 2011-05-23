@@ -3,7 +3,7 @@ package scratch.martinez;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 
 /**
  * This class computes the expected annualized damage factor for a given building using a hazard curve.
@@ -50,7 +50,7 @@ public class EALCalculator {
 	 * @param hazFunc The Hazard Function defining (x,y) values for IML,MAFE respectively.
 	 * @param DF The Damage Factor values to use in calculation.
 	 */
-	public EALCalculator(DiscretizedFuncAPI hazFunc, ArrayList<Double> DF, double structValue) {
+	public EALCalculator(DiscretizedFunc hazFunc, ArrayList<Double> DF, double structValue) {
 		this.IML = new ArrayList<Double>();
 		this.MAFE = new ArrayList<Double>();
 		this.DF = DF;
@@ -73,7 +73,7 @@ public class EALCalculator {
 	 * defined by the vulnFunc.
 	 * @param vulnFunc The Vulnerability Function defining (x,y) values for IML,DF respectively.
 	 */
-	public EALCalculator(ArrayList<Double> MAFE, DiscretizedFuncAPI vulnFunc, double structValue) {
+	public EALCalculator(ArrayList<Double> MAFE, DiscretizedFunc vulnFunc, double structValue) {
 		this.IML = new ArrayList<Double>();
 		this.MAFE = MAFE;
 		this.DF = new ArrayList<Double>();
@@ -98,7 +98,7 @@ public class EALCalculator {
 	 * @param structValue
 	 * @throws IllegalArgumentException
 	 */
-	public  EALCalculator(DiscretizedFuncAPI hazFunc, DiscretizedFuncAPI vulnFunc, double structValue) throws
+	public  EALCalculator(DiscretizedFunc hazFunc, DiscretizedFunc vulnFunc, double structValue) throws
 			IllegalArgumentException {
 		this.IML = new ArrayList<Double>();
 		this.MAFE = new ArrayList<Double>();
@@ -245,7 +245,7 @@ public class EALCalculator {
 	 * 
 	 * @param vulnFunc Used to get DF values.
 	 */
-	public void setDF(DiscretizedFuncAPI vulnFunc) {
+	public void setDF(DiscretizedFunc vulnFunc) {
 		DF.clear();
 		ListIterator iter = vulnFunc.getYValuesIterator();
 		while(iter.hasNext()) {
@@ -261,7 +261,7 @@ public class EALCalculator {
 	 * 
 	 * @param hazFunc Used to get MAFE values.
 	 */
-	public void setMAFE(DiscretizedFuncAPI hazFunc) {
+	public void setMAFE(DiscretizedFunc hazFunc) {
 		MAFE.clear();
 		ListIterator iter = hazFunc.getYValuesIterator();
 		while(iter.hasNext()) {

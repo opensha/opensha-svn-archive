@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 
 public class CurveMultiplier {
@@ -53,9 +53,9 @@ public class CurveMultiplier {
 							String relativePath = dir.getName() + File.separator + fileName;
 							System.out.println(relativePath);
 							
-							DiscretizedFuncAPI func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(inputDir + relativePath);
+							DiscretizedFunc func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(inputDir + relativePath);
 							
-							DiscretizedFuncAPI aveCurve = multiplyCurve(func, factor);
+							DiscretizedFunc aveCurve = multiplyCurve(func, factor);
 							
 							ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(aveCurve, outputDir + relativePath);
 						}
@@ -65,7 +65,7 @@ public class CurveMultiplier {
 		}
 	}
 	
-	public static DiscretizedFuncAPI multiplyCurve(DiscretizedFuncAPI curve, double factor) {
+	public static DiscretizedFunc multiplyCurve(DiscretizedFunc curve, double factor) {
 		ArbitrarilyDiscretizedFunc multFunc = new ArbitrarilyDiscretizedFunc();
 		
 		int numPoints = curve.getNum();

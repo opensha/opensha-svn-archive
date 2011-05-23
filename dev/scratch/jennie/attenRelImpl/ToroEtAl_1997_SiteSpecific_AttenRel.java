@@ -7,7 +7,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -588,8 +588,8 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 
 
 
-  public DiscretizedFuncAPI getExceedProbabilities(
-	      DiscretizedFuncAPI intensityMeasureLevels
+  public DiscretizedFunc getExceedProbabilities(
+	      DiscretizedFunc intensityMeasureLevels
 	      ) throws ParameterException {
 
 	    double stdDev = getStdDev();

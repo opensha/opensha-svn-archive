@@ -27,7 +27,7 @@ import java.text.DecimalFormat;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
@@ -245,7 +245,7 @@ public class HazusMapCalculator {
     	      Site site = sites.getSite(i);
     	      imr.setSite(site);
 
-    	      DiscretizedFuncAPI[] hazardFunc = getSiteHazardCurve(site,
+    	      DiscretizedFunc[] hazardFunc = getSiteHazardCurve(site,
     	    		  imr,eqkRupForecast);
 
     	      writeToFile(fw,site.getLocation(),hazardFunc);
@@ -259,11 +259,11 @@ public class HazusMapCalculator {
     }
   }
 
-  private void writeToFile(FileWriter[] fw, Location loc, DiscretizedFuncAPI[] hazardFuncs) throws IOException{
-	  DiscretizedFuncAPI pgaHazardFunction = hazardFuncs[0];
-      DiscretizedFuncAPI sa03HazardFunction = hazardFuncs[1];
-      DiscretizedFuncAPI sa1HazardFunction = hazardFuncs[2];
-      DiscretizedFuncAPI pgvHazardFunction = hazardFuncs[3];
+  private void writeToFile(FileWriter[] fw, Location loc, DiscretizedFunc[] hazardFuncs) throws IOException{
+	  DiscretizedFunc pgaHazardFunction = hazardFuncs[0];
+      DiscretizedFunc sa03HazardFunction = hazardFuncs[1];
+      DiscretizedFunc sa1HazardFunction = hazardFuncs[2];
+      DiscretizedFunc pgvHazardFunction = hazardFuncs[3];
 
       for(int i=0;i<returnPd.length;++i){
     	    double rate = 1/returnPd[i] ;
@@ -294,8 +294,8 @@ public class HazusMapCalculator {
    * @param val double values to initialize the Y value of the Arb function with.
    * @return DiscretizedFuncAPI Arb function with X values being the log scale.
    */
-  private DiscretizedFuncAPI initDiscretizedValuesToLog(DiscretizedFuncAPI linearFunc,double val){
-    DiscretizedFuncAPI toXLogFunc = new ArbitrarilyDiscretizedFunc();
+  private DiscretizedFunc initDiscretizedValuesToLog(DiscretizedFunc linearFunc,double val){
+    DiscretizedFunc toXLogFunc = new ArbitrarilyDiscretizedFunc();
       for (int i = 0; i < linearFunc.getNum(); ++i)
         toXLogFunc.set(Math.log(linearFunc.getX(i)), val);
     return toXLogFunc;
@@ -314,7 +314,7 @@ public class HazusMapCalculator {
    * @param eqkRupForecast: selected Earthquake rup forecast
    * @return
    */
-  public DiscretizedFuncAPI[] getSiteHazardCurve(Site site,
+  public DiscretizedFunc[] getSiteHazardCurve(Site site,
                                            ScalarIMR imr,
                                            EqkRupForecastAPI eqkRupForecast)  {
 
@@ -327,27 +327,27 @@ public class HazusMapCalculator {
 
 
     int numIMTs = 4; //PGA,SA@0.3sec,SA@1secc,PGV for Hazus.
-    DiscretizedFuncAPI[] hazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
-    DiscretizedFuncAPI[] sourceHazFunc = new ArbitrarilyDiscretizedFunc[numIMTs];
+    DiscretizedFunc[] hazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
+    DiscretizedFunc[] sourceHazFunc = new ArbitrarilyDiscretizedFunc[numIMTs];
 
     hazFunction[0] = IMT_Info.getUSGS_PGA_Function(); //PGA
     hazFunction[1] = IMT_Info.getUSGS_SA_Function(); //SA@0.3sec
-    hazFunction[2] = (DiscretizedFuncAPI)hazFunction[1].deepClone(); //SA@1.0sec
+    hazFunction[2] = (DiscretizedFunc)hazFunction[1].deepClone(); //SA@1.0sec
     IMT_Info imtInfo = new IMT_Info();
-    DiscretizedFuncAPI pgvFunction = imtInfo.getDefaultHazardCurve(PGV_Param.NAME);
-    hazFunction[3] = (DiscretizedFuncAPI)pgvFunction.deepClone();; //PGV
+    DiscretizedFunc pgvFunction = imtInfo.getDefaultHazardCurve(PGV_Param.NAME);
+    hazFunction[3] = (DiscretizedFunc)pgvFunction.deepClone();; //PGV
  
 
-    sourceHazFunc[0] = (DiscretizedFuncAPI)hazFunction[0].deepClone();
-    sourceHazFunc[1] = (DiscretizedFuncAPI)hazFunction[1].deepClone();
-    sourceHazFunc[2] = (DiscretizedFuncAPI)hazFunction[1].deepClone();
-    sourceHazFunc[3] = (DiscretizedFuncAPI)hazFunction[1].deepClone();
+    sourceHazFunc[0] = (DiscretizedFunc)hazFunction[0].deepClone();
+    sourceHazFunc[1] = (DiscretizedFunc)hazFunction[1].deepClone();
+    sourceHazFunc[2] = (DiscretizedFunc)hazFunction[1].deepClone();
+    sourceHazFunc[3] = (DiscretizedFunc)hazFunction[1].deepClone();
     for(int m=0;m<numIMTs;++m){
     	  this.initDiscretizeValues(hazFunction[m],1.0);
     	  this.initDiscretizeValues(sourceHazFunc[m],1.0);
     }
 
-    DiscretizedFuncAPI condProbFunc = null;
+    DiscretizedFunc condProbFunc = null;
 
     //System.out.println("hazFunction: "+hazFunction.toString());
 
@@ -437,7 +437,7 @@ public class HazusMapCalculator {
         		 imr.getParameter(PeriodParam.NAME).setValue(new Double(1.0));
         	 }
         	 else if(imtIndex ==3){
-        		 condProbFunc = (DiscretizedFuncAPI)pgvFunction.deepClone();
+        		 condProbFunc = (DiscretizedFunc)pgvFunction.deepClone();
         		 if(pgvSupported)
         		     imr.setIntensityMeasure(pgv);
         		 else{
@@ -504,7 +504,7 @@ public class HazusMapCalculator {
       }
     //creating the temp functionlist that gets the linear X Value for each SA-Period
     //spectrum curve.
-    DiscretizedFuncAPI[] tempHazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
+    DiscretizedFunc[] tempHazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
     for(int j=0;j<numIMTs;++j)
       tempHazFunction[j] = new ArbitrarilyDiscretizedFunc();
     numPoints = hazFunction[0].getNum();
@@ -546,7 +546,7 @@ public class HazusMapCalculator {
    *
    * @param arb
    */
-  private void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+  private void initDiscretizeValues(DiscretizedFunc arb, double val){
     int num = arb.getNum();
     for(int i=0;i<num;++i)
       arb.set(i,val);

@@ -20,10 +20,6 @@
 package org.opensha.commons.data.function;
 
 import java.awt.geom.Point2D;
-import java.util.Iterator;
-import java.util.ListIterator;
-
-import org.opensha.commons.exceptions.Point2DException;
 
 /**
  * <b>Title:</b> DiscretizedFuncAPI<p>
@@ -63,7 +59,7 @@ import org.opensha.commons.exceptions.Point2DException;
  * @version 1.0
  */
 
-public interface DiscretizedFuncAPI extends XY_DataSetAPI {
+public interface DiscretizedFunc extends XY_DataSet {
 	
 	/** Sets the tolerance of this function. */
 	public void setTolerance(double newTolerance);

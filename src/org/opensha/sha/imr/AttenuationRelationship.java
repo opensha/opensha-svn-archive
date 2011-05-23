@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
@@ -449,11 +449,11 @@ extends AbstractIMR implements ScalarIMR {
 	 *
 	 * @return     DiscretizedFuncAPI - The hazard spectrum
 	 */
-	public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
+	public DiscretizedFunc getSA_ExceedProbSpectrum(double iml) throws ParameterException,
 	IMRException {
 		this.setIntensityMeasure(SA_Param.NAME);
 		setIntensityMeasureLevel(new Double(iml));
-		DiscretizedFuncAPI exeedProbFunction =  new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc exeedProbFunction =  new ArbitrarilyDiscretizedFunc();
 		ArrayList allowedSA_Periods = saPeriodParam.getAllowedDoubles();
 		int size = allowedSA_Periods.size();
 		for(int i=0;i<size;++i){
@@ -472,12 +472,12 @@ extends AbstractIMR implements ScalarIMR {
 	 * @param exceedProb
 	 * @return DiscretizedFuncAPI - the IML function
 	 */
-	public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws ParameterException,
+	public DiscretizedFunc getSA_IML_AtExceedProbSpectrum(double exceedProb) throws ParameterException,
 	IMRException {
 		this.setIntensityMeasure(SA_Param.NAME);
 		//sets the value of the exceedProb Param.
 		exceedProbParam.setValue(exceedProb);
-		DiscretizedFuncAPI imlFunction =  new ArbitrarilyDiscretizedFunc();
+		DiscretizedFunc imlFunction =  new ArbitrarilyDiscretizedFunc();
 		ArrayList allowedSA_Periods = saPeriodParam.getAllowedDoubles();
 		int size = allowedSA_Periods.size();
 		for(int i=0;i<size;++i){
@@ -565,8 +565,8 @@ extends AbstractIMR implements ScalarIMR {
 	 * @return                         The function filled in
 	 * @exception  ParameterException  Description of the Exception
 	 */
-	public DiscretizedFuncAPI getExceedProbabilities(
-			DiscretizedFuncAPI intensityMeasureLevels
+	public DiscretizedFunc getExceedProbabilities(
+			DiscretizedFunc intensityMeasureLevels
 	) throws ParameterException {
 
 		double stdDev = getStdDev();

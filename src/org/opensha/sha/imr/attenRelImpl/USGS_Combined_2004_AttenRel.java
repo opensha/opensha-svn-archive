@@ -28,7 +28,7 @@ import java.util.ListIterator;
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
@@ -809,8 +809,8 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 	 * @return                         The function filled in
 	 * @exception  ParameterException  Description of the Exception
 	 */
-	public DiscretizedFuncAPI getExceedProbabilities(
-			DiscretizedFuncAPI intensityMeasureLevels
+	public DiscretizedFunc getExceedProbabilities(
+			DiscretizedFunc intensityMeasureLevels
 	) throws ParameterException {
 
 		// throw exception if MMI was chosen

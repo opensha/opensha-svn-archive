@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -91,7 +91,7 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 		
 		
 		File meanFile = new File(dir + shortName + "_3sec_mean.txt");
-		DiscretizedFuncAPI meanCurve;
+		DiscretizedFunc meanCurve;
 		if (meanFile.exists() && SKIP_EXISTING_CURVES) {
 			System.out.println(meanFile.getName() + " already exists...skipping calculation!");
 			meanCurve = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(meanFile.getAbsolutePath());
@@ -101,7 +101,7 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 		}
 		
 		File xFile = new File(dir + shortName + "_3sec_X.txt");
-		DiscretizedFuncAPI xCurve;
+		DiscretizedFunc xCurve;
 		if (xFile.exists() && SKIP_EXISTING_CURVES) {
 			System.out.println(xFile.getName() + " already exists...skipping calculation!");
 			xCurve = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(xFile.getAbsolutePath());
@@ -111,7 +111,7 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 		}
 		
 		File yFile = new File(dir + shortName + "_3sec_Y.txt");
-		DiscretizedFuncAPI yCurve;
+		DiscretizedFunc yCurve;
 		if (yFile.exists() && SKIP_EXISTING_CURVES) {
 			System.out.println(yFile.getName() + " already exists...skipping calculation!");
 			yCurve = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(yFile.getAbsolutePath());
@@ -120,7 +120,7 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 			ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(yCurve, yFile.getAbsolutePath());
 		}
 		
-		ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
+		ArrayList<DiscretizedFunc> curves = new ArrayList<DiscretizedFunc>();
 		curves.add(meanCurve);
 		curves.add(xCurve);
 		curves.add(yCurve);

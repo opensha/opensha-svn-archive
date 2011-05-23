@@ -23,7 +23,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
@@ -54,7 +54,7 @@ public class RiskCurveApp extends JFrame implements Runnable {
 	private JButton btnClear = null;
 	
 	/* Other Variables for the Application */
-	ArrayList<DiscretizedFuncAPI> lossFuncs = null;
+	ArrayList<DiscretizedFunc> lossFuncs = null;
 	
 	/**
 	 * Entry point for the Risk Curve Application.  This will
@@ -85,7 +85,7 @@ public class RiskCurveApp extends JFrame implements Runnable {
 	}
 	
 	private void jbInit() {
-		lossFuncs = new ArrayList<DiscretizedFuncAPI>();
+		lossFuncs = new ArrayList<DiscretizedFunc>();
 		siteBean = new Site_GuiBean();
 		lossBean = new LossCurveBean(siteBean);
 		hazBean = new HazardCurveBean(siteBean);

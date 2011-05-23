@@ -58,7 +58,7 @@ import javax.swing.border.Border;
 import org.apache.commons.lang.SystemUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -834,7 +834,7 @@ IMR_GuiBeanAPI{
 	 * @param originalFunc :  this is the function with X values set
 	 */
 	//  private void initX_Values(DiscretizedFuncAPI arb,ArrayList<Double> imls, String imt){
-	private void initX_Values(DiscretizedFuncAPI arb, double[] imls, String imt){
+	private void initX_Values(DiscretizedFunc arb, double[] imls, String imt){
 
 		IMT_Info imtInfo = new IMT_Info();
 		if (imtInfo.isIMT_LogNormalDist(imt)) {
@@ -1032,7 +1032,7 @@ IMR_GuiBeanAPI{
 	//  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,ArrayList<Double> imls){
 	private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,double[] imls){
 		int numPoints = hazFunc.getNum();
-		DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+		DiscretizedFunc tempFunc = hazFunc.deepClone();
 		hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV ,SA or FaultDispl
 		for(int i=0;i<tempFunc.getNum();++i)

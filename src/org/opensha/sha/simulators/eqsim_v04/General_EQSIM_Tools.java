@@ -23,9 +23,9 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -889,7 +889,7 @@ public class General_EQSIM_Tools {
 		mfd.setInfo("  ");
 				
 		if(makePlot){
-			ArrayList<DiscretizedFuncAPI> mfdList = new ArrayList<DiscretizedFuncAPI>();
+			ArrayList<DiscretizedFunc> mfdList = new ArrayList<DiscretizedFunc>();
 			mfdList.add(mfd);
 			mfdList.add(mfd.getCumRateDistWithOffset());
 			mfdList.get(1).setName("Total Simulator Cumulative Mag Freq Dist");
@@ -1327,7 +1327,7 @@ public class General_EQSIM_Tools {
 			
 			// now do correlations for each section
 			tempInfoString +="\nCorrelations (and chance it's random) between Observed-tpInterval2 & tpInterval2-spInterval2 by Section:\n";
-			ArrayList<XY_DataSet> obs_tp2_funcs = new ArrayList<XY_DataSet>();
+			ArrayList<DefaultXY_DataSet> obs_tp2_funcs = new ArrayList<DefaultXY_DataSet>();
 			for(int s=0;s<namesOfSections.size();s++) {
 				ArrayList<Double> vals1 = new ArrayList<Double>();
 				ArrayList<Double> vals2 = new ArrayList<Double>();
@@ -1345,7 +1345,7 @@ public class General_EQSIM_Tools {
 					tempInfoString +="\t"+(s+1)+"\t"+(float)result[0]+"\t("+(float)result[1]+
 							")\t"+(float)result2[0]+"\t("+(float)result2[1]+")\tfor section "+namesOfSections.get(s)+" (num points = "+vals1.size()+")\n";
 					// make XY data for plot
-					XY_DataSet xy_data = new XY_DataSet(vals2,vals1);
+					DefaultXY_DataSet xy_data = new DefaultXY_DataSet(vals2,vals1);
 					xy_data.setName(namesOfSections.get(s));
 					obs_tp2_funcs.add(xy_data);
 
@@ -1365,8 +1365,8 @@ public class General_EQSIM_Tools {
 			tempInfoString +="\nCorrelations (and chance it's random) between Predicted Intervals That Involve Element ID="+testElementID+":\n";
 			result = getCorrelationAndP_Value(tpInterval2ListForTestElement, spInterval2ListForTestElement);
 			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2ListForTestElement.size()+")\n";
-			ArrayList<XY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<XY_DataSet>();
-			XY_DataSet xy_data = new XY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
+			ArrayList<DefaultXY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<DefaultXY_DataSet>();
+			DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
 			obs_tp1_funcsForTestElement.add(xy_data);
 			GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
 			graph2.setX_AxisLabel("Time-Pred RI (years)");
@@ -1578,10 +1578,10 @@ public class General_EQSIM_Tools {
 		
 		// make plot if desired
 		if(makePlot) {
-			XY_DataSet xy_data = new XY_DataSet(imposedSlipRate,obsAveSlipRate);
+			DefaultXY_DataSet xy_data = new DefaultXY_DataSet(imposedSlipRate,obsAveSlipRate);
 			xy_data.setName("Obs versus Imposed Slip Rate");
 			xy_data.setInfo(" ");
-			ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+			ArrayList<DefaultXY_DataSet> funcs = new ArrayList<DefaultXY_DataSet>();
 			funcs.add(xy_data);
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip Rate Comparison");   
 			graph.setX_AxisLabel("Imposed Slip Rate (m/s)");
@@ -1629,7 +1629,7 @@ public class General_EQSIM_Tools {
 		/**/
 		
 		// SLIP VS LENGTH PLOT
-		XY_DataSet s_vs_l_data = new XY_DataSet(slip,length);
+		DefaultXY_DataSet s_vs_l_data = new DefaultXY_DataSet(slip,length);
 		s_vs_l_data.setName("Mean Slip vs Length");
 		s_vs_l_data.setInfo(" ");
 		ArrayList s_vs_l_funcs = new ArrayList();
@@ -1642,7 +1642,7 @@ public class General_EQSIM_Tools {
 		s_vs_l_graph.setPlottingFeatures(s_vs_l_curveChar);
 		
 		// MAG VS AREA PLOT
-		XY_DataSet m_vs_a_data = new XY_DataSet(area,mag);
+		DefaultXY_DataSet m_vs_a_data = new DefaultXY_DataSet(area,mag);
 		m_vs_a_data.setName("Mag-Area data from simulation");
 		m_vs_a_data.setInfo(" ");
 		ArrayList m_vs_a_funcs = new ArrayList();
@@ -1670,7 +1670,7 @@ public class General_EQSIM_Tools {
 		m_vs_a_graph.setY_AxisRange(4.5, 8.5);
 	/**/
 		// MAG VS LENGTH PLOT
-		XY_DataSet m_vs_l_data = new XY_DataSet(length,mag);
+		DefaultXY_DataSet m_vs_l_data = new DefaultXY_DataSet(length,mag);
 		m_vs_l_data.setName("Mag vs Length");
 		m_vs_l_data.setInfo(" ");
 		ArrayList m_vs_l_funcs = new ArrayList();
@@ -1838,7 +1838,7 @@ public class General_EQSIM_Tools {
 		
 		if(makePlot){
 			// funcs added first plot on top
-			ArrayList<DiscretizedFuncAPI> funcList = new ArrayList<DiscretizedFuncAPI>();
+			ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
 			funcList.add(func);
 			EvenlyDiscretizedFunc parsFunc = ucerf2_dataFetcher.getParsons95PercentPoisFunction(loc);
 			if(parsFunc != null)

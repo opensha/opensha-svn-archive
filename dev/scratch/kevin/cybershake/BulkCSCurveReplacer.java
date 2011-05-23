@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
@@ -33,7 +33,7 @@ public class BulkCSCurveReplacer {
 	private ArrayList<CybershakeSite> ampSites;
 	private ArrayList<CybershakeRun> ampRuns;
 	private HashMap<Integer, ArrayList<CybershakeHazardCurveRecord>> curveRecordsMap;
-	private HashMap<Integer, ArrayList<DiscretizedFuncAPI>> curvesMap;
+	private HashMap<Integer, ArrayList<DiscretizedFunc>> curvesMap;
 	
 	private HashMap<Integer, CybershakeIM> imMap = new HashMap<Integer, CybershakeIM>();
 	
@@ -53,7 +53,7 @@ public class BulkCSCurveReplacer {
 		ampRuns = amps2db.getPeakAmpRuns();
 		ampSites = new ArrayList<CybershakeSite>();
 		curveRecordsMap = new HashMap<Integer, ArrayList<CybershakeHazardCurveRecord>>();
-		curvesMap = new HashMap<Integer, ArrayList<DiscretizedFuncAPI>>();
+		curvesMap = new HashMap<Integer, ArrayList<DiscretizedFunc>>();
 		
 		for (CybershakeRun run : ampRuns) {
 			if (runIDs != null && !runIDs.contains(run.getRunID()))
@@ -61,7 +61,7 @@ public class BulkCSCurveReplacer {
 			ampSites.add(sites2db.getSiteFromDB(run.getSiteID()));
 			ArrayList<CybershakeHazardCurveRecord> records = curve2db.getHazardCurveRecordsForRun(run.getRunID());
 			if (records != null && !records.isEmpty()) {
-				ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
+				ArrayList<DiscretizedFunc> curves = new ArrayList<DiscretizedFunc>();
 				for (CybershakeHazardCurveRecord record : records) {
 					curves.add(curve2db.getHazardCurve(record.getCurveID()));
 				}
@@ -98,12 +98,12 @@ public class BulkCSCurveReplacer {
 		
 		for (CybershakeRun run : ampRuns) {
 			ArrayList<CybershakeHazardCurveRecord> records = curveRecordsMap.get(new Integer(run.getRunID()));
-			ArrayList<DiscretizedFuncAPI> curves = curvesMap.get(new Integer(run.getRunID()));
+			ArrayList<DiscretizedFunc> curves = curvesMap.get(new Integer(run.getRunID()));
 			if (records == null)
 				continue;
 			for (int i=0; i<records.size(); i++) {
 				CybershakeHazardCurveRecord record = records.get(i);
-				DiscretizedFuncAPI curve = curves.get(i);
+				DiscretizedFunc curve = curves.get(i);
 				
 				String fileName = dir + getFileName(run.getRunID(), record.getCurveID());
 				
@@ -112,7 +112,7 @@ public class BulkCSCurveReplacer {
 		}
 	}
 	
-	private boolean doesCurveHaveXValues(DiscretizedFuncAPI curve, ArrayList<Double> xVals) {
+	private boolean doesCurveHaveXValues(DiscretizedFunc curve, ArrayList<Double> xVals) {
 		if (xVals.size() != curve.getNum())
 			return false;
 		for (int i=0; i<curve.getNum(); i++) {
@@ -161,7 +161,7 @@ public class BulkCSCurveReplacer {
 				File curveFile = new File(fileName);
 				if (curveFile.exists()) {
 					try {
-						DiscretizedFuncAPI oldFunc = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(fileName);
+						DiscretizedFunc oldFunc = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(fileName);
 						if (oldFunc.getNum() == imVals.size())
 							continue;
 					} catch (Exception e) {
@@ -188,7 +188,7 @@ public class BulkCSCurveReplacer {
 				
 				System.out.println("Calculating curve: " + record);
 				long prev = System.currentTimeMillis();
-				DiscretizedFuncAPI curve = calc.computeHazardCurve(imVals, run, im);
+				DiscretizedFunc curve = calc.computeHazardCurve(imVals, run, im);
 				double secs = ((double)(System.currentTimeMillis() - prev)) / 1000d;
 				
 				// hit at garbage collection every 10 curves
@@ -227,7 +227,7 @@ public class BulkCSCurveReplacer {
 				File doneFile = new File(doneFileName);
 				if (curveFile.exists() && !doneFile.exists()) {
 					try {
-						DiscretizedFuncAPI func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(newFileName);
+						DiscretizedFunc func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(newFileName);
 						curve2db.replaceHazardCurve(record.getCurveID(), func);
 						ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(func, doneFileName);
 					} catch (IOException e) {

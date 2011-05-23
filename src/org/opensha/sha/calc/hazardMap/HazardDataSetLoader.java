@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
@@ -104,7 +104,7 @@ public class HazardDataSetLoader {
 		return xyz;
 	}
 
-	public static double getCurveVal(DiscretizedFuncAPI func, boolean isProbAt_IML, double level) {
+	public static double getCurveVal(DiscretizedFunc func, boolean isProbAt_IML, double level) {
 		// TODO should this be logXlogY or just logY?
 		if (isProbAt_IML) {
 			//final iml value returned after interpolation in log space

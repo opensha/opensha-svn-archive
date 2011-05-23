@@ -564,7 +564,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 *
 	 * This is a deep clone so all fields and all data points are copies. <p>
 	 */
-	public DiscretizedFuncAPI deepClone(){
+	public DiscretizedFunc deepClone(){
 
 		EvenlyDiscretizedFunc f = new EvenlyDiscretizedFunc(
 				minX, num, delta
@@ -588,7 +588,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * Determines if two functions are the same by comparing
 	 * that each point x value is the same, within tolerance
 	 */
-	public boolean equalXValues(DiscretizedFuncAPI function){
+	public boolean equalXValues(DiscretizedFunc function){
 		//String S = C + ": equalXValues():";
 
 		if( !(function instanceof EvenlyDiscretizedFunc ) ) return false;
@@ -633,7 +633,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * that each point x value is the same, within tolerance,
 	 * and that each y value is the same, including nulls.
 	 */
-	public boolean equalXAndYValues(DiscretizedFuncAPI function){
+	public boolean equalXAndYValues(DiscretizedFunc function){
 		//String S = C + ": equalXAndYValues():";
 
 		if( !equalXValues(function) ) return false;

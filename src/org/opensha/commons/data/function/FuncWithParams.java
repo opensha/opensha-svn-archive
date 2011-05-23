@@ -40,7 +40,7 @@ import org.opensha.commons.param.ParameterList;
  * @version 1.0
  */
 
-public interface FuncWithParamsAPI {
+public interface FuncWithParams {
 
 
     /**
@@ -53,7 +53,7 @@ public interface FuncWithParamsAPI {
      * Returns true if the second function has the same named parameter values. One
      * current use is to determine if two XYDiscretizedFunction2DAPIs are the same.
      */
-    public boolean equalParameterNamesAndValues(FuncWithParamsAPI function);
+    public boolean equalParameterNamesAndValues(FuncWithParams function);
 
     /**
      * Returns true if the second function has the same named parameters in
@@ -61,7 +61,7 @@ public interface FuncWithParamsAPI {
      * are different instances of the same function, i.e. same function with
      * different input parameters.
      */
-    public boolean equalParameterNames(FuncWithParamsAPI function);
+    public boolean equalParameterNames(FuncWithParams function);
 
     /**
      * This parameter list is the set of parameters that went into

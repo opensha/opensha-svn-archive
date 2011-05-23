@@ -35,7 +35,7 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.io.HTMLWriter;
 import org.dom4j.tree.DefaultElement;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.calc.HazardCurveCalculator;
 
 /**
@@ -212,7 +212,7 @@ public class TestAdmin {
 				HazardCurveCalculator calc = new HazardCurveCalculator();
 				calc.setMaxSourceDistance(TestConfig.MAX_DISTANCE);
 				calc.setIncludeMagDistCutoff(false);
-				DiscretizedFuncAPI adf = calc.getHazardCurve(
+				DiscretizedFunc adf = calc.getHazardCurve(
 						tc.getFunction(),
 						tc.getSite(),
 						tc.getIMR(),

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -56,11 +56,11 @@ public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
 		CybershakeIM imType = new PeakAmplitudesFromDB(db).getIMForPeriod(3d, runID);
 		
 		calc.setRupProbModifier(div365);
-		DiscretizedFuncAPI origCurve = calc.computeHazardCurve(imlVals, runID, imType);
+		DiscretizedFunc origCurve = calc.computeHazardCurve(imlVals, runID, imType);
 		ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(origCurve, "/tmp/origCurve_"+runID+".txt");
 		
 		calc.setRupVarProbModifier(bombay);
-		DiscretizedFuncAPI modCurve = calc.computeHazardCurve(imlVals, runID, imType);
+		DiscretizedFunc modCurve = calc.computeHazardCurve(imlVals, runID, imType);
 		ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(modCurve, "/tmp/modCurve_"+runID+".txt");
 		
 		SingleCurveDebugTest plot = new SingleCurveDebugTest();
@@ -70,8 +70,8 @@ public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
 		System.exit(0);
 	}
 	
-	public void plot(DiscretizedFuncAPI origCurve, DiscretizedFuncAPI modCurve, String outFile) throws IOException {
-		ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
+	public void plot(DiscretizedFunc origCurve, DiscretizedFunc modCurve, String outFile) throws IOException {
+		ArrayList<DiscretizedFunc> curves = new ArrayList<DiscretizedFunc>();
 		curves.add(origCurve);
 		curves.add(modCurve);
 		

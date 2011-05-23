@@ -16,7 +16,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
@@ -156,8 +156,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		int numERFs = ucerf2EpistemicList.getNumERFs(); // number of logic tree branches
 		//	now write the probability contribtuions of each source in each branch of logic tree
 		int startRowIndex = 2;
-		DiscretizedFuncAPI bckgroundProbs = null;
-		DiscretizedFuncAPI cZoneProbs =null;
+		DiscretizedFunc bckgroundProbs = null;
+		DiscretizedFunc cZoneProbs =null;
 		ucerf2EpistemicList.getTimeSpan().setDuration(duration);
 		for(int erfIndex=0; erfIndex<numERFs; ++erfIndex) {
 			System.out.println("Doing run "+(erfIndex+1)+" of "+numERFs);
@@ -169,10 +169,10 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 				ucerf2.getTotal_C_ZoneProb(cZoneProbs, region);
 				ucerf2.getTotal_BackgroundProb(bckgroundProbs, region);
 			}
-			DiscretizedFuncAPI aFaultsProbs = getDiscretizedFunc();
-			DiscretizedFuncAPI bFaultsProbs = getDiscretizedFunc();
-			DiscretizedFuncAPI nonCA_B_FaultsProbs = getDiscretizedFunc();
-			DiscretizedFuncAPI totalProbs = getDiscretizedFunc();
+			DiscretizedFunc aFaultsProbs = getDiscretizedFunc();
+			DiscretizedFunc bFaultsProbs = getDiscretizedFunc();
+			DiscretizedFunc nonCA_B_FaultsProbs = getDiscretizedFunc();
+			DiscretizedFunc totalProbs = getDiscretizedFunc();
 
 			ucerf2.getTotal_A_FaultsProb(aFaultsProbs, region);
 			ucerf2.getTotal_B_FaultsProb(bFaultsProbs, region);
@@ -184,7 +184,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			for(int i=0; i<sources.length; ++i) {
 				row1 = workbook.getSheet(sources[i]).createRow(startRowIndex+erfIndex);
 				row1.createCell((short)0).setCellValue("Branch "+(erfIndex+1));
-				DiscretizedFuncAPI func=null;
+				DiscretizedFunc func=null;
 				if(sources[i].equals(this.A_FAULTS)) func = aFaultsProbs;
 				else if(sources[i].equals(this.B_FAULTS)) func = bFaultsProbs;
 				else if(sources[i].equals(this.NON_CA_B_FAULTS)) func = nonCA_B_FaultsProbs;
@@ -199,7 +199,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 			// each A-Fault
 			for(int i=0; i<aFaultNames.length; ++i) {
-				DiscretizedFuncAPI aFaultProbDist = getDiscretizedFunc();
+				DiscretizedFunc aFaultProbDist = getDiscretizedFunc();
 				row1 = workbook.getSheet(aFaultNames[i]).createRow(startRowIndex+erfIndex);
 				row1.createCell((short)0).setCellValue("Branch "+(erfIndex+1));
 				ucerf2.getProbForA_Fault(aFaultNames[i], aFaultProbDist, region);
@@ -209,7 +209,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 			//each B-Fault
 			for(int i=0; i<bFaultNames.length; ++i) {
-				DiscretizedFuncAPI bFaultProbDist = getDiscretizedFunc();
+				DiscretizedFunc bFaultProbDist = getDiscretizedFunc();
 				row1 = workbook.getSheet(bFaultNames[i]).createRow(startRowIndex+erfIndex);
 				row1.createCell((short)0).setCellValue("Branch "+(erfIndex+1));
 				ucerf2.getProbsForB_Fault(bFaultNames[i], bFaultProbDist, region);
@@ -238,10 +238,10 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 * @param cZoneProbs
 	 * @param bckgroundProbs
 	 */
-	private void getTotalProb(DiscretizedFuncAPI totalProbs, 
-			DiscretizedFuncAPI aFaultsProbs, 
-			DiscretizedFuncAPI bFaultsProbs, DiscretizedFuncAPI nonCA_B_FaultsProbs, 
-			DiscretizedFuncAPI cZoneProbs, DiscretizedFuncAPI bckgroundProbs) {
+	private void getTotalProb(DiscretizedFunc totalProbs, 
+			DiscretizedFunc aFaultsProbs, 
+			DiscretizedFunc bFaultsProbs, DiscretizedFunc nonCA_B_FaultsProbs, 
+			DiscretizedFunc cZoneProbs, DiscretizedFunc bckgroundProbs) {
 		int numMags = totalProbs.getNum();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
@@ -260,7 +260,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 * 
 	 * @return
 	 */
-	private DiscretizedFuncAPI getDiscretizedFunc() {
+	private DiscretizedFunc getDiscretizedFunc() {
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		for(int i=0; i<mags.length; ++i) func.set(mags[i], 1.0);
 		return func;

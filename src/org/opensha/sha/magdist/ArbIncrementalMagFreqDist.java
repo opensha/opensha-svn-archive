@@ -19,7 +19,7 @@
 
 package org.opensha.sha.magdist;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -63,7 +63,7 @@ public class ArbIncrementalMagFreqDist
    * @param preserveRates specifies whether to preserve rates or moment rates
    */
 
-  public void setResampledMagFreqDist(DiscretizedFuncAPI func, boolean preserveRates) {
+  public void setResampledMagFreqDist(DiscretizedFunc func, boolean preserveRates) {
 
 	  for (int i=0;i<func.getNum();++i) {     // add the y values from this new distribution
 		  addResampledMagRate(func.getX(i), func.getY(i), preserveRates);
@@ -75,7 +75,7 @@ public class ArbIncrementalMagFreqDist
    * 
    * @param cumFunc
    */
-  public void setCumRateDist(DiscretizedFuncAPI cumFunc) {
+  public void setCumRateDist(DiscretizedFunc cumFunc) {
 	  double halfDelta = this.delta/2;
 	  double mag, mag1, mag2, rate1, rate2, rate;
 	  double minX = cumFunc.getMinX(), maxX = cumFunc.getMaxX();

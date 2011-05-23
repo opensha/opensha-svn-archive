@@ -7,7 +7,7 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 
 public class DataUtilsTest {
 
@@ -88,7 +88,7 @@ public class DataUtilsTest {
 	public void testNNhist() {
 		double delta = 0.0001;
 		
-		XY_DataSet xy = nearestNeighborHist(nnDat, 1, 3);
+		DefaultXY_DataSet xy = nearestNeighborHist(nnDat, 1, 3);
 		assertTrue(xy.getNum() == 6);
 		assertEquals(1.5, xy.getY(0), delta);
 		assertEquals(3.0, xy.getY(1), delta);

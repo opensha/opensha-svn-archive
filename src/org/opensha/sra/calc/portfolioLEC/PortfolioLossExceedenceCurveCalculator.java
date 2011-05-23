@@ -9,7 +9,7 @@ import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -57,7 +57,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 			ScalarIMR imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
-			DiscretizedFuncAPI function) {
+			DiscretizedFunc function) {
 		// TODO actually use the function that's passed in
 		
 		// data arrays
@@ -533,7 +533,7 @@ ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 			ScalarIMR imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
-			DiscretizedFuncAPI function) {
+			DiscretizedFunc function) {
 		
 		PortfolioRuptureResults[][] rupResults = calculateCurve(imr, erf, portfolio, function);
 		
@@ -544,7 +544,7 @@ ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 			ScalarIMR imr,
 			EqkRupForecastAPI erf,
 			Portfolio portfolio,
-			DiscretizedFuncAPI function) {
+			DiscretizedFunc function) {
 		// TODO implement frequency
 		return null;
 	}

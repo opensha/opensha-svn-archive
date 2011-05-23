@@ -11,7 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
@@ -136,7 +136,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 				site.addParameter(DEPTH_2_5KM_PARAM);
 				
 				// do log of X axis values
-				DiscretizedFuncAPI hazFunc = new ArbitrarilyDiscretizedFunc();
+				DiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 				for(int i=0; i<numX_Vals; ++i)
 					hazFunc.set(Math.log(function.getX(i)), 1);
 				
@@ -144,7 +144,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 				this.hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, meanUCERF2);
 				
 				// Unlog the X-Values before doing interpolation. The Y Values we get from hazardCurveCalculator are unmodified
-				DiscretizedFuncAPI newFunc = new ArbitrarilyDiscretizedFunc();
+				DiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
 				for(int i=0; i<numX_Vals; ++i)
 					newFunc.set(function.getX(i), hazFunc.getY(i));
 				

@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.AbstractGeoDataSet;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
@@ -101,13 +101,13 @@ public class HardCodedInterpDiffMapCreator {
 		
 		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
 		
-		ArrayList<DiscretizedFuncAPI> curves = fetcher.getFuncs();
+		ArrayList<DiscretizedFunc> curves = fetcher.getFuncs();
 		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
 		
 		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		
 		for (int i=0; i<curves.size(); i++) {
-			DiscretizedFuncAPI curve = curves.get(i);
+			DiscretizedFunc curve = curves.get(i);
 			CybershakeSite site = sites.get(i);
 			
 //			System.out.println("loaded curve with "+curve.getNum()+" vals");

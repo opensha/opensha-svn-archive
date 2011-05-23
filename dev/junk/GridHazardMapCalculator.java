@@ -9,7 +9,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
@@ -157,7 +157,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
   *
   * @param originalFunc :  this is the function with X values set
   */
- private void initX_Values(DiscretizedFuncAPI arb, double[] xValues) {
+ private void initX_Values(DiscretizedFunc arb, double[] xValues) {
    // take log only if it is PGA, PGV or SA
    if (this.xLogFlag) {
      for (int i = 0; i < xValues.length; ++i)
@@ -178,7 +178,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(
      ArbitrarilyDiscretizedFunc hazFunc, double[] xValues) {
    int numPoints = hazFunc.getNum();
-   DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+   DiscretizedFunc tempFunc = hazFunc.deepClone();
    hazFunc = new ArbitrarilyDiscretizedFunc();
    // take log only if it is PGA, PGV or SA
    if (this.xLogFlag) {

@@ -8,7 +8,7 @@ import java.text.DecimalFormat;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 
 /**
@@ -108,7 +108,7 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		File file = new File(outFileName);
 		if (file.exists()) {
 			try {
-				DiscretizedFuncAPI func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(outFileName);
+				DiscretizedFunc func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(outFileName);
 				if (func.getNum() == xVals.getNum()) {
 					boolean match = true;
 					for (int i=0; i<func.getNum(); i++) {

@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.Parameter;
@@ -367,7 +367,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
         this.setIMT(imr);
         setSiteParamsInIMR(imr,willsClass, basinDepth);
         imr.setEqkRupture(rupture);
-        DiscretizedFuncAPI arb = initX_Values();
+        DiscretizedFunc arb = initX_Values();
         imr.getExceedProbabilities(arb);
         toggleHazFuncLogValues(arb);
         fw.write("#Exceed Prob Vals for :"+imr.getName()+"\n");
@@ -390,8 +390,8 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    *
    * @param originalFunc :  this is the function with X values set
    */
-  private DiscretizedFuncAPI initX_Values(){
-    DiscretizedFuncAPI arb = new ArbitrarilyDiscretizedFunc();
+  private DiscretizedFunc initX_Values(){
+    DiscretizedFunc arb = new ArbitrarilyDiscretizedFunc();
       for(int i=0;i<xyVals.getNum();++i)
         arb.set(Math.log(xyVals.getX(i)),1);
       return arb;
@@ -406,7 +406,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    *
    * @param hazFunction :  this is the function with X values set
    */
-  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(DiscretizedFuncAPI arb){
+  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(DiscretizedFunc arb){
 
       for(int i=0; i<arb.getNum(); ++i)
         xyVals.set(i, arb.getY(i));

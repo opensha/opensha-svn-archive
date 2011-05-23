@@ -46,7 +46,7 @@ import org.opensha.commons.exceptions.XY_DataSetException;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class XY_DataSetList extends ArrayList<XY_DataSetAPI> {
+public class XY_DataSetList extends ArrayList<XY_DataSet> {
 
 
     /**
@@ -169,11 +169,11 @@ public class XY_DataSetList extends ArrayList<XY_DataSetAPI> {
 
         XY_DataSetList l = new XY_DataSetList();
 
-        ListIterator<XY_DataSetAPI> it = listIterator();
+        ListIterator<XY_DataSet> it = listIterator();
         while(it.hasNext()){
 
             // This list's parameter
-            XY_DataSetAPI f = ((XY_DataSetAPI)it.next()).deepClone();
+            XY_DataSet f = ((XY_DataSet)it.next()).deepClone();
             l.add( f );
 
         }
@@ -215,11 +215,11 @@ public class XY_DataSetList extends ArrayList<XY_DataSetAPI> {
         b.append("Y-Axis: " + this.yAxisName + '\n');
         b.append("Number of Data Sets: " + this.size() + '\n');
 
-        ListIterator<XY_DataSetAPI> it = listIterator();
+        ListIterator<XY_DataSet> it = listIterator();
         int counter = 0;
         while( it.hasNext() ){
 
-            XY_DataSetAPI function = (XY_DataSetAPI)it.next();
+            XY_DataSet function = (XY_DataSet)it.next();
             Iterator<Point2D> it2 = function.getPointsIterator();
 
             counter++;
@@ -273,13 +273,13 @@ public class XY_DataSetList extends ArrayList<XY_DataSetAPI> {
         double[] xx = new double[numPoints];
 //        String[] rows = new String[numPoints];
 
-        ListIterator<XY_DataSetAPI> it1 = listIterator();
+        ListIterator<XY_DataSet> it1 = listIterator();
         boolean first = true;
         int counter = 0;
         b.append("\nColumn " + (counter + 1) + ". X-Axis" );
         while( it1.hasNext() ){
 
-            XY_DataSetAPI function = (XY_DataSetAPI)it1.next();
+            XY_DataSet function = (XY_DataSet)it1.next();
             b.append("\nColumn " + (counter + 2) + ". Y-Axis: " + function.toString());
 
             Iterator<Point2D> it = function.getPointsIterator();

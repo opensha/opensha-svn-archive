@@ -38,7 +38,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
@@ -435,8 +435,8 @@ public class DataGenerator_HazardCurves
 		}
   }
   
-  public ArrayList<DiscretizedFuncAPI> getHazardCurveFunction() {
-    ArrayList<DiscretizedFuncAPI> functionList = new ArrayList<DiscretizedFuncAPI>();
+  public ArrayList<DiscretizedFunc> getHazardCurveFunction() {
+    ArrayList<DiscretizedFunc> functionList = new ArrayList<DiscretizedFunc>();
     functionList.add(hazardCurveFunction);
     return functionList;
   }

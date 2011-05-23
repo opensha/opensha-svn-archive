@@ -63,7 +63,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.gui.DisclaimerDialog;
@@ -947,7 +947,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 						FileWriter peerFile = new FileWriter(peerDirName
 								+ (String) testCases.get(i)
 								+ "-PGA_OpenSHA.txt");
-						DiscretizedFuncAPI func = (DiscretizedFuncAPI) functionList
+						DiscretizedFunc func = (DiscretizedFunc) functionList
 						.get(0);
 						for (int j = 0; j < func.getNum(); ++j)
 							peerFile.write(func.get(j).getX() + "\t"
@@ -2619,7 +2619,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	 * @param originalFunc
 	 *            : this is the function with X values set
 	 */
-	private void initX_Values(DiscretizedFuncAPI arb) {
+	private void initX_Values(DiscretizedFunc arb) {
 
 		// if not using custom values get the function according to IMT.
 		if (!useCustomX_Values)
@@ -2646,7 +2646,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(
 			ArbitrarilyDiscretizedFunc hazFunc) {
 		int numPoints = hazFunc.getNum();
-		DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+		DiscretizedFunc tempFunc = hazFunc.deepClone();
 		hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV ,SA or FaultDispl
 
@@ -3065,7 +3065,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	 * @param function
 	 *            DiscretizedFuncAPI
 	 */
-	public void addCybershakeCurveData(DiscretizedFuncAPI function) {
+	public void addCybershakeCurveData(DiscretizedFunc function) {
 		functionList.add(function);
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(

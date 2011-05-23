@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.cybershake.gui.BatchSiteAddGUI.CybershakeCutoffSite;
 
 public class HazardCurve2DB {
@@ -407,8 +407,8 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public DiscretizedFuncAPI getHazardCurve(int id) {
-		DiscretizedFuncAPI hazardFunc = null;
+	public DiscretizedFunc getHazardCurve(int id) {
+		DiscretizedFunc hazardFunc = null;
 		
 		String sql = "SELECT X_Value, Y_Value FROM Hazard_Curve_Points WHERE Hazard_Curve_ID=" + id + 
 						" ORDER BY X_Value";
@@ -438,14 +438,14 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public void insertHazardCurve(CybershakeRun run, int imTypeID, DiscretizedFuncAPI hazardFunc) {
+	public void insertHazardCurve(CybershakeRun run, int imTypeID, DiscretizedFunc hazardFunc) {
 		int datasetID = hd2db.getDefaultDatasetID(run);
 		if (datasetID < 0)
 			throw new RuntimeException("No dataset ID exists for run: "+run+"\nCurve cannot be inserted.");
 		insertHazardCurve(run.getRunID(), imTypeID, hazardFunc, datasetID);
 	}
 	
-	public void insertHazardCurve(int runID, int imTypeID, DiscretizedFuncAPI hazardFunc, int datasetID) {
+	public void insertHazardCurve(int runID, int imTypeID, DiscretizedFunc hazardFunc, int datasetID) {
 		int id = this.insertHazardCurveID(runID, imTypeID, datasetID);
 		this.insertHazardCurvePoints(id, hazardFunc);
 	}
@@ -530,7 +530,7 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public void replaceHazardCurve(int curveID, DiscretizedFuncAPI hazardFunc) {
+	public void replaceHazardCurve(int curveID, DiscretizedFunc hazardFunc) {
 		this.deleteHazardCurvePoints(curveID);
 		
 		this.insertHazardCurvePoints(curveID, hazardFunc);
@@ -576,7 +576,7 @@ public class HazardCurve2DB {
 		return this.getHazardCurveID(runID, imTypeID);
 	}
 	
-	public void insertHazardCurvePoints(int id, DiscretizedFuncAPI hazardFunc) {
+	public void insertHazardCurvePoints(int id, DiscretizedFunc hazardFunc) {
 		String sql = "INSERT into Hazard_Curve_Points "+ 
 				"(Hazard_Curve_ID,X_Value,Y_Value) "+
 				"VALUES";
@@ -723,7 +723,7 @@ public class HazardCurve2DB {
 		System.out.println("ID: " + hc.getHazardCurveID(2, 34, 3, 5, 1, 21));
 		System.out.println("ID: " + hc.getHazardCurveID(26, 34, 3, 5, 1, 21));
 		
-		DiscretizedFuncAPI hazardFunc = hc.getHazardCurve(1);
+		DiscretizedFunc hazardFunc = hc.getHazardCurve(1);
 		
 		System.out.println(hazardFunc.toString());
 		

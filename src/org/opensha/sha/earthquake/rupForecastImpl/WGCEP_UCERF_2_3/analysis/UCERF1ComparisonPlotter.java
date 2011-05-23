@@ -24,8 +24,8 @@ import java.util.ArrayList;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -124,7 +124,7 @@ public class UCERF1ComparisonPlotter {
 		// SJF and SSAF
 		IncrementalMagFreqDist sjWtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)sjIncrRateFuncList.get(0)).deepClone();
 		IncrementalMagFreqDist ssafWtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)ssafIncrRateFuncList.get(0)).deepClone();
-		XY_DataSetAPI func = sjIncrRateFuncList.get(0);
+		XY_DataSet func = sjIncrRateFuncList.get(0);
 		for(int imag=0; imag<func.getNum(); ++imag) {
 			double val1 = 0.5*sjIncrRateFuncList.get(0).getY(imag) + 0.2*sjIncrRateFuncList.get(1).getY(imag) + 0.3*sjIncrRateFuncList.get(2).getY(imag);
 			sjWtAveMFD.set(func.getX(imag), val1);
@@ -302,7 +302,7 @@ public class UCERF1ComparisonPlotter {
 			XY_DataSetList funcList = aFaultIncrRateFuncList.get(i);
 			//System.out.println("i="+i+", Funclist size="+funcList.size());
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
-			XY_DataSetAPI func = funcList.get(0);
+			XY_DataSet func = funcList.get(0);
 			for(int imag=0; imag<func.getNum(); ++imag) {
 				// D2.1
 				double val1 = 0.225*funcList.get(0).getY(imag) + 0.225*funcList.get(1).getY(imag) + 
@@ -403,7 +403,7 @@ public class UCERF1ComparisonPlotter {
 		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
 			XY_DataSetList funcList = bFaultIncrRateFuncList.get(i);
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
-			XY_DataSetAPI func = funcList.get(0);
+			XY_DataSet func = funcList.get(0);
 			
 			for(int imag=0; imag<func.getNum(); ++imag) 
 				wtAveMFD.set(func.getX(imag), 

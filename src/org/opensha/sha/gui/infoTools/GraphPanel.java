@@ -68,8 +68,8 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.ShapeUtilities;
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.commons.data.function.XY_DataSetAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
@@ -737,7 +737,7 @@ public class GraphPanel extends JSplitPane {
 				else{ //if element in the list are individual function then get their info and show as legend
 					((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
 							datasetName);
-					XY_DataSetAPI func = (XY_DataSetAPI)funcList.get(i);
+					XY_DataSet func = (XY_DataSet)funcList.get(i);
 					String functionInfo = func.getInfo();
 					String name = func.getName();
 					legend = new String(datasetName+"\n"+
@@ -788,7 +788,7 @@ public class GraphPanel extends JSplitPane {
 			Object obj = funcList.get(i);
 
 			if(!(obj instanceof WeightedFuncListforPlotting)){ //showing data for the individual function
-				XY_DataSetAPI function = (XY_DataSetAPI)obj;
+				XY_DataSet function = (XY_DataSet)obj;
 				b.append("\nDATASET #" + (i+1) + "\n\n");
 				b.append(function.toString()+ '\n');
 			}
@@ -805,7 +805,7 @@ public class GraphPanel extends JSplitPane {
 					for(int j=0;j<listSize;++j){
 						b.append("\nFunction #"+(j+1)+" of "+listSize+", from Dataset #"+(i+1)+
 								", with relative wt = "+(Double)wtList.get(j)+"\n");
-						DiscretizedFuncAPI function = (DiscretizedFuncAPI)list.get(j);
+						DiscretizedFunc function = (DiscretizedFunc)list.get(j);
 						b.append(function.getMetadataString()+ '\n');
 					}
 				}
@@ -818,7 +818,7 @@ public class GraphPanel extends JSplitPane {
 					int listSize = list.size();
 					for(int j=0;j<listSize;++j){
 						b.append("\n"+(Double)fractileValueList.get(j)+" Fractile for Dataset #"+(i+1)+"\n");
-						DiscretizedFuncAPI function = (DiscretizedFuncAPI)list.get(j);
+						DiscretizedFunc function = (DiscretizedFunc)list.get(j);
 						b.append(function.getMetadataString()+ '\n');
 					}
 				}
@@ -971,7 +971,7 @@ public class GraphPanel extends JSplitPane {
 					numColorArray.add(new Integer(list.size()));
 				}
 				if(weightedList.isMeanToPlot()){
-					DiscretizedFuncAPI meanFunc = weightedList.getMean();
+					DiscretizedFunc meanFunc = weightedList.getMean();
 					//String info = meanFunc.getInfo();
 					//meanFunc.setInfo("(c) "+info);
 					totalProbFuncs.add(meanFunc);
@@ -979,7 +979,7 @@ public class GraphPanel extends JSplitPane {
 				}
 			}
 			else{
-				totalProbFuncs.add((XY_DataSetAPI)obj);
+				totalProbFuncs.add((XY_DataSet)obj);
 				numColorArray.add(new Integer(1));
 			}
 		}
@@ -998,9 +998,9 @@ public class GraphPanel extends JSplitPane {
 			int val = ((Integer)numColorArray.get(i)).intValue();
 			//adding the new curves to the list for plot preferences.
 			if(i>=existingCurvesWithPlotPrefs) {
-				XY_DataSetAPI func = totalProbFuncs.get(i);
+				XY_DataSet func = totalProbFuncs.get(i);
 				String lineType;
-				if (func instanceof DiscretizedFuncAPI)
+				if (func instanceof DiscretizedFunc)
 					lineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
 				else
 					lineType = PlotColorAndLineTypeSelectorControlPanel.DIAMONDS;

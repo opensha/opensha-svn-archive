@@ -23,7 +23,7 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
@@ -65,7 +65,7 @@ public class XY_EstimateDB_DAO  {
 	 * @param estimate
 	 * @throws InsertException
 	 */
-	public void addEstimate(int estimateInstanceId, DiscretizedFuncAPI func) throws InsertException {
+	public void addEstimate(int estimateInstanceId, DiscretizedFunc func) throws InsertException {
 		int numPoints = func.getNum();
 		try {
 			for (int i = 0; i < numPoints; ++i) {
@@ -89,7 +89,7 @@ public class XY_EstimateDB_DAO  {
 	 * @return
 	 * @throws QueryException
 	 */
-	public void getEstimate(int estimateInstanceId, DiscretizedFuncAPI func) throws QueryException {
+	public void getEstimate(int estimateInstanceId, DiscretizedFunc func) throws QueryException {
 		String condition = " where " + EST_ID + "=" + estimateInstanceId;
 		// this awkward sql is needed else we get "Invalid scale exception"
 		String sql = "select "+EST_ID+",("+X+"+0) "+X+",("+Y+"+0) "+Y+" from "+TABLE_NAME+" "+condition;
