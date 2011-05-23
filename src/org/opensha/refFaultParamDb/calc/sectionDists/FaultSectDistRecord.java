@@ -7,7 +7,7 @@ import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 public class FaultSectDistRecord implements Serializable {
@@ -20,8 +20,8 @@ public class FaultSectDistRecord implements Serializable {
 	private Container2DImpl<Double> dists1;
 	private Container2DImpl<Double> dists2;
 	
-	private EvenlyGriddedSurfaceAPI surface1;
-	private EvenlyGriddedSurfaceAPI surface2;
+	private EvenlyGriddedSurface surface1;
+	private EvenlyGriddedSurface surface2;
 	
 	private Pairing pairing;
 	
@@ -46,7 +46,7 @@ public class FaultSectDistRecord implements Serializable {
 				data2.getSectionId(),  new StirlingGriddedSurface(data2.getSimpleFaultData(false), disc));
 	}
 	
-	public FaultSectDistRecord(int id1, EvenlyGriddedSurfaceAPI surface1, int id2, EvenlyGriddedSurfaceAPI surface2) {
+	public FaultSectDistRecord(int id1, EvenlyGriddedSurface surface1, int id2, EvenlyGriddedSurface surface2) {
 		// ensure the the lower id is first
 		if (id1 < id2) {
 			this.pairing = new Pairing(id1, id2);
@@ -59,7 +59,7 @@ public class FaultSectDistRecord implements Serializable {
 		}
 	}
 	
-	private static ArrayList<int[]> getCornerMidpts(EvenlyGriddedSurfaceAPI surface) {
+	private static ArrayList<int[]> getCornerMidpts(EvenlyGriddedSurface surface) {
 		ArrayList<int[]> pts = new ArrayList<int[]>();
 		
 		int lastRow = surface.getNumRows()-1;
@@ -210,11 +210,11 @@ public class FaultSectDistRecord implements Serializable {
 		return dists2;
 	}
 
-	public EvenlyGriddedSurfaceAPI getSurface1() {
+	public EvenlyGriddedSurface getSurface1() {
 		return surface1;
 	}
 
-	public EvenlyGriddedSurfaceAPI getSurface2() {
+	public EvenlyGriddedSurface getSurface2() {
 		return surface2;
 	}
 

@@ -25,7 +25,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 public class HAZ01A_FakeSource extends ProbEqkSource {
 	
@@ -62,7 +62,7 @@ public class HAZ01A_FakeSource extends ProbEqkSource {
 		return source.getAllSourceLocs();
 	}
 
-	public EvenlyGriddedSurfaceAPI getSourceSurface() {
+	public EvenlyGriddedSurface getSourceSurface() {
 		return source.getSourceSurface();
 	}
 

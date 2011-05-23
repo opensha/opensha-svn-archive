@@ -13,7 +13,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
@@ -75,7 +75,7 @@ public class SAF_Test {
 					if (rupture.getMag() < magThresh)
 						continue;
 					System.out.println("Working on source " + sourceID + " (" + source.getName() + ") rup " + ruptureID);
-					EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+					EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
 					int closestI = -1;
 					int closestJ = -1;
 					double closestDist = 0.5;

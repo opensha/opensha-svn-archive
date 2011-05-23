@@ -41,8 +41,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
@@ -82,7 +82,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	private final static double RUPTURE_WIDTH =100.0;
 	private double rupOffset= UCERF2.RUP_OFFSET;
 	private int totNumRups, totNumGR_rups, totNumChar_rups;
-	private EvenlyGriddedSurface surface;
+	private AbstractEvenlyGriddedSurface surface;
 	private ArrayList gr_mags, char_mags, gr_rates, char_rates;
 	public final static double DEFAULT_DURATION  = 1;
 	//name for this classs
@@ -452,7 +452,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 *
 	 */
 	private void saveSurfaceLocs() {
-		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurface sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
 		//System.out.println(this.segmentData.getFaultName());
 		// Surface trace location list
@@ -508,7 +508,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			ArrayList<ArbitrarilyDiscretizedFunc> magBasedFuncs,
 			boolean isSlipRateCorrection) {
 		int numRups = this.getNumRuptures();
-		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurface sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
 		for(int col=0; col<numCols; ++col) { // initialize all slip rates to 0
 			slipRateFunc.set((double)col,0);
@@ -533,7 +533,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			ProbEqkRupture rupture;
 			if(isSlipRateCorrection) rupture = getRupture(rupIndex);
 			else rupture = getRupture(rupIndex);
-			EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+			EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
 			area = rupSurface.getSurfaceLength()*rupSurface.getSurfaceWidth();
 			moRate = MagUtils.magToMoment(rupture.getMag());
 			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);
@@ -585,7 +585,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			totSegLength += this.segmentData.getSegmentLength(segIndex)/1e3;
 			segLengths.set((double)segIndex, totSegLength);
 		}
-		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurface sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
 		double slipRate=0;
 		// Iterate over all points to get the orig slip rate on each gridded location
@@ -901,7 +901,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public double getPredSlipRate(Location loc) {
 		// find distance to closest point on surface trace
-		EvenlyGriddedSurface surface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
 			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
@@ -944,7 +944,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public double getPredEventRate(Location loc) {
 		// find distance to closest point on surface trace
-		EvenlyGriddedSurface surface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
 			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
@@ -986,7 +986,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public double getPredObsEventRate(Location loc) {
 		// find distance to closest point on surface trace
-		EvenlyGriddedSurface surface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurface surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
 			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
@@ -1166,7 +1166,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 *                      1 = float along strike and down dip;
 	 *                      2 = float along strike & centered down dip
 	 */
-	private void mkRuptureList(EvenlyGriddedSurface surface,
+	private void mkRuptureList(AbstractEvenlyGriddedSurface surface,
 			double rupOffset,
 			double rake,
 			double duration,
@@ -1281,7 +1281,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * 
 	 * @return
 	 */
-	public EvenlyGriddedSurface getSourceSurface() { return this.surface; }
+	public AbstractEvenlyGriddedSurface getSourceSurface() { return this.surface; }
 
 	public int getNumRuptures() { return ruptureList.size(); }
 

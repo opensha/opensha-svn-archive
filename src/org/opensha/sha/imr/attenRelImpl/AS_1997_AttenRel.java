@@ -42,7 +42,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
@@ -309,7 +309,7 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 		// be converted to ints without losing info.
 		double toIntFactor = 1.0e7; // makes results accurate to ~cm.
 
-		EvenlyGriddedSurfaceAPI surface = this.eqkRupture.getRuptureSurface();
+		EvenlyGriddedSurface surface = this.eqkRupture.getRuptureSurface();
 		int numCols = surface.getNumCols();
 
 		int[] xVals = new int[numCols + 2];

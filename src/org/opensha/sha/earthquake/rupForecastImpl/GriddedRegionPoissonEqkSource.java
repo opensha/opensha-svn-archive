@@ -28,7 +28,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
@@ -119,7 +119,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
      return this.region.getNodeList();
    }
    
-   public EvenlyGriddedSurfaceAPI getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+   public EvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
 
 
 

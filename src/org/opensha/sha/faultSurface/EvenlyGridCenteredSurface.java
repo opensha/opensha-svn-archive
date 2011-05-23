@@ -35,21 +35,21 @@ import org.opensha.commons.geo.Location;
  * @version 1.0
  */
 public class EvenlyGridCenteredSurface
-    extends EvenlyGriddedSurface {
+    extends AbstractEvenlyGriddedSurface {
 
 
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-private EvenlyGriddedSurfaceAPI origSurface;
+private EvenlyGriddedSurface origSurface;
 
   /**
    * Class constructor that takes in a EvenGriddedSurface and computes a EvenlyGridCentered
    * Surface.
    * @param surface EvenlyGriddedSurface
    */
-  public EvenlyGridCenteredSurface(EvenlyGriddedSurfaceAPI surface) {
+  public EvenlyGridCenteredSurface(EvenlyGriddedSurface surface) {
     if (surface instanceof FrankelGriddedSurface)
       throw new UnsupportedOperationException(
           "Grid-Centered Surface not defined " +
@@ -108,7 +108,7 @@ private EvenlyGriddedSurfaceAPI origSurface;
    * This returns the original surface
    * @return EvenlyGriddedSurfaceAPI
    */
-  public EvenlyGriddedSurfaceAPI getOrigSurface() {return origSurface; }
+  public EvenlyGriddedSurface getOrigSurface() {return origSurface; }
 
 
 }

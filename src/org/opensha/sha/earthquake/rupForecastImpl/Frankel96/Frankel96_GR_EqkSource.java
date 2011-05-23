@@ -27,8 +27,8 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
@@ -56,7 +56,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   private final static double RUPTURE_WIDTH =100.0;
   private double rupOffset;
   private int totNumRups;
-  private EvenlyGriddedSurface surface;
+  private AbstractEvenlyGriddedSurface surface;
 
   /**
    * constructor specifying the values needed for Gutenberg Richter
@@ -77,7 +77,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
                                 double moRate,
                                 double delta,
                                 double rupOffset,
-                                EvenlyGriddedSurface surface,
+                                AbstractEvenlyGriddedSurface surface,
                                 String faultName) {
 
     this.name = faultName+" GR";
@@ -131,7 +131,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
      return this.surface.getLocationList();
    }
    
-   public EvenlyGriddedSurfaceAPI getSourceSurface() { return this.surface; }
+   public EvenlyGriddedSurface getSourceSurface() { return this.surface; }
 
 
 

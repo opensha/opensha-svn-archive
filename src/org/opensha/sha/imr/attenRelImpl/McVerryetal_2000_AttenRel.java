@@ -36,7 +36,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.gcim.imr.param.EqkRuptureParams.FocalDepthParam;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
@@ -259,7 +259,7 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
     
     if (tecRegType.equals(FLT_TEC_ENV_INTERFACE) || tecRegType.equals(FLT_TEC_ENV_INTERFACE)) {
     	//Determine the focal depth
-    	EvenlyGriddedSurfaceAPI surf = this.eqkRupture.getRuptureSurface();
+    	EvenlyGriddedSurface surf = this.eqkRupture.getRuptureSurface();
     	double hypoLon = 0.0;
 		double hypoLat = 0.0;
 		double hypoDep = 0.0;

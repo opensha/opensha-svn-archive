@@ -28,7 +28,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
@@ -203,7 +203,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     else return ptSurface.getLocationList();
   }
   
-  public EvenlyGriddedSurfaceAPI getSourceSurface() {
+  public EvenlyGriddedSurface getSourceSurface() {
 	    if(this.finiteFault!=null) return finiteFault;
 	    else return ptSurface;
 	  }

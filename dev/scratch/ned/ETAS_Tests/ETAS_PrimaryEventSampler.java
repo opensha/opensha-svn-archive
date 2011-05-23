@@ -19,7 +19,7 @@ import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
@@ -68,7 +68,7 @@ public class ETAS_PrimaryEventSampler {
 		this.distDecay = distDecay;
 		this.minDist = minDist;
 		
-		EvenlyGriddedSurfaceAPI rupSurf = parentRup.getRuptureSurface();
+		EvenlyGriddedSurface rupSurf = parentRup.getRuptureSurface();
 		
 		revisedBlockList = new ArrayList<EqksInGeoBlock>();  // revised is for replacing blocks with sub-blocks close in
 		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();

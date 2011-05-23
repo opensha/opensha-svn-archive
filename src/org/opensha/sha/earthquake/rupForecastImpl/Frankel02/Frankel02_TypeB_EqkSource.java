@@ -30,7 +30,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -65,7 +65,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   private final static double RUPTURE_WIDTH =100.0;
   private double rupOffset;
   private int totNumRups;
-  private EvenlyGriddedSurface surface;
+  private AbstractEvenlyGriddedSurface surface;
   private ArrayList mags, rates;
   private MagAreaRelationship magAreaRel;
 
@@ -89,7 +89,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
    * @param sourceName - source name
    */
   public Frankel02_TypeB_EqkSource(IncrementalMagFreqDist magFreqDist,
-		  EvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurface surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -101,7 +101,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   
   
   public void setAll(IncrementalMagFreqDist magFreqDist,
-		  EvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurface surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -113,7 +113,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 
     
   public void setAll(IncrementalMagFreqDist magFreqDist,
-		  EvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurface surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -126,7 +126,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 
     
   private void updateAll(IncrementalMagFreqDist magFreqDist,
-		  EvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurface surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -165,7 +165,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
    * 
    * @return
    */
-  public EvenlyGriddedSurface getSourceSurface() { return this.surface; }
+  public AbstractEvenlyGriddedSurface getSourceSurface() { return this.surface; }
 
   public int getNumRuptures() { return totNumRups; }
 

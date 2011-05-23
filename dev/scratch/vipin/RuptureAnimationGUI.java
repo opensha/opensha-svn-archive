@@ -42,7 +42,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.faultSurface.GriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceImpl;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>
@@ -360,7 +360,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
    private void addLocationListToPlot(LocationList locList,
                                      int index) throws
       InvalidRangeException, ClassCastException, ArrayIndexOutOfBoundsException {
-    GriddedSurface griddedSurface = new GriddedSurface(1, locList.size());
+    GriddedSurfaceImpl griddedSurface = new GriddedSurfaceImpl(1, locList.size());
     for (int i = 0; i < locList.size(); ++i)
       griddedSurface.setLocation(0, i, locList.get(i));
     GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);

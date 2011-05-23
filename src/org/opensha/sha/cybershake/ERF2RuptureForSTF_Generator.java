@@ -40,7 +40,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 /**
@@ -109,7 +109,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+        EvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
 
         //getting the iterator for all points on the rupture
@@ -203,7 +203,7 @@ public class ERF2RuptureForSTF_Generator {
 
           //getting the rupture on the source and its gridCentered Surface
           ProbEqkRupture rupture = source.getRupture(rupIndex);
-          EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+          EvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
           //getting the iterator for all points on the rupture
           ListIterator lit = rupSurface.getAllByRowsIterator();
@@ -266,7 +266,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+        EvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -313,7 +313,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -505,7 +505,7 @@ public class ERF2RuptureForSTF_Generator {
     rupInfo += "Probability = " + (float)rupture.getProbability() +"\n";
     rupInfo += "Magnitude = " + (float)rupture.getMag() +"\n";
 
-    EvenlyGriddedSurfaceAPI surface = rupture.getRuptureSurface();
+    EvenlyGriddedSurface surface = rupture.getRuptureSurface();
     double gridSpacing = (float)this.getGridSpacing(surface);
     rupInfo += "GridSpacing = " + gridSpacing +"\n";
     ListIterator it = rupture.getAddedParametersIterator();
@@ -522,7 +522,7 @@ public class ERF2RuptureForSTF_Generator {
     //Local Strike for each grid centered location on the rupture
     double[] localStrikeList = this.getLocalStrikeList(surface);
 
-    EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(surface);
+    EvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(surface);
     int numRows = rupSurface.getNumRows();
     int numCols = rupSurface.getNumCols();
     rupInfo += "NumRows = "+numRows+"\n";
@@ -543,7 +543,7 @@ public class ERF2RuptureForSTF_Generator {
    * @param surface GriddedSurfaceAPI
    * @return double[]
    */
-  private double[] getLocalStrikeList(EvenlyGriddedSurfaceAPI surface){
+  private double[] getLocalStrikeList(EvenlyGriddedSurface surface){
     int numCols = surface.getNumCols();
     double[] localStrike = null;
     //if it not a point surface, then get the Azimuth(strike) for 2 neighbouring
@@ -573,7 +573,7 @@ public class ERF2RuptureForSTF_Generator {
    * Returns the gridspacing between the 2 locations on the surface
    * @return double
    */
-  private double getGridSpacing(EvenlyGriddedSurfaceAPI surface) {
+  private double getGridSpacing(EvenlyGriddedSurface surface) {
 
     double gridSpacing = surface.getGridSpacingAlongStrike();
     // Ned added the following in case different grid spacings are implemented at some time (existing class breaks?)

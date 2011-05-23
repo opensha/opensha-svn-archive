@@ -22,9 +22,9 @@ package org.opensha.sha.cybershake.openshaAPIs;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 
-public class CyberShakeEvenlyGriddedSurface extends EvenlyGriddedSurface {
+public class CyberShakeEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
 
 	public CyberShakeEvenlyGriddedSurface( int numRows, int numCols, double gridSpacing) {
 		super(numRows, numCols, gridSpacing);

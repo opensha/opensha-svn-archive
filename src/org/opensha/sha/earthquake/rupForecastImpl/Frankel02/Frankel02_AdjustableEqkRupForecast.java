@@ -41,8 +41,8 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -408,7 +408,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     double test, test2=0;
     double magEp, wtEp;
 
-    EvenlyGriddedSurface surface;
+    AbstractEvenlyGriddedSurface surface;
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -1412,7 +1412,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     FileWriter fw2 = new FileWriter(filename2);
     FileWriter fw3 = new FileWriter(filename3);
     ProbEqkSource src;
-    EvenlyGriddedSurfaceAPI surf;
+    EvenlyGriddedSurface surf;
     Location loc;
     double rake;
     int i,n;

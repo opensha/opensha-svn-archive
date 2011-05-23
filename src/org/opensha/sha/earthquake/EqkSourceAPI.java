@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -98,7 +98,7 @@ public interface EqkSourceAPI extends Named{
     * This gives the entire surface of the source
     * @return
     */
-   public EvenlyGriddedSurfaceAPI getSourceSurface();
+   public EvenlyGriddedSurface getSourceSurface();
    
    /**
     * This identifies the type of tectonic region the source is associate with.  

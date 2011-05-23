@@ -11,7 +11,7 @@ import org.opensha.commons.geo.LocationUtils;
  * 
  * @author field
  */
-public class FourPointEvenlyGriddedSurface extends EvenlyGriddedSurface {
+public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
 
 	// for debugging
 	private final static boolean D = false;

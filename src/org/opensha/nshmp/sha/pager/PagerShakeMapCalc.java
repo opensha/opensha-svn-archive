@@ -44,7 +44,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.PropagationEffect;
@@ -161,7 +161,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 				lats, lons, dips, depths, SimpleFaultParameter.STIRLING);
 		faultParameter.setEvenlyGriddedSurfaceFromParams();
 		rupture = new EqkRupture();
-		rupture.setRuptureSurface((EvenlyGriddedSurfaceAPI)faultParameter.getValue());
+		rupture.setRuptureSurface((EvenlyGriddedSurface)faultParameter.getValue());
 		rupture.setAveRake(aveRake);
 		rupture.setMag(mag);
 

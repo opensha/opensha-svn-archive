@@ -34,8 +34,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.ned.slab.SlabSurfaceGenerator;
@@ -251,7 +251,7 @@ public class TestSubductionZoneERF extends EqkRupForecast{
 			ProbEqkSource src = testERF.getSource(s);
 			System.out.println("src "+s+"\t numRups="+src.getNumRuptures());
 			for(int r=0; r<src.getNumRuptures();r++) {
-				EvenlyGriddedSurfaceAPI surf = src.getRupture(r).getRuptureSurface();
+				EvenlyGriddedSurface surf = src.getRupture(r).getRuptureSurface();
 				Iterator it = surf.getLocationsIterator();
 				int num=0;
 				while(it.hasNext()) {

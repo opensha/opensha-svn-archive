@@ -28,7 +28,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 
 /**
@@ -138,7 +138,7 @@ public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 	 * @param rupSurf
 	 * @return
 	 */
-	public static double getDistance(Location loc, EvenlyGriddedSurfaceAPI rupSurf) {
+	public static double getDistance(Location loc, EvenlyGriddedSurface rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		

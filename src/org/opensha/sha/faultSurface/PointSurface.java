@@ -54,7 +54,7 @@ import org.opensha.commons.util.FaultUtils;
  */
 // TODO note in docs that class now wraps Location rather tan subclasses
 //public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
-public class PointSurface implements EvenlyGriddedSurfaceAPI {
+public class PointSurface implements EvenlyGriddedSurface {
 
 	/**
 	 * 
@@ -326,7 +326,7 @@ public class PointSurface implements EvenlyGriddedSurfaceAPI {
 	 * row and col then the original surface. It averages the 4 corner location
 	 * on each grid surface to get the grid centered location.
 	 */
-	public EvenlyGriddedSurfaceAPI getGridCenteredSurface() {
+	public EvenlyGriddedSurface getGridCenteredSurface() {
 		return this;
 	}
 

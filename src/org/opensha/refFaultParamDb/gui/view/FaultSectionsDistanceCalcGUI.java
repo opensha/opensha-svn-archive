@@ -24,7 +24,7 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
@@ -133,8 +133,8 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 		
 		
 		// get the surface
-		EvenlyGriddedSurface surface1 = getEvenlyGriddedSurface(faultSection1PrefData);
-		EvenlyGriddedSurface surface2 = getEvenlyGriddedSurface(faultSection2PrefData);
+		AbstractEvenlyGriddedSurface surface1 = getEvenlyGriddedSurface(faultSection1PrefData);
+		AbstractEvenlyGriddedSurface surface2 = getEvenlyGriddedSurface(faultSection2PrefData);
 		
 		
 		JOptionPane.showMessageDialog(this, "Minimum Fault Trace distance="+DECIMAL_FORMAT.format(faultTrace1.getMinDistance(faultTrace2,1.0))+" km\n"+
@@ -147,7 +147,7 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 	 * @param faultSectionPrefData
 	 * @return
 	 */
-	private EvenlyGriddedSurface getEvenlyGriddedSurface(FaultSectionPrefData faultSectionPrefData) {
+	private AbstractEvenlyGriddedSurface getEvenlyGriddedSurface(FaultSectionPrefData faultSectionPrefData) {
 		SimpleFaultData simpleFaultData = faultSectionPrefData.getSimpleFaultData(false);
 		String selectedFaultModel = (String)this.faultModelParam.getValue();
 		// frankel and stirling surface
@@ -176,7 +176,7 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 		// get all fault sections from database
 		PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_ConnectionPool.getLatestReadWriteConn()); 
 		ArrayList<FaultSectionPrefData> prefFaultSectionsList = prefFaultSectionDAO.getAllFaultSectionPrefData();
-		ArrayList<EvenlyGriddedSurface> surfaceList = new ArrayList<EvenlyGriddedSurface>();
+		ArrayList<AbstractEvenlyGriddedSurface> surfaceList = new ArrayList<AbstractEvenlyGriddedSurface>();
 		
 		// make surfaces from faultsections
 		for(int i=0; i<prefFaultSectionsList.size(); ++i) {

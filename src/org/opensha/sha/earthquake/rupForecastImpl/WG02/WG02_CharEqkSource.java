@@ -26,8 +26,8 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 /**
@@ -43,7 +43,7 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 public class WG02_CharEqkSource extends ProbEqkSource {
 
   private double prob;
-  private EvenlyGriddedSurface rupSurface;
+  private AbstractEvenlyGriddedSurface rupSurface;
   private String sourceName;
   private GaussianMagFreqDist gaussMagDist;
   private int numRupSurfaces, numMag;
@@ -73,7 +73,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
    * @param rake: The rake for the event
    */
   public WG02_CharEqkSource(double prob, double meanMag, double magSigma,
-                            double nSigmaTrunc, double deltaMag, EvenlyGriddedSurface rupSurface,
+                            double nSigmaTrunc, double deltaMag, AbstractEvenlyGriddedSurface rupSurface,
                             double rupArea, double rupOffset, String sourceName,
                             double rake) {
 
@@ -157,7 +157,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
     return this.rupSurface.getLocationList();
   }
   
-  public EvenlyGriddedSurfaceAPI getSourceSurface() { return this.rupSurface; }
+  public EvenlyGriddedSurface getSourceSurface() { return this.rupSurface; }
 
 
 

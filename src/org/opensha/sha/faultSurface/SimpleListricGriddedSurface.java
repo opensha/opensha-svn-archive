@@ -48,7 +48,7 @@ import org.opensha.commons.util.FaultUtils;
  * @version 1.0
  */
 
-public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
+public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 
 	/**
 	 * 

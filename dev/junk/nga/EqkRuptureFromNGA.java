@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 
 /**
@@ -62,7 +62,7 @@ public class EqkRuptureFromNGA extends EqkRupture {
    * @param hypocenterLocation
    */
   public EqkRuptureFromNGA(double mag,double aveRake,
-        EvenlyGriddedSurfaceAPI ruptureSurface,
+        EvenlyGriddedSurface ruptureSurface,
 	Location hypocenterLocation){
     super(mag,aveRake,ruptureSurface,hypocenterLocation);
   }
@@ -78,7 +78,7 @@ public class EqkRuptureFromNGA extends EqkRupture {
    * @param hypocenterLocation
    */
   public EqkRuptureFromNGA(String eqkId, String eqkName,double mag,double aveRake,
-        EvenlyGriddedSurfaceAPI ruptureSurface,
+        EvenlyGriddedSurface ruptureSurface,
 	Location hypocenterLocation){
     super(mag,aveRake,ruptureSurface,hypocenterLocation);
     this.eqkId = eqkId;

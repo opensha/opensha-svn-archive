@@ -31,7 +31,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_RelativeLocation;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
@@ -306,7 +306,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     return locList;
   }
 
-  public EvenlyGriddedSurfaceAPI getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+  public EvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
 
 
 

@@ -41,7 +41,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.param.SimpleFaultParameter;
 
@@ -148,7 +148,7 @@ public class EqkRuptureCreationPanel
   private ArrayList hypocenterList;
 
   //gridded rupture surface
-  private EvenlyGriddedSurfaceAPI ruptureSurface = null;
+  private EvenlyGriddedSurface ruptureSurface = null;
 
   public EqkRuptureCreationPanel() {
 
@@ -248,7 +248,7 @@ public class EqkRuptureCreationPanel
       }
       else if (ruptureType.equals(this.FINITE_SRC_NAME)) {
         faultParam.setEvenlyGriddedSurfaceFromParams();
-        ruptureSurface = (EvenlyGriddedSurfaceAPI) faultParam.getValue();
+        ruptureSurface = (EvenlyGriddedSurface) faultParam.getValue();
       }
 
       // The first row of all the rupture surfaces is the list of their hypocenter locations

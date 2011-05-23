@@ -34,7 +34,7 @@ import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 /**
  * <b>Title:</b> DistanceX_Parameter<p>
@@ -137,7 +137,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
 
     		Location siteLoc = site.getLocation();
 
-    		EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+    		EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
 
     		// set to zero if it's a point source
     		if(rupSurf.getNumCols() == 1) {

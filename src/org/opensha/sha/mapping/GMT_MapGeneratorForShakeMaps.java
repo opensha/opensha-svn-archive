@@ -49,7 +49,7 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.commons.util.cpt.LinearBlender;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -615,7 +615,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		 */
 	}
 
-	public static final void addRupture(GMT_Map map, EvenlyGriddedSurfaceAPI surface, Location hypo, String rupPlot) {
+	public static final void addRupture(GMT_Map map, EvenlyGriddedSurface surface, Location hypo, String rupPlot) {
 		if(!rupPlot.equals(RUP_PLOT_PARAM_NOTHING)) {
 
 			// Get the surface and associated info
@@ -788,7 +788,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			String commandLine;
 
 			// Get the surface and associated info
-			EvenlyGriddedSurfaceAPI surface = eqkRup.getRuptureSurface();
+			EvenlyGriddedSurface surface = eqkRup.getRuptureSurface();
 			ArrayList fileLines = new ArrayList();
 			Location loc;
 			int rows = surface.getNumRows();

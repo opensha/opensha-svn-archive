@@ -38,7 +38,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -202,7 +202,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 		this.eqkRupture = eqkRupture;
 		magParam.setValueIgnoreWarning(eqkRupture.getMag());
 		setFaultTypeFromRake(eqkRupture.getAveRake());
-		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
 		double depth = surface.getLocation(0, 0).getDepth();
 		rupTopDepthParam.setValueIgnoreWarning(depth);
 		dipParam.setValueIgnoreWarning(surface.getAveDip());
@@ -239,7 +239,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 			.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue());
 		magParam.setValueIgnoreWarning(eqkRupture.getMag());
 		setFaultTypeFromRake(eqkRupture.getAveRake());
-		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
 		double depth = surface.getLocation(0, 0).getDepth();
 		rupTopDepthParam.setValueIgnoreWarning(depth);
 		dipParam.setValueIgnoreWarning(surface.getAveDip());

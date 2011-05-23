@@ -27,7 +27,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -252,7 +252,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		SummedMagFreqDist closestMFD = null;
 		double closestDist = Double.MAX_VALUE;
 		for (FaultProbPairing fault : faultsForSource) {
-			EvenlyGriddedSurfaceAPI faultSurface = fault.getSurface();
+			EvenlyGriddedSurface faultSurface = fault.getSurface();
 			for (int row=0; row<faultSurface.getNumRows(); row++) {
 				for (int col=0; col<faultSurface.getNumCols(); col++) {
 					Location faultPt = faultSurface.get(row, col);
@@ -272,7 +272,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 	}
 
 	private ArrayList<FaultProbPairing> getFaultsForSource(ProbEqkSource source) {
-		EvenlyGriddedSurfaceAPI sourceSurface = source.getSourceSurface();
+		EvenlyGriddedSurface sourceSurface = source.getSourceSurface();
 
 		ArrayList<FaultProbPairing> faultsForSource = new ArrayList<FaultProbPairing>();
 
@@ -280,7 +280,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			Double slip = fault.getSlipRate();
 			if (slip.isNaN() || slip <= 0)
 				continue;
-			EvenlyGriddedSurfaceAPI faultSurface = fault.getSurface();
+			EvenlyGriddedSurface faultSurface = fault.getSurface();
 			FaultSectDistRecord dists = new FaultSectDistRecord(0, faultSurface, 1, sourceSurface);
 			if (dists.calcMinCornerMidptDist(fastDist) > filter.getCornerMidptFilterDist())
 				continue;
@@ -292,13 +292,13 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 	}
 
 	private class FaultProbPairing implements Named {
-		private EvenlyGriddedSurfaceAPI surface;
+		private EvenlyGriddedSurface surface;
 		private Container2DImpl<SummedMagFreqDist> mfds;
 		private String name;
 		private int sectionID;
 		private double slipRate;
 		
-		public FaultProbPairing(EvenlyGriddedSurfaceAPI surface, String name, int sectionID, double slip) {
+		public FaultProbPairing(EvenlyGriddedSurface surface, String name, int sectionID, double slip) {
 			this.surface = surface;
 			this.name = name;
 			this.sectionID = sectionID;
@@ -311,7 +311,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			}
 		}
 
-		public EvenlyGriddedSurfaceAPI getSurface() {
+		public EvenlyGriddedSurface getSurface() {
 			return surface;
 		}
 

@@ -42,7 +42,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
@@ -286,7 +286,7 @@ public class Abrahamson_2000_AttenRel extends AttenuationRelationship {
 	 */
 	protected void setDirectivityParams() {
 
-		EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
 		Location siteLoc = site.getLocation();
 		Location hypLoc = eqkRupture.getHypocenterLocation();
 		if (hypLoc == null) {

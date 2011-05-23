@@ -37,7 +37,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -167,7 +167,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
     ArrayList grTailSources = new ArrayList();
 
     FaultTrace faultTrace;
-    EvenlyGriddedSurface faultSurface;
+    AbstractEvenlyGriddedSurface faultSurface;
 
     WG02_CharEqkSource wg02_source;
     GriddedRegionPoissonEqkSource backSource = null;

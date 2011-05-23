@@ -38,7 +38,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 public  class ERF2DB implements ERF2DBAPI{
@@ -709,7 +709,7 @@ public  class ERF2DB implements ERF2DBAPI{
 
 		Region circular;
 
-		EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+		EvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
 		ListIterator it = rupSurface.getAllByRowsIterator();
 
@@ -799,7 +799,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		double mag = rupture.getMag();
 		double prob = rupture.getProbability();
 		double aveRake = rupture.getAveRake();
-		EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(
+		EvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(
 				rupture.getRuptureSurface());
 		// Local Strike for each grid centered location on the rupture
 		double[] localStrikeList = this.getLocalStrikeList(rupture
@@ -863,7 +863,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	 * @param surface GriddedSurfaceAPI
 	 * @return double[]
 	 */
-	private double[] getLocalStrikeList(EvenlyGriddedSurfaceAPI surface){
+	private double[] getLocalStrikeList(EvenlyGriddedSurface surface){
 		int numCols = surface.getNumCols();
 		double[] localStrike = null;
 		//if it not a point surface, then get the Azimuth(strike) for 2 neighbouring

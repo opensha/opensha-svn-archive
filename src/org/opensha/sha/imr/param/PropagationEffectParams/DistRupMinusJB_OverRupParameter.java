@@ -28,7 +28,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 
 /**
@@ -131,7 +131,7 @@ public class DistRupMinusJB_OverRupParameter extends AbstractDoublePropEffectPar
             double minHorzDistance = Double.MAX_VALUE;
             double horzDist, vertDist, totalDist;
 
-            EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+            EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
             
 			// get locations to iterate over depending on dip
 			ListIterator it;

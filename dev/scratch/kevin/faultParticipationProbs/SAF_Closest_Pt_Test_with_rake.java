@@ -27,7 +27,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -83,7 +83,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 		}
 	}
 	
-	private static double getStrikeEst(EvenlyGriddedSurfaceAPI surface) {
+	private static double getStrikeEst(EvenlyGriddedSurface surface) {
 		Location pt1 = surface.get(0, 0);
 		Location pt2 = surface.get(0, surface.getNumCols()-1);
 		return LocationUtils.azimuth(pt2, pt1);
@@ -141,7 +141,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 		@Override
 		public void compute() {
 			double mag = rup.getMag();
-			EvenlyGriddedSurfaceAPI rupSurface = rup.getRuptureSurface();
+			EvenlyGriddedSurface rupSurface = rup.getRuptureSurface();
 			FocalMechanism fm = new FocalMechanism(getStrikeEst(rupSurface), Double.NaN, rup.getAveRake());
 			double meanAnnualRate = rup.getMeanAnnualRate(duration);
 			for (Location rupPt : rupSurface) {
@@ -291,7 +291,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 	
 	private class FaultPtDistRecord {
 		
-		private EvenlyGriddedSurfaceAPI faultSurface;
+		private EvenlyGriddedSurface faultSurface;
 		private Location rupPt;
 		private Location closestPt = null;
 		private int closestRow = -1;
@@ -353,7 +353,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 	}
 
 	private ArrayList<FaultProbPairing> getFaultsForSource(ProbEqkSource source) {
-		EvenlyGriddedSurfaceAPI sourceSurface = source.getSourceSurface();
+		EvenlyGriddedSurface sourceSurface = source.getSourceSurface();
 
 		ArrayList<FaultProbPairing> faultsForSource = new ArrayList<FaultProbPairing>();
 
@@ -361,7 +361,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 			Double slip = fault.getSlipRate();
 			if (slip.isNaN() || slip <= 0)
 				continue;
-			EvenlyGriddedSurfaceAPI faultSurface = fault.getSurface();
+			EvenlyGriddedSurface faultSurface = fault.getSurface();
 			FaultSectDistRecord dists = new FaultSectDistRecord(0, faultSurface, 1, sourceSurface);
 			if (dists.calcMinCornerMidptDist(fastDist) > filter.getCornerMidptFilterDist())
 				continue;
@@ -373,14 +373,14 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 	}
 
 	private class FaultProbPairing implements Named {
-		private EvenlyGriddedSurfaceAPI surface;
+		private EvenlyGriddedSurface surface;
 		private Container2DImpl<SummedMagFreqDist> mfds;
 		private String name;
 		private int sectionID;
 		private double slipRate;
 		private FocalMechanism fm;
 		
-		public FaultProbPairing(EvenlyGriddedSurfaceAPI surface, String name, int sectionID,
+		public FaultProbPairing(EvenlyGriddedSurface surface, String name, int sectionID,
 				double slip, FocalMechanism fm) {
 			this.surface = surface;
 			this.name = name;
@@ -395,7 +395,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 			}
 		}
 
-		public EvenlyGriddedSurfaceAPI getSurface() {
+		public EvenlyGriddedSurface getSurface() {
 			return surface;
 		}
 

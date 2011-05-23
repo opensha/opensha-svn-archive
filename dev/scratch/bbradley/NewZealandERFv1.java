@@ -14,7 +14,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
@@ -77,7 +77,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	private ArrayList<Double> sourceSigmas = new ArrayList<Double>();
 	private ArrayList<Double> sourceRakes = new ArrayList<Double>();
 	private ArrayList<Double> sourceMoRates = new ArrayList<Double>();
-	private ArrayList<EvenlyGriddedSurface> sourceGriddedSurface = new ArrayList<EvenlyGriddedSurface>();
+	private ArrayList<AbstractEvenlyGriddedSurface> sourceGriddedSurface = new ArrayList<AbstractEvenlyGriddedSurface>();
 
 	private ArrayList<ProbEqkSource> allSources = new ArrayList<ProbEqkSource>();
 
@@ -239,7 +239,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 					fltTrace.add(new Location(lat,lon));
 				}
 				--i;
-				EvenlyGriddedSurface surface = new StirlingGriddedSurface(fltTrace, dip,upperSeis,lowerSeis,DEFAULT_GRID_SPACING);
+				AbstractEvenlyGriddedSurface surface = new StirlingGriddedSurface(fltTrace, dip,upperSeis,lowerSeis,DEFAULT_GRID_SPACING);
 				sourceNames.add(srcCode);
 				this.sourceMags.add(meanMag);
 				this.sourceMoRates.add(seisMomentRate);
@@ -260,7 +260,7 @@ public class NewZealandERFv1 extends EqkRupForecast {
 	 */
 	private void mkFaultSources() {
 		for(int srcIndex=0; srcIndex<sourceNames.size(); ++srcIndex) {
-			EvenlyGriddedSurface surface = this.sourceGriddedSurface.get(srcIndex);
+			AbstractEvenlyGriddedSurface surface = this.sourceGriddedSurface.get(srcIndex);
 			IncrementalMagFreqDist magDist = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAGS,
 					this.sourceMags.get(srcIndex), this.sourceSigmas.get(srcIndex), 
 					this.sourceMoRates.get(srcIndex));
