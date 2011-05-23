@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
@@ -184,6 +185,15 @@ implements IntensityMeasureRelationshipAPI {
 	public String getName() {
 		return NAME;
 	}
+	
+	/**
+	 * Compares the name of this IMR to another.
+	 */
+	@Override
+	public int compareTo(IntensityMeasureRelationshipAPI imr) {
+		return getName().compareToIgnoreCase(imr.getName());
+	}
+
 
 	/**
 	 *  Sets the Site object as a reference to that passed in.

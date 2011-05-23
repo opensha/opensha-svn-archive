@@ -44,7 +44,7 @@ import org.opensha.sha.earthquake.EqkRupture;
  */
 
 public interface IntensityMeasureRelationshipAPI
-    extends NamedObjectAPI, XMLSaveable {
+    extends NamedObjectAPI, XMLSaveable, Comparable<IntensityMeasureRelationshipAPI> {
 
   /**
    *  Returns a reference to the current Site object of the IMR

@@ -17,6 +17,9 @@ public enum DevStatus {
 
 	/** Status indicating something is under development. */
 	DEVELOPMENT,
+	
+	/** Status indicating something is merely experimental. */
+	EXPERIMENTAL,
 
 	/** Status indicating something is deprecated. */
 	DEPRECATED;

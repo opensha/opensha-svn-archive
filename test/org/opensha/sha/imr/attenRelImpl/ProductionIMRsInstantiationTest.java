@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.imr.AttenRelImpl;
 import org.opensha.sha.imr.ScalarIntensityMeasureRelationshipAPI;
 
@@ -24,7 +25,7 @@ public class ProductionIMRsInstantiationTest {
 	
 	@Parameters
 	public static Collection<AttenRelImpl[]> data() {
-		Set<AttenRelImpl> set = AttenRelImpl.prodSet();
+		Set<AttenRelImpl> set = AttenRelImpl.get(DevStatus.PRODUCTION);
 		ArrayList<AttenRelImpl[]> ret = new ArrayList<AttenRelImpl[]>();
 		for (AttenRelImpl imr : set) {
 			AttenRelImpl[] array = { imr };
