@@ -10,4 +10,4 @@ if [[ $pids ]];then
 	exit
 fi
 cd /usr/local/cruise/config/opensha
-/usr/local/cruise/main/bin/cruisecontrol.sh -configfile /usr/local/cruise/config/opensha/config.xml
+/usr/local/cruise/default/main/bin/cruisecontrol.sh -configfile /usr/local/cruise/config/opensha/config.xml
