@@ -9,5 +9,5 @@ if [[ $pids ]];then
 	echo "cruise control is already running! proc(s): $pids"
 	exit
 fi
-cd /usr/local/cruise/main/
-/usr/local/cruise/main/bin/cruisecontrol.sh -configfile /usr/local/cruise/main/config.xml
+cd /usr/local/cruise/config/opensha
+/usr/local/cruise/main/bin/cruisecontrol.sh -configfile /usr/local/cruise/config/opensha/config.xml
