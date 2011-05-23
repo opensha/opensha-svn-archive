@@ -64,11 +64,11 @@ import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
  * @author     Edward H. Field
  * @created    February 21, 2002
  * @version    1.0
- * @see        IntensityMeasureRelationshipAPI
+ * @see        IntensityMeasureRelationship
  */
 
 public abstract class AbstractIMR
-implements IntensityMeasureRelationshipAPI {
+implements IntensityMeasureRelationship {
 
 	private final static String NAME = "Intensity Measure Relationship";
 
@@ -190,7 +190,7 @@ implements IntensityMeasureRelationshipAPI {
 	 * Compares the name of this IMR to another.
 	 */
 	@Override
-	public int compareTo(IntensityMeasureRelationshipAPI imr) {
+	public int compareTo(IntensityMeasureRelationship imr) {
 		return getName().compareToIgnoreCase(imr.getName());
 	}
 

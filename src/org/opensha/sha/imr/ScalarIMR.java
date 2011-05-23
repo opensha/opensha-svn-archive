@@ -39,7 +39,7 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 
 public interface ScalarIMR
-extends IntensityMeasureRelationshipAPI {
+extends IntensityMeasureRelationship {
 
 
 	/**

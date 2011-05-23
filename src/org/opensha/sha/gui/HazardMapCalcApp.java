@@ -94,7 +94,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -750,7 +750,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 			calcProgress.setProgressMessage("Saving IMR");
 			calcProgress.updateProgress(1, steps);
 
-			IntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+			IntensityMeasureRelationship imr = imrGuiBean.getSelectedIMR_Instance();
 			String imt = (String)(imtGuiBean.getIntensityMeasure().getName());
 			if (imt == null)
 				System.out.println("NULL IMT!!!");
