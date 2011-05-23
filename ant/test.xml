@@ -76,7 +76,7 @@
 		<junit fork="yes" haltonfailure="false" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
-			haltonerror="false"
+			haltonerror="true"
 			dir="${build}"
 			printsummary="yes">
 			<classpath>
