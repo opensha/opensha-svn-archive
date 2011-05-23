@@ -72,10 +72,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
  */
 
 
-public class DahleEtAl_1995_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class DahleEtAl_1995_AttenRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "DahleEtAl_1995_AttenRel";

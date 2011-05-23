@@ -80,10 +80,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  */
 
 
-public class BJF_1997_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class BJF_1997_AttenRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "BJF_1997_AttenRel";

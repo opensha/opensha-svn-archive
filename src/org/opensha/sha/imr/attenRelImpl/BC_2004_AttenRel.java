@@ -74,9 +74,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  */
 
 
-public class BC_2004_AttenRel
-extends AttenuationRelationship implements ScalarIMR,
-NamedObjectAPI {
+public class BC_2004_AttenRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "BC_2004_AttenRel";

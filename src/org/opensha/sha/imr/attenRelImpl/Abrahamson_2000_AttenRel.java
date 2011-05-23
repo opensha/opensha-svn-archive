@@ -91,10 +91,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
  */
 
 
-public class Abrahamson_2000_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class Abrahamson_2000_AttenRel extends AttenuationRelationship {
 
 	private final static String C = "Abrahamson_2000_AttenRel";
 	private final static boolean D = false;

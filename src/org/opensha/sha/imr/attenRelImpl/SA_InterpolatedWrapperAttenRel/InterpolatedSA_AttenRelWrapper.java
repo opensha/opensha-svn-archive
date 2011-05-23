@@ -90,10 +90,8 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  */
 
 
-public class InterpolatedSA_AttenRelWrapper
-    extends AttenuationRelationship implements
-    ScalarIMR,
-    NamedObjectAPI, ParameterChangeListener {
+public class InterpolatedSA_AttenRelWrapper extends AttenuationRelationship implements
+		ParameterChangeListener {
 
   // Debugging stuff
   private final static String C = "InterpolatedSA_AttenRelWrapper";

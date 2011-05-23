@@ -85,10 +85,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
  */
 
 
-public class Campbell_1997_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class Campbell_1997_AttenRel extends AttenuationRelationship {
 
 	public final static String C = "Campbell_1997_AttenRel";
 	private final static boolean D = false;

@@ -84,10 +84,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  */
 
 
-public class Field_2000_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class Field_2000_AttenRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "Field_2000_AttenRel";

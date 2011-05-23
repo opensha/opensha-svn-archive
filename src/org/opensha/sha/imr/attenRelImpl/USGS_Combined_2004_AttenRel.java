@@ -160,10 +160,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  */
 
 
-public class USGS_Combined_2004_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "USGS_Combined_2004_AttenRel";

@@ -34,8 +34,8 @@ import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements ScalarIMR,
-NamedObjectAPI, ParameterChangeListener {
+public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
+		ParameterChangeListener {
 
 	// Debugging stuff
 	private final static String C = "ZhaoEtAl_2006_AttenRel";

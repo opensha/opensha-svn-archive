@@ -81,10 +81,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
  */
 
 
-public class SEA_1999_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class SEA_1999_AttenRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "SEA_1999_AttenRel";

@@ -116,10 +116,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
  */
 
 
-public class ShakeMap_2003_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class ShakeMap_2003_AttenRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "ShakeMap_2003_AttenRel";

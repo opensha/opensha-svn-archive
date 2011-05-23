@@ -80,10 +80,8 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  */
 
 @Deprecated
-public class AS_2005_AttenRel
-    extends AttenuationRelationship implements
-    ScalarIMR,
-    NamedObjectAPI, ParameterChangeListener {
+public class AS_2005_AttenRel extends AttenuationRelationship implements
+		ParameterChangeListener {
 
   // Debugging stuff
   private final static String C = "AS_2005_prelim_AttenRel";

@@ -87,9 +87,8 @@ import org.opensha.sha.util.SiteTranslator;
  */
 
 
-public class SiteSpecific_2006_AttenRel
-extends AttenuationRelationship implements ScalarIMR,ParameterChangeListener,
-NamedObjectAPI {
+public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implements
+		ParameterChangeListener {
 
 	// debugging stuff:
 	private final static String C = "SiteSpecific_2006_AttenRel";

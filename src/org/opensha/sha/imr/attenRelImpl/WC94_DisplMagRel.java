@@ -66,10 +66,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
  */
 
 
-public class WC94_DisplMagRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class WC94_DisplMagRel extends AttenuationRelationship {
 
 	// debugging stuff:
 	private final static String C = "WC94_DisplMagRel";

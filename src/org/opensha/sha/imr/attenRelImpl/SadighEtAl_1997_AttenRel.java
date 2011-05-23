@@ -80,10 +80,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
  */
 
 
-public class SadighEtAl_1997_AttenRel
-extends AttenuationRelationship implements
-ScalarIMR,
-NamedObjectAPI {
+public class SadighEtAl_1997_AttenRel extends AttenuationRelationship {
 
 	private final static String C = "SCEMY_1997_AttenRel";
 	private final static boolean D = false;

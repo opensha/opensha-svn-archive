@@ -93,10 +93,8 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 
 
-public class McVerryetal_2000_AttenRel
-    extends AttenuationRelationship implements
-    ScalarIMR,
-    NamedObjectAPI, ParameterChangeListener {
+public class McVerryetal_2000_AttenRel extends AttenuationRelationship implements
+		ParameterChangeListener {
 
   // Debugging stuff
   private final static String C = "McVerryetal_2000_AttenRel";
