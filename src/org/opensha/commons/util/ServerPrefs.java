@@ -38,6 +38,7 @@ public enum ServerPrefs {
 	 */
 	DEV_PREFS(ServerPrefUtils.OPENSHA_SERVER_DEV_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
+			ServerPrefUtils.OPENSHA_TOMCAT_DEV_DIR,
 			ServerPrefUtils.OPENSHA_RMI_DEV_PORT,
 			ServerPrefUtils.BUILD_TYPE_NIGHTLY),
 	/**
@@ -45,17 +46,20 @@ public enum ServerPrefs {
 	 */
 	PRODUCTION_PREFS(ServerPrefUtils.OPENSHA_SERVER_PRODUCTION_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
+			ServerPrefUtils.OPENSHA_TOMCAT_PRODUCTION_DIR,
 			ServerPrefUtils.OPENSHA_RMI_PRODUCTION_PORT,
 			ServerPrefUtils.BUILD_TYPE_PRODUCTION);
 	
 	private String hostName;
 	private String servletURL;
+	private String tomcatDir;
 	private int rmiPort;
 	private String buildType;
 	
-	private ServerPrefs(String hostName, String servletURL, int rmiPort, String buildType) {
+	private ServerPrefs(String hostName, String servletURL, String tomcatDir, int rmiPort, String buildType) {
 		this.hostName = hostName;
 		this.servletURL = servletURL;
+		this.tomcatDir = tomcatDir;
 		this.rmiPort = rmiPort;
 		this.buildType = buildType;
 	}
@@ -67,6 +71,14 @@ public enum ServerPrefs {
 	 */
 	public String getServletBaseURL() {
 		return servletURL;
+	}
+	
+	/**
+	 * 
+	 * @return path to the WEB-INF dir for this tomcat configuration
+	 */
+	public String getTomcatDir() {
+		return tomcatDir;
 	}
 	
 	/**

@@ -29,6 +29,20 @@ public class ServerPrefUtils {
 	 */
 	protected static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
 	
+	private static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/usr/local/tomcat/default/webapps";
+	
+	/**
+	 * This is the path to the WEB-INF dir for production OpenSHA servlets
+	 */
+	protected static final String OPENSHA_TOMCAT_PRODUCTION_DIR =
+		OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA/WEB-INF/";
+	
+	/**
+	 * This is the path to the WEB-INF dir for development OpenSHA servlets
+	 */
+	protected static final String OPENSHA_TOMCAT_DEV_DIR =
+		OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA_dev/WEB-INF/";
+	
 	/**
 	 * This is the URL to the production OpenSHA servlets.
 	 */
