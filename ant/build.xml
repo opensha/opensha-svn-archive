@@ -374,6 +374,7 @@
 			<fileset dir="${test}">
 				<include name="**/*.txt" />
 				<include name="**/*.xml" />
+				<include name="**/*.cat" />
 			</fileset>
 		</copy>
 	</target>
