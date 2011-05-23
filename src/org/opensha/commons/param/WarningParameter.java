@@ -124,12 +124,6 @@ public interface WarningParameter<E> extends Parameter<E> {
      */
     public boolean equals( Object obj ) throws ClassCastException ;
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     * @return    Exact copy of this object's state
-     */
-    public Object clone() ;
-
 
     /**
      * Gets the min Double value of the warning constraint.
