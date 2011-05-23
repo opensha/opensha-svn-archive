@@ -61,7 +61,7 @@
 		</javac>
 	</target>
 
-	<target name="compile.tets" depends="">
+	<target name="compile.tests" depends="">
 		<javac debug="true" deprecation="false" optimize="true" destdir="${build}" nowarn="true"
 			source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" encoding="utf-8"
 			memoryInitialSize="512m" memoryMaximumSize="1024m">

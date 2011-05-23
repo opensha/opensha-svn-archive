@@ -53,8 +53,8 @@
 		</fileset>
 	</path>
 	
-	<target name="compile.tets" depends="">
-		<ant antfile="build.xml" target="compile.tets"/>
+	<target name="compile.tests" depends="">
+		<ant antfile="build.xml" target="compile.tests"/>
 	</target>
 	
 	<target name="resource.tests" depends="">
@@ -72,7 +72,7 @@
 		<mkdir dir="${reports}" />
 	</target>
 	
-	<target name="run.common.tests" depends="compile.tets, resource.tests, pre.test.init">
+	<target name="run.common.tests" depends="compile.tests, resource.tests, pre.test.init">
 		<junit fork="yes" haltonfailure="false" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
@@ -94,7 +94,7 @@
 		</junit>    
 	</target>
 	
-	<target name="run.operational.tests" depends="compile.tets, resource.tests, pre.test.init">
+	<target name="run.operational.tests" depends="compile.tests, resource.tests, pre.test.init">
 		<junit fork="yes" haltonfailure="true" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
@@ -143,7 +143,7 @@
 	</target>
 	
 	<!-- This runs standard tests (the test suites) that can be executed quickly (every night) -->
-	<target name="run.coverage.tests" depends="compile.tets, pre.test.init">
+	<target name="run.coverage.tests" depends="compile.tests, pre.test.init">
 		<junit fork="yes" haltonfailure="false" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
@@ -182,7 +182,7 @@
 	</target>
 	
 	<!-- This runs every single JUnit test...takes a while so should be done weekly -->
-	<target name="run.coverage.weekly.tests" depends="compile.tets, pre.test.init">
+	<target name="run.coverage.weekly.tests" depends="compile.tests, pre.test.init">
 		<delete file="${cobertura.data.dir}/${cobertura.data.weekly.file}" />
 		<junit fork="yes" haltonfailure="false" 
 			failureproperty="tests.failed"
@@ -238,7 +238,7 @@
 		</cobertura-report>
 	</target>
 	
-	<target name="run.cobertura" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
+	<target name="run.cobertura" depends="compile.tests, resource.tests, pre.test.init, cobertura.instrument,
 			run.coverage.tests, cobertura.report">
 	</target>
 	
@@ -255,11 +255,11 @@
 		</cobertura-merge>
 	</target>
 	
-	<target name="run.merge.cobertura" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
+	<target name="run.merge.cobertura" depends="compile.tests, resource.tests, pre.test.init, cobertura.instrument,
 			run.coverage.tests, cobertura.check.merge, cobertura.merge, cobertura.report">
 	</target>
 	
-	<target name="run.cobertura.weekly" depends="compile.tets, resource.tests, pre.test.init, cobertura.instrument,
+	<target name="run.cobertura.weekly" depends="compile.tests, resource.tests, pre.test.init, cobertura.instrument,
 			run.coverage.weekly.tests, cobertura.check.merge, cobertura.merge, cobertura.report">
 	</target>
 	
