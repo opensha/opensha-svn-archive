@@ -3,7 +3,7 @@ package org.opensha.commons.data.function;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 
-import org.opensha.commons.data.Point2DComparatorAPI;
+import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.data.Point2DToleranceSortedList;
 
 public class EmpiricalPoint2DToleranceSortedList extends Point2DToleranceSortedList {
@@ -13,7 +13,7 @@ public class EmpiricalPoint2DToleranceSortedList extends Point2DToleranceSortedL
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public EmpiricalPoint2DToleranceSortedList(Point2DComparatorAPI comparator) {
+	public EmpiricalPoint2DToleranceSortedList(Point2DComparator comparator) {
 		super(comparator);
 	}
 

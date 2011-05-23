@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Container2D;
+import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -58,7 +58,7 @@ public class SAF_Test {
 				dir.mkdir();
 			FileWriter fw = new FileWriter(dir.getAbsolutePath() + File.separator + safeName + ".txt");
 			System.out.println("working on fault: " + surface.getName());
-			Container2D<Double> participationProbs = new Container2D<Double>(surface.getNumRows(), surface.getNumCols());
+			Container2DImpl<Double> participationProbs = new Container2DImpl<Double>(surface.getNumRows(), surface.getNumCols());
 			for (int i=0; i<surface.getNumRows(); i++) {
 				for (int j=0; j<surface.getNumCols(); j++) {
 					participationProbs.set(i, j, new Double(0.0));

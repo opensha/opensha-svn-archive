@@ -37,7 +37,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  * @version    1.0
  */
 
-public interface Point2DComparatorAPI extends Comparator<Point2D> {
+public interface Point2DComparator extends Comparator<Point2D> {
 
     /**
      *  Tolerance indicates the distance two values can be apart, but still

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Container2D;
+import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -38,7 +38,7 @@ import org.opensha.commons.geo.LocationUtils;
  * @version    1.0
  */
 public abstract class EvenlyGriddedSurface
-extends Container2D<Location>
+extends Container2DImpl<Location>
 implements EvenlyGriddedSurfaceAPI {
 
 

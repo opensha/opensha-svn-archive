@@ -57,11 +57,11 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002
- * @see        Point2DComparatorAPI
+ * @see        Point2DComparator
  * @version    1.0
  */
 
-public class Point2DToleranceComparator implements Point2DComparatorAPI,
+public class Point2DToleranceComparator implements Point2DComparator,
                                                        Serializable{
 
     /**

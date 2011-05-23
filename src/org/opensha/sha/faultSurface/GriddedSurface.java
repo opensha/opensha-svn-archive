@@ -22,7 +22,7 @@ package org.opensha.sha.faultSurface;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Container2D;
+import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 
@@ -37,7 +37,7 @@ import org.opensha.commons.geo.LocationList;
  * @version 1.0
  */
 
-public class GriddedSurface extends Container2D<Location>
+public class GriddedSurface extends Container2DImpl<Location>
 implements GriddedSurfaceAPI {
 
 

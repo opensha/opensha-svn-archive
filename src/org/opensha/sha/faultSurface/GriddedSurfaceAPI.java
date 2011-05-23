@@ -21,7 +21,7 @@ package org.opensha.sha.faultSurface;
 
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Container2DAPI;
+import org.opensha.commons.data.Container2D;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 
@@ -46,7 +46,7 @@ import org.opensha.commons.geo.LocationList;
  * @created
  * @version    1.0
  */
-public interface GriddedSurfaceAPI extends Container2DAPI<Location> {
+public interface GriddedSurfaceAPI extends Container2D<Location> {
 
 	/** Returns the average dip of the surface.  */
 	public double getAveDip()throws UnsupportedOperationException;

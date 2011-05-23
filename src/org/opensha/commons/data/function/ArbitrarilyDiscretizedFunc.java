@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.Point2DComparatorAPI;
+import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.data.Point2DToleranceComparator;
 import org.opensha.commons.data.Point2DToleranceSortedList;
 import org.opensha.commons.exceptions.Point2DException;
@@ -112,7 +112,7 @@ implements Serializable {
 	 * sort on both the x and y values, i.e. the data points are geographical
 	 * locations.
 	 */
-	public ArbitrarilyDiscretizedFunc(Point2DComparatorAPI comparator) {
+	public ArbitrarilyDiscretizedFunc(Point2DComparator comparator) {
 		this(new Point2DToleranceSortedList(comparator));
 	}
 
@@ -710,7 +710,7 @@ if(debug) {
 	 */
 	private void readObject(ObjectInputStream s){
 		try{
-			Point2DComparatorAPI comp = (Point2DComparatorAPI)s.readObject();
+			Point2DComparator comp = (Point2DComparator)s.readObject();
 			points = new Point2DToleranceSortedList(comp);
 			int num = ((Integer)s.readObject()).intValue();
 			for(int i=0;i<num;++i){

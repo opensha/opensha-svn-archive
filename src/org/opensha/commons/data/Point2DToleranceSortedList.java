@@ -14,16 +14,16 @@ public class Point2DToleranceSortedList extends TreeSet<Point2D> {
 	private double minY = Double.NaN;
 	private double maxY = Double.NaN;
 	
-	public Point2DToleranceSortedList(Point2DComparatorAPI comparator) {
+	public Point2DToleranceSortedList(Point2DComparator comparator) {
 		super(comparator);
 	}
 	
 	public double getTolerance() {
-		return ((Point2DComparatorAPI)comparator()).getTolerance();
+		return ((Point2DComparator)comparator()).getTolerance();
 	}
 	
 	public void setTolerance(double newTolerance) {
-		((Point2DComparatorAPI)comparator()).setTolerance(newTolerance);
+		((Point2DComparator)comparator()).setTolerance(newTolerance);
 	}
 	
 	private void checkMinMaxY(Point2D p) {

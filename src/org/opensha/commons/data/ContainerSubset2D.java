@@ -61,7 +61,7 @@ import java.util.NoSuchElementException;
  * @version    1.0
  */
 
-public class ContainerSubset2D<T> implements Container2DAPI<T>, Serializable {
+public class ContainerSubset2D<T> implements Container2D<T>, Serializable {
 
 	/**
 	 * 
@@ -104,7 +104,7 @@ public class ContainerSubset2D<T> implements Container2DAPI<T>, Serializable {
 	protected Window2D oldWindow = null;
 
 	/** Internal reference to real data container. */
-	protected Container2DAPI<T> data = null;
+	protected Container2D<T> data = null;
 
 
 	/**
@@ -144,7 +144,7 @@ public class ContainerSubset2D<T> implements Container2DAPI<T>, Serializable {
 	 * @param  startCol                            Staring col of this subset, put in Window2D
 	 * @exception  ArrayIndexOutOfBoundsException  Thown if any of the idices go beyond the range of the referencing container
 	 */
-	public ContainerSubset2D( int numRows, int numCols, int startRow, int startCol, Container2DAPI<T> data )
+	public ContainerSubset2D( int numRows, int numCols, int startRow, int startCol, Container2D<T> data )
 	throws ArrayIndexOutOfBoundsException {
 
 		String S = C + ": Constructor2():";
@@ -169,7 +169,7 @@ public class ContainerSubset2D<T> implements Container2DAPI<T>, Serializable {
 	 * @param  data                                The new container2D value
 	 * @exception  ArrayIndexOutOfBoundsException  Thown if any of the idices go beyond the range of the referencing container
 	 */
-	public void setContainer2D( Container2DAPI<T> data ) throws ArrayIndexOutOfBoundsException {
+	public void setContainer2D( Container2D<T> data ) throws ArrayIndexOutOfBoundsException {
 		String S = C + ": setContainer2D():";
 
 		initTransaction();
@@ -276,7 +276,7 @@ public class ContainerSubset2D<T> implements Container2DAPI<T>, Serializable {
 	 *
 	 * @return    The container2D pointer
 	 */
-	public Container2DAPI<T> getContainer2D() {
+	public Container2D<T> getContainer2D() {
 		return data;
 	}
 
@@ -1085,7 +1085,7 @@ public class ContainerSubset2D<T> implements Container2DAPI<T>, Serializable {
 		int xsize = 5;
 		int ysize = 10;
 
-		Container2D<String> data = new Container2D<String>( xsize, ysize );
+		Container2DImpl<String> data = new Container2DImpl<String>( xsize, ysize );
 		for ( int x = 0; x < xsize; x++ ) {
 			for ( int y = 0; y < ysize; y++ ) {
 				data.set( x, y, "[" + x + ", " + y + ']');

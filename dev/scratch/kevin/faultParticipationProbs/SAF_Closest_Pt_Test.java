@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.opensha.commons.data.Container2D;
+import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -178,8 +178,8 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 				String safeName = fault.getSafeName();
 				String rateFileName = rDirFile.getAbsolutePath() + File.separator + "rate_" + safeName + ".txt";
 				String probFileName = pDirFile.getAbsolutePath() + File.separator + "prob_" + safeName + ".txt";
-				Container2D<Double>[] rates = new Container2D[mags.length];
-				Container2D<Double>[] probs = new Container2D[mags.length];
+				Container2DImpl<Double>[] rates = new Container2DImpl[mags.length];
+				Container2DImpl<Double>[] probs = new Container2DImpl[mags.length];
 				for (int i=0; i<mags.length; i++) {
 					rates[i] = fault.getRatesForMag(mags[i]);
 					probs[i] = fault.getProbsForMag(mags[i], rates[i]);
@@ -293,7 +293,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 
 	private class FaultProbPairing implements Named {
 		private EvenlyGriddedSurfaceAPI surface;
-		private Container2D<SummedMagFreqDist> mfds;
+		private Container2DImpl<SummedMagFreqDist> mfds;
 		private String name;
 		private int sectionID;
 		private double slipRate;
@@ -303,7 +303,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			this.name = name;
 			this.sectionID = sectionID;
 			this.slipRate = slip;
-			mfds = new Container2D<SummedMagFreqDist>(surface.getNumRows(), surface.getNumCols());
+			mfds = new Container2DImpl<SummedMagFreqDist>(surface.getNumRows(), surface.getNumCols());
 			for (int row=0; row<mfds.getNumRows(); row++) {
 				for (int col=0; col<mfds.getNumCols(); col++) {
 					mfds.set(row, col, new SummedMagFreqDist(minMag, maxMag, numMagBins));
@@ -315,7 +315,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			return surface;
 		}
 
-		public Container2D<SummedMagFreqDist> getMFDs() {
+		public Container2DImpl<SummedMagFreqDist> getMFDs() {
 			return mfds;
 		}
 
@@ -344,8 +344,8 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			return false;
 		}
 		
-		public Container2D<Double> getRatesForMag(double mag) {
-			Container2D<Double> rates = new Container2D<Double>(surface.getNumRows(), surface.getNumCols());
+		public Container2DImpl<Double> getRatesForMag(double mag) {
+			Container2DImpl<Double> rates = new Container2DImpl<Double>(surface.getNumRows(), surface.getNumCols());
 			
 			for (int row=0; row<rates.getNumRows(); row++) {
 				for (int col=0; col<rates.getNumCols(); col++) {
@@ -356,12 +356,12 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			return rates;
 		}
 		
-		public Container2D<Double> getProbsForMag(double mag) {
+		public Container2DImpl<Double> getProbsForMag(double mag) {
 			return getProbsForMag(mag, getRatesForMag(mag));
 		}
 		
-		public Container2D<Double> getProbsForMag(double mag, Container2D<Double> rates) {
-			Container2D<Double> probs = new Container2D<Double>(surface.getNumRows(), surface.getNumCols());
+		public Container2DImpl<Double> getProbsForMag(double mag, Container2DImpl<Double> rates) {
+			Container2DImpl<Double> probs = new Container2DImpl<Double>(surface.getNumRows(), surface.getNumCols());
 			
 			for (int row=0; row<rates.getNumRows(); row++) {
 				for (int col=0; col<rates.getNumCols(); col++) {

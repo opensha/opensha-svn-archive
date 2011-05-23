@@ -3,7 +3,7 @@ package org.opensha.refFaultParamDb.calc.sectionDists;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.Container2D;
+import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -17,8 +17,8 @@ public class FaultSectDistRecord implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Container2D<Double> dists1;
-	private Container2D<Double> dists2;
+	private Container2DImpl<Double> dists1;
+	private Container2DImpl<Double> dists2;
 	
 	private EvenlyGriddedSurfaceAPI surface1;
 	private EvenlyGriddedSurfaceAPI surface2;
@@ -149,8 +149,8 @@ public class FaultSectDistRecord implements Serializable {
 	}
 	
 	public void calcDistances(SurfaceFilter filter, boolean fast) {
-		dists1 = new Container2D<Double>(surface1.getNumRows(), surface1.getNumCols());
-		dists2 = new Container2D<Double>(surface2.getNumRows(), surface2.getNumCols());
+		dists1 = new Container2DImpl<Double>(surface1.getNumRows(), surface1.getNumCols());
+		dists2 = new Container2DImpl<Double>(surface2.getNumRows(), surface2.getNumCols());
 		
 //		minDist = Double.MAX_VALUE;
 //		minDistLoc1 = new int[2];
@@ -202,11 +202,11 @@ public class FaultSectDistRecord implements Serializable {
 		return serialVersionUID;
 	}
 
-	public Container2D<Double> getDists1() {
+	public Container2DImpl<Double> getDists1() {
 		return dists1;
 	}
 
-	public Container2D<Double> getDists2() {
+	public Container2DImpl<Double> getDists2() {
 		return dists2;
 	}
 

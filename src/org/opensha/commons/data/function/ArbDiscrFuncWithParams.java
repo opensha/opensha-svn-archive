@@ -23,7 +23,7 @@ import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import org.opensha.commons.data.Point2DComparatorAPI;
+import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.param.ParameterList;
 
 
@@ -72,7 +72,7 @@ public class ArbDiscrFuncWithParams
      * sort on both the x and y values, i.e. the data points are geographical
      * locations.
      */
-    public ArbDiscrFuncWithParams(Point2DComparatorAPI comparator) { super(comparator); }
+    public ArbDiscrFuncWithParams(Point2DComparator comparator) { super(comparator); }
 
     /**
      *  Easiest one to use, uses the default DataPoint2DToleranceComparator comparator.
