@@ -45,8 +45,8 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/reporting/jsp/webcontent/xsl"
+						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
+						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
@@ -111,8 +111,8 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/reporting/jsp/webcontent/xsl"
+						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
+						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
@@ -163,8 +163,8 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/reporting/jsp/webcontent/xsl"
+						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
+						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
