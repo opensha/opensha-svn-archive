@@ -7,14 +7,14 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.WeightedList;
 import org.opensha.commons.param.impl.WeightedListParameter;
 import org.opensha.commons.util.XMLUtils;
 
 public class WeightedListParameterXMLText {
 	
-	private class SimpleNamedObject implements NamedObjectAPI {
+	private class SimpleNamedObject implements Named {
 		private String name;
 		
 		public SimpleNamedObject(String name) {

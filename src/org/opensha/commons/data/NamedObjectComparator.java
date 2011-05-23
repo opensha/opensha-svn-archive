@@ -40,7 +40,7 @@ import java.util.Comparator;
  * @version    1.0
  */
 
-public class NamedObjectComparator implements Comparator<NamedObjectAPI>, Serializable {
+public class NamedObjectComparator implements Comparator<Named>, Serializable {
 
     /**
 	 * 
@@ -75,9 +75,9 @@ public class NamedObjectComparator implements Comparator<NamedObjectAPI>, Serial
      *      object name, 0 if the two names are equal, and -1 if the first
      *      object name is < the second object's name, alphabetically.
      * @see                              Comparable
-     * @see                              NamedObjectAPI
+     * @see                              Named
      */
-    public int compare( NamedObjectAPI o1, NamedObjectAPI o2 ) {
+    public int compare( Named o1, Named o2 ) {
 
         String S = C + ":compare(): ";
         if ( D ) {
@@ -92,8 +92,8 @@ public class NamedObjectComparator implements Comparator<NamedObjectAPI>, Serial
         }
 
 
-        NamedObjectAPI no1 = ( NamedObjectAPI ) o1;
-        NamedObjectAPI no2 = ( NamedObjectAPI ) o2;
+        Named no1 = ( Named ) o1;
+        Named no2 = ( Named ) o2;
 
         String n1 = no1.getName().toString();
         String n2 = no2.getName().toString();

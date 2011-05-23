@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.XY_DataSetException;
 
 /**

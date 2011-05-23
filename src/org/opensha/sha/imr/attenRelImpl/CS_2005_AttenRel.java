@@ -23,7 +23,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -664,7 +664,7 @@ public class CS_2005_AttenRel extends AttenuationRelationship {
 	 */
 
 	class CS_2005_AttenRelCoefficients
-	implements NamedObjectAPI {
+	implements Named {
 
 		protected final static String C = "CS_2005_AttenRelCoefficients";
 		protected final static boolean D = false;

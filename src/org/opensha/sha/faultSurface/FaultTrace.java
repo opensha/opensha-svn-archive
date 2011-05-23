@@ -21,7 +21,7 @@ package org.opensha.sha.faultSurface;
 
 import java.util.Iterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -42,7 +42,7 @@ import org.opensha.commons.util.FaultTraceUtils;
  * @version    1.0
  */
 
-public class FaultTrace extends LocationList implements NamedObjectAPI {
+public class FaultTrace extends LocationList implements Named {
 
 	/**
 	 * 

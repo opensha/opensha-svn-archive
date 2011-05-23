@@ -19,7 +19,7 @@
 
 package org.opensha.refFaultParamDb.vo;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
@@ -35,7 +35,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
  * @version 1.0
  */
 
-public class FaultSectionData implements Cloneable, NamedObjectAPI {
+public class FaultSectionData implements Cloneable, Named {
 
 	private int sectionId=-1;
 	private String sectionName;

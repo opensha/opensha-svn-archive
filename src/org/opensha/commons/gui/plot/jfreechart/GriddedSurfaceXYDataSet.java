@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.DefaultXYDataset;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
 
@@ -53,7 +53,7 @@ import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
  * @version 1.0
  */
 
-public class GriddedSurfaceXYDataSet extends DefaultXYDataset implements  NamedObjectAPI {
+public class GriddedSurfaceXYDataSet extends DefaultXYDataset implements  Named {
 
     /** Class name used for debug statements */
     protected final static String C = "GriddedSurfaceXYDataSet";

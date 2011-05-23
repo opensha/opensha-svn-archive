@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;
@@ -61,7 +61,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 public class AS_2008_SiteSpecific_AttenRel
 extends AttenuationRelationship implements ScalarIMR,
-NamedObjectAPI {
+Named {
 
 	// debugging stuff:
 	private final static String C = "AS_2008_SiteSpecific_AttenRel";

@@ -214,8 +214,8 @@ public class WeightedList<E> implements XMLSaveable {
 	}
 	
 	public static String getName(Object obj) {
-		if (obj instanceof NamedObjectAPI)
-			return ((NamedObjectAPI)obj).getName();
+		if (obj instanceof Named)
+			return ((Named)obj).getName();
 		else
 			return obj.toString();
 	}

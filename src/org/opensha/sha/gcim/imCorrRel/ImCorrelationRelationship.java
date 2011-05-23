@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
@@ -60,7 +60,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0 1 April 2010
  */
 
-public abstract class ImCorrelationRelationship implements NamedObjectAPI  {
+public abstract class ImCorrelationRelationship implements Named  {
 
     final static String C = "ImCorrelationRelationship";
     private static final long serialVersionUID = 1234567890987654353L;

@@ -27,7 +27,7 @@ import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.TableXYDataset;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.XY_DataSetAPI;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -70,7 +70,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
  * @version    1.2
  */
 
-public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements NamedObjectAPI, IntervalXYDataset, TableXYDataset  {
+public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements Named, IntervalXYDataset, TableXYDataset  {
 
 	/**
 	 * 

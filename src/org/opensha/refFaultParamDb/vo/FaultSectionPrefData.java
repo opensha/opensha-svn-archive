@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -21,7 +21,7 @@ import org.opensha.sha.faultSurface.SimpleFaultData;
  * @author vipingupta
  *
  */
-public class FaultSectionPrefData  implements NamedObjectAPI, java.io.Serializable, XMLSaveable, Cloneable {
+public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSaveable, Cloneable {
 
 	/**
 	 * 

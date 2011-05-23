@@ -50,7 +50,7 @@ import java.util.NoSuchElementException;
  * @version    1.0
  */
 
-public class Container2D<T> implements Container2DAPI<T>, Serializable, NamedObjectAPI {
+public class Container2D<T> implements Container2DAPI<T>, Serializable, Named {
 
 	/**
 	 * 

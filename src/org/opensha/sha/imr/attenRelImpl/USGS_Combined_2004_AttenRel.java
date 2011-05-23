@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.GaussianDistCalc;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.IMRException;

@@ -4,7 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -60,7 +60,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 public class ToroEtAl_1997_AttenRel
     extends AttenuationRelationship implements
     ScalarIMR,
-    NamedObjectAPI, ParameterChangeListener {
+    Named, ParameterChangeListener {
 
 
 //		public static void main(String[] args) {

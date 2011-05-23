@@ -8,7 +8,7 @@ import org.opensha.commons.gui.WeightedListGUI;
 
 public class WeightedListGUILauncher {
 
-	private static class TestClass implements NamedObjectAPI {
+	private static class TestClass implements Named {
 
 		private String name;
 		public TestClass(String name) {

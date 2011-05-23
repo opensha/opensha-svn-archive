@@ -26,7 +26,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -1077,7 +1077,7 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 	 */
 
 	class CB_2003_AttenRelCoefficients
-	implements NamedObjectAPI {
+	implements Named {
 
 		/** For serialization. */
 		private static final long serialVersionUID = 1234567890987654325L;

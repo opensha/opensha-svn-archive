@@ -46,7 +46,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.Range;
 import org.opensha.commons.calc.FunctionListCalc;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
@@ -71,7 +71,7 @@ import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
  */
 
 public class PEER_TestResultsPlotterApplet extends JApplet implements
-NamedObjectAPI,
+Named,
 AxisLimitsControlPanelAPI,
 ActionListener {
 	private boolean isStandalone = false;

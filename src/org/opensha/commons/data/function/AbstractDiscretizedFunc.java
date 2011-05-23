@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.FileUtils;
 
@@ -61,7 +61,7 @@ import org.opensha.commons.util.FileUtils;
  */
 
 public abstract class AbstractDiscretizedFunc extends AbstractXY_DataSet implements DiscretizedFuncAPI,
-NamedObjectAPI,java.io.Serializable{
+Named,java.io.Serializable{
 
 	private static final long serialVersionUID = 2798699443929196424l;
 

@@ -37,7 +37,7 @@ import java.util.List;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.metadata.XMLSaveable;
 
 /**
@@ -80,7 +80,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @see Area
  * @see BorderType
  */
-public class Region implements Serializable, XMLSaveable, NamedObjectAPI {
+public class Region implements Serializable, XMLSaveable, Named {
 
 	private static final long serialVersionUID = 1L;
 

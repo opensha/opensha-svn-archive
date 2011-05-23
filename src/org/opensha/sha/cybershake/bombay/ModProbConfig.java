@@ -2,11 +2,11 @@ package org.opensha.sha.cybershake.bombay;
 
 import java.util.Date;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 
-public interface ModProbConfig extends NamedObjectAPI {
+public interface ModProbConfig extends Named {
 	
 	public int getProbModelID();
 	

@@ -24,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
 import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.Baker07_ImCorrRel;
@@ -191,11 +191,11 @@ public class ImCorrelationRelationshipsInstance {
 	}
 
 	private static class ImCorrRelComparator implements 
-			Comparator<NamedObjectAPI> {
+			Comparator<Named> {
 
 		public int compare(
-				NamedObjectAPI imcorrRel1,
-				NamedObjectAPI imcorrRel2) {
+				Named imcorrRel1,
+				Named imcorrRel2) {
 			return imcorrRel1.getName().compareToIgnoreCase(imcorrRel2.getName());
 		}
 	}

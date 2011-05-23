@@ -37,7 +37,7 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 
 /**
  * This class represents a GMT CPT file.
@@ -46,7 +46,7 @@ import org.opensha.commons.data.NamedObjectAPI;
  *
  */
 
-public class CPT extends ArrayList<CPTVal> implements NamedObjectAPI {
+public class CPT extends ArrayList<CPTVal> implements Named {
 
 	/**
 	 * default serial version UID

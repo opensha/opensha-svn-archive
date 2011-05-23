@@ -4,7 +4,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -56,7 +56,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 
 public class ToroEtAl_1997_SiteSpecific_AttenRel2
     extends AttenuationRelationship implements ScalarIMR,
-    NamedObjectAPI {
+    Named {
 
   // debugging stuff:
 	  private final static String C = "ToroEtAl_1997_SiteSpecific_AttenRel";

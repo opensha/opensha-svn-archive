@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.opensha.commons.data.Container2D;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -372,7 +372,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 		return faultsForSource;
 	}
 
-	private class FaultProbPairing implements NamedObjectAPI {
+	private class FaultProbPairing implements Named {
 		private EvenlyGriddedSurfaceAPI surface;
 		private Container2D<SummedMagFreqDist> mfds;
 		private String name;

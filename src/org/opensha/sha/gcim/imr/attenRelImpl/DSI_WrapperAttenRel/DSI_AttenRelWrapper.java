@@ -24,7 +24,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -78,7 +78,7 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 public class DSI_AttenRelWrapper
     extends AttenuationRelationship implements
     ScalarIMR,
-    NamedObjectAPI, ParameterChangeListener {
+    Named, ParameterChangeListener {
 
   // Debugging stuff
   private final static String C = "DSI_AttenRelWrapper";

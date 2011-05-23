@@ -19,7 +19,7 @@
 
 package org.opensha.commons.calc.magScalingRelations;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.util.FaultUtils;
 
 
@@ -35,7 +35,7 @@ import org.opensha.commons.util.FaultUtils;
  * @version 1.0
  */
 
-public abstract class MagScalingRelationship implements NamedObjectAPI  {
+public abstract class MagScalingRelationship implements Named  {
 
     final static String C = "MagScalingRelationship";
 

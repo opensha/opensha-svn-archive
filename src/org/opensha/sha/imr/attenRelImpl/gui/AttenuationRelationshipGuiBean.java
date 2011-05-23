@@ -32,7 +32,7 @@ import java.util.ListIterator;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang.StringUtils;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ConstraintException;
@@ -90,7 +90,7 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 public class AttenuationRelationshipGuiBean 
 implements
-NamedObjectAPI,
+Named,
 ParameterChangeListener, ParameterChangeFailListener
 {
 

@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 
 public class ListUtils {
 	
-	public static NamedObjectAPI getObjectByName(Collection<? extends NamedObjectAPI> objects, String name) {
-		for (NamedObjectAPI object : objects) {
+	public static Named getObjectByName(Collection<? extends Named> objects, String name) {
+		for (Named object : objects) {
 			if (object.getName().equals(name))
 				return object;
 		}
 		return null;
 	}
 	
-	public static int getIndexByName(List<? extends NamedObjectAPI> list, String name) {
+	public static int getIndexByName(List<? extends Named> list, String name) {
 		for (int i=0; i<list.size(); i++) {
 			if (list.get(i).getName().equals(name))
 				return i;
@@ -24,9 +24,9 @@ public class ListUtils {
 		return -1;
 	}
 	
-	public static ArrayList<String> getNamesList(Collection<? extends NamedObjectAPI> objects) {
+	public static ArrayList<String> getNamesList(Collection<? extends Named> objects) {
 		ArrayList<String> names = new ArrayList<String>();
-		for (NamedObjectAPI object : objects) {
+		for (Named object : objects) {
 			names.add(object.getName());
 		}
 		return names;

@@ -22,7 +22,7 @@ package org.opensha.commons.param;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -81,7 +81,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
  */
 
 public interface Parameter<E> extends
-		NamedObjectAPI,
+		Named,
 		Comparable<Parameter<E>>,
 		XMLSaveable {
 

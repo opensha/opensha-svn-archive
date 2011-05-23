@@ -3,7 +3,7 @@ package org.opensha.gem.GEM1.scratch;
 import java.util.HashMap;
 
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -46,7 +46,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 public class AtkBoo_2006_AttenRel extends AttenuationRelationship implements
     ScalarIMR,
-    NamedObjectAPI, ParameterChangeListener {
+    Named, ParameterChangeListener {
 
 	//
 	private static boolean D = false; 

@@ -1,6 +1,6 @@
 package org.opensha.commons.data;
 
-public class NameIDPairing implements NamedObjectAPI {
+public class NameIDPairing implements Named {
 
 	private int id;
 	private String name;

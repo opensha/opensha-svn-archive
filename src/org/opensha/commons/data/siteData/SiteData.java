@@ -22,7 +22,7 @@ package org.opensha.commons.data.siteData;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
@@ -42,7 +42,7 @@ import org.opensha.commons.param.editor.impl.ParameterListEditor;
  *
  * @param <Element>
  */
-public interface SiteData<Element> extends NamedObjectAPI, XMLSaveable {
+public interface SiteData<Element> extends Named, XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "SiteDataAPI";
 	

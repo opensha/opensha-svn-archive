@@ -2,7 +2,7 @@ package org.opensha.sha.gui.controls;
 
 import java.awt.Window;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 
 /**
  * This is an abstract class representing a control panel to be included in one or more
@@ -12,7 +12,7 @@ import org.opensha.commons.data.NamedObjectAPI;
  * @author kevin
  *
  */
-public abstract class ControlPanel implements NamedObjectAPI {
+public abstract class ControlPanel implements Named {
 	
 	private String name;
 	private boolean initialized = false;

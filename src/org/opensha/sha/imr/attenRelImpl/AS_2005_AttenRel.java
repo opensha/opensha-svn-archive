@@ -21,7 +21,7 @@ package org.opensha.sha.imr.attenRelImpl;
 
 import java.util.HashMap;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;

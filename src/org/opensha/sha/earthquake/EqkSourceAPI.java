@@ -22,7 +22,7 @@ package org.opensha.sha.earthquake;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.util.TectonicRegionType;
@@ -36,7 +36,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public interface EqkSourceAPI extends NamedObjectAPI{
+public interface EqkSourceAPI extends Named{
 
 
   /**

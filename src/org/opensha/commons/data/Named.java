@@ -22,10 +22,10 @@ package org.opensha.commons.data;
 import java.io.Serializable;
 
 /**
- *  <b>Title:</b> NamedObjectAPI<p>
+ *  <b>Title:</b> Named<p>
  *
  *  <b>Description:</b> This interface flags all implementing classes as being
- *  NamedObjects, i.e. they all have a name field and implements getName().
+ *  Named objects, i.e. they all have a name field and implements getName().
  *  Used in all Parameters, among other areas.<p>
  *
  * @author     Steven W. Rock
@@ -33,7 +33,7 @@ import java.io.Serializable;
  * @version    1.0
  */
 
-public interface NamedObjectAPI extends Serializable {
+public interface Named extends Serializable {
     /** Returns the name of this object */
     public String getName();
 }

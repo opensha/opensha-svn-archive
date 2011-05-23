@@ -5,11 +5,11 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.metadata.XMLSaveable;
 
-public interface XY_DataSetAPI extends NamedObjectAPI, XMLSaveable, Serializable {
+public interface XY_DataSetAPI extends Named, XMLSaveable, Serializable {
 
 	/* ******************************/
 	/* Basic Fields Getters/Setters */

@@ -24,7 +24,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -565,7 +565,7 @@ public class DahleEtAl_1995_AttenRel extends AttenuationRelationship {
 	 */
 
 	class DahleEtAl_AttenRelCoefficients
-	implements NamedObjectAPI {
+	implements Named {
 
 		protected final static String C = "DahleEtAl_AttenRelCoefficients";
 		protected final static boolean D = false;

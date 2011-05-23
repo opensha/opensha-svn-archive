@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -87,7 +87,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 public class BommerEtAl_2009_AttenRel
     extends AttenuationRelationship implements
     ScalarIMR,
-    NamedObjectAPI, ParameterChangeListener {
+    Named, ParameterChangeListener {
 
   // Debugging stuff
   private final static String C = "BommerEtAl_2009_AttenRel";

@@ -2,7 +2,7 @@ package org.opensha.sra.asset;
 
 import java.util.ArrayList;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 
 /**
  * A <code>Portfolio</code> represents a collecion of <code>Asset</code>s.
@@ -10,7 +10,7 @@ import org.opensha.commons.data.NamedObjectAPI;
  * @author Peter Powers
  * @version $Id$
  */
-public class Portfolio extends ArrayList<Asset> implements NamedObjectAPI {
+public class Portfolio extends ArrayList<Asset> implements Named {
 
 	private String name;
 	

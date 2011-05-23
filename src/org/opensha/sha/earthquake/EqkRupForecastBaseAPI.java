@@ -23,7 +23,7 @@ package org.opensha.sha.earthquake;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
@@ -41,7 +41,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public interface EqkRupForecastBaseAPI extends NamedObjectAPI{
+public interface EqkRupForecastBaseAPI extends Named{
 	
 	/**
 	 * To increase load time for applications, the name of each ERF should be stored

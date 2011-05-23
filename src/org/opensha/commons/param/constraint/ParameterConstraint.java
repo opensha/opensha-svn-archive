@@ -19,7 +19,7 @@
 
 package org.opensha.commons.param.constraint;
 
-import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.EditableException;
 
 /**
@@ -35,7 +35,7 @@ import org.opensha.commons.exceptions.EditableException;
  * @version    1.0
  */
 
-public interface ParameterConstraint<E> extends NamedObjectAPI{
+public interface ParameterConstraint<E> extends Named{
 
     /**  Every parameter constraint has a name, this function returns that name.  */
     public String getName();

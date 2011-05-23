@@ -60,7 +60,7 @@ import org.opensha.commons.param.ParameterList;
  * @version    1.0
  */
 
-public class Site extends ParameterList implements NamedObjectAPI,Serializable,XMLSaveable {
+public class Site extends ParameterList implements Named,Serializable,XMLSaveable {
 
     /** Class name - used for debugging */
     protected final static String C = "Site";
