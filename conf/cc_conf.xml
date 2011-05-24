@@ -97,7 +97,7 @@
 
 		<!-- we shouldn't need this since requiremodification=false, but a CC bug requires it to build -->
 		<modificationset quietperiod="60">
-			<svn LocalWorkingCopy="${projectdir}"/>
+			<alwaysbuild/>
 		</modificationset>
 
 		<log dir="${logdir}">
@@ -149,7 +149,7 @@
 
 		<!-- we shouldn't need this since requiremodification=false, but a CC bug requires it to build -->
 		<modificationset quietperiod="60">
-			<svn LocalWorkingCopy="${projectdir}"/>
+			<alwaysbuild/>
 		</modificationset>
 
 		<log dir="${logdir}">
