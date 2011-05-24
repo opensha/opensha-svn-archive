@@ -10,4 +10,4 @@ if [[ $pids ]];then
 	exit
 fi
 cd /usr/local/cruise/config/opensha
-/usr/local/cruise/default/main/bin/cruisecontrol.sh -dashboardurl http://localhost:8080/dashboard -configfile /usr/local/cruise/config/opensha/config.xml
+/usr/local/cruise/default/main/bin/cruisecontrol.sh -rmiport 1097 -configfile /usr/local/cruise/config/opensha/config.xml
