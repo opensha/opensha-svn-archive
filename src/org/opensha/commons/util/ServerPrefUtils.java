@@ -22,60 +22,57 @@ public class ServerPrefUtils {
 	/**
 	 * Hostname for all production services
 	 */
-	protected static final String OPENSHA_SERVER_PRODUCTION_HOST = "opensha.usc.edu";
+	static final String OPENSHA_SERVER_PRODUCTION_HOST = "opensha.usc.edu";
 	
 	/**
 	 * Hostname for all production services
 	 */
-	protected static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
+	static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
 	
-	private static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/usr/local/tomcat/default/webapps";
+	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/usr/local/tomcat/default/webapps";
 	
 	/**
 	 * This is the path to the WEB-INF dir for production OpenSHA servlets
 	 */
-	protected static final String OPENSHA_TOMCAT_PRODUCTION_DIR =
+	static final String OPENSHA_TOMCAT_PRODUCTION_DIR =
 		OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA/WEB-INF/";
 	
 	/**
 	 * This is the path to the WEB-INF dir for development OpenSHA servlets
 	 */
-	protected static final String OPENSHA_TOMCAT_DEV_DIR =
+	static final String OPENSHA_TOMCAT_DEV_DIR =
 		OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA_dev/WEB-INF/";
 	
 	/**
 	 * This is the URL to the production OpenSHA servlets.
 	 */
-	protected static final String OPENSHA_SERVLET_PRODUCTION_URL =
+	static final String OPENSHA_SERVLET_PRODUCTION_URL =
 		"http://"+OPENSHA_SERVER_PRODUCTION_HOST+":8080/OpenSHA/";
 	
 	/**
 	 * This is the URL to the development OpenSHA servlets
 	 */
-	protected static final String OPENSHA_SERVLET_DEV_URL =
+	static final String OPENSHA_SERVLET_DEV_URL =
 		"http://"+OPENSHA_SERVER_DEV_HOST+":8080/OpenSHA_dev/";
 	
 	/**
 	 * This is the production port for RMI
 	 */
-	protected static final int OPENSHA_RMI_PRODUCTION_PORT = 1099;
+	static final int OPENSHA_RMI_PRODUCTION_PORT = 1099;
 	
 	/**
 	 * This is the development port for RMI
 	 */
-	protected static final int OPENSHA_RMI_DEV_PORT = 1098;
+	static final int OPENSHA_RMI_DEV_PORT = 1098;
 	
 	/**
 	 * This is the RMI port range min
 	 */
-	protected static final int OPENSHA_RMI_SOCKET_MIN_PORT = 40000;
+	static final int OPENSHA_RMI_SOCKET_MIN_PORT = 40000;
 	/**
 	 * This is the RMI port range max
 	 */
-	protected static final int OPENSHA_RMI_SOCKET_MAX_PORT = 40500;
-	
-	protected static final String BUILD_TYPE_NIGHTLY = "nightly";
-	protected static final String BUILD_TYPE_PRODUCTION = "dist";
+	static final int OPENSHA_RMI_SOCKET_MAX_PORT = 40500;
 	
 	/**
 	 * This is the preferences enum for OpenSHA...it should always be link to the production prefs

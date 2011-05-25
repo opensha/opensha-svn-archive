@@ -32,7 +32,8 @@ public class IconFetcher {
 			if (url == null) {
 				// then try internet
 				try {
-					String addy = JNLPGen.webRoot+"/"+appShortName+"/"+prefs.getBuildType()+"/icons/"+fileName;
+					String addy = JNLPGen.webRoot+"/"+appShortName+"/"+prefs.getBuildType().getBuildDirName()
+									+"/icons/"+fileName;
 					url = new URL(addy);
 				} catch (Throwable t) {}
 			}

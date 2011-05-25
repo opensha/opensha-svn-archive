@@ -16,6 +16,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.siteData.gui.SiteDataCombinedApp;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGeneratorApplet;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.DevStatus;
 import org.opensha.commons.util.IconGen;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
@@ -95,7 +96,7 @@ public class JNLPGen {
 		this.prefs = prefs;
 	}
 	
-	private String getDistType() {
+	private DevStatus getDistType() {
 		return prefs.getBuildType();
 	}
 	
@@ -128,7 +129,7 @@ public class JNLPGen {
 		
 		// root attributes
 		root.addAttribute("spec", "6.0+");
-		String codeBaseURL = webRoot + "/" + shortName + "/" + getDistType();
+		String codeBaseURL = webRoot + "/" + shortName + "/" + getDistType().getBuildDirName();
 		root.addAttribute("codebase", codeBaseURL);
 		root.addAttribute("href", shortName + ".jnlp");
 		
@@ -284,7 +285,7 @@ public class JNLPGen {
 				SiteDataCombinedApp.APP_NAME, "SD", false));
 		
 		for (ServerPrefs myPrefs : prefsToBuild) {
-			String distOutDir = outputDir + File.separator + myPrefs.getBuildType();
+			String distOutDir = outputDir + File.separator + myPrefs.getBuildType().getBuildDirName();
 			for (JNLPGen app : appsToBuild) {
 				app.setServerPrefs(myPrefs);
 				app.generateAppIcons(distOutDir);

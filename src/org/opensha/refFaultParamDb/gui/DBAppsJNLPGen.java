@@ -38,7 +38,7 @@ public class DBAppsJNLPGen {
 				PaleoSiteApp2.APP_NAME, "PS", false));
 		
 		ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
-		String outputDir = JNLPGen.jnlpDir + File.separator + prefs.getBuildType();
+		String outputDir = JNLPGen.jnlpDir + File.separator + prefs.getBuildType().getBuildDirName();
 		
 		HashMap<int[], BufferedImage> icons = loadLogoIcons();
 		

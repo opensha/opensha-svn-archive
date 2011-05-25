@@ -40,7 +40,7 @@ public enum ServerPrefs {
 			ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_DEV_DIR,
 			ServerPrefUtils.OPENSHA_RMI_DEV_PORT,
-			ServerPrefUtils.BUILD_TYPE_NIGHTLY),
+			DevStatus.DEVELOPMENT),
 	/**
 	 * Preferences for stable production releases
 	 */
@@ -48,15 +48,15 @@ public enum ServerPrefs {
 			ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_PRODUCTION_DIR,
 			ServerPrefUtils.OPENSHA_RMI_PRODUCTION_PORT,
-			ServerPrefUtils.BUILD_TYPE_PRODUCTION);
+			DevStatus.PRODUCTION);
 	
 	private String hostName;
 	private String servletURL;
 	private String tomcatDir;
 	private int rmiPort;
-	private String buildType;
+	private DevStatus buildType;
 	
-	private ServerPrefs(String hostName, String servletURL, String tomcatDir, int rmiPort, String buildType) {
+	private ServerPrefs(String hostName, String servletURL, String tomcatDir, int rmiPort, DevStatus buildType) {
 		this.hostName = hostName;
 		this.servletURL = servletURL;
 		this.tomcatDir = tomcatDir;
@@ -105,7 +105,7 @@ public enum ServerPrefs {
 	 * 
 	 * @return build type string
 	 */
-	public String getBuildType() {
+	public DevStatus getBuildType() {
 		return buildType;
 	}
 	
