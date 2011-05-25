@@ -79,6 +79,7 @@
 			haltonerror="true"
 			dir="${build}"
 			printsummary="yes">
+			<jvmarg value="-Djava.awt.headless=true"/>
 			<classpath>
 				<pathelement location="${build}"/>
 				<path refid="library.classpath" />
@@ -101,6 +102,7 @@
 			haltonerror="true"
 			dir="${build}"
 			printsummary="yes">
+			<jvmarg value="-Djava.awt.headless=true"/>
 			<classpath>
 				<pathelement location="${build}"/>
 				<path refid="library.classpath" />
@@ -150,6 +152,7 @@
 			haltonerror="false"
 			dir="${build}"
 			printsummary="yes">
+			<jvmarg value="-Djava.awt.headless=true"/>
 			
 			<!--
 				Specify the name of the coverage data file to use.
@@ -190,6 +193,7 @@
 			haltonerror="false"
 			dir="${build}"
 			printsummary="yes">
+			<jvmarg value="-Djava.awt.headless=true"/>
 			
 			<!--
 				Specify the name of the coverage data file to use.
