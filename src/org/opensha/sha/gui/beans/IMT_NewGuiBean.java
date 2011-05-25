@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.param.Parameter;
@@ -50,7 +51,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	
 	private StringParameter imtParameter;
 	
-	private ArrayList<ScalarIMR> imrs;
+	private List<? extends ScalarIMR> imrs;
 	
 	private ArrayList<IMTChangeListener> listeners = new ArrayList<IMTChangeListener>();
 	
@@ -84,7 +85,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrs
 	 */
-	public IMT_NewGuiBean(ArrayList<ScalarIMR> imrs) {
+	public IMT_NewGuiBean(List<? extends ScalarIMR> imrs) {
 		this.setTitle(TITLE);
 		setIMRs(imrs);
 	}
@@ -111,7 +112,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrs
 	 */
-	public void setIMRs(ArrayList<ScalarIMR> imrs) {
+	public void setIMRs(List<? extends ScalarIMR> imrs) {
 		this.imrs = imrs;
 		
 		// first get a master list of all of the supported Params
@@ -381,7 +382,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrs
 	 * @return
 	 */
-	public static ArrayList<Double> getCommonPeriods(Collection<ScalarIMR> imrs) {
+	public static ArrayList<Double> getCommonPeriods(Collection<? extends ScalarIMR> imrs) {
 		ArrayList<Double> allPeriods = getAllSupportedPeriods(imrs);
 		
 		ArrayList<Double> commonPeriods = new ArrayList<Double>();
@@ -410,7 +411,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrs
 	 * @return
 	 */
-	public static ArrayList<Double> getAllSupportedPeriods(Collection<ScalarIMR> imrs) {
+	public static ArrayList<Double> getAllSupportedPeriods(Collection<? extends ScalarIMR> imrs) {
 		ArrayList<Double> periods = new ArrayList<Double>();
 		for (ScalarIMR imr : imrs) {
 			if (imr.isIntensityMeasureSupported(SA_Param.NAME)) {

@@ -64,7 +64,7 @@ import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.Interpola
  * @created March 05,2004
  * @version 1.0
  */
-
+@Deprecated
 public class AttenuationRelationshipsInstance {
 
 	private static final String C= "AtteuationRelationshipsInstance";

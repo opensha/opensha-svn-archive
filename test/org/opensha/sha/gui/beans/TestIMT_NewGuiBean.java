@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 import org.junit.Before;
@@ -15,7 +16,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
@@ -29,7 +30,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestIMT_NewGuiBean implements IMTChangeListener {
 
-	static ArrayList<ScalarIMR> imrs;
+	static List<? extends ScalarIMR> imrs;
 
 	Stack<IMTChangeEvent> eventStack = new Stack<IMTChangeEvent>();
 
@@ -37,8 +38,8 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		imrs = inst.createIMRClassInstance(null);
+		//AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
+		imrs = AttenRelRef.instanceList(null, true);
 		for (ScalarIMR imr : imrs) {
 			imr.setParamDefaults();
 		}

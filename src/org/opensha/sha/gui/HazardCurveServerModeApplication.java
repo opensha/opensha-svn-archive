@@ -39,6 +39,7 @@ import java.rmi.RemoteException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -73,6 +74,7 @@ import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.DevStatus;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.bugReports.BugReport;
@@ -125,7 +127,6 @@ import org.opensha.sha.gui.controls.SiteDataControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -138,6 +139,7 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.util.IconFetcher;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
@@ -1826,12 +1828,16 @@ ScalarIMRChangeListener {
 	 * Initialize the IMR Gui Bean
 	 */
 	protected void initIMR_GuiBean() {
-		AttenuationRelationshipsInstance instances = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIMR> imrs = instances.createIMRClassInstance(null);
+//		AttenuationRelationshipsInstance instances = new AttenuationRelationshipsInstance();
+//		ArrayList<ScalarIMR> imrs = instances.createIMRClassInstance(null);
+//		for (ScalarIMR imr : imrs) {
+//			imr.setParamDefaults();
+//		}
+		// TODO add make the multi imr bean handle warnings
+		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true, DevStatus.PRODUCTION);
 		for (ScalarIMR imr : imrs) {
 			imr.setParamDefaults();
 		}
-		// TODO add make the multi imr bean handle warnings
 
 		imrGuiBean = new IMR_MultiGuiBean(imrs);
 		imrGuiBean.addIMRChangeListener(this);

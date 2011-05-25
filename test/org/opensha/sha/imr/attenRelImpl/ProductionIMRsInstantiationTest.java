@@ -11,24 +11,24 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.opensha.commons.util.DevStatus;
-import org.opensha.sha.imr.AttenRelImpl;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 
 @RunWith(Parameterized.class)
 public class ProductionIMRsInstantiationTest {
 	
-	private AttenRelImpl impl;
+	private AttenRelRef impl;
 	
-	public ProductionIMRsInstantiationTest(AttenRelImpl impl) {
+	public ProductionIMRsInstantiationTest(AttenRelRef impl) {
 		this.impl = impl;
 	}
 	
 	@Parameters
-	public static Collection<AttenRelImpl[]> data() {
-		Set<AttenRelImpl> set = AttenRelImpl.get(DevStatus.PRODUCTION);
-		ArrayList<AttenRelImpl[]> ret = new ArrayList<AttenRelImpl[]>();
-		for (AttenRelImpl imr : set) {
-			AttenRelImpl[] array = { imr };
+	public static Collection<AttenRelRef[]> data() {
+		Set<AttenRelRef> set = AttenRelRef.get(DevStatus.PRODUCTION);
+		ArrayList<AttenRelRef[]> ret = new ArrayList<AttenRelRef[]>();
+		for (AttenRelRef imr : set) {
+			AttenRelRef[] array = { imr };
 			ret.add(array);
 		}
 		return ret;

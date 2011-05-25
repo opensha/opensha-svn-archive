@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
@@ -21,7 +22,7 @@ import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -39,7 +40,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	
-	static ArrayList<ScalarIMR> imrs;
+	static List<? extends ScalarIMR> imrs;
 	static ArrayList<TectonicRegionType> demoTRTs;
 	static ArrayList<TectonicRegionType> demoTRTsNoSub;
 	static ArrayList<TectonicRegionType> demoSingleTRT;
@@ -48,9 +49,9 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	
 	Stack<ScalarIMRChangeEvent> eventStack = new Stack<ScalarIMRChangeEvent>();
 	
-	protected static ArrayList<ScalarIMR> getBuildIMRs() {
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIMR> imrs = inst.createIMRClassInstance(null);
+	protected static List<? extends ScalarIMR> getBuildIMRs() {
+//		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
+		List<? extends ScalarIMR> imrs =  AttenRelRef.instanceList(null, true);
 		for (int i=imrs.size()-1; i>=0; i--) {
 			ScalarIMR imr = imrs.get(i);
 			if (imr instanceof CyberShakeIMR)

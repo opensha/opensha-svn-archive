@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.BorderFactory;
@@ -67,7 +68,9 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
@@ -102,7 +105,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	private static final boolean D = false;
 
 	//list of the supported AttenuationRelationships
-	ArrayList<ScalarIMR> attenRelsSupported;
+	List<? extends ScalarIMR> attenRelsSupported;
 
 	//number of the supported Attenuation Relatoinships
 	int numSupportedAttenRels ;
@@ -118,7 +121,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 
 
 	//instance of the class to create the objects of the AttenuationRelationships dynamically.
-	AttenuationRelationshipsInstance attenRelInstances = new AttenuationRelationshipsInstance();
+	//AttenuationRelationshipsInstance attenRelInstances = new AttenuationRelationshipsInstance();
 
 
 	//keeps the indexing for the Attenuation Relationship for which any event is generated.
@@ -213,7 +216,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	{
 		application = api;
 		//initializing all the array of the GUI elements to be the number of the supported AtrtenuationRelationships.
-		attenRelsSupported = attenRelInstances.createIMRClassInstance(this);
+		//attenRelsSupported = attenRelInstances.createIMRClassInstance(this);
+		attenRelsSupported = AttenRelRef.instanceList(this, true, DevStatus.PRODUCTION);
 
 		numSupportedAttenRels = attenRelsSupported.size();
 
@@ -429,7 +433,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 	 *
 	 * @return the Object for the supported Attenuation Relationships in a ArrayList
 	 */
-	public ArrayList getSupportedAttenuationRelationships(){
+	public List<? extends ScalarIMR> getSupportedAttenuationRelationships(){
 		return attenRelsSupported;
 	}
 

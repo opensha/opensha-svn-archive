@@ -19,9 +19,11 @@
 
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui;
 
+import static org.opensha.sha.imr.AttenRelRef.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -41,6 +43,8 @@ import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.imr.AttenRelRef;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
@@ -213,19 +217,30 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
 	 * Initialize the IMR Gui Bean
 	 */
 	protected void initIMR_GuiBean() {
-		ArrayList<String> classNames = new ArrayList<String>();
-		classNames.add(BA_2008_AttenRel.class.getName());
-		classNames.add(CB_2008_AttenRel.class.getName());
-		classNames.add(BJF_1997_AttenRel.class.getName());
-		classNames.add(AS_1997_AttenRel.class.getName());
-		classNames.add(Campbell_1997_AttenRel.class.getName());
-		classNames.add(SadighEtAl_1997_AttenRel.class.getName());
-		classNames.add(Field_2000_AttenRel.class.getName());
+//		ArrayList<String> classNames = new ArrayList<String>();
+//		classNames.add(BA_2008_AttenRel.class.getName());
+//		classNames.add(CB_2008_AttenRel.class.getName());
+//		classNames.add(BJF_1997_AttenRel.class.getName());
+//		classNames.add(AS_1997_AttenRel.class.getName());
+//		classNames.add(Campbell_1997_AttenRel.class.getName());
+//		classNames.add(SadighEtAl_1997_AttenRel.class.getName());
+//		classNames.add(Field_2000_AttenRel.class.getName());
+//
+//		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance(classNames);
+//
+//		imrGuiBean = new IMR_MultiGuiBean(inst.createIMRClassInstance(null));
+//		imrGuiBean.addIMRChangeListener(this);
 
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance(classNames);
+		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true,
+			BA_2008, CB_2008, BJF_1997, AS_1997, CAMPBELL_1997, SADIGH_1997,
+			FIELD_2000);
+		for (ScalarIMR imr : imrs) {
+			imr.setParamDefaults();
+		}
 
-		imrGuiBean = new IMR_MultiGuiBean(inst.createIMRClassInstance(null));
+		imrGuiBean = new IMR_MultiGuiBean(imrs);
 		imrGuiBean.addIMRChangeListener(this);
+
 		// show this gui bean the JPanel
 		//     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0, TODO clean
 		//         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

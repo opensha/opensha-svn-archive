@@ -3,6 +3,7 @@ package org.opensha.sha.gui.beans;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -10,7 +11,7 @@ import org.junit.Test;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.ChooserComboBox;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -24,7 +25,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestIMT_IMR_Interactions {
 
-	static ArrayList<ScalarIMR> imrs;
+	static List<? extends ScalarIMR> imrs;
 	static ArrayList<TectonicRegionType> demoTRTs;
 
 	IMR_MultiGuiBean imrGui;
@@ -32,8 +33,8 @@ public class TestIMT_IMR_Interactions {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		imrs = TestIMR_MultiGuiBean.getBuildIMRs();
+		//AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
+		imrs =  AttenRelRef.instanceList(null, true);
 		demoTRTs = new ArrayList<TectonicRegionType>();
 		demoTRTs.add(TectonicRegionType.ACTIVE_SHALLOW);
 		demoTRTs.add(TectonicRegionType.STABLE_SHALLOW);

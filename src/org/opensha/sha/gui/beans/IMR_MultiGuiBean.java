@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -59,7 +60,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	private JPanel checkPanel;
 	protected JCheckBox singleIMRBox = new JCheckBox("Single IMR For All Tectonic Region Types");
 
-	private ArrayList<ScalarIMR> imrs;
+	private List<? extends ScalarIMR> imrs;
 	private ArrayList<Boolean> imrEnables;
 
 	private ArrayList<TectonicRegionType> regions = null;
@@ -83,7 +84,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * 
 	 * @param imrs
 	 */
-	public IMR_MultiGuiBean(ArrayList<ScalarIMR> imrs) {
+	public IMR_MultiGuiBean(List<? extends ScalarIMR> imrs) {
 		this.imrs = imrs;
 		imrEnables = new ArrayList<Boolean>();
 		for (int i=0; i<imrs.size(); i++) {
@@ -779,12 +780,11 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	}
 	
 	/**
-	 * Returns a clone of this GUI's IMR list
-	 * @return
+	 * Returns the immutable <code>List</code> of IMRs used by this gui.
+	 * @return the List of IMRs
 	 */
-	@SuppressWarnings("unchecked")
-	public ArrayList<ScalarIMR> getIMRs() {
-		return (ArrayList<ScalarIMR>) imrs.clone();
+	public List<? extends ScalarIMR> getIMRs() {
+		return imrs;
 	}
 	
 	public NtoNMap<TectonicRegionType, ScalarIMR> getNtoNMap() {

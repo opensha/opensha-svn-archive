@@ -71,8 +71,8 @@ public class SiteDataControlPanel extends ControlPanel implements ScalarIMRChang
 	private static final String SET_DEFAULT = SET_SELECTED_IMR;
 	private JComboBox allSingleComboBox;
 	
-	private Collection<ScalarIMR> selectedIMRs;
-	private Collection<ScalarIMR> allIMRs;
+	private Collection<? extends ScalarIMR> selectedIMRs;
+	private Collection<? extends ScalarIMR> allIMRs;
 	
 	private SiteTranslator trans = null;
 	

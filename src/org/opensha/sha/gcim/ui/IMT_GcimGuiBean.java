@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.param.Parameter;
@@ -57,7 +58,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	private Parameter<Double> imj; //The IMj parameter from the main hazard calc
 	private ArrayList<String> currentIMiList; //The currently assigned list of IMi's
 	
-	private ArrayList<ScalarIMR> imrs;
+	private List<? extends ScalarIMR> imrs;
 	private ArrayList<ImCorrelationRelationship> imCorrRels;
 	
 	private ArrayList<IMTChangeListener> listeners = new ArrayList<IMTChangeListener>();
@@ -96,7 +97,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrs
 	 */
-	public IMT_GcimGuiBean(ArrayList<ScalarIMR> imrs, 
+	public IMT_GcimGuiBean(List<? extends ScalarIMR> imrs, 
 			ArrayList<ImCorrelationRelationship> imCorrRels, Parameter<Double> imj,
 			ArrayList<String> currentIMiList) {
 		this.setTitle(TITLE);
@@ -138,7 +139,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrs, imCorrRels
 	 */
-	public void setIMRsIMCorrRels(ArrayList<ScalarIMR> imrs,
+	public void setIMRsIMCorrRels(List<? extends ScalarIMR> imrs,
 			ArrayList<ImCorrelationRelationship> imCorrRels) {
 		this.imrs = imrs;
 		this.imCorrRels = imCorrRels;
@@ -593,7 +594,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrs
 	 * @return
 	 */
-	public static ArrayList<Double> getCommonPeriods(Collection<ScalarIMR> imrs) {
+	public static ArrayList<Double> getCommonPeriods(Collection<? extends ScalarIMR> imrs) {
 		ArrayList<Double> allPeriods = getAllSupportedPeriods(imrs);
 		
 		ArrayList<Double> commonPeriods = new ArrayList<Double>();
@@ -622,7 +623,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param imrs
 	 * @return
 	 */
-	public static ArrayList<Double> getAllSupportedPeriods(Collection<ScalarIMR> imrs) {
+	public static ArrayList<Double> getAllSupportedPeriods(Collection<? extends ScalarIMR> imrs) {
 		ArrayList<Double> periods = new ArrayList<Double>();
 		for (ScalarIMR imr : imrs) {
 			if (imr.isIntensityMeasureSupported(SA_Param.NAME)) {

@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.BeforeClass;
@@ -19,7 +20,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
@@ -66,9 +67,10 @@ public class SetPropEffectTest {
 
 	@Parameters
 	public static Collection<ScalarIMR[]> data() {
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIMR> imrs1 = inst.createIMRClassInstance(null);
-		ArrayList<ScalarIMR> imrs2 = inst.createIMRClassInstance(null);
+		//AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
+		
+		List<? extends ScalarIMR> imrs1 = AttenRelRef.instanceList(null, true);
+		List<? extends ScalarIMR> imrs2 = AttenRelRef.instanceList(null, true);
 		ArrayList<ScalarIMR[]> ret = new ArrayList<ScalarIMR[]>();
 		
 		site = new Site(new Location(34, -118));

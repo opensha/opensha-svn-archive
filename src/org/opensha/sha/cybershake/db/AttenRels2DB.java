@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
-import org.opensha.sha.imr.AttenRelImpl;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 
 public class AttenRels2DB {
@@ -184,7 +184,7 @@ public class AttenRels2DB {
 //		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		try {
 			AttenRels2DB atten2db = new AttenRels2DB(db);
-			ScalarIMR imr = AttenRelImpl.NGA_2008_4AVG.instance(null);
+			ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
 			imr.setParamDefaults();
 //			atten2db.insertAttenRelMetadata(0, imr);
 			atten2db.insertAttenRel(imr);

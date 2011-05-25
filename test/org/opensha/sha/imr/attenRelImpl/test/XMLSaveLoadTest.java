@@ -22,6 +22,7 @@ package org.opensha.sha.imr.attenRelImpl.test;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -31,25 +32,25 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AbstractIMR;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 
 public class XMLSaveLoadTest {
 
-	private AttenuationRelationshipsInstance attenRelInst;
+	//private AttenuationRelationshipsInstance attenRelInst;
 	
 	public XMLSaveLoadTest() {
 	}
 
 	@Before
 	public void setUp() {
-		attenRelInst = new AttenuationRelationshipsInstance();
+		//attenRelInst = new AttenuationRelationshipsInstance();
 	}
 	
 	@Test
 	public void testIMRSaveLoad() throws InvocationTargetException {
-		ArrayList<ScalarIMR> imrs = attenRelInst.createIMRClassInstance(null);
+		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();

@@ -22,8 +22,10 @@ package org.opensha.sha.gui.beans;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.BorderFactory;
@@ -47,6 +49,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
@@ -83,12 +86,12 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	public final static String IMR_EDITOR_TITLE =  "Set IMR";
 
 	//saves the IMR objects, to the parameters related to an IMR.
-	private ArrayList<ScalarIMR> supportedAttenRels ;
+	private List<? extends ScalarIMR> supportedAttenRels ;
 	// this flag is needed else messages are shown twice on focus lost
 	private boolean inParameterChangeWarning = false;
 
 	//instance of the class to create the objects of the AttenuationRelationships dynamically.
-	private AttenuationRelationshipsInstance attenRelInstances;
+	//private AttenuationRelationshipsInstance attenRelInstances;
 
 	//instance of the application using IMR_GuiBean
 	private IMR_GuiBeanAPI application;
@@ -101,7 +104,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * @param classNames
 	 */
 	public IMR_GuiBean(IMR_GuiBeanAPI api) {
-		this(api, AttenuationRelationshipsInstance.getDefaultIMRClassNames());
+		this(api, AttenRelRef.get());
 	}
 
 	/**
@@ -109,8 +112,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 * @param api
 	 * @param classNames
 	 */
-	public IMR_GuiBean(IMR_GuiBeanAPI api, ArrayList<String> classNames) {
-		init(api, classNames);
+	public IMR_GuiBean(IMR_GuiBeanAPI api, Collection<AttenRelRef> imrRefs) {
+		init(api, imrRefs);
 		parameterList = new ParameterList();
 		init_imrParamListAndEditor();
 	}
@@ -122,14 +125,15 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 */
 	public IMR_GuiBean(IMR_GuiBeanAPI api,String currentIMT,
 			String retroIMT,double currentPeriod,double retroPeriod) {
-		init(api, AttenuationRelationshipsInstance.getDefaultIMRClassNames());
+		init(api, AttenRelRef.get());
 		setIMRParamListAndEditor(currentIMT ,retroIMT, currentPeriod,retroPeriod);
 	}
 	
-	private void init(IMR_GuiBeanAPI api, ArrayList<String> classNames) {
+	private void init(IMR_GuiBeanAPI api, Collection<AttenRelRef> imrRefs) {
 		application  = api;
-		attenRelInstances = new AttenuationRelationshipsInstance(classNames);
-		supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
+		//attenRelInstances = new AttenuationRelationshipsInstance(classNames);
+		//supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
+		supportedAttenRels = AttenRelRef.instanceList(this, true, imrRefs);
 		for (ScalarIMR imr : supportedAttenRels) {
 			imr.setParamDefaults();
 		}
@@ -620,7 +624,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	 *
 	 * @return
 	 */
-	public ArrayList<ScalarIMR> getSupportedIMRs() {
+	public List<? extends ScalarIMR> getSupportedIMRs() {
 		return supportedAttenRels;
 	}
 	

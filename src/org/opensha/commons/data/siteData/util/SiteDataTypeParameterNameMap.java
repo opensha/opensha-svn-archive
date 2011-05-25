@@ -124,7 +124,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isTypeApplicable(String type,
-			Collection<ScalarIMR> imrs) {
+			Collection<? extends ScalarIMR> imrs) {
 		for (ScalarIMR imr : imrs) {
 			if (isTypeApplicable(type, imr))
 				return true;

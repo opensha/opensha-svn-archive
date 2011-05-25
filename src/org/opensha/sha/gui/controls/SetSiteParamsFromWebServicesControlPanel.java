@@ -28,6 +28,7 @@ import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -165,7 +166,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     }
 
     // do for all IMRS
-    ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
+    List<? extends ScalarIMR> imrObjects = this.imrGuiBean.getSupportedIMRs();
     int num = imrObjects.size();
     for (int i = 0; i < num; ++i)
       setSiteParamsInIMR( (ScalarIMR) imrObjects.get(i),

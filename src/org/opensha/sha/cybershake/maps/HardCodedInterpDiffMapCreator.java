@@ -40,7 +40,7 @@ import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
-import org.opensha.sha.imr.AttenRelImpl;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -287,7 +287,7 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig config = null;
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
-			ScalarIMR baseMapIMR = AttenRelImpl.CB_2008.instance(null);
+			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 			baseMapIMR.setParamDefaults();
 			setTruncation(baseMapIMR, 3.0);
 			String customLabel = "3sec SA, 2% in 50 yrs";

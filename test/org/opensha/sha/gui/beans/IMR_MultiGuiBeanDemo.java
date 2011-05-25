@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -16,7 +17,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -40,7 +41,7 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 	private Frankel96_AdjustableEqkRupForecast frankel = new Frankel96_AdjustableEqkRupForecast();
 	private MultiERFDummy multi = new MultiERFDummy();
 	
-	ArrayList<ScalarIMR> imrs;
+	List<? extends ScalarIMR> imrs;
 	
 	private IMR_MultiGuiBean bean;
 	
@@ -49,8 +50,10 @@ public class IMR_MultiGuiBeanDemo extends JPanel implements ActionListener {
 	public IMR_MultiGuiBeanDemo() {
 		super(new BorderLayout());
 		
-		AttenuationRelationshipsInstance attenRelInst = new AttenuationRelationshipsInstance();
-		imrs = attenRelInst.createIMRClassInstance(null);
+		//AttenuationRelationshipsInstance attenRelInst = new AttenuationRelationshipsInstance();
+		//imrs = attenRelInst.createIMRClassInstance(null);
+		imrs = AttenRelRef.instanceList(null, true);
+		
 		for (ScalarIMR imr : imrs)
 			imr.setParamDefaults();
 		

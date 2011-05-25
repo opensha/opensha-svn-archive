@@ -337,7 +337,7 @@ implements java.io.Serializable {
 	 * @param data data value used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(Collection<ScalarIMR> imrs,
+	public boolean setAllSiteParams(Collection<? extends ScalarIMR> imrs,
 			SiteDataValue<?> data) {
 		Collection<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
@@ -374,7 +374,7 @@ implements java.io.Serializable {
 	 * @param datas collection of data values used to set IMR params
 	 * @return true if at least one parameter was set.
 	 */
-	public boolean setAllSiteParams(Collection<ScalarIMR> imrs,
+	public boolean setAllSiteParams(Collection<? extends ScalarIMR> imrs,
 			Collection<SiteDataValue<?>> datas) {
 		boolean setSomething = false;
 		

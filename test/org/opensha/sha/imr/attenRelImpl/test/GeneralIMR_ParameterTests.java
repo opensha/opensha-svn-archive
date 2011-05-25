@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.util.DataUtils;
+import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -27,6 +29,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AbstractIMR;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
@@ -82,8 +85,7 @@ public class GeneralIMR_ParameterTests {
 
 	@Parameters
 	public static Collection<ScalarIMR[]> data() {
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		ArrayList<ScalarIMR> imrs = inst.createIMRClassInstance(null);
+		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true);
 
 		ArrayList<ScalarIMR[]> ret = new ArrayList<ScalarIMR[]>();
 

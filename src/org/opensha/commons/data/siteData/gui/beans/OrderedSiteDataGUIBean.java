@@ -60,7 +60,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 
 	private OrderedSiteDataProviderList list;
 	
-	private Collection<ScalarIMR> imrs;
+	private Collection<? extends ScalarIMR> imrs;
 	
 	private SiteDataTypeParameterNameMap map = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
 	
@@ -218,7 +218,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		setIMR(imrs);
 	}
 	
-	public void setIMR(Collection<ScalarIMR> imrs) {
+	public void setIMR(Collection<? extends ScalarIMR> imrs) {
 		if (imrs != null && imrs.contains(null))
 			imrs.remove(null);
 		if (imrs != null && imrs.isEmpty())

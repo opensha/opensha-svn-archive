@@ -3,6 +3,7 @@ package org.opensha.sha.imr.attenRelImpl.test;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.BeforeClass;
@@ -10,7 +11,7 @@ import org.junit.Test;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
@@ -21,16 +22,16 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 public class MultiIMR_ParamTest {
 	
-	private static ArrayList<ScalarIMR> imrs;
+	private static List<? extends ScalarIMR> imrs;
 	private static ArrayList<ArrayList<ScalarIMR>> bundles;
 	
 	private static int imrs_per_bundle = 3;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		imrs = inst.createIMRClassInstance(null);
-		
+//		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
+//		imrs = inst.createIMRClassInstance(null);
+		imrs = AttenRelRef.instanceList(null, true);
 		for (int i=imrs.size()-1; i>=0; i--) {
 			ScalarIMR imr = imrs.get(i);
 			if (imr instanceof MultiIMR_Averaged_AttenRel)
