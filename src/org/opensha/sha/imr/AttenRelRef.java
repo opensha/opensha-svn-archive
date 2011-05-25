@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.DevStatus;
+import org.opensha.commons.util.ServerPrefs;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2005_AttenRel;
@@ -133,9 +134,6 @@ public enum AttenRelRef {
 	DAHLE_1995(DahleEtAl_1995_AttenRel.class, DahleEtAl_1995_AttenRel.NAME,
 			PRODUCTION),
 
-	/** Cybershake fake attnuation relation */
-	CYBERSHAKE(CyberShakeIMR.class, CyberShakeIMR.NAME, PRODUCTION),
-
 	// DEVELOPMENT
 
 	/** Interpolation between periods using BA. */
@@ -152,6 +150,9 @@ public enum AttenRelRef {
 	NSHMP_2008(NSHMP_2008_CA.class, NSHMP_2008_CA.NAME, DEVELOPMENT),
 
 	// EXPERIMENTAL
+	
+	/** Cybershake fake attnuation relation */
+	CYBERSHAKE(CyberShakeIMR.class, CyberShakeIMR.NAME, EXPERIMENTAL),
 
 	// DEPRECATED
 
@@ -233,6 +234,25 @@ public enum AttenRelRef {
 	public static Set<AttenRelRef> get() {
 		return get(PRODUCTION, DEVELOPMENT, EXPERIMENTAL);
 	}
+	
+	/**
+	 * Convenience method to return references for all
+	 * <code>AttenuationRelationship</code> implementations that should be included
+	 * in applications with the given ServerPrefs. Production applications only include
+	 * production IMRs, and development applications include everything but
+	 * deprecated IMRs.
+	 * 
+	 * @param prefs
+	 * @return
+	 */
+	public static Set<AttenRelRef> get(ServerPrefs prefs) {
+		if (prefs == ServerPrefs.DEV_PREFS)
+			return get(PRODUCTION, DEVELOPMENT, EXPERIMENTAL);
+		else if (prefs == ServerPrefs.PRODUCTION_PREFS)
+			return get(PRODUCTION);
+		else
+			throw new IllegalArgumentException("Unknown ServerPrefs instance: "+prefs);
+	}
 
 	/**
 	 * Convenience method to return references to
@@ -266,6 +286,20 @@ public enum AttenRelRef {
 	public static List<AttenuationRelationship> instanceList(
 			ParameterChangeWarningListener listener, boolean sorted) {
 		return buildInstanceList(get(), listener, sorted);
+	}
+	
+	/**
+	 * Returns a <code>List</code> of <code>AttenuationRelationship</code>
+	 * instances that are appropriate for an application with the given
+	 * <code>ServerPrefs</code>.
+	 * @param listener to initialize instances with; may be <code>null</code>
+	 * @param sorted whether to sort the list by name
+	 * @return a <code>List</code> of all non-deprecated
+	 *         <code>AttenuationRelationship</code>s
+	 */
+	public static List<AttenuationRelationship> instanceList(
+			ParameterChangeWarningListener listener, boolean sorted, ServerPrefs prefs) {
+		return buildInstanceList(get(prefs), listener, sorted);
 	}
 
 	/**

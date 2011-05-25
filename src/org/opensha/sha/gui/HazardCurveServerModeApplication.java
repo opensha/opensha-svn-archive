@@ -77,6 +77,7 @@ import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
@@ -1834,7 +1835,8 @@ ScalarIMRChangeListener {
 //			imr.setParamDefaults();
 //		}
 		// TODO add make the multi imr bean handle warnings
-		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true, DevStatus.PRODUCTION);
+		List<? extends ScalarIMR> imrs =
+			AttenRelRef.instanceList(null, true, ServerPrefUtils.SERVER_PREFS);
 		for (ScalarIMR imr : imrs) {
 			imr.setParamDefaults();
 		}

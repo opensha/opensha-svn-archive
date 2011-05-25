@@ -69,6 +69,7 @@ import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.DevStatus;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -217,7 +218,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		application = api;
 		//initializing all the array of the GUI elements to be the number of the supported AtrtenuationRelationships.
 		//attenRelsSupported = attenRelInstances.createIMRClassInstance(this);
-		attenRelsSupported = AttenRelRef.instanceList(this, true, DevStatus.PRODUCTION);
+		attenRelsSupported = AttenRelRef.instanceList(null, true, ServerPrefUtils.SERVER_PREFS);
 
 		numSupportedAttenRels = attenRelsSupported.size();
 
