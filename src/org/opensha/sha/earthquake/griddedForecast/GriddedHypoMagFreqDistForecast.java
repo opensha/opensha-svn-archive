@@ -72,18 +72,6 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	private ArrayList listenerList = new ArrayList();
 
 	/**
-	 * This function finds whether a particular location lies in applicable
-	 * region of the forecast
-	 * 
-	 * @param loc : location
-	 * @return: True if this location is within forecast's applicable region,
-	 *          else false
-	 */
-	public boolean isLocWithinApplicableRegion(Location loc) {
-		return region.contains(loc);
-	}
-
-	/**
 	 * Gets the EvenlyGriddedGeographic Region
 	 * 
 	 * @return EvenlyGriddedGeographicRegionAPI

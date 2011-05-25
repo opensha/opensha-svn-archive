@@ -130,15 +130,6 @@ TimeSpanChangeListener,ParameterChangeListener {
 		return "List of Earthquake Rupture Forecasts";
 	}
 
-
-	/**
-	 * Checks whether this location lies wothin the applicable region of this ERF list
-	 * @param loc : Location to check
-	 */
-	public boolean isLocWithinApplicableRegion(Location loc) {
-		return true;
-	}
-
 	/**
 	 * update the list of the ERFs based on the new parameters
 	 */

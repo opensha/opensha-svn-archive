@@ -160,15 +160,6 @@ implements RemoteEqkRupForecastAPI{
 	}
 
 	/* (non-Javadoc)
-	 * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#isLocWithinApplicableRegion(org.opensha.data.Location)
-	 */
-	public boolean isLocWithinApplicableRegion(Location loc) throws
-	RemoteException {
-		// TODO Auto-generated method stub
-		return eqkRupForecast.isLocWithinApplicableRegion(loc);
-	}
-
-	/* (non-Javadoc)
 	 * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getApplicableRegion()
 	 */
 	public Region getApplicableRegion() throws RemoteException {

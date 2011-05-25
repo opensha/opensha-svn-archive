@@ -128,14 +128,6 @@ public class RemoteERF_ListImpl
     return erfList.getName();
   }
 
-  /**
-   * Checks whether this location lies wothin the applicable region of this ERF list
-   * @param loc : Location to check
-   */
-  public boolean isLocWithinApplicableRegion(Location loc) {
-    return true;
-  }
-
   /* (non-Javadoc)
    * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
    */

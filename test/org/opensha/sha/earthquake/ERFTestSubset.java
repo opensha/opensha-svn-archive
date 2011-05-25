@@ -57,11 +57,6 @@ public class ERFTestSubset implements EqkRupForecastAPI {
 	}
 
 	@Override
-	public boolean isLocWithinApplicableRegion(Location loc) {
-		return baseERF.isLocWithinApplicableRegion(loc);
-	}
-
-	@Override
 	public boolean setParameter(String name, Object value) {
 		return baseERF.setParameter(name, value);
 	}

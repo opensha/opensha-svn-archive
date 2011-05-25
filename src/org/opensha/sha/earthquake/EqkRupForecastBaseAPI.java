@@ -102,23 +102,11 @@ public interface EqkRupForecastBaseAPI extends Named, Serializable {
 	 */
 	public ParameterList getAdjustableParameterList();
 
-
-	/**
-	 * This function finds whether a particular location lies in applicable
-	 * region of the forecast
-	 *
-	 * @param loc : location
-	 * @return: True if this location is within forecast's applicable region, else false
-	 */
-	public boolean isLocWithinApplicableRegion(Location loc);
-
-
 	/**
 	 * Get the region for which this forecast is applicable
 	 * @return : Geographic region object specifying the applicable region of forecast
 	 */
 	public Region getApplicableRegion();
-
 
 	/**
 	 * This specifies what types of Tectonic Regions are included in the ERF

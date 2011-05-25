@@ -77,17 +77,6 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	}
 
 	/**
-	 * This function finds whether a particular location lies in applicable
-	 * region of the forecast
-	 *
-	 * @param loc : location
-	 * @return: True if this location is within forecast's applicable region, else false
-	 */
-	public boolean isLocWithinApplicableRegion(Location loc) {
-		return true;
-	}
-
-	/**
 	 * Get the region for which this forecast is applicable
 	 * @return : Geographic region object specifying the applicable region of forecast
 	 */
