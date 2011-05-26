@@ -42,7 +42,7 @@ import org.opensha.sra.vulnerability.models.SimpleVulnerability;
  */
 public class PortfolioLossExceedenceCurveCalculator {
 	
-	public static final boolean D = true;
+	public static final boolean D = false;
 	public static final boolean WRITE_EXCEL_FILE = false;
 	
 	// TODO allow user to specify?

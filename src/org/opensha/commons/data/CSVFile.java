@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,112 +15,142 @@ import com.google.common.base.Preconditions;
 
 public class CSVFile<E> {
 	
-	private List<String> colNames;
-	private Map<String, ? extends List<E>> values;
-	private int listSize;
+	private List<List<E>> values;
+//	private List<String> colNames;
+//	private Map<String, ? extends List<E>> values;
+	private int cols;
+	private boolean strictRowSizes;
 	
-	public CSVFile(List<String> colNames) {
-		this(colNames, null);
+	public CSVFile(boolean strictRowSizes) {
+		this(null, strictRowSizes);
 	}
 	
-	public CSVFile(List<String> colNames, Map<String, ? extends List<E>> values) {
-		Preconditions.checkNotNull(colNames, "Column names cannot be null!");
-		if (values == null) {
-			HashMap<String, ArrayList<E>> newValues = new HashMap<String, ArrayList<E>>();
-			for (String colName : colNames) {
-				newValues.put(colName, new ArrayList<E>());
+	public CSVFile(List<List<E>> values, boolean strictRowSizes) {
+		if (values == null)
+			values = new ArrayList<List<E>>();
+		this.strictRowSizes = strictRowSizes;
+		cols = -1;
+		if (strictRowSizes) {
+			for (List<E> row : values) {
+				if (cols < 0)
+					cols = row.size();
+				else
+					Preconditions.checkArgument(cols == row.size(),
+							"Values lists aren't the same size!");
 			}
-			values = newValues;
 		}
-		Preconditions.checkArgument(colNames.size() == values.keySet().size(),
-				"column names must be the same size as values!");
-		for (String colName : colNames) {
-			Preconditions.checkArgument(values.keySet().contains(colName),
-					"Column '"+colName+"' not found in values!");
-		}
-		listSize = -1;
-		for (List<E> list : values.values()) {
-			if (listSize < 0)
-				listSize = list.size();
-			else
-				Preconditions.checkArgument(listSize == list.size(),
-						"Values lists aren't the same size!");
-		}
-		this.colNames = colNames;
 		this.values = values;
 	}
 	
-	public int getNumLines() {
-		return listSize;
+	public int getNumRows() {
+		return values.size();
 	}
 	
+	/**
+	 * Return the number or rows, or -1 if empty or non strict row sizes
+	 * @return
+	 */
 	public int getNumCols() {
-		return colNames.size();
+		return cols;
+	}
+	
+	/**
+	 * @return true if all rows must have the same number of columns, false otherwise
+	 */
+	public boolean isStrictRowSizes() {
+		return strictRowSizes;
 	}
 	
 	public void addLine(List<E> line) {
-		Preconditions.checkNotNull(line, "Cannot add a null line!");
-		Preconditions.checkArgument(line.size() == colNames.size(), "New line must contain" +
-				" same number of values as columns");
+		checkValidLine(line);
+		values.add(line);
+	}
+	
+	public void addLine(int index, List<E> line) {
+		checkValidLine(line);
+		values.add(index, line);
+	}
+	
+	public void setLine(int index, List<E> line) {
+		checkValidLine(line);
+		values.set(index, line);
+	}
+	
+	public void addAll(Collection<List<E>> lines) {
+		Preconditions.checkNotNull(lines, "lines cannot be null!");
+		// first make sure they're ALL going to pass before adding anything
+		for (List<E> line : lines) {
+			checkValidLine(line);
+		}
+		// add them.
+		for (List<E> line : lines) {
+			values.add(line);
+		}
+	}
+	
+	public List<E> removeLine(int index) {
+		List<E> ret = values.remove(index);
 		
-		for (int i=0; i<line.size(); i++) {
-			String colName = colNames.get(i);
-			E value = line.get(i);
-			values.get(colName).add(value);
+		// if list is now empty, reset column size
+		if (values.isEmpty())
+			cols = -1;
+		
+		return ret;
+	}
+	
+	private void checkValidLine(List<E> line) {
+		Preconditions.checkNotNull(line, "Cannot add a null line!");
+		if (strictRowSizes) {
+			if (cols < 0) {
+				// this means it's empty
+				cols = line.size();
+			} else {
+				Preconditions.checkArgument(line.size() == cols, "New line must contain" +
+					" same number of values as columns");
+			}
 		}
 	}
 	
-	public ArrayList<E> getLine(int i) {
-		ArrayList<E> line = new ArrayList<E>();
-		for (String colName : colNames) {
-			E val = values.get(colName).get(i);
-			line.add(val);
-		}
-		return line;
+	public E get(int row, int col) {
+		return getLine(row).get(col);
 	}
 	
-	private ArrayList<E> getLineValues(int i) {
-		ArrayList<E> lineVals = new ArrayList<E>();
-		for (String colName : colNames) {
-			E val = values.get(colName).get(i);
-			lineVals.add(val);
-		}
-		return lineVals;
+	public List<E> getLine(int index) {
+		return values.get(index);
 	}
 	
 	public String getLineStr(int i) {
-		return getLineStr(getLineValues(i));
+		return getLineStr(getLine(i));
 	}
 	
-	public static String getLineStr(List<?> lineValues) {
-		return getLineStr(lineValues.toArray());
+	public static String getLineStr(List<?> line) {
+		return getLineStr(line.toArray());
 	}
 	
-	public static String getLineStr(Object[] lineValues) {
-		String line = null;
-		for (Object val : lineValues) {
-			if (line == null)
-				line = "";
+	public static String getLineStr(Object[] line) {
+		String lineStr = null;
+		for (Object val : line) {
+			if (lineStr == null)
+				lineStr = "";
 			else
-				line += ",";
+				lineStr += ",";
 			String valStr = val.toString();
 			// if it contains a comma, surround it in quotation marks if not already
 			if (valStr.contains(",") && !(valStr.startsWith("\"") && valStr.endsWith("\"")))
 				valStr = "\""+valStr+"\"";
-			line += val.toString();
+			lineStr += val.toString();
 		}
-		return line;
+		return lineStr;
 	}
 	
 	public String getHeader() {
-		return getLineStr(colNames);
+		return getLineStr(getLine(0));
 	}
 	
 	public void writeToFile(File file) throws IOException {
 		FileWriter fw = new FileWriter(file);
 		
-		fw.write(getHeader() + "\n");
-		for (int i=0; i<getNumLines(); i++) {
+		for (int i=0; i<getNumRows(); i++) {
 			fw.write(getLineStr(i) + "\n");
 		}
 		fw.close();
@@ -129,30 +160,44 @@ public class CSVFile<E> {
 		line = line.trim();
 		String[] split = line.split(",");
 		ArrayList<String> vals = new ArrayList<String>();
-		for (String str : split)
-			vals.add(str);
+		boolean inside = false;
+		String cur = "";
+		for (int i=0; i<line.length(); i++) {
+			char c = line.charAt(i);
+			if (!inside && c == ',') {
+				// we're done with a value
+				vals.add(cur);
+				cur = "";
+				continue;
+			}
+			if (c == '"') {
+				inside = !inside;
+				continue;
+			}
+			cur += c;
+		}
 		while (vals.size() < num)
 			vals.add("");
 		return vals;
 	}
 	
-	public static CSVFile<String> readFile(File file) throws IOException {
-		ArrayList<String> colNames = null;
-		HashMap<String, ArrayList<String>> values = new HashMap<String, ArrayList<String>>();
+	public static CSVFile<String> readFile(File file, boolean strictRowSizes) throws IOException {
+		return readFile(file, strictRowSizes, -1);
+	}
+	
+	public static CSVFile<String> readFile(File file, boolean strictRowSizes, int cols) throws IOException {
+		List<List<String>> values = new ArrayList<List<String>>();
 		for (String line : FileUtils.loadFile(file.toURI().toURL())) {
-			if (colNames == null) {
-				colNames = loadLine(line, -1);
-				for (String colName : colNames)
-					values.put(colName, new ArrayList<String>());
-				continue;
+			if (strictRowSizes && cols < 0) {
+				cols = loadLine(line, -1).size();
 			}
-			ArrayList<String> vals = loadLine(line, colNames.size());
-			for (int i=0; i<colNames.size(); i++) {
-				values.get(colNames.get(i)).add(vals.get(i));
-			}
+			ArrayList<String> vals = loadLine(line, cols);
+			if (strictRowSizes && vals.size() > cols)
+				throw new IllegalStateException("Line lenghts inconsistant and strictRowSizes=true");
+			values.add(vals);
 		}
 		
-		return new CSVFile<String>(colNames, values);
+		return new CSVFile<String>(values, strictRowSizes);
 	}
 
 }

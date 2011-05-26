@@ -9,7 +9,7 @@ import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.metadata.XMLSaveable;
 
-public interface XY_DataSet extends Named, XMLSaveable, Serializable {
+public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<Point2D> {
 
 	/* ******************************/
 	/* Basic Fields Getters/Setters */

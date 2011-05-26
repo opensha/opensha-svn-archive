@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.CSVFile;
@@ -149,10 +150,10 @@ public class HardCodedTest {
 	public static LocationList loadCSV(File file) throws IOException {
 		LocationList locs = new LocationList();
 		
-		CSVFile<String> csv = CSVFile.readFile(file);
+		CSVFile<String> csv = CSVFile.readFile(file, true);
 		
-		for (int i=0; i<csv.getNumLines(); i++) {
-			ArrayList<String> line = csv.getLine(i);
+		for (int i=0; i<csv.getNumRows(); i++) {
+			List<String> line = csv.getLine(i);
 			double lat = Double.parseDouble(line.get(1));
 			double lon = Double.parseDouble(line.get(2));
 			locs.add(new Location(lat, lon));

@@ -1,6 +1,8 @@
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 public abstract class AbstractXY_DataSet implements XY_DataSet {
@@ -123,6 +125,13 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 			list.add( new Double(this.getY(i)));
 		}
 		return list.listIterator();
+	}
+	@Override
+	public Iterator<Point2D> iterator() {
+		ArrayList<Point2D> list = new ArrayList<Point2D>();
+		for (int i=0; i<getNum(); i++)
+			list.add(get(i));
+		return list.iterator();
 	}
 
 }

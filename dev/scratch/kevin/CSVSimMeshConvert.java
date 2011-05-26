@@ -2,7 +2,7 @@ package scratch.kevin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
@@ -15,9 +15,9 @@ import org.opensha.commons.util.XYZClosestPointFinder;
 public class CSVSimMeshConvert {
 	
 	private static void handleFile(String dir, String fName) throws IOException {
-		CSVFile<String> csv = CSVFile.readFile(new File(dir + File.separator + fName));
+		CSVFile<String> csv = CSVFile.readFile(new File(dir + File.separator + fName), true);
 		
-		System.out.println("loaded "+csv.getNumLines()+" from "+fName);
+		System.out.println("loaded "+csv.getNumRows()+" from "+fName);
 		
 		GeoDataSet pgv = new ArbDiscrGeoDataSet(true);
 		GeoDataSet pga = new ArbDiscrGeoDataSet(true);
@@ -25,8 +25,8 @@ public class CSVSimMeshConvert {
 		GeoDataSet sa10 = new ArbDiscrGeoDataSet(true);
 		
 		System.out.println("populating GeoDataSet's");
-		for (int i=0; i<csv.getNumLines(); i++) {
-			ArrayList<String> line = csv.getLine(i);
+		for (int i=0; i<csv.getNumRows(); i++) {
+			List<String> line = csv.getLine(i);
 			double lat = Double.parseDouble(line.get(0));
 			double lon = Double.parseDouble(line.get(1));
 			double pgvVal = Double.parseDouble(line.get(2));
