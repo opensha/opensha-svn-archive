@@ -27,7 +27,6 @@ import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.PropagationEffect;
