@@ -74,7 +74,6 @@ import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
-import org.opensha.commons.util.DevStatus;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.ServerPrefUtils;
@@ -88,24 +87,11 @@ import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
 import org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
 import org.opensha.sha.calc.remoteCalc.RemoteHazardCurveClient;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_LogicTreeERF_ListClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Point2MultVertSS_FaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Point2MultVertSS_FaultERF_ListClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -1875,25 +1861,7 @@ ScalarIMRChangeListener {
 
 		if (erfGuiBean == null) {
 			try {
-				// create the ERF Gui Bean object
-				ArrayList<String> erf_Classes = new ArrayList<String>();
-				// adding the RMI based ERF's to the application
-				erf_Classes.add(Frankel96_AdjustableEqkRupForecastClient.class.getName());
-				erf_Classes.add(WGCEP_UCERF1_EqkRupForecastClient.class.getName());
-				// erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
-				erf_Classes.add(STEP_AlaskanPipeForecastClient.class.getName());
-				erf_Classes.add(FloatingPoissonFaultERF_Client.class.getName());
-				erf_Classes.add(Frankel02_AdjustableEqkRupForecastClient.class.getName());
-				erf_Classes.add(PEER_AreaForecastClient.class.getName());
-				erf_Classes.add(PEER_MultiSourceForecastClient.class.getName());
-				erf_Classes.add(PEER_NonPlanarFaultForecastClient.class.getName());
-				erf_Classes.add(PoissonFaultERF_Client.class.getName());
-				erf_Classes.add(Point2MultVertSS_FaultERF_Client.class.getName());
-				erf_Classes.add(WG02_FortranWrappedERF_EpistemicListClient.class.getName());
-				erf_Classes.add(PEER_LogicTreeERF_ListClient.class.getName());
-				erf_Classes.add(Point2MultVertSS_FaultERF_ListClient.class.getName());
-
-				erfGuiBean = new ERF_GuiBean(erf_Classes);
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(true, true, ServerPrefUtils.SERVER_PREFS));
 				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME)
 				.addParameterChangeListener(this);
 			} catch (InvocationTargetException e) {
@@ -1934,27 +1902,10 @@ ScalarIMRChangeListener {
 			ex.printStackTrace();
 		}
 		if (erfRupSelectorGuiBean == null) {
-			// create the ERF Gui Bean object
-			ArrayList<String> erf_Classes = new ArrayList<String>();
-
-			/**
-			 * The object class names for all the supported Eqk Rup Forecasts
-			 */
-			erf_Classes.add(PoissonFaultERF_Client.class.getName());
-			erf_Classes.add(Frankel96_AdjustableEqkRupForecastClient.class.getName());
-			erf_Classes.add(WGCEP_UCERF1_EqkRupForecastClient.class.getName());
-			erf_Classes.add(STEP_EqkRupForecastClient.class.getName());
-			erf_Classes.add(STEP_AlaskanPipeForecastClient.class.getName());
-			erf_Classes.add(FloatingPoissonFaultERF_Client.class.getName());
-			erf_Classes.add(Frankel02_AdjustableEqkRupForecastClient.class.getName());
-			erf_Classes.add(PEER_AreaForecastClient.class.getName());
-			erf_Classes.add(PEER_NonPlanarFaultForecastClient.class.getName());
-			erf_Classes.add(PEER_MultiSourceForecastClient.class.getName());
-			erf_Classes.add(WG02_FortranWrappedERF_EpistemicListClient.class.getName());
 
 			try {
 				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,
-						erf_Classes);
+						ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 			} catch (InvocationTargetException e) {
 				throw new RuntimeException("Connection to ERF's failed");
 			}

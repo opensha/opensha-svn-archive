@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
@@ -64,10 +66,6 @@ import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
 
 public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplication {
 
-	public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-	public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
-	public final static String WGCEP_AVG_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2";
-
 	protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
 
 	/**
@@ -98,16 +96,9 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
 
 		if(erfGuiBean == null){
 			// create the ERF Gui Bean object
-			ArrayList erf_Classes = new ArrayList();
-
-			//adding the client based ERF's to the application
-			erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);
-			erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
-			erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-
 
 			try {
-				erfGuiBean = new ERF_GuiBean(erf_Classes);
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.UCERF_2_VER_2_3, ERF_Ref.WGCEP_UCERF_1, ERF_Ref.FRANKEL_02);
 				erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}
@@ -149,20 +140,10 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
 			ex.printStackTrace();
 		}
 		if(erfRupSelectorGuiBean == null){
-			// create the ERF Gui Bean object
-			ArrayList erf_Classes = new ArrayList();
-
-			/**
-			 *  The object class names for all the supported Eqk Rup Forecasts
-			 */
-			erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-			erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);
-			erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
-
-
 			try {
 
-				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,erf_Classes);
+				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,
+						ERF_Ref.FRANKEL_ADJUSTABLE_96, ERF_Ref.UCERF_2_VER_2_3, ERF_Ref.WGCEP_UCERF_1);
 			}
 			catch (InvocationTargetException e) {
 				throw new RuntimeException("Connection to ERF's failed");

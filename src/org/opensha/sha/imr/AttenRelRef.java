@@ -242,7 +242,7 @@ public enum AttenRelRef {
 	 * production IMRs, and development applications include everything but
 	 * deprecated IMRs.
 	 * 
-	 * @param prefs
+	 * @param prefs <code>ServerPrefs</code> instance for which IMRs should be selected
 	 * @return
 	 */
 	public static Set<AttenRelRef> get(ServerPrefs prefs) {
@@ -294,6 +294,7 @@ public enum AttenRelRef {
 	 * <code>ServerPrefs</code>.
 	 * @param listener to initialize instances with; may be <code>null</code>
 	 * @param sorted whether to sort the list by name
+	 * @param prefs <code>ServerPrefs</code> instance for which IMRs should be selected
 	 * @return a <code>List</code> of all non-deprecated
 	 *         <code>AttenuationRelationship</code>s
 	 */

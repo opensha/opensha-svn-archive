@@ -22,18 +22,11 @@ package org.opensha.sha.gui;
 import java.awt.GridBagConstraints;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
-import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
-import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM.TestSubductionZoneERF;
-import org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.util.IconFetcher;
 
@@ -58,29 +51,9 @@ extends ScenarioShakeMapApp {
 	 * Initialize the ERF Gui Bean
 	 */
 	protected void initERFSelector_GuiBean() {
-		// create the ERF Gui Bean object
-		ArrayList<String> erf_Classes = new ArrayList<String>();
-
-		/**
-		 *  The object class names for all the supported Eqk Rup Forecasts
-		 */
-//		erf_Classes.add(TestGEM_ERF.class.getName());
-		erf_Classes.add(PoissonFaultERF.class.getName());
-		erf_Classes.add(MeanUCERF2.class.getName());
-		erf_Classes.add(Frankel96_AdjustableEqkRupForecast.class.getName());
-		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-		//   erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-		erf_Classes.add(FloatingPoissonFaultERF.class.getName());
-		erf_Classes.add(Frankel02_AdjustableEqkRupForecast.class.getName());
-		//   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-		//   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-		//   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-		erf_Classes.add(WG02_EqkRupForecast.class.getName());
-		erf_Classes.add(WGCEP_UCERF1_EqkRupForecast.class.getName());
-		erf_Classes.add(TestSubductionZoneERF.class.getName());
 
 		try {
-			erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
+			erfGuiBean = new EqkRupSelectorGuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 		}
 		catch (InvocationTargetException e) {
 			throw new RuntimeException("Connection to ERF's failed");

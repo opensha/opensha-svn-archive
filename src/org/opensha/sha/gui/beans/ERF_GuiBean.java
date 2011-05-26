@@ -25,9 +25,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -49,6 +52,7 @@ import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.param.MagFreqDistParameter;
@@ -66,14 +70,14 @@ import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
  */
 
 public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
-		ParameterChangeListener{
+ParameterChangeListener{
 
 	private final static String C = "ERF_GuiBean";
 
 	//this vector saves the names of all the supported Eqk Rup Forecasts
-	protected ArrayList<String> erfNamesVector=new ArrayList<String>();
-	//this vector holds the full class names of all the supported Eqk Rup Forecasts
-	private ArrayList<String> erfClasses;
+	protected ArrayList<String> erfNamesVector = new ArrayList<String>();
+	//this vector holds the references to all included ERFs
+	private List<ERF_Ref> erfRefs;
 
 	// ERF Editor stuff
 	public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
@@ -99,14 +103,30 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 	//checks to see if this a new ERF instance has been given by application to this Gui Bean.
 	private boolean isNewERF_Instance;
+
+	private HashMap<ERF_Ref, EqkRupForecastBaseAPI> erfInstanceMap = new HashMap<ERF_Ref, EqkRupForecastBaseAPI>();
 	
-	private HashMap<String, Object> classNameERFMap = new HashMap<String, Object>();
+	protected static List<ERF_Ref> asList(Set<ERF_Ref> erfRefSet) {
+		List<ERF_Ref> list = new ArrayList<ERF_Ref>();
+		for (ERF_Ref erf : erfRefSet) {
+			list.add(erf);
+		}
+		return list;
+	}
 	
+	public ERF_GuiBean(ERF_Ref... erfRefs) throws InvocationTargetException {
+		this(Arrays.asList(erfRefs));
+	}
+	
+	public ERF_GuiBean(Set<ERF_Ref> erfRefs) throws InvocationTargetException {
+		this(asList(erfRefs));
+	}
+
 	/**
 	 * Constructor : It accepts the classNames of the ERFs to be shown in the editor
 	 * @param erfClassNames
 	 */
-	public ERF_GuiBean(ArrayList<String> erfClassNames) throws InvocationTargetException{
+	public ERF_GuiBean(List<ERF_Ref> erfRefs) throws InvocationTargetException{
 		try {
 			jbInit();
 		}
@@ -114,7 +134,14 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 			e.printStackTrace();
 		}
 		// save the class names of ERFs to be shown\
-		erfClasses = erfClassNames;
+		if (erfRefs instanceof List)
+			this.erfRefs = (List<ERF_Ref>)erfRefs;
+		else {
+			this.erfRefs = new ArrayList<ERF_Ref>();
+			for (ERF_Ref erf : erfRefs) {
+				this.erfRefs.add(erf);
+			}
+		}
 
 		// create the instance of ERFs
 		init_erf_IndParamListAndEditor();
@@ -122,94 +149,11 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		setParamsInForecast();
 	}
 
-
-	/**
-	 * Creates a class instance from a string of the full class name including packages.
-	 * This is how you dynamically make objects at runtime if you don't know which\
-	 * class beforehand.
-	 *
-	 */
-	private Object createERFClassInstance( String className) throws InvocationTargetException{
-		String S = C + ": createERFClassInstance(): ";
-		if (classNameERFMap.containsKey(className))
-			return classNameERFMap.get(className);
-		try {
-			Object[] paramObjects = new Object[]{};
-			Class[] params = new Class[]{};
-			Class erfClass = Class.forName( className );
-			Constructor con = erfClass.getConstructor(params);
-			Object obj = con.newInstance( paramObjects );
-			classNameERFMap.put(className, obj);
-			return obj;
-		} catch ( ClassCastException e ) {
-			System.out.println(S + e.toString());
-			throw new RuntimeException( S + e.toString() );
-		} catch ( ClassNotFoundException e ) {
-			System.out.println(S + e.toString());
-			throw new RuntimeException( S + e.toString() );
-		} catch ( NoSuchMethodException e ) {
-			System.out.println(S + e.toString());
-			throw new RuntimeException( S + e.toString() );
-		} catch ( IllegalAccessException e ) {
-			System.out.println(S + e.toString());
-			throw new RuntimeException( S + e.toString() );
-		} catch ( InstantiationException e ) {
-			System.out.println(S + e.toString());
-			throw new RuntimeException( S + e.toString() );
-		} catch (InvocationTargetException e) {
-			String title = "ERF Failed to Load";
-			String message = "An ERF failed to load. Possible reasons include:\n" +
-					"* Internet connection issues (check firewall settings)\n" +
-					"* a server is down (try again later)";
-			JOptionPane.showMessageDialog(this,message,title,
-					JOptionPane.OK_OPTION);
-			throw e;
+	private EqkRupForecastBaseAPI getERFInstance(ERF_Ref erfRef) {
+		if (!erfInstanceMap.containsKey(erfRef)) {
+			erfInstanceMap.put(erfRef, erfRef.instance());
 		}
-	}
-
-	/**
-	 * Gets the name of the ERF and show in the PickList for the ERF's
-	 * As the ERF_NAME is defined as the static variable inside the EqkRupForecast class
-	 * so it gets the vale for this clas field. Generate the object of the ERF only if the
-	 * user chooses it from the pick list.
-	 * @param className
-	 * @return
-	 */
-	public static String getERFName(String className) {
-		try {
-			Class<?> erfClass = Class.forName(className);
-			Field nameField = erfClass.getField("NAME");
-			String name = (String)nameField.get(erfClass);
-			return name;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-//		// TODO so this doesn't do what the comment says, it actually creates the ERF.
-//		// but because it's not stored, it has to create it again. Adding a fix.
-//		try{
-//			Object obj = this.createERFClassInstance(className);
-//			String name = new String (((EqkRupForecastBaseAPI)obj).getName());
-//			obj = null;
-//			return name;
-//		}catch(Exception e){
-//			e.printStackTrace();
-//			return null;
-//		}
-		
+		return erfInstanceMap.get(erfRef);
 	}
 
 	/**
@@ -219,33 +163,16 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		this.parameterList = new ParameterList();
 
-
-		//gets the iterator for the class names of all the ERF's
-		Iterator<String> it = erfClasses.iterator();
-
-		//ArrayList to maintain which erf cannot be instatiated and have to be removed from the list
-		ArrayList<String> erfFailed = new ArrayList<String>();
-		//adding the names of all the ERF's to the erfNamesVector- Pick List for the ERF's
-		while(it.hasNext()){
-			String erfClass = it.next();
-			String name = getERFName(erfClass);
-			if(name !=null) erfNamesVector.add(name);
-			else erfFailed.add(erfClass);
-		}
-		
-		//removing the erf's from the erfClasses ArrayList which could not be instantiated
-		if(erfFailed.size() >0){
-			int size =erfFailed.size();
-			for(int i=0;i<size;++i){
-				System.out.println("Failed ERF Name:"+erfFailed.get(i));
-				erfClasses.remove(erfFailed.get(i));
-			}
+		for (ERF_Ref erfRef : erfRefs) {
+			erfNamesVector.add(erfRef.toString());
 		}
 
-		//Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
-		String erfClassName = (String)erfClasses.get(0);
+		// first ERF class that is to be shown as the default ERF in the ERF Pick List
+		ERF_Ref erf = erfRefs.get(0);
 		// make the ERF objects to get their adjustable parameters
-		eqkRupForecast = (EqkRupForecastBaseAPI ) createERFClassInstance(erfClassName);
+		eqkRupForecast = getERFInstance(erf);
+
+
 
 		// make the forecast selection parameter
 		StringParameter selectERF= new StringParameter(ERF_PARAM_NAME,
@@ -295,13 +222,13 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 		// show the ERF gui Bean in JPanel
 		erfAndTimespanPanel.add(listEditor, BorderLayout.CENTER);
-//		erfAndTimespanPanel.add(listEditor, 
-//				new GridBagConstraints(
-//						0, 0, 1, 1, 1.0, 1.0,
-//						GridBagConstraints.CENTER, 
-//						GridBagConstraints.BOTH, 
-//						new Insets(4,4,4,4),
-//						0, 0));
+		//		erfAndTimespanPanel.add(listEditor, 
+		//				new GridBagConstraints(
+		//						0, 0, 1, 1, 1.0, 1.0,
+		//						GridBagConstraints.CENTER, 
+		//						GridBagConstraints.BOTH, 
+		//						new Insets(4,4,4,4),
+		//						0, 0));
 
 		// now make the editor based on the paramter list
 		listEditor.setTitle(ERF_EDITOR_TITLE);
@@ -309,7 +236,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		// get the panel for increasing the font and border
 		// this is hard coding for increasing the IMR font
 		// the colors used here are from ParameterEditor
-		
+
 		ParameterEditor<?> edit = listEditor.getParameterEditor(ERF_PARAM_NAME);
 		TitledBorder titledBorder1 = new TitledBorder(
 				BorderFactory.createLineBorder(
@@ -337,13 +264,13 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		}
 		//adding the Timespan Gui panel to the ERF Gui Bean
 		timeSpanGuiBean.setTimeSpan(eqkRupForecast.getTimeSpan());
-		
+
 		erfAndTimespanPanel.add(timeSpanGuiBean, BorderLayout.PAGE_END);
-//		erfAndTimespanPanel.add(timeSpanGuiBean, TODO clean
-//				new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
-//						GridBagConstraints.CENTER,
-//						GridBagConstraints.BOTH,
-//						new Insets(0,0,0,0), 0, 0));
+		//		erfAndTimespanPanel.add(timeSpanGuiBean, TODO clean
+		//				new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+		//						GridBagConstraints.CENTER,
+		//						GridBagConstraints.BOTH,
+		//						new Insets(0,0,0,0), 0, 0));
 	}
 
 
@@ -535,13 +462,13 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		String name1 = event.getParameterName();
 
 		// if ERF selected by the user  changes
-		if( name1.equals(this.ERF_PARAM_NAME) && !isNewERF_Instance){
+		if( name1.equals(ERF_PARAM_NAME) && !isNewERF_Instance){
 			String value = event.getNewValue().toString();
 			int size = this.erfNamesVector.size();
 			try{
 				for(int i=0;i<size;++i){
 					if(value.equalsIgnoreCase((String)erfNamesVector.get(i))){
-						eqkRupForecast = (EqkRupForecastBaseAPI)this.createERFClassInstance((String)erfClasses.get(i));
+						eqkRupForecast = getERFInstance(erfRefs.get(i));
 						break;
 					}
 				}
@@ -578,12 +505,12 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * @param erfList
 	 * @throws InvocationTargetException
 	 */
-	public void addERFs_ToList(ArrayList<String> erfList) throws InvocationTargetException{
+	public void addERFs_ToList(ArrayList<ERF_Ref> newRefs) throws InvocationTargetException{
 
-		int size = erfList.size();
-		for(int i=0;i<size;++i)
-			if(!erfClasses.contains(erfList.get(i)))
-				erfClasses.add(erfList.get(i));
+		int size = newRefs.size();
+		for (ERF_Ref erfRef : newRefs)
+			if(!erfRefs.contains(erfRef))
+				newRefs.add(erfRef);
 		// create the instance of ERFs
 		erfNamesVector.clear();
 		init_erf_IndParamListAndEditor();
@@ -609,12 +536,12 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 	 * @param erfList
 	 * @throws InvocationTargetException
 	 */
-	public void removeERFs_FromList(ArrayList erfList) throws InvocationTargetException{
+	public void removeERFs_FromList(ArrayList<ERF_Ref> removed) throws InvocationTargetException{
 
-		int size = erfList.size();
-		for(int i=0;i<size;++i)
-			if(erfClasses.contains(erfList.get(i)))
-				erfClasses.remove(erfList.get(i));
+		int size = removed.size();
+		for (ERF_Ref erf : removed)
+			if (erfRefs.contains(erf))
+				erfRefs.remove(erf);
 		// create the instance of ERFs
 		erfNamesVector.clear();
 		init_erf_IndParamListAndEditor();
@@ -688,13 +615,13 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
 
 	private void jbInit() throws Exception {
-		
+
 		//setLayout(new GridBagLayout());
 		setLayout(new BorderLayout());
 		setOpaque(false);
 		//erfAndTimespanPanel.setLayout(new BorderLayout());
-//		add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-//				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
+		//		add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		//				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
 		erfAndTimespanPanel = new JPanel(new BorderLayout());
 		erfAndTimespanPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,4));
 		erfAndTimespanPanel.setOpaque(false);
@@ -705,7 +632,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		erfScrollPane.getViewport().setOpaque(false);
 		//erfScrollPane.setBackground(Color.orange);
 		add(erfScrollPane,  BorderLayout.CENTER);
-		
+
 		//erfScrollPane.getViewport().add(erfAndTimespanPanel, null);
 	}
 

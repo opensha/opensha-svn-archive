@@ -61,17 +61,13 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient;
 import org.opensha.sha.gui.beans.AttenuationRelationshipGuiBean;
 import org.opensha.sha.gui.beans.AttenuationRelationshipSiteParamsRegionAPI;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
@@ -477,27 +473,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * Initialize the ERF Gui Bean
 	 */
 	protected void initERFSelector_GuiBean() {
-		// create the ERF Gui Bean object
-		ArrayList<String> erf_Classes = new ArrayList<String>();
-
-		/**
-		 *  The object class names for all the supported Eqk Rup Forecasts
-		 */
-		erf_Classes.add(PoissonFaultERF_Client.class.getName());
-		erf_Classes.add(Frankel96_AdjustableEqkRupForecastClient.class.getName());
-		//erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
-		//   erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
-		erf_Classes.add(FloatingPoissonFaultERF_Client.class.getName());
-		erf_Classes.add(Frankel02_AdjustableEqkRupForecastClient.class.getName());
-		//   erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
-		//   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-		//   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-		erf_Classes.add(WG02_FortranWrappedERF_EpistemicListClient.class.getName());
-		erf_Classes.add(WGCEP_UCERF1_EqkRupForecastClient.class.getName());
-
-
 		try{
-			erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
+			erfGuiBean = new EqkRupSelectorGuiBean(ERF_Ref.get(true, false, ServerPrefUtils.SERVER_PREFS));
 		}catch(InvocationTargetException e){
 			throw new RuntimeException("Connection to ERF's failed", e);
 		}

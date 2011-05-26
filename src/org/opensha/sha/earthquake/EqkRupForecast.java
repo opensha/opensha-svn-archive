@@ -341,4 +341,9 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 		return list;
 	}
 
+	@Override
+	public int compareTo(EqkRupForecastBaseAPI o) {
+		return getName().compareToIgnoreCase(o.getName());
+	}
+
 }

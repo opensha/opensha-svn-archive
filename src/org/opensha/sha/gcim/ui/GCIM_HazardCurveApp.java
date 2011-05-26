@@ -75,6 +75,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
@@ -82,6 +83,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -2228,10 +2230,9 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 
 		if(erfGuiBean == null){
 			// create the ERF Gui Bean object
-			ArrayList<String> erf_Classes = getLocalERFClasses();
 
 			try {
-				erfGuiBean = new ERF_GuiBean(erf_Classes);
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, true, ServerPrefUtils.SERVER_PREFS));
 				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}
@@ -2255,57 +2256,6 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 //				GridBagConstraints.CENTER,GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
 //		erfPanel.updateUI();
 	}
-	
-	public static ArrayList<String> getLocalERFClasses() {
-		ArrayList<String> erf_Classes = new ArrayList<String>();
-
-		//adding the client based ERF's to the application
-		erf_Classes.add(Frankel96_AdjustableEqkRupForecast.class.getName());
-//		erf_Classes.add(GEM1ERF.class.getName());
-//		erf_Classes.add(POINT_SRC_TO_LINE_ERF_CLASS_NAME);
-//		erf_Classes.add(POINT_SRC_TO_LINE_ERF_LIST_TEST_CLASS_NAME);
-		erf_Classes.add(URS_MeanUCERF2.class.getName());
-		erf_Classes.add(Frankel96_EqkRupForecast.class.getName());
-		erf_Classes.add(Frankel02_AdjustableEqkRupForecast.class.getName());
-		//      erf_Classes.add(NSHMP08_CEUS_ERF_CLASS_NAME);
-		erf_Classes.add(WG02_ERF_Epistemic_List.class.getName());
-		erf_Classes.add(WGCEP_UCERF1_EqkRupForecast.class.getName());
-		erf_Classes.add(PEER_AreaForecast.class.getName());
-		erf_Classes.add(PEER_NonPlanarFaultForecast.class.getName());
-		erf_Classes.add(PEER_MultiSourceForecast.class.getName());
-		erf_Classes.add(PEER_LogicTreeERF_List.class.getName());
-		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-		erf_Classes.add(STEP_AlaskanPipeForecast.class.getName());
-//		erf_Classes.add(OLD_POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(FloatingPoissonFaultERF.class.getName());
-		erf_Classes.add(PoissonFaultERF.class.getName());
-		erf_Classes.add(PointSourceERF.class.getName());
-		erf_Classes.add(Point2MultVertSS_FaultERF.class.getName());
-		erf_Classes.add(Point2MultVertSS_FaultERF_List.class.getName());
-		
-		erf_Classes.add(UCERF2.class.getName());
-		erf_Classes.add(UCERF2_TimeIndependentEpistemicList.class.getName());
-		erf_Classes.add(MeanUCERF2.class.getName());
-		
-		erf_Classes.add(YuccaMountainERF.class.getName());
-		erf_Classes.add(YuccaMountainERF_List.class.getName());
-		
-		erf_Classes.add(CyberShakeUCERFWrapper_ERF.class.getName());
-//		erf_Classes.add(TestGEM_ERF.class.getName());
-		erf_Classes.add(GEM1SouthAmericaERF.class.getName());
-		erf_Classes.add(GEM1_CEUS_ERF.class.getName());
-		erf_Classes.add(GEM1_WEUS_ERF.class.getName());
-		erf_Classes.add(GEM1_GSHAP_Africa_ERF.class.getName());
-		erf_Classes.add(GEM1_GSHAP_SE_Asia_ERF.class.getName());
-		erf_Classes.add(GEM1_NSHMP_SE_Asia_ERF.class.getName());
-//		erf_Classes.add(GEM1_SS_ERF_CLASS_NAME);
-		//      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
-		//      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
-//		erf_Classes.add(NZ_ERF0909_CLASS_NAME);
-		
-		return erf_Classes;
-	}
-
 
 // NOTE Old from server mode
 //	/**
@@ -2391,7 +2341,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 
 			try {
 
-				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,erf_Classes);
+				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 			}
 			catch (InvocationTargetException e) {
 				throw new RuntimeException("Connection to ERF's failed");

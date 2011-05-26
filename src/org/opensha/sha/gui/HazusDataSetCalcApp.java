@@ -51,8 +51,10 @@ import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.calc.params.MaxDistanceParam;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -101,17 +103,6 @@ public class HazusDataSetCalcApp extends JFrame
   private AttenuationRelationship attenRel;
 
   private boolean isStandalone;
-
-  /**
-   *  The object class names for all the supported Eqk Rup Forecasts
-   */
-  public final static String FRANKEL96_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  //public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  //public final static String STEP_ALASKAN_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
-  public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-  public final static String WG02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
-  public final static String FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-  public final static String WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -335,18 +326,8 @@ public class HazusDataSetCalcApp extends JFrame
    * Initialize the ERF Gui Bean
    */
   private void initERFSelector_GuiBean() {
-     // create the ERF Gui Bean object
-   ArrayList erf_Classes = new ArrayList();
-
-   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(FRANKEL96_ADJ_FORECAST_CLASS_NAME);
-   //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   //erf_Classes.add(STEP_ALASKAN_FORECAST_CLASS_NAME);
-   erf_Classes.add(WG02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(WGCEP_UCERF1_ERF_CLASS_NAME);
    try{
-     erfGuiBean = new ERF_GuiBean(erf_Classes);
+     erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
    }catch(InvocationTargetException e){
      throw new RuntimeException("Connection to ERF servlets failed");
    }

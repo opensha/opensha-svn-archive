@@ -22,48 +22,19 @@ package org.opensha.sha.gui;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
-import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
-import org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF;
-import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_GSHAP_Africa_ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_GSHAP_SE_Asia_ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_NSHMP_SE_Asia_ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_WEUS_ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List;
-import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF;
-import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List;
-import org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List;
-import org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF;
-import org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List;
-import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.util.IconFetcher;
-
-import scratch.christine.URS.URS_MeanUCERF2;
 
 
 
@@ -89,57 +60,6 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	public static final String APP_NAME = "Hazard Curve Local Mode Application";
 	public static final String APP_SHORT_NAME = "HazardCurveLocal";
 
-	public static ArrayList<String> getLocalERFClasses() {
-		ArrayList<String> erf_Classes = new ArrayList<String>();
-
-		//adding the client based ERF's to the application
-		erf_Classes.add(Frankel96_AdjustableEqkRupForecast.class.getName());
-//		erf_Classes.add(GEM1ERF.class.getName());
-//		erf_Classes.add(POINT_SRC_TO_LINE_ERF_CLASS_NAME);
-//		erf_Classes.add(POINT_SRC_TO_LINE_ERF_LIST_TEST_CLASS_NAME);
-		erf_Classes.add(URS_MeanUCERF2.class.getName());
-		erf_Classes.add(Frankel96_EqkRupForecast.class.getName());
-		erf_Classes.add(Frankel02_AdjustableEqkRupForecast.class.getName());
-		//      erf_Classes.add(NSHMP08_CEUS_ERF_CLASS_NAME);
-		erf_Classes.add(WG02_ERF_Epistemic_List.class.getName());
-		erf_Classes.add(WGCEP_UCERF1_EqkRupForecast.class.getName());
-		erf_Classes.add(PEER_AreaForecast.class.getName());
-		erf_Classes.add(PEER_NonPlanarFaultForecast.class.getName());
-		erf_Classes.add(PEER_MultiSourceForecast.class.getName());
-		erf_Classes.add(PEER_LogicTreeERF_List.class.getName());
-		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-		erf_Classes.add(STEP_AlaskanPipeForecast.class.getName());
-//		erf_Classes.add(OLD_POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(FloatingPoissonFaultERF.class.getName());
-		erf_Classes.add(PoissonFaultERF.class.getName());
-		erf_Classes.add(PointSourceERF.class.getName());
-		erf_Classes.add(Point2MultVertSS_FaultERF.class.getName());
-		erf_Classes.add(Point2MultVertSS_FaultERF_List.class.getName());
-		
-		erf_Classes.add(UCERF2.class.getName());
-		erf_Classes.add(UCERF2_TimeIndependentEpistemicList.class.getName());
-		erf_Classes.add(MeanUCERF2.class.getName());
-		
-		erf_Classes.add(YuccaMountainERF.class.getName());
-		erf_Classes.add(YuccaMountainERF_List.class.getName());
-		
-		erf_Classes.add(CyberShakeUCERFWrapper_ERF.class.getName());
-//		erf_Classes.add(TestGEM_ERF.class.getName());
-		erf_Classes.add(GEM1SouthAmericaERF.class.getName());
-		erf_Classes.add(GEM1_CEUS_ERF.class.getName());
-		erf_Classes.add(GEM1_WEUS_ERF.class.getName());
-		erf_Classes.add(GEM1_GSHAP_Africa_ERF.class.getName());
-		erf_Classes.add(GEM1_GSHAP_SE_Asia_ERF.class.getName());
-		erf_Classes.add(GEM1_NSHMP_SE_Asia_ERF.class.getName());
-//		erf_Classes.add(GEM1_SS_ERF_CLASS_NAME);
-		//      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
-		//      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
-//		erf_Classes.add(NZ_ERF0909_CLASS_NAME);
-		
-		return erf_Classes;
-	}
-
-
 	/**
 	 * Initialize the ERF Gui Bean
 	 */
@@ -147,10 +67,9 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
 		if(erfGuiBean == null){
 			// create the ERF Gui Bean object
-			ArrayList<String> erf_Classes = getLocalERFClasses();
 
 			try {
-				erfGuiBean = new ERF_GuiBean(erf_Classes);
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, true, ServerPrefUtils.SERVER_PREFS));
 				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}
@@ -189,30 +108,10 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 			ex.printStackTrace();
 		}
 		if(erfRupSelectorGuiBean == null){
-			// create the ERF Gui Bean object
-			ArrayList<String> erf_Classes = new ArrayList<String>();
-
-			/**
-			 *  The object class names for all the supported Eqk Rup Forecasts
-			 */
-			erf_Classes.add(PoissonFaultERF.class.getName());
-			erf_Classes.add(Frankel96_AdjustableEqkRupForecast.class.getName());
-			erf_Classes.add(UCERF2.class.getName());
-			erf_Classes.add(UCERF2_TimeIndependentEpistemicList.class.getName());
-			erf_Classes.add(MeanUCERF2.class.getName());
-			//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-			erf_Classes.add(STEP_AlaskanPipeForecast.class.getName());
-			erf_Classes.add(FloatingPoissonFaultERF.class.getName());
-			erf_Classes.add(Frankel02_AdjustableEqkRupForecast.class.getName());
-			erf_Classes.add(PEER_AreaForecast.class.getName());
-			erf_Classes.add(PEER_NonPlanarFaultForecast.class.getName());
-			erf_Classes.add(PEER_MultiSourceForecast.class.getName());
-			erf_Classes.add(WG02_EqkRupForecast.class.getName());
-
 
 			try {
 
-				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,erf_Classes);
+				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf, ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 			}
 			catch (InvocationTargetException e) {
 				throw new RuntimeException("Connection to ERF's failed");

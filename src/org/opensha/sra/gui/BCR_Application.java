@@ -65,11 +65,13 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.params.MaxDistanceParam;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
@@ -116,25 +118,6 @@ IMR_GuiBeanAPI{
 	private final static String C = "BCR_Application";
 	// for debug purpose 
 	protected final static boolean D = false;
-
-
-
-	/**
-	 *  The object class names for all the supported Eqk Rup Forecasts
-	 */
-	public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-	public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-	public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
-	//public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-	//public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
-	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-	public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
-	public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
-	public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
-	public final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
-
-
-
 
 	// instances of the GUI Beans which will be shown in this applet
 	protected ERF_GuiBean erfGuiBean;
@@ -900,19 +883,8 @@ IMR_GuiBeanAPI{
 
 		if (erfGuiBean == null) {
 			try {
-				// create the ERF Gui Bean object
-				ArrayList erf_Classes = new ArrayList();
-				//adding the RMI based ERF's to the application
-				//adding the client based ERF's to the application
-				erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-				erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-				erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);        
-				erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-				erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
-				erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
-				erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
 
-				erfGuiBean = new ERF_GuiBean(erf_Classes);
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 				erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}

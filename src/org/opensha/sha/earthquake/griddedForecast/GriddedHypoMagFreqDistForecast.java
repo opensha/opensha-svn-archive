@@ -51,9 +51,9 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 public abstract class GriddedHypoMagFreqDistForecast implements
-		EqkRupForecastBaseAPI,
-		HypoMagFreqDistAtMultLocsAPI,
-		ParameterChangeListener {
+EqkRupForecastBaseAPI,
+HypoMagFreqDistAtMultLocsAPI,
+ParameterChangeListener {
 
 	// TODO why abstract? no abstract methods; just lacks constructoirs
 
@@ -83,11 +83,11 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	public void setRegion(GriddedRegion region) {
 		this.region = region;
 	}
-	
+
 	/**
-			 * Get the region for which this forecast is applicable
-			 * @return : Geographic region object specifying the applicable region of forecast
-			 */
+	 * Get the region for which this forecast is applicable
+	 * @return : Geographic region object specifying the applicable region of forecast
+	 */
 	public Region getApplicableRegion() {
 		return region;
 	}
@@ -124,7 +124,7 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 	 */
 	public String updateAndSaveForecast() {
 		throw new UnsupportedOperationException(
-				"updateAndSaveForecast() not supported");
+		"updateAndSaveForecast() not supported");
 	}
 
 	/**
@@ -212,18 +212,22 @@ public abstract class GriddedHypoMagFreqDistForecast implements
 
 		}
 	}
-	
-	  /**
-	   * This specifies what types of Tectonic Regions are included in the ERF.
-	   * This default implementation includes only ACTIVE_SHALLOW, so it should 
-	   * be overridden in subclasses if other types are used
-	   * @return : ArrayList<TectonicRegionType>
-	   */
-	  public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes(){
-		  ArrayList<TectonicRegionType> list = new ArrayList<TectonicRegionType>();
-		  list.add(TectonicRegionType.ACTIVE_SHALLOW);
-		  return list;
-	  }
 
+	/**
+	 * This specifies what types of Tectonic Regions are included in the ERF.
+	 * This default implementation includes only ACTIVE_SHALLOW, so it should 
+	 * be overridden in subclasses if other types are used
+	 * @return : ArrayList<TectonicRegionType>
+	 */
+	public ArrayList<TectonicRegionType> getIncludedTectonicRegionTypes(){
+		ArrayList<TectonicRegionType> list = new ArrayList<TectonicRegionType>();
+		list.add(TectonicRegionType.ACTIVE_SHALLOW);
+		return list;
+	}
+
+	@Override
+	public int compareTo(EqkRupForecastBaseAPI o) {
+		return getName().compareToIgnoreCase(o.getName());
+	}
 
 }

@@ -14,6 +14,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -24,29 +25,21 @@ import org.opensha.sha.imr.ScalarIMR;
 public class HazardCurveBean implements GuiBeanAPI, IMR_GuiBeanAPI {
 	private JPanel embedVis = null;
 	/* The object class names for all the supported Eqk Rup Forecasts */
-	private static ArrayList<String> erfs = new ArrayList<String>();
-	private final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-	private final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-	private final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
-	private final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-	private final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
-	private final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
-	private final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
-	private final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
+	private static ArrayList<ERF_Ref> erfs = new ArrayList<ERF_Ref>();
 	
 	private HazardCurveCalculatorAPI calculator = null;
 	private boolean isHazardCalcComplete = true;
 
 	/* A static initialization on startup */
 	static {
-		erfs.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-		erfs.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-		erfs.add(WGCEP_UCERF1_CLASS_NAME);
-		erfs.add(POISSON_FAULT_ERF_CLASS_NAME);
-		erfs.add(SIMPLE_FAULT_ERF_CLASS_NAME);
-		erfs.add(POINT_SRC_FORECAST_CLASS_NAME);
-		erfs.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
-		erfs.add(WG02_ERF_CLASS_NAME);
+		erfs.add(ERF_Ref.FRANKEL_ADJUSTABLE_96);
+		erfs.add(ERF_Ref.FRANKEL_02);
+		erfs.add(ERF_Ref.WGCEP_UCERF_1);
+		erfs.add(ERF_Ref.POISSON_FLOATING_FAULT);
+		erfs.add(ERF_Ref.POISSON_FAULT);
+		erfs.add(ERF_Ref.POINT_SOURCE);
+		erfs.add(ERF_Ref.POINT_SOURCE_MULTI_VERT);
+		erfs.add(ERF_Ref.WGCEP_02);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////

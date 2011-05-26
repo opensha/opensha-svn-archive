@@ -42,7 +42,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public interface EqkRupForecastBaseAPI extends Named, Serializable {
+public interface EqkRupForecastBaseAPI extends Named, Serializable, Comparable<EqkRupForecastBaseAPI> {
 	
 	/**
 	 * To increase load time for applications, the name of each ERF should be stored

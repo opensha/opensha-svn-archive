@@ -39,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.LogicTreeMFDsPlotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ReportBulgeFigures;
@@ -87,10 +88,8 @@ public class UCERF2_GUI extends JFrame implements ActionListener{
 			ParameterAPI param = (ParameterAPI)it.next();
 			param.addParameterChangeListener(this);
 		}*/
-		ArrayList classNames = new ArrayList();
-		classNames.add(WGCEP_UCERF_2_3_CLASS_NAME);
 		try {
-			erfGuiBean  =new ERF_GuiBean(classNames);
+			erfGuiBean  = new ERF_GuiBean(ERF_Ref.MEAN_UCERF_2_VER_2_3);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

@@ -129,5 +129,10 @@ public class ERFTestSubset implements EqkRupForecastAPI {
 	public ProbEqkSource getOrigSource(int sourceID) {
 		return baseERF.getSource(sourceID);
 	}
+	
+	@Override
+	public int compareTo(EqkRupForecastBaseAPI o) {
+		return baseERF.compareTo(o);
+	}
 
 }

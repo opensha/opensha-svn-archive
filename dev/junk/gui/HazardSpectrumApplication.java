@@ -66,9 +66,11 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
@@ -120,22 +122,6 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	private final static String C = "Hazard Spectrum Applet";
 	// for debug purpose
 	private final static boolean D = false;
-
-
-	/**
-	 *  The object class names for all the supported Eqk Rup Forecasts
-	 */
-	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-	public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
-	public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-	public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-	public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
-	public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-	public final static String FRANKEL2000_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-	public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-	public final static String WG02_ERF_LIST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
-	public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
-	public final static String WG02_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
 
 	// instances of the GUI Beans which will be shown in this applet
 	private ERF_GuiBean erfGuiBean;
@@ -1377,21 +1363,9 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	 */
 	private void initERF_GuiBean() {
 		// create the ERF Gui Bean object
-		ArrayList erf_Classes = new ArrayList();
-		erf_Classes.add(FRANKEL2000_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-		erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
-		erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-		erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-
 		try{
 			if(erfGuiBean == null)
-				erfGuiBean = new ERF_GuiBean(erf_Classes);
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 		}catch(InvocationTargetException e){
 			throw new RuntimeException("Connection to ERF's  failed");
 		}
@@ -1407,21 +1381,10 @@ ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 	 * Initialize the ERF Rup Selector Gui Bean
 	 */
 	private void initERFSelector_GuiBean() {
-		// create the ERF Gui Bean object
-		ArrayList erf_Classes = new ArrayList();
-		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(FRANKEL2000_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-		erf_Classes.add(WG02_FORECAST_CLASS_NAME);
-		erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
 
 		try{
 			if(erfRupSelectorGuiBean == null)
-				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
+				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 		}catch(InvocationTargetException e){
 			throw new RuntimeException("Connection to ERF's failed");
 		}

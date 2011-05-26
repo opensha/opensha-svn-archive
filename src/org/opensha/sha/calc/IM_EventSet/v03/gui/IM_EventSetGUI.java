@@ -45,11 +45,13 @@ import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalculation;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.HazardCurveLocalModeApplication;
@@ -141,7 +143,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 	
 	private ERF_GuiBean createERF_GUI_Bean() {
 		try {
-			return new ERF_GuiBean(HazardCurveLocalModeApplication.getLocalERFClasses());
+			return new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}

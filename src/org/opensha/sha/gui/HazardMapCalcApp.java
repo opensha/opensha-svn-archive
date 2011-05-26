@@ -73,11 +73,13 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.old.HazardMapMetadataJobCreator;
 import org.opensha.sha.calc.hazardMap.old.servlet.ManagementServletAccessor;
 import org.opensha.sha.calc.params.MaxDistanceParam;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.GridParametersGuiBean;
@@ -150,33 +152,6 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 	//gets the instance of the selected AttenuationRelationship
 	private AttenuationRelationship attenRel;
 	private boolean useCustomX_Values = false;
-
-
-	/**
-	 *  The object class names for all the supported Eqk Rup Forecasts
-	 */
-	public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-	public final static String FRANKEL_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
-	public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-	public final static String WG02_ERF_LIST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
-	public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
-	public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
-	public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-	public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-	public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
-	//public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-	public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
-	public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-	public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
-	public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
-	public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
-	public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
-	public final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
-	public final static String WGCEP_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2";
-	public final static String WGCEP_UCERF_2_EPISTEMIC_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList";
-	public final static String WGCEP_AVG_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2";
-//	public final static String YUCCA_MOUNTAIN_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF";
-//	public final static String YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List";
 
 	// Strings for control pick list
 	private final static String CONTROL_PANELS = "Control Panels";
@@ -522,31 +497,8 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 	 */
 	private void initERFSelector_GuiBean() {
 		// create the ERF Gui Bean object
-		ArrayList erf_Classes = new ArrayList();
-
-		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-		erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-//		erf_Classes.add(YUCCA_MOUNTAIN_CLASS_NAME);
-//		erf_Classes.add(YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME);
-		erf_Classes.add(WGCEP_UCERF_2_CLASS_NAME);
-		erf_Classes.add(WGCEP_UCERF_2_EPISTEMIC_LIST_CLASS_NAME);
-		erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);
-		erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
-		erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
-		erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-		erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-		erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-		erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
-		erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
-		erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
 		try{
-			erfGuiBean = new ERF_GuiBean(erf_Classes);
+			erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 		}catch(InvocationTargetException e){
 			throw new RuntimeException("Connection to ERF servlets failed");
 		}

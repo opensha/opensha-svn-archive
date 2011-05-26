@@ -32,6 +32,7 @@ import java.awt.event.ItemEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.BorderFactory;
@@ -56,12 +57,15 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+
+import com.google.common.base.Preconditions;
 
 /**
  * <p>Title: EqkRuptureFromERFSelectorPanel</p>
@@ -155,7 +159,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	private int step ;
 
 	//List of supported ERF's from which we can get the single rupture
-	private ArrayList supportedERFClassNames;
+	private List<ERF_Ref> erfRefs;
 
 	//checks to see if it is new instance of the GuiBean.
 	private boolean firstTime = true;
@@ -169,31 +173,30 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	 * Gui Bean. This will allow it to extract the ERF from that GuiBean.
 	 * @param erfGuiBean ERF_GuiBean
 	 */
-	public EqkRuptureFromERFSelectorPanel(EqkRupForecastBaseAPI erf,ArrayList erfClassNames) {
-		supportedERFClassNames = erfClassNames;
+	public EqkRuptureFromERFSelectorPanel(EqkRupForecastBaseAPI baseERF, List<ERF_Ref> erfRefs) {
+		this.erfRefs = erfRefs;
 		parameterList = new ParameterList();
 		try {
-
+			for (ERF_Ref erfRef : erfRefs) {
+				Preconditions.checkArgument(!erfRef.isERFList(),
+						"Rupture From ERF Panel can't be used with Epistemic List ERFs");
+			}
 			//gets the instance of the selected ERF
-			this.erf = (EqkRupForecastAPI)erf;
+			if (baseERF instanceof EqkRupForecastAPI)
+				erf = (EqkRupForecastAPI)baseERF;
+			else
+				erf = null;
 			String erfName = this.erf.getClass().getName();
-			boolean isERFSupported = isSupportedERF_Name(erfName);
 
 			// create the instance of ERFs
 
 			progress = new CalcProgressBar("Updating Ruptures",
 			"Please wait while ruptures are being updated ...");
 
-			if (isERFSupported)
-				addERFNameToFirstIndex(erfName);
+			step = 1;
+			this.startProgressBarTimer();
 
-			else{
-				step = 1;
-				erf = null;
-				this.startProgressBarTimer();
-			}
-
-			erfGuiBean = new ERF_GuiBean(supportedERFClassNames);
+			erfGuiBean = new ERF_GuiBean(erfRefs);
 			setEqkRupForecast(erf);
 			erfGuiBean.showProgressBar(false);
 			setSelectedERF();
@@ -204,8 +207,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 			// now make the editor based on the parameter list
 			listEditor.setTitle(TITLE);
 			setHypocenterLocationInRupture(false);
-			if(!isERFSupported)
-				stopProgressBarTimer();
+			stopProgressBarTimer();
 			jbInit();
 		}
 		catch (Exception e) {
@@ -219,10 +221,10 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	 * Constructor : It accepts the classNames of the ERFs to be shown in the editor
 	 * @param erfClassNames
 	 */
-	public EqkRuptureFromERFSelectorPanel(ArrayList erfClassNames) throws InvocationTargetException{
+	public EqkRuptureFromERFSelectorPanel(List<ERF_Ref> erfRefs) throws InvocationTargetException{
 
 		// create the instance of ERFs
-		erfGuiBean= new ERF_GuiBean(erfClassNames);
+		erfGuiBean= new ERF_GuiBean(erfRefs);
 		erfGuiBean.showProgressBar(false);
 		parameterList = new ParameterList();
 
@@ -248,31 +250,6 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 		}
 		firstTime = false;
 	}
-
-
-
-	/**
-	 * Checks the if the given ERF Name is within the list of the supported ERF from
-	 * which single rupture can be generated.
-	 * @param erfName String
-	 * @return boolean
-	 */
-	private boolean isSupportedERF_Name(String erfName){
-		if(supportedERFClassNames.contains(erfName))
-			return true;
-		return false;
-	}
-
-	// adds the ERF Name to the first place in the list of Strings
-	private void addERFNameToFirstIndex(String erfName) {
-		supportedERFClassNames.remove(erfName);
-		int size = supportedERFClassNames.size();
-		for(int i=size-1;i>=0;--i)
-			supportedERFClassNames.add(i+1,supportedERFClassNames.get(i));
-		supportedERFClassNames.add(0,erfName);
-	}
-
-
 
 	/**
 	 * creates the selected ERF based on the selected ERF Name

@@ -60,7 +60,9 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.params.MaxDistanceParam;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
@@ -128,18 +130,6 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	//gets the instance of the selected AttenuationRelationship
 	private AttenuationRelationship attenRel;
 	private boolean useCustomX_Values = false;
-
-
-	/**
-	 *  The object class names for all the supported Eqk Rup Forecasts
-	 */
-	public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
-	public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
-	public final static String RMI_STEP_ALASKAN_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
-	public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
-	public final static String RMI_WG02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
-	public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client";
-	public final static String RMI_WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient";
 
 	// Strings for control pick list
 	private final static String CONTROL_PANELS = "Control Panels";
@@ -469,17 +459,8 @@ implements ParameterChangeListener, IMR_GuiBeanAPI, Runnable, CurveDisplayAppAPI
 	 */
 	private void initERFSelector_GuiBean() {
 		// create the ERF Gui Bean object
-		ArrayList erf_Classes = new ArrayList();
-
-		erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
-		erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
-		erf_Classes.add(RMI_STEP_ALASKAN_FORECAST_CLASS_NAME);
-		erf_Classes.add(RMI_WG02_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
 		try{
-			erfGuiBean = new ERF_GuiBean(erf_Classes);
+			erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
 		}catch(InvocationTargetException e){
 			throw new RuntimeException("Connection to ERF servlets failed");
 		}
