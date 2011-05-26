@@ -16,8 +16,8 @@ import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
-import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
+//import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
+//import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -75,15 +75,15 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		String email = "kmilner@usc.edu";
 		
 		GridResources resources = new GridResources(submit, rp, storage);
-		HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, serializeERF);
+//		HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, serializeERF);
 		
-		HazardMapJob job = new HazardMapJob(resources, calcParams, jobID, jobName, email, configFileName);
+//		HazardMapJob job = new HazardMapJob(resources, calcParams, jobID, jobName, email, configFileName);
 //		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, HazardMapJob.DEFAULT_SUBMIT_HOST, HazardMapJob.DEFAULT_SUBMIT_HOST_PATH, HazardMapJob.DEFAULT_DEPENDENCY_PATH, sitesPerJob, useCVM, saveERF, metadataFileName);
 
 		root = erf.toXMLMetadata(root);
 		root = imr.toXMLMetadata(root);
 		root = gridded.toXMLMetadata(root);
-		root = job.toXMLMetadata(root);
+///		root = job.toXMLMetadata(root);
 		
 
 		XMLWriter writer;

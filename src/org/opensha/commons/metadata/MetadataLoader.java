@@ -29,7 +29,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
+//import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -111,8 +111,8 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 	        System.out.println("Name: " + erf.getName());
 //	        System.out.println("Background: " + erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).getValue());
 //	        System.out.println("TimeSpan: " + erf.getTimeSpan().getStartTimeYear() + ", " + erf.getTimeSpan().getDuration());
-	        HazardMapJob job = HazardMapJob.fromXMLMetadata(document.getRootElement().element(HazardMapJob.XML_METADATA_NAME));
-	        System.out.println(job.toString());
+//	        HazardMapJob job = HazardMapJob.fromXMLMetadata(document.getRootElement().element(HazardMapJob.XML_METADATA_NAME));
+//	        System.out.println(job.toString());
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		} catch (DocumentException e) {
