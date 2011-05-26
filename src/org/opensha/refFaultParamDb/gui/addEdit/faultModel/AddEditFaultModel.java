@@ -32,6 +32,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.view.AbstractSectionInfoFileWriter;
 import org.opensha.refFaultParamDb.gui.view.SectionInfoCSVFileWriter;
 import org.opensha.refFaultParamDb.gui.view.SectionInfoTextFileWriter;
+import org.opensha.refFaultParamDb.gui.view.SectionInfoCSVFileWriter.SaveType;
 import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 
 
@@ -67,8 +68,6 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	private final static String MSG_NO_FAULT_MODEL_EXISTS = "Currently, there is no Fault Model";
 	
 	private final static String TEXT_PARAMS_DESC = "Text File - Fault Paramaters";
-	private final static String CSV_ALL_POINTS_DESC = "CSV File - All Fault Surface Points";
-	private final static String CSV_TOP_BOTTOM_POINTS_DESC = "CSV File - Top/Bottom Fault Surface Points";
 	private JFileChooser fileChooser;
 	
 	private DB_AccessAPI dbConnection;
@@ -245,11 +244,13 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		if (fileChooser == null) {
 			fileChooser = new JFileChooser();
 			CustomFileFilter textFilter = new CustomFileFilter("txt", TEXT_PARAMS_DESC);
-			CustomFileFilter csvAllFilter = new CustomFileFilter("csv", CSV_ALL_POINTS_DESC);
-			CustomFileFilter csvTopBottomFilter = new CustomFileFilter("csv", CSV_TOP_BOTTOM_POINTS_DESC);
+			CustomFileFilter csvAllFilter = new CustomFileFilter("csv", SaveType.CSV_ALL_POINTS.getDescription());
+			CustomFileFilter csvTopBottomFilter = new CustomFileFilter("csv", SaveType.CSV_TOP_BOTTOM_POINTS.getDescription());
+			CustomFileFilter csvTraceFilter = new CustomFileFilter("csv", SaveType.CSV_TRACE_DESC.getDescription());
 			fileChooser.addChoosableFileFilter(textFilter);
 			fileChooser.addChoosableFileFilter(csvAllFilter);
 			fileChooser.addChoosableFileFilter(csvTopBottomFilter);
+			fileChooser.addChoosableFileFilter(csvTraceFilter);
 			fileChooser.setFileFilter(textFilter);
 		}
 		fileChooser.showSaveDialog(this);
@@ -271,12 +272,8 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		AbstractSectionInfoFileWriter fileWriter;
 		if (filter.getDescription().equals(TEXT_PARAMS_DESC))
 			fileWriter = new SectionInfoTextFileWriter(dbConnection);
-		else if (filter.getDescription().equals(CSV_ALL_POINTS_DESC))
-			fileWriter = new SectionInfoCSVFileWriter(dbConnection, false);
-		else if (filter.getDescription().equals(CSV_TOP_BOTTOM_POINTS_DESC))
-			fileWriter = new SectionInfoCSVFileWriter(dbConnection, true);
 		else
-			throw new IllegalStateException("File Filter '"+filter.getDescription()+"' unknown!");
+			fileWriter = new SectionInfoCSVFileWriter(dbConnection, SaveType.forDesc(filter.getDescription()));
 		if (!StringUtils.endsWithIgnoreCase(file.getName(), filter.getExtension()))
 			file = new File(file.getAbsolutePath()+filter.getExtension());
 		fileWriter.writeForFaultModel(faultSectionIds, file);
