@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**/_nobuild/*" kind="src" path="dev"/>
+	<classpathentry excluding="**/_nobuild/*|junk/*" kind="src" path="dev"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar">
