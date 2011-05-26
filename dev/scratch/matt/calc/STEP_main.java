@@ -12,8 +12,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.ListIterator;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -41,7 +41,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @version 1.0
  */
 public class STEP_main {
-	private static Logger logger = Logger.getLogger(STEP_main.class);
+	private static Logger logger = Logger.getLogger(STEP_main.class.getName());
 
 	private static RegionDefaults rDefs;
 	private static GregorianCalendar currentTime;
@@ -589,13 +589,13 @@ public class STEP_main {
     		if(sourceFile.exists()){    		
     		  STEP_AftershockForecastList = (ArrayList<STEP_CombineForecastModels>) FileUtils.loadObject(RegionDefaults.STEP_AftershockObjectFile);
     		}else{
-    			logger.error("error STEP_AftershockObjectFile not exist!!"   );
+    			logger.severe("error STEP_AftershockObjectFile not exist!!"   );
     		}
     		if(STEP_AftershockForecastList == null)
     		    STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
     	} catch ( Exception ex) {
 			//ex.printStackTrace();
-			logger.error("readSTEP_AftershockForecastListFromFile error " + ex );
+			logger.severe("readSTEP_AftershockForecastListFromFile error " + ex );
 			//create an empty List
 			STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
 		}

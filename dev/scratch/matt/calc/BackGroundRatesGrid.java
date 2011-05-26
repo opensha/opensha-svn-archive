@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -17,7 +17,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast  {
-	private static Logger logger = Logger.getLogger(BackGroundRatesGrid.class);
+	private static Logger logger = Logger.getLogger(BackGroundRatesGrid.class.getName());
 
 	private double minForecastMag, maxForecastMag, deltaForecastMag;
 	private double minMagInSourceFile = 2.0;

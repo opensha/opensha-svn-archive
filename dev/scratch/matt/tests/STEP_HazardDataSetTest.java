@@ -1,10 +1,10 @@
 package scratch.matt.tests;
 
 import java.util.ListIterator;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -23,7 +23,7 @@ import scratch.matt.calc.STEP_main;
  *
  */
 public class STEP_HazardDataSetTest  extends TestCase {
-	private static Logger logger = Logger.getLogger(BackGroundRatesGridTest.class);
+	private static Logger logger = Logger.getLogger(BackGroundRatesGridTest.class.getName());
 	private STEP_main stepmain  ;
 	private STEP_HazardDataSet step_HazardDataSet;
 	

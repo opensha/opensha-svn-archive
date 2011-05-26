@@ -2,10 +2,10 @@ package scratch.matt.tests;
 
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -26,7 +26,7 @@ import scratch.matt.calc.RegionDefaults;
  *
  */
 public class BackGroundRatesGridTest  extends TestCase {
-	private static Logger logger = Logger.getLogger(BackGroundRatesGridTest.class);
+	private static Logger logger = Logger.getLogger(BackGroundRatesGridTest.class.getName());
 	private BackGroundRatesGrid bgGrid1; //California
 	private BackGroundRatesGrid bgGrid2; //california
 	private BackGroundRatesGrid bgGrid3; //NZ

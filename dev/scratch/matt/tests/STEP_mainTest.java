@@ -3,10 +3,11 @@ package scratch.matt.tests;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -35,7 +36,7 @@ public class STEP_mainTest extends TestCase {
 	public static String cubeFilePath_TEST =  RegionDefaults.TEST_Path + "/events_nz_test.nts";
 	public static String cubeFilePath_TEST_1 =  RegionDefaults.TEST_Path + "/merge_landers.nts";
 
-	private static Logger logger = Logger.getLogger(STEP_mainTest.class);
+	private static Logger logger = Logger.getLogger(STEP_mainTest.class.getName());
 	private STEP_main stepmain;// = new STEP_main();
 	public STEP_mainTest() {		
 		super();
@@ -194,7 +195,7 @@ public class STEP_mainTest extends TestCase {
 		catch(Exception e)
 		{
 			// System.err.println("Exception thrown as Expected:  "+e);
-			logger.error(e);
+			logger.log(Level.SEVERE,"",e);
 		}
 	}
 
