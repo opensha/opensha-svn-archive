@@ -288,7 +288,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
-			<ant uselogger="true" antscript="${ant.bin}"
+			<ant uselogger="true" time="0300" antscript="${ant.bin}"
 						buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 						target="svn.update.app.dist.build" />
 		</schedule>
