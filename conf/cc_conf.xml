@@ -2,6 +2,7 @@
 	<!-- Commonly used directories -->
 	<property name="projectdir" value="/scratch/opensha/build/trunk"/>
 	<property name="tomcatprojectdir" value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF"/>
+	<property name="tomcatdistdir" value="/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF"/>
 	<property name="testdir" value="${projectdir}/junit/logs"/>
 	<property name="logdir" value="logs/${project.name}"/>
 	<property name="ant.bin" value="/usr/local/ant/default/bin/ant"/>
@@ -67,13 +68,7 @@
         </listeners>
 	
 		<bootstrappers>
-			<svnbootstrapper file="ant/cc-build.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/build.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/test.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/cc-build.xml"
+			<svnbootstrapper file="ant/cc-build-test.xml"
 				localWorkingCopy="${tomcatprojectdir}" />
 			<svnbootstrapper file="ant/build.xml"
 				localWorkingCopy="${tomcatprojectdir}" />
@@ -125,7 +120,7 @@
 	
 		<!--
 		<bootstrappers>
-			<svnbootstrapper file="ant/cc-build.xml"
+			<svnbootstrapper file="ant/cc-build-test.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/build.xml"
 				localWorkingCopy="${projectdir}" />
@@ -179,16 +174,12 @@
         </listeners>
 	
 		<bootstrappers>
-			<svnbootstrapper file="ant/cc-build.xml"
+			<svnbootstrapper file="ant/cc-build-test.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/build.xml"
 				localWorkingCopy="${projectdir}" />
 			<svnbootstrapper file="ant/test.xml"
 				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/cc-build.xml"
-				localWorkingCopy="${tomcatprojectdir}" />
-			<svnbootstrapper file="ant/build.xml"
-				localWorkingCopy="${tomcatprojectdir}" />
 		</bootstrappers>
 
 		<schedule>
@@ -237,13 +228,7 @@
 	
 		<!--
 		<bootstrappers>
-			<svnbootstrapper file="ant/cc-build.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/build.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/test.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/cc-build.xml"
+			<svnbootstrapper file="ant/cc-build-test.xml"
 				localWorkingCopy="${tomcatprojectdir}" />
 			<svnbootstrapper file="ant/build.xml"
 				localWorkingCopy="${tomcatprojectdir}" />
@@ -255,6 +240,63 @@
 			<ant uselogger="true" time="0100" antscript="${ant.bin}"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="pref.fault.data.update" />
+		</schedule>
+
+		<!-- we shouldn't need this since requiremodification=false, but a CC bug requires it to build -->
+		<modificationset quietperiod="60">
+			<alwaysbuild/>
+		</modificationset>
+
+		<log dir="${logdir}">
+			<!-- <merge dir="${testdir}" /> -->
+			<gzip every="2" unit="WEEK"/>
+		</log>
+
+		<publishers>
+
+			<htmlemail mailhost="localhost"
+						returnaddress="${returnaddress}"
+						reportsuccess="fixes"
+						subjectprefix="[CuiseControl]"
+						skipusers="true"
+						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
+						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						logdir="${logdir}">
+				<always address="kmilner@usc.edu" />
+				<!--<failure address="kmilner@usc.edu" />
+				<failure address="pmpowers@caltech.edu" />-->
+			</htmlemail>
+
+		</publishers>
+
+	</project>
+	
+	<!-- This runs every night to build applications -->
+	<project name="OpenSHA-DistManualAppBuild" buildafterfailed="false" forceOnly="true">
+	
+		<listeners>
+			<currentbuildstatuslistener
+          		file="${logdir}/buildstatus.txt"/>
+        </listeners>
+	
+		<bootstrappers>
+			<svnbootstrapper file="ant/cc-build-test.xml"
+				localWorkingCopy="${projectdir}" />
+			<svnbootstrapper file="ant/build.xml"
+				localWorkingCopy="${projectdir}" />
+			<svnbootstrapper file="ant/test.xml"
+				localWorkingCopy="${projectdir}" />
+			<svnbootstrapper file="ant/cc-build-test.xml"
+				localWorkingCopy="${tomcatprojectdir}" />
+			<svnbootstrapper file="ant/build.xml"
+				localWorkingCopy="${tomcatprojectdir}" />
+		</bootstrappers>
+
+		<schedule>
+			<!-- This test runs nightly, building nightly jars -->
+			<ant uselogger="true" antscript="${ant.bin}"
+						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
+						target="svn.update.app.dist.build" />
 		</schedule>
 
 		<!-- we shouldn't need this since requiremodification=false, but a CC bug requires it to build -->
