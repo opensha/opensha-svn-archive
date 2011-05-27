@@ -272,7 +272,7 @@
 	</project>
 	
 	<!-- This runs every night to build applications -->
-	<project name="OpenSHA-DistManualAppBuild" buildafterfailed="false" forceOnly="true">
+	<project name="OpenSHA-DistManualAppBuild" buildafterfailed="false" forceOnly="true" forceBuildNewProject="false">
 	
 		<listeners>
 			<currentbuildstatuslistener
@@ -281,21 +281,15 @@
 	
 		<bootstrappers>
 			<svnbootstrapper file="ant/cc-build-test.xml"
-				localWorkingCopy="${projectdir}" />
+				localWorkingCopy="${tomcatdistdir}" />
 			<svnbootstrapper file="ant/build.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/test.xml"
-				localWorkingCopy="${projectdir}" />
-			<svnbootstrapper file="ant/cc-build-test.xml"
-				localWorkingCopy="${tomcatprojectdir}" />
-			<svnbootstrapper file="ant/build.xml"
-				localWorkingCopy="${tomcatprojectdir}" />
+				localWorkingCopy="${tomcatdistdir}" />
 		</bootstrappers>
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
 			<ant uselogger="true" antscript="${ant.bin}"
-						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
+						buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 						target="svn.update.app.dist.build" />
 		</schedule>
 
