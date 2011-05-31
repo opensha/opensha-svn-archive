@@ -31,26 +31,31 @@
 		<ant antfile="build.xml" target="rmi.all"/>
 	</target>
 	
+	<!-- Called by the OpenSHA-continuous CC project -->
 	<target name="svn.build.run.common.tests" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.common.tests"/>
 	</target>
 	
+	<!-- Called by the OpenSHA-operational CC project -->
 	<target name="run.operational.tests">
 		<ant antfile="test.xml" target="run.operational.tests"/>
 	</target>
 	
+	<!-- Called by the OpenSHA-nightly CC project -->
 	<target name="svn.update.app.build" depends="svn.update.build">
 		<ant antfile="MultiAppBuilder.xml" target="build.nightly"/>
 		<antcall target="restart.rmi"/>
 		<ant antfile="CompleteJar.xml" target="build.nightly"/>
 	</target>
 	
+	<!-- Called by the OpenSHA-DistManualAppBuild CC project (only run manually) -->
 	<target name="svn.update.app.dist.build" depends="svn.update.build">
 		<ant antfile="MultiAppBuilder.xml" target="build.dist"/>
 		<antcall target="restart.rmi"/>
 		<ant antfile="CompleteJar.xml" target="build.dist"/>
 	</target>
 	
+	<!-- Called by the OpenSHA-JUnitNightlyCoverage CC project -->
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.cobertura"/>
 		<antcall target="javadoc"/>
@@ -94,6 +99,7 @@
 		</exec>
 	</target>
 	
+	<!-- Called by the OpenSHA-FaultDBPrefData CC project -->
 	<target name="pref.fault.data.update">
 		<java
 			classname="org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO"
