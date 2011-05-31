@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 
 /**
- * <b>Title:</b> EqkRupForecast<br>
+ * <b>Title:</b>ERF (was EqkRupForecast)<br>
  * <b>Description: This is the API for an Earthquake Rupture Forecast</b> <br>
  *
  * @author Nitin Gupta & Vipin Gupta
@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public interface ERF extends BaseERF{
+public interface ERF extends BaseERF {
 
      /**
       *

@@ -33,9 +33,9 @@ import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
- * <p>Title: EqkRupForecastBaseAPI</p>
- * <p>Description: This defines the common interface that applies to both an EqkRupForecast 
- * and an ERF_LIST (the methods that are common betwen the two).</p>
+ * <p>Title: ERF (was EqkRupForecastBaseAPI)</p>
+ * <p>Description: This defines the common interface that applies to both an ERF 
+ * and an EpistemicListERF (the methods that are common betwen the two).</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @created Sept 30,2004
  * @version 1.0

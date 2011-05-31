@@ -41,8 +41,8 @@ import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
- * <p>Title: EqkRupForecast/p>
- * <p>Description: Abstract class that provides the  basic implementation for the EqkRupForecast objects.</p>
+ * <p>Title: AbstractERF (was EqkRupForecast)/p>
+ * <p>Description: Abstract class that provides the  basic implementation for the ERF objects.</p>
  * @author unascribed
  * @version 1.0
  */

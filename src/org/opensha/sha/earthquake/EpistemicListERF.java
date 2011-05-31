@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 
 /**
- * <p>Title: ERF_ListAPI</p>
+ * <p>Title: EpistemicListERF (was ERF_ListAPI)</p>
  * <p>Description: This represents an epistemic list of earthquake rupture forecasts and their associated weights.</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @created June 19,2003

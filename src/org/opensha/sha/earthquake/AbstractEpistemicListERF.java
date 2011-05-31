@@ -37,7 +37,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 
 /**
- * <p>Title: ERF_List </p>
+ * <p>Title: AbstractEpistemicListERF (was ERF_List) </p>
  * <p>Description: This is the abstract implementation of ERF_EpistemicListAPI </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
