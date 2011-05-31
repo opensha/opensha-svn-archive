@@ -29,7 +29,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIMR;
@@ -104,13 +104,13 @@ public class HardcodedHazardMapCalculator implements ParameterChangeWarningListe
 
 		// create the ERF
 		System.out.println("Creating Forecast");
-		EqkRupForecastAPI erf = null;
+		ERF erf = null;
 		if (loadERFFromFile) { // load the ERF from a file with a pre-updated forecast for less overhead
 			long start_erf = 0;
 			if (timer) {
 				start_erf = System.currentTimeMillis();
 			}
-			erf = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
+			erf = (ERF)FileUtils.loadObject("erf.obj");
 			if (timer) {
 				System.out.println("Took " + getTime(start_erf) + " seconds to load ERF.");
 			}

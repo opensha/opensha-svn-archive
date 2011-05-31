@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -68,7 +68,7 @@ System.out.println("UCERF2");
 
 		// NSHMP 2002
 System.out.println("NSHMP02");
-		EqkRupForecast nshmp2002 = new Frankel02_AdjustableEqkRupForecast();
+		AbstractERF nshmp2002 = new Frankel02_AdjustableEqkRupForecast();
 	    // include background sources as point sources
 		nshmp2002.setParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME,
 	                                new Double(10.0));

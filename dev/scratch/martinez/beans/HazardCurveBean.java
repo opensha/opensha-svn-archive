@@ -15,7 +15,7 @@ import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
@@ -114,7 +114,7 @@ public class HazardCurveBean implements GuiBeanAPI, IMR_GuiBeanAPI {
 		
 		try {
 			newFunc = calculator.getHazardCurve(newFunc, siteBean.getSite(), 
-					imrBean.getSelectedIMR_Instance(), (EqkRupForecastAPI) erfBean.getSelectedERF());
+					imrBean.getSelectedIMR_Instance(), (ERF) erfBean.getSelectedERF());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {

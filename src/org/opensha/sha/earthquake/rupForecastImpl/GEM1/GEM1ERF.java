@@ -16,7 +16,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.gem.GEM1.util.SourceType;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -51,7 +51,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public class GEM1ERF extends EqkRupForecast {
+public class GEM1ERF extends AbstractERF {
 
 	// name of this ERF
 	public final static String NAME = new String("GEM1 Eqk Rup Forecast");

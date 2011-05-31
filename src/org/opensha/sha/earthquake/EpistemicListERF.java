@@ -31,7 +31,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI
  * @version 1.0
  */
 
-public interface ERF_EpistemicListAPI extends EqkRupForecastBaseAPI{
+public interface EpistemicListERF extends BaseERF{
 
 
 
@@ -40,7 +40,7 @@ public interface ERF_EpistemicListAPI extends EqkRupForecastBaseAPI{
    * @param index : index of Eqk Rup forecast to return
    * @return
    */
-  public EqkRupForecastAPI getERF(int index);
+  public ERF getERF(int index);
 
 
   /**

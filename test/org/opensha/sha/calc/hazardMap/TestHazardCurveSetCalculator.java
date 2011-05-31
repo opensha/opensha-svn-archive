@@ -22,7 +22,7 @@ import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIMR;
@@ -36,7 +36,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestHazardCurveSetCalculator extends TestCase {
 	
-	private EqkRupForecastAPI erf;
+	private ERF erf;
 	private ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	private ArrayList<Site> sites;
 	private CalculationSettings calcSettings;

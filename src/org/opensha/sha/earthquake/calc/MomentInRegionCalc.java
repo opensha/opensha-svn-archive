@@ -10,7 +10,7 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
@@ -28,7 +28,7 @@ public class MomentInRegionCalc {
 	 * @param erf EqkRupForecast to be used for calculating moment 
 	 * @param region Polygon in which Moment  needs to be calculated
 	 */
-	public static double getMoment(EqkRupForecast erf, Region region) {
+	public static double getMoment(AbstractERF erf, Region region) {
 		int numSources = erf.getNumSources();
 		double totMoment = 0, rupMoment=0;
 		int numRups, totRupLocs, rupLocsInside;

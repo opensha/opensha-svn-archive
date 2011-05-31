@@ -30,7 +30,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -51,7 +51,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 public abstract class GriddedHypoMagFreqDistForecast implements
-EqkRupForecastBaseAPI,
+BaseERF,
 HypoMagFreqDistAtMultLocsAPI,
 ParameterChangeListener {
 
@@ -226,7 +226,7 @@ ParameterChangeListener {
 	}
 
 	@Override
-	public int compareTo(EqkRupForecastBaseAPI o) {
+	public int compareTo(BaseERF o) {
 		return getName().compareToIgnoreCase(o.getName());
 	}
 

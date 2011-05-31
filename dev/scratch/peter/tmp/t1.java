@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -46,7 +46,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 //fault width 		= 19.58
 //top of fault depth = 0.0
 
-public class t1 extends EqkRupForecast {
+public class t1 extends AbstractERF {
 		
 	// Name of this ERF
 	public static String NAME = new String("GEM1 fault 01");

@@ -21,19 +21,19 @@ package org.opensha.sha.calc.IM_EventSet.v03.test;
 
 import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
-public class HAZ01A_FakeERF extends EqkRupForecast {
+public class HAZ01A_FakeERF extends AbstractERF {
 	
 	ArrayList<ProbEqkSource> sources;
 	
-	public EqkRupForecastAPI erf;
+	public ERF erf;
 	
 	public HAZ01A_FakeERF() {}
 	
-	public HAZ01A_FakeERF(EqkRupForecastAPI erf) {
+	public HAZ01A_FakeERF(ERF erf) {
 		this.erf = erf;
 	}
 

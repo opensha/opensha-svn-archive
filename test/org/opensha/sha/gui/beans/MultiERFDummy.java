@@ -2,11 +2,11 @@ package org.opensha.sha.gui.beans;
 
 import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class MultiERFDummy extends EqkRupForecast {
+public class MultiERFDummy extends AbstractERF {
 	
 	ArrayList<TectonicRegionType> regions;
 	

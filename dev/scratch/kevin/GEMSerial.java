@@ -5,15 +5,15 @@ import java.io.IOException;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.gem.GEM1.calc.gemModelData.nshmp.south_america.NshmpSouthAmericaData;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1SouthAmericaERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.GEM1_CEUS_ERF;
 
 public class GEMSerial {
 	
-	private static void printERF(EqkRupForecastAPI erf) {
+	private static void printERF(ERF erf) {
 		System.out.println("# sources: " + erf.getNumSources());
 		System.out.println("src0 class: " + erf.getSource(0).getClass().getName());
 		System.out.println("TectonicRegionType src0: " + erf.getSource(0).getTectonicRegionType());
@@ -46,7 +46,7 @@ public class GEMSerial {
 		System.out.println("*********** SAVING ************");
 		FileUtils.saveObjectInFile(fname, modelERF);
 		System.out.println("*********** LOADING ************");
-		EqkRupForecast fileERF = (EqkRupForecast)FileUtils.loadObject(fname);
+		AbstractERF fileERF = (AbstractERF)FileUtils.loadObject(fname);
 //		System.out.println("Before serialization");
 		printERF(modelERF);
 		System.out.println("Loaded from file");

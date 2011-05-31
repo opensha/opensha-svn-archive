@@ -59,7 +59,7 @@ import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.old.servlet.ManagementServletAccessor;
 import org.opensha.sha.calc.params.MaxDistanceParam;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.beans.GridParametersGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
@@ -301,7 +301,7 @@ public class CreateDataManager extends StepManager implements ScalarIMRChangeLis
 		
 		// ***** ERF
 		System.out.println("Saving ERF");
-		EqkRupForecast erf = hazard.getERF();
+		AbstractERF erf = hazard.getERF();
 		
 		root = erf.toXMLMetadata(root);
 		

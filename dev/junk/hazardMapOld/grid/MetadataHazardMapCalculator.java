@@ -42,7 +42,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.old.HazardMapCalculationParameters;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 
@@ -118,14 +118,14 @@ public class MetadataHazardMapCalculator implements ParameterChangeWarningListen
 		if (timer) {
 			start_erf = System.currentTimeMillis();
 		}
-		Element erfElement = root.element(EqkRupForecast.XML_METADATA_NAME);
+		Element erfElement = root.element(AbstractERF.XML_METADATA_NAME);
 		Attribute className = erfElement.attribute("className");
-		EqkRupForecast erf;
+		AbstractERF erf;
 		if (className == null) { // load it from a file
 			String erfFileName = erfElement.attribute("fileName").getValue();
-			erf = (EqkRupForecast)FileUtils.loadObject(erfFileName);
+			erf = (AbstractERF)FileUtils.loadObject(erfFileName);
 		} else {
-			erf = EqkRupForecast.fromXMLMetadata(erfElement);
+			erf = AbstractERF.fromXMLMetadata(erfElement);
 			System.out.println("Updating Forecast");
 			erf.updateForecast();
 		}

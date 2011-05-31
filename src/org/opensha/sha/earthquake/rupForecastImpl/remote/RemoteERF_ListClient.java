@@ -33,8 +33,8 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.RMIUtils;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
+import org.opensha.sha.earthquake.ERF;
 
 
 /**
@@ -46,7 +46,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
  * @version 1.0
  */
 
-public class RemoteERF_ListClient extends ERF_EpistemicList implements 
+public class RemoteERF_ListClient extends AbstractEpistemicListERF implements 
 ParameterChangeListener{
 
 	private RemoteERF_ListAPI erfListServer = null;
@@ -117,7 +117,7 @@ ParameterChangeListener{
 	 * @param index : index of Eqk rup forecast to return
 	 * @return
 	 */
-	public EqkRupForecastAPI getERF(int index) {
+	public ERF getERF(int index) {
 		try{
 			RemoteERF_Client erfClient = new RemoteERF_Client();
 			RemoteEqkRupForecastAPI remoteERF = erfListServer.getRemoteERF(index);

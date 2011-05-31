@@ -3,7 +3,7 @@
  */
 package org.opensha.sha.cybershake.db;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 
@@ -24,17 +24,17 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 	  * Create NSHMP 02 ERF instance
 	  *
 	  */
-	  public static EqkRupForecast createUCERF2ERF() {
+	  public static AbstractERF createUCERF2ERF() {
 
 	    
-		  EqkRupForecast eqkRupForecast = new MeanUCERF2();
+		  AbstractERF eqkRupForecast = new MeanUCERF2();
 		
 		eqkRupForecast = setMeanUCERF_CyberShake_Settings(eqkRupForecast);
 		
 		return eqkRupForecast;
 	  }
 	  
-	  public static EqkRupForecast setMeanUCERF_CyberShake_Settings(EqkRupForecast eqkRupForecast) {
+	  public static AbstractERF setMeanUCERF_CyberShake_Settings(AbstractERF eqkRupForecast) {
 		// exclude Background seismicity
 		    eqkRupForecast.getAdjustableParameterList().getParameter(
 		    		UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);

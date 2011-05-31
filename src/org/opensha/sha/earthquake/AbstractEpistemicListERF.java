@@ -45,7 +45,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public abstract class ERF_EpistemicList implements ERF_EpistemicListAPI,
+public abstract class AbstractEpistemicListERF implements EpistemicListERF,
 TimeSpanChangeListener,ParameterChangeListener {
 
 	/**
@@ -54,7 +54,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 	private static final long serialVersionUID = 1L;
 	
 	// vector to hold the instances of Eqk Rup Forecasts
-	protected ArrayList<EqkRupForecastAPI> erf_List = new ArrayList<EqkRupForecastAPI>();
+	protected ArrayList<ERF> erf_List = new ArrayList<ERF>();
 	//vector to hold relative weight of each ERF
 	private ArrayList<Double> relativeWeight  = new ArrayList<Double>();
 	// declaration of the flag to check if any parameter has been changed from its original value.
@@ -69,7 +69,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 	 * add a new Eqk Rup forecast to the list
 	 * @param eqkRupForecast
 	 */
-	protected void addERF(EqkRupForecast eqkRupForecast, double relWeight) {
+	protected void addERF(AbstractERF eqkRupForecast, double relWeight) {
 		erf_List.add(eqkRupForecast);
 		this.relativeWeight.add(relWeight);
 	}
@@ -89,8 +89,8 @@ TimeSpanChangeListener,ParameterChangeListener {
 	 * @param index : index of Eqk rup forecast to return
 	 * @return
 	 */
-	public EqkRupForecastAPI getERF(int index) {
-		EqkRupForecastAPI eqkRupForecast = erf_List.get(index);
+	public ERF getERF(int index) {
+		ERF eqkRupForecast = erf_List.get(index);
 		eqkRupForecast.setTimeSpan(timeSpan);
 		return eqkRupForecast;
 	}
@@ -137,7 +137,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 		if(this.parameterChangeFlag) {
 			int num = erf_List.size();
 			for(int i=0; i< num; ++i)
-				((EqkRupForecastAPI)this.getERF(i)).updateForecast();
+				((ERF)this.getERF(i)).updateForecast();
 		}
 		this.parameterChangeFlag = false;
 	}
@@ -287,7 +287,7 @@ TimeSpanChangeListener,ParameterChangeListener {
 	}
 
 	@Override
-	public int compareTo(EqkRupForecastBaseAPI o) {
+	public int compareTo(BaseERF o) {
 		return getName().compareToIgnoreCase(o.getName());
 	}
 

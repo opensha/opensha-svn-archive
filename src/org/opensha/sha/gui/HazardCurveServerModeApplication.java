@@ -86,11 +86,11 @@ import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
 import org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
 import org.opensha.sha.calc.remoteCalc.RemoteHazardCurveClient;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
@@ -1266,7 +1266,7 @@ ScalarIMRChangeListener {
 		// starting the calculation
 		isHazardCalcDone = false;
 
-		EqkRupForecastBaseAPI forecast = null;
+		BaseERF forecast = null;
 
 		// get the selected forecast model
 		try {
@@ -1312,7 +1312,7 @@ ScalarIMRChangeListener {
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
-		if (forecast instanceof ERF_EpistemicList && !isDeterministicCurve) {
+		if (forecast instanceof AbstractEpistemicListERF && !isDeterministicCurve) {
 			// if add on top get the name of ERF List forecast
 			if (addData)
 				prevSelectedERF_List = forecast.getName();
@@ -1356,11 +1356,11 @@ ScalarIMRChangeListener {
 				if (isProbabilisticCurve) {
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
 					.getHazardCurve(hazFunction, site, imrMap,
-							(EqkRupForecastAPI) forecast);
+							(ERF) forecast);
 				} else if (isStochasticCurve) {
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc.
 					getAverageEventSetHazardCurve(hazFunction, site, imrGuiBean.getSelectedIMR(),
-							(EqkRupForecastAPI) forecast);
+							(ERF) forecast);
 				} else { // deterministic
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
@@ -1511,7 +1511,7 @@ ScalarIMRChangeListener {
 					}
 				}
 				disaggSuccessFlag = disaggCalc.disaggregate(Math.log(imlVal),
-						site, imrMap, (EqkRupForecast) forecast,
+						site, imrMap, (AbstractERF) forecast,
 						this.calc.getAdjustableParams());
 				disaggCalc.setMaxZAxisForPlot(maxZAxis);
 				disaggregationString = disaggCalc.getMeanAndModeInfo();
@@ -1641,9 +1641,9 @@ ScalarIMRChangeListener {
 	 */
 	protected void handleForecastList(Site site,
 			HashMap<TectonicRegionType, ScalarIMR> imrMap,
-			EqkRupForecastBaseAPI eqkRupForecast) {
+			BaseERF eqkRupForecast) {
 
-		ERF_EpistemicList erfList = (ERF_EpistemicList) eqkRupForecast;
+		AbstractEpistemicListERF erfList = (AbstractEpistemicListERF) eqkRupForecast;
 
 		numERFsInEpistemicList = erfList.getNumERFs(); // get the num of ERFs in
 		// the list
@@ -1874,7 +1874,7 @@ ScalarIMRChangeListener {
 			boolean isCustomRupture = erfRupSelectorGuiBean
 			.isCustomRuptureSelected();
 			if (!isCustomRupture) {
-				EqkRupForecastBaseAPI eqkRupForecast = erfRupSelectorGuiBean
+				BaseERF eqkRupForecast = erfRupSelectorGuiBean
 				.getSelectedEqkRupForecastModel();
 				erfGuiBean.setERF(eqkRupForecast);
 			}
@@ -1895,7 +1895,7 @@ ScalarIMRChangeListener {
 	 */
 	protected void initERFSelector_GuiBean() {
 
-		EqkRupForecastBaseAPI erf = null;
+		BaseERF erf = null;
 		try {
 			erf = erfGuiBean.getSelectedERF();
 		} catch (InvocationTargetException ex) {

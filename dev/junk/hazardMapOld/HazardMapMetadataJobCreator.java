@@ -41,7 +41,7 @@ import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 
 
 public class HazardMapMetadataJobCreator {
@@ -297,7 +297,7 @@ public class HazardMapMetadataJobCreator {
 	private void saveERF(Element root, HazardMapJob job, String outputDir) throws InvocationTargetException, IOException {
 		this.updateProgressMessage("Loading ERF");
 		// load the erf element from metadata
-		Element erfElement = root.element(EqkRupForecast.XML_METADATA_NAME);
+		Element erfElement = root.element(AbstractERF.XML_METADATA_NAME);
 
 		// rename the old erf to ERF_REF so that the params are preserved, but it is not used for calculation
 		root.add(erfElement.createCopy("ERF_REF"));
@@ -305,7 +305,7 @@ public class HazardMapMetadataJobCreator {
 
 		// load the erf from metadata
 		System.out.println("Creating ERF...");
-		EqkRupForecast erf = EqkRupForecast.fromXMLMetadata(erfElement);
+		AbstractERF erf = AbstractERF.fromXMLMetadata(erfElement);
 
 		// update it's forecast
 		this.updateProgressMessage( "Updating ERF Forecast");
@@ -318,7 +318,7 @@ public class HazardMapMetadataJobCreator {
 		FileUtils.saveObjectInFile(outputDir + erfFileName, erf);
 
 		// create new ERF element and add to root
-		Element newERFElement = root.addElement(EqkRupForecast.XML_METADATA_NAME);
+		Element newERFElement = root.addElement(AbstractERF.XML_METADATA_NAME);
 		newERFElement.addAttribute("fileName", erfFileName);
 
 		System.out.println("Done with ERF");

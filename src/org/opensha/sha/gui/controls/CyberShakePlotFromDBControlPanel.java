@@ -64,7 +64,7 @@ import org.opensha.sha.cybershake.db.ERF2DBAPI;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDBAPI;
 import org.opensha.sha.cybershake.db.Runs2DB;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.HazardCurveServerModeApplication;
@@ -939,7 +939,7 @@ extends ControlPanel implements ParameterChangeListener {
 		//rupGuiBean.updateERFAndSourceRupList();
 		//rupGuiBean.getParameterListEditor().refreshParamEditor();
 		try {
-			EqkRupForecastAPI erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+			ERF erf = (ERF) erfGuiBean.getSelectedERF();
 			rupGuiBean.setEqkRupForecast(erf);
 		}
 		catch (InvocationTargetException ex) {

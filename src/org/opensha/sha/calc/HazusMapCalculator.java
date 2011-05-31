@@ -31,8 +31,8 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -120,7 +120,7 @@ public class HazusMapCalculator {
    */
   public void getHazardMapCurves(SitesInGriddedRegion sites,
                                  ScalarIMR imr,
-                                 EqkRupForecast eqkRupForecast,
+                                 AbstractERF eqkRupForecast,
                                  String mapParametersInfo) {
 
     // get the number of data sets presently in directory
@@ -173,7 +173,7 @@ public class HazusMapCalculator {
   public void getHazardMapCurves(String dirName,
 		  SitesInGriddedRegion sites,
                                  ScalarIMR imr,
-                                 EqkRupForecast eqkRupForecast,
+                                 AbstractERF eqkRupForecast,
                                  String mapParametersInfo) {
 
     File mainDir = new File(this.DATASETS_PATH);
@@ -222,7 +222,7 @@ public class HazusMapCalculator {
    */
   private void calculate( SitesInGriddedRegion sites,
                           ScalarIMR imr,
-                          EqkRupForecast eqkRupForecast) {
+                          AbstractERF eqkRupForecast) {
 
     try{
 
@@ -316,7 +316,7 @@ public class HazusMapCalculator {
    */
   public DiscretizedFunc[] getSiteHazardCurve(Site site,
                                            ScalarIMR imr,
-                                           EqkRupForecastAPI eqkRupForecast)  {
+                                           ERF eqkRupForecast)  {
 
 
     /* this determines how the calucations are done (doing it the way it's outlined

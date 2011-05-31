@@ -26,12 +26,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.old.grid.HazardMapPortionCalculator;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.imr.AttenuationRelationship;
 
 public class WallTimeEstimator {
 	
-	public static double calcTimePerCurve(EqkRupForecast erf, AttenuationRelationship attenRel,
+	public static double calcTimePerCurve(AbstractERF erf, AttenuationRelationship attenRel,
 			SitesInGriddedRegion sites, ArbitrarilyDiscretizedFunc hazFunction, int numSamples) {
 		int numLocs = sites.getRegion().getNodeCount();
 		erf.updateForecast();

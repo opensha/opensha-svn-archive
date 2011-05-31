@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public interface EqkRupForecastAPI extends EqkRupForecastBaseAPI{
+public interface ERF extends BaseERF{
 
      /**
       *

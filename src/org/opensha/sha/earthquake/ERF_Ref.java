@@ -1,17 +1,12 @@
 package org.opensha.sha.earthquake;
 
+import static org.opensha.commons.util.DevStatus.DEPRECATED;
 import static org.opensha.commons.util.DevStatus.DEVELOPMENT;
 import static org.opensha.commons.util.DevStatus.EXPERIMENTAL;
 import static org.opensha.commons.util.DevStatus.PRODUCTION;
-import static org.opensha.commons.util.DevStatus.DEPRECATED;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -261,13 +256,13 @@ public enum ERF_Ref {
 	
 	// DEPRECATED
 	
-	private Class<? extends EqkRupForecastBaseAPI> clazz;
+	private Class<? extends BaseERF> clazz;
 	private String name;
 	private DevStatus status;
 	private boolean remote;
 	private boolean erfList;
 
-	private ERF_Ref(Class<? extends EqkRupForecastBaseAPI> clazz,
+	private ERF_Ref(Class<? extends BaseERF> clazz,
 		String name, DevStatus status, boolean remote, boolean erfList) {
 		this.clazz = clazz;
 		this.name = name;
@@ -309,9 +304,9 @@ public enum ERF_Ref {
 	 * this reference.
 	 * @return a new <code>EqkRupForecastBaseAPI</code> instance
 	 */
-	public EqkRupForecastBaseAPI instance() {
+	public BaseERF instance() {
 		try {
-			Constructor<? extends EqkRupForecastBaseAPI> con = clazz
+			Constructor<? extends BaseERF> con = clazz
 				.getConstructor();
 			return con.newInstance();
 		} catch (Exception e) {

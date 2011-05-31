@@ -80,7 +80,7 @@ import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.gui.CyberShakeDBManagementApp;
 import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
@@ -118,7 +118,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	private GraphPanel gp;
 	
-	private EqkRupForecast erf = null;
+	private AbstractERF erf = null;
 	private ArrayList<AttenuationRelationship> attenRels = new ArrayList<AttenuationRelationship>();
 	
 	private SiteInfo2DB site2db = null;
@@ -935,11 +935,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return infoString;
 	}
 	
-	public String getCurveParametersInfoAsString(AttenuationRelationship imr, EqkRupForecast erf, Site site) {
+	public String getCurveParametersInfoAsString(AttenuationRelationship imr, AbstractERF erf, Site site) {
 		return this.getCurveParametersInfoAsHTML(imr, erf, site).replace("<br>", "\n");
 	}
 
-	public String getCurveParametersInfoAsHTML(AttenuationRelationship imr, EqkRupForecast erf, Site site) {
+	public String getCurveParametersInfoAsHTML(AttenuationRelationship imr, AbstractERF erf, Site site) {
 		ListIterator<Parameter<?>> imrIt = imr.getOtherParamsIterator();
 		String imrMetadata = "IMR = " + imr.getName() + "; ";
 		while (imrIt.hasNext()) {
@@ -1091,7 +1091,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		attenRels.clear();
 	}
 	
-	public void setERFComparison(EqkRupForecast erf) {
+	public void setERFComparison(AbstractERF erf) {
 		this.erf = erf;
 	}
 

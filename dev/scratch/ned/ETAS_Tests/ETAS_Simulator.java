@@ -15,7 +15,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -42,7 +42,7 @@ public class ETAS_Simulator {
 	
 	ArrayList<EqksInGeoBlock> blockList;
 	GriddedRegion griddedRegion;
-	EqkRupForecast erf;
+	AbstractERF erf;
 	ETAS_Utils etasUtils;
 //	double distDecay=1.4;
 	double distDecay;
@@ -65,7 +65,7 @@ public class ETAS_Simulator {
 
 	
 	
-	public ETAS_Simulator(EqkRupForecast erf, GriddedRegion griddedRegion, int sourceID_ToIgnore) {
+	public ETAS_Simulator(AbstractERF erf, GriddedRegion griddedRegion, int sourceID_ToIgnore) {
 		this.erf = erf;
 		this.griddedRegion = griddedRegion;
 		this.sourceID_ToIgnore = sourceID_ToIgnore;

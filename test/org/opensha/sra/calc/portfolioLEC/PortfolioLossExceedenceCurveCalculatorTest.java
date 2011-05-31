@@ -22,7 +22,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.earthquake.ERFTestSubset;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
@@ -46,7 +46,7 @@ import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor
  */
 public class PortfolioLossExceedenceCurveCalculatorTest {
 
-	private static EqkRupForecastAPI erf;
+	private static ERF erf;
 	private static ScalarIMR imr;
 	private static Portfolio portfolio;
 	

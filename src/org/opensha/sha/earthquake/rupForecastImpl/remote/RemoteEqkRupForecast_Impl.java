@@ -30,7 +30,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
@@ -48,7 +48,7 @@ public class RemoteEqkRupForecast_Impl
 extends UnicastRemoteObject
 implements RemoteEqkRupForecastAPI{
 
-	private EqkRupForecast eqkRupForecast = null;
+	private AbstractERF eqkRupForecast = null;
 	private static final boolean D = false;
 
 
@@ -61,7 +61,7 @@ implements RemoteEqkRupForecastAPI{
 	 */
 	public RemoteEqkRupForecast_Impl(String className)
 	throws java.rmi.RemoteException, IOException {
-		eqkRupForecast = (EqkRupForecast)org.opensha.commons.util.ClassUtils.createNoArgConstructorClassInstance(className);
+		eqkRupForecast = (AbstractERF)org.opensha.commons.util.ClassUtils.createNoArgConstructorClassInstance(className);
 	}
 
 	/**
@@ -73,7 +73,7 @@ implements RemoteEqkRupForecastAPI{
 	 */
 	public RemoteEqkRupForecast_Impl(ArrayList params,ArrayList paramTypes,String className)
 	throws java.rmi.RemoteException, IOException {
-		eqkRupForecast = (EqkRupForecast)org.opensha.commons.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
+		eqkRupForecast = (AbstractERF)org.opensha.commons.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
 	}
 
 	/* (non-Javadoc)

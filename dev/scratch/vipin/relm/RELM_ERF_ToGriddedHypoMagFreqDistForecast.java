@@ -3,7 +3,7 @@ package scratch.vipin.relm;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.GriddedRegion;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -35,7 +35,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 
 public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDistForecast {
-  private EqkRupForecast eqkRupForecast;
+  private AbstractERF eqkRupForecast;
   private HypoMagFreqDistAtLoc magFreqDistForLocations[];
 
   /**
@@ -50,7 +50,7 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
    *
    *
    */
-  public RELM_ERF_ToGriddedHypoMagFreqDistForecast(EqkRupForecast eqkRupForecast,
+  public RELM_ERF_ToGriddedHypoMagFreqDistForecast(AbstractERF eqkRupForecast,
                                               GriddedRegion griddedRegion,
                                               double minMag,
                                               double maxMag,

@@ -22,7 +22,7 @@ import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
@@ -72,7 +72,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 * @param jarFile - The path to the jar file used for calculation.
 	 * @throws InvocationTargetException 
 	 */
-	public HazusDataSetDAGCreator(EqkRupForecastAPI erf,
+	public HazusDataSetDAGCreator(ERF erf,
 			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Site> sites,
 			CalculationSettings calcSettings,
@@ -99,7 +99,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 * @param jarFile - The path to the jar file used for calculation.
 	 * @throws InvocationTargetException 
 	 */
-	public HazusDataSetDAGCreator(EqkRupForecastAPI erf,
+	public HazusDataSetDAGCreator(ERF erf,
 			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Parameter<Double>> imts,
 			List<Site> sites,

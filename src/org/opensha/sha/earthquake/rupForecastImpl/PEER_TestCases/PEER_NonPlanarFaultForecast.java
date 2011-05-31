@@ -27,7 +27,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
@@ -48,7 +48,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  * @version 1.0
  */
 
-public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
+public class PEER_NonPlanarFaultForecast extends AbstractERF{
 
   /**
    * @todo variables

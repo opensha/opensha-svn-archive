@@ -7,14 +7,14 @@ import java.io.PrintStream;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 
 public class ERFSaveAndSerializeTest {
 	
 	public ERFSaveAndSerializeTest() {
-		EqkRupForecastAPI erf = new MeanUCERF2();
+		ERF erf = new MeanUCERF2();
 		Parameter backgroundParam = erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME);
 		backgroundParam.setValue(UCERF2.BACK_SEIS_INCLUDE);
 		System.out.println("Background Seismicity: " + backgroundParam.getValue());
@@ -32,9 +32,9 @@ public class ERFSaveAndSerializeTest {
 		//System.out.println("Sources: " + erf.getNumSources());
 		try {
 			FileUtils.saveObjectInFile("erf.obj", erf);
-			EqkRupForecastAPI erf2 = null;
+			ERF erf2 = null;
 			System.out.println("TRYING...");
-			erf2 = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
+			erf2 = (ERF)FileUtils.loadObject("erf.obj");
 			System.out.println("WOW DID THIS ACTUALLY WORK????");
 			System.out.println("Equals? " + erf.equals(erf2));
 			//System.out.println("Loaded Sources: " + erf2.getNumSources());

@@ -80,7 +80,7 @@ import org.opensha.sha.calc.hazardMap.old.HazardMapMetadataJobCreator;
 import org.opensha.sha.calc.hazardMap.old.servlet.ManagementServletAccessor;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.GridParametersGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -695,7 +695,7 @@ implements ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI {
 			Document document = DocumentHelper.createDocument();
 			Element root = document.addElement( "OpenSHA" );
 
-			EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
+			AbstractERF erf = (AbstractERF)erfGuiBean.getSelectedERF_Instance();
 
 			root = erf.toXMLMetadata(root);
 

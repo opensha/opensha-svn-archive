@@ -29,7 +29,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
@@ -154,7 +154,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @return
 	 */
 	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
-			Site site, ScalarIMR imr, EqkRupForecastAPI eqkRupForecast)
+			Site site, ScalarIMR imr, ERF eqkRupForecast)
 	throws java.rmi.RemoteException ;
 
 	/**
@@ -194,7 +194,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 			DiscretizedFunc hazFunction,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap, 
-			EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException;
+			ERF eqkRupForecast) throws java.rmi.RemoteException;
 
 
 	/**
@@ -259,7 +259,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 */
 	public DiscretizedFunc getAverageEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			EqkRupForecastAPI eqkRupForecast)
+			ERF eqkRupForecast)
 	throws java.rmi.RemoteException;
 
 	/**

@@ -34,7 +34,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.RMIUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
@@ -47,7 +47,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
  * @author Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-public class RemoteERF_Client extends EqkRupForecast implements 
+public class RemoteERF_Client extends AbstractERF implements 
 ParameterChangeListener{
 
 	private RemoteEqkRupForecastAPI erfServer = null;

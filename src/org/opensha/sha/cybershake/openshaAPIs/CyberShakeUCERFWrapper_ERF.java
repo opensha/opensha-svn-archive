@@ -27,10 +27,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
-public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
+public class CyberShakeUCERFWrapper_ERF extends AbstractERF {
 	
 	public static final String NAME = "CyberShake UCERF 2 Wrapper";
 	
@@ -38,19 +38,19 @@ public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
 	
 	public static final int ERF_ID = 35;
 	
-	private EqkRupForecast erf = null;
+	private AbstractERF erf = null;
 	
 	public CyberShakeUCERFWrapper_ERF() {
 		super();
 	}
 	
-	private EqkRupForecast getERF() {
+	private AbstractERF getERF() {
 		if (erf == null) {
 			try {
 				Document doc = XMLUtils.loadDocument(this.getClass().getResource("/"+ERF_XML_FILE));
 				Element root = doc.getRootElement();
 				Element erfEl = root.element(XML_METADATA_NAME);
-				erf = EqkRupForecast.fromXMLMetadata(erfEl);
+				erf = AbstractERF.fromXMLMetadata(erfEl);
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

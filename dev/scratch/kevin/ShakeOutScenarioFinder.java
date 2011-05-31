@@ -10,7 +10,7 @@ import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -81,7 +81,7 @@ public class ShakeOutScenarioFinder {
 		
 		ERF2DB erf2db = new ERF2DB(db);
 		
-		EqkRupForecast erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		AbstractERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);

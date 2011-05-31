@@ -15,7 +15,7 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.CurveAverager;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -37,7 +37,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 public class MultiIMR_CalcTest {
 
-	private static EqkRupForecastAPI erf;
+	private static ERF erf;
 	private static Site site;
 	private static HazardCurveCalculator hc;
 

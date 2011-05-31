@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -39,7 +39,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
  * @version 1.0
  */
 
-public class PuenteHillsFaultERF extends EqkRupForecast{
+public class PuenteHillsFaultERF extends AbstractERF{
 
   //for Debug purposes
   private static String  C = new String("PuenteHillsFaultERF");

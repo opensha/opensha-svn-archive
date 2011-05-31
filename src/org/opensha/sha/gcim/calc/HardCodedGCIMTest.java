@@ -13,7 +13,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gcim.ui.infoTools.IMT_Info;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
@@ -75,7 +75,7 @@ public class HardCodedGCIMTest {
 	 * @throws RemoteException 
 	 */
 	public static void main(String[] args) throws RemoteException {
-		EqkRupForecast erf = new FakeFrankel96();
+		AbstractERF erf = new FakeFrankel96();
 		
 		//------------------------------------------------------------------------------
 		//1) things that would be defined in the main hazardCurveApplication

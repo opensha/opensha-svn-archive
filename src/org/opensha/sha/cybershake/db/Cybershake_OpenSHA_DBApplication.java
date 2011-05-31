@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 
 
 /**
@@ -52,7 +52,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	 * @param forecast
 	 * @param erfId
 	 */
-	private void putSiteInfoInDB(EqkRupForecastAPI forecast,int erfId){
+	private void putSiteInfoInDB(ERF forecast,int erfId){
 		/**
 	     * Site List for Cybershake
 	     */
@@ -168,7 +168,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	 * @param erfId
 	 * @param siteDB object
 	 */
-	private void putSiteListInfoInDB(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast,int erfId, CybershakeSiteInfo2DB siteDB, boolean checkAdd){
+	private void putSiteListInfoInDB(ArrayList<CybershakeSite> sites, ERF forecast,int erfId, CybershakeSiteInfo2DB siteDB, boolean checkAdd){
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
 		int i=0;
 		int numSites = sites.size();
@@ -188,7 +188,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		}
 	}
 	
-	public void putSiteListRupsIntoDB(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
+	public void putSiteListRupsIntoDB(ArrayList<CybershakeSite> sites, ERF forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
 		int i=0;
 		int numSites = sites.size();
@@ -207,7 +207,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		}
 	}
 	
-	public void updateSiteRegionalBounds(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
+	public void updateSiteRegionalBounds(ArrayList<CybershakeSite> sites, ERF forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
 		int i=0;
 		int numSites = sites.size();
 		for (CybershakeSite newsite : sites) {
@@ -306,7 +306,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		int numSites = sites.size();
 		CybershakeSiteInfo2DB cyberSiteDB = this.getSiteInfoObject();
 		cyberSiteDB.setForceAddRuptures(forceAdd);
-		EqkRupForecastAPI erf = erf2db.getERF_Instance();
+		ERF erf = erf2db.getERF_Instance();
 		for (CybershakeSite site : sites) {
 			System.out.println("Doing Site " + site.name + " (" + site.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + ")");
 			if (site.id < 0) {
@@ -362,7 +362,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		String erfName = erfDB.getERF_Instance().getName();
 		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL";
 		
-		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
+		ERF forecast = erfDB.getERF_Instance();
 		System.out.println("ERF NAME: " + forecast.getName());
 		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
 		System.out.println("ERF ID: " + erfId);

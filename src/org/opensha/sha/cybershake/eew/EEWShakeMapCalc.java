@@ -29,7 +29,7 @@ import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DBAPI;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.IMT_Info;
@@ -78,7 +78,7 @@ public class EEWShakeMapCalc {
 	private void loadProbs() {
 		totalProb = 0;
 		
-		EqkRupForecast erf = rupsWithinCutoff.getERF();
+		AbstractERF erf = rupsWithinCutoff.getERF();
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);
 			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {

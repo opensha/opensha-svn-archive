@@ -28,7 +28,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.impl.DoubleParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -46,7 +46,7 @@ import org.opensha.sha.param.MagFreqDistParameter;
  * @version 1.0
  */
 
-public class PEER_AreaForecast extends EqkRupForecast{
+public class PEER_AreaForecast extends AbstractERF{
 
   //for Debug purposes
   private static String  C = new String("PEER_AreaForecast");

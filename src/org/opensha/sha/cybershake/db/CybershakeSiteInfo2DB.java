@@ -29,7 +29,7 @@ import java.util.ListIterator;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
@@ -100,7 +100,7 @@ public class CybershakeSiteInfo2DB {
 	 * @param locLat
 	 * @param locLon
 	 */
-	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(EqkRupForecastAPI eqkRupForecast,int erfId,
+	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(ERF eqkRupForecast,int erfId,
 			int siteId,double locLat,double locLon) {
 		return putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
 				siteId, locLat, locLon, false);
@@ -117,13 +117,13 @@ public class CybershakeSiteInfo2DB {
 	 * @param checkAddRup make sure rupture is in DB, and if not, add it
 	 */
 	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(
-			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
+			ERF eqkRupForecast, int erfId, int siteId,
 			double locLat, double locLon, boolean checkAddRup) {
 		return putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
 				siteId, locLat, locLon, checkAddRup, "");
 	}
 	
-	private HashMap<Integer, Integer> getSourceMatchMap(EqkRupForecastAPI eqkRupForecast, int erfID) {
+	private HashMap<Integer, Integer> getSourceMatchMap(ERF eqkRupForecast, int erfID) {
 		if (sourceMap == null) {
 			sourceMap = new HashMap<Integer, Integer>();
 			
@@ -144,7 +144,7 @@ public class CybershakeSiteInfo2DB {
 		return sourceMap;
 	}
 	
-	private int getCSSourceID(EqkRupForecastAPI eqkRupForecast, int erfID, int erfSourceID) {
+	private int getCSSourceID(ERF eqkRupForecast, int erfID, int erfSourceID) {
 		int csSource = erfSourceID;
 		
 		if (matchSourceNames) {
@@ -158,7 +158,7 @@ public class CybershakeSiteInfo2DB {
 		return csSource;
 	}
 	
-	public int getMatchedCSSourceID(EqkRupForecastAPI eqkRupForecast, int erfID, int erfSourceID) {
+	public int getMatchedCSSourceID(ERF eqkRupForecast, int erfID, int erfSourceID) {
 		HashMap<Integer, Integer> map = this.getSourceMatchMap(eqkRupForecast, erfID);
 		if (map.containsKey(erfSourceID)) {
 			return map.get(erfSourceID);
@@ -179,7 +179,7 @@ public class CybershakeSiteInfo2DB {
 	 * @param addLogFileName filename to log to (no logging if empty)
 	 */
 	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(
-			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
+			ERF eqkRupForecast, int erfId, int siteId,
 			double locLat, double locLon, boolean checkAddRup, String addLogFileName) {
 		Location loc = new Location(locLat, locLon);
 		Region region = new Region(loc,CUT_OFF_DISTANCE);
@@ -346,7 +346,7 @@ public class CybershakeSiteInfo2DB {
 	 * @param locLon
 	 * @param update - update bounds, don't reinsert
 	 */
-	public void putCyberShakeLocationRegionalBounds(EqkRupForecastAPI eqkRupForecast,int erfId, int siteId,
+	public void putCyberShakeLocationRegionalBounds(ERF eqkRupForecast,int erfId, int siteId,
 			                                        double locLat,double locLon, boolean update){
 		
 		Location loc = new Location(locLat,locLon);
@@ -517,7 +517,7 @@ public class CybershakeSiteInfo2DB {
 		
 		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
 		
-		EqkRupForecastAPI erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		erf.updateForecast();
 		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {

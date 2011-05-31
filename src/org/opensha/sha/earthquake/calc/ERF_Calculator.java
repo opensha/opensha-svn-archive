@@ -35,7 +35,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -77,7 +77,7 @@ public class ERF_Calculator {
    * without modification,if false rates are adjusted to preserve moment rate.
    * @return
    */
-  public static SummedMagFreqDist getTotalMFD_ForERF(EqkRupForecastAPI eqkRupForecast, double min,double max,int num, boolean preserveRates) {
+  public static SummedMagFreqDist getTotalMFD_ForERF(ERF eqkRupForecast, double min,double max,int num, boolean preserveRates) {
 	  SummedMagFreqDist mfd = new SummedMagFreqDist(min,max,num);
 	  double duration = eqkRupForecast.getTimeSpan().getDuration();
 	  for(int s=0;s<eqkRupForecast.getNumSources();s++) {
@@ -102,7 +102,7 @@ public class ERF_Calculator {
    * @param preserveRates - this tells whether to preserve rates or preserve moment rates
    * @return
    */
-  public static SummedMagFreqDist getMagFreqDistInRegion(EqkRupForecastAPI erf, Region region,
+  public static SummedMagFreqDist getMagFreqDistInRegion(ERF erf, Region region,
 		  double minMag,int numMag,double deltaMag, boolean preserveRates) {
 	  
 	  SummedMagFreqDist magFreqDist = new SummedMagFreqDist(minMag, numMag, deltaMag);
@@ -140,7 +140,7 @@ public class ERF_Calculator {
    * @param preserveRates - this tells whether to preserve rates or preserve moment rates
    * @return
    */
-  public static ArrayList<SummedMagFreqDist> getMagFreqDistsAtLocsInRegion(EqkRupForecastAPI erf, GriddedRegion griddedRegion,
+  public static ArrayList<SummedMagFreqDist> getMagFreqDistsAtLocsInRegion(ERF erf, GriddedRegion griddedRegion,
 		  double minMag,int numMag,double deltaMag, boolean preserveRates) {
 	  
 	  ArrayList<SummedMagFreqDist> magFreqDists = new ArrayList<SummedMagFreqDist>();

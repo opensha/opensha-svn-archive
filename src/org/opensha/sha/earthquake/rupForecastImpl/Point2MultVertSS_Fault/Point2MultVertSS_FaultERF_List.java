@@ -22,7 +22,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.DoubleParameter;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.SingleFaultRuptureERF;
@@ -50,7 +50,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.SingleFaultRuptureERF;
  * @version 1.0
  */
 
-public class Point2MultVertSS_FaultERF_List extends ERF_EpistemicList{
+public class Point2MultVertSS_FaultERF_List extends AbstractEpistemicListERF{
 
   //for Debug purposes
   protected static String  C = new String("Point2MultVertSS_FaultERF_List");

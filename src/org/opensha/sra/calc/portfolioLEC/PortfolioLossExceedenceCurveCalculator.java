@@ -12,7 +12,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;
@@ -55,7 +55,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 	
 	protected PortfolioRuptureResults[][] calculateCurve(
 			ScalarIMR imr,
-			EqkRupForecastAPI erf,
+			ERF erf,
 			Portfolio portfolio,
 			DiscretizedFunc function) {
 		// TODO actually use the function that's passed in
@@ -472,7 +472,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 	}
 	
 	protected ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
-			PortfolioRuptureResults[][] rupResults, EqkRupForecastAPI erf) {
+			PortfolioRuptureResults[][] rupResults, ERF erf) {
 ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 		
 		// init the curve x values
@@ -531,7 +531,7 @@ ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 	
 	public ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
 			ScalarIMR imr,
-			EqkRupForecastAPI erf,
+			ERF erf,
 			Portfolio portfolio,
 			DiscretizedFunc function) {
 		
@@ -542,7 +542,7 @@ ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 	
 	public ArbitrarilyDiscretizedFunc calcFrequencyOfExceedanceCurve(
 			ScalarIMR imr,
-			EqkRupForecastAPI erf,
+			ERF erf,
 			Portfolio portfolio,
 			DiscretizedFunc function) {
 		// TODO implement frequency
@@ -550,7 +550,7 @@ ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
 	}
 	
 	private static void writeExcel(PortfolioRuptureResults[][] rupResults, ArbitrarilyDiscretizedFunc curve,
-			EqkRupForecastAPI erf) throws FileNotFoundException, IOException {
+			ERF erf) throws FileNotFoundException, IOException {
 		String dir = "/home/kevin/OpenSHA/portfolio_lec/";
 //		String input = dir+"Porter (25 Oct 2010) Portfolio LEC checks and illustrations.xls";
 //		String input = dir+"Porter (04 Jan 2011) Portfolio LEC checks and illustrations.xls";

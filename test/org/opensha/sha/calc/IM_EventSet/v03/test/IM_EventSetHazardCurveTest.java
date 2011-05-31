@@ -40,7 +40,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
@@ -54,7 +54,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 	public static final double TOL_PERCENT = 0.05;
 	
 	File outputDir;
-	EqkRupForecastAPI erf;
+	ERF erf;
 	ScalarIMR imr;
 	Site site;
 	ArrayList<Site> sites;
@@ -112,7 +112,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		runHAZ01A();
 		String fileName = outputDir.getAbsolutePath() + File.separator + HAZ01Writer.HAZ01A_FILE_NAME;
 		ScalarIMR hIMR = new HAZ01A_FakeAttenRel(fileName);
-		EqkRupForecastAPI hERF = new HAZ01A_FakeERF(erf);
+		ERF hERF = new HAZ01A_FakeERF(erf);
 		hERF.updateForecast();
 		
 		ArbitrarilyDiscretizedFunc hCurve = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();

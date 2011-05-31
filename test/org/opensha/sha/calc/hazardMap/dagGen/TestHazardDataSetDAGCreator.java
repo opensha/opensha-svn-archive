@@ -26,7 +26,7 @@ import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
@@ -40,7 +40,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestHazardDataSetDAGCreator {
 	
-	protected static EqkRupForecastAPI erf;
+	protected static ERF erf;
 	protected static ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	protected static ArrayList<Site> sites;
 	protected static CalculationSettings calcSettings;

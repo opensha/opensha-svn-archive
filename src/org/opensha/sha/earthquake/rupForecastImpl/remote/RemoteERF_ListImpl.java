@@ -30,7 +30,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 
 /**
  * <p>Title: RemoteERF_ListImpl</p>
@@ -44,7 +44,7 @@ public class RemoteERF_ListImpl
     extends UnicastRemoteObject implements
     RemoteERF_ListAPI{
 
-  private ERF_EpistemicList erfList = null;
+  private AbstractEpistemicListERF erfList = null;
   private static final boolean D = false;
   private ArrayList listenerList = new ArrayList();
 
@@ -57,7 +57,7 @@ public class RemoteERF_ListImpl
    */
   public RemoteERF_ListImpl(String className) throws java.rmi.RemoteException,
       IOException {
-    erfList = (ERF_EpistemicList) org.opensha.commons.util.ClassUtils.
+    erfList = (AbstractEpistemicListERF) org.opensha.commons.util.ClassUtils.
         createNoArgConstructorClassInstance(className);
    }
 

@@ -21,7 +21,7 @@ package org.opensha.sha.cybershake.db;
 
 import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 
 public interface ERF2DBAPI {
 	
@@ -110,7 +110,7 @@ public interface ERF2DBAPI {
 	 * @param sourceID
 	 * @param rupID
 	 */
-	public void insertSrcRupInDB(EqkRupForecastAPI forecast, int erfID, int sourceID, int rupID);
+	public void insertSrcRupInDB(ERF forecast, int erfID, int sourceID, int rupID);
 	
 	/**
 	 * Deletes a rupture

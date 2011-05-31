@@ -17,7 +17,7 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.gem.GEM1.commons.CalculationSettings;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.opensha.gem.GEM1.util.SourceType;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
@@ -40,7 +40,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
  * @version 1.0
  */
 
-public class GEM1ERF extends EqkRupForecast {
+public class GEM1ERF extends AbstractERF {
 
 	/**
 	 * 

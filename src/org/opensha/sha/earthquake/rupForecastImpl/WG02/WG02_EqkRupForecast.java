@@ -33,7 +33,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
@@ -53,7 +53,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  * @version 1.0
  */
 
-public class WG02_EqkRupForecast extends EqkRupForecast{
+public class WG02_EqkRupForecast extends AbstractERF{
 
   //for Debug purposes
   private final static String  C = new String("WG02_EqkRupForecast");

@@ -44,7 +44,7 @@ import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -258,7 +258,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
         else{
           currentTime = System.currentTimeMillis();
           fw.write("Starting with calculation for addon probablities :"+(currentTime - startTime)+"\n");
-          stepAddonProbVals = getProbVals_faster(fw,attenRel,sites,(EqkRupForecast)forecast);
+          stepAddonProbVals = getProbVals_faster(fw,attenRel,sites,(AbstractERF)forecast);
           createFile(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
           //creating the metadata file for the STEP addon probabilities
           String stepFile = this.STEP_ADDON_FILE_SUFFIX.substring(0,STEP_ADDON_FILE_SUFFIX.indexOf("."));
@@ -1365,7 +1365,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    * @return the ArrayList of Probability values for the given region
    */
   private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion sites,
-                                     EqkRupForecast eqkRupForecast) throws
+                                     AbstractERF eqkRupForecast) throws
        ParameterException {
 
     ArrayList probVals = new ArrayList();
@@ -1457,7 +1457,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    * @return the ArrayList of Probability values for the given region
    */
   private double[] getProbVals_faster(FileWriter fw,ShakeMap_2003_AttenRel imr,SitesInGriddedRegion sites,
-                                     EqkRupForecast eqkRupForecast){
+                                     AbstractERF eqkRupForecast){
 
     double[] probVals = new double[numSites];
     double MAX_DISTANCE = 200;

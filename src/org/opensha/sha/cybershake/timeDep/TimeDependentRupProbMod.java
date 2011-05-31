@@ -3,13 +3,13 @@ package org.opensha.sha.cybershake.timeDep;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 
 public class TimeDependentRupProbMod implements RuptureProbabilityModifier {
 	
-	private EqkRupForecastAPI erf;
+	private ERF erf;
 	
 	public TimeDependentRupProbMod(int startYear) {
 		erf = MeanUCERF2_ToDB.createUCERF2ERF();

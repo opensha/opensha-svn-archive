@@ -33,7 +33,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.PropagationEffect;
@@ -54,7 +54,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 	}
 
 	@Override
-	public void writeFiles(ArrayList<EqkRupForecastAPI> erfs,
+	public void writeFiles(ArrayList<ERF> erfs,
 			ArrayList<ScalarIMR> attenRels, ArrayList<String> imts) throws IOException {
 		logger.log(Level.INFO, "Writing HAZ01 files");
 		// TODO Auto-generated method stub
@@ -87,7 +87,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 			imtstr += imt;
 		}
 		String erfstr = null;
-		for (EqkRupForecastAPI erf : erfs) {
+		for (ERF erf : erfs) {
 			if (erfstr == null)
 				erfstr = "";
 			else
@@ -109,7 +109,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 		for (int erfID=0; erfID<erfs.size(); erfID++) {
 //			logger.log(Level.FINEST, "Writing portion for ERF" + (erfID + 1));
 			String erfName = "erf" + (erfID + 1);
-			EqkRupForecastAPI erf = erfs.get(erfID);
+			ERF erf = erfs.get(erfID);
 			logger.log(Level.INFO, "Updating forecast for ERF: " + erf.getName());
 			erf.updateForecast();
 			for (ScalarIMR attenRel : attenRels) {
@@ -129,7 +129,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 	}
 	
 	private int writeHAZ01A_Part(FileWriter fw, int lineID, String imt, String erfName,
-				EqkRupForecastAPI erf, ScalarIMR attenRel) throws IOException {
+				ERF erf, ScalarIMR attenRel) throws IOException {
 		logger.log(Level.INFO, "Writing HAZ01A portion for ERF: " + erf.getName() + ", IMR: " + attenRel.getShortName()
 				+ ", IMT: " + imt);
 //		System.out.println("Writing portion of file for erf: " +  erf.getName() +
@@ -201,7 +201,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 	}
 	
 	private int writeHAZ01B_Part(FileWriter fw, int lineID, String erfName,
-			EqkRupForecastAPI erf) throws IOException {
+			ERF erf) throws IOException {
 		//	System.out.println("Writing portion of file for erf: " +  erf.getName() +
 		//			", imr: " + attenRel.getShortName() + ", imt: " + imt);
 		

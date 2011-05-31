@@ -37,7 +37,7 @@ import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -51,7 +51,7 @@ public class HardCodedScenarioShakeMapGen {
 	private static final String cacheDir = "/home/kevin/CyberShake/M8/";
 	
 	private static EqkRupture getRupture(int sourceID, int rupID, Location hypo) {
-		EqkRupForecast ucerf = MeanUCERF2_ToDB.createUCERF2ERF();
+		AbstractERF ucerf = MeanUCERF2_ToDB.createUCERF2ERF();
 		ucerf.updateForecast();
 		EqkRupture rup = ucerf.getRupture(sourceID, rupID);
 		rup.setHypocenterLocation(hypo);

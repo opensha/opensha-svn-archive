@@ -31,8 +31,8 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.ParamOptions;
 
 /**
@@ -41,7 +41,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.P
  * @author vipingupta
  *
  */
-public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
+public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListERF {
 	public static final String  NAME = new String("UCERF2 ERF Epistemic List");
 	private ArrayList<Double> weights = null;
 	private ArrayList<ParameterList> logicTreeParamList = null;
@@ -268,7 +268,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 	 * @param index : index of Eqk rup forecast to return
 	 * @return
 	 */
-	public EqkRupForecastAPI getERF(int index) {
+	public ERF getERF(int index) {
 		Iterator it = logicTreeParamList.get(index).getParametersIterator();
 		while(it.hasNext()) {
 			AbstractParameter param = (AbstractParameter)it.next();

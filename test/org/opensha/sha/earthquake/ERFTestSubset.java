@@ -11,7 +11,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class ERFTestSubset implements EqkRupForecastAPI {
+public class ERFTestSubset implements ERF {
 	
 	/**
 	 * 
@@ -20,9 +20,9 @@ public class ERFTestSubset implements EqkRupForecastAPI {
 
 	HashMap<Integer, Integer> sourceIDMap = new HashMap<Integer, Integer>();
 	
-	private EqkRupForecast baseERF;
+	private AbstractERF baseERF;
 	
-	public ERFTestSubset(EqkRupForecast baseERF) {
+	public ERFTestSubset(AbstractERF baseERF) {
 		this.baseERF = baseERF;
 	}
 
@@ -131,7 +131,7 @@ public class ERFTestSubset implements EqkRupForecastAPI {
 	}
 	
 	@Override
-	public int compareTo(EqkRupForecastBaseAPI o) {
+	public int compareTo(BaseERF o) {
 		return baseERF.compareTo(o);
 	}
 

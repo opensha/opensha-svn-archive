@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
@@ -38,7 +38,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
  * 
  */
 
-public class NSHMP08_CEUS_ERF extends EqkRupForecast {
+public class NSHMP08_CEUS_ERF extends AbstractERF {
 
 	//for Debug purposes
 	private static String C = new String("NSHMP08_CEUS_ERF");

@@ -37,7 +37,7 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -68,7 +68,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @version 1.0
  */
 
-public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
+public class WGCEP_UCERF1_EqkRupForecast extends AbstractERF{
 
   //for Debug purposes
   private static String  C = new String("WGCEP_UCERF1_EqkRupForecast");

@@ -30,7 +30,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.impl.DoubleParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -51,7 +51,7 @@ import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
  * @version 1.0
  */
 
-public class PEER_MultiSourceForecast extends EqkRupForecast{
+public class PEER_MultiSourceForecast extends AbstractERF{
 
   /**
    * @todo variables

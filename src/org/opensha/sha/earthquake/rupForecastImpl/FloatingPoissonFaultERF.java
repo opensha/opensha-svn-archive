@@ -28,7 +28,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -51,7 +51,7 @@ import org.opensha.sha.param.SimpleFaultParameter;
  * @version 1.0
  */
 
-public class FloatingPoissonFaultERF extends EqkRupForecast{
+public class FloatingPoissonFaultERF extends AbstractERF{
 
   //for Debug purposes
   private static String  C = new String("FloatingPoissonFaultERF");

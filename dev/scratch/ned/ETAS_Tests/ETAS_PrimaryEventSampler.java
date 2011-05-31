@@ -16,7 +16,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -40,7 +40,7 @@ public class ETAS_PrimaryEventSampler {
 	ArrayList<EqksInGeoBlock> revisedBlockList;	// a revised list (in case some close to main shock need to be more densely sampled)
 	ArrayList<Double> revisedBlockDistances;	// distances to parentRup for the revised blocks
 	EqkRupture parentRup;						// the main shock
-	EqkRupForecast erf;							// the ERF from which primary aftershocks will be sampled
+	AbstractERF erf;							// the ERF from which primary aftershocks will be sampled
 	double[] relBlockProb;						// the relative probability that each block will nucleate an event (REDUNDANT WITH randomBlockSampler BELOW)
 	int numBlocks;
 	IntegerPDF_FunctionSampler randomBlockSampler;	// used to randomly sample blocks
@@ -60,7 +60,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param includeBlockRates - whether or not to use rates inside of blocks to modify spatial probabilities
 	 */
 	public ETAS_PrimaryEventSampler(EqkRupture parentRup,ArrayList<EqksInGeoBlock> blockList, 
-			EqkRupForecast erf, double distDecay, double minDist, boolean useAdaptiveBlocks, boolean includeBlockRates) {
+			AbstractERF erf, double distDecay, double minDist, boolean useAdaptiveBlocks, boolean includeBlockRates) {
 		
 		this.parentRup=parentRup;
 		origBlockList = blockList;

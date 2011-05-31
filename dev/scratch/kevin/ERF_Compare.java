@@ -1,7 +1,7 @@
 package scratch.kevin;
 
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -9,15 +9,15 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 
 public class ERF_Compare {
 	
-	private EqkRupForecastAPI erf1;
-	private EqkRupForecastAPI erf2;
+	private ERF erf1;
+	private ERF erf2;
 	
 	private boolean probsEqual = true;
 	private boolean magsEqual = true;
 	private boolean namesEqual = true;
 	private boolean rupCountEqual = true;
 	
-	public ERF_Compare(EqkRupForecastAPI erf1, EqkRupForecastAPI erf2) {
+	public ERF_Compare(ERF erf1, ERF erf2) {
 		this.erf1 = erf1;
 		this.erf2 = erf2;
 	}
@@ -64,9 +64,9 @@ public class ERF_Compare {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		EqkRupForecastAPI erf1 = MeanUCERF2_ToDB.createUCERF2ERF();
+		ERF erf1 = MeanUCERF2_ToDB.createUCERF2ERF();
 		erf1.updateForecast();
-		EqkRupForecastAPI erf2 = MeanUCERF2_ToDB.createUCERF2ERF();
+		ERF erf2 = MeanUCERF2_ToDB.createUCERF2ERF();
 		erf2.getAdjustableParameterList().getParameter(UCERF2.PROB_MODEL_PARAM_NAME)
 					.setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);
 		erf2.getTimeSpan().setStartTime(2010);

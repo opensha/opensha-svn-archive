@@ -18,8 +18,8 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
@@ -192,7 +192,7 @@ public class Asset implements Cloneable {
 	 * @return The EAL for the asset.  This will be summed up with all of the EAL's
 	 * for the other assets in the list.
 	 */
-	public double calculateEAL( ScalarIMR imr, double distance, Site site, EqkRupForecastBaseAPI erf, PortfolioEALCalculatorController controller ) {
+	public double calculateEAL( ScalarIMR imr, double distance, Site site, BaseERF erf, PortfolioEALCalculatorController controller ) {
 		// Edit the site with the asset values
 		siteSetup(site);
 		Site newSite = getSite();
@@ -217,7 +217,7 @@ public class Asset implements Cloneable {
 		startCalcProgressBar();
 		
 		// Setup for the forcast gotten from the ERF
-		EqkRupForecastBaseAPI forecast = null;
+		BaseERF forecast = null;
 		
 		// Setup for the annualized rates gotten from the hazard function with the HazardCurveCalculator
 		ArbitrarilyDiscretizedFunc annualizedRates = null;
@@ -257,7 +257,7 @@ public class Asset implements Cloneable {
 	    try {
 	    	calc.setMaxSourceDistance( distance );
 	    	forecast = erf;
-		    hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, newSite, imr, (EqkRupForecastAPI) forecast);
+		    hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, newSite, imr, (ERF) forecast);
 	    } catch( Exception e ) {
 			e.printStackTrace();
 			errorMessage += e.getMessage();

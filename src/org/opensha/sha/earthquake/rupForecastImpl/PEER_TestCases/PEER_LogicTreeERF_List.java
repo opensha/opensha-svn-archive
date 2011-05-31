@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
+import org.opensha.sha.earthquake.AbstractERF;
 
 
 /**
@@ -37,7 +37,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
  * @version 1.0
  */
 
-public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
+public class PEER_LogicTreeERF_List extends AbstractEpistemicListERF{
 
   /**
    * @todo variables
@@ -151,7 +151,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
    * @param maxMag
    * @return
    */
-  protected EqkRupForecast createERF(String segmentation,
+  protected AbstractERF createERF(String segmentation,
                                         double slipRate, double magUpper) {
     PEER_NonPlanarFaultForecast forecast = new PEER_NonPlanarFaultForecast();
     forecast.getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(segmentation);
@@ -180,7 +180,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
       // set this new value of param in all the EqkRupForecast in the list
       int num = getNumERFs();
       for(int i=0; i<num; ++i) {
-        EqkRupForecast eqkRupForecast = (EqkRupForecast)this.getERF(i);
+        AbstractERF eqkRupForecast = (AbstractERF)this.getERF(i);
         // see the new parameter values in all the forecasts in the list
         eqkRupForecast.getParameter(GRID_PARAM_NAME).setValue(gridParam.getValue());
         eqkRupForecast.getParameter(OFFSET_PARAM_NAME).setValue(offsetParam.getValue());

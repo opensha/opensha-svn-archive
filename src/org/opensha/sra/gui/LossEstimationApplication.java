@@ -73,8 +73,8 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
@@ -883,7 +883,7 @@ IMR_GuiBeanAPI{
 		//starting the calculation
 		isHazardCalcDone = false;
 
-		EqkRupForecastBaseAPI forecast = null;
+		BaseERF forecast = null;
 
 		// get the selected forecast model
 		try {
@@ -976,7 +976,7 @@ IMR_GuiBeanAPI{
 	//  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
 	//		  Site site,EqkRupForecastBaseAPI forecast,ScalarIntensityMeasureRelationshipAPI imr){
 	private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, double[] imls,
-			Site site,EqkRupForecastBaseAPI forecast,ScalarIMR imr){
+			Site site,BaseERF forecast,ScalarIMR imr){
 		// initialize the values in condProbfunc with log values as passed in hazFunction
 		// intialize the hazard function
 		ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -991,7 +991,7 @@ IMR_GuiBeanAPI{
 			try {
 
 				hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(
-						hazFunction, site,imr, (EqkRupForecastAPI) forecast);
+						hazFunction, site,imr, (ERF) forecast);
 			}
 			catch (Exception e) {
 				e.printStackTrace();

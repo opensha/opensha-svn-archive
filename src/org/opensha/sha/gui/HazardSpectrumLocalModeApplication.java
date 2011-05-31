@@ -44,9 +44,9 @@ import org.opensha.commons.util.bugReports.BugReportDialog;
 import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.SpectrumCalculatorAPI;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
@@ -207,7 +207,7 @@ extends HazardCurveLocalModeApplication {
 		//starting the calculation
 		isHazardCalcDone = false;
 		numERFsInEpistemicList = 0;
-		EqkRupForecastBaseAPI forecast = null;
+		BaseERF forecast = null;
 		EqkRupture rupture = null;
 		if (!this.isProbabilisticCurve)
 			rupture = this.erfRupSelectorGuiBean.getRupture();
@@ -262,7 +262,7 @@ extends HazardCurveLocalModeApplication {
 		}
 		xAxisName = X_AXIS_LABEL;
 
-		if (forecast instanceof ERF_EpistemicList && isProbabilisticCurve) {
+		if (forecast instanceof AbstractEpistemicListERF && isProbabilisticCurve) {
 			//if add on top get the name of ERF List forecast
 			if (addData)
 				prevSelectedERF_List = forecast.getName();
@@ -295,7 +295,7 @@ extends HazardCurveLocalModeApplication {
 				if (isProbabilisticCurve){
 					if(probAtIML)
 						hazFunction = (DiscretizedFunc) calc.getSpectrumCurve(
-								site, imr, (EqkRupForecastAPI) forecast,
+								site, imr, (ERF) forecast,
 								imlProbValue,saPeriodVector);
 					else{
 						hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -305,7 +305,7 @@ extends HazardCurveLocalModeApplication {
 						try {
 
 							hazFunction = calc.getIML_SpectrumCurve(hazFunction,site,imr,
-									(EqkRupForecastAPI)forecast,imlProbValue,saPeriodVector);
+									(ERF)forecast,imlProbValue,saPeriodVector);
 						}
 						catch (RuntimeException e) {
 							e.printStackTrace();
@@ -528,10 +528,10 @@ extends HazardCurveLocalModeApplication {
 	 */
 	protected void handleForecastList(Site site,
 			ScalarIMR imr,
-			EqkRupForecastBaseAPI forecast,
+			BaseERF forecast,
 			double imlProbValue) {
 
-		ERF_EpistemicList erfList = (ERF_EpistemicList) forecast;
+		AbstractEpistemicListERF erfList = (AbstractEpistemicListERF) forecast;
 
 		numERFsInEpistemicList = erfList.getNumERFs(); // get the num of ERFs in the list
 

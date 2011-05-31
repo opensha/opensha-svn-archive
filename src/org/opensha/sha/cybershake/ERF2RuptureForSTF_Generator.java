@@ -34,8 +34,8 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -65,7 +65,7 @@ import org.opensha.sha.faultSurface.PointSurface;
 
 public class ERF2RuptureForSTF_Generator {
 
-  private EqkRupForecastAPI eqkRupForecast;
+  private ERF eqkRupForecast;
 
   private Site site;
   private double distance;
@@ -79,7 +79,7 @@ public class ERF2RuptureForSTF_Generator {
 
 
 
-  public ERF2RuptureForSTF_Generator(EqkRupForecast eqkRupForecast, Site site,
+  public ERF2RuptureForSTF_Generator(AbstractERF eqkRupForecast, Site site,
                       double cuttOffDistance) {
     this.eqkRupForecast = eqkRupForecast;
     this.site = site;

@@ -33,8 +33,8 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeProbEqkSource;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
@@ -43,7 +43,7 @@ import org.opensha.sha.faultSurface.PointSurface;
 
 public  class ERF2DB implements ERF2DBAPI{
 
-	protected EqkRupForecast eqkRupForecast;
+	protected AbstractERF eqkRupForecast;
 	private DBAccess dbaccess;
 
 	public ERF2DB(DBAccess dbaccess){
@@ -763,7 +763,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		}
 	}
 
-	public void insertAllRupsForSourceRegionInDB(GriddedRegion region, EqkRupForecastAPI forecast, int erfID, int sourceID, boolean skipDuplicates) {
+	public void insertAllRupsForSourceRegionInDB(GriddedRegion region, ERF forecast, int erfID, int sourceID, boolean skipDuplicates) {
 		ProbEqkSource source  = (ProbEqkSource)forecast.getSource(sourceID);
 		int numRuptures = source.getNumRuptures();
 		SiteInfo2DB siteInfo = null;
@@ -791,7 +791,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	 * @param sourceID
 	 * @param rupID
 	 */
-	public void insertSrcRupInDB(EqkRupForecastAPI forecast, int erfID, int sourceID, int rupID) {
+	public void insertSrcRupInDB(ERF forecast, int erfID, int sourceID, int rupID) {
 		ProbEqkSource source  = (ProbEqkSource)forecast.getSource(sourceID);
 		String sourceName = source.getName();
 		// getting the rupture on the source and its gridCentered Surface
@@ -943,7 +943,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	 * returns the instance of the last inserted ERF
 	 * @return
 	 */
-	public EqkRupForecastAPI getERF_Instance(){
+	public ERF getERF_Instance(){
 		return this.eqkRupForecast;
 	}
 

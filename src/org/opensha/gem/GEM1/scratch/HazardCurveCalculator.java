@@ -40,8 +40,8 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -241,7 +241,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 */
 	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			EqkRupForecastAPI eqkRupForecast)
+			ERF eqkRupForecast)
 	throws java.rmi.RemoteException{
 
 		// make hashtable with single IMR (so we can use the other method)
@@ -277,7 +277,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			DiscretizedFunc hazFunction,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap, 
-			EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException{
+			ERF eqkRupForecast) throws java.rmi.RemoteException{
 
 		//	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
 		//	  System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
@@ -479,7 +479,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 */
 	public DiscretizedFunc getAverageEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			EqkRupForecastAPI eqkRupForecast)
+			ERF eqkRupForecast)
 	throws java.rmi.RemoteException{
 
 		System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
@@ -753,7 +753,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			site.addParameter((Parameter)it.next());
 		site.setLocation(new Location(34,-118));
 
-		EqkRupForecast eqkRupForecast = new Frankel96_EqkRupForecast();
+		AbstractERF eqkRupForecast = new Frankel96_EqkRupForecast();
 		eqkRupForecast.updateForecast();
 
 		ArbitrarilyDiscretizedFunc hazCurve = new ArbitrarilyDiscretizedFunc();

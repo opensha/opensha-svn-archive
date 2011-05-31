@@ -9,7 +9,7 @@ import org.opensha.sha.cybershake.bombay.RupHyposWithinCutoff;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
@@ -36,7 +36,7 @@ public class EEWCalc implements RuptureVariationProbabilityModifier {
 	private void loadProbs() {
 		totalProb = 0;
 		
-		EqkRupForecast erf = rupsWithinCutoff.getERF();
+		AbstractERF erf = rupsWithinCutoff.getERF();
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);
 			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {

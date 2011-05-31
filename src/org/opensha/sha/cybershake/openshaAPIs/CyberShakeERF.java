@@ -33,10 +33,10 @@ import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
-public class CyberShakeERF extends EqkRupForecast {
+public class CyberShakeERF extends AbstractERF {
 	
 	private static final boolean SAVE_OBJECTS = false;
 

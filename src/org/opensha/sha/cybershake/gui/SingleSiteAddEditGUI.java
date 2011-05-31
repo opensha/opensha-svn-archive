@@ -41,7 +41,7 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 
 public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 	
@@ -134,7 +134,7 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 		this.setLocationRelativeTo(null);
 	}
 	
-	public static EqkRupForecast loadERF() {
+	public static AbstractERF loadERF() {
 		return MeanUCERF2_ToDB.createUCERF2ERF();
 	}
 	
@@ -251,7 +251,7 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 		
 		System.out.println("Site to be added: " + site);
 		
-		EqkRupForecast erf = loadERF();
+		AbstractERF erf = loadERF();
 		
 		int erfID = erf2db.getInserted_ERF_ID(erf.getName());
 		

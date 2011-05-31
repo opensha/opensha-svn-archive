@@ -18,8 +18,8 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -35,7 +35,7 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 public class CalculationInputsXMLFile implements XMLSaveable {
 	
-	private EqkRupForecastAPI erf;
+	private ERF erf;
 	private List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Site> sites;
 	private List<Parameter<Double>> imts;
@@ -45,7 +45,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	private boolean erfSerialized = false;
 	private String serializedERFFile;
 	
-	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
+	public CalculationInputsXMLFile(ERF erf,
 			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Site> sites,
 			CalculationSettings calcSettings,
@@ -53,7 +53,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		this(erf, imrMaps, null, sites, calcSettings, archiver);
 	}
 	
-	public CalculationInputsXMLFile(EqkRupForecastAPI erf,
+	public CalculationInputsXMLFile(ERF erf,
 		List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 		List<Parameter<Double>> imts,
 		List<Site> sites,
@@ -67,7 +67,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		this.archiver = archiver;
 	}
 	
-	public EqkRupForecastAPI getERF() {
+	public ERF getERF() {
 		return erf;
 	}
 	
@@ -108,19 +108,19 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	}
 
 	public Element toXMLMetadata(Element root) {
-		if (erf instanceof EqkRupForecast) {
-			EqkRupForecast newERF = (EqkRupForecast)erf;
+		if (erf instanceof AbstractERF) {
+			AbstractERF newERF = (AbstractERF)erf;
 			root = newERF.toXMLMetadata(root);
 			if (erfSerialized) {
 				// load the erf element from metadata
-				Element erfElement = root.element(EqkRupForecast.XML_METADATA_NAME);
+				Element erfElement = root.element(AbstractERF.XML_METADATA_NAME);
 
 				// rename the old erf to ERF_REF so that the params are preserved, but it is not used for calculation
 				root.add(erfElement.createCopy("ERF_REF"));
 				erfElement.detach();
 				
 				// create new ERF element and add to root
-				Element newERFElement = root.addElement(EqkRupForecast.XML_METADATA_NAME);
+				Element newERFElement = root.addElement(AbstractERF.XML_METADATA_NAME);
 				newERFElement.addAttribute("fileName", serializedERFFile);
 			}
 		} else {
@@ -158,14 +158,14 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		Element root = doc.getRootElement();
 		
 		/* Load the ERF 							*/
-		EqkRupForecastAPI erf;
-		Element erfElement = root.element(EqkRupForecast.XML_METADATA_NAME);
+		ERF erf;
+		Element erfElement = root.element(AbstractERF.XML_METADATA_NAME);
 		Attribute className = erfElement.attribute("className");
 		if (className == null) { // load it from a file
 			String erfFileName = erfElement.attribute("fileName").getValue();
-			erf = (EqkRupForecast)FileUtils.loadObject(erfFileName);
+			erf = (AbstractERF)FileUtils.loadObject(erfFileName);
 		} else {
-			erf = EqkRupForecast.fromXMLMetadata(erfElement);
+			erf = AbstractERF.fromXMLMetadata(erfElement);
 			System.out.println("Updating Forecast");
 			erf.updateForecast();
 		}

@@ -23,7 +23,7 @@ import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient;
@@ -49,7 +49,7 @@ public class PEER_LogicTreeServerBasedERF_List extends PEER_LogicTreeERF_List {
    * @param maxMag
    * @returnf
    */
-  protected EqkRupForecast createERF(String segmentation,
+  protected AbstractERF createERF(String segmentation,
                                      double slipRate, double magUpper) {
     try{
       PEER_NonPlanarFaultForecastClient forecast = new PEER_NonPlanarFaultForecastClient();

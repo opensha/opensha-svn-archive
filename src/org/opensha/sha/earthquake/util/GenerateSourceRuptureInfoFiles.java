@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
@@ -68,7 +68,7 @@ public class GenerateSourceRuptureInfoFiles {
    * @param directoryPath String path to the directory where files are to be created
    * @param forecast EqkRupForecast : Eqk Rup Forecast
    */
-  public void createERF_MetadataFile(String directoryPath,EqkRupForecast forecast){
+  public void createERF_MetadataFile(String directoryPath,AbstractERF forecast){
 
     String forecastMetadata = "EqkRupForecast Name= "+forecast.getName()+"\n";
     forecastMetadata += forecast.getAdjustableParameterList().getParameterListMetadataString();
@@ -93,7 +93,7 @@ public class GenerateSourceRuptureInfoFiles {
    * @return the path to the source directory, where al the information about the
    * ruptures will be stored
    */
-  public void createSourceListFile(String directoryPath,EqkRupForecast forecast) {
+  public void createSourceListFile(String directoryPath,AbstractERF forecast) {
     //String sourceDirName = "source";
     FileWriter fw = null;
     FileWriter fw_rupture = null;

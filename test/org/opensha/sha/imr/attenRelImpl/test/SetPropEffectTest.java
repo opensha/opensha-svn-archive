@@ -16,7 +16,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
@@ -35,7 +35,7 @@ public class SetPropEffectTest {
 	private ScalarIMR imr1;
 	private ScalarIMR imr2;
 	
-	private static EqkRupForecast erf;
+	private static AbstractERF erf;
 	private static Site site;
 	private static ArrayList<Object[]> props;
 	

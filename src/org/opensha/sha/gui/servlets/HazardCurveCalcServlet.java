@@ -35,7 +35,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
 
 
@@ -79,7 +79,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
 			// get the MAX_SOURCE distance
 			double maxDistance =  ((Double) inputFromApplet.readObject()).doubleValue();
 			System.out.println("ERF Location: "+eqkRupForecastLocation);
-			EqkRupForecastAPI eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject(eqkRupForecastLocation);
+			ERF eqkRupForecast = (ERF)FileUtils.loadObject(eqkRupForecastLocation);
 			if(D) System.out.println("ERF URL="+eqkRupForecastLocation);
 
 			//call the HazardCurveCalculator here
@@ -115,12 +115,12 @@ public class HazardCurveCalcServlet extends HttpServlet {
 	 * @param function
 	 * @param maxDistance
 	 */
-	private void getHazardCurve(ScalarIMR imr,EqkRupForecastAPI eqkRupForecast,
+	private void getHazardCurve(ScalarIMR imr,ERF eqkRupForecast,
 			Site site,ArbitrarilyDiscretizedFunc function,double maxDistance){
 		try{
 			HazardCurveCalculator calc = new HazardCurveCalculator();
 			calc.setMaxSourceDistance(maxDistance);
-			calc.getHazardCurve((DiscretizedFunc)function,site,imr,(EqkRupForecastAPI)eqkRupForecast);
+			calc.getHazardCurve((DiscretizedFunc)function,site,imr,(ERF)eqkRupForecast);
 		}catch(RemoteException e){
 			e.printStackTrace();
 		}

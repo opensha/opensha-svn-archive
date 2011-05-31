@@ -42,7 +42,7 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.disaggregation.DisaggregationPlotData;
 import org.opensha.sha.calc.disaggregation.DisaggregationSourceRuptureComparator;
 import org.opensha.sha.calc.disaggregation.DisaggregationSourceRuptureInfo;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -166,7 +166,7 @@ implements DisaggregationCalculatorAPI {
 	 */
 	public boolean disaggregate(double iml, Site site,
 			ScalarIMR imr,
-			EqkRupForecast eqkRupForecast,
+			AbstractERF eqkRupForecast,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) 
 			throws java.rmi.RemoteException {
 		return disaggregate(iml, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast, maxDist, magDistFilter);
@@ -177,7 +177,7 @@ implements DisaggregationCalculatorAPI {
 			double iml,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap,
-			EqkRupForecast eqkRupForecast, double maxDist,
+			AbstractERF eqkRupForecast, double maxDist,
 			ArbitrarilyDiscretizedFunc magDistFilter) throws RemoteException {
 
 		double rate, condProb;

@@ -21,7 +21,7 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.refFaultParamDb.calc.sectionDists.FaultSectDistRecord;
 import org.opensha.refFaultParamDb.calc.sectionDists.SmartSurfaceFilter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -399,7 +399,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		double minMag=5.0, maxMag=9.00;
 		int numMagBins = 41; // number of Mag bins
 		System.out.println("Instantiating forecast");
-		EqkRupForecastAPI erf = new MeanUCERF2();
+		ERF erf = new MeanUCERF2();
 		erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
 		if (!TIME_DEPENDENT) {
 			System.out.println("Setting params for Poisson model!");

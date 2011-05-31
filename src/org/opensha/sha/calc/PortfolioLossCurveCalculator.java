@@ -27,7 +27,7 @@ import java.rmi.server.UnicastRemoteObject;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -117,7 +117,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 * @return
 	 */
 	public DiscretizedFunc getLossCurve(DiscretizedFunc hazFunction,
-			Site site, ScalarIMR imr, EqkRupForecastAPI eqkRupForecast)
+			Site site, ScalarIMR imr, ERF eqkRupForecast)
 	throws java.rmi.RemoteException{
 		// TODO Replace site with Portfolio
 		this.currRuptures = -1;

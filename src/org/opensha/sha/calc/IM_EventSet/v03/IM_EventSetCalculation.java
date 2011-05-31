@@ -34,8 +34,8 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIMR;
 
@@ -52,13 +52,13 @@ public class IM_EventSetCalculation implements XMLSaveable {
 	
 	private ArrayList<Location> sites;
 	private ArrayList<ArrayList<SiteDataValue<?>>> sitesData;
-	private ArrayList<EqkRupForecastAPI> erfs;
+	private ArrayList<ERF> erfs;
 	private ArrayList<ScalarIMR> attenRels;
 	private ArrayList<String> imts;
 	private OrderedSiteDataProviderList providers;
 	
 	public IM_EventSetCalculation(ArrayList<Location> sites, ArrayList<ArrayList<SiteDataValue<?>>> sitesData,
-			ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIMR> attenRels,
+			ArrayList<ERF> erfs, ArrayList<ScalarIMR> attenRels,
 			ArrayList<String> imts, OrderedSiteDataProviderList providers) {
 		this.sites = sites;
 		this.sitesData = sitesData;
@@ -73,7 +73,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		
 		// ERFs
 		Element erfsEL = el.addElement(XML_ERFS_NAME);
-		for (EqkRupForecastAPI erf : erfs) {
+		for (ERF erf : erfs) {
 			if (erf instanceof XMLSaveable) {
 				XMLSaveable xmlERF = (XMLSaveable)erf;
 				xmlERF.toXMLMetadata(erfsEL);
@@ -120,11 +120,11 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		// ERFs
 		Element erfsEl = eventSetEl.element(XML_ERFS_NAME);
 		Iterator<Element> erfElIt = erfsEl.elementIterator();
-		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
+		ArrayList<ERF> erfs = new ArrayList<ERF>();
 		while (erfElIt.hasNext()) {
 			Element erfEl = erfElIt.next();
 			try {
-				EqkRupForecastAPI erf = EqkRupForecast.fromXMLMetadata(erfEl);
+				ERF erf = AbstractERF.fromXMLMetadata(erfEl);
 				erfs.add(erf);
 			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
@@ -203,7 +203,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		return sitesData;
 	}
 
-	public ArrayList<EqkRupForecastAPI> getErfs() {
+	public ArrayList<ERF> getErfs() {
 		return erfs;
 	}
 
@@ -224,7 +224,7 @@ public class IM_EventSetCalculation implements XMLSaveable {
 		Element eventSetEl = doc.getRootElement().element(XML_METADATA_NAME);
 		IM_EventSetCalculation calc = fromXMLMetadata(eventSetEl);
 		
-		for (EqkRupForecastAPI erf : calc.getErfs()) {
+		for (ERF erf : calc.getErfs()) {
 			System.out.println("Loaded ERF: " + erf.getName());
 		}
 		for (ScalarIMR imr : calc.getIMRs()) {

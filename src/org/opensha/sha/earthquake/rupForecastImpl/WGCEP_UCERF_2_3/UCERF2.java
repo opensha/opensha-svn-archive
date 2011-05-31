@@ -34,7 +34,7 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
@@ -54,7 +54,7 @@ import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
  * @author 
  *
  */
-public class UCERF2 extends EqkRupForecast {
+public class UCERF2 extends AbstractERF {
 	//for Debug purposes
 	private static String  C = new String("EqkRateModel2_ERF");
 	private boolean D = true;

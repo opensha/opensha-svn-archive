@@ -55,7 +55,7 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
@@ -461,7 +461,7 @@ public class HazusDataSetCalcApp extends JFrame
      String dirName = datasetIdText.getText().trim();
      ScalarIMR imr = imrGuiBean.getSelectedIMR_Instance();
      SitesInGriddedRegion griddedSites = sitesGuiBean.getGriddedRegionSite();
-     EqkRupForecast eqkRupForecast = (EqkRupForecast) erfGuiBean.getSelectedERF();
+     AbstractERF eqkRupForecast = (AbstractERF) erfGuiBean.getSelectedERF();
      step =0;
      hazusCalc.getHazardMapCurves(dirName,griddedSites,imr,eqkRupForecast,this.getParametersInfo());
    }catch(Exception ee){

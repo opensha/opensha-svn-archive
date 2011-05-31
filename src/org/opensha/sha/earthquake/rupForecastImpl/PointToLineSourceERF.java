@@ -38,7 +38,7 @@ import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -66,7 +66,7 @@ import org.opensha.sha.param.SimpleFaultParameter;
  * @version 1.0
  */
 
-public class PointToLineSourceERF extends EqkRupForecast{
+public class PointToLineSourceERF extends AbstractERF{
 
 	//for Debug purposes
 	private static String  C = new String("PointToLineSourceERF");

@@ -29,7 +29,7 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -58,7 +58,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @author 
  *
  */
-public class MeanUCERF2 extends EqkRupForecast {
+public class MeanUCERF2 extends AbstractERF {
 	//for Debug purposes
 	private static String  C = new String("MeanUCERF2");
 	private boolean D = true;

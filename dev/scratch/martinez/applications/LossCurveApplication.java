@@ -31,8 +31,8 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
@@ -69,7 +69,7 @@ public class LossCurveApplication extends JFrame {
 	private static JPanel creditPanel = null;
 	
 	/* Static Parameters used for Calculation */
-	private static EqkRupForecastBaseAPI forecast = null;
+	private static BaseERF forecast = null;
 	private static ScalarIMR imr = null;
 
 	
@@ -254,7 +254,7 @@ public class LossCurveApplication extends JFrame {
 			for(int i = 0; i < imls.size(); ++i)
 				hazFunc.set(Math.log(imls.get(i)), 0.0);
 			hazFunc = (ArbitrarilyDiscretizedFunc) hCalc.getHazardCurve(hazFunc,
-					site, imr, (EqkRupForecastAPI) forecast);
+					site, imr, (ERF) forecast);
 			ArbitrarilyDiscretizedFunc tmpFunc = 
 					(ArbitrarilyDiscretizedFunc) hazFunc.deepClone();
 			hazFunc.clear();

@@ -47,7 +47,7 @@ import org.opensha.sha.cybershake.db.CybershakeSiteType;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 
 public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentListener {
 	
@@ -226,7 +226,7 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 			int defaultType = types.get(typeBox.getSelectedIndex()).getID();
 			ArrayList<CybershakeCutoffSite> sites = getSitesForLines(lines, defaultType);
 			
-			EqkRupForecast erf = SingleSiteAddEditGUI.loadERF();
+			AbstractERF erf = SingleSiteAddEditGUI.loadERF();
 			
 			int erfID = erf2db.getInserted_ERF_ID(erf.getName());
 			

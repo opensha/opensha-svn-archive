@@ -2,11 +2,11 @@ package scratch.ned.GEM_speed;
 
 import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 
-public class SeismicZoneERF extends EqkRupForecast{
+public class SeismicZoneERF extends AbstractERF{
 
 	
     private static String  C = "SeismicZoneERF";

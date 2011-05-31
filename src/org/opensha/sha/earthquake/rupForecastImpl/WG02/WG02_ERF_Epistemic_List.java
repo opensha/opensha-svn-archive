@@ -30,8 +30,8 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
+import org.opensha.sha.earthquake.ERF;
 
 /**
  * <p>Title: WG02_ERF_Epistemic_List</p>
@@ -45,7 +45,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
  * @version 1.0
  */
 
-public class WG02_ERF_Epistemic_List extends ERF_EpistemicList{
+public class WG02_ERF_Epistemic_List extends AbstractEpistemicListERF{
 
   //for Debug purposes
   private static final String  C = new String("WG02 ERF List");
@@ -295,7 +295,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList{
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public EqkRupForecastAPI getERF(int index) {
+  public ERF getERF(int index) {
 
     // get the sublist from the inputFileLines
     int firstLine = ((Integer) iterationLineNumbers.get(index)).intValue();
@@ -333,7 +333,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList{
    public static void main(String[] args) {
      WG02_ERF_Epistemic_List list = new WG02_ERF_Epistemic_List();
      list.updateForecast();
-     EqkRupForecastAPI fcast = list.getERF(4);
+     ERF fcast = list.getERF(4);
   }
 
 }

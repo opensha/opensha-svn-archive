@@ -29,7 +29,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -78,7 +78,7 @@ public class ERF2GriddedSeisRatesCalc {
 
   private DecimalFormat magFormat = new DecimalFormat("0.00");
 
-  private EqkRupForecastAPI eqkRupForecast;
+  private ERF eqkRupForecast;
   private GriddedRegion region;
 
   /**
@@ -115,7 +115,7 @@ public class ERF2GriddedSeisRatesCalc {
    * @return
    */
   public ArrayList calcMFD_ForGriddedRegion(double minMag, double maxMag,
-                                            int numMagBins, EqkRupForecastAPI eqkRupForecast,
+                                            int numMagBins, ERF eqkRupForecast,
                                             GriddedRegion region,
                                             double duration) {
     double delta = (maxMag-minMag)/(numMagBins-1);
@@ -218,7 +218,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * can done, but just have to get the user input for discretization.
    */
   public ArrayList calcCumMFD_ForGriddedRegion(double minMag,
-      EqkRupForecastAPI eqkRupForecast,
+      ERF eqkRupForecast,
       GriddedRegion region) {
     minMagnitude = minMag;
 
@@ -276,7 +276,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
   public double[] getTotalSeisRateAtEachLocationInRegion(double minMag,
-      EqkRupForecastAPI eqkRupForecast,
+      ERF eqkRupForecast,
       GriddedRegion region) {
     minMagnitude = minMag;
 
@@ -300,7 +300,7 @@ for(int m=0;m<testFunc.getNum();m++)
    */
 
   public double getTotalSeisRateInRegion(double minMag,
-                                         EqkRupForecastAPI eqkRupForecast,
+                                         ERF eqkRupForecast,
                                          Region region) {
     int numSources = eqkRupForecast.getNumSources();
 
@@ -360,7 +360,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * can done, but just have to get the user input for discretization
    */
   public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double minMag,
-      EqkRupForecastAPI eqkRupForecast,
+      ERF eqkRupForecast,
       Region region) {
     ArbDiscrEmpiricalDistFunc magRateDist = new ArbDiscrEmpiricalDistFunc();
     int numSources = eqkRupForecast.getNumSources();
@@ -411,7 +411,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * @param numPts long
    * @return double
    */
-  private double getRupturePtRate(EqkRupForecastAPI eqkRupForecast,
+  private double getRupturePtRate(ERF eqkRupForecast,
                                   ProbEqkRupture rupture, long numPts) {
     return rupture.getMeanAnnualRate(eqkRupForecast.getTimeSpan().getDuration()) / numPts;
   }
@@ -545,7 +545,7 @@ for(int m=0;m<testFunc.getNum();m++)
    * @param region Region : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
-  public double getTotalProbAbove(EqkRupForecastAPI eqkRupForecast,
+  public double getTotalProbAbove(ERF eqkRupForecast,
                                   double minMag, Region region) {
 
     int numSources = eqkRupForecast.getNumSources();

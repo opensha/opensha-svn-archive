@@ -47,7 +47,7 @@ import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
 import org.opensha.sha.calc.params.NumStochasticEventSetsParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -171,7 +171,7 @@ implements DisaggregationCalculatorAPI{
 	 */
 	public boolean disaggregate(double iml, Site site,
 			ScalarIMR imr,
-			EqkRupForecast eqkRupForecast,
+			AbstractERF eqkRupForecast,
 			ParameterList calcParams) 
 			throws java.rmi.RemoteException {
 		return disaggregate(iml, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast, calcParams);
@@ -182,7 +182,7 @@ implements DisaggregationCalculatorAPI{
 			double iml,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap,
-			EqkRupForecast eqkRupForecast, ParameterList calcParams) throws RemoteException {
+			AbstractERF eqkRupForecast, ParameterList calcParams) throws RemoteException {
 		
 		MaxDistanceParam maxDistanceParam = (MaxDistanceParam)calcParams.getParameter(MaxDistanceParam.NAME);
 //		NumStochasticEventSetsParam numStochEventSetRealizationsParam =

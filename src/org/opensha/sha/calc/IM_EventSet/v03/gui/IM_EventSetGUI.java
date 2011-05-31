@@ -52,8 +52,8 @@ import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
 import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.imr.ScalarIMR;
@@ -150,13 +150,13 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 	}
 	
 	public IM_EventSetCalculation getEventSetCalc() {
-		EqkRupForecastAPI erf = null;
+		ERF erf = null;
 		try {
-			erf = (EqkRupForecastAPI) this.erfGuiBean.getSelectedERF_Instance();
+			erf = (ERF) this.erfGuiBean.getSelectedERF_Instance();
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
-		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
+		ArrayList<ERF> erfs = new ArrayList<ERF>();
 		erfs.add(erf);
 		
 		ArrayList<ScalarIMR> imrs = imrChooser.getSelectedIMRs();
@@ -172,7 +172,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 	}
 	
 	private boolean isReadyForCalc(ArrayList<Location> locs, ArrayList<ArrayList<SiteDataValue<?>>> dataLists,
-			EqkRupForecastAPI erf, ArrayList<ScalarIMR> imrs, ArrayList<String> imts) {
+			ERF erf, ArrayList<ScalarIMR> imrs, ArrayList<String> imts) {
 		
 		if (locs.size() < 1) {
 			JOptionPane.showMessageDialog(this, "You must add at least 1 site!", "No Sites Selected!",
@@ -207,13 +207,13 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 			// make sure we're ready to calculate first
 			ArrayList<Location> locs = null;
 			ArrayList<ArrayList<SiteDataValue<?>>> dataLists = null;
-			EqkRupForecastAPI erf = null;
+			ERF erf = null;
 			ArrayList<ScalarIMR> imrs = null;
 			ArrayList<String> imts = null;
 			try {
 				locs = sitesPanel.getLocs();
 				dataLists = sitesPanel.getDataLists();
-				erf = (EqkRupForecastAPI)erfGuiBean.getSelectedERF();
+				erf = (ERF)erfGuiBean.getSelectedERF();
 				imrs = imrChooser.getSelectedIMRs();
 				imts = imtChooser.getIMTStrings();
 				
@@ -305,11 +305,11 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 					}
 					
 					// erf
-					ArrayList<EqkRupForecastAPI> erfs = calc.getErfs();
+					ArrayList<ERF> erfs = calc.getErfs();
 					if (erfs.size() > 0) {
-						EqkRupForecastAPI erf = erfs.get(0);
+						ERF erf = erfs.get(0);
 						this.erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(erf.getName());
-						EqkRupForecastBaseAPI myERF = erfGuiBean.getSelectedERF_Instance();
+						BaseERF myERF = erfGuiBean.getSelectedERF_Instance();
 						for (Parameter myParam : myERF.getAdjustableParameterList()) {
 							for (Parameter xmlParam : erf.getAdjustableParameterList()) {
 								if (myParam.getName().equals(xmlParam.getName())) {

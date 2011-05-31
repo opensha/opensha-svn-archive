@@ -32,7 +32,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 
 
@@ -68,7 +68,7 @@ public class ERFSaver extends XMLSaver {
 	@Override
 	public Element getXML(Element root) {
 		try {
-			EqkRupForecast erf = (EqkRupForecast)bean.getSelectedERF_Instance();
+			AbstractERF erf = (AbstractERF)bean.getSelectedERF_Instance();
 			
 			return erf.toXMLMetadata(root);
 		} catch (InvocationTargetException e) {
@@ -77,17 +77,17 @@ public class ERFSaver extends XMLSaver {
 		return null;
 	}
 	
-	public static EqkRupForecast LOAD_ERF_FROM_FILE(URL file) throws DocumentException, InvocationTargetException, MalformedURLException {
+	public static AbstractERF LOAD_ERF_FROM_FILE(URL file) throws DocumentException, InvocationTargetException, MalformedURLException {
 		SAXReader reader = new SAXReader();
 		
 		Document doc = reader.read(file);
 		
-		Element el = doc.getRootElement().element(EqkRupForecast.XML_METADATA_NAME);
+		Element el = doc.getRootElement().element(AbstractERF.XML_METADATA_NAME);
 		
-		return EqkRupForecast.fromXMLMetadata(el);
+		return AbstractERF.fromXMLMetadata(el);
 	}
 	
-	public static EqkRupForecast LOAD_ERF_FROM_FILE(String fileName) throws DocumentException, InvocationTargetException, MalformedURLException {
+	public static AbstractERF LOAD_ERF_FROM_FILE(String fileName) throws DocumentException, InvocationTargetException, MalformedURLException {
 		return LOAD_ERF_FROM_FILE(new File(fileName).toURI().toURL());
 	}
 	

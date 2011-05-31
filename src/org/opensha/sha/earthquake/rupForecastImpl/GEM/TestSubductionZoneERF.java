@@ -29,7 +29,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
@@ -50,7 +50,7 @@ import scratch.ned.slab.SlabSurfaceGenerator;
  * @version 1.0
  */
 
-public class TestSubductionZoneERF extends EqkRupForecast{
+public class TestSubductionZoneERF extends AbstractERF{
 
   //for Debug purposes
   private static String  C = new String("FloatingPoissonFaultERF");

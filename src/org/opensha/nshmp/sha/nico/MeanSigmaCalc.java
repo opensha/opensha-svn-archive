@@ -42,7 +42,7 @@ import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -378,7 +378,7 @@ public class MeanSigmaCalc
      * @param eqkRupForecast EqkRupForecastAPI
      * @param outFileName String
      */
-    protected void generateRuptureFile(EqkRupForecastAPI eqkRupForecast,
+    protected void generateRuptureFile(ERF eqkRupForecast,
                                   String outFileName) {
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();

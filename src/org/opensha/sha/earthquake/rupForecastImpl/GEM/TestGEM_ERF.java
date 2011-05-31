@@ -31,7 +31,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
@@ -40,7 +40,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 
-public class TestGEM_ERF extends EqkRupForecast{
+public class TestGEM_ERF extends AbstractERF{
 
 
 	public static final String NAME = "GEM Test ERF";

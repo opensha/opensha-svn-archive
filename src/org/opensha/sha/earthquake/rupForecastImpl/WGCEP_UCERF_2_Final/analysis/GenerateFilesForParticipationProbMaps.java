@@ -11,7 +11,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
@@ -173,7 +173,7 @@ public class GenerateFilesForParticipationProbMaps {
  *
  */
 class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDistForecast {
-	  private EqkRupForecast eqkRupForecast;
+	  private AbstractERF eqkRupForecast;
 	  private HypoMagFreqDistAtLoc magFreqDistForLocations[];
 
 	  /**
@@ -188,7 +188,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	   *
 	   *
 	   */
-	  public ERF_ToGriddedParticipationRatesMFD_Forecast(EqkRupForecast eqkRupForecast,
+	  public ERF_ToGriddedParticipationRatesMFD_Forecast(AbstractERF eqkRupForecast,
 	                                              GriddedRegion griddedRegion,
 	                                              double minMag,
 	                                              double maxMag,

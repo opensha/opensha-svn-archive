@@ -22,11 +22,11 @@ package org.opensha.sha.cybershake.db;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 
 public class CybershakeSiteManager {
 	
-	public static boolean insertCybershakeSite(DBAccess db, CybershakeSite site, EqkRupForecast erf, int erfID, double cutoffDistance, int typeID) {
+	public static boolean insertCybershakeSite(DBAccess db, CybershakeSite site, AbstractERF erf, int erfID, double cutoffDistance, int typeID) {
 		SiteInfo2DB site2db = new SiteInfo2DB(db);
 		CybershakeSiteInfo2DB csSite2db = new CybershakeSiteInfo2DB(db);
 		System.out.println("Inserting site: " + site.getFormattedName());
@@ -98,7 +98,7 @@ public class CybershakeSiteManager {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, false);
 		int typeID = 1;
 		CybershakeSite site = new CybershakeSite(35.21083, -120.85611, "Diablo Canyon", "DBCN");
-		EqkRupForecast erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		AbstractERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		int erfID = 35;
 		double cutoffDistance = 200;
 		

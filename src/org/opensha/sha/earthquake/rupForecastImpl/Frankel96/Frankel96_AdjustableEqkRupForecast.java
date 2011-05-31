@@ -32,7 +32,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
@@ -57,7 +57,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  */
 
 public class Frankel96_AdjustableEqkRupForecast
-    extends EqkRupForecast {
+    extends AbstractERF {
 
   //for Debug purposes
   private static String C = new String("Frankel96_AdjustableEqkRupForecast");

@@ -13,7 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 
 public class ExcelVerificationWriter {
 	
@@ -24,7 +24,7 @@ public class ExcelVerificationWriter {
 		outFile = new File(outputFile);
 	}
 	
-	protected void writeResults(PortfolioRuptureResults[][] rupResults, ArbitrarilyDiscretizedFunc curve, EqkRupForecastAPI erf)
+	protected void writeResults(PortfolioRuptureResults[][] rupResults, ArbitrarilyDiscretizedFunc curve, ERF erf)
 	throws FileNotFoundException, IOException {
 		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(inFile));
 		HSSFWorkbook wb = new HSSFWorkbook(fs);

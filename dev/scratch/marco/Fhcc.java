@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -20,7 +20,7 @@ public class Fhcc {
 	private static boolean INFO = false;
 	private ArrayList<Site> siteArr;
 	private Map<TectonicRegionType,ScalarIMR> imrMap;
-	private EqkRupForecastAPI eqkRupForecast;
+	private ERF eqkRupForecast;
 	private ArrayList<Double> imlList;  // Currently not used
 
 	/**
@@ -32,7 +32,7 @@ public class Fhcc {
 	public Fhcc(
 			ArrayList<Site> siteArr,
 			Map<TectonicRegionType,ScalarIMR> imrMap, 
-			EqkRupForecastAPI eqkRupForecast) {	
+			ERF eqkRupForecast) {	
 		this.eqkRupForecast = eqkRupForecast;
 		this.imrMap = imrMap;
 		this.siteArr = siteArr;

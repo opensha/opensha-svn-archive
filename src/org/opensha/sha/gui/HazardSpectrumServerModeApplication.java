@@ -32,7 +32,7 @@ import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.remoteCalc.RemoteResponseSpectrumClient;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient;
@@ -87,7 +87,7 @@ extends HazardSpectrumLocalModeApplication {
 		else {
 			boolean isCustomRupture = erfRupSelectorGuiBean.isCustomRuptureSelected();
 			if (!isCustomRupture) {
-				EqkRupForecastBaseAPI eqkRupForecast = erfRupSelectorGuiBean.
+				BaseERF eqkRupForecast = erfRupSelectorGuiBean.
 				getSelectedEqkRupForecastModel();
 				erfGuiBean.setERF(eqkRupForecast);
 			}
@@ -106,7 +106,7 @@ extends HazardSpectrumLocalModeApplication {
 	 */
 	protected void initERFSelector_GuiBean() {
 
-		EqkRupForecastBaseAPI erf = null;
+		BaseERF erf = null;
 		try {
 			erf = erfGuiBean.getSelectedERF();
 		}

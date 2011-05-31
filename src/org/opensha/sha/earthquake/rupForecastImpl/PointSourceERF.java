@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.impl.DoubleParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
 
@@ -44,7 +44,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
  * @version 1.0
  */
 
-public class PointSourceERF extends EqkRupForecast{
+public class PointSourceERF extends AbstractERF{
 
   //for Debug purposes
   private static String  C = "PointSourceERF";

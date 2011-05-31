@@ -42,8 +42,8 @@ import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
 import org.opensha.sha.calc.params.NumStochasticEventSetsParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -196,7 +196,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	@Override
 	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			EqkRupForecastAPI eqkRupForecast)
+			ERF eqkRupForecast)
 	throws java.rmi.RemoteException{
 		return getHazardCurve(hazFunction, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast);
 	}
@@ -206,7 +206,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			DiscretizedFunc hazFunction,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap, 
-			EqkRupForecastAPI eqkRupForecast) throws java.rmi.RemoteException{
+			ERF eqkRupForecast) throws java.rmi.RemoteException{
 
 		//	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
 		//	  System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
@@ -392,7 +392,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	@Override
 	public DiscretizedFunc getAverageEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			EqkRupForecastAPI eqkRupForecast)
+			ERF eqkRupForecast)
 	throws java.rmi.RemoteException{
 
 		System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
@@ -616,7 +616,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			site.addParameter(it.next());
 		site.setLocation(new Location(34,-118));
 
-		EqkRupForecast eqkRupForecast = new Frankel96_EqkRupForecast();
+		AbstractERF eqkRupForecast = new Frankel96_EqkRupForecast();
 		eqkRupForecast.updateForecast();
 
 		ArbitrarilyDiscretizedFunc hazCurve = new ArbitrarilyDiscretizedFunc();

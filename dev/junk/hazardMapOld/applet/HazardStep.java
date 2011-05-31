@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
@@ -109,8 +109,8 @@ public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
 		sitesGuiBean.repaint();
 	}
 	
-	public EqkRupForecast getERF() throws InvocationTargetException {
-		return (EqkRupForecast)erfBean.getSelectedERF_Instance();
+	public AbstractERF getERF() throws InvocationTargetException {
+		return (AbstractERF)erfBean.getSelectedERF_Instance();
 	}
 	
 	public ScalarIMR getIMR() {

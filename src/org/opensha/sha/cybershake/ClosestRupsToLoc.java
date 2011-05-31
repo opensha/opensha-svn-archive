@@ -11,7 +11,7 @@ import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeERF;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -51,7 +51,7 @@ public class ClosestRupsToLoc {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		EqkRupForecastAPI erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 //		EqkRupForecastAPI erf = new CyberShakeERF();
 //		StringParameter selector = (StringParameter) erf.getAdjustableParameterList().getParameter(CyberShakeERF.ERF_ID_SELECTOR_PARAM);
 		int id = 34;

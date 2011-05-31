@@ -7,7 +7,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -24,7 +24,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 public class EqksInGeoBlock {
 	
 	double minLat, maxLat, minLon,maxLon, minDepth, maxDepth; // the dimensions of the block
-	EqkRupForecast erf;					// reference to the erf this block is used with
+	AbstractERF erf;					// reference to the erf this block is used with
 	
 	// these lists hold information about each rupture that nucleates in this block
 	ArrayList<Integer> srcIndexList;	// this stores the source index for each rupture that nucleates inside the block
@@ -95,7 +95,7 @@ public class EqksInGeoBlock {
 	 * @param erf
 	 */
 	public EqksInGeoBlock(double minLat, double maxLat, double minLon, double maxLon, 
-			double minDepth, double maxDepth, EqkRupForecast erf) {
+			double minDepth, double maxDepth, AbstractERF erf) {
 		
 		this(minLat, maxLat, minLon, maxLon, minDepth, maxDepth);
 		this.erf=erf;
@@ -243,7 +243,7 @@ public class EqksInGeoBlock {
 	 * @param numAlongDepth
 	 * @return
 	 */
-	public ArrayList<EqksInGeoBlock> getSubBlocks(int numAlongLatLon, int numAlongDepth, EqkRupForecast erf) {
+	public ArrayList<EqksInGeoBlock> getSubBlocks(int numAlongLatLon, int numAlongDepth, AbstractERF erf) {
 		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
 		double forecastDuration = erf.getTimeSpan().getDuration();
 		int numSubBlocks = numAlongLatLon*numAlongLatLon*numAlongDepth;

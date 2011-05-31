@@ -51,9 +51,9 @@ import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.SimpleFaultParameter;
@@ -87,7 +87,7 @@ ParameterChangeListener{
 	boolean showProgressBar = true;
 
 	//instance of the selected ERF
-	EqkRupForecastBaseAPI eqkRupForecast = null;
+	BaseERF eqkRupForecast = null;
 	//instance of progress bar to show the progress of updation of forecast
 	CalcProgressBar progress= null;
 
@@ -104,7 +104,7 @@ ParameterChangeListener{
 	//checks to see if this a new ERF instance has been given by application to this Gui Bean.
 	private boolean isNewERF_Instance;
 
-	private HashMap<ERF_Ref, EqkRupForecastBaseAPI> erfInstanceMap = new HashMap<ERF_Ref, EqkRupForecastBaseAPI>();
+	private HashMap<ERF_Ref, BaseERF> erfInstanceMap = new HashMap<ERF_Ref, BaseERF>();
 	
 	protected static List<ERF_Ref> asList(Set<ERF_Ref> erfRefSet) {
 		List<ERF_Ref> list = new ArrayList<ERF_Ref>();
@@ -149,7 +149,7 @@ ParameterChangeListener{
 		setParamsInForecast();
 	}
 
-	private EqkRupForecastBaseAPI getERFInstance(ERF_Ref erfRef) {
+	private BaseERF getERFInstance(ERF_Ref erfRef) {
 		if (!erfInstanceMap.containsKey(erfRef)) {
 			erfInstanceMap.put(erfRef, erfRef.instance());
 		}
@@ -330,7 +330,7 @@ ParameterChangeListener{
 	 * It returns the forecast without updating the forecast
 	 * @return
 	 */
-	public EqkRupForecastBaseAPI getSelectedERF_Instance() throws InvocationTargetException{
+	public BaseERF getSelectedERF_Instance() throws InvocationTargetException{
 		//updating the MagDist Editor
 		updateMagDistParam();
 		//update the fault Parameter
@@ -344,7 +344,7 @@ ParameterChangeListener{
 	 * It returns the ERF after updating its forecast
 	 * @return
 	 */
-	public EqkRupForecastBaseAPI getSelectedERF() throws InvocationTargetException{
+	public BaseERF getSelectedERF() throws InvocationTargetException{
 		getSelectedERF_Instance();
 		if(this.showProgressBar) {
 			// also show the progress bar while the forecast is being updated
@@ -382,8 +382,8 @@ ParameterChangeListener{
 	 */
 	public boolean isEpistemicList() {
 		try{
-			EqkRupForecastBaseAPI eqkRupForecast = getSelectedERF_Instance();
-			if(eqkRupForecast instanceof ERF_EpistemicList)
+			BaseERF eqkRupForecast = getSelectedERF_Instance();
+			if(eqkRupForecast instanceof AbstractEpistemicListERF)
 				return true;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -568,7 +568,7 @@ ParameterChangeListener{
 	/**
 	 * Sets the EqkRupForecast in the ERF_GuiBean
 	 */
-	public void setERF(EqkRupForecastBaseAPI eqkRupForecast){
+	public void setERF(BaseERF eqkRupForecast){
 		this.eqkRupForecast = eqkRupForecast;
 		isNewERF_Instance = true;
 		String erfName = eqkRupForecast.getName();

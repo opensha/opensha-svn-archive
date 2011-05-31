@@ -16,7 +16,7 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -33,7 +33,7 @@ public class RupHyposWithinCutoff {
 	private ERF2DB erf2db;
 	private SiteInfo2DB site2db;
 	
-	private EqkRupForecast ucerf;
+	private AbstractERF ucerf;
 	
 	private ArrayList<Integer> sources = new ArrayList<Integer>();
 	private ArrayList<ArrayList<Integer>> rups = new ArrayList<ArrayList<Integer>>();
@@ -236,7 +236,7 @@ public class RupHyposWithinCutoff {
 		return map;
 	}
 	
-	public EqkRupForecast getERF() {
+	public AbstractERF getERF() {
 		return ucerf;
 	}
 	

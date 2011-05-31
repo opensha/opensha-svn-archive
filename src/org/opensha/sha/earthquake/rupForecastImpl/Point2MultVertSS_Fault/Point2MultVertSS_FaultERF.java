@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.DoubleParameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
 
@@ -52,7 +52,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
  * @version 1.0
  */
 
-public class Point2MultVertSS_FaultERF extends EqkRupForecast{
+public class Point2MultVertSS_FaultERF extends AbstractERF{
 
   //for Debug purposes
   private static String  C = new String("Point2MultVertSS_FaultERF");

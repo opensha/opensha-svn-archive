@@ -42,7 +42,7 @@ import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -75,7 +75,7 @@ public class IM_EventSetCalc
   protected LocationList locList;
 
 
-  protected EqkRupForecastAPI forecast;
+  protected ERF forecast;
 
   //supported Attenuations
   protected ArrayList supportedAttenuationsList;
@@ -542,7 +542,7 @@ public class IM_EventSetCalc
    * @param eqkRupForecast EqkRupForecastAPI
    * @param outFileName String
    */
-  private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
+  private void generateSrcRupMetadataFile(ERF eqkRupForecast,
                                             String dirName) {
     String outFileName = dirName+"src_rup_metadata.txt";
     // get total number of sources
@@ -591,7 +591,7 @@ public class IM_EventSetCalc
    * @param eqkRupForecast EqkRupForecastAPI
    * @param outFileName String
    */
-  private void generateRupSiteDistFile(EqkRupForecastAPI eqkRupForecast,
+  private void generateRupSiteDistFile(ERF eqkRupForecast,
       String dirName) {
     String outFileName = dirName+"rup_dist_info.txt";
     // get total number of sources

@@ -39,8 +39,8 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.param.impl.TreeBranchWeightsParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient;
 
@@ -57,7 +57,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupF
  * @version 1.0
  */
 
-public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
+public class WG02_FortranWrappedERF_EpistemicList extends AbstractEpistemicListERF{
 
   //for Debug purposes
   private static final String  C = new String("WG02_FortranWrappedERF_EpistemicList");
@@ -555,7 +555,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public EqkRupForecastAPI getERF(int index) {
+  public ERF getERF(int index) {
 
     ArrayList inputFileStrings = getDataForERF(index);
 
@@ -640,7 +640,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
    public static void main(String[] args) {
      WG02_ERF_Epistemic_List list = new WG02_ERF_Epistemic_List();
      list.updateForecast();
-     EqkRupForecastAPI fcast = list.getERF(1);
+     ERF fcast = list.getERF(1);
   }
 
 }

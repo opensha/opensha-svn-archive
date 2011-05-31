@@ -20,7 +20,7 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 /**
  * <p>Title: GriddedHypoMagFreqDistForecastWrappedERF</p>
  *
@@ -35,13 +35,13 @@ public class GriddedHypoMagFreqDistForecastWrappedERF
     extends GriddedHypoMagFreqDistForecast {
 
   //ERF Object
-  private EqkRupForecastAPI eqkRupForecast;
+  private ERF eqkRupForecast;
 
   /**
    * Class constructor that accepts the EqkRupForecast as the argument.
    * @param eqkRupforecast EqkRupForecastAPI
    */
-  public GriddedHypoMagFreqDistForecastWrappedERF(EqkRupForecastAPI eqkRupForecast) {
+  public GriddedHypoMagFreqDistForecastWrappedERF(ERF eqkRupForecast) {
     this.eqkRupForecast = eqkRupForecast;
   }
 

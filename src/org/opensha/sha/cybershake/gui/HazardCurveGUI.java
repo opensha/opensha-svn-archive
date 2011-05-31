@@ -50,7 +50,7 @@ import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotCharacteristics;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.imr.AttenuationRelationship;
 
@@ -89,7 +89,7 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	private static final String AS_2008_ATTEN_REL_FILE = "org/opensha/sha/cybershake/conf/as2008.xml";
 	private static final String CY_2008_ATTEN_REL_FILE = "org/opensha/sha/cybershake/conf/cy2008.xml";
 	
-	private EqkRupForecast erf = null;
+	private AbstractERF erf = null;
 	private AttenuationRelationship cb2008 = null;
 	private AttenuationRelationship ba2008 = null;
 	private AttenuationRelationship as2008 = null;

@@ -37,7 +37,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -67,7 +67,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @version 1.0
  */
 
-public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
+public class Frankel02_AdjustableEqkRupForecast extends AbstractERF{
 
   //for Debug purposes
   private static String  C = new String("Frankel02_EqkRupForecast");

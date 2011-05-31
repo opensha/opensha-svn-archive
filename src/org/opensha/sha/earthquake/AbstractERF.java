@@ -27,7 +27,6 @@ import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.MetadataLoader;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -48,7 +47,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public abstract class EqkRupForecast implements EqkRupForecastAPI,
+public abstract class AbstractERF implements ERF,
 TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 
 	/**
@@ -291,7 +290,7 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	public static final String XML_METADATA_NAME = "ERF";
 
 	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(EqkRupForecast.XML_METADATA_NAME);
+		Element xml = root.addElement(AbstractERF.XML_METADATA_NAME);
 		xml.addAttribute("className", this.getClass().getName());
 		ListIterator<Parameter<?>> paramIt = this.getAdjustableParameterList().getParametersIterator();
 		Element paramsElement = xml.addElement(AbstractParameter.XML_GROUP_METADATA_NAME);
@@ -304,10 +303,10 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 		return root;
 	}
 
-	public static EqkRupForecast fromXMLMetadata(Element root) throws InvocationTargetException {
+	public static AbstractERF fromXMLMetadata(Element root) throws InvocationTargetException {
 		String className = root.attribute("className").getValue();
 		System.out.println("Loading ERF: " + className);
-		EqkRupForecast erf = (EqkRupForecast)MetadataLoader.createClassInstance(className);
+		AbstractERF erf = (AbstractERF)MetadataLoader.createClassInstance(className);
 
 		// add params
 		System.out.println("Setting params...");
@@ -342,7 +341,7 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	}
 
 	@Override
-	public int compareTo(EqkRupForecastBaseAPI o) {
+	public int compareTo(BaseERF o) {
 		return getName().compareToIgnoreCase(o.getName());
 	}
 

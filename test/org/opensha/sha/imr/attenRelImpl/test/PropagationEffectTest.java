@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
@@ -22,7 +22,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagatio
 
 public class PropagationEffectTest {
 	
-	private static EqkRupForecast erf;
+	private static AbstractERF erf;
 	private static Site site;
 	
 	private static double pdiff_max = 0.05;

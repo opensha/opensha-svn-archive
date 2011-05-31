@@ -18,8 +18,8 @@ import org.opensha.commons.param.impl.EstimateParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.TreeBranchWeightsParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 /**
@@ -28,7 +28,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  * @author vipingupta
  *
  */
-public class YuccaMountainERF_List  extends ERF_EpistemicList{
+public class YuccaMountainERF_List  extends AbstractEpistemicListERF{
 	public static final String  NAME = new String("Yucca Mountain ERF Epistemic List");
 	protected YuccaMountainERF yuccaMountainERF = new YuccaMountainERF();
 	private final static double DURATION_DEFAULT = 30;
@@ -241,7 +241,7 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	 * @param index : index of Eqk rup forecast to return
 	 * @return
 	 */
-	public EqkRupForecastAPI getERF(int index) {
+	public ERF getERF(int index) {
 		Iterator<String> it = this.adjustableParams.getParameterNamesIterator();
 		while(it.hasNext()) {
 			String paramName = it.next();

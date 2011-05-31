@@ -58,8 +58,8 @@ import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -146,7 +146,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	private ArrayList  alreadySeenERFs = new ArrayList();
 
 	// get the selected forecast
-	private EqkRupForecastAPI erf = null;
+	private ERF erf = null;
 
 	//Timer instance for the progress bar
 	private Timer timer;
@@ -173,7 +173,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	 * Gui Bean. This will allow it to extract the ERF from that GuiBean.
 	 * @param erfGuiBean ERF_GuiBean
 	 */
-	public EqkRuptureFromERFSelectorPanel(EqkRupForecastBaseAPI baseERF, List<ERF_Ref> erfRefs) {
+	public EqkRuptureFromERFSelectorPanel(BaseERF baseERF, List<ERF_Ref> erfRefs) {
 		this.erfRefs = erfRefs;
 		parameterList = new ParameterList();
 		try {
@@ -182,8 +182,8 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 						"Rupture From ERF Panel can't be used with Epistemic List ERFs");
 			}
 			//gets the instance of the selected ERF
-			if (baseERF instanceof EqkRupForecastAPI)
-				erf = (EqkRupForecastAPI)baseERF;
+			if (baseERF instanceof ERF)
+				erf = (ERF)baseERF;
 			else
 				erf = null;
 			String erfName = this.erf.getClass().getName();
@@ -269,7 +269,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 			if(erf == null){
 				try {
 					//gets the instance of the selected ERF
-					erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+					erf = (ERF) erfGuiBean.getSelectedERF();
 				}
 				catch (Exception e) {
 					e.printStackTrace();
@@ -284,10 +284,10 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	 * Sets the selected ERF in the ERF GuiBean
 	 * @param erf EqkRupForecastAPI
 	 */
-	public void setEqkRupForecast(EqkRupForecastBaseAPI erf){
+	public void setEqkRupForecast(BaseERF erf){
 		if(erf !=null){
 			showAllAdjustableParamForERF = false;
-			this.erf = (EqkRupForecastAPI) erf;
+			this.erf = (ERF) erf;
 			erfGuiBean.setERF(erf);
 			showAllAdjustableParamForERF = true;
 		}
@@ -688,7 +688,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
-					erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+					erf = (ERF) erfGuiBean.getSelectedERF();
 				}
 				catch (InvocationTargetException ex) {
 				}
@@ -725,10 +725,10 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 	 *
 	 * @return the EqkRupforecast model
 	 */
-	public EqkRupForecastAPI getSelectedERF_Instance() {
-		EqkRupForecastAPI erfAPI=null;
+	public ERF getSelectedERF_Instance() {
+		ERF erfAPI=null;
 		try{
-			erfAPI = (EqkRupForecastAPI)erfGuiBean.getSelectedERF_Instance();
+			erfAPI = (ERF)erfGuiBean.getSelectedERF_Instance();
 		}catch(Exception e){
 			e.printStackTrace();
 		}

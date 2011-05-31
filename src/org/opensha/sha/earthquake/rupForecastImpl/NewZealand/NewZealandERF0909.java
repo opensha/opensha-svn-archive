@@ -29,7 +29,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -53,7 +53,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @version 1.0
  */
 
-public class NewZealandERF0909 extends EqkRupForecast {
+public class NewZealandERF0909 extends AbstractERF {
 
 	//for Debug purposes
 	private static String  C = new String("NZ_ERF");

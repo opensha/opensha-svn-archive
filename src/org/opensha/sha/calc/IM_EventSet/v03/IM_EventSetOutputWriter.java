@@ -32,7 +32,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -56,17 +56,17 @@ public abstract class IM_EventSetOutputWriter {
 		this.calc = calc;
 	}
 	
-	public abstract void writeFiles(ArrayList<EqkRupForecastAPI> erfs, ArrayList<ScalarIMR> attenRels,
+	public abstract void writeFiles(ArrayList<ERF> erfs, ArrayList<ScalarIMR> attenRels,
 			ArrayList<String> imts) throws IOException;
 	
-	public void writeFiles(EqkRupForecastAPI erf, ArrayList<ScalarIMR> attenRels,
+	public void writeFiles(ERF erf, ArrayList<ScalarIMR> attenRels,
 			ArrayList<String> imts) throws IOException {
-		ArrayList<EqkRupForecastAPI> erfs = new ArrayList<EqkRupForecastAPI>();
+		ArrayList<ERF> erfs = new ArrayList<ERF>();
 		erfs.add(erf);
 		writeFiles(erfs, attenRels, imts);
 	}
 	
-	public void writeFiles(EqkRupForecastAPI erf, ScalarIMR imr,
+	public void writeFiles(ERF erf, ScalarIMR imr,
 			String imt) throws IOException {
 		ArrayList<ScalarIMR> imrs = new ArrayList<ScalarIMR>();
 		imrs.add(imr);

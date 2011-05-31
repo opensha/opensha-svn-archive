@@ -44,8 +44,8 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
@@ -98,17 +98,17 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	//supported ERF classes
 	private List<ERF_Ref> erfRefs;
 
-	private EqkRupForecastBaseAPI eqkRupForecast;
+	private BaseERF eqkRupForecast;
 
-	public EqkRupSelectorGuiBean(EqkRupForecastBaseAPI erf, ERF_Ref... erfRefs) throws InvocationTargetException {
+	public EqkRupSelectorGuiBean(BaseERF erf, ERF_Ref... erfRefs) throws InvocationTargetException {
 		this(erf, Arrays.asList(erfRefs));
 	}
 	
-	public EqkRupSelectorGuiBean(EqkRupForecastBaseAPI erf, Set<ERF_Ref> erfRefSet) throws InvocationTargetException {
+	public EqkRupSelectorGuiBean(BaseERF erf, Set<ERF_Ref> erfRefSet) throws InvocationTargetException {
 		this(erf, ERF_GuiBean.asList(erfRefSet));
 	}
 
-	public EqkRupSelectorGuiBean(EqkRupForecastBaseAPI erf, List<ERF_Ref> erfRefs) throws InvocationTargetException {
+	public EqkRupSelectorGuiBean(BaseERF erf, List<ERF_Ref> erfRefs) throws InvocationTargetException {
 		eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(erf, erfRefs);
 		eqkRupForecast = erf;
 		this.erfRefs = erfRefs;
@@ -234,7 +234,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	 * this ERF_RupSelectorGuiBean to get the rupture.
 	 * @param forecast EqkRupForecastAPI
 	 */
-	public void setEqkRupForecastModel(EqkRupForecastBaseAPI forecast){
+	public void setEqkRupForecastModel(BaseERF forecast){
 		this.eqkRupForecast = forecast;
 		if(!isUserCreatedEqkRupture)
 			((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).setEqkRupForecast(forecast);
@@ -374,7 +374,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 	 *
 	 * @return ERF_API
 	 */
-	public EqkRupForecastAPI getSelectedEqkRupForecastModel(){
+	public ERF getSelectedEqkRupForecastModel(){
 		return ((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).getSelectedERF_Instance();
 	}
 

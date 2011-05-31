@@ -30,7 +30,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
@@ -85,7 +85,7 @@ public class HardCodedTest {
 		return ucerf;
 	}
 
-	private static EqkRupForecast getERF(int years, int startYear, boolean includeBackSeis) {
+	private static AbstractERF getERF(int years, int startYear, boolean includeBackSeis) {
 		return getUCERF2(years, startYear, includeBackSeis);
 	}
 	
@@ -194,7 +194,7 @@ public class HardCodedTest {
 			startYear = 2011;
 		else
 			startYear = -1;
-		EqkRupForecast erf = getERF(years, startYear, includeBackSeis);
+		AbstractERF erf = getERF(years, startYear, includeBackSeis);
 		
 //		SiteDataValue<?> hardcodedVal =
 //			new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS, SiteDataAPI.TYPE_FLAG_INFERRED, "B");

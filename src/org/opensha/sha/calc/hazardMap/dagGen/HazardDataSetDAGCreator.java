@@ -24,7 +24,7 @@ import org.opensha.sha.calc.hazardMap.HazardCurveDriver;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -43,7 +43,7 @@ public class HazardDataSetDAGCreator {
 
 	public static final String ERF_SERIALIZED_FILE_NAME = "erf.obj";
 
-	protected EqkRupForecastAPI erf;
+	protected ERF erf;
 	protected List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Parameter<Double>> imts;
 
@@ -89,7 +89,7 @@ public class HazardDataSetDAGCreator {
 	 * @param javaExec - The path to the java executable
 	 * @param jarFile - The path to the jar file used for calculation.
 	 */
-	public HazardDataSetDAGCreator(EqkRupForecastAPI erf,
+	public HazardDataSetDAGCreator(ERF erf,
 			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Parameter<Double>> imts,
 			List<Site> sites,

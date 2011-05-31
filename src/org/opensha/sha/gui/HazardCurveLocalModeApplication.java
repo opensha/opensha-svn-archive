@@ -31,7 +31,7 @@ import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
+import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.util.IconFetcher;
@@ -84,7 +84,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		else{
 			boolean isCustomRupture = erfRupSelectorGuiBean.isCustomRuptureSelected();
 			if(!isCustomRupture){
-				EqkRupForecastBaseAPI eqkRupForecast = erfRupSelectorGuiBean.getSelectedEqkRupForecastModel();
+				BaseERF eqkRupForecast = erfRupSelectorGuiBean.getSelectedEqkRupForecastModel();
 				erfGuiBean.setERF(eqkRupForecast);
 			}
 		}
@@ -100,7 +100,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	 */
 	protected void initERFSelector_GuiBean() {
 
-		EqkRupForecastBaseAPI erf = null;
+		BaseERF erf = null;
 		try {
 			erf = erfGuiBean.getSelectedERF();
 		}

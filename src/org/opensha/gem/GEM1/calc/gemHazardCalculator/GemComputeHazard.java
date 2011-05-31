@@ -16,7 +16,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 //import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.GEM1.SourceData.GEMSourceData;
 import org.opensha.gem.GEM1.calc.gemOutput.GEMHazardCurveRepository;
 import org.opensha.gem.GEM1.commons.UnoptimizedDeepCopy;
@@ -48,7 +48,7 @@ public class GemComputeHazard implements Runnable {
 	public ArrayList<Site> siteList;
 	
 	// earthquake rupture forecast
-	public EqkRupForecast ERF;
+	public AbstractERF ERF;
 	
 	// input sources
 	ArrayList<GEMSourceData> sourceList;
@@ -73,7 +73,7 @@ public class GemComputeHazard implements Runnable {
 	 * @param ERF
 	 * @param AttenRel
 	 */
-     public GemComputeHazard(int nproc, ArrayList<Site> siteList, EqkRupForecast ERF, HashMap<TectonicRegionType,ScalarIMR> gmpeMap,ArbitrarilyDiscretizedFunc imlList, double maxSourceDist){	
+     public GemComputeHazard(int nproc, ArrayList<Site> siteList, AbstractERF ERF, HashMap<TectonicRegionType,ScalarIMR> gmpeMap,ArbitrarilyDiscretizedFunc imlList, double maxSourceDist){	
     	
     	// GMPE units (extracted from the first GMPE)
 		Set<TectonicRegionType> gmpeLabels = gmpeMap.keySet();
@@ -174,7 +174,7 @@ public class GemComputeHazard implements Runnable {
         // Each thread has its own copy of the ERF and GMPEs
 		
 		//********* ERF for NSHMP fault model ************//
-        EqkRupForecast ERFThread = ERF;
+        AbstractERF ERFThread = ERF;
         
         //***************** GMPE *****************//
         // GMPEs needs a deep copy

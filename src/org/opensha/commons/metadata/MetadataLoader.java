@@ -30,7 +30,7 @@ import org.dom4j.io.SAXReader;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 //import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
@@ -107,7 +107,7 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 	        System.out.println("Name: " + imr.getName());
 	        System.out.println("IMT: " + imr.getIntensityMeasure().getName());
 	        System.out.println("Period: " + imr.getParameter(PeriodParam.NAME).getValue());
-	        EqkRupForecast erf = EqkRupForecast.fromXMLMetadata(document.getRootElement().element(EqkRupForecast.XML_METADATA_NAME));
+	        AbstractERF erf = AbstractERF.fromXMLMetadata(document.getRootElement().element(AbstractERF.XML_METADATA_NAME));
 	        System.out.println("Name: " + erf.getName());
 //	        System.out.println("Background: " + erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).getValue());
 //	        System.out.println("TimeSpan: " + erf.getTimeSpan().getStartTimeYear() + ", " + erf.getTimeSpan().getDuration());

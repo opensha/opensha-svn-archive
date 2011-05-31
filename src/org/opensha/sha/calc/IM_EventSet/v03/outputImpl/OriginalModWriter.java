@@ -31,7 +31,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.PropagationEffect;
@@ -50,7 +50,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 	}
 
 	@Override
-	public void writeFiles(ArrayList<EqkRupForecastAPI> erfs,
+	public void writeFiles(ArrayList<ERF> erfs,
 			ArrayList<ScalarIMR> attenRels, ArrayList<String> imts)
 			throws IOException {
 		logger.log(Level.INFO, "Writing old format files files");
@@ -59,7 +59,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 		if (erfs.size() == 1)
 			multipleERFs = false;
 		for (int erfID=0; erfID<erfs.size(); erfID++) {
-			EqkRupForecastAPI erf = erfs.get(erfID);
+			ERF erf = erfs.get(erfID);
 			if (multipleERFs) {
 				outputDir = new File(calc.getOutputDir().getAbsolutePath() + File.separator + "erf" + erfID);
 			} else {
@@ -88,7 +88,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 	 * @param attenRel
 	 * @throws IOException
 	 */
-	private void writeOriginalMeanSigmaFiles(EqkRupForecastAPI erf, ScalarIMR attenRel, String imt) throws IOException {
+	private void writeOriginalMeanSigmaFiles(ERF erf, ScalarIMR attenRel, String imt) throws IOException {
 		setIMTFromString(imt, attenRel);
 		logger.log(Level.INFO, "Writing Mean/Sigma file for " + attenRel.getShortName() + ", " + imt);
 		ArrayList<Parameter> defaultSiteParams = getDefaultSiteParams(attenRel);
@@ -154,7 +154,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 	 * @param erf
 	 * @throws IOException
 	 */
-	private void writeOriginalRupDistFile(EqkRupForecastAPI erf) throws IOException {
+	private void writeOriginalRupDistFile(ERF erf) throws IOException {
 		logger.log(Level.INFO, "Writing rupture distance files");
 		String fname = "rup_dist_info.txt";
 		String fname_jb = "rup_dist_jb_info.txt";
@@ -196,7 +196,7 @@ public class OriginalModWriter extends IM_EventSetOutputWriter {
 	 * @param erf
 	 * @throws IOException
 	 */
-	private void writeOriginalSrcRupMetaFile(EqkRupForecastAPI erf) throws IOException {
+	private void writeOriginalSrcRupMetaFile(ERF erf) throws IOException {
 		logger.log(Level.INFO, "Writing source/rupture metadata file");
 		String fname = "src_rup_metadata.txt";
 		FileWriter fw = new FileWriter(outputDir.getAbsolutePath() + File.separator + fname);

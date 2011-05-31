@@ -33,7 +33,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gcim.Utils;
@@ -96,7 +96,7 @@ public class GcimCalculator {
 	private boolean gcimRealizationsComplete = false;
 	
 	private Site site;
-	private EqkRupForecast eqkRupForecast;
+	private AbstractERF eqkRupForecast;
 	
 	//public static final String OPENSHA_SERVLET_URL = ServletPrefs.OPENSHA_SERVLET_URL + "GcimPlotServlet";
 	
@@ -118,7 +118,7 @@ public class GcimCalculator {
 	 * @throws IOException
 	 */
 	public void getRuptureContributions(double iml, Site site,
-			HashMap<TectonicRegionType, ScalarIMR> imrjMap, EqkRupForecast eqkRupForecast,
+			HashMap<TectonicRegionType, ScalarIMR> imrjMap, AbstractERF eqkRupForecast,
 			double maxDist, ArbitrarilyDiscretizedFunc magDistFilter) throws java.rmi.RemoteException {
 		
 		//IMj the GCIM is to be conditioned on

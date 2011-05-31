@@ -33,7 +33,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
@@ -62,7 +62,7 @@ public class TestConfig {
 	
 	private AttenuationRelationship imr;
 	private Site site;
-	private EqkRupForecast erf;
+	private AbstractERF erf;
 	private ArbitrarilyDiscretizedFunc function;
 
 	// Stores the test case,
@@ -125,7 +125,7 @@ public class TestConfig {
 		return site;
 	}
 	
-	public EqkRupForecast getERF() {
+	public AbstractERF getERF() {
 		return erf;
 	}
 	
