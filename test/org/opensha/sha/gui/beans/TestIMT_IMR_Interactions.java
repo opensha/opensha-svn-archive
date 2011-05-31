@@ -35,6 +35,8 @@ public class TestIMT_IMR_Interactions {
 	public static void setUpBeforeClass() throws Exception {
 		//AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
 		imrs =  AttenRelRef.instanceList(null, true);
+		for (ScalarIMR imr : imrs)
+			imr.setParamDefaults();
 		demoTRTs = new ArrayList<TectonicRegionType>();
 		demoTRTs.add(TectonicRegionType.ACTIVE_SHALLOW);
 		demoTRTs.add(TectonicRegionType.STABLE_SHALLOW);
