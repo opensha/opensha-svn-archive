@@ -165,7 +165,8 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
  
 //	TODO: Should these overrides be implemented? Their quick addition had
 //	consequences in (at least) Frankel Adjustable 2002 ERF and needs to be
-//	revisited
+//	revisited. Test in SingleMagFreqDistTest will need to be un-commented if
+//  we uncomment these methods.
 //	/**
 //	 * Overriden to prevent value setting.
 //	 * @throws UnsupportedOperationException
