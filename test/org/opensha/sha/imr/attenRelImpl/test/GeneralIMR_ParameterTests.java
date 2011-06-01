@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.geo.Location;
@@ -23,7 +22,6 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -84,7 +82,8 @@ public class GeneralIMR_ParameterTests {
 
 	@Parameters
 	public static Collection<ScalarIMR[]> data() {
-		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true);
+		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true,
+				DevStatus.PRODUCTION, DevStatus.DEVELOPMENT);
 
 		ArrayList<ScalarIMR[]> ret = new ArrayList<ScalarIMR[]>();
 
@@ -174,7 +173,7 @@ public class GeneralIMR_ParameterTests {
 		Iterator<Parameter<?>> it = imr.getSiteParamsIterator();
 		while (it.hasNext()) {
 			Parameter<?> param = (Parameter)it.next().clone();
-			if (param instanceof DoubleParameter) {
+			if (param.getValue() != null && param instanceof DoubleParameter) {
 				DoubleParameter dparam = (DoubleParameter)param;
 				double rVal = Math.random();
 				if (dparam.isAllowed(dparam.getValue() + rVal))
