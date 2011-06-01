@@ -403,8 +403,8 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 				"during initialization the ERF's. All parameters are set to default.";
 
 	// Construct the applet
-	public GCIM_HazardCurveApp() {
-
+	public GCIM_HazardCurveApp(String appShortName) {
+		super(appShortName);
 	}
 
 	// Initialize the applet
@@ -437,7 +437,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, errorInInitializationMessage, appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 		}
@@ -456,7 +456,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	}
 	
 	private JMenu buildHelpMenu() {
-		HelpMenuBuilder builder = new HelpMenuBuilder(APP_NAME, APP_SHORT_NAME, getAppVersion(), this);
+		HelpMenuBuilder builder = new HelpMenuBuilder(APP_NAME, appShortName, getAppVersion(), this);
 		builder.setTutorialURL(getTutorialURL());
 		builder.setGuideURL(getGuideURL());
 		
@@ -824,10 +824,10 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 // NOTE Old from server mode
 //	// Main method
 //	public static void main(String[] args) throws IOException {
-//		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+//		new DisclaimerDialog(APP_NAME, appShortName, getAppVersion());
 //		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
 //		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
-//				APP_SHORT_NAME, getAppVersion(), applet, applet));
+//				appShortName, getAppVersion(), applet, applet));
 //		applet.init();
 //		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 //		//		applet.pack();
@@ -837,7 +837,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 // NOTE New from local
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
-		GCIM_HazardCurveApp applet = new GCIM_HazardCurveApp();
+		GCIM_HazardCurveApp applet = new GCIM_HazardCurveApp(APP_SHORT_NAME);
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
@@ -977,7 +977,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 					System.exit(101);
 					// peerResultsFile.close();
 				} catch (Exception ee) {
-					BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+					BugReport bug = new BugReport(ee, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 					BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 					bugDialog.setVisible(true);
 				}
@@ -1006,7 +1006,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			setButtonsEnable(true);
 		} catch (Throwable t) {
 			t.printStackTrace();
-			BugReport bug = new BugReport(t, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(t, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 			setButtonsEnable(true);
@@ -1042,7 +1042,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 //				//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
 //			} catch (Exception ex) {
 //				ex.printStackTrace();
-//				BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+//				BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 //				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 //				bugDialog.setVisible(true);
 //			}
@@ -1073,7 +1073,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 					disaggCalc = new DisaggregationCalculator();
 		}catch(Exception e){
 			e.printStackTrace();
-			BugReport bug = new BugReport(e, this.getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, this.getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 		}
@@ -1101,7 +1101,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		} catch (Exception e) {
 			setButtonsEnable(true);
 			e.printStackTrace();
-			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -1441,7 +1441,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			if (D)
 				System.out.println(C + ":Param warning caught" + ex);
 			ex.printStackTrace();
-			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -1508,7 +1508,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			} catch (Exception e) {
 				e.printStackTrace();
 				setButtonsEnable(true);
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 
@@ -1595,7 +1595,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			} catch (Exception e) {
 				setButtonsEnable(true);
 				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -1663,7 +1663,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			} catch (Exception e) {
 				setButtonsEnable(true);
 				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -1795,7 +1795,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			} catch (Exception e) {
 				e.printStackTrace();
 				setButtonsEnable(true);
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -1866,7 +1866,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			} catch (RemoteException ex) {
 				setButtonsEnable(true);
 				ex.printStackTrace();
-				BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -2003,7 +2003,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 				} catch (Exception e) {
 					setButtonsEnable(true);
 					e.printStackTrace();
-					BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+					BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 					BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 					bugDialog.setVisible(true);
 				}
@@ -2198,7 +2198,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 //				.addParameterChangeListener(this);
 //			} catch (InvocationTargetException e) {
 //				e.printStackTrace();
-//				BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+//				BugReport bug = new BugReport(e, errorInInitializationMessage, appShortName, getAppVersion(), this);
 //				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 //				bugDialog.setVisible(true);
 //			}
@@ -2239,7 +2239,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			catch (InvocationTargetException e) {
 				e.printStackTrace();
 				
-				BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, errorInInitializationMessage, appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 				bugDialog.setVisible(true);
 			}
@@ -2942,7 +2942,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 				calc = null;
 			} catch (RemoteException ee) {
 				ee.printStackTrace();
-				BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(ee, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -2966,7 +2966,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			setButtonsEnable(true);
-			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -2984,7 +2984,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			setButtonsEnable(true);
-			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -3002,7 +3002,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			setButtonsEnable(true);
-			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}

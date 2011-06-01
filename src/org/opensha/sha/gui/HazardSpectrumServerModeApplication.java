@@ -62,9 +62,13 @@ import org.opensha.sha.gui.util.IconFetcher;
  */
 public class HazardSpectrumServerModeApplication
 extends HazardSpectrumLocalModeApplication {
-	
+
 	public static final String APP_NAME = "Hazard Spectrum Server Mode Application";
 	public static final String APP_SHORT_NAME = "HazardSpectrumServer";
+	
+	public HazardSpectrumServerModeApplication(String appShortName) {
+		super(appShortName);
+	}
 
 	/**
 	 * Initialize the ERF Gui Bean
@@ -79,7 +83,7 @@ extends HazardSpectrumLocalModeApplication {
 			}
 			catch (InvocationTargetException e) {
 				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 				bugDialog.setVisible(true);
 			}
@@ -164,7 +168,7 @@ extends HazardSpectrumLocalModeApplication {
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardSpectrumServerModeApplication applet = new
-		HazardSpectrumServerModeApplication();
+		HazardSpectrumServerModeApplication(APP_SHORT_NAME);
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();

@@ -90,6 +90,9 @@ extends HazardCurveLocalModeApplication {
 	//Prob@IML or IML@Prob
 	boolean probAtIML;
 
+	public HazardSpectrumLocalModeApplication(String appShortName) {
+		super(appShortName);
+	}
 
 	/**
 	 *
@@ -161,7 +164,7 @@ extends HazardCurveLocalModeApplication {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 		}
@@ -189,7 +192,7 @@ extends HazardCurveLocalModeApplication {
           disaggCalc = new DisaggregationCalculator();*/
 		}catch(Exception e){
 
-			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 			//     e.printStackTrace();
@@ -333,7 +336,7 @@ extends HazardCurveLocalModeApplication {
 			catch (Exception e) {
 				e.printStackTrace();
 				setButtonsEnable(true);
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -448,7 +451,7 @@ extends HazardCurveLocalModeApplication {
 			createCalcInstance();
 		}catch(Exception e){
 			setButtonsEnable(true);
-			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -575,7 +578,7 @@ extends HazardCurveLocalModeApplication {
 			catch(RemoteException e){
 				setButtonsEnable(true);
 				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -691,7 +694,7 @@ extends HazardCurveLocalModeApplication {
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
 		HazardSpectrumLocalModeApplication applet = new
-		HazardSpectrumLocalModeApplication();
+				HazardSpectrumLocalModeApplication(APP_SHORT_NAME);
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();

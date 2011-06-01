@@ -39,7 +39,7 @@ public class TestHazardCurveMultiIMRs {
 
 	@Before
 	public void setUp() throws Exception {
-		app = new HazardCurveLocalModeApplication();
+		app = new HazardCurveLocalModeApplication(HazardCurveLocalModeApplication.APP_SHORT_NAME);
 		app.init();
 		app.setTitle("Hazard Curve Local mode Application "+"("+HazardCurveLocalModeApplication.getAppVersion()+")" );
 		app.setVisible(true);

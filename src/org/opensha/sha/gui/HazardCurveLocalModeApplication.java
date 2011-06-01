@@ -59,6 +59,10 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 	
 	public static final String APP_NAME = "Hazard Curve Local Mode Application";
 	public static final String APP_SHORT_NAME = "HazardCurveLocal";
+	
+	public HazardCurveLocalModeApplication(String appShortName) {
+		super(appShortName);
+	}
 
 	/**
 	 * Initialize the ERF Gui Bean
@@ -76,7 +80,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 			catch (InvocationTargetException e) {
 				e.printStackTrace();
 				
-				BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, errorInInitializationMessage, appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 				bugDialog.setVisible(true);
 			}
@@ -144,7 +148,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 					disaggCalc = new DisaggregationCalculator();
 		}catch(Exception e){
 			e.printStackTrace();
-			BugReport bug = new BugReport(e, this.getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, this.getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 		}
@@ -153,7 +157,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
-		HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication();
+		HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication(APP_SHORT_NAME);
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();

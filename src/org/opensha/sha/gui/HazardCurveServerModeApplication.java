@@ -175,6 +175,11 @@ ScalarIMRChangeListener {
 	
 	public static final String APP_NAME = "Hazard Curve Server Mode Application";
 	public static final String APP_SHORT_NAME = "HazardCurveServer";
+	
+	/**
+	 * this is the short name for the application (not static because other apps extend this).
+	 */
+	protected String appShortName;
 
 	/**
 	 * Name of the class
@@ -351,8 +356,8 @@ ScalarIMRChangeListener {
 				"during initialization the ERF's. All parameters are set to default.";
 
 	// Construct the applet
-	public HazardCurveServerModeApplication() {
-
+	public HazardCurveServerModeApplication(String appShortName) {
+		this.appShortName = appShortName;
 	}
 
 	// Initialize the applet
@@ -385,7 +390,7 @@ ScalarIMRChangeListener {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, errorInInitializationMessage, appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 		}
@@ -404,7 +409,7 @@ ScalarIMRChangeListener {
 	}
 	
 	private JMenu buildHelpMenu() {
-		HelpMenuBuilder builder = new HelpMenuBuilder(APP_NAME, APP_SHORT_NAME, getAppVersion(), this);
+		HelpMenuBuilder builder = new HelpMenuBuilder(APP_NAME, appShortName, getAppVersion(), this);
 		builder.setTutorialURL(getTutorialURL());
 		builder.setGuideURL(getGuideURL());
 		
@@ -772,7 +777,7 @@ ScalarIMRChangeListener {
 	// Main method
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
-		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
+		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication(APP_SHORT_NAME);
 		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), applet, applet));
 		applet.init();
@@ -911,7 +916,7 @@ ScalarIMRChangeListener {
 					System.exit(101);
 					// peerResultsFile.close();
 				} catch (Exception ee) {
-					BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+					BugReport bug = new BugReport(ee, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 					BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 					bugDialog.setVisible(true);
 				}
@@ -940,7 +945,7 @@ ScalarIMRChangeListener {
 			setButtonsEnable(true);
 		} catch (Throwable t) {
 			t.printStackTrace();
-			BugReport bug = new BugReport(t, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(t, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 			setButtonsEnable(true);
@@ -975,7 +980,7 @@ ScalarIMRChangeListener {
 				//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 				bugDialog.setVisible(true);
 			}
@@ -1008,7 +1013,7 @@ ScalarIMRChangeListener {
 		} catch (Exception e) {
 			setButtonsEnable(true);
 			e.printStackTrace();
-			BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -1308,7 +1313,7 @@ ScalarIMRChangeListener {
 			if (D)
 				System.out.println(C + ":Param warning caught" + ex);
 			ex.printStackTrace();
-			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -1374,7 +1379,7 @@ ScalarIMRChangeListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 				setButtonsEnable(true);
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 
@@ -1460,7 +1465,7 @@ ScalarIMRChangeListener {
 			} catch (Exception e) {
 				setButtonsEnable(true);
 				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -1522,7 +1527,7 @@ ScalarIMRChangeListener {
 			} catch (Exception e) {
 				setButtonsEnable(true);
 				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -1582,7 +1587,7 @@ ScalarIMRChangeListener {
 			} catch (RemoteException ex) {
 				setButtonsEnable(true);
 				ex.printStackTrace();
-				BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -1685,7 +1690,7 @@ ScalarIMRChangeListener {
 				} catch (Exception e) {
 					setButtonsEnable(true);
 					e.printStackTrace();
-					BugReport bug = new BugReport(e, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+					BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 					BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 					bugDialog.setVisible(true);
 				}
@@ -1866,7 +1871,7 @@ ScalarIMRChangeListener {
 				.addParameterChangeListener(this);
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
-				BugReport bug = new BugReport(e, errorInInitializationMessage, APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(e, errorInInitializationMessage, appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 				bugDialog.setVisible(true);
 			}
@@ -2496,7 +2501,7 @@ ScalarIMRChangeListener {
 				calc = null;
 			} catch (RemoteException ee) {
 				ee.printStackTrace();
-				BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+				BugReport bug = new BugReport(ee, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 				bugDialog.setVisible(true);
 			}
@@ -2520,7 +2525,7 @@ ScalarIMRChangeListener {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			setButtonsEnable(true);
-			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
@@ -2538,7 +2543,7 @@ ScalarIMRChangeListener {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			setButtonsEnable(true);
-			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 		}
