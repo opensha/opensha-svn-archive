@@ -18,6 +18,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.Parameter;
@@ -1104,8 +1105,26 @@ public class MeanUCERF2 extends AbstractERF {
 	public static void main(String[] args) {
 		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
 		meanFinalUCERF2.calcSummedMFDs  =false;
-		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
 		meanFinalUCERF2.updateForecast();
+		
+		NSHMP_GridSourceGenerator gridGen = meanFinalUCERF2.nshmp_gridSrcGen;
+		Location loc = new Location(33.9917, -116.608);
+		GriddedRegion region = gridGen.getGriddedRegion();
+		int idx = region.indexForLocation(loc);
+		System.out.println(region.locationForIndex(idx));
+		IncrementalMagFreqDist mfd = gridGen.getTotMFD_atLoc(idx, false, true, true, false, false);
+		System.out.println("------");
+		System.out.println(mfd);
+		mfd = gridGen.getTotMFD_atLoc(idx, true, true, true, false, false);
+		System.out.println("------");
+		System.out.println(mfd);
+		
+		//int indexOfInterest = meanFinalUCERF2.nshmp_gridSrcGen.getGriddedRegion();
+
+//		for(int src=0; src<meanFinalUCERF2.getNumSources(); src++)
+//			System.out.println(src+"\t"+meanFinalUCERF2.getSource(src).getSourceMetadata());
 
 		
 //		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
