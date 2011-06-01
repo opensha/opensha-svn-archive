@@ -172,8 +172,6 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
   private boolean parameterChange;
   private String tecRegType;
   
-  private PropagationEffect propagationEffect;
-
   protected final static Double MAG_WARN_MIN = new Double(5.0);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
@@ -238,7 +236,7 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
 
-    propagationEffect = new PropagationEffect();
+    propEffect = new PropagationEffect();
   }
 
   /**
@@ -306,7 +304,7 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
    
-    	propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
+    	propEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
     	distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup());
 //    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
     }
