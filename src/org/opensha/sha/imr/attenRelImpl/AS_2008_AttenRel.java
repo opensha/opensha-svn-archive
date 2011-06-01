@@ -157,8 +157,6 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 
 	private HashMap indexFromPerHashMap;
 
-	private PropagationEffect propagationEffect;
-
 	// values for warning parameters
 	private final static double MAG_WARN_MIN = 4.0;
 	private final static double MAG_WARN_MAX = 8.5;
@@ -223,8 +221,8 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
 
-		propagationEffect = new PropagationEffect();
-		propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
+		propEffect = new PropagationEffect();
+		propEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
 
 		// do this to set the primitive types for each parameter;
 		setParamDefaults();
