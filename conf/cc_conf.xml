@@ -238,7 +238,7 @@
 		<schedule>
 			<!-- This test runs nightly, updating pref data at 1 am, with a timeout
 					of 20 minutes (1200 seconds)  -->
-			<ant uselogger="true" time="0100" antscript="${ant.bin} timeout="1200"
+			<ant uselogger="true" time="0100" antscript="${ant.bin}" timeout="1200"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="pref.fault.data.update" />
 		</schedule>
