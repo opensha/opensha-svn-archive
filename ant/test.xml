@@ -73,7 +73,7 @@
 	</target>
 	
 	<target name="run.common.tests" depends="compile.tests, resource.tests, pre.test.init">
-		<junit fork="yes" haltonfailure="false" 
+		<junit fork="yes" haltonfailure="true" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
 			haltonerror="true"
@@ -146,10 +146,10 @@
 	
 	<!-- This runs standard tests (the test suites) that can be executed quickly (every night) -->
 	<target name="run.coverage.tests" depends="compile.tests, pre.test.init">
-		<junit fork="yes" haltonfailure="false" 
+		<junit fork="yes" haltonfailure="true" 
 			failureproperty="tests.failed"
 			errorProperty="test.failed"
-			haltonerror="false"
+			haltonerror="true"
 			dir="${build}"
 			printsummary="yes">
 			<jvmarg value="-Djava.awt.headless=true"/>
@@ -175,8 +175,7 @@
 	     			<formatter type="xml" />
 				<batchtest fork="yes" todir="${logs}">
 				<fileset dir="../classes/">
-					<include name="**/commons/**/*Suite*" />
-					<include name="**/sha/gui/beans/*Suite*" />
+					<include name="**/*Suite*" />
 				</fileset>
 			</batchtest>
 		</junit>

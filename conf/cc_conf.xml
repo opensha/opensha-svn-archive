@@ -103,7 +103,7 @@
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@caltech.edu" />
+				<failure address="pmpowers@usgs.gov" />
 			</htmlemail>
 
 		</publishers>
@@ -158,7 +158,7 @@
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
-				<failure address="pmpowers@caltech.edu" />-->
+				<failure address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -211,7 +211,7 @@
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@caltech.edu" />
+				<failure address="pmpowers@usgs.gov" />
 			</htmlemail>
 
 		</publishers>
@@ -265,7 +265,7 @@
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
-				<failure address="pmpowers@caltech.edu" />-->
+				<failure address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -316,7 +316,7 @@
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@caltech.edu" />
+				<failure address="pmpowers@usgs.gov" />
 			</htmlemail>
 
 		</publishers>
