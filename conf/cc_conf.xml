@@ -102,8 +102,8 @@
 						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
-				<!--<failure address="kmilner@usc.edu" />
-				<failure address="pmpowers@caltech.edu" />-->
+				<!--<failure address="kmilner@usc.edu" />-->
+				<failure address="pmpowers@caltech.edu" />
 			</htmlemail>
 
 		</publishers>
@@ -210,8 +210,8 @@
 						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
-				<!--<failure address="kmilner@usc.edu" />
-				<failure address="pmpowers@caltech.edu" />-->
+				<!--<failure address="kmilner@usc.edu" />-->
+				<failure address="pmpowers@caltech.edu" />
 			</htmlemail>
 
 		</publishers>
@@ -308,15 +308,15 @@
 
 			<htmlemail mailhost="localhost"
 						returnaddress="${returnaddress}"
-						reportsuccess="fixes"
+						reportsuccess="always"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
 						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
 						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
-				<!--<failure address="kmilner@usc.edu" />
-				<failure address="pmpowers@caltech.edu" />-->
+				<!--<failure address="kmilner@usc.edu" />-->
+				<failure address="pmpowers@caltech.edu" />
 			</htmlemail>
 
 		</publishers>
