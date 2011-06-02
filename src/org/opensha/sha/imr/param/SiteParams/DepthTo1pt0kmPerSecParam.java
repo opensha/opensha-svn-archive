@@ -44,7 +44,7 @@ public class DepthTo1pt0kmPerSecParam extends WarningDoubleParameter {
 	 * @param defaultDepth
 	 * @param allowsNull 
 	 */
-	public DepthTo1pt0kmPerSecParam(double defaultDepth, boolean allowsNull) {
+	public DepthTo1pt0kmPerSecParam(Double defaultDepth, boolean allowsNull) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
 		getConstraint().setNullAllowed(allowsNull);
 		getConstraint().setNonEditable();
