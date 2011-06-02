@@ -24,6 +24,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
@@ -160,12 +161,21 @@ ParameterChangeListener {
 
 	@Override
 	public void setParamDefaults() {
+		
 		vs30Param.setValueAsDefault();
+		
 		saParam.setValueAsDefault();
 		saPeriodParam.setValueAsDefault();
 		saDampingParam.setValueAsDefault();
+		
 		pgaParam.setValueAsDefault();
 		pgvParam.setValueAsDefault();
+		
+		componentParam.setValueAsDefault();
+		stdDevTypeParam.setValueAsDefault();
+
+		sigmaTruncTypeParam.setValueAsDefault();
+		sigmaTruncLevelParam.setValueAsDefault();
 		
 		for (ScalarIMR ar : arList) {
 			ar.setParamDefaults();
@@ -225,16 +235,18 @@ ParameterChangeListener {
 		siteParams.clear();
 		vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 		siteParams.addParameter(vs30Param);
+		vs30Param.setValueAsDefault();
+		System.out.println("VS30: " + vs30Param.getValue());
 		
 		// Campbell & bozorgnia hidden
-		depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(0.0, 10.0, true);
-		depthTo2pt5kmPerSecParam.setValue(null);
+		depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(null, 0.0, 10.0, true);
+		depthTo2pt5kmPerSecParam.setValueAsDefault();
 		depthTo2pt5kmPerSecParam.getEditor().setVisible(false);
 		siteParams.addParameter(depthTo2pt5kmPerSecParam);
 
 		// Chiou & Youngs hidden
-		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(100, 1, 10000, true);
-		depthTo1pt0kmPerSecParam.setValue(null);
+		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(null, true);
+		depthTo1pt0kmPerSecParam.setValueAsDefault();
 		depthTo1pt0kmPerSecParam.getEditor().setVisible(false);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
 		vs30_TypeParam = new Vs30_TypeParam();
@@ -794,5 +806,8 @@ ParameterChangeListener {
 	}
 
 	}
-
+	public static void main(String[] args) {
+		Site s = new Site(new Location(34 , -118));
+		System.out.println(s.clone());
+	}
 }
