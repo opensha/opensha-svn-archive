@@ -160,8 +160,8 @@ public class AttenRelResultsChecker {
 	 * @throws IOException 
 	 */
 	public boolean readResultFile() throws IOException{
-//		return readResultFile(resultFile + "_new.txt");
-		return readResultFile(resultFile);
+//		return readResultFile("/tmp/SADIGH.txt");
+		return readResultFile(null);
 	}
 
 	/**
