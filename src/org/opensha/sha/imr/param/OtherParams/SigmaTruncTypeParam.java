@@ -43,6 +43,14 @@ public class SigmaTruncTypeParam extends StringParameter {
 	 * and sets the default as "None".  The parameter is left non editable.
 	 */
 	public SigmaTruncTypeParam() {
+		this(SIGMA_TRUNC_TYPE_NONE);
+	}
+	
+	/**
+	 * This constructor invokes the standard options ("None", "1 Sided", or "2 Sided"),
+	 * and uses the given default value.  The parameter is left non editable.
+	 */
+	public SigmaTruncTypeParam(String defaultValue) {
 		super(NAME);
 		StringConstraint options = new StringConstraint();
 		options.addString(SIGMA_TRUNC_TYPE_NONE);
@@ -50,7 +58,7 @@ public class SigmaTruncTypeParam extends StringParameter {
 		options.addString(SIGMA_TRUNC_TYPE_2SIDED);
 		setConstraint(options);
 		setInfo(INFO);
-		setDefaultValue(SIGMA_TRUNC_TYPE_NONE);
+		setDefaultValue(defaultValue);
 		setNonEditable();
 		setValueAsDefault();
 	}
