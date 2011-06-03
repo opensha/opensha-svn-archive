@@ -328,7 +328,8 @@ public class DisaggregationPlotter {
 					meanModeText += disaggCalc.getMeanAndModeInfo();
 					
 					CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
-					String metadataText = HazardCurvePlotter.getCyberShakeCurveInfo(curveID, csSite, run, velModel, im);
+					String metadataText = HazardCurvePlotter.getCyberShakeCurveInfo(curveID, csSite, run, velModel, im,
+							null, null);
 					String binDataText = disaggCalc.getBinData();
 					String sourceDataText = disaggCalc.getDisaggregationSourceInfo();
 					

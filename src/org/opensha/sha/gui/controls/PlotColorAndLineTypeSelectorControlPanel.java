@@ -82,6 +82,11 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
 ActionListener,ParameterChangeListener{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private JPanel jPanel1 = new JPanel();
 	private JLabel jLabel1 = new JLabel();
 	private JScrollPane colorAndLineTypeSelectorPanel = new JScrollPane();
@@ -108,7 +113,7 @@ ActionListener,ParameterChangeListener{
 
 	//static String definitions
 	private final static String colorChooserString = "Choose Color";
-	private final static String lineTypeString = "Choose Line Type";
+//	private final static String lineTypeString = "Choose Line Type";
 	//name of the attenuationrelationship weights parameter
 	public static final String lineWidthParamName = "Size -";
 
@@ -131,7 +136,9 @@ ActionListener,ParameterChangeListener{
 	public final static String INV_TRIANGLES = "Inv. Triangles";
 	public final static String FILLED_DIAMONDS = "Filled Diamond";
 	public final static String DIAMONDS = "Diamond";
+	public final static String LINE_AND_FILLED_CIRCLES = "Line and Filled Circles";
 	public final static String LINE_AND_CIRCLES = "Line and Circles";
+	public final static String LINE_AND_FILLED_TRIANGLES = "Line and Filled Triangles";
 	public final static String LINE_AND_TRIANGLES = "Line and Triangles";
 	public final static String HISTOGRAM = "Histograms";
 	public final static String STACKED_BAR = "Stacked Bar";
@@ -168,9 +175,9 @@ ActionListener,ParameterChangeListener{
 	private BorderLayout borderLayout1 = new BorderLayout();
 
 	//Curve characterstic array
-	private ArrayList plottingFeatures;
+	private ArrayList<PlotCurveCharacterstics> plottingFeatures;
 	//default curve characterstics with values , when this control panel was called
-	private ArrayList defaultPlottingFeatures;
+	private ArrayList<PlotCurveCharacterstics> defaultPlottingFeatures;
 	private JButton RevertButton = new JButton();
 	//instance of application using this control panel
 	private PlotColorAndLineTypeSelectorControlPanelAPI application;
@@ -180,12 +187,12 @@ ActionListener,ParameterChangeListener{
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 	//last updated width vals for Labels
-	private int tickLabelWidth ;
-	private int axisLabelWidth;
-	private int plotLabelWidth;
+//	private int tickLabelWidth ;
+//	private int axisLabelWidth;
+//	private int plotLabelWidth;
 
 	public PlotColorAndLineTypeSelectorControlPanel(PlotColorAndLineTypeSelectorControlPanelAPI api,
-			ArrayList curveCharacterstics) {
+			ArrayList<PlotCurveCharacterstics> curveCharacterstics) {
 		application = api;
 		try {
 			jbInit();
@@ -207,7 +214,7 @@ ActionListener,ParameterChangeListener{
 
 		//creating the parameters to change the size of Labels
 		//creating list of supported font sizes
-		ArrayList supportedFontSizes = new ArrayList();
+		ArrayList<String> supportedFontSizes = new ArrayList<String>();
 
 		supportedFontSizes.add("8");
 		supportedFontSizes.add("10");
@@ -227,9 +234,9 @@ ActionListener,ParameterChangeListener{
 		tickFontSizeParam.addParameterChangeListener(this);
 		axisLabelsFontSizeParam.addParameterChangeListener(this);
 		plotLabelsFontSizeParam.addParameterChangeListener(this);
-		tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
-		axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
-		plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
+//		tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
+//		axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
+//		plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
 		//creating the axis and plot label params
 		xAxisLabelParam = new StringParameter(xAxisLabelParamName,xAxisLabel);
 		yAxisLabelParam = new StringParameter(yAxisLabelParamName,yAxisLabel);
@@ -313,10 +320,10 @@ ActionListener,ParameterChangeListener{
 	 * for each curve in list ,so creates these gui components dynamically based on
 	 * number of functions in list.
 	 */
-	public void setPlotColorAndLineType(ArrayList curveCharacterstics){
+	public void setPlotColorAndLineType(ArrayList<PlotCurveCharacterstics> curveCharacterstics){
 		int numCurves = curveCharacterstics.size();
 		plottingFeatures = curveCharacterstics;
-		defaultPlottingFeatures = new ArrayList();
+		defaultPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();
 
 		//creating the defaultPlotting features with original color scheme.
 		for(int i=0;i<numCurves;++i){
@@ -357,7 +364,9 @@ ActionListener,ParameterChangeListener{
 			lineTypeSelector[i].addItem(INV_TRIANGLES);
 			lineTypeSelector[i].addItem(FILLED_DIAMONDS);
 			lineTypeSelector[i].addItem(DIAMONDS);
+			lineTypeSelector[i].addItem(LINE_AND_FILLED_CIRCLES);
 			lineTypeSelector[i].addItem(LINE_AND_CIRCLES);
+			lineTypeSelector[i].addItem(LINE_AND_FILLED_TRIANGLES);
 			lineTypeSelector[i].addItem(LINE_AND_TRIANGLES);
 			lineTypeSelector[i].addItem(HISTOGRAM);
 			//setting the selected plot type to be one currently selected.
@@ -398,22 +407,22 @@ ActionListener,ParameterChangeListener{
 	public void parameterChange(ParameterChangeEvent event){
 		//updating the size of the labels
 		String paramName = event.getParameterName();
-		if(paramName.equals(this.tickFontSizeParamName)){
-			tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
+		if(paramName.equals(tickFontSizeParamName)){
+//			tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
 			//tickFontSizeParam.setValue(""+tickLabelWidth);
 
 		}
-		else if(paramName.equals(this.axislabelsFontSizeParamName)){
-			axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
+		else if(paramName.equals(axislabelsFontSizeParamName)){
+//			axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
 			//axisLabelsFontSizeParam.setValue(""+axisLabelWidth);
-		} else if(paramName.equals(this.plotlabelsFontSizeParamName)) {
-			plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
+		} else if(paramName.equals(plotlabelsFontSizeParamName)) {
+//			plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
 		}
-		else if(paramName.equals(this.xAxisLabelParamName))
+		else if(paramName.equals(xAxisLabelParamName))
 			xAxisLabel = (String)this.xAxisLabelParam.getValue();
-		else if(paramName.equals(this.yAxisLabelParamName))
+		else if(paramName.equals(yAxisLabelParamName))
 			yAxisLabel = (String)this.yAxisLabelParam.getValue();
-		else if(paramName.equals(this.plotLabelParamName))
+		else if(paramName.equals(plotLabelParamName))
 			plotLabel = (String)this.plotLabelParam.getValue();
 
 		plotParamEditor.refreshParamEditor();
@@ -471,11 +480,12 @@ ActionListener,ParameterChangeListener{
 	 */
 	private void setStyleSizeBasedOnSelectedShape(int index,String selectedStyle){
 
-		if(selectedStyle.equals(this.SOLID_LINE) || selectedStyle.equals(this.DASHED_LINE) ||
-				selectedStyle.equals(this.DOTTED_LINE) || selectedStyle.equals(this.DOT_DASH_LINE)||
+		if(selectedStyle.equals(SOLID_LINE) || selectedStyle.equals(DASHED_LINE) ||
+				selectedStyle.equals(DOTTED_LINE) || selectedStyle.equals(DOT_DASH_LINE)||
 				selectedStyle.equals(HISTOGRAM))
 			lineWidthParameterEditor[index].setValue(new Double(1.0));
-		else if(selectedStyle.equals(this.LINE_AND_CIRCLES) || selectedStyle.equals(this.LINE_AND_TRIANGLES))
+		else if(selectedStyle.equals(LINE_AND_FILLED_CIRCLES) || selectedStyle.equals(LINE_AND_FILLED_TRIANGLES)
+				|| selectedStyle.equals(LINE_AND_CIRCLES) || selectedStyle.equals(LINE_AND_TRIANGLES))
 			lineWidthParameterEditor[index].setValue(new Double(1.0));
 		else
 			lineWidthParameterEditor[index].setValue(new Double(4.0));

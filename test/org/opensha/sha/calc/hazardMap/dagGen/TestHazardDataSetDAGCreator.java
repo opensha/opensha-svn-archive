@@ -106,7 +106,7 @@ public class TestHazardDataSetDAGCreator {
 	public void testDAGCreation() throws IOException {
 		CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, sites, calcSettings, archiver);
 		
-		XMLUtils.writeObjectToXMLAsRoot(inputs, tempDir.getAbsolutePath() + File.separator + "inputs.xml");
+		XMLUtils.writeObjectToXMLAsRoot(inputs, new File(tempDir.getAbsolutePath() + File.separator + "inputs.xml"));
 		
 		String javaExec = "/auto/usc/jdk/1.6.0/jre/bin/java";
 		String pwd = System.getProperty("user.dir");

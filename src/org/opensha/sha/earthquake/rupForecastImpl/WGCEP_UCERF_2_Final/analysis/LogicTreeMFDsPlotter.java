@@ -80,7 +80,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLUE, 2); // A-Faults
 	private final PlotCurveCharacterstics PLOT_CHAR1_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 		      Color.BLUE, 1); // A-Faults
 	
 	
@@ -90,7 +90,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.LIGHT_GRAY, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.LIGHT_GRAY, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 		      Color.LIGHT_GRAY, 1); // B-Faults Char
 	
 	
@@ -100,7 +100,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.GREEN, 2); // B-Faults GR
 	private final PlotCurveCharacterstics PLOT_CHAR3_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 		      Color.GREEN, 1); // B-Faults GR
 	
 	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -114,7 +114,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLACK, 2); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.BLACK, 2); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 		      Color.BLACK, 1); // Tot MFD
 	
 	

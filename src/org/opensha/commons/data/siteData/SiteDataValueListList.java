@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data.siteData;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -165,7 +166,7 @@ public class SiteDataValueListList implements XMLSaveable {
 		
 		root = valsLists.toXMLMetadata(root);
 		
-		XMLUtils.writeDocumentToFile("/tmp/vals.xml", doc);
+		XMLUtils.writeDocumentToFile(new File("/tmp/vals.xml"), doc);
 		
 		Element listsEl = root.element(SiteDataValueListList.XML_METADATA_NAME);
 		

@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data.siteData;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -673,7 +674,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		
 		Element el = root.element(XML_METADATA_NAME);
 		
-		XMLUtils.writeDocumentToFile("/tmp/list.xml", doc);
+		XMLUtils.writeDocumentToFile(new File("/tmp/list.xml"), doc);
 		
 		list = OrderedSiteDataProviderList.fromXMLMetadata(el);
 		

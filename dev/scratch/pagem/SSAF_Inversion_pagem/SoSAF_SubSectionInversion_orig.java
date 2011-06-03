@@ -1782,7 +1782,7 @@ public class SoSAF_SubSectionInversion_orig {
 		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 2));
 		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
 		for(int c=0;c<num;c++)
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES, Color.RED, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES, Color.RED, 1));
 		er_graph.setPlottingFeatures(plotChars);
 		er_graph.setX_AxisLabel("Subsection");
 		er_graph.setY_AxisLabel("Event Rate (per yr)");
@@ -1903,7 +1903,7 @@ public class SoSAF_SubSectionInversion_orig {
 		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
 		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 2));
 		for(int c=0;c<num;c++)
-			plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES, Color.RED, 1));
+			plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES, Color.RED, 1));
 		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 2));
 		seg_graph.setPlottingFeatures(plotChars2);
 		seg_graph.setX_AxisLabel("Subsection");

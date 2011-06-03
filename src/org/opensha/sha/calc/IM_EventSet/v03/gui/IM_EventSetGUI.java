@@ -271,7 +271,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 				Element root = doc.getRootElement();
 				calc.toXMLMetadata(root);
 				try {
-					XMLUtils.writeDocumentToFile(file.getAbsolutePath(), doc);
+					XMLUtils.writeDocumentToFile(file, doc);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

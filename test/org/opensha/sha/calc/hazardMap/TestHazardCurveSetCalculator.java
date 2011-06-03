@@ -104,7 +104,7 @@ public class TestHazardCurveSetCalculator extends TestCase {
 		inputs.toXMLMetadata(root);
 		
 		xmlFile = tempDir.getAbsolutePath() + File.separator + "input.xml";
-		XMLUtils.writeDocumentToFile(xmlFile, doc);
+		XMLUtils.writeDocumentToFile(new File(xmlFile), doc);
 	}
 	
 	public void testHazardCurves() throws IOException {

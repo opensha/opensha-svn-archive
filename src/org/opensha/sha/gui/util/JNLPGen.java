@@ -118,7 +118,7 @@ public class JNLPGen {
 		String fileName = dir + File.separator + shortName + ".jnlp";
 		System.out.println("Writing JNLP to: " + fileName);
 		
-		XMLUtils.writeDocumentToFile(fileName, doc);
+		XMLUtils.writeDocumentToFile(new File(fileName), doc);
 	}
 	
 	public Document createDocument() {

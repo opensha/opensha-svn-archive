@@ -975,7 +975,7 @@ public class RupsInFaultSystemInversion {
 				Color.BLUE, 2));
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 					Color.RED, 1));
 		graph3.setPlottingFeatures(plotChars);
 		graph3.setX_AxisLabel("Fault Section Index");

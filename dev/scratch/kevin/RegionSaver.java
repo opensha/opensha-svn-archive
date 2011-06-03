@@ -1,5 +1,6 @@
 package scratch.kevin;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -25,7 +26,7 @@ public class RegionSaver {
 		
 		region.toXMLMetadata(root);
 		
-		XMLUtils.writeDocumentToFile(fileName, doc);
+		XMLUtils.writeDocumentToFile(new File(fileName), doc);
 		
 		for (String line : (ArrayList<String>)FileUtils.loadFile(fileName)) {
 			System.out.println(line);

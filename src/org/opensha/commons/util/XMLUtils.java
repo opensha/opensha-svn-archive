@@ -58,11 +58,11 @@ public class XMLUtils {
 	 * @param document
 	 * @throws IOException
 	 */
-	public static void writeDocumentToFile(String fileName, Document document) throws IOException {
+	public static void writeDocumentToFile(File file, Document document) throws IOException {
 		
 		XMLWriter writer;
 		
-		writer = new XMLWriter(new FileWriter(fileName), format);
+		writer = new XMLWriter(new FileWriter(file), format);
 		writer.write(document);
 		writer.close();
 	}
@@ -110,14 +110,14 @@ public class XMLUtils {
 	 * @param fileName
 	 * @throws IOException
 	 */
-	public static void writeObjectToXMLAsRoot(XMLSaveable obj, String fileName) throws IOException {
+	public static void writeObjectToXMLAsRoot(XMLSaveable obj, File file) throws IOException {
 		Document document = createDocumentWithRoot();
 		
 		Element root = document.getRootElement();
 		
 		root = obj.toXMLMetadata(root);
 		
-		writeDocumentToFile(fileName, document);
+		writeDocumentToFile(file, document);
 	}
 	
 	/**

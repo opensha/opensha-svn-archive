@@ -2560,7 +2560,7 @@ ScalarIMRChangeListener {
 		functionList.add(function);
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+				PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 				Color.BLACK, 1.0, 1));
 		addGraphPanel();
 	}

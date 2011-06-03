@@ -32,7 +32,7 @@ public class TestHazusDataSetDAGCreator extends TestHazardDataSetDAGCreator {
 		
 		CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, sites, calcSettings, archiver);
 		
-		XMLUtils.writeObjectToXMLAsRoot(inputs, tempDir.getAbsolutePath() + File.separator + "inputs.xml");
+		XMLUtils.writeObjectToXMLAsRoot(inputs, new File(tempDir.getAbsolutePath() + File.separator + "inputs.xml"));
 		
 		String javaExec = "/usr/bin/java";
 		String pwd = System.getProperty("user.dir");

@@ -244,7 +244,7 @@ public class HazardDataSetDAGCreator {
 		Document doc = XMLUtils.createDocumentWithRoot();
 		xml.toXMLMetadata(doc.getRootElement());
 
-		XMLUtils.writeDocumentToFile(fileName, doc);
+		XMLUtils.writeDocumentToFile(new File(fileName), doc);
 
 		return fileName;
 	}

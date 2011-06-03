@@ -39,7 +39,7 @@ public abstract class GridResource implements XMLSaveable, Serializable {
 		
 		root = this.toXMLMetadata(root);
 		
-		XMLUtils.writeDocumentToFile(fileName, document);
+		XMLUtils.writeDocumentToFile(new File(fileName), document);
 	}
 	
 	public static void main(String args[]) {

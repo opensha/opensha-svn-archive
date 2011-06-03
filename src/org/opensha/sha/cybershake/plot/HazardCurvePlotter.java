@@ -185,6 +185,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	private void init() {
 		gp = new GraphPanel(this);
+		gp.setBackgroundColor(null);
 		
 		runs2db = new Runs2DB(db);
 		curve2db = new HazardCurve2DB(this.db);
@@ -709,6 +710,40 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return plotCurve(curveID, run, null, null, textOnly);
 	}
 	
+	private static Color getColorForVM(int vmID) {
+		switch (vmID) {
+		case 1:
+			return Color.BLUE;
+		case 2:
+			return Color.RED;
+		case 3:
+			return Color.GREEN;
+		case 4:
+			return Color.MAGENTA;
+		case 5:
+			return Color.ORANGE;
+		case 6:
+			return Color.CYAN;
+		default:
+			return Color.BLACK;
+		}
+	}
+	
+	private static String getLineTypeForRupVarScenID(int rupVarScenID) {
+		switch (rupVarScenID) {
+		case 3:
+			return PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES;
+		case 4:
+			return PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES;
+		case 5:
+			return PlotColorAndLineTypeSelectorControlPanel.LINE_AND_TRIANGLES;
+		case 6:
+			return PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_TRIANGLES;
+		default:
+			return PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
+		}
+	}
+	
 	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run,
 			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly) {
 		curveNames.clear();
@@ -730,8 +765,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			return null;
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
-		chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(),
-				this.plotChars.getCyberShakeColor(), 1));
+		Color curveColor = plotChars.getCyberShakeColor();
+		if (curveColor == null)
+			curveColor = getColorForVM(run.getVelModelID());
+		String curveLineType = this.plotChars.getCyberShakeLineType();
+		if (curveLineType == null)
+			curveLineType = getLineTypeForRupVarScenID(run.getRupVarScenID());
+		chars.add(new PlotCurveCharacterstics(curveLineType, curveColor, 1));
 		
 		
 		CybershakeIM im = curve2db.getIMForCurve(curveID);
@@ -760,35 +800,18 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				CybershakeSite compSite = site2db.getSiteFromDB(compRun.getSiteID());
 				String curveName = "CyberShake Comparison Hazard Curve. Site: " + compSite.toString();
 				
-				String lineType;
-				switch (i) {
-				case 0:
-					lineType = PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES;
-					curveName += " (solid gray line with circles)";
-					break;
-				case 1:
-					lineType = PlotColorAndLineTypeSelectorControlPanel.LINE_AND_TRIANGLES;
-					curveName += " (solid gray line with triangles)";
-					break;
-				case 2:
-					lineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
-					curveName += " (solid gray line)";
-					break;
-				case 3:
-					lineType = PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE;
-					curveName += " (dashed gray line)";
-					break;
-				default:
-					lineType = PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES;
-					curveName += " (solid gray line with circles)";
-					break;
-				}
+				String compCurveLineType = this.plotChars.getCyberShakeLineType();
+				
+				if (compCurveLineType == null)
+					compCurveLineType = getLineTypeForRupVarScenID(compRun.getRupVarScenID());
 				curveNames.add(curveName);
-				chars.add(new PlotCurveCharacterstics(lineType,
-						Color.GRAY, 1));
-				CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
+				Color compCurveColor = plotChars.getCyberShakeColor();
+				if (compCurveColor == null)
+					compCurveColor = getColorForVM(compRun.getVelModelID());
+				chars.add(new PlotCurveCharacterstics(compCurveLineType, compCurveColor, 1));
+				CybershakeVelocityModel velModel = runs2db.getVelocityModel(compRun.getVelModelID());
 				compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getSiteID()),
-						compRun, velModel, im));
+						compRun, velModel, im, compCurveColor, compCurveLineType));
 			}
 		}
 		
@@ -798,7 +821,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		}
 		
 		CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
-		curve.setInfo(getCyberShakeCurveInfo(curveID, csSite, run, velModel, im));
+		curve.setInfo(getCyberShakeCurveInfo(curveID, csSite, run, velModel, im, curveColor, curveLineType));
 		
 		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
 		
@@ -923,8 +946,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	public static String getCyberShakeCurveInfo(int curveID, CybershakeSite site, CybershakeRun run,
-			CybershakeVelocityModel velModel, CybershakeIM im) {
+			CybershakeVelocityModel velModel, CybershakeIM im, Color color, String lineType) {
 		String infoString = "Site: "+ site.getFormattedName() + ";\n";
+		if (lineType != null)
+			infoString += "Plot Type: "+lineType+" ("+
+					HazardCurvePlotCharacteristics.getColorName(color)+");\n";
 		if (run != null)
 			infoString += "Run: "+run.toString() + ";\n";
 		if (velModel != null)
@@ -1291,8 +1317,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
-//		String[] newArgs = { "-R", "576", "--compare-to", "789,791,788" };
-//		args = newArgs;
+		String confDir = "src/org/opensha/sha/cybershake/conf/";
+		String[] newArgs = { "-R", "247", "--compare-to", "786,790",
+				"--output-dir", "/tmp", "--type", "pdf,png",
+				"--erf-file", confDir+"MeanUCERF.xml",
+				"--atten-rel-file", confDir+"cb2008.xml,"+confDir+"ba2008.xml,"
+				+confDir+"cy2008.xml,"+confDir+"as2008.xml"};
+		args = newArgs;
 		try {
 			Options options = createOptions();
 			

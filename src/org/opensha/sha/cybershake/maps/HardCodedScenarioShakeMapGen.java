@@ -127,7 +127,7 @@ public class HardCodedScenarioShakeMapGen {
 		Element root = doc.getRootElement();
 		vals.toXMLMetadata(root);
 		System.out.println("Writing: " + fName);
-		XMLUtils.writeDocumentToFile(fName, doc);
+		XMLUtils.writeDocumentToFile(new File(fName), doc);
 		return vals;
 	}
 	

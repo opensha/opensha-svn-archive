@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -57,6 +58,8 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		
 		HazardCurvePlotCharacteristics chars = new HazardCurvePlotCharacteristics(xMin, xMax, yMin, yMax, xLog, yLog);
 		
+		chars.setCyberShakeColor(null);
+		
 		chars.addPeriodDependantXMax(3d, 2d);
 		chars.addPeriodDependantXMax(5d, 1d);
 		chars.addPeriodDependantXMax(10d, 0.5);
@@ -75,22 +78,96 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		
 		HazardCurvePlotCharacteristics chars = new HazardCurvePlotCharacteristics(xMin, xMax, yMin, yMax, xLog, yLog);
 		
-		chars.setCyberShakeColor(Color.red);
+		chars.setCyberShakeColor(null);
 		
-		ArrayList<Color> attenRelColors = new ArrayList<Color>();
-		attenRelColors.add(new Color(0, 100, 0));
-		attenRelColors.add(Color.BLACK);
-		attenRelColors.add(Color.YELLOW);
-		attenRelColors.add(Color.GREEN);
-		attenRelColors.add(Color.BLUE);
-		
-		chars.setAttenRelColors(attenRelColors);
+//		ArrayList<Color> attenRelColors = new ArrayList<Color>();
+//		attenRelColors.add(new Color(0, 100, 0));
+//		attenRelColors.add(Color.BLACK);
+//		attenRelColors.add(Color.YELLOW);
+//		attenRelColors.add(Color.GREEN);
+//		attenRelColors.add(Color.BLUE);
+//		
+//		chars.setAttenRelColors(attenRelColors);
 		
 		chars.addPeriodDependantXMax(3d, 3d);
 		chars.addPeriodDependantXMax(5d, 1.5d);
 		chars.addPeriodDependantXMax(10d, 1d);
 		
 		return chars;
+	}
+	
+	enum CyberShakeColors {
+		// "noramal colors"
+		BLACK("Black",				Color.BLACK),
+		BLUE("Blue",				Color.BLUE),
+		CYAN("Cyan",				Color.CYAN),
+		DARK_GRAY("Dark Gray",		Color.DARK_GRAY),
+		GRAY("Gray",				Color.GRAY),
+		GREEN("Green",				Color.GREEN),
+		LIGHT_GRAY("Light Gray",	Color.LIGHT_GRAY),
+		MAGENTA("Magenta",			Color.MAGENTA),
+		ORANGE("Orange",			Color.ORANGE),
+		PINK("Pink",				Color.PINK),
+		RED("Red",					Color.RED),
+		WHITE("White",				Color.WHITE),
+		YELLOW("Yellow",			Color.YELLOW),
+		
+		// "custom colors"
+		LIGHT_RED("Light Red",			new Color(255, 150, 150)),
+		LIGHT_BLUE("Light Blue",		new Color(150, 150, 255)),
+		LIGHT_GREEN("Light Green",		new Color(150, 255, 150)),
+		LIGHT_ORANGE("Light Orange",	new Color(255, 200, 120)),
+		LIGHT_CYAN("Light Cyan",		new Color(160, 255, 255));
+		
+		private Color color;
+		private String name;
+		private CyberShakeColors(String name, Color color) {
+			this.name = name;
+			this.color = color;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+		
+		public Color getColor() {
+			return color;
+		}
+		
+		public static CyberShakeColors forColor(Color c) {
+			for (CyberShakeColors cs : values()) {
+				if (c.equals(cs.getColor()))
+					return cs;
+			}
+			return null;
+		}
+	}
+	
+	public static String getColorName(Color c) {
+		CyberShakeColors cs = CyberShakeColors.forColor(c);
+		if (cs == null)
+			return "r: "+c.getRed()+", g: "+c.getGreen()+", b: "+c.getBlue();
+		else
+			return cs.toString();
+	}
+	
+	private static ArrayList<Color> getDefaultColors() {
+		ArrayList<Color> attenRelColors = new ArrayList<Color>();
+		
+		attenRelColors.add(CyberShakeColors.LIGHT_RED.color); // light red
+		attenRelColors.add(CyberShakeColors.LIGHT_BLUE.color); // light blue
+		attenRelColors.add(CyberShakeColors.LIGHT_GREEN.color); // light green
+		attenRelColors.add(CyberShakeColors.LIGHT_ORANGE.color); // light orange
+		attenRelColors.add(CyberShakeColors.LIGHT_CYAN.color); // light cyan
+		
+//		attenRelColors.add(Color.blue);
+//		attenRelColors.add(Color.green);
+//		attenRelColors.add(Color.orange);
+//		attenRelColors.add(Color.CYAN);
+//		attenRelColors.add(Color.MAGENTA);
+		
+		return attenRelColors;
 	}
 	
 	private ArrayList<Color> attenRelColors;
@@ -110,9 +187,11 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 	private String xAxisLabel = PERIOD + "s SA (g)";
 	private String yAxisLabel = "Probability Rate (1/yr)";
 	
-	private Color cyberShakeColor = Color.BLACK;
+	// this can be null now, and if so, color will be set by velocity model
+	private Color cyberShakeColor = null;
 	
-	private String cyberShakeLineType = PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES;
+	// default to null now, as it can be set from rup var scen ID
+	private String cyberShakeLineType = null;
 	
 	private String attenRelLineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
 	
@@ -145,18 +224,6 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 
 	public void setAttenRelColors(ArrayList<Color> attenRelColors) {
 		this.attenRelColors = attenRelColors;
-	}
-	
-	private static ArrayList<Color> getDefaultColors() {
-		ArrayList<Color> attenRelColors = new ArrayList<Color>();
-		
-		attenRelColors.add(Color.blue);
-		attenRelColors.add(Color.green);
-		attenRelColors.add(Color.orange);
-		attenRelColors.add(Color.CYAN);
-		attenRelColors.add(Color.MAGENTA);
-		
-		return attenRelColors;
 	}
 	
 	public void addPeriodDependantXMax(double period, double xMax) {
@@ -305,16 +372,21 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 
 	/**
 	 * @param args
+	 * @throws URISyntaxException 
 	 */
-	public static void main(String[] args) {
-		String robXML = "org/opensha/sha/cybershake/conf/robPlot.xml";
-		String tomXML = "org/opensha/sha/cybershake/conf/tomPlot.xml";
+	public static void main(String[] args) throws URISyntaxException {
+		File robXML = new File(HazardCurvePlotCharacteristics.class.getResource(
+				"/org/opensha/sha/cybershake/conf/robPlot.xml").toURI());
+		File tomXML = new File(HazardCurvePlotCharacteristics.class.getResource(
+				"/org/opensha/sha/cybershake/conf/tomPlot.xml").toURI());
 		
 		HazardCurvePlotCharacteristics chars = createRobPlotChars();
 		try {
+			System.out.println("Writing: "+robXML.getAbsolutePath());
 			XMLUtils.writeObjectToXMLAsRoot(chars, robXML);
 			
 			chars = createTomPlotChars();
+			System.out.println("Writing: "+tomXML.getAbsolutePath());
 			XMLUtils.writeObjectToXMLAsRoot(chars, tomXML);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -337,7 +409,8 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		el.addAttribute("xLog", xLog + "");
 		el.addAttribute("yLog", yLog + "");
 		
-		XMLUtils.colorToXML(el, this.getCyberShakeColor(), "CyberShakeColor");
+		if (getCyberShakeColor() != null)
+			XMLUtils.colorToXML(el, this.getCyberShakeColor(), "CyberShakeColor");
 		
 		Element attenRelEl = el.addElement("AttenRelColors");
 		
@@ -392,7 +465,11 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		
 		HazardCurvePlotCharacteristics chars = new HazardCurvePlotCharacteristics(xMin, xMax, yMin, yMax, xLog, yLog);
 		
-		chars.setCyberShakeColor(XMLUtils.colorFromXML(charsEl.element("CyberShakeColor")));
+		Element csColorEl = charsEl.element("CyberShakeColor");
+		if (csColorEl == null)
+			chars.setCyberShakeColor(null);
+		else
+			chars.setCyberShakeColor(XMLUtils.colorFromXML(csColorEl));
 		
 		Iterator<Element> attenRelColorsIt = charsEl.element("AttenRelColors").elementIterator();
 		

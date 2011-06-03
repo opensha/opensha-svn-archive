@@ -2291,7 +2291,7 @@ public class SoSAF_SubSectionInversion_small {
 				Color.BLUE, 1));
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 					Color.RED, 1));
 		er_graph.setPlottingFeatures(plotChars);
 		er_graph.setX_AxisLabel("Subsection");
@@ -2424,7 +2424,7 @@ public class SoSAF_SubSectionInversion_small {
 				2));
 		for (int c = 0; c < num; c++)
 			plotChars2.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
 					Color.RED, 1));
 		plotChars2.add(new PlotCurveCharacterstics(
 				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,

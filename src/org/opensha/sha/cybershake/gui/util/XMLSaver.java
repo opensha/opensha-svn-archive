@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.gui.util;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -93,7 +94,7 @@ public abstract class XMLSaver extends JFrame implements ActionListener {
 			Element el = getXML(doc.getRootElement());
 			
 			try {
-				XMLUtils.writeDocumentToFile(fileName, doc);
+				XMLUtils.writeDocumentToFile(new File(fileName), doc);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

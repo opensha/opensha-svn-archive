@@ -261,7 +261,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 		org.dom4j.Element root = doc.getRootElement();
 		map.getAdjustableParameterList().getParameter(PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME).setValue(new Double(1.0));
 		org.dom4j.Element mapEl = map.toXMLMetadata(root).element(XML_METADATA_NAME);
-		XMLUtils.writeDocumentToFile("/tmp/cvm4.xml", doc);
+		XMLUtils.writeDocumentToFile(new File("/tmp/cvm4.xml"), doc);
 		
 		map = (CVM4BasinDepth)AbstractSiteData.fromXMLMetadata(mapEl);
 		

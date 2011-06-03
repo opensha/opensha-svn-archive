@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data.siteData;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -311,7 +312,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 		
 		Element el = list.toXMLMetadata(root);
 		
-		XMLUtils.writeDocumentToFile("/tmp/xml.xml", doc);
+		XMLUtils.writeDocumentToFile(new File("/tmp/xml.xml"), doc);
 		
 		System.out.println(SiteDataValueList.fromXMLMetadata(el));
 	}

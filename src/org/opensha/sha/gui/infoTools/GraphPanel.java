@@ -155,7 +155,7 @@ public class GraphPanel extends JSplitPane {
 	ValueAxis yAxis, yAxis1;
 
 	// light blue color
-	private Color lightBlue = new Color( 200, 200, 230 );
+	private Color backgroundColor = new Color( 200, 200, 230 );
 
 	//Keeps track when to toggle between the data and chart.
 	private boolean graphOn = false;
@@ -359,6 +359,17 @@ public class GraphPanel extends JSplitPane {
 			DIAMONDS_SHAPE_RENDERER.setShapesFilled(false);
 			setRendererInPlot(color, functionIndex, DIAMONDS_SHAPE_RENDERER);
 		}
+		//Line and filled circles
+		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES)){
+			StandardXYItemRenderer LINE_AND_FILLED_CIRCLES_RENDERER = new StandardXYItemRenderer(
+					StandardXYItemRenderer.SHAPES_AND_LINES,
+					new StandardXYToolTipGenerator()
+			);
+			LINE_AND_FILLED_CIRCLES_RENDERER.setShape(new Ellipse2D.Double(-DELTA-(curveWidth*4)/2,
+					-DELTA-(curveWidth*4)/2, SIZE+(curveWidth*4), SIZE+(curveWidth*4)));
+			setRendererInPlot(color, functionIndex, LINE_AND_FILLED_CIRCLES_RENDERER);
+			LINE_AND_FILLED_CIRCLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+		}
 		//Line and circle
 		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES)){
 			StandardXYItemRenderer LINE_AND_CIRCLES_RENDERER = new StandardXYItemRenderer(
@@ -367,8 +378,19 @@ public class GraphPanel extends JSplitPane {
 			);
 			LINE_AND_CIRCLES_RENDERER.setShape(new Ellipse2D.Double(-DELTA-(curveWidth*4)/2,
 					-DELTA-(curveWidth*4)/2, SIZE+(curveWidth*4), SIZE+(curveWidth*4)));
+			LINE_AND_CIRCLES_RENDERER.setShapesFilled(false);
 			setRendererInPlot(color, functionIndex, LINE_AND_CIRCLES_RENDERER);
 			LINE_AND_CIRCLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+		}
+		//Line and Filled Triangles
+		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_TRIANGLES)){
+			StandardXYItemRenderer LINE_AND_FILLED_TRIANGLES_RENDERER = new StandardXYItemRenderer(
+					StandardXYItemRenderer.SHAPES_AND_LINES,
+					new StandardXYToolTipGenerator()
+			);
+			LINE_AND_FILLED_TRIANGLES_RENDERER.setShape(ShapeUtilities.createUpTriangle((float)(curveWidth*4)));
+			setRendererInPlot(color, functionIndex, LINE_AND_FILLED_TRIANGLES_RENDERER);
+			LINE_AND_FILLED_TRIANGLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
 		}
 		//Line and Triangles
 		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_TRIANGLES)){
@@ -377,6 +399,7 @@ public class GraphPanel extends JSplitPane {
 					new StandardXYToolTipGenerator()
 			);
 			LINE_AND_TRIANGLES_RENDERER.setShape(ShapeUtilities.createUpTriangle((float)(curveWidth*4)));
+			LINE_AND_TRIANGLES_RENDERER.setShapesFilled(false);
 			setRendererInPlot(color, functionIndex, LINE_AND_TRIANGLES_RENDERER);
 			LINE_AND_TRIANGLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
 		}
@@ -631,7 +654,7 @@ public class GraphPanel extends JSplitPane {
 		//a panel fo curves,
 		JFreeChart chart = new JFreeChart(title, newPlotLabelFont, plot, false );
 
-		chart.setBackgroundPaint( lightBlue );
+		chart.setBackgroundPaint( backgroundColor );
 
 		// Put into a panel
 		chartPanel = new ChartPanel(chart, true, true, true, true, false);
@@ -842,6 +865,10 @@ public class GraphPanel extends JSplitPane {
 	 */
 	public void setMetadata(String metadata){
 		dataTextArea.setText(metadata);
+	}
+	
+	public void setBackgroundColor(Color background) {
+		this.backgroundColor = background;
 	}
 
 
