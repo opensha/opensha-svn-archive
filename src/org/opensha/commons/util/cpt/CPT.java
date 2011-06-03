@@ -40,6 +40,8 @@ import java.util.StringTokenizer;
 import org.dom4j.Element;
 import org.opensha.commons.data.Named;
 
+import com.google.common.base.Preconditions;
+
 /**
  * This class represents a GMT CPT file.
  *
@@ -674,5 +676,30 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable {
 	
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	private double rescale(double oldVal, double newMin, double newMax) {
+		double oldDelta = getMaxValue() - getMinValue();
+		double newDelta = newMax - newMin;
+		
+		return newMin + ((oldVal - getMinValue()) / oldDelta) * newDelta;
+	}
+	
+	/**
+	 * @return rescaled version of this CPT
+	 */
+	public CPT rescale(double min, double max) {
+		Preconditions.checkState(getMaxValue() > getMinValue(), "in order to rescale, current max must be > min");
+		Preconditions.checkArgument(max > min, "new max must be > min");
+		CPT cpt = new CPT(getName());
+		
+		for (CPTVal val : this) {
+			float start = (float)rescale(val.start, min, max);
+			float end = (float)rescale(val.end, min, max);
+			CPTVal newVal = new CPTVal(start, val.minColor, end, val.maxColor);
+			cpt.add(newVal);
+		}
+		
+		return cpt;
 	}
 }
