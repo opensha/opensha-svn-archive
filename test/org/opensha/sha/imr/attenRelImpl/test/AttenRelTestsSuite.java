@@ -38,7 +38,10 @@ import org.junit.runners.Suite;;
 	CB_2008_test.class,
 	CY_2008_test.class,
 	NGA08_Site_EqkRup_Tests.class,
-	ZhaoEtAl_2006_test.class
+	ZhaoEtAl_2006_test.class,
+	GeneralIMR_ParameterTests.class,
+	MultiIMR_CalcTest.class,
+	MultiIMR_ParamTest.class
 })
 
 

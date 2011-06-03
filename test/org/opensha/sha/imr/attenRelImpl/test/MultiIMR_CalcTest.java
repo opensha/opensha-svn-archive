@@ -16,9 +16,10 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.CurveAverager;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.ERFTestSubset;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
@@ -55,8 +56,21 @@ public class MultiIMR_CalcTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		erf = new Frankel02_AdjustableEqkRupForecast();
-		erf.updateForecast();
+//		erf = new Frankel02_AdjustableEqkRupForecast();
+//		erf = new Frankel96_AdjustableEqkRupForecast();
+		ERFTestSubset myERF = new ERFTestSubset(new Frankel96_AdjustableEqkRupForecast());
+		myERF.updateForecast();
+		myERF.includeSource(0);
+		myERF.includeSource(1);
+		myERF.includeSource(2);
+		myERF.includeSource(281);
+		myERF.includeSource(39);
+		myERF.includeSource(179);
+		myERF.includeSource(49);
+		myERF.includeSource(22);
+		myERF.includeSource(63);
+		
+		erf = myERF;
 
 		Vs30_Param vs30 = new Vs30_Param(760d);
 		vs30.setValueAsDefault();
@@ -125,7 +139,7 @@ public class MultiIMR_CalcTest {
 	}
 
 	@Test
-	public void testMultiIMRs_SA01() throws RemoteException {
+	public void testMultiIMRs_SA10() throws RemoteException {
 		ArrayList<ScalarIMR> ngas1 = createNGAs(true);
 		ArrayList<ScalarIMR> ngas2 = createNGAs(true);
 		testMultiIMRAverageCurve(buildMulti(ngas1, false), ngas2, SA_Param.NAME, 1.0);
