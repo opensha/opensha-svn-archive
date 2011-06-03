@@ -1317,13 +1317,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
-		String confDir = "src/org/opensha/sha/cybershake/conf/";
-		String[] newArgs = { "-R", "247", "--compare-to", "786,790",
-				"--output-dir", "/tmp", "--type", "pdf,png",
-				"--erf-file", confDir+"MeanUCERF.xml",
-				"--atten-rel-file", confDir+"cb2008.xml,"+confDir+"ba2008.xml,"
-				+confDir+"cy2008.xml,"+confDir+"as2008.xml"};
-		args = newArgs;
+//		String confDir = "src/org/opensha/sha/cybershake/conf/";
+//		String[] newArgs = { "-R", "247", "--compare-to", "786,790",
+//				"--output-dir", "/tmp", "--type", "pdf,png",
+//				"--erf-file", confDir+"MeanUCERF.xml",
+//				"--atten-rel-file", confDir+"cb2008.xml,"+confDir+"ba2008.xml,"
+//				+confDir+"cy2008.xml,"+confDir+"as2008.xml"};
+//		args = newArgs;
 		try {
 			Options options = createOptions();
 			
