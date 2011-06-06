@@ -87,62 +87,93 @@ public interface Parameter<E> extends
 		XMLSaveable,
 		Serializable {
 
-    /** Every parameter has a name, this function gets that name. */
-    public String getName();
-
-    /** Every parameter has a name, this function sets that name. */
+    /** 
+     * Sets this <code>Parameter</code>'s name.
+     * 
+     * TODO this is bad form; a parameter's name should be immutable and required
+     * and therefore always set via a constructor. The abstract implementation
+     * should not have a no-arg constructoir to prevent this 
+     * 
+     * @param name to set
+     */
     public void setName(String name);
 
     /**
      * Every parameter constraint has a name, this
      * function gets that name. Defaults to the name
      * of the parameter but in some cases may be different.
+     * TODO this is wierd and unecessary; why do constraints have names?
      */
-    public String getConstraintName(  );
+    public String getConstraintName();
 
     /**
      * Returns the constraint of this parameter. Each
      * subclass may store any type of constraint it likes.
+     * @return the <code>Parameter</code>'s constraint
      */
     public ParameterConstraint getConstraint();
 
-    /**
-     * Sets the constraints of this parameter. Each
-     * subclass may store any type of constraint it likes.
+	/**
+	 * Sets the constraints of this parameter.
+	 * @param constraint to set
+	 */
+	public void setConstraint(ParameterConstraint constraint);
+
+    /** 
+     * Returns the units of this parameter as a <code>String</code>.
+     * @return the units
      */
-    public void setConstraint(ParameterConstraint constraint);
-
-
-    /** Returns the units of this parameter, represented as a String. */
     public String getUnits();
 
-    /** Sets the string name of units of this parameter */
-    public void setUnits(String units);
+	/**
+	 * Sets the units of measurement for this parameter.
+	 * TODO like name, units should be immutable and set on construction
+	 * @param units to set
+	 */
+	public void setUnits(String units);
 
-    /** Returns a description of this Parameter, typically used for tooltips. */
+    /** 
+     * Returns a description of this Parameter, typically used for tooltips.
+     * @return a brief description of this <code>Parameter</code>
+     */
     public String getInfo();
 
-    /** Sets the info attribute of the ParameterAPI object. */
+    /** 
+     * Sets the info attribute of the Parameter object.
+	 * TODO like name, units should be immutable and set on construction
+     * @param info to set
+     */
     public void setInfo( String info );
 
-    /** Returns the value stored in this parameter. */
+    /** 
+     * Returns the value of this <code>Parameter</code>.
+     * @return the <code>Parameter</code> value
+     */
     public E getValue();
     
-    /**
-     *  Set's the default value.
-     *
-     * @param  defaultValue          The default value for this Parameter.
-     * @throws  ConstraintException  Thrown if the object value is not allowed.
-     */
-    public void setDefaultValue( E defaultValue );
+	/**
+	 * Set the default value of this <code>Parameter</code>.
+	 * TODO like name, the default value should be immutable and always set
+	 * via a constructor. Moreover, any 'new' parameter should automatically
+	 * be initialized to the default; requiring every instance of every
+	 * parameter to have to (possibly) call setDefaultValue() and then call
+	 * setValueAsDefault() to actually get it set is sloppy
+	 * @param value to set as default
+	 */
+	public void setDefaultValue(E value);
 
     /**
-     * This sets the value as the default setting
-     * @param value
+     * This sets the Parameter value to the default value.
+     * TODO this is wierd; the signature suggests one is going to change the
+     * current param value to be the default value; this would be better named
+     * reset()
      */
     public void setValueAsDefault();
     
-    /** Returns the parameter's default value. Each subclass defines what type of object it returns. */
+    /** 
+     * Returns the default value of this <code>Parameter</code>.
+     * @return the default value
+     */
     public E getDefaultValue();
 
 
@@ -156,30 +187,38 @@ public interface Parameter<E> extends
      */
     public void setValue( E value ) throws ConstraintException, ParameterException;
     
-    /**
-     * Sets the value of this parameter from am XML element
-     * @param el
-     * @return
-     */
-    public boolean setValueFromXMLMetadata(Element el);
+	/**
+	 * Sets the value of this parameter from the supplied XML metadata
+	 * <code>Element</code>.
+	 * @param e metadata to use
+	 * @return <code>true</code> if value was successfully updated from supplied
+	 *         metadata; <code>false</code> otherwise
+	 */
+    public boolean setValueFromXMLMetadata(Element e);
     
     /**
-     * Method for saving this parameter to XML with the specified element name
+     * Saves this parameter into the supplied XML metadata <code>Element</code> using the specified name
      * instead of the default.
      * @param root
      * @param elementName
      * @return
      */
-    public Element toXMLMetadata(Element root, String elementName);
+    public Element toXMLMetadata(Element root, String name);
 
 
-     /** Needs to be called by subclasses when field change fails due to constraint problems. */
+     /** 
+      * Needs to be called by subclasses when field change fails due to constraint problems.
+      * TODO this is wierd
+      */
      public void unableToSetValue( Object value ) throws ConstraintException;
 
 
 
     /**
      *  Adds a feature to the ParameterChangeFailListener attribute
+     *  
+     *  TODO this is wierd; either a parameter changes or it doesn't, but creating
+     *  a separate class to inform of failures is just plain nutty
      *
      * @param  listener  The feature to be added to the
      *      ParameterChangeFailListener attribute
@@ -227,6 +266,8 @@ public interface Parameter<E> extends
     /**
      *  Returns the data type of the value object. Used to determine which type
      *  of Editor to use in a GUI.
+     *  TODO this is wierd; each call should be using a .class reference; this
+     *  islittle used and needs rethinking
      */
     public String getType();
 
@@ -245,29 +286,38 @@ public interface Parameter<E> extends
     //public int compareTo( Object parameter ) throws ClassCastException;
 
 
-    /**
-     *  Compares passed in parameter value to this one to see if equal.
-     *
-     * @param  parameter            the parameter to compare this object to.
-     * @return                      True if the values are identical
-     * @throws  ClassCastException  Thrown if the object type of the parameter
-     *      argument are not the same.
-     */
+	/**
+	 * Compares passed in parameter value to this one to see if equal.
+	 * 
+	 * TODO shouldn't be (re)declared in interface; should be robust in abstract
+	 * implementation
+	 * @param parameter the parameter to compare this object to.
+	 * @return True if the values are identical
+	 * @throws ClassCastException Thrown if the object type of the parameter
+	 *         argument are not the same.
+	 * 
+	 */
     public boolean equals( Object parameter ) throws ClassCastException;
 
 
+	/**
+	 * Returns whether the supplied value is allowed. Method generally checks
+	 * any constraints, if such exist; otherwise returns <code>true</code>.
+	 * @param value to check
+	 * @return <code>true</code> if the supplied value is permitted;
+	 *         <code>false</code> otherwise
+	 */
+	public boolean isAllowed(E value);
+
+	/**
+	 * Returns whether the value can be edited or altered after initialization.
+	 * @return <code>true</code> if this <code>Parameter</code> is editable;
+	 *         <code>false</code> otherwise
+	 */
+	public boolean isEditable();
+
     /**
-     * Proxy to constraint check when setting a value. If no
-     * constraint then this always returns true.
-     */
-    public boolean isAllowed( E value );
-
-
-    /** Determines if the value can be edited, i.e. changed after initialization .*/
-    public boolean isEditable();
-
-
-    /**
+     * 
      *  Disables editing units, info, constraints, etc. Basically all set()s disabled
      *  except for setValue(). Once set non-editable, it cannot be set back.
      *  This is a one-time operation.
@@ -275,7 +325,8 @@ public interface Parameter<E> extends
     public void setNonEditable();
 
 
-    /** Returns a copy so you can't edit or damage the origial. */
+    /** 
+     * Returns a deep copy so you can't edit or damage the origial. */
     public Object clone();
 
     /**
@@ -295,11 +346,12 @@ public interface Parameter<E> extends
      */
     public String getMetadataString() ;
     
-    /**
-     * This returns an editor for this parameter. The parameter editor shouldn't be
-     * instantiated until the first call to this method in order to save memory.
-     */
-    public ParameterEditor getEditor();
+	/**
+	 * Returns the <code>Editor</code> for this <code>Parameter</code>. It is
+	 * recommended that editors be lazily instantiated.
+	 * @return the <code>Editor</code>
+	 */
+	public ParameterEditor getEditor();
     
     public static final String XML_INDEPENDENT_PARAMS_NAME = "IndependentParameters";
 	

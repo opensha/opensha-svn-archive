@@ -33,15 +33,11 @@ import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 
 /**
- * <b>Title: </b> Parameter<p>
- *
- * <b>Description: </b> Partial (abstract)  base implementation for
- * ParameterAPI of common functionality accross all parameter subclasses.
- * The common fields with get and setters are here, as well as a default
- * constructor that sets all these fields, and the setValue field that
- * always checks if the value is allowefd before setting. The fields
- * with gettesr and setters are:
- *
+ * Parial implementation of the <code>Paameter</code>. The common fields
+ * with get and setters are here, as well as a default constructor that sets all
+ * these fields, and the setValue field that always checks if the value is
+ * allowed before setting. The fields with gettesr and setters are:
+ * 
  * <ul>
  * <li>name
  * <li>units
@@ -49,13 +45,14 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
  * <li>editable
  * <li>value
  * </ul>
- *
- * These fields are common to all parameters. <p>
- *
- * @author     Steve W. Rock
- * @created    February 21, 2002
- * @see        Parameter
- * @version    1.0
+ * 
+ * These fields are common to all parameters.
+ * <p>
+ * 
+ * @author Steve W. Rock
+ * @author Kevin Milner
+ * @author Peter Powers
+ * @version $Id$
  */
 public abstract class AbstractParameter<E> implements Parameter<E> {
 
