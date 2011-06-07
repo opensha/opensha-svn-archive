@@ -19,20 +19,13 @@
 
 package org.opensha.commons.param.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.AbstractParameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
-import org.opensha.commons.param.editor.AbstractParameterEditorOld;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.DoubleParameterEditor;
@@ -553,23 +546,23 @@ public class DoubleParameter extends AbstractParameter<Double> {
 		return paramEdit;
 	}
 	
-	public static void main(String[] args) {
-		DoubleParameter dp = new DoubleParameter("tmpD", 1d);
-		//dp.setValue(null);
-		IntegerParameter ip = new IntegerParameter("tmpI", 1);
-		//DoubleDiscreteParameter ddp = new DoubleDiscreteParameter("tmpD", -1d);
-		DoubleParameter ddp = new DoubleParameter("tmpD", -1d);
-//		ddp.setValue(null);
-	
-		System.out.println(ddp.equals(dp));
-		
-		
-		List<Parameter<?>> pl = new ArrayList<Parameter<?>>();
-		pl.add(dp);
-		pl.add(ip);
-		pl.add(ddp);
-		
-		Collections.sort(pl);
-		System.out.println(pl.toString());
-	}
+//	public static void main(String[] args) {
+//		DoubleParameter dp = new DoubleParameter("tmpD", 1d);
+//		//dp.setValue(null);
+//		IntegerParameter ip = new IntegerParameter("tmpI", 1);
+//		//DoubleDiscreteParameter ddp = new DoubleDiscreteParameter("tmpD", -1d);
+//		DoubleParameter ddp = new DoubleParameter("tmpD", -1d);
+////		ddp.setValue(null);
+//	
+//		System.out.println(ddp.equals(dp));
+//		
+//		
+//		List<Parameter<?>> pl = new ArrayList<Parameter<?>>();
+//		pl.add(dp);
+//		pl.add(ip);
+//		pl.add(ddp);
+//		
+//		Collections.sort(pl);
+//		System.out.println(pl.toString());
+//	}
 }
