@@ -771,7 +771,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		String curveLineType = this.plotChars.getCyberShakeLineType();
 		if (curveLineType == null)
 			curveLineType = getLineTypeForRupVarScenID(run.getRupVarScenID());
-		chars.add(new PlotCurveCharacterstics(curveLineType, curveColor, 1));
+		chars.add(new PlotCurveCharacterstics(curveLineType, curveColor, plotChars.getLineWidth()));
 		
 		
 		CybershakeIM im = curve2db.getIMForCurve(curveID);
@@ -808,7 +808,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				Color compCurveColor = plotChars.getCyberShakeColor();
 				if (compCurveColor == null)
 					compCurveColor = getColorForVM(compRun.getVelModelID());
-				chars.add(new PlotCurveCharacterstics(compCurveLineType, compCurveColor, 1));
+				chars.add(new PlotCurveCharacterstics(compCurveLineType, compCurveColor, plotChars.getLineWidth()));
 				CybershakeVelocityModel velModel = runs2db.getVelocityModel(compRun.getVelModelID());
 				compCurve.setInfo(getCyberShakeCurveInfo(compCurveID, site2db.getSiteFromDB(compRun.getSiteID()),
 						compRun, velModel, im, compCurveColor, compCurveLineType));
@@ -922,7 +922,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				color = colors.get(colors.size() - 1);
 			else
 				color = colors.get(i);
-			chars.add(new PlotCurveCharacterstics(this.plotChars.getAttenRelLineType(), color, 1));
+			chars.add(new PlotCurveCharacterstics(this.plotChars.getAttenRelLineType(), color, plotChars.getAttenRelLineWidth()));
 			
 			System.out.println("Setting params for Attenuation Relationship: " + attenRel.getName());
 			Site site = this.setAttenRelParams(attenRel, im);
@@ -1317,13 +1317,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
-//		String confDir = "src/org/opensha/sha/cybershake/conf/";
-//		String[] newArgs = { "-R", "247", "--compare-to", "786,790",
-//				"--output-dir", "/tmp", "--type", "pdf,png",
-//				"--erf-file", confDir+"MeanUCERF.xml",
-//				"--atten-rel-file", confDir+"cb2008.xml,"+confDir+"ba2008.xml,"
-//				+confDir+"cy2008.xml,"+confDir+"as2008.xml"};
-//		args = newArgs;
+		String confDir = "src/org/opensha/sha/cybershake/conf/";
+		String[] newArgs = { "-R", "247", "--compare-to", "786,790",
+				"--output-dir", "D:\\", "--type", "pdf,png",
+				"--erf-file", confDir+"MeanUCERF.xml",
+				"--atten-rel-file", confDir+"cb2008.xml,"+confDir+"ba2008.xml,"
+				+confDir+"cy2008.xml,"+confDir+"as2008.xml"};
+		args = newArgs;
 		try {
 			Options options = createOptions();
 			

@@ -62,6 +62,7 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
@@ -1256,8 +1257,7 @@ IMR_GuiBeanAPI{
 	public void addCurve(ArbitrarilyDiscretizedFunc function){
 		functionList.add(function);
 		ArrayList plotFeaturesList = getPlottingFeatures();
-		plotFeaturesList.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-				Color.BLACK,4.0,1));
+		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.PLUS, 4f, Color.BLACK, 1));
 		addGraphPanel();
 	}
 

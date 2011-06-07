@@ -21,7 +21,12 @@ package org.opensha.sha.gui.infoTools;
 
 import java.awt.Color;
 
+import org.opensha.commons.data.Named;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+
+import com.google.common.base.Preconditions;
 
 /**
  * <p>Title: PlotCurveCharacterstics</p>
@@ -31,223 +36,175 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @version 1.0
  */
 
-public class PlotCurveCharacterstics {
+public class PlotCurveCharacterstics implements Named, Cloneable {
 
-  //shape of curve while plotting it
-  private String curveType;
-  //color of the color
-  private Color curveColor;
-  //width of the curve when plotted
-  private double curveWidth;
+	// type of line
+	private PlotLineType lineType;
+	//width of the curve when plotted
+	private float lineWidth;
+	// symbol of curve
+	private PlotSymbol symbol;
+	//width of the curve when plotted
+	private float symbolWidth;
+	//color of the color
+	private Color color;
 
-  //name of selected curve
-  private String curveName = "Data";
+	//name of selected curve
+	private String name = "Data";
 
-  //num of continuous curves with same characterstics as above
-  private int numCurvesWithSamePlottingFeatures =1;
+	//num of continuous curves with same characterstics as above
+	private int numCurvesWithSamePlottingFeatures = 1;
+	
+	public PlotCurveCharacterstics(PlotLineType lineType, float lineWidth, PlotSymbol symbol,
+			float symbolWidth, Color color) {
+		this("Data", lineType, lineWidth, symbol, symbolWidth, color, 1);
+	}
+	
+	public PlotCurveCharacterstics(PlotLineType lineType, float lineWidth, PlotSymbol symbol,
+			float symbolWidth, Color color, int numCurvesWithSamePlottingFeatures) {
+		this("Data", lineType, lineWidth, symbol, symbolWidth, color, numCurvesWithSamePlottingFeatures);
+	}
 
-  public PlotCurveCharacterstics() {};
+	/**
+	 * New <code>PlotCurveCharacteristics</code> instance with all parameter specified.
+	 * 
+	 * @param name name of the curve
+	 * @param lineType line type, or null
+	 * @param lineWidth width of the line
+	 * @param symbol symbol type, or null
+	 * @param symbolWidth width of the symbol
+	 * @param color color of the curve
+	 * @param numCurvesWithSamePlottingFeatures number of continuous curves with same plotting characteristics.
+	 */
+	public PlotCurveCharacterstics(String name, PlotLineType lineType, float lineWidth, PlotSymbol symbol,
+			float symbolWidth, Color color, int numCurvesWithSamePlottingFeatures) {
+		set(name, lineType, lineWidth, symbol, symbolWidth, color, numCurvesWithSamePlottingFeatures);
+	}
 
-  /**
-   *
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   */
-  public PlotCurveCharacterstics(String lineType,Color lineColor,double lineWidth){
-    curveType =lineType;
-    curveColor =lineColor;
-    curveWidth =lineWidth;
-  }
+	/**
+	 * Sets the shape of curve
+	 * @param lineType
+	 */
+	public void setLineType(PlotLineType lineType){
+		this.lineType = lineType;
+	}
 
-  /**
-   * @param lineName
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   */
-  public PlotCurveCharacterstics(String lineName,String lineType,Color lineColor,double lineWidth){
-    curveName = lineName;
-    curveType =lineType;
-    curveColor =lineColor;
-    curveWidth =lineWidth;
-  }
+	/**
+	 * 
+	 * @return line type for this curve
+	 */
+	public PlotLineType getLineType() {
+		return lineType;
+	}
+	
+	/**
+	 * Sets the symbol of the curve
+	 * @param symbol
+	 */
+	public void setSymbol(PlotSymbol symbol) {
+		this.symbol = symbol;
+	}
+	
+	/**
+	 * 
+	 * @return symbol for this curve
+	 */
+	public PlotSymbol getSymbol() {
+		return symbol;
+	}
 
-  /**
-   *
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   * @param numConsecutiveCurvesWithSamePlotFeatures
-   */
-  public PlotCurveCharacterstics(String lineType,Color lineColor,double lineWidth,
-                                 int numConsecutiveCurvesWithSamePlotFeatures){
-    curveType =lineType;
-    curveColor =lineColor;
-    curveWidth =lineWidth;
-    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
-  }
+	/**
+	 * Set curve color
+	 * @param curveColor
+	 */
+	public void setColor(Color color){
+		this.color = color;
+	}
+	
+	/**
+	 * @return color for this curve
+	 */
+	public Color getColor() {
+		return color;
+	}
 
-  /**
-   * @param lineName
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   * @param numConsecutiveCurvesWithSamePlotFeatures
-   */
-  public PlotCurveCharacterstics(String lineName,String lineType,Color lineColor,
-                                 double lineWidth,int numConsecutiveCurvesWithSamePlotFeatures){
-    curveName = lineName;
-    curveType =lineType;
-    curveColor =lineColor;
-    curveWidth =lineWidth;
-    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
-  }
+	/**
+	 * set the curve line width
+	 * @param width
+	 */
+	public void setLineWidth(float lineWidth){
+		this.lineWidth = lineWidth;
+	}
+	
+	/**
+	 * @return the width of the line
+	 */
+	public float getLineWidth() {
+		return lineWidth;
+	}
+	
+	/**
+	 * set the curve symbol width
+	 * @param width
+	 */
+	public void setSymbolWidth(float symbolWidth){
+		this.symbolWidth = symbolWidth;
+	}
+	
+	/**
+	 * @return the width of the symbol
+	 */
+	public float getSymbolWidth() {
+		return symbolWidth;
+	}
+	
+	public void set(PlotLineType lineType, float lineWidth, PlotSymbol symbol,
+			float symbolWidth, Color color) {
+		set(name, lineType, lineWidth, symbol, symbolWidth, color, numCurvesWithSamePlottingFeatures);
+	}
+	
+	public void set(String name, PlotLineType lineType, float lineWidth, PlotSymbol symbol,
+			float symbolWidth, Color color, int numCurvesWithSamePlottingFeatures) {
+		this.name = name;
+		this.lineType = lineType;
+		this.lineWidth = lineWidth;
+		this.symbol = symbol;
+		this.symbolWidth = symbolWidth;
+		this.color = color;
+		this.numCurvesWithSamePlottingFeatures = numCurvesWithSamePlottingFeatures;
+	}
 
+	/**
+	 * Set the number of continuous curves with same number of plotting characterstics.
+	 * eg: can be of weighted functionlist in which all the individual curves
+	 * have same plotting characterstics.
+	 * @param num
+	 */
+	public void setNumContinuousCurvesWithSameCharaceterstics(int num){
+		numCurvesWithSamePlottingFeatures = num;
+	}
 
-  /**
-   * Sets the shape of curve
-   * @param curveType
-   */
-  public void setCurveType(String curveType){
-    this.curveType = curveType;
-  }
+	/**
+	 *
+	 * @return the number of curves with same number curve plotting characterstics
+	 */
+	public int getNumContinuousCurvesWithSameCharacterstics(){
+		return numCurvesWithSamePlottingFeatures;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
 
+	@Override
+	public String getName() {
+		return name;
+	}
 
-  /**
-   * Set curve color
-   * @param curveColor
-   */
-  public void setCurveColor(Color curveColor){
-    this.curveColor = curveColor;
-  }
-
-  /**
-   * set the curve line width
-   * @param width
-   */
-  public void setCurveWidth(double width){
-    curveWidth =width;
-  }
-
-  /**
-   * set the curve characterstics for plotting
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   */
-  public void setCurveCharacterstics(String lineType,Color lineColor,double lineWidth){
-    curveType = lineType;
-    curveColor = lineColor;
-    curveWidth = lineWidth;
-  }
-
-
-  /**
-   * set the curve characterstics for plotting
-   * @param lineName
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   */
-  public void setCurveCharacterstics(String lineName,String lineType,Color lineColor,double lineWidth){
-    curveName = lineName;
-    curveType = lineType;
-    curveColor = lineColor;
-    curveWidth = lineWidth;
-  }
-
-  /**
-   * set the curve characterstics for plotting
-   * @param lineName
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   * @param numConsecutiveCurvesWithSamePlotFeatures
-   */
-  public void setCurveCharacterstics(String lineName,String lineType,Color lineColor,
-                                     double lineWidth,int numConsecutiveCurvesWithSamePlotFeatures){
-    curveName = lineName;
-    curveType = lineType;
-    curveColor = lineColor;
-    curveWidth = lineWidth;
-    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
-  }
-
-  /**
-   * set the curve characterstics for plotting
-   * @param lineType
-   * @param lineColor
-   * @param lineWidth
-   * @param numConsecutiveCurvesWithSamePlotFeatures
-   */
-  public void setCurveCharacterstics(String lineType,Color lineColor,double lineWidth,
-                                     int numConsecutiveCurvesWithSamePlotFeatures){
-    curveType = lineType;
-    curveColor = lineColor;
-    curveWidth = lineWidth;
-    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
-  }
-
-  /**
-   *
-   * @return the shape of curve like line, dashed, triangle
-   */
-  public String getCurveType(){
-    return curveType;
-  }
-
-  /**
-   *
-   * @return the curve color
-   */
-  public Color getCurveColor(){
-    return curveColor;
-  }
-
-  /**
-   *
-   * @return the curve line width
-   */
-  public double getCurveWidth(){
-    return curveWidth;
-  }
-
-
-  /**
-   * Sets the name of the plot curve
-   * @param name
-   */
-  public void setCurveName(String name){
-    curveName = name;
-  }
-
-  /**
-   *
-   * @return the name of curve
-   */
-  public String getCurveName(){
-    return curveName;
-  }
-
-
-  /**
-   * Set the number of continuous curves with same number of plotting characterstics.
-   * eg: can be of weighted functionlist in which all the individual curves
-   * have same plotting characterstics.
-   * @param num
-   */
-  public void setNumContinuousCurvesWithSameCharaceterstics(int num){
-    numCurvesWithSamePlottingFeatures = num;
-  }
-
-  /**
-   *
-   * @return the number of curves with same number curve plotting characterstics
-   */
-  public int getNumContinuousCurvesWithSameCharacterstics(){
-    return numCurvesWithSamePlottingFeatures;
-  }
-
+	@Override
+	public Object clone() {
+		return new PlotCurveCharacterstics(name, lineType, lineWidth, symbol, symbolWidth,
+				color, numCurvesWithSamePlottingFeatures);
+	}
 
 }

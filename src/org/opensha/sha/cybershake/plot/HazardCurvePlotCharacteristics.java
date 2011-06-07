@@ -116,7 +116,7 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		LIGHT_RED("Light Red",			new Color(255, 150, 150)),
 		LIGHT_BLUE("Light Blue",		new Color(150, 150, 255)),
 		LIGHT_GREEN("Light Green",		new Color(150, 255, 150)),
-		LIGHT_ORANGE("Light Orange",	new Color(255, 200, 120)),
+		LIGHT_ORANGE("Light Orange",	new Color(255, 180, 35)),
 		LIGHT_CYAN("Light Cyan",		new Color(160, 255, 255));
 		
 		private Color color;
@@ -192,6 +192,9 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 	
 	// default to null now, as it can be set from rup var scen ID
 	private String cyberShakeLineType = null;
+	
+	private double csLineWidth = 2d;
+	private double attenRelLineWidth = 2d;
 	
 	private String attenRelLineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
 	
@@ -300,6 +303,22 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		this.customAxis = customAxis;
 	}
 	
+	public double getLineWidth() {
+		return csLineWidth;
+	}
+
+	public void setCsLineWidth(double csLineWidth) {
+		this.csLineWidth = csLineWidth;
+	}
+
+	public double getAttenRelLineWidth() {
+		return attenRelLineWidth;
+	}
+
+	public void setAttenRelLineWidth(double attenRelLineWidth) {
+		this.attenRelLineWidth = attenRelLineWidth;
+	}
+
 	public static String getReplacedTitle(String title, CybershakeSite site) {
 		title = title.replace(COMBINED_NAME, site.getFormattedName());
 		title = title.replace(SHORT_NAME, site.short_name);

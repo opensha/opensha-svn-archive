@@ -65,6 +65,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
@@ -1323,8 +1324,8 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		if( !functionList.contains( function )){
 			functionList.add(function);
 			ArrayList plotFeaturesList = getPlottingFeatures();
-			plotFeaturesList.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-					Color.BLACK,4.0,1));
+			plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.PLUS, 4f,
+					Color.BLACK,1));
 			addGraphPanel();
 		}
 		else

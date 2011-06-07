@@ -68,6 +68,8 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -2556,9 +2558,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		functionList.add(function);
 		enableMenuButtons();
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
-		plotFeaturesList.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-				Color.BLACK, 4.0, 1));
+		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.PLUS, 4f, Color.BLACK, 1));
 		addGraphPanel();
 	}
 
@@ -3018,9 +3018,8 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	public void addCybershakeCurveData(DiscretizedFunc function) {
 		functionList.add(function);
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
-		plotFeaturesList.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-				Color.BLACK, 1.0, 1));
+		plotFeaturesList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f,
+				PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK, 1));
 		addGraphPanel();
 	}
 

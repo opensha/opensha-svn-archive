@@ -22,6 +22,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.RunScript;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
@@ -2227,18 +2229,10 @@ public class BayArea_Inversion {
 		sr_funcs.add(origLower95_SlipRateFunc);
 		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs, "");
 		ArrayList<PlotCurveCharacterstics> sr_plotChars = new ArrayList<PlotCurveCharacterstics>();
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-				Color.BLACK, 4));
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 2));
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 1));
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 1));
+		sr_plotChars.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f, Color.BLUE));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 4f, Color.BLUE));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 4f, Color.BLUE));
 		sr_graph.setPlottingFeatures(sr_plotChars);
 		sr_graph.setX_AxisLabel("Subsection");
 		sr_graph.setY_AxisLabel("Slip Rate (m/sec)");
@@ -2291,16 +2285,10 @@ public class BayArea_Inversion {
 		// er_funcs.add(obs_er_funcs);
 		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED,
-				2));
-		plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 1));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 4f, Color.BLUE));
 		for (int c = 0; c < num; c++)
-			plotChars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-					Color.RED, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		er_graph.setPlottingFeatures(plotChars);
 		er_graph.setX_AxisLabel("Subsection");
 		er_graph.setY_AxisLabel("Event Rate (per yr)");

@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,6 +40,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
@@ -115,9 +119,16 @@ ActionListener,ParameterChangeListener{
 	private final static String colorChooserString = "Choose Color";
 //	private final static String lineTypeString = "Choose Line Type";
 	//name of the attenuationrelationship weights parameter
-	public static final String lineWidthParamName = "Size -";
-
-
+	public static final String LINE_WIDTH_NAME = "Line Size";
+	public static final String SYMBOL_WIDTH_NAME = "Symbol Size";
+	
+	private static final String NONE_OPTION = "(none)";
+	public static final String LINE_TYPE_NAME = "Line Type";
+	private static final PlotLineType LINE_TYPE_DEFAULT = PlotLineType.SOLID;
+	private ArrayList<String> lineTypeStrings;
+	public static final String SYMBOL_NAME = "Symbol";
+	private static final PlotSymbol SYMBOL_DEFAULT = null;
+	private ArrayList<String> symbolStrings;
 
 	//static line types that allows user to select in combobox.
 	public final static String SOLID_LINE = "Solid Line";
@@ -165,10 +176,12 @@ ActionListener,ParameterChangeListener{
 	//Dynamic Gui elements array to show the dataset color coding and line plot scheme
 	private JLabel[] datasetSelector;
 	private JButton[] colorChooserButton;
-	private JComboBox[] lineTypeSelector;
+//	private JComboBox[] lineTypeSelector;
+	private StringParameter[] lineTypeParam;
+	private StringParameter[] symbolTypeParam;
 	//AttenuationRelationship parameters and list declaration
 	private DoubleParameter[] lineWidthParameter;
-	private ConstrainedDoubleParameterEditor[] lineWidthParameterEditor;
+	private DoubleParameter[] symbolWidthParameter;
 
 	private JButton applyButton = new JButton();
 	private JButton cancelButton = new JButton();
@@ -182,7 +195,6 @@ ActionListener,ParameterChangeListener{
 	//instance of application using this control panel
 	private PlotColorAndLineTypeSelectorControlPanelAPI application;
 	private JPanel curveFeaturePanel = new JPanel();
-	private GridBagLayout gridBagLayout2 = new GridBagLayout();
 	private JButton doneButton = new JButton();
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
@@ -193,6 +205,17 @@ ActionListener,ParameterChangeListener{
 
 	public PlotColorAndLineTypeSelectorControlPanel(PlotColorAndLineTypeSelectorControlPanelAPI api,
 			ArrayList<PlotCurveCharacterstics> curveCharacterstics) {
+		
+		lineTypeStrings = new ArrayList<String>();
+		lineTypeStrings.add(NONE_OPTION);
+		for (PlotLineType plt : PlotLineType.values())
+			lineTypeStrings.add(plt.toString());
+		
+		symbolStrings = new ArrayList<String>();
+		symbolStrings.add(NONE_OPTION);
+		for (PlotSymbol sym : PlotSymbol.values())
+			symbolStrings.add(sym.toString());
+		
 		application = api;
 		try {
 			jbInit();
@@ -287,7 +310,7 @@ ActionListener,ParameterChangeListener{
 				RevertButton_actionPerformed(e);
 			}
 		});
-		curveFeaturePanel.setLayout(gridBagLayout2);
+		curveFeaturePanel.setLayout(new GridLayout(0, 6));
 		doneButton.setText("Done");
 		doneButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -295,11 +318,12 @@ ActionListener,ParameterChangeListener{
 			}
 		});
 		this.getContentPane().add(jPanel1, BorderLayout.CENTER);
+		colorAndLineTypeSelectorPanel.getViewport().setLayout(new BorderLayout());
 		jPanel1.add(jLabel1,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
 				,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 6, 0, 11), 0, 0));
 		jPanel1.add(colorAndLineTypeSelectorPanel,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
 				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 0, 0));
-		colorAndLineTypeSelectorPanel.getViewport().add(curveFeaturePanel, null);
+		colorAndLineTypeSelectorPanel.getViewport().add(curveFeaturePanel, BorderLayout.CENTER);
 		jPanel1.add(cancelButton,  new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 108), 0, 0));
 		jPanel1.add(RevertButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
@@ -327,77 +351,55 @@ ActionListener,ParameterChangeListener{
 
 		//creating the defaultPlotting features with original color scheme.
 		for(int i=0;i<numCurves;++i){
-			PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
-			defaultPlottingFeatures.add(new PlotCurveCharacterstics(curvePlotPref.getCurveType(),
-					curvePlotPref.getCurveColor(),curvePlotPref.getCurveWidth()));
+			PlotCurveCharacterstics curvePlotPref = plottingFeatures.get(i);
+			defaultPlottingFeatures.add((PlotCurveCharacterstics)curvePlotPref.clone());
 		}
 
 
 		datasetSelector = new JLabel[numCurves];
 		colorChooserButton = new  JButton[numCurves];
-		lineTypeSelector = new JComboBox[numCurves];
+		lineTypeParam = new StringParameter[numCurves];
 		lineWidthParameter = new DoubleParameter[numCurves];
-		lineWidthParameterEditor = new ConstrainedDoubleParameterEditor[numCurves];
+		symbolTypeParam = new StringParameter[numCurves];
+		symbolWidthParameter = new DoubleParameter[numCurves];
 		DoubleConstraint sizeConstraint = new DoubleConstraint(0,20);
 		for(int i=0;i<numCurves;++i){
 			PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
 			//creating the dataset Labl with the color in which they are shown in plots.
-			datasetSelector[i] = new JLabel(curvePlotPref.getCurveName());
-			datasetSelector[i].setForeground(curvePlotPref.getCurveColor());
+			datasetSelector[i] = new JLabel(curvePlotPref.getName());
+			datasetSelector[i].setForeground(curvePlotPref.getColor());
+			
 			colorChooserButton[i] = new JButton(colorChooserString);
 			colorChooserButton[i].addActionListener(this);
-			lineTypeSelector[i] = new JComboBox();
-			//adding choices to line type selector
-			lineTypeSelector[i].addItem(SOLID_LINE);
-			lineTypeSelector[i].addItem(DOTTED_LINE);
-			lineTypeSelector[i].addItem(DASHED_LINE);
-			lineTypeSelector[i].addItem(DOT_DASH_LINE);
-			lineTypeSelector[i].addItem(X);
-			lineTypeSelector[i].addItem(CROSS_SYMBOLS);
-			lineTypeSelector[i].addItem(FILLED_CIRCLES);
-			lineTypeSelector[i].addItem(CIRCLES);
-			lineTypeSelector[i].addItem(FILLED_SQUARES);
-			lineTypeSelector[i].addItem(SQUARES);
-			lineTypeSelector[i].addItem(FILLED_TRIANGLES);
-			lineTypeSelector[i].addItem(TRIANGLES);
-			lineTypeSelector[i].addItem(FILLED_INV_TRIANGLES);
-			lineTypeSelector[i].addItem(INV_TRIANGLES);
-			lineTypeSelector[i].addItem(FILLED_DIAMONDS);
-			lineTypeSelector[i].addItem(DIAMONDS);
-			lineTypeSelector[i].addItem(LINE_AND_FILLED_CIRCLES);
-			lineTypeSelector[i].addItem(LINE_AND_CIRCLES);
-			lineTypeSelector[i].addItem(LINE_AND_FILLED_TRIANGLES);
-			lineTypeSelector[i].addItem(LINE_AND_TRIANGLES);
-			lineTypeSelector[i].addItem(HISTOGRAM);
-			//setting the selected plot type to be one currently selected.
-			lineTypeSelector[i].setSelectedItem(curvePlotPref.getCurveType());
-			lineTypeSelector[i].addActionListener(this);
+			
+			PlotLineType plt = curvePlotPref.getLineType();
+			lineTypeParam[i] = new StringParameter(LINE_TYPE_NAME, lineTypeStrings,
+					plotLineTypeToString(plt));
+			lineTypeParam[i].addParameterChangeListener(this);
+			
+			PlotSymbol sym = curvePlotPref.getSymbol();
+			symbolTypeParam[i] = new StringParameter(SYMBOL_NAME, symbolStrings,
+					plotSymbolToString(sym));
+			symbolTypeParam[i].addParameterChangeListener(this);
 
-			try{
-				//creating double parameter for size of each curve.
-				lineWidthParameter[i] = new DoubleParameter(lineWidthParamName+(i+1),sizeConstraint,
-						new Double(curvePlotPref.getCurveWidth()));
-
-				lineWidthParameterEditor[i] = new ConstrainedDoubleParameterEditor(lineWidthParameter[i]);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
+			lineWidthParameter[i] = new DoubleParameter(LINE_WIDTH_NAME, sizeConstraint,
+						new Double(curvePlotPref.getLineWidth()));
+			
+			symbolWidthParameter[i] = new DoubleParameter(SYMBOL_WIDTH_NAME, sizeConstraint,
+					new Double(curvePlotPref.getSymbolWidth()));
 		}
 
 		curveFeaturePanel.removeAll();
 		//adding color chooser button,plot style and size to GUI.
 		for(int i=0;i<numCurves;++i){
-			curveFeaturePanel.add(datasetSelector[i],new GridBagConstraints(0, i+1, 1, 1, 1.0, 1.0
-					,GridBagConstraints.WEST, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
-			curveFeaturePanel.add(colorChooserButton[i],new GridBagConstraints(1, i+1, 1, 1, 1.0, 1.0
-					,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
-			curveFeaturePanel.add(lineTypeSelector[i],new GridBagConstraints(2, i+1, 1, 1, 1.0, 1.0
-					,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
-			curveFeaturePanel.add(lineWidthParameterEditor[i],new GridBagConstraints(3, i+1, 1, 1, 1.0, 1.0
-					,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
+			curveFeaturePanel.add(datasetSelector[i]);
+			curveFeaturePanel.add(colorChooserButton[i]);
+			curveFeaturePanel.add(lineTypeParam[i].getEditor().getComponent());
+			curveFeaturePanel.add(lineWidthParameter[i].getEditor().getComponent());
+			curveFeaturePanel.add(symbolTypeParam[i].getEditor().getComponent());
+			curveFeaturePanel.add(symbolWidthParameter[i].getEditor().getComponent());
 		}
-		curveFeaturePanel.add(plotParamEditor,new GridBagConstraints(1, numCurves+1, 2, 1, 0.75, 1.0
-				,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 0, 0));
+		colorAndLineTypeSelectorPanel.getViewport().add(plotParamEditor, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -407,26 +409,35 @@ ActionListener,ParameterChangeListener{
 	public void parameterChange(ParameterChangeEvent event){
 		//updating the size of the labels
 		String paramName = event.getParameterName();
-		if(paramName.equals(tickFontSizeParamName)){
-//			tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
-			//tickFontSizeParam.setValue(""+tickLabelWidth);
+		if (paramName.equals(LINE_TYPE_NAME) || paramName.equals(SYMBOL_NAME)) {
+			Parameter<String> param = event.getParameter();
+			for (int i=0; i<lineTypeParam.length; i++) {
+				if (lineTypeParam[i] == param || symbolTypeParam[i] == param) {
+					updateEditorEnables(i);
+					break;
+				}
+			}
+		} else {
+			if(paramName.equals(tickFontSizeParamName)){
+//				tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
+				//tickFontSizeParam.setValue(""+tickLabelWidth);
 
+			}
+			else if(paramName.equals(axislabelsFontSizeParamName)){
+//				axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
+				//axisLabelsFontSizeParam.setValue(""+axisLabelWidth);
+			} else if(paramName.equals(plotlabelsFontSizeParamName)) {
+//				plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
+			}
+			else if(paramName.equals(xAxisLabelParamName))
+				xAxisLabel = (String)this.xAxisLabelParam.getValue();
+			else if(paramName.equals(yAxisLabelParamName))
+				yAxisLabel = (String)this.yAxisLabelParam.getValue();
+			else if(paramName.equals(plotLabelParamName))
+				plotLabel = (String)this.plotLabelParam.getValue();
+
+			plotParamEditor.refreshParamEditor();
 		}
-		else if(paramName.equals(axislabelsFontSizeParamName)){
-//			axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
-			//axisLabelsFontSizeParam.setValue(""+axisLabelWidth);
-		} else if(paramName.equals(plotlabelsFontSizeParamName)) {
-//			plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
-		}
-		else if(paramName.equals(xAxisLabelParamName))
-			xAxisLabel = (String)this.xAxisLabelParam.getValue();
-		else if(paramName.equals(yAxisLabelParamName))
-			yAxisLabel = (String)this.yAxisLabelParam.getValue();
-		else if(paramName.equals(plotLabelParamName))
-			plotLabel = (String)this.plotLabelParam.getValue();
-
-		plotParamEditor.refreshParamEditor();
-
 	}
 
 	/**
@@ -445,53 +456,66 @@ ActionListener,ParameterChangeListener{
 			for(int i=0;i<numCurves;++i){
 				PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
 				if(button.equals(colorChooserButton[i])){
-					Color color = JColorChooser.showDialog(this,"Select Color",curvePlotPref.getCurveColor());
+					Color color = JColorChooser.showDialog(this,"Select Color",curvePlotPref.getColor());
 					//chnage the default color only if user has selected a new color , else leave it the way it is
 					if(color !=null){
-						curvePlotPref.setCurveColor(color);
+						curvePlotPref.setColor(color);
 						datasetSelector[i].setForeground(color);
 					}
 				}
 			}
 		}
-		else if(e.getSource() instanceof JComboBox){
-			Object comboBox = e.getSource();
-			//if the source of the event was color button
-			int itemIndex=0;
-			for(int i=0;i<numCurves;++i){
-				PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
-				if(comboBox.equals(lineTypeSelector[i])){
-					curvePlotPref.setCurveType((String)lineTypeSelector[i].getSelectedItem());
-					itemIndex= i;
-					break;
-				}
-			}
-			//method to set the default value for line and shapes
-			setStyleSizeBasedOnSelectedShape(itemIndex,(String)lineTypeSelector[itemIndex].getSelectedItem());
-		}
 	}
-
-
-	/**
-	 * Set the default size value based on the selected Style. For line it is 1.0f
-	 * and for shapes it is 4.0f.
-	 * @param index : Curve index
-	 * @param selectedStyle
-	 */
-	private void setStyleSizeBasedOnSelectedShape(int index,String selectedStyle){
-
-		if(selectedStyle.equals(SOLID_LINE) || selectedStyle.equals(DASHED_LINE) ||
-				selectedStyle.equals(DOTTED_LINE) || selectedStyle.equals(DOT_DASH_LINE)||
-				selectedStyle.equals(HISTOGRAM))
-			lineWidthParameterEditor[index].setValue(new Double(1.0));
-		else if(selectedStyle.equals(LINE_AND_FILLED_CIRCLES) || selectedStyle.equals(LINE_AND_FILLED_TRIANGLES)
-				|| selectedStyle.equals(LINE_AND_CIRCLES) || selectedStyle.equals(LINE_AND_TRIANGLES))
-			lineWidthParameterEditor[index].setValue(new Double(1.0));
+	
+	private PlotLineType getPlotLineType(int index) {
+		StringParameter pltParam = lineTypeParam[index];
+		String str = pltParam.getValue();
+		if (str.equals(NONE_OPTION))
+			return null;
 		else
-			lineWidthParameterEditor[index].setValue(new Double(4.0));
-		lineWidthParameterEditor[index].refreshParamEditor();
+			return PlotLineType.forDescription(str);
 	}
-
+	
+	private String plotLineTypeToString(PlotLineType plt) {
+		if (plt == null)
+			return NONE_OPTION;
+		return plt.toString();
+	}
+	
+	private PlotSymbol getPlotSymbol(int index) {
+		StringParameter symParam = symbolTypeParam[index];
+		String str = symParam.getValue();
+		if (str.equals(NONE_OPTION))
+			return null;
+		else
+			return PlotSymbol.forDescription(str);
+	}
+	
+	private String plotSymbolToString(PlotSymbol sym) {
+		if (sym == null)
+			return NONE_OPTION;
+		return sym.toString();
+	}
+	
+	private void updateEditorEnables(int index) {
+		updateEditorEnables(index, getPlotLineType(index), getPlotSymbol(index));
+	}
+	
+	private void updateEditorEnables(int index, PlotLineType plt, PlotSymbol sym) {
+		boolean lineSelected = plt != null;
+		boolean symbolEnabled = !lineSelected || (lineSelected && plt.isSymbolCompatible());
+		boolean symbolWidthEnabled = symbolEnabled && sym != null;
+		
+		lineWidthParameter[index].getEditor().setEnabled(lineSelected);
+		symbolTypeParam[index].getEditor().setEnabled(symbolEnabled);
+		if (!symbolEnabled) {
+			symbolTypeParam[index].removeParameterChangeListener(this);
+			symbolTypeParam[index].setValue(NONE_OPTION);
+			symbolTypeParam[index].addParameterChangeListener(this);
+			symbolTypeParam[index].getEditor().refreshParamEditor();
+		}
+		symbolWidthParameter[index].getEditor().setEnabled(symbolWidthEnabled);
+	}
 
 	/**
 	 * Apply changes to the Plot and keeps the control panel for user to view the results
@@ -500,16 +524,48 @@ ActionListener,ParameterChangeListener{
 	void applyButton_actionPerformed(ActionEvent e) {
 		applyChangesToPlot();
 	}
+	
+	
+	
+	private int getInvalidSettingsIndex() {
+		for (int i=0; i<plottingFeatures.size(); i++) {
+			PlotLineType plt = getPlotLineType(i);
+			PlotSymbol sym = getPlotSymbol(i);
+			if (plt == null && sym == null)
+				return i;
+		}
+		return -1;
+	}
+	
+	private void showInvalidSettingsDialog(int index) {
+		String message = "You must select a line and/or symbol.\nThey cannot both be '"+NONE_OPTION+"'."+
+				"\n\nInvalid Curve: #"+(index+1);
+		String title = "Invalid settigns for curve "+(index+1);
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+	}
 
-	private void applyChangesToPlot(){
+	private boolean applyChangesToPlot() {
+		// disable check...graph panel will just hide curve
+//		int invalidIndex = getInvalidSettingsIndex();
+//		if (invalidIndex >= 0) {
+//			showInvalidSettingsDialog(invalidIndex);
+//			return false;
+//		}
 		int numCurves = plottingFeatures.size();
 		//getting the line width parameter
-		for(int i=0;i<numCurves;++i)
-			((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveWidth(((Double)lineWidthParameterEditor[i].getParameter().getValue()).doubleValue());
+		for(int i=0;i<numCurves;++i) {
+			PlotCurveCharacterstics chars = plottingFeatures.get(i);
+			PlotLineType lineType = getPlotLineType(i);
+			float lineWidth = lineWidthParameter[i].getValue().floatValue();
+			PlotSymbol symbol = getPlotSymbol(i);
+			float symbolWidth = symbolWidthParameter[i].getValue().floatValue();
+			chars.set(lineType, lineWidth, symbol, symbolWidth, chars.getColor());
+		}
 		application.setXAxisLabel(xAxisLabel);
 		application.setYAxisLabel(yAxisLabel);
 		application.setPlotLabel(plotLabel);
 		application.plotGraphUsingPlotPreferences();
+		return true;
 	}
 
 	/**
@@ -535,15 +591,37 @@ ActionListener,ParameterChangeListener{
 	private void revertPlotToOriginal(){
 		int numCurves = defaultPlottingFeatures.size();
 		for(int i=0;i<numCurves;++i){
-			PlotCurveCharacterstics curveCharacterstics = (PlotCurveCharacterstics)defaultPlottingFeatures.get(i);
-			datasetSelector[i].setForeground(curveCharacterstics.getCurveColor());
-			((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveColor(curveCharacterstics.getCurveColor());
-			//setting the selected plot type to be one currently selected.
-			lineTypeSelector[i].setSelectedItem(curveCharacterstics.getCurveType());
-			((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveType(curveCharacterstics.getCurveType());
-			lineWidthParameterEditor[i].setValue(new Double(curveCharacterstics.getCurveWidth()));
-			lineWidthParameterEditor[i].refreshParamEditor();
-			((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveWidth(curveCharacterstics.getCurveWidth());
+			PlotCurveCharacterstics defaultChars = defaultPlottingFeatures.get(i);
+			PlotCurveCharacterstics chars = plottingFeatures.get(i);
+			
+			// color
+			datasetSelector[i].setForeground(defaultChars.getColor());
+			chars.setColor(defaultChars.getColor());
+			
+			// line type
+			PlotLineType lineType = defaultChars.getLineType();
+			lineTypeParam[i].setValue(plotLineTypeToString(lineType));
+			lineTypeParam[i].getEditor().refreshParamEditor();
+			chars.setLineType(lineType);
+			
+			// symbol type
+			PlotSymbol symbol = defaultChars.getSymbol();
+			symbolTypeParam[i].setValue(plotSymbolToString(symbol));
+			symbolTypeParam[i].getEditor().refreshParamEditor();
+			chars.setSymbol(symbol);
+			
+			// line size
+			float lineWidth = defaultChars.getLineWidth();
+			lineWidthParameter[i].setValue((double)lineWidth);
+			lineWidthParameter[i].getEditor().refreshParamEditor();
+			chars.setLineWidth(lineWidth);
+			
+			// symbol size
+			float symbolWidth = defaultChars.getSymbolWidth();
+			symbolWidthParameter[i].setValue((double)symbolWidth);
+			symbolWidthParameter[i].getEditor().refreshParamEditor();
+			chars.setSymbolWidth(symbolWidth);
+			
 			curveFeaturePanel.repaint();
 			curveFeaturePanel.validate();
 			application.plotGraphUsingPlotPreferences();
@@ -605,8 +683,8 @@ ActionListener,ParameterChangeListener{
 	 * @param e
 	 */
 	void doneButton_actionPerformed(ActionEvent e) {
-		applyChangesToPlot();
-		this.dispose();
+		if (applyChangesToPlot())
+			this.dispose();
 	}
 
 	/**
