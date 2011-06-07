@@ -146,50 +146,48 @@ public class Site extends ParameterList implements Named,Serializable,XMLSaveabl
 
     }
 
-    /**
-     * Returns true if the comparing site has the same name, Location
-     * and each parameter exists and has the same value in each Site.
-     */
-    public boolean equalsSite(Site site){
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (this == obj) return true;
+    	if (!(obj instanceof Site)) return false;
+    	Site s = (Site) obj;
+    	if (name == null && s.name != null) return false;
+    	if (name != null && !name.equalsIgnoreCase(s.name)) return false;
+    	if (location == null && s.location != null) return false;
+    	if (location != null && !location.equals(s.location)) return false;
+    	if (size() != s.size()) return false;
+    	for (Parameter<?> p1 : this) {
+    		if (!s.containsParameter(p1.getName())) return false;
+    		Parameter<?> p2 = s.getParameter(p1.getName());
+    		if (!p1.equals(p2)) return false;
+    	}
+    	return true;
+    	
+//        // Check each individual Parameter
+//        ListIterator it = this.getParametersIterator();
+//        while(it.hasNext()){
+//
+//            // This list's parameter
+//            Parameter param1 = (Parameter)it.next();
+//
+//            // List may not contain parameter with this list's parameter name
+//            if ( !s.containsParameter(param1.getName()) ) return false;
+//
+//            // Found two parameters with same name, check equals, actually redundent,
+//            // because that is what equals does
+//            Parameter param2 = (Parameter) s.getParameter(param1.getName());
+//            if( !param1.equals(param2) ) return false;
+//
+//            // Now try compare to to see if value the same, can fail if two values
+//            // are different, or if the value object types are different
+//            try{ if( param1.compareTo( param2 ) != 0 ) return false; }
+//            catch(ClassCastException ee) { return false; }
+//
+//        }
+//
+//        return true;
 
-        if ( name != null && !name.equals( site.name ) ) return false;
-        if( !location.equals( site.location ) ) return false;
-
-        // Not same size, can't be equal
-        if( this.size() != site.size() ) return false;
-
-        // Check each individual Parameter
-        ListIterator it = this.getParametersIterator();
-        while(it.hasNext()){
-
-            // This list's parameter
-            Parameter param1 = (Parameter)it.next();
-
-            // List may not contain parameter with this list's parameter name
-            if ( !site.containsParameter(param1.getName()) ) return false;
-
-            // Found two parameters with same name, check equals, actually redundent,
-            // because that is what equals does
-            Parameter param2 = (Parameter)site.getParameter(param1.getName());
-            if( !param1.equals(param2) ) return false;
-
-            // Now try compare to to see if value the same, can fail if two values
-            // are different, or if the value object types are different
-            try{ if( param1.compareTo( param2 ) != 0 ) return false; }
-            catch(ClassCastException ee) { return false; }
-
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns true if the comparing object is also a Site, and has the same
-     * name, Location and each parameter exists and has the same value in each Site.
-     */
-    public boolean equals(Object obj){
-        if(obj instanceof Site) return equalsSite( (Site)obj );
-        else return false;
     }
 
 
