@@ -295,8 +295,8 @@ implements Parameter<Double>
 	 * @exception  ClassCastException  Thrown if passed in value is not a
 	 *      DoubleParameter
 	 */
-	@Override
-	public int compareTo(Parameter<Double>param) {
+//	@Override
+//	public int compareTo(Parameter<Double>param) {
 //
 //		String S = C + ":compareTo(): ";
 //
@@ -318,9 +318,9 @@ implements Parameter<Double>
 //		}
 //
 //		return n1.compareTo( n2 );
-		return value.compareTo(param.getValue());
-
-	}
+//		return value.compareTo(param.getValue());
+//
+//	}
 
 
 	/**
@@ -332,8 +332,8 @@ implements Parameter<Double>
 	 * @exception  ClassCastException  Thrown if passed in value is not a
 	 *      DoubleParameter
 	 */
-	@Override
-	public boolean equals( Object obj ) throws ClassCastException {
+//	@Override
+//	public boolean equals( Object obj ) throws ClassCastException {
 //		String S = C + ":equals(): ";
 //
 //		if ( !( obj instanceof DoubleParameter ) && !( obj instanceof DoubleDiscreteParameter ) ) {
@@ -347,11 +347,11 @@ implements Parameter<Double>
 //			return false;
 //		}
 
-		if (!(obj instanceof DoubleDiscreteParameter)) return false;
-		DoubleParameter dp = (DoubleParameter) obj;
-		return (compareTo(dp) == 0 && getName().equals(dp.getName()));
-
-	}
+//		if (!(obj instanceof DoubleDiscreteParameter)) return false;
+//		DoubleParameter dp = (DoubleParameter) obj;
+//		return (compareTo(dp) == 0 && getName().equals(dp.getName()));
+//
+//	}
 
 
 	/** Returns a copy so you can't edit or damage the original. */

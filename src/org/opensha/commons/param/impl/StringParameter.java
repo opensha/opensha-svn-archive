@@ -237,27 +237,27 @@ public class StringParameter extends AbstractParameter<String> {
      *      a StringParameter *
      * @see                            Comparable
      */
-    @Override
-    public int compareTo(Parameter<String> param) {
-//
-//        String S = C + ":compareTo(): ";
-//
-//        if ( !( obj instanceof StringParameter ) ) {
-//            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
-//        }
-//
-//        StringParameter param = ( StringParameter ) obj;
-//
-//        if( ( this.value == null ) && ( param.value == null ) ) return 0;
-//        int result = 0;
-//
-//        String n1 = ( String ) this.getValue();
-//        String n2 = ( String ) param.getValue();
-//
-//        return n1.compareTo( n2 );
-        if (value == null && param.getValue() == null) return 0;
-        return value.compareTo(param.getValue());
-    }
+//    @Override
+//    public int compareTo(Parameter<String> param) {
+////
+////        String S = C + ":compareTo(): ";
+////
+////        if ( !( obj instanceof StringParameter ) ) {
+////            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
+////        }
+////
+////        StringParameter param = ( StringParameter ) obj;
+////
+////        if( ( this.value == null ) && ( param.value == null ) ) return 0;
+////        int result = 0;
+////
+////        String n1 = ( String ) this.getValue();
+////        String n2 = ( String ) param.getValue();
+////
+////        return n1.compareTo( n2 );
+//        if (value == null && param.getValue() == null) return 0;
+//        return value.compareTo(param.getValue());
+//    }
 
 
     /**
@@ -271,24 +271,24 @@ public class StringParameter extends AbstractParameter<String> {
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a StringParameter
      */
-    @Override
-    public boolean equals(Object obj) {
-//        String S = C + ":equals(): ";
-//
-//        if ( !(obj instanceof StringParameter ) ) {
-//            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
-//        }
-//
-//        String otherName = ( ( StringParameter ) obj ).getName();
-//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-//            return true;
-//        }
-//        else { return false; }
-    	
-        if (!(obj  instanceof StringParameter)) return false;
-        StringParameter sp = (StringParameter) obj;
-        return compareTo(sp) == 0 && getName().equals(sp.getName());
-    }
+//    @Override
+//    public boolean equals(Object obj) {
+////        String S = C + ":equals(): ";
+////
+////        if ( !(obj instanceof StringParameter ) ) {
+////            throw new ClassCastException( S + "Object not a StringParameter, unable to compare" );
+////        }
+////
+////        String otherName = ( ( StringParameter ) obj ).getName();
+////        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+////            return true;
+////        }
+////        else { return false; }
+//    	
+//        if (!(obj  instanceof StringParameter)) return false;
+//        StringParameter sp = (StringParameter) obj;
+//        return compareTo(sp) == 0 && getName().equals(sp.getName());
+//    }
 
 
     /**

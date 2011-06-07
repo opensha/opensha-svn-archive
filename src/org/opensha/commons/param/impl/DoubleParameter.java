@@ -21,6 +21,7 @@ package org.opensha.commons.param.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
@@ -384,8 +385,23 @@ public class DoubleParameter extends AbstractParameter<Double> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	@Override
-	public int compareTo(Parameter<Double> param) {
+	
+	/**
+	 * Compares this Parameter with another based on name and then, if the two
+	 * share the same runtime type, value.
+	 */
+//	@Override
+//	public int compareTo(Parameter<Double> param) {
+//		int compare = getName().compareTo(param.getName());
+//		if (compare == 0) {
+//			try {
+//				compare = getValue().compareTo(param.getValue());
+//			} catch (ClassCastException cce) {}
+//		}
+//		return compare;
+//	}
+		
+		
 //
 //		String S = C + ":compareTo(): ";
 //
@@ -409,9 +425,16 @@ public class DoubleParameter extends AbstractParameter<Double> {
 //			return getName().compareTo(param.getName());
 //		}
 		//if (value != null && value instanceof Double)
-			
-		return value.compareTo(param.getValue());
-	}
+		
+//		try {
+//		System.out.println("v1: " + value);
+//		System.out.println("v2: " + param.getValue());
+//		return value.compareTo(param.getValue());
+//		} catch (ClassCastException cce) {
+//			System.out.println("you suck");
+//			return -4;
+//		}
+//	}
 
 //	public static void main(String[] args) {
 //		ArrayList<ParameterAPI<?>> list = new ArrayList<ParameterAPI<?>>();
@@ -465,8 +488,8 @@ public class DoubleParameter extends AbstractParameter<Double> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	@Override
-	public boolean equals(Object obj) {
+//	@Override
+//	public boolean equals(Object obj) {
 //		String S = C + ":equals(): ";
 //
 //		if ( !( obj instanceof DoubleParameter ) && !( obj instanceof DoubleDiscreteParameter ) ) {
@@ -479,13 +502,13 @@ public class DoubleParameter extends AbstractParameter<Double> {
 //		} else {
 //			return false;
 //		}
-		if (this == obj) return true;
-		if (!(obj instanceof DoubleParameter)) return false;
-		DoubleParameter dp = (DoubleParameter) obj;
-		return (compareTo(dp) == 0 && getName().equals(dp.getName()));
-		
-		
-	}
+//		if (this == obj) return true;
+//		if (!(obj instanceof DoubleParameter)) return false;
+//		DoubleParameter dp = (DoubleParameter) obj;
+//		return (compareTo(dp) == 0 && getName().equals(dp.getName()));
+//		
+//		
+//	}
 
 
 	/** Returns a copy so you can't edit or damage the origial. */
@@ -528,5 +551,25 @@ public class DoubleParameter extends AbstractParameter<Double> {
 			}
 		}
 		return paramEdit;
+	}
+	
+	public static void main(String[] args) {
+		DoubleParameter dp = new DoubleParameter("tmpD", 1d);
+		//dp.setValue(null);
+		IntegerParameter ip = new IntegerParameter("tmpI", 1);
+		//DoubleDiscreteParameter ddp = new DoubleDiscreteParameter("tmpD", -1d);
+		DoubleParameter ddp = new DoubleParameter("tmpD", -1d);
+//		ddp.setValue(null);
+	
+		System.out.println(ddp.equals(dp));
+		
+		
+		List<Parameter<?>> pl = new ArrayList<Parameter<?>>();
+		pl.add(dp);
+		pl.add(ip);
+		pl.add(ddp);
+		
+		Collections.sort(pl);
+		System.out.println(pl.toString());
 	}
 }

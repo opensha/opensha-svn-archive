@@ -592,25 +592,25 @@ public class WarningIntegerParameter extends IntegerParameter implements
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a IntegerParameter, or IntegerDiscreteParameter.
      */
-    public boolean equals( Object obj ) throws ClassCastException {
-//        String S = C + ":equals(): ";
-//
-//        if ( !( obj instanceof IntegerParameter )
-//            && !( obj instanceof WarningIntegerParameter )
-//        ) {
-//            throw new ClassCastException( S + "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare" );
-//        }
-//
-//        String otherName = ( ( IntegerParameter ) obj ).getName();
-//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-//            return true;
-//        }
-//        else return false;
-		if (this == obj) return true;
-		if (!(obj instanceof WarningIntegerParameter)) return false;
-		WarningIntegerParameter wip = (WarningIntegerParameter) obj;
-		return (compareTo(wip) == 0 && getName().equals(wip.getName()));
-    }
+//    public boolean equals( Object obj ) throws ClassCastException {
+////        String S = C + ":equals(): ";
+////
+////        if ( !( obj instanceof IntegerParameter )
+////            && !( obj instanceof WarningIntegerParameter )
+////        ) {
+////            throw new ClassCastException( S + "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare" );
+////        }
+////
+////        String otherName = ( ( IntegerParameter ) obj ).getName();
+////        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+////            return true;
+////        }
+////        else return false;
+//		if (this == obj) return true;
+//		if (!(obj instanceof WarningIntegerParameter)) return false;
+//		WarningIntegerParameter wip = (WarningIntegerParameter) obj;
+//		return (compareTo(wip) == 0 && getName().equals(wip.getName()));
+//    }
 
 
     /**

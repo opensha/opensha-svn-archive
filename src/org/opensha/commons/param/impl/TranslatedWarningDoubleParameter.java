@@ -544,8 +544,8 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     }
 
 
-    /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public boolean equals( Object obj ) throws ClassCastException { return param.equals( obj ) ;}
+//    /** Direct proxy to wrapped parameter. See that class for documentation. */
+//    public boolean equals( Object obj ) throws ClassCastException { return param.equals( obj ) ;}
 
     /** Returns a copy so you can't edit or damage the origial. */
     public Object clone(){
@@ -661,20 +661,20 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     public String getType(){ return "TranslatedWarningDoubleParameter";}
 
 
-    /**
-     *  Compares the values to see if they are the same. Returns -1 if obj is
-     *  less than this object, 0 if they are equal in value, or +1 if the object
-     *  is greater than this.
-     *
-     * @param  parameter            the parameter to compare this object to.
-     * @return                      -1 if this value < obj value, 0 if equal, +1
-     *      if this value > obj value
-     * @throws  ClassCastException  Thrown if the object type of the parameter
-     *      argument are not the same.
-     */
-	public int compareTo(Parameter<Double> param) {
-		return this.param.compareTo(param);
-	}
+//    /**
+//     *  Compares the values to see if they are the same. Returns -1 if obj is
+//     *  less than this object, 0 if they are equal in value, or +1 if the object
+//     *  is greater than this.
+//     *
+//     * @param  parameter            the parameter to compare this object to.
+//     * @return                      -1 if this value < obj value, 0 if equal, +1
+//     *      if this value > obj value
+//     * @throws  ClassCastException  Thrown if the object type of the parameter
+//     *      argument are not the same.
+//     */
+//	public int compareTo(Parameter<Double> param) {
+//		return this.param.compareTo(param);
+//	}
 
     /**
      *  Determines if the value can be edited, i.e. changed once set.

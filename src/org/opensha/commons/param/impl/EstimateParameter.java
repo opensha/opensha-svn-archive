@@ -194,12 +194,12 @@ public class EstimateParameter extends AbstractParameter<Estimate> {
 	}
 
 
-	@Override
-	public int compareTo(Parameter<Estimate> param) {
-		/**@todo Implement this org.opensha.param.Parameter abstract method*/
-		throw new java.lang.UnsupportedOperationException(
-		"Method compareTo() not yet implemented.");
-	}
+//	@Override
+//	public int compareTo(Parameter<Estimate> param) {
+//		/**@todo Implement this org.opensha.param.Parameter abstract method*/
+//		throw new java.lang.UnsupportedOperationException(
+//		"Method compareTo() not yet implemented.");
+//	}
 
 	public Object clone() {
 		/**@todo Implement this org.opensha.param.Parameter abstract method*/

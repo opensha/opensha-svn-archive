@@ -46,11 +46,11 @@ public class CPTParameter extends AbstractParameter<CPT> {
 		return null;
 	}
 
-	@Override
-	public int compareTo(Parameter<CPT> o) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+//	@Override
+//	public int compareTo(Parameter<CPT> o) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
 
 	@Override
 	protected boolean setIndividualParamValueFromXML(Element el) {

@@ -88,8 +88,8 @@ public class ParameterListParameter extends AbstractParameter<ParameterList> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	@Override
-	public int compareTo(Parameter<ParameterList> param) {
+//	@Override
+//	public int compareTo(Parameter<ParameterList> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if ( !( obj instanceof ParameterListParameter ) ) {
@@ -105,14 +105,14 @@ public class ParameterListParameter extends AbstractParameter<ParameterList> {
 //		ParameterList n2 = ( ParameterList) param.getValue();
 //
 //		return n1.compareTo( n2 );
-		
-		if (param == null) return 1;
-		if (value == null && param.getValue() == null) return 0;
-		if (value == null) return -1;
-		if (param.getValue() == null) return 1;
-		return  value.compareTo(param.getValue());
-
-	}
+//		
+//		if (param == null) return 1;
+//		if (value == null && param.getValue() == null) return 0;
+//		if (value == null) return -1;
+//		if (param.getValue() == null) return 1;
+//		return  value.compareTo(param.getValue());
+//
+//	}
 
 
 	/**
@@ -138,8 +138,8 @@ public class ParameterListParameter extends AbstractParameter<ParameterList> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	@Override
-	public boolean equals(Object obj) {
+//	@Override
+//	public boolean equals(Object obj) {
 //		String S = C + ":equals(): ";
 //
 //		if (! (obj instanceof ParameterListParameter)) {
@@ -155,12 +155,12 @@ public class ParameterListParameter extends AbstractParameter<ParameterList> {
 //			return false;
 //		}
 		
-		if (this == obj) return true;
-		if (!(obj instanceof ParameterListParameter)) return false;
-		ParameterListParameter plp = (ParameterListParameter) obj;
-		return (value.equals(plp.getValue()) && getName().equals(plp.getName()));
-
-	}
+//		if (this == obj) return true;
+//		if (!(obj instanceof ParameterListParameter)) return false;
+//		ParameterListParameter plp = (ParameterListParameter) obj;
+//		return (value.equals(plp.getValue()) && getName().equals(plp.getName()));
+//
+//	}
 
 	/**
 	 *  Returns a copy so you can't edit or damage the origial.

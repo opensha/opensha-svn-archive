@@ -69,14 +69,14 @@ public class BooleanParameter extends AbstractParameter<Boolean> {
 		super(name,null,null,value);
 	}
 
-	@Override
-	public int compareTo(Parameter<Boolean> param) {
-		return value.compareTo(param.getValue());
+//	@Override
+//	public int compareTo(Parameter<Boolean> param) {
+//		return value.compareTo(param.getValue());
 //		if (param instanceof BooleanParameter)
 //			return value.compareTo(((BooleanParameter)obj).getValue());
 //		else
 //			throw new ClassCastException("Cannot call compareTo on an object other than a boolean parameter");
-	}
+//	}
 
 	/**
 	 * Returns the name of the parameter class

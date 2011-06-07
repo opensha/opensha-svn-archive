@@ -31,54 +31,71 @@ import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 
-
-
 /**
- *  <b>Title:</b> ParameterAPI Interface<p>
- *
- *  <b>Description:</b> All parameter classes must implement this API to
- *  "plug" into the framework. A parameter basically contains some type
- *  of java object, such as a String, Double, etc. This parameter
- *  framework extends on the basic Java DataTypes by adding constraint objects,
- *  a name, information string, units string, parameter change fail and succede
- *  listeners, etc. These parameters are "Supercharged" data types with alot
- *  of functionality added. This API defines the basic added functionality and
- *  getter and setter functions for adding these extra features. <p>
- *
- *  The parameter value can be any type of object as defined by subclasses. One
- *  reason for having this framework is to enable new types of parameter
- *  in the future to be defined and added to a Site, ProbEqkRupture,
- *  or PropagationEffect object without having to rewrite the Java code. <p>
- *
- *  By defining the parameter value here as a generic object, one is not
- *  restricted to adding scalar quantities. For example, one could create a
- *  subclass of parameter where the value is a moment tensor (which could then
- *  be added to a ProbEqkRupture object). As another example, one could
- *  define a subclass of parameter where the value is a shear-wave velocity
- *  profile (which could be added to a Site object). <p>
- *
- *  Representing such non-scalar quantities as Parameters might seem confusing
- *  semantically (e.g., perhaps Attribute would be better). However, the term
- *  Parameter is consistent with the notion that an IntensityMeasureRealtionship
- *  will used this information as an independent variable when computing
- *  earthquake motion. <p>
- *
- *  <b>Revision History</b> <br>
- *  1/1/2002 SWR
- *  <ul>
- *    <LI> Removed setName(), setUnits(), setConstraints. These can only be set
- *    in Constructors now. Only the value can be changed after creation.
- *    <LI> Added compareTo() and equals(). This will test if another parameter
- *    is equal to this one based on value, not if they point to the same object
- *    in the Java Virtual Machine as the default equals() does. CompareTo() will
- *    become useful for sorting a list of parameters.
- *    <LI>
- *  </ul>
- *  <p>
- *
- * @author     Steven W. Rock
- * @created    February 21, 2002
- * @version    1.0
+ * <b>Title:</b> ParameterAPI Interface
+ * <p>
+ * 
+ * <b>Description:</b> All parameter classes must implement this API to "plug"
+ * into the framework. A parameter basically contains some type of java object,
+ * such as a String, Double, etc. This parameter framework extends on the basic
+ * Java DataTypes by adding constraint objects, a name, information string,
+ * units string, parameter change fail and succede listeners, etc. These
+ * parameters are "Supercharged" data types with alot of functionality added.
+ * This API defines the basic added functionality and getter and setter
+ * functions for adding these extra features.
+ * <p>
+ * 
+ * The parameter value can be any type of object as defined by subclasses. One
+ * reason for having this framework is to enable new types of parameter in the
+ * future to be defined and added to a Site, ProbEqkRupture, or
+ * PropagationEffect object without having to rewrite the Java code.
+ * <p>
+ * 
+ * By defining the parameter value here as a generic object, one is not
+ * restricted to adding scalar quantities. For example, one could create a
+ * subclass of parameter where the value is a moment tensor (which could then be
+ * added to a ProbEqkRupture object). As another example, one could define a
+ * subclass of parameter where the value is a shear-wave velocity profile (which
+ * could be added to a Site object).
+ * <p>
+ * 
+ * Representing such non-scalar quantities as Parameters might seem confusing
+ * semantically (e.g., perhaps Attribute would be better). However, the term
+ * Parameter is consistent with the notion that an IntensityMeasureRealtionship
+ * will used this information as an independent variable when computing
+ * earthquake motion.
+ * <p>
+ * 
+ * <b>Revision History</b> <br>
+ * 1/1/2002 SWR
+ * <ul>
+ * <LI>Removed setName(), setUnits(), setConstraints. These can only be set in
+ * Constructors now. Only the value can be changed after creation.
+ * <LI>Added compareTo() and equals(). This will test if another parameter is
+ * equal to this one based on value, not if they point to the same object in the
+ * Java Virtual Machine as the default equals() does. CompareTo() will become
+ * useful for sorting a list of parameters.
+ * <LI>
+ * </ul>
+ * <p>
+ * 
+ * Parameter classes must provide concrete implementations  
+ * compareTo
+ * 
+ * The abstract Parameter overrides  equals(Object) that shouod suffice for
+ * most subclasses.
+ * 
+ * Comparable implementations must accomodate the possibility that the runtime
+ * type of a Parameter supplied to compareTo may throw a ClassCastException
+ * (e.g. in the case of sorting a paramterized <code>List&lt;T&gt;</code>). The
+ * recommended protocol for comparisons is to compare the name of a parameter
+ * and then the value, assuming the runtime types match. Such a comparison is
+ * not necessarily <i>consistent with equals</i> in that different classes with
+ * the same runtime type may be considered equal.
+ * 
+ * @author Steven W. Rock
+ * @created February 21, 2002
+ * @version 1.0
  */
 
 public interface Parameter<E> extends
@@ -92,7 +109,7 @@ public interface Parameter<E> extends
      * 
      * TODO this is bad form; a parameter's name should be immutable and required
      * and therefore always set via a constructor. The abstract implementation
-     * should not have a no-arg constructoir to prevent this 
+     * should not have a no-arg constructor to prevent this 
      * 
      * @param name to set
      */

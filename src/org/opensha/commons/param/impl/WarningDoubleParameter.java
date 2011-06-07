@@ -606,29 +606,29 @@ public class WarningDoubleParameter extends DoubleParameter implements
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a DoubleParameter, or DoubleDiscreteParameter.
      */
-	@Override
-    public boolean equals(Object obj) {
-//        String S = C + ":equals(): ";
+//	@Override
+//    public boolean equals(Object obj) {
+////        String S = C + ":equals(): ";
+////
+////        if ( !( obj instanceof DoubleParameter )
+////            && !( obj instanceof DoubleDiscreteParameter )
+////            && !( obj instanceof WarningDoubleParameter )
+////        ) {
+////            throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
+////        }
+////
+////        String otherName = ( ( DoubleParameter ) obj ).getName();
+////        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+////            return true;
+////        }
+////        else return false;
+//        
+//		if (this == obj) return true;
+//		if (!(obj instanceof WarningDoubleParameter)) return false;
+//		WarningDoubleParameter wdp = (WarningDoubleParameter) obj;
+//		return (compareTo(wdp) == 0 && getName().equals(wdp.getName()));
 //
-//        if ( !( obj instanceof DoubleParameter )
-//            && !( obj instanceof DoubleDiscreteParameter )
-//            && !( obj instanceof WarningDoubleParameter )
-//        ) {
-//            throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
-//        }
-//
-//        String otherName = ( ( DoubleParameter ) obj ).getName();
-//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-//            return true;
-//        }
-//        else return false;
-        
-		if (this == obj) return true;
-		if (!(obj instanceof WarningDoubleParameter)) return false;
-		WarningDoubleParameter wdp = (WarningDoubleParameter) obj;
-		return (compareTo(wdp) == 0 && getName().equals(wdp.getName()));
-
-    }
+//    }
 
 
     /**

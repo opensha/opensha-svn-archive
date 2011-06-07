@@ -266,8 +266,8 @@ public class RegionParameter extends AbstractParameter<Region> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
-	@Override
-	public int compareTo(Parameter<Region> param) {
+//	@Override
+//	public int compareTo(Parameter<Region> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if (! (obj instanceof RegionParameter)) {
@@ -286,17 +286,17 @@ public class RegionParameter extends AbstractParameter<Region> {
 //		if (n1.equals(n2))
 //			return 0;
 //		return -1;
-		if (param == null) return 1;
-		// sort null valued params
-		if (value == null && param.getValue() == null) {
-			return getName().compareTo(param.getName());
-		}
-		// sink null valued params to bottom
-		if (value == null) return -1;
-		if (param.getValue() == null) return 1;
-		// sort on name
-		return getName().compareTo(param.getName());
-	}
+//		if (param == null) return 1;
+//		// sort null valued params
+//		if (value == null && param.getValue() == null) {
+//			return getName().compareTo(param.getName());
+//		}
+//		// sink null valued params to bottom
+//		if (value == null) return -1;
+//		if (param.getValue() == null) return 1;
+//		// sort on name
+//		return getName().compareTo(param.getName());
+//	}
 
 
 	/**
@@ -307,31 +307,31 @@ public class RegionParameter extends AbstractParameter<Region> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
-	@Override
-	public boolean equals( Object obj ) {
-//		String S = C + ":equals(): ";
+//	@Override
+//	public boolean equals( Object obj ) {
+////		String S = C + ":equals(): ";
+////
+////		if (! (obj instanceof LocationParameter)) {
+////			throw new ClassCastException(S +
+////					"Object not a LocationParameter, unable to compare");
+////		}
+////
+////		String otherName = ( (LocationParameter) obj).getName();
+////		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
+////			return true;
+////		}
+////		else {
+////			return false;
+////		}
 //
-//		if (! (obj instanceof LocationParameter)) {
-//			throw new ClassCastException(S +
-//					"Object not a LocationParameter, unable to compare");
-//		}
+//		// this equals implementatins test name and value; LocationList must
+//		// have same order
 //
-//		String otherName = ( (LocationParameter) obj).getName();
-//		if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
-//			return true;
-//		}
-//		else {
-//			return false;
-//		}
-
-		// this equals implementatins test name and value; LocationList must
-		// have same order
-
-		if (this == obj) return true;
-		if (!(obj instanceof RegionParameter)) return false;
-		RegionParameter rp = (RegionParameter) obj;
-		return (getName().equals(rp.getName()) && value.equals(rp.getValue()));
-	}
+//		if (this == obj) return true;
+//		if (!(obj instanceof RegionParameter)) return false;
+//		RegionParameter rp = (RegionParameter) obj;
+//		return (getName().equals(rp.getName()) && value.equals(rp.getValue()));
+//	}
 
 
 	/**

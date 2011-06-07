@@ -21,10 +21,10 @@ public class WeightedListParameter<E> extends AbstractParameter<WeightedList<E>>
 //		System.out.println(getMetadataString());
 	}
 
-	@Override
-	public int compareTo(Parameter<WeightedList<E>> param) {
-		return 0;
-	}
+//	@Override
+//	public int compareTo(Parameter<WeightedList<E>> param) {
+//		return 0;
+//	}
 
 	@Override
 	public ParameterEditor getEditor() {

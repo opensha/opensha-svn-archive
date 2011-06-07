@@ -345,8 +345,8 @@ public class LocationParameter extends AbstractParameter<Location> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
-	@Override
-	public int compareTo(Parameter<Location> param) {
+//	@Override
+//	public int compareTo(Parameter<Location> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if (! (obj instanceof LocationParameter)) {
@@ -366,14 +366,14 @@ public class LocationParameter extends AbstractParameter<Location> {
 //			return 0;
 //		return -1;
 		
-		if (param == null) return 1;
-		if (value == null && param.getValue() == null) return 0;
-		if (value == null) return -1;
-		if (param.getValue() == null) return 1;
-		return  value.compareTo(param.getValue());
-		
-		
-	}
+//		if (param == null) return 1;
+//		if (value == null && param.getValue() == null) return 0;
+//		if (value == null) return -1;
+//		if (param.getValue() == null) return 1;
+//		return  value.compareTo(param.getValue());
+//		
+//		
+//	}
 
 
 	/**
@@ -384,8 +384,8 @@ public class LocationParameter extends AbstractParameter<Location> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationParameter.
 	 */
-	@Override
-	public boolean equals(Object obj) {
+//	@Override
+//	public boolean equals(Object obj) {
 //		String S = C + ":equals(): ";
 //
 //		if (! (obj instanceof LocationParameter)) {
@@ -401,11 +401,11 @@ public class LocationParameter extends AbstractParameter<Location> {
 //			return false;
 //		}
 		
-		if (this == obj) return true;
-		if (!(obj instanceof LocationParameter)) return false;
-		LocationParameter lp = (LocationParameter) obj;
-		return (compareTo(lp) == 0 && getName().equals(lp.getName()));
-	}
+//		if (this == obj) return true;
+//		if (!(obj instanceof LocationParameter)) return false;
+//		LocationParameter lp = (LocationParameter) obj;
+//		return (compareTo(lp) == 0 && getName().equals(lp.getName()));
+//	}
 
 
 	/**

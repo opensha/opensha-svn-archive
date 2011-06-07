@@ -25,11 +25,11 @@ public class FileParameter extends AbstractParameter<File> {
 		super(name, null, null, file);
 	}
 
-	@Override
-	public int compareTo(Parameter<File> param) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+//	@Override
+//	public int compareTo(Parameter<File> param) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
 
 	@Override
 	public ParameterEditor getEditor() {

@@ -376,19 +376,19 @@ public class DoubleValueWeightParameter extends AbstractParameter
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a DoubleValueWeightParameter.
      */
-    public int compareTo( Object obj ) throws ClassCastException {
-
-        String S = C + ":compareTo(): ";
-
-        if ( !( obj instanceof DoubleValueWeightParameter ) ) {
-            throw new ClassCastException( S + "Object not a DoubleValueWeightParameter, unable to compare" );
-        }
-
-        ValueWeight n1 = ( ValueWeight ) this.getValue();
-        DoubleValueWeightParameter param = ( DoubleValueWeightParameter ) obj;
-        ValueWeight n2 = ( ValueWeight ) param.getValue();;
-        return n1.compareTo( n2 );
-    }
+//    public int compareTo( Object obj ) throws ClassCastException {
+//
+//        String S = C + ":compareTo(): ";
+//
+//        if ( !( obj instanceof DoubleValueWeightParameter ) ) {
+//            throw new ClassCastException( S + "Object not a DoubleValueWeightParameter, unable to compare" );
+//        }
+//
+//        ValueWeight n1 = ( ValueWeight ) this.getValue();
+//        DoubleValueWeightParameter param = ( DoubleValueWeightParameter ) obj;
+//        ValueWeight n2 = ( ValueWeight ) param.getValue();;
+//        return n1.compareTo( n2 );
+//    }
 
 
     /**
@@ -435,28 +435,28 @@ public class DoubleValueWeightParameter extends AbstractParameter
 
   
 
-    /**
-     *  Compares the names and value to see if they are same.
-     *
-     * @param  obj                     The object to compare this to
-     * @return                         True if the values and names are identical
-     * @exception  ClassCastException  Is thrown if the comparing object is not
-     *      a DoubleValueWeightParameter.
-     */
-    public boolean equals( Object obj ) throws ClassCastException {
-        String S = C + ":equals(): ";
-
-        if ( !( obj instanceof DoubleValueWeightParameter ) ) {
-            throw new ClassCastException( S + "Object not a DoubleValueWeightParameter,  unable to compare" );
-        }
-
-        String otherName = ( ( DoubleValueWeightParameter ) obj ).getName();
-        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    /**
+//     *  Compares the names and value to see if they are same.
+//     *
+//     * @param  obj                     The object to compare this to
+//     * @return                         True if the values and names are identical
+//     * @exception  ClassCastException  Is thrown if the comparing object is not
+//     *      a DoubleValueWeightParameter.
+//     */
+//    public boolean equals( Object obj ) throws ClassCastException {
+//        String S = C + ":equals(): ";
+//
+//        if ( !( obj instanceof DoubleValueWeightParameter ) ) {
+//            throw new ClassCastException( S + "Object not a DoubleValueWeightParameter,  unable to compare" );
+//        }
+//
+//        String otherName = ( ( DoubleValueWeightParameter ) obj ).getName();
+//        if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
 
     /** Returns a copy so you can't edit or damage the origial. */

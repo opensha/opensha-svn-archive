@@ -394,8 +394,8 @@ implements Parameter<Integer>
 	 * classname. The type is used to determine which parameter GUI editor
 	 * to use.
 	 */
-	@Override
-	public int compareTo(Parameter<Integer> param) {
+//	@Override
+//	public int compareTo(Parameter<Integer> param) {
 //
 //		String S = C + ":compareTo(): ";
 //
@@ -411,8 +411,8 @@ implements Parameter<Integer>
 //		Integer n2 = ( Integer ) param.getValue();
 //
 //		return n1.compareTo( n2 );
-		return value.compareTo(param.getValue());
-	}
+//		return value.compareTo(param.getValue());
+//	}
 
 
 	/**
@@ -423,8 +423,8 @@ implements Parameter<Integer>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a IntegerParameter.
 	 */
-	@Override
-	public boolean equals(Object obj) {
+//	@Override
+//	public boolean equals(Object obj) {
 //
 //		String S = C + ":equals(): ";
 //
@@ -435,12 +435,12 @@ implements Parameter<Integer>
 //		if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) )
 //			return true;
 //		else return false;
-		if (this == obj) return true;
-		if (!(obj instanceof IntegerParameter)) return false;
-		IntegerParameter ip = (IntegerParameter) obj;
-		return (compareTo(ip) == 0 && getName().equals(ip.getName()));
-
-	}
+//		if (this == obj) return true;
+//		if (!(obj instanceof IntegerParameter)) return false;
+//		IntegerParameter ip = (IntegerParameter) obj;
+//		return (compareTo(ip) == 0 && getName().equals(ip.getName()));
+//
+//	}
 
 
 	/** Returns a copy so you can't edit or damage the original. */

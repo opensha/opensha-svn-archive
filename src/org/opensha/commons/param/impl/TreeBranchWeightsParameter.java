@@ -36,8 +36,7 @@ import org.opensha.commons.param.editor.impl.TreeBranchWeightsParameterEditor;
  * @version 1.0
  */
 
-public class TreeBranchWeightsParameter extends ParameterListParameter
-implements  java.io.Serializable{
+public class TreeBranchWeightsParameter extends ParameterListParameter {
 
 	/**
 	 * 

@@ -210,8 +210,8 @@ public class StringListParameter extends AbstractParameter<List<String>> {
      *      a StringParameter *
      * @see                            Comparable
      */
-    @Override
-    public int compareTo(Parameter<List<String>> param) {
+//    @Override
+//    public int compareTo(Parameter<List<String>> param) {
 //
 //        String S = C + ":compareTo(): ";
 //
@@ -221,15 +221,15 @@ public class StringListParameter extends AbstractParameter<List<String>> {
 //
 //        StringListParameter param = ( StringListParameter ) obj;
 
-        if (value == null && param.getValue() == null) return 0;
-//        int result = 0;
-
-        List<String> l1 = getValue();
-        List<String> l2 = param.getValue();
-
-        if (l1.containsAll(l2) && l2.containsAll(l1)) return 0;
-        return -1;
-    }
+//        if (value == null && param.getValue() == null) return 0;
+////        int result = 0;
+//
+//        List<String> l1 = getValue();
+//        List<String> l2 = param.getValue();
+//
+//        if (l1.containsAll(l2) && l2.containsAll(l1)) return 0;
+//        return -1;
+//    }
 
 
     /**
@@ -243,20 +243,20 @@ public class StringListParameter extends AbstractParameter<List<String>> {
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a StringParameter
      */
-    @Override
-    public boolean equals(Object obj) {
-//        String S = C + ":equals(): ";
-
-        if (!(obj instanceof StringListParameter)) return false;
-//        {
-//            throw new ClassCastException( S + "Object not a StringListParameter, unable to compare" );
-//        }
-
-        StringListParameter slp = (StringListParameter) obj;
-        //String otherName = ((StringListParameter)obj).getName();
-        if (compareTo(slp) == 0 && getName().equals(slp.getName())) return true;
-        return false;
-    }
+//    @Override
+//    public boolean equals(Object obj) {
+////        String S = C + ":equals(): ";
+//
+//        if (!(obj instanceof StringListParameter)) return false;
+////        {
+////            throw new ClassCastException( S + "Object not a StringListParameter, unable to compare" );
+////        }
+//
+//        StringListParameter slp = (StringListParameter) obj;
+//        //String otherName = ((StringListParameter)obj).getName();
+//        if (compareTo(slp) == 0 && getName().equals(slp.getName())) return true;
+//        return false;
+//    }
 
 
     /**

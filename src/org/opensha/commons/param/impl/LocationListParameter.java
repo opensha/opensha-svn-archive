@@ -97,8 +97,8 @@ public class LocationListParameter extends AbstractParameter<LocationList> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	@Override
-	public int compareTo(Parameter<LocationList> param) {
+//	@Override
+//	public int compareTo(Parameter<LocationList> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if ( !( obj instanceof LocationListParameter ) ) {
@@ -106,36 +106,36 @@ public class LocationListParameter extends AbstractParameter<LocationList> {
 //		}
 //
 //		LocationListParameter param = ( LocationListParameter ) obj;
-
-		if (param == null) return 1;
-		// sort null valued params
-		if (value == null && param.getValue() == null) {
-			return getName().compareTo(param.getName());
-		}
-		// sink null valued params to bottom
-		if (value == null) return -1;
-		if (param.getValue() == null) return 1;
-		// sort on name
-		return getName().compareTo(param.getName());
-		
-		// TODO what should be the comparison for LocationLists? LocatinList
-		// has no compareTo() and would be starnge; sort on parameter name for
-		// now
-		//return  value.compareTo(param.getValue());
-
-		//int result = 0;
-
-		//LocationList n1 = ( LocationList) this.getValue();
-		///LocationList n2 = ( LocationList ) param.getValue();
-		
-		// TODO need to fix compareTo() up the Parameter heirarchy; it is often
-		// abused, being used as a stand-in for equals() returning 0 or -1 but
-		// never +1. wierd -ppowers
-
-		// return n1.compareTo( n2 );
-		
-		//return (n1.compareTo(n2)) ? 0 : -1;
-	}
+//
+//		if (param == null) return 1;
+//		// sort null valued params
+//		if (value == null && param.getValue() == null) {
+//			return getName().compareTo(param.getName());
+//		}
+//		// sink null valued params to bottom
+//		if (value == null) return -1;
+//		if (param.getValue() == null) return 1;
+//		// sort on name
+//		return getName().compareTo(param.getName());
+//		
+//		// TODO what should be the comparison for LocationLists? LocatinList
+//		// has no compareTo() and would be starnge; sort on parameter name for
+//		// now
+//		//return  value.compareTo(param.getValue());
+//
+//		//int result = 0;
+//
+//		//LocationList n1 = ( LocationList) this.getValue();
+//		///LocationList n2 = ( LocationList ) param.getValue();
+//		
+//		// TODO need to fix compareTo() up the Parameter heirarchy; it is often
+//		// abused, being used as a stand-in for equals() returning 0 or -1 but
+//		// never +1. wierd -ppowers
+//
+//		// return n1.compareTo( n2 );
+//		
+//		//return (n1.compareTo(n2)) ? 0 : -1;
+//	}
 
 
 	/**
@@ -163,8 +163,8 @@ public class LocationListParameter extends AbstractParameter<LocationList> {
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationListParameter.
 	 */
-	@Override
-	public boolean equals(Object obj) {
+//	@Override
+//	public boolean equals(Object obj) {
 //		String S = C + ":equals(): ";
 //
 //		if (! (obj instanceof LocationListParameter)) {
@@ -183,12 +183,12 @@ public class LocationListParameter extends AbstractParameter<LocationList> {
 		// this equals implementatins test name and value; LocationList must
 		// have same order
 		
-		if (this == obj) return true;
-		if (!(obj instanceof LocationListParameter)) return false;
-		LocationListParameter llp = (LocationListParameter) obj;
-		return (getName().equals(llp.getName()) && value.equals(llp.getValue()));
-
-	}
+//		if (this == obj) return true;
+//		if (!(obj instanceof LocationListParameter)) return false;
+//		LocationListParameter llp = (LocationListParameter) obj;
+//		return (getName().equals(llp.getName()) && value.equals(llp.getValue()));
+//
+//	}
 
 	/**
 	 *  Returns a copy so you can't edit or damage the origial.

@@ -150,7 +150,7 @@ public class EvenlyDiscretizedFuncParameter extends
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a ParameterListParameter.
 	 */
-	public int compareTo(Parameter<EvenlyDiscretizedFunc> param) {
+//	public int compareTo(Parameter<EvenlyDiscretizedFunc> param) {
 //		String S = C + ":compareTo(): ";
 //
 //		if ( !( obj instanceof EvenlyDiscretizedFunc ) ) {
@@ -159,16 +159,16 @@ public class EvenlyDiscretizedFuncParameter extends
 //
 //		EvenlyDiscretizedFuncParameter param = ( EvenlyDiscretizedFuncParameter ) obj;
 
-		if (value == null && param.getValue() == null) return 0;
+//		if (value == null && param.getValue() == null) return 0;
 		//int result = 0;
 
 //		EvenlyDiscretizedFunc n1 = ( EvenlyDiscretizedFunc) this.getValue();
 //		EvenlyDiscretizedFunc n2 = ( EvenlyDiscretizedFunc ) param.getValue();
 //
 //		if(n1.equals(n2)) return 0;
-		if (getValue().equals(param.getValue())) return 0;
-		return -1;
-	}
+//		if (getValue().equals(param.getValue())) return 0;
+//		return -1;
+//	}
 
 	/**
 	 * Compares value to see if equal.
@@ -178,15 +178,15 @@ public class EvenlyDiscretizedFuncParameter extends
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a LocationListParameter.
 	 */
-	public boolean equals(Object obj) {
-		String S = C + ":equals(): ";
-
-		if (! (obj instanceof EvenlyDiscretizedFunc)) {
-			throw new ClassCastException(S +
-					"Object not a DiscretizedFuncAPI, unable to compare");
-		}
-		return ((EvenlyDiscretizedFunc)value).equals(((EvenlyDiscretizedFuncParameter)obj).value);
-	}
+//	public boolean equals(Object obj) {
+//		String S = C + ":equals(): ";
+//
+//		if (! (obj instanceof EvenlyDiscretizedFunc)) {
+//			throw new ClassCastException(S +
+//					"Object not a DiscretizedFuncAPI, unable to compare");
+//		}
+//		return ((EvenlyDiscretizedFunc)value).equals(((EvenlyDiscretizedFuncParameter)obj).value);
+//	}
 
 	/**
 	 *  Returns a copy so you can't edit or damage the origial.
