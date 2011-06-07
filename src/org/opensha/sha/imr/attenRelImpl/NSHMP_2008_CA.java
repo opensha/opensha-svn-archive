@@ -236,7 +236,6 @@ ParameterChangeListener {
 		vs30Param = new Vs30_Param(VS30_WARN_MIN, VS30_WARN_MAX);
 		siteParams.addParameter(vs30Param);
 		vs30Param.setValueAsDefault();
-		System.out.println("VS30: " + vs30Param.getValue());
 		
 		// Campbell & bozorgnia hidden
 		depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(null, 0.0, 10.0, true);
@@ -349,6 +348,10 @@ ParameterChangeListener {
 	public void setSite(Site site) {
 		this.site = site;
 		propEffect.setSite(site);
+
+		// being done to satisfy unit tests
+		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME).getValue());
+
 		if (propEffect.getEqkRupture() != null) {
 			setPropagationEffect(propEffect);
 		}
