@@ -12,6 +12,12 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * These are the supported line syles used in OpenSHA JFreeChart plots.
+ * 
+ * @author kevin
+ *
+ */
 public enum PlotLineType {
 	
 	SOLID("Solid"),
@@ -30,6 +36,23 @@ public enum PlotLineType {
 	@Override
 	public String toString() {
 		return desc;
+	}
+	
+	public Stroke buildStroke(float lineWidth) {
+		Preconditions.checkArgument(lineWidth>0, "Line width must be >0");
+		if (this == SOLID)
+			return new BasicStroke(lineWidth);
+		else if (this == DOTTED)
+			return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT,
+					BasicStroke.JOIN_BEVEL,0,new float[] {1},0);
+		else if (this == DASHED)
+			return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT,
+					BasicStroke.JOIN_BEVEL,0,new float[] {9},0);
+		else if (this == DOTTED_AND_DASHED)
+			return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT,
+					BasicStroke.JOIN_BEVEL,0,new float[] {5,3,2,3},0);
+		else
+			throw new IllegalStateException("Stroke not applicable for lineType: "+this);
 	}
 	
 	public static PlotLineType forDescription(String desc) {
@@ -98,20 +121,7 @@ public enum PlotLineType {
 			} else {
 				int type = sym == null ? StandardXYItemRenderer.LINES : StandardXYItemRenderer.SHAPES_AND_LINES;
 				renderer = new StandardXYItemRenderer(type);
-				Stroke stroke;
-				if (plt == SOLID)
-					stroke = new BasicStroke(lineWidth);
-				else if (plt == DOTTED)
-					stroke = new BasicStroke(lineWidth, BasicStroke.CAP_BUTT,
-							BasicStroke.JOIN_BEVEL,0,new float[] {1},0);
-				else if (plt == DASHED)
-					stroke = new BasicStroke(lineWidth, BasicStroke.CAP_BUTT,
-							BasicStroke.JOIN_BEVEL,0,new float[] {9},0);
-				else if (plt == DOTTED_AND_DASHED)
-					stroke = new BasicStroke(lineWidth, BasicStroke.CAP_BUTT,
-							BasicStroke.JOIN_BEVEL,0,new float[] {5,3,2,3},0);
-				else
-					throw new IllegalStateException("Unknown lineType: "+plt);
+				Stroke stroke = plt.buildStroke(lineWidth);
 				renderer.setStroke(stroke);
 //				renderer.setBaseStroke(stroke);
 			}

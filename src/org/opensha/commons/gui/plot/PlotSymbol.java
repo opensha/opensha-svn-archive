@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 
 import org.jfree.util.ShapeUtilities;
 
+import com.google.common.base.Preconditions;
+
 public enum PlotSymbol {
 	
 	X("X symbols", false),
@@ -53,6 +55,7 @@ public enum PlotSymbol {
 	private final static double DELTA = SIZE / 2.0;
 	
 	public Shape buildShape(float width) {
+		Preconditions.checkArgument(width>0, "width must be >0");
 		if (this == CIRCLE || this == FILLED_CIRCLE)
 			return new Ellipse2D.Double(-DELTA-width/2,
 					-DELTA-width/2, SIZE+width, SIZE+width);

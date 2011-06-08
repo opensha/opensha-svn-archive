@@ -55,19 +55,52 @@ public class PlotCurveCharacterstics implements Named, Cloneable {
 	//num of continuous curves with same characterstics as above
 	private int numCurvesWithSamePlottingFeatures = 1;
 	
+	/**
+	 * New <code>PlotCurveCharacteristics</code> instance with only a line type, and no symbols
+	 * 
+	 * @param lineType
+	 * @param lineWidth
+	 * @param color
+	 */
 	public PlotCurveCharacterstics(PlotLineType lineType, float lineWidth, Color color) {
 		this(lineType, lineWidth, null, 4f, color);
 	}
 	
+	/**
+	 * New <code>PlotCurveCharacteristics</code> instance with only symbols, and no line type
+	 * 
+	 * @param symbol
+	 * @param symbolWidth
+	 * @param color
+	 */
 	public PlotCurveCharacterstics(PlotSymbol symbol, float symbolWidth, Color color) {
 		this(null, 1f, symbol, symbolWidth, color);
 	}
 	
+	/**
+	 * New <code>PlotCurveCharacteristics</code> instance.
+	 * 
+	 * @param lineType
+	 * @param lineWidth
+	 * @param symbol
+	 * @param symbolWidth
+	 * @param color
+	 */
 	public PlotCurveCharacterstics(PlotLineType lineType, float lineWidth, PlotSymbol symbol,
 			float symbolWidth, Color color) {
 		this("Data", lineType, lineWidth, symbol, symbolWidth, color, 1);
 	}
 	
+	/**
+	 * New <code>PlotCurveCharacteristics</code> instance.
+	 * 
+	 * @param lineType
+	 * @param lineWidth
+	 * @param symbol
+	 * @param symbolWidth
+	 * @param color
+	 * @param numCurvesWithSamePlottingFeatures
+	 */
 	public PlotCurveCharacterstics(PlotLineType lineType, float lineWidth, PlotSymbol symbol,
 			float symbolWidth, Color color, int numCurvesWithSamePlottingFeatures) {
 		this("Data", lineType, lineWidth, symbol, symbolWidth, color, numCurvesWithSamePlottingFeatures);

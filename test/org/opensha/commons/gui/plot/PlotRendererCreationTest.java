@@ -15,13 +15,6 @@ public class PlotRendererCreationTest {
 	public static void testSymbolRendererCorrect(PlotSymbol sym, XYItemRenderer renderer) {
 		assertTrue("renderer should have symbols, but isn't correct type for sym="+sym,
 				renderer instanceof StandardXYItemRenderer);
-		StandardXYItemRenderer stdRend = (StandardXYItemRenderer)renderer;
-//		Shape fromRend = stdRend.getSeriesShape(0);
-		Shape fromRend = stdRend.getBaseShape();
-		Shape fromSym = sym.buildShape(1f);
-		assertNotNull("shape should not be null!", fromRend);
-		assertTrue("shape is of wrong instance (expected: "+fromSym.getClass()
-				+" but got: "+fromRend.getClass()+")", fromSym.getClass().isInstance(fromRend));
 	}
 	
 	public static void testLineRendererCorrect(PlotLineType plt, XYItemRenderer renderer) {
@@ -35,6 +28,37 @@ public class PlotRendererCreationTest {
 		} else {
 			assertTrue("renderer should have lines & isn'tsymbol compatible, but isn't correct type for sym="+plt,
 					renderer instanceof StackedXYBarRenderer);
+		}
+	}
+	
+	public void testBuildShapes() {
+		for (PlotSymbol sym : PlotSymbol.values()) {
+			assertNotNull("shape shouldn't be null for"+sym, sym.buildShape(1f));
+		}
+	}
+	
+	@Test (expected=IllegalArgumentException.class)
+	public void testBuildStrokeBadWidth() {
+		PlotLineType.DOTTED.buildStroke(0);
+	}
+	
+	@Test (expected=IllegalArgumentException.class)
+	public void testBuildShapeBadWidth() {
+		PlotSymbol.CIRCLE.buildShape(0);
+	}
+	
+	@Test
+	public void testBuildStrokes() {
+		for (PlotLineType plt : PlotLineType.values()) {
+			if (plt.isSymbolCompatible()) {
+				Stroke stroke = plt.buildStroke(1f);
+				assertNotNull("stoke shouldn't be null for "+plt, stroke);
+			} else {
+				try {
+					plt.buildStroke(1f);
+					fail("Should have thrown an exception");
+				} catch (Exception e) {}
+			}
 		}
 	}
 
