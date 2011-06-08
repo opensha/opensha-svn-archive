@@ -679,6 +679,7 @@ public class JFreeLogarithmicAxis extends LogAxis {
 				float[] anchorPoint = calculateAnchorPoint(
 						tick, cursor, dataArea, edge
 				);
+				anchorPoint[1] += 4;
 
 				if (isVerticalTickLabels()) {
 					TextUtilities.drawRotatedString(

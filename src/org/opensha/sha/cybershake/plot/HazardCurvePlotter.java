@@ -1153,18 +1153,15 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	public int getAxisLabelFontSize() {
-		// TODO Auto-generated method stub
 		return 12;
 	}
 
 	public int getPlotLabelFontSize() {
-		// TODO Auto-generated method stub
 		return 12;
 	}
 
 	public int getTickLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 10;
+		return 14;
 	}
 
 	public void setXLog(boolean flag) {
