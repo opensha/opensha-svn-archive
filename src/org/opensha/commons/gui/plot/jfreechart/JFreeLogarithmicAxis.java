@@ -169,6 +169,8 @@ public class JFreeLogarithmicAxis extends LogAxis {
 
 	/** Flag set true to show the  tick labels for minor axis */
 	protected boolean minorAxisTickLabelFlag = true;
+	
+	private float verticalAnchorShift = 0f;
 
 	public JFreeLogarithmicAxis(String label) {
 		super(label);
@@ -626,6 +628,15 @@ public class JFreeLogarithmicAxis extends LogAxis {
 			return;
 		}
 	}
+	
+	/**
+	 * This allows you to shift the tick labels vertically to fix some overlap issues (specifically with X axis).
+	 * 
+	 * @param verticalAnchorShift
+	 */
+	public void setVerticalAnchorShift(float verticalAnchorShift) {
+		this.verticalAnchorShift = verticalAnchorShift;
+	}
 
 
 	/**
@@ -679,7 +690,7 @@ public class JFreeLogarithmicAxis extends LogAxis {
 				float[] anchorPoint = calculateAnchorPoint(
 						tick, cursor, dataArea, edge
 				);
-				anchorPoint[1] += 4;
+				anchorPoint[1] += verticalAnchorShift;
 
 				if (isVerticalTickLabels()) {
 					TextUtilities.drawRotatedString(

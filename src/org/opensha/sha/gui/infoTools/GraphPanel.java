@@ -301,7 +301,12 @@ public class GraphPanel extends JSplitPane {
 		try{
 
 			/// check if x log is selected or not
-			if(xLog) xAxis = new JFreeLogarithmicAxis(xAxisName);
+			if (xLog) {
+				JFreeLogarithmicAxis logAxis = new JFreeLogarithmicAxis(xAxisName);
+				// this fixes the overlap issue with the bottom of the plot
+				logAxis.setVerticalAnchorShift(4);
+				xAxis = logAxis;
+			}
 			else xAxis = new NumberAxis( xAxisName );
 
 			//if (!xLog)
