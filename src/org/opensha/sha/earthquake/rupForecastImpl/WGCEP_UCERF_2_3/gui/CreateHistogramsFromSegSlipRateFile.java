@@ -14,6 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -26,8 +27,8 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 
 
-	private final PlotCurveCharacterstics PLOT_HISTOGRAM = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
-		      new Color(0,0,0), 2); // black
+	private final PlotCurveCharacterstics PLOT_HISTOGRAM =
+			new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK); // black
 	private ArrayList funcs;
 	private String xAxisLabel, yAxisLabel;
 	

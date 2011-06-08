@@ -112,8 +112,8 @@ public enum PlotLineType {
 							BasicStroke.JOIN_BEVEL,0,new float[] {5,3,2,3},0);
 				else
 					throw new IllegalStateException("Unknown lineType: "+plt);
-//				renderer.setStroke(stroke);
-				renderer.setBaseStroke(stroke);
+				renderer.setStroke(stroke);
+//				renderer.setBaseStroke(stroke);
 			}
 		}
 		if (sym != null) {
@@ -128,10 +128,10 @@ public enum PlotLineType {
 			Preconditions.checkArgument(symWidth > 0, "symbol widht must be >0");
 			Shape shape = sym.buildShape(symWidth);
 			Preconditions.checkNotNull(shape, "Couldn't build shape for symbol: "+sym);
-//			stdRend.setShape(shape);
-			stdRend.setBaseShape(shape);
-//			stdRend.setShapesFilled(sym.isFilled());
-			stdRend.setBaseShapesFilled(sym.isFilled());
+			stdRend.setShape(shape);
+//			stdRend.setBaseShape(shape);
+			stdRend.setShapesFilled(sym.isFilled());
+//			stdRend.setBaseShapesFilled(sym.isFilled());
 			renderer = stdRend;
 			
 		}

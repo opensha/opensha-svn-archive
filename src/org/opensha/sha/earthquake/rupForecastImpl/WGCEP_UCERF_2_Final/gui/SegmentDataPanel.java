@@ -24,6 +24,8 @@ import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
@@ -57,18 +59,12 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static DecimalFormat EVENT_RATE_FORMAT = new DecimalFormat("0.00E0");
 	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, slipRatesAlongFaultList, eventRatesList, eventRatesRatioList, slipRatesRatioList;
 	
-	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      new Color(255,0,0), 12); // RED Cross symbols
-	private final static PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,0,0), 4); // BLACK LINE
-	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,255,0), 4); // GREEN LINE
-	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      new Color(0,0,0), 12); // BLACK Cross symbols
-	private final static PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(255,0,0), 4); // RED LINE
-	private final static PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GRAY, 4); // GREY LINE
+	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotSymbol.CROSS, 12f, Color.RED); // RED Cross symbols
+	private final static PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK); // BLACK LINE
+	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GREEN); // GREEN LINE
+	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotSymbol.CROSS, 12f, Color.BLACK); // BLACK Cross symbols
+	private final static PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED); // RED LINE
+	private final static PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GRAY); // GREY LINE
 	
 	private String xAxisLabel, yAxisLabel;
 	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatesAlongFaultPlottingFeatures, segmentedSlipRatePlottingFeatures, unSegmentedSlipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;

@@ -10,7 +10,9 @@ import org.jfree.util.ShapeUtilities;
 public enum PlotSymbol {
 	
 	X("X symbols", false),
-	PLUS("+ symbols", false),
+	CROSS("+ symbols", false),
+	BOLD_X("Bold X symbols", true),
+	BOLD_CROSS("Bold + symbols", true),
 	FILLED_CIRCLE("Filled Circles", true),
 	CIRCLE("Circles", false),
 	FILLED_SQUARE("Filled Squares", true),
@@ -65,8 +67,12 @@ public enum PlotSymbol {
 			return ShapeUtilities.createDiamond(width);
 		else if (this == X)
 			return ShapeUtilities.createDiagonalCross(width,0.1f);
-		else if (this == PLUS)
+		else if (this == BOLD_X)
+			return ShapeUtilities.createDiagonalCross(width,width*0.25f);
+		else if (this == CROSS)
 			return ShapeUtilities.createRegularCross(width,0.1f);
+		else if (this == BOLD_CROSS)
+			return ShapeUtilities.createRegularCross(width,width*0.25f);
 		else
 			throw new UnsupportedOperationException("Can't build shape for symbol: "+toString());
 	}

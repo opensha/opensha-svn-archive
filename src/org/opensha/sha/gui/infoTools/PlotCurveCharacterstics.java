@@ -55,6 +55,14 @@ public class PlotCurveCharacterstics implements Named, Cloneable {
 	//num of continuous curves with same characterstics as above
 	private int numCurvesWithSamePlottingFeatures = 1;
 	
+	public PlotCurveCharacterstics(PlotLineType lineType, float lineWidth, Color color) {
+		this(lineType, lineWidth, null, 4f, color);
+	}
+	
+	public PlotCurveCharacterstics(PlotSymbol symbol, float symbolWidth, Color color) {
+		this(null, 1f, symbol, symbolWidth, color);
+	}
+	
 	public PlotCurveCharacterstics(PlotLineType lineType, float lineWidth, PlotSymbol symbol,
 			float symbolWidth, Color color) {
 		this("Data", lineType, lineWidth, symbol, symbolWidth, color, 1);

@@ -48,6 +48,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
@@ -1220,5 +1221,15 @@ ParameterChangeListener{
 		if(paramName.equals(this.MAG_DIST_PARAM_SELECTOR_NAME)){
 			createMagParam();
 		}
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		if(isIncrRatePlot)
+			incrRateGraphPanel.setRenderingOrder(order);
+		else if(isCumRatePlot)
+			cumRateGraphPanel.setRenderingOrder(order);
+		else
+			momentRateGraphPanel.setRenderingOrder(order);
 	}
 }

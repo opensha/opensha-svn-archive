@@ -61,6 +61,7 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
 import org.apache.commons.lang.SystemUtils;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -2117,7 +2118,7 @@ ScalarIMRChangeListener {
 		functionList.add(function);
 		enableMenuButtons();
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
-		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.PLUS, 4f, Color.BLACK, 1));
+		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.CROSS, 4f, Color.BLACK, 1));
 		addGraphPanel();
 	}
 
@@ -2664,6 +2665,11 @@ ScalarIMRChangeListener {
 	@Override
 	public void imrChange(ScalarIMRChangeEvent event) {
 		updateSiteParams();
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		this.graphPanel.setRenderingOrder(order);
 	}
 }
 

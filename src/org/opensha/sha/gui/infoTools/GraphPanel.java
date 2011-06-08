@@ -111,6 +111,8 @@ public class GraphPanel extends JSplitPane {
 	private final static String NO_PLOT_MSG = "No Plot Data Available";
 	
 	private JFileChooser chooser;
+	
+	private DatasetRenderingOrder renderingOrder = DatasetRenderingOrder.FORWARD;
 
 	/**
 	 * default color scheme for plotting curves
@@ -437,7 +439,7 @@ public class GraphPanel extends JSplitPane {
 			//to be send to JFreechart for plotting.
 			drawCurvesUsingPlottingFeatures(lineType, lineWidth, symbol, symbolWidth, color, dataIndex);
 		}
-		plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+		plot.setDatasetRenderingOrder(renderingOrder);
 
 		plot.setBackgroundAlpha( .8f );
 
@@ -1021,5 +1023,13 @@ public class GraphPanel extends JSplitPane {
 
 	public ChartPanel getCartPanel() {
 		return this.chartPanel;
+	}
+	
+	public DatasetRenderingOrder getRenderingOrder() {
+		return renderingOrder;
+	}
+
+	public void setRenderingOrder(DatasetRenderingOrder renderingOrder) {
+		this.renderingOrder = renderingOrder;
 	}
 }

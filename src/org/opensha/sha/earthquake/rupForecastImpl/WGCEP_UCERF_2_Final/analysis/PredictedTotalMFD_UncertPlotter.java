@@ -12,6 +12,8 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -44,17 +46,17 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	private final static String TOT_MFD_FILENAME = PATH+"TotMFDs.txt";
 	
 
-	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 1); // Tot MFDs
-	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2); // median, 2.5%, 97.5%
-	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2); // mean
+	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+		      1f, Color.BLACK); // Tot MFDs
+	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+		      2f, Color.GREEN); // median, 2.5%, 97.5%
+	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+		      2f, Color.BLUE); // mean
 	
-	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2); // best fit MFD
-	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      Color.RED, 5); // observed MFD
+	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+		      2f, Color.RED); // best fit MFD
+	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotSymbol.CROSS,
+		      5f, Color.RED); // observed MFD
 
 		
 	private ArrayList funcs = new ArrayList();

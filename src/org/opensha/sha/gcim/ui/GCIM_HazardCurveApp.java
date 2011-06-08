@@ -2558,7 +2558,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		functionList.add(function);
 		enableMenuButtons();
 		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
-		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.PLUS, 4f, Color.BLACK, 1));
+		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.CROSS, 4f, Color.BLACK, 1));
 		addGraphPanel();
 	}
 

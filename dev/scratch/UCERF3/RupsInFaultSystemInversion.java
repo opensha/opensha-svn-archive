@@ -20,6 +20,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -968,15 +970,12 @@ public class RupsInFaultSystemInversion {
 		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK,
-				2));
+				PlotLineType.SOLID, 2f, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 2));
+				PlotLineType.SOLID, 2f, Color.BLUE));
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-					Color.RED, 1));
+					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		graph3.setPlottingFeatures(plotChars);
 		graph3.setX_AxisLabel("Fault Section Index");
 		graph3.setY_AxisLabel("Event Rate (per year)");

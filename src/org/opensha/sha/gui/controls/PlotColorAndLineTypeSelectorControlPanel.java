@@ -30,6 +30,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
@@ -38,8 +39,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
@@ -60,25 +63,6 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * it size. the default value for lines are 1.0f and and for shapes
  * it is 4.0f.
  * Currently supported Styles are:
- * SOLID_LINE
- * DOTTED_LINE
- * DASHED_LINE
- * DOT_DASH_LINE
- * X Symbols
- * CROSS_SYMBOLS
- * FILLED_CIRCLES
- * CIRCLES
- * FILLED_SQUARES
- * SQUARES
- * FILLED_TRIANGLES
- * TRIANGLES
- * FILLED_INV_TRIANGLES
- * INV_TRIANGLES
- * FILLED_DIAMONDS
- * DIAMONDS
- * LINE_AND_CIRCLES
- * LINE_AND_TRIANGLES
- * HISTOGRAMS
  * </p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
@@ -93,7 +77,7 @@ ActionListener,ParameterChangeListener{
 	
 	private JPanel jPanel1 = new JPanel();
 	private JLabel jLabel1 = new JLabel();
-	private JScrollPane colorAndLineTypeSelectorPanel = new JScrollPane();
+	private JPanel colorAndLineTypeSelectorPanel;
 
 	//X-Axis Label param name
 	private StringParameter xAxisLabelParam;
@@ -116,7 +100,7 @@ ActionListener,ParameterChangeListener{
 
 
 	//static String definitions
-	private final static String colorChooserString = "Choose Color";
+	private final static String colorChooserString = "Color";
 //	private final static String lineTypeString = "Choose Line Type";
 	//name of the attenuationrelationship weights parameter
 	public static final String LINE_WIDTH_NAME = "Line Size";
@@ -130,30 +114,6 @@ ActionListener,ParameterChangeListener{
 	private static final PlotSymbol SYMBOL_DEFAULT = null;
 	private ArrayList<String> symbolStrings;
 
-	//static line types that allows user to select in combobox.
-	public final static String SOLID_LINE = "Solid Line";
-	public final static String DOTTED_LINE = "Dotted Line";
-	public final static String DASHED_LINE = "Dash Line";
-	public final static String DOT_DASH_LINE = "Dot and Dash Line";
-	public final static String X = "X Symbols";
-	public final static String CROSS_SYMBOLS = "+ Symbols";
-	public final static String FILLED_CIRCLES = "Filled Circles";
-	public final static String CIRCLES = "Circles";
-	public final static String FILLED_SQUARES = "Filled Squares";
-	public final static String SQUARES = "Squares";
-	public final static String FILLED_TRIANGLES = "Filled Triangles";
-	public final static String TRIANGLES = "Triangles";
-	public final static String FILLED_INV_TRIANGLES = "Filled Inv. Triangles";
-	public final static String INV_TRIANGLES = "Inv. Triangles";
-	public final static String FILLED_DIAMONDS = "Filled Diamond";
-	public final static String DIAMONDS = "Diamond";
-	public final static String LINE_AND_FILLED_CIRCLES = "Line and Filled Circles";
-	public final static String LINE_AND_CIRCLES = "Line and Circles";
-	public final static String LINE_AND_FILLED_TRIANGLES = "Line and Filled Triangles";
-	public final static String LINE_AND_TRIANGLES = "Line and Triangles";
-	public final static String HISTOGRAM = "Histograms";
-	public final static String STACKED_BAR = "Stacked Bar";
-
 	//parameter for tick label font size
 	private  StringParameter tickFontSizeParam;
 	public static final String tickFontSizeParamName = "Set tick label size";
@@ -166,6 +126,12 @@ ActionListener,ParameterChangeListener{
 	//parameter for plot label font size
 	private StringParameter plotLabelsFontSizeParam;
 	public static final String plotlabelsFontSizeParamName = "Set Plot label ";
+	
+	private static final String PLOT_ORDER_PARAM_NAME = "Plotting Order";
+	private static final String PLOT_ORDER_FORWARD = "Most Recent On Top";
+	private static final String PLOT_ORDER_BACKWARD = "Most Recent On Bottom";
+	private static final String PLOT_ORDER_DEFAULT = PLOT_ORDER_FORWARD;
+	private StringParameter plotOrderParam;
 
 	//private ConstrainedStringParameterEditor axisLabelsFontSizeParamEditor;
 
@@ -217,24 +183,7 @@ ActionListener,ParameterChangeListener{
 			symbolStrings.add(sym.toString());
 		
 		application = api;
-		try {
-			jbInit();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-
-		Component parent = (Component)api;
-
-		xAxisLabel = api.getXAxisLabel();
-		yAxisLabel = api.getYAxisLabel();
-		plotLabel = api.getPlotLabel();
-
-
-		// show the window at center of the parent component
-		this.setLocation(parent.getX()+parent.getWidth()/3,
-				parent.getY()+parent.getHeight()/2);
-
+		
 		//creating the parameters to change the size of Labels
 		//creating list of supported font sizes
 		ArrayList<String> supportedFontSizes = new ArrayList<String>();
@@ -254,9 +203,14 @@ ActionListener,ParameterChangeListener{
 		tickFontSizeParam = new StringParameter(tickFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(1));
 		axisLabelsFontSizeParam = new StringParameter(axislabelsFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(2));
 		plotLabelsFontSizeParam = new StringParameter(plotlabelsFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(2));
+		ArrayList<String> plotOrderStrings = new ArrayList<String>();
+		plotOrderStrings.add(PLOT_ORDER_FORWARD);
+		plotOrderStrings.add(PLOT_ORDER_BACKWARD);
+		plotOrderParam = new StringParameter(PLOT_ORDER_PARAM_NAME, plotOrderStrings, PLOT_ORDER_DEFAULT);
 		tickFontSizeParam.addParameterChangeListener(this);
 		axisLabelsFontSizeParam.addParameterChangeListener(this);
 		plotLabelsFontSizeParam.addParameterChangeListener(this);
+		plotOrderParam.addParameterChangeListener(this);
 //		tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
 //		axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
 //		plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
@@ -277,10 +231,30 @@ ActionListener,ParameterChangeListener{
 		plotParamList.addParameter(yAxisLabelParam);
 		plotParamList.addParameter(plotLabelParam);
 		plotParamList.addParameter(plotLabelsFontSizeParam);
+		plotParamList.addParameter(plotOrderParam);
 
 		plotParamEditor = new ParameterListEditor(plotParamList);
 		plotParamEditor.setTitle("Plot Label Prefs Setting");
+		
+		try {
+			jbInit();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 
+		Component parent = (Component)api;
+
+		xAxisLabel = api.getXAxisLabel();
+		yAxisLabel = api.getYAxisLabel();
+		plotLabel = api.getPlotLabel();
+
+
+		// show the window at center of the parent component
+		this.setLocation(parent.getX()+parent.getWidth()/3,
+				parent.getY()+parent.getHeight()/2);
+
+		
 		//creating editors for these font size parameters
 		setPlotColorAndLineType(curveCharacterstics);
 	}
@@ -318,12 +292,15 @@ ActionListener,ParameterChangeListener{
 			}
 		});
 		this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-		colorAndLineTypeSelectorPanel.getViewport().setLayout(new BorderLayout());
+		colorAndLineTypeSelectorPanel = new JPanel();
+		colorAndLineTypeSelectorPanel.setLayout(new BoxLayout(colorAndLineTypeSelectorPanel, BoxLayout.Y_AXIS));
+		colorAndLineTypeSelectorPanel.add(curveFeaturePanel);
+		colorAndLineTypeSelectorPanel.add(plotParamEditor);
+		JScrollPane scroll = new JScrollPane(colorAndLineTypeSelectorPanel);
 		jPanel1.add(jLabel1,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
 				,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 6, 0, 11), 0, 0));
-		jPanel1.add(colorAndLineTypeSelectorPanel,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
+		jPanel1.add(scroll,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
 				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 0, 0));
-		colorAndLineTypeSelectorPanel.getViewport().add(curveFeaturePanel, BorderLayout.CENTER);
 		jPanel1.add(cancelButton,  new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 108), 0, 0));
 		jPanel1.add(RevertButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
@@ -332,9 +309,10 @@ ActionListener,ParameterChangeListener{
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 0), 0, 0));
 		jPanel1.add(applyButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 99, 2, 0), 0, 0));
-		jPanel1.setSize(600,500);
+		jPanel1.setSize(930,500);
+		
 		//colorAndLineTypeSelectorPanel.setSize(500,250);
-		setSize(600,500);
+		setSize(930,500);
 	}
 
 
@@ -391,7 +369,7 @@ ActionListener,ParameterChangeListener{
 
 		curveFeaturePanel.removeAll();
 		//adding color chooser button,plot style and size to GUI.
-		for(int i=0;i<numCurves;++i){
+		for(int i=0;i<numCurves;++i) {
 			curveFeaturePanel.add(datasetSelector[i]);
 			curveFeaturePanel.add(colorChooserButton[i]);
 			curveFeaturePanel.add(lineTypeParam[i].getEditor().getComponent());
@@ -399,7 +377,8 @@ ActionListener,ParameterChangeListener{
 			curveFeaturePanel.add(symbolTypeParam[i].getEditor().getComponent());
 			curveFeaturePanel.add(symbolWidthParameter[i].getEditor().getComponent());
 		}
-		colorAndLineTypeSelectorPanel.getViewport().add(plotParamEditor, BorderLayout.SOUTH);
+		curveFeaturePanel.doLayout();
+		colorAndLineTypeSelectorPanel.doLayout();
 	}
 
 	/**
@@ -564,6 +543,11 @@ ActionListener,ParameterChangeListener{
 		application.setXAxisLabel(xAxisLabel);
 		application.setYAxisLabel(yAxisLabel);
 		application.setPlotLabel(plotLabel);
+		String plotOrder = plotOrderParam.getValue();
+		if (plotOrder.equals(PLOT_ORDER_FORWARD))
+			application.setPlottingOrder(DatasetRenderingOrder.FORWARD);
+		else
+			application.setPlottingOrder(DatasetRenderingOrder.REVERSE);
 		application.plotGraphUsingPlotPreferences();
 		return true;
 	}

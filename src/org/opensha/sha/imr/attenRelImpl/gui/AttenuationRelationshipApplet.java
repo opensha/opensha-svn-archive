@@ -60,6 +60,7 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -1324,7 +1325,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		if( !functionList.contains( function )){
 			functionList.add(function);
 			ArrayList plotFeaturesList = getPlottingFeatures();
-			plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.PLUS, 4f,
+			plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.CROSS, 4f,
 					Color.BLACK,1));
 			addGraphPanel();
 		}
@@ -1640,5 +1641,10 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	@Override
 	public void setCurveXValues() {
 		throw new RuntimeException("Not applicable for application");
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		graphPanel.setRenderingOrder(order);
 	}
 }

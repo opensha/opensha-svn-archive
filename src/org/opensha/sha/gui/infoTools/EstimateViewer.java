@@ -51,7 +51,7 @@ public class EstimateViewer implements GraphWindowAPI {
   private final PlotCurveCharacterstics CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(
 		  PlotLineType.SOLID, 2f, null, 4f, Color.BLACK);
   private final PlotCurveCharacterstics DISCRETE_VAL_CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(
-		  null, 2f, PlotSymbol.PLUS, 6f, Color.BLACK);
+		  null, 2f, PlotSymbol.CROSS, 6f, Color.BLACK);
 
 
   public EstimateViewer(Estimate estimate) {

@@ -27,11 +27,14 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -191,12 +194,14 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 	private Color cyberShakeColor = null;
 	
 	// default to null now, as it can be set from rup var scen ID
-	private String cyberShakeLineType = null;
+	private PlotLineType cyberShakeLineType = PlotLineType.SOLID;
+	private PlotSymbol cyberShakeSymbol = null;
 	
-	private double csLineWidth = 2d;
-	private double attenRelLineWidth = 2d;
+	private float csLineWidth = 2f;
+	private float attenRelLineWidth = 2f;
 	
-	private String attenRelLineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
+	private PlotLineType attenRelLineType = PlotLineType.DASHED;
+	private PlotSymbol attenRelSymbol = null;
 	
 	private ArrayList<double[]> periodDependantXMaxes = new ArrayList<double[]>();
 	
@@ -303,19 +308,19 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		this.customAxis = customAxis;
 	}
 	
-	public double getLineWidth() {
+	public float getLineWidth() {
 		return csLineWidth;
 	}
 
-	public void setCsLineWidth(double csLineWidth) {
+	public void setCsLineWidth(float csLineWidth) {
 		this.csLineWidth = csLineWidth;
 	}
 
-	public double getAttenRelLineWidth() {
+	public float getAttenRelLineWidth() {
 		return attenRelLineWidth;
 	}
 
-	public void setAttenRelLineWidth(double attenRelLineWidth) {
+	public void setAttenRelLineWidth(float attenRelLineWidth) {
 		this.attenRelLineWidth = attenRelLineWidth;
 	}
 
@@ -363,22 +368,38 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		this.cyberShakeColor = cyberShakeColor;
 	}
 
-	public String getCyberShakeLineType() {
+	public PlotLineType getCyberShakeLineType() {
 		return cyberShakeLineType;
 	}
 
-	public void setCyberShakeLineType(String cyberShakeLineType) {
+	public void setCyberShakeLineType(PlotLineType cyberShakeLineType) {
 		this.cyberShakeLineType = cyberShakeLineType;
 	}
 	
-	public String getAttenRelLineType() {
+	public PlotLineType getAttenRelLineType() {
 		return attenRelLineType;
 	}
 
-	public void setAttenRelLineType(String attenRelLineType) {
+	public void setAttenRelLineType(PlotLineType attenRelLineType) {
 		this.attenRelLineType = attenRelLineType;
 	}
 	
+	public PlotSymbol getCyberShakeSymbol() {
+		return cyberShakeSymbol;
+	}
+
+	public void setCyberShakeSymbol(PlotSymbol cyberShakeSymbol) {
+		this.cyberShakeSymbol = cyberShakeSymbol;
+	}
+
+	public PlotSymbol getAttenRelSymbol() {
+		return attenRelSymbol;
+	}
+
+	public void setAttenRelSymbol(PlotSymbol attenRelSymbol) {
+		this.attenRelSymbol = attenRelSymbol;
+	}
+
 	public ArbitrarilyDiscretizedFunc getHazardFunc() {
 		if (hazardFunc == null)
 			hazardFunc = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();
@@ -398,6 +419,9 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 				"/org/opensha/sha/cybershake/conf/robPlot.xml").toURI());
 		File tomXML = new File(HazardCurvePlotCharacteristics.class.getResource(
 				"/org/opensha/sha/cybershake/conf/tomPlot.xml").toURI());
+		
+		robXML = new File(robXML.getAbsolutePath().replaceAll("classes", "src"));
+		tomXML = new File(tomXML.getAbsolutePath().replaceAll("classes", "src"));
 		
 		HazardCurvePlotCharacteristics chars = createRobPlotChars();
 		try {
@@ -450,10 +474,19 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		el.addAttribute("xAxisLabel", this.getXAxisLabel());
 		el.addAttribute("yAxisLabel", this.getYAxisLabel());
 		
+		el.addAttribute("csLineWidth", csLineWidth+"");
+		el.addAttribute("attenRelLineWidth", attenRelLineWidth+"");
+		
 		el.addAttribute("customAxis", this.isCustomAxis() + "");
 		
-		el.addAttribute("cyberShakeLineType", this.cyberShakeLineType);
-		el.addAttribute("attenRelLineType", this.attenRelLineType);
+		if (cyberShakeLineType != null)
+			el.addAttribute("cyberShakeLineType", this.cyberShakeLineType.toString());
+		if (attenRelLineType != null)
+			el.addAttribute("attenRelLineType", this.attenRelLineType.toString());
+		if (cyberShakeSymbol != null)
+			el.addAttribute("cyberShakeSymbol", this.cyberShakeSymbol.toString());
+		if (attenRelSymbol != null)
+			el.addAttribute("attenRelSymbol", this.attenRelSymbol.toString());
 		
 		ArbitrarilyDiscretizedFunc func = this.getHazardFunc();
 		
@@ -511,8 +544,23 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		chars.setXAxisLabel(charsEl.attributeValue("xAxisLabel"));
 		chars.setYAxisLabel(charsEl.attributeValue("yAxisLabel"));
 		
-		chars.setCyberShakeLineType(charsEl.attributeValue("cyberShakeLineType"));
-		chars.setAttenRelLineType(charsEl.attributeValue("attenRelLineType"));
+		float csLineWidth = Float.parseFloat(charsEl.attribute("csLineWidth").getStringValue());
+		float attenRelLineWidth = Float.parseFloat(charsEl.attribute("attenRelLineWidth").getStringValue());
+		chars.setCsLineWidth(csLineWidth);
+		chars.setAttenRelLineWidth(attenRelLineWidth);
+		
+		Attribute csLineTypeAtt = charsEl.attribute("cyberShakeLineType");
+		if (csLineTypeAtt != null)
+			chars.setCyberShakeLineType(PlotLineType.forDescription(csLineTypeAtt.getStringValue()));
+		Attribute attenRelLineTypeAtt = charsEl.attribute("attenRelLineType");
+		if (attenRelLineTypeAtt != null)
+			chars.setAttenRelLineType(PlotLineType.forDescription(attenRelLineTypeAtt.getStringValue()));
+		Attribute csSymbolAtt = charsEl.attribute("cyberShakeSymbol");
+		if (csSymbolAtt != null)
+			chars.setCyberShakeSymbol(PlotSymbol.forDescription(csSymbolAtt.getStringValue()));
+		Attribute attenRelSymbolAtt = charsEl.attribute("attenRelSymbol");
+		if (attenRelSymbolAtt != null)
+			chars.setAttenRelSymbol(PlotSymbol.forDescription(attenRelSymbolAtt.getStringValue()));
 		
 		Element funcEl = charsEl.element(ArbitrarilyDiscretizedFunc.XML_METADATA_NAME);
 		

@@ -14,6 +14,8 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -38,34 +40,34 @@ public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
 		"Hanks & Bakun (2002)_UniformBoxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
 		"Somerville (2006)_UniformBoxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 	
-	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      new Color(0,0,0), 10); // black
-	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(192,192,192), 2); // silver grey
-	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(128,0,0), 2); // maroon
-	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(255,0,0), 2); //red
-	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(128,0,128), 2); // purple
-	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(255,0,255), 2); // fuchisia
-	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(0,128,0), 2); //geen
-	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(0,255,0), 2); //lime
-	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(128,128,0), 2); //olive
-	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(255,255,0), 2); //yellow
-	private final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(0,0,128), 2); //navy
-	private final PlotCurveCharacterstics PLOT_CHAR12 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(0,0,255), 2); // blue
-	private final PlotCurveCharacterstics PLOT_CHAR13 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(0,128,128), 2); //teal
- 	private final PlotCurveCharacterstics PLOT_CHAR14 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(0,255,255), 2); //aqua
+	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotSymbol.CROSS,
+			10f, new Color(0,0,0)); // black
+	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(192,192,192)); // silver grey
+	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(128,0,0)); // maroon
+	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(255,0,0)); //red
+	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(128,0,128)); // purple
+	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(255,0,255)); // fuchisia
+	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(0,128,0)); //geen
+	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(0,255,0)); //lime
+	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(128,128,0)); //olive
+	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(255,255,0)); //yellow
+	private final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(0,0,128)); //navy
+	private final PlotCurveCharacterstics PLOT_CHAR12 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(0,0,255)); // blue
+	private final PlotCurveCharacterstics PLOT_CHAR13 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(0,128,128)); //teal
+	private final PlotCurveCharacterstics PLOT_CHAR14 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(0,255,255)); //aqua
  	
  	
 	//private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,

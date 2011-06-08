@@ -2369,21 +2369,16 @@ public class BayArea_Inversion {
 
 		ArrayList<PlotCurveCharacterstics> plotMFD_Chars = new ArrayList<PlotCurveCharacterstics>();
 		plotMFD_Chars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 3));
+				PlotLineType.SOLID, 3f, Color.BLUE));
 		plotMFD_Chars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED,
-				3));
+				PlotLineType.SOLID, 3f, Color.RED));
 		plotMFD_Chars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.GREEN, 3));
+				PlotLineType.SOLID, 3f, Color.GREEN));
 		if (gr != null) {
 			plotMFD_Chars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-					Color.BLUE, 1));
+					PlotLineType.SOLID, 3f, Color.BLUE));
 			plotMFD_Chars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-					Color.RED, 1));
+					PlotLineType.SOLID, 3f, Color.RED));
 		}
 		mfd_graph.setPlottingFeatures(plotMFD_Chars);
 		mfd_graph.setTickLabelFontSize(12);
@@ -2420,18 +2415,14 @@ public class BayArea_Inversion {
 		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
 		plotChars2.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 2));
+				PlotLineType.SOLID, 2f, Color.BLUE));
 		plotChars2.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED,
-				2));
+				PlotLineType.SOLID, 2f, Color.RED));
 		for (int c = 0; c < num; c++)
 			plotChars2.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-					Color.RED, 1));
+					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		plotChars2.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLACK, 2));
+				PlotLineType.SOLID, 2f, Color.BLACK));
 		seg_graph.setPlottingFeatures(plotChars2);
 		seg_graph.setX_AxisLabel("Subsection");
 		seg_graph.setY_AxisLabel("Rates");
