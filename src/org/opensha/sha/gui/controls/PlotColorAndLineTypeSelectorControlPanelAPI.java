@@ -19,6 +19,8 @@
 
 package org.opensha.sha.gui.controls;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
+
 
 
 /**
@@ -76,4 +78,10 @@ public interface PlotColorAndLineTypeSelectorControlPanelAPI {
     * sets plot Title
     */
    public void setPlotLabel(String plotTitle);
+   
+   /**
+    * set the dataset rendering order
+    * @param order
+    */
+   public void setPlottingOrder(DatasetRenderingOrder order);
 }

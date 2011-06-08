@@ -22,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
@@ -394,5 +395,10 @@ public class GraphPane extends JPanel
 		buttonControlPanel.setXLog(xlog);
 		buttonControlPanel.setYLog(ylog);
 		drawGraph();
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		graphPanel.setRenderingOrder(order);
 	}
 }

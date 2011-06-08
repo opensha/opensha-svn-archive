@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**
@@ -22,28 +24,28 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	private ArrayList funcs;
 
 
-	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.BLUE, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.BLACK, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.GREEN, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.MAGENTA, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.PINK, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.LIGHT_GRAY, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.RED, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.ORANGE, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.CYAN, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.DARK_GRAY, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			Color.GRAY, 2);
+	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLUE);
+	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLACK);
+	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.GREEN);
+	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.MAGENTA);
+	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.PINK);
+	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.LIGHT_GRAY);
+	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.RED);
+	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.ORANGE);
+	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.CYAN);
+	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.DARK_GRAY);
+	private final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.GRAY);
 	
 
 
@@ -193,9 +195,10 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		this.graphWindow.setPlottingFeatures(curveCharacteristics);
 	}
 	
-	public void setAllLineTypes(String curveType) {
+	public void setAllLineTypes(PlotLineType lineType, PlotSymbol symbol) {
 		for(PlotCurveCharacterstics plotChar : plotChars) {
-			plotChar.setCurveType(curveType);
+			plotChar.setLineType(lineType);
+			plotChar.setSymbol(symbol);
 		}
 		this.setPlottingFeatures(plotChars);
 	}
@@ -384,10 +387,10 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		graphWindowImpl.setPlotTitle("Test Title");
 		graphWindowImpl.setX_AxisRange(0, 5);
 		graphWindowImpl.setAutoRange();
-		PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.PINK, 2);
-		PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.LIGHT_GRAY, 5);
+		PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+				2f, Color.PINK);
+		PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+				5f, Color.LIGHT_GRAY);
 		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
 		list.add(PLOT_CHAR5);
 		list.add(PLOT_CHAR6);

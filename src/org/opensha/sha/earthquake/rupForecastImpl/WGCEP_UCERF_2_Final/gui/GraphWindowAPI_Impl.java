@@ -6,6 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -22,59 +23,59 @@ public class GraphWindowAPI_Impl implements GraphWindowAPI {
 	private String xAxisLabel, yAxisLabel;
 	
 	// SOLID LINES
-	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.YELLOW, 2);
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.CYAN, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.DARK_GRAY, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.ORANGE, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.PINK, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.LIGHT_GRAY, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR12 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GRAY, 2);
-	
-	
+	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLUE);
+	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.RED);
+	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.GREEN);
+	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLACK);
+	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.MAGENTA);
+	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.YELLOW);
+
+	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.CYAN);
+	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.DARK_GRAY);
+	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.ORANGE);
+	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.PINK);
+	protected final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.LIGHT_GRAY);
+	protected final PlotCurveCharacterstics PLOT_CHAR12 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.GRAY);
+
+
 	// DASHED LINES
-	protected final PlotCurveCharacterstics PLOT_CHAR13 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLUE, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR14 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.RED, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR15 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.GREEN, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR16 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLACK, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR17 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.MAGENTA, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR18 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.YELLOW, 2);
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR19 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.CYAN, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR20 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.DARK_GRAY, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR21 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.ORANGE, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR22 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.PINK, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR23 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.LIGHT_GRAY, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR24 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.GRAY, 2);
+	protected final PlotCurveCharacterstics PLOT_CHAR13 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.BLUE);
+	protected final PlotCurveCharacterstics PLOT_CHAR14 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.RED);
+	protected final PlotCurveCharacterstics PLOT_CHAR15 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.GREEN);
+	protected final PlotCurveCharacterstics PLOT_CHAR16 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.BLACK);
+	protected final PlotCurveCharacterstics PLOT_CHAR17 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.MAGENTA);
+	protected final PlotCurveCharacterstics PLOT_CHAR18 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.YELLOW);
+
+	protected final PlotCurveCharacterstics PLOT_CHAR19 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.CYAN);
+	protected final PlotCurveCharacterstics PLOT_CHAR20 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.DARK_GRAY);
+	protected final PlotCurveCharacterstics PLOT_CHAR21 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.ORANGE);
+	protected final PlotCurveCharacterstics PLOT_CHAR22 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.PINK);
+	protected final PlotCurveCharacterstics PLOT_CHAR23 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.LIGHT_GRAY);
+	protected final PlotCurveCharacterstics PLOT_CHAR24 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.GRAY);
 	private GraphWindow graphWindow;
 	/**
 	 * ArrayList of ArbitrarilyDiscretizedFunctions

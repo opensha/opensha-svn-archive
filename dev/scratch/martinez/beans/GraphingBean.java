@@ -13,6 +13,7 @@ import javax.swing.JTextArea;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -254,5 +255,11 @@ public class GraphingBean implements GuiBeanAPI, GraphPanelAPI,
 			
 		}
 		return buttonVis;
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		// TODO Auto-generated method stub
+		
 	}
 }

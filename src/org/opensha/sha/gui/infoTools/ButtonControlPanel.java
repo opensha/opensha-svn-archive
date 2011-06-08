@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
@@ -439,6 +440,11 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	 */
 	public void setPlotLabel(String plotTitle){
 		application.setPlotLabel(plotTitle);
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		application.setPlottingOrder(order);
 	}
 
 

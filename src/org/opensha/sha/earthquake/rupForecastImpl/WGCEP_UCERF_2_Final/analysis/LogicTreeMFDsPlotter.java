@@ -23,6 +23,8 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -74,67 +76,67 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String COMBINED_AVG_FILENAME = "CombinedAvgMFDs.txt";
 	
 	
-	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.BLUE, 1); // A-Faults
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.LIGHT_GRAY, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.LIGHT_GRAY, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.LIGHT_GRAY, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.LIGHT_GRAY, 1); // B-Faults Char
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.GREEN, 1); // B-Faults GR
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.ORANGE, 2); // Non-CA B-Faults
-	
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.BLACK, 2); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLACK, 2); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.BLACK, 1); // Tot MFD
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2); //background
-	private final PlotCurveCharacterstics PLOT_CHAR5_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.MAGENTA, 2); //background
-	private final PlotCurveCharacterstics PLOT_CHAR5_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.MAGENTA, 2); //background
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.PINK, 2); // C-zone
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2); // best fit MFD
-	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      Color.RED, 5); // observed MFD
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(188, 143, 143), 2); // NSHMP 2002
+	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLUE); // A-Faults
+	private final PlotCurveCharacterstics PLOT_CHAR1_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.BLUE); // A-Faults
+	private final PlotCurveCharacterstics PLOT_CHAR1_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.BLUE); // A-Faults
+	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE); // A-Faults
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.LIGHT_GRAY); // B-Faults Char
+	private final PlotCurveCharacterstics PLOT_CHAR2_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.LIGHT_GRAY); // B-Faults Char
+	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.LIGHT_GRAY); // B-Faults Char
+	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.LIGHT_GRAY); // B-Faults Char
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.GREEN); // B-Faults GR
+	private final PlotCurveCharacterstics PLOT_CHAR3_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.GREEN); // B-Faults GR
+	private final PlotCurveCharacterstics PLOT_CHAR3_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.GREEN); // B-Faults GR
+	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.GREEN); // B-Faults GR
+
+	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.ORANGE); // Non-CA B-Faults
+
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLACK); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR4_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.BLACK); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.BLACK); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK); // Tot MFD
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.MAGENTA); //background
+	private final PlotCurveCharacterstics PLOT_CHAR5_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.MAGENTA); //background
+	private final PlotCurveCharacterstics PLOT_CHAR5_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.MAGENTA); //background
+
+	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.PINK); // C-zone
+
+	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.RED); // best fit MFD
+	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotSymbol.CROSS,
+			5f, Color.RED); // observed MFD
+
+	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(188, 143, 143)); // NSHMP 2002
 	
 	protected ArrayList funcs;
 	protected ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();

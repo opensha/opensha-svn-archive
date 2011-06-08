@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <OpenSHA>
-  <HazardCurvePlotCharacteristics xMin="0.01" xMax="3.0" yMin="1.0E-5" yMax="0.2" xLog="true" yLog="true" title="%n" xAxisLabel="%ps SA (g)" yAxisLabel="Probability Rate (1/yr)" customAxis="true" attenRelLineType="Solid Line">
+  <HazardCurvePlotCharacteristics xMin="0.01" xMax="3.0" yMin="1.0E-5" yMax="0.2" xLog="true" yLog="true" title="%n" xAxisLabel="%ps SA (g)" yAxisLabel="Probability Rate (1/yr)" csLineWidth="2.0" attenRelLineWidth="2.0" customAxis="true" cyberShakeLineType="Solid" attenRelLineType="Dashed">
     <AttenRelColors>
       <Color r="255" g="150" b="150" a="255"/>
       <Color r="150" g="150" b="255" a="255"/>
       <Color r="150" g="255" b="150" a="255"/>
-      <Color r="255" g="200" b="120" a="255"/>
+      <Color r="255" g="180" b="35" a="255"/>
       <Color r="160" g="255" b="255" a="255"/>
     </AttenRelColors>
     <PeriodDependentXMaxes>

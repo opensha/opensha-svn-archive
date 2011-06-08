@@ -21,6 +21,7 @@ package org.opensha.sha.gui.infoTools;
 
 import java.util.ArrayList;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 
@@ -115,4 +116,10 @@ public interface ButtonControlPanelAPI extends AxisLimitsControlPanelAPI{
     * sets plot Title
     */
    public void setPlotLabel(String plotTitle);
+   
+   /**
+    * set the dataset rendering order
+    * @param order
+    */
+   public void setPlottingOrder(DatasetRenderingOrder order);
 }

@@ -15,6 +15,8 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -147,10 +149,10 @@ public class ETAS_Simulator {
 		sr_graph3.setY_AxisLabel("Cumulative Rate");
 		sr_graph3.setYLog(true);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS, Color.RED, 5));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS, Color.RED, 5));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS, Color.RED, 5));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 3));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 		sr_graph3.setPlottingFeatures(plotChars);
 		sr_graph3.setY_AxisRange(1e-6, sr_graph3.getY_AxisMax());
 		
@@ -344,9 +346,9 @@ public class ETAS_Simulator {
 		graph.setX_AxisRange(0.4, 360);
 		graph.setY_AxisRange(0.1, graph.getY_AxisMax());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,Color.BLUE, 3));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,Color.RED, 3));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.BLACK, 2));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		graph.setPlottingFeatures(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);
@@ -382,37 +384,37 @@ public class ETAS_Simulator {
 		if(epLocsGen1_Mlt5.getNum()>0) {
 			funcs.add(epLocsGen1_Mlt5);
 			epLocsGen1_Mlt5.setInfo("(circles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES,Color.BLACK, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.BLACK));
 		}
 		DefaultXY_DataSet epLocsGen2_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 2);
 		if(epLocsGen2_Mlt5.getNum()>0) {
 			funcs.add(epLocsGen2_Mlt5);
 			epLocsGen2_Mlt5.setInfo("(circles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES,Color.BLUE, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 3);
 		if(epLocsGen3_Mlt5.getNum()>0) {
 			funcs.add(epLocsGen3_Mlt5);
 			epLocsGen3_Mlt5.setInfo("(circles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES,Color.GREEN, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 4);
 		if(epLocsGen4_Mlt5.getNum()>0) {
 			funcs.add(epLocsGen4_Mlt5);
 			epLocsGen4_Mlt5.setInfo("(circles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES,Color.RED, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen5_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 5);
 		if(epLocsGen5_Mlt5.getNum()>0) {
 			funcs.add(epLocsGen5_Mlt5);
 			epLocsGen5_Mlt5.setInfo("(circles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES,Color.ORANGE, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 6);
 		if(epLocsGen6_Mlt5.getNum()>0) {
 			funcs.add(epLocsGen6_Mlt5);
 			epLocsGen6_Mlt5.setInfo("(circles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES,Color.YELLOW, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.YELLOW));
 		}
 
 
@@ -421,37 +423,37 @@ public class ETAS_Simulator {
 		if(epLocsGen1_Mgt5lt65.getNum()>0) {
 			funcs.add(epLocsGen1_Mgt5lt65);
 			epLocsGen1_Mgt5lt65.setInfo("(triangles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES,Color.BLACK, 4));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.BLACK));
 		}
 		DefaultXY_DataSet epLocsGen2_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 2);
 		if(epLocsGen2_Mgt5lt65.getNum()>0) {
 			funcs.add(epLocsGen2_Mgt5lt65);
 			epLocsGen2_Mgt5lt65.setInfo("(triangles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES,Color.BLUE, 4));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 3);
 		if(epLocsGen3_Mgt5lt65.getNum()>0) {
 			funcs.add(epLocsGen3_Mgt5lt65);
 			epLocsGen3_Mgt5lt65.setInfo("(triangles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES,Color.GREEN, 3));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 4);
 		if(epLocsGen4_Mgt5lt65.getNum()>0) {
 			funcs.add(epLocsGen4_Mgt5lt65);
 			epLocsGen4_Mgt5lt65.setInfo("(triangles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES,Color.RED, 4));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen5_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 5);
 		if(epLocsGen5_Mgt5lt65.getNum()>0) {
 			funcs.add(epLocsGen5_Mgt5lt65);
 			epLocsGen5_Mgt5lt65.setInfo("(triangles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES,Color.ORANGE, 4));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 6);
 		if(epLocsGen6_Mgt5lt65.getNum()>0) {
 			funcs.add(epLocsGen6_Mgt5lt65);
 			epLocsGen6_Mgt5lt65.setInfo("(triangles)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES,Color.YELLOW, 4));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.YELLOW));
 		}
 
 
@@ -460,37 +462,37 @@ public class ETAS_Simulator {
 		if(epLocsGen1_Mgt65.getNum()>0) {
 			funcs.add(epLocsGen1_Mgt65);
 			epLocsGen1_Mgt65.setInfo("(squares)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SQUARES,Color.LIGHT_GRAY, 8));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.LIGHT_GRAY));
 		}
 		DefaultXY_DataSet epLocsGen2_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 2);
 		if(epLocsGen2_Mgt65.getNum()>0) {
 			funcs.add(epLocsGen2_Mgt65);
 			epLocsGen2_Mgt65.setInfo("(squares)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SQUARES,Color.BLUE, 8));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 3);
 		if(epLocsGen3_Mgt65.getNum()>0) {
 			funcs.add(epLocsGen3_Mgt65);
 			epLocsGen3_Mgt65.setInfo("(squares)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SQUARES,Color.GREEN, 8));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 4);
 		if(epLocsGen4_Mgt65.getNum()>0) {
 			funcs.add(epLocsGen4_Mgt65);
 			epLocsGen4_Mgt65.setInfo("(squares)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SQUARES,Color.RED, 8));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen5_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 5);
 		if(epLocsGen5_Mgt65.getNum()>0) {
 			funcs.add(epLocsGen5_Mgt65);
 			epLocsGen5_Mgt65.setInfo("(squares)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SQUARES,Color.ORANGE, 8));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 6);
 		if(epLocsGen6_Mgt65.getNum()>0) {
 			funcs.add(epLocsGen6_Mgt65);
 			epLocsGen6_Mgt65.setInfo("(squares)");
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SQUARES,Color.YELLOW, 8));
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.YELLOW));
 		}
 		
 		double minLat=90, maxLat=-90,minLon=360,maxLon=-360;
@@ -510,7 +512,7 @@ public class ETAS_Simulator {
 		for(Location loc:trace)
 			traceFunc.set(loc.getLongitude(), loc.getLatitude());
 		funcs.add(traceFunc);
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.MAGENTA, 1));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.MAGENTA));
 		
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Aftershock Epicenters for "+info); 
 		graph.setX_AxisLabel("Longitude");
@@ -1023,10 +1025,10 @@ public class ETAS_Simulator {
 		graph.setX_AxisRange(0.4, 1200);
 		graph.setY_AxisRange(1e-6, 1);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.BLACK, 2));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.BLUE, 2));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,Color.RED, 3));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,Color.GREEN, 3));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
 		graph.setPlottingFeatures(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);

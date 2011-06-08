@@ -23,6 +23,8 @@ import javax.swing.table.AbstractTableModel;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -45,77 +47,77 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton aveSlipDataButton= new JButton("Show Ave Slip Data");
 	private JButton rupRatesButton= new JButton("Plot A-Priori and final rates");
 	private JButton rupRatesRatioButton = new JButton("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
-	
+
 	private A_FaultSegmentedSourceGenerator source;
 	//	Filled Circles for rupture from each plot
-	public final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.BLUE, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.RED, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.GREEN, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.BLACK, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.MAGENTA, 2);	
-	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.ORANGE, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.PINK, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.YELLOW, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.CYAN, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.DARK_GRAY, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.LIGHT_GRAY, 2);
-	protected final PlotCurveCharacterstics PLOT_CHAR12 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      Color.GRAY, 2);
-	
+	public final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.BLUE);
+	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.RED);
+	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.GREEN);
+	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.BLACK);
+	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.MAGENTA);	
+	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.ORANGE);
+	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.PINK);
+	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.YELLOW);
+	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.CYAN);
+	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.DARK_GRAY);
+	protected final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.LIGHT_GRAY);
+	protected final PlotCurveCharacterstics PLOT_CHAR12 = new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+			2f, Color.GRAY);
+
 	// solid lines for Mag Area rel
-	public final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2);
-	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2);
-	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2);
-	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2);
-	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2);	
-	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.ORANGE, 2);
-	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.PINK, 2);
+	public final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLUE);
+	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.RED);
+	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.GREEN);
+	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLACK);
+	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.MAGENTA);	
+	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.ORANGE);
+	protected final PlotCurveCharacterstics MAG_AREA_PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.PINK);
 
 	private final static double MIN_AREA = 100; // sq km
 	private final static double MAX_AREA = 10000; // sq km
-	
+
 	private ArrayList plottingFeatures;
 	private ArrayList magAreaFuncs;
 	private ArrayList aFaultSegmentedSourceList;
 	private ArrayList magAreaRels;
-	
-	
+
+
 	public RuptureDataPanel() {
 		this.setLayout(new GridBagLayout());
 		JTable table = new JTable(this.rupTableModel);
 		table.setColumnSelectionAllowed(true);
 		add(new JScrollPane(table),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(mfdButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(magAreaPlotButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(magAreaPlotButton2,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(aveSlipDataButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(rupRatesButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(rupRatesRatioButton,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		aveSlipDataButton.setToolTipText("Show Average Slip for each segment for each rupture");
 		mfdButton.addActionListener(this);
 		magAreaPlotButton.addActionListener(this);
@@ -124,7 +126,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		rupRatesButton.addActionListener(this);
 		rupRatesRatioButton.addActionListener(this);
 	}
-	
+
 	/**
 	 * Set source list and mag area relationships for Mag Area plot
 	 * 
@@ -134,7 +136,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		this.aFaultSegmentedSourceList = aFaultSegmentedSourceList;
 		this.magAreaRels = magAreaRels;
 	}
-	
+
 	/**
 	 * Color coding by rup rates
 	 *
@@ -152,7 +154,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 			magAreaFuncs.add(func);
 		}
-		
+
 		int index;
 		double maxRelativeRate = 1.0;
 		double minRelativeRate = 0.001;
@@ -164,9 +166,9 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			double[] relativeRupRates = getRelativeRupRates(aFaultSegmentedSource);
 			for(int j=0; j<aFaultSegmentedSource.getNumRupSources(); ++j) {
 				area = aFaultSegmentedSource.getRupArea(j)/1e6; // area to sq km
-				
+
 				//if(relativeRupRates[j]<minRelativeRate) System.out.println(" Low relative rate for:"+ 
-					//	aFaultSegmentedSource.getFaultSegmentData().getFaultName()+":"+relativeRupRates[j]);
+				//	aFaultSegmentedSource.getFaultSegmentData().getFaultName()+":"+relativeRupRates[j]);
 				/*System.out.println(" rate for:"+ 
 						aFaultSegmentedSource.getFaultSegmentData().getFaultName()+":"+j+"="+relativeRupRates[j]+","+
 						Math.log10(relativeRupRates[j]));*/
@@ -180,8 +182,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			}
 			//func.setName(aFaultSegmentedSource.getFaultSegmentData().getFaultName());
 		}
-		
-		
+
+
 		// remove functions which have 0 elements
 		for(int i=0; i<magAreaFuncs.size(); ++i) {
 			ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)magAreaFuncs.get(i);
@@ -190,7 +192,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 				--i;
 			}
 		}
-		
+
 		// add colors
 		int minColor = 0;
 		int maxColor=255;
@@ -198,12 +200,12 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		int colorVal;
 		for(int i=0; i<magAreaFuncs.size(); ++i) {
 			colorVal = minColor+i*deltaColor;
-			plottingFeatures.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-		      new Color(colorVal, colorVal, colorVal), 2));
+			plottingFeatures.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE,
+					2f, new Color(colorVal, colorVal, colorVal)));
 			//System.out.println("Number of points in function "+i+"="+((ArbitrarilyDiscretizedFunc)magAreaFuncs.get(i)).getNum());
 		}
-		
-		
+
+
 		// create function list for mag area relationships
 		double min = Math.log10(MIN_AREA);
 		double max = Math.log10(MAX_AREA);
@@ -229,8 +231,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		if(numMagAreaRels>5) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR6);
 		if(numMagAreaRels>6) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR7);
 	}
-	
-	
+
+
 	/**
 	 * Color Coding by fault names
 	 * 
@@ -254,7 +256,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			func.setName(aFaultSegmentedSource.getFaultSegmentData().getFaultName());
 			magAreaFuncs.add(func);
 		}
-		
+
 		// create function list for mag area relationships
 		double min = Math.log10(MIN_AREA);
 		double max = Math.log10(MAX_AREA);
@@ -271,8 +273,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			func.setName(magAreaRel.getName());
 			magAreaFuncs.add(func);
 		}
-		
-		
+
+
 		// plotting features for rupture area and mag
 		if(numFaults>0) plottingFeatures.add(this.PLOT_CHAR1);
 		if(numFaults>1) plottingFeatures.add(this.PLOT_CHAR2);
@@ -286,7 +288,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		if(numFaults>9) plottingFeatures.add(this.PLOT_CHAR10);
 		if(numFaults>10) plottingFeatures.add(this.PLOT_CHAR11);
 		if(numFaults>11) plottingFeatures.add(this.PLOT_CHAR12);
-		
+
 		// plotting features for mag area rels
 		if(numMagAreaRels>0) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR1);
 		if(numMagAreaRels>1) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR2);
@@ -296,7 +298,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		if(numMagAreaRels>5) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR6);
 		if(numMagAreaRels>6) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR7);
 	}
-	
+
 	/**
 	 * Get relative rates of the ruptures
 	 * 
@@ -315,9 +317,9 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		}
 		return relativeRates;
 	}
-	
-	
-	
+
+
+
 	public void actionPerformed(ActionEvent event) {
 		Object eventSource = event.getSource();
 		if(eventSource == mfdButton) { // MFD for selected A Fault
@@ -335,17 +337,17 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		} else if(eventSource == this.magAreaPlotButton) {
 			this.createFuncListColorCodingByRupRates();
 			GraphWindow graphWindow= new GraphWindow(this);
-		    graphWindow.setPlotLabel("Mag Area Plot");
-		    graphWindow.plotGraphUsingPlotPreferences();
-		    graphWindow.setLocationRelativeTo(this);
-		    graphWindow.setVisible(true);;
+			graphWindow.setPlotLabel("Mag Area Plot");
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setLocationRelativeTo(this);
+			graphWindow.setVisible(true);;
 		}else if(eventSource == this.magAreaPlotButton2) {
 			this.setColorCodingbyFaultNames();
 			GraphWindow graphWindow= new GraphWindow(this);
-		    graphWindow.setPlotLabel("Mag Area Plot");
-		    graphWindow.plotGraphUsingPlotPreferences();
-		    graphWindow.setLocationRelativeTo(this);
-		    graphWindow.setVisible(true);;
+			graphWindow.setPlotLabel("Mag Area Plot");
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setLocationRelativeTo(this);
+			graphWindow.setVisible(true);;
 		} else if (eventSource == this.aveSlipDataButton) {
 			RupAveSlipTableModel tableModel = new RupAveSlipTableModel(this.source.getSegSlipInRupMatrix());
 			JTable table = new JTable(tableModel);
@@ -393,10 +395,10 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			graphWindow.setVisible(true);
 		}
 	}
-	
 
-	
-	
+
+
+
 	/**
 	 * Set the source to update the rupture info
 	 * 
@@ -409,8 +411,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		rupTableModel.setFaultSegmentedSource(aFaultSegmentedSource);
 		rupTableModel.fireTableDataChanged();
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
 	 */
@@ -452,7 +454,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	public ArrayList getPlottingFeatures() {
 		return this.plottingFeatures;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
 	 */
@@ -491,15 +493,15 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 
 
 /**
-* Rupture Ave Slip Table Model
-* 
-* @author vipingupta
-*
-*/
+ * Rupture Ave Slip Table Model
+ * 
+ * @author vipingupta
+ *
+ */
 class RupAveSlipTableModel extends AbstractTableModel {
 	//	 column names
 	private double [][] segSlipInRupMatrix;
-	
+
 	/**
 	 * default constructor
 	 *
@@ -507,15 +509,15 @@ class RupAveSlipTableModel extends AbstractTableModel {
 	public RupAveSlipTableModel(double [][]segSlipInRupMatrix) {
 		this.segSlipInRupMatrix = segSlipInRupMatrix;
 	}
-	
+
 	/**
 	 * Get number of columns
 	 */
 	public int getColumnCount() {
 		return segSlipInRupMatrix[0].length+1;
 	}
-	
-	
+
+
 	/**
 	 * Get column name
 	 */
@@ -523,7 +525,7 @@ class RupAveSlipTableModel extends AbstractTableModel {
 		if(index==0) return "";
 		else return "Rup "+index;
 	}
-	
+
 	/*
 	 * Get number of rows
 	 * (non-Javadoc)
@@ -532,8 +534,8 @@ class RupAveSlipTableModel extends AbstractTableModel {
 	public int getRowCount() {
 		return segSlipInRupMatrix.length;
 	}
-	
-	
+
+
 	/**
 	 * 
 	 */
@@ -548,13 +550,13 @@ class RupAveSlipTableModel extends AbstractTableModel {
 
 
 /**
-* Rupture Table Model
-* 
-* @author vipingupta
-*
-*/
+ * Rupture Table Model
+ * 
+ * @author vipingupta
+ *
+ */
 class RuptureTableModel extends AbstractTableModel {
-//	 column names
+	//	 column names
 	public final static String[] columnNames = { "Rup Index", "Area (sq km)", "Mean Mag", 
 		"Final Rate", "A Priori Rate", "Moment Rate", "Rup Prob", "Rup Gain", "Short Name", "Long Name"};
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
@@ -562,7 +564,7 @@ class RuptureTableModel extends AbstractTableModel {
 	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.000E0");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
 	private A_FaultSegmentedSourceGenerator aFaultSegmentedSource;
-	
+
 	/**
 	 * default constructor
 	 *
@@ -570,7 +572,7 @@ class RuptureTableModel extends AbstractTableModel {
 	public RuptureTableModel() {
 		this(null);
 	}
-	
+
 	/**
 	 *  Preferred Fault section data
 	 *  
@@ -579,7 +581,7 @@ class RuptureTableModel extends AbstractTableModel {
 	public RuptureTableModel(A_FaultSegmentedSourceGenerator aFaultSegmentedSource) {
 		setFaultSegmentedSource(aFaultSegmentedSource);
 	}
-	
+
 	/**
 	 * Set the segmented fault data
 	 * @param segFaultData
@@ -587,22 +589,22 @@ class RuptureTableModel extends AbstractTableModel {
 	public void setFaultSegmentedSource(A_FaultSegmentedSourceGenerator aFaultSegmentedSource) {
 		this.aFaultSegmentedSource =   aFaultSegmentedSource;
 	}
-	
+
 	/**
 	 * Get number of columns
 	 */
 	public int getColumnCount() {
 		return columnNames.length;
 	}
-	
-	
+
+
 	/**
 	 * Get column name
 	 */
 	public String getColumnName(int index) {
 		return columnNames[index];
 	}
-	
+
 	/*
 	 * Get number of rows
 	 * (non-Javadoc)
@@ -612,40 +614,40 @@ class RuptureTableModel extends AbstractTableModel {
 		if(aFaultSegmentedSource==null) return 0;
 		return (aFaultSegmentedSource.getNumRupSources()+1); 
 	}
-	
-	
+
+
 	/**
 	 * 
 	 */
 	public Object getValueAt (int rowIndex, int columnIndex) {
-			
+
 		if(aFaultSegmentedSource==null) return "";
 		if(rowIndex == aFaultSegmentedSource.getNumRupSources()) return getTotal(columnIndex);
 		switch(columnIndex) {
-			case 0:
-				return ""+(rowIndex+1);
-			case 1: 
-				return AREA_LENGTH_FORMAT.format(aFaultSegmentedSource.getRupArea(rowIndex)/1e6);
-			case 2:
-				return MAG_FORMAT.format(aFaultSegmentedSource.getRupMeanMag(rowIndex));
-			case 3:
-				return RATE_FORMAT.format(aFaultSegmentedSource.getRupRate(rowIndex));
-			case 4:
-				return RATE_FORMAT.format(aFaultSegmentedSource.getAPrioriRupRate(rowIndex));
-			case 5:
-				return MOMENT_FORMAT.format(aFaultSegmentedSource.getRupMoRate(rowIndex));
-			case 6:
-				return MOMENT_FORMAT.format(aFaultSegmentedSource.getRupSourceProb(rowIndex));
-			case 7:
-				return MAG_FORMAT.format(aFaultSegmentedSource.getRupSourcProbGain(rowIndex));
-			case 8:
-				return aFaultSegmentedSource.getShortRupName(rowIndex);
-			case 9:
-				return aFaultSegmentedSource.getLongRupName(rowIndex);
+		case 0:
+			return ""+(rowIndex+1);
+		case 1: 
+			return AREA_LENGTH_FORMAT.format(aFaultSegmentedSource.getRupArea(rowIndex)/1e6);
+		case 2:
+			return MAG_FORMAT.format(aFaultSegmentedSource.getRupMeanMag(rowIndex));
+		case 3:
+			return RATE_FORMAT.format(aFaultSegmentedSource.getRupRate(rowIndex));
+		case 4:
+			return RATE_FORMAT.format(aFaultSegmentedSource.getAPrioriRupRate(rowIndex));
+		case 5:
+			return MOMENT_FORMAT.format(aFaultSegmentedSource.getRupMoRate(rowIndex));
+		case 6:
+			return MOMENT_FORMAT.format(aFaultSegmentedSource.getRupSourceProb(rowIndex));
+		case 7:
+			return MAG_FORMAT.format(aFaultSegmentedSource.getRupSourcProbGain(rowIndex));
+		case 8:
+			return aFaultSegmentedSource.getShortRupName(rowIndex);
+		case 9:
+			return aFaultSegmentedSource.getLongRupName(rowIndex);
 		}
 		return "";
 	}
-	
+
 	/**
 	 * 
 	 * @param colIndex
@@ -654,20 +656,20 @@ class RuptureTableModel extends AbstractTableModel {
 	private String getTotal(int colIndex) {
 		double totalRate = 0.0;
 		switch(colIndex) {
-			case 0:
-				return "Total";
-			case 3:
-				for(int i=0; i<aFaultSegmentedSource.getNumRupSources(); ++i)
-					totalRate+=aFaultSegmentedSource.getRupRate(i);
-				return RATE_FORMAT.format(totalRate);
-			case 4:
-				for(int i=0; i<aFaultSegmentedSource.getNumRupSources(); ++i)
-					totalRate+=aFaultSegmentedSource.getAPrioriRupRate(i);
-				return RATE_FORMAT.format(totalRate);
-			case 5:
-				if(aFaultSegmentedSource!=null)
-					return MOMENT_FORMAT.format(aFaultSegmentedSource.getTotalMoRateFromRups());
-		
+		case 0:
+			return "Total";
+		case 3:
+			for(int i=0; i<aFaultSegmentedSource.getNumRupSources(); ++i)
+				totalRate+=aFaultSegmentedSource.getRupRate(i);
+			return RATE_FORMAT.format(totalRate);
+		case 4:
+			for(int i=0; i<aFaultSegmentedSource.getNumRupSources(); ++i)
+				totalRate+=aFaultSegmentedSource.getAPrioriRupRate(i);
+			return RATE_FORMAT.format(totalRate);
+		case 5:
+			if(aFaultSegmentedSource!=null)
+				return MOMENT_FORMAT.format(aFaultSegmentedSource.getTotalMoRateFromRups());
+
 		}
 		return "";
 	}

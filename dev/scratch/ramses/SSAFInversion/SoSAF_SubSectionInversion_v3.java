@@ -26,6 +26,8 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.nnls.NNLSWrapper;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -2263,18 +2265,10 @@ public class SoSAF_SubSectionInversion_v3 {
 		sr_funcs.add(origLower95_SlipRateFunc);
 		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs, "");
 		ArrayList<PlotCurveCharacterstics> sr_plotChars = new ArrayList<PlotCurveCharacterstics>();
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
-				Color.BLACK, 4));
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 2));
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 1));
-		sr_plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 1));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
 		sr_graph.setPlottingFeatures(sr_plotChars);
 		sr_graph.setX_AxisLabel("Subsection");
 		sr_graph.setY_AxisLabel("Slip Rate (m/sec)");
@@ -2327,16 +2321,11 @@ public class SoSAF_SubSectionInversion_v3 {
 		// er_funcs.add(obs_er_funcs);
 		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED,
-				2));
-		plotChars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 1));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
 		for (int c = 0; c < num; c++)
-			plotChars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-					Color.RED, 1));
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f,
+					PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		er_graph.setPlottingFeatures(plotChars);
 		er_graph.setX_AxisLabel("Subsection");
 		er_graph.setY_AxisLabel("Event Rate (per yr)");
@@ -2416,22 +2405,12 @@ public class SoSAF_SubSectionInversion_v3 {
 		mfd_graph.setY_AxisLabel("Rate (per yr)");
 
 		ArrayList<PlotCurveCharacterstics> plotMFD_Chars = new ArrayList<PlotCurveCharacterstics>();
-		plotMFD_Chars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 3));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED,
-				3));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.GREEN, 3));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.RED));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN));
 		if (gr != null) {
-			plotMFD_Chars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-					Color.BLUE, 1));
-			plotMFD_Chars.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-					Color.RED, 1));
+			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
 		}
 		mfd_graph.setPlottingFeatures(plotMFD_Chars);
 		mfd_graph.setTickLabelFontSize(12);
@@ -2467,19 +2446,13 @@ public class SoSAF_SubSectionInversion_v3 {
 
 		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
-		plotChars2.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLUE, 2));
-		plotChars2.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED,
-				2));
+		plotChars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		plotChars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 		for (int c = 0; c < num; c++)
 			plotChars2.add(new PlotCurveCharacterstics(
-					PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-					Color.RED, 1));
+					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		plotChars2.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLACK, 2));
+				PlotLineType.SOLID, 2f, Color.BLACK));
 		seg_graph.setPlottingFeatures(plotChars2);
 		seg_graph.setX_AxisLabel("Subsection");
 		seg_graph.setY_AxisLabel("Rates");

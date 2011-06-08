@@ -19,6 +19,8 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -47,19 +49,19 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  *
  */
 public class LogicTreeMFDsPlotter implements GraphWindowAPI {
-	
+
 	private final static String X_AXIS_LABEL = "Magnitude";
 	private final static String CUM_Y_AXIS_LABEL = "Cumulative Rate (per year)";
 	private final static String INCR_Y_AXIS_LABEL = "Incremental Rate (per year)";
-	
-	
+
+
 	protected ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList, nonCA_B_FaultsMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
-	
+
 	private final static String DEFAULT_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/";
 	private final static String BCK_FRAC_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BackGrdFrac0_1/";
 	private final static String BFAULT_BVAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BFault_BVal0/";
-	
+
 	protected final static String A_FAULTS_MFD_FILENAME = "A_Faults_MFDs.txt";
 	protected final static String B_FAULTS_CHAR_MFD_FILENAME = "B_FaultsCharMFDs.txt";
 	protected final static String B_FAULTS_GR_MFD_FILENAME = "B_FaultsGR_MFDs.txt";
@@ -68,70 +70,70 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String NSHMP_02_MFD_FILENAME = "NSHMP02_MFDs.txt";
 	private final static String METADATA_EXCEL_SHEET = "Metadata.xls";
 	private final static String COMBINED_AVG_FILENAME = "CombinedAvgMFDs.txt";
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.BLUE, 1); // A-Faults
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.LIGHT_GRAY, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.LIGHT_GRAY, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.LIGHT_GRAY, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.LIGHT_GRAY, 1); // B-Faults Char
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.GREEN, 1); // B-Faults GR
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.ORANGE, 2); // Non-CA B-Faults
-	
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.BLACK, 2); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLACK, 2); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES,
-		      Color.BLACK, 1); // Tot MFD
-	
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2); //background
-	private final PlotCurveCharacterstics PLOT_CHAR5_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.MAGENTA, 2); //background
-	private final PlotCurveCharacterstics PLOT_CHAR5_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.MAGENTA, 2); //background
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.PINK, 2); // C-zone
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2); // best fit MFD
-	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      Color.RED, 5); // observed MFD
-	
-	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(188, 143, 143), 2); // NSHMP 2002
-	
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLUE); // A-Faults
+	private final PlotCurveCharacterstics PLOT_CHAR1_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.BLUE); // A-Faults
+	private final PlotCurveCharacterstics PLOT_CHAR1_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.BLUE); // A-Faults
+	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE); // A-Faults
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.LIGHT_GRAY); // B-Faults Char
+	private final PlotCurveCharacterstics PLOT_CHAR2_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.LIGHT_GRAY); // B-Faults Char
+	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.LIGHT_GRAY); // B-Faults Char
+	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.LIGHT_GRAY); // B-Faults Char
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.GREEN); // B-Faults GR
+	private final PlotCurveCharacterstics PLOT_CHAR3_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.GREEN); // B-Faults GR
+	private final PlotCurveCharacterstics PLOT_CHAR3_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.GREEN); // B-Faults GR
+	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.GREEN); // B-Faults GR
+
+	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.ORANGE); // Non-CA B-Faults
+
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.BLACK); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR4_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.BLACK); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.BLACK); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK); // Tot MFD
+
+
+	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.MAGENTA); //background
+	private final PlotCurveCharacterstics PLOT_CHAR5_1 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED,
+			2f, Color.MAGENTA); //background
+	private final PlotCurveCharacterstics PLOT_CHAR5_2 = new PlotCurveCharacterstics(PlotLineType.DASHED,
+			2f, Color.MAGENTA); //background
+
+	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.PINK); // C-zone
+
+	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, Color.RED); // best fit MFD
+	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotSymbol.CROSS,
+			5f, Color.RED); // observed MFD
+
+	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+			2f, new Color(188, 143, 143)); // NSHMP 2002
+
 	protected ArrayList funcs;
 	protected ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 	private boolean isCumulative;
@@ -140,7 +142,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private UCERF2_TimeIndependentEpistemicList ucerf2List = new UCERF2_TimeIndependentEpistemicList();
 	//	 Eqk Rate Model 2 ERF
 	protected UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(0);
-	
+
 
 	public LogicTreeMFDsPlotter () {
 		aFaultMFDsList = new ArrayList<IncrementalMagFreqDist>();
@@ -148,10 +150,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		nonCA_B_FaultsMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
-		
+
 	}
 
-	
+
 	/**
 	 * This method caclulates MFDs for all logic tree branches and saves them to files.
 	 * It also generates a metadata excel sheet that contains information about parameter settings
@@ -169,12 +171,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		Iterator it = adjustableParams.getParametersIterator();
 		adjustableParamNames = new ArrayList<String>();
 		while(it.hasNext()) {
-			 Parameter param = (Parameter)it.next();
-			 adjustableParamNames.add(param.getName());
-		 }
+			Parameter param = (Parameter)it.next();
+			adjustableParamNames.add(param.getName());
+		}
 		// add column for each parameter name. Also add a initial blank row for writing figure names
-		 row = excelSheet.createRow(0); 
-		 for(int i=1; i<=adjustableParamNames.size(); ++i) {
+		row = excelSheet.createRow(0); 
+		for(int i=1; i<=adjustableParamNames.size(); ++i) {
 			if(i>0) row.createCell((short)i).setCellValue(adjustableParamNames.get(i-1));
 		}
 		int colNum = adjustableParams.size()+1;
@@ -212,8 +214,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	/**
 	 * Save MFDs to file
 	 *
@@ -232,7 +234,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			e.printStackTrace();
 		}
 	}
-	
+
 
 	/**
 	 * Save single MFD to file
@@ -243,7 +245,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		mfdList.add(mfd);
 		saveMFDsToFile(fileName, mfdList);
 	}
-	
+
 	/**
 	 * Read MFDs from file
 	 * 
@@ -277,7 +279,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Min Mag
 	 * @return
@@ -285,7 +287,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected double getMinMag() {
 		return UCERF2.MIN_MAG;
 	}
-	
+
 	/**
 	 * Max Mag
 	 * @return
@@ -293,7 +295,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected double getMaxMag() {
 		return UCERF2.MAX_MAG;
 	}
-	
+
 	/**
 	 * Get num Mag
 	 * @return
@@ -301,7 +303,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected int getNumMags() {
 		return UCERF2.NUM_MAG;
 	}
-	
+
 	/**
 	 * Read single MFD from file
 	 * 
@@ -313,25 +315,25 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		readMFDsFromFile(fileName, mfdList, isNSHMP02);
 		return mfdList.get(0);
 	}
-	
-	
-	
-	
+
+
+
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
 	public ArrayList getPlottingFeatures() {
-		 return this.plottingFeaturesList;
+		return this.plottingFeaturesList;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
 	 */
 	public ArrayList getCurveFunctionList() {
 		return this.funcs;
 	}
-	
-	
+
+
 	/**
 	 * Calculate MFDs
 	 * 
@@ -343,7 +345,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		int numBranches = ucerf2List.getNumERFs();
 		for(int i=0; i<numBranches; ++i) {
 			UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(i);
-			 // if it is last paramter in list, save the MFDs
+			// if it is last paramter in list, save the MFDs
 			System.out.println("Doing run "+(aFaultMFDsList.size()+1)+" of "+numBranches);
 			//ucerf2.updateForecast();
 			aFaultMFDsList.add(getTotal_A_FaultsMFD(ucerf2));
@@ -361,7 +363,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				if(paramList.containsParameter(pName))
 					row.createCell((short)(p+1)).setCellValue(paramList.getValue(pName).toString());
 			}
-			
+
 			int colNum = adjustableParamNames.size()+1;
 			// add a row for predicted and observed ratio
 			row.createCell((short)(colNum)).setCellValue(getCumRateAt6_5(totMFDsList.get(colIndex-1))/obs6_5CumRate);
@@ -381,10 +383,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			row.createCell((short)(colNum)).setCellValue(ucerf2.getTotal_BackgroundMFD().getTotalMomentRate());
 			++colNum;
 			row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getTotalMomentRate());
-		
+
 		}
 	}
-	
+
 	/**
 	 * Cum rate at 6.5
 	 * @param mfd
@@ -393,7 +395,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected double getCumRateAt6_5(IncrementalMagFreqDist mfd) {
 		return mfd.getCumRate(6.5+UCERF2.DELTA_MAG/2);
 	}
-	
+
 	/**
 	 * Get Observed Cum MFD
 	 * 
@@ -404,7 +406,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		return ucerf2.getObsCumMFD(includeAfterShocks);
 	}
-	
+
 
 	/**
 	 * Get Observed Incr MFD
@@ -416,7 +418,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		return ucerf2.getObsIncrMFD(includeAfterShocks);
 	}
-	
+
 	/**
 	 * Get A_Faults MFD
 	 * @param ucerf2
@@ -425,7 +427,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected IncrementalMagFreqDist getTotal_A_FaultsMFD(UCERF2 ucerf2) {
 		return ucerf2.getTotal_A_FaultsMFD();
 	}
-	
+
 	/**
 	 * Get C-Zones MFD
 	 * @param ucerf2
@@ -434,7 +436,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected IncrementalMagFreqDist getTotal_C_ZoneMFD(UCERF2 ucerf2) {
 		return ucerf2.getTotal_C_ZoneMFD();
 	}
-	
+
 	/**
 	 * Get Background MFD
 	 * @param ucerf2
@@ -443,8 +445,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected IncrementalMagFreqDist getTotal_BackgroundMFD(UCERF2 ucerf2) {
 		return ucerf2.getTotal_BackgroundMFD();
 	}
-	
-	
+
+
 	/**
 	 * Get B_Faults Char MFD
 	 * @param ucerf2
@@ -453,7 +455,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected IncrementalMagFreqDist getTotal_B_FaultsCharMFD(UCERF2 ucerf2) {
 		return ucerf2.getTotal_B_FaultsCharMFD();
 	}
-	
+
 	/**
 	 * Get B_Faults GR MFD
 	 * @param ucerf2
@@ -471,7 +473,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected IncrementalMagFreqDist getTotal_NonCA_B_FaultsMFD(UCERF2 ucerf2) {
 		return ucerf2.getTotal_NonCA_B_FaultsMFD();
 	}
-	
+
 	/**
 	 * Get Total MFD
 	 * @param ucerf2
@@ -480,8 +482,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected IncrementalMagFreqDist getTotalMFD(UCERF2 ucerf2) {
 		return ucerf2.getTotalMFD();
 	}
-	
-	
+
+
 	/**
 	 * Plot MFDs using Jfreechart.  The boolean "isCumulative" decides whether to plot the
 	 * incremental MFDs or the cumulative MFDs.
@@ -494,7 +496,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(path==null) path = DEFAULT_PATH;
 		readMFDsFromFile(path+A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);
 		//for(int i=0; i<aFaultMFDsList.size(); ++i)
-			//System.out.println(aFaultMFDsList.get(i).getCumRate(6.5));
+		//System.out.println(aFaultMFDsList.get(i).getCumRate(6.5));
 		readMFDsFromFile(path+B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList, false);
 		readMFDsFromFile(path+B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList, false);
 		readMFDsFromFile(path+NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList, false);
@@ -503,20 +505,20 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		ucerf2.updateForecast();
 		cZoneMFD = getTotal_C_ZoneMFD(ucerf2);
 		bckMFD = getTotal_BackgroundMFD(ucerf2);
-		
+
 		// combined Logic Tree MFD
 		plotMFDs(null, null, true, true, true, true, true, false);
-		
-//		 combined Logic Tree MFD comparison with NSHMP2002
+
+		//		 combined Logic Tree MFD comparison with NSHMP2002
 		plotMFDs(null, null, false, false, false, false, false, true);
-		
+
 		//	Different Fault Models
 		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		ArrayList values = new ArrayList();
 		values.add("D2.1");
 		values.add("D2.4");
 		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults only
-		
+
 		//	Differemt Def Models
 		paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		values = new ArrayList();
@@ -524,56 +526,56 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		values.add("D2.2");
 		values.add("D2.3");
 		plotMFDs(paramName, values, true, false, false, false, false, false); // plot A-faults only
-		
+
 		// Mag Area Rel
 		paramName = UCERF2.MAG_AREA_RELS_PARAM_NAME;
 		values = new ArrayList();
 		values.add(Ellsworth_B_WG02_MagAreaRel.NAME);
 		values.add(HanksBakun2002_MagAreaRel.NAME);
 		plotMFDs(paramName, values, true, true, false, false, false, false); // plot both A and B-faults
-		
-		
+
+
 		// A-Fault solution type
 		paramName = UCERF2.RUP_MODEL_TYPE_NAME;
 		values = new ArrayList();
 		values.add(UCERF2.SEGMENTED_A_FAULT_MODEL);
 		values.add(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		plotMFDs(paramName, values, true, false, false, false, false, false); // plot A-faults  only
-		
+
 		// Aprioti wt param
 		paramName = UCERF2.REL_A_PRIORI_WT_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(1e-4));
 		values.add(new Double(1e10));
 		plotMFDs(paramName, values, true, false, false, false, false, false); // plot A-faults  only
-		
+
 
 		//	Connect More B-Faults?
-		 paramName = UCERF2.CONNECT_B_FAULTS_PARAM_NAME;
-		 values = new ArrayList();
+		paramName = UCERF2.CONNECT_B_FAULTS_PARAM_NAME;
+		values = new ArrayList();
 		values.add(new Boolean(true));
 		values.add(new Boolean(false));
 		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
-		
-		
+
+
 		//plotBackgroundEffectsMFDs();
-		
-//		B-faults b-values
+
+		//		B-faults b-values
 		paramName = UCERF2.B_FAULTS_B_VAL_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.0));
 		//plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
 
-//		fraction MoRate to Background
+		//		fraction MoRate to Background
 		paramName = UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.1));
 		//plotMFDs(paramName, values, true, true, false, false, false, false); // plot A & B-faults
-	
+
 	}
-	
-	
-	
+
+
+
 	/**
 	 * @param paramName Param Name whose value needs to remain constant. Can be null 
 	 * @param value Param Value for constant paramter. can be null
@@ -584,7 +586,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			boolean showCZones, boolean showBackground, boolean showNSHMP_TotMFD) {
 		String metadata;
 		SummedMagFreqDist avgTotMFD = doAverageMFDs(showAFaults, showBFaults, showNonCA_B_Faults, showCZones, showBackground, showNSHMP_TotMFD);
-		
+
 		PlotCurveCharacterstics plot1, plot2, plot3, plot4;
 		for(int i =0; values!=null && i<values.size(); ++i) {
 			IncrementalMagFreqDist aFaultMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
@@ -592,8 +594,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			IncrementalMagFreqDist bFaultGRMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 			IncrementalMagFreqDist nonCA__B_FaultsMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 			IncrementalMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-			
-			
+
+
 			if(paramName.equalsIgnoreCase(UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
 				ArrayList<IncrementalMagFreqDist> mfds = this.getMFDsWhenBckFrac0_1();
 				aFaultMFD = mfds.get(0);
@@ -615,8 +617,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				totMFD = mfds.get(3);
 				totMFD.setInfo("Total MFD");
 			} else doWeightedSum(paramName, values.get(i), (SummedMagFreqDist)aFaultMFD, (SummedMagFreqDist)bFaultCharMFD, (SummedMagFreqDist)bFaultGRMFD,(SummedMagFreqDist)nonCA__B_FaultsMFD, (SummedMagFreqDist)totMFD);
-			
-			
+
+
 			if(i==0) {
 				plot1 = PLOT_CHAR1_1;
 				plot2 = PLOT_CHAR2_1;
@@ -637,18 +639,18 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				metadata="Lines and Circles - ";
 			}
 			metadata += "("+paramName+"="+values.get(i)+")  ";
-			
+
 			if(showAFaults) addToFuncList(aFaultMFD, metadata+"A-Fault MFD", plot1);
 			if(showBFaults) addToFuncList(bFaultCharMFD, metadata+"Char B-Fault MFD", plot2);
 			if(showBFaults) addToFuncList(bFaultGRMFD, metadata+"GR B-Fault MFD", plot3);
 			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+totMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), plot4);	
 		}
-		
+
 		GraphWindow graphWindow= new GraphWindow(this);
-	    graphWindow.setPlotLabel("Mag Freq Dist");
-	    graphWindow.plotGraphUsingPlotPreferences();
-	    graphWindow.setVisible(true);
-	 }
+		graphWindow.setPlotLabel("Mag Freq Dist");
+		graphWindow.plotGraphUsingPlotPreferences();
+		graphWindow.setVisible(true);
+	}
 
 	/**
 	 *  Loop over all logic tree branches and calculated the Average MFD for each source type
@@ -665,14 +667,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private SummedMagFreqDist doAverageMFDs(boolean showAFaults, boolean showBFaults, boolean showNonCA_B_Faults, boolean showCZones, boolean showBackground, boolean showNSHMP_TotMFD) {
 		funcs  = new ArrayList();
 		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
-		
+
 		// Avg MFDs
 		SummedMagFreqDist avgAFaultMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		SummedMagFreqDist avgBFaultCharMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		SummedMagFreqDist avgNonCA_B_FaultsMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-		
+
 		doWeightedSum(null, null, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgNonCA_B_FaultsMFD, avgTotMFD);
 		String metadata = "Solid Line-";
 		// Add to function list
@@ -684,11 +686,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
 		if(showNSHMP_TotMFD) { // add NSHMP MFD after resampling for smoothing purposes
 			EvenlyDiscretizedFunc nshmpCumMFD = nshmp02TotMFD.getCumRateDistWithOffset();
-			
+
 			ArbitrarilyDiscretizedFunc resampledNSHMP_MFD = new ArbitrarilyDiscretizedFunc();
 			for(int i=0; i<nshmpCumMFD.getNum(); i=i+2)
 				resampledNSHMP_MFD.set(nshmpCumMFD.getX(i), nshmpCumMFD.getY(i));
-			
+
 			resampledNSHMP_MFD.setName("NSHMP-2002 Total MFD");
 			if(this.isCumulative) {
 				funcs.add(resampledNSHMP_MFD);
@@ -699,9 +701,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			}
 			this.plottingFeaturesList.add(PLOT_CHAR9);
 		}
-		
+
 		//Karen's observed data
-		
+
 		ArrayList obsMFD;
 		if(this.isCumulative)  {
 			obsMFD = getObsCumMFD(ucerf2);
@@ -712,8 +714,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			metadata+="Average Total MFD";
 		}
 		addToFuncList(avgTotMFD, metadata, PLOT_CHAR4);
-		
-		
+
+
 		// historical best fit cum dist
 		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
 		funcs.add(obsMFD.get(0));
@@ -725,10 +727,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			this.plottingFeaturesList.add(PLOT_CHAR8);
 			this.plottingFeaturesList.add(PLOT_CHAR8);
 		}
-		
+
 		return avgTotMFD;
 	}
-	
+
 	/**
 	 * 
 	 * @param mfd
@@ -742,8 +744,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		funcs.add(func);
 		this.plottingFeaturesList.add(curveCharateristic);
 	}
-	 
-	
+
+
 	/**
 	 * Do Weighted Sum
 	 * 
@@ -758,7 +760,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	protected void doWeightedSum(String constantParamName, Object value,
 			SummedMagFreqDist aFaultTotMFD, SummedMagFreqDist bFaultTotCharMFD, SummedMagFreqDist bFaultTotGRMFD, 
 			SummedMagFreqDist nonCA_B_FaultsTotMFD, SummedMagFreqDist totMFD) {
-		
+
 		int numBranches = ucerf2List.getNumERFs();
 		double paramWt = 1;
 		if(constantParamName!=null)
@@ -779,12 +781,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			addMFDs(bFaultTotGRMFD, bFaultGRMFDsList.get(i), wt);
 			addMFDs(nonCA_B_FaultsTotMFD, this.nonCA_B_FaultsMFDsList.get(i), wt);
 			addMFDs(totMFD, totMFDsList.get(i), wt);
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Return the MFDs for A-Faults, B-Char, B-GR and Total when B-Fault b-value=0
 	 * @return
@@ -794,7 +796,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		readMFDsFromFile(BFAULT_BVAL_PATH+ COMBINED_AVG_FILENAME, mfdList, false);
 		return mfdList;
 	}
-	
+
 	/**
 	 * Return the MFDs for A-Faults, B-Char, B-GR and Total when 
 	 * Fraction MoRate to Bck = 0.1
@@ -805,9 +807,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		readMFDsFromFile(BCK_FRAC_PATH+ COMBINED_AVG_FILENAME, mfdList, false);
 		return mfdList;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Add source MFD to Target MFD after applying the  weight
 	 * @param targetMFD
@@ -819,7 +821,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			targetMFD.add(sourceMFD.getX(i), wt*sourceMFD.getY(i));
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
 	 */
@@ -887,14 +889,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		return 10;
 		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
-	
-	
+
+
 	public static void main(String []args) {
-		 LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter();
-		 //logicTreeMFDsPlotter.generateMFDsData(null);
-		 logicTreeMFDsPlotter.plotMFDs(null, true);
-		 //logicTreeMFDsPlotter.plotMFDs(null, false);
-		
+		LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter();
+		//logicTreeMFDsPlotter.generateMFDsData(null);
+		logicTreeMFDsPlotter.plotMFDs(null, true);
+		//logicTreeMFDsPlotter.plotMFDs(null, false);
+
 		//LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter(true);
 		//mfdPlotter.plotMFDs();
 		//System.out.println(mfdPlotter.getMFDs(null, null).get(3).toString());

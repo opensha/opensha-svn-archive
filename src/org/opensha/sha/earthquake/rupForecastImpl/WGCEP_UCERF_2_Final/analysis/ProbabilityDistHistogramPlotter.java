@@ -19,6 +19,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -54,15 +55,15 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private final static String X_AXIS_LABEL = "Probability";
 	private final static String Y_AXIS_LABEL = "Contribution";
 	private final static String PLOT_LABEL = "Probability Contribution";
-	private final PlotCurveCharacterstics HISTOGRAM1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
-			new Color(0,0,0), 2); // black
+	private final PlotCurveCharacterstics HISTOGRAM1 = new PlotCurveCharacterstics(PlotLineType.HISTOGRAM,
+			2f, Color.BLACK); // black
 
-	private final PlotCurveCharacterstics STACKED_BAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
-			new Color(0,0,0), 2); // black
-	private final PlotCurveCharacterstics STACKED_BAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
-			Color.GREEN, 2); // Green
-	private final PlotCurveCharacterstics STACKED_BAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
-			Color.BLUE, 2); // Green
+	private final PlotCurveCharacterstics STACKED_BAR1 = new PlotCurveCharacterstics(PlotLineType.STACKED_BAR,
+			2f, Color.BLACK); // black
+	private final PlotCurveCharacterstics STACKED_BAR2 = new PlotCurveCharacterstics(PlotLineType.STACKED_BAR,
+			2f, Color.GREEN); // Green
+	private final PlotCurveCharacterstics STACKED_BAR3 = new PlotCurveCharacterstics(PlotLineType.STACKED_BAR,
+			2f, Color.BLUE); // Green
 
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingCurveChars;

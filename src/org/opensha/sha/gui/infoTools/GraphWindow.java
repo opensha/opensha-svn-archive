@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.util.FileUtils;
 
@@ -137,16 +138,12 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 		//creating the plotting pref array list from the application
 		//becuase it needs to be similar to what application has.
-		ArrayList plotCharacterstics = new ArrayList();
-		ArrayList applicationPlottingPrefList = api.getPlottingFeatures();
+		ArrayList<PlotCurveCharacterstics> plotCharacterstics = new ArrayList<PlotCurveCharacterstics>();
+		ArrayList<PlotCurveCharacterstics> applicationPlottingPrefList = api.getPlottingFeatures();
 		int size = applicationPlottingPrefList.size();
 		for (int i = 0; i < size; ++i) {
-			PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)
-			applicationPlottingPrefList.get(i);
-			plotCharacterstics.add(new PlotCurveCharacterstics(curvePlotPref.
-					getCurveName(), curvePlotPref.getCurveType(),
-					curvePlotPref.getCurveColor(), curvePlotPref.getCurveWidth(),
-					curvePlotPref.getNumContinuousCurvesWithSameCharacterstics()));
+			PlotCurveCharacterstics curvePlotPref = applicationPlottingPrefList.get(i);
+			plotCharacterstics.add((PlotCurveCharacterstics)curvePlotPref.clone());
 		}
 		graphPanel.setCurvePlottingCharacterstic(plotCharacterstics);
 		//adding the list of Functions to the Peel-Off window
@@ -597,5 +594,10 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	 */
 	public int getPlotLabelFontSize(){
 		return this.buttonControlPanel.getPlotLabelFontSize();
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		graphPanel.setRenderingOrder(order);
 	}
 }

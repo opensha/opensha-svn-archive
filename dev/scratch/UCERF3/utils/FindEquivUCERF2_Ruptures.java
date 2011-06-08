@@ -23,6 +23,7 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -1041,10 +1042,8 @@ public class FindEquivUCERF2_Ruptures {
 		graph.setX_AxisRange(5, 8);
 		/**/
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-		curveCharacteristics.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,Color.BLUE, 1.0, 1));
-		curveCharacteristics.add(new PlotCurveCharacterstics(
-				PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.BLACK, 4.0, 1));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, null, 4f, Color.BLUE, 1));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, null, 4f, Color.BLACK, 1));
 		graph.setPlottingFeatures(curveCharacteristics);
 		
 		graph.setYLog(true);

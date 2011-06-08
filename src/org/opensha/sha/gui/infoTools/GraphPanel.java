@@ -65,12 +65,15 @@ import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.ShapeUtilities;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
@@ -108,6 +111,8 @@ public class GraphPanel extends JSplitPane {
 	private final static String NO_PLOT_MSG = "No Plot Data Available";
 	
 	private JFileChooser chooser;
+	
+	private DatasetRenderingOrder renderingOrder = DatasetRenderingOrder.FORWARD;
 
 	/**
 	 * default color scheme for plotting curves
@@ -240,233 +245,25 @@ public class GraphPanel extends JSplitPane {
 	 * This method creates a new renderer for each dataset based on user's selected
 	 * plotting style.If index is zero then set primary renderer else set secondary renderer
 	 */
-	private void drawCurvesUsingPlottingFeatures(String lineType,Color color,
-			double curveWidth,int functionIndex){
-		//Solid Line
-		if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE)){
-			StandardXYItemRenderer SOLID_LINE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.LINES,
-					new StandardXYToolTipGenerator()
-			);
-			SOLID_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
-			setRendererInPlot(color, functionIndex, SOLID_LINE_RENDERER);
-		}
-		//Dashed Line
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE)){
-			StandardXYItemRenderer DASHED_LINE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.LINES,
-					new StandardXYToolTipGenerator()
-			);
-			setRendererInPlot(color, functionIndex, DASHED_LINE_RENDERER);
-			DASHED_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth,BasicStroke.CAP_BUTT
-					,BasicStroke.JOIN_BEVEL,0,new float[] {9},0));
-		}
-		//Dotted Line
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE)){
-			StandardXYItemRenderer DOTTED_LINE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.LINES,
-					new StandardXYToolTipGenerator()
-			);
-			setRendererInPlot(color, functionIndex, DOTTED_LINE_RENDERER);
-			DOTTED_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth,BasicStroke.CAP_BUTT
-					,BasicStroke.JOIN_BEVEL,0,new float[] {1},0));
-		}
-		//Dash and Dotted Line
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE)){
-			StandardXYItemRenderer DASH_DOTTED_LINE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.LINES,
-					new StandardXYToolTipGenerator()
-			);
-			setRendererInPlot(color, functionIndex, DASH_DOTTED_LINE_RENDERER);
-			DASH_DOTTED_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth,BasicStroke.CAP_BUTT
-					,BasicStroke.JOIN_BEVEL,0,new float[] {5,3,2,3},0));
-		}
-		//Filled Circle
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES)){
-			StandardXYItemRenderer FILLED_CIRCLES_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			FILLED_CIRCLES_SHAPE_RENDERER.setShape(new Ellipse2D.Double(-DELTA-curveWidth/2,
-					-DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
-			setRendererInPlot(color, functionIndex, FILLED_CIRCLES_SHAPE_RENDERER);
-		}
-		//Circle
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.CIRCLES)){
-			StandardXYItemRenderer CIRCLES_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			CIRCLES_SHAPE_RENDERER.setShape(new Ellipse2D.Double(-DELTA-curveWidth/2,
-					-DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
-			CIRCLES_SHAPE_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, CIRCLES_SHAPE_RENDERER);
-		}
-		//Filled Triangles
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_TRIANGLES)){
-			StandardXYItemRenderer FILLED_TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			FILLED_TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtilities.createUpTriangle((float)curveWidth));
-			setRendererInPlot(color, functionIndex, FILLED_TRIANGLES_SHAPE_RENDERER);
-		}
-		//Triangles
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES)){
-			StandardXYItemRenderer TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtilities.createUpTriangle((float)curveWidth));
-			TRIANGLES_SHAPE_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, TRIANGLES_SHAPE_RENDERER);
-		}
-		//Filled Inv Triangles
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_INV_TRIANGLES)){
-			StandardXYItemRenderer FILLED_INV_TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			FILLED_INV_TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtilities.createDownTriangle((float)curveWidth));
-			setRendererInPlot(color, functionIndex, FILLED_INV_TRIANGLES_SHAPE_RENDERER);
-		}
-		//Inverted Triangles
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.INV_TRIANGLES)){
-			StandardXYItemRenderer INV_TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			INV_TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtilities.createDownTriangle((float)curveWidth));
-			INV_TRIANGLES_SHAPE_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, INV_TRIANGLES_SHAPE_RENDERER);
-		}
-		//Filled Diamonds
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_DIAMONDS)){
-			StandardXYItemRenderer FILLED_DIAMONDS_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			FILLED_DIAMONDS_SHAPE_RENDERER.setShape(ShapeUtilities.createDiamond((float)curveWidth));
-			setRendererInPlot(color, functionIndex, FILLED_DIAMONDS_SHAPE_RENDERER);
-		}
-		//Diamonds
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DIAMONDS)){
-			StandardXYItemRenderer DIAMONDS_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			DIAMONDS_SHAPE_RENDERER.setShape(ShapeUtilities.createDiamond((float)curveWidth));
-			DIAMONDS_SHAPE_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, DIAMONDS_SHAPE_RENDERER);
-		}
-		//Line and filled circles
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_CIRCLES)){
-			StandardXYItemRenderer LINE_AND_FILLED_CIRCLES_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES_AND_LINES,
-					new StandardXYToolTipGenerator()
-			);
-			LINE_AND_FILLED_CIRCLES_RENDERER.setShape(new Ellipse2D.Double(-DELTA-(curveWidth*4)/2,
-					-DELTA-(curveWidth*4)/2, SIZE+(curveWidth*4), SIZE+(curveWidth*4)));
-			setRendererInPlot(color, functionIndex, LINE_AND_FILLED_CIRCLES_RENDERER);
-			LINE_AND_FILLED_CIRCLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
-		}
-		//Line and circle
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES)){
-			StandardXYItemRenderer LINE_AND_CIRCLES_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES_AND_LINES,
-					new StandardXYToolTipGenerator()
-			);
-			LINE_AND_CIRCLES_RENDERER.setShape(new Ellipse2D.Double(-DELTA-(curveWidth*4)/2,
-					-DELTA-(curveWidth*4)/2, SIZE+(curveWidth*4), SIZE+(curveWidth*4)));
-			LINE_AND_CIRCLES_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, LINE_AND_CIRCLES_RENDERER);
-			LINE_AND_CIRCLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
-		}
-		//Line and Filled Triangles
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_FILLED_TRIANGLES)){
-			StandardXYItemRenderer LINE_AND_FILLED_TRIANGLES_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES_AND_LINES,
-					new StandardXYToolTipGenerator()
-			);
-			LINE_AND_FILLED_TRIANGLES_RENDERER.setShape(ShapeUtilities.createUpTriangle((float)(curveWidth*4)));
-			setRendererInPlot(color, functionIndex, LINE_AND_FILLED_TRIANGLES_RENDERER);
-			LINE_AND_FILLED_TRIANGLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
-		}
-		//Line and Triangles
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_TRIANGLES)){
-			StandardXYItemRenderer LINE_AND_TRIANGLES_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES_AND_LINES,
-					new StandardXYToolTipGenerator()
-			);
-			LINE_AND_TRIANGLES_RENDERER.setShape(ShapeUtilities.createUpTriangle((float)(curveWidth*4)));
-			LINE_AND_TRIANGLES_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, LINE_AND_TRIANGLES_RENDERER);
-			LINE_AND_TRIANGLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
-		}
-		//X symbols
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.X)){
-			StandardXYItemRenderer X_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			X_SHAPE_RENDERER.setShape(ShapeUtilities.createDiagonalCross((float)curveWidth,0.1f));
-			X_SHAPE_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, X_SHAPE_RENDERER);
-		}
-		//+ symbols
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS)){
-			StandardXYItemRenderer X_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			X_SHAPE_RENDERER.setShape(ShapeUtilities.createRegularCross((float)curveWidth,0.1f));
-			X_SHAPE_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, X_SHAPE_RENDERER);
-		}
-		//squares
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.SQUARES)){
-			StandardXYItemRenderer SQUARE_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			SQUARE_SHAPE_RENDERER.setShape(new Rectangle.Double(-DELTA-curveWidth/2,
-					-DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
-			SQUARE_SHAPE_RENDERER.setShapesFilled(false);
-			setRendererInPlot(color, functionIndex, SQUARE_SHAPE_RENDERER);
-		}
-		//filled squares
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_SQUARES)){
-			StandardXYItemRenderer FILLED_SQUARE_SHAPE_RENDERER = new StandardXYItemRenderer(
-					StandardXYItemRenderer.SHAPES,
-					new StandardXYToolTipGenerator()
-			);
-			FILLED_SQUARE_SHAPE_RENDERER.setShape(new Rectangle.Double(-DELTA-curveWidth/2,
-					-DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
-			setRendererInPlot(color, functionIndex, FILLED_SQUARE_SHAPE_RENDERER);
-		}
-		//histograms
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM)){
-			XYBarRenderer HISTOGRAM_RENDERER = new XYBarRenderer();
-			HISTOGRAM_RENDERER.setShadowVisible(false);
-			HISTOGRAM_RENDERER.setMargin(0.1);
-			HISTOGRAM_RENDERER.setBarPainter(new StandardXYBarPainter());
-			setRendererInPlot(color, functionIndex, HISTOGRAM_RENDERER);
-		}
-		//histograms
-		else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR)){
-			StackedXYBarRenderer STACK_BAR_RENDERER = new StackedXYBarRenderer();
-			setRendererInPlot(color, functionIndex, STACK_BAR_RENDERER);
-		}
-
+	private void drawCurvesUsingPlottingFeatures(
+			PlotLineType lineType, float lineWidth,
+			PlotSymbol symbol, float symbolWidth,
+			Color color, int functionIndex){
+		XYItemRenderer renderer = PlotLineType.buildRenderer(lineType, symbol, lineWidth, symbolWidth);
+		setRendererInPlot(color, functionIndex, renderer);
 	}
 
 
 	private void setRendererInPlot(Color color, int functionIndex,
-			AbstractXYItemRenderer xyItemRenderer) {
+			XYItemRenderer xyItemRenderer) {
 		plot.setRenderer(functionIndex,xyItemRenderer);
 		xyItemRenderer.setPaint(color);
 	}
 
+	private boolean isBlankCurve(PlotCurveCharacterstics chars) {
+		return (chars.getLineType() == null || chars.getLineWidth() <= 0f)
+				&& (chars.getSymbol() == null || chars.getSymbolWidth() <= 0f);
+	}
 
 	/**
 	 * Draws curves
@@ -599,20 +396,22 @@ public class GraphPanel extends JSplitPane {
 
 		//secondarydataset index keeps track where do we have to add the seconadary data set in plot
 		for(int j=0,dataIndex=0; j < numFuncs; ++j,++dataIndex){
-			PlotCurveCharacterstics curveCharaceterstic = (PlotCurveCharacterstics)curvePlottingCharacterstics.get(j);
-			Color color = curveCharaceterstic.getCurveColor();
-			double lineWidth = curveCharaceterstic.getCurveWidth();
-			String lineType = curveCharaceterstic.getCurveType();
+			PlotCurveCharacterstics curveCharaceterstic = curvePlottingCharacterstics.get(j);
 			//getting the number of consecutive curves that have same plotting characterstics.
 			int numCurves = curveCharaceterstic.getNumContinuousCurvesWithSameCharacterstics();
-			//if size of that plot size then don't add it to the dataset
-			if(lineWidth ==0){
+			if (isBlankCurve(curveCharaceterstic)) {
 				//adding the number of consecutive curves with same plotting characterstics to dataset index.
 				datasetIndex +=numCurves;
 				//decrement the secondary dataset index so that we seconday dataset is added to correct place.
 				--dataIndex;
 				continue;
 			}
+			Color color = curveCharaceterstic.getColor();
+			float lineWidth = curveCharaceterstic.getLineWidth();
+			PlotLineType lineType = curveCharaceterstic.getLineType();
+			float symbolWidth = curveCharaceterstic.getSymbolWidth();
+			PlotSymbol symbol = curveCharaceterstic.getSymbol();
+			
 			//creating dataset for each curve and its consecutive curves which have same plotting
 			//characterstics. Eg: can be weighted functions in weighted functionlist  have same
 			//plotting characterstics, also fractiles in weighted function list share same
@@ -638,9 +437,9 @@ public class GraphPanel extends JSplitPane {
 
 			//based on plotting characterstics for each curve sending configuring plot object
 			//to be send to JFreechart for plotting.
-			drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,dataIndex);
+			drawCurvesUsingPlottingFeatures(lineType, lineWidth, symbol, symbolWidth, color, dataIndex);
 		}
-		plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+		plot.setDatasetRenderingOrder(renderingOrder);
 
 		plot.setBackgroundAlpha( .8f );
 
@@ -715,21 +514,21 @@ public class GraphPanel extends JSplitPane {
 					weightedfuncListIndex = legendString.size()-1;
 					//checking if individual curves need to be plotted
 					if(weightedList.areIndividualCurvesToPlot()){
-						((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(datasetName+" Curves");
+						(this.curvePlottingCharacterstics.get(plotPrefIndex)).setName(datasetName+" Curves");
 
 						//getting the metadata for each individual curves and creating the legend string
 						String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
 						legend = new String(listFunctionsInfo+SystemUtils.LINE_SEPARATOR);
 						legendString.add(legend);
-						Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+						Color color = (this.curvePlottingCharacterstics.get(plotPrefIndex)).getColor();
 						StyleConstants.setForeground(setLegend,color);
 						doc.insertString(doc.getLength(),legend,setLegend);
 						++plotPrefIndex;
 					}
 					//checking if fractiles need to be plotted
 					if(weightedList.areFractilesToPlot()){
-						((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
+						(this.curvePlottingCharacterstics.get(plotPrefIndex)).setName(
 								datasetName+" Fractiles");
 
 						//getting the fractile info for the weighted function list and adding that to the legend
@@ -737,28 +536,28 @@ public class GraphPanel extends JSplitPane {
 
 						legend = new String(fractileListInfo+SystemUtils.LINE_SEPARATOR);
 						legendString.add(legend);
-						Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+						Color color = (this.curvePlottingCharacterstics.get(plotPrefIndex)).getColor();
 						StyleConstants.setForeground(setLegend,color);
 						doc.insertString(doc.getLength(),legend,setLegend);
 						++plotPrefIndex;
 					}
 					//checking if mean fractile need to be plotted
 					if(weightedList.isMeanToPlot()){
-						((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
+						(this.curvePlottingCharacterstics.get(plotPrefIndex)).setName(
 								datasetName+" Mean");
 						//getting the fractileinfo and showing it as legend
 						String meanInfo = weightedList.getMeanFunctionInfo();
 
 						legend = new String(meanInfo+SystemUtils.LINE_SEPARATOR);
 						legendString.add(legend);
-						Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+						Color color = (this.curvePlottingCharacterstics.get(plotPrefIndex)).getColor();
 						StyleConstants.setForeground(setLegend,color);
 						doc.insertString(doc.getLength(),legend,setLegend);
 						++plotPrefIndex;
 					}
 				}
 				else{ //if element in the list are individual function then get their info and show as legend
-					((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
+					(this.curvePlottingCharacterstics.get(plotPrefIndex)).setName(
 							datasetName);
 					XY_DataSet func = (XY_DataSet)funcList.get(i);
 					String functionInfo = func.getInfo();
@@ -767,7 +566,7 @@ public class GraphPanel extends JSplitPane {
 							name+"  "+SystemUtils.LINE_SEPARATOR+
 							functionInfo+SystemUtils.LINE_SEPARATOR);
 					legendString.add(legend);
-					Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+					Color color = (this.curvePlottingCharacterstics.get(plotPrefIndex)).getColor();
 					StyleConstants.setForeground(setLegend,color);
 					doc.insertString(doc.getLength(),legend,setLegend);
 					++plotPrefIndex;
@@ -1026,13 +825,17 @@ public class GraphPanel extends JSplitPane {
 			//adding the new curves to the list for plot preferences.
 			if(i>=existingCurvesWithPlotPrefs) {
 				XY_DataSet func = totalProbFuncs.get(i);
-				String lineType;
-				if (func instanceof DiscretizedFunc)
-					lineType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
-				else
-					lineType = PlotColorAndLineTypeSelectorControlPanel.DIAMONDS;
-				curvePlottingCharacterstics.add(new PlotCurveCharacterstics(lineType,
-						defaultColor[defaultColorIndex],1.0,val));
+				PlotLineType lineType;
+				PlotSymbol symbol;
+				if (func instanceof DiscretizedFunc) {
+					lineType = PlotLineType.SOLID;
+					symbol = null;
+				} else {
+					lineType = null;
+					symbol = PlotSymbol.DIAMOND;
+				}
+				curvePlottingCharacterstics.add(new PlotCurveCharacterstics(lineType, 1f, symbol, 4f,
+						defaultColor[defaultColorIndex],val));
 			}
 		}
 	}
@@ -1149,9 +952,9 @@ public class GraphPanel extends JSplitPane {
 					para.add(new Phrase( (String) legendString.get(i),
 							FontFactory.getFont(
 									FontFactory.HELVETICA, 10, Font.PLAIN,
-									( (PlotCurveCharacterstics)
+									( 
 											curvePlottingCharacterstics.get(legendColor)).
-											getCurveColor())));
+											getColor())));
 				}
 				metadataDocument.add(para);
 			}
@@ -1220,5 +1023,13 @@ public class GraphPanel extends JSplitPane {
 
 	public ChartPanel getCartPanel() {
 		return this.chartPanel;
+	}
+	
+	public DatasetRenderingOrder getRenderingOrder() {
+		return renderingOrder;
+	}
+
+	public void setRenderingOrder(DatasetRenderingOrder renderingOrder) {
+		this.renderingOrder = renderingOrder;
 	}
 }

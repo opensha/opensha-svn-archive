@@ -763,17 +763,17 @@ extends ControlPanel implements ParameterChangeListener {
 		// assume cybershake is first
 		if (chars.size() >= 1) {
 			PlotCurveCharacterstics csCurve = chars.get(0);
-			csCurve.setCurveColor(Color.RED);
+			csCurve.setColor(Color.RED);
 		}
 		// assume CB 2008 is next
 		if (chars.size() >= 2) {
 			PlotCurveCharacterstics csCurve = chars.get(1);
-			csCurve.setCurveColor(new Color(0, 100, 0));
+			csCurve.setColor(new Color(0, 100, 0));
 		}
 		// assume BA 2008 is next
 		if (chars.size() >= 3) {
 			PlotCurveCharacterstics csCurve = chars.get(2);
-			csCurve.setCurveColor(Color.BLACK);
+			csCurve.setColor(Color.BLACK);
 		}
 		
 		this.setPlotLabels();

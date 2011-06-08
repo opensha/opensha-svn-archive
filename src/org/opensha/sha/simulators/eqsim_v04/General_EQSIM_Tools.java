@@ -31,6 +31,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.PlaneUtils;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.FocalMechanism;
@@ -900,12 +902,12 @@ public class General_EQSIM_Tools {
 			mfdList.addAll(UCERF2_DataForComparisonFetcher.getHalf_UCERF2_ObsCumMFDs(true));
 			ArrayList<PlotCurveCharacterstics> curveChar = new ArrayList<PlotCurveCharacterstics>();
 			Color pink = new Color(255, 127, 127);
-			curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 3));
-			curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 3));
-			curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.GRAY, 2));
-			curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, pink,1));
-			curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, pink, 1));
-			curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, pink, 1));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.RED));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GRAY));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
 
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Total Mag Freq Dist"); 
 			graph.setX_AxisLabel("Magnitude");
@@ -1120,9 +1122,9 @@ public class General_EQSIM_Tools {
 		graph.setX_AxisLabel("RI (yrs)");
 		graph.setY_AxisLabel("Density");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-		curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 2));
-		curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.RED, 2));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		graph.setPlottingFeatures(curveCharacteristics);
 		graph.setX_AxisRange(0, 5);
 		
@@ -1357,7 +1359,7 @@ public class General_EQSIM_Tools {
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(obs_tp2_funcs, "Obs vs Time-Pred RIs");   
 			graph.setX_AxisLabel("Time Pred RI (tpInterval2List) (years)");
 			graph.setY_AxisLabel("Observed RI (years)");
-			graph.setAllLineTypes(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS);
+			graph.setAllLineTypes(null, PlotSymbol.CROSS);
 			graph.setYLog(true);
 			graph.setXLog(true);
 			
@@ -1371,7 +1373,7 @@ public class General_EQSIM_Tools {
 			GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
 			graph2.setX_AxisLabel("Time-Pred RI (years)");
 			graph2.setY_AxisLabel("Slip-Pred RI (years)");
-			graph2.setAllLineTypes(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS);
+			graph2.setAllLineTypes(null, PlotSymbol.CROSS);
 			graph2.setYLog(true);
 			graph2.setXLog(true);
 			
@@ -1587,7 +1589,7 @@ public class General_EQSIM_Tools {
 			graph.setX_AxisLabel("Imposed Slip Rate (m/s)");
 			graph.setY_AxisLabel("Observed Slip Rate (m/s)");
 			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES, Color.BLUE, 4));
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));
 			graph.setPlottingFeatures(curveCharacteristics);
 		}
 
@@ -1638,7 +1640,7 @@ public class General_EQSIM_Tools {
 		s_vs_l_graph.setX_AxisLabel("Mean Slip (m)");
 		s_vs_l_graph.setY_AxisLabel("Length (km)");
 		ArrayList<PlotCurveCharacterstics> s_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
-		s_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES, Color.BLUE, 3));
+		s_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.BLUE));
 		s_vs_l_graph.setPlottingFeatures(s_vs_l_curveChar);
 		
 		// MAG VS AREA PLOT
@@ -1660,11 +1662,11 @@ public class General_EQSIM_Tools {
 		m_vs_a_graph.setY_AxisLabel("Magnitude (Mw)");
 		m_vs_a_graph.setX_AxisLabel("Area (km-sq)");
 		ArrayList<PlotCurveCharacterstics> m_vs_a_curveChar = new ArrayList<PlotCurveCharacterstics>();
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 3));
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 3));
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.GREEN, 3));
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.MAGENTA, 3));
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES, Color.RED, 3));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.MAGENTA));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.RED));
 		m_vs_a_graph.setPlottingFeatures(m_vs_a_curveChar);
 		m_vs_a_graph.setXLog(true);
 		m_vs_a_graph.setY_AxisRange(4.5, 8.5);
@@ -1679,7 +1681,7 @@ public class General_EQSIM_Tools {
 		m_vs_l_graph.setY_AxisLabel("Magnitude (Mw)");
 		m_vs_l_graph.setX_AxisLabel("Length (km)");
 		ArrayList<PlotCurveCharacterstics> m_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
-		m_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CIRCLES, Color.GREEN, 3));
+		m_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.GREEN));
 		m_vs_l_graph.setPlottingFeatures(m_vs_l_curveChar);
 		m_vs_l_graph.setXLog(true);
 		m_vs_l_graph.setY_AxisRange(4.5, 8.5);
@@ -1848,9 +1850,9 @@ public class General_EQSIM_Tools {
 			graph.setX_AxisLabel("RI (yrs)");
 			graph.setY_AxisLabel("Number of Observations");
 			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.BLACK, 2));
-			if(parsFunc != null) curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.RED, 2));
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.LIGHT_GRAY, 2));
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+			if(parsFunc != null) curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.LIGHT_GRAY));
 			graph.setPlottingFeatures(curveCharacteristics);
 			if(savePlot)
 				try {
@@ -1943,7 +1945,7 @@ public class General_EQSIM_Tools {
 			graph.setX_AxisLabel("RI (yrs)");
 			graph.setY_AxisLabel("Number Observed");
 			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, Color.BLUE, 2));
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE));
 			graph.setPlottingFeatures(curveCharacteristics);
 		}
 

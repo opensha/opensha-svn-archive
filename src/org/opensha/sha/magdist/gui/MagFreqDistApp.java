@@ -48,9 +48,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
@@ -649,12 +651,12 @@ ParameterChangeListener{
 		ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
 		ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
 		ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
-		incrPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLACK,1.0,1));
-		cumPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLACK,1.0,1));
-		momentPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-				Color.BLACK,1.0,1));
+		incrPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotLineType.SOLID,
+				1f, null, 4f, Color.BLACK, 1));
+		cumPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotLineType.SOLID,
+				1f, null, 4f, Color.BLACK, 1));
+		momentPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotLineType.SOLID,
+				1f, null, 4f, Color.BLACK, 1));
 		addGraphPanel();
 	}
 
@@ -1219,5 +1221,15 @@ ParameterChangeListener{
 		if(paramName.equals(this.MAG_DIST_PARAM_SELECTOR_NAME)){
 			createMagParam();
 		}
+	}
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		if(isIncrRatePlot)
+			incrRateGraphPanel.setRenderingOrder(order);
+		else if(isCumRatePlot)
+			cumRateGraphPanel.setRenderingOrder(order);
+		else
+			momentRateGraphPanel.setRenderingOrder(order);
 	}
 }

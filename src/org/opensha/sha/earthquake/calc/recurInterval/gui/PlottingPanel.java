@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
@@ -259,5 +260,9 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	  public void addFunc(DiscretizedFunc func) {
 		  funcList.add(func);
 		  this.addGraphPanel();
+	  }
+	  
+	  public void setPlottingOrder(DatasetRenderingOrder order) {
+		  graphPanel.setRenderingOrder(order);
 	  }
 }

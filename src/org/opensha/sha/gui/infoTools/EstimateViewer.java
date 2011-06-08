@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**
@@ -42,14 +44,14 @@ public class EstimateViewer implements GraphWindowAPI {
   private Estimate estimate;
   private String xAxisLabel, yAxisLabel;
   private GraphWindow graphWindow;
-  private final PlotCurveCharacterstics PDF_PLOT_CHAR_HISTOGRAM = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
-      Color.RED, 2);
-  private final PlotCurveCharacterstics CDF_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-      Color.BLUE, 2);
-  private final PlotCurveCharacterstics CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-      Color.BLACK, 2);
-  private final PlotCurveCharacterstics DISCRETE_VAL_CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-      Color.BLACK, 6.0);
+  private final PlotCurveCharacterstics PDF_PLOT_CHAR_HISTOGRAM = new PlotCurveCharacterstics(
+		  PlotLineType.HISTOGRAM, 2f, null, 4f, Color.RED);
+  private final PlotCurveCharacterstics CDF_PLOT_CHAR = new PlotCurveCharacterstics(
+		  PlotLineType.SOLID, 2f, null, 4f, Color.BLUE);
+  private final PlotCurveCharacterstics CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(
+		  PlotLineType.SOLID, 2f, null, 4f, Color.BLACK);
+  private final PlotCurveCharacterstics DISCRETE_VAL_CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(
+		  null, 2f, PlotSymbol.CROSS, 6f, Color.BLACK);
 
 
   public EstimateViewer(Estimate estimate) {

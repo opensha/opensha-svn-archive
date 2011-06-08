@@ -28,6 +28,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
@@ -143,14 +144,14 @@ public class UCERF1ComparisonPlotter {
 		cumMFD.setName(name);
 		ssafCumRateFuncList.add(cumMFD);
 		
-		PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-			      Color.BLACK, 2);
-		PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE,
-			      Color.BLACK, 2);
-		PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-			      Color.BLACK, 2);
-		PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			      Color.BLACK, 2);
+		PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, null, 4f,
+			      Color.BLACK);
+		PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.DOTTED, 2f, null, 4f,
+			      Color.BLACK);
+		PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED, 2f, null, 4f,
+			      Color.BLACK);
+		PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f,
+			      Color.BLACK);
 		ArrayList plotChars = new ArrayList();
 		plotChars.add(PLOT_CHAR1);
 		plotChars.add(PLOT_CHAR2);

@@ -29,6 +29,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -667,5 +668,11 @@ ParameterChangeListener{
 		   ProbabilityDistGUI probDistGUI = new ProbabilityDistGUI();
 		   probDistGUI.setVisible(true);
 	   }
+
+	@Override
+	public void setPlottingOrder(DatasetRenderingOrder order) {
+		int selectedIndex = this.plotTabPane.getSelectedIndex();
+		 this.plottingPanelsList.get(selectedIndex).setPlottingOrder(order);
+	}
 
 }
