@@ -43,9 +43,9 @@ public enum PlotSymbol {
 		return desc;
 	}
 	
-	public static PlotSymbol forDescription(String desc) {
+	public static PlotSymbol forString(String desc) {
 		for (PlotSymbol sym : values()) {
-			if (sym.desc.equals(desc))
+			if (sym.desc.equalsIgnoreCase(desc))
 				return sym;
 		}
 		throw new NoSuchElementException("No symbol exists for '"+desc+"'");

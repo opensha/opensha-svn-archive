@@ -452,7 +452,7 @@ ActionListener,ParameterChangeListener{
 		if (str.equals(NONE_OPTION))
 			return null;
 		else
-			return PlotLineType.forDescription(str);
+			return PlotLineType.forString(str);
 	}
 	
 	private String plotLineTypeToString(PlotLineType plt) {
@@ -467,7 +467,7 @@ ActionListener,ParameterChangeListener{
 		if (str.equals(NONE_OPTION))
 			return null;
 		else
-			return PlotSymbol.forDescription(str);
+			return PlotSymbol.forString(str);
 	}
 	
 	private String plotSymbolToString(PlotSymbol sym) {

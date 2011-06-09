@@ -551,16 +551,16 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		
 		Attribute csLineTypeAtt = charsEl.attribute("cyberShakeLineType");
 		if (csLineTypeAtt != null)
-			chars.setCyberShakeLineType(PlotLineType.forDescription(csLineTypeAtt.getStringValue()));
+			chars.setCyberShakeLineType(PlotLineType.forString(csLineTypeAtt.getStringValue()));
 		Attribute attenRelLineTypeAtt = charsEl.attribute("attenRelLineType");
 		if (attenRelLineTypeAtt != null)
-			chars.setAttenRelLineType(PlotLineType.forDescription(attenRelLineTypeAtt.getStringValue()));
+			chars.setAttenRelLineType(PlotLineType.forString(attenRelLineTypeAtt.getStringValue()));
 		Attribute csSymbolAtt = charsEl.attribute("cyberShakeSymbol");
 		if (csSymbolAtt != null)
-			chars.setCyberShakeSymbol(PlotSymbol.forDescription(csSymbolAtt.getStringValue()));
+			chars.setCyberShakeSymbol(PlotSymbol.forString(csSymbolAtt.getStringValue()));
 		Attribute attenRelSymbolAtt = charsEl.attribute("attenRelSymbol");
 		if (attenRelSymbolAtt != null)
-			chars.setAttenRelSymbol(PlotSymbol.forDescription(attenRelSymbolAtt.getStringValue()));
+			chars.setAttenRelSymbol(PlotSymbol.forString(attenRelSymbolAtt.getStringValue()));
 		
 		Element funcEl = charsEl.element(ArbitrarilyDiscretizedFunc.XML_METADATA_NAME);
 		

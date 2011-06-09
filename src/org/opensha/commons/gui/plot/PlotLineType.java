@@ -55,9 +55,9 @@ public enum PlotLineType {
 			throw new IllegalStateException("Stroke not applicable for lineType: "+this);
 	}
 	
-	public static PlotLineType forDescription(String desc) {
+	public static PlotLineType forString(String desc) {
 		for (PlotLineType plt : values()) {
-			if (plt.desc.equals(desc))
+			if (plt.desc.equalsIgnoreCase(desc))
 				return plt;
 		}
 		throw new NoSuchElementException("No line type exists for '"+desc+"'");

@@ -743,6 +743,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			return PlotSymbol.TRIANGLE;
 		case 6:
 			return PlotSymbol.FILLED_TRIANGLE;
+		case 7:
+			return PlotSymbol.DIAMOND;
+		case 8:
+			return PlotSymbol.FILLED_DIAMOND;
 		default:
 			return null;
 		}
