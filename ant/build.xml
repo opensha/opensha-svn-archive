@@ -127,6 +127,7 @@
 		<java
 			classname="org.opensha.sha.gui.util.JNLPGen"
 			fork="true"
+			failonerror="true"
 			dir="../">
 			<classpath>
 				<pathelement location="${build}" />
@@ -139,6 +140,7 @@
 		<java
 			classname="org.opensha.refFaultParamDb.gui.DBAppsJNLPGen"
 			fork="true"
+			failonerror="true"
 			dir="../">
 			<classpath>
 				<pathelement location="${build}" />

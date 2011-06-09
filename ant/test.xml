@@ -92,7 +92,7 @@
 					<include name="**/commons/**/*Suite*" />
 				</fileset>
 			</batchtest>
-		</junit>    
+		</junit>
 	</target>
 	
 	<target name="run.operational.tests" depends="compile.tests, resource.tests, pre.test.init">
@@ -117,6 +117,29 @@
 				</fileset>
 			</batchtest>
 		</junit>    
+	</target>
+	
+	<target name="run.pref.data.post.update.tests" depends="compile.tests, resource.tests, pre.test.init">
+		<junit fork="yes" haltonfailure="true" 
+			failureproperty="tests.failed"
+			errorProperty="test.failed"
+			haltonerror="true"
+			dir="${build}"
+			printsummary="yes">
+			<jvmarg value="-Djava.awt.headless=true"/>
+			<classpath>
+				<pathelement location="${build}"/>
+				<path refid="library.classpath" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+	   			<formatter type="xml" />
+
+			<batchtest fork="yes" todir="${logs}">
+				<fileset dir="../classes/">
+					<include name="org/opensha/refFaultParamDb/dao/db/PrefData*Test*" />
+				</fileset>
+			</batchtest>
+		</junit>
 	</target>
 	
 	<!-- Targets for running Cobertura Code Coverage Tool -->

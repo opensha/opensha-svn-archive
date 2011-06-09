@@ -249,7 +249,7 @@
 		</modificationset>
 
 		<log dir="${logdir}">
-			<!-- <merge dir="${testdir}" /> -->
+			<merge dir="${testdir}" />
 			<gzip every="2" unit="WEEK"/>
 		</log>
 

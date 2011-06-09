@@ -104,6 +104,7 @@
 		<java
 			classname="org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO"
 			fork="true"
+			failonerror="true"
 			dir="../">
 			<arg value="--file"/>
 			<arg value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/pref_update_user.dat"/>
@@ -115,9 +116,13 @@
 			</classpath>
 		</java>
 		
+		<!-- run test to make sure the update was successful -->
+		<ant antfile="test.xml" target="run.pref.data.post.update.tests"/>
+		
 		<java
 			classname="org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO"
 			fork="true"
+			failonerror="true"
 			dir="../">
 			<arg value="--file"/>
 			<arg value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/pref_update_user.dat"/>
