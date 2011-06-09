@@ -30,14 +30,15 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.view.DeformationModelFileWriter;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 /**
  * @author vipingupta
  *
  */
 public class EditDeformationModel extends JPanel implements ActionListener, ParameterChangeListener {
-	private ArrayList deformationModelsList;
-	private ArrayList faultSectionsSummaryList;
+	private ArrayList<DeformationModelSummary> deformationModelsList;
+	private ArrayList<FaultSectionSummary> faultSectionsSummaryList;
 	private DeformationModelDB_DAO deformationModelDB_DAO;
 	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO;
 	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO;
@@ -58,7 +59,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	private StringParameter faultModelNameParam = new StringParameter("Fault Model");
 	private StringParameterEditor faultModelNameParamEditor;
 	private int selectedDeformationModelId;
-	private ArrayList faultSectionsIdListInDefModel;
+	private ArrayList<Integer> faultSectionsIdListInDefModel;
 	
 	private DB_AccessAPI dbConnection;
 	
@@ -217,7 +218,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	 *
 	 */
 	private void setFaultSectionsBasedOnDefModel() {
-		String selectedDefModel  = (String)this.deformationModelsParam.getValue();
+		String selectedDefModel = this.deformationModelsParam.getValue();
 		DeformationModelSummary defModelSummary = getDeformationModelSummary(selectedDefModel);
 		// find the deformation model id
 		selectedDeformationModelId=defModelSummary.getDeformationModelId();
@@ -253,9 +254,9 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 		if(deformationModelsParamEditor!=null) this.remove(deformationModelsParamEditor);
 		this.updateUI();
 		// make a list of fault model names
-		ArrayList deformationModelNames = new ArrayList();
+		ArrayList<String> deformationModelNames = new ArrayList<String>();
 		for(int i=0; i<deformationModelsList.size(); ++i) {
-			deformationModelNames.add(((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelName());
+			deformationModelNames.add(deformationModelsList.get(i).getDeformationModelName());
 		}
 		
 		// make parameter and editor
@@ -263,7 +264,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 			this.removeModelButton.setEnabled(false);
 			faultModelNameParam.setValue("");
 			faultModelNameParamEditor.refreshParamEditor();
-			JOptionPane.showMessageDialog(this, MSG_NO_DEF_MODEL_EXISTS);
+//			JOptionPane.showMessageDialog(this, MSG_NO_DEF_MODEL_EXISTS);
 			return;
 		}
 		
@@ -272,7 +273,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 			this.removeModelButton.setEnabled(true);
 		}
 		
-		deformationModelsParam = new StringParameter(AVAILABLE_DEFORMATION_MODEL_PARAM_NAME,deformationModelNames, (String)deformationModelNames.get(0) );
+		deformationModelsParam = new StringParameter(AVAILABLE_DEFORMATION_MODEL_PARAM_NAME,deformationModelNames, deformationModelNames.get(0) );
 		deformationModelsParam.addParameterChangeListener(this);
 		deformationModelsParamEditor = new ConstrainedStringParameterEditor(deformationModelsParam);
 		// fault model selection editor

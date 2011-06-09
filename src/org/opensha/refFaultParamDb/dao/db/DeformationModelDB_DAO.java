@@ -204,4 +204,22 @@ public class DeformationModelDB_DAO {
 			dbAccessAPI.insertUpdateOrDeleteData(sql);
 		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
 	}
+	
+	public static void main(String[] args) {
+		DB_AccessAPI db = DB_ConnectionPool.getDirectLatestReadWriteConnection();
+		DeformationModelDB_DAO def = new DeformationModelDB_DAO(db);
+		def.removeModel(82);
+		def.removeModel(83);
+		def.removeModel(84);
+		def.removeModel(85);
+		def.removeModel(86);
+		def.removeModel(87);
+		try {
+			db.destroy();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.exit(0);
+	}
 }
