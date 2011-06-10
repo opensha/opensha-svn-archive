@@ -17,9 +17,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean.EnableableCellRenderer;
 import org.opensha.sha.imr.AttenRelRef;
@@ -51,7 +51,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	
 	protected static List<? extends ScalarIMR> getBuildIMRs() {
 //		AttenuationRelationshipsInstance inst = new AttenuationRelationshipsInstance();
-		List<? extends ScalarIMR> imrs =  AttenRelRef.instanceList(null, true);
+		List<? extends ScalarIMR> imrs =  AttenRelRef.instanceList(null, true, ServerPrefUtils.SERVER_PREFS);
 		for (int i=imrs.size()-1; i>=0; i--) {
 			ScalarIMR imr = imrs.get(i);
 			if (imr instanceof CyberShakeIMR)

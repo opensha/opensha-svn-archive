@@ -26,7 +26,6 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.NtoNMap;

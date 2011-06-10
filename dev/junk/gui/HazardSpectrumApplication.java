@@ -61,7 +61,6 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;

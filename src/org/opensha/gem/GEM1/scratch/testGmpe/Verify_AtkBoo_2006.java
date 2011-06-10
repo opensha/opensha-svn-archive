@@ -10,7 +10,6 @@ import java.util.ListIterator;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.gem.GEM1.scratch.AtkBoo_2006_AttenRel;

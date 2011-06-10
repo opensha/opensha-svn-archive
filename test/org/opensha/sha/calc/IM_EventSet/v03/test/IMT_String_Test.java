@@ -23,7 +23,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;

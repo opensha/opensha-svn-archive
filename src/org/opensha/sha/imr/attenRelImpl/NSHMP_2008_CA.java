@@ -27,7 +27,6 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;

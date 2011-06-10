@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.param.impl.DoubleParameter;

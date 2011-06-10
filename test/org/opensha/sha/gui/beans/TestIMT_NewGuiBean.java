@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;

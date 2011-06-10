@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;

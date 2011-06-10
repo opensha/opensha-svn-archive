@@ -27,7 +27,6 @@ import javax.swing.JFrame;
 import javax.swing.ListModel;
 
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;

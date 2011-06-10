@@ -16,7 +16,6 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gridComputing.condor.DAG;
 import org.opensha.commons.gridComputing.condor.SubmitScriptForDAG;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;

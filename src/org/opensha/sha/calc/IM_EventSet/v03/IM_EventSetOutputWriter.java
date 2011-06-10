@@ -31,7 +31,6 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;

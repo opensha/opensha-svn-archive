@@ -38,7 +38,6 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.DiscreteParameterConstraint;

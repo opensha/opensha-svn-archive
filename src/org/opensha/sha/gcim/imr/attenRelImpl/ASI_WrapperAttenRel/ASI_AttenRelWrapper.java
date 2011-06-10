@@ -29,7 +29,6 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;

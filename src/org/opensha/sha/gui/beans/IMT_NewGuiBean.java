@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;

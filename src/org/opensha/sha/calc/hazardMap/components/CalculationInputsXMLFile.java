@@ -15,7 +15,6 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.dagGen.HazardDataSetDAGCreator;
 import org.opensha.sha.earthquake.AbstractERF;

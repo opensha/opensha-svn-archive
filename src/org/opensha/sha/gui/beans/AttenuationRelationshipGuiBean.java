@@ -50,7 +50,6 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
