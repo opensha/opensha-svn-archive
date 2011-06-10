@@ -30,7 +30,6 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.param.impl.DoubleParameter;
 
 /**
  * Parial implementation of the <code>Paameter</code>. The common fields with
