@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -24,14 +23,14 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.SimulatedAnnealing;
+import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
+import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
 
 /**
@@ -646,7 +645,11 @@ public class RupsInFaultSystemInversion {
 		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
 		double relativeMagDistWt = 10.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
 		double relativeRupRateConstraintWt = 0.1;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1) - can be UCERF2 rates or Smooth G-R rates
-		int numiter=0;  // number of simulated annealing iterations (increase this to decrease misfit)
+//		int numiter=0;  // number of simulated annealing iterations (increase this to decrease misfit)
+//		int numiter = 1000000;
+//		int numiter = 100000;
+		int numiter = 10000;
+//		int numiter = 2000;
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
 		int numRows=numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
@@ -659,7 +662,8 @@ public class RupsInFaultSystemInversion {
 		
 		
 		// Components of matrix equation to invert (Ax=d)
-		OpenMapRealMatrix A = new OpenMapRealMatrix(numRows,numRuptures); // A matrix
+//		OpenMapRealMatrix A = new OpenMapRealMatrix(numRows,numRuptures); // A matrix
+		DoubleMatrix2D A = new SparseCCDoubleMatrix2D(numRows,numRuptures); // A matrix
 		double[] d = new double[numRows];	// data vector d
 		double[] rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
 		double[] initial_state = new double[numRuptures];  // initial guess at solution x
@@ -678,7 +682,10 @@ public class RupsInFaultSystemInversion {
 			double[] slips = getSlipOnSectionsForRup(rup);
 			ArrayList<Integer> sects = rupList.get(rup);
 			for (int i=0; i < slips.length; i++) {
-				A.addToEntry(sects.get(i),rup,slips[i]);
+				int row = sects.get(i);
+				int col = rup;
+//				A.addToEntry(sects.get(i),rup,slips[i]);
+				A.set(row, col, A.get(row, col)+slips[i]);
 				if(D) numElements++;
 			}
 		}
@@ -694,10 +701,12 @@ public class RupsInFaultSystemInversion {
 			for (int i=numSections; i<numSections+segRateConstraints.size(); i++) {
 				SegRateConstraint constraint = segRateConstraints.get(i-numSections);
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
-				double[] row = A.getRow(constraint.getSegIndex());
+//				double[] row = A.getRow(constraint.getSegIndex());
 				for (int rup=0; rup<numRuptures; rup++) {
-					if (row[rup]>0) {
-						A.setEntry(i,rup,relativeSegRateWt * getProbVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());  
+//					if (row[rup]>0) {
+					if (A.get(constraint.getSegIndex(), rup)>0) {
+//						A.setEntry(i,rup,relativeSegRateWt * getProbVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());
+						A.set(i, rup, (relativeSegRateWt * getProbVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean()));
 						if(D) numElements++;			
 					}
 				}
@@ -717,7 +726,8 @@ public class RupsInFaultSystemInversion {
 			targetMagFreqDist.setTolerance(0.1); // apply constraint to 0.1 magnitude-unit bins (this is 0.1 in the input MFDs also)		
 			for(int rup=0; rup<numRuptures; rup++) {
 				double mag = rupMeanMag[rup];
-				A.setEntry(rowIndex+targetMagFreqDist.getXIndex(mag),rup,relativeMagDistWt);
+//				A.setEntry(rowIndex+targetMagFreqDist.getXIndex(mag),rup,relativeMagDistWt);
+				A.set(rowIndex+targetMagFreqDist.getXIndex(mag),rup,relativeMagDistWt);
 				numElements++;
 			}		
 			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
@@ -743,7 +753,8 @@ public class RupsInFaultSystemInversion {
 			
 			
 			for(int rup=0; rup<numRuptures; rup++) {
-				A.setEntry(rowIndex,rup,relativeRupRateConstraintWt);
+//				A.setEntry(rowIndex,rup,relativeRupRateConstraintWt);
+				A.set(rowIndex,rup,relativeRupRateConstraintWt);
 				d[rowIndex]=SolutionConstraint[rup]*relativeRupRateConstraintWt;
 				numElements++; rowIndex++;
 			}		
@@ -767,7 +778,7 @@ public class RupsInFaultSystemInversion {
 		initial_state = SolutionConstraint;  // Use rupture rate solution constraint (IF USED!) for starting model.  (Avoids recomputing it if it is the same)
 		
 //		writeInversionIngredientsToFiles(A,d,initial_state); // optional: Write out inversion files to Desktop to load into MatLab (faster than Java)
-		
+//		doMatSpeedTest(A, d, initial_state, numiter);
 		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state, numiter);    		
 //		rupRateSolution = loadMatLabInversionSolution(); // optional: Load in MatLab's SA solution from file instead of using Java SA code
 		
@@ -829,15 +840,15 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	private void writeInversionIngredientsToFiles(OpenMapRealMatrix A, double[] d, double[] initial_state) {
+	private void writeInversionIngredientsToFiles(DoubleMatrix2D A, double[] d, double[] initial_state) {
 		// Write out A matrix and d vector to files to run inversion in MatLab rather than Java
 		if (D) System.out.print("\nWriting files AMatrix.txt, dVector.txt, and InitialState.txt to Desktop . . .\n");
 		try{
 			FileWriter fw = new FileWriter("/Users/pagem/Desktop/AMatrix.txt");
-			for (int i=0; i<A.getRowDimension(); i++) {
-				for (int j=0; j<A.getColumnDimension(); j++) {
-					if (A.getEntry(i,j) != 0) {
-						fw.write((i+1) + "\t" + (j+1) + "\t" + A.getEntry(i,j) + "\n");
+			for (int i=0; i<A.rows(); i++) {
+				for (int j=0; j<A.columns(); j++) {
+					if (A.get(i,j) != 0) {
+						fw.write((i+1) + "\t" + (j+1) + "\t" + A.get(i,j) + "\n");
 					}
 				}
 			}
@@ -858,7 +869,7 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	private void plotStuff(ArrayList<ArrayList<Integer>> rupList, OpenMapRealMatrix A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
+	private void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
 		
 		
 		// Plot the rupture rates
@@ -879,8 +890,8 @@ public class RupsInFaultSystemInversion {
 		EvenlyDiscretizedFunc syn = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
 		EvenlyDiscretizedFunc data = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
 		for (int i = 0; i < numSections; i++) {
-			for (int j = 0; j < A.getColumnDimension(); j++) {	
-				syn.add(i,A.getEntry(i,j) * rupRateSolution[j]); // compute predicted data
+			for (int j = 0; j < A.columns(); j++) {	
+				syn.add(i,A.get(i,j) * rupRateSolution[j]); // compute predicted data
 			}
 			data.add(i,d[i]);
 		}	
