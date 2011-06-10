@@ -286,11 +286,13 @@ ParameterChangeListener {
 		// display prop effect pt src correction; set generic pt src to true
 		ptSrcCorrParam = (BooleanParameter) propEffect
 			.getAdjustableParameterList().getParameter(POINT_SRC_CORR_PARAM_NAME);
+		ptSrcCorrParam.setDefaultValue(true);
 		ptSrcCorrParam.setValue(true);
 		// as well as nshmp pt src correction
 		BooleanParameter nshmpPtSrcCorrParam = (BooleanParameter) propEffect
 			.getAdjustableParameterList().getParameter(NSHMP_PT_SRC_CORR_PARAM_NAME);
-		nshmpPtSrcCorrParam.setValue(true);		
+		nshmpPtSrcCorrParam.setValue(true);
+		nshmpPtSrcCorrParam.setDefaultValue(true);
 		
 		// add these to the list
 		otherParams.addParameter(componentParam);
