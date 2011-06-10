@@ -67,6 +67,7 @@
 		</ant>
 	</target>
 	
+	<!-- this isn't called anymore -->
 	<target name="svn.build.run.weekly.coverage" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.cobertura.weekly"/>
 	</target>

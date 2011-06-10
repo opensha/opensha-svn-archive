@@ -373,10 +373,12 @@
 
 	<target name="resource.tests">
 		<copy todir="${build}" overwrite="true">
-			<fileset dir="${test}">
+			<fileset casesensitive="false" dir="${test}">
 				<include name="**/*.txt" />
+				<include name="**/*.out" />
 				<include name="**/*.xml" />
 				<include name="**/*.cat" />
+				<include name="**/*.dat" />
 			</fileset>
 		</copy>
 	</target>
