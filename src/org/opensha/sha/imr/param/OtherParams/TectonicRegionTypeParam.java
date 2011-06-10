@@ -53,11 +53,12 @@ public class TectonicRegionTypeParam extends StringParameter {
 	public TectonicRegionTypeParam() {
 		super(NAME);
 		StringConstraint options = new StringConstraint();
+		//options.setNullAllowed(true);
 		options.addString(TectonicRegionType.ACTIVE_SHALLOW.toString());
 		setConstraint(options);
 	    setInfo(INFO);
 	    setDefaultValue(TectonicRegionType.ACTIVE_SHALLOW.toString());
-	    setNonEditable();
+	    //setNonEditable();
 	}
 
 	/**
@@ -69,6 +70,7 @@ public class TectonicRegionTypeParam extends StringParameter {
 	 */
 	public TectonicRegionTypeParam(StringConstraint options, String defaultValue) {
 		super(NAME, options);
+		//options.setNullAllowed(true);
 		// check that options are supported
 		ArrayList<String> strings = options.getAllowedStrings();
 		for(int i=0; i< strings.size();i++) {
@@ -76,7 +78,7 @@ public class TectonicRegionTypeParam extends StringParameter {
 		}
 	    setInfo(INFO);
 	    setDefaultValue(defaultValue);
-	    setNonEditable();
+	    //setNonEditable();
 	}
 	
 	private static StringConstraint toStringConst(Collection<TectonicRegionType> options) {
@@ -84,7 +86,7 @@ public class TectonicRegionTypeParam extends StringParameter {
 		for (TectonicRegionType trt : options) {
 			sconst.addString(trt.toString());
 		}
-		sconst.setNonEditable();
+		//sconst.setNonEditable();
 		return sconst;
 	}
 	

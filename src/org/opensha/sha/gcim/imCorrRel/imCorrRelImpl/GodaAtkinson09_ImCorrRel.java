@@ -127,7 +127,7 @@ public class GodaAtkinson09_ImCorrRel extends ImCorrelationRelationship {
     	StringConstraint trtConstraint = new StringConstraint();
     	trtConstraint.addString(TRT_SUBDUCTION_INTERFACE);
     	trtConstraint.addString(TRT_SUBDUCTION_SLAB);
-    	trtConstraint.setNonEditable();
+    	//trtConstraint.setNonEditable();
 		tectonicRegionTypeParam = new TectonicRegionTypeParam(trtConstraint,TRT_SUBDUCTION_INTERFACE); // Constraint and default value
 		tectonicRegionTypeParam.setValueAsDefault();
 		// add these to the list

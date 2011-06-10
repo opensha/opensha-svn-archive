@@ -510,7 +510,7 @@ public class Bradley11_ImCorrRel extends ImCorrelationRelationship {
     	// tectonic region
     	StringConstraint trtConstraint = new StringConstraint();
     	trtConstraint.addString(TRT_ACTIVE_SHALLOW);
-    	trtConstraint.setNonEditable();
+    	//trtConstraint.setNonEditable();
 		tectonicRegionTypeParam = new TectonicRegionTypeParam(trtConstraint,TRT_ACTIVE_SHALLOW); // Constraint and default value
 		tectonicRegionTypeParam.setValueAsDefault();
 		// add these to the list

@@ -578,7 +578,7 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
 	    tectTypeConstraint.addString(FLT_TEC_ENV_CRUSTAL);
 	    tectTypeConstraint.addString(FLT_TEC_ENV_SLAB);
 	    tectTypeConstraint.addString(FLT_TEC_ENV_INTERFACE);
-	    tectTypeConstraint.setNonEditable();
+	    //tectTypeConstraint.setNonEditable();
 		tectonicRegionTypeParam = new TectonicRegionTypeParam(tectTypeConstraint,FLT_TEC_ENV_INTERFACE); // Constraint and default value
 		
 

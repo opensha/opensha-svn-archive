@@ -57,6 +57,7 @@ public class BooleanParameter extends AbstractParameter<Boolean> {
 	 */
 	public BooleanParameter(String name) {
 		super(name,null,null,new Boolean(false));
+		setDefaultValue(value);
 	}
 
 	/**
@@ -67,7 +68,11 @@ public class BooleanParameter extends AbstractParameter<Boolean> {
 	 */
 	public BooleanParameter(String name, Boolean value){
 		super(name,null,null,value);
+		setDefaultValue(value);
 	}
+	
+	@Override
+	public boolean isNullAllowed() { return false; }
 
 //	@Override
 //	public int compareTo(Parameter<Boolean> param) {

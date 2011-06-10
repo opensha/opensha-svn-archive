@@ -516,7 +516,7 @@ public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
 		constraint.addString(FLT_TEC_ENV_CRUSTAL);
 		constraint.addString(FLT_TEC_ENV_SLAB);
 		constraint.addString(FLT_TEC_ENV_INTERFACE);
-		constraint.setNonEditable();
+		//constraint.setNonEditable();
 		tectonicRegionTypeParam = new TectonicRegionTypeParam(constraint,FLT_TEC_ENV_INTERFACE); // Constraint and default value
 		
 		// add these to the list
