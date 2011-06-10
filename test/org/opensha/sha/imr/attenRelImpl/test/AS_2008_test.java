@@ -57,7 +57,7 @@ public class AS_2008_test extends NGATest {
 
 	private AS_2008_AttenRel as_2008 = null;
 
-	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/NGA_ModelsTestFiles/AS08/";
+	private static final String RESULT_SET_PATH = "AttenRelResultSetFiles/NGA_ModelsTestFiles/AS08/";
 
 	private String failMetadata = "";
 	private String failLine = "";

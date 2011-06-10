@@ -20,6 +20,7 @@
 package org.opensha.sha.imr.attenRelImpl.test;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -38,7 +39,8 @@ public abstract class NGATest implements ParameterChangeWarningListener {
 	private String dir;
 
 	public NGATest(String dir) {
-		this.dir = "test" + File.separator + dir;
+//		this.dir = "test" + File.separator + dir;
+		this.dir = dir;
 	}
 
 	@Before
@@ -63,7 +65,12 @@ public abstract class NGATest implements ParameterChangeWarningListener {
 	public abstract String getLastFailLine();
 
 	private ArrayList<File> getTestFiles() {
-		File f = new File(dir);
+		File f;
+		try {
+			f = new File(this.getClass().getResource(dir).toURI());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 		File[] fileList = f.listFiles();
 
 		ArrayList<File> files = new ArrayList<File>();
