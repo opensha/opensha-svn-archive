@@ -2,24 +2,13 @@ package org.opensha.ui.util;
 
 import java.awt.Color;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.vecmath.Color3f;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.opensha.sha.gui.HazardCurveLocalModeApplication;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
-import org.opensha.sha.gui.HazardSpectrumLocalModeApplication;
-import org.opensha.sha.gui.HazardSpectrumServerModeApplication;
-import org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet;
 
 /**
  * Preferences. Used to store shared and application specific preferences.
