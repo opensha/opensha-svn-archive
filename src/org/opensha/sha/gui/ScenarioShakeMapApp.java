@@ -403,9 +403,12 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	//Main method
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), null, null);
+		Thread.setDefaultUncaughtExceptionHandler(exp);
 		ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
-		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
-				APP_SHORT_NAME, getAppVersion(), applet, applet));
+		exp.setApp(applet);
+		exp.setParent(applet);
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);

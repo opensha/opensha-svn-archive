@@ -68,9 +68,12 @@ public class SiteDataCombinedApp extends JFrame {
 	 */
 	public static void main(String[] args) {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), null, null);
+		Thread.setDefaultUncaughtExceptionHandler(exp);
 		SiteDataCombinedApp app = new SiteDataCombinedApp();
-		Thread.setDefaultUncaughtExceptionHandler(
-				new DefaultExceptoinHandler(APP_SHORT_NAME, getAppVersion(), app, app));
+		exp.setApp(app);
+		exp.setParent(app);
 		app.init();
 	}
 

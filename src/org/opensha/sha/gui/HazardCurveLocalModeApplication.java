@@ -157,9 +157,12 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), null, null);
+		Thread.setDefaultUncaughtExceptionHandler(exp);
 		HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication(APP_SHORT_NAME);
-		Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptoinHandler(
-				APP_SHORT_NAME, getAppVersion(), applet, applet));
+		exp.setApp(applet);
+		exp.setParent(applet);
 		applet.init();
 		applet.setTitle("Hazard Curve Local mode Application "+"("+getAppVersion()+")" );
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
