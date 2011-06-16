@@ -375,17 +375,8 @@ ScalarIMRChangeListener {
 			initIMT_GuiBean();
 			initSiteGuiBean();
 
-			try {
-				initERF_GuiBean();
-				imrGuiBean.setTectonicRegions(this.erfGuiBean.getSelectedERF().getIncludedTectonicRegionTypes());
-			} catch (RuntimeException e) {
-				JOptionPane.showMessageDialog(this,
-						"Connection to ERF's failed",
-						"Internet Connection Problem", JOptionPane.OK_OPTION);
-				e.printStackTrace();
-				startAppProgressClass.dispose();
-				System.exit(0);
-			}
+			initERF_GuiBean();
+			imrGuiBean.setTectonicRegions(this.erfGuiBean.getSelectedERF().getIncludedTectonicRegionTypes());
 
 			jbInit();
 

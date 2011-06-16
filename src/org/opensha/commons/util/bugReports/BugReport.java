@@ -81,6 +81,7 @@ public class BugReport {
 	private Component component;
 	private String keywords;
 	private Throwable t;
+	private ApplicationVersion appVersion;
 	
 	private static String getStackTraceAsCause(Throwable cause, StackTraceElement[] causedTrace) {
 		StackTraceElement[] trace = cause.getStackTrace();
@@ -124,6 +125,7 @@ public class BugReport {
 	public BugReport(Throwable t, String metadata,
 			String appName, ApplicationVersion appVersion, Object buggyComp) {
 		this.t = t;
+		this.appVersion = appVersion;
 		
 		String summary = "Bug in " + appName;
 		String description = "Steps to reproduce: (PLEASE FILL IN)\n\n" +
@@ -226,8 +228,6 @@ public class BugReport {
 			ArrayList<String> args = new ArrayList<String>();
 			if (summary != null)
 				args.add("summary="+URLEncoder.encode(summary, enc));
-			if (description != null)
-				args.add("description="+URLEncoder.encode(description, enc));
 			if (type != null)
 				args.add("type="+URLEncoder.encode(type.toString(), enc));
 			if (reporter != null)
@@ -236,6 +236,10 @@ public class BugReport {
 				args.add("component="+URLEncoder.encode(component.toString(), enc));
 			if (keywords != null)
 				args.add("keywords="+URLEncoder.encode(keywords, enc));
+			if (appVersion != null)
+				args.add("version="+URLEncoder.encode(appVersion.toString(), enc));
+			if (description != null)
+				args.add("description="+URLEncoder.encode(description, enc));
 			
 			for (int i=0; i<args.size(); i++) {
 				if (i == 0)
