@@ -1786,7 +1786,8 @@ ScalarIMRChangeListener {
 		// If it's changed FROM Deterministic
 		if (prevTypeCalc.equalsIgnoreCase(DETERMINISTIC)) {
 			try {
-				paramsTabbedPane.remove(1);		
+				paramsTabbedPane.remove(1);
+				erfGuiBean.refreshGUI();
 				paramsTabbedPane.add(erfGuiBean, "ERF & Time Span");		
 			} catch (RuntimeException ee) {
 				ee.printStackTrace();

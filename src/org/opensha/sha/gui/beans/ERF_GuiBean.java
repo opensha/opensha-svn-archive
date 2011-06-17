@@ -477,6 +477,10 @@ ParameterChangeListener{
 			}
 		}
 
+		refreshGUI();
+	}
+	
+	public void refreshGUI() {
 		try {
 			setParamsInForecast();
 		} catch (InvocationTargetException e) {
