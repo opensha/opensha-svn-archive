@@ -311,8 +311,12 @@ public enum ERF_Ref {
 			return con.newInstance();
 		} catch (Exception e) {
 			// TODO init logging
-			e.printStackTrace();
-			return null;
+			RuntimeException re;
+			if (e instanceof RuntimeException)
+				re = (RuntimeException)e;
+			else
+				re = new RuntimeException(e);
+			throw re;
 		}
 	}
 

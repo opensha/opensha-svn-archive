@@ -51,6 +51,9 @@ import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.bugReports.BugReport;
+import org.opensha.commons.util.bugReports.SimpleBugMessagePanel;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.BaseERF;
@@ -83,6 +86,7 @@ ParameterChangeListener{
 	public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
 	// these are to store the list of independ params for chosen ERF
 	public final static String ERF_EDITOR_TITLE =  "Set Forecast";
+	StringParameter erfSelectionParam;
 	// boolean for telling whether to show a progress bar
 	boolean showProgressBar = true;
 
@@ -175,10 +179,10 @@ ParameterChangeListener{
 
 
 		// make the forecast selection parameter
-		StringParameter selectERF= new StringParameter(ERF_PARAM_NAME,
+		erfSelectionParam = new StringParameter(ERF_PARAM_NAME,
 				erfNamesVector, (String)erfNamesVector.get(0));
-		selectERF.addParameterChangeListener(this);
-		parameterList.addParameter(selectERF);
+		erfSelectionParam.addParameterChangeListener(this);
+		parameterList.addParameter(erfSelectionParam);
 	}
 
 
@@ -445,6 +449,26 @@ ParameterChangeListener{
 
 
 	}
+	
+	private void showERFInstantiationError(Throwable t, String erfName) {
+		t.printStackTrace();
+		ApplicationVersion version;
+		try {
+			version = ApplicationVersion.loadBuildVersion();
+		} catch (Exception e1) {
+			version = null;
+		}
+		BugReport bug = new BugReport(t, "Problem occured in ERF_GuiBean" +
+				" when "+erfName+" is selected.", erfName, version, this);
+		String title = "Error instantiating "+erfName;
+		
+		String message = "An error occured when instantiating "+erfName+
+					"\n\nIt will be removed from the list. If you wish, you can submit" +
+					" a bug report by clicking below. To receive updates on the bug report, it" +
+					" is important that you leave your e-mail address in the 'reporter' field.";
+		
+		new SimpleBugMessagePanel(bug, message).showAsDialog(this, title);
+	}
 
 	/**
 	 *  This is the main function of this interface. Any time a control
@@ -467,8 +491,18 @@ ParameterChangeListener{
 			int size = this.erfNamesVector.size();
 			try{
 				for(int i=0;i<size;++i){
-					if(value.equalsIgnoreCase((String)erfNamesVector.get(i))){
-						eqkRupForecast = getERFInstance(erfRefs.get(i));
+					if(value.equalsIgnoreCase((String)erfNamesVector.get(i))) {
+						try {
+							eqkRupForecast = getERFInstance(erfRefs.get(i));
+						} catch (Exception e) {
+							showERFInstantiationError(e, value);
+							ArrayList<ERF_Ref> removed = new ArrayList<ERF_Ref>();
+							removed.add(erfRefs.get(i));
+							removeERFs_FromList(removed);
+							erfSelectionParam.setValue((String)event.getOldValue());
+							erfSelectionParam.getEditor().refreshParamEditor();
+							return;
+						}
 						break;
 					}
 				}

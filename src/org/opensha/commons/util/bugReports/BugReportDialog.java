@@ -54,7 +54,7 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 	
 	private JButton quitButton = new JButton("Exit Application");
 	private JButton continueButton = new JButton("Continue Using Application");
-	private static final String submitButtonTextDefault = "<html><center><b><font size=+2>" +
+	protected static final String submitButtonTextDefault = "<html><center><b><font size=+2>" +
 			"Submit Bug Report</font></b><br><font size=-1>(will open in web browser)" +
 			"</font></center></html>";
 	private static final String submitButtonTextKnownBug = "<html><center><b>I'd Still Like to " +
