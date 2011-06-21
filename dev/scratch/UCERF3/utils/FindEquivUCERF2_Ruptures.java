@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
@@ -1004,6 +1005,7 @@ public class FindEquivUCERF2_Ruptures {
 		meanUCERF2.updateForecast();
 		
 		ArrayList<String> srcNamesList = new ArrayList<String>();
+		HashMap<String,SummedMagFreqDist> srcMFDs = new HashMap<String,SummedMagFreqDist>();
 
 		SummedMagFreqDist magFreqDist = new SummedMagFreqDist(5.05, 36, 0.1);
 		double duration = meanUCERF2.getTimeSpan().getDuration();
@@ -1021,8 +1023,14 @@ public class FindEquivUCERF2_Ruptures {
 					if (!region.contains(it.next()))
 						continue;
 					magFreqDist.addResampledMagRate(mag, ptRate, true);
-					if(!srcNamesList.contains(source.getName()))
-							srcNamesList.add(source.getName());
+					if(!srcMFDs.containsKey(source.getName())) {
+						SummedMagFreqDist srcMFD = new SummedMagFreqDist(5.05, 36, 0.1);
+						srcMFD.setName(source.getName());
+						srcMFD.setInfo(" ");
+						srcMFDs.put(source.getName(), srcMFD);
+						srcNamesList.add(source.getName());
+					}
+					srcMFDs.get(source.getName()).addResampledMagRate(mag, ptRate, true);
 				}
 			}
 		}
@@ -1031,10 +1039,17 @@ public class FindEquivUCERF2_Ruptures {
 		for(String name:srcNamesList)
 			info += "\t"+name+"\n";
 
-		magFreqDist.setInfo(info);
+//		magFreqDist.setInfo(info);
+		magFreqDist.setInfo(" ");
+		magFreqDist.setName("Total Incremental MFD in Box");
 		ArrayList funcs = new ArrayList();
 		funcs.add(magFreqDist);
-		funcs.add(magFreqDist.getCumRateDist());			
+		EvenlyDiscretizedFunc cumMFD = magFreqDist.getCumRateDistWithOffset();
+		cumMFD.setName("Total Cumulative MFD in Box");
+		cumMFD.setInfo(" ");
+		funcs.add(cumMFD);	
+		for(String key:srcMFDs.keySet())
+			funcs.add(srcMFDs.get(key));
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
