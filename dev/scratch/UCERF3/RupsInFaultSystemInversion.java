@@ -45,7 +45,7 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
  * 
  * Aseismicity reduces area here
  * 
- * @author field & Page
+ * @author Field & Page
  *
  */
 public class RupsInFaultSystemInversion {
@@ -106,14 +106,14 @@ public class RupsInFaultSystemInversion {
 	 * @param minNumSectInRup
 	 */
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
-			double[][] sectionDistances, double[][] subSectionAzimuths, double maxJumpDist, 
+			double[][] sectionDistances, double[][] sectionAzimuths, double maxJumpDist, 
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, int minNumSectInRup,
 			ArrayList<MagAreaRelationship> magAreaRelList, File precomputedDataDir, double moRateReduction) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
 		this.sectionDistances = sectionDistances;
-		this.sectionAzimuths = subSectionAzimuths;
+		this.sectionAzimuths = sectionAzimuths;
 		this.maxJumpDist=maxJumpDist;
 		this.maxAzimuthChange=maxAzimuthChange; 
 		this.maxTotAzimuthChange=maxTotAzimuthChange; 
@@ -126,21 +126,21 @@ public class RupsInFaultSystemInversion {
 		// write out settings if in debug mode
 		if(D) System.out.println("faultSectionData.size() = "+faultSectionData.size() +
 				"; sectionDistances.length = "+sectionDistances.length +
-				"; subSectionAzimuths.length = "+subSectionAzimuths.length +
+				"; subSectionAzimuths.length = "+sectionAzimuths.length +
 				"; maxJumpDist = "+maxJumpDist +
 				"; maxAzimuthChange = "+maxAzimuthChange + 
 				"; maxTotAzimuthChange = "+maxTotAzimuthChange +
 				"; maxRakeDiff = "+maxRakeDiff +
 				"; minNumSectInRup = "+minNumSectInRup);
 
-		// check that indices are same as IDs
+		// check that indices are same as sectionIDs
 		for(int i=0; i<faultSectionData.size();i++)
 			if(faultSectionData.get(i).getSectionId() != i)
 				throw new RuntimeException("RupsInFaultSystemInversion: Error - indices of faultSectionData don't match IDs");
 
 		numSections = faultSectionData.size();
 		
-		// add standard deviations here as well
+		// compute sectSlipRateReduced (add standard deviations here as well?)
 		sectSlipRateReduced = new double[numSections];
 		for(int s=0; s<numSections; s++)
 			sectSlipRateReduced[s] = faultSectionData.get(s).getAveLongTermSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
@@ -150,7 +150,7 @@ public class RupsInFaultSystemInversion {
 		computeCloseSubSectionsListList();
 		if(D) System.out.println("Done making sectionConnectionsListList");
 
-		// get paleoseismic constraints
+		// get paleoseismic constraints (this should be passed in, and a non-UCERF2 version of SegRateConstraint should be created?)
 		getPaleoSegRateConstraints();
 
 		// make the list of SectionCluster objects 
