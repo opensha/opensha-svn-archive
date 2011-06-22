@@ -25,7 +25,8 @@ import org.opensha.commons.param.editor.NewParameterEditorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	NewParameterEditorTest.class
+	NewParameterEditorTest.class,
+	AbstractParamTest.class
 })
 
 public class ParamSuite
