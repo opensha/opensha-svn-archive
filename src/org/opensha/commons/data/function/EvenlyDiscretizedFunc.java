@@ -290,6 +290,18 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
        throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
 		 */
 	}
+	
+	/**
+	 * Returns the index of the supplied value (ignoring tolerance)
+	 */
+	public int getClosestXIndex( double x) throws Point2DException{
+
+		int i = (int)Math.round((double)((x-minX)/delta));
+		if(i<0) i=0;
+		else if(i>=num) i = num-1;
+		return i;
+	}
+
 
 	/**
 	 * Calls set( x value, y value ). A DataPoint2DException is thrown
