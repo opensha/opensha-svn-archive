@@ -992,6 +992,9 @@ public class FindEquivUCERF2_Ruptures {
 	}
 	
 	
+	/**
+	 * This plots various nucleation MDFs in a box around the Northridge earthquake
+	 */
 	public static void plotMFD_InRegionNearNorthridge() {
 
 		Region region = new Region(new Location(34.25,-119.15),new Location(34.55,-118.35));

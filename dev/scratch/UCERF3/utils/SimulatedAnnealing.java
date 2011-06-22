@@ -6,6 +6,11 @@ import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
 
+/**
+ * 
+ * @author Morgan Page
+ *
+ */
 public class SimulatedAnnealing {
 
 	protected final static boolean D = true;  // for debugging

@@ -53,9 +53,11 @@ public class TestInversion {
 	
 	private File precomputedDataDir;
 	
+	
 	public TestInversion() {
 		this(new File("dev/scratch/UCERF3/preComputedData/"));
 	}
+	
 	
 	public TestInversion(File precomputedDataDir) {
 		this.precomputedDataDir = precomputedDataDir;
@@ -71,9 +73,6 @@ public class TestInversion {
 		ArrayList<MagAreaRelationship> magAreaRelList = new ArrayList<MagAreaRelationship>();
 		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
-//		magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
-		// magAreaRel = new HanksBakun2002_MagAreaRel();
-		moRateReduction = 0.1;
 		
 		/** Set the deformation model
 		 * D2.1 = 82
@@ -85,15 +84,19 @@ public class TestInversion {
 		 */
 		deformationModelId = 82;
 		
+		// Create subSectionPrefDataList
 		if(D) System.out.println("Making subsections...");
 //		createAllSubSections();
 //		createBayAreaSubSections(); 
 		createNorthCalSubSections();
 		
+		// create (or read) subSectionDistances[i][j]
 		calcSubSectionDistances();
 		
+		// create (or read) subSectionAzimuths[i][j]
 		calcSubSectionAzimuths();
 		
+		// Instantiate rupsInFaultSysInv
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, 
@@ -144,7 +147,7 @@ public class TestInversion {
 
 		// remove those that don't have a trace in in the N Cal RELM region
 		Region relm_nocal_reg = new CaliforniaRegions.RELM_NOCAL();
-		Region mod_relm_nocal_reg = new Region(relm_nocal_reg.getBorder(), BorderType.GREAT_CIRCLE);
+		Region mod_relm_nocal_reg = new Region(relm_nocal_reg.getBorder(), BorderType.GREAT_CIRCLE); // needed to exclude Parkfield
 		ArrayList<FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
 		for(FaultSectionPrefData sectData:allFaultSectionPrefData) {
 			FaultTrace trace = sectData.getFaultTrace();
@@ -345,9 +348,7 @@ public class TestInversion {
 
 		// construct filename
 		String name = subsectsNameForFile+deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Distances";
-//		String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
 		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
-//		String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
 		File file = new File (fullpathname);
 
 		// Read data if already computed and saved
@@ -416,8 +417,6 @@ public class TestInversion {
 
 		  // construct filename
 		  String name = subsectsNameForFile+deformationModelId+"_"+(int)(maxSubSectionLength*1000)+"_Azimuths";
-//		  String fullpathname = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/"+name;
-//		  String fullpathname = "dev/scratch/UCERF3/preComputedData/"+name;
 		  String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
 		  File file = new File (fullpathname);
 		  
@@ -496,7 +495,7 @@ public class TestInversion {
 	   * @param filePathAndName
 	   */
 	  public void writeRupsToFiles(String filePathAndName) {
-		  rupsInFaultSysInv.writeRupsToFiles(filePathAndName);
+		  rupsInFaultSysInv.writeRupsToFiles(filePathAndName);  // should this use the utility class (FaultSectionDataWriter with a name change)?
 	  }
 	  
 
