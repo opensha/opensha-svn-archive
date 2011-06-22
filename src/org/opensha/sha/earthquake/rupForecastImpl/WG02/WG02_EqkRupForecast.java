@@ -346,7 +346,7 @@ System.out.println("Char_momentRate="+tempMoRate);
       allSources.add(wg02_source);
 
       // now create and add the GR tail source if it's needed
-      if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE)) {
+      if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE) && tail_GR_dist.getTotCumRate() > 0) {
         grTailSource = new FloatingPoissonFaultSource(tail_GR_dist, faultSurface, magScalingRel,
                                   0.0, 1.0, rupOffset, rake, timeSpan.getDuration());
         grTailSource.setName(sourceName+"_tail");
