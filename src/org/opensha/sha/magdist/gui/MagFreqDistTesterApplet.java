@@ -234,7 +234,7 @@ implements ItemListener {
 
 	private boolean yLog = false;
 	JCheckBox jCheckSumDist = new JCheckBox();
-	private JLabel imgLabel = new JLabel();
+	//private JLabel imgLabel = new JLabel();
 
 
 	//images for the OpenSHA
@@ -412,13 +412,13 @@ implements ItemListener {
 		});
 
 		//loading the OpenSHA Logo
-		imgLabel.setText("");
-		imgLabel.setIcon(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
-		imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				imgLabel_mouseClicked(e);
-			}
-		});
+//		imgLabel.setText("");
+//		imgLabel.setIcon(new ImageIcon(FileUtils.loadImage(this.POWERED_BY_IMAGE)));
+//		imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+//			public void mouseClicked(MouseEvent e) {
+//				imgLabel_mouseClicked(e);
+//			}
+//		});
 		jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
 		jLabel1.setForeground(new Color(80, 80, 133));
 		jLabel1.setText("Magnitude-Frequency Distribution GUI");
@@ -452,8 +452,8 @@ implements ItemListener {
 				,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 0, 0, 4), 0, 0));
 		outerPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		this.getContentPane().add(imgLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 0, 0), 0, 0));
+//		this.getContentPane().add(imgLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+//				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 0, 0), 0, 0));
 
 
 
