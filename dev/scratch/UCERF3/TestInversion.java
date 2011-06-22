@@ -69,7 +69,7 @@ public class TestInversion {
 		double maxRakeDiff = 90;
 		minNumSectInRup = 2;
 		moRateReduction = 0.1;
-		includeSectionsWithNaN_slipRates = false;
+		includeSectionsWithNaN_slipRates = false;	// other things assume this is false!
 		ArrayList<MagAreaRelationship> magAreaRelList = new ArrayList<MagAreaRelationship>();
 		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
@@ -83,7 +83,7 @@ public class TestInversion {
 		String slipModelType = RupsInFaultSystemInversion.TAPERED_SLIP_MODEL;
 
 		
-		/** Set the deformation model
+		/** Set the deformation model (this only works with UCERF2 deformation models)
 		 * D2.1 = 82
 		 * D2.2 = 83
 		 * D2.3 = 84
@@ -91,7 +91,7 @@ public class TestInversion {
 		 * D2.5 = 86
 		 * D2.6 = 87
 		 */
-		deformationModelId = 82;
+		deformationModelId = 82;	
 		
 		// Create subSectionPrefDataList
 		if(D) System.out.println("Making subsections...");

@@ -122,13 +122,20 @@ public class RupsInFaultSystemInversion {
 	 * @param relativeRupRateConstraintWt
 	 * @param numIterations
 	 * 
-	 * 	 * TODO:
+	 * TODO:
 	 * 
 	 * 2) segRateConstraints should be passed in as well
 	 * 3) better handling of FindEquivUCERF2_Ruptures (passed in?)
 	 * 4) pass in MFD constraints (region & MFD or a-value)
 	 * 5) solutionConstraint should be passed in (this takes care of #3 above)
 	 * 6) pass starting model in as well (initial_state)
+	 * 7) pass object for getProbVisible(double mag) in as well
+	 * 
+	 * 8) better handling of slip rate reduction for subseismogenic 
+	 *    ruptures & off-fault seismicity that contributes to slipRate?
+	 *    
+	 * 9) change MFD constraint to inequality (what about a-value bias due to temporal
+	 *    variations and/or off-fault MFD assumptions?)
 	 * 
 	 */
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
