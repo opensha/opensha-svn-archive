@@ -45,6 +45,7 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
  * 
  * Aseismicity reduces area here
  * 
+ * 
  * @author Field & Page
  *
  */
@@ -87,28 +88,56 @@ public class RupsInFaultSystemInversion {
 	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
 	public final static String WG02_SLIP_MODEL = "WGCEP-2002 model (Dsr prop to Vs)";
 	public final static String TAPERED_SLIP_MODEL = "Tapered Ends ([Sin(x)]^0.5)";
-	private String slipModelType = TAPERED_SLIP_MODEL;
+	private String slipModelType;
 
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 
 	//rates and magnitudes for closest equivalents to UCERF2 ruptures
 	ArrayList<double[]> ucerf2_magsAndRates;
+	
+	double relativeSegRateWt;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
+	double relativeMagDistWt;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
+	double relativeRupRateConstraintWt;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1) - can be UCERF2 rates or Smooth G-R rates
+	int numIterations;
 
+
+	
+	
 	/**
+	 * Constructor for the Grand Inversion
 	 * 
-	 * @param faultSectionData - this assumes subsections (if any) are in proper order (have adjacent indices)
+	 * @param faultSectionData
 	 * @param sectionDistances
-	 * @param subSectionAzimuths
+	 * @param sectionAzimuths
 	 * @param maxJumpDist
 	 * @param maxAzimuthChange
 	 * @param maxTotAzimuthChange
 	 * @param maxRakeDiff
 	 * @param minNumSectInRup
+	 * @param magAreaRelList
+	 * @param precomputedDataDir
+	 * @param moRateReduction
+	 * @param relativeSegRateWt
+	 * @param relativeMagDistWt
+	 * @param relativeRupRateConstraintWt
+	 * @param numIterations
+	 * 
+	 * 	 * TODO:
+	 * 
+	 * 1) slipModelType should be passed in
+	 * 2) segRateConstraints should be passed in as well
+	 * 3) better handling of FindEquivUCERF2_Ruptures (passed in?)
+	 * 4) pass in MFD constraints (region & MFD or a-value)
+	 * 5) solutionConstraint should be passed in (this takes care of #3 above)
+	 * 6) pass starting model in as well (initial_state)
+	 * 
 	 */
 	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] sectionAzimuths, double maxJumpDist, 
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, int minNumSectInRup,
-			ArrayList<MagAreaRelationship> magAreaRelList, File precomputedDataDir, double moRateReduction) {
+			ArrayList<MagAreaRelationship> magAreaRelList, File precomputedDataDir, double moRateReduction,
+			double relativeSegRateWt, double relativeMagDistWt, double relativeRupRateConstraintWt, 
+			int numIterations, String slipModelType) {
 
 		if(D) System.out.println("Instantiating RupsInFaultSystemInversion");
 		this.faultSectionData = faultSectionData;
@@ -122,6 +151,11 @@ public class RupsInFaultSystemInversion {
 		this.magAreaRelList=magAreaRelList;
 		this.precomputedDataDir = precomputedDataDir;
 		this.moRateReduction=moRateReduction;
+		this.relativeSegRateWt=relativeSegRateWt;
+		this.relativeMagDistWt=relativeMagDistWt;
+		this.relativeRupRateConstraintWt=relativeRupRateConstraintWt;
+		this.numIterations=numIterations;
+		this.slipModelType=slipModelType;
 
 		// write out settings if in debug mode
 		if(D) System.out.println("faultSectionData.size() = "+faultSectionData.size() +
@@ -150,7 +184,7 @@ public class RupsInFaultSystemInversion {
 		computeCloseSubSectionsListList();
 		if(D) System.out.println("Done making sectionConnectionsListList");
 
-		// get paleoseismic constraints (this should be passed in, and a non-UCERF2 version of SegRateConstraint should be created?)
+		// get segRateConstraints (this should be passed in, and a non-UCERF2 version of SegRateConstraint should be created?)
 		getPaleoSegRateConstraints();
 
 		// make the list of SectionCluster objects 
@@ -642,21 +676,13 @@ public class RupsInFaultSystemInversion {
 
 	public void doInversion(FindEquivUCERF2_Ruptures findUCERF2_Rups, ArrayList<ArrayList<Integer>> rupList) {
 		
-		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
-		double relativeMagDistWt = 10.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
-		double relativeRupRateConstraintWt = 0.1;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1) - can be UCERF2 rates or Smooth G-R rates
-//		int numiter=0;  // number of simulated annealing iterations (increase this to decrease misfit)
-//		int numiter = 1000000;
-//		int numiter = 100000;
-		int numiter = 10000;
-//		int numiter = 2000;
-		
 		// Find number of rows in A matrix (equals the total number of constraints)
 		int numRows=numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
+		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (relativeMagDistWt > 0.0) {
 			findUCERF2_Rups.getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
 			findUCERF2_Rups.getN_CalTotalTargetGR_MFD();
-			IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
+			targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
 			numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
 		}
 		
@@ -676,7 +702,7 @@ public class RupsInFaultSystemInversion {
 		// PUT TOGETHER "A" MATRIX AND DATA VECTOR
 		
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
-		int numElements = 0;  
+		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = getSlipOnSectionsForRup(rup);
@@ -685,18 +711,18 @@ public class RupsInFaultSystemInversion {
 				int row = sects.get(i);
 				int col = rup;
 //				A.addToEntry(sects.get(i),rup,slips[i]);
-				A.set(row, col, A.get(row, col)+slips[i]);
-				if(D) numElements++;
+				A.set(row, col, A.get(row, col)+slips[i]);	// IS "A.get(row, col)" NEEDED?
+				if(D) numNonZeroElements++;
 			}
 		}
 		for (int sect=0; sect<numSections; sect++) d[sect] = sectSlipRateReduced[sect];	
-		if(D) System.out.println("Number of nonzero elements in A matrix = "+numElements);
+		if(D) System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 
 		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (relativeSegRateWt > 0.0) {
-			numElements = 0;
+			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSections; i<numSections+segRateConstraints.size(); i++) {
 				SegRateConstraint constraint = segRateConstraints.get(i-numSections);
@@ -707,11 +733,11 @@ public class RupsInFaultSystemInversion {
 					if (A.get(constraint.getSegIndex(), rup)>0) {
 //						A.setEntry(i,rup,relativeSegRateWt * getProbVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());
 						A.set(i, rup, (relativeSegRateWt * getProbVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean()));
-						if(D) numElements++;			
+						if(D) numNonZeroElements++;			
 					}
 				}
 			}
-			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
+			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 
 		
@@ -720,34 +746,32 @@ public class RupsInFaultSystemInversion {
 		// WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION
 		int rowIndex = numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
 		if (relativeMagDistWt > 0.0) {	
-			numElements = 0;
+			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding magnitude constraint to A matrix (match Target UCERF2 minus background) ...");
-			IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
-			targetMagFreqDist.setTolerance(0.1); // apply constraint to 0.1 magnitude-unit bins (this is 0.1 in the input MFDs also)		
 			for(int rup=0; rup<numRuptures; rup++) {
 				double mag = rupMeanMag[rup];
 //				A.setEntry(rowIndex+targetMagFreqDist.getXIndex(mag),rup,relativeMagDistWt);
-				A.set(rowIndex+targetMagFreqDist.getXIndex(mag),rup,relativeMagDistWt);
-				numElements++;
+				A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagDistWt);
+				numNonZeroElements++;
 			}		
 			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
 				d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagDistWt;
 				rowIndex++; 
 			}
-			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
+			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 			
 		
 		// Constrain Rupture Rate Solution to approximately equal the UCERF2 solution (WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION)
 		// OR Smooth G-R Solution  
 		// OR Smooth Solution with any Input MFD (e.g. target UCERF2 on-fault MFD)
-		double[] SolutionConstraint = new double[numRuptures];
+		double[] solutionConstraint = new double[numRuptures];
 		if (relativeRupRateConstraintWt > 0.0) {	
 			if(D) System.out.println("\nAdding rupture rate constraint to A matrix ...");
-			numElements = 0;
+			numNonZeroElements = 0;
 			
 			// Select rupture rate constraint below (leave one of 3 lines uncommented)
-			SolutionConstraint = getUCERF2Solution(); 
+			solutionConstraint = getUCERF2Solution(); 
 			//SolutionConstraint = getSmoothGRStartingSolution(rupList,rupMeanMag);	
 			//IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); SolutionConstraint = getSmoothStartingSolution(rupList,rupMeanMag,targetMagFreqDist);	
 			
@@ -755,10 +779,10 @@ public class RupsInFaultSystemInversion {
 			for(int rup=0; rup<numRuptures; rup++) {
 //				A.setEntry(rowIndex,rup,relativeRupRateConstraintWt);
 				A.set(rowIndex,rup,relativeRupRateConstraintWt);
-				d[rowIndex]=SolutionConstraint[rup]*relativeRupRateConstraintWt;
-				numElements++; rowIndex++;
+				d[rowIndex]=solutionConstraint[rup]*relativeRupRateConstraintWt;
+				numNonZeroElements++; rowIndex++;
 			}		
-			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numElements);
+			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
 		
@@ -775,11 +799,11 @@ public class RupsInFaultSystemInversion {
 //		initial_state = getSmoothGRStartingSolution(rupList,rupMeanMag);  // "Smooth" G-R starting solution that takes into account number of rups through a section
 //		IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); initial_state = getSmoothStartingSolution(rupList,rupMeanMag,targetMagFreqDist);  // "Smooth" starting solution that takes into account number of rups through a section
 //		for (int r=0; r<numRuptures; r++) initial_state[r]=0;			// initial solution of zero rupture rates
-		initial_state = SolutionConstraint;  // Use rupture rate solution constraint (IF USED!) for starting model.  (Avoids recomputing it if it is the same)
+		initial_state = solutionConstraint;  // Use rupture rate solution constraint (IF USED!) for starting model.  (Avoids recomputing it if it is the same)
 		
 //		writeInversionIngredientsToFiles(A,d,initial_state); // optional: Write out inversion files to Desktop to load into MatLab (faster than Java)
 //		doMatSpeedTest(A, d, initial_state, numiter);
-		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state, numiter);    		
+		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state, numIterations);    		
 //		rupRateSolution = loadMatLabInversionSolution(); // optional: Load in MatLab's SA solution from file instead of using Java SA code
 		
 		

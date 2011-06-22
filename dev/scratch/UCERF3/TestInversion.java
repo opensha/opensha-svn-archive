@@ -74,6 +74,15 @@ public class TestInversion {
 		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
 		
+		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
+		double relativeMagDistWt = 10.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
+		double relativeRupRateConstraintWt = 0.1;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1) - can be UCERF2 rates or Smooth G-R rates
+		int numIterations = 10000;
+		
+		// slip model:
+		String slipModelType = RupsInFaultSystemInversion.TAPERED_SLIP_MODEL;
+
+		
 		/** Set the deformation model
 		 * D2.1 = 82
 		 * D2.2 = 83
@@ -100,7 +109,9 @@ public class TestInversion {
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
 				subSectionDistances, subSectionAzimuths, maxJumpDist, 
 				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, 
-				magAreaRelList, precomputedDataDir, moRateReduction);
+				magAreaRelList, precomputedDataDir, moRateReduction,
+				relativeSegRateWt,relativeMagDistWt,relativeRupRateConstraintWt,numIterations,
+				slipModelType);
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 		
@@ -495,7 +506,7 @@ public class TestInversion {
 	   * @param filePathAndName
 	   */
 	  public void writeRupsToFiles(String filePathAndName) {
-		  rupsInFaultSysInv.writeRupsToFiles(filePathAndName);  // should this use the utility class (FaultSectionDataWriter with a name change)?
+		  rupsInFaultSysInv.writeRupsToFiles(filePathAndName);  // should this use the utility class (FaultSectionDataWriter with aname change)?
 	  }
 	  
 
