@@ -30,7 +30,7 @@
 	<property name="ant.lib.dir" value="lib" />
 	
 	<!-- Properties and task definitions for Cobertura Code Coverage Tool -->
-	<property name="cobertura.lib.dir" value="${ant.lib.dir}/cobertura-1.9.3" />
+	<property name="cobertura.lib.dir" value="${ant.lib.dir}/cobertura-1.9.4.1" />
 	<property name="cobertura.data.dir" value="../cobertura"/>
 	<property name="cobertura.data.file" value="cobertura_current.ser"/>
 	<property name="cobertura.data.weekly.file" value="cobertura_weekly.ser"/>
