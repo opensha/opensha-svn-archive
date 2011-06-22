@@ -53,7 +53,7 @@ public class AbstractParamTest {
 
 	@Test
 	public final void testCompareTo() {
-		Parameter<?> p1 = new BooleanParameter("F", true);
+		Parameter<?> p1 = new DoubleParameter("F", 1.0);
 		Parameter<?> p2 = new DoubleParameter("a", 1.0);
 		Parameter<?> p3 = new DoubleParameter("0", 1.0);
 		List<Parameter<?>> list = new ArrayList<Parameter<?>>();
