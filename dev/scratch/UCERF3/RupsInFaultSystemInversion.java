@@ -124,7 +124,6 @@ public class RupsInFaultSystemInversion {
 	 * 
 	 * 	 * TODO:
 	 * 
-	 * 1) slipModelType should be passed in
 	 * 2) segRateConstraints should be passed in as well
 	 * 3) better handling of FindEquivUCERF2_Ruptures (passed in?)
 	 * 4) pass in MFD constraints (region & MFD or a-value)
