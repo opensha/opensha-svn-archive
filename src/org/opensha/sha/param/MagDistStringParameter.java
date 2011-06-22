@@ -142,7 +142,7 @@ public class MagDistStringParameter extends StringParameter {
      * @see                            Comparable
      */
     @Override
-    public int compareTo(Parameter<String> param) {
+    public int compareTo(Parameter<?> param) {
 //
 //        String S = C + ":compareTo(): ";
 //
@@ -160,7 +160,7 @@ public class MagDistStringParameter extends StringParameter {
 //
 //        return n1.compareTo( n2 );
         if (value == null && param.getValue() == null) return 0;
-        return value.compareTo(param.getValue());
+        return value.compareTo((String) param.getValue());
 
     }
 

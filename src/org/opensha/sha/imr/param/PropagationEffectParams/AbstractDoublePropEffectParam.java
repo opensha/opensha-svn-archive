@@ -253,7 +253,7 @@ public abstract class AbstractDoublePropEffectParam extends
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
 	@Override
-	public int compareTo(Parameter<Double> param) {
+	public int compareTo(Parameter<?> param) {
 //
 //		String S = C + ":compareTo(): ";
 //
@@ -291,7 +291,7 @@ public abstract class AbstractDoublePropEffectParam extends
 //		}
 //
 //		return n1.compareTo( n2 );
-		return value.compareTo(param.getValue());
+		return value.compareTo((Double) param.getValue());
 		// TODO override in subclasses for type comparison
 	}
 

@@ -281,7 +281,7 @@ implements WarningParameter<Double>
 	 * @exception  ClassCastException  Is thrown if the comparing object is not
 	 *      a DoubleParameter, or DoubleDiscreteParameter.
 	 */
-	public int compareTo(Parameter<Double> obj) {
+	public int compareTo(Parameter<?> obj) {
 
 		String S = C + ":compareTo(): ";
 

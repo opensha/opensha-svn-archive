@@ -100,7 +100,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 
 public interface Parameter<E> extends
 		Named,
-		Comparable<Parameter<E>>,
+		Comparable<Parameter<?>>,
 		XMLSaveable,
 		Serializable {
 

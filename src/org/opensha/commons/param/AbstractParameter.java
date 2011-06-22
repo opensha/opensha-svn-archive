@@ -564,7 +564,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 * Compares this <code>Parameter</code> to another by name, ignoring case.
 	 */
 	@Override
-	public int compareTo(Parameter<E> param) {
+	public int compareTo(Parameter<?> param) {
 		return getName().compareToIgnoreCase(param.getName());
 	}
 
