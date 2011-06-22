@@ -26,6 +26,8 @@ public class SiteTests {
 		assertFalse(s1.equals(s2));
 		s1.setName("testName");
 		assertTrue(s1.equals(s2));
+		s1.setName("failName");
+		assertFalse(s1.equals(s2));
 		s1.setName("TestnamE");
 		assertTrue(s1.equals(s2));
 		
