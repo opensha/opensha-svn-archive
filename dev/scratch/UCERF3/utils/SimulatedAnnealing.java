@@ -9,7 +9,7 @@ import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
 
 /**
  * 
- * @author Morgan Page
+ * @author Morgan Page and Kevin Milner
  *
  */
 public class SimulatedAnnealing {
@@ -99,7 +99,7 @@ public class SimulatedAnnealing {
 					T = Math.exp(-( (double) iter - 1)); // very fast SA cooling schedule (Ingber, 1989) (recommended)
 					break;
 				default:
-					throw new IllegalStateException("It's impossible to get here, as long as all enum cases are stated above!");
+					throw new IllegalStateException("It's impossible to get here, as long as all cooling schedule enum cases are stated above!");
 			}
 			
 			if (D) {  // print out convergence info every so often
@@ -221,7 +221,7 @@ public static double getPerturbation(GenerationFunctionType perturbationFunc, do
 			perturbation = Math.signum(r2-0.5) * T * 0.001 * (Math.pow(1+1/T,Math.abs(2*r2-1))-1);
 			break;
 		default:
-			throw new IllegalStateException("OH dear.  You missed a Generation Function type.");
+			throw new IllegalStateException("Oh dear.  You missed a Generation Function type.");
 	}
 	
 	return perturbation;
