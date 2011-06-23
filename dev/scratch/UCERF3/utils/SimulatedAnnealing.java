@@ -1,6 +1,7 @@
 package scratch.UCERF3.utils;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
@@ -12,10 +13,33 @@ import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
  *
  */
 public class SimulatedAnnealing {
+	
+	enum CoolingScheduleType {
+		CLASSICAL_SA,  // classical SA cooling schedule (Geman and Geman, 1984) (slow but ensures convergence)
+		FAST_SA,	   // fast SA cooling schedule (Szu and Hartley, 1987)
+		VERYFAST_SA;   // very fast SA cooling schedule (Ingber, 1989) (recommended)
+	}
+
+	enum GenerationFunctionType { // how rates are perturbed each SA algorithm iteration
+		UNIFORM_NO_TEMP_DEPENDENCE, // recommended (box-car distribution of perturbations, no dependence on SA temperature)
+		GAUSSIAN,  
+		TANGENT,
+		POWER_LAW;
+	}
+	
+	enum NonnegativityConstraintType {
+		TRY_ZERO_RATES_OFTEN, // sets rate to zero if they are perturbed to negative values 
+		LIMIT_ZERO_RATES;     // re-perturb rates if they are perturbed to negative values 
+	}
+
 
 	protected final static boolean D = true;  // for debugging
 	
-	public static double[] getSolution(DoubleMatrix2D A, double[] d, double[] initial_state, int numiter) {
+	public static double[] getSolution(DoubleMatrix2D A, double[] d, double[] initialState, int numIterations) {
+		
+		CoolingScheduleType coolingFunc = CoolingScheduleType.VERYFAST_SA;
+		NonnegativityConstraintType nonnegativeityConstraintAlgorithm = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+		GenerationFunctionType perturbationFunc = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
 		
 		long runTime = System.currentTimeMillis();
 		long multTime = 0;
@@ -27,148 +51,120 @@ public class SimulatedAnnealing {
 		if(D) System.out.println("nRow = " + nRow);
 		if(D) System.out.println("nCol = " + nCol);
 		
-		double[] x = Arrays.copyOf(initial_state, nCol); // current model
-		double[] xbest = Arrays.copyOf(initial_state, nCol);  // best model seen so far
+		double[] x = Arrays.copyOf(initialState, nCol); // current model
+		double[] xbest = Arrays.copyOf(initialState, nCol);  // best model seen so far
 		double[] xnew; // new perturbed model
 		double[] perturb = new double[nCol]; // perturbation to current model
-//		double[] syn = new double[nRow]; // data synthetics
-		DoubleMatrix1D syn = new DenseDoubleMatrix1D(nRow);
-		double[] misfit = new double[nRow]; // mifit between data and synthetics
+		DoubleMatrix1D syn = new DenseDoubleMatrix1D(nRow);  // data synthetics
+		double[] misfit = new double[nRow]; // misfit between data and synthetics
 
 		double E, Enew, Ebest, T, P;
 		int i, j, iter, index;
-		// int numiter = 100000;
+		
+		
+		
 		
 		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... \n");
 		
-		if(D) System.out.println("Total number of iterations = " + numiter);
+		if(D) System.out.println("Total number of iterations = " + numIterations);
 		
-//		Random r = new Random(System.currentTimeMillis());
-		
-		// now done above via Arrays.copyOf(...)
-//		for (j = 0; j < nCol; j++) {
-//			x[j] = initial_state[j]; // starting model
-//		}
-		// x=initial_state.clone();  // not sure why this doesn't work in lieu of above code
-		
-		// Initial "best" solution & its Energy
-		// now done above via Arrays.copyOf(...)
-//		for (j = 0; j < nCol; j++) {
-//			xbest[j] = x[j];  
-//		}
 		
 		E = 0;
 		for (i = 0; i < nRow; i++) {
-//			syn[i] = 0;
 			for (j = 0; j < nCol; j++) {
 				syn.set(i, syn.get(i) + A.get(i,j) * x[j]); // compute predicted data
-//				syn[i] += A.get(i,j) * x[j]; // compute predicted data
 			}
 			misfit[i] = syn.get(i) - d[i];  // misfit between synthetics and data
 			E += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 		}
-		//E = Math.sqrt(E);
 		Ebest = E;
+		
 		if (D) {
 			System.out.println("Starting energy = " + Ebest);
 			setupTime = System.currentTimeMillis()-setupTime;
 			System.out.println("Setup time: "+(setupTime/1000d)+" seconds");
 		}
 		
-		for (iter = 1; iter <= numiter; iter++) {
+		for (iter = 1; iter <= numIterations; iter++) {
 			
+			// Find current simulated annealing "temperature" based on chosen cooling schedule
+			switch (coolingFunc) {
+				case CLASSICAL_SA:
+					T = 1/Math.log( (double) iter); // classical SA cooling schedule (Geman and Geman, 1984) (slow but ensures convergence)
+					break;
+				case FAST_SA:
+					 T = 1 / (double) iter;  // fast SA cooling schedule (Szu and Hartley, 1987)
+					 break;
+				case VERYFAST_SA:
+					T = Math.exp(-( (double) iter - 1)); // very fast SA cooling schedule (Ingber, 1989) (recommended)
+					break;
+				default:
+					throw new IllegalStateException("It's impossible to get here, as long as all enum cases are stated above!");
+			}
 			
-			// Simulated annealing "temperature"
-			// T = 1 / (double) iter; 
-			// T = 1/Math.log( (double) iter);
-			// T = Math.pow(0.999,iter-1);
-			T = Math.exp(-( (double) iter - 1));
-			
-//			if ((double) iter / 1000 == Math.floor(iter / 1000)) {
-			if (iter % 1000 == 0) { // this is equivalent and faster
-				if(D) System.out.println("Iteration # " + iter);
-			//	if(D) System.out.println("T = " + T);
-				if(D) System.out.println("Lowest energy found = " + Ebest);
+			if (D) {  // print out convergence info every so often
+				if (iter % 1000 == 0) { 
+					System.out.println("Iteration # " + iter);
+					System.out.println("Lowest energy found = " + Ebest);
+				}
 			}
 					
 			
 			// Pick neighbor of current model
-			xnew = Arrays.copyOf(x, nCol);
-//			for (j = 0; j < nCol; j++) {
-//				xnew[j]=x[j];
-//			}
+			xnew = Arrays.copyOf(x, nCol);  // This does xnew=x for an array
 			
 			// Index of model to randomly perturb
-			// don't need to call Math.floor() here, casting to int automatically does that
-			index = (int)(Math.random() * (double)nCol); 
+			index = (int)(Math.random() * (double)nCol); // casting as int takes the floor
 			
-			// How much to perturb index (can be a function of T)	
-			// perturb[index] = (Math.random()-0.5) * 0.25 * initial_state[index];  // Only use with non-zero starting model!
-			perturb[index] = (Math.random()-0.5) * 0.001;
-			// perturb[index] =  (1/Math.sqrt(T)) * r.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 
-			// perturb[index] = T * 0.001 * Math.tan(Math.PI*Math.random() - Math.PI/2);		
-			// r = Math.random();
-			// perturb[index] = Math.signum(r-0.5) * T * 0.001 * (Math.pow(1+1/T,Math.abs(2*r-1))-1);
+			// How much to perturb index (some perturbation functions are a function of T)	
+			perturb[index] = getPerturbation(perturbationFunc, T);  
 			
-			// Nonnegativity constraint
-			// while (x[index] + perturb[index] < 0) {
-			// perturb[index] = (Math.random()-0.5)*0.001;
-			// }		
-			if (xnew[index] + perturb[index] < 0) {
-				perturb[index] = -xnew[index];
+			
+			// Apply then nonnegativity constraint -- make sure perturbation doesn't make the rate negative
+			switch (nonnegativeityConstraintAlgorithm) {
+				case TRY_ZERO_RATES_OFTEN: // sets rate to zero if they are perturbed to negative values 
+					// This way will result in many zeros in the solution, 
+					// which may be desirable since global minimum is likely near a boundary
+					if (xnew[index] == 0) { // if that rate was already zero do not keep it at zero
+						while (x[index] + perturb[index] < 0) 
+							perturb[index] = getPerturbation(perturbationFunc,T);
+					} else // if that rate was not already zero, and it goes negative, set it equal to zero
+						if (xnew[index] + perturb[index] < 0) 
+							perturb[index] = -xnew[index];
+				
+					break;
+				case LIMIT_ZERO_RATES:    // re-perturb rates if they are perturbed to negative values 
+					// This way will result in not a lot of zero rates (none if numIterations >> length(x)),
+					// which may be desirable if we don't want a lot of zero rates
+					while (x[index] + perturb[index] < 0) 
+						perturb[index] = getPerturbation(perturbationFunc,T);	
+					break;
 			}
-			xnew[index] += perturb[index];
-			
-			// RealMatrix doesn't work for some reason... using OpenMapRealMatrix instead.
-			// RealMatrix xnew_clone1 = new RealMatrix(1,nCol); // duplicate of double[] xnew in RealMatrix form (for multiplication with sparse matrix A)
-			DoubleMatrix1D xnew_clone = new DenseDoubleMatrix1D(xnew);
-//			OpenMapRealMatrix xnew_clone = new OpenMapRealMatrix(nCol,1); 
-//			for (i=0; i<nCol; i++) {
-//				xnew_clone.set(i, 0, xnew[i]);
-////				xnew_clone.setEntry(i, 0, xnew[i]);
-//			}
+			xnew[index] += perturb[index]; 
 			
 			
-			// Calculate "energy" of new model (high misfit -> high energy)
-			
-			/*  // Old NON-SPARSE CODE
-			Enew = 0;
-			for (i = 0; i < nRow; i++) {
-				syn[i] = 0;
-				for (j = 0; j < nCol; j++) {
-					syn[i] += A.getEntry(i,j) * xnew[j]; // compute predicted data
-				}
-				misfit[i] = syn[i] - d[i];  // misfit between synthetics and data
-				Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
-			}
-			*/ 
 			
 			// SPARSE IMPLEMENTATION (at least for multiplication of A and xnew -- rest is still clumsy)
-			// lets try a new matrix package...
 			
-//			SparseDoubleMatrix2D xnew_clone_new = new SparseDoubleMatrix2D(xnew_clone.getData());
+			// Make copy of xnew variable of type DoubleMatrix1D
+			// This is used in super-fast sparse matrix multiplication
+			DoubleMatrix1D xnew_clone = new DenseDoubleMatrix1D(xnew);
 			
-			long startMult = System.currentTimeMillis();
-//			OpenMapRealMatrix syn_clone = A.multiply(xnew_clone);
-			
-			// this stores the results in syn
-			DoubleMatrix1D results = A.zMult(xnew_clone, syn);
-			multTime += System.currentTimeMillis() - startMult;
+			// Do forward problem for new perturbed model (calculate synthetics)
+			long startMult = System.currentTimeMillis(); // start time of multiplication
+			A.zMult(xnew_clone, syn); // Sparse Matrix Multiplication: syn=A*xnew
+			multTime += System.currentTimeMillis() - startMult;  // keep track of computational time spent in multiplication step
+
+			// Calculate "energy" of new model (high misfit -> high energy)
 			Enew = 0;
 			for (i = 0; i < nRow; i++) {
-//				syn[i] = syn_clone.getEntry(i,0);
 				misfit[i] = syn.get(i) - d[i];  // misfit between synthetics and data
 				Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 			}
 			
-			//Enew = Math.sqrt(Enew);
-			
 			// Is this a new best?
 			if (Enew < Ebest) {
 				xbest = Arrays.copyOf(xnew, nCol);
-//				for (j = 0; j < nCol; j++) {
-//					xbest[j] = xnew[j];
-//				}
 				Ebest = Enew;
 			}
 
@@ -176,19 +172,14 @@ public class SimulatedAnnealing {
 			if (Enew < E) {
 				P = 1; // Always keep new model if better
 			} else {
-			
 				// Sometimes keep new model if worse (depends on T)
 				P = Math.exp((E - Enew) / (double) T); 
 			}
 			
+			// Use transition probability to determine (via random number draw) if solution is kept
 			if (P > Math.random()) {
 				x = Arrays.copyOf(xnew, nCol);
-//				for (j = 0; j < nCol; j++) {
-//					x[j]=xnew[j];
-//				}
-				E = Enew;
-				//if(D) System.out.println("New soluton kept! E = " + E + ". P = " + P);
-				
+				E = Enew;				
 			}
 			
 		}
@@ -206,4 +197,37 @@ public class SimulatedAnnealing {
 
 
 	
+
+
+
+public static double getPerturbation(GenerationFunctionType perturbationFunc, double T) {
+
+	double perturbation;
+	Random r1 = new Random();
+	double r2;
+	
+	switch (perturbationFunc) {
+		case UNIFORM_NO_TEMP_DEPENDENCE:
+			perturbation = (Math.random()-0.5) * 0.001; // (recommended)
+			break;
+		case GAUSSIAN:
+			perturbation =  (1/Math.sqrt(T)) * r1.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 
+			break;
+		case TANGENT:
+			perturbation = T * 0.001 * Math.tan(Math.PI*Math.random() - Math.PI/2);	
+			break;
+		case POWER_LAW:
+			r2 = Math.random();  
+			perturbation = Math.signum(r2-0.5) * T * 0.001 * (Math.pow(1+1/T,Math.abs(2*r2-1))-1);
+			break;
+		default:
+			throw new IllegalStateException("OH dear.  You missed a Generation Function type.");
+	}
+	
+	return perturbation;
+	
 }
+
+}
+
+
