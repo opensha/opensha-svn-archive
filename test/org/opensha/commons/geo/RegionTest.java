@@ -166,6 +166,16 @@ public class RegionTest {
 		
 	}
 
+	
+	@Test(expected=NullPointerException.class)
+	public final void testRegionLocationLocationNPE1() {
+		Region r = new Region(null, new Location(10,10));
+	}
+	@Test(expected=NullPointerException.class)
+	public final void testRegionLocationLocationNPE2() {
+		Region r = new Region(new Location(10,10), null);
+	}
+
 	@Test
 	public final void testRegionLocationLocation() {
 		
@@ -181,12 +191,6 @@ public class RegionTest {
 			Region r = new Region(L2,L3);
 			fail("Same lon values not caught");
 		} catch (IllegalArgumentException iae) {}
-		try {
-			L1 = null;
-			L2 = null;
-			Region r = new Region(L1,L2);
-			fail("Null argument not caught");
-		} catch (NullPointerException npe) {}
 		
 		// region creation tests
 		LocationList ll1 = smRectRegion1.getBorder();
@@ -452,37 +456,34 @@ public class RegionTest {
 
 	@Test
 	public final void testIsRectangular() {
+		assertTrue(new Region(new Location(10,20), new Location(20,10)).isRectangular());
 		assertTrue("N/A, covered by Area.isRectangular()", true);
 	}
 	
+	// add interior tests
+	@Test(expected=NullPointerException.class)
+	public final void testAddInteriorNPE() {
+		octRegion.addInterior(null);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testAddInteriorIAE1() {
+		octRegion.addInterior(interiorRegion);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testAddInteriorIAE2() {
+		octRegion.addInterior(lgRectMercRegion);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testAddInteriorIAE3() {
+		octRegion.addInterior(circRegion);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testAddInteriorIAE4() {
+		octRegion.addInterior(smRectRegion2);
+	}
+
 	@Test
 	public final void testAddInterior() {
-		//exception - null arg
-		try {
-			octRegion.addInterior(null);
-			fail("Null argument not caught");
-		} catch (NullPointerException e) {}
-		//exception - supplied has interior (non-singular)
-		try {
-			octRegion.addInterior(interiorRegion);
-			fail("Illegal argument not caught");
-		} catch (IllegalArgumentException e) {}
-		//exception - contains: supplied exceeds existing
-		try {
-			smRectRegion1.addInterior(lgRectMercRegion);
-			fail("Illegal argument not caught");
-		} catch (IllegalArgumentException e) {}
-		//exception - contains: supplied overlaps existing
-		try {
-			lgRectMercRegion.addInterior(circRegion);
-			fail("Illegal argument not caught");
-		} catch (IllegalArgumentException e) {}
-		//exception - supplied overlaps an existing interior
-		try {
-			interiorRegion.addInterior(smRectRegion2);
-			fail("Illegal argument not caught");
-		} catch (IllegalArgumentException e) {}
-		
 		// test that interiors array remains null after failed add
 		assertTrue(octRegion.getInteriors() == null);
 		
@@ -679,10 +680,10 @@ public class RegionTest {
 		// test that string rep of circle is correct
 		assertTrue(circRegion.toString().equals(
 				"Region\n" + 
-				"\tMinimum Lat: 31.402717641688902\n" +
-				"\tMinimum Lon: -129.3886473053924\n" + 
-				"\tMaximum Lat: 38.59728235831109\n" + 
-				"\tMaximum Lon: -120.61135269460763"));
+				"\tMinLat: 31.402717641688902\n" +
+				"\tMinLon: -129.3886473053924\n" + 
+				"\tMaxLat: 38.59728235831109\n" + 
+				"\tMaxLon: -120.61135269460763"));
 	}
 	
 	@Test
@@ -694,18 +695,17 @@ public class RegionTest {
 		assertEquals(-90, global.getMinLat(), 0);
 	}
 
+	// test intersect
+	@Test(expected=NullPointerException.class)
+	public final void testIntersectNPE() {
+		Region.intersect(null, interiorRegion);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testIntersectIAE() {
+		Region.intersect(interiorRegion, null);
+	}
 	@Test
-	public final void testIntersect() {
-		//exceptions
-		try {
-			Region.intersect(null, interiorRegion);
-			fail("Null argument not caught");
-		} catch (Exception e) {}
-		try {
-			Region.intersect(interiorRegion, null);
-			fail("Illegal argument not caught");
-		} catch (Exception e) {}
-		
+	public final void testIntersect() {		
 		LocationList ll1, ll2;
 		// partial overlap
 		ll1 = circLgRectIntersect.getBorder();
@@ -724,18 +724,17 @@ public class RegionTest {
 		assertTrue(circSmRectIntersect == null);
 	}
 	
+	// test union
+	@Test(expected=NullPointerException.class)
+	public final void testUnionNPE() {
+		Region.union(null, interiorRegion);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testUnionIAE() {
+		Region.union(interiorRegion, null);
+	}
 	@Test
 	public final void testUnion() {
-		//exceptions
-		try {
-			Region.union(null, interiorRegion);
-			fail("Null argument not caught");
-		} catch (Exception e) {}
-		try {
-			Region.union(interiorRegion, null);
-			fail("Illegal argument not caught");
-		} catch (Exception e) {}
-
 		LocationList ll1, ll2;
 		// partial overlap
 		ll1 = circLgRectUnion.getBorder();
