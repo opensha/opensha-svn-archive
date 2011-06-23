@@ -19,6 +19,8 @@
 
 package org.opensha.commons.geo;
 
+import static com.google.common.base.Preconditions.*;
+
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.util.Arrays;
@@ -29,9 +31,9 @@ import org.dom4j.Element;
 
 
 /**
- * A <code>GriddedRegion</code> is a <code>Region</code> that has been evenly
+ * A <code>GriddedRegion</code> is a <code>Region</code> that has been
  * discretized in latitude and longitude. Each node in a gridded region
- * represents a small area that is an equal number of degrees in width and
+ * represents a small area that is some number of degrees in width and
  * height and is identified by a unique {@link Location} at the geographic
  * (lat-lon) center of the node. <img style="padding: 30px 40px; float: right;" 
  * src="{@docRoot}/img/gridded_regions_border.jpg"/> In the adjacent figure,
@@ -47,11 +49,15 @@ import org.dom4j.Element;
  * A <code>GriddedRegion</code> may be initialized several ways (e.g. as a
  * circle, an area of uniform degree-width and -height, or a buffer around
  * a linear feature). See constructor documentation for illustrative examples.
+ * Each constructor comes in two formats, one that takes a single 'spacing'
+ * value, and one that takes two spacing values, one each for latitude and
+ * longitude.<br/>
+ * <br/>
  * The <code>Location</code>s of the grid nodes are indexed
  * internally in order of increasing longitude then latitude starting with
  * the node at the lowest latitude and longitude in the region.
  * <code>GriddedRegion</code>s are iterable as a shorthand for 
- * <code>getNodeList().iterator()</code>.<br/>
+ * <code>getNodeList().iterator()</code>. <br/>
  * <br/>
  * To ensure grid nodes fall on specific lat-lon values, all constructors
  * take an anchor <code>Location</code> argument. This location can be
@@ -93,10 +99,9 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	/** Convenience reference for an anchor at (0&#176;, 0&#176;). */
 	public final static Location ANCHOR_0_0 = new Location(0,0);
 	
-	// the lat-lon arrays of node points. NOTE these are not really needed 
-	// after initialization and could be done away with
-	private double[] lonNodes;
-	private double[] latNodes;
+	// grid range data
+	private double minGridLat, minGridLon, maxGridLat, maxGridLon;
+	private int numLonNodes, numLatNodes;
 	
 	// the lat-lon arrays of node edges
 	private double[] lonNodeEdges;
@@ -115,10 +120,46 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	private LocationList nodeList;
 	
 	// grid data
-	private double spacing;
+	private double latSpacing;
+	private double lonSpacing;
 	private int nodeCount;
-	private int gridSize;
+	//private int gridSize;
 
+	/**
+	 * Initializes a <code>GriddedRegion</code> from a pair of <code>
+	 * Location</code>s. When viewed in a Mercator projection, the 
+	 * region will be a rectangle. If either both latitude or both longitude
+	 * values are the same, an exception is thrown.<br/>
+	 * <br/>
+	 * <b>Note:</b> In an exception to the rules of insidedness defined
+	 * in the {@link Shape} interface, <code>Location</code>s that fall on
+	 * northern or eastern borders of this region are considered inside. See 
+	 * {@link Region#Region(Location, Location)} for
+	 * implementation details.
+	 * 
+	 * @param loc1 the first <code>Location</code>
+	 * @param loc2 the second <code>Location</code>
+	 * @param latSpacing of grid nodes
+	 * @param lonSpacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if the latitude or longitude values
+	 * 		in the <code>Location</code>s provided are the same or 
+	 * 		<code>spacing</code> is outside the range 0&deg; &lt; <code>spacing
+	 * 		</code> &le; 5&deg;
+	 * @throws NullPointerException if either <code>Location</code> argument
+	 * 		is <code>null</code>
+	 * @see Region#Region(Location, Location)
+	 */
+	public GriddedRegion(
+			Location loc1, 
+			Location loc2, 
+			double latSpacing,
+			double lonSpacing,
+			Location anchor) {
+		super(loc1, loc2);
+		initGrid(latSpacing,lonSpacing, anchor);
+	}
+	
 	/**
 	 * Initializes a <code>GriddedRegion</code> from a pair of <code>
 	 * Location</code>s. When viewed in a Mercator projection, the 
@@ -146,12 +187,40 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public GriddedRegion(
 			Location loc1, 
 			Location loc2, 
-			double spacing, 
+			double spacing,
 			Location anchor) {
-		super(loc1, loc2);
-		initGrid(spacing, anchor);
+		this(loc1, loc2, spacing, spacing, anchor);
 	}
-
+	
+	/**
+	 * Initializes a <code>GriddedRegion</code> from a list of border locations.
+	 * The border type specifies whether lat-lon values are treated as points
+	 * in an orthogonal coordinate system or as connecting great circles.
+	 * 
+	 * @param border Locations
+	 * @param type the {@link BorderType} to use when initializing;
+	 * 		a <code>null</code> value defaults to 
+	 * 		<code>BorderType.MERCATOR_LINEAR</code>
+	 * @param latSpacing of grid nodes
+	 * @param lonSpacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if the <code>border</code> does not 
+	 * 		have at least 3 points or <code>spacing</code> is outside the 
+	 * 		range 0&deg; &lt; <code>spacing</code> &le; 5&deg;
+	 * @throws NullPointerException if the <code>border</code> is 
+	 * 		<code>null</code>
+	 * @see Region#Region(LocationList, BorderType)
+	 */
+	public GriddedRegion(
+			LocationList border, 
+			BorderType type, 
+			double latSpacing,
+			double lonSpacing,
+			Location anchor) {
+		super(border, type);
+		initGrid(latSpacing,lonSpacing, anchor);
+	}
+	
 	/**
 	 * Initializes a <code>GriddedRegion</code> from a list of border locations.
 	 * The border type specifies whether lat-lon values are treated as points
@@ -173,12 +242,50 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public GriddedRegion(
 			LocationList border, 
 			BorderType type, 
-			double spacing, 
+			double spacing,
 			Location anchor) {
-		super(border, type);
-		initGrid(spacing, anchor);
+		this(border, type, spacing, spacing, anchor);
 	}
-	
+
+	/**
+	 * Initializes a circular <code>GriddedRegion</code>. Internally,
+	 * the centerpoint and radius are used to create a circular region
+	 * composed of straight line segments that span 10&deg; wedges. 
+	 * <img style="padding: 30px 40px; float: right;" 
+	 * src="{@docRoot}/img/gridded_regions_circle.jpg"/> In 
+	 * the adjacent figure, the heavy black line marks the border of the 
+	 * <code>Region</code>. The light gray dots mark the <code>Location</code>s
+	 * of nodes outside the region, and black dots those inside the region.
+	 * The dashed grey line marks the border, inside which, a 
+	 * <code>Location</code> will be associated with a grid node. See {@link 
+	 * GriddedRegion#indexForLocation(Location)} 
+	 * for more details on rules governing whether a grid node is inside
+	 * a region and whether a <code>Location</code> will be associated 
+	 * with a grid node.<br/>
+	 * <br/>
+	 * 
+	 * @param center of the circle
+	 * @param radius of the circle
+	 * @param latSpacing of grid nodes
+	 * @param lonSpacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if <code>radius</code> is outside the
+	 * 		range 0 km &lt; <code>radius</code> &le; 1000 km or <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
+	 * 		&le; 5&deg;
+	 * @throws NullPointerException if <code>center</code> is null
+	 * @see Region#Region(Location, double)
+	 */
+	public GriddedRegion(
+			Location center, 
+			double radius, 
+			double latSpacing, 
+			double lonSpacing,
+			Location anchor) {
+		super(center, radius);
+		initGrid(latSpacing,lonSpacing, anchor);
+	}
+
 	/**
 	 * Initializes a circular <code>GriddedRegion</code>. Internally,
 	 * the centerpoint and radius are used to create a circular region
@@ -212,10 +319,46 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			double radius, 
 			double spacing, 
 			Location anchor) {
-		super(center, radius);
-		initGrid(spacing, anchor);
+		this(center, radius, spacing, spacing, anchor);
 	}
-
+	
+	/**
+	 * Initializes a <code>GriddedRegion</code> as a buffered area around a
+	 * line. In the adjacent figure, the heavy black line marks the border of 
+	 * the <code>Region</code>. <img style="padding: 30px 40px; float: right;" 
+	 * src="{@docRoot}/img/gridded_regions_buffer.jpg"/> The light gray 
+	 * dots mark the <code>Location</code>s of nodes
+	 * outside the region, and black dots those inside the region.
+	 * The dashed grey line marks the border, inside which, a 
+	 * <code>Location</code> will be associated with a grid node. See {@link 
+	 * GriddedRegion#indexForLocation(Location)} 
+	 * for more details on rules governing whether a grid node is inside
+	 * a region and whether a <code>Location</code> will be associated 
+	 * with a grid node.<br/><br/>
+	 * <br/>
+	 * 
+	 * @param line at center of buffered region
+	 * @param buffer distance from line
+	 * @param latSpacing of grid nodes
+	 * @param lonSpacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws NullPointerException if <code>line</code> is null
+	 * @throws IllegalArgumentException if <code>buffer</code> is outside the
+	 * 		range 0 km &lt; <code>buffer</code> &le; 500 km or <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
+	 * 		&le; 5&deg;
+	 * @see Region#Region(LocationList, double)
+	 */
+	public GriddedRegion(
+			LocationList line, 
+			double buffer, 
+			double latSpacing,
+			double lonSpacing,
+			Location anchor) {
+		super(line, buffer);
+		initGrid(latSpacing,lonSpacing, anchor);
+	}
+	
 	/**
 	 * Initializes a <code>GriddedRegion</code> as a buffered area around a
 	 * line. In the adjacent figure, the heavy black line marks the border of 
@@ -245,10 +388,31 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public GriddedRegion(
 			LocationList line, 
 			double buffer, 
-			double spacing, 
+			double spacing,
 			Location anchor) {
-		super(line, buffer);
-		initGrid(spacing, anchor);
+		this(line, buffer, spacing, spacing, anchor);
+	}
+	
+	/**
+	 * Initializes a <code>GriddedRegion</code> with a <code>Region</code>.
+	 * 
+	 * @param region to use as border for new <code>GriddedRegion</code>
+	 * @param latSpacing of grid nodes
+	 * @param lonSpacing of grid nodes
+	 * @param anchor <code>Location</code> for grid; may be <code>null</code>
+	 * @throws IllegalArgumentException if <code>spacing
+	 * 		</code> is outside the range 0&deg; &lt; <code>spacing</code> 
+	 * 		&le; 5&deg;
+	 * @throws NullPointerException if <code>region</code> is <code>null</code>
+	 * @see Region#Region(Region)
+	 */
+	public GriddedRegion(
+			Region region, 
+			double latSpacing,
+			double lonSpacing,
+			Location anchor) {
+		super(region);
+		initGrid(latSpacing, lonSpacing, anchor);
 	}
 	
 	/**
@@ -267,16 +431,41 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			Region region, 
 			double spacing,
 			Location anchor) {
-		super(region);
-		initGrid(spacing, anchor);
+		this(region, spacing, spacing, anchor);
 	}
 	
 	/**
-	 * Returns the grid node spacing for this region.
+	 * Returns the longitudinal grid node spacing for this region.
+	 * @return the longitudinal grid node spacing (in degrees)
+	 */
+	public double getLatSpacing() {
+		return latSpacing;
+	}
+
+	/**
+	 * Returns the latitudinal grid node spacing for this region.
+	 * @return the latitudinal grid node spacing (in degrees)
+	 */
+	public double getLonSpacing() {
+		return lonSpacing;
+	}
+	
+	/**
+	 * Returns the grid node spacing for this region. If the lat and lon node
+	 * spacing differs, method defaults to {@link #getLatSpacing()}.
 	 * @return the grid node spacing (in degrees)
 	 */
 	public double getSpacing() {
-		return spacing;
+		return latSpacing;
+	}
+
+	/**
+	 * Returns whether the lat and lon spacing are the same.
+	 * @return <code>true</code> if lat and lon spacing are the same;
+	 *         <code>false</code> otherwise.
+	 */
+	public boolean isSpacingUniform() {
+		return latSpacing == lonSpacing;
 	}
 
 	/**
@@ -313,7 +502,8 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public boolean equalsRegion(GriddedRegion gr) {
 		if (!super.equalsRegion(gr)) return false;
 		if (!gr.anchor.equals(anchor)) return false;
-		if (gr.spacing != spacing) return false;
+		if (gr.latSpacing != latSpacing) return false;
+		if (gr.lonSpacing != lonSpacing) return false;
 		return true;
 	}
 	
@@ -330,7 +520,8 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public int hashCode() {
 		return super.hashCode() ^ 
 				anchor.hashCode() ^ 
-				Double.valueOf(spacing).hashCode();
+				Double.valueOf(latSpacing).hashCode() ^
+				Double.valueOf(lonSpacing).hashCode();
 	}
 	
 	/**
@@ -339,7 +530,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 */
 	@Override
 	public GriddedRegion clone() {
-		return new GriddedRegion(this, spacing, anchor);
+		return new GriddedRegion(this, latSpacing, lonSpacing, anchor);
 	}
 	
 	/**
@@ -354,7 +545,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * <br/>
 	 * Note that the returned <code>GriddedRegion</code> may be
 	 * devoid of grid nodes, e.g. in cases where the sub-region is too small to 
-	 * contain any nodes of the parent grid. Sucha asituation may arise if the
+	 * contain any nodes of the parent grid. Such a situation may arise if the
 	 * sub-region represents the area of influence of a small magnitude
 	 * earthquake or aftershock. If the closest point to the sub-region in 
 	 * the parent grid is desired, then compute the subRegionCentroid and use:
@@ -375,7 +566,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public GriddedRegion subRegion(Region region) {
 		Region newRegion = Region.intersect(this, region);
 		if (newRegion == null) return null;
-		return new GriddedRegion(newRegion, spacing, anchor);
+		return new GriddedRegion(newRegion, latSpacing,lonSpacing, anchor);
 	}
 	
 	/**
@@ -479,52 +670,56 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		if (lonIndex == -1) return -1;
 		int latIndex = getNodeIndex(latNodeEdges, loc.getLatitude());
 		if (latIndex == -1) return -1;
-		int gridIndex = ((latIndex) * lonNodes.length) + lonIndex;
+		int gridIndex = ((latIndex) * numLonNodes) + lonIndex;
 		return gridIndices[gridIndex];
 	}
 	
 	/**
 	 * Returns the minimum grid latitude. Note that there may not actually be
-	 * any nodes at this latitude. See class <a href="#note">note</a>.
+	 * any nodes at this latitude. See class <a href="#note">note</a>. If the
+	 * region is devoid of nodes, method will return <code>Double.NaN</code>.
 	 * 
 	 * @return the minimum grid latitude
 	 * @see Region#contains(Location)
 	 */
 	public double getMinGridLat() {
-		return latNodes[0];
+		return minGridLat;
 	}
 
 	/**
 	 * Returns the maximum grid latitude. Note that there may not actually be
-	 * any nodes at this latitude. See class <a href="#note">note</a>.
+	 * any nodes at this latitude. See class <a href="#note">note</a>. If the
+	 * region is devoid of nodes, method will return <code>Double.NaN</code>.
 	 * 
 	 * @return the maximum grid latitude
 	 * @see Region#contains(Location)
 	 */
 	public double getMaxGridLat() {
-		return latNodes[latNodes.length-1];
+		return maxGridLat;
 	}
 
 	/**
 	 * Returns the minimum grid longitude. Note that there may not actually be
-	 * any nodes at this longitude. See class <a href="#note">note</a>.
+	 * any nodes at this longitude. See class <a href="#note">note</a>. If the
+	 * region is devoid of nodes, method will return <code>Double.NaN</code>.
 	 * 
 	 * @return the minimum grid longitude
 	 * @see Region#contains(Location)
 	 */
 	public double getMinGridLon() {
-		return lonNodes[0];
+		return minGridLon;
 	}
 
 	/**
 	 * Returns the maximum grid longitude. Note that there may not actually be
-	 * any nodes at this longitude. See class <a href="#note">note</a>.
+	 * any nodes at this longitude. See class <a href="#note">note</a>. If the
+	 * region is devoid of nodes, method will return <code>Double.NaN</code>.
 	 * 
 	 * @return the maximum grid longitude
 	 * @see Region#contains(Location)
 	 */
 	public double getMaxGridLon() {
-		return lonNodes[lonNodes.length-1];
+		return maxGridLon;
 	}
 	
 	@Override
@@ -558,7 +753,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		Location xml_anchor = Location.fromXMLMetadata(root.element(
 				XML_METADATA_ANCHOR_NAME).element(Location.XML_METADATA_NAME));
 		return new GriddedRegion(
-				outline,BorderType.MERCATOR_LINEAR, gridSpacing, xml_anchor);
+				outline,BorderType.MERCATOR_LINEAR, gridSpacing,gridSpacing, xml_anchor);
 	}
 
 	/*
@@ -581,20 +776,21 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	}
 
 	/* grid setup */
-	private void initGrid(double spacing, Location anchor) {
-		setSpacing(spacing);
+	private void initGrid(double latSpacing,double lonSpacing, Location anchor) {
+		setSpacing(latSpacing,lonSpacing);
 		setAnchor(anchor);
-		initLatLonArrays();
 		initNodes();
 	}
 
 	/* Sets the gid node spacing. */
-	private void setSpacing(double spacing) {
-		if (spacing <= 0 || spacing > 5) {
-			throw new IllegalArgumentException(
-					"Grid spacing must be 0\u00B0 \u003E S \u2265 5\u00B0");
-		}
-		this.spacing = spacing;
+	private void setSpacing(double latSpacing,double lonSpacing) {
+		String mssg = "spacing [%s] must be 0\u00B0 \u003E S \u2265 5\u00B0";
+		checkArgument((latSpacing > 0 && latSpacing <= 5), "Latitude" + mssg,
+			latSpacing);
+		checkArgument((lonSpacing > 0 && lonSpacing <= 5), "Longitude" + mssg,
+			lonSpacing);
+		this.latSpacing = latSpacing;
+		this.lonSpacing = lonSpacing;
 	}
 
 	/*
@@ -609,9 +805,9 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 			this.anchor = new Location(getMinLat(), getMinLon());
 		} else {
 			double newLat = computeAnchor(
-					getMinLat(), anchor.getLatitude(), spacing);
+					getMinLat(), anchor.getLatitude(), latSpacing);
 			double newLon = computeAnchor(
-					getMinLon(), anchor.getLongitude(), spacing);
+					getMinLon(), anchor.getLongitude(), lonSpacing);
 			this.anchor = new Location(newLat, newLon);
 		}
 	}
@@ -628,9 +824,31 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		return MathUtils.round(newAnchor, 8);
 	}
 
-	/* Initilize the grid index and Location arrays */
+	/* Initilize the grid index, node edge, and Location arrays */
 	private void initNodes() {
-		gridSize = lonNodes.length * latNodes.length;
+		
+		// temp node center arrays
+		double[] lonNodes = initNodeCenters(anchor.getLongitude(), getMaxLon(),
+			lonSpacing);
+		double[] latNodes = initNodeCenters(anchor.getLatitude(), getMaxLat(),
+			latSpacing);
+		
+		// node edge arrays
+		lonNodeEdges = initNodeEdges(anchor.getLongitude(), getMaxLon(),
+			lonSpacing);
+		latNodeEdges = initNodeEdges(anchor.getLatitude(), getMaxLat(),
+			latSpacing);
+		
+		// range data
+		numLatNodes = latNodes.length;
+		numLonNodes = lonNodes.length;
+		minGridLat = (numLatNodes != 0) ? latNodes[0] : Double.NaN;
+		maxGridLat = (numLatNodes != 0) ? latNodes[numLatNodes-1] : Double.NaN;
+		minGridLon = (numLonNodes != 0) ? lonNodes[0] : Double.NaN;
+		maxGridLon = (numLonNodes != 0) ? lonNodes[numLonNodes-1] : Double.NaN;
+		int gridSize = numLonNodes * numLatNodes;
+		
+		// node data
 		gridIndices = new int[gridSize];
 		nodeList = new LocationList();
 		int node_idx = 0;
@@ -651,28 +869,6 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		nodeCount = node_idx;
 	}
 	
-	/* Initialize internal grid node center and edge arrays */
-	private void initLatLonArrays() {
-		lonNodes = initNodeCenters(
-				anchor.getLongitude(), getMaxLon(), spacing);
-		latNodes = initNodeCenters(
-				anchor.getLatitude(), getMaxLat(), spacing);
-		lonNodeEdges = initNodeEdges(
-				anchor.getLongitude(), getMaxLon(), spacing);
-		latNodeEdges = initNodeEdges(
-				anchor.getLatitude(), getMaxLat(), spacing);
-		
-		// System.out.println(anchor);
-		// ToStringBuilder tsb = new ToStringBuilder(lonNodes);
-		// System.out.println(tsb.append(lonNodes).toString());
-		// tsb = new ToStringBuilder(latNodes);
-		// System.out.println(tsb.append(latNodes).toString());
-		// tsb = new ToStringBuilder(lonNodeEdges);
-		// System.out.println(tsb.append(lonNodeEdges).toString());
-		// tsb = new ToStringBuilder(latNodeEdges);
-		// System.out.println(tsb.append(latNodeEdges).toString());
-	}
-
 	/*
 	 * Initializes an array of node centers. The first (lowest) bin is 
 	 * centered on the min value.
