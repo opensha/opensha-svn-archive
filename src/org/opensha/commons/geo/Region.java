@@ -55,7 +55,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * between two points. Over small distances, great circle paths are 
  * approximately the same as linear, Mercator paths. Over longer distances, a 
  * great circle is a better representation of a line on a globe. Internally, 
- * great circles are approximated by multple straight line segments that have a
+ * great circles are approximated by multiple straight line segments that have a
  * maximum length of 100km.<br/>
  * <br/>
  * A <code>Region</code> may also have interior (or negative) areas.
@@ -108,7 +108,6 @@ public class Region implements Serializable, XMLSaveable, Named {
 	/* empty constructor for internal use */
 	private Region() {}
 
-	
 	/**
 	 * Initializes a <code>Region</code> from a pair of <code>Location
 	 * </code>s. When viewed in a Mercator projection, the <code>Region</code>
@@ -132,19 +131,16 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 */
 	public Region(Location loc1, Location loc2) {
 		
-		if (loc1 == null || loc2 == null) {
-			throw new NullPointerException();
-		}
+		checkNotNull(loc1, "Supplied location (1) is null");
+		checkNotNull(loc1, "Supplied location (2) is null");
 		
 		double lat1 = loc1.getLatitude();
 		double lat2 = loc2.getLatitude();
 		double lon1 = loc1.getLongitude();
 		double lon2 = loc2.getLongitude();
 		
-		if (lat1 == lat2 || lon1 == lon2) {
-			throw new IllegalArgumentException(
-					"Input lats or lons cannot be the same");
-		}
+		checkArgument(lat1 != lat2, "Input lats cannot be the same");
+		checkArgument(lon1 != lon2, "Input lons cannot be the same");
 
 		LocationList ll = new LocationList();
 		double minLat = Math.min(lat1,lat2);
@@ -182,16 +178,10 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 * @throws IllegalArgumentException if the border
 	 */
 	public Region(LocationList border, BorderType type) {
-		if (border == null) {
-			throw new NullPointerException();
-		} else if (border.size() < 3) {
-			// quick check for empty; recheck on init
-			// because 3 points in a row are also empty
-			throw new IllegalArgumentException(
-					"Border must have at least 3 vertices");
-		} else if (type == null) {
-			type = BorderType.MERCATOR_LINEAR;
-		}
+		checkNotNull(border, "Supplied border is null");
+		checkArgument(border.size() >= 3,
+			"Supplied border must have at least 3 vertices");
+		if (type == null) type = BorderType.MERCATOR_LINEAR;
 		initBorderedRegion(border, type);
 	}
 
@@ -207,12 +197,9 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 * @throws NullPointerException if <code>center</code> is <code>null</code>
 	 */
 	public Region(Location center, double radius) {
-		if (radius <= 0 || radius > 1000) {
-			throw new IllegalArgumentException(
-					"Radius is out of [0 1000] km range");
-		} else if (center == null) {
-			throw new NullPointerException();
-		}
+		checkNotNull(center, "Supplied center Location is null");
+		checkArgument((radius > 0 && radius <= 1000),
+			"Radius [%s] is out of [0 1000] km range", radius);
 		initCircularRegion(center, radius);
 	}
 	
@@ -226,15 +213,10 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 * 		range 0 km &lt; <code>buffer</code> &le; 500 km
 	 */
 	public Region(LocationList line, double buffer) {
-		if (buffer <= 0 || buffer > 500) {
-			throw new IllegalArgumentException(
-					"Buffer is out of [0 500] km range");
-		} else if (line == null) {
-			throw new NullPointerException();
-		} else if (line.size() == 0) {
-			throw new IllegalArgumentException(
-					"LocationList argument is empty");
-		}
+		checkNotNull(line, "Supplied LocationList is null");
+		checkArgument(!line.isEmpty(), "Supplied LocationList is empty");
+		checkArgument((buffer > 0 && buffer <= 500),
+			"Buffer [%s] is out of [0 500] km range", buffer);
 		initBufferedRegion(line, buffer);
 	}
 	
@@ -248,9 +230,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 	public Region(Region region) {
 		// don't use validateRegion() b/c we can accept 
 		// regions with interiors
-		if (region == null) {
-			throw new NullPointerException("Supplied Region is null");
-		}
+		checkNotNull(region, "Supplied Region is null");
 		this.name = region.name;
 		this.border = region.border.clone();
 		this.area = (Area) region.area.clone();
@@ -271,7 +251,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 * <b><i>NOTE</i></b>: By using an {@link Area} internally to manage this 
 	 * <code>Region</code>'s geometry, there are instances where rounding
 	 * errors may cause <code>contains(Location)</code> to yeild unexpected 
-	 * results. For instance, although a <code>Region</code>'s<br/>
+	 * results. For instance, although a <code>Region</code>'s
 	 * southernmost point might be initially defined as 40.0&#176;, the internal
 	 * <code>Area</code> may return 40.0000000000001 on a call to 
 	 * <code>getMinLat()</code> and calls to 
@@ -334,11 +314,9 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 */
 	public void addInterior(Region region) {
 		validateRegion(region); // test for non-singularity or null
-		if (!contains(region)) {
-			throw new IllegalArgumentException(
-					"Region must completely contain supplied interior Region");
-		}
-		
+		checkArgument(contains(region),
+			"Region must completely contain supplied interior Region");
+
 		LocationList newInterior = region.border.clone();
 		// ensure no overlap with existing interiors
 		Area newArea = createArea(newInterior);
@@ -346,10 +324,8 @@ public class Region implements Serializable, XMLSaveable, Named {
 			for (LocationList interior : interiors) {
 				Area existing = createArea(interior);
 				existing.intersect(newArea);
-				if (!existing.isEmpty()) {
-					throw new IllegalArgumentException(
-							"Supplied interior Region overlaps existing interiors");
-				}
+				checkArgument(existing.isEmpty(),
+					"Supplied interior Region overlaps existing interiors");
 			}
 		} else {
 			interiors = new ArrayList<LocationList>();
@@ -497,10 +473,10 @@ public class Region implements Serializable, XMLSaveable, Named {
 	@Override
 	public String toString() {
 		String str = "Region\n" + 
-					 "\tMinimum Lat: " + this.getMinLat() + "\n" + 
-					 "\tMinimum Lon: " + this.getMinLon() + "\n" + 
-					 "\tMaximum Lat: " + this.getMaxLat() + "\n" +
-					 "\tMaximum Lon: " + this.getMaxLon();
+					 "\tMinLat: " + this.getMinLat() + "\n" + 
+					 "\tMinLon: " + this.getMinLon() + "\n" + 
+					 "\tMaxLat: " + this.getMaxLat() + "\n" +
+					 "\tMaxLon: " + this.getMaxLon();
 		return str;
 	}
 	
@@ -607,11 +583,8 @@ public class Region implements Serializable, XMLSaveable, Named {
 	
 	/* Validator for geometry operations */
 	private static void validateRegion(Region r) {
-		if (r == null) {
-			throw new NullPointerException("Supplied Region is null");
-		} else if (!r.area.isSingular()) {
-			throw new IllegalArgumentException("Region must be singular");
-		}
+		checkNotNull(r, "Supplied Region is null");
+		checkArgument(r.area.isSingular(), "Region must be singular");
 	}
 
 	/* 
@@ -640,13 +613,9 @@ public class Region implements Serializable, XMLSaveable, Named {
 		Area area = new Area(path);
 		// final checks on area generated, this is redundant for some
 		// constructors that perform other checks on inputs
-		if (area.isEmpty()) {
-			throw new IllegalArgumentException(
-					"Area is empty");
-		} else if (!area.isSingular()) {			
-			throw new IllegalArgumentException(
-					"Area is not a single closed path");
-		}
+		checkArgument(!area.isEmpty(), "Internally computed Area is empty");
+		checkArgument(area.isSingular(),
+			"Internally computed Area is not a single closed path");
 
 		return area;
 	}
