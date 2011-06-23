@@ -49,6 +49,7 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
  * @author Field & Page
  *
  */
+@Deprecated
 public class RupsInFaultSystemInversion {
 
 	protected final static boolean D = true;  // for debugging

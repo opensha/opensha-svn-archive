@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
@@ -29,7 +30,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.final
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
-
+@Deprecated
 public class TestInversion {
 
 	protected final static boolean D = true;  // for debugging
@@ -91,19 +92,27 @@ public class TestInversion {
 		 * D2.5 = 86
 		 * D2.6 = 87
 		 */
-		deformationModelId = 82;	
+//		deformationModelId = 82;	
 		
 		// Create subSectionPrefDataList
 		if(D) System.out.println("Making subsections...");
 //		createAllSubSections();
 //		createBayAreaSubSections(); 
-		createNorthCalSubSections();
+//		createNorthCalSubSections();
 		
 		// create (or read) subSectionDistances[i][j]
-		calcSubSectionDistances();
+//		calcSubSectionDistances();
 		
 		// create (or read) subSectionAzimuths[i][j]
-		calcSubSectionAzimuths();
+//		calcSubSectionAzimuths();
+		
+		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir);
+		subSectionPrefDataList = deformationModelFetcher.getSubSectionList();
+		numSubSections = subSectionPrefDataList.size();
+		subSectionAzimuths=deformationModelFetcher.getSubSectionAzimuthMatrix();
+		subSectionDistances=deformationModelFetcher.getSubSectionDistanceMatrix();
+		
+		
 		
 		// Instantiate rupsInFaultSysInv
 		rupsInFaultSysInv = new RupsInFaultSystemInversion(subSectionPrefDataList,
