@@ -129,6 +129,7 @@
 			fork="true"
 			failonerror="true"
 			dir="../">
+			<jvmarg value="-Djava.awt.headless=true"/>
 			<classpath>
 				<pathelement location="${build}" />
 				<path refid="library.classpath" />
@@ -142,6 +143,7 @@
 			fork="true"
 			failonerror="true"
 			dir="../">
+			<jvmarg value="-Djava.awt.headless=true"/>
 			<classpath>
 				<pathelement location="${build}" />
 				<path refid="library.classpath" />
