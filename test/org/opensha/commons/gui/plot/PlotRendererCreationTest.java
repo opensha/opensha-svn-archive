@@ -7,6 +7,7 @@ import java.awt.Stroke;
 
 import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.junit.Test;
 
@@ -26,8 +27,11 @@ public class PlotRendererCreationTest {
 			Stroke fromRend = stdRend.getBaseStroke();
 			assertNotNull("stroke should not be null!", fromRend);
 		} else {
-			assertTrue("renderer should have lines & isn'tsymbol compatible, but isn't correct type for sym="+plt,
-					renderer instanceof StackedXYBarRenderer);
+			String msg = "renderer should have lines & isn'tsymbol compatible, but isn't correct type for sym="+plt;
+			if (plt == PlotLineType.HISTOGRAM)
+				assertTrue(msg, renderer instanceof XYBarRenderer);
+			else if (plt == PlotLineType.STACKED_BAR)
+				assertTrue(msg, renderer instanceof StackedXYBarRenderer);
 		}
 	}
 	
