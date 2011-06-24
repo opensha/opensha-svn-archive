@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 
 import com.google.common.base.Preconditions;
@@ -110,13 +111,15 @@ public enum PlotLineType {
 		XYItemRenderer renderer = null;
 		if (plt != null) {
 			Preconditions.checkArgument(lineWidth > 0, "line widht must be >0");
-			if (plt == HISTOGRAM || plt == STACKED_BAR) {
+			if (plt == HISTOGRAM) {
+				XYBarRenderer xyRend = new XYBarRenderer();
+				xyRend.setShadowVisible(false);
+				xyRend.setMargin(0.1);
+				xyRend.setBarPainter(new StandardXYBarPainter());
+				renderer = xyRend;
+			} else if (plt == STACKED_BAR) {
 				StackedXYBarRenderer sbRend = new StackedXYBarRenderer();
 				sbRend.setShadowVisible(false);
-				if (plt == HISTOGRAM) {
-					sbRend.setMargin(0.1);
-					sbRend.setBarPainter(new StandardXYBarPainter());
-				}
 				renderer = sbRend;
 			} else {
 				int type = sym == null ? StandardXYItemRenderer.LINES : StandardXYItemRenderer.SHAPES_AND_LINES;
