@@ -687,8 +687,8 @@ public class RupsInFaultSystemInversion {
 		int numRows=numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (relativeMagDistWt > 0.0) {
-			findUCERF2_Rups.getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
-			findUCERF2_Rups.getN_CalTotalTargetGR_MFD();
+//			findUCERF2_Rups.getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
+//			findUCERF2_Rups.getN_CalTotalTargetGR_MFD();
 			targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
 			numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
 		}

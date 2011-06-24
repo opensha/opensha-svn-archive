@@ -906,6 +906,13 @@ public class FindEquivUCERF2_Ruptures {
 	public IncrementalMagFreqDist getN_CalTargetMinusBackground_MFD() {
 		if(nCalTargetMinusBackground != null)
 			return nCalTargetMinusBackground;
+		
+		// create the other MFDs if they don't exist
+		if(nCalTotalTargetGR_MFD == null)
+			getN_CalTotalTargetGR_MFD();
+		if(nCal_UCERF2_BackgrMFD_WithAftShocks == null)
+			getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
+
 		nCalTargetMinusBackground= new IncrementalMagFreqDist(5.05,35,0.1);
 		for(int m=0; m<nCalTargetMinusBackground.getNum();m++)
 			nCalTargetMinusBackground.set(m,nCalTotalTargetGR_MFD.getY(m)-nCal_UCERF2_BackgrMFD_WithAftShocks.getY(m));
