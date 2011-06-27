@@ -17,19 +17,39 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * In addition to adding two methods to the FaultSystemRupSet interface (to get the rate of 
  * each rupture), this class contains many common utility methods for both types of subclass.
  * 
+ * Notes:
+ * 
+ * 1) the getProbPaleoVisible(mag) method may become more complicated (e.g., site specific)
+ * 
  * 
  * @author Field, Milner, Page, and Powers
  *
  */
 public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	
-		
+	/**
+	 * Thise gives the long-term rate (events/yr) of the rth rupture
+	 * @param rupIndex
+	 * @return
+	 */
 	public abstract double getRateForRup(int rupIndex);
 	
-	
+	/**
+	 * Thise gives the long-term rate (events/yr) of all ruptures
+	 * @param rupIndex
+	 * @return
+	 */
 	public abstract double[] getRateForAllRups();
 
 	
+	/**
+	 * This computes the participation rate (events/yr) of the sth section for magnitudes 
+	 * greater and equal to magLow and less than magHigh.
+	 * @param sectIndex
+	 * @param magLow
+	 * @param magHigh
+	 * @return
+	 */
 	public double getParticRateForSect(int sectIndex, double magLow, double magHigh) {
 		double partRate=0;
 		for(int r=0;r<this.getNumRupRuptures();r++) {
@@ -42,6 +62,14 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	
+	/**
+	 * This computes the participation rate (events/yr) of all sections for magnitudes 
+	 * greater and equal to magLow and less than magHigh.
+	 * @param sectIndex
+	 * @param magLow
+	 * @param magHigh
+	 * @return
+	 */
 	public double[] getParticRateForAllSects(double magLow, double magHigh) {
 		double[] partRate = new double[getNumSections()];
 		for(int s=0;s<partRate.length;s++) {
@@ -51,6 +79,12 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	
+	/**
+	 * This computes the total participation rate (events/yr) of the sth section.
+	 * 
+	 * @param sectIndex
+	 * @return
+	 */
 	public double getTotParticRateForSect(int sectIndex) {
 		double partRate=0;
 		for(int r=0;r<this.getNumRupRuptures();r++) {
@@ -61,6 +95,11 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	
+	/**
+	 * This computes the total participation rate (events/yr) for all sections.
+	 * 
+	 * @return
+	 */
 	public double[] getTotParticRateForAllSects() {
 		double[] partRate = new double[getNumSections()];
 		for(int s=0;s<partRate.length;s++) {
@@ -70,6 +109,14 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	
+	/**
+	 * This gives the total paleoseismically observable rate (events/yr) of the sth section.
+	 * the probability of observing an event is given by the getProbPaleoVisible(mag)
+	 * method.
+	 * 
+	 * @param sectIndex
+	 * @return
+	 */
 	public double getTotPaleoVisibleRateForSect(int sectIndex) {
 		double partRate=0;
 		for(int r=0;r<getNumRupRuptures();r++) {
@@ -80,6 +127,13 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 
 	
+	/**
+	 * This gives the total paleoseismically observable rate of all sections.
+	 * the probability of observing an event is given by the getProbPaleoVisible(mag)
+	 * method
+	 * 
+	 * @return
+	 */
 	public double[] getTotPaleoVisibleRateForAllSects() {
 		double[] partRate = new double[getNumSections()];
 		for(int s=0;s<partRate.length;s++) {
@@ -88,7 +142,12 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		return partRate;
 	}
 	
-	
+	/**
+	 * This computes the slip rate of the sth section (meters/year))
+	 * 
+	 * @param sectIndex
+	 * @return
+	 */
 	public double getSlipRateForSect(int sectIndex) {
 		double slipRate=0;
 		for(int r=0;r<getNumRupRuptures();r++)
@@ -99,6 +158,11 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 
 	
+	/**
+	 * This computes the slip rate of all sections (meters/year))
+	 * 
+	 * @return
+	 */
 	public double[] getSlipRateForAllSects()  {
 		double[] slipRate = new double[getNumSections()];
 		for(int s=0;s<slipRate.length;s++) {

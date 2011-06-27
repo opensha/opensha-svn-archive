@@ -4,6 +4,8 @@
 package scratch.UCERF3;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.FaultMomentCalc;
@@ -15,9 +17,20 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.FaultSectionDataWriter;
 
 /**
  * This class represents a FaultSystemRupSet for the Grand Inversion.
+ * 
+ * Important Notes:
+ * 
+ * 1) If the sections are actually subsections of larger sections, then the method 
+ * computeCloseSubSectionsListList() only allows one connection between parent sections
+ * (to avoid ruptures jumping back and forth for closely spaced and parallel sections).
+ * Is this potentially problematic?
+ * 
+ * 2) Aseismicity reduces area here
+ *
  * 
  * TO DO:
  * 
@@ -33,7 +46,12 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
  *    3) Save everything except the sectionClusterList and change this class to not require
  *       the sectionClusterList after construction (but then it won't be avail to SCEC VDO)
  * 
- * b) Add comments
+ * b) Make the moment-rate reduction better (section specific)?
+ * 
+ * c) Add the following methods from the old version (RupsInFaultSystemInversion) ????:
+ * 
+ * 		writeCloseSubSections() 
+ * 
  * 
  * @author Field, Milner, Page, & Powers
  *
@@ -106,7 +124,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		this.slipModelType=slipModelType;
 		this.precomputedDataDir = precomputedDataDir;
 		
-		infoString += "FaultSystemRupSet Parameter Settings:\n\n";
+		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
 		infoString += "\tdefModName = " +defModName+ "\n";
 		infoString += "\tmaxJumpDist = " +maxJumpDist+ "\n";
 		infoString += "\tmaxAzimuthChange = " +maxAzimuthChange+ "\n";
@@ -342,6 +360,51 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		}
 	}
 	
+	  /**
+	   * This writes the rupture sections to an ASCII file
+	   * @param filePathAndName
+	   */
+	  public void writeRupsToFiles(String filePathAndName) {
+		  FileWriter fw;
+		  try {
+			  fw = new FileWriter(filePathAndName);
+			  fw.write("rupID\tclusterID\trupInClustID\tmag\tnumSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
+			  int rupIndex = 0;
+			  
+			  for(int c=0;c<sectionClusterList.size();c++) {
+				  ArrayList<ArrayList<Integer>>  rups = sectionClusterList.get(c).getSectionIndicesForRuptures();
+				  for(int r=0; r<rups.size();r++) {
+					  ArrayList<Integer> rup = rups.get(r);
+					  String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(r)+"\t"+
+					  				(float)rupMeanMag[rupIndex]+"\t"+rup.size();
+					  for(Integer sectID: rup) {
+						  line += "\t"+sectID;
+					  }
+					  line += "\n";
+					  fw.write(line);
+					  rupIndex+=1;
+				  }				  
+			  }
+			  fw.close();
+		  } catch (IOException e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
+	  }
+	  
+	  
+	  /**
+	   * This writes the section data to an ASCII file
+	   */
+	  public void writeSectionsToFile(String filePathAndName) {
+		  ArrayList<String> metaData = new ArrayList<String>();
+		  metaData.add("defModName = "+defModName);
+		  FaultSectionDataWriter.writeSectionsToFile(faultSectionData, metaData, filePathAndName);
+	  }
+	  
+	  
+
+	  
 	/**
 	 * This returns the total number of ruptures
 	 * @return

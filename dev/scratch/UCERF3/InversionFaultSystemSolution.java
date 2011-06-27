@@ -20,6 +20,26 @@ import scratch.UCERF3.utils.SimulatedAnnealing;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
+/**
+ * This class represents the UCERF3 "Grand Inversion".
+ * 
+ * To Do:
+ * 
+ * a) Add the following methods from the old version (RupsInFaultSystemInversion), which Morgan
+ *    used with Matlab:
+ * 
+ * 		writeInfoToFiles(ArrayList<ArrayList<Integer>> rupList) - Morgan used in Matlab
+ * 		loadMatLabInversionSolution()
+ * 		writeInversionIngredientsToFiles(DoubleMatrix2D, double[], double[])
+ *
+ * b) Make the MFD constraints an inequality constraint?
+ * 
+ * c) Implement the multiple mfdConstraints and apply them to the associated regions
+ * 
+ * 
+ * @author Field, Page, Milner, & Powers
+ *
+ */
 public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	protected final static boolean D = true;  // for debugging
@@ -34,8 +54,24 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		
 	ArrayList<MFD_InversionConstraint> mfdConstraints;
 	
-	FindEquivUCERF2_Ruptures findUCERF2_Rups = null;
+	DoubleMatrix2D A; // A matrix for inversion
+	double[] d;	// data vector d for inversion
+	double[] rupRateSolution; // final solution (x of Ax=d) of inversion
 
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param faultSystemRupSet
+	 * @param relativeSegRateWt
+	 * @param relativeMagDistWt
+	 * @param relativeRupRateConstraintWt
+	 * @param numIterations
+	 * @param segRateConstraints
+	 * @param aPriorRupConstraint
+	 * @param initialRupModel
+	 * @param mfdConstraints
+	 */
 	public InversionFaultSystemSolution(InversionFaultSystemRupSet faultSystemRupSet, double relativeSegRateWt, 
 			double relativeMagDistWt, double relativeRupRateConstraintWt, int numIterations,
 			ArrayList<SegRateConstraint> segRateConstraints, double[] aPriorRupConstraint,
@@ -60,13 +96,20 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	private void doInversion() {
 		
-		int numSections = this.getNumSections();
-		int numRuptures = this.getNumRupRuptures();
+		int numSections = getNumSections();
+		int numRuptures = getNumRupRuptures();
 		double[] sectSlipRateReduced = faultSystemRupSet.getSectSlipRateReduced();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		
+		// Compute number of slip-rate constraints
+		int numSlipRateConstraints = 0;
+		for(int i=0; i<sectSlipRateReduced.length;i++)
+			if(!Double.isNaN(sectSlipRateReduced[i]))
+				numSlipRateConstraints+=1;
+		
 		// Find number of rows in A matrix (equals the total number of constraints)
-		int numRows=numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
+		int numRows = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + 
+				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (relativeMagDistWt > 0.0) {
 			// RIGHT NOW THIS ASSUMES THERE IS ONLY ONE MFD CONSTRAINT AND THIS IGNORES THE REGION (APPLIES TO WHOLE INVERSION)
@@ -77,17 +120,17 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		
 		// Components of matrix equation to invert (Ax=d)
 //		OpenMapRealMatrix A = new OpenMapRealMatrix(numRows,numRuptures); // A matrix
-		DoubleMatrix2D A = new SparseCCDoubleMatrix2D(numRows,numRuptures); // A matrix
-		double[] d = new double[numRows];	// data vector d
-		double[] rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
+		A = new SparseCCDoubleMatrix2D(numRows,numRuptures); // A matrix
+		d = new double[numRows];	// data vector d
+		rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
 		
 		if(D) System.out.println("\nNumber of sections: " + numSections + ". Number of ruptures: " + numRuptures + ".\n");
 		if(D) System.out.println("Total number of constraints (rows): " + numRows + ".\n");
 		
 		
+		// Put together "A" Matrix and data vector
 		
-		// PUT TOGETHER "A" MATRIX AND DATA VECTOR
-		
+		// NEED TO REVISE NEXT SECTION TO HANDLE CASE WHERE SOME SLIP RATES ARW NaN *******************
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
@@ -102,7 +145,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 				if(D) numNonZeroElements++;
 			}
 		}
-		for (int sect=0; sect<numSections; sect++) d[sect] = sectSlipRateReduced[sect];	
+		for (int sect=0; sect<numSlipRateConstraints; sect++) d[sect] = sectSlipRateReduced[sect];	
 		if(D) System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 
 		
@@ -111,8 +154,8 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		if (relativeSegRateWt > 0.0) {
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
-			for (int i=numSections; i<numSections+segRateConstraints.size(); i++) {
-				SegRateConstraint constraint = segRateConstraints.get(i-numSections);
+			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+segRateConstraints.size(); i++) {
+				SegRateConstraint constraint = segRateConstraints.get(i-numSlipRateConstraints);
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
 //				double[] row = A.getRow(constraint.getSegIndex());
 				for (int rup=0; rup<numRuptures; rup++) {
@@ -129,9 +172,9 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 
 		
 		
-		// Constrain Solution MFD to equal the Target UCERF2 MFD (minus background eqs)
-		// WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION
-		int rowIndex = numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
+		// Constrain Solution MFD to equal the Target MFD
+		// CHANGE THIS TO AN INEQUALITY CONSTRAINT? *****************************
+		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
 		if (relativeMagDistWt > 0.0) {	
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding magnitude constraint to A matrix (match Target UCERF2 minus background) ...");
@@ -162,20 +205,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
-		// SOLVE THE INVERSE PROBLEM
+		// Solve the inverse problems
 		
 //		writeInversionIngredientsToFiles(A,d,initial_state); // optional: Write out inversion files to Desktop to load into MatLab (faster than Java)
 //		doMatSpeedTest(A, d, initial_state, numiter);
 		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initialRupModel, numIterations);    		
 //		rupRateSolution = loadMatLabInversionSolution(); // optional: Load in MatLab's SA solution from file instead of using Java SA code
 		
-		
-		// IMPLEMENT THIS ******************************
-		// Plots of misfit, magnitude distribution, rupture rates
-		plotStuff(faultSystemRupSet.getSectionIndicesForAllRups(), A, d, rupRateSolution, relativeMagDistWt, findUCERF2_Rups);
-		// Write out information to files for MatLab plots
-//		writeInfoToFiles(rupList);  // Only need to redo this when rupMeanMag or rupList changes
-
 	}
 
 	
@@ -262,7 +298,12 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	}
 	
 	
-	private void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
+//	public void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
+	/**
+
+	 * THIS ASSUMES THAT mfdConstraints ONLY HAS ONE CONSTRAINT THAT APPLIES TO THE ENTIRE REGION
+	 */
+	public void plotStuff() {
 		
 		int numSections = faultSystemRupSet.getNumSections();
 		int numRuptures = faultSystemRupSet.getNumRupRuptures();
@@ -353,7 +394,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
 		EvenlyDiscretizedFunc finalPaleoVisibleEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);	
 		for (int r=0; r<numRuptures; r++) {
-			ArrayList<Integer> rup=rupList.get(r);
+			ArrayList<Integer> rup= getSectionsIndicesForRup(r);
 			for (int i=0; i<rup.size(); i++) {			
 				finalEventRateFunc.add(rup.get(i),rupRateSolution[r]);  
 				finalPaleoVisibleEventRateFunc.add(rup.get(i),this.getProbPaleoVisible(rupMeanMag[r])*rupRateSolution[r]);  			
@@ -404,7 +445,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		funcs4.add(magHist);
 		// If the magnitude constraint is used, add a plot of the target MFD
 		if (relativeMagDistWt > 0.0) {		
-			IncrementalMagFreqDist targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
+			IncrementalMagFreqDist targetMagFreqDist = mfdConstraints.get(0).getMagFreqDist();; 
 			targetMagFreqDist.setTolerance(0.1); 
 			targetMagFreqDist.setName("Target Magnitude Distribution");
 			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
@@ -413,23 +454,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
 		graph4.setX_AxisLabel("Magnitude");
 		graph4.setY_AxisLabel("Frequency (per bin)");
-		
-		/*
-		// Plot Total NCal target magnitude distribution & UCERF2 background with aftershocks
-		if(D) System.out.println("Making more magnitude distribution plots . . . ");
-		IncrementalMagFreqDist magHist2 = findUCERF2_Rups.getN_CalTotalTargetGR_MFD();
-		IncrementalMagFreqDist magHist3 = findUCERF2_Rups.getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
-		magHist2.setTolerance(0.2);	// this makes it a histogram
-		magHist3.setTolerance(0.2);	// this makes it a histogram
-		magHist2.setName("Total Target Magnitude Distribution for Northern California");
-		magHist3.setName("Northern CA UCERF2 Background with Aftershocks");
-		ArrayList funcs6 = new ArrayList();
-		funcs5.add(magHist2); funcs6.add(magHist3);
-		GraphiWindowAPI_Impl graph6 = new GraphiWindowAPI_Impl(funcs6, "Total Regional Target MFD and UCERF2 Background MFD"); 
-		graph4.setX_AxisLabel("Magnitude");
-		graph4.setY_AxisLabel("Frequency (per bin)");
-		*/
-		
+				
 	}
 
 

@@ -19,7 +19,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRa
  * 
  * TO DO:
  * 
- * 1) Wrap this in a GUI?
+ * 1) Add the getSmoothGRStartingSolution()
+ * 
+ * 2) Wrap this in a GUI?
+ * 
  * @author  Field, Page, Milner, & Powers
  *
  */
@@ -53,6 +56,15 @@ public class RunInversion {
 				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");
+		
+		
+		// These lines make files like those sent to Tom Parsons on April 19th 
+		// for the DefModName.UCERF2_NCAL case (see email that day).  The results are 
+		// no longer the same due to Morgan taking the creeping section out and a change 
+		// in the header for the sections file (and maybe other changes)
+//		faultSystemRupSet.writeSectionsToFile("sectionsForTom041911");
+//		faultSystemRupSet.writeRupsToFiles("rupturesForTom041911");
+
 		
 		// plot the mag histogram
 		faultSystemRupSet.plotMagHistogram();
@@ -94,7 +106,9 @@ public class RunInversion {
 				aPriorRupConstraint, initialRupModel, mfdConstraints);
 		runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
-
+		
+		inversion.plotStuff();
+		
 	}
 	
 	
