@@ -14,7 +14,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * for a fault system, coming from either the Grand Inversion or from a physics-based
  * earthquake simulator.
  * 
- * This class contains many common utility methods for the subclasses.
+ * In addition to adding two methods to the FaultSystemRupSet interface (to get the rate of 
+ * each rupture), this class contains many common utility methods for both types of subclass.
  * 
  * 
  * @author Field, Milner, Page, and Powers

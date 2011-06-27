@@ -11,10 +11,14 @@ import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.utils.DeformationModelFetcher;
 
 /**
+ * This class represents a FaultSystemRupSet for the Grand Inversion.
+ * 
  * TO DO:
  * 
  * a) Add ability to save this to a file or database; I see two options:  
@@ -73,7 +77,8 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 
 
 	/**
-	 * Constructor
+	 * Constructor.
+	 * 
 	 * @param defModName
 	 * @param maxJumpDist
 	 * @param maxAzimuthChange
@@ -142,10 +147,14 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		// calculate rupture magnitude and other attributes
 		calcRuptureAttributes();
 		
-		
-		// plot magnitude histogram for the inversion ruptures (how many rups at each mag)
-		// comment this out if you don't want it popping up (if you're using SCEC VDO)
-/*		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+	}
+	
+	
+	/**
+	 * Plot magnitude histogram for the inversion ruptures (how many rups at each mag)
+	 */
+	public void plotMagHistogram() {
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<getNumRupRuptures();r++)
 			magHist.add(rupMeanMag[r], 1.0);
@@ -156,8 +165,6 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Num");
-*/	
-		
 	}
 	
 	

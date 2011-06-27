@@ -13,6 +13,17 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 
+
+/**
+ * This class runs the Grand Inversion.
+ * 
+ * TO DO:
+ * 
+ * 1) Wrap this in a GUI?
+ * @author  Field, Page, Milner, & Powers
+ *
+ */
+
 public class RunInversion {
 
 	protected final static boolean D = true;  // for debugging
@@ -24,6 +35,7 @@ public class RunInversion {
 	
 	public RunInversion(File precomputedDataDir) {
 		
+		// the InversionFaultSystemRupSet parameters
 		double maxJumpDist = 5.0;
 		double maxAzimuthChange = 45;
 		double maxTotAzimuthChange = 90;
@@ -36,14 +48,16 @@ public class RunInversion {
 		
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
-		InversionFaultSystemRupSet faultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,maxJumpDist, 
-				maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, 
-				minNumSectInRup, magAreaRelList, 
+		InversionFaultSystemRupSet faultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
+				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
 				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");
+		
+		// plot the mag histogram
+		faultSystemRupSet.plotMagHistogram();
 	
-		// Below will be for running an inversion
+		// Parameters for InversionFaultSystemSolution
 		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
 		double relativeMagDistWt = 10.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
 		double relativeRupRateConstraintWt = 0.1;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1) - can be UCERF2 rates or Smooth G-R rates
@@ -51,6 +65,7 @@ public class RunInversion {
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionList());
 
+		// create class the gives UCERF2-related constraints
 		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSystemRupSet.getFaultSectionList(), precomputedDataDir);
 		
 		// a priori constraint
@@ -67,15 +82,18 @@ public class RunInversion {
 //		for (int r=0; r<numRuptures; r++) initial_state[r]=0;			// initial solution of zero rupture rates
 
 
-		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
+		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>(); // Arraylist so we can apply this to multiple subregions
 		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);
+		// note that the region is null above, meaning apply it to the whole region
 		mfdConstraints.add(mfdConstraintUCERF2);
 		
 		if(D) System.out.println("Starting inversion");
+		startTime = System.currentTimeMillis();
 		InversionFaultSystemSolution inversion = new InversionFaultSystemSolution(faultSystemRupSet, relativeSegRateWt, 
 				relativeMagDistWt, relativeRupRateConstraintWt, numIterations, segRateConstraints, 
 				aPriorRupConstraint, initialRupModel, mfdConstraints);
-		if(D) System.out.println("Done with inversion");
+		runTime = System.currentTimeMillis()-startTime;
+		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
 
 	}
 	

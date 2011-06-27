@@ -22,8 +22,12 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 
 /**
+ * This is a general utility class for obtaining a deformation model (defined as an 
+ * ArrayList<FaultSectionPrefData>), plus other derivative information.  This class
+ * stores files in order to recreate info more quickly, so these files may need to
+ * be deleted if things change.
  * 
- * @author field
+ * @author Field
  *
  */
 public class DeformationModelFetcher {
@@ -54,9 +58,10 @@ public class DeformationModelFetcher {
 	
 	
 	/**
+	 * Constructor
 	 * 
-	 * @param name
-	 * @param precomputedDataDir
+	 * @param name - then name of the desire deformation model (from the DefModName enum here).
+	 * @param precomputedDataDir - the dir where pre-computed data can be found (for faster instantiation)
 	 */
 	public DeformationModelFetcher(DefModName name, File precomputedDataDir) {
 		this.precomputedDataDir = precomputedDataDir;
@@ -112,6 +117,7 @@ public class DeformationModelFetcher {
 	 * Note that this has to use a modified version of CaliforniaRegions.RELM_NOCAL() in 
 	 * order to not include the Parkfield section (one that uses BorderType.GREAT_CIRCLE 
 	 * rather than the default BorderType.MERCATOR_LINEAR).
+	 * 
 	 * @param includeSectionsWithNaN_slipRates
 	 * @param maxSubSectionLength - in units of seismogenic thickness
 	 */
@@ -191,8 +197,9 @@ public class DeformationModelFetcher {
 	
 	
 	/**
-	 * This gets all section data & creates subsections
-	 * @param includeSectionsWithNaN_slipRates
+	 * This gets all section data & creates sub-sections for the SF Bay Area
+	 * 
+	 * @param maxSubSectionLength - in units of seismogenic thickness
 	 */
 	private ArrayList<FaultSectionPrefData> createBayAreaSubSections(double maxSubSectionLength) {
 
@@ -236,7 +243,7 @@ public class DeformationModelFetcher {
 	
 	/**
 	 * This computes the distances between subsection if it hasn't already been done.
-	 * Otherwise the values are read from a file.
+	 * (otherwise the values are read from a file).
 	 */
 	public double[][] getSubSectionDistanceMatrix() {
 
@@ -309,7 +316,10 @@ public class DeformationModelFetcher {
 	}
 
 
-
+	/**
+	 * This creates (or reads) a matrix giving the azimuth between the midpoint of each subSection.
+	 * @return
+	 */
 	  public double[][] getSubSectionAzimuthMatrix() {
 
 		  int numSubSections = faultSubSectPrefDataList.size();
