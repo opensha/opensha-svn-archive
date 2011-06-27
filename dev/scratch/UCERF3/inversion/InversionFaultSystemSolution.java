@@ -1,4 +1,4 @@
-package scratch.UCERF3;
+package scratch.UCERF3.inversion;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.param.MagFreqDistConstraint;
 
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.SimulatedAnnealing;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package scratch.UCERF3;
+package scratch.UCERF3.inversion;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,6 +16,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 
