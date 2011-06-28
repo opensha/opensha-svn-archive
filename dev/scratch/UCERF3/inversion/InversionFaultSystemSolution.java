@@ -14,6 +14,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.param.MagFreqDistConstraint;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
@@ -45,7 +46,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	protected final static boolean D = true;  // for debugging
 	
-	InversionFaultSystemRupSet faultSystemRupSet;
+	FaultSystemRupSet faultSystemRupSet;
 	double relativeSegRateWt, relativeMagDistWt, relativeRupRateConstraintWt;
 	int numIterations;
 	ArrayList<SegRateConstraint> segRateConstraints;
@@ -257,6 +258,11 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	public FaultSectionPrefData getFaultSectionData(int sectIndex) {
 		return faultSystemRupSet.getFaultSectionData(sectIndex);
 	}
+	
+	@Override
+	public ArrayList<FaultSectionPrefData> getFaultSectionList() {
+		return faultSystemRupSet.getFaultSectionList();
+	}
 
 	@Override
 	public String getInfoString() {
@@ -299,7 +305,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	}
 	
 	public double getSlipRateForSection(int sectIndex) {
-		return faultSystemRupSet.getSlipRateForSection[sectIndex];
+		return faultSystemRupSet.getSlipRateForSection(sectIndex);
 	}
 	
 	/**
@@ -308,7 +314,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * @return
 	 */
 	public double[] getSlipRateForAllSections() {
-		return faultSystemRupSet.getSlipRateForAllSections;
+		return faultSystemRupSet.getSlipRateForAllSections();
 	}
 
 	
@@ -471,6 +477,5 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		graph4.setY_AxisLabel("Frequency (per bin)");
 				
 	}
-
 
 }

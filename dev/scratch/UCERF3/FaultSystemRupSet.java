@@ -93,6 +93,12 @@ public interface FaultSystemRupSet {
 	public double getAreaForSection(int sectIndex);
 	
 	/**
+	 * This returns an array of all fault-section data
+	 * @return
+	 */
+	public ArrayList<FaultSectionPrefData> getFaultSectionList();
+	
+	/**
 	 * The returns the fault-section data for the sth section
 	 * @param sectIndex
 	 * @return
