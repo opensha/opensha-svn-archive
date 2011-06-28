@@ -74,7 +74,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * @param initialRupModel
 	 * @param mfdConstraints
 	 */
-	public InversionFaultSystemSolution(InversionFaultSystemRupSet faultSystemRupSet, double relativeSegRateWt, 
+	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, double relativeSegRateWt, 
 			double relativeMagDistWt, double relativeRupRateConstraintWt, int numIterations,
 			ArrayList<SegRateConstraint> segRateConstraints, double[] aPriorRupConstraint,
 			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints) {
