@@ -27,7 +27,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
  * To Do:
  * 
  * a) Add the following methods from the old version (RupsInFaultSystemInversion), which Morgan
- *    used with Matlab:
+ *    used with Matlab (these needed??):
  * 
  * 		writeInfoToFiles(ArrayList<ArrayList<Integer>> rupList) - Morgan used in Matlab
  * 		loadMatLabInversionSolution()

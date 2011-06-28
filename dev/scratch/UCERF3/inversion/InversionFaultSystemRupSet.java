@@ -49,7 +49,7 @@ import scratch.UCERF3.utils.FaultSectionDataWriter;
  * 
  * b) Make the moment-rate reduction better (section specific)?
  * 
- * c) Add the following methods from the old version (RupsInFaultSystemInversion) ????:
+ * c) Add the following methods from the old version (../oldStuff/RupsInFaultSystemInversion) ????:
  * 
  * 		writeCloseSubSections() 
  * 

@@ -27,7 +27,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
-import scratch.UCERF3.SectionCluster;
+import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.SimulatedAnnealing;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
