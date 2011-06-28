@@ -19,12 +19,8 @@
 
 package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
-
-import java.util.ArrayList;
-
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 /**
  * <b>Title:</b>Shaw_2007_MagAreaRel<br>
