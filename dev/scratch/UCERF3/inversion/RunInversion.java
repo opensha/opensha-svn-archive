@@ -102,7 +102,7 @@ public class RunInversion {
 		
 		if(D) System.out.println("Starting inversion");
 		startTime = System.currentTimeMillis();
-		InversionFaultSystemSolution inversion = new InversionFaultSystemSolution(faultSystemRupSet, relativeSegRateWt, 
+		inversion = new InversionFaultSystemSolution(faultSystemRupSet, relativeSegRateWt, 
 				relativeMagDistWt, relativeRupRateConstraintWt, numIterations, segRateConstraints, 
 				aPriorRupConstraint, initialRupModel, mfdConstraints);
 		runTime = System.currentTimeMillis()-startTime;
