@@ -32,6 +32,7 @@ public class RunInversion {
 	protected final static boolean D = true;  // for debugging
 	
 	InversionFaultSystemRupSet faultSystemRupSet;
+	private InversionFaultSystemSolution inversion;
 
 	public RunInversion() {
 		this(new File("dev/scratch/UCERF3/preComputedData/"));
@@ -106,9 +107,6 @@ public class RunInversion {
 				aPriorRupConstraint, initialRupModel, mfdConstraints);
 		runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
-		
-		inversion.plotStuff();
-		
 	}
 	
 	
@@ -248,7 +246,7 @@ public class RunInversion {
 	public static void main(String[] args) {
 		
 		RunInversion test = new RunInversion();
-		
+		test.inversion.plotStuff();
 	}
 
 
