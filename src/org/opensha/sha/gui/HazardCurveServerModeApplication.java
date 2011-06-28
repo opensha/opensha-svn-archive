@@ -469,9 +469,7 @@ ScalarIMRChangeListener {
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 40));
 		buttonPanel.setBackground(bg);
 		JLabel shaLogo = new JLabel(new ImageIcon(
-				FileUtils.loadImage("logos/cat_icon_64.png")));
-		JLabel gemLogo = new JLabel(new ImageIcon(
-				FileUtils.loadImage("logos/gem_icon_64.png")));
+				FileUtils.loadImage("logos/opensha_64.png")));
 
 		JLabel calcTypeLabel = new JLabel("Calculation type:");
 		JLabel cpLabel = new JLabel("Control panel:");
@@ -511,9 +509,6 @@ ScalarIMRChangeListener {
 		// ---- row 1 ----
 		gbc.gridheight = 2;
 		gbc.weightx = 0.0;
-		buttonPanel.add(gemLogo, gbc);
-
-		gbc.gridx += 1;
 		buttonPanel.add(shaLogo, gbc);
 
 		gbc.gridx += 1;
@@ -542,7 +537,7 @@ ScalarIMRChangeListener {
 		buttonPanel.add(computeButton, gbc);
 
 		// ---- row 2 ----
-		gbc.gridx = 3;
+		gbc.gridx = 2;
 		gbc.gridy = 1;
 		gbc.gridheight = 1;
 		gbc.anchor = GridBagConstraints.LINE_END;
