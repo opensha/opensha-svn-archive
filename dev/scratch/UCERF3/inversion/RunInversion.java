@@ -136,7 +136,7 @@ public class RunInversion {
 		
 		ArrayList<ArrayList<Integer>> rupList = faultSystemRupSet.getSectionIndicesForAllRups();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
-		double[] sectSlipRateReduced = faultSystemRupSet.getSectSlipRateReduced();
+		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
 		
 		int numRup = rupMeanMag.length;
 		double[] meanSlipRate = new double[numRup]; // mean slip rate per section for each rupture
