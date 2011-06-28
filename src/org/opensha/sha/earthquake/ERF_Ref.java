@@ -108,9 +108,6 @@ public enum ERF_Ref {
 	// include this?
 		//erf_Classes.add(STEP_FORECAST_CLASS_NAME);
 	
-	/** STEP Alaska Forecast */
-	STEP_ALASKA(STEP_AlaskanPipeForecast.class, STEP_AlaskanPipeForecast.NAME, PRODUCTION, false, false),
-	
 	/** Floating Poisson Fault ERF */
 	POISSON_FLOATING_FAULT(FloatingPoissonFaultERF.class, FloatingPoissonFaultERF.NAME, PRODUCTION, false, false),
 	
@@ -145,9 +142,6 @@ public enum ERF_Ref {
 	
 	// DEVELOPMENT
 	
-	/** URS modified MeanUCERF2 */
-	URS_MEAN_UCERF_2(URS_MeanUCERF2.class, URS_MeanUCERF2.NAME, DEVELOPMENT, false, false),
-	
 	/** NSHMP CEUS 2008 ERF */
 	NSHMP_CEUS_08(NSHMP08_CEUS_ERF.class, NSHMP08_CEUS_ERF.NAME, DEVELOPMENT, false, false),
 
@@ -169,9 +163,15 @@ public enum ERF_Ref {
 	/** GEM1 NSHMP South/East Asia ERF */
 	GEM1_NSHMP_WE_ASIA(GEM1_NSHMP_SE_Asia_ERF.class, GEM1_NSHMP_SE_Asia_ERF.NAME, DEVELOPMENT, false, false),
 	
+	/** STEP Alaska Forecast */
+	STEP_ALASKA(STEP_AlaskanPipeForecast.class, STEP_AlaskanPipeForecast.NAME, DEVELOPMENT, false, false),
+	
 	// add NZ?
 	
 	// EXPERIMENTAL
+	
+	/** URS modified MeanUCERF2 */
+	URS_MEAN_UCERF_2(URS_MeanUCERF2.class, URS_MeanUCERF2.NAME, EXPERIMENTAL, false, false),
 	
 	/** CyberShake ERF that wraps UCERF2 for use with the CyberShake Fake IMR */
 	CYBERSHAKE_UCERF2_WRAPPER(CyberShakeUCERFWrapper_ERF.class,
@@ -213,10 +213,6 @@ public enum ERF_Ref {
 	// include?
 			// erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
 	
-	/** STEP Alaska Remote */
-	STEP_ALASKA_REMOTE(STEP_AlaskanPipeForecastClient.class,
-			STEP_AlaskanPipeForecastClient.NAME, PRODUCTION, true, false),
-	
 	/** Floating Poisson Fault Remote */
 	POISSON_FLOATING_FAULT_REMOTE(FloatingPoissonFaultERF_Client.class,
 			FloatingPoissonFaultERF_Client.NAME, PRODUCTION, true, false),
@@ -248,9 +244,13 @@ public enum ERF_Ref {
 	
 	/** WGCEP 2002 Fortran Wrapped ERF */
 	WGCEP_02_FORTRAN_WRAPPED(WG02_FortranWrappedERF_EpistemicListClient.class,
-			WG02_FortranWrappedERF_EpistemicListClient.NAME, PRODUCTION, true, true);
+			WG02_FortranWrappedERF_EpistemicListClient.NAME, PRODUCTION, true, true),
 			
 	// DEVELOPMENT
+	
+	/** STEP Alaska Remote */
+	STEP_ALASKA_REMOTE(STEP_AlaskanPipeForecastClient.class,
+			STEP_AlaskanPipeForecastClient.NAME, DEVELOPMENT, true, false);
 	
 	// EXPERIMENTAL
 	
