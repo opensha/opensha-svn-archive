@@ -594,8 +594,21 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		return infoString;
 	}
 	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
+	 * because of the moment rate reduction (e.g., for smaller events).
+	 * @return
+	 */
+	public double getSlipRateForSection(int sectIndex) {
+		return sectSlipRateReduced[sectIndex];
+	}
 	
-	public double[] getSectSlipRateReduced() {
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
+	 * because of the moment rate reduction (e.g., for smaller events).
+	 * @return
+	 */
+	public double[] getSlipRateForAllSections() {
 		return sectSlipRateReduced;
 	}
 	

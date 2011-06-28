@@ -21,6 +21,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * 
  * 1) the getProbPaleoVisible(mag) method may become more complicated (e.g., site specific)
  * 
+ * 2) calc methods here are untested
+ * 
  * 
  * @author Field, Milner, Page, and Powers
  *
@@ -50,7 +52,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param magHigh
 	 * @return
 	 */
-	public double getParticRateForSect(int sectIndex, double magLow, double magHigh) {
+	public double calcParticRateForSect(int sectIndex, double magLow, double magHigh) {
 		double partRate=0;
 		for(int r=0;r<this.getNumRupRuptures();r++) {
 			double mag = this.getMagForRup(r);
@@ -70,10 +72,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param magHigh
 	 * @return
 	 */
-	public double[] getParticRateForAllSects(double magLow, double magHigh) {
+	public double[] calcParticRateForAllSects(double magLow, double magHigh) {
 		double[] partRate = new double[getNumSections()];
 		for(int s=0;s<partRate.length;s++) {
-			partRate[s]=getParticRateForSect(s, magLow, magHigh);
+			partRate[s]=calcParticRateForSect(s, magLow, magHigh);
 		}
 		return partRate;
 	}
@@ -85,7 +87,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getTotParticRateForSect(int sectIndex) {
+	public double calcTotParticRateForSect(int sectIndex) {
 		double partRate=0;
 		for(int r=0;r<this.getNumRupRuptures();r++) {
 			if(getSectionsIndicesForRup(r).contains(sectIndex))
@@ -100,10 +102,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * 
 	 * @return
 	 */
-	public double[] getTotParticRateForAllSects() {
+	public double[] calcTotParticRateForAllSects() {
 		double[] partRate = new double[getNumSections()];
 		for(int s=0;s<partRate.length;s++) {
-			partRate[s]=getTotParticRateForSect(s);
+			partRate[s]=calcTotParticRateForSect(s);
 		}
 		return partRate;
 	}
@@ -117,7 +119,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getTotPaleoVisibleRateForSect(int sectIndex) {
+	public double calcTotPaleoVisibleRateForSect(int sectIndex) {
 		double partRate=0;
 		for(int r=0;r<getNumRupRuptures();r++) {
 			if(getSectionsIndicesForRup(r).contains(sectIndex))
@@ -134,10 +136,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * 
 	 * @return
 	 */
-	public double[] getTotPaleoVisibleRateForAllSects() {
+	public double[] calcTotPaleoVisibleRateForAllSects() {
 		double[] partRate = new double[getNumSections()];
 		for(int s=0;s<partRate.length;s++) {
-			partRate[s]=getTotPaleoVisibleRateForSect(s);
+			partRate[s]=calcTotPaleoVisibleRateForSect(s);
 		}
 		return partRate;
 	}
@@ -148,7 +150,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getSlipRateForSect(int sectIndex) {
+	public double calcSlipRateForSect(int sectIndex) {
 		double slipRate=0;
 		for(int r=0;r<getNumRupRuptures();r++)
 			if(getSectionsIndicesForRup(r).contains(sectIndex))
@@ -163,10 +165,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * 
 	 * @return
 	 */
-	public double[] getSlipRateForAllSects()  {
+	public double[] calcSlipRateForAllSects()  {
 		double[] slipRate = new double[getNumSections()];
 		for(int s=0;s<slipRate.length;s++) {
-			slipRate[s]=getSlipRateForSect(s);
+			slipRate[s]=calcSlipRateForSect(s);
 		}
 		return slipRate;
 	}
@@ -181,7 +183,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param numMag - number of mags in MFD
 	 * @return IncrementalMagFreqDist
 	 */
-	public  IncrementalMagFreqDist getNucleationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
+	public  IncrementalMagFreqDist calcNucleationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		for(int r=0;r<getNumRupRuptures();r++)
 			if(getSectionsIndicesForRup(r).contains(sectIndex)) {
@@ -201,7 +203,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param numMag - number of mags in MFD
 	 * @return IncrementalMagFreqDist
 	 */
-	public IncrementalMagFreqDist getParticipationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
+	public IncrementalMagFreqDist calcParticipationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		for(int r=0;r<getNumRupRuptures();r++)
 			if(getSectionsIndicesForRup(r).contains(sectIndex))
@@ -220,7 +222,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param numMag - number of mags in MFD
 	 * @return IncrementalMagFreqDist
 	 */
-	public IncrementalMagFreqDist getNucleationMFD_forRegion(Region region, double minMag, double maxMag, int numMag) {
+	public IncrementalMagFreqDist calcNucleationMFD_forRegion(Region region, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		for(int r=0;r<getNumRupRuptures();r++) {
 			double numInside=0, totNum=0;

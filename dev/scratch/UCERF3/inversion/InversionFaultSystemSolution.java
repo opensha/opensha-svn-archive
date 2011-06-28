@@ -99,7 +99,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		
 		int numSections = getNumSections();
 		int numRuptures = getNumRupRuptures();
-		double[] sectSlipRateReduced = faultSystemRupSet.getSectSlipRateReduced();
+		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		
 		// Compute number of slip-rate constraints
@@ -297,6 +297,20 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	public double[] getSlipOnSectionsForRup(int rthRup) {
 		return faultSystemRupSet.getSlipOnSectionsForRup(rthRup);
 	}
+	
+	public double getSlipRateForSection(int sectIndex) {
+		return faultSystemRupSet.getSlipRateForSection[sectIndex];
+	}
+	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
+	 * because of the moment rate reduction (e.g., for smaller events).
+	 * @return
+	 */
+	public double[] getSlipRateForAllSections() {
+		return faultSystemRupSet.getSlipRateForAllSections;
+	}
+
 	
 	
 //	public void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {

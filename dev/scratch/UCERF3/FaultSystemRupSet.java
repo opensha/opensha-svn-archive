@@ -98,6 +98,20 @@ public interface FaultSystemRupSet {
 	 * @return
 	 */
 	public FaultSectionPrefData getFaultSectionData(int sectIndex);
+	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
+	 * where there has been a modification (i.e., moment rate reductions for smaller events).
+	 * @return
+	 */
+	public double getSlipRateForSection(int sectIndex);
+	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
+	 * where there has been a modification (i.e., moment rate reductions for smaller events).
+	 * @return
+	 */
+	public double[] getSlipRateForAllSections();
 
 	/**
 	 * This is a general info String
