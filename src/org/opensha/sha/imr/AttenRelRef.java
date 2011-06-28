@@ -47,6 +47,7 @@ import org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
 
 import com.sun.xml.rpc.processor.generator.writer.EnumerationSerializerWriter;
 
@@ -137,7 +138,8 @@ public enum AttenRelRef {
 	// DEVELOPMENT
 
 	/** Interpolation between periods using BA. */
-	BA_2008_INTERP(CY_2008_AttenRel.class, CY_2008_AttenRel.NAME, DEVELOPMENT),
+	BA_2008_INTERP(InterpolatedBA_2008_AttenRel.class,
+			InterpolatedBA_2008_AttenRel.NAME, DEVELOPMENT),
 
 	/** Average of 4 NGA's. */
 	NGA_2008_4AVG(NGA_2008_Averaged_AttenRel.class,
@@ -147,6 +149,7 @@ public enum AttenRelRef {
 	NGA_2008_3AVG(NGA_2008_Averaged_AttenRel_NoAS.class,
 			NGA_2008_Averaged_AttenRel_NoAS.NAME, DEVELOPMENT),
 
+	/** Average of 3 NGA's used in the 20008 NSHMP */
 	NSHMP_2008(NSHMP_2008_CA.class, NSHMP_2008_CA.NAME, DEVELOPMENT),
 
 	// EXPERIMENTAL
