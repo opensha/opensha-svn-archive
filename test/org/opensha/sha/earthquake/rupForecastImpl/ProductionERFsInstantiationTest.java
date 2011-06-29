@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -133,6 +136,11 @@ public class ProductionERFsInstantiationTest {
 	public void testInstantiation() {
 		BaseERF baseERF = erfRef.instance();
 		assertNotNull("ERF "+baseERF.getName()+" is null!", baseERF);
+		
+		// several PEER and simple ERFs require user input without which
+		// update forecast will throw an exception.
+		if (ERFsToSkip.contains(erfRef.toString())) return;
+		
 		baseERF.updateForecast();
 		if (baseERF instanceof ERF) {
 			ERF erf = (ERF)baseERF;
@@ -155,6 +163,15 @@ public class ProductionERFsInstantiationTest {
 				}
 			}
 		}
+	}
+	
+	private static List<String> ERFsToSkip;
+	static {
+		ERFsToSkip = new ArrayList<String>();
+		ERFsToSkip.add(PEER_AreaForecast.NAME);
+		ERFsToSkip.add(PEER_MultiSourceForecast.NAME);
+		ERFsToSkip.add(FloatingPoissonFaultERF.NAME);
+		ERFsToSkip.add(PoissonFaultERF.NAME);
 	}
 
 }
