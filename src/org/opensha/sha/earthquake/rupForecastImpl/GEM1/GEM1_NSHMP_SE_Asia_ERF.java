@@ -15,7 +15,7 @@ public class GEM1_NSHMP_SE_Asia_ERF extends GEM1ERF {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public final static String NAME = "GEM1 GSHAP SE Asia ERF";
+	public final static String NAME = "GEM1 NSHMP SE Asia ERF";
 	
 	private static double default_latmin = -55;
 	private static double default_latmax = 15;

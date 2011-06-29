@@ -63,6 +63,8 @@ import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 
+import com.google.common.base.Preconditions;
+
 /**
  * <p>Title: ERF_GuiBean </p>
  * <p>Description: It displays ERFs and parameters supported by them</p>
@@ -138,14 +140,7 @@ ParameterChangeListener{
 			e.printStackTrace();
 		}
 		// save the class names of ERFs to be shown\
-		if (erfRefs instanceof List)
-			this.erfRefs = (List<ERF_Ref>)erfRefs;
-		else {
-			this.erfRefs = new ArrayList<ERF_Ref>();
-			for (ERF_Ref erf : erfRefs) {
-				this.erfRefs.add(erf);
-			}
-		}
+		this.erfRefs = erfRefs;
 
 		// create the instance of ERFs
 		init_erf_IndParamListAndEditor();
@@ -164,11 +159,16 @@ ParameterChangeListener{
 	 * init erf_IndParamList. List of all available forecasts at this time
 	 */
 	protected void init_erf_IndParamListAndEditor() throws InvocationTargetException{
+		Preconditions.checkNotNull(erfRefs, "ERF list cannot be null!");
+		Preconditions.checkArgument(!erfRefs.isEmpty(), "ERF list cannot be empty!");
 
 		this.parameterList = new ParameterList();
 
 		for (ERF_Ref erfRef : erfRefs) {
-			erfNamesVector.add(erfRef.toString());
+			String name = erfRef.toString();
+			Preconditions.checkState(!erfNamesVector.contains(name),
+					"ERF list cannot contain 2 ERFs with the same name! Duplicate: "+name);
+			erfNamesVector.add(name);
 		}
 
 		// first ERF class that is to be shown as the default ERF in the ERF Pick List
