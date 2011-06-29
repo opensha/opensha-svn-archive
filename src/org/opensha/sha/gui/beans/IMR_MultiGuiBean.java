@@ -38,6 +38,8 @@ import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TectonicRegionType;
 
+import com.google.common.base.Preconditions;
+
 /**
  * This is a completely re-written IMR selection GUI which allows for multiple IMRs to be selected
  * and edited, one for each Tectonic Region Type.
@@ -85,6 +87,18 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 */
 	public IMR_MultiGuiBean(List<? extends ScalarIMR> imrs) {
 		this.imrs = imrs;
+		Preconditions.checkNotNull(imrs, "IMR list cannot be null!");
+		Preconditions.checkArgument(!imrs.isEmpty(), "IMR list cannot be empty!");
+		
+		// check no duplicate names
+		ArrayList<String> names = new ArrayList<String>();
+		for (ScalarIMR imr : imrs) {
+			String name = imr.getName();
+			Preconditions.checkState(!names.contains(name),
+					"IMR list cannot contain 2 IMRs with the same name! Duplicate: "+name);
+			names.add(name);
+		}
+		
 		imrEnables = new ArrayList<Boolean>();
 		for (int i=0; i<imrs.size(); i++) {
 			imrEnables.add(new Boolean(true));
