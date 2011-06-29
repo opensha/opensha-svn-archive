@@ -38,8 +38,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -1288,7 +1288,7 @@ ScalarIMRChangeListener {
 		}
 
 		// get the selected IMR
-		HashMap<TectonicRegionType, ScalarIMR> imrMap = imrGuiBean.getIMRMap();
+		Map<TectonicRegionType, ScalarIMR> imrMap = imrGuiBean.getIMRMap();
 		// this first IMR from the map...note this should ONLY be used for getting settings
 		// common to all IMRS (such as units), and not for calculation (except in deterministic
 		// calc with no trt's selected)
@@ -1637,7 +1637,7 @@ ScalarIMRChangeListener {
 	 *            : List of Eqk Rup forecasts
 	 */
 	protected void handleForecastList(Site site,
-			HashMap<TectonicRegionType, ScalarIMR> imrMap,
+			Map<TectonicRegionType, ScalarIMR> imrMap,
 			BaseERF eqkRupForecast) {
 
 		AbstractEpistemicListERF erfList = (AbstractEpistemicListERF) eqkRupForecast;

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
@@ -94,7 +95,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 		
 		assertFalse("Checkbox should not be showing with no TRTs", gui.isCheckBoxVisible());
 		
-		HashMap<TectonicRegionType, ScalarIMR> imrMap = gui.getIMRMap();
+		Map<TectonicRegionType, ScalarIMR> imrMap = gui.getIMRMap();
 		ScalarIMR singleIMR = gui.getSelectedIMR();
 		
 		assertEquals("IMRMap should be of size 1 with no TRTs", 1, imrMap.size());

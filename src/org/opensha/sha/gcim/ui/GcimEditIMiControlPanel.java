@@ -34,7 +34,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -182,8 +182,8 @@ IMCorrRelChangeListener{
 	public void init(int index) {
 		
 		// Use the imiNumber to get the previously defined info (IMT, IMR, IMCorrRel, Site params)
-		HashMap<TectonicRegionType, ImCorrelationRelationship> imijCorrRels = parent.getImijCorrRel(index);
-		HashMap<TectonicRegionType, ScalarIMR> imiAttenRels = parent.getImiAttenRel(index);
+		Map<TectonicRegionType, ImCorrelationRelationship> imijCorrRels = parent.getImijCorrRel(index);
+		Map<TectonicRegionType, ScalarIMR> imiAttenRels = parent.getImiAttenRel(index);
 		String imiType = parent.getImiType(index);
 		
 		//First need to init the GUI
@@ -252,12 +252,12 @@ IMCorrRelChangeListener{
 		//Now set the IMTsinIMCorrRels for off-diagonal CorrRels
 		int imiIndex = this.imiIndex;
 		int numIMikCorrRelsToSet = (imiIndex+1)*(imiIndex)/2 - (imiIndex)*(imiIndex-1)/2;
-		ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRelMapList = null;
+		ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRelMapList = null;
 		if (numIMikCorrRelsToSet>0) {
 			IMikCorrRelMapList = imCorrRelGuiBean.getIMikCorrRelMap();
 		}
 		for (int m=0; m<numIMikCorrRelsToSet; m++) {
-			HashMap<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
+			Map<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
 				IMikCorrRelMapList.get(m);
 			Parameter<Double> imi = parent.getImiParam(m);
 			imtGuiBean.setIMTsinIMCorrRels(IMikCorrRelMap, imi);
@@ -297,12 +297,12 @@ IMCorrRelChangeListener{
 			//Now set the IMTsinIMCorrRels for off-diagonal CorrRels
 			int imiIndex = this.imiIndex;
 			int numIMikCorrRelsToSet = (imiIndex+1)*(imiIndex)/2 - (imiIndex)*(imiIndex-1)/2;
-			ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRelMapList = null;
+			ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRelMapList = null;
 			if (numIMikCorrRelsToSet>0) {
 				IMikCorrRelMapList = imCorrRelGuiBean.getIMikCorrRelMap();
 			}
 			for (int m=0; m<numIMikCorrRelsToSet; m++) {
-				HashMap<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
+				Map<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
 					IMikCorrRelMapList.get(m);
 				Parameter<Double> imi = parent.getImiParam(m);
 				imtGuiBean.setIMTsinIMCorrRels(IMikCorrRelMap, imi);
@@ -603,7 +603,7 @@ IMCorrRelChangeListener{
 	/**
 	 * This returns the selected IMR map
 	 */
-	public HashMap<TectonicRegionType, ScalarIMR> getSelectedIMRMap() {
+	public Map<TectonicRegionType, ScalarIMR> getSelectedIMRMap() {
 		if (D) 
 			System.out.println("getting the current IMRmap: " + imrGuiBean.getIMRMap());
 		return imrGuiBean.getIMRMap();
@@ -612,7 +612,7 @@ IMCorrRelChangeListener{
 	/**
 	 * This returns the selected IMCorrRel map
 	 */
-	public HashMap<TectonicRegionType, ImCorrelationRelationship> getSelectedIMCorrRelMap() {
+	public Map<TectonicRegionType, ImCorrelationRelationship> getSelectedIMCorrRelMap() {
 		if (D) 
 			System.out.println("getting the current IMCorrRelmap: " + imCorrRelGuiBean.getIMCorrRelMap());
 		return  imCorrRelGuiBean.getIMCorrRelMap();
@@ -621,7 +621,7 @@ IMCorrRelChangeListener{
 	/**
 	 * This returns the selected IMikCorrRel map
 	 */
-	public ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> getSelectedIMikjCorrRelMap() {
+	public ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> getSelectedIMikjCorrRelMap() {
 		return imCorrRelGuiBean.getIMikCorrRelMap();
 	}
 
@@ -684,12 +684,12 @@ IMCorrRelChangeListener{
 			//Now set the IMTsinIMCorrRels for off-diagonal CorrRels
 			int imiIndex = this.imiIndex;
 			int numIMikCorrRelsToSet = (imiIndex+1)*(imiIndex)/2 - (imiIndex)*(imiIndex-1)/2;
-			ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRelMapList = null;
+			ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRelMapList = null;
 			if (numIMikCorrRelsToSet>0) {
 				IMikCorrRelMapList = imCorrRelGuiBean.getIMikCorrRelMap();
 			}
 			for (int m=0; m<numIMikCorrRelsToSet; m++) {
-				HashMap<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
+				Map<TectonicRegionType, ImCorrelationRelationship> IMikCorrRelMap =
 					IMikCorrRelMapList.get(m);
 				Parameter<Double> imi = parent.getImiParam(m);
 				imtGuiBean.setIMTsinIMCorrRels(IMikCorrRelMap, imi);

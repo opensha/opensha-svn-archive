@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -39,6 +40,8 @@ import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TectonicRegionType;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * This is a completely re-written IMR selection GUI which allows for multiple IMRs to be selected
@@ -604,9 +607,8 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public HashMap<TectonicRegionType, ScalarIMR> getIMRMap() {
-		return (HashMap<TectonicRegionType, ScalarIMR>) imrMap.clone();
+	public Map<TectonicRegionType, ScalarIMR> getIMRMap() {
+		return ImmutableMap.copyOf(imrMap);
 	}
 
 	/**
@@ -797,7 +799,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	 * @return the List of IMRs
 	 */
 	public List<? extends ScalarIMR> getIMRs() {
-		return imrs;
+		return ImmutableList.copyOf(imrs);
 	}
 	
 	public NtoNMap<TectonicRegionType, ScalarIMR> getNtoNMap() {

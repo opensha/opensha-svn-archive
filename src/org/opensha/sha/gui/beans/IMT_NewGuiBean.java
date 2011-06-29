@@ -3,9 +3,9 @@ package org.opensha.sha.gui.beans;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -319,7 +319,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrMap
 	 */
-	public void setIMTinIMRs(HashMap<TectonicRegionType, ScalarIMR> imrMap) {
+	public void setIMTinIMRs(Map<TectonicRegionType, ScalarIMR> imrMap) {
 		setIMTinIMRs(getSelectedIM(), imrMap);
 	}
 	
@@ -356,7 +356,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	public static void setIMTinIMRs(
 			Parameter<Double> imt,
-			HashMap<TectonicRegionType, ScalarIMR> imrMap) {
+			Map<TectonicRegionType, ScalarIMR> imrMap) {
 		for (TectonicRegionType trt : imrMap.keySet()) {
 			ScalarIMR imr = imrMap.get(trt);
 			setIMTinIMR(imt, imr);

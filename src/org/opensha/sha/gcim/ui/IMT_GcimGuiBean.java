@@ -3,9 +3,9 @@ package org.opensha.sha.gcim.ui;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -466,7 +466,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrMap
 	 */
-	public void setIMTinIMRs(HashMap<TectonicRegionType, ScalarIMR> imrMap) {
+	public void setIMTinIMRs(Map<TectonicRegionType, ScalarIMR> imrMap) {
 		setIMTinIMRs(getSelectedIM(), imrMap);
 	}
 	
@@ -475,7 +475,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param imrMap
 	 */
-	public void setIMTsinIMCorrRels(HashMap<TectonicRegionType, ImCorrelationRelationship> imCorrRelMap,
+	public void setIMTsinIMCorrRels(Map<TectonicRegionType, ImCorrelationRelationship> imCorrRelMap,
 			Parameter<Double> imj) {
 		setIMTsInIMCorrRels(getSelectedIM(), imj, imCorrRelMap);
 	}
@@ -553,7 +553,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	public static void setIMTinIMRs(
 			Parameter<Double> imt,
-			HashMap<TectonicRegionType, ScalarIMR> imrMap) {
+			Map<TectonicRegionType, ScalarIMR> imrMap) {
 		for (TectonicRegionType trt : imrMap.keySet()) {
 			ScalarIMR imr = imrMap.get(trt);
 			setIMTinIMR(imt, imr);
@@ -568,7 +568,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 */
 	public static void setIMTsInIMCorrRels(
 			Parameter<Double> imti, Parameter<Double> imtj,
-			HashMap<TectonicRegionType, ImCorrelationRelationship> imCorrRelMap) {
+			Map<TectonicRegionType, ImCorrelationRelationship> imCorrRelMap) {
 		for (TectonicRegionType trt : imCorrRelMap.keySet()) {
 			ImCorrelationRelationship imCorrRel = imCorrRelMap.get(trt);
 			setIMTsinIMCorrRel(imti, imtj, imCorrRel);

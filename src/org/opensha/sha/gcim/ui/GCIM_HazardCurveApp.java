@@ -39,6 +39,7 @@ import java.rmi.RemoteException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -1424,7 +1425,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 		}
 
 		// get the selected IMR
-		HashMap<TectonicRegionType, ScalarIMR> imrMap = imrGuiBean.getIMRMap();
+		Map<TectonicRegionType, ScalarIMR> imrMap = imrGuiBean.getIMRMap();
 		// this first IMR from the map...note this should ONLY be used for getting settings
 		// common to all IMRS (such as units), and not for calculation (except in deterministic
 		// calc with no trt's selected)
@@ -1713,12 +1714,12 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			double deltaApproxZVal = gcimControlPanel.getDeltaApproxZ();
 			int numGcimRealizations = gcimControlPanel.getNumGcimRealizations();
 			ArrayList<String> imiTypes = gcimControlPanel.getImiTypes(); 
-			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiMapAttenRels = 
+			ArrayList<? extends Map<TectonicRegionType, ScalarIMR>> imiMapAttenRels = 
 					gcimControlPanel.getImris();
 			
-			ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijCorrRels = 
+			ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> imijCorrRels = 
 					gcimControlPanel.getImCorrRels();
-			ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imikCorrRels = 
+			ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> imikCorrRels = 
 				gcimControlPanel.getImikCorrRels();
 			
 			gcimCalc.setApproxCDFvalues(minApproxZVal, maxApproxZVal, deltaApproxZVal);
@@ -1958,7 +1959,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	 *            : List of Eqk Rup forecasts
 	 */
 	protected void handleForecastList(Site site,
-			HashMap<TectonicRegionType, ScalarIMR> imrMap,
+			Map<TectonicRegionType, ScalarIMR> imrMap,
 			BaseERF eqkRupForecast) {
 
 		AbstractEpistemicListERF erfList = (AbstractEpistemicListERF) eqkRupForecast;

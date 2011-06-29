@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.swing.BoxLayout;
@@ -137,13 +138,13 @@ public class GcimControlPanel extends ControlPanel
 	
 	//Main four Array lists for storing IMT, IMR, IMCorrRel details
 	private ArrayList<String> imiTypes = new ArrayList<String>();
-	private ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imiMapAttenRels = 
-		new ArrayList<HashMap<TectonicRegionType, ScalarIMR>>();
-	private ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imijMapCorrRels = 
-		new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
+	private ArrayList<Map<TectonicRegionType, ScalarIMR>> imiMapAttenRels = 
+		new ArrayList<Map<TectonicRegionType, ScalarIMR>>();
+	private ArrayList<Map<TectonicRegionType, ImCorrelationRelationship>> imijMapCorrRels = 
+		new ArrayList<Map<TectonicRegionType, ImCorrelationRelationship>>();
 	//Correlation relations for off-diagonal terms i.e. IMi,IMk|Rup=rup,IMj=imj
-	private ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> imikjMapCorrRels = 
-		new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
+	private ArrayList<Map<TectonicRegionType, ImCorrelationRelationship>> imikjMapCorrRels = 
+		new ArrayList<Map<TectonicRegionType, ImCorrelationRelationship>>();
 
 	//The Site object that the main hazard calc uses
 	private Site parentSite;
@@ -357,7 +358,7 @@ public class GcimControlPanel extends ControlPanel
 	/**
 	 * Returns the array list of the IMRi's corresponding to the IMi's 
 	 */
-	public ArrayList<HashMap<TectonicRegionType, ScalarIMR>> getImris(){
+	public ArrayList<? extends Map<TectonicRegionType, ScalarIMR>> getImris(){
 		if (D) {
 			System.out.println("Getting the IMiAttenRels");
 			for (int i=0; i<getNumIMi(); i++) {
@@ -371,7 +372,7 @@ public class GcimControlPanel extends ControlPanel
 	/**
 	 * Returns the array list of the ImCorrRel's corresponding to the IMi's 
 	 */
-	public ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> getImCorrRels(){
+	public ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> getImCorrRels(){
 		if (D) {
 			System.out.println("Getting the IMiCorrRels");
 			for (int i=0; i<getNumIMi(); i++) {
@@ -384,7 +385,7 @@ public class GcimControlPanel extends ControlPanel
 	/**
 	 * Returns the array list of the ImCorrRel's corresponding to the IMik's (i.e. off-diagonal terms)
 	 */
-	public ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> getImikCorrRels(){
+	public ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> getImikCorrRels(){
 		if (D) {
 			System.out.println("Getting the IMikCorrRels");
 			for (int i=0; i<imiTypes.size(); i++) {
@@ -684,7 +685,7 @@ public class GcimControlPanel extends ControlPanel
 		//set the off-diagonal ImikjCorrRel terms in the array list
 		//Get the number of IMik|j CorrRels that SHOULD be in the HashMap
 		int numIMikCorrRels = (numIMi)*(numIMi-1)/2 - (numIMi-1)*(numIMi-2)/2;
-		ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRels = null;
+		ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRels = null;
 		if (numIMikCorrRels>0) {
 			IMikCorrRels = gcimEditIMiControlPanel.getSelectedIMikjCorrRelMap();
 		}
@@ -744,7 +745,7 @@ public class GcimControlPanel extends ControlPanel
 			//update the off-diagonal ImikjCorrRel terms in the array list
 			//Get the number of IMik|j CorrRels that SHOULD be in the HashMap
 			int numIMikCorrRels = (i+1)*(i+1-1)/2 - (i)*(i-1)/2;
-			ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRels = null;
+			ArrayList<? extends Map<TectonicRegionType, ImCorrelationRelationship>> IMikCorrRels = null;
 			if (numIMikCorrRels>0) {
 				IMikCorrRels = gcimEditIMiControlPanel.getSelectedIMikjCorrRelMap();
 			}
@@ -779,7 +780,7 @@ public class GcimControlPanel extends ControlPanel
 	/**
 	 * This method returns the imiAttenRel from the imiMapAttenRels array list for a given index
 	 */
-	public HashMap<TectonicRegionType, ScalarIMR> getImiAttenRel(int index) {
+	public Map<TectonicRegionType, ScalarIMR> getImiAttenRel(int index) {
 		if (D)
 			System.out.println("Getting index " + index + " of IMiAttenRelMap which has value: " +imiMapAttenRels.get(index));
 		return imiMapAttenRels.get(index);
@@ -788,14 +789,14 @@ public class GcimControlPanel extends ControlPanel
 	/**
 	 * This method returns the imijCorrRel from the imijMapCorrRels array list for a given index
 	 */
-	public HashMap<TectonicRegionType, ImCorrelationRelationship> getImijCorrRel(int index) {
+	public Map<TectonicRegionType, ImCorrelationRelationship> getImijCorrRel(int index) {
 		return imijMapCorrRels.get(index);
 	}
 	
 	/**
 	 * This method returns the imikjCorrRel from the imikjMapCorrRels array list for a given index
 	 */
-	public HashMap<TectonicRegionType, ImCorrelationRelationship> getImikjCorrRel(int index) {
+	public Map<TectonicRegionType, ImCorrelationRelationship> getImikjCorrRel(int index) {
 		return imikjMapCorrRels.get(index);
 	}
 	
@@ -938,9 +939,9 @@ public class GcimControlPanel extends ControlPanel
 	 */
 	private void resetGcimControlPanelArrays() {
 		imiTypes = new ArrayList<String>();
-		imiMapAttenRels = new ArrayList<HashMap<TectonicRegionType, ScalarIMR>>();
-		imijMapCorrRels = new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
-		imikjMapCorrRels = new ArrayList<HashMap<TectonicRegionType, ImCorrelationRelationship>>();
+		imiMapAttenRels = new ArrayList<Map<TectonicRegionType, ScalarIMR>>();
+		imijMapCorrRels = new ArrayList<Map<TectonicRegionType, ImCorrelationRelationship>>();
+		imikjMapCorrRels = new ArrayList<Map<TectonicRegionType, ImCorrelationRelationship>>();
 		
 		ArrayList<String> gcimImisList = new ArrayList<String>();
 		gcimImisList.add(IMI_LIST_DEFAULT);
