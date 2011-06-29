@@ -182,7 +182,7 @@ public enum ERF_Ref {
 	UCERF_2_VER_2_3(
 			org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2.class,
 			org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2.NAME,
-			PRODUCTION, false, false),
+			DEPRECATED, false, false),
 	
 	/** WGCEP UCERF 2 Version 2.3 */
 	MEAN_UCERF_2_VER_2_3(
