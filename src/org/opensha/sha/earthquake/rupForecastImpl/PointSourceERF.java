@@ -48,7 +48,7 @@ public class PointSourceERF extends AbstractERF{
 
   //for Debug purposes
   private static String  C = "PointSourceERF";
-  private boolean D = true;
+  private boolean D = false;
 
   //name for this classs
   public final static String  NAME = "Point Source ERF";
