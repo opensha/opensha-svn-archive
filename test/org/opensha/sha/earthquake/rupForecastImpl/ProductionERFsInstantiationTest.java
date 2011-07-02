@@ -155,9 +155,9 @@ public class ProductionERFsInstantiationTest {
 					validateERF(erf);
 				}
 			} else {
-				// if there are more than 10 ERFs it will take too long to do the test, so just use 10 random ones
+				// if there are more than 5 ERFs it will take too long to do the test, so just use 5 random ones
 				Random r = new Random(System.currentTimeMillis());
-				for (int i=0; i<10; i++) {
+				for (int i=0; i<5; i++) {
 					int erfID = r.nextInt(numERFs);
 					validateERF(listERF.getERF(erfID));
 				}
