@@ -181,13 +181,8 @@ public class PrefFaultSectionDataFinal implements Serializable {
 				Element el = it.next();
 
 				FaultSectionPrefData data;
-				try {
-					data = FaultSectionPrefData.fromXMLMetadata(el);
-					faultSectionsList.add(data);
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
+				data = FaultSectionPrefData.fromXMLMetadata(el);
+				faultSectionsList.add(data);
 			}
 			
 			for (int i=0; i<faultSectionsList.size(); i++) {

@@ -2,6 +2,7 @@ package scratch.UCERF3.inversion;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -12,11 +13,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRa
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.param.MagFreqDistConstraint;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.SimulatedAnnealing;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
@@ -99,7 +98,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	private void doInversion() {
 		
 		int numSections = getNumSections();
-		int numRuptures = getNumRupRuptures();
+		int numRuptures = getNumRuptures();
 		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		
@@ -138,7 +137,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = getSlipOnSectionsForRup(rup);
-			ArrayList<Integer> sects = getSectionsIndicesForRup(rup);
+			List<Integer> sects = getSectionsIndicesForRup(rup);
 			for (int i=0; i < slips.length; i++) {
 				int row = sects.get(i);
 				int col = rup;
@@ -219,14 +218,12 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	@Override
 	public double[] getRateForAllRups() {
-		// TODO Auto-generated method stub
-		return null;
+		return rupRateSolution;
 	}
 
 	@Override
 	public double getRateForRup(int rupIndex) {
-		// TODO Auto-generated method stub
-		return 0;
+		return rupRateSolution[rupIndex];
 	}
 
 	@Override
@@ -260,8 +257,8 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	}
 	
 	@Override
-	public ArrayList<FaultSectionPrefData> getFaultSectionList() {
-		return faultSystemRupSet.getFaultSectionList();
+	public List<FaultSectionPrefData> getFaultSectionDataList() {
+		return faultSystemRupSet.getFaultSectionDataList();
 	}
 
 	@Override
@@ -280,8 +277,8 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	}
 
 	@Override
-	public int getNumRupRuptures() {
-		return faultSystemRupSet.getNumRupRuptures();
+	public int getNumRuptures() {
+		return faultSystemRupSet.getNumRuptures();
 	}
 
 	@Override
@@ -290,12 +287,12 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	}
 
 	@Override
-	public ArrayList<Integer> getSectionsIndicesForRup(int rupIndex) {
+	public List<Integer> getSectionsIndicesForRup(int rupIndex) {
 		return faultSystemRupSet.getSectionsIndicesForRup(rupIndex);
 	}
 
 	@Override
-	public ArrayList<double[]> getSlipOnSectionsForAllRups() {
+	public List<double[]> getSlipOnSectionsForAllRups() {
 		return faultSystemRupSet.getSlipOnSectionsForAllRups();
 	}
 
@@ -327,10 +324,10 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	public void plotStuff() {
 		
 		int numSections = faultSystemRupSet.getNumSections();
-		int numRuptures = faultSystemRupSet.getNumRupRuptures();
+		int numRuptures = faultSystemRupSet.getNumRuptures();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		
-		ArrayList<FaultSectionPrefData> faultSectionData = faultSystemRupSet.getFaultSectionList();
+		List<FaultSectionPrefData> faultSectionData = faultSystemRupSet.getFaultSectionDataList();
 		
 		
 		// Plot the rupture rates
@@ -415,7 +412,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
 		EvenlyDiscretizedFunc finalPaleoVisibleEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);	
 		for (int r=0; r<numRuptures; r++) {
-			ArrayList<Integer> rup= getSectionsIndicesForRup(r);
+			List<Integer> rup= getSectionsIndicesForRup(r);
 			for (int i=0; i<rup.size(); i++) {			
 				finalEventRateFunc.add(rup.get(i),rupRateSolution[r]);  
 				finalPaleoVisibleEventRateFunc.add(rup.get(i),this.getProbPaleoVisible(rupMeanMag[r])*rupRateSolution[r]);  			
@@ -458,7 +455,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		if(D) System.out.println("Making plot of final magnitude distribution . . . ");
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
-		for(int r=0; r<getNumRupRuptures();r++)
+		for(int r=0; r<getNumRuptures();r++)
 			magHist.add(rupMeanMag[r], rupRateSolution[r]);
 		ArrayList funcs4 = new ArrayList();
 		magHist.setName("Magnitude Distribution of SA Solution");
@@ -476,6 +473,26 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		graph4.setX_AxisLabel("Magnitude");
 		graph4.setY_AxisLabel("Frequency (per bin)");
 				
+	}
+
+	@Override
+	public List<List<Integer>> getSectionIndicesForAllRups() {
+		return faultSystemRupSet.getSectionIndicesForAllRups();
+	}
+
+	@Override
+	public double[] getAveRakeForAllRups() {
+		return faultSystemRupSet.getAveRakeForAllRups();
+	}
+
+	@Override
+	public double[] getAreaForAllRups() {
+		return faultSystemRupSet.getAreaForAllRups();
+	}
+
+	@Override
+	public double[] getAreaForAllSections() {
+		return faultSystemRupSet.getAreaForAllSections();
 	}
 
 }

@@ -49,7 +49,7 @@ import com.google.common.base.Preconditions;
  *
  */
 
-public class CPT extends ArrayList<CPTVal> implements Named, Serializable {
+public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Cloneable {
 
 	/**
 	 * default serial version UID
@@ -555,7 +555,7 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable {
 			}
 		}
 	}
-
+	
 	public void paintGrid(BufferedImage bi) {
 		int width = bi.getWidth();
 		int height = bi.getHeight();
@@ -678,11 +678,29 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable {
 		this.name = name;
 	}
 	
-	private double rescale(double oldVal, double newMin, double newMax) {
-		double oldDelta = getMaxValue() - getMinValue();
-		double newDelta = newMax - newMin;
+	@Override
+	public Object clone() {
+		CPT cpt = new CPT(getName()+"");
 		
-		return newMin + ((oldVal - getMinValue()) / oldDelta) * newDelta;
+		cpt.setBelowMinColor(getBelowMinColor());
+		cpt.setAboveMaxColor(getAboveMaxColor());
+		cpt.setGapColor(getGapColor());
+		cpt.setNanColor(getNaNColor());
+		cpt.setBlender(getBlender());
+		
+		for (CPTVal val : this)
+			cpt.add(val);
+		
+		return cpt;
+	}
+
+	public CPT asLog10() {
+		Preconditions.checkState(getMinValue() > 0, "can only get log10 representation when min > 0");
+		return rescale(Math.log10(getMinValue()), Math.log10(getMaxValue()));
+	}
+	
+	public CPT asPow10() {
+		return rescale(Math.pow(10, getMinValue()), Math.pow(10, getMaxValue()));
 	}
 	
 	/**
@@ -691,15 +709,23 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable {
 	public CPT rescale(double min, double max) {
 		Preconditions.checkState(getMaxValue() > getMinValue(), "in order to rescale, current max must be > min");
 		Preconditions.checkArgument(max > min, "new max must be > min");
-		CPT cpt = new CPT(getName());
+		CPT cpt = (CPT)clone();
+		cpt.clear();
 		
 		for (CPTVal val : this) {
-			float start = (float)rescale(val.start, min, max);
-			float end = (float)rescale(val.end, min, max);
+			float start = (float)rescaleValue(val.start, min, max);
+			float end = (float)rescaleValue(val.end, min, max);
 			CPTVal newVal = new CPTVal(start, val.minColor, end, val.maxColor);
 			cpt.add(newVal);
 		}
 		
 		return cpt;
+	}
+	
+	private double rescaleValue(double oldVal, double newMin, double newMax) {
+		double oldDelta = getMaxValue() - getMinValue();
+		double newDelta = newMax - newMin;
+		
+		return newMin + ((oldVal - getMinValue()) / oldDelta) * newDelta;
 	}
 }

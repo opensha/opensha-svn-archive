@@ -5,13 +5,14 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
-import org.opensha.commons.param.editor.AbstractParameterEditorOld;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.FileParameter;
 
-@Deprecated
-public class FileParameterEditor extends AbstractParameterEditorOld implements ActionListener {
+public class FileParameterEditor extends AbstractParameterEditor<File> implements ActionListener {
 	
 	/**
 	 * 
@@ -29,30 +30,12 @@ public class FileParameterEditor extends AbstractParameterEditorOld implements A
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		browseButton.setEnabled(isEnabled);
-		super.setEnabled(isEnabled);
 	}
 
 	private JButton getBrowseButton() {
 		if (browseButton == null)
 			browseButton = new JButton("Browse");
 		return browseButton;
-	}
-	
-	@Override
-	protected void addWidget() {
-		valueEditor = getBrowseButton();
-		widgetPanel.add(valueEditor, AbstractParameterEditorOld.WIDGET_GBC);
-	}
-
-	@Override
-	protected void removeWidget() {
-		if (valueEditor != null)
-			widgetPanel.remove(valueEditor);
-	}
-
-	@Override
-	protected void setWidgetObject(String name, Object obj) {
-		super.setWidgetObject(name, obj);
 	}
 
 	@Override
@@ -63,9 +46,26 @@ public class FileParameterEditor extends AbstractParameterEditorOld implements A
 			int retVal = chooser.showOpenDialog(this);
 			if (retVal == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();
-				model.setValue(file);
+				setValue(file);
 			}
 		}
+	}
+
+	@Override
+	public boolean isParameterSupported(Parameter<File> param) {
+		if (param == null)
+			return false;
+		return (param.getValue() == null && param.isNullAllowed()) || param.getValue() instanceof File;
+	}
+
+	@Override
+	protected JComponent buildWidget() {
+		return getBrowseButton();
+	}
+
+	@Override
+	protected JComponent updateWidget() {
+		return getBrowseButton();
 	}
 
 }

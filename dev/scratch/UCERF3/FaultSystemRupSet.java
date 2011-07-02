@@ -3,7 +3,7 @@
  */
 package scratch.UCERF3;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
@@ -21,7 +21,7 @@ public interface FaultSystemRupSet {
 	 * The total number of ruptures in the fault system
 	 * @return
 	 */
-	public int getNumRupRuptures();
+	public int getNumRuptures();
 	
 	/**
 	 * The total number of fault sections in the fault system
@@ -30,11 +30,18 @@ public interface FaultSystemRupSet {
 	public int getNumSections();
 	
 	/**
+	 * This returns which sections are used by the each rupture
+	 * @param rupIndex
+	 * @return
+	 */
+	public List<List<Integer>> getSectionIndicesForAllRups();
+	
+	/**
 	 * This returns which sections are used by the rth rupture
 	 * @param rupIndex
 	 * @return
 	 */
-	public ArrayList<Integer> getSectionsIndicesForRup(int rupIndex);
+	public List<Integer> getSectionsIndicesForRup(int rupIndex);
 
 	/**
 	 * This gives the magnitude for each rth rupture
@@ -65,13 +72,19 @@ public interface FaultSystemRupSet {
 	 * This gives the average slip on each section for all ruptures
 	 * @return
 	 */
-	public ArrayList<double[]> getSlipOnSectionsForAllRups();
+	public List<double[]> getSlipOnSectionsForAllRups();
 	
 	/**
 	 * This gives the average slip on each section for the rth rupture
 	 * @return
 	 */
 	public double[] getSlipOnSectionsForRup(int rthRup);
+	
+	/**
+	 * This gives the average rake for all ruptures
+	 * @return
+	 */
+	public double[] getAveRakeForAllRups();
 	
 	/**
 	 * This gives the average rake for the rth rupture
@@ -81,10 +94,20 @@ public interface FaultSystemRupSet {
 	public double getAveRakeForRup(int rupIndex);
 	
 	/**
+	 * @return Area (SI units: sq-m)
+	 */
+	public double[] getAreaForAllRups();
+	
+	/**
 	 * @param rupIndex
 	 * @return Area (SI units: sq-m)
 	 */
 	public double getAreaForRup(int rupIndex);
+	
+	/**
+	 * @return Area (SI units: sq-m)
+	 */
+	public double[] getAreaForAllSections();
 	
 	/**
 	 * @param sectIndex
@@ -93,10 +116,10 @@ public interface FaultSystemRupSet {
 	public double getAreaForSection(int sectIndex);
 	
 	/**
-	 * This returns an array of all fault-section data
+	 * This returns a list of all fault-section data
 	 * @return
 	 */
-	public ArrayList<FaultSectionPrefData> getFaultSectionList();
+	public List<FaultSectionPrefData> getFaultSectionDataList();
 	
 	/**
 	 * The returns the fault-section data for the sth section

@@ -25,7 +25,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -33,7 +36,10 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.dom4j.tree.FlyweightCDATA;
 import org.opensha.commons.metadata.XMLSaveable;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Static XML utility functions for creating XML documents, parsing XML files,
@@ -85,10 +91,19 @@ public class XMLUtils {
 	 * 
 	 * @return XML document
 	 */
-	public static Document loadDocument(String path) throws MalformedURLException, DocumentException {
+	public static Document loadDocument(File file) throws MalformedURLException, DocumentException {
 		SAXReader read = new SAXReader();
 		
-		return read.read(new File(path));
+		return read.read(file);
+	}
+	
+	/**
+	 * Loads an XML document from a file path
+	 * 
+	 * @return XML document
+	 */
+	public static Document loadDocument(String path) throws MalformedURLException, DocumentException {
+		return loadDocument(new File(path));
 	}
 	
 	/**
@@ -160,6 +175,68 @@ public class XMLUtils {
 		int a = Integer.parseInt(colorEl.attributeValue("a"));
 		
 		return new Color(r, g, b, a);
+	}
+	
+	public static void doubleArrayToXML(Element parent, double[] array, String elName) {
+		byte[] bytes = new byte[array.length * 8];
+		ByteBuffer buf = ByteBuffer.wrap(bytes);
+		for (double val : array)
+			buf.putDouble(val);
+		byteArrayToXML(parent, buf.array(), elName);
+	}
+	
+	public static double[] doubleArrayFromXML(Element doubleArrayEl) {
+		byte[] data = byteArrayFromXML(doubleArrayEl);
+		
+		Preconditions.checkState(data.length % 8 == 0, "binary data not a multiple of 8 bits");
+		int size = data.length / 8;
+		
+		ByteBuffer buf = ByteBuffer.wrap(data);
+		double[] array = new double[size];
+		for (int i=0; i<size; i++)
+			array[i] = buf.getDouble();
+		
+		return array;
+	}
+	
+	public static void intArrayToXML(Element parent, int[] array, String elName) {
+		byte[] bytes = new byte[array.length * 4];
+		ByteBuffer buf = ByteBuffer.wrap(bytes);
+		for (int val : array)
+			buf.putInt(val);
+		byteArrayToXML(parent, buf.array(), elName);
+	}
+	
+	public static int[] intArrayFromXML(Element intArrayEl) {
+		byte[] data = byteArrayFromXML(intArrayEl);
+		
+		Preconditions.checkState(data.length % 4 == 0, "binary data not a multiple of 4 bits");
+		int size = data.length / 4;
+		
+		ByteBuffer buf = ByteBuffer.wrap(data);
+		int[] array = new int[size];
+		for (int i=0; i<size; i++)
+			array[i] = buf.getInt();
+		
+		return array;
+	}
+	
+	public static void byteArrayToXML(Element parent, byte[] array, String elName) {
+		Preconditions.checkNotNull(parent, "parent element can't be null");
+		Preconditions.checkNotNull(array, "array cannot be null");
+		Preconditions.checkArgument(array.length > 0, "array cannot be empty");
+		Preconditions.checkNotNull(elName, "elName cannot be null");
+		Preconditions.checkArgument(!elName.isEmpty(), "elName cannot be empty");
+		Element el = parent.addElement(elName);
+		String str = Base64.encodeBase64String(array);
+		el.addCDATA(str);
+	}
+	
+	public static byte[] byteArrayFromXML(Element byteArrayEl) {
+		Preconditions.checkNotNull(byteArrayEl, "byteArrayEl element can't be null");
+		String str = byteArrayEl.getText().trim();
+		byte[] data = Base64.decodeBase64(str);
+		return data;
 	}
 
 }

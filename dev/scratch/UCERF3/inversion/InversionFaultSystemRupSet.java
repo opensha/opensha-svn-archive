@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
@@ -17,6 +18,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 
@@ -57,7 +59,7 @@ import scratch.UCERF3.utils.FaultSectionDataWriter;
  * @author Field, Milner, Page, & Powers
  *
  */
-public class InversionFaultSystemRupSet implements FaultSystemRupSet {
+public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet {
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -87,6 +89,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	// rupture attributes (all in SI units)
 	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupMeanSlip;
 	int[] clusterIndexForRup, rupIndexInClusterForRup;
+	ArrayList<ArrayList<Integer>> clusterRupIndexList;
 	int numRuptures=0;
 	
 	// general info about this instance
@@ -175,7 +178,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	public void plotMagHistogram() {
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
-		for(int r=0; r<getNumRupRuptures();r++)
+		for(int r=0; r<getNumRuptures();r++)
 			magHist.add(rupMeanMag[r], 1.0);
 		ArrayList funcs = new ArrayList();
 		funcs.add(magHist);
@@ -314,7 +317,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	private void calcRuptureAttributes() {
 	
 		if(numRuptures == 0) // make sure this has been computed
-			getNumRupRuptures();
+			getNumRuptures();
 		rupMeanMag = new double[numRuptures];
 		rupMeanMoment = new double[numRuptures];
 		rupMeanSlip = new double[numRuptures];
@@ -323,15 +326,19 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		rupLength = new double[numRuptures];
 		clusterIndexForRup = new int[numRuptures];
 		rupIndexInClusterForRup = new int[numRuptures];
+		clusterRupIndexList = new ArrayList<ArrayList<Integer>>(sectionClusterList.size());
 				
 		int rupIndex=-1;
 		for(int c=0;c<sectionClusterList.size();c++) {
 			SectionCluster cluster = sectionClusterList.get(c);
 			ArrayList<ArrayList<Integer>> clusterRups = cluster.getSectionIndicesForRuptures();
+			ArrayList<Integer> clusterRupIndexes = new ArrayList<Integer>(clusterRups.size());
+			clusterRupIndexList.add(clusterRupIndexes);
 			for(int r=0;r<clusterRups.size();r++) {
 				rupIndex+=1;
 				clusterIndexForRup[rupIndex] = c;
 				rupIndexInClusterForRup[rupIndex] = r;
+				clusterRupIndexes.add(r);
 				double totArea=0;
 				double totLength=0;
 				double totMoRate=0;
@@ -410,7 +417,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	 * This returns the total number of ruptures
 	 * @return
 	 */
-	public int getNumRupRuptures() {
+	public int getNumRuptures() {
 		if(numRuptures ==0) {
 			for(int c=0; c<sectionClusterList.size();c++)
 				numRuptures += sectionClusterList.get(c).getNumRuptures();
@@ -422,7 +429,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		return faultSectionData.size();
 	}
 	
-	public ArrayList<FaultSectionPrefData> getFaultSectionList() {
+	public ArrayList<FaultSectionPrefData> getFaultSectionDataList() {
 		return faultSectionData;
 	}
 	
@@ -431,8 +438,8 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	}
 
 	
-	public ArrayList<ArrayList<Integer>> getSectionIndicesForAllRups() {
-		ArrayList<ArrayList<Integer>> sectInRupList = new ArrayList<ArrayList<Integer>>();
+	public List<List<Integer>> getSectionIndicesForAllRups() {
+		List<List<Integer>> sectInRupList = new ArrayList<List<Integer>>();
 		for(int i=0; i<sectionClusterList.size();i++) {
 			if(D) System.out.println("Working on rupture list for cluster "+i);
 			sectInRupList.addAll(sectionClusterList.get(i).getSectionIndicesForRuptures());
@@ -570,16 +577,35 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		return slipsForRup;		
 	}
 	
-	// not yet implemented...
+	// TODO not yet implemented
+	public double[] getAveRakeForAllRups() {
+		double[] rakes = new double[numRuptures];
+		for (int i=0; i<numRuptures; i++)
+			rakes[i] = getAveRakeForRup(i);
+		return rakes;
+	}
+	
+	// TODO not yet implemented...
 	public double getAveRakeForRup(int rupIndex) {
 		return Double.NaN;
 	}
-	
+
+	public double[] getAreaForAllRups() {
+		return rupArea;
+	}
 	/**
 	 * Area is in sq-m (SI units)
 	 */
 	public double getAreaForRup(int rupIndex) {
 		return rupArea[rupIndex];
+	}
+	
+	@Override
+	public double[] getAreaForAllSections() {
+		double[] areas = new double[numSections];
+		for (int i=0; i<numSections; i++)
+			areas[i] = getAreaForSection(i);
+		return areas;
 	}
 	
 	/**
@@ -610,6 +636,30 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	 */
 	public double[] getSlipRateForAllSections() {
 		return sectSlipRateReduced;
+	}
+
+	@Override
+	public int getNumClusters() {
+		return sectionClusterList.size();
+	}
+
+
+	@Override
+	public int getNumRupturesForCluster(int index) {
+		return sectionClusterList.get(index).getNumRuptures();
+	}
+
+
+	@Override
+	public ArrayList<Integer> getRupturesForCluster(int index)
+			throws IndexOutOfBoundsException {
+		return clusterRupIndexList.get(index);
+	}
+
+
+	@Override
+	public List<Integer> getSectionsForCluster(int index) {
+		return sectionClusterList.get(index);
 	}
 	
 }

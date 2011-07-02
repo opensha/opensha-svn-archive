@@ -4,11 +4,9 @@ import java.io.File;
 
 import org.dom4j.Element;
 import org.opensha.commons.param.AbstractParameter;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.FileParameterEditor;
 
-@Deprecated
 public class FileParameter extends AbstractParameter<File> {
 	
 	/**
@@ -25,14 +23,8 @@ public class FileParameter extends AbstractParameter<File> {
 		super(name, null, null, file);
 	}
 
-//	@Override
-//	public int compareTo(Parameter<File> param) {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
-
 	@Override
-	public ParameterEditor getEditor() {
+	public ParameterEditor<File> getEditor() {
 		if (editor == null)
 			editor = new FileParameterEditor(this);
 		return editor;

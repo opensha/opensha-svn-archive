@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
@@ -274,10 +275,14 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	public StirlingGriddedSurface getStirlingGriddedSurface(boolean aseisReducesArea, double gridSpacing) {
 		return new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing);
 	}
-
+	
 	public Element toXMLMetadata(Element root) {
+		return toXMLMetadata(root, XML_METADATA_NAME);
+	}
 
-		Element el = root.addElement(XML_METADATA_NAME);
+	public Element toXMLMetadata(Element root, String name) {
+
+		Element el = root.addElement(name);
 		el.addAttribute("sectionId", this.getSectionId() + "");
 		el.addAttribute("sectionName", this.getSectionName());
 		el.addAttribute("shortName", this.getShortName());
@@ -289,6 +294,10 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		el.addAttribute("aveLowerDepth", this.getAveLowerDepth() + "");
 		el.addAttribute("aseismicSlipFactor", this.getAseismicSlipFactor() + "");
 		el.addAttribute("dipDirection", this.getDipDirection() + "");
+		String parentSectionName = this.getParentSectionName();
+		if (parentSectionName != null)
+			el.addAttribute("parentSectionName", parentSectionName);
+		el.addAttribute("parentSectionId", getParentSectionId()+"");
 
 		FaultTrace trace = this.getFaultTrace();
 
@@ -305,7 +314,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	}
 
 	@SuppressWarnings("unchecked")
-	public static FaultSectionPrefData fromXMLMetadata(Element el) throws InvocationTargetException {
+	public static FaultSectionPrefData fromXMLMetadata(Element el) {
 
 		int sectionId = Integer.parseInt(el.attributeValue("sectionId"));
 		String sectionName = el.attributeValue("sectionName");
@@ -317,6 +326,20 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		double aveLowerDepth = Double.parseDouble(el.attributeValue("aveLowerDepth"));
 		double aseismicSlipFactor = Double.parseDouble(el.attributeValue("aseismicSlipFactor"));
 		float dipDirection = Float.parseFloat(el.attributeValue("dipDirection"));
+		
+		Attribute parentSectNameAtt = el.attribute("parentSectionName");
+		String parentSectionName;
+		if (parentSectNameAtt != null)
+			parentSectionName = parentSectNameAtt.getStringValue();
+		else
+			parentSectionName = null;
+		
+		Attribute parentSectIDAtt = el.attribute("parentSectionId");
+		int parentSectionId;
+		if (parentSectIDAtt != null)
+			parentSectionId = Integer.parseInt(parentSectIDAtt.getStringValue());
+		else
+			parentSectionId = -1;
 
 		Element traceEl = el.element("FaultTrace");
 
@@ -343,6 +366,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		data.setAseismicSlipFactor(aseismicSlipFactor);
 		data.setDipDirection(dipDirection);
 		data.setFaultTrace(trace);
+		data.setParentSectionName(parentSectionName);
+		data.setParentSectionId(parentSectionId);
 
 		return data;
 	}

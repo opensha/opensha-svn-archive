@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
@@ -93,7 +94,7 @@ public class FindEquivUCERF2_Ruptures {
 	//final static int NUM_SECTIONS=717;		// this was found after running this once
 	final static int NUM_SECTIONS=696;		// Morgan edit: This is for NCal without the SAF Creeping Section
 	
-	ArrayList<FaultSectionPrefData> faultSectionData;
+	List<FaultSectionPrefData> faultSectionData;
 	
 	Region relm_nocal_reg;
 	
@@ -124,7 +125,7 @@ public class FindEquivUCERF2_Ruptures {
 	 * @param faultSectionData
 	 * @param precomputedDataDir
 	 */
-	public FindEquivUCERF2_Ruptures(ArrayList<FaultSectionPrefData> faultSectionData, File precomputedDataDir) {
+	public FindEquivUCERF2_Ruptures(List<FaultSectionPrefData> faultSectionData, File precomputedDataDir) {
 		
 		this.faultSectionData = faultSectionData;
 		this.precomputedDataDir=precomputedDataDir;
@@ -695,7 +696,7 @@ public class FindEquivUCERF2_Ruptures {
 	 * @param sectIndicesForRup
 	 * @return - double[2] where mag is in the first element and rate is in the second
 	 */
-	private double[] getMagAndRateForRupture(ArrayList<Integer> sectIndicesForRup) {
+	private double[] getMagAndRateForRupture(List<Integer> sectIndicesForRup) {
 		Integer firstSectIndex = sectIndicesForRup.get(0);
 		Integer lastSectIndex = sectIndicesForRup.get(sectIndicesForRup.size()-1);
 		ArrayList<Integer> equivUCERF2_Rups = new ArrayList<Integer>();
@@ -759,7 +760,7 @@ public class FindEquivUCERF2_Ruptures {
 	 * @param inversionRups
 	 * @return
 	 */
-	public ArrayList<double[]> getMagsAndRatesForRuptures(ArrayList<ArrayList<Integer>> inversionRups) {
+	public ArrayList<double[]> getMagsAndRatesForRuptures(List<? extends List<Integer>> inversionRups) {
 
 		ucerf2_rupUsed = new boolean[NUM_RUPTURES];
 		for(int r=0;r<NUM_RUPTURES;r++) ucerf2_rupUsed[r] = false;
@@ -783,13 +784,13 @@ public class FindEquivUCERF2_Ruptures {
 		for(int r=0;r<numInvRups;r++) {
 			if(rupChecked[r])	// if this rupture was already checked because it was in a 
 				continue;		// multi-path list of a previous rupture, then skip it
-			ArrayList<Integer> rup = inversionRups.get(r);
+			List<Integer> rup = inversionRups.get(r);
 			int firstSectID = rup.get(0);
 			int lastSectID = rup.get(rup.size()-1);
 			ArrayList<Integer> multiPathRups = new ArrayList<Integer>();	// this will be the list of ruptures that share the same end sections
 			multiPathRups.add(r);
 			for(int r2=r+1;r2<inversionRups.size();r2++) {
-				ArrayList<Integer> rup2 = inversionRups.get(r2);
+				List<Integer> rup2 = inversionRups.get(r2);
 				int firstSectID2 = rup2.get(0);
 				int lastSectID2 = rup2.get(rup2.size()-1);
 				if((firstSectID2 == firstSectID && lastSectID2 == lastSectID) || (firstSectID2 == lastSectID && lastSectID2 == firstSectID)) {

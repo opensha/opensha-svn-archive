@@ -3,6 +3,7 @@ package scratch.UCERF3.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -19,7 +20,7 @@ public class UCERF2_PaleoSegRateData {
 	
 	protected final static boolean D = true;  // for debugging
 	
-	public static ArrayList<SegRateConstraint> getConstraints(File precomputedDataDir, ArrayList<FaultSectionPrefData> faultSectionData) {
+	public static ArrayList<SegRateConstraint> getConstraints(File precomputedDataDir, List<FaultSectionPrefData> faultSectionData) {
 		
 		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+PALEO_DATA_FILE_NAME;
 		ArrayList<SegRateConstraint> segRateConstraints   = new ArrayList<SegRateConstraint>();
