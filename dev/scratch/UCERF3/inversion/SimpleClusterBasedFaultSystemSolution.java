@@ -5,7 +5,7 @@ import java.util.List;
 import org.dom4j.Element;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.utils.SimpleFaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 
 public class SimpleClusterBasedFaultSystemSolution extends
 		SimpleFaultSystemSolution implements ClusterBasedFaultSystemRupSet {

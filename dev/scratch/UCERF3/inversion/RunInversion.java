@@ -14,10 +14,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
-import scratch.UCERF3.utils.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.UCERF2_PaleoSegRateData;
 
 

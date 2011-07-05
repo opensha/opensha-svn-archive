@@ -1,4 +1,4 @@
-package scratch.UCERF3.utils;
+package scratch.UCERF3;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,9 +12,6 @@ import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.inversion.ClusterBasedFaultSystemRupSet;
 import scratch.UCERF3.inversion.SimpleClusterBasedFaultSystemSolution;
 

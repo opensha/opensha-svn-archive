@@ -10,7 +10,7 @@ import org.opensha.commons.util.FileUtils;
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.utils.SimpleFaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 
 public class SolResultFromMorgan {
 
