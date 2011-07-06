@@ -144,9 +144,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			for (int i=0; i < slips.length; i++) {
 				int row = sects.get(i);
 				int col = rup;
-//				A.addToEntry(sects.get(i),rup,slips[i]);
-				if (A.get(row,col) != 0) System.out.println("*** Error! ***  A-matrix not initialized properly?");
-//				A.set(row, col, A.get(row, col)+slips[i]);	// IS "A.get(row, col)" NEEDED?
 				A.set(row, col, slips[i]);
 				if(D) numNonZeroElements++;
 			}
