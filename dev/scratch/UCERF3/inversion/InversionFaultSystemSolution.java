@@ -46,6 +46,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	protected final static boolean D = true;  // for debugging
 	
 	FaultSystemRupSet faultSystemRupSet;
+	boolean weightSlipRates;
 	double relativeSegRateWt, relativeMagDistWt, relativeRupRateConstraintWt;
 	int numIterations;
 	ArrayList<SegRateConstraint> segRateConstraints;
@@ -73,12 +74,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * @param initialRupModel
 	 * @param mfdConstraints
 	 */
-	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, double relativeSegRateWt, 
+	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, boolean weightSlipRates, double relativeSegRateWt, 
 			double relativeMagDistWt, double relativeRupRateConstraintWt, int numIterations,
 			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint,
 			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints) {
 		
 		this.faultSystemRupSet=faultSystemRupSet;
+		this.weightSlipRates=weightSlipRates;
 		this.relativeSegRateWt=relativeSegRateWt;
 		this.relativeMagDistWt=relativeMagDistWt;
 		this.relativeRupRateConstraintWt=relativeRupRateConstraintWt;
@@ -144,13 +146,20 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			for (int i=0; i < slips.length; i++) {
 				int row = sects.get(i);
 				int col = rup;
-				A.set(row, col, slips[i]);
+				if (weightSlipRates == false) {
+					A.set(row, col, slips[i]);
+				} else A.set(row, col, slips[i]/sectSlipRateReduced[row]); // Normalize by slip rate
 				if(D) numNonZeroElements++;
 			}
 		}
-		for (int sect=0; sect<numSlipRateConstraints; sect++) d[sect] = sectSlipRateReduced[sect];	
+		for (int sect=0; sect<numSlipRateConstraints; sect++) {
+			if (weightSlipRates == false) {
+				d[sect] = sectSlipRateReduced[sect];	
+			} else d[sect] = 1; // Normalize by slip rate
+		}
 		if(D) System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 
+		
 		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
@@ -341,12 +350,21 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		ArrayList funcs2 = new ArrayList();		
 		EvenlyDiscretizedFunc syn = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
 		EvenlyDiscretizedFunc data = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
-		for (int i = 0; i < numSections; i++) {
-			for (int j = 0; j < A.columns(); j++) {	
-				syn.add(i,A.get(i,j) * rupRateSolution[j]); // compute predicted data
+		for (int i=0; i<numSections; i++) {
+			data.set(i, faultSystemRupSet.getSlipRateForSection(i));
+			syn.set(i,0);
+		}
+		
+		for (int rup=0; rup<numRuptures; rup++) {
+			double[] slips = getSlipOnSectionsForRup(rup);
+			List<Integer> sects = getSectionsIndicesForRup(rup);
+			for (int i=0; i < slips.length; i++) {
+				int row = sects.get(i);
+				syn.add(row,slips[i]*rupRateSolution[rup]);
 			}
-			data.add(i,d[i]);
-		}	
+		}
+		for (int i=0; i<numSections; i++) data.set(i, faultSystemRupSet.getSlipRateForSection(i));
+		
 		funcs2.add(syn);
 		funcs2.add(data);
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
