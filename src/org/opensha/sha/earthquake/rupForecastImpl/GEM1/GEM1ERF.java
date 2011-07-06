@@ -36,7 +36,7 @@ import org.opensha.sha.util.TectonicRegionType;
  *
  *@TODO
 	1) test and verify all the options contained herein
-	2) fix problem that lowerSeisDepth for point sources can be inconsistent with given aveRupTomDepthVersusMag.
+	2) fix problem that lowerSeisDepth for point sources can be inconsistent with given aveRupTopDepthVersusMag.
 	   For example, if both shallow and very deep sources exist, then rupture-length estimates are bogus if computed 
 	   from a mag-area relationship (e.g., if lowerSeisDepth = 14km and aveRuptTopDepthVersusMag = 115 km, as happens
 	   for the S. American ERF)
