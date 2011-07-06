@@ -12,6 +12,8 @@ import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
  * @author Morgan Page and Kevin Milner
  *
  */
+
+
 public class SimulatedAnnealing {
 	
 	enum CoolingScheduleType {
@@ -28,7 +30,7 @@ public class SimulatedAnnealing {
 	}
 	
 	enum NonnegativityConstraintType {
-		TRY_ZERO_RATES_OFTEN, // sets rate to zero if they are perturbed to negative values 
+		TRY_ZERO_RATES_OFTEN, // sets rate to zero if they are perturbed to negative values (recommended - anneals much faster!)
 		LIMIT_ZERO_RATES;     // re-perturb rates if they are perturbed to negative values 
 	}
 
@@ -38,7 +40,7 @@ public class SimulatedAnnealing {
 	public static double[] getSolution(DoubleMatrix2D A, double[] d, double[] initialState, int numIterations) {
 		
 		CoolingScheduleType coolingFunc = CoolingScheduleType.VERYFAST_SA;
-		NonnegativityConstraintType nonnegativeityConstraintAlgorithm = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+		NonnegativityConstraintType nonnegativeityConstraintAlgorithm = NonnegativityConstraintType.TRY_ZERO_RATES_OFTEN;
 		GenerationFunctionType perturbationFunc = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
 		
 		long runTime = System.currentTimeMillis();
@@ -47,9 +49,6 @@ public class SimulatedAnnealing {
 
 		int nRow = A.rows();
 		int nCol = A.columns();
-
-		if(D) System.out.println("nRow = " + nRow);
-		if(D) System.out.println("nCol = " + nCol);
 		
 		double[] x = Arrays.copyOf(initialState, nCol); // current model
 		double[] xbest = Arrays.copyOf(initialState, nCol);  // best model seen so far
@@ -62,10 +61,7 @@ public class SimulatedAnnealing {
 		int i, j, iter, index;
 		
 		
-		
-		
-		if(D) System.out.println("\nSolving inverse problem with simulated annealing ... \n");
-		
+		if(D) System.out.println("Solving inverse problem with simulated annealing ... \n");
 		if(D) System.out.println("Total number of iterations = " + numIterations);
 		
 		
@@ -82,7 +78,7 @@ public class SimulatedAnnealing {
 		if (D) {
 			System.out.println("Starting energy = " + Ebest);
 			setupTime = System.currentTimeMillis()-setupTime;
-			System.out.println("Setup time: "+(setupTime/1000d)+" seconds");
+			System.out.println("Setup time: "+(setupTime/1000d)+" seconds\n");
 		}
 		
 		for (iter = 1; iter <= numIterations; iter++) {
@@ -108,7 +104,7 @@ public class SimulatedAnnealing {
 					System.out.println("Lowest energy found = " + Ebest);
 				}
 			}
-					
+				
 			
 			// Pick neighbor of current model
 			xnew = Arrays.copyOf(x, nCol);  // This does xnew=x for an array
@@ -116,9 +112,9 @@ public class SimulatedAnnealing {
 			// Index of model to randomly perturb
 			index = (int)(Math.random() * (double)nCol); // casting as int takes the floor
 			
+		
 			// How much to perturb index (some perturbation functions are a function of T)	
 			perturb[index] = getPerturbation(perturbationFunc, T);  
-			
 			
 			// Apply then nonnegativity constraint -- make sure perturbation doesn't make the rate negative
 			switch (nonnegativeityConstraintAlgorithm) {
@@ -128,10 +124,10 @@ public class SimulatedAnnealing {
 					if (xnew[index] == 0) { // if that rate was already zero do not keep it at zero
 						while (x[index] + perturb[index] < 0) 
 							perturb[index] = getPerturbation(perturbationFunc,T);
-					} else // if that rate was not already zero, and it goes negative, set it equal to zero
+					} else { // if that rate was not already zero, and it goes negative, set it equal to zero
 						if (xnew[index] + perturb[index] < 0) 
 							perturb[index] = -xnew[index];
-				
+					}
 					break;
 				case LIMIT_ZERO_RATES:    // re-perturb rates if they are perturbed to negative values 
 					// This way will result in not a lot of zero rates (none if numIterations >> length(x)),
@@ -190,16 +186,13 @@ public class SimulatedAnnealing {
 			double runSecs = (System.currentTimeMillis() - runTime) / 1000d;
 			double multSecs = multTime / 1000d;
 			System.out.println("Done with Inversion after " + runSecs + " seconds.");
-			System.out.println("Mult time: "+multSecs+" secs ("+(multSecs/runSecs*100d)+" % )");
+			System.out.println("Mult time: "+multSecs+" secs ("+(multSecs/runSecs*100d)+" %)");
 		}
 		return xbest;
 	}
 
 
 	
-
-
-
 public static double getPerturbation(GenerationFunctionType perturbationFunc, double T) {
 
 	double perturbation;
@@ -228,6 +221,12 @@ public static double getPerturbation(GenerationFunctionType perturbationFunc, do
 	
 }
 
+
 }
+
+
+
+
+
 
 
