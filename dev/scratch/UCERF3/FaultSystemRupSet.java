@@ -24,7 +24,7 @@ public interface FaultSystemRupSet {
 	public int getNumRuptures();
 	
 	/**
-	 * The total number of fault sections in the fault system
+	 * The total number of ruptures in the fault system
 	 * @return
 	 */
 	public int getNumSections();

@@ -30,7 +30,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	
 	/**
-	 * Thise gives the long-term rate (events/yr) of the rth rupture
+	 * These gives the long-term rate (events/yr) of the rth rupture
 	 * @param rupIndex
 	 * @return
 	 */

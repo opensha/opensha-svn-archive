@@ -50,7 +50,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	int numIterations;
 	ArrayList<SegRateConstraint> segRateConstraints;
 	
-	double[] aPriorRupConstraint;
+	double[] aPrioriRupConstraint;
 	double[] initialRupModel;
 		
 	ArrayList<MFD_InversionConstraint> mfdConstraints;
@@ -69,13 +69,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * @param relativeRupRateConstraintWt
 	 * @param numIterations
 	 * @param segRateConstraints
-	 * @param aPriorRupConstraint
+	 * @param aPrioriRupConstraint
 	 * @param initialRupModel
 	 * @param mfdConstraints
 	 */
 	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, double relativeSegRateWt, 
 			double relativeMagDistWt, double relativeRupRateConstraintWt, int numIterations,
-			ArrayList<SegRateConstraint> segRateConstraints, double[] aPriorRupConstraint,
+			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint,
 			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints) {
 		
 		this.faultSystemRupSet=faultSystemRupSet;
@@ -84,7 +84,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		this.relativeRupRateConstraintWt=relativeRupRateConstraintWt;
 		this.numIterations=numIterations;
 		this.segRateConstraints=segRateConstraints;
-		this.aPriorRupConstraint=aPriorRupConstraint;
+		this.aPrioriRupConstraint=aPrioriRupConstraint;
 		this.initialRupModel=initialRupModel;
 		this.mfdConstraints=mfdConstraints;
 		
@@ -109,6 +109,9 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 				numSlipRateConstraints+=1;
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
+		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
+		if(D) System.out.println("Number of segment-rate constraints: " + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size());
+		if(D) System.out.println("Number of rupture-rate constraints: " + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures);
 		int numRows = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + 
 				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
 		IncrementalMagFreqDist targetMagFreqDist=null;
@@ -116,22 +119,22 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			// RIGHT NOW THIS ASSUMES THERE IS ONLY ONE MFD CONSTRAINT AND THIS IGNORES THE REGION (APPLIES TO WHOLE INVERSION)
 			targetMagFreqDist=mfdConstraints.get(0).getMagFreqDist();
 			numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
+			if(D) System.out.println("Number of magnitude-distribution constraints: " + targetMagFreqDist.getNum());
 		}
 		
 		
 		// Components of matrix equation to invert (Ax=d)
-//		OpenMapRealMatrix A = new OpenMapRealMatrix(numRows,numRuptures); // A matrix
 		A = new SparseCCDoubleMatrix2D(numRows,numRuptures); // A matrix
 		d = new double[numRows];	// data vector d
 		rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
 		
-		if(D) System.out.println("\nNumber of sections: " + numSections + ". Number of ruptures: " + numRuptures + ".\n");
-		if(D) System.out.println("Total number of constraints (rows): " + numRows + ".\n");
+		if(D) System.out.println("Total number of constraints (rows): " + numRows);
+		if(D) System.out.println("\nNumber of fault sections: " + numSections + ". Number of ruptures (columns): " + numRuptures + ".");
 		
 		
 		// Put together "A" Matrix and data vector
 		
-		// NEED TO REVISE NEXT SECTION TO HANDLE CASE WHERE SOME SLIP RATES ARW NaN *******************
+		// NEED TO REVISE NEXT SECTION TO HANDLE CASE WHERE SOME SLIP RATES ARE NaN *******************
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
@@ -142,7 +145,9 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 				int row = sects.get(i);
 				int col = rup;
 //				A.addToEntry(sects.get(i),rup,slips[i]);
-				A.set(row, col, A.get(row, col)+slips[i]);	// IS "A.get(row, col)" NEEDED?
+				if (A.get(row,col) != 0) System.out.println("*** Error! ***  A-matrix not initialized properly?");
+//				A.set(row, col, A.get(row, col)+slips[i]);	// IS "A.get(row, col)" NEEDED?
+				A.set(row, col, slips[i]);
 				if(D) numNonZeroElements++;
 			}
 		}
@@ -158,11 +163,8 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+segRateConstraints.size(); i++) {
 				SegRateConstraint constraint = segRateConstraints.get(i-numSlipRateConstraints);
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
-//				double[] row = A.getRow(constraint.getSegIndex());
 				for (int rup=0; rup<numRuptures; rup++) {
-//					if (row[rup]>0) {
 					if (A.get(constraint.getSegIndex(), rup)>0) {
-//						A.setEntry(i,rup,relativeSegRateWt * getProbVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());
 						A.set(i, rup, (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean()));
 						if(D) numNonZeroElements++;			
 					}
@@ -181,7 +183,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			if(D) System.out.println("\nAdding magnitude constraint to A matrix (match Target UCERF2 minus background) ...");
 			for(int rup=0; rup<numRuptures; rup++) {
 				double mag = rupMeanMag[rup];
-//				A.setEntry(rowIndex+targetMagFreqDist.getXIndex(mag),rup,relativeMagDistWt);
 				A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagDistWt);
 				numNonZeroElements++;
 			}		
@@ -193,25 +194,21 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		}
 			
 		
-		// Constrain Rupture Rate Solution to approximately equal aPriorRupConstraint
+		// Constrain Rupture Rate Solution to approximately equal aPrioriRupConstraint
 		if (relativeRupRateConstraintWt > 0.0) {	
 			if(D) System.out.println("\nAdding rupture rate constraint to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
-//				A.setEntry(rowIndex,rup,relativeRupRateConstraintWt);
 				A.set(rowIndex,rup,relativeRupRateConstraintWt);
-				d[rowIndex]=aPriorRupConstraint[rup]*relativeRupRateConstraintWt;
+				d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
 				numNonZeroElements++; rowIndex++;
 			}		
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
-		// Solve the inverse problems
 		
-//		writeInversionIngredientsToFiles(A,d,initial_state); // optional: Write out inversion files to Desktop to load into MatLab (faster than Java)
-//		doMatSpeedTest(A, d, initial_state, numiter);
+		// Solve the inverse problem
 		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initialRupModel, numIterations);    		
-//		rupRateSolution = loadMatLabInversionSolution(); // optional: Load in MatLab's SA solution from file instead of using Java SA code
 		
 	}
 

@@ -97,35 +97,44 @@ public class RunInversion {
 		double relativeSegRateWt = 0.01;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 0.01)
 		double relativeMagDistWt = 10.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended: 10.0)
 		double relativeRupRateConstraintWt = 0.1;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1) - can be UCERF2 rates or Smooth G-R rates
-		int numIterations = 10000;
+		int numIterations = 100000;  // number of simulated annealing iterations (increase this to decrease misfit)
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 
 		// create class the gives UCERF2-related constraints
+
+		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
 		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
+		getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
+		
+		if(D) System.out.println("\nDefining inversion constraints . . .");
 		
 		// a priori constraint
-		double[] aPriorRupConstraint = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);
-		// Or do the following:  THIS HAS NOT BEEN CHECKED!
-//		double[] aPriorRupConstraint = getSmoothStartingSolution(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD());
+		double[] aPrioriRupConstraint = null;
+		// Use UCERF2 Solution (Only works for Northern CA)
+		aPrioriRupConstraint = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // duplicate method call (see above)
+		// Or use smooth starting solution with UCERF2 target MFD (only works for Northern CA):  
+//		aPrioriRupConstraint = getSmoothStartingSolution(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD());  // this is causing a BUG for some reason (even when relativeRupRateConstraintWt=0) -- slip rates on SAF don't match
 		
 		// Initial model
-		double[] initialRupModel = aPriorRupConstraint;
+		double[] initialRupModel = new double[faultSystemRupSet.getNumRuptures()];  // initial guess at solution x
+		// Use a Priori rupture rate constraint (if used) as starting solution
+		initialRupModel = aPrioriRupConstraint;
 		// Or start with zeros:
-//		for (int r=0; r<faultSystemRupSet.getNumRupRuptures(); r++) initialRupModel[r]=0;
+//		for (int r=0; r<faultSystemRupSet.getNumRuptures(); r++) initialRupModel[r]=0;
 
 
-		// Create the MFD constraints (Arraylist so we can apply this to multiple subregions)
+		// Create the MFD constraints (ArrayList so we can apply this to multiple subregions)
 		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
 		// Just add the N CAL one for now with a null region (apply it to full model)
 		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);
 		mfdConstraints.add(mfdConstraintUCERF2);
 		
-		if(D) System.out.println("Starting inversion");
+		if(D) System.out.println("\nStarting inversion . . .");
 		long startTime = System.currentTimeMillis();
 		inversion = new InversionFaultSystemSolution(faultSystemRupSet, relativeSegRateWt, 
 				relativeMagDistWt, relativeRupRateConstraintWt, numIterations, segRateConstraints, 
-				aPriorRupConstraint, initialRupModel, mfdConstraints);
+				aPrioriRupConstraint, initialRupModel, mfdConstraints);
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
 		if (D) System.out.print("Saving Solution to XML...");
@@ -170,7 +179,7 @@ public class RunInversion {
 		
 		List<List<Integer>> rupList = faultSystemRupSet.getSectionIndicesForAllRups();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
-		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
+		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections(); 
 		
 		int numRup = rupMeanMag.length;
 		double[] meanSlipRate = new double[numRup]; // mean slip rate per section for each rupture
@@ -194,7 +203,7 @@ public class RunInversion {
 			}
 			meanSlipRate[rup] = meanSlipRate[rup]/sects.size();
 		}
-		
+	
 		// Find magnitude distribution of ruptures (as discretized)
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
 		magHist.setTolerance(0.1);	// this makes it a histogram
@@ -202,7 +211,7 @@ public class RunInversion {
 			// magHist.add(rupMeanMag[rup], 1.0);
 			// Each bin in the magnitude histogram should be weighted by the mean slip rates of those ruptures 
 			// (since later we weight the ruptures by the mean slip rate, which would otherwise result in 
-			// starting solution tht did not match target MFD if the mean slip rates per rupture 
+			// starting solution that did not match target MFD if the mean slip rates per rupture 
 			// differed between magnitude bins)
 			magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
 		}
@@ -222,31 +231,22 @@ public class RunInversion {
 				}
 			}
 			totalOverlap = totalOverlap/sects.size() + 1;  // add percentages of total overlap with each rupture + 1 for original rupture itself
-			
+
 			// Divide rate by total number of similar ruptures (same magnitude, has section overlap)  - normalize overlapping ruptures by percentage overlap
-			initial_state[rup] = targetMagFreqDist.getY(rupMeanMag[rup]) * meanSlipRate[rup] / (magHist.getY(rupMeanMag[rup]) * totalOverlap);
+			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);  
 		}
 		
-		// Find normalization for all ruptures using total event rates (so that MFD matches target MFD normalization)
-		/* double totalEventRate=0;
-		for (int rup=0; rup<numRup; rup++) {
-			totalEventRate += initial_state[rup];	
-		}
-		targetMagFreqDist.calcSumOfY_Vals();
-		double normalization = targetMagFreqDist.calcSumOfY_Vals()/totalEventRate; */
 		
-		// The above doesn't work perfectly because some mag bins don't have any ruptures.
-		// Instead let's choose one mag bin that has rups and normalize all bins by the amount it's off:
+		// Find normalization for all ruptures (so that MFD matches target MFD normalization)
+		// Can't just add up all the mag bins to normalize because some bins don't have ruptures.
+		// Instead let's choose one mag bin (that we know has rups) that has rups and normalize all bins by the amount it's off:
 		double totalEventRate=0;
 		for (int rup=0; rup<numRup; rup++) {
 			//if ((double) Math.round(10*rupMeanMag[rup])/10==7.0)
 			if (rupMeanMag[rup]>7.0 && rupMeanMag[rup]<=7.1)
 				totalEventRate += initial_state[rup];
 		}
-		double normalization = targetMagFreqDist.getY(7.0)/totalEventRate;
-		
-		
-		
+		double normalization = targetMagFreqDist.getClosestY(7.0)/totalEventRate;	
 		// Adjust rates to match target MFD total event rates
 		for (int rup=0; rup<numRup; rup++) 
 			initial_state[rup]=initial_state[rup]*normalization;
@@ -264,6 +264,7 @@ public class RunInversion {
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Frequency (per bin)");
+	
 		
 		return initial_state;
 		

@@ -214,7 +214,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		rupListIndices = newRupList;
 		numRupsAdded = rupListIndices.size();
 		
-		System.out.println(numRupsAdded + " potential ruptures");
+		if (D) System.out.println(numRupsAdded + " potential ruptures");
 
 /*
 		// Remove ruptures where subsection strikes have too big a spread
@@ -282,7 +282,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		rupListIndices = newRupList;
 		numRupsAdded = rupListIndices.size();
 		
-		System.out.println(numRupsAdded + " ruptures that pass subsection rakes test");
+		if (D) System.out.println(numRupsAdded + " ruptures that pass subsection rakes test");
 		
 		
 	}
