@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.apache.commons.io.IOUtils;
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
 
@@ -190,13 +191,17 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 
 	@Override
 	public String toString() {
-		StringBuffer b = new StringBuffer();
-		b.append("LocationList size: " + size() + "\n");
-		b.append("LocationList data: ");
+		// @formatter:off
+		StringBuffer b = new StringBuffer()
+			.append("List size: ").append(size())
+			.append(IOUtils.LINE_SEPARATOR)
+			.append("Locations: ");
 		for (Location loc : this) {
-			b.append(loc + " ");
+			b.append(loc).append(IOUtils.LINE_SEPARATOR)
+			.append("           ");
 		}
 		return b.toString();
+		// @formatter:on
 	}
 
 	public Element toXMLMetadata(Element root) {

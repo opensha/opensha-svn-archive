@@ -160,13 +160,8 @@ public class Location implements
 
 	@Override
 	public String toString() {
-		StringBuffer b = new StringBuffer();
-		b.append(getLatitude());
-		b.append(",");
-		b.append(getLongitude());
-		b.append(",");
-		b.append(getDepth());
-		return b.toString();
+		return String.format("%.5f, %.5f, %.5f", getLatitude(), getLongitude(),
+			getDepth());
 	}
 	
 	@Override
