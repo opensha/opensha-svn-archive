@@ -86,12 +86,7 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 	 *  a default row and column size to = 100.
 	 */
 	public Container2DImpl() {
-
-//		String S = C + ": Constructor(): ";
-		int numRows = 100;
-		int numCols = 100;
-		size = ( long ) numRows * ( long ) numCols;
-		data = new Object[numRows * numCols];
+		this(100, 100);
 	}
 
 
@@ -112,6 +107,7 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 			"Container size exceeds allowable 32-bit address space");
 		this.numRows = numRows;
 		this.numCols = numCols;
+		size = ( long ) numRows * ( long ) numCols;
 		data = new Object[numRows * numCols];
 	}
 

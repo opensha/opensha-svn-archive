@@ -16,6 +16,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.SimulatedAnnealing;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
@@ -41,7 +42,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
  * @author Field, Page, Milner, & Powers
  *
  */
-public class InversionFaultSystemSolution extends FaultSystemSolution {
+public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -58,8 +59,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	DoubleMatrix2D A; // A matrix for inversion
 	double[] d;	// data vector d for inversion
-	double[] rupRateSolution; // final solution (x of Ax=d) of inversion
-
 
 	/**
 	 * Constructor.
@@ -78,7 +77,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			double relativeMagDistWt, double relativeRupRateConstraintWt, int numIterations,
 			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint,
 			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints) {
-		
+		super(faultSystemRupSet, null);
 		this.faultSystemRupSet=faultSystemRupSet;
 		this.weightSlipRates=weightSlipRates;
 		this.relativeSegRateWt=relativeSegRateWt;
@@ -91,7 +90,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		this.mfdConstraints=mfdConstraints;
 		
 		doInversion();
-		
 	}
 	
 	
@@ -217,107 +215,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initialRupModel, numIterations);    		
 		
 	}
-
-	
-	@Override
-	public double[] getRateForAllRups() {
-		return rupRateSolution;
-	}
-
-	@Override
-	public double getRateForRup(int rupIndex) {
-		return rupRateSolution[rupIndex];
-	}
-
-	@Override
-	public double getAreaForRup(int rupIndex) {
-		return faultSystemRupSet.getAreaForRup(rupIndex);
-	}
-
-	@Override
-	public double getAreaForSection(int sectIndex) {
-		return faultSystemRupSet.getAreaForSection(sectIndex);
-	}
-
-	@Override
-	public double getAveRakeForRup(int rupIndex) {
-		return faultSystemRupSet.getAveRakeForRup(rupIndex);
-	}
-
-	@Override
-	public double[] getAveSlipForAllRups() {
-		return faultSystemRupSet.getAveSlipForAllRups();
-	}
-
-	@Override
-	public double getAveSlipForRup(int rupIndex) {
-		return faultSystemRupSet.getAveSlipForRup(rupIndex);
-	}
-
-	@Override
-	public FaultSectionPrefData getFaultSectionData(int sectIndex) {
-		return faultSystemRupSet.getFaultSectionData(sectIndex);
-	}
-	
-	@Override
-	public List<FaultSectionPrefData> getFaultSectionDataList() {
-		return faultSystemRupSet.getFaultSectionDataList();
-	}
-
-	@Override
-	public String getInfoString() {
-		return faultSystemRupSet.getInfoString();
-	}
-
-	@Override
-	public double[] getMagForAllRups() {
-		return faultSystemRupSet.getMagForAllRups();
-	}
-
-	@Override
-	public double getMagForRup(int rupIndex) {
-		return faultSystemRupSet.getMagForRup(rupIndex);
-	}
-
-	@Override
-	public int getNumRuptures() {
-		return faultSystemRupSet.getNumRuptures();
-	}
-
-	@Override
-	public int getNumSections() {
-		return faultSystemRupSet.getNumSections();
-	}
-
-	@Override
-	public List<Integer> getSectionsIndicesForRup(int rupIndex) {
-		return faultSystemRupSet.getSectionsIndicesForRup(rupIndex);
-	}
-
-	@Override
-	public List<double[]> getSlipOnSectionsForAllRups() {
-		return faultSystemRupSet.getSlipOnSectionsForAllRups();
-	}
-
-	@Override
-	public double[] getSlipOnSectionsForRup(int rthRup) {
-		return faultSystemRupSet.getSlipOnSectionsForRup(rthRup);
-	}
-	
-	public double getSlipRateForSection(int sectIndex) {
-		return faultSystemRupSet.getSlipRateForSection(sectIndex);
-	}
-	
-	/**
-	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
-	 * because of the moment rate reduction (e.g., for smaller events).
-	 * @return
-	 */
-	public double[] getSlipRateForAllSections() {
-		return faultSystemRupSet.getSlipRateForAllSections();
-	}
-
-	
 	
 //	public void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
 	/**
@@ -485,26 +382,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		graph4.setX_AxisLabel("Magnitude");
 		graph4.setY_AxisLabel("Frequency (per bin)");
 				
-	}
-
-	@Override
-	public List<List<Integer>> getSectionIndicesForAllRups() {
-		return faultSystemRupSet.getSectionIndicesForAllRups();
-	}
-
-	@Override
-	public double[] getAveRakeForAllRups() {
-		return faultSystemRupSet.getAveRakeForAllRups();
-	}
-
-	@Override
-	public double[] getAreaForAllRups() {
-		return faultSystemRupSet.getAreaForAllRups();
-	}
-
-	@Override
-	public double[] getAreaForAllSections() {
-		return faultSystemRupSet.getAreaForAllSections();
 	}
 
 }

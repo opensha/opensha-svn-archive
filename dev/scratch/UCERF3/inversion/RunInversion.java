@@ -78,7 +78,7 @@ public class RunInversion {
 		if (D) System.out.print("Saving RupSet to XML...");
 		File xmlOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"rupSet.xml");
 		try {
-			new SimpleClusterBasedFaultSystemRupSet(invFaultSystemRupSet).toFile(xmlOut);
+			new SimpleFaultSystemRupSet(invFaultSystemRupSet).toFile(xmlOut);
 			if (D) System.out.println("DONE");
 		} catch (IOException e) {
 			System.out.println("IOException saving Rup Set to XML!");

@@ -59,7 +59,7 @@ import scratch.UCERF3.utils.FaultSectionDataWriter;
  * @author Field, Milner, Page, & Powers
  *
  */
-public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet {
+public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -96,6 +96,8 @@ public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet
 	String infoString;
 	
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
+	
+	private List<List<Integer>> sectionConnectionsListList;
 
 
 	/**
@@ -198,9 +200,9 @@ public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet
 	 * have one connection to another parent section (whichever subsections are closest).  This prevents parallel 
 	 * and closely space faults from having connections back and forth all the way down the section.
 	 */
-	private ArrayList<ArrayList<Integer>> computeCloseSubSectionsListList(double[][] sectionDistances) {
+	private List<List<Integer>> computeCloseSubSectionsListList(double[][] sectionDistances) {
 
-		ArrayList<ArrayList<Integer>> sectionConnectionsListList = new ArrayList<ArrayList<Integer>>();
+		ArrayList<List<Integer>> sectionConnectionsListList = new ArrayList<List<Integer>>();
 		for(int i=0;i<numSections;i++)
 			sectionConnectionsListList.add(new ArrayList<Integer>());
 
@@ -229,7 +231,7 @@ public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet
 			for(int j=0;j<numSubSect;j++) {
 				// get index of section
 				int sectIndex = subSectList.get(j).getSectionId();
-				ArrayList<Integer> sectionConnections = sectionConnectionsListList.get(sectIndex);
+				List<Integer> sectionConnections = sectionConnectionsListList.get(sectIndex);
 				if(j != 0) // skip the first one since it has no previous subsection
 					sectionConnections.add(subSectList.get(j-1).getSectionId());
 				if(j != numSubSect-1) // the last one has no subsequent subsection
@@ -273,7 +275,7 @@ public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet
 		
 		// make the list of nearby sections for each section (branches)
 		if(D) System.out.println("Making sectionConnectionsListList");
-		ArrayList<ArrayList<Integer>> sectionConnectionsListList = computeCloseSubSectionsListList(subSectionDistances);
+		sectionConnectionsListList = computeCloseSubSectionsListList(subSectionDistances);
 		if(D) System.out.println("Done making sectionConnectionsListList");
 
 		// make an arrayList of section indexes
@@ -299,8 +301,8 @@ public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet
 	}
 
 
-	private void addClusterLinks(int subSectIndex, SectionCluster list, ArrayList<ArrayList<Integer>> sectionConnectionsListList) {
-		ArrayList<Integer> branches = sectionConnectionsListList.get(subSectIndex);
+	private void addClusterLinks(int subSectIndex, SectionCluster list, List<List<Integer>> sectionConnectionsListList) {
+		List<Integer> branches = sectionConnectionsListList.get(subSectIndex);
 		for(int i=0; i<branches.size(); i++) {
 			Integer subSect = branches.get(i);
 			if(!list.contains(subSect)) {
@@ -637,6 +639,11 @@ public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet
 	public double[] getSlipRateForAllSections() {
 		return sectSlipRateReduced;
 	}
+	
+	@Override
+	public boolean isClusterBased() {
+		return true;
+	}
 
 	@Override
 	public int getNumClusters() {
@@ -661,5 +668,16 @@ public class InversionFaultSystemRupSet implements ClusterBasedFaultSystemRupSet
 	public List<Integer> getSectionsForCluster(int index) {
 		return sectionClusterList.get(index);
 	}
-	
+
+
+	@Override
+	public List<Integer> getCloseSectionsList(int sectIndex) {
+		return sectionConnectionsListList.get(sectIndex);
+	}
+
+
+	@Override
+	public List<List<Integer>> getCloseSectionsListList() {
+		return sectionConnectionsListList;
+	}
 }

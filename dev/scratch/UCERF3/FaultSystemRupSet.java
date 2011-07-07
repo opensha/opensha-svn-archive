@@ -148,4 +148,53 @@ public interface FaultSystemRupSet {
 	 */
 	public String getInfoString();
 	
+	/**
+	 * This fetches a list of all of the close sections to this section, as defined by the rupture set.
+	 * @param sectIndex index of the section to retrieve
+	 * @return close sections, or null if not defined
+	 */
+	public List<Integer> getCloseSectionsList(int sectIndex);
+	
+	/**
+	 * This returns a list of lists of close sections for each section.
+	 * @return list of all close sections, or null if not defined
+	 */
+	public List<List<Integer>> getCloseSectionsListList();
+	
+	/*		CLUSTER RELATED METHODS		*/
+	
+	/**
+	 * 
+	 * @return the number of clusters, or 0 if not a cluster based model
+	 */
+	public int getNumClusters();
+	
+	/**
+	 * 
+	 * @return true if the rup set is cluster based, false otherwise
+	 */
+	public boolean isClusterBased();
+	
+	/**
+	 * 
+	 * @param index index of the cluster to get
+	 * @return number of ruptures in the given cluster
+	 */
+	public int getNumRupturesForCluster(int index);
+	
+	/**
+	 * 
+	 * @param index index of the cluster to get
+	 * @return list of section IDs in the cluster at the given index
+	 */
+	public List<Integer> getSectionsForCluster(int index);
+	
+	/**
+	 * 
+	 * @param index index of the cluster to get
+	 * @return list of rupture indexes for the cluster at the given index
+	 * @throws IndexOutOfBoundsException if the index is invalid
+	 */
+	public List<Integer> getRupturesForCluster(int index) throws IndexOutOfBoundsException;
+	
 }

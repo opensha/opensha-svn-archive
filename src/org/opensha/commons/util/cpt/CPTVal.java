@@ -25,7 +25,7 @@ import java.io.Serializable;
 import org.dom4j.Element;
 
 
-public class CPTVal implements Comparable<CPTVal>, Serializable {
+public class CPTVal implements Comparable<CPTVal>, Serializable, Cloneable {
 	/**
 	 * In general this information determines the indicator color associated
 	 * with a value with a certain range.
@@ -145,5 +145,10 @@ public class CPTVal implements Comparable<CPTVal>, Serializable {
 	public String toString() {
 		return start + "\t" + CPT.tabDelimColor(minColor) + "\t" + end
 		+ "\t" + CPT.tabDelimColor(maxColor);
+	}
+
+	@Override
+	public Object clone() {
+		return new CPTVal(start, minColor, end, maxColor);
 	}
 }

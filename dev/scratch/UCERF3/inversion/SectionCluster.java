@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
@@ -21,7 +22,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	
 	ArrayList<FaultSectionPrefData> sectionDataList;
 	ArrayList<Integer> allSectionsIdList = null;
-	ArrayList<ArrayList<Integer>> sectionConnectionsListList;
+	List<List<Integer>> sectionConnectionsListList;
 	ArrayList<ArrayList<Integer>> rupListIndices;			// elements here are section IDs (same as indices in sectonDataList)
 	int minNumSectInRup;
 	int numRupsAdded;
@@ -40,7 +41,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param maxRakeDiff
 	 */
 	public SectionCluster(ArrayList<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
-			ArrayList<ArrayList<Integer>> sectionConnectionsListList, double[][] sectionAzimuths,
+			List<List<Integer>> sectionConnectionsListList, double[][] sectionAzimuths,
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff) {
 		this.sectionDataList = sectionDataList;
 		this.minNumSectInRup = minNumSectInRup;
@@ -112,7 +113,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			lastSect = -1;   // bogus index because ectIndex is first in list
 		
 		// loop over branches at the present section
-		ArrayList<Integer> branches = sectionConnectionsListList.get(sectIndex);
+		List<Integer> branches = sectionConnectionsListList.get(sectIndex);
 		for(int i=0; i<branches.size(); i++) { 
 			Integer newSect = branches.get(i);
 

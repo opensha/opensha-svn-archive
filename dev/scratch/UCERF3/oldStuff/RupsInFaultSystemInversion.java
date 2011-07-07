@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -67,7 +68,7 @@ public class RupsInFaultSystemInversion {
 	String endPointNames[];
 	Location endPointLocs[];
 	int numSections;
-	ArrayList<ArrayList<Integer>> sectionConnectionsListList, endToEndSectLinksList;
+	List<List<Integer>> sectionConnectionsListList, endToEndSectLinksList;
 	
 	File precomputedDataDir; // this is where pre-computed data are stored (we read these to make things faster)
 	
@@ -308,7 +309,7 @@ public class RupsInFaultSystemInversion {
 	 */
 	private void computeCloseSubSectionsListList() {
 
-		sectionConnectionsListList = new ArrayList<ArrayList<Integer>>();
+		sectionConnectionsListList = new ArrayList<List<Integer>>();
 		for(int i=0;i<numSections;i++)
 			sectionConnectionsListList.add(new ArrayList<Integer>());
 
@@ -337,7 +338,7 @@ public class RupsInFaultSystemInversion {
 			for(int j=0;j<numSubSect;j++) {
 				// get index of section
 				int sectIndex = subSectList.get(j).getSectionId();
-				ArrayList<Integer> sectionConnections = sectionConnectionsListList.get(sectIndex);
+				List<Integer> sectionConnections = sectionConnectionsListList.get(sectIndex);
 				if(j != 0) // skip the first one since it has no previous subsection
 					sectionConnections.add(subSectList.get(j-1).getSectionId());
 				if(j != numSubSect-1) // the last one has no subsequent subsection
@@ -376,7 +377,7 @@ public class RupsInFaultSystemInversion {
 	}
 
 	
-	public ArrayList<ArrayList<Integer>> getCloseSubSectionsListList() {
+	public List<List<Integer>> getCloseSubSectionsListList() {
 		return sectionConnectionsListList;
 	}
 
@@ -407,7 +408,7 @@ public class RupsInFaultSystemInversion {
 
 
 	private void addClusterLinks(int subSectIndex, SectionCluster list) {
-		ArrayList<Integer> branches = sectionConnectionsListList.get(subSectIndex);
+		List<Integer> branches = sectionConnectionsListList.get(subSectIndex);
 		for(int i=0; i<branches.size(); i++) {
 			Integer subSect = branches.get(i);
 			if(!list.contains(subSect)) {
@@ -430,7 +431,7 @@ public class RupsInFaultSystemInversion {
 			String outputString = new String();
 
 			for(int sIndex1=0; sIndex1<sectionConnectionsListList.size();sIndex1++) {
-				ArrayList<Integer> sectList = sectionConnectionsListList.get(sIndex1);
+				List<Integer> sectList = sectionConnectionsListList.get(sIndex1);
 				String sectName = faultSectionData.get(sIndex1).getName();
 				outputString += "\n"+ sectName + "  connections:\n\n";
 				for(int i=0;i<sectList.size();i++) {

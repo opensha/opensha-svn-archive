@@ -689,7 +689,7 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Clone
 		cpt.setBlender(getBlender());
 		
 		for (CPTVal val : this)
-			cpt.add(val);
+			cpt.add((CPTVal)val.clone());
 		
 		return cpt;
 	}

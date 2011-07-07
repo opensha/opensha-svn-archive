@@ -12,22 +12,25 @@ import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import scratch.UCERF3.inversion.ClusterBasedFaultSystemRupSet;
-import scratch.UCERF3.inversion.SimpleClusterBasedFaultSystemSolution;
+import com.google.common.base.Preconditions;
 
 public class SimpleFaultSystemSolution extends FaultSystemSolution implements XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "SimpleFaultSystemSolution";
 	
 	private FaultSystemRupSet rupSet;
-	private double[] rupRateSolution;
+	protected double[] rupRateSolution;
 	
 	public SimpleFaultSystemSolution(FaultSystemSolution solution) {
 		this(solution, solution.getRateForAllRups());
 	}
 	
 	public SimpleFaultSystemSolution(FaultSystemRupSet rupSet, double[] rupRateSolution) {
+		Preconditions.checkNotNull(rupSet, "FaultSystemRupSet passed in cannot be null!");
 		this.rupSet = rupSet;
+		Preconditions.checkState(
+				rupRateSolution == null || rupRateSolution.length == rupSet.getNumRuptures(),
+				"solution must either be null, or the correct size!");
 		this.rupRateSolution = rupRateSolution;
 	}
 
@@ -164,9 +167,6 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		Element rupSetEl = solutionEl.element(SimpleFaultSystemRupSet.XML_METADATA_NAME);
 		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.fromXMLMetadata(rupSetEl);
 		
-		if (simpleRupSet instanceof ClusterBasedFaultSystemRupSet)
-			return new SimpleClusterBasedFaultSystemSolution(
-					(ClusterBasedFaultSystemRupSet)simpleRupSet, rupRateSolution);
 		return new SimpleFaultSystemSolution(simpleRupSet, rupRateSolution);
 	}
 	
@@ -178,6 +178,42 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		Document doc = XMLUtils.loadDocument(file);
 		Element solutionEl = doc.getRootElement().element(XML_METADATA_NAME);
 		return fromXMLMetadata(solutionEl);
+	}
+
+	@Override
+	public List<Integer> getCloseSectionsList(int sectIndex) {
+		return rupSet.getCloseSectionsList(sectIndex);
+	}
+
+	@Override
+	public List<List<Integer>> getCloseSectionsListList() {
+		return rupSet.getCloseSectionsListList();
+	}
+
+	@Override
+	public int getNumClusters() {
+		return rupSet.getNumClusters();
+	}
+
+	@Override
+	public boolean isClusterBased() {
+		return rupSet.isClusterBased();
+	}
+
+	@Override
+	public int getNumRupturesForCluster(int index) {
+		return rupSet.getNumRupturesForCluster(index);
+	}
+
+	@Override
+	public List<Integer> getSectionsForCluster(int index) {
+		return rupSet.getSectionsForCluster(index);
+	}
+
+	@Override
+	public List<Integer> getRupturesForCluster(int index)
+			throws IndexOutOfBoundsException {
+		return rupSet.getRupturesForCluster(index);
 	}
 
 }

@@ -15,9 +15,6 @@ import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import scratch.UCERF3.inversion.ClusterBasedFaultSystemRupSet;
-import scratch.UCERF3.inversion.SimpleClusterBasedFaultSystemRupSet;
-
 import com.google.common.base.Preconditions;
 
 public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
@@ -36,22 +33,32 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	private double[] sectAreas;
 	private List<List<Integer>> sectionForRups;
 	private String info;
+	private List<List<Integer>> closeSections;
+	
+	// for clusters
+	private List<List<Integer>> clusterRups;
+	private List<List<Integer>> clusterSects;
 	
 	public static SimpleFaultSystemRupSet toSimple(FaultSystemRupSet rupSet) {
 		// if it's already a SimpleFaultSystemRupSet, just return that
 		if (rupSet instanceof SimpleFaultSystemRupSet)
 			return (SimpleFaultSystemRupSet)rupSet;
-		// special case for cluster models
-		if (rupSet instanceof ClusterBasedFaultSystemRupSet)
-			return new SimpleClusterBasedFaultSystemRupSet((ClusterBasedFaultSystemRupSet)rupSet);
 		return new SimpleFaultSystemRupSet(rupSet);
 	}
 	
-	protected SimpleFaultSystemRupSet(FaultSystemRupSet rupSet) {
+	public SimpleFaultSystemRupSet(FaultSystemRupSet rupSet) {
 		this(rupSet.getFaultSectionDataList(), rupSet.getMagForAllRups(), rupSet.getAveSlipForAllRups(),
 				rupSet.getSlipOnSectionsForAllRups(), rupSet.getSlipRateForAllSections(),
 				rupSet.getAveRakeForAllRups(), rupSet.getAreaForAllRups(), rupSet.getAreaForAllSections(),
-				rupSet.getSectionIndicesForAllRups(), rupSet.getInfoString());
+				rupSet.getSectionIndicesForAllRups(), rupSet.getInfoString(), rupSet.getCloseSectionsListList());
+		if (rupSet.isClusterBased()) {
+			clusterRups = new ArrayList<List<Integer>>();
+			clusterSects = new ArrayList<List<Integer>>();
+			for (int i=0; i<rupSet.getNumClusters(); i++) {
+				clusterRups.add(rupSet.getRupturesForCluster(i));
+				clusterSects.add(rupSet.getSectionsForCluster(i));
+			}
+		}
 	}
 	
 	public SimpleFaultSystemRupSet(
@@ -64,7 +71,26 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 			double[] rupAreas,
 			double[] sectAreas,
 			List<List<Integer>> sectionForRups,
-			String info) {
+			String info,
+			List<List<Integer>> closeSections) {
+		this(faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, rakes,
+				rupAreas, sectAreas, sectionForRups, info, closeSections, null, null);
+	}
+	
+	public SimpleFaultSystemRupSet(
+			List<FaultSectionPrefData> faultSectionData, 
+			double[] mags,
+			double[] rupAveSlips,
+			List<double[]> rupSectionSlips,
+			double[] sectSlipRates,
+			double[] rakes,
+			double[] rupAreas,
+			double[] sectAreas,
+			List<List<Integer>> sectionForRups,
+			String info,
+			List<List<Integer>> closeSections,
+			List<List<Integer>> clusterRups,
+			List<List<Integer>> clusterSects) {
 		int numRups = mags.length;
 		int numSects = faultSectionData.size();
 		
@@ -94,6 +120,10 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		this.sectionForRups = sectionForRups;
 		
 		this.info = info;
+		
+		this.closeSections = closeSections;
+		this.clusterRups = clusterRups;
+		this.clusterSects = clusterSects;
 	}
 
 	@Override
@@ -199,6 +229,45 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	@Override
 	public String getInfoString() {
 		return info;
+	}
+	
+	@Override
+	public List<Integer> getCloseSectionsList(int sectIndex) {
+		if (closeSections == null)
+			return null;
+		return closeSections.get(sectIndex);
+	}
+
+	@Override
+	public List<List<Integer>> getCloseSectionsListList() {
+		return closeSections;
+	}
+	
+	public boolean isClusterBased() {
+		return getNumClusters() > 0;
+	}
+	
+	@Override
+	public int getNumClusters() {
+		if (clusterRups == null)
+			return 0;
+		return clusterRups.size();
+	}
+
+	@Override
+	public int getNumRupturesForCluster(int index) {
+		return clusterRups.get(index).size();
+	}
+
+	@Override
+	public List<Integer> getRupturesForCluster(int index)
+			throws IndexOutOfBoundsException {
+		return clusterRups.get(index);
+	}
+	
+	@Override
+	public List<Integer> getSectionsForCluster(int index) {
+		return clusterSects.get(index);
 	}
 	
 	private static void listDoubleArrayToXML(Element root, List<double[]> list, String elName) {
@@ -321,8 +390,17 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		XMLUtils.doubleArrayToXML(el, rupAreas, "rupAreas");
 		XMLUtils.doubleArrayToXML(el, sectAreas, "sectAreas");
 		intListArrayToXML(el, sectionForRups, "sectionForRups");
+		if (closeSections != null)
+			intListArrayToXML(el, closeSections, "closeSections");
 		
 		fsDataToXML(el, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List");
+		
+		if (isClusterBased()) {
+			el.addAttribute("numClusters", getNumClusters()+"");
+			
+			intListArrayToXML(el, clusterRups, "clusterRups");
+			intListArrayToXML(el, clusterSects, "clusterSects");
+		}
 		
 		return el;
 	}
@@ -352,16 +430,30 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		if (D) System.out.println("Loading sectionForRups");
 		List<List<Integer>> sectionForRups = intListArrayFromXML(rupSetEl.element("sectionForRups"));
 		
+		List<List<Integer>> closeSections = null;
+		Element closeSectionsEl = rupSetEl.element("closeSections");
+		if (closeSectionsEl != null) {
+			if (D) System.out.println("Loading closeSections");
+			closeSections = intListArrayFromXML(closeSectionsEl);
+		}
+		
 		if (D) System.out.println("Loading faultSectionData");
 		ArrayList<FaultSectionPrefData> faultSectionData =
 			fsDataFromXML(rupSetEl.element(FaultSectionPrefData.XML_METADATA_NAME+"List"), numSects);
 		
+		List<List<Integer>> clusterRups = null;
+		List<List<Integer>> clusterSects = null;
+		Element clusterRupsEl = rupSetEl.element("clusterRups");
+		if (clusterRupsEl != null) {
+			// it is cluster based!
+			if (D) System.out.println("Loading clusterRups");
+			clusterRups = intListArrayFromXML(clusterRupsEl);
+			clusterSects = intListArrayFromXML(rupSetEl.element("clusterSects"));
+		}
+		
 		SimpleFaultSystemRupSet simple = new SimpleFaultSystemRupSet(
 				faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, rakes,
-				rupAreas, sectAreas, sectionForRups, info);
-		
-		if (rupSetEl.element("clusterRups") != null)
-			return SimpleClusterBasedFaultSystemRupSet.fromXMLMetadata(simple, rupSetEl);
+				rupAreas, sectAreas, sectionForRups, info, closeSections, clusterRups, clusterSects);
 		return simple;
 	}
 	
@@ -373,7 +465,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		Document doc = XMLUtils.loadDocument(file);
 		Element rupSetEl = doc.getRootElement().element(XML_METADATA_NAME);
 		return fromXMLMetadata(rupSetEl);
-	}
+	}	
 
 }
 
