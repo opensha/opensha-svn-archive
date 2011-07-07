@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import org.apache.commons.io.IOUtils;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -671,15 +672,21 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * @return
 	 */
 	public String toString(){
-		StringBuffer b = new StringBuffer();
-		//Iterator it2 = this.getPointsIterator();
-
-		b.append("Name: " + getName() + '\n');
-		b.append("Num Points: " + getNum() + '\n');
-		b.append("Info: " + getInfo() + "\n\n");
-		b.append("X, Y Data:" + '\n');
-		b.append(getMetadataString()+ '\n');
+		// @formatter:off
+		StringBuffer b = new StringBuffer()
+			.append("     Name: ").append(getName())
+			.append(IOUtils.LINE_SEPARATOR)
+			.append("   Points: ").append(getNum())
+			.append(IOUtils.LINE_SEPARATOR)
+			.append("     Info: ").append(getInfo())
+			.append(IOUtils.LINE_SEPARATOR)
+			.append(IOUtils.LINE_SEPARATOR)
+			.append("Data[x,y]:")
+			.append(IOUtils.LINE_SEPARATOR)
+			.append(getMetadataString())
+			.append(IOUtils.LINE_SEPARATOR);
 		return b.toString();
+		// @formatter:on
 	}
 
 	/**
