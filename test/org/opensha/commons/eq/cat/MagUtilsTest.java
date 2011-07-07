@@ -54,7 +54,8 @@ public class MagUtilsTest {
 		// test precalculated values
 		for (int i=0; i<magDat.length; i+=2) {
 			double calcMag = momentToMag(magDat[i+1]);
-			assertEquals(magDat[i], calcMag, 0.00000001);
+			double pDiff = DataUtils.getPercentDiff(calcMag, magDat[i]);
+			assertTrue(pDiff < 1e12);
 		}
 
 		// test values passed through magToMoment
@@ -63,6 +64,13 @@ public class MagUtilsTest {
 			double pDiff = DataUtils.getPercentDiff(calcMag, mag);
 			assertTrue(pDiff < 1e12);
 		}
+	}
+	
+	@Test
+	public void testGr_rate() {
+		assertEquals(1000, gr_rate(7, 1, 4), 0.0);
+		assertEquals(100,  gr_rate(7, 1, 5), 0.0);
+		assertEquals(10,   gr_rate(7, 1, 6), 0.0);
 	}
 
 }

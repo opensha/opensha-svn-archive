@@ -120,9 +120,9 @@ public class LocationTest {
 
 	@Test
 	public final void testToString() {
-		Location loc = new Location(20,30,10);
-		String s = loc.getLatitude() + "," + loc.getLongitude() + 
-		   "," + loc.getDepth();
+		Location loc = new Location(20, 30, 10);
+		String s = String.format("%.5f, %.5f, %.5f", loc.getLatitude(),
+			loc.getLongitude(), loc.getDepth());
 		assertEquals(loc.toString(), s);
 	}
 

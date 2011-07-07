@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -143,11 +144,13 @@ public class LocationListTest {
 
 	@Test
 	public final void testToString() {
-		StringBuffer b = new StringBuffer();
-		b.append("LocationList size: " + ll1.size() + "\n");
-		b.append("LocationList data: ");
+		StringBuffer b = new StringBuffer()
+		.append("List size: ").append(ll1.size())
+		.append(IOUtils.LINE_SEPARATOR)
+		.append("Locations: ");
 		for (Location loc : ll1) {
-			b.append(loc + " ");
+			b.append(loc).append(IOUtils.LINE_SEPARATOR)
+			.append("           ");
 		}
 		assertTrue(b.toString().equals(ll1.toString()));
 	}
@@ -299,5 +302,8 @@ public class LocationListTest {
 		}
 	}
 
+	public static void main(String[] args) {
+		System.out.println();
+	}
 
 }
