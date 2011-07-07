@@ -73,6 +73,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	
 	// section attributes (all in SI units)
 	double[] sectSlipRateReduced;	// this gets reduced by moRateReduction (if non zero)
+	double[] sectSlipRateStdDevReduced;	// this gets reduced by moRateReduction (if non zero)
 	
 	// rupture attributes (all in SI units)
 	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupMeanSlip;
@@ -146,10 +147,13 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 
 		numSections = faultSectionData.size();
 		
-		// compute sectSlipRateReduced (add standard deviations here as well?)
+		// compute sectSlipRateReduced
 		sectSlipRateReduced = new double[numSections];
-		for(int s=0; s<numSections; s++)
+		sectSlipRateStdDevReduced = new double[numSections];
+		for(int s=0; s<numSections; s++) {
 			sectSlipRateReduced[s] = faultSectionData.get(s).getAveLongTermSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
+			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getSlipRateStdDev()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
+		}
 
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
@@ -627,6 +631,25 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	public double[] getSlipRateForAllSections() {
 		return sectSlipRateReduced;
 	}
+	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
+	 * because of the moment rate reduction (e.g., for smaller events).
+	 * @return
+	 */
+	public double getSlipRateStdDevForSection(int sectIndex) {
+		return sectSlipRateStdDevReduced[sectIndex];
+	}
+	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
+	 * because of the moment rate reduction (e.g., for smaller events).
+	 * @return
+	 */
+	public double[] getSlipRateStdDevForAllSections() {
+		return sectSlipRateStdDevReduced;
+	}
+	
 	
 	@Override
 	public boolean isClusterBased() {

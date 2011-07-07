@@ -100,6 +100,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		int numSections = getNumSections();
 		int numRuptures = getNumRuptures();
 		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
+		double[] sectSlipRateStdDevReduced = faultSystemRupSet.getSlipRateStdDevForAllSections();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		
 		// Compute number of slip-rate constraints
