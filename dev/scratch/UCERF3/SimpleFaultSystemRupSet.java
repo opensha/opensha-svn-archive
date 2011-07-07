@@ -28,6 +28,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	private double[] rupAveSlips;
 	private List<double[]> rupSectionSlips;
 	private double[] sectSlipRates;
+	private double[] sectSlipRateStdDevs;
 	private double[] rakes;
 	private double[] rupAreas;
 	private double[] sectAreas;
@@ -224,6 +225,16 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	@Override
 	public double[] getSlipRateForAllSections() {
 		return sectSlipRates;
+	}
+
+	@Override
+	public double getSlipRateStdDevForSection(int sectIndex) {
+		return sectSlipRateStdDevs[sectIndex];
+	}
+
+	@Override
+	public double[] getSlipRateStdDevForAllSections() {
+		return sectSlipRateStdDevs;
 	}
 
 	@Override

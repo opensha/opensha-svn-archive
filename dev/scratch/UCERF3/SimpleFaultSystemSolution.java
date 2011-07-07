@@ -135,6 +135,16 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	}
 
 	@Override
+	public double getSlipRateStdDevForSection(int sectIndex) {
+		return rupSet.getSlipRateStdDevForSection(sectIndex);
+	}
+
+	@Override
+	public double[] getSlipRateStdDevForAllSections() {
+		return rupSet.getSlipRateStdDevForAllSections();
+	}
+
+	@Override
 	public String getInfoString() {
 		return rupSet.getInfoString();
 	}

@@ -141,6 +141,20 @@ public interface FaultSystemRupSet {
 	 * @return
 	 */
 	public double[] getSlipRateForAllSections();
+	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
+	 * where there has been a modification (i.e., moment rate reductions for smaller events).
+	 * @return
+	 */
+	public double getSlipRateStdDevForSection(int sectIndex);
+	
+	/**
+	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
+	 * where there has been a modification (i.e., moment rate reductions for smaller events).
+	 * @return
+	 */
+	public double[] getSlipRateStdDevForAllSections();
 
 	/**
 	 * This is a general info String
