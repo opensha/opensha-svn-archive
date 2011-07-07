@@ -37,21 +37,9 @@ import scratch.UCERF3.utils.FaultSectionDataWriter;
  * 
  * TO DO:
  * 
- * a) Add ability to save this to a file or database; I see two options:  
+ * a) Make the moment-rate reduction better (section specific)?
  * 
- *    1) save everything here (including the sectionClusterList) and add a constructor 
- *       to build this class back from a file or database (or an if statement in
- *       the current constructor to read it in if it already exists)
- *       
- *    2) save everything except the sectionClusterList and make a new class to read that 
- *       (with the same methods, but rewritten to not require use of the clusterList)
- *       
- *    3) Save everything except the sectionClusterList and change this class to not require
- *       the sectionClusterList after construction (but then it won't be avail to SCEC VDO)
- * 
- * b) Make the moment-rate reduction better (section specific)?
- * 
- * c) Add the following methods from the old version (../oldStuff/RupsInFaultSystemInversion) ????:
+ * b) Add the following methods from the old version (../oldStuff/RupsInFaultSystemInversion) ????:
  * 
  * 		writeCloseSubSections() 
  * 
