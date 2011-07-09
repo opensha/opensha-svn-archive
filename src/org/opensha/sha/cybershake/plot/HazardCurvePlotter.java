@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -150,6 +151,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	private String pass = "";
 	
 	private HazardCurveComputation curveCalc;
+	
+	private static DecimalFormat period_format = new DecimalFormat("0.##");
 	
 	public HazardCurvePlotter(DBAccess db) {
 		this.db = db;
@@ -918,9 +921,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	public static String getPeriodStr(double period) {
-		int periodInt = (int)(period * 100 + 0.5);
-		
-		return (periodInt / 100) + "";
+		return period_format.format(period);
 	}
 	
 	private ArrayList<String> plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im, int curveID, ArrayList<PlotCurveCharacterstics> chars) {
