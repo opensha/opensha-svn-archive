@@ -14,6 +14,14 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * This is a simple (array based) implementation of a {@link FaultSystemSolution}. It is similar to
+ * {@link SimpleFaultSystemRupSet} but extends {@link FaultSystemSolution} to provide rupture
+ * rates and various calculations. It can also be loaded to/from XML.
+ * 
+ * @author Kevin
+ *
+ */
 public class SimpleFaultSystemSolution extends FaultSystemSolution implements XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "SimpleFaultSystemSolution";
@@ -21,10 +29,21 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	private FaultSystemRupSet rupSet;
 	protected double[] rupRateSolution;
 	
+	/**
+	 * Creates a SimpleFaultSystemSolution from any solution.
+	 * 
+	 * @param solution
+	 */
 	public SimpleFaultSystemSolution(FaultSystemSolution solution) {
 		this(solution, solution.getRateForAllRups());
 	}
 	
+	/**
+	 * Creates a SimpleFaultSystemSolution from the given rupture set, and array of rates
+	 * 
+	 * @param rupSet
+	 * @param rupRateSolution
+	 */
 	public SimpleFaultSystemSolution(FaultSystemRupSet rupSet, double[] rupRateSolution) {
 		Preconditions.checkNotNull(rupSet, "FaultSystemRupSet passed in cannot be null!");
 		this.rupSet = rupSet;

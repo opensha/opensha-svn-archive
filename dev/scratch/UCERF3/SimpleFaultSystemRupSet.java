@@ -17,6 +17,15 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * This is a simple (array based) implementation of a {@link FaultSystemRupSet}. All data
+ * is set in the constructors, and cannot be changed.
+ * 
+ * <br><br>The benefit of this implementation is full saving/loading to/from XML files. 
+ * 
+ * @author Kevin Milner
+ *
+ */
 public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	
 	public static final boolean D = false;
@@ -40,6 +49,14 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	private List<List<Integer>> clusterRups;
 	private List<List<Integer>> clusterSects;
 	
+	/**
+	 * This converts any FaultSytemRupSet into a SimpleFaultSystemRupSet, which allows it
+	 * to be saved to a file. If the given rupSet is already a SimpleFaultSystemRupSet, 
+	 * it is simiply casted and returned.
+	 * 
+	 * @param rupSet
+	 * @return
+	 */
 	public static SimpleFaultSystemRupSet toSimple(FaultSystemRupSet rupSet) {
 		// if it's already a SimpleFaultSystemRupSet, just return that
 		if (rupSet instanceof SimpleFaultSystemRupSet)
@@ -47,6 +64,10 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		return new SimpleFaultSystemRupSet(rupSet);
 	}
 	
+	/**
+	 * This creates a SimpleFaultSystemRupSet from any arbitrary {@link FaultSystemRupSet} implementation
+	 * @param rupSet
+	 */
 	public SimpleFaultSystemRupSet(FaultSystemRupSet rupSet) {
 		this(rupSet.getFaultSectionDataList(), rupSet.getMagForAllRups(), rupSet.getAveSlipForAllRups(),
 				rupSet.getSlipOnSectionsForAllRups(), rupSet.getSlipRateForAllSections(),
@@ -62,6 +83,21 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		}
 	}
 	
+	/**
+	 * Creates a non-cluster based rupture set.
+	 * 
+	 * @param faultSectionData
+	 * @param mags
+	 * @param rupAveSlips
+	 * @param rupSectionSlips
+	 * @param sectSlipRates
+	 * @param rakes
+	 * @param rupAreas
+	 * @param sectAreas
+	 * @param sectionForRups
+	 * @param info
+	 * @param closeSections
+	 */
 	public SimpleFaultSystemRupSet(
 			List<FaultSectionPrefData> faultSectionData, 
 			double[] mags,
@@ -78,6 +114,23 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 				rupAreas, sectAreas, sectionForRups, info, closeSections, null, null);
 	}
 	
+	/**
+	 * Creates an (optionally) cluster based fault system rupture set.
+	 * 
+	 * @param faultSectionData
+	 * @param mags
+	 * @param rupAveSlips
+	 * @param rupSectionSlips
+	 * @param sectSlipRates
+	 * @param rakes
+	 * @param rupAreas
+	 * @param sectAreas
+	 * @param sectionForRups
+	 * @param info
+	 * @param closeSections
+	 * @param clusterRups
+	 * @param clusterSects
+	 */
 	public SimpleFaultSystemRupSet(
 			List<FaultSectionPrefData> faultSectionData, 
 			double[] mags,
