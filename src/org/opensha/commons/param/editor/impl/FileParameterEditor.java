@@ -21,6 +21,8 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 	private JButton browseButton;
 	private JFileChooser chooser;
 	
+	private static final String Browse = "Browse";
+	
 	public FileParameterEditor(FileParameter param) {
 		super(param);
 		
@@ -34,7 +36,7 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 
 	private JButton getBrowseButton() {
 		if (browseButton == null)
-			browseButton = new JButton("Browse");
+			browseButton = new JButton(Browse);
 		return browseButton;
 	}
 
@@ -60,12 +62,18 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 
 	@Override
 	protected JComponent buildWidget() {
-		return getBrowseButton();
+		JButton button = getBrowseButton();
+		File file = getValue();
+		if (file == null)
+			button.setText(Browse);
+		else
+			button.setText(file.getName());
+		return button;
 	}
 
 	@Override
 	protected JComponent updateWidget() {
-		return getBrowseButton();
+		return buildWidget();
 	}
 
 }
