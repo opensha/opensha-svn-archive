@@ -17,8 +17,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
-import scratch.UCERF3.utils.SimulatedAnnealing;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
@@ -213,7 +214,19 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		
 		// Solve the inverse problem
-		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initialRupModel, numIterations);    		
+		SimulatedAnnealing sa = new SimulatedAnnealing(A, d, initialRupModel);
+		sa.iterate(numIterations);
+		rupRateSolution = sa.getBestSolution();
+		
+		
+//		ThreadedSimulatedAnnealing tsa = new ThreadedSimulatedAnnealing(A, d, initialRupModel, 4);
+//		try {
+//			rupRateSolution = tsa.getSolution(numIterations, 2500);
+//		} catch (InterruptedException e) {
+//			throw new RuntimeException(e);
+//		}
+//		
+//		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initialRupModel, numIterations);    		
 		
 	}
 	
