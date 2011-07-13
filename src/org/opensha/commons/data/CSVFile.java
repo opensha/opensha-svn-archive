@@ -158,7 +158,6 @@ public class CSVFile<E> {
 	
 	private static ArrayList<String> loadLine(String line, int num) {
 		line = line.trim();
-		String[] split = line.split(",");
 		ArrayList<String> vals = new ArrayList<String>();
 		boolean inside = false;
 		String cur = "";
@@ -176,6 +175,8 @@ public class CSVFile<E> {
 			}
 			cur += c;
 		}
+		if (!cur.isEmpty())
+			vals.add(cur);
 		while (vals.size() < num)
 			vals.add("");
 		return vals;
