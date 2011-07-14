@@ -57,7 +57,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	
 	private double Ebest;
 	
-	private Random r;
+	private Random r = new Random();
 
 	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState) {
 		setup(A, d, initialState);
