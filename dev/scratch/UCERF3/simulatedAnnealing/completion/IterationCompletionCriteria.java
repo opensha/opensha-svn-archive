@@ -25,5 +25,9 @@ public class IterationCompletionCriteria implements CompletionCriteria {
 	public String toString() {
 		return "IterationCompletionCriteria(minIterations: "+minIterations+")";
 	}
+	
+	public long getMinIterations() {
+		return minIterations;
+	}
 
 }

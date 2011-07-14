@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.CompoundCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.EnergyCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
@@ -284,6 +285,30 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		ops.addOption(subIterationsStartOption);
 		
 		return ops;
+	}
+	
+	public static String completionCriteriaToArgument(CompletionCriteria criteria) {
+		if (criteria instanceof EnergyCompletionCriteria) {
+			return "--completion-energy "+((EnergyCompletionCriteria)criteria).getMaxEnergy();
+		} else if (criteria instanceof IterationCompletionCriteria) {
+			return "--completion-iterations "+((IterationCompletionCriteria)criteria).getMinIterations();
+		} else if (criteria instanceof TimeCompletionCriteria) {
+			return "--completion-time "+((TimeCompletionCriteria)criteria).getTimeStr();
+		} else if (criteria instanceof CompoundCompletionCriteria) {
+			String str = null;
+			for (CompletionCriteria subCriteria : ((CompoundCompletionCriteria)criteria).getCriterias()) {
+				if (str == null)
+					str = "";
+				else
+					str += " ";
+				str += completionCriteriaToArgument(subCriteria);
+			}
+			return str;
+		} else if (criteria instanceof ProgressTrackingCompletionCriteria) {
+			throw new IllegalArgumentException("ProgressTrackingCompletionCriteria not supported," +
+					"use --progress-file instead");
+		} else
+			throw new UnsupportedOperationException("Can't create command line argument for: "+criteria);
 	}
 	
 	protected static CompletionCriteria parseCompletionCriteria(CommandLine cmd) {

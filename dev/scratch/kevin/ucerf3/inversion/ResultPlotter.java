@@ -64,27 +64,22 @@ public class ResultPlotter {
 			ArrayList<PlotCurveCharacterstics> chars) {
 		new GraphiWindowAPI_Impl(funcs, title, chars);
 	}
-	
-	private static class EnergyComparator implements Comparator<ArbitrarilyDiscretizedFunc> {
-
-		@Override
-		public int compare(ArbitrarilyDiscretizedFunc o1,
-				ArbitrarilyDiscretizedFunc o2) {
-			double y1 = o1.getY(o1.getNum()-1);
-			double y2 = o2.getY(o2.getNum()-1);
-			
-			return Double.compare(y1, y2);
-		}
-		
-	}
 
 	/**
 	 * @param args
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File tsaDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/results_4");
-		File dsaDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/dsa_results_1");
+		
+//		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
+		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+		File tsaDir = new File(mainDir, "results_5");
+		File dsaDir = new File(mainDir, "dsa_results_1");
+		
+		String coolType = "VERYFAST";
+		int threads = -1;
+		int nodes = 1;
+		boolean includeStartSubZero = false;
 		
 		File[] tsaFiles = tsaDir.listFiles();
 		File[] dsaFiles = dsaDir.listFiles();
@@ -102,7 +97,19 @@ public class ResultPlotter {
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		
 		for (File file : files) {
-			if (!file.getName().endsWith(".csv"))
+			String name = file.getName();
+			if (!name.endsWith(".csv"))
+				continue;
+			
+			if (coolType != null && !name.contains(coolType))
+				continue;
+			if (threads > 0 && !name.contains(threads+"thread"))
+				continue;
+			if (nodes == 1 && name.contains("nodes"))
+				continue;
+			if (nodes > 1 && !name.contains(nodes+"nodes"))
+				continue;
+			if (!includeStartSubZero && name.contains("startSub"))
 				continue;
 			ArbitrarilyDiscretizedFunc[] funcs = loadCSV(file, mod);
 			
@@ -110,7 +117,6 @@ public class ResultPlotter {
 			energyVsTime.add(funcs[1]);
 			iterVsTime.add(funcs[2]);
 			
-			String name = file.getName();
 			PlotLineType type;
 			if (name.contains("CLASSICAL_SA"))
 				type = PlotLineType.DOTTED;

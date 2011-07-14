@@ -24,5 +24,9 @@ public class EnergyCompletionCriteria implements CompletionCriteria {
 	public String toString() {
 		return "EnergyCompletionCriteria(maxEnergy: "+maxEnergy+")";
 	}
+	
+	public double getMaxEnergy() {
+		return maxEnergy;
+	}
 
 }

@@ -20,5 +20,9 @@ public class CompoundCompletionCriteria implements CompletionCriteria {
 		}
 		return false;
 	}
+	
+	public Collection<CompletionCriteria> getCriterias() {
+		return criterias;
+	}
 
 }
