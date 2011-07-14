@@ -17,6 +17,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
@@ -214,7 +215,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		
 		// Solve the inverse problem
-		SimulatedAnnealing sa = new SimulatedAnnealing(A, d, initialRupModel);
+		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel);
 		sa.iterate(numIterations);
 		rupRateSolution = sa.getBestSolution();
 		

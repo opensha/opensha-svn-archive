@@ -83,8 +83,17 @@ public class ResultPlotter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/results_2");
-		int mod = 5;
+		File tsaDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/results_4");
+		File dsaDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/dsa_results_1");
+		
+		File[] tsaFiles = tsaDir.listFiles();
+		File[] dsaFiles = dsaDir.listFiles();
+		
+		File[] files = new File[tsaFiles.length+dsaFiles.length];
+		System.arraycopy(tsaFiles, 0, files, 0, tsaFiles.length);
+		System.arraycopy(dsaFiles, 0, files, tsaFiles.length, dsaFiles.length);
+		
+		int mod = 1;
 		
 		ArrayList<ArbitrarilyDiscretizedFunc> energyVsIter = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		ArrayList<ArbitrarilyDiscretizedFunc> energyVsTime = new ArrayList<ArbitrarilyDiscretizedFunc>();
@@ -92,7 +101,7 @@ public class ResultPlotter {
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		
-		for (File file : dir.listFiles()) {
+		for (File file : files) {
 			if (!file.getName().endsWith(".csv"))
 				continue;
 			ArbitrarilyDiscretizedFunc[] funcs = loadCSV(file, mod);
@@ -111,19 +120,33 @@ public class ResultPlotter {
 				type = PlotLineType.DASHED;
 			
 			Color c;
-			if (name.contains("1thread"))
-				c = Color.BLACK;
-			else if (name.contains("2threads"))
-				c = Color.BLUE;
-			else if (name.contains("4threads"))
-				c = Color.GREEN;
+			if (name.contains("dsa")) {
+				if (name.contains("5nodes"))
+					c = Color.BLUE;
+				else if (name.contains("10nodes"))
+					c = Color.GREEN;
+				else
+					c = Color.RED;
+			} else {
+				if (name.contains("1thread"))
+					c = Color.BLACK;
+				else if (name.contains("2threads"))
+					c = Color.BLUE;
+				else if (name.contains("4threads"))
+					c = Color.GREEN;
+				else
+					c = Color.RED;
+			}
+			
+			float size;
+			if (name.contains("dsa"))
+				size = 3f;
+			else if (name.contains("startSubIterationsAtZero"))
+				size = 1f;
 			else
-				c = Color.RED;
+				size = 2f;
 			
-			if (name.contains("startSubIterationsAtZero"))
-				c = c.brighter();
-			
-			chars.add(new PlotCurveCharacterstics(type, 1f, c));
+			chars.add(new PlotCurveCharacterstics(type, size, c));
 		}
 		
 //		Collections.sort(energyVsIter, new EnergyComparator());

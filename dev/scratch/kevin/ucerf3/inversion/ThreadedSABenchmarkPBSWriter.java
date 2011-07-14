@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
-import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing.CoolingScheduleType;
+import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 
 public class ThreadedSABenchmarkPBSWriter {
 
@@ -26,12 +26,12 @@ public class ThreadedSABenchmarkPBSWriter {
 		
 		int mins = 60*2;
 		
-		int subIterations = 10000;
+		int subIterations = 5000;
 		
 		boolean[] true_false = { true, false };
 		int[] threads = { 1, 2, 4, 8 };
 		
-		for (CoolingScheduleType cool : SimulatedAnnealing.CoolingScheduleType.values()) {
+		for (CoolingScheduleType cool : CoolingScheduleType.values()) {
 			for (boolean startSubIterationsAtZero : true_false) {
 				for (int numThreads : threads) {
 					String name = "tsa_"+numThreads+"threads_"+cool.name();

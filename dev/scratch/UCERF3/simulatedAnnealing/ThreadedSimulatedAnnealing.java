@@ -22,39 +22,50 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompoundCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
+import scratch.UCERF3.simulatedAnnealing.params.GenerationFunctionType;
+import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 import scratch.UCERF3.utils.MatrixIO;
 
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
-public class ThreadedSimulatedAnnealing {
+public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
-	private CompletionCriteria criteria;
 	private int numSubIterations;
 	private boolean startSubIterationsAtZero;
 	
 	private int numThreads;
-	private ArrayList<SimulatedAnnealing> sas;
+	private ArrayList<SerialSimulatedAnnealing> sas;
+	
+	private double Ebest = Double.MAX_VALUE;
+	private double[] xbest = null;
 	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
-			int numThreads, CompletionCriteria criteria, int numSubIterations) {
+			int numThreads, int numSubIterations) {
 		// SA inputs are checked in SA constructor, no need to dupliate checks
 		
 		Preconditions.checkArgument(numThreads > 0, "numThreads must be > 0");
-		Preconditions.checkNotNull(criteria != null, "Completion Criteria cannot be null!");
 		Preconditions.checkArgument(numSubIterations > 0, "numSubIterations must be > 0");
 		
 		this.numThreads = numThreads;
-		this.criteria = criteria;
 		this.numSubIterations = numSubIterations;
 		
-		sas = new ArrayList<SimulatedAnnealing>();
+		sas = new ArrayList<SerialSimulatedAnnealing>();
 		for (int i=0; i<numThreads; i++)
-			sas.add(new SimulatedAnnealing(A, d, initialState));
+			sas.add(new SerialSimulatedAnnealing(A, d, initialState));
+	}
+	
+	public int getNumSubIterations() {
+		return numSubIterations;
+	}
+	
+	public boolean isStartSubIterationsAtZero() {
+		return startSubIterationsAtZero;
 	}
 	
 	public void setStartSubIterationsAtZero(boolean startSubIterationsAtZero) {
@@ -77,11 +88,80 @@ public class ThreadedSimulatedAnnealing {
 			sa.iterate(startIter, new IterationCompletionCriteria(startIter+numSubIterations));
 		}
 	}
-	
-	public double[] calcSolution() throws InterruptedException {
-		double Ebest = Double.MAX_VALUE;
-		double[] xbest = null;
-		
+
+	@Override
+	public void setCalculationParams(CoolingScheduleType coolingFunc,
+			NonnegativityConstraintType nonnegativeityConstraintAlgorithm,
+			GenerationFunctionType perturbationFunc) {
+		for (SerialSimulatedAnnealing sa : sas)
+			sa.setCalculationParams(coolingFunc, nonnegativeityConstraintAlgorithm, perturbationFunc);
+	}
+
+	@Override
+	public CoolingScheduleType getCoolingFunc() {
+		return sas.get(0).getCoolingFunc();
+	}
+
+	@Override
+	public void setCoolingFunc(CoolingScheduleType coolingFunc) {
+		for (SerialSimulatedAnnealing sa : sas)
+			sa.setCoolingFunc(coolingFunc);
+	}
+
+	@Override
+	public NonnegativityConstraintType getNonnegativeityConstraintAlgorithm() {
+		return sas.get(0).getNonnegativeityConstraintAlgorithm();
+	}
+
+	@Override
+	public void setNonnegativeityConstraintAlgorithm(
+			NonnegativityConstraintType nonnegativeityConstraintAlgorithm) {
+		for (SerialSimulatedAnnealing sa : sas)
+			sa.setNonnegativeityConstraintAlgorithm(nonnegativeityConstraintAlgorithm);
+	}
+
+	@Override
+	public GenerationFunctionType getPerturbationFunc() {
+		return sas.get(0).getPerturbationFunc();
+	}
+
+	@Override
+	public void setPerturbationFunc(GenerationFunctionType perturbationFunc) {
+		for (SerialSimulatedAnnealing sa : sas)
+			sa.setPerturbationFunc(perturbationFunc);
+	}
+
+	@Override
+	public double[] getBestSolution() {
+		return xbest;
+	}
+
+	@Override
+	public double getBestEnergy() {
+		return Ebest;
+	}
+
+	@Override
+	public void setResults(double Ebest, double[] xbest) {
+		// TODO revisit
+		this.Ebest = Ebest;
+		this.xbest = xbest;
+		for (SerialSimulatedAnnealing sa : sas)
+			sa.setResults(Ebest, xbest);
+	}
+
+	@Override
+	public void iterate(long numIterations) {
+		iterate(0l, new IterationCompletionCriteria(numIterations));
+	}
+
+	@Override
+	public void iterate(CompletionCriteria completion) {
+		iterate(0l, completion);
+	}
+
+	@Override
+	public void iterate(long startIter, CompletionCriteria criteria) {
 		if (D) System.out.println("Threaded Simulated Annealing starting with "+numThreads
 				+" threads, "+criteria+", "+numSubIterations+" sub iterations");
 		
@@ -110,7 +190,11 @@ public class ThreadedSimulatedAnnealing {
 			
 			// join the threads
 			for (Thread t : threads) {
-				t.join();
+				try {
+					t.join();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			}
 			
 			for (int i=0; i<numThreads; i++) {
@@ -145,12 +229,10 @@ public class ThreadedSimulatedAnnealing {
 			System.out.println("Total Iterations: "+iter);
 			System.out.println("Best energy: "+Ebest);
 		}
-		
-		return xbest;
 	}
 	
-	private static Options createOptions() {
-		Options ops = SimulatedAnnealing.createOptions();
+	protected static Options createOptions() {
+		Options ops = SerialSimulatedAnnealing.createOptions();
 		
 		// REQUIRED
 		Option aMatrix = new Option("a", "a-matrix-file", true, "A matrix file");
@@ -204,23 +286,7 @@ public class ThreadedSimulatedAnnealing {
 		return ops;
 	}
 	
-	public static ThreadedSimulatedAnnealing parseOptions(CommandLine cmd) throws IOException {
-		File aFile = new File(cmd.getOptionValue("a"));
-		if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
-		DoubleMatrix2D A = MatrixIO.loadSparse(aFile);
-		
-		File dFile = new File(cmd.getOptionValue("d"));
-		if (D) System.out.println("Loading d matrix from: "+dFile.getAbsolutePath());
-		double[] d = MatrixIO.doubleArrayFromFile(dFile);
-		
-		File initialFile = new File(cmd.getOptionValue("i"));
-		if (D) System.out.println("Loading initialState from: "+initialFile.getAbsolutePath());
-		double[] initialState = MatrixIO.doubleArrayFromFile(initialFile);
-		
-		int numSubIterations = Integer.parseInt(cmd.getOptionValue("s"));
-		
-		int numThreads = Integer.parseInt(cmd.getOptionValue("t"));
-		
+	protected static CompletionCriteria parseCompletionCriteria(CommandLine cmd) {
 		ArrayList<CompletionCriteria> criterias = new ArrayList<CompletionCriteria>();
 		
 		if (cmd.hasOption("time")) {
@@ -255,10 +321,29 @@ public class ThreadedSimulatedAnnealing {
 			criteria = new ProgressTrackingCompletionCriteria(criteria, progressFile);
 		}
 		
-		ThreadedSimulatedAnnealing tsa = new ThreadedSimulatedAnnealing(A, d, initialState, numThreads,
-				criteria, numSubIterations);
+		return criteria;
+	}
+	
+	public static ThreadedSimulatedAnnealing parseOptions(CommandLine cmd) throws IOException {
+		File aFile = new File(cmd.getOptionValue("a"));
+		if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
+		DoubleMatrix2D A = MatrixIO.loadSparse(aFile);
 		
-		for (SimulatedAnnealing sa : tsa.sas)
+		File dFile = new File(cmd.getOptionValue("d"));
+		if (D) System.out.println("Loading d matrix from: "+dFile.getAbsolutePath());
+		double[] d = MatrixIO.doubleArrayFromFile(dFile);
+		
+		File initialFile = new File(cmd.getOptionValue("i"));
+		if (D) System.out.println("Loading initialState from: "+initialFile.getAbsolutePath());
+		double[] initialState = MatrixIO.doubleArrayFromFile(initialFile);
+		
+		int numSubIterations = Integer.parseInt(cmd.getOptionValue("s"));
+		
+		int numThreads = Integer.parseInt(cmd.getOptionValue("t"));
+		
+		ThreadedSimulatedAnnealing tsa = new ThreadedSimulatedAnnealing(A, d, initialState, numThreads, numSubIterations);
+		
+		for (SerialSimulatedAnnealing sa : tsa.sas)
 			sa.setCalculationParamsFromOptions(cmd);
 		
 		if (cmd.hasOption("zero"))
@@ -287,7 +372,11 @@ public class ThreadedSimulatedAnnealing {
 			
 			File outputFile = new File(cmd.getOptionValue("solution-file"));
 			
-			double[] solution = tsa.calcSolution();
+			CompletionCriteria criteria = parseCompletionCriteria(cmd);
+			
+			tsa.iterate(criteria);
+			
+			double[] solution = tsa.getBestSolution();
 			
 			System.out.println("Writing solution to: "+outputFile.getAbsolutePath());
 			MatrixIO.doubleArrayToFile(solution, outputFile);
@@ -302,7 +391,6 @@ public class ThreadedSimulatedAnnealing {
 			e.printStackTrace();
 			printHelp(options);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.exit(1);
 		}

@@ -29,6 +29,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.SectionCluster;
+import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
@@ -813,7 +814,7 @@ public class RupsInFaultSystemInversion {
 //		writeInversionIngredientsToFiles(A,d,initial_state); // optional: Write out inversion files to Desktop to load into MatLab (faster than Java)
 //		doMatSpeedTest(A, d, initial_state, numiter);
 		
-		SimulatedAnnealing sa = new SimulatedAnnealing(A, d, initial_state);
+		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initial_state);
 		sa.iterate(numIterations);
 		rupRateSolution = sa.getBestSolution();
 //		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initial_state, numIterations);    		
