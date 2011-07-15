@@ -10,6 +10,8 @@ import org.opensha.commons.util.DataUtils;
 
 public class MagUtilsTest {
 	
+	private static double tol = 1e-12;
+	
 	// array of mag and moment(Nm) pairs
 	private static double[] magDat = {
 		0.0, 1.1220184543019652E9,
@@ -36,14 +38,14 @@ public class MagUtilsTest {
 		for (int i=0; i<magDat.length; i+=2) {
 			double calcMoment = magToMoment(magDat[i]);
 			double pDiff = DataUtils.getPercentDiff(calcMoment, magDat[i+1]);
-			assertTrue(pDiff < 1e12);
+			assertTrue(pDiff < tol);
 		}
 		
 		// test values passed through momentToMag first
 		for (double moment = 1e10; moment < 1e30; moment *= 5) {
 			double calcMoment = magToMoment(momentToMag(moment));
 			double pDiff = DataUtils.getPercentDiff(calcMoment, moment);
-			assertTrue(pDiff < 1e12);
+			assertTrue(pDiff < tol);
 		}
 	}
 
@@ -55,14 +57,14 @@ public class MagUtilsTest {
 		for (int i=0; i<magDat.length; i+=2) {
 			double calcMag = momentToMag(magDat[i+1]);
 			double pDiff = DataUtils.getPercentDiff(calcMag, magDat[i]);
-			assertTrue(pDiff < 1e12);
+			assertTrue(pDiff < tol);
 		}
 
 		// test values passed through magToMoment
 		for (double mag = -2.0; mag < 10.0; mag += 0.25) {
 			double calcMag = momentToMag(magToMoment(mag));
 			double pDiff = DataUtils.getPercentDiff(calcMag, mag);
-			assertTrue(pDiff < 1e12);
+			assertTrue(pDiff < tol);
 		}
 	}
 	
