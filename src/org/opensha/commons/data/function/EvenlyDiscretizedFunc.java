@@ -273,9 +273,10 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * of one of the dicretized values.
 	 */
 	public int getXIndex( double x) throws Point2DException{
-
-		int i = (int)Math.round((double)((x-minX)/delta));
-		if( withinTolerance(x, this.getX(i) ))
+		// single value functions with delta=0 causes problems
+		int i = (delta == 0) ? 0 : (int) Math.round((x-minX)/delta);
+		//int i = (int)Math.round((double)((x-minX)/delta));
+		if( withinTolerance(x, this.getX(i)))
 			return i;
 		else
 			throw new Point2DException(C + ": set(): This point doesn't match a permitted x value (your x="+x+"; closest X="+getX(i)+"; tol="+tolerance+").");
@@ -296,11 +297,13 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * Returns the index of the supplied value (ignoring tolerance)
 	 */
 	public int getClosestXIndex( double x) throws Point2DException{
-
-		int i = (int)Math.round((double)((x-minX)/delta));
-		if(i<0) i=0;
-		else if(i>=num) i = num-1;
-		return i;
+		// single value functions with delta=0 causes problems
+		int i = (delta == 0) ? 0 : (int) Math.round((x-minX)/delta);
+		//int i = (int)Math.round((double)((x-minX)/delta));
+		return (i<0) ? 0 : (i>=num) ? num-1 : i;
+//		if(i<0) i=0;
+//		else if(i>=num) i = num-1;
+//		return i;
 	}
 
 
