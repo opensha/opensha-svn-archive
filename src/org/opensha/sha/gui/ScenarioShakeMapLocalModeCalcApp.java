@@ -46,6 +46,10 @@ extends ScenarioShakeMapApp {
 	
 	public static final String APP_NAME = "Scenario ShakeMap Local Mode Application";
 	public static final String APP_SHORT_NAME = "ScenarioShakeMapLocal";
+	
+	public ScenarioShakeMapLocalModeCalcApp(String appShortName) {
+		super(appShortName);
+	}
 
 	/**
 	 * Initialize the ERF Gui Bean
@@ -69,7 +73,7 @@ extends ScenarioShakeMapApp {
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
-		ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
+		ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp(APP_SHORT_NAME);
 		exp.setApp(applet);
 		exp.setParent(applet);
 		applet.init();

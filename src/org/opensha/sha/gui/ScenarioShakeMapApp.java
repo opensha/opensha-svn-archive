@@ -115,6 +115,11 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	
 	public static final String APP_NAME = "Scenario ShakeMap Server Mode Application";
 	public static final String APP_SHORT_NAME = "ScenarioShakeMapServer";
+	
+	/**
+	 * this is the short name for the application (not static because other apps extend this).
+	 */
+	protected String appShortName;
 
 	/**
 	 * Name of the class
@@ -236,7 +241,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	protected GridBagLayout gridBagLayout4 = new GridBagLayout();
 
 	//Construct the applet
-	public ScenarioShakeMapApp() {
+	public ScenarioShakeMapApp(String appShortName) {
+		this.appShortName = appShortName;
 	}
 	//Initialize the applet
 	public void init() {
@@ -247,7 +253,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 			step = 0;
 			ex.printStackTrace();
 			BugReport bug = new BugReport(ex, "Exception occured while initializing the Site Data providers in ScenarioShakeMap application."+
-					"Parameters values have not been set yet.", APP_SHORT_NAME, getAppVersion(), this);
+					"Parameters values have not been set yet.", appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 		}
@@ -258,7 +264,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 			step = 0;
 			e.printStackTrace();
 			BugReport bug = new BugReport(e, "Exception during initializing the application.\n"+
-					"Parameters values not yet set.", APP_SHORT_NAME, getAppVersion(), this);
+					"Parameters values not yet set.", appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 		}
@@ -270,7 +276,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 			step = 0;
 			e.printStackTrace();
 			BugReport bug = new BugReport(e, "Exception occured initializing the IMR with "+
-					"default parameters value", APP_SHORT_NAME, getAppVersion(), this);
+					"default parameters value", appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 			//JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
@@ -283,7 +289,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 			step = 0;
 			ex.printStackTrace();
 			BugReport bug = new BugReport(ex, "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
-					"Parameters values have not been set yet.", APP_SHORT_NAME, getAppVersion(), this);
+					"Parameters values have not been set yet.", appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 			bugDialog.setVisible(true);
 
@@ -406,7 +412,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
-		ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
+		ScenarioShakeMapApp applet = new ScenarioShakeMapApp(APP_SHORT_NAME);
 		exp.setApp(applet);
 		exp.setParent(applet);
 		applet.init();
@@ -566,7 +572,7 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		catch(Exception ee){
 			step = 0;
 			ee.printStackTrace();
-			BugReport bug = new BugReport(ee, mapParametersInfo, APP_SHORT_NAME, getAppVersion(), this);
+			BugReport bug = new BugReport(ee, mapParametersInfo, appShortName, getAppVersion(), this);
 			BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
 			bugDialog.setVisible(true);
 			addButton.setEnabled(true);

@@ -49,6 +49,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import org.opensha.commons.param.ParamLinker;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.WarningParameter;
@@ -697,19 +698,26 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 				if(D) System.out.println("IMT is:"+param.getName());
 				while ( it2.hasNext() ) {
 					Parameter param2 = (Parameter ) it2.next();
-					DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
-					// add all the periods relating to the SA
-					ArrayList allowedValues = values.getAllowedValues();
-
-					//create the string parameter for the independent parameter with its
-					//constarint being the indParamOptions.
-					DoubleDiscreteParameter independentParam = new DoubleDiscreteParameter(param2.getName(),
-							values, param2.getUnits (), (Double)allowedValues.get(0));
+					
+					Parameter<?> independentParam;
+					ArrayList<Double> discAllowedValues = null;
+					if (param2 instanceof DoubleDiscreteParameter) {
+						DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
+						// add all the periods relating to the SA
+						discAllowedValues = values.getAllowedValues();
+						
+						independentParam = new DoubleDiscreteParameter(param2.getName(),
+								values, param2.getUnits (), discAllowedValues.get(0));
+					} else {
+						independentParam = (Parameter<?>) param2.clone();
+					}
 
 					// added by Ned so the default period is 1.0 sec (this is a hack).
-					if( ((String) independentParam.getName()).equals(PeriodParam.NAME)
-							&& independentParam.isAllowed(new Double(1.0)))
-						independentParam.setValue(new Double(1.0));
+					if (independentParam.getName().equals(PeriodParam.NAME)) {
+						DoubleDiscreteParameter per = (DoubleDiscreteParameter)independentParam;
+						if (per.isAllowed(new Double(1.0)))
+								per.setValue(new Double(1.0));
+					}
 
 					/**
 					 * Checks to see if the independent parameter by this name already
@@ -717,25 +725,27 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 					 * values to the old ones but without any duplicity. Then create the
 					 * new constraint for the independent parameter.
 					 */
-					if(param1.containsIndependentParameter(independentParam.getName())){
-						Parameter tempParam = param1.getIndependentParameter(independentParam.getName());
-						ArrayList paramVals = ((DoubleDiscreteConstraint)tempParam.getConstraint()).getAllowedValues();
-						//keeps track if the constraint of the independent param has been changed.
-						boolean changedFlag = false;
-						int size = allowedValues.size();
-						for(int j=0;j<size;++j){
-							if(!paramVals.contains(allowedValues.get(j))){
-								paramVals.add(allowedValues.get(j));
-								changedFlag = true;
+					if(param1.containsIndependentParameter(independentParam.getName())) {
+						if (independentParam instanceof DoubleDiscreteParameter) {
+							Parameter tempParam = param1.getIndependentParameter(independentParam.getName());
+							ArrayList paramVals = ((DoubleDiscreteConstraint)tempParam.getConstraint()).getAllowedValues();
+							//keeps track if the constraint of the independent param has been changed.
+							boolean changedFlag = false;
+							int size = discAllowedValues.size();
+							for(int j=0;j<size;++j){
+								if(!paramVals.contains(discAllowedValues.get(j))){
+									paramVals.add(discAllowedValues.get(j));
+									changedFlag = true;
+								}
 							}
-						}
-						if(changedFlag){
-							//sorting the arraylist with the double values
-							Collections.sort(paramVals);
+							if(changedFlag){
+								//sorting the arraylist with the double values
+								Collections.sort(paramVals);
 
-							DoubleDiscreteConstraint constraint = new DoubleDiscreteConstraint(paramVals);
-							//setting the new constraint in the independentParam
-							tempParam.setConstraint(constraint);
+								DoubleDiscreteConstraint constraint = new DoubleDiscreteConstraint(paramVals);
+								//setting the new constraint in the independentParam
+								tempParam.setConstraint(constraint);
+							}
 						}
 					}
 					else //add the independent parameter to the dependent param list
@@ -758,8 +768,12 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 			Iterator it1=((Parameter)it.next()).getIndependentParametersIterator();
 			while(it1.hasNext()){
 				Parameter tempParam = (Parameter)it1.next();
-				imtParamList.addParameter(tempParam);
-				tempParam.addParameterChangeListener(this);
+				if (imtParamList.containsParameter(tempParam.getName())) {
+					new ParamLinker(imtParamList.getParameter(tempParam.getName()), tempParam);
+				} else {
+					imtParamList.addParameter(tempParam);
+					tempParam.addParameterChangeListener(this);
+				}
 			}
 		}
 
