@@ -23,7 +23,8 @@ public class DistributedSABenchmarkPBSWriter {
 		
 		int mins = 60*2 + 20;
 		
-		int subIterations = 10000;
+		int subIterations = 5000;
+//		int dSubIterations = 10000;
 		
 		ArrayList<File> jars = new ArrayList<File>();
 		jars.add(new File(runDir, "OpenSHA_complete.jar"));
@@ -46,8 +47,11 @@ public class DistributedSABenchmarkPBSWriter {
 		DistributedScriptCreator creator = new DistributedScriptCreator(javaBin, jars, heapSizeMB, aMat, dMat,
 				initialMat, subIterations, -1, null, criteria, mpjHome, false);
 		
-		int[] threads = { 1, 4 };
-		int[] nodes = { 2, 5, 10 };
+//		int[] threads = { 1, 4 };
+		int[] threads = { 4 };
+//		int[] nodes = { 2, 5, 10 };
+		int[] nodes = { 5 };
+		int[] dSubIters = { 2000, 5000, 10000, 15000 };
 		CoolingScheduleType[] cools = { CoolingScheduleType.VERYFAST_SA };
 		
 		int numRuns = 5;
@@ -55,17 +59,24 @@ public class DistributedSABenchmarkPBSWriter {
 		for (CoolingScheduleType cool : cools) {
 			for (int numNodes : nodes) {
 				for (int numThreads : threads) {
-					for (int r=0; r<numRuns; r++) {
-						String name = "dsa_"+numThreads+"threads_"+numNodes+"nodes_"+cool.name();
-						name += "_run"+r;
+					for (int numDistSubIterations : dSubIters) {
+						for (int r=0; r<numRuns; r++) {
+							String name = "dsa_"+numThreads+"threads_"+numNodes+"nodes_"+cool.name();
+							name += "_run"+r;
 
-						creator.setProgFile(new File(dsaDir, name+".csv"));
-						creator.setSolFile(new File(dsaDir, name+".mat"));
-						creator.setNumThreads(numThreads);
-						creator.setCool(cool);
+							creator.setProgFile(new File(dsaDir, name+".csv"));
+							creator.setSolFile(new File(dsaDir, name+".mat"));
+							creator.setNumThreads(numThreads);
+							creator.setCool(cool);
+							creator.setNumDistSubIterations(numDistSubIterations);
+							int tmpSubIters = subIterations;
+							if (tmpSubIters > numDistSubIterations)
+								tmpSubIters = numDistSubIterations;
+							creator.setSubIterations(subIterations);
 
-						creator.writeScript(new File(writeDir, name+".pbs"),
-								creator.buildPBSScript(mins, numNodes, 1, "nbns"));
+							creator.writeScript(new File(writeDir, name+".pbs"),
+									creator.buildPBSScript(mins, numNodes, 1, "nbns"));
+						}
 					}
 				}
 			}
