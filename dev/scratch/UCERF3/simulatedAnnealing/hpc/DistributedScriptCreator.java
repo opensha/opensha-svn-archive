@@ -14,6 +14,7 @@ public class DistributedScriptCreator extends ThreadedScriptCreator {
 	
 	private File mpjHome;
 	private boolean useMxdev;
+	private int numDistSubIterations = -1;
 
 	public DistributedScriptCreator(File javaBin, List<File> jars,
 			int heapSizeMB, File aMat, File dMat, File initial,
@@ -24,6 +25,29 @@ public class DistributedScriptCreator extends ThreadedScriptCreator {
 		Preconditions.checkNotNull(mpjHome, "MPJ_HOME cannot be null!");
 		this.mpjHome = mpjHome;
 		this.useMxdev = useMxdev;
+	}
+
+	public void setMpjHome(File mpjHome) {
+		this.mpjHome = mpjHome;
+	}
+
+	public void setUseMxdev(boolean useMxdev) {
+		this.useMxdev = useMxdev;
+	}
+
+	public void setNumDistSubIterations(int numDistSubIterations) {
+		this.numDistSubIterations = numDistSubIterations;
+	}
+
+	@Override
+	String getArgs() {
+		String args = super.getArgs();
+		
+		if (numDistSubIterations > 0) {
+			args += " --dist-sub-iterations "+numDistSubIterations;
+		}
+		
+		return args;
 	}
 
 	@Override

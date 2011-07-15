@@ -23,7 +23,7 @@ public class DistributedSABenchmarkPBSWriter {
 		
 		int mins = 60*2 + 20;
 		
-		int subIterations = 5000;
+		int subIterations = 10000;
 		
 		ArrayList<File> jars = new ArrayList<File>();
 		jars.add(new File(runDir, "OpenSHA_complete.jar"));

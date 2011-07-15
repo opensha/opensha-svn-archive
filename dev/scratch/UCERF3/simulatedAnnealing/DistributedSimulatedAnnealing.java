@@ -7,6 +7,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.time.StopWatch;
@@ -243,19 +244,35 @@ public class DistributedSimulatedAnnealing {
 		annealer.setResults(Ebest, sol);
 	}
 	
+	public static Options createOptions() {
+		Options options = ThreadedSimulatedAnnealing.createOptions();
+		
+		Option dsubIterOption = new Option("ds", "dist-sub-iterations", true,
+				"number of distributed sub iterations (optional...defaults to subIterations)");
+		dsubIterOption.setRequired(false);
+		options.addOption(dsubIterOption);
+		
+		return options;
+	}
+	
 	public static DistributedSimulatedAnnealing parseOptions(CommandLine cmd) throws IOException {
 		ThreadedSimulatedAnnealing annealer = ThreadedSimulatedAnnealing.parseOptions(cmd);
 		CompletionCriteria criteria = ThreadedSimulatedAnnealing.parseCompletionCriteria(cmd);
 		
+		int numSubIterations;
+		if (cmd.hasOption("dist-sub-iterations"))
+			numSubIterations = Integer.parseInt(cmd.getOptionValue("dist-sub-iterations"));
+		else
+			numSubIterations = annealer.getNumSubIterations();
 		
-		return new DistributedSimulatedAnnealing(criteria, annealer.getNumSubIterations(),
+		return new DistributedSimulatedAnnealing(criteria, numSubIterations,
 				annealer.isStartSubIterationsAtZero(), annealer);
 	}
 	
 	public static void main(String[] args) {
 		args = MPI.Init(args);
 		
-		Options options = ThreadedSimulatedAnnealing.createOptions();
+		Options options = createOptions();
 		
 		CommandLineParser parser = new GnuParser();
 		

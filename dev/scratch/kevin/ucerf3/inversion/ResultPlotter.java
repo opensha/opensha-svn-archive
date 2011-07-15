@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -60,9 +63,40 @@ public class ResultPlotter {
 		return ret;
 	}
 	
-	private static void showGraphWindow(ArrayList<ArbitrarilyDiscretizedFunc> funcs, String title,
+	private static void showGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
 			ArrayList<PlotCurveCharacterstics> chars) {
 		new GraphiWindowAPI_Impl(funcs, title, chars);
+	}
+	
+	public static EvenlyDiscretizedFunc avgCurves(List<ArbitrarilyDiscretizedFunc> funcs, int numX) {
+		double largestMin = Double.MIN_VALUE;
+		double smallestMax = Double.MAX_VALUE;
+		
+		for (ArbitrarilyDiscretizedFunc func : funcs) {
+			double min = func.getMinX();
+			double max = func.getMaxX();
+			if (min > largestMin)
+				largestMin = min;
+			if (max < smallestMax)
+				smallestMax = max;
+		}
+		
+		int num = funcs.size();
+		
+		EvenlyDiscretizedFunc avg = new EvenlyDiscretizedFunc(largestMin, smallestMax, numX);
+		
+		for (int i=0; i<numX; i++) {
+			double x = avg.getX(i);
+			double y = 0;
+			for (ArbitrarilyDiscretizedFunc func : funcs) {
+				y += func.getInterpolatedY_inLogYDomain(x);
+			}
+			y /= (double)num;
+			
+			avg.set(i, y);
+		}
+		
+		return avg;
 	}
 
 	/**
@@ -74,12 +108,13 @@ public class ResultPlotter {
 //		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
 		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
 		File tsaDir = new File(mainDir, "results_5");
-		File dsaDir = new File(mainDir, "dsa_results_1");
+		File dsaDir = new File(mainDir, "dsa_results_2");
 		
 		String coolType = "VERYFAST";
 		int threads = -1;
-		int nodes = 1;
+		int nodes = -1;
 		boolean includeStartSubZero = false;
+		boolean plotAvg = true;
 		
 		File[] tsaFiles = tsaDir.listFiles();
 		File[] dsaFiles = dsaDir.listFiles();
@@ -90,11 +125,15 @@ public class ResultPlotter {
 		
 		int mod = 1;
 		
-		ArrayList<ArbitrarilyDiscretizedFunc> energyVsIter = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		ArrayList<ArbitrarilyDiscretizedFunc> energyVsTime = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		ArrayList<ArbitrarilyDiscretizedFunc> iterVsTime = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		ArrayList<DiscretizedFunc> energyVsIter = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> energyVsTime = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> iterVsTime = new ArrayList<DiscretizedFunc>();
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		
+		HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> runsEnergyTimeMap =
+			new HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
+		HashMap<String, PlotCurveCharacterstics> runsChars = new HashMap<String, PlotCurveCharacterstics>();
 		
 		for (File file : files) {
 			String name = file.getName();
@@ -127,7 +166,9 @@ public class ResultPlotter {
 			
 			Color c;
 			if (name.contains("dsa")) {
-				if (name.contains("5nodes"))
+				if (name.contains("2nodes"))
+					c = Color.BLACK;
+				else if (name.contains("5nodes"))
 					c = Color.BLUE;
 				else if (name.contains("10nodes"))
 					c = Color.GREEN;
@@ -144,15 +185,39 @@ public class ResultPlotter {
 					c = Color.RED;
 			}
 			
-			float size;
-			if (name.contains("dsa"))
-				size = 3f;
-			else if (name.contains("startSubIterationsAtZero"))
-				size = 1f;
-			else
-				size = 2f;
+			float size = 1f;
+			
+			if (includeStartSubZero && name.contains("startSubIterationsAtZero"))
+				size += 1f;
+			
+			if (nodes == 1 || name.contains("dsa"))
+				size += 1f;
+			
+			if (plotAvg && name.contains("run")) {
+				String shortName = name.substring(0, name.indexOf("run"));
+				if (!runsEnergyTimeMap.containsKey(shortName)) {
+					runsEnergyTimeMap.put(shortName, new ArrayList<ArbitrarilyDiscretizedFunc>());
+					runsChars.put(shortName, new PlotCurveCharacterstics(type, size+1, c));
+				}
+				
+				runsEnergyTimeMap.get(shortName).add(funcs[1]);
+			}
 			
 			chars.add(new PlotCurveCharacterstics(type, size, c));
+		}
+		
+		ArrayList<DiscretizedFunc> averages = new ArrayList<DiscretizedFunc>();
+		ArrayList<PlotCurveCharacterstics> avgChars = new ArrayList<PlotCurveCharacterstics>();
+		for (String name : runsEnergyTimeMap.keySet()) {
+			ArrayList<ArbitrarilyDiscretizedFunc> runs = runsEnergyTimeMap.get(name);
+			if (runs == null || runs.size() <= 1)
+				continue;
+			averages.add(avgCurves(runs, 500));
+			avgChars.add(runsChars.get(name));
+		}
+		
+		if (averages.size() > 0) {
+			showGraphWindow(averages, "Averaged Energy Vs Time (m)", avgChars);
 		}
 		
 //		Collections.sort(energyVsIter, new EnergyComparator());
