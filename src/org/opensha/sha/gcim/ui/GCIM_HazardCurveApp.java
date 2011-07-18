@@ -90,6 +90,7 @@ import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.BaseERF;
+import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF;
@@ -1500,7 +1501,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 					progressCheckBox.setSelected(false);
 					progressCheckBox.setEnabled(false);
 					ScalarIMR imr = imrGuiBean.getSelectedIMR();
-					ProbEqkRupture rupture = (ProbEqkRupture) this.erfRupSelectorGuiBean.getRupture();
+					EqkRupture rupture = this.erfRupSelectorGuiBean.getRupture();
 					hazFunction = (ArbitrarilyDiscretizedFunc) calc
 					.getHazardCurve(hazFunction, site, imr, rupture);
 					progressCheckBox.setSelected(true);
