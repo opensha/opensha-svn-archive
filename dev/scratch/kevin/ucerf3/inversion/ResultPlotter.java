@@ -98,6 +98,81 @@ public class ResultPlotter {
 		
 		return avg;
 	}
+	
+	private static ArbitrarilyDiscretizedFunc getSwapped(DiscretizedFunc func) {
+		ArbitrarilyDiscretizedFunc swapped = new ArbitrarilyDiscretizedFunc();
+		for (int i=0; i<func.getNum(); i++)
+			swapped.set(func.getY(i), func.getX(i));
+		return swapped;
+	}
+	
+	private static ArrayList<DiscretizedFunc> generateEnergySpeedup(
+			List<DiscretizedFunc> funcs, DiscretizedFunc ref, int numX) {
+		double refMin = ref.getMinY();
+		double refMax = ref.getMaxY();
+		
+		DiscretizedFunc refSwapped = getSwapped(ref);
+		
+		ArrayList<DiscretizedFunc> speedups = new ArrayList<DiscretizedFunc>();
+		
+		for (DiscretizedFunc func : funcs) {
+			double min = func.getMinY();
+			double max = func.getMaxY();
+			if (min < refMin)
+				min = refMin;
+			if (max > refMax)
+				max = refMax;
+			
+			EvenlyDiscretizedFunc speedupFunc = new EvenlyDiscretizedFunc(min, max, numX);
+			
+			DiscretizedFunc funcSwapped = getSwapped(func);
+			
+			for (int i=0; i<numX; i++) {
+				double energy = speedupFunc.getX(i);
+				double refTime = refSwapped.getInterpolatedY(energy);
+				double myTime = funcSwapped.getInterpolatedY(energy);
+				
+				double speedup = refTime / myTime;
+				speedupFunc.set(energy, speedup);
+			}
+			
+			speedups.add(speedupFunc);
+		}
+		
+		return speedups;
+	}
+	
+	private static ArrayList<DiscretizedFunc> generateTimeSpeedup(
+			List<DiscretizedFunc> funcs, DiscretizedFunc ref, int numX) {
+		double refMin = ref.getMinX();
+		double refMax = ref.getMaxX();
+		
+		ArrayList<DiscretizedFunc> speedups = new ArrayList<DiscretizedFunc>();
+		
+		for (DiscretizedFunc func : funcs) {
+			double min = func.getMinX();
+			double max = func.getMaxX();
+			if (min < refMin)
+				min = refMin;
+			if (max > refMax)
+				max = refMax;
+			
+			EvenlyDiscretizedFunc speedupFunc = new EvenlyDiscretizedFunc(min, max, numX);
+			
+			for (int i=0; i<numX; i++) {
+				double time = speedupFunc.getX(i);
+				double refEnergy = ref.getInterpolatedY(time);
+				double myEnergy = func.getInterpolatedY(time);
+				
+				double speedup = refEnergy / myEnergy;
+				speedupFunc.set(time, speedup);
+			}
+			
+			speedups.add(speedupFunc);
+		}
+		
+		return speedups;
+	}
 
 	/**
 	 * @param args
@@ -108,13 +183,14 @@ public class ResultPlotter {
 //		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
 		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
 		File tsaDir = new File(mainDir, "results_5");
-		File dsaDir = new File(mainDir, "dsa_results_2");
+		File dsaDir = new File(mainDir, "dsa_results_5");
 		
 		String coolType = "VERYFAST";
 		int threads = -1;
 		int nodes = -1;
 		boolean includeStartSubZero = false;
 		boolean plotAvg = true;
+		boolean bundleDsaBySubs = false;
 		
 		File[] tsaFiles = tsaDir.listFiles();
 		File[] dsaFiles = dsaDir.listFiles();
@@ -134,6 +210,8 @@ public class ResultPlotter {
 		HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> runsEnergyTimeMap =
 			new HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
 		HashMap<String, PlotCurveCharacterstics> runsChars = new HashMap<String, PlotCurveCharacterstics>();
+		
+		DiscretizedFunc refFunc = null;
 		
 		for (File file : files) {
 			String name = file.getName();
@@ -166,14 +244,31 @@ public class ResultPlotter {
 			
 			Color c;
 			if (name.contains("dsa")) {
-				if (name.contains("2nodes"))
-					c = Color.BLACK;
-				else if (name.contains("5nodes"))
-					c = Color.BLUE;
-				else if (name.contains("10nodes"))
-					c = Color.GREEN;
-				else
-					c = Color.RED;
+				if (bundleDsaBySubs && name.contains("dSub")) {
+					if (name.contains("dSub2000"))
+						c = Color.BLACK;
+					else if (name.contains("dSub5000"))
+						c = Color.BLUE;
+					else if (name.contains("dSub10000"))
+						c = Color.GREEN;
+					else
+						c = Color.RED;
+				} else {
+					if (name.contains("2nodes"))
+						c = Color.BLACK;
+					else if (name.contains("5nodes"))
+						c = Color.BLUE;
+					else if (name.contains("10nodes"))
+						c = Color.GREEN;
+					else if (name.contains("20nodes"))
+						c = Color.RED;
+					else if (name.contains("50nodes"))
+						c = Color.ORANGE;
+					else
+						c = Color.PINK;
+					if (name.contains("1thread"))
+						type = PlotLineType.DASHED;
+				}
 			} else {
 				if (name.contains("1thread"))
 					c = Color.BLACK;
@@ -197,7 +292,7 @@ public class ResultPlotter {
 				String shortName = name.substring(0, name.indexOf("run"));
 				if (!runsEnergyTimeMap.containsKey(shortName)) {
 					runsEnergyTimeMap.put(shortName, new ArrayList<ArbitrarilyDiscretizedFunc>());
-					runsChars.put(shortName, new PlotCurveCharacterstics(type, size+1, c));
+					runsChars.put(shortName, new PlotCurveCharacterstics(type, size, c));
 				}
 				
 				runsEnergyTimeMap.get(shortName).add(funcs[1]);
@@ -212,12 +307,25 @@ public class ResultPlotter {
 			ArrayList<ArbitrarilyDiscretizedFunc> runs = runsEnergyTimeMap.get(name);
 			if (runs == null || runs.size() <= 1)
 				continue;
-			averages.add(avgCurves(runs, 500));
+			DiscretizedFunc avg = avgCurves(runs, 500);
+			averages.add(avg);
 			avgChars.add(runsChars.get(name));
+			
+			if (refFunc == null && name.startsWith("tsa_1threads_VERYFAST"))
+				refFunc = avg;
 		}
 		
 		if (averages.size() > 0) {
 			showGraphWindow(averages, "Averaged Energy Vs Time (m)", avgChars);
+		}
+		
+		if (refFunc != null) {
+			ArrayList<DiscretizedFunc> energySpeedups = generateEnergySpeedup(averages, refFunc, 500);
+			showGraphWindow(energySpeedups, "Speedup Vs Energy", avgChars);
+			
+
+			ArrayList<DiscretizedFunc> timeSpeedups = generateTimeSpeedup(averages, refFunc, 500);
+			showGraphWindow(timeSpeedups, "Speedup Vs Time", avgChars);
 		}
 		
 //		Collections.sort(energyVsIter, new EnergyComparator());
