@@ -171,8 +171,8 @@ ActionListener,ParameterChangeListener{
 		if (parameterChangeFlag) {
 			Parameter<ParameterList> param = getParameter();
 			param.setValue(paramList);
-			// this shouldn't be needed...setValue will fire the event
-//			param.firePropertyChange(new ParameterChangeEvent(param, param.getName(), param.getValue(), param.getValue()));
+			// this is needed because although the list hasn't changed, values inside of it have.
+			param.firePropertyChange(new ParameterChangeEvent(param, param.getName(), param.getValue(), param.getValue()));
 			parameterChangeFlag = false;
 		}
 		frame.dispose();

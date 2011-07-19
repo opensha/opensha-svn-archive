@@ -20,6 +20,7 @@
 package org.opensha.commons.param.constraint;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 
@@ -37,10 +38,10 @@ import java.util.ListIterator;
 public interface DiscreteParameterConstraint<E> extends ParameterConstraint<E> {
 
     /** Returns cloned vector of allowed values, unable to modify original values. */
-    public ArrayList getAllowedValues();
+    public List<E> getAllowedValues();
 
     /**  Returns Iterator over allowed values, able to modify original. */
-    public ListIterator listIterator();
+    public ListIterator<E> listIterator();
 
     /** Returns the number of allowed values in the list */
     public int size();

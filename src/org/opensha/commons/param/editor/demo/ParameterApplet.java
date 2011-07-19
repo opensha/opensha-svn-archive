@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
@@ -227,7 +228,7 @@ public class ParameterApplet
     private Parameter makeLocationParameter() {
   	  String name = "Location Parameter";
         paramCount++;
-        LocationParameter param = new LocationParameter("Location Param", "Lat", "Lon", "Depth", 34.0, -120.0, 0.0);
+        LocationParameter param = new LocationParameter("Location Param", new Location(34.0, -120.0, 0.0));
         param.addParameterChangeFailListener(this);
         param.addParameterChangeListener(this);
 

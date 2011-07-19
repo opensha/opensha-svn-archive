@@ -377,9 +377,9 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 		probEqkRupture = erf.getRupture(sourceValue, ruptureValue);
 
 		//getting the surface of the rupture
-		ArrayList locations = new ArrayList();
+		ArrayList<Location> locations = new ArrayList<Location>();
 		// The first row of all the rupture surfaces is the list of their hypocenter locations
-		ListIterator hypoLocationsIt = probEqkRupture.getRuptureSurface().
+		ListIterator<Location> hypoLocationsIt = probEqkRupture.getRuptureSurface().
 		getColumnIterator(0);
 		Location loc;
 		while (hypoLocationsIt.hasNext())
@@ -387,7 +387,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 			locations.add(hypoLocationsIt.next());
 
 		hypoCenterLocationParam = new LocationParameter(
-				RUPTURE_HYPOLOCATIONS_PARAM_NAME, locations);
+				RUPTURE_HYPOLOCATIONS_PARAM_NAME, locations, locations.get(0));
 		hypoCenterLocationParam.addParameterChangeListener(this);
 
 		//Hypocenter location parameter

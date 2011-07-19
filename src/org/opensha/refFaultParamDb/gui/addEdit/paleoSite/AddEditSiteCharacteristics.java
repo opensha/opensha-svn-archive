@@ -297,24 +297,19 @@ ParameterChangeListener, DbAdditionListener {
 		}
 
 		// location 1
-		ParameterList location1ParamList = ((ParameterListParameter)siteLocationParam.getLocationParameter()).getParameter();
-		Double lat1 = (Double)location1ParamList.getValue(LAT_PARAM_NAME);
-		Double lon1 = (Double)location1ParamList.getValue(LON_PARAM_NAME);
-		Double elev1 = (Double)location1ParamList.getValue(ELEVATION_PARAM_NAME);
-		paleoSite.setSiteLat1((float)lat1.doubleValue());
-		paleoSite.setSiteLon1((float)lon1.doubleValue());
-		if(elev1!=null) paleoSite.setSiteElevation1((float)elev1.doubleValue());
-		else   paleoSite.setSiteElevation1(Float.NaN);
+		Location loc1 = siteLocationParam.getValue();
+		paleoSite.setSiteLat1((float)loc1.getLatitude());
+		paleoSite.setSiteLon1((float)loc1.getLongitude());
+		paleoSite.setSiteElevation1((float)loc1.getDepth());
 
 		//location 2
-		ParameterList location2ParamList = ((ParameterListParameter)siteLocationParam2.getLocationParameter()).getParameter();
 		float lat2 =  Float.NaN, lon2 = Float.NaN, elev2 = Float.NaN;
 		ArrayList selectedSiteType =  (ArrayList)this.siteTypeParam.getValue();
 		if(selectedSiteType.contains(BETWEEN_LOCATIONS_SITE_TYPE)) {
-			lat2 = (float)((Double)location2ParamList.getValue(LAT_PARAM_NAME)).doubleValue();
-			lon2 = (float)((Double)location2ParamList.getValue(LON_PARAM_NAME)).doubleValue();
-			Double elev2Double = (Double)location2ParamList.getValue(ELEVATION_PARAM_NAME);
-			if(elev2Double!=null) elev2 =(float) elev2Double.doubleValue();
+			Location loc2 = siteLocationParam.getValue();
+			lat2 = (float) loc2.getLatitude();
+			lon2 = (float) loc2.getLongitude();
+			elev2 = (float) loc2.getDepth();
 		}
 		paleoSite.setSiteLat2(lat2);
 		paleoSite.setSiteLon2(lon2);
@@ -504,25 +499,11 @@ ParameterChangeListener, DbAdditionListener {
 	 */
 	private LocationParameter createLocationParam(Location loc) throws InvalidRangeException,
 	ParameterException, ConstraintException {
-		//creating the Location parameterlist for the Site
-		DoubleParameter siteLocLatParam = new DoubleParameter(LAT_PARAM_NAME,
-				GeoTools.LAT_MIN, GeoTools.LAT_MAX,LAT_LON_UNITS,new Double(loc.getLatitude()));
-		DoubleParameter siteLocLonParam = new DoubleParameter(LON_PARAM_NAME,
-				GeoTools.LON_MIN,GeoTools.LON_MAX,LAT_LON_UNITS, new Double(loc.getLongitude()));
-		DoubleParameter siteLocElevationParam = new DoubleParameter(ELEVATION_PARAM_NAME,
-				GeoTools.DEPTH_MIN, GeoTools.DEPTH_MAX, ELEVATION_UNITS);
-		// allow null value in elevation
-		siteLocElevationParam.getConstraint().setNullAllowed(true);
-		ParameterList siteLocParamList = new ParameterList();
-		siteLocParamList.addParameter(siteLocLatParam);
-		siteLocParamList.addParameter(siteLocLonParam);
-		siteLocParamList.addParameter(siteLocElevationParam);
 		Location siteLoc = new Location(loc.getLatitude(),
 				loc.getLongitude());
 
 		// Site Location(Lat/lon/)
-		return (new LocationParameter(SITE_LOCATION_PARAM_NAME,siteLocParamList,
-				siteLoc));
+		return new LocationParameter(SITE_LOCATION_PARAM_NAME, siteLoc);
 	}
 
 

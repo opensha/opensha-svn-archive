@@ -37,7 +37,7 @@ public class CPTParameter extends AbstractParameter<CPT> {
 	}
 
 	@Override
-	public ParameterEditor getEditor() {
+	public ParameterEditor<CPT> getEditor() {
 		if (hasValidConstraint()) {
 			if (editor == null)
 				editor = new ConstrainedCPTParameterEditor(this);

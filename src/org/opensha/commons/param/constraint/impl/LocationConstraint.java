@@ -19,6 +19,8 @@
 
 package org.opensha.commons.param.constraint.impl;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
@@ -54,13 +56,13 @@ public class LocationConstraint
     protected final static boolean D = false;
 
     /** ArrayList list of possible locations, i.e. allowed values. */
-    private ArrayList locations;
+    private List<Location> locations;
 
 
     /** No-Arg constructor for the LocationConstraint object. Calls the super() constructor. */
     public LocationConstraint() {
       super();
-      locations = new ArrayList();
+      locations = new ArrayList<Location>();
     }
 
 
@@ -72,7 +74,7 @@ public class LocationConstraint
      * @param  locations       ArrayList of allowed locations
      * @exception  ConstraintException  Thrown if the passed in vector size is 0
      */
-    public LocationConstraint( ArrayList locations ) throws ConstraintException {
+    public LocationConstraint( List<Location> locations ) throws ConstraintException {
         if ( locations.size() > 0 ) this.locations = locations;
         else {
             String S = C + ": Constructor(ArrayList locations): ";
@@ -88,7 +90,7 @@ public class LocationConstraint
      * @param  locations                  ArrayList of allowed locations
      * @exception  ConstraintException  Thrown if the passed in vector size is 0
      */
-    public void setLocations( ArrayList locations ) throws ConstraintException, EditableException {
+    public void setLocations( List<Location> locations ) throws ConstraintException, EditableException {
 
         String S = C + ": setLocations(): ";
         checkEditable(S);
@@ -98,10 +100,12 @@ public class LocationConstraint
     }
 
     /** Returns a cloned ArrayList of the allowed Locations. */
-    public ArrayList getAllowedLocations() { return ( ArrayList ) locations.clone(); }
+    public List<Location> getAllowedLocations() {
+    	return Collections.unmodifiableList(locations);
+    }
 
     /** Returns a cloned ArrayList of the allowed Locations. */
-    public ArrayList getAllowedValues() { return getAllowedLocations(); }
+    public List<Location> getAllowedValues() { return getAllowedLocations(); }
 
 
     /**
@@ -185,8 +189,8 @@ public class LocationConstraint
 
         LocationConstraint c1 = new LocationConstraint();
         c1.name = name;
-        ArrayList v = getAllowedLocations();
-        ListIterator it = v.listIterator();
+        List<Location> v = getAllowedLocations();
+        ListIterator<Location> it = v.listIterator();
         while ( it.hasNext() ) {
             Location loc = ( Location ) it.next();
             c1.addLocation( loc );

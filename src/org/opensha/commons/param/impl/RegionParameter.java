@@ -20,6 +20,7 @@
 package org.opensha.commons.param.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
@@ -249,7 +250,7 @@ public class RegionParameter extends AbstractParameter<Region> {
 	 * Useful for presenting in a picklist
 	 * @return    The allowed Locations list
 	 */
-	public ArrayList getAllowedLocations() {
+	public List<Location> getAllowedLocations() {
 		return ( ( LocationConstraint ) this.constraint ).getAllowedLocations();
 	}
 
