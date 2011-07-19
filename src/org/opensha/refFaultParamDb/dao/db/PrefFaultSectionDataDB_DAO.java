@@ -183,6 +183,9 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	public ArrayList<FaultSectionPrefData> getAllFaultSectionPrefData() {
 		if(faultSectionsList==null) 
 			faultSectionsList = query("");
+		for (FaultSectionPrefData data : faultSectionsList) {
+			cachedSections.put(data.getSectionId(), data);
+		}
 		return faultSectionsList;
 	}
 
