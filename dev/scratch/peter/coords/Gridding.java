@@ -2,7 +2,7 @@ package scratch.peter.coords;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.math.util.MathUtils;
 
 /**

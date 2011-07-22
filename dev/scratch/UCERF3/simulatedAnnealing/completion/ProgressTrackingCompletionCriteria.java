@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.CSVFile;
 
 public class ProgressTrackingCompletionCriteria implements CompletionCriteria {

@@ -3,7 +3,7 @@ package org.opensha.commons.eq.cat.io;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.eq.cat.MutableCatalog;
 
 @Deprecated

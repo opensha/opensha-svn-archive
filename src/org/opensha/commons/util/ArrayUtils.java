@@ -151,10 +151,10 @@ public class ArrayUtils {
 		double[] combo = new double[v1len + v2len];
 		System.arraycopy(v1, 0, combo, 0, v1len);
 		System.arraycopy(v2, 0, combo, v1len, v2len);
-		Double[] comboObj = org.apache.commons.lang.ArrayUtils.toObject(combo);
+		Double[] comboObj = org.apache.commons.lang3.ArrayUtils.toObject(combo);
 		Set<Double> uniqueSet = new HashSet<Double>(Arrays.asList(comboObj));
 		Double[] uniqueArray = uniqueSet.toArray(new Double[uniqueSet.size()]);
-		double[] out = org.apache.commons.lang.ArrayUtils.toPrimitive(uniqueArray);
+		double[] out = org.apache.commons.lang3.ArrayUtils.toPrimitive(uniqueArray);
 		Arrays.sort(out);
 		return out;
 	}
@@ -163,12 +163,12 @@ public class ArrayUtils {
 		double[] aa = {1,6,4,5,12,9};
 		double[] bb = {8,6,4,2,0,4};
 		double[] mm = merge(aa,bb);
-		System.out.println(org.apache.commons.lang.ArrayUtils.toString(aa));
-		System.out.println(org.apache.commons.lang.ArrayUtils.toString(bb));
-		System.out.println(org.apache.commons.lang.ArrayUtils.toString(mm));
+		System.out.println(org.apache.commons.lang3.ArrayUtils.toString(aa));
+		System.out.println(org.apache.commons.lang3.ArrayUtils.toString(bb));
+		System.out.println(org.apache.commons.lang3.ArrayUtils.toString(mm));
 		
 		
-		System.out.println(org.apache.commons.lang.ArrayUtils.toString(merge2(aa,bb)));
+		System.out.println(org.apache.commons.lang3.ArrayUtils.toString(merge2(aa,bb)));
 		
 		
 		

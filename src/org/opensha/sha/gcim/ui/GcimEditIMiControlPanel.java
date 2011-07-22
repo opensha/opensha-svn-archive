@@ -53,7 +53,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;

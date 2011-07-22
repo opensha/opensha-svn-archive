@@ -180,17 +180,18 @@ public class ResultPlotter {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-//		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
-		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
+//		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
 		File tsaDir = new File(mainDir, "results_5");
-		File dsaDir = new File(mainDir, "dsa_results_5");
+		File dsaDir = new File(mainDir, "dsa_results_4");
+//		File dsaDir = new File(mainDir, "dsa_results_comb_2_5");
 		
 		String coolType = "VERYFAST";
 		int threads = -1;
 		int nodes = -1;
 		boolean includeStartSubZero = false;
 		boolean plotAvg = true;
-		boolean bundleDsaBySubs = false;
+		boolean bundleDsaBySubs = true;
 		
 		File[] tsaFiles = tsaDir.listFiles();
 		File[] dsaFiles = dsaDir.listFiles();
@@ -245,14 +246,16 @@ public class ResultPlotter {
 			Color c;
 			if (name.contains("dsa")) {
 				if (bundleDsaBySubs && name.contains("dSub")) {
-					if (name.contains("dSub2000"))
+					if (name.contains("dSub2000_"))
 						c = Color.BLACK;
-					else if (name.contains("dSub5000"))
+					else if (name.contains("dSub5000_"))
 						c = Color.BLUE;
-					else if (name.contains("dSub10000"))
+					else if (name.contains("dSub10000_"))
 						c = Color.GREEN;
-					else
+					else if (name.contains("dSub15000_"))
 						c = Color.RED;
+					else
+						throw new RuntimeException("Unknown dSub: "+name);
 				} else {
 					if (name.contains("2nodes"))
 						c = Color.BLACK;

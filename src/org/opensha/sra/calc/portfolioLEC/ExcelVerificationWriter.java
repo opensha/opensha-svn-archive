@@ -19,9 +19,9 @@ public class ExcelVerificationWriter {
 	
 	private File inFile, outFile;
 	
-	public ExcelVerificationWriter(String inputFile, String outputFile) {
-		inFile = new File(inputFile);
-		outFile = new File(outputFile);
+	public ExcelVerificationWriter(File inputFile, File outputFile) {
+		inFile = inputFile;
+		outFile = outputFile;
 	}
 	
 	protected void writeResults(PortfolioRuptureResults[][] rupResults, ArbitrarilyDiscretizedFunc curve, ERF erf)

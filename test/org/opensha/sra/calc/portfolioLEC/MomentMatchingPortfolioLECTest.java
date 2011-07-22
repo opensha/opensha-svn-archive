@@ -44,11 +44,14 @@ import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor
  * @author Kevin
  *
  */
-public class PortfolioLossExceedenceCurveCalculatorTest {
+public class MomentMatchingPortfolioLECTest {
+	
+	public static final boolean WRITE_EXCEL_FILE = false;
 
 	private static ERF erf;
 	private static ScalarIMR imr;
 	private static Portfolio portfolio;
+	private static ArbitrarilyDiscretizedFunc function;
 	
 	private static boolean smallERF = true;
 	
@@ -70,11 +73,11 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 //			erf.includeSource(282);
 //			erf.includeSource(181);
 			erf.includeSource(51);
-			PortfolioLossExceedenceCurveCalculatorTest.erf = erf;
+			MomentMatchingPortfolioLECTest.erf = erf;
 		} else {
 			Frankel96_AdjustableEqkRupForecast erf = new Frankel96_AdjustableEqkRupForecast();
 			erf.updateForecast();
-			PortfolioLossExceedenceCurveCalculatorTest.erf = erf;
+			MomentMatchingPortfolioLECTest.erf = erf;
 		}
 
 		
@@ -87,6 +90,12 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 		
 		imr = new CB_2008_AttenRel(null);
 		imr.setParamDefaults();
+		
+		function = new ArbitrarilyDiscretizedFunc();
+		for (int k=0; k<51; k++) {
+			double x = Math.pow(10d, -5d + 0.1 * k);
+			function.set(x, 0d);
+		}
 		
 		portfolio = new Portfolio("Test Portfolio");
 		
@@ -113,7 +122,7 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 		portfolio.add(asset2);
 		
 		// ********** REFERENCE RESULTS FROM KEITH'S SPREADSHEET **********
-		File excelFile = new File(PortfolioLossExceedenceCurveCalculatorTest.class.getResource("output.xls").toURI());
+		File excelFile = new File(MomentMatchingPortfolioLECTest.class.getResource("output.xls").toURI());
 		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(excelFile));
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
 		wb.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
@@ -127,9 +136,10 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 	
 	@Test
 	public void testCalc() {
-		PortfolioLossExceedenceCurveCalculator calc = new PortfolioLossExceedenceCurveCalculator();
+		MomentMatchingPortfolioLECCalculator calc = new MomentMatchingPortfolioLECCalculator();
 		
-		PortfolioRuptureResults[][] rupResults = calc.calculateCurve(imr, erf, portfolio, null);
+		// TODO give real function
+		PortfolioRuptureResults[][] rupResults = calc.calcRuptureResults(imr, erf, portfolio, function);
 		
 		int numRups = 0;
 		for (PortfolioRuptureResults[] src : rupResults)
@@ -156,7 +166,10 @@ public class PortfolioLossExceedenceCurveCalculatorTest {
 			}
 		}
 		
-		ArbitrarilyDiscretizedFunc curve = calc.calcProbabilityOfExceedanceCurve(rupResults, erf);
+		ArbitrarilyDiscretizedFunc curve = function.deepClone();
+		// TODO not null
+		calc.calcProbabilityOfExceedanceCurve(
+				MomentMatchingPortfolioLECCalculator.RupResultsToFuncArray(rupResults), erf, curve);
 		curve.setName("Final portfolio LEC (Equation 42)");
 		
 		int row = bottomRow + 1;

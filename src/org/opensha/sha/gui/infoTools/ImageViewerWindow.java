@@ -49,7 +49,7 @@ import javax.swing.JToolBar;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.opensha.commons.util.FileUtils;
 
 import com.lowagie.text.Document;

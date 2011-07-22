@@ -11,7 +11,7 @@ import static org.opensha.commons.eq.cat.util.DataType.TIME;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.eq.cat.util.MagnitudeType;
 
 import com.google.common.primitives.Doubles;

@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.eq.cat.MutableCatalog;
 import org.opensha.commons.eq.cat.io.AbstractReader;
 

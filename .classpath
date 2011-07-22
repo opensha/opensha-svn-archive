@@ -8,11 +8,6 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/cli/api-release/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.4.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/codec/api-release/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/collections/api-release/"/>
@@ -21,11 +16,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.0.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/io/api-release/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.6.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-release/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar">
@@ -89,6 +79,16 @@
 	<classpathentry kind="lib" path="lib/mpj-0.38.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://mpj-express.org/docs/javadocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-3.0/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons-codec-1.5.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/codec/api-release/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="classes/"/>

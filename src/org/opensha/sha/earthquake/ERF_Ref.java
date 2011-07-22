@@ -9,7 +9,7 @@ import java.lang.reflect.Constructor;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;

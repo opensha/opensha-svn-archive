@@ -5,8 +5,8 @@ import static org.opensha.commons.eq.cat.util.DataType.LONGITUDE;
 
 import java.awt.geom.Path2D;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.opensha.commons.eq.cat.MutableCatalog;
 import org.opensha.commons.geo.GeoTools;
 

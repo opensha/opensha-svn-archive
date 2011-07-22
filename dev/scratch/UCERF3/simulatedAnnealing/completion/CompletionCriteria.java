@@ -1,6 +1,6 @@
 package scratch.UCERF3.simulatedAnnealing.completion;
 
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 
 public interface CompletionCriteria {
 	

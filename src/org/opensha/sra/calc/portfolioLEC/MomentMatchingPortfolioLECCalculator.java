@@ -1,7 +1,5 @@
 package org.opensha.sra.calc.portfolioLEC;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.math.MathException;
@@ -10,18 +8,12 @@ import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sra.asset.Asset;
-import org.opensha.sra.asset.MonetaryHighLowValue;
-import org.opensha.sra.asset.MonetaryValue;
 import org.opensha.sra.asset.Portfolio;
-import org.opensha.sra.asset.Value;
 import org.opensha.sra.vulnerability.Vulnerability;
 import org.opensha.sra.vulnerability.models.SimpleVulnerability;
 
@@ -40,20 +32,27 @@ import org.opensha.sra.vulnerability.models.SimpleVulnerability;
  * @author Peter Powers, Kevin Milner
  * @version $Id$
  */
-public class PortfolioLossExceedenceCurveCalculator {
+public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCalculator {
 	
-	public static final boolean D = false;
-	public static final boolean WRITE_EXCEL_FILE = false;
+	protected DiscretizedFunc[][] calcRuptureLECs(ScalarIMR imr,
+			ERF erf, Portfolio portfolio, DiscretizedFunc function) {
+		PortfolioRuptureResults[][] rupResults = calcRuptureResults(imr, erf, portfolio, function);
+		
+		return RupResultsToFuncArray(rupResults);
+	}
 	
-	// TODO allow user to specify?
-	private static double valueCoefficientOfVariation = 0.15;
+	protected static DiscretizedFunc[][] RupResultsToFuncArray(PortfolioRuptureResults[][] rupResults) {
+		DiscretizedFunc[][] funcs = new DiscretizedFunc[rupResults.length][];
+		for (int sourceID=0; sourceID<rupResults.length; sourceID++) {
+			funcs[sourceID] = new DiscretizedFunc[rupResults[sourceID].length];
+			for (int rupID=0; rupID<rupResults[sourceID].length; rupID++) {
+				funcs[sourceID][rupID] = rupResults[sourceID][rupID].getExceedanceProbs();
+			}
+		}
+		return funcs;
+	}
 	
-	// TODO allow user to specify?
-	private static double interEventFactor = 0.25;
-
-	// TODO TectonicRegionType support?
-	
-	protected PortfolioRuptureResults[][] calculateCurve(
+	protected PortfolioRuptureResults[][] calcRuptureResults(
 			ScalarIMR imr,
 			ERF erf,
 			Portfolio portfolio,
@@ -91,57 +90,8 @@ public class PortfolioLossExceedenceCurveCalculator {
 		if (D) System.out.println("wi: " + wi + " (eqn 15)");
 		if (D) System.out.println("");
 		
-		// loop over assets
-		for (int i=0; i<portfolio.size(); i++) {
-			Asset asset = portfolio.get(i);
-			Value value = asset.getValue();
-			if (D) System.out.println("Asset " + i);
-			if (value instanceof MonetaryValue) {
-				MonetaryValue mvalue = (MonetaryValue)asset.getValue();
-				
-				double meanValue = mvalue.getValue();
-				double betaVJ;
-				double medianValue;
-				if (D) System.out.println("meanValue: " + meanValue + " (v sub jbar)");
-				double highValue, lowValue;
-				if (mvalue instanceof MonetaryHighLowValue) {
-					if (D) System.out.println("Asset already has high/low vals");
-					MonetaryHighLowValue hlmValue = (MonetaryHighLowValue) mvalue;
-					highValue = hlmValue.getHighValue();
-					lowValue = hlmValue.getLowValue();
-					
-					betaVJ = Math.log(highValue/lowValue) / (2*1.932);
-					medianValue = meanValue / Math.sqrt(Math.exp(betaVJ*betaVJ));
-					
-					if (D) {
-						System.out.println("highValue: " + highValue + " (v sub j+) (from asset)");
-						System.out.println("lowValue: " + lowValue + " (v sub j-) (from asset)");
-					}
-				} else {
-					if (D) System.out.println("calculating high/low vals");
-					// if high/low value isn't given, we need to calculate it from mean and COV
-					// Equation 21
-					betaVJ = Math.sqrt(Math.log(1d+valueCoefficientOfVariation*valueCoefficientOfVariation));
-					medianValue = meanValue / Math.sqrt(Math.exp(betaVJ*betaVJ));
-					// Equation 22
-					highValue = medianValue * Math.exp(betaVJ*1.932);
-					lowValue = medianValue * Math.exp(-betaVJ*1.932);
-					if (D) {
-						System.out.println("highValue: " + highValue + " (v sub j+) (eqn 16)");
-						System.out.println("lowValue: " + lowValue + " (v sub j-) (eqn 16)");
-					}
-				}
-				
-				// set mean low and high value arrays
-				mValue[i] = meanValue; // v sub j bar
-				betaVJs[i] = betaVJ;
-				medValue[i] = medianValue;
-				hValue[i] = highValue; // v sub j+
-				lValue[i] = lowValue;  // v sub j-
-			} else {
-				throw new RuntimeException("Value must be of type MonetaryValue");
-			}
-		}
+		// populate the value arrays
+		populateValues(portfolio, mValue, betaVJs, medValue, hValue, lValue);
 		// ---
 		
 		// std dev tests
@@ -180,36 +130,7 @@ public class PortfolioLossExceedenceCurveCalculator {
 					imr.setSite(asset.getSite());
 					imr.setEqkRupture(src.getRupture(rupID));
 					
-					double intraSTD, interSTD;
-					
-					double mLnIML = imr.getMean();
-					if (D) System.out.println("mLnIML: " + mLnIML);
-					Parameter<String> stdParam = imr.getParameter(StdDevTypeParam.NAME);
-					stdParam.setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-					double std = imr.getStdDev();
-					if (D) System.out.println("ln STD: " + std);
-					
-					if (stdParam.isAllowed(StdDevTypeParam.STD_DEV_TYPE_INTRA)) {
-						stdParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTRA);
-						intraSTD = imr.getStdDev();
-						stdParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTER);
-						interSTD = imr.getStdDev();
-						if (D) System.out.println("interStd: " + interSTD + " (from IMR)");
-						if (D) System.out.println("intraStd: " + intraSTD + " (from IMR)");
-					} else {
-						if (D) System.out.println("IMR doesn't support inter/intra std, we hae to calculate");
-						if (D) System.out.println("interEventFactor: " + interEventFactor);
-						interSTD = interEventFactor*std; // Equation 10
-						intraSTD = Math.sqrt(std*std-interSTD*interSTD); // Equation 11
-						if (D) System.out.println("interStd: " + interSTD + " (eqn 10)");
-						if (D) System.out.println("intraStd: " + intraSTD + " (eqn 11)");
-					}
-					
-					// TODO K. Porter explain 11th and 89th
-					// e^(mIML + 0.5 * std * std)
-//					double mIML = Math.exp(mLnIML + 0.5 * std * std); // Equation 20, mean shaking real domain
-					double medIML = Math.exp(mLnIML);
-					if (D) System.out.println("medIML: " + medIML + " (s sub j hat) (eqn 20)");
+					ShakingResult imrResult = calcShaking(imr);
 					
 					if (D) {
 						AbstractDiscretizedFunc vulnFunc = vuln.getVulnerabilityFunc();
@@ -218,20 +139,20 @@ public class PortfolioLossExceedenceCurveCalculator {
 							System.out.println("COV Function:\n"+((SimpleVulnerability)vuln).getCOVFunction());
 					}
 					
-					double mDamage_medIML = vuln.getMeanDamageFactor(medIML); // y sub j bar
+					double mDamage_medIML = vuln.getMeanDamageFactor(imrResult.medIML); // y sub j bar
 					if (D) System.out.println("mDamage_mIML: " + mDamage_medIML + " (y sub j bar)");
 					
 					AbstractDiscretizedFunc covFunc = ((SimpleVulnerability)vuln).getCOVFunction();
 					
-					double deltaJ_medIML = covFunc.getInterpolatedY(medIML);
+					double deltaJ_medIML = covFunc.getInterpolatedY(imrResult.medIML);
 					
 					// Equation 23
 					double medDamage_medIML = mDamage_medIML / Math.sqrt(
 							1d + deltaJ_medIML*deltaJ_medIML);
 					
-					double hDamage_medIML = vuln.getMeanDamageAtExceedProb(medIML, 0.086); // y sub j+
+					double hDamage_medIML = vuln.getMeanDamageAtExceedProb(imrResult.medIML, 0.086); // y sub j+
 					if (D) System.out.println("hDamage_mIML: " + hDamage_medIML + " (y sub j+)");
-					double lDamage_medIML = vuln.getMeanDamageAtExceedProb(medIML, 0.914); // y sub j-
+					double lDamage_medIML = vuln.getMeanDamageAtExceedProb(imrResult.medIML, 0.914); // y sub j-
 					if (D) System.out.println("lDamage_mIML: " + lDamage_medIML + " (y sub j+)");
 					
 					// TODO doublecheck log-space consistency for vulnerability
@@ -242,10 +163,10 @@ public class PortfolioLossExceedenceCurveCalculator {
 					//
 					// 1.932 is the inverse of the cum. std. norm. dist. at 97%
 					
-					double interVal = 1.932 * interSTD;
-					double imlHighInter = medIML * Math.exp(interVal);
+					double interVal = 1.932 * imrResult.interSTD;
+					double imlHighInter = imrResult.medIML * Math.exp(interVal);
 					if (D) System.out.println("imlHighInter: " + imlHighInter);
-					double imlLowInter = medIML * Math.exp(-1d*interVal);
+					double imlLowInter = imrResult.medIML * Math.exp(-1d*interVal);
 					if (D) System.out.println("imlLowInter: " + imlLowInter);
 					double mDamage_hInter = vuln.getMeanDamageFactor(imlHighInter); // s sub +t
 					if (D) System.out.println("mDamage_hInter: " + mDamage_hInter + " (s sub +t) (eqn 18)");
@@ -260,9 +181,9 @@ public class PortfolioLossExceedenceCurveCalculator {
 					double medDamage_lInter = mDamage_lInter / Math.sqrt(
 							1d + deltaJ_imlLowInter*deltaJ_imlLowInter);
 					
-					double intraVal = 1.932 * intraSTD;
-					double imlHighIntra = medIML * Math.exp(intraVal);
-					double imlLowIntra = medIML * Math.exp(-1d*intraVal);
+					double intraVal = 1.932 * imrResult.intraSTD;
+					double imlHighIntra = imrResult.medIML * Math.exp(intraVal);
+					double imlLowIntra = imrResult.medIML * Math.exp(-1d*intraVal);
 					double mDamage_hIntra = vuln.getMeanDamageFactor(imlHighIntra); // s sub +p
 					if (D) System.out.println("mDamage_hIntra: " + mDamage_hIntra + " (s sub +p) (eqn 18)");
 					double mDamage_lIntra = vuln.getMeanDamageFactor(imlLowIntra);  // s sub -p
@@ -277,8 +198,8 @@ public class PortfolioLossExceedenceCurveCalculator {
 							1d + deltaJ_imlLowIntra*deltaJ_imlLowIntra);
 
 					
-					AssetRuptureResult assetRupResult = new AssetRuptureResult(medIML, mLnIML, interSTD, intraSTD,
-							mDamage_medIML, deltaJ_medIML, medDamage_medIML, hDamage_medIML, lDamage_medIML, medIML,
+					AssetRuptureResult assetRupResult = new AssetRuptureResult(imrResult.medIML, imrResult.mLnIML, imrResult.interSTD, imrResult.intraSTD,
+							mDamage_medIML, deltaJ_medIML, medDamage_medIML, hDamage_medIML, lDamage_medIML, imrResult.medIML,
 							imlHighInter, imlLowInter, mDamage_hInter, mDamage_lInter, deltaJ_imlHighInter, deltaJ_imlLowInter, medDamage_hInter, medDamage_lInter,
 							imlHighIntra, imlLowIntra, mDamage_hIntra, mDamage_lIntra, deltaJ_imlHighIntra, deltaJ_imlLowIntra, medDamage_hIntra, medDamage_lIntra,
 							mValue[k], betaVJs[k], medValue[k], hValue[k], lValue[k]);
@@ -406,8 +327,9 @@ public class PortfolioLossExceedenceCurveCalculator {
 				
 				// Equation 44
 				ArbDiscrEmpiricalDistFunc distFunc = new ArbDiscrEmpiricalDistFunc();
-				for (int k=0; k<51; k++) {
-					double x = Math.pow(10d, -5d + 0.1 * k);
+				for (int k=0; k<function.getNum(); k++) {
+//					double x = Math.pow(10d, -5d + 0.1 * k);
+					double x = function.getX(k);
 					double inside = Math.log(x * sumMeanValues / thetaSubLgivenS) / betaSubLgivenS;
 					distFunc.set(x, inside);
 				}
@@ -469,96 +391,6 @@ public class PortfolioLossExceedenceCurveCalculator {
 		}
 		
 		return str;
-	}
-	
-	protected ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
-			PortfolioRuptureResults[][] rupResults, ERF erf) {
-ArbitrarilyDiscretizedFunc curve = new ArbitrarilyDiscretizedFunc();
-		
-		// init the curve x values
-		ArbitrarilyDiscretizedFunc firstExceed = rupResults[0][0].getExceedanceProbs();
-		for (int i=0; i<firstExceed.getNum(); i++) {
-			curve.set(firstExceed.getX(i), 0.0);
-		}
-		
-		if (D) System.out.println("Creating final curve");
-		for (int k=0; k<curve.getNum(); k++) {
-			double x = curve.getX(k);
-			if (D) System.out.println("iml: " + x);
-			
-			double product = 1;
-			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
-				ProbEqkSource src = erf.getSource(sourceID);
-				for (int rupID=0; rupID<src.getNumRuptures(); rupID++) {
-					ProbEqkRupture rup = src.getRupture(rupID);
-					
-					ArbitrarilyDiscretizedFunc normCumDist = rupResults[sourceID][rupID].getExceedanceProbs();
-					
-					double rupProb = rup.getProbability();
-					
-					if (D) System.out.println("src: " + sourceID + " rup: " + rupID + " prob: " + rupProb);
-					
-					double normCumDistVal = normCumDist.getY(k);
-					if (D) System.out.println("normCumDist[iml]: " + normCumDistVal);
-					if (Double.isNaN(normCumDistVal)) {
-						if (D) System.out.println("it's NaN, skipping");
-						continue;
-					}
-					
-					// part of equation 47
-					product *= 1 - rupProb * normCumDist.getY(k);
-				}
-			}
-			// 1 - product (part of eqn 47)
-			curve.set(x, 1-product);
-		}
-		
-		if (D) System.out.println("*** final prob curve:\n" + curve);
-		if (WRITE_EXCEL_FILE) {
-			try {
-				writeExcel(rupResults, curve, erf);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		return curve;
-	}
-	
-	public ArbitrarilyDiscretizedFunc calcProbabilityOfExceedanceCurve(
-			ScalarIMR imr,
-			ERF erf,
-			Portfolio portfolio,
-			DiscretizedFunc function) {
-		
-		PortfolioRuptureResults[][] rupResults = calculateCurve(imr, erf, portfolio, function);
-		
-		return calcProbabilityOfExceedanceCurve(rupResults, erf);
-	}
-	
-	public ArbitrarilyDiscretizedFunc calcFrequencyOfExceedanceCurve(
-			ScalarIMR imr,
-			ERF erf,
-			Portfolio portfolio,
-			DiscretizedFunc function) {
-		// TODO implement frequency
-		return null;
-	}
-	
-	private static void writeExcel(PortfolioRuptureResults[][] rupResults, ArbitrarilyDiscretizedFunc curve,
-			ERF erf) throws FileNotFoundException, IOException {
-		String dir = "/home/kevin/OpenSHA/portfolio_lec/";
-//		String input = dir+"Porter (25 Oct 2010) Portfolio LEC checks and illustrations.xls";
-//		String input = dir+"Porter (04 Jan 2011) Portfolio LEC checks and illustrations.xls";
-		String input = dir+"input.xls";
-		String output = dir+"output.xls";
-		
-		ExcelVerificationWriter excel = new ExcelVerificationWriter(input, output);
-		excel.writeResults(rupResults, curve, erf);
 	}
 	
 //	private static void printAssetRupVals(ArrayList<AssetRuptureResult> assetRupResults, int assetNum) {

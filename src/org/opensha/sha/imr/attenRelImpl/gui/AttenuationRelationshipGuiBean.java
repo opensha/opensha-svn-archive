@@ -31,7 +31,7 @@ import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
 import org.opensha.commons.data.function.DiscretizedFunc;

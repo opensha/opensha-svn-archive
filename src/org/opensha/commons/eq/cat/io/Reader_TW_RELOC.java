@@ -10,7 +10,7 @@ import static org.opensha.commons.eq.cat.util.DataType.TIME;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;

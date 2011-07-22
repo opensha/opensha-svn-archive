@@ -60,7 +60,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
