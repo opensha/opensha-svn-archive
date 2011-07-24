@@ -335,6 +335,10 @@ public class EqksInGeoBlock {
 	}
 	
 	
+	/**
+	 * This creates (if not already existent) and returns the randomEqkRupSampler
+	 * @return
+	 */
 	public IntegerPDF_FunctionSampler getRandomSampler() {
 		if(randomEqkRupSampler == null) {
 			randomEqkRupSampler = new IntegerPDF_FunctionSampler(srcIndexList.size());
@@ -441,7 +445,7 @@ public class EqksInGeoBlock {
 
 	}
 	
-	/** This computes the expected mag-freq dist for the block
+	/** This computes the expected, normalized mag-freq dist for the block (total rate is 1.0)
 	 * 
 	 * @return
 	 */

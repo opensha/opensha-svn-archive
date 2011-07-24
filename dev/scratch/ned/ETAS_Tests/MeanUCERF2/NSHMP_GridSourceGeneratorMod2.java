@@ -3,24 +3,8 @@
  */
 package scratch.ned.ETAS_Tests.MeanUCERF2;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
-import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.geo.GriddedRegion;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.Region;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
@@ -51,6 +35,9 @@ public class NSHMP_GridSourceGeneratorMod2 extends NSHMP_GridSourceGenerator {
 			boolean include_agrd_deeps_out) {
 
 		double scaleFactor = 29.6;
+		
+		// TEMPORARY
+//		scaleFactor *= 2;
 
 		// find max mag among all contributions
 		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;

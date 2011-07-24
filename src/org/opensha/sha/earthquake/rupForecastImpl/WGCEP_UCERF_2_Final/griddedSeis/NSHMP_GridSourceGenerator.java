@@ -134,100 +134,109 @@ public class NSHMP_GridSourceGenerator implements Serializable {
 	}
 	
 	
-	public ArrayList<ProbEqkSource> getBrawleyFixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getBrawleyFixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(agrd_brawly_out[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 157, duration, magCutOff, 0.5,0.5,0));
+				sources.get(sources.size()-1).setName("Brawley Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 
-	public ArrayList<ProbEqkSource> getMendosFixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getMendosFixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(agrd_mendos_out[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 7.3, agrd_mendos_out[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,90, duration, magCutOff, 0.5,0.0,0.5));
+				sources.get(sources.size()-1).setName("Mendos Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 	
-	public ArrayList<ProbEqkSource> getCreepsFixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getCreepsFixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(agrd_creeps_out[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 6, agrd_creeps_out[locIndex], B_VAL_CREEPING, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-42.5, duration, magCutOff, 1.0,0.0,0.0));
+				sources.get(sources.size()-1).setName("Creeps Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 
-	public ArrayList<ProbEqkSource> getArea1FixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getArea1FixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area1new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-35, duration, magCutOff, 1.0,0.0,0.0));
+				sources.get(sources.size()-1).setName("Area1 Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 
-	public ArrayList<ProbEqkSource> getArea2FixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getArea2FixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area2new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-25, duration, magCutOff, 1.0,0.0,0.0));
+				sources.get(sources.size()-1).setName("Area2 Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 	
-	public ArrayList<ProbEqkSource> getArea3FixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getArea3FixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area3new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 360-45, duration, magCutOff, 1.0,0.0,0.0));
+				sources.get(sources.size()-1).setName("Area3 Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 
-	public ArrayList<ProbEqkSource> getArea4FixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getArea4FixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(area4new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area4new_agrid[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 360-45, duration, magCutOff, 1.0,0.0,0.0));
+				sources.get(sources.size()-1).setName("Area4 Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 	
-	public ArrayList<ProbEqkSource> getMojaveFixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getMojaveFixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(mojave_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, mojave_agrid[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel, 360-47, duration, magCutOff, 1.0,0.0,0.0));
+				sources.get(sources.size()-1).setName("Mojave Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;
 	}
 
-	public ArrayList<ProbEqkSource> getSangregFixedStrikeSources(double duration) {
-		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+	public ArrayList<Point2Vert_FaultPoisSource> getSangregFixedStrikeSources(double duration) {
+		ArrayList<Point2Vert_FaultPoisSource> sources = new ArrayList<Point2Vert_FaultPoisSource>();
 		for(int locIndex=0;locIndex<region.getNodeCount();locIndex++) {
 			if(sangreg_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false);
 				sources.add(new Point2Vert_FaultPoisSource(region.locationForIndex(locIndex), mfd, magLenRel,360-67, duration, magCutOff, 1.0,0.0,0.0));
+				sources.get(sources.size()-1).setName("Sangreg Point2Vert_FaultPoisSource");
 			}
 		}
 		return sources;

@@ -33,6 +33,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.ned.ETAS_Tests.MeanUCERF2.MeanUCERF2_ETAS;
@@ -50,8 +51,8 @@ public class ETAS_Simulator {
 	double distDecay;
 	double minDist;
 //	double minDist=2.0;
-	double tMin=0;
-	double tMax=360;
+	double tMin=0;		//days
+	double tMax=360;	//days
 	boolean useAdaptiveBlocks=true;
 	boolean includeBlockRates=true;
 	int sourceID_ToIgnore = -1;
@@ -167,8 +168,8 @@ public class ETAS_Simulator {
 	public String plotMagFreqDists(Integer srcIndex, String info, boolean savePDF_Files) {
 		
 		double days = tMax-tMin;
-		ArrayList magProbDists = new ArrayList();
-		ArrayList expNumDists = new ArrayList();
+		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
+		ArrayList<EvenlyDiscretizedFunc> expNumDists = new ArrayList<EvenlyDiscretizedFunc>();
 
 		// FIRST PLOT MAG-PROB DISTS
 		
@@ -260,10 +261,42 @@ public class ETAS_Simulator {
 		expNumDistGraph.setY_AxisRange(1e-6, expNumDistGraph.getY_AxisMax());
 		expNumDistGraph.setYLog(true);
 		
+		
+		// plot the contributing sources for primary events
+		ArrayList<ArbIncrementalMagFreqDist> mfdList = etas_FirstGenSampler.getMagProbDistForAllSources(10);
+		SummedMagFreqDist sumMFD = new  SummedMagFreqDist(2.05, 8.95, 70);
+		for(ArbIncrementalMagFreqDist mfd:mfdList)
+			sumMFD.addResampledMagFreqDist(mfd, true);
+		sumMFD.setName("Total Incremental MFD");
+		sumMFD.setInfo(" ");
+		ArrayList<EvenlyDiscretizedFunc> mfdListFinal = new ArrayList<EvenlyDiscretizedFunc>();
+		mfdListFinal.add(sumMFD);
+		mfdListFinal.add(sumMFD.getCumRateDistWithOffset());
+		mfdListFinal.get(1).setName("Total Cum MFD");
+		mfdListFinal.addAll(mfdList);
+		GraphiWindowAPI_Impl contributingPrimarySrcsGraph = new GraphiWindowAPI_Impl(mfdListFinal, "Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
+		contributingPrimarySrcsGraph.setX_AxisLabel("Mag");
+		contributingPrimarySrcsGraph.setY_AxisLabel("Probability");
+		contributingPrimarySrcsGraph.setY_AxisRange(1e-6, contributingPrimarySrcsGraph.getY_AxisMax());
+		contributingPrimarySrcsGraph.setYLog(true);
+		
+		// plot above as cumulative distributions
+		ArrayList<EvenlyDiscretizedFunc> cumMFD_List = new ArrayList<EvenlyDiscretizedFunc>();
+		cumMFD_List.add(sumMFD.getCumRateDistWithOffset());
+		for(ArbIncrementalMagFreqDist mfd:mfdList)
+			cumMFD_List.add(mfd.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl contrCumPrimarySrcsGraph = new GraphiWindowAPI_Impl(cumMFD_List, "Cumulative Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
+		contrCumPrimarySrcsGraph.setX_AxisLabel("Mag");
+		contrCumPrimarySrcsGraph.setY_AxisLabel("Probability");
+		contrCumPrimarySrcsGraph.setY_AxisRange(1e-6, contrCumPrimarySrcsGraph.getY_AxisMax());
+		contrCumPrimarySrcsGraph.setYLog(true);
+		
 		if(savePDF_Files) {
 			try {
 				magProbDistsGraph.saveAsPDF(dirToSaveData+"magProbDistsGraph.pdf");
 				expNumDistGraph.saveAsPDF(dirToSaveData+"magNumDistsGraph.pdf");
+				contributingPrimarySrcsGraph.saveAsPDF(dirToSaveData+"contrPrimarySrcsMPDsGraph.pdf");
+				contrCumPrimarySrcsGraph.saveAsPDF(dirToSaveData+"contrPrimarySrcsCumMPDsGraph.pdf");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -651,8 +684,8 @@ public class ETAS_Simulator {
 				testRate2 += src.getRupture(r).getMeanAnnualRate(forecastDuration);
 			}
 		}
-		System.out.println("\tRate1="+testRate1);
-		System.out.println("\tRate2="+testRate2);
+		System.out.println("\tRate1="+(float)testRate1+" should equal Rate2="+(float)testRate2+";\tratio="+(float)(testRate1/testRate2));
+	//	System.out.println("\tRate2="+testRate2);
 		
 	}
 
@@ -694,6 +727,13 @@ public class ETAS_Simulator {
 		
 		double cumRate = Math.round(10*ERF_Calculator.getTotalMFD_ForERF(meanUCERF2, 2.05,8.95, 70, true).getCumRate(5.05))/10.0;
 		System.out.println("\nCumRate >= M5 for MeanUCERF2_ETAS: "+cumRate+"  (should be 6.8)\n");
+		
+		meanUCERF2.plotMFD_InRegionNearLanders(10.0);
+		
+//		ProbEqkSource source = meanUCERF2.getSource(1708);
+//		for(int r=0; r<source.getNumRuptures();r++)
+//			System.out.println("test 1708\t"+source.getName()+"\t"+(float)source.getRupture(r).getMag()+"\t"+(float)source.getRupture(r).getMeanAnnualRate(forecastDuration));
+
 				
 		
 		
@@ -712,8 +752,8 @@ public class ETAS_Simulator {
 		
 
 		// Create the ETAS simulator
-		int srcID_ToIgnore = -1; // none
-//		int srcID_ToIgnore = 195; // landers
+//		int srcID_ToIgnore = -1; // none
+        int srcID_ToIgnore = 195; // landers
 //		int srcID_ToIgnore = 223; // Northridge
 		// SSAF is 42 to 98
 		// Landers is 195
@@ -743,7 +783,7 @@ public class ETAS_Simulator {
 		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
 		mainShock = meanUCERF2.getSource(68).getRupture(4);
 		etasSimulator.runTests(mainShock,"SSAF Wall-to-wall Rupture; M="+mainShock.getMag(), null);
-
+*/
 
 		// 195	Landers Rupture	 #rups=46 (rup 41 for M 7.25)
 		mainShock = meanUCERF2.getSource(195).getRupture(41);
@@ -751,7 +791,7 @@ public class ETAS_Simulator {
 		double minDist = 0.3;
 		String info = "Landers Rupture (M="+mainShock.getMag()+"); distDecay="+distDecay;
 		etasSimulator.runTests(mainShock,info, 195, rootDir+"Landers_decay1pt7_withSrc/",distDecay,minDist);
-	*/
+/*	
 				
 		// 223	Northridge	 #rups=13	(rup 8 for M 6.75)
 		mainShock = meanUCERF2.getSource(223).getRupture(8);
@@ -759,7 +799,7 @@ public class ETAS_Simulator {
 		double minDist = 0.3;
 		String info = "Northridge Rupture (M="+mainShock.getMag()+"); distDecay="+distDecay;
 		etasSimulator.runTests(mainShock,info, 223, rootDir+"Northridge_decay1pt7_withSrc/",distDecay,minDist);
-		/*
+		
 		
 
 		// 236	Pitas Point (Lower, West)	 #rups=19	13.0 (shallowest dipping rupture I could find)
@@ -808,8 +848,8 @@ public class ETAS_Simulator {
 			}
 			allEvents.addAll(aftershockList);
 			mainShocksToProcess = aftershockList;
-//			numToProcess = 0;
-			numToProcess = mainShocksToProcess.size();
+			numToProcess = 0;
+//			numToProcess = mainShocksToProcess.size();
 			progressBar.dispose();
 
 		}
@@ -839,7 +879,7 @@ public class ETAS_Simulator {
 		File file1 = new File(dirName);
 		file1.mkdirs();
 
-		// convert mainShock to PrimaryAftershock so it has the origina time
+		// convert mainShock to PrimaryAftershock so it has the origin time
 		PrimaryAftershock mainShockConverted = new PrimaryAftershock(mainShock);
 		mainShockConverted.setOriginTime(tMin);
 		mainShockConverted.setID(-1);

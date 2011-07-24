@@ -59,6 +59,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 
   //for Debug purposes
   private static String  C = new String("Point2Vert_SS_FaultPoisSource");
+  private String name = C;
   private boolean D = false;
 
   private IncrementalMagFreqDist magFreqDist;
@@ -465,8 +466,13 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
   * @return
   */
  public String getName() {
-   return C;
+   return name;
   }
+ 
+ public void setName(String name) {
+	   this.name=name;
+	  }
+
 
   // this is temporary for testing purposes
   public static void main(String[] args) {

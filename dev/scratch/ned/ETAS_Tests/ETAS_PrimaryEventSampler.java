@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -240,6 +241,61 @@ public class ETAS_PrimaryEventSampler {
 			for(int j=0; j<blockMagDist.getNum(); j++) magDist.add(blockMagDist.getX(j), blockMagDist.getY(j));
 		}
 		return magDist;
+	}
+
+	
+	/** This returns the mag-prob-dists of the top numMFD sources that contribute to the
+	 * primary aftershock sequence
+	 * 
+	 * @param numMFDs - the number of MFDs desired
+	 * @return
+	 */
+	public ArrayList<ArbIncrementalMagFreqDist> getMagProbDistForAllSources(int numMFDs) {
+		HashMap<String,ArbIncrementalMagFreqDist> mfd_map = new HashMap<String,ArbIncrementalMagFreqDist>();
+		for(int i=0; i<revisedBlockList.size();i++) {
+			double totRateInsideBlock = revisedBlockList.get(i).getTotalRateInside();
+			ArrayList<Double> magList = revisedBlockList.get(i).getMagList();
+			ArrayList<Double> rateInsideList = revisedBlockList.get(i).getRateInsideList();
+			ArrayList<Integer> srcIndexList = revisedBlockList.get(i).getSrcIndexList();
+			double blockProb=randomBlockSampler.getY(i);
+			ArbIncrementalMagFreqDist  mfd;
+			for(int j=0; j<magList.size(); j++) {
+				String srcName = this.erf.getSource(srcIndexList.get(j)).getName();
+				if(mfd_map.containsKey(srcName))
+					mfd = mfd_map.get(srcName);
+				else {
+					mfd = new  ArbIncrementalMagFreqDist(2.05, 8.95, 70);
+					mfd_map.put(srcName, mfd);
+				}
+				mfd.addResampledMagRate(magList.get(j), blockProb*rateInsideList.get(j)/totRateInsideBlock, true);
+			}
+		}
+		//Check results
+		double totalRate=0;
+		for(String sName: mfd_map.keySet())
+			totalRate += mfd_map.get(sName).getTotalIncrRate();
+		System.out.println("getMagProbDistForAllSources TEST - This should be 1.0: "+totalRate);
+
+		
+		ArrayList<ArbIncrementalMagFreqDist> mfdList = new ArrayList<ArbIncrementalMagFreqDist>();
+		while(mfdList.size()<numMFDs) {
+			double max = 0;
+			String targetName = null;
+			for(String sName: mfd_map.keySet()) {
+				double totRate = mfd_map.get(sName).getTotalIncrRate();
+				if(totRate>max) {
+					max = totRate;
+					targetName=sName;
+				}
+			}
+			ArbIncrementalMagFreqDist mfd = mfd_map.get(targetName);
+			mfd.setName(targetName);
+			mfd.setInfo(" ");
+			mfdList.add(mfd);
+			mfd_map.remove(targetName);
+		}
+		
+		return mfdList;
 	}
 
 	
