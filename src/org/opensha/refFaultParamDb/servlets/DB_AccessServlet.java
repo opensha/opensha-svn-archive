@@ -130,8 +130,8 @@ public class DB_AccessServlet extends HttpServlet{
 			//receiving the name of the Function to be performed
 			String functionToPerform = (String) inputFromApp.readObject();
 			
-			System.out.println("DB_AccessServlet: handling requst '"+functionToPerform
-					+"' from user: "+user+" (pass is null? "+(pass == null)+")");
+//			System.out.println("DB_AccessServlet: handling requst '"+functionToPerform
+//					+"' from user: "+user+" (pass is null? "+(pass == null)+")");
 			
 			boolean valid;
 			if (user == null || pass == null || user.isEmpty() || pass.isEmpty()) {
@@ -139,7 +139,8 @@ public class DB_AccessServlet extends HttpServlet{
 			} else {
 				valid = contributorDAO.isContributorValid(user, pass);
 				
-				System.out.println("DB_AccessServlet: user valid: "+valid);
+				if (valid)
+					System.out.println("DB_AccessServlet: attempting to connect with invalid credentials: "+user);
 			}
 			
 			// if this isn't a valid contributor and it's not a guest operation, throw an error

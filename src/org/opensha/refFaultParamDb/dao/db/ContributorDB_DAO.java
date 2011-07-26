@@ -239,6 +239,7 @@ public class ContributorDB_DAO  {
 		String condition  =  " where "+CONTRIBUTOR_NAME+"='"+name+"' and "+
 		PASSWORD+"='"+getEnryptedPassword(password)+"'";
 		ArrayList<Contributor> contributorList = query(condition);
+//		System.out.println(condition+" size? "+contributorList.size());
 		if(contributorList.size()>0) return (Contributor)contributorList.get(0);
 		else return null;
 	}

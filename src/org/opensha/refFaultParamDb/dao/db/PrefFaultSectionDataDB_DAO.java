@@ -290,10 +290,11 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	 */
 	public static void main(String []args) {
 		try {
+			Preconditions.checkArgument(args.length == 2, "Must have 2 arguments!");
 			Thread.setDefaultUncaughtExceptionHandler(new PrintAndExitUncaughtExceptionHandler());
 			DB_AccessAPI dbAccessAPI = new ServerDB_Access(ServerDB_Access.SERVLET_URL_DB3);
 			
-			Preconditions.checkArgument(args.length == 2, "Must have 2 arguments!");
+			Preconditions.checkState(PrioritizedDB_Access.isAccessorValid(dbAccessAPI), "error connecting to db!");
 			
 			String user;
 			String pass;
@@ -314,6 +315,8 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 			SessionInfo.setUserName(user);
 			SessionInfo.setPassword(pass);
 			SessionInfo.setContributorInfo();
+			
+			System.out.println("Encryped Pass: " +ContributorDB_DAO.getEnryptedPassword(pass));
 			PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new  PrefFaultSectionDataDB_DAO(dbAccessAPI);
 			prefFaultSectionDAO.rePopulatePrefDataTable();
 			System.exit(0);
