@@ -58,6 +58,18 @@ public class DB_AccessServlet extends HttpServlet{
 	//GOLDEN: jdbc:oracle:thin:@gldwebdb.cr.usgs.gov:1521:EQCATS
 	//PASADENA: jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
 	
+	/**
+	 * these are the opterations allowed for an unauthenticated user
+	 */
+	private static ArrayList<String> allowedGuestOperations;
+	
+	static {
+		allowedGuestOperations = new ArrayList<String>();
+		allowedGuestOperations.add(DB_AccessAPI.RESET_PASSWORD);
+		allowedGuestOperations.add(DB_AccessAPI.SELECT_QUERY);
+		allowedGuestOperations.add(DB_AccessAPI.SELECT_QUERY_SPATIAL);
+	}
+	
 	private MailProps props = null;
 
 	private final static String CONNECT_FAILURE_MSG = "Connection to the database server failed.\nCheck username/password or try again later";
@@ -120,12 +132,18 @@ public class DB_AccessServlet extends HttpServlet{
 			
 			System.out.println("DB_AccessServlet: handling requst '"+functionToPerform
 					+"' from user: "+user+" (pass is null? "+(pass == null)+")");
-
-			// if this is a valid contributor (do not check if it is reset password)
-			if(!functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD) &&
-					!functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY) &&
-					!functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY_SPATIAL) &&
-					contributorDAO.isContributorValid(user, pass)==null) {
+			
+			boolean valid;
+			if (user == null || pass == null || user.isEmpty() || pass.isEmpty()) {
+				valid = false;
+			} else {
+				valid = contributorDAO.isContributorValid(user, pass);
+				
+				System.out.println("DB_AccessServlet: user valid: "+valid);
+			}
+			
+			// if this isn't a valid contributor and it's not a guest operation, throw an error
+			if (!valid && !allowedGuestOperations.contains(functionToPerform)) {
 				inputFromApp.close();
 				DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
 				outputToApp.writeObject(exception);

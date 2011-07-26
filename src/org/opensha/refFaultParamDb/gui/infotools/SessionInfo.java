@@ -75,7 +75,7 @@ public class SessionInfo {
 	 */
 	public static void setContributorInfo() {
 		ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_ConnectionPool.getLatestReadOnlyConn());
-		contributor = contributorDAO.isContributorValid(userName, password);
+		contributor = contributorDAO.getValidatedContributor(userName, password);
 	}
 
 	/**

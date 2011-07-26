@@ -235,12 +235,16 @@ public class ContributorDB_DAO  {
 	 * @param password
 	 * @return
 	 */
-	public Contributor isContributorValid(String name, String password) {
+	public Contributor getValidatedContributor(String name, String password) {
 		String condition  =  " where "+CONTRIBUTOR_NAME+"='"+name+"' and "+
 		PASSWORD+"='"+getEnryptedPassword(password)+"'";
 		ArrayList<Contributor> contributorList = query(condition);
 		if(contributorList.size()>0) return (Contributor)contributorList.get(0);
 		else return null;
+	}
+	
+	public boolean isContributorValid(String name, String password) {
+		return getValidatedContributor(name, password) != null;
 	}
 
 	/**
