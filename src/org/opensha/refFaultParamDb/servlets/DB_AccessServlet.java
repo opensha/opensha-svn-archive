@@ -117,6 +117,9 @@ public class DB_AccessServlet extends HttpServlet{
 			String pass = (String)inputFromApp.readObject();
 			//receiving the name of the Function to be performed
 			String functionToPerform = (String) inputFromApp.readObject();
+			
+			System.out.println("DB_AccessServlet: handling requst '"+functionToPerform
+					+"' from user: "+user+" (pass is null? "+(pass == null)+")");
 
 			// if this is a valid contributor (do not check if it is reset password)
 			if(!functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD) &&
