@@ -84,14 +84,15 @@ public class ThreadedScriptCreator {
 	String getArgs() {
 		Preconditions.checkNotNull(aMat, "A matrix file is required!");
 		Preconditions.checkNotNull(dMat, "d matrix file is required!");
-		Preconditions.checkNotNull(initial, "initial file is required!");
+//		Preconditions.checkNotNull(initial, "initial file is required!"); // no longer required
 		Preconditions.checkState(subIterations > 0, "subIterations must be > 0");
 		Preconditions.checkState(numThreads > 0, "numThreads must be > 0");
 		Preconditions.checkNotNull(solFile, "solution file is required!");
 		String args =	  "--a-matrix-file "+aMat.getAbsolutePath()
-						+" --d-matrix-file "+dMat.getAbsolutePath()
-						+" --initial-state-file "+initial.getAbsolutePath()
-						+" --sub-iterations "+subIterations
+						+" --d-matrix-file "+dMat.getAbsolutePath();
+		if (initial != null)
+			args	+=	 " --initial-state-file "+initial.getAbsolutePath();
+		args		+=	 " --sub-iterations "+subIterations
 						+" --num-threads "+numThreads
 						+" --solution-file "+solFile.getAbsolutePath();
 		

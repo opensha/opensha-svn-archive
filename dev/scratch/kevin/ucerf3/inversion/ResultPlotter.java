@@ -180,11 +180,11 @@ public class ResultPlotter {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
-//		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+//		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
+		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+//		File tsaDir = null;
 		File tsaDir = new File(mainDir, "results_5");
-		File dsaDir = new File(mainDir, "dsa_results_4");
-//		File dsaDir = new File(mainDir, "dsa_results_comb_2_5");
+		File dsaDir = new File(mainDir, "dsa_results_8");
 		
 		String coolType = "VERYFAST";
 		int threads = -1;
@@ -193,8 +193,16 @@ public class ResultPlotter {
 		boolean plotAvg = true;
 		boolean bundleDsaBySubs = true;
 		
-		File[] tsaFiles = tsaDir.listFiles();
-		File[] dsaFiles = dsaDir.listFiles();
+		File[] tsaFiles;
+		if (tsaDir == null)
+			tsaFiles = new File[0];
+		else
+			tsaFiles = tsaDir.listFiles();
+		File[] dsaFiles;
+		if (dsaDir == null)
+			dsaFiles = new File[0];
+		else
+			dsaFiles = dsaDir.listFiles();
 		
 		File[] files = new File[tsaFiles.length+dsaFiles.length];
 		System.arraycopy(tsaFiles, 0, files, 0, tsaFiles.length);
@@ -243,19 +251,38 @@ public class ResultPlotter {
 			else
 				type = PlotLineType.DASHED;
 			
+			float size = 1f;
+			
 			Color c;
 			if (name.contains("dsa")) {
 				if (bundleDsaBySubs && name.contains("dSub")) {
-					if (name.contains("dSub2000_"))
+					if (name.contains("dSub200_"))
 						c = Color.BLACK;
-					else if (name.contains("dSub5000_"))
+					else if (name.contains("dSub500_"))
+						c = Color.DARK_GRAY;
+					else if (name.contains("dSub1000_"))
 						c = Color.BLUE;
-					else if (name.contains("dSub10000_"))
+					else if (name.contains("dSub1500_"))
+						c = Color.CYAN;
+					else if (name.contains("dSub2000_"))
 						c = Color.GREEN;
+					else if (name.contains("dSub5000_"))
+						c = Color.YELLOW;
+					else if (name.contains("dSub10000_"))
+						c = Color.ORANGE;
 					else if (name.contains("dSub15000_"))
 						c = Color.RED;
 					else
-						throw new RuntimeException("Unknown dSub: "+name);
+						c = Color.MAGENTA;
+					
+//					if (name.contains("5nodes"))
+//						size = 2f;
+//					else if (name.contains("10nodes"))
+//						size = 3f;
+//					else if (name.contains("20nodes"))
+//						size = 4f;
+					if (name.contains("50nodes"))
+						size = 3f;
 				} else {
 					if (name.contains("2nodes"))
 						c = Color.BLACK;
@@ -283,12 +310,10 @@ public class ResultPlotter {
 					c = Color.RED;
 			}
 			
-			float size = 1f;
-			
 			if (includeStartSubZero && name.contains("startSubIterationsAtZero"))
 				size += 1f;
 			
-			if (nodes == 1 || name.contains("dsa"))
+			if (nodes == 1 || (name.contains("dsa") && tsaDir != null))
 				size += 1f;
 			
 			if (plotAvg && name.contains("run")) {

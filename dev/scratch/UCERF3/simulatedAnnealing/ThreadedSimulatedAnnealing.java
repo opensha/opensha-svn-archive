@@ -244,10 +244,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		dMatrix.setRequired(true);
 		ops.addOption(dMatrix);
 		
-		Option initial = new Option("i", "initial-state-file", true, "initial state file");
-		initial.setRequired(true);
-		ops.addOption(initial);
-		
 		Option subItOption = new Option("s", "sub-iterations", true, "number of sub iterations");
 		subItOption.setRequired(true);
 		ops.addOption(subItOption);
@@ -275,6 +271,11 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		ops.addOption(energyOption);
 		
 		// other
+		Option initial = new Option("i", "initial-state-file", true, "initial state file" +
+				" (optional...default is all zeros)");
+		initial.setRequired(false);
+		ops.addOption(initial);
+		
 		Option progressFileOption = new Option("p", "progress-file", true, "file to store progress results");
 		progressFileOption.setRequired(false);
 		ops.addOption(progressFileOption);
@@ -358,9 +359,14 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		if (D) System.out.println("Loading d matrix from: "+dFile.getAbsolutePath());
 		double[] d = MatrixIO.doubleArrayFromFile(dFile);
 		
-		File initialFile = new File(cmd.getOptionValue("i"));
-		if (D) System.out.println("Loading initialState from: "+initialFile.getAbsolutePath());
-		double[] initialState = MatrixIO.doubleArrayFromFile(initialFile);
+		double[] initialState;
+		if (cmd.hasOption("i")) {
+			File initialFile = new File(cmd.getOptionValue("i"));
+			if (D) System.out.println("Loading initialState from: "+initialFile.getAbsolutePath());
+			initialState = MatrixIO.doubleArrayFromFile(initialFile);
+		} else {
+			initialState = new double[A.columns()]; // use default initial state of all zeros
+		}
 		
 		int numSubIterations = Integer.parseInt(cmd.getOptionValue("s"));
 		
