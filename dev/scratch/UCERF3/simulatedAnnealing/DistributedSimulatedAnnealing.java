@@ -89,19 +89,25 @@ public class DistributedSimulatedAnnealing {
 			long totTime = totWatch.getTime();
 			long workTime = workWatch.getTime();
 			long commTime = commWatch.getTime();
+			long otherTime = totTime - workTime - commTime;
 			
 			double totMins = totTime / 1000d / 60d;
 			double workMins = workTime / 1000d / 60d;
 			double commMins = commTime / 1000d / 60d;
+			double otherMins = otherTime / 1000d / 60d;
 			
 			double workPercent = workMins / totMins * 100d;
 			double commPercent = commMins / totMins * 100d;
+			double otherPercent = otherMins / totMins * 100d;
 			
 			debug("Total run time: "+(float)totMins+" mins");
 			debug("Work time: "+(float)workMins+" mins");
 			debug("Work percentage: "+(float)workPercent+" %");
 			debug("Communication time: "+(float)commMins+" mins");
 			debug("Communication percentage: "+(float)commPercent+" %");
+			debug("Other time: "+(float)otherMins+" mins");
+			debug("Other percentage: "+(float)otherPercent+" %");
+			
 		}
 		
 		// make sure everyone is done before exiting.
@@ -209,7 +215,7 @@ public class DistributedSimulatedAnnealing {
 			iter += subIterations;
 		}
 		
-		if (D) commWatch.start();
+		if (D) commWatch.resume();
 		bcastSingleLong(WORK_DONE);
 		if (D) commWatch.suspend();
 		
