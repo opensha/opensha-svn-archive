@@ -2,6 +2,8 @@ package scratch.UCERF3.simulatedAnnealing;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -20,6 +22,7 @@ import mpi.MPI;
 public class DistributedSimulatedAnnealing {
 	
 	private static final boolean D = true;
+	private static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
 
 	private int rank;
 	private int size;
@@ -64,11 +67,13 @@ public class DistributedSimulatedAnnealing {
 	private void debug(String str) {
 		if (!D)
 			return;
+		
+		String print = "["+df.format(new Date());
 		if (rank == 0)
-			str = "[MASTER]: "+str;
+			print += " MASTER]: "+str;
 		else
-			str = "[WORKER "+rank+"]: "+str;
-		System.out.println(str);
+			print += " WORKER "+rank+"]: "+str;
+		System.out.println(print);
 	}
 	
 	public boolean isMaster() {
@@ -366,7 +371,8 @@ public class DistributedSimulatedAnnealing {
 			}
 			
 			System.out.println("DONE...exiting.");
-//			System.exit(0);
+			MPI.Finalize();
+			System.exit(0);
 		} catch (MissingOptionException e) {
 			System.err.println(e.getMessage());
 			ThreadedSimulatedAnnealing.printHelp(options);
