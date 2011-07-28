@@ -353,7 +353,7 @@ public class DistributedSimulatedAnnealing {
 			}
 			
 			System.out.println("DONE...exiting.");
-			System.exit(0);
+//			System.exit(0);
 		} catch (MissingOptionException e) {
 			System.err.println(e.getMessage());
 			ThreadedSimulatedAnnealing.printHelp(options);
