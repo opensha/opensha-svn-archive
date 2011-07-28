@@ -103,6 +103,9 @@ public class DistributedSimulatedAnnealing {
 			debug("Communication time: "+(float)commMins+" mins");
 			debug("Communication percentage: "+(float)commPercent+" %");
 		}
+		
+		// make sure everyone is done before exiting.
+		MPI.COMM_WORLD.Barrier();
 	}
 	
 	private void bcastSingleLong(long val) {
@@ -205,6 +208,10 @@ public class DistributedSimulatedAnnealing {
 			cnt++;
 			iter += subIterations;
 		}
+		
+		if (D) commWatch.start();
+		bcastSingleLong(WORK_DONE);
+		if (D) commWatch.suspend();
 		
 		watch.stop();
 		
