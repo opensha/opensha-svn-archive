@@ -116,16 +116,18 @@ public class ResultPlotter {
 		ArrayList<DiscretizedFunc> speedups = new ArrayList<DiscretizedFunc>();
 		
 		for (DiscretizedFunc func : funcs) {
-			double min = func.getMinY();
-			double max = func.getMaxY();
+			DiscretizedFunc funcSwapped = getSwapped(func);
+			
+			double min = funcSwapped.getMinX();
+			double max = funcSwapped.getMaxX();
 			if (min < refMin)
 				min = refMin;
+			min += 0.001;
 			if (max > refMax)
 				max = refMax;
+			max -= 0.001;
 			
 			EvenlyDiscretizedFunc speedupFunc = new EvenlyDiscretizedFunc(min, max, numX);
-			
-			DiscretizedFunc funcSwapped = getSwapped(func);
 			
 			for (int i=0; i<numX; i++) {
 				double energy = speedupFunc.getX(i);
@@ -182,16 +184,19 @@ public class ResultPlotter {
 		
 //		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
 		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
-//		File tsaDir = null;
-		File tsaDir = new File(mainDir, "results_5");
-		File dsaDir = new File(mainDir, "dsa_results_8");
+		File tsaDir = null;
+//		File tsaDir = new File(mainDir, "results_5");
+//		File dsaDir = new File(mainDir, "dsa_results_8");
+//		File dsaDir = new File(mainDir, "mult_state_1_7hrs");
+		File dsaDir = new File(mainDir, "mult_ncal_1");
 		
-		String coolType = "VERYFAST";
+//		String coolType = "VERYFAST";
+		String coolType = null;
 		int threads = -1;
 		int nodes = -1;
 		boolean includeStartSubZero = false;
 		boolean plotAvg = true;
-		boolean bundleDsaBySubs = true;
+		boolean bundleDsaBySubs = false;
 		
 		File[] tsaFiles;
 		if (tsaDir == null)
@@ -208,7 +213,7 @@ public class ResultPlotter {
 		System.arraycopy(tsaFiles, 0, files, 0, tsaFiles.length);
 		System.arraycopy(dsaFiles, 0, files, tsaFiles.length, dsaFiles.length);
 		
-		int mod = 1;
+		int mod = 8;
 		
 		ArrayList<DiscretizedFunc> energyVsIter = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> energyVsTime = new ArrayList<DiscretizedFunc>();
@@ -237,6 +242,8 @@ public class ResultPlotter {
 				continue;
 			if (!includeStartSubZero && name.contains("startSub"))
 				continue;
+			if (tsaDir != null && name.startsWith("tsa") && file.getAbsolutePath().contains("mult_"))
+				continue;
 			ArbitrarilyDiscretizedFunc[] funcs = loadCSV(file, mod);
 			
 			energyVsIter.add(funcs[0]);
@@ -247,9 +254,9 @@ public class ResultPlotter {
 			if (name.contains("CLASSICAL_SA"))
 				type = PlotLineType.DOTTED;
 			else if (name.contains("VERYFAST_SA"))
-				type = PlotLineType.SOLID;
-			else
 				type = PlotLineType.DASHED;
+			else
+				type = PlotLineType.SOLID;
 			
 			float size = 1f;
 			
@@ -313,7 +320,7 @@ public class ResultPlotter {
 			if (includeStartSubZero && name.contains("startSubIterationsAtZero"))
 				size += 1f;
 			
-			if (nodes == 1 || (name.contains("dsa") && tsaDir != null))
+			if (nodes == 1 || name.contains("dsa"))
 				size += 1f;
 			
 			if (plotAvg && name.contains("run")) {
@@ -339,8 +346,13 @@ public class ResultPlotter {
 			averages.add(avg);
 			avgChars.add(runsChars.get(name));
 			
-			if (refFunc == null && name.startsWith("tsa_1threads_VERYFAST"))
-				refFunc = avg;
+			if (refFunc == null) {
+				if (coolType == null && name.startsWith("tsa_1threads_FAST")
+						|| name.startsWith("tsa_1threads_VERYFAST"))
+					refFunc = avg;
+			}
+//			if (refFunc == null && name.startsWith("tsa_1threads_VERYFAST"))
+//				refFunc = avg;
 		}
 		
 		if (averages.size() > 0) {
