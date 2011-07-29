@@ -32,7 +32,7 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
@@ -170,7 +170,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		watch.start();
 		
 		int rounds = 0;
-		int iter = 0;
+		long iter = startIter;
 		while (!criteria.isSatisfied(watch, iter, Ebest)) {
 			ArrayList<SAThread> threads = new ArrayList<ThreadedSimulatedAnnealing.SAThread>();
 			
