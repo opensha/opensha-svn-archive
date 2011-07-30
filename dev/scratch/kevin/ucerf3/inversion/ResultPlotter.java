@@ -21,6 +21,28 @@ public class ResultPlotter {
 	
 	private static ArbitrarilyDiscretizedFunc[] loadCSV(File file, int mod) throws IOException {
 		
+		String nlower = file.getName().toLowerCase();
+		if (nlower.contains("sub")) {
+			String sub = nlower.substring(nlower.indexOf("sub")+3);
+			sub = sub.substring(0, sub.indexOf('_'));
+			
+			int subI = Integer.parseInt(sub);
+			if (subI <= 50)
+				mod *= 80;
+			else if (subI <= 100)
+				mod *= 40;
+			else if (subI <= 200)
+				mod *= 20;
+			else if (subI <= 400)
+				mod *= 10;
+			else if (subI <= 800)
+				mod *= 5;
+			else if (subI <= 1000)
+				mod *= 4;
+			else if (subI <= 2000)
+				mod *= 2;
+		}
+		
 		CSVFile<String> csv = CSVFile.readFile(file, true);
 		
 		ArbitrarilyDiscretizedFunc energyVsIter = new ArbitrarilyDiscretizedFunc();
@@ -182,21 +204,34 @@ public class ResultPlotter {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-//		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
-		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
+//		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+		
 		File tsaDir = null;
-//		File tsaDir = new File(mainDir, "results_5");
-//		File dsaDir = new File(mainDir, "dsa_results_8");
-//		File dsaDir = new File(mainDir, "mult_state_1_7hrs");
-		File dsaDir = new File(mainDir, "mult_ncal_1");
+		File dsaDir = null;
+		
+//		tsaDir = new File(mainDir, "results_5");
+//		tsaDir = new File(mainDir, "results_6");
+//		dsaDir = new File(mainDir, "dsa_results_8");
+//		dsaDir = new File(mainDir, "mult_state_1_7hrs");
+//		dsaDir = new File(mainDir, "mult_ncal_1");
+		dsaDir = new File(mainDir, "multi/ncal_1");
+		
+		String highlight = null;
+		
+		highlight = "dsa_8threads_10nodes_FAST_SA_dSub200_sub100_run";
 		
 //		String coolType = "VERYFAST";
 		String coolType = null;
 		int threads = -1;
+//		int threads = 6;
 		int nodes = -1;
 		boolean includeStartSubZero = false;
 		boolean plotAvg = true;
 		boolean bundleDsaBySubs = false;
+		boolean bundleTsaBySubs = false;
+		
+		int avgNumX = 300;
 		
 		File[] tsaFiles;
 		if (tsaDir == null)
@@ -213,7 +248,7 @@ public class ResultPlotter {
 		System.arraycopy(tsaFiles, 0, files, 0, tsaFiles.length);
 		System.arraycopy(dsaFiles, 0, files, tsaFiles.length, dsaFiles.length);
 		
-		int mod = 8;
+		int mod = 1;
 		
 		ArrayList<DiscretizedFunc> energyVsIter = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> energyVsTime = new ArrayList<DiscretizedFunc>();
@@ -222,6 +257,8 @@ public class ResultPlotter {
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		
 		HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> runsEnergyTimeMap =
+			new HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
+		HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> runsIterTimeMap =
 			new HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
 		HashMap<String, PlotCurveCharacterstics> runsChars = new HashMap<String, PlotCurveCharacterstics>();
 		
@@ -307,14 +344,49 @@ public class ResultPlotter {
 						type = PlotLineType.DASHED;
 				}
 			} else {
-				if (name.contains("1thread"))
-					c = Color.BLACK;
-				else if (name.contains("2threads"))
-					c = Color.BLUE;
-				else if (name.contains("4threads"))
-					c = Color.GREEN;
-				else
-					c = Color.RED;
+				if (bundleTsaBySubs && name.contains("sub")) {
+					if (name.contains("sub50_"))
+						c = Color.BLACK;
+					else if (name.contains("sub100_"))
+						c = Color.DARK_GRAY;
+					else if (name.contains("sub200_"))
+						c = Color.BLUE;
+					else if (name.contains("sub400_"))
+						c = Color.CYAN;
+					else if (name.contains("sub600_"))
+						c = Color.GREEN;
+//					else if (name.contains("dSub5000_"))
+//						c = Color.YELLOW;
+//					else if (name.contains("dSub10000_"))
+//						c = Color.ORANGE;
+//					else if (name.contains("dSub15000_"))
+//						c = Color.RED;
+					else
+						c = Color.MAGENTA;
+					
+					if (name.contains("4threads"))
+						size = 2f;
+					else if (name.contains("6threads"))
+						size = 3f;
+					else if (name.contains("8threads"))
+						size = 4f;
+				} else {
+					if (name.contains("1thread"))
+						c = Color.BLACK;
+					else if (name.contains("2threads"))
+						c = Color.BLUE;
+					else if (name.contains("4threads"))
+						c = Color.GREEN;
+					else if (name.contains("6threads"))
+						c = Color.MAGENTA;
+					else
+						c = Color.RED;
+				}
+			}
+			
+			if (highlight != null && name.startsWith(highlight)) {
+				c = Color.PINK;
+				size *= 2;
 			}
 			
 			if (includeStartSubZero && name.contains("startSubIterationsAtZero"))
@@ -327,23 +399,36 @@ public class ResultPlotter {
 				String shortName = name.substring(0, name.indexOf("run"));
 				if (!runsEnergyTimeMap.containsKey(shortName)) {
 					runsEnergyTimeMap.put(shortName, new ArrayList<ArbitrarilyDiscretizedFunc>());
+					runsIterTimeMap.put(shortName, new ArrayList<ArbitrarilyDiscretizedFunc>());
 					runsChars.put(shortName, new PlotCurveCharacterstics(type, size, c));
 				}
 				
 				runsEnergyTimeMap.get(shortName).add(funcs[1]);
+				runsIterTimeMap.get(shortName).add(funcs[2]);
 			}
 			
 			chars.add(new PlotCurveCharacterstics(type, size, c));
 		}
 		
+		System.out.println("Averaging");
 		ArrayList<DiscretizedFunc> averages = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> iterTimeAvgs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> avgChars = new ArrayList<PlotCurveCharacterstics>();
 		for (String name : runsEnergyTimeMap.keySet()) {
 			ArrayList<ArbitrarilyDiscretizedFunc> runs = runsEnergyTimeMap.get(name);
 			if (runs == null || runs.size() <= 1)
 				continue;
-			DiscretizedFunc avg = avgCurves(runs, 500);
+			
+			String cName = name + " (average of "+runs.size()+" curves)";
+			
+			DiscretizedFunc avg = avgCurves(runs, avgNumX);
+			avg.setName(cName);
 			averages.add(avg);
+			
+			DiscretizedFunc iterTimeAvg = avgCurves(runsIterTimeMap.get(name), avgNumX);
+			iterTimeAvg.setName(cName);
+			iterTimeAvgs.add(iterTimeAvg);
+			
 			avgChars.add(runsChars.get(name));
 			
 			if (refFunc == null) {
@@ -356,24 +441,36 @@ public class ResultPlotter {
 		}
 		
 		if (averages.size() > 0) {
+			System.out.println("displaying Averaged Energy Vs Time (m)");
 			showGraphWindow(averages, "Averaged Energy Vs Time (m)", avgChars);
 		}
 		
 		if (refFunc != null) {
-			ArrayList<DiscretizedFunc> energySpeedups = generateEnergySpeedup(averages, refFunc, 500);
+			System.out.println("generating energy speedup");
+			ArrayList<DiscretizedFunc> energySpeedups = generateEnergySpeedup(averages, refFunc, avgNumX);
+			System.out.println("displaying energy speedup");
 			showGraphWindow(energySpeedups, "Speedup Vs Energy", avgChars);
 			
 
-			ArrayList<DiscretizedFunc> timeSpeedups = generateTimeSpeedup(averages, refFunc, 500);
+			System.out.println("generating time speedup");
+			ArrayList<DiscretizedFunc> timeSpeedups = generateTimeSpeedup(averages, refFunc, avgNumX);
+			System.out.println("displaying time speedup");
 			showGraphWindow(timeSpeedups, "Speedup Vs Time", avgChars);
 		}
 		
 //		Collections.sort(energyVsIter, new EnergyComparator());
 //		Collections.sort(energyVsTime, new EnergyComparator());
 		
+		System.out.println("displaying Energy Vs Iterations");
 		showGraphWindow(energyVsIter, "Energy Vs Iterations", chars);
+		System.out.println("displaying Energy Vs Time");
 		showGraphWindow(energyVsTime, "Energy Vs Time (m)", chars);
-		showGraphWindow(iterVsTime, "Iterations Vs Time (m)", chars);
+		
+		System.out.println("displaying Iterations Vs Time (m)");
+		if (iterTimeAvgs.size() > 0)
+			showGraphWindow(iterTimeAvgs, "Average Iterations Vs Time (m)", avgChars);
+		else
+			showGraphWindow(iterVsTime, "Iterations Vs Time (m)", chars);
 	}
 
 }
