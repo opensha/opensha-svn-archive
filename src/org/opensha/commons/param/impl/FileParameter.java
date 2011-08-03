@@ -37,7 +37,9 @@ public class FileParameter extends AbstractParameter<File> {
 
 	@Override
 	public boolean setIndividualParamValueFromXML(Element el) {
-		return false;
+		File file = new File(el.attributeValue("value"));
+		setValue(file);
+		return true;
 	}
 
 }

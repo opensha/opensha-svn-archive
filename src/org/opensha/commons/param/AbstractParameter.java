@@ -571,22 +571,38 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	public Element toXMLMetadata(Element root) {
 		return toXMLMetadata(root, AbstractParameter.XML_METADATA_NAME);
 	}
+	
+	/**
+	 * Stores this parameter's value in the given XML element. Defaults to calling the toXMLMetadata
+	 * method if the value implements XMLSaveable, otherwise stores the value as a string by calling
+	 * toString.
+	 * <br>
+	 * <br>It can be overridden in the rare case that you need to specify a complex value, but the value
+	 * doesn't/can't implement XMLSaveable (such as a complex built in type, like "File").
+	 * special cases
+	 * 
+	 * @param paramEl
+	 */
+	protected void valueToXML(Element paramEl) {
+		E val = getValue();
+		if (val instanceof XMLSaveable) {
+			Element valEl = paramEl.addElement(XML_COMPLEX_VAL_EL_NAME);
+			((XMLSaveable) val).toXMLMetadata(valEl);
+		} else {
+			paramEl.addAttribute("value", val.toString());
+		}
+	}
 
 	public Element toXMLMetadata(Element root, String elementName) {
 		Element xml = root.addElement(elementName);
 		xml.addAttribute("name", getName());
 		xml.addAttribute("type", getType());
 		xml.addAttribute("units", getUnits());
-		Object val = getValue();
-		if (val == null) {
+		
+		if (getValue() == null) {
 			xml.addAttribute("value", XML_NULL_VALUE);
 		} else {
-			if (val instanceof XMLSaveable) {
-				Element valEl = xml.addElement(XML_COMPLEX_VAL_EL_NAME);
-				((XMLSaveable) val).toXMLMetadata(valEl);
-			} else {
-				xml.addAttribute("value", val.toString());
-			}
+			valueToXML(xml);
 		}
 		if (this instanceof Parameter) {
 			Parameter<E> param = (Parameter<E>) this;
