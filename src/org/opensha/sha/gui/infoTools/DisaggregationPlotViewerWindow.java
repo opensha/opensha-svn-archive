@@ -315,8 +315,8 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 			fileName = fileChooser.getSelectedFile().getAbsolutePath();
 			CustomFileFilter filter = (CustomFileFilter) fileChooser.getFileFilter();
 			String ext = filter.getExtension();
-			if (!fileName.toLowerCase().endsWith("."+ext)) {
-				fileName = fileName + "." + ext;
+			if (!fileName.toLowerCase().endsWith(ext)) {
+				fileName = fileName + ext;
 			}
 			if (ext.equals(".pdf")) {
 				saveAsPDF(fileName);
