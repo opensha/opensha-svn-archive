@@ -301,8 +301,8 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 	protected void save() throws IOException {
 		if (fileChooser == null) {
 			fileChooser = new JFileChooser();
-			CustomFileFilter pdfChooser = new CustomFileFilter("pdf", "PDF File");
-			CustomFileFilter txtChooser = new CustomFileFilter("txt", "TXT File");
+			CustomFileFilter pdfChooser = new CustomFileFilter(".pdf", "PDF File");
+			CustomFileFilter txtChooser = new CustomFileFilter(".txt", "TXT File");
 
 			fileChooser.addChoosableFileFilter(pdfChooser);
 			fileChooser.addChoosableFileFilter(txtChooser);
@@ -318,10 +318,12 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 			if (!fileName.toLowerCase().endsWith("."+ext)) {
 				fileName = fileName + "." + ext;
 			}
-			if (ext.equals("pdf")) {
+			if (ext.equals(".pdf")) {
 				saveAsPDF(fileName);
-			} else if (ext.equals("txt")) {
+			} else if (ext.equals(".txt")) {
 				saveAsTXT(fileName);
+			} else {
+				throw new RuntimeException("Unkown save type: "+ext);
 			}
 		}
 
