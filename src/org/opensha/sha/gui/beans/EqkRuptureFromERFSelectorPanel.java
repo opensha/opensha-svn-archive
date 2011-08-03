@@ -49,7 +49,7 @@ import javax.swing.border.TitledBorder;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.editor.AbstractParameterEditorOld;
+import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -57,9 +57,9 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.BaseERF;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -348,14 +348,16 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 		startProgressBarTimer();
 		int numRuptures = erf.getNumRuptures(sourceValue);
 		//creating the rupture parameter
-		ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,0,numRuptures-1,new Integer(ruptureIndex));
-		ruptureParam.addParameterChangeListener(this);
-
-		if(parameterList.containsParameter(ruptureParam))
-			//replace the rupture parameter with new parameter with new  constraints
-			listEditor.replaceParameterForEditor(RUPTURE_PARAM_NAME,ruptureParam);
-		else //if we are creating the rupture parameter for the first time.
+		if (ruptureParam == null) {
+			ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,0,numRuptures-1,new Integer(ruptureIndex));
+			ruptureParam.addParameterChangeListener(this);
 			parameterList.addParameter(ruptureParam);
+		} else {
+			IntegerConstraint iconst = (IntegerConstraint)ruptureParam.getConstraint();
+			iconst.setMinMax(0, numRuptures);
+			ruptureParam.setValue(ruptureIndex);
+			ruptureParam.getEditor().refreshParamEditor();
+		}
 
 		//getting the selected rupture index
 		ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
@@ -490,7 +492,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 		}
 
 		// if source selected by the user  changes
-		else if( name1.equals(this.SOURCE_PARAM_NAME) ){
+		else if( name1.equals(SOURCE_PARAM_NAME) ){
 			//getting the selected Source Value
 			sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
 			setSelectedSourceRupturesInfo();
@@ -502,7 +504,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 		}
 
 		// if source selected by the user  changes
-		else if( name1.equals(this.RUPTURE_PARAM_NAME) ){
+		else if( name1.equals(RUPTURE_PARAM_NAME) ){
 			//getting the selected rupture index
 			ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
 			// set the new forecast parameters. Also change the number of ruptures in this source

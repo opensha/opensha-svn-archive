@@ -55,6 +55,8 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 	protected final static String C = "ConstrainedIntegerParameterEditor";
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
+	
+	private Color origFG;
 
 	/** No-Arg constructor calls parent constructtor */
 	public ConstrainedIntegerParameterEditor() { super(); }
@@ -74,13 +76,32 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 		// TODO Auto-generated method stub
 		IntegerTextField comp = (IntegerTextField)super.buildWidget();
 		
+		if (origFG == null)
+			origFG = comp.getForeground();
+		
 		IntegerConstraint constraint =getConstraint();
-		if(constraint.getMax().doubleValue()==constraint.getMin().doubleValue()){
+		// .intValue is required because == on Integer's doesn
+		if (constraint.getMax().equals(constraint.getMin())) {
 			comp.setEditable(false);
 			comp.setForeground( Color.blue );
 //			comp.setBorder( CONST_BORDER ); // TODO
 		}
 		
+		return comp;
+	}
+
+	@Override
+	protected JComponent updateWidget() {
+		IntegerTextField comp = (IntegerTextField)super.updateWidget();
+		
+		IntegerConstraint constraint =getConstraint();
+		if (constraint.getMax().equals(constraint.getMin())) {
+			comp.setEditable(false);
+			comp.setForeground( Color.blue );
+		} else {
+			comp.setEditable(true);
+			comp.setForeground( origFG );
+		}
 		return comp;
 	}
 
