@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.FaultException;
@@ -104,7 +105,7 @@ extends AbstractEvenlyGriddedSurface{
 	 * @param gridSpacing
 	 * @throws FaultException
 	 */
-	protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList, double gridSpacing) {
+	protected EvenlyGriddedSurfFromSimpleFaultData(List<SimpleFaultData> simpleFaultDataList, double gridSpacing) {
 		this(SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList),gridSpacing);
 	}
 
@@ -174,7 +175,7 @@ extends AbstractEvenlyGriddedSurface{
 	 * @param maxGridSpacingDown
 	 * @throws FaultException
 	 */
-	protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList, 
+	protected EvenlyGriddedSurfFromSimpleFaultData(List<SimpleFaultData> simpleFaultDataList, 
 			double maxGridSpacingAlong, double maxGridSpacingDown) {
 		
 		this(SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList), maxGridSpacingAlong, maxGridSpacingDown);

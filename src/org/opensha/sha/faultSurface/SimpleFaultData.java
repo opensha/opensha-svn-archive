@@ -20,6 +20,7 @@
 package org.opensha.sha.faultSurface;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -106,7 +107,7 @@ public class SimpleFaultData  implements java.io.Serializable {
      * @param simpleFaultDataList
      * @return
      */
-    public static SimpleFaultData getCombinedSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList) {
+    public static SimpleFaultData getCombinedSimpleFaultData(List<SimpleFaultData> simpleFaultDataList) {
     	if(simpleFaultDataList.size()==1) {
     		return simpleFaultDataList.get(0);
     	}

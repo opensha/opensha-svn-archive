@@ -55,6 +55,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_Fortran
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient;
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 
+import scratch.UCERF3.inversion.InversionSolutionERF;
 import scratch.christine.URS.URS_MeanUCERF2;
 
 public enum ERF_Ref {
@@ -176,6 +177,8 @@ public enum ERF_Ref {
 	/** CyberShake ERF that wraps UCERF2 for use with the CyberShake Fake IMR */
 	CYBERSHAKE_UCERF2_WRAPPER(CyberShakeUCERFWrapper_ERF.class,
 			CyberShakeUCERFWrapper_ERF.NAME, EXPERIMENTAL, false, false),
+	
+	INVERSION_SOLUTION_ERF(InversionSolutionERF.class, InversionSolutionERF.NAME, EXPERIMENTAL, false, false),
 	
 	// DEPRECATED
 	/** WGCEP UCERF 2 Version 2.3 ERF */

@@ -21,6 +21,7 @@ package org.opensha.sha.faultSurface;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.LocationVector;
@@ -116,7 +117,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 	 * @param gridSpacing
 	 * @throws FaultException
 	 */
-	public StirlingGriddedSurface(ArrayList<SimpleFaultData> simpleFaultData,
+	public StirlingGriddedSurface(List<SimpleFaultData> simpleFaultData,
 			double gridSpacing) throws FaultException {
 
 		super(simpleFaultData, gridSpacing);

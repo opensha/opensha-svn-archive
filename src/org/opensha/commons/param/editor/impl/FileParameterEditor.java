@@ -66,8 +66,23 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 		File file = getValue();
 		if (file == null)
 			button.setText(Browse);
-		else
-			button.setText(file.getName());
+		else {
+			String name = file.getName();
+			if (name.length() > 20) {
+				int splitIndex = name.lastIndexOf('.');
+				if (splitIndex > 0) {
+					String main = name.substring(0, splitIndex);
+					String ext = name.substring(splitIndex);
+					if (main.length() > 20) {
+						main = main.substring(0, 20);
+						name = main+"(...)"+ext;
+					}
+				} else {
+					name = name.substring(0, 20)+"(...)";
+				}
+			}
+			button.setText(name);
+		}
 		return button;
 	}
 
