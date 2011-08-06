@@ -130,10 +130,18 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		return getAllAvailableData(locs);
 	}
 	
+	public ArrayList<SiteData<?>> getEnabledProviders() {
+		ArrayList<SiteData<?>> en = new ArrayList<SiteData<?>>();
+		for (int i=0; i<providers.size(); i++)
+			if (isEnabled(i))
+				en.add(providers.get(i));
+		return en;
+	}
+	
 	public ArrayList<SiteDataValueList<?>> getAllAvailableData(LocationList locs) throws IOException {
 		ArrayList<SiteDataValueList<?>> datas = new ArrayList<SiteDataValueList<?>>();
 		
-		for (SiteData<?> prov : providers) {
+		for (SiteData<?> prov : getEnabledProviders()) {
 			
 			datas.add(prov.getAnnotatedValues(locs));
 		}

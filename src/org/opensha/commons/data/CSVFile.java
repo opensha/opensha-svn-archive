@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ import org.opensha.commons.util.FileUtils;
 
 import com.google.common.base.Preconditions;
 
-public class CSVFile<E> {
+public class CSVFile<E> implements Iterable<List<E>> {
 	
 	private List<List<E>> values;
 //	private List<String> colNames;
@@ -134,7 +135,11 @@ public class CSVFile<E> {
 				lineStr = "";
 			else
 				lineStr += ",";
-			String valStr = val.toString();
+			String valStr;
+			if (val == null)
+				valStr = ""+null;
+			else
+				valStr = val.toString();
 			// if it contains a comma, surround it in quotation marks if not already
 			if (valStr.contains(",") && !(valStr.startsWith("\"") && valStr.endsWith("\"")))
 				valStr = "\""+valStr+"\"";
@@ -154,6 +159,16 @@ public class CSVFile<E> {
 			fw.write(getLineStr(i) + "\n");
 		}
 		fw.close();
+	}
+	
+	public void removeColumn(int i) {
+		Preconditions.checkArgument(i >= 0, "column must be >= 0");
+		Preconditions.checkArgument(cols < 0 || i < cols, "invalid column: "+i);
+		
+		for (List<E> list : values) {
+			if (list.size() > i)
+				list.remove(i);
+		}
 	}
 	
 	private static ArrayList<String> loadLine(String line, int num) {
@@ -199,6 +214,11 @@ public class CSVFile<E> {
 		}
 		
 		return new CSVFile<String>(values, strictRowSizes);
+	}
+
+	@Override
+	public Iterator<List<E>> iterator() {
+		return values.iterator();
 	}
 
 }

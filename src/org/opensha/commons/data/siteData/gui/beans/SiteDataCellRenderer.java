@@ -100,10 +100,8 @@ public class SiteDataCellRenderer extends DefaultListCellRenderer {
 						}
 					} else {
 						if (color != null) {
-							int r = (int)(color.getRed() * 0.75 + 0.5);
-							int g = (int)(color.getGreen() * 0.75 + 0.5);
-							int b = (int)(color.getBlue() * 0.75 + 0.5);
-							setBackground(new Color(r, g, b));
+							Color bkg = color.darker();
+							setBackground(bkg);
 						} else {
 							setBackground(DEFAULT_DISABLED_COLOR);
 						}

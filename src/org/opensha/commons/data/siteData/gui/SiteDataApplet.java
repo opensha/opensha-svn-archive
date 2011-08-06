@@ -54,9 +54,15 @@ public class SiteDataApplet extends Applet implements ActionListener {
 	private JButton prefButton = new JButton("View Preffered Data");
 	private String prefButtonInfo = "<html>This retrieves and displays the first valid value of each data type<br>" +
 			"from the currently enabled data sources, in order of priority.</html>";
+	
 	private JButton allButton = new JButton("View All Available Data");
 	private String allButtonInfo = "<html>This retrieves and displays all data values from the<br>" +
 	"currently enabled data sources, in order of priority.</html>";
+	
+	private JButton batchButton = new JButton("Batch Download");
+	private String batchButtonInfo = "<html>This retrieves site data for alist of sites.</html>";
+	
+	private BatchDownloadGUI batchGUI;
 	
 	public SiteDataApplet() {
 		bean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults());
@@ -76,6 +82,8 @@ public class SiteDataApplet extends Applet implements ActionListener {
 		buttonPanel.add(prefButton);
 		allButton.setToolTipText(allButtonInfo);
 		buttonPanel.add(allButton);
+		batchButton.setToolTipText(batchButtonInfo);
+		buttonPanel.add(batchButton);
 		
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 		bottomPanel.add(locationPanel, BorderLayout.NORTH);
@@ -86,6 +94,7 @@ public class SiteDataApplet extends Applet implements ActionListener {
 		
 		prefButton.addActionListener(this);
 		allButton.addActionListener(this);
+		batchButton.addActionListener(this);
 		
 		this.setPreferredSize(new Dimension(500, 600));
 //		this.setSize(500, 800);
@@ -115,6 +124,10 @@ public class SiteDataApplet extends Applet implements ActionListener {
 			else
 				datas = list.getBestAvailableData(loc);
 			OrderedSiteDataGUIBean.showDataDisplayDialog(datas, this, loc);
+		} else if (e.getSource() == batchButton) {
+			if (batchGUI == null)
+				batchGUI = new BatchDownloadGUI(bean.getProviderList());
+			batchGUI.setVisible(true);
 		}
 	}
 	
