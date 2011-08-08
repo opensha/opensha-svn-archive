@@ -154,6 +154,9 @@ public class HardCodedTest {
 		
 		for (int i=0; i<csv.getNumRows(); i++) {
 			List<String> line = csv.getLine(i);
+			if (line.get(0).equals("GRID_ID"))
+				// header
+				continue;
 			double lat = Double.parseDouble(line.get(1));
 			double lon = Double.parseDouble(line.get(2));
 			locs.add(new Location(lat, lon));
@@ -171,8 +174,8 @@ public class HardCodedTest {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
-					" <HardCoded Vs30 (or 'null' for site data providers>+"+
-					" <spacing>"+" <dir name>");
+					" <HardCoded Vs30 (or 'null' for site data providers>"+
+					" <spacing> <dir name>");
 			System.exit(2);
 		}
 		boolean timeDep = Boolean.parseBoolean(args[0]);
