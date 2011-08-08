@@ -19,6 +19,8 @@
 
 package org.opensha.sha.faultSurface;
 
+import java.io.Serializable;
+
 
 /**
  * <b>Title:</b> EvenlyGriddedSurfaceAPI<p>
@@ -31,7 +33,7 @@ package org.opensha.sha.faultSurface;
  * @created
  * @version    1.0
  */
-public interface EvenlyGriddedSurface extends GriddedSurface {
+public interface EvenlyGriddedSurface extends GriddedSurface, Serializable {
 
 
 	/**
