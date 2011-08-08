@@ -167,12 +167,12 @@ public class HardCodedTest {
 	private static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
-		if (args.length != 6) {
+		if (args.length != 7) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
-					" <HardCoded Vs30 (or 'null' for site data providers>+" +
-					" <dir name>");
+					" <HardCoded Vs30 (or 'null' for site data providers>+"+
+					" <spacing>"+" <dir name>");
 			System.exit(2);
 		}
 		boolean timeDep = Boolean.parseBoolean(args[0]);
@@ -186,7 +186,7 @@ public class HardCodedTest {
 		else
 			hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED,
 					Double.parseDouble(vs30Str));
-		String dirName = args[5];
+		String dirName = args[6];
 		
 		int years = 50;
 		int startYear;
@@ -221,7 +221,8 @@ public class HardCodedTest {
 			}
 		}
 		
-		double spacing = 0.1;
+//		double spacing = 0.1;
+		double spacing = Double.parseDouble(args[5]);
 //		double spacing = 0.05;
 		String spacingCode = ""+(int)(spacing * 100d);
 		if (spacingCode.length() < 2)
