@@ -170,12 +170,12 @@ public class HardCodedTest {
 	private static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
-		if (args.length != 7) {
+		if (args.length < 7 || args.length > 8) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
 					" <HardCoded Vs30 (or 'null' for site data providers>"+
-					" <spacing> <dir name>");
+					" <spacing> <dir name> [<sites per job>]");
 			System.exit(2);
 		}
 		boolean timeDep = Boolean.parseBoolean(args[0]);
@@ -198,6 +198,12 @@ public class HardCodedTest {
 		else
 			startYear = -1;
 		AbstractERF erf = getERF(years, startYear, includeBackSeis);
+		
+		int sitesPerJob;
+		if (args.length == 8)
+			sitesPerJob = Integer.parseInt(args[7]);
+		else
+			sitesPerJob = 20;
 		
 //		SiteDataValue<?> hardcodedVal =
 //			new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS, SiteDataAPI.TYPE_FLAG_INFERRED, "B");
@@ -346,7 +352,7 @@ public class HardCodedTest {
 		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
 				calcSet, archiver, javaExec, jarFile, years, spacing);
 		
-		dag.writeDAG(new File(jobDir), 20, false);
+		dag.writeDAG(new File(jobDir), sitesPerJob, false);
 	}
 
 }
