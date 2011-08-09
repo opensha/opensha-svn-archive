@@ -189,6 +189,16 @@ public class HazardDataSetDAGCreator {
 		new File(odir + "log").mkdir();
 		new File(odir + "out").mkdir();
 		new File(odir + "err").mkdir();
+		
+		String imageSize = heapSize+" Meg";
+		if (requirements == null)
+			requirements = "";
+		
+		if (!requirements.toLowerCase().contains("memory")) {
+			if (!requirements.isEmpty())
+				requirements += " && ";
+			requirements += "Memroy>="+heapSize;
+		}
 
 		for (int startIndex=0; startIndex<numSites; startIndex+=sitesPerJob) {
 			int endIndex = startIndex + sitesPerJob - 1;
@@ -206,7 +216,7 @@ public class HazardDataSetDAGCreator {
 			SubmitScriptForDAG job = new SubmitScriptForDAG(jobName, executable, arguments,
 					"/tmp", universe, true);
 			job.setRequirements(requirements);
-			job.setImageSize(heapSize+" Meg");
+			job.setImageSize(imageSize);
 			
 			job.writeScriptInDir(odir);
 			job.setComment("Calculates curves " + startIndex + "->" + endIndex + ", inclusive");
