@@ -53,7 +53,7 @@ public class HazardDataSetDAGCreator {
 	protected String javaExec;
 	protected String jarFile;
 	
-	private int heapSize = 2048;
+	private int heapSize = 2000;
 	
 	private String requirements = null;
 
@@ -206,6 +206,7 @@ public class HazardDataSetDAGCreator {
 			SubmitScriptForDAG job = new SubmitScriptForDAG(jobName, executable, arguments,
 					"/tmp", universe, true);
 			job.setRequirements(requirements);
+			job.setImageSize(heapSize+" Meg");
 			
 			job.writeScriptInDir(odir);
 			job.setComment("Calculates curves " + startIndex + "->" + endIndex + ", inclusive");
