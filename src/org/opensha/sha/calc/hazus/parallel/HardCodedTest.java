@@ -240,7 +240,7 @@ public class HardCodedTest {
 //		Location bottomRight = new Location(32.4, -114.1);
 //		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 //		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
-		String spacingFile = "/home/scec-00/kmilner/hazMaps/"+spacingCode+"grid.csv";
+		String spacingFile = "/home/scec-02/kmilner/hazMaps/"+spacingCode+"grid.csv";
 		LocationList locs = loadCSV(new File(spacingFile));
 		
 		ArrayList<SiteData<?>> provs = null;
@@ -342,12 +342,12 @@ public class HardCodedTest {
 		CalculationSettings calcSet = new CalculationSettings(imtXValMap, 200.0);
 		
 //		String jobDir = "/home/scec-00/kmilner/hazMaps/hazus_test-" + df.format(new Date()) + "/";
-		String jobDir = "/home/scec-00/kmilner/hazMaps/"+dirName+"/";
+		String jobDir = "/home/scec-02/kmilner/hazMaps/"+dirName+"/";
 		String curveDir = jobDir + "curves/";
 		CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir, true, false);
 		
 		String javaExec = "/auto/usc/jdk/1.6.0/jre/bin/java";
-		String jarFile = "/home/scec-00/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar";
+		String jarFile = "/home/scec-02/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar";
 		
 		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
 				calcSet, archiver, javaExec, jarFile, years, spacing);
