@@ -53,7 +53,8 @@ public class HazardDataSetDAGCreator {
 	protected String javaExec;
 	protected String jarFile;
 	
-	private int heapSize = 2000;
+	private int heapSize = 1800;
+	private int heapMinSize = heapSize / 20;
 	
 	private String requirements = null;
 
@@ -112,9 +113,9 @@ public class HazardDataSetDAGCreator {
 	}
 	
 	private void writeCalcWrapperScript(String scriptFile, int startIndex, String xmlFile) throws IOException {
-		String newJarFile = "openSHA_" + startIndex + ".jar";
-		String javaCommand = javaExec +  " -Xmx" + heapSize + "M" + " -classpath $jarDir/" + newJarFile + " "
-					+ HazardCurveDriver.class.getName() + " " + xmlFile;
+		String newJarFile = "openSHA_"+startIndex+".jar";
+		String javaCommand = javaExec+" -Xmx"+heapSize+"M"+" -Xms"+heapMinSize+"M"+" -classpath $jarDir/"+newJarFile+" "
+					+HazardCurveDriver.class.getName()+" "+xmlFile;
 		
 		FileWriter fw = new FileWriter(scriptFile);
 		
