@@ -197,7 +197,7 @@ public class HazardDataSetDAGCreator {
 		if (!requirements.toLowerCase().contains("memory")) {
 			if (!requirements.isEmpty())
 				requirements += " && ";
-			requirements += "Memroy>="+heapSize;
+			requirements += "Memory>="+heapSize;
 		}
 
 		for (int startIndex=0; startIndex<numSites; startIndex+=sitesPerJob) {
