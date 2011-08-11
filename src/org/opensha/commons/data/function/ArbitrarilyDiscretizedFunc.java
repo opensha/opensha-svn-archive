@@ -402,7 +402,8 @@ implements Serializable {
 		double x2=Double.NaN;
 		//if passed parameter(x value) is not within range then throw exception
 		if(x>getX(max-1) || x<getX(0))
-			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
+			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1)
+					+" (supplied x: "+x+")");
 		//if x value is equal to the maximum value of all given X's then return the corresponding Y value
 		if(x==getX(max-1))
 			return getY(x);
