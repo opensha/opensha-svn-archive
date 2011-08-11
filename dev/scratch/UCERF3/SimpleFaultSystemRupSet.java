@@ -1,19 +1,29 @@
 package scratch.UCERF3;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+
+import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
 
@@ -71,6 +81,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	public SimpleFaultSystemRupSet(FaultSystemRupSet rupSet) {
 		this(rupSet.getFaultSectionDataList(), rupSet.getMagForAllRups(), rupSet.getAveSlipForAllRups(),
 				rupSet.getSlipOnSectionsForAllRups(), rupSet.getSlipRateForAllSections(),
+				rupSet.getSlipRateStdDevForAllSections(),
 				rupSet.getAveRakeForAllRups(), rupSet.getAreaForAllRups(), rupSet.getAreaForAllSections(),
 				rupSet.getSectionIndicesForAllRups(), rupSet.getInfoString(), rupSet.getCloseSectionsListList());
 		if (rupSet.isClusterBased()) {
@@ -86,17 +97,18 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	/**
 	 * Creates a non-cluster based rupture set.
 	 * 
-	 * @param faultSectionData
-	 * @param mags
-	 * @param rupAveSlips
-	 * @param rupSectionSlips
-	 * @param sectSlipRates
-	 * @param rakes
-	 * @param rupAreas
-	 * @param sectAreas
-	 * @param sectionForRups
-	 * @param info
-	 * @param closeSections
+	 * @param faultSectionData cannot be null
+	 * @param mags cannot be null
+	 * @param rupAveSlips can be null
+	 * @param rupSectionSlips can be null
+	 * @param sectSlipRates can be null
+	 * @param sectSlipRateStdDevs can be null
+	 * @param rakes cannot be null
+	 * @param rupAreas can be null
+	 * @param sectAreas can be null
+	 * @param sectionForRups cannot be null
+	 * @param info can be null
+	 * @param closeSections can be null
 	 */
 	public SimpleFaultSystemRupSet(
 			List<FaultSectionPrefData> faultSectionData, 
@@ -104,32 +116,34 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 			double[] rupAveSlips,
 			List<double[]> rupSectionSlips,
 			double[] sectSlipRates,
+			double[] sectSlipRateStdDevs,
 			double[] rakes,
 			double[] rupAreas,
 			double[] sectAreas,
 			List<List<Integer>> sectionForRups,
 			String info,
 			List<List<Integer>> closeSections) {
-		this(faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, rakes,
+		this(faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
 				rupAreas, sectAreas, sectionForRups, info, closeSections, null, null);
 	}
 	
 	/**
 	 * Creates an (optionally) cluster based fault system rupture set.
 	 * 
-	 * @param faultSectionData
-	 * @param mags
-	 * @param rupAveSlips
-	 * @param rupSectionSlips
-	 * @param sectSlipRates
-	 * @param rakes
-	 * @param rupAreas
-	 * @param sectAreas
-	 * @param sectionForRups
-	 * @param info
-	 * @param closeSections
-	 * @param clusterRups
-	 * @param clusterSects
+	 * @param faultSectionData cannot be null
+	 * @param mags cannot be null
+	 * @param rupAveSlips can be null
+	 * @param rupSectionSlips can be null
+	 * @param sectSlipRates can be null
+	 * @param sectSlipRateStdDevs can be null
+	 * @param rakes cannot be null
+	 * @param rupAreas can be null
+	 * @param sectAreas can be null
+	 * @param sectionForRups cannot be null
+	 * @param info can be null
+	 * @param closeSections can be null
+	 * @param clusterRups can be null
+	 * @param clusterSects can be null
 	 */
 	public SimpleFaultSystemRupSet(
 			List<FaultSectionPrefData> faultSectionData, 
@@ -137,6 +151,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 			double[] rupAveSlips,
 			List<double[]> rupSectionSlips,
 			double[] sectSlipRates,
+			double[] sectSlipRateStdDevs,
 			double[] rakes,
 			double[] rupAreas,
 			double[] sectAreas,
@@ -148,35 +163,58 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		int numRups = mags.length;
 		int numSects = faultSectionData.size();
 		
+		// cannot be null
 		this.faultSectionData = faultSectionData;
 		
+		// cannot be null
 		this.mags = mags;
 		
-		Preconditions.checkArgument(rupAveSlips.length == numRups, "array sizes inconsistent!");
+		// can be null
+		Preconditions.checkArgument(rupAveSlips == null
+				|| rupAveSlips.length == numRups, "rupAveSlips sizes inconsistent!");
 		this.rupAveSlips = rupAveSlips;
 		
-		Preconditions.checkArgument(rupSectionSlips.size() == numRups, "array sizes inconsistent!");
+		// can be null
+		Preconditions.checkArgument(rupSectionSlips == null
+				|| rupSectionSlips.size() == numRups, "rupSectionSlips sizes inconsistent!");
 		this.rupSectionSlips = rupSectionSlips;
 		
-		Preconditions.checkArgument(sectSlipRates.length == numSects, "array sizes inconsistent!");
+		// can be null
+		Preconditions.checkArgument(sectSlipRates == null
+				|| sectSlipRates.length == numSects, "array sizes inconsistent!");
 		this.sectSlipRates = sectSlipRates;
 		
+		// can be null
+		Preconditions.checkArgument(sectSlipRateStdDevs == null
+				|| sectSlipRateStdDevs.length == numSects, "array sizes inconsistent!");
+		this.sectSlipRateStdDevs = sectSlipRateStdDevs;
+		
+		// cannot be null
 		Preconditions.checkArgument(rakes.length == numRups, "array sizes inconsistent!");
 		this.rakes = rakes;
 		
-		Preconditions.checkArgument(rupAreas.length == numRups, "array sizes inconsistent!");
+		// can be null
+		Preconditions.checkArgument(rupAreas == null ||
+				rupAreas.length == numRups, "array sizes inconsistent!");
 		this.rupAreas = rupAreas;
 		
-		Preconditions.checkArgument(sectAreas.length == numSects, "array sizes inconsistent!");
+		// can be null
+		Preconditions.checkArgument(sectAreas == null ||
+				sectAreas.length == numSects, "array sizes inconsistent!");
 		this.sectAreas = sectAreas;
 		
+		// cannot be null
 		Preconditions.checkArgument(sectionForRups.size() == numRups, "array sizes inconsistent!");
 		this.sectionForRups = sectionForRups;
 		
+		// can be null
 		this.info = info;
 		
+		// can be null
 		this.closeSections = closeSections;
+		// can be null
 		this.clusterRups = clusterRups;
+		// can be null
 		this.clusterSects = clusterSects;
 	}
 
@@ -268,6 +306,15 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	@Override
 	public FaultSectionPrefData getFaultSectionData(int sectIndex) {
 		return faultSectionData.get(sectIndex);
+	}
+	
+	@Override
+	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex) {
+		List<Integer> inds = getSectionsIndicesForRup(rupIndex);
+		ArrayList<FaultSectionPrefData> datas = new ArrayList<FaultSectionPrefData>();
+		for (int ind : inds)
+			datas.add(getFaultSectionData(ind));
+		return datas;
 	}
 
 	@Override
@@ -427,10 +474,10 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		}
 	}
 	
-	public static ArrayList<FaultSectionPrefData> fsDataFromXML(Element el, int size) {
+	public static ArrayList<FaultSectionPrefData> fsDataFromXML(Element el) {
 		ArrayList<FaultSectionPrefData> list = new ArrayList<FaultSectionPrefData>();
 		
-		for (int i=0; i<size; i++) {
+		for (int i=0; i<el.elements().size(); i++) {
 			Element subEl = el.element("i"+i);
 			list.add(FaultSectionPrefData.fromXMLMetadata(subEl));
 		}
@@ -444,15 +491,23 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		el.addAttribute("numRups", getNumRuptures()+"");
 		el.addAttribute("numSects", getNumSections()+"");
-		el.addAttribute("info", getInfoString());
+		if (getInfoString() != null)
+			el.addAttribute("info", getInfoString());
 		
 		XMLUtils.doubleArrayToXML(el, mags, "mags");
-		XMLUtils.doubleArrayToXML(el, rupAveSlips, "rupAveSlips");
-		listDoubleArrayToXML(el, rupSectionSlips, "rupSectionSlips");
-		XMLUtils.doubleArrayToXML(el, sectSlipRates, "sectSlipRates");
+		if (rupAveSlips != null)
+			XMLUtils.doubleArrayToXML(el, rupAveSlips, "rupAveSlips");
+		if (rupSectionSlips != null)
+			listDoubleArrayToXML(el, rupSectionSlips, "rupSectionSlips");
+		if (sectSlipRates != null)
+			XMLUtils.doubleArrayToXML(el, sectSlipRates, "sectSlipRates");
+		if (sectSlipRateStdDevs != null)
+			XMLUtils.doubleArrayToXML(el, sectSlipRateStdDevs, "sectSlipRateStdDevs");
 		XMLUtils.doubleArrayToXML(el, rakes, "rakes");
-		XMLUtils.doubleArrayToXML(el, rupAreas, "rupAreas");
-		XMLUtils.doubleArrayToXML(el, sectAreas, "sectAreas");
+		if (rupAreas != null)
+			XMLUtils.doubleArrayToXML(el, rupAreas, "rupAreas");
+		if (sectAreas != null)
+			XMLUtils.doubleArrayToXML(el, sectAreas, "sectAreas");
 		intListArrayToXML(el, sectionForRups, "sectionForRups");
 		if (closeSections != null)
 			intListArrayToXML(el, closeSections, "closeSections");
@@ -475,22 +530,67 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		if (D) System.out.println("Loading from XML for numRups="+numRups+" and numSects="+numSects);
 		
-		String info = rupSetEl.attributeValue("info");
+		Attribute infoAtt = rupSetEl.attribute("info");
+		String info;
+		if (infoAtt != null)
+			info = infoAtt.getValue();
+		else
+			info = null;
 		
 		if (D) System.out.println("Loading mags");
 		double[] mags = XMLUtils.doubleArrayFromXML(rupSetEl.element("mags"));
+		
 		if (D) System.out.println("Loading rupAveSlips");
-		double[] rupAveSlips = XMLUtils.doubleArrayFromXML(rupSetEl.element("rupAveSlips"));
+		double[] rupAveSlips;
+		Element rupAveSlipsEl = rupSetEl.element("rupAveSlips");
+		if (rupAveSlipsEl != null)
+			rupAveSlips = XMLUtils.doubleArrayFromXML(rupAveSlipsEl);
+		else
+			rupAveSlips = null;
+		
 		if (D) System.out.println("Loading rupSectionSlips");
-		List<double[]> rupSectionSlips = listDoubleArrayFromXML(rupSetEl.element("rupSectionSlips"));
+		List<double[]> rupSectionSlips;
+		Element rupSectionSlipsEl = rupSetEl.element("rupSectionSlips");
+		if (rupSectionSlipsEl != null)
+			rupSectionSlips = listDoubleArrayFromXML(rupSectionSlipsEl);
+		else
+			rupSectionSlips = null;
+		
 		if (D) System.out.println("Loading sectSlipRates");
-		double[] sectSlipRates = XMLUtils.doubleArrayFromXML(rupSetEl.element("sectSlipRates"));
+		double[] sectSlipRates;
+		Element sectSlipRatesEl = rupSetEl.element("sectSlipRates");
+		if (sectSlipRatesEl != null)
+			sectSlipRates = XMLUtils.doubleArrayFromXML(sectSlipRatesEl);
+		else
+			sectSlipRates = null;
+		
+		if (D) System.out.println("Loading sectSlipRates");
+		double[] sectSlipRateStdDevs;
+		Element sectSlipRateStdDevsEl = rupSetEl.element("sectSlipRateStdDevs");
+		if (sectSlipRateStdDevsEl != null)
+			sectSlipRateStdDevs = XMLUtils.doubleArrayFromXML(sectSlipRateStdDevsEl);
+		else
+			sectSlipRateStdDevs = null;
+		
 		if (D) System.out.println("Loading rakes");
 		double[] rakes = XMLUtils.doubleArrayFromXML(rupSetEl.element("rakes"));
+		
 		if (D) System.out.println("Loading rupAreas");
-		double[] rupAreas = XMLUtils.doubleArrayFromXML(rupSetEl.element("rupAreas"));
+		double[] rupAreas;
+		Element rupAreasEl = rupSetEl.element("rupAreas");
+		if (rupAreasEl != null)
+			rupAreas = XMLUtils.doubleArrayFromXML(rupAreasEl);
+		else
+			rupAreas = null;
+		
 		if (D) System.out.println("Loading sectAreas");
-		double[] sectAreas = XMLUtils.doubleArrayFromXML(rupSetEl.element("sectAreas"));
+		double[] sectAreas;
+		Element sectAreasEl = rupSetEl.element("sectAreas");
+		if (sectAreasEl != null)
+			sectAreas = XMLUtils.doubleArrayFromXML(sectAreasEl);
+		else
+			sectAreas = null;
+		
 		if (D) System.out.println("Loading sectionForRups");
 		List<List<Integer>> sectionForRups = intListArrayFromXML(rupSetEl.element("sectionForRups"));
 		
@@ -503,7 +603,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		if (D) System.out.println("Loading faultSectionData");
 		ArrayList<FaultSectionPrefData> faultSectionData =
-			fsDataFromXML(rupSetEl.element(FaultSectionPrefData.XML_METADATA_NAME+"List"), numSects);
+			fsDataFromXML(rupSetEl.element(FaultSectionPrefData.XML_METADATA_NAME+"List"));
 		
 		List<List<Integer>> clusterRups = null;
 		List<List<Integer>> clusterSects = null;
@@ -516,20 +616,251 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		}
 		
 		SimpleFaultSystemRupSet simple = new SimpleFaultSystemRupSet(
-				faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, rakes,
+				faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
 				rupAreas, sectAreas, sectionForRups, info, closeSections, clusterRups, clusterSects);
 		return simple;
 	}
 	
-	public void toFile(File file) throws IOException {
+	public void toXMLFile(File file) throws IOException {
 		XMLUtils.writeObjectToXMLAsRoot(this, file);
 	}
 	
-	public static SimpleFaultSystemRupSet fromFile(File file) throws MalformedURLException, DocumentException {
+	public static SimpleFaultSystemRupSet fromXMLFile(File file) throws MalformedURLException, DocumentException {
 		Document doc = XMLUtils.loadDocument(file);
 		Element rupSetEl = doc.getRootElement().element(XML_METADATA_NAME);
 		return fromXMLMetadata(rupSetEl);
-	}	
+	}
+	
+	public void toZipFile(File file) throws IOException {
+		File tempDir = FileUtils.createTempDir();
+		
+		ArrayList<String> zipFileNames = new ArrayList<String>();
+		
+		toZipFile(file, tempDir, zipFileNames);
+	}
+	
+	protected void toZipFile(File file, File tempDir, ArrayList<String> zipFileNames) throws IOException {
+		
+		// first save fault section data as XML
+		File fsdFile = new File(tempDir, "fault_sections.xml");
+		Document doc = XMLUtils.createDocumentWithRoot();
+		Element root = doc.getRootElement();
+		fsDataToXML(root, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List");
+		XMLUtils.writeDocumentToFile(fsdFile, doc);
+		zipFileNames.add(fsdFile.getName());
+		
+		// write mags
+		File magFile = new File(tempDir, "mags.bin");
+		MatrixIO.doubleArrayToFile(mags, magFile);
+		zipFileNames.add(magFile.getName());
+		
+		// write rup slips
+		if (rupAveSlips != null) {
+			File rupSlipsFile = new File(tempDir, "rup_avg_slips.bin");
+			MatrixIO.doubleArrayToFile(rupAveSlips, rupSlipsFile);
+			zipFileNames.add(rupSlipsFile.getName());
+		}
+		
+		// write rup section slips
+		if (rupSectionSlips != null) {
+			File rupSectionSlipsFile = new File(tempDir, "rup_sec_slips.bin");
+			MatrixIO.doubleArraysListToFile(rupSectionSlips, rupSectionSlipsFile);
+			zipFileNames.add(rupSectionSlipsFile.getName());
+		}
+		
+		// write sect slips
+		if (sectSlipRates != null) {
+			File sectSlipsFile = new File(tempDir, "sect_slips.bin");
+			MatrixIO.doubleArrayToFile(sectSlipRates, sectSlipsFile);
+			zipFileNames.add(sectSlipsFile.getName());
+		}
+		
+		if (sectSlipRateStdDevs != null) {
+			// write sec slip std devs
+			File sectSlipStdDevsFile = new File(tempDir, "sect_slips_std_dev.bin");
+			MatrixIO.doubleArrayToFile(sectSlipRateStdDevs, sectSlipStdDevsFile);
+			zipFileNames.add(sectSlipStdDevsFile.getName());
+		}
+		
+		// write rakes
+		File rakesFile = new File(tempDir, "rakes.bin");
+		MatrixIO.doubleArrayToFile(rakes, rakesFile);
+		zipFileNames.add(rakesFile.getName());
+		
+		// write rup areas
+		File rupAreasFile = new File(tempDir, "rup_areas.bin");
+		MatrixIO.doubleArrayToFile(rupAreas, rupAreasFile);
+		zipFileNames.add(rupAreasFile.getName());
+		
+		// write sect areas
+		File sectAreasFile = new File(tempDir, "sect_areas.bin");
+		MatrixIO.doubleArrayToFile(sectAreas, sectAreasFile);
+		zipFileNames.add(sectAreasFile.getName());
+		
+		// write sections for rups
+		File sectionsForRupsFile = new File(tempDir, "rup_sections.bin");
+		MatrixIO.intListListToFile(sectionForRups, sectionsForRupsFile);
+		zipFileNames.add(sectionsForRupsFile.getName());
+		
+		if (closeSections != null) {
+			// write close sections
+			File closeSectionsFile = new File(tempDir, "close_sections.bin");
+			MatrixIO.intListListToFile(closeSections, closeSectionsFile);
+			zipFileNames.add(closeSectionsFile.getName());
+		}
+		
+		if (clusterRups != null) {
+			// write close sections
+			File clusterRupsFile = new File(tempDir, "cluster_rups.bin");
+			MatrixIO.intListListToFile(clusterRups, clusterRupsFile);
+			zipFileNames.add(clusterRupsFile.getName());
+		}
+		
+		if (clusterSects != null) {
+			// write close sections
+			File clusterSectsFile = new File(tempDir, "cluster_sects.bin");
+			MatrixIO.intListListToFile(clusterSects, clusterSectsFile);
+			zipFileNames.add(clusterSectsFile.getName());
+		}
+		
+		String info = getInfoString();
+		if (info != null && !info.isEmpty()) {
+			FileWriter fw = new FileWriter(new File("info.txt"));
+			fw.write(info+"\n");
+			fw.close();
+		}
+		
+		FileUtils.createZipFile(file.getAbsolutePath(), tempDir.getAbsolutePath(), zipFileNames);
+		
+		FileUtils.deleteRecursive(tempDir);
+	}
+	
+	public static SimpleFaultSystemRupSet fromZipFile(File file) throws ZipException, IOException, DocumentException {
+		ZipFile zip = new ZipFile(file);
+		
+		ZipEntry magEntry = zip.getEntry("mags.bin");
+		double[] mags = MatrixIO.doubleArrayFromInputStream(
+				new BufferedInputStream(zip.getInputStream(magEntry)), magEntry.getSize());
+		
+		ZipEntry rupSlipsEntry = zip.getEntry("rup_avg_slips.bin");
+		double[] rupAveSlips;
+		if (rupSlipsEntry != null)
+			rupAveSlips = MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(rupSlipsEntry)),
+				rupSlipsEntry.getSize());
+		else
+			rupAveSlips = null;
+		
+		ZipEntry rupSectionSlipsEntry = zip.getEntry("rup_sec_slips.bin");
+		List<double[]> rupSectionSlips;
+		if (rupSectionSlipsEntry != null)
+			rupSectionSlips = MatrixIO.doubleArraysListFromInputStream(
+					new BufferedInputStream(zip.getInputStream(rupSectionSlipsEntry)));
+		else
+			rupSectionSlips = null;
+		
+		ZipEntry sectSlipsEntry = zip.getEntry("sect_slips.bin");
+		double[] sectSlipRates;
+		if (sectSlipsEntry != null)
+			sectSlipRates = MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(sectSlipsEntry)),
+					sectSlipsEntry.getSize());
+		else
+			sectSlipRates = null;
+
+		ZipEntry sectSlipStdDevsEntry = zip.getEntry("sect_slips_std_dev.bin");
+		double[] sectSlipRateStdDevs;
+		if (sectSlipStdDevsEntry != null)
+			sectSlipRateStdDevs = MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(sectSlipStdDevsEntry)),
+					sectSlipStdDevsEntry.getSize());
+		else
+			sectSlipRateStdDevs = null;
+		
+		ZipEntry rakesEntry = zip.getEntry("rakes.bin");
+		double[] rakes = MatrixIO.doubleArrayFromInputStream(
+				new BufferedInputStream(zip.getInputStream(rakesEntry)), rakesEntry.getSize());
+		
+		ZipEntry rupAreasEntry = zip.getEntry("rup_areas.bin");
+		double[] rupAreas;
+		if (rupAreasEntry != null)
+			rupAreas = MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(rupAreasEntry)),
+					rupAreasEntry.getSize());
+		else
+			rupAreas = null;
+
+		ZipEntry sectAreasEntry = zip.getEntry("sect_areas.bin");
+		double[] sectAreas;
+		if (sectAreasEntry != null)
+			sectAreas = MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(sectAreasEntry)),
+					sectAreasEntry.getSize());
+		else
+			sectAreas = null;
+
+		ZipEntry rupSectionsEntry = zip.getEntry("rup_sections.bin");
+		List<List<Integer>> sectionForRups;
+		if (rupSectionsEntry != null)
+			sectionForRups = MatrixIO.intListListFromInputStream(
+					new BufferedInputStream(zip.getInputStream(rupSectionsEntry)));
+		else
+			sectionForRups = null;
+
+		ZipEntry closeSectionsEntry = zip.getEntry("close_sections.bin");
+		List<List<Integer>> closeSections;
+		if (closeSectionsEntry != null)
+			closeSections = MatrixIO.intListListFromInputStream(
+					new BufferedInputStream(zip.getInputStream(closeSectionsEntry)));
+		else
+			closeSections = null;
+
+		ZipEntry clusterRupsEntry = zip.getEntry("cluster_rups.bin");
+		List<List<Integer>> clusterRups;
+		if (clusterRupsEntry != null)
+			clusterRups = MatrixIO.intListListFromInputStream(
+					new BufferedInputStream(zip.getInputStream(clusterRupsEntry)));
+		else
+			clusterRups = null;
+		
+		ZipEntry clusterSectsEntry = zip.getEntry("cluster_sects.bin");
+		List<List<Integer>> clusterSects;
+		if (clusterSectsEntry != null)
+			clusterSects = MatrixIO.intListListFromInputStream(
+					new BufferedInputStream(zip.getInputStream(clusterSectsEntry)));
+		else
+			clusterSects = null;
+		
+		ZipEntry fsdEntry = zip.getEntry("fault_sections.xml");
+		Document doc = XMLUtils.loadDocument(
+				new BufferedInputStream(zip.getInputStream(fsdEntry)));
+		List<FaultSectionPrefData> faultSectionData = 
+			fsDataFromXML(doc.getRootElement().element(FaultSectionPrefData.XML_METADATA_NAME+"List"));
+		
+		ZipEntry infoEntry = zip.getEntry("info.txt");
+		String info;
+		if (infoEntry != null) {
+			StringBuilder text = new StringBuilder();
+		    String NL = System.getProperty("line.separator");
+		    Scanner scanner = new Scanner(
+					new BufferedInputStream(zip.getInputStream(infoEntry)));
+		    try {
+		      while (scanner.hasNextLine()){
+		        text.append(scanner.nextLine() + NL);
+		      }
+		    }
+		    finally{
+		      scanner.close();
+		    }
+		    info = text.toString();
+		} else
+			info = null;
+		
+		
+		return new SimpleFaultSystemRupSet(faultSectionData, mags, rupAveSlips, rupSectionSlips,
+				sectSlipRates, sectSlipRateStdDevs, rakes, rupAreas, sectAreas, sectionForRups, info,
+				closeSections, clusterRups, clusterSects);
+	}
 
 }
 

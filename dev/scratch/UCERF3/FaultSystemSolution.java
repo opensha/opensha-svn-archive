@@ -4,7 +4,11 @@
 package scratch.UCERF3;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opensha.commons.geo.Region;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -261,6 +265,15 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		 * Ray & Glenn's equation if(mag <= 5) return 0.0; else if (mag <= 7.6)
 		 * return -0.0608*mag*mag + 1.1366*mag + -4.1314; else return 1.0;
 		 */
+	}
+	
+	@Override
+	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex) {
+		List<Integer> inds = getSectionsIndicesForRup(rupIndex);
+		ArrayList<FaultSectionPrefData> datas = new ArrayList<FaultSectionPrefData>();
+		for (int ind : inds)
+			datas.add(getFaultSectionData(ind));
+		return datas;
 	}
 
 

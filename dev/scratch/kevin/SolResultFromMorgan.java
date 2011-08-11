@@ -21,7 +21,7 @@ public class SolResultFromMorgan {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(String[] args) throws DocumentException, FileNotFoundException, IOException {
-		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(new File(
+		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromXMLFile(new File(
 				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/rupSet.xml"));
 		
 		File dir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/Northern CA Models/rupRateSolutions");
@@ -47,7 +47,7 @@ public class SolResultFromMorgan {
 			SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rates);
 			File outFile = new File(dir, file.getName().replace(".txt", ".xml"));
 			System.out.println("exporting to: "+outFile.getName());
-			sol.toFile(outFile);
+			sol.toXMLFile(outFile);
 		}
 		System.out.println("DONE.");
 	}

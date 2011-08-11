@@ -139,7 +139,7 @@ public class InversionSolutionERF extends AbstractERF {
 			if (isNewSolution) {
 				if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
 				try {
-					solution = SimpleFaultSystemSolution.fromFile(file);
+					solution = SimpleFaultSystemSolution.fromXMLFile(file);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -175,9 +175,7 @@ public class InversionSolutionERF extends AbstractERF {
 					if (rate <= 0)
 						continue;
 					
-					ArrayList<FaultSectionPrefData> datas = new ArrayList<FaultSectionPrefData>();
-					for (int secID : solution.getSectionsIndicesForRup(rupID))
-						datas.add(solution.getFaultSectionData(secID));
+					List<FaultSectionPrefData> datas = solution.getFaultSectionDataForRupture(rupID);
 					
 					String sourceName = getRuptureSourceName(datas);
 					if (!sourceNameMap.containsKey(sourceName)) {
@@ -210,7 +208,7 @@ public class InversionSolutionERF extends AbstractERF {
 		}
 	}
 	
-	private static double calcProb(double rate, double years) {
+	public static double calcProb(double rate, double years) {
 		// P = 1 - exp(-lambda*t)
 		
 		return 1d - Math.exp(-rate * years);
@@ -236,7 +234,7 @@ public class InversionSolutionERF extends AbstractERF {
 		return sources;
 	}
 	
-	private static boolean isRuptureSingleParent(List<FaultSectionPrefData> datas) {
+	public static boolean isRuptureSingleParent(List<FaultSectionPrefData> datas) {
 		int parentID = -1;
 		for (FaultSectionPrefData data : datas) {
 			if (parentID == -1)
@@ -247,7 +245,7 @@ public class InversionSolutionERF extends AbstractERF {
 		return true;
 	}
 	
-	private static String getRuptureSourceName(List<FaultSectionPrefData> datas) {
+	public static String getRuptureSourceName(List<FaultSectionPrefData> datas) {
 		if (isRuptureSingleParent(datas))
 			return datas.get(0).getParentSectionName();
 		HashSet<String> parentNames = new HashSet<String>();

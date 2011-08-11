@@ -129,6 +129,13 @@ public interface FaultSystemRupSet {
 	public FaultSectionPrefData getFaultSectionData(int sectIndex);
 	
 	/**
+	 * This returns the fault-section data list for the given rupture
+	 * @param rupIndex
+	 * @return
+	 */
+	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex);
+	
+	/**
 	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
 	 * where there has been a modification (i.e., moment rate reductions for smaller events).
 	 * @return

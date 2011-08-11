@@ -430,7 +430,15 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	public FaultSectionPrefData getFaultSectionData(int sectIndex) {
 		return faultSectionData.get(sectIndex);
 	}
-
+	
+	@Override
+	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex) {
+		List<Integer> inds = getSectionsIndicesForRup(rupIndex);
+		ArrayList<FaultSectionPrefData> datas = new ArrayList<FaultSectionPrefData>();
+		for (int ind : inds)
+			datas.add(getFaultSectionData(ind));
+		return datas;
+	}
 	
 	public List<List<Integer>> getSectionIndicesForAllRups() {
 		List<List<Integer>> sectInRupList = new ArrayList<List<Integer>>();

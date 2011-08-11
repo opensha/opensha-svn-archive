@@ -23,10 +23,10 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dom4j.Document;
@@ -36,7 +36,6 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.dom4j.tree.FlyweightCDATA;
 import org.opensha.commons.metadata.XMLSaveable;
 
 import com.google.common.base.Preconditions;
@@ -115,6 +114,18 @@ public class XMLUtils {
 		SAXReader read = new SAXReader();
 		
 		return read.read(url);
+	}
+	
+	/**
+	 * Loads an XML document from an input stream
+	 * 
+	 * @return XML document
+	 * @throws DocumentException 
+	 */
+	public static Document loadDocument(InputStream is) throws DocumentException {
+		SAXReader read = new SAXReader();
+		
+		return read.read(is);
 	}
 	
 	/**

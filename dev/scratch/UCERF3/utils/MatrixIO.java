@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.common.base.Preconditions;
 
@@ -102,7 +104,7 @@ public class MatrixIO {
 	}
 	
 	/**
-	 * Writes the given double array to a file. Output file simple contains a series of big endian double values.
+	 * Writes the given double array to a file. Output file simply contains a series of big endian double values.
 	 * @param array
 	 * @param file
 	 * @throws IOException
@@ -129,13 +131,28 @@ public class MatrixIO {
 	public static double[] doubleArrayFromFile(File file) throws IOException {
 		Preconditions.checkNotNull(file, "File cannot be null!");
 		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
-		DataInputStream in = new DataInputStream(new FileInputStream(file));
+		
 		long len = file.length();
-		Preconditions.checkState(len > 0, "file is empty!");
-		Preconditions.checkState(len % 8 == 0, "file size isn't evenly divisible by 8, " +
+		
+		return doubleArrayFromInputStream(new FileInputStream(file), len);
+	}
+	
+	/**
+	 * Reads an imput stream created by {@link MatrixIO.doubleArrayToFile} into a double array.
+	 * @param file
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 */
+	public static double[] doubleArrayFromInputStream(InputStream is, long length) throws IOException {
+		Preconditions.checkState(length > 0, "file is empty!");
+		Preconditions.checkState(length % 8 == 0, "file size isn't evenly divisible by 8, " +
 				"thus not a sequence of double values.");
 		
-		int size = (int)(len / 8);
+		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		DataInputStream in = new DataInputStream(is);
+		
+		int size = (int)(length / 8);
 		
 		double[] array = new double[size];
 		
@@ -145,6 +162,161 @@ public class MatrixIO {
 		in.close();
 		
 		return array;
+	}
+	
+	/**
+	 * Writes the given list of double arrays to a file. All values are stored big endian. Output format contains
+	 * first an integer, specifying the size of the list, then for each element in the list, an integer, denoting
+	 * the size (n) of the array, followed by n double values (the array values). 
+	 * @param list
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void doubleArraysListToFile(List<double[]> list, File file) throws IOException {
+		Preconditions.checkNotNull(list, "list cannot be null!");
+		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
+		
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+		
+		out.writeInt(list.size());
+		
+		for (double[] array : list) {
+			Preconditions.checkNotNull(array, "array cannot be null!");
+			Preconditions.checkState(array.length > 0, "array cannot be empty!");
+			out.writeInt(array.length);
+			for (double val : array)
+				out.writeDouble(val);
+		}
+		
+		out.close();
+	}
+	
+	/**
+	 * Reads a file created by {@link MatrixIO.doubleArraysListFromFile} into a double array.
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<double[]> doubleArraysListFromFile(File file) throws IOException {
+		Preconditions.checkNotNull(file, "File cannot be null!");
+		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
+		
+		long len = file.length();
+		Preconditions.checkState(len > 0, "file is empty!");
+		Preconditions.checkState(len % 4 == 0, "file size isn't evenly divisible by 4, " +
+				"thus not a sequence of double & integer values.");
+		
+		return doubleArraysListFromInputStream(new FileInputStream(file));
+	}
+	
+	/**
+	 * Reads a file created by {@link MatrixIO.doubleArraysListFromFile} into a double array.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<double[]> doubleArraysListFromInputStream(InputStream is) throws IOException {
+		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		
+		DataInputStream in = new DataInputStream(is);
+		
+		int size = in.readInt();
+		
+		Preconditions.checkState(size > 0, "Size must be > 0!");
+		
+		ArrayList<double[]> list = new ArrayList<double[]>(size);
+		
+		for (int i=0; i<size; i++) {
+			int arraySize = in.readInt();
+			
+			double[] array = new double[arraySize];
+			for (int j=0; j<arraySize; j++)
+				array[j] = in.readDouble();
+			
+			list.add(array);
+		}
+		
+		in.close();
+		
+		return list;
+	}
+	
+	/**
+	 * Writes the given list of integer lists to a file. All values are stored big endian. Output format contains
+	 * first an integer, specifying the size of the list, then for each element in the list, an integer, denoting
+	 * the size (n) of the array, followed by n integer values (the list values). 
+	 * @param list
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void intListListToFile(List<List<Integer>> list, File file) throws IOException {
+		Preconditions.checkNotNull(list, "list cannot be null!");
+		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
+		
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+		
+		out.writeInt(list.size());
+		
+		for (List<Integer> ints : list) {
+			Preconditions.checkNotNull(ints, "list cannot be null!");
+			Preconditions.checkState(!ints.isEmpty(), "list cannot be empty!");
+			out.writeInt(ints.size());
+			for (int val : ints)
+				out.writeInt(val);
+		}
+		
+		out.close();
+	}
+	
+	/**
+	 * Reads a file created by {@link MatrixIO.intListListToFile} into an integer list list.
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<List<Integer>> intListListFromFile(File file) throws IOException {
+		Preconditions.checkNotNull(file, "File cannot be null!");
+		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
+		
+		long len = file.length();
+		Preconditions.checkState(len > 0, "file is empty!");
+		Preconditions.checkState(len % 4 == 0, "file size isn't evenly divisible by 4, " +
+				"thus not a sequence of double & integer values.");
+		
+		return intListListFromInputStream(new FileInputStream(file));
+	}
+	
+	/**
+	 * Reads a file created by {@link MatrixIO.intListListToFile} into an integer list list.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<List<Integer>> intListListFromInputStream(
+			InputStream is) throws IOException {
+		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		
+		DataInputStream in = new DataInputStream(is);
+		
+		int size = in.readInt();
+		
+		Preconditions.checkState(size > 0, "Size must be > 0!");
+		
+		ArrayList<List<Integer>> list = new ArrayList<List<Integer>>();
+		
+		for (int i=0; i<size; i++) {
+			int listSize = in.readInt();
+			
+			ArrayList<Integer> ints = new ArrayList<Integer>(listSize);
+			for (int j=0; j<listSize; j++)
+				ints.add(in.readInt());
+			
+			list.add(ints);
+		}
+		
+		in.close();
+		
+		return list;
 	}
 
 }

@@ -1,16 +1,24 @@
 package scratch.UCERF3;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+
+import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
 
@@ -199,14 +207,77 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		return new SimpleFaultSystemSolution(simpleRupSet, rupRateSolution);
 	}
 	
-	public void toFile(File file) throws IOException {
+	private static boolean isXMLFile(File file) {
+		return file.getName().toLowerCase().endsWith(".xml");
+	}
+	
+	public static SimpleFaultSystemSolution fromFile(File file) throws IOException, DocumentException {
+		if (isXMLFile(file))
+			return fromXMLFile(file);
+		else
+			return fromZipFile(file);
+	}
+	
+	public static FaultSystemRupSet fromFileAsApplicable(File file) throws IOException, DocumentException {
+		if (isXMLFile(file)) {
+			Document doc = XMLUtils.loadDocument(file);
+			Element root = doc.getRootElement();
+			// first try to load as a solution
+			Element el = root.element(SimpleFaultSystemSolution.XML_METADATA_NAME);
+			if (el != null) {
+				return fromXMLMetadata(el);
+			} else {
+				el = root.element(SimpleFaultSystemRupSet.XML_METADATA_NAME);
+				return SimpleFaultSystemRupSet.fromXMLMetadata(el);
+			}
+		} else {
+			ZipFile zip = new ZipFile(file);
+			ZipEntry ratesEntry = zip.getEntry("rates.bin");
+			if (ratesEntry != null)
+				return fromZipFile(file);
+			else
+				return SimpleFaultSystemRupSet.fromZipFile(file);
+		}
+	}
+	
+	public void toXMLFile(File file) throws IOException {
 		XMLUtils.writeObjectToXMLAsRoot(this, file);
 	}
 	
-	public static SimpleFaultSystemSolution fromFile(File file) throws MalformedURLException, DocumentException {
+	public static SimpleFaultSystemSolution fromXMLFile(File file) throws MalformedURLException, DocumentException {
 		Document doc = XMLUtils.loadDocument(file);
 		Element solutionEl = doc.getRootElement().element(XML_METADATA_NAME);
 		return fromXMLMetadata(solutionEl);
+	}
+	
+	public void toZipFile(File file) throws IOException {
+		File tempDir = FileUtils.createTempDir();
+		
+		ArrayList<String> zipFileNames = new ArrayList<String>();
+		
+		File ratesFile = new File(tempDir, "rates.bin");
+		MatrixIO.doubleArrayToFile(rupRateSolution, ratesFile);
+		zipFileNames.add(ratesFile.getName());
+		
+		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.toSimple(rupSet);
+		simpleRupSet.toZipFile(file, tempDir, zipFileNames);
+	}
+	
+	public static SimpleFaultSystemSolution fromZipFile(File zipFile) throws ZipException, IOException, DocumentException {
+		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.fromZipFile(zipFile);
+		
+		return fromZipFile(zipFile, simpleRupSet);
+	}
+	
+	private static SimpleFaultSystemSolution fromZipFile(File zipFile, SimpleFaultSystemRupSet simpleRupSet)
+	throws ZipException, IOException, DocumentException {
+		ZipFile zip = new ZipFile(zipFile);
+		
+		ZipEntry ratesEntry = zip.getEntry("rates.bin");
+		double[] rates = MatrixIO.doubleArrayFromInputStream(
+				new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+		
+		return new SimpleFaultSystemSolution(simpleRupSet, rates);
 	}
 
 	@Override
