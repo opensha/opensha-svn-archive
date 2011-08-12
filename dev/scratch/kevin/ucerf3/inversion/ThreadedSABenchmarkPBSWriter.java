@@ -21,8 +21,6 @@ public class ThreadedSABenchmarkPBSWriter {
 		
 		int mins = 60*2;
 		
-		int subIterations = 5000;
-		
 		ArrayList<File> jars = new ArrayList<File>();
 		jars.add(new File(runDir, "OpenSHA_complete.jar"));
 		jars.add(new File(runDir, "parallelcolt-0.9.4.jar"));
@@ -40,26 +38,31 @@ public class ThreadedSABenchmarkPBSWriter {
 		CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins-10);
 		
 		ThreadedScriptCreator creator = new ThreadedScriptCreator(javaBin, jars, heapSizeMB, aMat, dMat,
-				initialMat, subIterations, -1, null, criteria);
+				initialMat, -1, -1, null, criteria);
 		
-		int[] threads = { 1, 2, 4, 8 };
-		CoolingScheduleType[] cools = { CoolingScheduleType.VERYFAST_SA };
+		int[] threads = { 1, 2, 4, 6, 8 };
+		int[] subIterations = { 50, 100, 200, 400, 600 };
+		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
 		
 		int numRuns = 5;
 
 		for (CoolingScheduleType cool : cools) {
 			for (int numThreads : threads) {
-				for (int r=0; r<numRuns; r++) {
-					String name = "tsa_"+numThreads+"threads_"+cool.name();
-					name += "_run"+r;
+				for (int numSubIterations : subIterations) {
+					for (int r=0; r<numRuns; r++) {
+						String name = "tsa_"+numThreads+"threads_"+cool.name();
+						name += "_sub"+numSubIterations;
+						name += "_run"+r;
 
-					creator.setProgFile(new File(runDir, name+".csv"));
-					creator.setSolFile(new File(runDir, name+".mat"));
-					creator.setNumThreads(numThreads);
-					creator.setCool(cool);
+						creator.setProgFile(new File(runDir, name+".csv"));
+						creator.setSolFile(new File(runDir, name+".mat"));
+						creator.setNumThreads(numThreads);
+						creator.setCool(cool);
+						creator.setSubIterations(numSubIterations);
 
-					creator.writeScript(new File(writeDir, name+".pbs"),
-							creator.buildPBSScript(mins, 1, 8, "nbns"));
+						creator.writeScript(new File(writeDir, name+".pbs"),
+								creator.buildHPCC_PBSScript(mins, 1, 8, "nbns"));
+					}
 				}
 			}
 		}

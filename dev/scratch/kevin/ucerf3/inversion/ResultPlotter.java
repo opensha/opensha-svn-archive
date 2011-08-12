@@ -103,6 +103,9 @@ public class ResultPlotter {
 				smallestMax = max;
 		}
 		
+		largestMin += 0.001;
+		smallestMax -= 0.001;
+		
 		int num = funcs.size();
 		
 		EvenlyDiscretizedFunc avg = new EvenlyDiscretizedFunc(largestMin, smallestMax, numX);
@@ -197,6 +200,42 @@ public class ResultPlotter {
 		
 		return speedups;
 	}
+	
+	private static ArrayList<DiscretizedFunc> generatePercentImprovementOverTime(
+			List<DiscretizedFunc> funcs, double mins) {
+		ArrayList<DiscretizedFunc> ret = new ArrayList<DiscretizedFunc>();
+		
+		for (DiscretizedFunc func : funcs) {
+			// x is time in m
+			// y is energy
+			
+			DiscretizedFunc retFunc = new ArbitrarilyDiscretizedFunc();
+			
+			double prevEnergy = -1;
+			for (double time=0; time<func.getMaxX(); time += mins) {
+				if (time < func.getMinX())
+					continue;
+				
+				double energy = func.getInterpolatedY(time);
+				
+				if (prevEnergy < 0) {
+					prevEnergy = energy;
+					continue;
+				}
+				double deltaE = prevEnergy - energy;
+				double improvement = deltaE / prevEnergy;
+				double percent = improvement * 100d;
+				
+				prevEnergy = energy;
+				
+				retFunc.set(time, percent);
+			}
+			
+			ret.add(retFunc);
+		}
+		
+		return ret;
+	}
 
 	/**
 	 * @param args
@@ -215,11 +254,13 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "dsa_results_8");
 //		dsaDir = new File(mainDir, "mult_state_1_7hrs");
 //		dsaDir = new File(mainDir, "mult_ncal_1");
-		dsaDir = new File(mainDir, "multi/ncal_1");
+//		dsaDir = new File(mainDir, "multi/ncal_1");
+		dsaDir = new File(mainDir, "multi/ncal_4");
+//		dsaDir = new File(mainDir, "multi/state_3");
 		
 		String highlight = null;
 		
-		highlight = "dsa_8threads_10nodes_FAST_SA_dSub200_sub100_run";
+//		highlight = "dsa_8threads_10nodes_FAST_SA_dSub200_sub100_run";
 		
 //		String coolType = "VERYFAST";
 		String coolType = null;
@@ -230,6 +271,8 @@ public class ResultPlotter {
 		boolean plotAvg = true;
 		boolean bundleDsaBySubs = false;
 		boolean bundleTsaBySubs = false;
+		
+		double pDiffMins = 5;
 		
 		int avgNumX = 300;
 		
@@ -248,7 +291,7 @@ public class ResultPlotter {
 		System.arraycopy(tsaFiles, 0, files, 0, tsaFiles.length);
 		System.arraycopy(dsaFiles, 0, files, tsaFiles.length, dsaFiles.length);
 		
-		int mod = 1;
+		int mod = 5;
 		
 		ArrayList<DiscretizedFunc> energyVsIter = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> energyVsTime = new ArrayList<DiscretizedFunc>();
@@ -268,6 +311,9 @@ public class ResultPlotter {
 			String name = file.getName();
 			if (!name.endsWith(".csv"))
 				continue;
+			
+//			if (name.contains("dSub600"))
+//				continue;
 			
 			if (coolType != null && !name.contains(coolType))
 				continue;
@@ -443,6 +489,11 @@ public class ResultPlotter {
 		if (averages.size() > 0) {
 			System.out.println("displaying Averaged Energy Vs Time (m)");
 			showGraphWindow(averages, "Averaged Energy Vs Time (m)", avgChars);
+
+			System.out.println("generating percent improvements over "+pDiffMins+" mins");
+			ArrayList<DiscretizedFunc> pImpFuncs = generatePercentImprovementOverTime(averages, pDiffMins);
+			System.out.println("displaying percent improvements");
+			showGraphWindow(pImpFuncs, "% Improvement (over "+pDiffMins+" min invervals)", avgChars);
 		}
 		
 		if (refFunc != null) {

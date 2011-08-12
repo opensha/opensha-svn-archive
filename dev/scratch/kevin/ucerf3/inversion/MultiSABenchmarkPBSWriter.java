@@ -17,12 +17,26 @@ public class MultiSABenchmarkPBSWriter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench");
+		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/multi");
 		File runDir = new File("/home/scec-02/kmilner/ucerf3/inversion_bench");
-		File runSubDir = new File(runDir, "mult_statewide");
 
-		int mins = 60*2 + 20;
+		boolean nCal = true;
+		//		int annealMins = 60*8;
+		//		int annealMins = 60*16;
+		int dsaAnnealMins = 60*8;
+		//		int tsaAnnealMins = dsaAnnealMins*2;
+		int tsaAnnealMins = 60*23;
 
+		File runSubDir;
+		if (nCal)
+			runSubDir = new File(runDir, "mult_ncal");
+		else
+			runSubDir = new File(runDir, "mult_statewide");
+
+		int dsaWallMins = dsaAnnealMins + 30;
+		int tsaWallMins = tsaAnnealMins + 30;
+
+		//		int subIterations = 100;
 		int subIterations = 200;
 		//		int dSubIterations = 10000;
 
@@ -36,31 +50,51 @@ public class MultiSABenchmarkPBSWriter {
 
 		File javaBin = new File("/usr/usc/jdk/default/jre/bin/java");
 
-		File aMat = new File(runDir, "A_statewide.mat");
-		File dMat = new File(runDir, "d_statewide.mat");
-		File initialMat = null;
-		//		File initialMat = new File(runDir, "initial.mat");
+		File aMat, dMat, initialMat;
 
-		CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins-30);
+		if (nCal) {
+			//			aMat = new File(runDir, "A.mat");
+			//			dMat = new File(runDir, "d.mat");
+			//			initialMat = new File(runDir, "initial.mat");
+			aMat = new File(runDir, "A_ncal_unconstrained.mat");
+			dMat = new File(runDir, "d_ncal_unconstrained.mat");
+			initialMat = null;
+		} else {
+			aMat = new File(runDir, "A_statewide.mat");
+			dMat = new File(runDir, "d_statewide.mat");
+			initialMat = null;
+		}
+
+		CompletionCriteria dsaCriteria = TimeCompletionCriteria.getInMinutes(dsaAnnealMins);
+		CompletionCriteria tsaCriteria = TimeCompletionCriteria.getInMinutes(tsaAnnealMins);
 
 		File mpjHome = new File("/home/rcf-12/kmilner/mpj-v0_38/");
 
 		DistributedScriptCreator dsa_create = new DistributedScriptCreator(javaBin, jars, heapSizeMB, aMat, dMat,
-				initialMat, subIterations, -1, null, criteria, mpjHome, false);
+				initialMat, subIterations, -1, null, dsaCriteria, mpjHome, false);
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaBin, jars, heapSizeMB, aMat, dMat,
-				initialMat, subIterations, -1, null, criteria);
+				initialMat, subIterations, -1, null, tsaCriteria);
 
-		//		int[] threads = { 1, 4 };
 		int[] dsa_threads = { 4 };
-		int[] tsa_threads = { 1,2,4,8 };
+
+		//		int[] tsa_threads = { 1,2,4,8 };
+		int[] tsa_threads = { 1 };
+		//		int[] tsa_threads = new int[0];
+
 		//		int[] nodes = { 2, 5, 10 };
-		int[] nodes = { 5 };
+		//		int[] nodes = { 2, 5, 10, 20 };
+		int[] nodes = { 10 };
+		//		int[] nodes = new int[0];
+
+		//		int[] dSubIters = { 200, 600 };
 		int[] dSubIters = { 200 };
-		CoolingScheduleType[] cools = { CoolingScheduleType.VERYFAST_SA };
+		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
 
 		int numRuns = 5;
 
 		String queue = "nbns";
+
+		double nodeHours = 0;
 
 		for (CoolingScheduleType cool : cools) {
 			for (int numNodes : nodes) {
@@ -68,6 +102,8 @@ public class MultiSABenchmarkPBSWriter {
 					for (int numDistSubIterations : dSubIters) {
 						for (int r=0; r<numRuns; r++) {
 							String name = "dsa_"+dsaThreads+"threads_"+numNodes+"nodes_"+cool.name();
+							name += "_dSub"+numDistSubIterations;
+							name += "_sub"+subIterations;
 							name += "_run"+r;
 
 							dsa_create.setProgFile(new File(runSubDir, name+".csv"));
@@ -80,29 +116,37 @@ public class MultiSABenchmarkPBSWriter {
 								tmpSubIters = numDistSubIterations;
 							dsa_create.setSubIterations(tmpSubIters);
 
-							dsa_create.writeScript(new File(writeDir, name+".pbs"),
-									dsa_create.buildPBSScript(mins, numNodes, 1, queue));
+							File pbs = new File(writeDir, name+".pbs");
+							System.out.println("Writing: "+pbs.getName());
+							nodeHours += (double)numNodes * ((double)dsaAnnealMins / 60d);
+							dsa_create.writeScript(pbs,
+									dsa_create.buildHPCC_PBSScript(dsaWallMins, numNodes, 1, queue));
 						}
 					}
 				}
 			}
 			for (int tsaThreads : tsa_threads) {
-					for (int r=0; r<numRuns; r++) {
-						String name = "tsa_"+tsaThreads+"threads_"+cool.name();
-						name += "_run"+r;
+				for (int r=0; r<numRuns; r++) {
+					String name = "tsa_"+tsaThreads+"threads_"+cool.name();
+					name += "_sub"+subIterations;
+					name += "_run"+r;
 
-						tsa_create.setProgFile(new File(runSubDir, name+".csv"));
-						tsa_create.setSolFile(new File(runSubDir, name+".mat"));
-						tsa_create.setNumThreads(tsaThreads);
-						tsa_create.setCool(cool);
-						int tmpSubIters = subIterations;
-						tsa_create.setSubIterations(subIterations);
+					tsa_create.setProgFile(new File(runSubDir, name+".csv"));
+					tsa_create.setSolFile(new File(runSubDir, name+".mat"));
+					tsa_create.setNumThreads(tsaThreads);
+					tsa_create.setCool(cool);
+					tsa_create.setSubIterations(subIterations);
 
-						tsa_create.writeScript(new File(writeDir, name+".pbs"),
-								dsa_create.buildPBSScript(mins, 1, 1, queue));
-					}
+					File pbs = new File(writeDir, name+".pbs");
+					System.out.println("Writing: "+pbs.getName());
+					nodeHours += (double)tsaAnnealMins / 60d;
+					tsa_create.writeScript(pbs,
+							tsa_create.buildHPCC_PBSScript(tsaWallMins, 1, 1, queue));
+				}
 			}
 		}
+
+		System.out.println("Node hours: "+(float)nodeHours + " (/60: "+((float)nodeHours/60f)+")");
 	}
 
 }

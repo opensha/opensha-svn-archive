@@ -117,7 +117,25 @@ public class ThreadedScriptCreator {
 		return getJavaCommand()+" "+getArgs();
 	}
 	
-	public List<String> buildPBSScript(int mins, int nodes, int ppn, String queue) {
+	public List<String> buildKrakenPBSScript(int mins, int nodes, String queue) {
+		ArrayList<String> pbs = new ArrayList<String>();
+		
+		int cores = nodes *12;
+		
+		if (queue != null && !queue.isEmpty())
+			pbs.add("#PBS -q "+queue);
+		pbs.add("#PBS -l walltime=00:"+mins+":00,size="+cores);
+//		pbs.add("#PBS -V");
+		pbs.add("");
+		
+		List<String> script = buildScript();
+		
+		script.addAll(2, pbs);
+		
+		return script;
+	}
+	
+	public List<String> buildHPCC_PBSScript(int mins, int nodes, int ppn, String queue) {
 		ArrayList<String> pbs = new ArrayList<String>();
 		
 		if (queue != null && !queue.isEmpty())

@@ -23,7 +23,7 @@ public class DistributedSABenchmarkPBSWriter {
 		
 		int mins = 60*2 + 20;
 		
-		int subIterations = 5000;
+		int subIterations = 200;
 //		int dSubIterations = 10000;
 		
 		ArrayList<File> jars = new ArrayList<File>();
@@ -50,15 +50,15 @@ public class DistributedSABenchmarkPBSWriter {
 //		int[] threads = { 1, 4 };
 		int[] threads = { 4 };
 		
-//		int[] nodes = { 2, 5, 10 };
+		int[] nodes = { 2, 5, 10, 20 };
 //		int[] nodes = { 10 };
-		int[] nodes = { 20, 50 };
+//		int[] nodes = { 20, 50 };
 		
 //		int[] dSubIters = { 2000, 5000, 10000, 15000, 20000 };
 //		int[] dSubIters = { 2000 };
-		int[] dSubIters = { 200, 500 };
+		int[] dSubIters = { 200, 600 };
 		
-		CoolingScheduleType[] cools = { CoolingScheduleType.VERYFAST_SA };
+		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
 		
 		int numRuns = 5;
 
@@ -82,7 +82,7 @@ public class DistributedSABenchmarkPBSWriter {
 							creator.setSubIterations(tmpSubIters);
 
 							creator.writeScript(new File(writeDir, name+".pbs"),
-									creator.buildPBSScript(mins, numNodes, 1, "nbns"));
+									creator.buildHPCC_PBSScript(mins, numNodes, 1, "nbns"));
 						}
 					}
 				}
