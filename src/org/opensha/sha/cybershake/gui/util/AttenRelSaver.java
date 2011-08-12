@@ -31,7 +31,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.commons.util.FakeParameterListener;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
@@ -94,7 +93,7 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 		
 		Element el = doc.getRootElement().element(AbstractIMR.XML_METADATA_NAME);
 		
-		return (AttenuationRelationship)AttenuationRelationship.fromXMLMetadata(el, new FakeParameterListener());
+		return (AttenuationRelationship)AttenuationRelationship.fromXMLMetadata(el, null);
 	}
 	
 	/**
