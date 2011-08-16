@@ -243,8 +243,8 @@ public class ResultPlotter {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
-//		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+//		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
+		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
 		
 		File tsaDir = null;
 		File dsaDir = null;
@@ -254,13 +254,13 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "dsa_results_8");
 //		dsaDir = new File(mainDir, "mult_state_1_7hrs");
 //		dsaDir = new File(mainDir, "mult_ncal_1");
+//		dsaDir = new File(mainDir, "mult_ncal_2");
 //		dsaDir = new File(mainDir, "multi/ncal_1");
-		dsaDir = new File(mainDir, "multi/ncal_4");
-//		dsaDir = new File(mainDir, "multi/state_3");
+		dsaDir = new File(mainDir, "mult_state_2_comb_3");
 		
 		String highlight = null;
 		
-//		highlight = "dsa_8threads_10nodes_FAST_SA_dSub200_sub100_run";
+//		highlight = "dsa_8threads_10nodes_FAST_SA_dSub200_sub100";
 		
 //		String coolType = "VERYFAST";
 		String coolType = null;
@@ -479,7 +479,7 @@ public class ResultPlotter {
 			
 			if (refFunc == null) {
 				if (coolType == null && name.startsWith("tsa_1threads_FAST")
-						|| name.startsWith("tsa_1threads_VERYFAST"))
+						|| name.startsWith("tsa_1threads_"+coolType))
 					refFunc = avg;
 			}
 //			if (refFunc == null && name.startsWith("tsa_1threads_VERYFAST"))

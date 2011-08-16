@@ -6,8 +6,10 @@ import java.util.ArrayList;
 
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.hpc.BatchScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.hpc.DistributedScriptCreator;
 import scratch.UCERF3.simulatedAnnealing.hpc.ThreadedScriptCreator;
+import scratch.UCERF3.simulatedAnnealing.hpc.USC_HPCC_ScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 
 public class MultiSABenchmarkPBSWriter {
@@ -38,7 +40,9 @@ public class MultiSABenchmarkPBSWriter {
 
 		//		int subIterations = 100;
 		int subIterations = 200;
-		//		int dSubIterations = 10000;
+		
+		String queue = "nbns";
+		BatchScriptWriter bath = new USC_HPCC_ScriptWriter();
 
 		ArrayList<File> jars = new ArrayList<File>();
 		jars.add(new File(runDir, "OpenSHA_complete.jar"));
@@ -92,8 +96,6 @@ public class MultiSABenchmarkPBSWriter {
 
 		int numRuns = 5;
 
-		String queue = "nbns";
-
 		double nodeHours = 0;
 
 		for (CoolingScheduleType cool : cools) {
@@ -115,12 +117,11 @@ public class MultiSABenchmarkPBSWriter {
 							if (tmpSubIters > numDistSubIterations)
 								tmpSubIters = numDistSubIterations;
 							dsa_create.setSubIterations(tmpSubIters);
-
+							
 							File pbs = new File(writeDir, name+".pbs");
 							System.out.println("Writing: "+pbs.getName());
 							nodeHours += (double)numNodes * ((double)dsaAnnealMins / 60d);
-							dsa_create.writeScript(pbs,
-									dsa_create.buildHPCC_PBSScript(dsaWallMins, numNodes, 1, queue));
+							bath.writeScript(pbs, dsa_create.buildScript(), dsaWallMins, numNodes, 1, queue);
 						}
 					}
 				}
@@ -140,9 +141,8 @@ public class MultiSABenchmarkPBSWriter {
 					File pbs = new File(writeDir, name+".pbs");
 					System.out.println("Writing: "+pbs.getName());
 					nodeHours += (double)tsaAnnealMins / 60d;
-					tsa_create.writeScript(pbs,
-							tsa_create.buildHPCC_PBSScript(tsaWallMins, 1, 1, queue));
-				}
+						bath.writeScript(pbs, tsa_create.buildScript(), tsaWallMins, 1, 1, queue);
+					}
 			}
 		}
 
