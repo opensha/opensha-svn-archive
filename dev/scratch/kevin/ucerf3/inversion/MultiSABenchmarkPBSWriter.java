@@ -8,6 +8,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.hpc.BatchScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.hpc.DistributedScriptCreator;
+import scratch.UCERF3.simulatedAnnealing.hpc.RangerScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.hpc.ThreadedScriptCreator;
 import scratch.UCERF3.simulatedAnnealing.hpc.USC_HPCC_ScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
@@ -41,8 +42,15 @@ public class MultiSABenchmarkPBSWriter {
 		//		int subIterations = 100;
 		int subIterations = 200;
 		
-		String queue = "nbns";
-		BatchScriptWriter bath = new USC_HPCC_ScriptWriter();
+//		String queue = "nbns";
+//		BatchScriptWriter bath = new USC_HPCC_ScriptWriter();
+//		File mpjHome = new File("/home/rcf-12/kmilner/mpj-v0_38/");
+//		File javaBin = new File("/usr/usc/jdk/default/jre/bin/java");
+		
+		String queue = "normal";
+		BatchScriptWriter bath = new RangerScriptWriter();
+		File mpjHome = new File("/share/home/00950/kevinm/mpj-v0_38");
+		File javaBin = new File("/share/home/00950/kevinm/java/default/bin/java");
 
 		ArrayList<File> jars = new ArrayList<File>();
 		jars.add(new File(runDir, "OpenSHA_complete.jar"));
@@ -51,8 +59,6 @@ public class MultiSABenchmarkPBSWriter {
 		jars.add(new File(runDir, "csparsej.jar"));
 
 		int heapSizeMB = 2048;
-
-		File javaBin = new File("/usr/usc/jdk/default/jre/bin/java");
 
 		File aMat, dMat, initialMat;
 
@@ -71,8 +77,6 @@ public class MultiSABenchmarkPBSWriter {
 
 		CompletionCriteria dsaCriteria = TimeCompletionCriteria.getInMinutes(dsaAnnealMins);
 		CompletionCriteria tsaCriteria = TimeCompletionCriteria.getInMinutes(tsaAnnealMins);
-
-		File mpjHome = new File("/home/rcf-12/kmilner/mpj-v0_38/");
 
 		DistributedScriptCreator dsa_create = new DistributedScriptCreator(javaBin, jars, heapSizeMB, aMat, dMat,
 				initialMat, subIterations, -1, null, dsaCriteria, mpjHome, false);
