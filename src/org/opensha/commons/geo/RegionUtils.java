@@ -33,6 +33,9 @@ import org.dom4j.Namespace;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultElement;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Add comments here
@@ -392,6 +395,32 @@ public class RegionUtils {
 	// converts ints to hex values, padding single digits as necessary
 	private static String toHex(int i) {
 		return StringUtils.leftPad(Integer.toHexString(i), 2, '0');
+	}
+	
+	/**
+	 * The returns the fraction of points in the given collection of locations that is inside
+	 * the given region. This will commonly be used with the {@link EvenlyGriddedSurface} class
+	 * to determine the fraction of a fault surface that is inside of a region.
+	 * 
+	 * @param region the region for which to test
+	 * @param locs any instance of Iterable<Location>, for example, ArrayList<Location> or EvenlyGriddedSurface.
+	 * @return fraction of locations inside the given region
+	 * @throws NullPointerException if region or locs is null
+	 * @throws IllegalArgumentException if locs is empty
+	 */
+	public static double getFractionInside(Region region, Iterable<Location>  locs)
+	throws NullPointerException, IllegalArgumentException {
+		Preconditions.checkNotNull(region, "region cannot be null");
+		Preconditions.checkNotNull(locs, "locations cannot be null");
+		int numInside=0;
+		int cnt=0;
+		for (Location loc : locs) {
+			if (region.contains(loc))
+				numInside++;
+			cnt++;
+		}
+		Preconditions.checkArgument(cnt>0, "locs must contain at least one location!");
+		return (double)numInside / (double)cnt;
 	}
 	
 //	private String convertLocations(LocationList ll) {
