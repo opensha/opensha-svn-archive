@@ -12,7 +12,7 @@ public abstract class BatchScriptWriter {
 	public List<String> buildScript(List<String> script, int mins, int nodes, int ppn, String queue) {
 		List<String> pbs = getBatchHeader(mins, nodes, ppn, queue);
 		
-		if (!pbs.get(pbs.size()).isEmpty())
+		if (!pbs.get(pbs.size()-1).isEmpty())
 			pbs.add("");
 		
 		script.addAll(2, pbs);
