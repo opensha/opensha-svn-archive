@@ -157,8 +157,14 @@ public class HardCodedTest {
 			if (line.get(0).equals("GRID_ID"))
 				// header
 				continue;
-			double lat = Double.parseDouble(line.get(1));
-			double lon = Double.parseDouble(line.get(2));
+			int start;
+			if (line.size() == 3)
+				// has an ID field
+				start = 1;
+			else
+				start = 0;
+			double lat = Double.parseDouble(line.get(start));
+			double lon = Double.parseDouble(line.get(start+1));
 			locs.add(new Location(lat, lon));
 		}
 		
