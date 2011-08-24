@@ -134,7 +134,8 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		if(D) System.out.println(infoString);
 
 		// Get stuff from the DeformationModelFetcher
-		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir);
+//		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir); // this assumes NCAL, which is set in Run Inversion!  fix below:
+		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(defModName,precomputedDataDir);
 		faultSectionData = deformationModelFetcher.getSubSectionList();
 		double[][] subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMatrix();
 		double[][] subSectionDistances = deformationModelFetcher.getSubSectionDistanceMatrix();
@@ -170,7 +171,8 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	 * Plot magnitude histogram for the inversion ruptures (how many rups at each mag)
 	 */
 	public void plotMagHistogram() {
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		//IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);  // This doesn't go high enough if creeping section is left in for All-California
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<getNumRuptures();r++)
 			magHist.add(rupMeanMag[r], 1.0);
@@ -443,7 +445,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	public List<List<Integer>> getSectionIndicesForAllRups() {
 		List<List<Integer>> sectInRupList = new ArrayList<List<Integer>>();
 		for(int i=0; i<sectionClusterList.size();i++) {
-			if(D) System.out.println("Working on rupture list for cluster "+i);
+//			if(D) System.out.println("Working on rupture list for cluster "+i);
 			sectInRupList.addAll(sectionClusterList.get(i).getSectionIndicesForRuptures());
 		}
 		return sectInRupList;

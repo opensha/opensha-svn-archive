@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -57,7 +58,7 @@ public class RunInversion {
 		
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
-		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
+		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_ALL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
 				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);
 		long runTime = System.currentTimeMillis()-startTime;
@@ -103,9 +104,9 @@ public class RunInversion {
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 
 		// create class the gives UCERF2-related constraints
-		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
-		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
-		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
+//		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
+//		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
+//		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
 		
 		
 		
@@ -114,9 +115,10 @@ public class RunInversion {
 		// a priori constraint
 		double[] aPrioriRupConstraint = null;
 		// Use UCERF2 Solution (Only works for Northern CA)
-		aPrioriRupConstraint = UCERF2Solution;
-		// Or use smooth starting solution with UCERF2 target MFD (only works for Northern CA):  
+//		aPrioriRupConstraint = UCERF2Solution;
+		// Or use smooth starting solution with target MFD:
 //		aPrioriRupConstraint = getSmoothStartingSolution(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD());  
+		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
 		
 		
 		// Initial model
@@ -130,8 +132,9 @@ public class RunInversion {
 		// Create the MFD constraints (ArrayList so we can apply this to multiple subregions)
 		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
 		// Just add the N CAL one for now with a null region (apply it to full model)
-		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);
-		mfdConstraints.add(mfdConstraintUCERF2);
+//		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);
+		MFD_InversionConstraint mfdConstraintGR = new MFD_InversionConstraint(getGR_Dist(faultSystemRupSet, 1.0, 8.3), null);
+		mfdConstraints.add(mfdConstraintGR);
 		
 		
 		
@@ -142,7 +145,7 @@ public class RunInversion {
 				aPrioriRupConstraint, initialRupModel, mfdConstraints);
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
-		if (D) System.out.print("Saving Solution to XML...");
+		if (D) System.out.print("Saving Solution to XML . . . \n");
 		File xmlOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"solution.xml");
 		try {
 			new SimpleFaultSystemSolution(inversion).toXMLFile(xmlOut);
@@ -154,6 +157,51 @@ public class RunInversion {
 	}
 	
 	
+	private IncrementalMagFreqDist getGR_Dist(FaultSystemRupSet faultSystemRupSet, double bValue, double Mmax) {
+		// This method returns a G-R magnitude distribution with specified b-value. The a-value is set
+		// to match the target moment rate implied by the slip rates FOR THE WHOLE REGION.
+		// Mmax is a strict upper-magnitude cut-off (set to nearest 0.1 magnitude unit) 
+		
+		// Set up (unnormalized) G-R magnitude distribution
+		IncrementalMagFreqDist magDist = new IncrementalMagFreqDist(5.05,35,0.1);
+		double totalMoment = 0;  // total moment per year implied by magDist 
+		for(double m=5.05; m<=8.45; m=m+0.1) {
+			if (m<Mmax) {
+			magDist.set(m, Math.pow(10, -bValue*m));
+			// Note: the current moment calculation will be a bit off because we are adding up at the bin centers rather than integrating over each bin.
+			// It would be better to analytically integrate with a precise Mmax
+			totalMoment += magDist.getClosestY(m) * Math.pow(10,1.5*(m + 10.7))*(Math.pow(10,-7)); // in N*m/yr
+			} 
+			else magDist.set(m, 0);
+		}
+			
+		// Find total moment/year implied my slip rates
+		// REWRITE FOR CASE WHERE NAN SLIP RATES ARE INCLUDED?
+		double targetTotalMoment = 0;  // total moment per year implied by slip rates
+		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
+		double[] sectArea = faultSystemRupSet.getAreaForAllSections();
+		for (int sect=0; sect<faultSystemRupSet.getNumSections(); sect++) 
+			targetTotalMoment += sectSlipRateReduced[sect]* sectArea[sect] * FaultMomentCalc.SHEAR_MODULUS;  // in N*m/yr
+		
+		// Scale magnitude distribution (set a-value) to match the total moment implied by slip rates
+		for (int i=0; i<magDist.getNum(); i++) 
+			magDist.set(i, magDist.getY(i)*targetTotalMoment/totalMoment);
+
+		
+/*		// Plot magnitude distribution constraint
+		ArrayList funcs = new ArrayList();
+		funcs.add(magDist);
+		magDist.setName("Magnitude Distribution Constraint");
+		magDist.setInfo("(number in each mag bin)");
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "G-R Target Magnitude Distribution"); 
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Frequency (per bin)");
+*/
+		
+		return magDist;
+		
+	}
+
 	public void saveRupSet(File file) throws IOException {
 		SimpleFaultSystemRupSet simple = SimpleFaultSystemRupSet.toSimple(faultSystemRupSet);
 		simple.toXMLFile(file);
@@ -182,7 +230,7 @@ public class RunInversion {
 	 * @param targetMagFreqDist
 	 * @return
 	 */
-	private double[] getSmoothStartingSolution(IncrementalMagFreqDist targetMagFreqDist) {
+	private double[] getSmoothStartingSolution(FaultSystemRupSet faultSystemRupSet, IncrementalMagFreqDist targetMagFreqDist) {
 		
 		List<List<Integer>> rupList = faultSystemRupSet.getSectionIndicesForAllRups();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
@@ -212,7 +260,7 @@ public class RunInversion {
 		}
 	
 		// Find magnitude distribution of ruptures (as discretized)
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
 		magHist.setTolerance(0.1);	// this makes it a histogram
 		for(int rup=0; rup<numRup;rup++) {
 			// magHist.add(rupMeanMag[rup], 1.0);
@@ -260,7 +308,7 @@ public class RunInversion {
 		
 		
 		// plot magnitude histogram for the inversion starting model
-		IncrementalMagFreqDist magHist2 = new IncrementalMagFreqDist(5.05,35,0.1);
+		IncrementalMagFreqDist magHist2 = new IncrementalMagFreqDist(5.05,40,0.1);
 		magHist2.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<numRup;r++)
 			magHist2.add(rupMeanMag[r], initial_state[r]);

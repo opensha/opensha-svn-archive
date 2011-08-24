@@ -1,6 +1,8 @@
 package scratch.UCERF3.inversion;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.MatrixIO;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
@@ -187,7 +190,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
 		if (relativeMagDistWt > 0.0) {	
 			numNonZeroElements = 0;
-			if(D) System.out.println("\nAdding magnitude constraint to A matrix (match Target UCERF2 minus background) ...");
+			if(D) System.out.println("\nAdding magnitude constraint to A matrix ...");
 			for(int rup=0; rup<numRuptures; rup++) {
 				double mag = rupMeanMag[rup];
 				A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagDistWt);
@@ -213,6 +216,15 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
+		// Write out A and d to binary files
+		try {
+			MatrixIO.doubleArrayToFile(d,new File("dev/scratch/UCERF3/preComputedData/d.bin"));
+			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/A.bin"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+
 		
 		// Solve the inverse problem
 		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel);
@@ -377,7 +389,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// plot magnitude histogram for final rupture rates
 		if(D) System.out.println("Making plot of final magnitude distribution . . . ");
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		// IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<getNumRuptures();r++)
 			magHist.add(rupMeanMag[r], rupRateSolution[r]);
