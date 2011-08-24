@@ -139,8 +139,6 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 		try{
 			if(calc == null) {
 				calc = new HazardCurveCalculator();
-				if(this.calcParamsControl != null)
-					calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
 //System.out.println("Created new calc from LocalModeApp");
 			}
 			if(disaggregationFlag)

@@ -183,8 +183,6 @@ extends HazardCurveLocalModeApplication {
 		try{
 			if(calc == null) {
 				calc = new SpectrumCalculator();
-				if(this.calcParamsControl != null)
-					calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
 			}
 
 			/*if(disaggregationFlag)

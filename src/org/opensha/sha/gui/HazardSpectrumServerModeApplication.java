@@ -146,17 +146,9 @@ extends HazardSpectrumLocalModeApplication {
 		try{
 			if (calc == null && isProbabilisticCurve) {
 				calc = (new RemoteResponseSpectrumClient()).getRemoteSpectrumCalc();
-				if(this.calcParamsControl != null)
-					try {
-						calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 			}
 			else if(calc == null && !isProbabilisticCurve) {
 				calc = new SpectrumCalculator();
-				calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
 			}
 		}catch (Exception ex) {
 			BugReport bug = new BugReport(ex, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);

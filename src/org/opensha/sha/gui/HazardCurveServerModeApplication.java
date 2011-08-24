@@ -210,7 +210,6 @@ ScalarIMRChangeListener {
 	protected DisaggregationControlPanel disaggregationControlPanel;
 	protected ERF_EpistemicListControlPanel epistemicControlPanel;
 	//	protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
-	protected CalculationSettingsControlPanel calcParamsControl;
 	protected SitesOfInterestControlPanel sitesOfInterest;
 	protected SiteDataControlPanel cvmControlPanel;
 	protected X_ValuesInCurveControlPanel xValuesPanel;
@@ -957,19 +956,10 @@ ScalarIMRChangeListener {
 		//System.out.println("createCalcInstance()");
 		if (!isDeterministicCurve){
 			calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
-			if(this.calcParamsControl != null)
-				try {
-					calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				//System.out.println("Created new calc from ServeModeApp using getRemoteHazardCurveCalc()");
 		}
 		else if (calc == null && isDeterministicCurve) {
 			try {
 				calc = new HazardCurveCalculator();
-				calc.setAdjustableParams(calcParamsControl.getAdjustableCalcParams());
 				//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
 			} catch (Exception ex) {
 				ex.printStackTrace();
