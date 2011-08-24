@@ -185,13 +185,13 @@ public class DeformationModelFetcher {
 				}	 
 		}
 		
-		// REMOVE CREEPING SECTION for now (aseismicity not incorporated correctly)
+/*		// REMOVE CREEPING SECTION for now (aseismicity not incorporated correctly)
 		if (D)System.out.println("Removing SAF Creeping Section.");
 		for(int i=0; i< allFaultSectionPrefData.size();i++) {
 			if (allFaultSectionPrefData.get(i).getSectionId() == 57)
 				allFaultSectionPrefData.remove(i);
 		}
-
+*/	
 		return allFaultSectionPrefData;
 	}
 	
