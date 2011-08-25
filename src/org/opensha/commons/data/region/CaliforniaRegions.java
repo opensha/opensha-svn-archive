@@ -52,9 +52,13 @@ public class CaliforniaRegions {
 	
 	private CaliforniaRegions() {};
 	
+	
 	/** 
 	 * Gridded region used in the Regional Earthquake Likelihood 
 	 * Models (RELM) project. Grid spacing is 0.1&deg;.
+	 * 
+	 * NOTE: This is an alternative version of the RELM_TESTING_GRIDDED region
+	 * below.
 	 */
 	public static final class RELM_GRIDDED extends 
 			GriddedRegion {
