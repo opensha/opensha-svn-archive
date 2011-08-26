@@ -27,8 +27,7 @@ import scratch.ned.ETAS_Tests.MeanUCERF2.MeanUCERF2_ETAS;
  * Note that if CaliforniaRegions.RELM_NOCAL() is used this does not give the same  
  * result as FindEquivUCERF2_Ruptures.getN_CalTargetMinusBackground_MFD()
  * for reasons that include:  1) background there includes non-CA b faults; 
- * 2) that ones does not include aleatory uncertainty on mag for each area;
- * 3) slightly different a-value; and 4) that class uses a modified version
+ * 2) slightly different a-value; and 3) that class uses a modified version
  * of CaliforniaRegions.RELM_NOCAL().
  * @author field
  *
@@ -92,7 +91,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 	 * (to use for equality constraint)
 	 * @return
 	 */
-	public MFD_InversionConstraint getTargetMinusBackgrMFDConstraint() {
+	public MFD_InversionConstraint getTargetMinusBackgrMFD_Constraint() {
 		return new MFD_InversionConstraint(targetMinusBackgroundMFD, region);
 	}
 	
