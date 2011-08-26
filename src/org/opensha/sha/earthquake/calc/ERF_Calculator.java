@@ -35,6 +35,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -126,6 +127,35 @@ public class ERF_Calculator {
 	  }
 	  return magFreqDist;
   }
+  
+  
+  
+  /**
+   * This computes the rate of event (equivalent poisson rates) for the
+   * ERF inside the region (only the fraction of each rupture inside the region is included)
+   * @param erf
+   * @param region
+   * @param minMag - ruptures with magnitudes less than this are not included in the total
+   * @return
+   */
+  public static double getTotalRateInRegion(ERF erf, Region region, double minMag) {
+	  double duration = erf.getTimeSpan().getDuration();
+	  double totRate=0;
+	  for (int s = 0; s < erf.getNumSources(); ++s) {
+		  ProbEqkSource source = erf.getSource(s);
+		  for (int r = 0; r < source.getNumRuptures(); ++r) {
+			  ProbEqkRupture rupture = source.getRupture(r);
+			  if(rupture.getMag()>= minMag) {
+				  double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getLocationList());
+				  totRate += fractionInside*rupture.getMeanAnnualRate(duration);
+			  }
+		  }
+	  }
+	  return totRate;
+  }
+
+  
+  
   
   /**
    * This computes the  magnitude frequency distribution (equivalent poisson rates) for each
