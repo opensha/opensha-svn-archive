@@ -21,6 +21,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -48,7 +49,7 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
    *
    * @return the sourceList
    */
-  public ArrayList getSourceList() throws RemoteException;
+  public List<? extends ProbEqkSource>  getSourceList() throws RemoteException;
 
   /**
    * Return the earhthquake source at index i.   Note that this returns a

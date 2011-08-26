@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.TimeSpan;
@@ -186,7 +187,7 @@ implements RemoteEqkRupForecastAPI{
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getSourceList()
 	 */
-	public ArrayList getSourceList() throws RemoteException {
+	public List<? extends ProbEqkSource> getSourceList() throws RemoteException {
 		// TODO Auto-generated method stub
 		return eqkRupForecast.getSourceList();
 	}

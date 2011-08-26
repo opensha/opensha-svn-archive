@@ -25,6 +25,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
@@ -411,7 +412,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		//	  totRuptures=numEventSets;
 
 		for(int i=0;i<numEventSets;i++) {
-			ArrayList<EqkRupture> events = eqkRupForecast.drawRandomEventSet();
+			List<EqkRupture> events = eqkRupForecast.drawRandomEventSet();
 			if(i==0) totRuptures = events.size()*numEventSets; // this is an approximate total number of events
 			currRuptures+=events.size();
 			getEventSetHazardCurve( hazCurve,site, imr, events, false);
@@ -426,7 +427,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	@Override
 	public DiscretizedFunc getEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
+			List<EqkRupture> eqkRupList, boolean updateCurrRuptures)
 	throws java.rmi.RemoteException{
 
 

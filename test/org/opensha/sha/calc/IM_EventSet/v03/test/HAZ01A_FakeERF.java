@@ -20,6 +20,7 @@
 package org.opensha.sha.calc.IM_EventSet.v03.test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ERF;
@@ -48,7 +49,7 @@ public class HAZ01A_FakeERF extends AbstractERF {
 	}
 
 	@Override
-	public ArrayList getSourceList() {
+	public List getSourceList() {
 		return erf.getSourceList();
 	}
 

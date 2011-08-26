@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
@@ -185,13 +186,7 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	 */
 	public abstract ProbEqkSource getSource(int iSource);
 
-	/**
-	 * Get the list of all earthquake sources. Clone is returned.
-	 * So, list can be save in ArrayList and this object subsequently destroyed
-	 *
-	 * @return ArrayList of Prob Earthquake sources
-	 */
-	public abstract ArrayList<? extends ProbEqkSource> getSourceList();
+	public abstract List<? extends ProbEqkSource> getSourceList();
 
 	/**
 	 * Get number of ruptures for source at index iSource

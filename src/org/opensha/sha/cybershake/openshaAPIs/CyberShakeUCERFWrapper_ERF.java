@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.openshaAPIs;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -78,7 +79,7 @@ public class CyberShakeUCERFWrapper_ERF extends AbstractERF {
 		return csSource;
 	}
 
-	public ArrayList getSourceList() {
+	public List getSourceList() {
 		// TODO Auto-generated method stub
 		return getERF().getSourceList();
 	}

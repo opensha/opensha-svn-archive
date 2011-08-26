@@ -24,6 +24,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.TimeSpan;
@@ -173,9 +174,9 @@ ParameterChangeListener{
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.earthquake.EqkRupForecastAPI#getSourceList()
 	 */
-	public ArrayList getSourceList() {
+	public List getSourceList() {
 		try {
-			ArrayList list = erfServer.getSourceList();
+			List list = erfServer.getSourceList();
 			//System.out.println("SourceList size :"+list.size());
 			return list;
 		}

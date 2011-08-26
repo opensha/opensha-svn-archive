@@ -21,6 +21,7 @@ package org.opensha.sha.calc;
 
 import java.rmi.Remote;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.ListIterator;
 
@@ -283,7 +284,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 */
 	public DiscretizedFunc getEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			ArrayList<EqkRupture> eqkRupList, boolean updateCurrRuptures)
+			List<EqkRupture> eqkRupList, boolean updateCurrRuptures)
 	throws java.rmi.RemoteException;
 
 }
