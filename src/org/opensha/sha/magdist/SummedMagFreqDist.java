@@ -156,6 +156,41 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    }
    
    /**
+    * This function subtracts the given magnitude frequency distribution, setting
+    * the value to zero is it turns out negative.
+    * The min, num and delta(or max) of new distribution should match min, max
+    * and num as specified in the constructor
+    * @param magFreqDist new Magnitude Frequency distribution to be subtracted
+    */
+
+   public void subtractIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
+               throws XY_DataSetException,Point2DException {
+
+     /* check whether mun,num and delta of new distribution matches
+        the min, num and delta in  the constructor */
+
+     if(magFreqDist.getMinX()!=minX || magFreqDist.getDelta()!=delta
+                                    || magFreqDist.getNum()!=num)
+        throw new XY_DataSetException("subtractIncrementalMagFreqDist "+
+                  "invalid value of min, num or delta of new distribution");
+
+
+     for (int i=0;i<num;++i)  {
+    	 double val = this.getY(i) - magFreqDist.getY(i);
+    	 if(val > 0)
+    		 super.set(i,val);
+    	else
+    		super.set(i,0.0);
+      }
+ 
+    if(saveMagFreqDists)         // save this distribution in the list
+       savedMagFreqDists.add(magFreqDist);
+    else if(saveAllInfo)         // if only info is desired to be saved
+       savedInfoList.add(magFreqDist.getInfo());
+   }
+
+   
+   /**
     * This asusmes the function passed in as a MFD, and adds the rate for each x-axis value
     * to the closest x-axis value in this MFD (ignoring magnitudes that are above and below the
     * range here).  If the preserveRates boolean is false, then the moment rate of each point
