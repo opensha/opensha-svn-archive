@@ -18,16 +18,14 @@
 
 package org.opensha.sha.earthquake;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <b>Title:</b>ERF (was EqkRupForecast)<br>
- * <b>Description: This is the API for an Earthquake Rupture Forecast</b> <br>
+ * This is the base interface for an Earthquake Rupture Forecast</b> <br>
  * 
- * @author Nitin Gupta & Vipin Gupta
- * @date Aug 27, 2002
- * @version 1.0
+ * @author Nitin Gupta
+ * @author Vipin Gupta
+ * @version $Id$
  */
 
 public interface ERF extends BaseERF {

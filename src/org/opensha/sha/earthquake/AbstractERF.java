@@ -39,33 +39,29 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.TimeSpanChangeListener;
 import org.opensha.sha.util.TectonicRegionType;
 
-
-
 /**
- * <p>Title: AbstractERF (was EqkRupForecast)/p>
- * <p>Description: Abstract class that provides the  basic implementation for the ERF objects.</p>
- * @author unascribed
- * @version 1.0
+ * Class provides a basic implementation of an Earthquake RUpture FOrecast
+ * (ERF).
+ * 
+ * @author Ned Field
+ * @version $Id$
  */
+public abstract class AbstractERF implements
+		ERF,
+		TimeSpanChangeListener,
+		ParameterChangeListener,
+		XMLSaveable {
 
-public abstract class AbstractERF implements ERF,
-TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
-	// adjustable params for each forecast
+	/** Adjustable params for the forecast. */
 	protected ParameterList adjustableParams = new ParameterList();
-	// timespan object for each forecast
+	
+	/** DUration of the forecast. */
 	protected TimeSpan timeSpan;
 
-	// it is flag which indiactes whether any parameter have changed.
-	// if it is true it means that forecast needs to be updated
+	/** Flag indiacting whether any parameter has changed. */
 	protected boolean parameterChangeFlag = true;
-
-
 
 	/**
 	 * get the adjustable parameters for this forecast
@@ -165,28 +161,6 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 	public void parameterChange(ParameterChangeEvent event) {
 		parameterChangeFlag = true;
 	}
-
-	/**
-	 * Get the number of earthquake sources
-	 *
-	 * @return integer value spcifying the number of earthquake sources
-	 */
-	public abstract int getNumSources();
-
-	/**
-	 * Return the earhthquake source at index i. This methos returns the reference to
-	 * the class variable. So, when you call this method again, result from previous
-	 * method call is no longer valid.
-	 * this is secret, fast but dangerous method
-	 *
-	 * @param i : index of the source needed
-	 *
-	 * @return Returns the ProbEqkSource at index i
-	 *
-	 */
-	public abstract ProbEqkSource getSource(int iSource);
-
-	public abstract List<? extends ProbEqkSource> getSourceList();
 
 	/**
 	 * Get number of ruptures for source at index iSource
