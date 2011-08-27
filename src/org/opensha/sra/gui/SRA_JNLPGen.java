@@ -19,10 +19,10 @@ public class SRA_JNLPGen {
 		/*		Hazard Curve				*/
 		appsToBuild.add(new JNLPGen(BCR_Application.class,
 				BCR_Application.APP_SHORT_NAME, 
-				BCR_Application.APP_NAME, "BCR", false));
+				BCR_Application.APP_NAME, "BCR", true));
 		appsToBuild.add(new JNLPGen(LossEstimationApplication.class,
 				LossEstimationApplication.APP_SHORT_NAME, 
-				LossEstimationApplication.APP_NAME, "LEC", false));
+				LossEstimationApplication.APP_NAME, "LEC", true));
 		
 		ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 		String outputDir = JNLPGen.jnlpDir + File.separator + prefs.getBuildType().getBuildDirName();
