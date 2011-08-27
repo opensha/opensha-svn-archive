@@ -194,6 +194,16 @@ public class NGAWestParser {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		Location zoo = new Location(38.92875, -77.04927);
+		Location quake = new Location(37.936, -77.933);
+		double dist = LocationUtils.linearDistance(zoo, quake);
+		System.out.println("Distance from epicenter to zoo (KM): "+dist);
+		double pTimeTravel = dist / 8d;
+		double sTimeTravel = dist / 3.5d;
+		System.out.println("pTimeTravel (assuming 8km/s p wave speed): "+pTimeTravel);
+		System.out.println("sTimeTravel (assuming 3.5km/s s wave speed): "+sTimeTravel);
+		System.out.println("delta: "+(sTimeTravel-pTimeTravel));
+		System.exit(0);
 		File polTllDir = new File("src"+File.separator+"resources"+File.separator+"data"+File.separator+"ngaWest");
 		File excelFile = new File(polTllDir, "EQ.V8.xls");
 		

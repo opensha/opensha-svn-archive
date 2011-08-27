@@ -37,7 +37,7 @@ import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
  * @author : Edward (Ned) Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-
+@Deprecated
 public final class ConnectToCVM {
 
 

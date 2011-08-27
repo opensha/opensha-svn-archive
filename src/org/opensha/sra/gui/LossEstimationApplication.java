@@ -63,6 +63,7 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -71,6 +72,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.params.MaxDistanceParam;
@@ -576,7 +578,15 @@ IMR_GuiBeanAPI{
 
 	//Main method
 	public static void main(String[] args) {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), null, null);
+		Thread.setDefaultUncaughtExceptionHandler(exp);
+		
 		LossEstimationApplication applet = new LossEstimationApplication();
+		
+		exp.setApp(applet);
+		exp.setParent(applet);
 
 		applet.init();
 		applet.setVisible(true);

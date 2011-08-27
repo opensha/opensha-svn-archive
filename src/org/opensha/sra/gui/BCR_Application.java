@@ -61,6 +61,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
@@ -68,6 +69,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 import org.opensha.commons.util.bugReports.BugReportDialog;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.params.MaxDistanceParam;
@@ -107,9 +109,9 @@ import org.opensha.sra.gui.components.GuiBeanAPI;
 public class BCR_Application extends JFrame
 implements Runnable, ParameterChangeListener,
 IMR_GuiBeanAPI{
-	
-	private static final String APP_NAME = "Benefit Cost Ratio Application";
-	private static final String APP_SHORT_NAME = "BCR_Application";
+
+	protected static final String APP_NAME = "Benefit Cost Ratio Application";
+	protected static final String APP_SHORT_NAME = "BCR_Application";
 
 	private static final long serialVersionUID = 0x1B8589F;
 	/**
@@ -279,9 +281,9 @@ IMR_GuiBeanAPI{
 		startAppProgressClass.dispose();
 		((JPanel)getContentPane()).updateUI();
 	}
-	
+
 	private static ApplicationVersion version;
-	
+
 	/**
 	 * Returns the Application version
 	 * @return ApplicationVersion
@@ -433,8 +435,16 @@ IMR_GuiBeanAPI{
 
 	//Main method
 	public static void main(String[] args) {
+		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
+				APP_SHORT_NAME, getAppVersion(), null, null);
+		Thread.setDefaultUncaughtExceptionHandler(exp);
+		
 		BCR_Application applet = new BCR_Application();
-
+		
+		exp.setApp(applet);
+		exp.setParent(applet);
+		
 		applet.init();
 		applet.setVisible(true);
 	}
@@ -696,13 +706,13 @@ IMR_GuiBeanAPI{
 		Location loc = site.getLocation();
 		locs.add(loc);
 		//  getting the wills site class values from servlet
-		String siteClass="";
-		try {
-			ArrayList willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locs);
-			siteClass = (String)willsSiteClassList.get(0);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		//		String siteClass="";
+		//		try {
+		//			ArrayList willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locs);
+		//			siteClass = (String)willsSiteClassList.get(0);
+		//		} catch (Exception e1) {
+		//			e1.printStackTrace();
+		//		}
 
 		// calculate the hazard curve
 		try {
@@ -749,12 +759,12 @@ IMR_GuiBeanAPI{
 		double benefit = bcCalc.computeBenefit();
 		double cost = bcCalc.computeCost();
 		isHazardCalcDone = true;
-		displayData(siteClass,currentHazardCurve,retroHazardCurve,currentEALVal,newEALVal,bcr,benefit,cost);
+		displayData(currentHazardCurve,retroHazardCurve,currentEALVal,newEALVal,bcr,benefit,cost);
 		setButtonsEnable(true);
 	}
 
 
-	private void displayData(String siteClass,ArbitrarilyDiscretizedFunc currentHazardCurve,ArbitrarilyDiscretizedFunc retroHazardCurve,
+	private void displayData(ArbitrarilyDiscretizedFunc currentHazardCurve,ArbitrarilyDiscretizedFunc retroHazardCurve,
 			double currentEALVal,double newEALVal,double bcr,double benefit,double cost){
 		++computationDisplayCount;
 		String data = pointsTextArea.getText();
@@ -762,7 +772,7 @@ IMR_GuiBeanAPI{
 			data +="\n\n";
 		data +="Benefit Cost Ratio Calculation # "+computationDisplayCount+"\n";
 		data +="BCR Desc. = "+bcbean.getDescription()+"\n";
-		data +="Site Class = "+siteClass+"\n";
+		//		data +="Site Class = "+siteClass+"\n";
 		data +="Current EAL Val = "+currentEALVal+"\nRetrofitted EAL Val = "+newEALVal+"\n";
 		data +="Benefit = $"+bcrFormat.format(benefit)+"\nBenefit Cost Ratio = "+bcr+"\n";
 		data +="Curent Hazard Curve"+"\n"+currentHazardCurve.toString();
