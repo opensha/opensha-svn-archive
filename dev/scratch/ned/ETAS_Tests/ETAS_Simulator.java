@@ -37,7 +37,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import scratch.ned.ETAS_Tests.MeanUCERF2.MeanUCERF2_ETAS;
+import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 public class ETAS_Simulator {
 	
@@ -714,7 +714,7 @@ public class ETAS_Simulator {
 		// Create the UCERF2 instance
 		System.out.println("Starting ERF instantiation");
 		double forecastDuration = 1.0;	// years
-		MeanUCERF2_ETAS meanUCERF2 = new MeanUCERF2_ETAS();
+		ModMeanUCERF2 meanUCERF2 = new ModMeanUCERF2();
 		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
 		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 //		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
