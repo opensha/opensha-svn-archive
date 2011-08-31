@@ -15,6 +15,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -91,7 +92,7 @@ public class ETAS_Simulator {
 				
 		// compute the number of primary aftershocks:
 		expectedNum = etasUtils.getDefaultExpectedNumEvents(parentRup.getMag(), originTime, tMax);
-		int numAftershocks = etasUtils.getPoissonRandomNumber(expectedNum);
+		int numAftershocks = etasUtils.getPoissonRandomNumber(expectedNum);	//
 //		System.out.println("\tMag="+(float)parentRup.getMag()+"\tOriginTime="+(float)originTime+"\tExpNum="+
 //				(float)expectedNum+"\tSampledNum = "+numAftershocks);
 		
@@ -726,9 +727,10 @@ public class ETAS_Simulator {
 		System.out.println("ERF instantiation took "+runtime+" seconds");
 		
 		double cumRate = Math.round(10*ERF_Calculator.getTotalMFD_ForERF(meanUCERF2, 2.05,8.95, 70, true).getCumRate(5.05))/10.0;
-		System.out.println("\nCumRate >= M5 for MeanUCERF2_ETAS: "+cumRate+"  (should be 6.8)\n");
+		// get a slightly different result using ERF_Calculator.getMagFreqDistInRegion(meanUCERF2, CaliforniaRegions.RELM_GRIDDED(),5.05,35,0.1, true), but with rounding it's the same
+		System.out.println("\nCumRate >= M5 for MeanUCERF2_ETAS: "+cumRate+"  (should be 7.5)\n");
 		
-		meanUCERF2.plotMFD_InRegionNearLanders(10.0);
+//		meanUCERF2.plotMFD_InRegionNearLanders(10.0);
 		
 //		ProbEqkSource source = meanUCERF2.getSource(1708);
 //		for(int r=0; r<source.getNumRuptures();r++)
@@ -848,8 +850,8 @@ public class ETAS_Simulator {
 			}
 			allEvents.addAll(aftershockList);
 			mainShocksToProcess = aftershockList;
-			numToProcess = 0;
-//			numToProcess = mainShocksToProcess.size();
+//			numToProcess = 0;
+			numToProcess = mainShocksToProcess.size();
 			progressBar.dispose();
 
 		}
