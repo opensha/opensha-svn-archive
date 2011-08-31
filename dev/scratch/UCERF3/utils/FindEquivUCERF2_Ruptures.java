@@ -32,7 +32,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import scratch.UCERF3.utils.ModUCERF2.MeanUCERF2;
+import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
+
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -103,7 +104,7 @@ public class FindEquivUCERF2_Ruptures {
 	double[] magOfUCERF2_Rup, lengthOfUCERF2_Rup, rateOfUCERF2_Rup;
 	boolean[] subSeismoUCERF2_Rup;
 	
-	MeanUCERF2 meanUCERF2;	// note that this is a special version (see notes above)
+	ModMeanUCERF2 meanUCERF2;	// note that this is a special version (see notes above)
 	int NUM_UCERF2_SRC=289; // this is to exclude non-CA B faults
 
 	SummedMagFreqDist mfdOfAssocRupsAndModMags;		// this is the mfd of the associated ruptures (including ave mag from mult rups)
@@ -185,10 +186,10 @@ public class FindEquivUCERF2_Ruptures {
 	 * This generates the UCERF2 instance used here (for a specific set of adjustable params).
 	 * @return
 	 */
-	public MeanUCERF2 getMeanUCERF2_Instance() {
+	public ModMeanUCERF2 getMeanUCERF2_Instance() {
 		if(meanUCERF2 == null) {
 			if(D) System.out.println("Instantiating UCERF2");
-			meanUCERF2 = new MeanUCERF2();
+			meanUCERF2 = new ModMeanUCERF2();
 			meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 			meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
 			meanUCERF2.getTimeSpan().setDuration(30.0);
@@ -222,7 +223,7 @@ public class FindEquivUCERF2_Ruptures {
 	 * @return
 	 */
 	public ArrayList<IncrementalMagFreqDist> getMFDsForNcal() {
-		MeanUCERF2 erf = getMeanUCERF2_Instance();
+		ModMeanUCERF2 erf = getMeanUCERF2_Instance();
 		SummedMagFreqDist nucleationMFD = new SummedMagFreqDist(5.05,35,0.1);
 		SummedMagFreqDist subSeismoMFD = new SummedMagFreqDist(5.05,35,0.1);  // to show what's definitely excluded
 		SummedMagFreqDist outsideRegionMFD = new SummedMagFreqDist(5.05,35,0.1);  // to show what's definitely excluded
@@ -320,7 +321,7 @@ public class FindEquivUCERF2_Ruptures {
 	 */
 	private void findSectionEndsForUCERF2_Rups() {
 				
-		MeanUCERF2 meanUCERF2 = getMeanUCERF2_Instance();
+		ModMeanUCERF2 meanUCERF2 = getMeanUCERF2_Instance();
 		
 		// the following is a weak test
 		if(meanUCERF2.getNumSources() != 409)
@@ -1007,7 +1008,7 @@ public class FindEquivUCERF2_Ruptures {
 
 		Region region = new Region(new Location(34.25,-119.15),new Location(34.55,-118.35));
 
-		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		ModMeanUCERF2 meanUCERF2 = new ModMeanUCERF2();
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
 		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);

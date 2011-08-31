@@ -54,6 +54,10 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * This version computes floating rupture areas as the average of Ellsworth_B_WG02_MagAreaRel and HanksBakun2002_MagAreaRel
  * (rather than just using that latter in the original)
  * 
+ * This also replaces original nshmp_gridSrcGen with one that goes down to M 2.5 for background seismicity
+ * and changes b-values to 1.0 and ups the a-values to include aftershocks (in NSHMP_GridSourceGeneratorMod2)
+
+ * 
  * This is the exact same as org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2, 
  * but where the line:
  * 
@@ -63,10 +67,18 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * 
  *       import scratch.UCERF3.ModUCERF2.UnsegmentedSource;
  *       
+ * and the line:
+ * 
+ * 		protected NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
+ * 
+ * with
+ * 
+ * 		protected NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGeneratorMod2();
+ *       
  * @author 
  *
  */
-public class MeanUCERF2 extends AbstractERF {
+public class ModMeanUCERF2 extends AbstractERF {
 	//for Debug purposes
 	protected static String  C = new String("MeanUCERF2");
 	protected boolean D = true;
@@ -143,7 +155,7 @@ public class MeanUCERF2 extends AbstractERF {
 	protected HashMap<String, Double> sourceRakeMapping;
 	protected HashMap<String, UCERF2_Final_StirlingGriddedSurface> sourceGriddedSurfaceMapping;
 
-	protected NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
+	protected NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGeneratorMod2();
 	protected UCERF2 ucerf2 = new UCERF2();
 //	protected DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
 	protected DeformationModelSummaryFinal defModelSummaryFinal = new DeformationModelSummaryFinal();
@@ -160,7 +172,7 @@ public class MeanUCERF2 extends AbstractERF {
 	 *
 	 * No argument constructor
 	 */
-	public MeanUCERF2() {
+	public ModMeanUCERF2() {
 
 		// create and add adj params
 		initAdjParams();
@@ -1036,7 +1048,7 @@ public class MeanUCERF2 extends AbstractERF {
 	 */
 	public void testFinalMeanUCERF2() {
 		
-		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
+		ModMeanUCERF2 meanFinalUCERF2 = new ModMeanUCERF2();
 		meanFinalUCERF2.calcSummedMFDs  =false;
 		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanFinalUCERF2.updateForecast();
@@ -1077,7 +1089,7 @@ public class MeanUCERF2 extends AbstractERF {
 	public void testResortedSources() {
 		
 		// New ERF
-		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
+		ModMeanUCERF2 meanFinalUCERF2 = new ModMeanUCERF2();
 		meanFinalUCERF2.calcSummedMFDs  =false;
 		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanFinalUCERF2.updateForecast();
@@ -1111,7 +1123,7 @@ public class MeanUCERF2 extends AbstractERF {
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
-		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
+		ModMeanUCERF2 meanFinalUCERF2 = new ModMeanUCERF2();
 		meanFinalUCERF2.calcSummedMFDs  =false;
 		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanFinalUCERF2.updateForecast();

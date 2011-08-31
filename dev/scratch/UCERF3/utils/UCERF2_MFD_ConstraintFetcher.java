@@ -12,7 +12,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import scratch.ned.ETAS_Tests.MeanUCERF2.MeanUCERF2_ETAS;
+import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 /**
  * This class computes the following Mag Freq Dists for UCERF2 inside the supplied region:
@@ -34,7 +34,7 @@ import scratch.ned.ETAS_Tests.MeanUCERF2.MeanUCERF2_ETAS;
  */
 public class UCERF2_MFD_ConstraintFetcher {
 	
-	MeanUCERF2_ETAS meanUCERF2_ETAS;	// using this because it has aftershocks added in
+	ModMeanUCERF2 meanUCERF2_ETAS;	// using this because it has aftershocks added in
 	Region region;
 	SummedMagFreqDist totalMFD, faultMFD, backgroundSeisMFD, targetMinusBackgroundMFD;
 	GutenbergRichterMagFreqDist targetMFD;
@@ -56,7 +56,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 
 		System.out.println("Starting MeanUCERF2_ETAS instantiation");
 		double forecastDuration = 1.0;	// years
-		meanUCERF2_ETAS = new MeanUCERF2_ETAS();
+		meanUCERF2_ETAS = new ModMeanUCERF2();
 		meanUCERF2_ETAS.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
 		meanUCERF2_ETAS.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 //		meanUCERF2_ETAS.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
