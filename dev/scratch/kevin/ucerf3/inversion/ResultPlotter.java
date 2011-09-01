@@ -4,63 +4,82 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 public class ResultPlotter {
 	
-	private static ArbitrarilyDiscretizedFunc[] loadCSV(File file, int mod) throws IOException {
-		
-		String nlower = file.getName().toLowerCase();
-		if (nlower.contains("sub")) {
-			String sub = nlower.substring(nlower.indexOf("sub")+3);
-			sub = sub.substring(0, sub.indexOf('_'));
-			
-			int subI = Integer.parseInt(sub);
-			if (subI <= 50)
-				mod *= 80;
-			else if (subI <= 100)
-				mod *= 40;
-			else if (subI <= 200)
-				mod *= 20;
-			else if (subI <= 400)
-				mod *= 10;
-			else if (subI <= 800)
-				mod *= 5;
-			else if (subI <= 1000)
-				mod *= 4;
-			else if (subI <= 2000)
-				mod *= 2;
-		}
-		
+	private static final int max_curve_pts = 800;
+	private static final double pDiffMins = 5;
+	private static final boolean do_extrap = true;
+	
+	private static final String time_label = "Time (minutes)";
+	private static final String serial_time_label = "Serial Time (minutes)";
+	private static final String parallel_time_label = "Parallel Time (minutes)";
+	private static final String energy_label = "Energy";
+	private static final String iterations_label = "Iterations";
+	private static final String time_speedup_label = "Time (serial) / Time (parallel)";
+	private static final String energy_speedup_label = "Energy (serial) / Energy (parallel)";
+	private static final String std_dev_label = "Std. Dev.";
+	private static final String improvement_label = "% Improvement";
+	
+	protected static final String avg_energy_vs_time_title = "Averaged Energy Vs Time (m)";
+	protected static final String improvement_vs_time_title = "% Improvement (over "+pDiffMins+" min invervals)";
+	protected static final String time_speedup_vs_energy_title = "Time Speedup Vs Energy";
+	protected static final String time_speedup_vs_time_title = "Time Speedup Vs Time";
+	protected static final String time_comparison_title = "Serial Time Vs Parallel Time";
+	protected static final String energy_speedup_vs_time_title = "Energy Speedup Vs Time";
+	protected static final String energy_vs_iterations_title = "Energy Vs Iterations";
+	protected static final String energy_vs_time_title = "Energy Vs Time (m)";
+	protected static final String std_dev_vs_time_title = "Std. Dev. Vs Time (m)";
+	protected static final String iterations_vs_time_title = "Iterations Vs Time (m)";
+	
+	private static ArbitrarilyDiscretizedFunc[] loadCSV (
+			File file, int targetPPM) throws IOException {
+		String name = file.getName();
 		CSVFile<String> csv = CSVFile.readFile(file, true);
-		
 		ArbitrarilyDiscretizedFunc energyVsIter = new ArbitrarilyDiscretizedFunc();
-		energyVsIter.setName("Energy Vs Iterations ("+file.getName()+")");
+		energyVsIter.setName("Energy Vs Iterations ("+name+")");
 		energyVsIter.setYAxisName("Energy");
 		energyVsIter.setXAxisName("Iterations");
 		ArbitrarilyDiscretizedFunc energyVsTime = new ArbitrarilyDiscretizedFunc();
-		energyVsTime.setName("Energy Over Time ("+file.getName()+")");
+		energyVsTime.setName("Energy Over Time ("+name+")");
 		energyVsTime.setYAxisName("Energy");
 		energyVsTime.setXAxisName("Time (m)");
 		ArbitrarilyDiscretizedFunc iterVsTime = new ArbitrarilyDiscretizedFunc();
-		iterVsTime.setName("Iterations Over Time ("+file.getName()+")");
+		iterVsTime.setName("Iterations Over Time ("+name+")");
 		iterVsTime.setYAxisName("Iterations");
 		iterVsTime.setXAxisName("Time (m)");
 		
-		System.out.println("Loading: "+file.getName());
+		System.out.print("Loading: "+name+" ...");
 		
-		for (int i=1; i<csv.getNumRows(); i++) {
+		int rows = csv.getNumRows();
+		long totMilis = Long.parseLong(csv.getLine(rows-1).get(1));
+		double totMins = totMilis / 1000d / 60d;
+		double targetPts = targetPPM * totMins;
+		if (targetPts > max_curve_pts)
+			targetPts = max_curve_pts;
+		double newMod = (double)rows/targetPts;
+		
+		int mod = (int)(newMod + 0.5);
+		
+		for (int i=1; i<rows; i++) {
 			if (i % mod > 0)
 				continue;
 			
@@ -82,19 +101,37 @@ public class ResultPlotter {
 		}
 		ArbitrarilyDiscretizedFunc[] ret = { energyVsIter, energyVsTime, iterVsTime };
 		
+		System.out.println("DONE (size="+energyVsTime.getNum()+")");
+		
 		return ret;
 	}
 	
-	private static void showGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
-			ArrayList<PlotCurveCharacterstics> chars) {
-		new GraphiWindowAPI_Impl(funcs, title, chars);
+	private static GraphiWindowAPI_Impl getGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
+			ArrayList<PlotCurveCharacterstics> chars, String xAxisName, String yAxisName, boolean visible) {
+		GraphiWindowAPI_Impl gwAPI = new GraphiWindowAPI_Impl(funcs, title, chars, visible);
+		GraphWindow gw = gwAPI.getGraphWindow();
+//		gw.getGraphPanel().setBackgroundColor(Color.WHITE);
+		gw.setXAxisLabel(xAxisName);
+		gw.setYAxisLabel(yAxisName);
+		gw.setSize(1000, 1000);
+		return gwAPI;
 	}
 	
-	public static EvenlyDiscretizedFunc avgCurves(List<ArbitrarilyDiscretizedFunc> funcs, int numX) {
+	private static ArbitrarilyDiscretizedFunc[] asArray(List<ArbitrarilyDiscretizedFunc> funcs) {
+		return funcs.toArray(new ArbitrarilyDiscretizedFunc[funcs.size()]);
+	}
+	
+	public static EvenlyDiscretizedFunc calcAvg(List<ArbitrarilyDiscretizedFunc> funcs, int numX) {
+		return calcAvgAndStdDev(funcs, numX, false)[0];
+	}
+	
+	public static EvenlyDiscretizedFunc[] calcAvgAndStdDev(List<ArbitrarilyDiscretizedFunc> funcs, int numX,
+			boolean includeStdDev) {
+		ArbitrarilyDiscretizedFunc[] funcsArray = asArray(funcs);
 		double largestMin = Double.MIN_VALUE;
 		double smallestMax = Double.MAX_VALUE;
 		
-		for (ArbitrarilyDiscretizedFunc func : funcs) {
+		for (ArbitrarilyDiscretizedFunc func : funcsArray) {
 			double min = func.getMinX();
 			double max = func.getMaxX();
 			if (min > largestMin)
@@ -106,22 +143,30 @@ public class ResultPlotter {
 		largestMin += 0.001;
 		smallestMax -= 0.001;
 		
-		int num = funcs.size();
+		int num = funcsArray.length;
 		
 		EvenlyDiscretizedFunc avg = new EvenlyDiscretizedFunc(largestMin, smallestMax, numX);
+		EvenlyDiscretizedFunc stdDevs = null;
+		if (includeStdDev)
+			stdDevs = new EvenlyDiscretizedFunc(largestMin, smallestMax, numX);
 		
+		double[] values = new double[num];
 		for (int i=0; i<numX; i++) {
 			double x = avg.getX(i);
-			double y = 0;
-			for (ArbitrarilyDiscretizedFunc func : funcs) {
-				y += func.getInterpolatedY_inLogYDomain(x);
+			for (int j=0; j<num; j++) {
+//				values[j] = funcsArray[j].getInterpolatedY_inLogYDomain(x);
+				values[j] = funcsArray[j].getInterpolatedY(x);
 			}
-			y /= (double)num;
+			double mean = StatUtils.mean(values);
 			
-			avg.set(i, y);
+			avg.set(i, mean);
+			if (includeStdDev) {
+				double stdDev = Math.sqrt(StatUtils.variance(values, mean));
+				stdDevs.set(i, stdDev);
+			}
 		}
-		
-		return avg;
+		EvenlyDiscretizedFunc[] ret = { avg, stdDevs };
+		return ret;
 	}
 	
 	private static ArbitrarilyDiscretizedFunc getSwapped(DiscretizedFunc func) {
@@ -169,6 +214,166 @@ public class ResultPlotter {
 		return speedups;
 	}
 	
+	private static double getLowestEnergy(List<DiscretizedFunc> funcs) {
+		double min = Double.MAX_VALUE;
+		for (DiscretizedFunc func : funcs) {
+			double minE = func.getY(func.getNum()-1);
+			if (minE < min)
+				min = minE;
+		}
+		return min;
+	}
+	
+//	private static DiscretizedFunc getExtrapolatedRef(DiscretizedFunc ref, double targetEnergy) {
+//		double energy = ref.getY(ref.getNum()-1);
+//		if (targetEnergy > energy)
+//			// ref func already goes low enough!
+//			return null;
+//		
+//		ArbitrarilyDiscretizedFunc arbRef;
+//		if (ref instanceof ArbitrarilyDiscretizedFunc) {
+//			arbRef = (ArbitrarilyDiscretizedFunc)ref;
+//		} else {
+//			arbRef = new ArbitrarilyDiscretizedFunc();
+//			for (int i=ref.getNum()-100; i<ref.getNum(); i++) {
+//				if (i < 0)
+//					continue;
+//				arbRef.set(ref.get(i));
+//			}
+//		}
+//		
+//		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
+//		double startTime = ref.getX(ref.getNum()-1);
+//		double timeDelta = startTime - ref.getX(ref.getNum()-2);
+//		
+//		double maxTime = startTime * 4;
+//		for (double time=startTime; energy>targetEnergy && time < maxTime; time += timeDelta) {
+//			energy = arbRef.getInterpExterpY_inLogXLogYDomain(time);
+//			ret.set(time, energy);
+//		}
+//		return ret;
+//	}
+	
+	private static final double extrap_slope_pt_fraction = 0.90;
+	
+	private static DiscretizedFunc getExtrapolatedRef(DiscretizedFunc ref, double targetEnergy) {
+		double energy = ref.getY(ref.getNum()-1);
+		if (targetEnergy > energy)
+			// ref func already goes low enough!
+			return null;
+		
+		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
+		double startTime = ref.getX(ref.getNum()-1);
+		double timeDelta = startTime - ref.getX(ref.getNum()-2);
+		
+		int i1 = ref.getNum()-1;
+		int i0 = -1;
+		double extrapPtTime = startTime * extrap_slope_pt_fraction;
+		for (int i=0; i<ref.getNum(); i++) {
+			double time = ref.getX(i);
+			if (time > extrapPtTime) {
+				i0 = i;
+				break;
+			}
+		}
+		
+		double x0 = Math.log(ref.getX(i0));
+		double x1 = Math.log(ref.getX(i1));
+		
+		double y0 = Math.log(ref.getY(i0));
+		double y1 = Math.log(ref.getY(i1));
+		
+		double logSlope = (y1 - y0) / (x1 - x0);
+		double logIntercept = y1 - (logSlope * x1);
+		
+		double maxTime = startTime * 4;
+		for (double time=startTime; energy>targetEnergy && time < maxTime; time += timeDelta) {
+//			double logEnergy = (logSlope * Math.log(time)) + logIntercept;
+			energy = Math.exp(logSlope * Math.log(time) + logIntercept);
+//			energy = arbRef.getInterpExterpY_inLogXLogYDomain(time);
+			ret.set(time, energy);
+		}
+		return ret;
+	}
+	
+	private static ArrayList<DiscretizedFunc> generateEnergyTimeSpeedup(
+			List<DiscretizedFunc> energyTimeComparisons) {
+		
+		ArrayList<DiscretizedFunc> speedups = new ArrayList<DiscretizedFunc>();
+		
+		for (DiscretizedFunc comp : energyTimeComparisons) {
+			ArbitrarilyDiscretizedFunc speedupFunc = new ArbitrarilyDiscretizedFunc();
+			
+			for (int i=0; i<comp.getNum(); i++) {
+				double time = comp.getX(i);
+				double refTime = comp.getY(i);
+				
+				double speedup = refTime / time;
+				speedupFunc.set(time, speedup);
+			}
+			
+			speedups.add(speedupFunc);
+		}
+		
+		return speedups;
+	}
+	
+	private static ArrayList<DiscretizedFunc> generateEnergyTimeComparison(
+			List<DiscretizedFunc> funcs, DiscretizedFunc ref, int numX) {
+		double refMinEnergy = ref.getMinY();
+		double refMaxEnergy = ref.getMaxY();
+		
+		ArrayList<DiscretizedFunc> speedups = new ArrayList<DiscretizedFunc>();
+		
+		for (DiscretizedFunc func : funcs) {
+			double funcMinEnergy = func.getMinY();
+			double funcMaxEnergy = func.getMaxY();
+			
+			if (funcMinEnergy > refMaxEnergy) {
+				speedups.add(null);
+				continue;
+			}
+			
+			double maxEnergy = funcMaxEnergy;
+			if (maxEnergy > refMaxEnergy)
+				maxEnergy = refMaxEnergy;
+			double minEnergy = refMinEnergy;
+			if (minEnergy < funcMinEnergy)
+				minEnergy = funcMinEnergy;
+			
+			if (Double.isNaN(minEnergy) || Double.isNaN(maxEnergy)) {
+				speedups.add(null);
+				continue;
+			}
+			
+			double minTime = func.getFirstInterpolatedX(maxEnergy);
+			minTime += 0.001;
+			double maxTime = func.getFirstInterpolatedX(minEnergy);
+			maxTime -= 0.001;
+			
+			if (minTime >= maxTime) {
+				speedups.add(null);
+				continue;
+			}
+			
+			EvenlyDiscretizedFunc speedupFunc = new EvenlyDiscretizedFunc(minTime, maxTime, numX);
+			
+			for (int i=0; i<numX; i++) {
+				double time = speedupFunc.getX(i);
+				double energy = func.getInterpolatedY(time);
+				double refTime = ref.getFirstInterpolatedX(energy);
+				speedupFunc.set(time, refTime);
+				
+//				double speedup = refTime / time;
+//				speedupFunc.set(time, speedup);
+			}
+			
+			speedups.add(speedupFunc);
+		}
+		
+		return speedups;
+	}
+	
 	private static ArrayList<DiscretizedFunc> generateTimeSpeedup(
 			List<DiscretizedFunc> funcs, DiscretizedFunc ref, int numX) {
 		double refMin = ref.getMinX();
@@ -200,6 +405,8 @@ public class ResultPlotter {
 		
 		return speedups;
 	}
+	
+	
 	
 	private static ArrayList<DiscretizedFunc> generatePercentImprovementOverTime(
 			List<DiscretizedFunc> funcs, double mins) {
@@ -243,8 +450,8 @@ public class ResultPlotter {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-//		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
-		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
+		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
+//		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
 		
 		File tsaDir = null;
 		File dsaDir = null;
@@ -256,7 +463,25 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "mult_ncal_1");
 //		dsaDir = new File(mainDir, "mult_ncal_2");
 //		dsaDir = new File(mainDir, "multi/ncal_1");
-		dsaDir = new File(mainDir, "mult_state_2_comb_3");
+//		dsaDir = new File(mainDir, "mult_state_2_comb_3");
+//		dsaDir = new File(mainDir, "multi/ranger_ncal_1");
+		
+//		dsaDir = new File(mainDir, "poster/ncal_constrained");
+//		dsaDir = new File(mainDir, "poster/ncal_unconstrained");
+		dsaDir = new File(mainDir, "poster/state_constrained");
+//		dsaDir = new File(mainDir, "poster/state_unconstrained");
+		
+		ArrayList<String> plots = new ArrayList<String>();
+//		plots.add(energy_vs_time_title);
+		plots.add(avg_energy_vs_time_title);
+//		plots.add(std_dev_vs_time_title);
+//		plots.add(improvement_vs_time_title);
+//		plots.add(time_speedup_vs_energy_title);
+		plots.add(time_comparison_title);
+		plots.add(time_speedup_vs_time_title);
+//		plots.add(speedup_vs_time_title);
+//		plots.add(energy_vs_iterations_title);
+//		plots.add(iterations_vs_time_title);
 		
 		String highlight = null;
 		
@@ -272,10 +497,20 @@ public class ResultPlotter {
 		boolean bundleDsaBySubs = false;
 		boolean bundleTsaBySubs = false;
 		
-		double pDiffMins = 5;
+		int avgNumX = 400;
+		int targetPPM = 2;
 		
-		int avgNumX = 300;
-		
+		generatePlots(tsaDir, dsaDir, highlight, coolType, threads, nodes,
+				includeStartSubZero, plotAvg, bundleDsaBySubs, bundleTsaBySubs,
+				avgNumX, targetPPM, true, plots);
+	}
+
+	protected static HashMap<String, GraphiWindowAPI_Impl> generatePlots(File tsaDir, File dsaDir,
+			String highlight, String coolType, int threads, int nodes,
+			boolean includeStartSubZero, boolean plotAvg,
+			boolean bundleDsaBySubs, boolean bundleTsaBySubs, int avgNumX, int targetPPM,
+			boolean visible, Collection<String> plots)
+			throws IOException {
 		File[] tsaFiles;
 		if (tsaDir == null)
 			tsaFiles = new File[0];
@@ -290,8 +525,6 @@ public class ResultPlotter {
 		File[] files = new File[tsaFiles.length+dsaFiles.length];
 		System.arraycopy(tsaFiles, 0, files, 0, tsaFiles.length);
 		System.arraycopy(dsaFiles, 0, files, tsaFiles.length, dsaFiles.length);
-		
-		int mod = 5;
 		
 		ArrayList<DiscretizedFunc> energyVsIter = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> energyVsTime = new ArrayList<DiscretizedFunc>();
@@ -327,7 +560,8 @@ public class ResultPlotter {
 				continue;
 			if (tsaDir != null && name.startsWith("tsa") && file.getAbsolutePath().contains("mult_"))
 				continue;
-			ArbitrarilyDiscretizedFunc[] funcs = loadCSV(file, mod);
+			System.out.println("Loading CSV: "+name);
+			ArbitrarilyDiscretizedFunc[] funcs = loadCSV(file, targetPPM);
 			
 			energyVsIter.add(funcs[0]);
 			energyVsTime.add(funcs[1]);
@@ -384,6 +618,8 @@ public class ResultPlotter {
 						c = Color.RED;
 					else if (name.contains("50nodes"))
 						c = Color.ORANGE;
+					else if (name.contains("100nodes"))
+						c = Color.MAGENTA;
 					else
 						c = Color.PINK;
 					if (name.contains("1thread"))
@@ -419,14 +655,16 @@ public class ResultPlotter {
 				} else {
 					if (name.contains("1thread"))
 						c = Color.BLACK;
-					else if (name.contains("2threads"))
+					else if (name.contains("_2threads"))
 						c = Color.BLUE;
 					else if (name.contains("4threads"))
 						c = Color.GREEN;
 					else if (name.contains("6threads"))
 						c = Color.MAGENTA;
-					else
+					else if (name.contains("8threads"))
 						c = Color.RED;
+					else
+						c = Color.ORANGE;
 				}
 			}
 			
@@ -455,73 +693,159 @@ public class ResultPlotter {
 			
 			chars.add(new PlotCurveCharacterstics(type, size, c));
 		}
+		System.gc();
 		
 		System.out.println("Averaging");
 		ArrayList<DiscretizedFunc> averages = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> variances = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> iterTimeAvgs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> avgChars = new ArrayList<PlotCurveCharacterstics>();
-		for (String name : runsEnergyTimeMap.keySet()) {
-			ArrayList<ArbitrarilyDiscretizedFunc> runs = runsEnergyTimeMap.get(name);
-			if (runs == null || runs.size() <= 1)
-				continue;
-			
-			String cName = name + " (average of "+runs.size()+" curves)";
-			
-			DiscretizedFunc avg = avgCurves(runs, avgNumX);
-			avg.setName(cName);
-			averages.add(avg);
-			
-			DiscretizedFunc iterTimeAvg = avgCurves(runsIterTimeMap.get(name), avgNumX);
-			iterTimeAvg.setName(cName);
-			iterTimeAvgs.add(iterTimeAvg);
-			
-			avgChars.add(runsChars.get(name));
-			
-			if (refFunc == null) {
-				if (coolType == null && name.startsWith("tsa_1threads_FAST")
-						|| name.startsWith("tsa_1threads_"+coolType))
-					refFunc = avg;
+		if (plots.contains(avg_energy_vs_time_title)
+				|| plots.contains(std_dev_vs_time_title)
+				|| plots.contains(improvement_vs_time_title)
+				|| plots.contains(time_speedup_vs_energy_title)) {
+			for (String name : runsEnergyTimeMap.keySet()) {
+				ArrayList<ArbitrarilyDiscretizedFunc> runs = runsEnergyTimeMap.get(name);
+				if (runs == null || runs.size() <= 1)
+					continue;
+				
+				String cName = name + " (average of "+runs.size()+" curves)";
+				
+				System.out.println("Averaging: "+name);
+				
+				DiscretizedFunc[] ret = calcAvgAndStdDev(runs, avgNumX, true);
+				DiscretizedFunc avg = ret[0];
+				avg.setName(cName);
+				averages.add(avg);
+				
+				DiscretizedFunc stdDevs = ret[1];
+				stdDevs.setName(cName);
+				variances.add(stdDevs);
+				
+				DiscretizedFunc iterTimeAvg = calcAvg(runsIterTimeMap.get(name), avgNumX);
+				iterTimeAvg.setName(cName);
+				iterTimeAvgs.add(iterTimeAvg);
+				
+				avgChars.add(runsChars.get(name));
+				
+				if (refFunc == null) {
+					if (coolType == null && name.startsWith("tsa_1threads_FAST")
+							|| name.startsWith("tsa_1threads_"+coolType))
+						refFunc = avg;
+				}
+//				if (refFunc == null && name.startsWith("tsa_1threads_VERYFAST"))
+//					refFunc = avg;
 			}
-//			if (refFunc == null && name.startsWith("tsa_1threads_VERYFAST"))
-//				refFunc = avg;
 		}
 		
-		if (averages.size() > 0) {
-			System.out.println("displaying Averaged Energy Vs Time (m)");
-			showGraphWindow(averages, "Averaged Energy Vs Time (m)", avgChars);
-
-			System.out.println("generating percent improvements over "+pDiffMins+" mins");
-			ArrayList<DiscretizedFunc> pImpFuncs = generatePercentImprovementOverTime(averages, pDiffMins);
-			System.out.println("displaying percent improvements");
-			showGraphWindow(pImpFuncs, "% Improvement (over "+pDiffMins+" min invervals)", avgChars);
-		}
-		
-		if (refFunc != null) {
-			System.out.println("generating energy speedup");
-			ArrayList<DiscretizedFunc> energySpeedups = generateEnergySpeedup(averages, refFunc, avgNumX);
-			System.out.println("displaying energy speedup");
-			showGraphWindow(energySpeedups, "Speedup Vs Energy", avgChars);
+		ArrayList<DiscretizedFunc> timeComparisons = null;
+		ArrayList<PlotCurveCharacterstics> timeCompChars = null;
+		if (refFunc != null && 
+				(plots.contains(time_comparison_title)
+						|| plots.contains(time_speedup_vs_time_title))) {
 			
-
-			System.out.println("generating time speedup");
-			ArrayList<DiscretizedFunc> timeSpeedups = generateTimeSpeedup(averages, refFunc, avgNumX);
-			System.out.println("displaying time speedup");
-			showGraphWindow(timeSpeedups, "Speedup Vs Time", avgChars);
+			System.out.println("generating time comparisons");
+			timeComparisons = generateEnergyTimeComparison(averages, refFunc, avgNumX);
+			
+			timeCompChars = avgChars;
+			int numOrig = timeComparisons.size();
+			if (do_extrap) {
+				DiscretizedFunc extrapRef = getExtrapolatedRef(refFunc, getLowestEnergy(averages));
+				if (extrapRef != null) {
+					timeComparisons.addAll(generateEnergyTimeComparison(averages, extrapRef, avgNumX/2));
+					timeCompChars = new ArrayList<PlotCurveCharacterstics>();
+					timeCompChars.addAll(avgChars);
+					for (int i=numOrig-1; i>=0; i--) {
+						int extrapI = i+numOrig;
+						if (timeComparisons.get(extrapI) == null) {
+							timeComparisons.remove(extrapI);
+						} else {
+							PlotCurveCharacterstics cloned = (PlotCurveCharacterstics)avgChars.get(i).clone();
+							cloned.setLineType(PlotLineType.DOTTED);
+							timeCompChars.add(numOrig, cloned);
+						}
+					}
+				}
+			}
 		}
 		
-//		Collections.sort(energyVsIter, new EnergyComparator());
-//		Collections.sort(energyVsTime, new EnergyComparator());
+		HashMap<String, GraphiWindowAPI_Impl> windows = new HashMap<String, GraphiWindowAPI_Impl>();
 		
-		System.out.println("displaying Energy Vs Iterations");
-		showGraphWindow(energyVsIter, "Energy Vs Iterations", chars);
-		System.out.println("displaying Energy Vs Time");
-		showGraphWindow(energyVsTime, "Energy Vs Time (m)", chars);
+		for (String plot : plots) {
+			if (plot.equals(avg_energy_vs_time_title)) {
+				if (averages.size() > 0) {
+					System.out.println("displaying "+avg_energy_vs_time_title);
+					windows.put(avg_energy_vs_time_title,
+							getGraphWindow(averages, avg_energy_vs_time_title, avgChars, time_label, energy_label, visible));
+				}
+			} else if (plot.equals(std_dev_vs_time_title)) {
+				if (variances.size() > 0) {
+					System.out.println("displaying "+std_dev_vs_time_title);
+					windows.put(std_dev_vs_time_title,
+							getGraphWindow(variances, std_dev_vs_time_title, avgChars, time_label, std_dev_label, visible));
+				}
+			} else if (plot.equals(improvement_vs_time_title)) {
+				if (averages.size() > 0) {
+					System.out.println("generating percent improvements over "+pDiffMins+" mins");
+					ArrayList<DiscretizedFunc> pImpFuncs = generatePercentImprovementOverTime(averages, pDiffMins);
+					System.out.println("displaying "+improvement_vs_time_title);
+					windows.put(improvement_vs_time_title,
+							getGraphWindow(pImpFuncs, improvement_vs_time_title, avgChars,
+							time_label, improvement_label, visible));
+				}
+			} else if (plot.equals(time_speedup_vs_energy_title)) {
+				if (refFunc != null) {
+					System.out.println("generating energy speedup");
+					ArrayList<DiscretizedFunc> energySpeedups = generateEnergySpeedup(averages, refFunc, avgNumX);
+					System.out.println("displaying "+time_speedup_vs_energy_title);
+					windows.put(time_speedup_vs_energy_title,
+							getGraphWindow(energySpeedups, time_speedup_vs_energy_title, avgChars, energy_label, time_speedup_label, visible));
+				}
+			} else if (plot.equals(time_comparison_title)) {
+				if (timeComparisons != null) {
+					System.out.println("displaying "+time_comparison_title);
+					windows.put(time_comparison_title,
+							getGraphWindow(timeComparisons, time_comparison_title, timeCompChars,
+									parallel_time_label, serial_time_label, visible));
+				}
+			} else if (plot.equals(time_speedup_vs_time_title)) {
+				if (timeComparisons != null) {
+					System.out.println("displaying "+time_speedup_vs_time_title);
+					ArrayList<DiscretizedFunc> energySpeedups = generateEnergyTimeSpeedup(timeComparisons);
+					windows.put(time_speedup_vs_time_title,
+							getGraphWindow(energySpeedups, time_speedup_vs_time_title, timeCompChars,
+									parallel_time_label, time_speedup_label, visible));
+				}
+			} else if (plot.equals(energy_speedup_vs_time_title)) {
+				if (refFunc != null) {
+					System.out.println("generating time speedup");
+					ArrayList<DiscretizedFunc> timeSpeedups = generateTimeSpeedup(averages, refFunc, avgNumX);
+					System.out.println("displaying "+energy_speedup_vs_time_title);
+					windows.put(energy_speedup_vs_time_title,
+							getGraphWindow(timeSpeedups, energy_speedup_vs_time_title, avgChars, time_label, energy_speedup_label, visible));
+				}
+			} else if (plot.equals(energy_vs_iterations_title)) {
+				System.out.println("displaying "+energy_vs_iterations_title);
+				windows.put(energy_vs_iterations_title,
+						getGraphWindow(energyVsIter, energy_vs_iterations_title, chars, iterations_label, energy_label, visible));
+			} else if (plot.equals(energy_vs_time_title)) {
+				System.out.println("displaying "+energy_vs_time_title);
+				windows.put(energy_vs_time_title,
+						getGraphWindow(energyVsTime, energy_vs_time_title, chars, time_label, energy_label, visible));
+			} else if (plot.equals(energy_vs_iterations_title)) {
+				System.out.println("displaying "+iterations_vs_time_title);
+				if (iterTimeAvgs.size() > 0)
+					windows.put(iterations_vs_time_title,
+							getGraphWindow(iterTimeAvgs, iterations_vs_time_title, avgChars, time_label, iterations_label, visible));
+				else
+					windows.put(iterations_vs_time_title,
+							getGraphWindow(iterVsTime, iterations_vs_time_title, chars, time_label, iterations_label, visible));
+			} else {
+				System.out.println("Unknown plot type: "+plot);
+			}
+		}
 		
-		System.out.println("displaying Iterations Vs Time (m)");
-		if (iterTimeAvgs.size() > 0)
-			showGraphWindow(iterTimeAvgs, "Average Iterations Vs Time (m)", avgChars);
-		else
-			showGraphWindow(iterVsTime, "Iterations Vs Time (m)", chars);
+		return windows;
 	}
 
 }

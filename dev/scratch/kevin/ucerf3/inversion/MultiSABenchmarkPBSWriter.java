@@ -20,37 +20,38 @@ public class MultiSABenchmarkPBSWriter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/multi");
+//		String runName = "2011_08_17-morgan";
+		String runName = "ncal_1_sup_1thread_long";
+		
+		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/"+runName);
+		if (!writeDir.exists())
+			writeDir.mkdir();
+		
+		String queue = "nbns";
+		BatchScriptWriter bath = new USC_HPCC_ScriptWriter();
+		File mpjHome = new File("/home/rcf-12/kmilner/mpj-v0_38/");
+		File javaBin = new File("/usr/usc/jdk/default/jre/bin/java");
 		File runDir = new File("/home/scec-02/kmilner/ucerf3/inversion_bench");
-
-		boolean nCal = true;
+		
+		File runSubDir = new File(runDir, runName);
+		
+//		String queue = "normal";
+//		BatchScriptWriter bath = new RangerScriptWriter();
+//		File mpjHome = new File("/share/home/00950/kevinm/mpj-v0_38");
+//		File javaBin = new File("/share/home/00950/kevinm/java/default/bin/java");
+//		File runDir = new File("/work/00950/kevinm/ucerf3/inversion");
+		
 		//		int annealMins = 60*8;
 		//		int annealMins = 60*16;
-		int dsaAnnealMins = 60*8;
+		int dsaAnnealMins = 60*2;
 		//		int tsaAnnealMins = dsaAnnealMins*2;
 		int tsaAnnealMins = 60*23;
 
-		File runSubDir;
-		if (nCal)
-			runSubDir = new File(runDir, "mult_ncal");
-		else
-			runSubDir = new File(runDir, "mult_statewide");
-
-		int dsaWallMins = dsaAnnealMins + 30;
+		int dsaWallMins = dsaAnnealMins + 60;
 		int tsaWallMins = tsaAnnealMins + 30;
 
 		//		int subIterations = 100;
 		int subIterations = 200;
-		
-//		String queue = "nbns";
-//		BatchScriptWriter bath = new USC_HPCC_ScriptWriter();
-//		File mpjHome = new File("/home/rcf-12/kmilner/mpj-v0_38/");
-//		File javaBin = new File("/usr/usc/jdk/default/jre/bin/java");
-		
-		String queue = "normal";
-		BatchScriptWriter bath = new RangerScriptWriter();
-		File mpjHome = new File("/share/home/00950/kevinm/mpj-v0_38");
-		File javaBin = new File("/share/home/00950/kevinm/java/default/bin/java");
 
 		ArrayList<File> jars = new ArrayList<File>();
 		jars.add(new File(runDir, "OpenSHA_complete.jar"));
@@ -62,18 +63,15 @@ public class MultiSABenchmarkPBSWriter {
 
 		File aMat, dMat, initialMat;
 
-		if (nCal) {
-			//			aMat = new File(runDir, "A.mat");
-			//			dMat = new File(runDir, "d.mat");
-			//			initialMat = new File(runDir, "initial.mat");
-			aMat = new File(runDir, "A_ncal_unconstrained.mat");
-			dMat = new File(runDir, "d_ncal_unconstrained.mat");
-			initialMat = null;
-		} else {
-			aMat = new File(runDir, "A_statewide.mat");
-			dMat = new File(runDir, "d_statewide.mat");
-			initialMat = null;
-		}
+		aMat = new File(runSubDir, "A.mat");
+		dMat = new File(runSubDir, "d.mat");
+//		initialMat = null;
+		initialMat = new File(runSubDir, "initial.mat");
+		
+//		initialMat = new File(runDir, "initial.mat");
+//		aMat = new File(runDir, "A_ncal_unconstrained.mat");
+//		dMat = new File(runDir, "d_ncal_unconstrained.mat");
+//		initialMat = null;
 
 		CompletionCriteria dsaCriteria = TimeCompletionCriteria.getInMinutes(dsaAnnealMins);
 		CompletionCriteria tsaCriteria = TimeCompletionCriteria.getInMinutes(tsaAnnealMins);
@@ -85,13 +83,14 @@ public class MultiSABenchmarkPBSWriter {
 
 		int[] dsa_threads = { 4 };
 
-		//		int[] tsa_threads = { 1,2,4,8 };
 		int[] tsa_threads = { 1 };
-		//		int[] tsa_threads = new int[0];
+//		int[] tsa_threads = { 1,2,4,8,12 };
+//		int[] tsa_threads = new int[0];
 
-		//		int[] nodes = { 2, 5, 10 };
-		//		int[] nodes = { 2, 5, 10, 20 };
-		int[] nodes = { 10 };
+//		int[] nodes = { 20,50,100,200 };
+//		int[] nodes = { 500 };
+		int[] nodes = { 50 };
+//		int[] nodes = { 10 };
 		//		int[] nodes = new int[0];
 
 		//		int[] dSubIters = { 200, 600 };
