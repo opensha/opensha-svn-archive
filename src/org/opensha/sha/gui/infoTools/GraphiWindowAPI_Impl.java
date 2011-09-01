@@ -24,27 +24,27 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	private ArrayList funcs;
 
 
-	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.BLUE);
-	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.BLACK);
-	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.GREEN);
-	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.MAGENTA);
-	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.PINK);
-	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.LIGHT_GRAY);
-	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.RED);
-	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.ORANGE);
-	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.CYAN);
-	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.DARK_GRAY);
-	private final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotLineType.SOLID,
+	private static final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotLineType.SOLID,
 			2f, Color.GRAY);
 	
 
@@ -54,40 +54,46 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	private String plotTitle;
 	private GraphWindow graphWindow;
 	private boolean isCustomAxis = false;
-
-	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle) {
-		this.funcs = funcs;
+	
+	private static ArrayList<PlotCurveCharacterstics> generateDefaultChars(ArrayList funcs) {
 		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
-		list.add(this.PLOT_CHAR1);
-		list.add(this.PLOT_CHAR2);
-		list.add(this.PLOT_CHAR3);
-		list.add(this.PLOT_CHAR4);
-		list.add(this.PLOT_CHAR5);
-		list.add(this.PLOT_CHAR6);
-		list.add(this.PLOT_CHAR7);
-		list.add(this.PLOT_CHAR8);
-		list.add(this.PLOT_CHAR9);
-		list.add(this.PLOT_CHAR10);
-		list.add(this.PLOT_CHAR11);
+		list.add(PLOT_CHAR1);
+		list.add(PLOT_CHAR2);
+		list.add(PLOT_CHAR3);
+		list.add(PLOT_CHAR4);
+		list.add(PLOT_CHAR5);
+		list.add(PLOT_CHAR6);
+		list.add(PLOT_CHAR7);
+		list.add(PLOT_CHAR8);
+		list.add(PLOT_CHAR9);
+		list.add(PLOT_CHAR10);
+		list.add(PLOT_CHAR11);
+		
 		int numChars = list.size();
-		plotChars = new ArrayList<PlotCurveCharacterstics>();
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		for(int i=0; i<funcs.size(); ++i)
 			plotChars.add(list.get(i%numChars));
+		return plotChars;
+	}
 
-		graphWindow= new GraphWindow(this);
-		graphWindow.setPlotLabel(plotTitle);
-		graphWindow.plotGraphUsingPlotPreferences();
-		graphWindow.setVisible(true);
+	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle) {
+		this(funcs, plotTitle, generateDefaultChars(funcs));
+		this.funcs = funcs;
 	}
 
 	
 	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle, ArrayList<PlotCurveCharacterstics> plotChars) {
+		this(funcs, plotTitle, plotChars, true);
+	}
+	
+	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle, ArrayList<PlotCurveCharacterstics> plotChars,
+			boolean setVisible) {
 		this.funcs=funcs;
 		this.plotChars = plotChars;
 		graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel(plotTitle);
 		graphWindow.plotGraphUsingPlotPreferences();
-		graphWindow.setVisible(true);
+		graphWindow.setVisible(setVisible);
 	}
 
 	/**
@@ -404,6 +410,10 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 
 	public void saveAsPNG(String fileName) throws IOException {
 		graphWindow.saveAsPNG(fileName);
+	}
+	
+	public GraphWindow getGraphWindow() {
+		return graphWindow;
 	}
 
 

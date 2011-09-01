@@ -317,7 +317,10 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 			return;
 		}
 	}
-
+	
+	public GraphPanel getGraphPanel() {
+		return graphPanel;
+	}
 
 
 	/**
@@ -419,7 +422,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	/**
 	 * to draw the graph
 	 */
-	protected void drawGraph() {
+	public void drawGraph() {
 		graphPanel.drawGraphPanel(xAxisName, yAxisName, functionList, xLog, yLog,
 				customAxis, plotTitle, buttonControlPanel);
 		togglePlot();
@@ -599,5 +602,13 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	@Override
 	public void setPlottingOrder(DatasetRenderingOrder order) {
 		graphPanel.setRenderingOrder(order);
+	}
+	
+	public void setDividerLocation(int location) {
+		chartSplitPane.setDividerLocation(location);
+	}
+	
+	public void setDividerLocation(double proportionalLocation) {
+		chartSplitPane.setDividerLocation(proportionalLocation);
 	}
 }

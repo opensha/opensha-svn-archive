@@ -878,8 +878,17 @@ public class GraphPanel extends JSplitPane {
 	 * @throws IOException
 	 */
 	public void saveAsPNG(String fileName) throws IOException {
+		saveAsPNG(fileName, chartPanel.getWidth(), chartPanel.getHeight());
+	}
+	
+	/**
+	 * Allows the user to save the chart as PNG.
+	 * @param fileName
+	 * @throws IOException
+	 */
+	public void saveAsPNG(String fileName, int width, int height) throws IOException {
 		ChartUtilities.saveChartAsPNG(new File(fileName),chartPanel.getChart() , 
-				chartPanel.getWidth(), chartPanel.getHeight());
+				width, height);
 	}
 
 	/**
