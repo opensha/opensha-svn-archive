@@ -20,7 +20,7 @@ public class PosterImageGen {
 	private static final int height = 1000;
 	
 	private static final boolean tableOnly = false;
-	private static final boolean highQuality = false;
+	private static final boolean highQuality = true;
 	
 	private static ArrayList<ArrayList<String>> wikiTable = new ArrayList<ArrayList<String>>();
 	static {
@@ -212,7 +212,7 @@ public class PosterImageGen {
 		
 		handleDir(stateConst,
 				// time range
-				new Range(0, 1380.0),
+				new Range(0, 480),
 				// energy plot range
 				new Range(2200000.0, 4000000.0),
 //				// speedup range
@@ -224,7 +224,7 @@ public class PosterImageGen {
 		
 		handleDir(stateUnonst,
 				// time range
-				new Range(0, 950),
+				new Range(0, 480),
 				// energy plot range
 				new Range(7.5, 35),
 //				// speedup range

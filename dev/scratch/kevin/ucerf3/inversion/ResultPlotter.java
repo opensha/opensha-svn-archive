@@ -28,6 +28,7 @@ public class ResultPlotter {
 	private static final int max_curve_pts = 800;
 	private static final double pDiffMins = 5;
 	private static final boolean do_extrap = true;
+	private static final boolean include_min_max = true;
 	
 	private static final String time_label = "Time (minutes)";
 	private static final String serial_time_label = "Serial Time (minutes)";
@@ -150,6 +151,12 @@ public class ResultPlotter {
 		if (includeStdDev)
 			stdDevs = new EvenlyDiscretizedFunc(largestMin, smallestMax, numX);
 		
+		EvenlyDiscretizedFunc minFunc = null, maxFunc = null;
+		if (include_min_max) {
+			minFunc = new EvenlyDiscretizedFunc(largestMin, smallestMax, numX);
+			maxFunc = new EvenlyDiscretizedFunc(largestMin, smallestMax, numX);
+		}
+		
 		double[] values = new double[num];
 		for (int i=0; i<numX; i++) {
 			double x = avg.getX(i);
@@ -164,8 +171,12 @@ public class ResultPlotter {
 				double stdDev = Math.sqrt(StatUtils.variance(values, mean));
 				stdDevs.set(i, stdDev);
 			}
+			if (include_min_max) {
+				minFunc.set(i, StatUtils.min(values));
+				maxFunc.set(i, StatUtils.max(values));
+			}
 		}
-		EvenlyDiscretizedFunc[] ret = { avg, stdDevs };
+		EvenlyDiscretizedFunc[] ret = { avg, stdDevs, minFunc, maxFunc };
 		return ret;
 	}
 	
@@ -443,6 +454,28 @@ public class ResultPlotter {
 		
 		return ret;
 	}
+	
+	private static Color getSaturated(Color c, float factor) {
+		int r = c.getRed();
+		int g = c.getGreen();
+		int b = c.getBlue();
+		
+		if ( r == 0 && g == 0 && b == 0) {
+			return Color.GRAY;
+//			float val = (float)r * factor / 255f;
+//			int adjusted = (int)(val + 0.5f);
+//			if (adjusted < 0)
+//				adjusted = 0;
+//			if (adjusted > 255)
+//				adjusted = 255;
+//			return new Color(adjusted, adjusted, adjusted);
+		} else {
+			float[] hsb = Color.RGBtoHSB(r, g, b, null);
+			int rgb = Color.HSBtoRGB(hsb[0], hsb[1]*factor, hsb[2]);
+			
+			return new Color(rgb);
+		}
+	}
 
 	/**
 	 * @param args
@@ -466,9 +499,9 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "mult_state_2_comb_3");
 //		dsaDir = new File(mainDir, "multi/ranger_ncal_1");
 		
-//		dsaDir = new File(mainDir, "poster/ncal_constrained");
+		dsaDir = new File(mainDir, "poster/ncal_constrained");
 //		dsaDir = new File(mainDir, "poster/ncal_unconstrained");
-		dsaDir = new File(mainDir, "poster/state_constrained");
+//		dsaDir = new File(mainDir, "poster/state_constrained");
 //		dsaDir = new File(mainDir, "poster/state_unconstrained");
 		
 		ArrayList<String> plots = new ArrayList<String>();
@@ -697,7 +730,9 @@ public class ResultPlotter {
 		
 		System.out.println("Averaging");
 		ArrayList<DiscretizedFunc> averages = new ArrayList<DiscretizedFunc>();
-		ArrayList<DiscretizedFunc> variances = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> stdDevs = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> minFuncs = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> maxFuncs = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> iterTimeAvgs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> avgChars = new ArrayList<PlotCurveCharacterstics>();
 		if (plots.contains(avg_energy_vs_time_title)
@@ -718,9 +753,20 @@ public class ResultPlotter {
 				avg.setName(cName);
 				averages.add(avg);
 				
-				DiscretizedFunc stdDevs = ret[1];
-				stdDevs.setName(cName);
-				variances.add(stdDevs);
+				DiscretizedFunc stdDev = ret[1];
+				if (stdDev != null) {
+					stdDev.setName(cName);
+					stdDevs.add(stdDev);
+				}
+				
+				DiscretizedFunc minFunc = ret[2];
+				DiscretizedFunc maxFunc = ret[3];
+				if (minFunc != null && maxFunc != null) {
+					minFuncs.add(minFunc);
+					minFunc.setName(cName);
+					maxFuncs.add(maxFunc);
+					maxFunc.setName(cName);
+				}
 				
 				DiscretizedFunc iterTimeAvg = calcAvg(runsIterTimeMap.get(name), avgNumX);
 				iterTimeAvg.setName(cName);
@@ -744,23 +790,48 @@ public class ResultPlotter {
 				(plots.contains(time_comparison_title)
 						|| plots.contains(time_speedup_vs_time_title))) {
 			
-			System.out.println("generating time comparisons");
-			timeComparisons = generateEnergyTimeComparison(averages, refFunc, avgNumX);
+			timeCompChars = new ArrayList<PlotCurveCharacterstics>();
+			for (PlotCurveCharacterstics pltChar : avgChars)
+				timeCompChars.add((PlotCurveCharacterstics)pltChar.clone());
 			
-			timeCompChars = avgChars;
+			ArrayList<DiscretizedFunc> plotFuncs = averages;
+			
+			if (minFuncs.size() > 0) {
+				plotFuncs = new ArrayList<DiscretizedFunc>();
+				plotFuncs.addAll(averages);
+				for (int i=0; i<averages.size(); i++) {
+					DiscretizedFunc func = averages.get(i);
+					if (func.getName().contains("dsa_")) {
+						plotFuncs.add(minFuncs.get(i));
+						plotFuncs.add(maxFuncs.get(i));
+						
+						PlotCurveCharacterstics minChar = (PlotCurveCharacterstics)avgChars.get(i).clone();
+						minChar.setLineWidth(1f);
+						minChar.setColor(getSaturated(minChar.getColor(), 0.5f));
+						timeCompChars.add(minChar);
+						
+						PlotCurveCharacterstics maxChar = (PlotCurveCharacterstics)avgChars.get(i).clone();
+						maxChar.setLineWidth(1f);
+						maxChar.setColor(getSaturated(maxChar.getColor(), 0.5f));
+						timeCompChars.add(maxChar);
+					}
+				}
+			}
+			
+			System.out.println("generating time comparisons");
+			timeComparisons = generateEnergyTimeComparison(plotFuncs, refFunc, avgNumX);
+			
 			int numOrig = timeComparisons.size();
 			if (do_extrap) {
-				DiscretizedFunc extrapRef = getExtrapolatedRef(refFunc, getLowestEnergy(averages));
+				DiscretizedFunc extrapRef = getExtrapolatedRef(refFunc, getLowestEnergy(plotFuncs));
 				if (extrapRef != null) {
-					timeComparisons.addAll(generateEnergyTimeComparison(averages, extrapRef, avgNumX/2));
-					timeCompChars = new ArrayList<PlotCurveCharacterstics>();
-					timeCompChars.addAll(avgChars);
+					timeComparisons.addAll(generateEnergyTimeComparison(plotFuncs, extrapRef, avgNumX/2));
 					for (int i=numOrig-1; i>=0; i--) {
 						int extrapI = i+numOrig;
 						if (timeComparisons.get(extrapI) == null) {
 							timeComparisons.remove(extrapI);
 						} else {
-							PlotCurveCharacterstics cloned = (PlotCurveCharacterstics)avgChars.get(i).clone();
+							PlotCurveCharacterstics cloned = (PlotCurveCharacterstics)timeCompChars.get(i).clone();
 							cloned.setLineType(PlotLineType.DOTTED);
 							timeCompChars.add(numOrig, cloned);
 						}
@@ -779,10 +850,10 @@ public class ResultPlotter {
 							getGraphWindow(averages, avg_energy_vs_time_title, avgChars, time_label, energy_label, visible));
 				}
 			} else if (plot.equals(std_dev_vs_time_title)) {
-				if (variances.size() > 0) {
+				if (stdDevs.size() > 0) {
 					System.out.println("displaying "+std_dev_vs_time_title);
 					windows.put(std_dev_vs_time_title,
-							getGraphWindow(variances, std_dev_vs_time_title, avgChars, time_label, std_dev_label, visible));
+							getGraphWindow(stdDevs, std_dev_vs_time_title, avgChars, time_label, std_dev_label, visible));
 				}
 			} else if (plot.equals(improvement_vs_time_title)) {
 				if (averages.size() > 0) {

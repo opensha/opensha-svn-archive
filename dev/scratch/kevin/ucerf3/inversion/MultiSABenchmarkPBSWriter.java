@@ -20,8 +20,8 @@ public class MultiSABenchmarkPBSWriter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-//		String runName = "2011_08_17-morgan";
-		String runName = "ncal_1_sup_1thread_long";
+		String runName = "2011_08_17-morgan";
+//		String runName = "ncal_1_sup_1thread_long";
 		
 		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/"+runName);
 		if (!writeDir.exists())
@@ -43,7 +43,7 @@ public class MultiSABenchmarkPBSWriter {
 		
 		//		int annealMins = 60*8;
 		//		int annealMins = 60*16;
-		int dsaAnnealMins = 60*2;
+		int dsaAnnealMins = 60*8;
 		//		int tsaAnnealMins = dsaAnnealMins*2;
 		int tsaAnnealMins = 60*23;
 
@@ -65,8 +65,8 @@ public class MultiSABenchmarkPBSWriter {
 
 		aMat = new File(runSubDir, "A.mat");
 		dMat = new File(runSubDir, "d.mat");
-//		initialMat = null;
-		initialMat = new File(runSubDir, "initial.mat");
+		initialMat = null;
+//		initialMat = new File(runSubDir, "initial.mat");
 		
 //		initialMat = new File(runDir, "initial.mat");
 //		aMat = new File(runDir, "A_ncal_unconstrained.mat");
@@ -83,14 +83,14 @@ public class MultiSABenchmarkPBSWriter {
 
 		int[] dsa_threads = { 4 };
 
-		int[] tsa_threads = { 1 };
+//		int[] tsa_threads = { 1 };
 //		int[] tsa_threads = { 1,2,4,8,12 };
-//		int[] tsa_threads = new int[0];
+		int[] tsa_threads = new int[0];
 
 //		int[] nodes = { 20,50,100,200 };
 //		int[] nodes = { 500 };
-		int[] nodes = { 50 };
-//		int[] nodes = { 10 };
+//		int[] nodes = { 50 };
+		int[] nodes = { 2, 5, 50 };
 		//		int[] nodes = new int[0];
 
 		//		int[] dSubIters = { 200, 600 };
