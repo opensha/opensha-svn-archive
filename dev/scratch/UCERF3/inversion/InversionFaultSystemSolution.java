@@ -122,10 +122,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (relativeMagDistWt > 0.0) {
-			// RIGHT NOW THIS ASSUMES THERE IS ONLY ONE MFD CONSTRAINT AND THIS IGNORES THE REGION (APPLIES TO WHOLE INVERSION)
-			targetMagFreqDist=mfdConstraints.get(0).getMagFreqDist();
-			numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
-			if(D) System.out.println("Number of magnitude-distribution constraints: " + targetMagFreqDist.getNum());
+			// RIGHT NOW THIS ASSUMES THE MAGNITUDE CONSTRAINT WEIGHT MUST BE THE SAME FOR ALL MAG-DIST CONSTRAINTS
+			int totalNumMagFreqConstraints = 0;
+			for (int i=0; i < mfdConstraints.size(); i++) {
+				targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();
+				totalNumMagFreqConstraints += targetMagFreqDist.getNum();
+				numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
+			}
+			if(D) System.out.println("Number of magnitude-distribution constraints: " + totalNumMagFreqConstraints);
 		}
 		
 		
@@ -163,7 +167,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 		if(D) System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 
-		
+//		System.out.println("");
 		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
@@ -185,20 +189,26 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 
 		
 		
-		// Constrain Solution MFD to equal the Target MFD
+		// Constrain Solution MFD to equal the Target MFD 
 		// CHANGE THIS TO AN INEQUALITY CONSTRAINT? *****************************
 		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
 		if (relativeMagDistWt > 0.0) {	
 			numNonZeroElements = 0;
-			if(D) System.out.println("\nAdding magnitude constraint to A matrix ...");
-			for(int rup=0; rup<numRuptures; rup++) {
-				double mag = rupMeanMag[rup];
-				A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagDistWt);
-				numNonZeroElements++;
-			}		
-			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
-				d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagDistWt;
-				rowIndex++; 
+			if(D) System.out.println("\nAdding " + mfdConstraints.size()+ " magnitude constraints to A matrix ...");		
+			for (int i=0; i < mfdConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
+				targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();	
+				for(int rup=0; rup<numRuptures; rup++) {
+					double mag = rupMeanMag[rup];
+					double fractionRupInRegion = mfdConstraints.get(i).getFractionInRegion(this.getFaultSectionDataForRupture(rup));  // percentage of each rupture that is in region for that MFD
+					if (fractionRupInRegion > 0) {
+						A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagDistWt * fractionRupInRegion);
+						numNonZeroElements++;
+					}
+				}		
+				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
+					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagDistWt;
+					rowIndex++; 
+				}			
 			}
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
@@ -388,28 +398,31 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		
 		// plot magnitude histogram for final rupture rates
-		if(D) System.out.println("Making plot of final magnitude distribution . . . ");
-		// IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
-		magHist.setTolerance(0.2);	// this makes it a histogram
-		for(int r=0; r<getNumRuptures();r++)
-			magHist.add(rupMeanMag[r], rupRateSolution[r]);
-		ArrayList funcs4 = new ArrayList();
-		magHist.setName("Magnitude Distribution of SA Solution");
-		magHist.setInfo("(number in each mag bin)");
-		funcs4.add(magHist);
-		// If the magnitude constraint is used, add a plot of the target MFD
-		if (relativeMagDistWt > 0.0) {		
-			IncrementalMagFreqDist targetMagFreqDist = mfdConstraints.get(0).getMagFreqDist();; 
-			targetMagFreqDist.setTolerance(0.1); 
-			targetMagFreqDist.setName("Target Magnitude Distribution");
-			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
-			funcs4.add(targetMagFreqDist);
+		if(D) System.out.println("Making plots of final magnitude distribution . . . ");
+		for (int i=0; i<mfdConstraints.size(); i++) {  // Loop over each MFD constraint 	
+			if(D) System.out.println("MFD Constraint #" + (i+1) + " of " + mfdConstraints.size());
+			IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
+			magHist.setTolerance(0.2);	// this makes it a histogram
+			for(int r=0; r<getNumRuptures();r++) {
+				double fractionRupInRegion = mfdConstraints.get(i).getFractionInRegion(this.getFaultSectionDataForRupture(r));  // percentage of each rupture that is in region for that MFD
+				magHist.add(rupMeanMag[r], fractionRupInRegion*rupRateSolution[r]);
+			}
+			ArrayList funcs4 = new ArrayList();
+			magHist.setName("Magnitude Distribution of SA Solution");
+			magHist.setInfo("(number in each mag bin)");
+			funcs4.add(magHist);
+			// If the magnitude constraint is used, add a plot of the target MFD
+			if (relativeMagDistWt > 0.0) {		
+				IncrementalMagFreqDist targetMagFreqDist = mfdConstraints.get(i).getMagFreqDist();; 
+				targetMagFreqDist.setTolerance(0.1); 
+				targetMagFreqDist.setName("Target Magnitude Distribution");
+				targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
+				funcs4.add(targetMagFreqDist);
+			}
+			GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
+			graph4.setX_AxisLabel("Magnitude");
+			graph4.setY_AxisLabel("Frequency (per bin)");
 		}
-		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
-		graph4.setX_AxisLabel("Magnitude");
-		graph4.setY_AxisLabel("Frequency (per bin)");
-				
 	}
 
 }

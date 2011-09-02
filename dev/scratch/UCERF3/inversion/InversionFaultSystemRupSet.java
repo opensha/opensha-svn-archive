@@ -344,7 +344,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 					totLength += length;
 					double area = getAreaForSection(sectID);
 					totArea += area;
-					totMoRate = FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
+					totMoRate += FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
 				}
 				rupArea[rupIndex] = totArea;
 				rupLength[rupIndex] = totLength;

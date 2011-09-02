@@ -5,12 +5,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -19,6 +24,7 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF2_PaleoSegRateData;
 
 
@@ -58,7 +64,7 @@ public class RunInversion {
 		
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
-		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_ALL,
+		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
 				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);
 		long runTime = System.currentTimeMillis()-startTime;
@@ -97,16 +103,16 @@ public class RunInversion {
 		// Parameters for InversionFaultSystemSolution
 		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
 		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativeMagDistWt = 1000.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
-		double relativeRupRateConstraintWt = 10.0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
-		int numIterations = 100000;  // number of simulated annealing iterations (increase this to decrease misfit) - For Northern CA inversion, 100,000 iterations is ~5 min.
+		double relativeMagDistWt = 10000.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
+		double relativeRupRateConstraintWt = 0.0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
+		int numIterations = 10000000;  // number of simulated annealing iterations (increase this to decrease misfit) - For Northern CA inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 
 		// create class the gives UCERF2-related constraints
-//		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
-//		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
-//		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
+		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
+		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
+		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
 		
 		
 		
@@ -115,10 +121,10 @@ public class RunInversion {
 		// a priori constraint
 		double[] aPrioriRupConstraint = null;
 		// Use UCERF2 Solution (Only works for Northern CA)
-//		aPrioriRupConstraint = UCERF2Solution;
+		aPrioriRupConstraint = UCERF2Solution;
 		// Or use smooth starting solution with target MFD:
 //		aPrioriRupConstraint = getSmoothStartingSolution(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD());  
-		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
+//		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
 		
 		
 		// Initial model
@@ -132,9 +138,30 @@ public class RunInversion {
 		// Create the MFD constraints (ArrayList so we can apply this to multiple subregions)
 		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
 		// Just add the N CAL one for now with a null region (apply it to full model)
-//		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);
+		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);
 		MFD_InversionConstraint mfdConstraintGR = new MFD_InversionConstraint(getGR_Dist(faultSystemRupSet, 1.0, 8.3), null);
 		mfdConstraints.add(mfdConstraintGR);
+		
+		
+		// UCERF2 MFD constraints for subregions - NoCal 1-degree boxes
+		Region NoCal = new CaliforniaRegions.RELM_NOCAL();
+		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(NoCal);
+		double minLat = NoCal.getMinLat(); double maxLat = NoCal.getMaxLat();
+		double minLon = NoCal.getMinLon(); double maxLon = NoCal.getMaxLon();
+		double latBoxSize = 1; double lonBoxSize = 1; // width of MFD subregion boxes, in degrees
+		for (double lat=minLat; lat<maxLat; lat+=latBoxSize){
+			for (double lon=minLon; lon<maxLon; lon+=lonBoxSize){
+				Region currentSubRegion = new Region(new Location(lat,lon),new Location(lat+latBoxSize,lon+lonBoxSize));
+				LocationList border = currentSubRegion.getBorder();
+				boolean currentSubRegionInRegion = true;  
+				for (int i=0; i<border.size(); i++)   // SubRegion is in the region if all 4 border points are in the region (should work for now -- change later!)
+					if (NoCal.contains(border.get(i)) == false) currentSubRegionInRegion = false; 
+				if (currentSubRegionInRegion == true) {
+					UCERF2Constraints.setRegion(currentSubRegion);
+					mfdConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
+				}
+			}
+		}
 		
 		
 		
@@ -187,6 +214,9 @@ public class RunInversion {
 		for (int i=0; i<magDist.getNum(); i++) 
 			magDist.set(i, magDist.getY(i)*targetTotalMoment/totalMoment);
 
+		/*
+		GutenbergRichterMagFreqDist altDist = new GutenbergRichterMagFreqDist(5.05,35,0.1,5.05,35,0.1, bValue);
+		*/
 		
 /*		// Plot magnitude distribution constraint
 		ArrayList funcs = new ArrayList();
