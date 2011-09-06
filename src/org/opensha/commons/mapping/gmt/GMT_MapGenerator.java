@@ -408,8 +408,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	public String makeMapLocally(GeoDataSet xyzDataSet, String scaleLabel,
 			String metadata, String dirName) throws GMT_MapException{
 
-		//creates the metadata file
-		createMapInfoFile(metadata);
+	    File file = new File(dirName);
+	    file.mkdirs();
 
 		// THESE SHOULD BE SET DYNAMICALLY
 		// CURRENTLY HARD CODED FOR Ned and Nitin's Macs
@@ -417,6 +417,19 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		GS_PATH="/sw/bin/gs";
 		PS2PDF_PATH = "/sw/bin/ps2pdf";
 		CONVERT_PATH="/sw/bin/convert";
+		SCEC_GMT_DATA_PATH="/usr/scec/data/gmt/";
+		
+		GMT_SCRIPT_NAME = dirName+"/"+DEFAULT_GMT_SCRIPT_NAME;
+		XYZ_FILE_NAME = dirName+"/"+DEFAULT_XYZ_FILE_NAME;
+		METADATA_FILE_NAME = dirName+"/"+DEFAULT_METADATA_FILE_NAME;
+		PS_FILE_NAME = dirName+"/"+DEFAULT_PS_FILE_NAME;
+		JPG_FILE_NAME = dirName+"/"+DEFAULT_JPG_FILE_NAME;
+		PNG_FILE_NAME = dirName+"/"+DEFAULT_PNG_FILE_NAME;
+		PDF_FILE_NAME = dirName+"/"+DEFAULT_PDF_FILE_NAME;
+
+		//creates the metadata file
+		createMapInfoFile(metadata);
+		
 
 		// The color scale label
 		SCALE_LABEL = scaleLabel;
