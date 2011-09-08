@@ -46,8 +46,9 @@ public class ProbEqkRupture extends EqkRupture {
 
 	//index of rupture for a given source as defined by a ERF
 	private int rupIndex,srcIndex;
-	//name of the source of which this rupture is a part.
-	private String srcName;
+	
+	// Pointer to the parent ERF (no guarantee that ERF doesn't change, however)
+	private ERF parentERF;
 
 
 	/* **********************/
@@ -133,15 +134,15 @@ public class ProbEqkRupture extends EqkRupture {
 	 /**
 	  * Sets the rupture index from given source.
 	  * @param sourceIndex int source of the rupture
-	  * @param sourceName String Name of the Source
 	  * @param ruptureIndex int rupture index of the given source
+	  * @param parentERF a pointer to the ERF this object came from (but no guarantee the ERF hasn't changed)
 	  *
 	  */
-	 public void setRuptureIndexAndSourceInfo(int sourceIndex,String sourceName,
-			 int ruptureIndex){
+	 public void setRuptureIndexAndSourceInfo(int sourceIndex,
+			 int ruptureIndex, ERF parentERF){
 		 srcIndex = sourceIndex;
-		 srcName = sourceName;
 		 rupIndex = ruptureIndex;
+		 this.parentERF = parentERF;
 	 }
 
 
@@ -184,7 +185,7 @@ public class ProbEqkRupture extends EqkRupture {
 		 ruptureMetadata += (float)probability + "\t";
 		 ruptureMetadata += (float)aveRake + "\t";
 		 ruptureMetadata += (float)ruptureSurface.getAveDip()+"\t";
-		 ruptureMetadata += "\""+srcName+"\"";
+		 ruptureMetadata += "\""+parentERF.getName()+"\"";
 		 return ruptureMetadata;
 
 	 }

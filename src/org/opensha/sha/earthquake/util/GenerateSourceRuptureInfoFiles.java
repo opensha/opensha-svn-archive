@@ -136,8 +136,7 @@ public class GenerateSourceRuptureInfoFiles {
 
       for (int i = 0; i < numRuptures; ++i) {
         ProbEqkRupture rupture = source.getRupture(i);
-        rupture.setRuptureIndexAndSourceInfo(sourceIndex,
-                                             source.getName(), i);
+        rupture.setRuptureIndexAndSourceInfo(sourceIndex,i,null);
         rupfile.write(rupture.getRuptureMetadata()+"\n");
         /*GriddedSurfaceAPI surface = rupture.getRuptureSurface();
         if(!(surface instanceof PointSurface))
