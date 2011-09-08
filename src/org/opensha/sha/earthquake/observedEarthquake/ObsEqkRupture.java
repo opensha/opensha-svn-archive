@@ -43,27 +43,18 @@ public class ObsEqkRupture
 
   private String eventId;
   private String dataSource;
-  private char eventVersion;
   private GregorianCalendar originTime;
-  private double hypoLocHorzErr;
-  private double hypoLocVertErr;
-  private double magError ;
-  private String magType;
-
 
   public ObsEqkRupture(){}
 
-  public ObsEqkRupture(String eventId, String dataSource, char eventVersion,
-                       GregorianCalendar originTime, double hypoLocHorzErr,
-                       double hypoLocVertErr,double magError,
-                      String magType, Location hypoLoc, double mag) {
+  public ObsEqkRupture(String eventId, String dataSource, GregorianCalendar originTime, 
+		  Location hypoLoc, double mag) {
 
    super(mag,0,null,hypoLoc);
    //making the Obs Rupture Surface to just be the hypocenter location.
    PointSurface surface = new PointSurface(hypoLoc);
    this.setRuptureSurface(surface);
-   this.setObsEqkRup(eventId,dataSource,eventVersion,originTime,hypoLocHorzErr,
-                     hypoLocVertErr, magError, magType);
+   this.setObsEqkRup(eventId,dataSource,originTime);
   }
 
   public String getDataSource() {
@@ -74,42 +65,15 @@ public class ObsEqkRupture
     return eventId;
   }
 
-  public char getEventVersion() {
-    return eventVersion;
-  }
-
-  public double getHypoLocHorzErr() {
-    return hypoLocHorzErr;
-  }
-
-  public double getHypoLocVertErr() {
-    return hypoLocVertErr;
-  }
-
   public GregorianCalendar getOriginTime() {
     return originTime;
   }
 
-  public double getMagError() {
-    return magError;
-  }
 
-  public String getMagType() {
-    return magType;
-  }
-
-  public void setObsEqkRup(String eventId, String dataSource, char eventVersion,
-                       GregorianCalendar originTime, double hypoLocHorzErr,
-                       double hypoLocVertErr, double magError,
-  String magType){
+  public void setObsEqkRup(String eventId, String dataSource, GregorianCalendar originTime){
     this.eventId = eventId;
     this.dataSource = dataSource;
-    this.eventVersion = eventVersion;
     this.originTime = originTime;
-    this.hypoLocHorzErr = hypoLocHorzErr;
-    this.hypoLocVertErr = hypoLocVertErr;
-    this.magError = magError;
-    this.magType = magType;
 
   }
   public void setDataSource(String dataSource) {
@@ -120,28 +84,8 @@ public class ObsEqkRupture
     this.eventId = eventId;
   }
 
-  public void setEventVersion(char eventVersion) {
-    this.eventVersion = eventVersion;
-  }
-
-  public void setHypoLocHorzErr(double hypoLocHorzErr) {
-    this.hypoLocHorzErr = hypoLocHorzErr;
-  }
-
-  public void setHypoLocVertErr(double hypoLocVertErr) {
-    this.hypoLocVertErr = hypoLocVertErr;
-  }
-
   public void setOriginTime(GregorianCalendar originTime) {
     this.originTime = originTime;
-  }
-
-  public void setMagError(double magError) {
-    this.magError = magError;
-  }
-
-  public void setMagType(String magType) {
-    this.magType = magType;
   }
 
 
@@ -150,7 +94,7 @@ public class ObsEqkRupture
    * @param obsRupEvent ObsEqkRupture
    * Note : Currently we are not checking if 2 Observed Eqk Rupture events
    * have same Gridded Surface, I don't think that is necessary, so havn't
-   * added.
+   * added.  THIS DOES NOT CHECK ORIGIN TIME!
    * @return boolean
    */
   public boolean equalsObsEqkRupEvent(ObsEqkRupture obsRupEvent){
@@ -159,11 +103,6 @@ public class ObsEqkRupture
 
     //if any of the condition is not true else return false
     if(!eventId.equals(obsRupEvent.getEventId()) ||
-       eventVersion != obsRupEvent.getEventVersion() ||
-       !magType.equals(obsRupEvent.getMagType()) ||
-       magError != obsRupEvent.getMagError() ||
-       hypoLocHorzErr != obsRupEvent.getHypoLocHorzErr() ||
-       hypoLocVertErr != obsRupEvent.getHypoLocVertErr() ||
        getMag() != obsRupEvent.getMag())
       return false;
 
@@ -202,12 +141,7 @@ public class ObsEqkRupture
     String obsEqkInfo = super.getInfo();
     obsEqkInfo += "EventId ="+eventId+"\n";
     obsEqkInfo += "DataSource ="+dataSource+"\n";
-    obsEqkInfo += "EventVersion ="+eventVersion+"\n";
     obsEqkInfo += "OriginTime ="+originTime.toString()+"\n";
-    obsEqkInfo += "HypoLocHorzErr ="+hypoLocHorzErr+"\n";
-    obsEqkInfo += "HypoLocVertErr ="+hypoLocVertErr+"\n";
-    obsEqkInfo += "MagError ="+magError+"\n";
-    obsEqkInfo += "MagType ="+magType+"\n";
     return obsEqkInfo;
   }
 
@@ -223,12 +157,7 @@ public class ObsEqkRupture
    eqkEventClone.setRuptureSurface(getRuptureSurface());
    eqkEventClone.setHypocenterLocation(hypocenterLocation);
    eqkEventClone.setDataSource(dataSource);
-   eqkEventClone.setEventVersion(eventVersion);
    eqkEventClone.setOriginTime(originTime);
-   eqkEventClone.setHypoLocHorzErr(hypoLocHorzErr);
-   eqkEventClone.setHypoLocVertErr(hypoLocVertErr);
-   eqkEventClone.setMagError(magError);
-   eqkEventClone.setMagType(magType);
    eqkEventClone.setAveRake(aveRake);
    return eqkEventClone;
   }

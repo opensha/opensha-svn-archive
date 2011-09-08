@@ -144,9 +144,7 @@ public class CubeToObsEqkRupture {
         vertErr = Double.parseDouble(sErzz);
       if(sMagnitudeError !=null && !sMagnitudeError.equals(""))
         magErr = Double.parseDouble(sMagnitudeError);
-      rupture = new ObsEqkRupture(sEventId,sDataSource,sEventVersion,
-                                                originTime,horzErr,vertErr,magErr,
-                                                sMagnitudeType,hypoLoc,mag);
+      rupture = new ObsEqkRupture(sEventId,sDataSource,originTime,hypoLoc,mag);
     }
     return rupture;
   }

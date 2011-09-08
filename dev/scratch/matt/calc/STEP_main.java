@@ -640,11 +640,6 @@ public class STEP_main {
 	public boolean isObsEqkRupEventEqual(ObsEqkRupture obsRupEvent0, ObsEqkRupture obsRupEvent){
 	    //if any of the condition is not true else return false
 	    if(!obsRupEvent0.getEventId().equals(obsRupEvent.getEventId() )||
-		    obsRupEvent0.getEventVersion() != obsRupEvent.getEventVersion() ||
-		    !obsRupEvent0.getMagType().equals(obsRupEvent.getMagType() )||
-		    obsRupEvent0.getMagError() != obsRupEvent.getMagError()||
-		    obsRupEvent0.getHypoLocHorzErr() != obsRupEvent.getHypoLocHorzErr()||
-		    obsRupEvent0.getHypoLocVertErr() != obsRupEvent.getHypoLocVertErr()||
 		    obsRupEvent0.getMag() != obsRupEvent.getMag()){
 	    	//logger.info(">> check 7");
 	      return false;
