@@ -1,9 +1,19 @@
 package scratch.ned.ETAS_Tests;
 
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.apache.commons.math.random.RandomDataImpl;
 
 public class ETAS_Utils {
@@ -163,6 +173,46 @@ public class ETAS_Utils {
 	 */
 	public EvenlyDiscretizedFunc getDefaultNumWithTimeFunc(double magMain, double tMin, double tMax, double tDelta) {
 		return getNumWithTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMin, tMax, tDelta);
+	}
+	
+	private static SimpleDateFormat cat_df = new SimpleDateFormat("yyyy MM dd HH mm ss");
+	
+	public static void writeEQCatFile(File file, List<PrimaryAftershock> aftershocks) throws IOException {
+		Date orig = new Date();
+		GregorianCalendar cal = new GregorianCalendar();
+		
+		ArrayList<Date> dates = new ArrayList<Date>();
+		ArrayList<String> lines = new ArrayList<String>();
+		
+		for (PrimaryAftershock eq : aftershocks) {
+			cal.setTime(orig);
+			cal.add(Calendar.SECOND, (int)(60d*eq.getOriginTime()+0.5));
+			Date myDate = cal.getTime();
+			
+			int insertionPoint;
+			for (insertionPoint=0; insertionPoint<dates.size(); insertionPoint++) {
+				if (myDate.after(dates.get(insertionPoint)))
+					break;
+			}
+			
+			Location loc = eq.getHypocenterLocation();
+			
+			// id date/time lon lat depth mag
+			String line = eq.getID()+" "+cat_df.format(myDate)+" "
+			+loc.getLongitude()+" "+loc.getLatitude()+" "+loc.getDepth()+" "+eq.getMag();
+			
+			dates.add(insertionPoint, myDate);
+			lines.add(insertionPoint, line);
+		}
+		
+		Collections.reverse(lines);
+		
+		FileWriter fw = new FileWriter(file);
+		
+		for (String line : lines)
+			fw.write(line+"\n");
+		
+		fw.close();
 	}
 
 }

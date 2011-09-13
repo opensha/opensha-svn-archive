@@ -1010,7 +1010,12 @@ public class ETAS_Simulator {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-
+		
+		try {
+			ETAS_Utils.writeEQCatFile(new File(dirToSaveData+"catalog.sc"), allAftershocks);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 			
 	}
 	
