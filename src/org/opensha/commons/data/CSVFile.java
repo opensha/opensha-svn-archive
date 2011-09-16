@@ -143,7 +143,7 @@ public class CSVFile<E> implements Iterable<List<E>> {
 			// if it contains a comma, surround it in quotation marks if not already
 			if (valStr.contains(",") && !(valStr.startsWith("\"") && valStr.endsWith("\"")))
 				valStr = "\""+valStr+"\"";
-			lineStr += val.toString();
+			lineStr += valStr;
 		}
 		return lineStr;
 	}
