@@ -65,7 +65,7 @@ public class ETAS_Utils {
 	 * @param t2
 	 * @return
 	 */
-	public double getDefaultExpectedNumEvents(double magMain, double tMin, double tMax) {
+	public static double getDefaultExpectedNumEvents(double magMain, double tMin, double tMax) {
 		return getExpectedNumEvents(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMin, tMax);
 	}
 	
@@ -175,6 +175,14 @@ public class ETAS_Utils {
 		return getNumWithTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMin, tMax, tDelta);
 	}
 	
+	public static void main(String[] args) {
+//		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
+//		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
+		System.out.println("Double.MAX_VALUE="+Double.MAX_VALUE+"\t"+Double.MAX_VALUE/(1000*60*60*24*265.25));
+		System.out.println("Long.MAX_VALUE="+Long.MAX_VALUE+"\t"+Long.MAX_VALUE/(1000*60*60*24*265));
+		
+	}
+
 	private static SimpleDateFormat cat_df = new SimpleDateFormat("yyyy MM dd HH mm ss");
 	
 	public static void writeEQCatFile(File file, List<PrimaryAftershock> aftershocks) throws IOException {
@@ -214,5 +222,4 @@ public class ETAS_Utils {
 		
 		fw.close();
 	}
-
 }

@@ -35,7 +35,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
  * @author field
  *
  */
-public class ETAS_PrimaryEventSampler {
+public class ETAS_PrimaryEventSamplerTest {
 	
 	protected final static boolean D = false;  // for debugging
 	
@@ -62,7 +62,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param useAdaptiveBlocks - indicate whether blocks close to parentRup should be sub-sampled
 	 * @param includeBlockRates - whether or not to use rates inside of blocks to modify spatial probabilities
 	 */
-	public ETAS_PrimaryEventSampler(EqkRupture parentRup,ArrayList<EqksInGeoBlock> blockList, 
+	public ETAS_PrimaryEventSamplerTest(EqkRupture parentRup,ArrayList<EqksInGeoBlock> blockList, 
 			AbstractERF erf, double distDecay, double minDist, boolean useAdaptiveBlocks, boolean includeBlockRates) {
 		
 		this.parentRup=parentRup;
@@ -121,27 +121,26 @@ public class ETAS_PrimaryEventSampler {
 		// compute relative probability of each block
 		relBlockProb = new double[numBlocks];
 		
-		double rupLength = parentRup.getRuptureSurface().getSurfaceLength();
-		
 		if(D) {
 			System.out.println("\nnum revised blocks="+numBlocks);
-			System.out.println("minBlockDist ="+minBlockDist+" for block index "+minDistIndex);
 			System.out.println("computing relative block probabilities");
-			System.out.println("rupLength="+rupLength);
 		}
 		
 		double total=0;
-		if(rupLength>5.0) {	// a non point source rupture
-			for(int i=0; i<numBlocks;i++) {
-				double vol = revisedBlockList.get(i).getBlockVolume();
-				double dist = revisedBlockDistances.get(i);
-				double blockWt = vol/(2*Math.PI*(dist+minDist)+2*rupLength); // fraction of the annulus
-				relBlockProb[i] = Math.pow(revisedBlockDistances.get(i)+minDist, -distDecay)*blockWt;
-				if(includeBlockRates) relBlockProb[i] *= revisedBlockList.get(i).getTotalRateInside()/vol;
-				total += relBlockProb[i];
+		for(Location loc: rupSurf.getLocationList()) {
+			double[] relBlockProbTemp = new double[numBlocks];
+			revisedBlockDistances = new ArrayList<Double>();
+			minBlockDist = Double.MAX_VALUE;
+			for(int b=0; b<revisedBlockList.size();b++) {
+				EqksInGeoBlock block = revisedBlockList.get(b);
+				double dist = LocationUtils.linearDistanceFast(block.getBlockCenterLoc(), loc);
+				revisedBlockDistances.add(dist);
+				if(dist<minBlockDist) {
+					minBlockDist=dist;
+					minDistIndex = revisedBlockDistances.size()-1;
+				}
 			}
-		}
-		else {	// Point-source case
+			
 			double closestBlockVal=0;
 			if(minBlockDist>1) // check whether nucleation point is closer to the center or edge of closest block; value of "1" depends on smallest block size!
 				minDistIndex=-1;  // don't do special case below
@@ -152,35 +151,39 @@ public class ETAS_PrimaryEventSampler {
 				if(i == minDistIndex) {  // this will calculate the fraction directly
 					double radius = Math.pow(vol/(4*Math.PI),0.33333);	// 4*PI*r^3;
 					closestBlockVal=getDecayFractionInsideDistance(distDecay, minDist, radius);
-					relBlockProb[i] = closestBlockVal;
-					if(D) System.out.println("Calculated wt of closest block directly; it equals: "+closestBlockVal);
+					relBlockProbTemp[i] = closestBlockVal;
 				}
 				else {
-					blockWt = vol/(2*Math.PI*(dist)+2*rupLength);
-					relBlockProb[i] = Math.pow(revisedBlockDistances.get(i)+0.1, -distDecay)*blockWt; // min-dist of 0.1 was found by trial and error
-					total += relBlockProb[i];
+					blockWt = vol/(2*Math.PI*(dist));
+					relBlockProbTemp[i] = Math.pow(revisedBlockDistances.get(i)+0.1, -distDecay)*blockWt; // min-dist of 0.1 was found by trial and error
+					total += relBlockProbTemp[i];
 				}
 			}
 			// normalize
 			for(int i=0; i<numBlocks;i++)
 				if(i != minDistIndex)
-					relBlockProb[i] *= (1-closestBlockVal)/total;	// normalize so total is 1.0
+					relBlockProbTemp[i] *= (1-closestBlockVal)/total;	// normalize so total is 1.0
 			total=1;
 			// add block rates
 			if(includeBlockRates) {
 				total = 0;
 				for(int i=0; i<numBlocks;i++) {
 					double vol = revisedBlockList.get(i).getBlockVolume();
-					relBlockProb[i] *= revisedBlockList.get(i).getTotalRateInside()/vol;
-					total += relBlockProb[i];
+					relBlockProbTemp[i] *= revisedBlockList.get(i).getTotalRateInside()/vol;
+					total += relBlockProbTemp[i];
 				}
 			}
+			// normalize
+			for(int i=0; i<numBlocks;i++) {
+				relBlockProbTemp[i] /= total;
+				relBlockProb[i] += relBlockProbTemp[i]/rupSurf.size();
+			}
+
 		}
 		
-		// final normalization and to create the random block sampler
+		// create the random block sampler
 		randomBlockSampler = new IntegerPDF_FunctionSampler(numBlocks);
 		for(int i=0; i<numBlocks;i++) {
-			relBlockProb[i] /= total;
 			randomBlockSampler.set(i,relBlockProb[i]);
 		}
 		if(D) {
@@ -378,13 +381,7 @@ public class ETAS_PrimaryEventSampler {
 	}
 	
 	
-	/**
-	 * 
-	 * @param label - plot label
-	 * @param local - whether GMT map is made locally or on server
-	 * @param dirName
-	 * @return
-	 */
+		
 	public String plotBlockProbMap(String label, boolean local, String dirName) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
@@ -527,7 +524,7 @@ public class ETAS_PrimaryEventSampler {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		System.out.println(ETAS_PrimaryEventSampler.getDecayFractionInsideDistance(1.4,2.0, 10));
+		System.out.println(ETAS_PrimaryEventSamplerTest.getDecayFractionInsideDistance(1.4,2.0, 10));
 		double r = Math.pow(25.6*0.75/Math.PI, 0.33333);
 		System.out.println(r);
 	}

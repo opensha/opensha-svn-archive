@@ -12,12 +12,16 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -27,9 +31,11 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -785,15 +791,27 @@ public class ETAS_Simulator {
 		// 68	S. San Andreas;CH+CC+BB+NM+SM+NSB+SSB+BG+CO	 #rups=8
 		mainShock = meanUCERF2.getSource(68).getRupture(4);
 		etasSimulator.runTests(mainShock,"SSAF Wall-to-wall Rupture; M="+mainShock.getMag(), null);
-*/
+
+		
+		FaultTrace trace = new FaultTrace("Test");
+		trace.add(new Location (34,-117));
+		trace.add(new Location (35,-117));
+		StirlingGriddedSurface rupSurf = new StirlingGriddedSurface(trace, 90.0, 0.0,16.0, 1.0);
+		mainShock = new ProbEqkRupture(7.0,0,1,rupSurf,null);
+		double distDecay = 1.7;
+		double minDist = 0.3;
+		String info = "Test Event (M="+mainShock.getMag()+"); distDecay="+distDecay;
+		etasSimulator.runTempTest(mainShock,info, 195, rootDir+"TestM7/",distDecay,minDist);
+*/		
 
 		// 195	Landers Rupture	 #rups=46 (rup 41 for M 7.25)
 		mainShock = meanUCERF2.getSource(195).getRupture(41);
 		double distDecay = 1.7;
 		double minDist = 0.3;
 		String info = "Landers Rupture (M="+mainShock.getMag()+"); distDecay="+distDecay;
-		etasSimulator.runTests(mainShock,info, 195, rootDir+"Landers_decay1pt7_withSrc/",distDecay,minDist);
-/*	
+		etasSimulator.runTests(mainShock,info, 195, rootDir+"Landers_decay1pt7_withOutSrc5/",distDecay,minDist);
+//		etasSimulator.runTempTest(mainShock,info, 195, rootDir+"TestLanders/",distDecay,minDist);
+/*
 				
 		// 223	Northridge	 #rups=13	(rup 8 for M 6.75)
 		mainShock = meanUCERF2.getSource(223).getRupture(8);
@@ -858,6 +876,84 @@ public class ETAS_Simulator {
 		System.out.println("Total Num Aftershocks="+allEvents.size());
 
 		return allEvents;
+
+	}
+	
+	
+	
+	public void runTempTest(ProbEqkRupture mainShock, String info, Integer srcIndex, String dirName, double distDecay, double minDist) {
+		this.distDecay = distDecay;
+		this.minDist = minDist;
+		this.mainShock = mainShock;
+		includeBlockRates=false;
+		
+		// Make the ETAS sampler for the given main shock:
+//		ETAS_PrimaryEventSamplerTest sampler = new ETAS_PrimaryEventSamplerTest(mainShock,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
+		
+		System.out.println("Starting old way");
+		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(mainShock,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
+		sampler.plotBlockProbMap(info+" - old way", true, "testOldWay");
+		sampler.plotDistDecayTestFuncs("OldWay", "testOldWay/distDecayPlot");
+		
+		System.out.println("Starting new way");
+		ETAS_PrimaryEventSamplerTest sampler2 = new ETAS_PrimaryEventSamplerTest(mainShock,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
+		sampler2.plotBlockProbMap(info+" - new way", true, "testNewWay");
+		sampler.plotDistDecayTestFuncs("NewWay", "testNewWay/distDecayPlot");
+
+	
+		IntegerPDF_FunctionSampler probsOld = sampler.getRandomBlockSampler();
+		IntegerPDF_FunctionSampler probsNew = sampler2.getRandomBlockSampler();
+
+		System.out.println("should be 1: "+probsOld.calcSumOfY_Vals());
+		System.out.println("should be 1: "+probsNew.calcSumOfY_Vals());
+
+		// PLOT Ratio
+		
+		ArrayList<EqksInGeoBlock> revisedBlockList = sampler.getRevisedBlockList();
+		GMT_MapGenerator mapGen = new GMT_MapGenerator();
+		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
+		mapGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,false);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,0.0);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,4.0);
+
+		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(griddedRegion, true);
+		
+		double[] newProbs = new double[griddedRegion.getNodeCount()];
+		double[] oldProbs = new double[griddedRegion.getNodeCount()];
+		
+		for(int i=0; i<revisedBlockList.size();i++) {
+			EqksInGeoBlock block = revisedBlockList.get(i);
+			int locIndex = griddedRegion.indexForLocation(block.getBlockCenterLoc());
+			newProbs[locIndex] += probsNew.getY(i);
+			oldProbs[locIndex] += probsOld.getY(i);
+		}
+		
+		// set ratio
+		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, newProbs[i]/oldProbs[i]);
+
+//		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
+		String metadata = "";
+		
+		try {
+			String name = mapGen.makeMapLocally(xyzDataSet, "Ratio", metadata, "testRatio");
+//			metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+//			ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (GMT_MapException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RuntimeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*		*/	
 
 	}
 
@@ -995,7 +1091,7 @@ public class ETAS_Simulator {
 		
 		plotEpicenterMap(info, true, mainShock);
 		
-		String mapMetadata = etas_FirstGenSampler.plotBlockProbMap(info);
+		String mapMetadata = etas_FirstGenSampler.plotBlockProbMap(info, true,"test");
 		infoForOutputFile += "\n"+mapMetadata+".  The allFiles.zip should have been"+
 				" moved to this dir, uncompressed, and the name changed from allFiles to samplingProbMaps.\n\n";
 		
