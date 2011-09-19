@@ -89,6 +89,7 @@
 	<target name="build.sra">
 		<antcall target="build.bcr" />
 		<antcall target="build.lec" />
+		<antcall target="build.portfolio.eal" />
 	</target>
 	
 	<!-- Core OpenSHA Applications -->
@@ -284,6 +285,17 @@
 			<property name="app.short.name" value="LossEstimationApp" />
 			<property name="app.main.class" value="org.opensha.sra.gui.LossEstimationApplication" />
 			<property name="javac.includes"     value="org/opensha/sra/gui/LossEstimationApplication.java" />
+			<property name="javac.excludes" value="" />
+			<property name="rmi.target" value="rmi.hazard.curve" />
+			<property name="resource.target" value="resource.hazard.apps" />
+		</ant>
+	</target>
+	
+	<target name="build.portfolio.eal">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="PortfolioEAL" />
+			<property name="app.main.class" value="org.opensha.sra.gui.portfolioeal.PortfolioEALCalculatorController" />
+			<property name="javac.includes"     value="org/opensha/sra/gui/portfolioeal/PortfolioEALCalculatorController.java" />
 			<property name="javac.excludes" value="" />
 			<property name="rmi.target" value="rmi.hazard.curve" />
 			<property name="resource.target" value="resource.hazard.apps" />

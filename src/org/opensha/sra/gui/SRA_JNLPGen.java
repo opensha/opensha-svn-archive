@@ -11,6 +11,7 @@ import org.opensha.commons.util.IconGen;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.sha.gui.util.JNLPGen;
+import org.opensha.sra.gui.portfolioeal.PortfolioEALCalculatorController;
 
 public class SRA_JNLPGen {
 
@@ -23,6 +24,9 @@ public class SRA_JNLPGen {
 		appsToBuild.add(new JNLPGen(LossEstimationApplication.class,
 				LossEstimationApplication.APP_SHORT_NAME, 
 				LossEstimationApplication.APP_NAME, "LEC", true));
+		appsToBuild.add(new JNLPGen(PortfolioEALCalculatorController.class,
+				PortfolioEALCalculatorController.APP_SHORT_NAME, 
+				PortfolioEALCalculatorController.APP_NAME, "PEAL", true));
 		
 		ServerPrefs prefs = ServerPrefUtils.SERVER_PREFS;
 		String outputDir = JNLPGen.jnlpDir + File.separator + prefs.getBuildType().getBuildDirName();

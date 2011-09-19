@@ -46,6 +46,9 @@ import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor
  * @see    PortfolioEALCalculatorView
  */
 public class PortfolioEALCalculatorController implements ActionListener, ItemListener, Runnable {
+	
+	public static final String APP_NAME = "Portfolio EAL Application";
+	public static final String APP_SHORT_NAME = "PortfolioEAL";
 
 	private double EAL;
 	private PortfolioEALCalculatorView view;
