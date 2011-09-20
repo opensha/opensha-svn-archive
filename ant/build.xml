@@ -422,6 +422,11 @@
 		<unjar src="${lib.dir}/Jama-1.0.2.jar" dest="${build}" />
 		<unjar src="${lib.dir}/mysql-connector-java-5.1.16-bin.jar" dest="${build}" />
 	</target>
+	
+	<target name="unjar.libs.extra">
+		<unjar src="${lib.dir}/csparsej.jar" dest="${build}" />
+		<unjar src="${lib.dir}/parallelcolt-0.9.4.jar" dest="${build}" />
+	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
 	These targets are for RMIC       

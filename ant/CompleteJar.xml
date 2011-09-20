@@ -148,6 +148,7 @@
 		<property name="app.jar" value="${dist}/${app.jar.name}" />
 		
 		<ant antfile="build.xml" target="unjar.libs.common"/>
+		<ant antfile="build.xml" target="unjar.libs.extra"/>
 		<ant antfile="build.xml" target="resource.all"/>
 		<delete dir="${tmpdest}/META-INF" failonerror="yes" verbose="no" />
 		<jar destfile="${app.jar}" basedir="${build}" />
