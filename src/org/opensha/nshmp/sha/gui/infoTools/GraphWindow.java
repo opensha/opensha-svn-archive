@@ -557,6 +557,6 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
 	@Override
 	public void setPlottingOrder(DatasetRenderingOrder order) {
-		this.graphPanel.setRenderingOrder(null);
+		this.graphPanel.setRenderingOrder(order);
 	}
 }

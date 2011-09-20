@@ -20,30 +20,37 @@ public class MultiSABenchmarkPBSWriter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		String runName = "2011_08_17-morgan";
+//		String runName = "2011_08_17-morgan";
+//		String runName = "2011_09-02-ncal_50node";
+//		String runName = "2011_09-06-ncal_const_100node";
+//		String runName = "2011_09_08-ranger-morgan-new";
 //		String runName = "ncal_1_sup_1thread_long";
+		String runName = "2011_09_16_genetic_test";
 		
 		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/"+runName);
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
-		String queue = "nbns";
+//		String queue = "nbns";
+		String queue = null;
 		BatchScriptWriter bath = new USC_HPCC_ScriptWriter();
+		int ppn = 8;
 		File mpjHome = new File("/home/rcf-12/kmilner/mpj-v0_38/");
 		File javaBin = new File("/usr/usc/jdk/default/jre/bin/java");
 		File runDir = new File("/home/scec-02/kmilner/ucerf3/inversion_bench");
 		
-		File runSubDir = new File(runDir, runName);
-		
 //		String queue = "normal";
 //		BatchScriptWriter bath = new RangerScriptWriter();
+//		int ppn = 1;
 //		File mpjHome = new File("/share/home/00950/kevinm/mpj-v0_38");
 //		File javaBin = new File("/share/home/00950/kevinm/java/default/bin/java");
 //		File runDir = new File("/work/00950/kevinm/ucerf3/inversion");
 		
+		File runSubDir = new File(runDir, runName);
+		
 		//		int annealMins = 60*8;
 		//		int annealMins = 60*16;
-		int dsaAnnealMins = 60*8;
+		int dsaAnnealMins = 60*2;
 		//		int tsaAnnealMins = dsaAnnealMins*2;
 		int tsaAnnealMins = 60*23;
 
@@ -65,8 +72,8 @@ public class MultiSABenchmarkPBSWriter {
 
 		aMat = new File(runSubDir, "A.mat");
 		dMat = new File(runSubDir, "d.mat");
-		initialMat = null;
-//		initialMat = new File(runSubDir, "initial.mat");
+//		initialMat = null;
+		initialMat = new File(runSubDir, "initial.mat");
 		
 //		initialMat = new File(runDir, "initial.mat");
 //		aMat = new File(runDir, "A_ncal_unconstrained.mat");
@@ -84,14 +91,15 @@ public class MultiSABenchmarkPBSWriter {
 		int[] dsa_threads = { 4 };
 
 //		int[] tsa_threads = { 1 };
-//		int[] tsa_threads = { 1,2,4,8,12 };
+//		int[] tsa_threads = { 1,2,4,8 };
 		int[] tsa_threads = new int[0];
 
 //		int[] nodes = { 20,50,100,200 };
 //		int[] nodes = { 500 };
 //		int[] nodes = { 50 };
-		int[] nodes = { 2, 5, 50 };
-		//		int[] nodes = new int[0];
+//		int[] nodes = { 100, 200 };
+		int[] nodes = { 2, 5, 10 };
+//		int[] nodes = new int[0];
 
 		//		int[] dSubIters = { 200, 600 };
 		int[] dSubIters = { 200 };
@@ -124,7 +132,7 @@ public class MultiSABenchmarkPBSWriter {
 							File pbs = new File(writeDir, name+".pbs");
 							System.out.println("Writing: "+pbs.getName());
 							nodeHours += (double)numNodes * ((double)dsaAnnealMins / 60d);
-							bath.writeScript(pbs, dsa_create.buildScript(), dsaWallMins, numNodes, 1, queue);
+							bath.writeScript(pbs, dsa_create.buildScript(), dsaWallMins, numNodes, ppn, queue);
 						}
 					}
 				}

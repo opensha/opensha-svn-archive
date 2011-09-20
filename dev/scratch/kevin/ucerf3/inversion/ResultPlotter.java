@@ -5,21 +5,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
@@ -29,27 +25,32 @@ public class ResultPlotter {
 	private static final double pDiffMins = 5;
 	private static final boolean do_extrap = true;
 	private static final boolean include_min_max = true;
+	private static final boolean sort_by_size = true;
 	
 	private static final String time_label = "Time (minutes)";
 	private static final String serial_time_label = "Serial Time (minutes)";
 	private static final String parallel_time_label = "Parallel Time (minutes)";
 	private static final String energy_label = "Energy";
 	private static final String iterations_label = "Iterations";
+	private static final String parallel_iterations_label = "Tot. Parallel Iterations";
 	private static final String time_speedup_label = "Time (serial) / Time (parallel)";
 	private static final String energy_speedup_label = "Energy (serial) / Energy (parallel)";
-	private static final String std_dev_label = "Std. Dev.";
+	private static final String std_dev_label = "Std. Dev. (Energy)";
 	private static final String improvement_label = "% Improvement";
 	
 	protected static final String avg_energy_vs_time_title = "Averaged Energy Vs Time (m)";
 	protected static final String improvement_vs_time_title = "% Improvement (over "+pDiffMins+" min invervals)";
 	protected static final String time_speedup_vs_energy_title = "Time Speedup Vs Energy";
-	protected static final String time_speedup_vs_time_title = "Time Speedup Vs Time";
+	protected static final String time_speedup_vs_time_title = "Parallel Speedup Vs Time";
 	protected static final String time_comparison_title = "Serial Time Vs Parallel Time";
 	protected static final String energy_speedup_vs_time_title = "Energy Speedup Vs Time";
+	protected static final String avg_energy_vs_iterations_title = "Averaged Energy Vs Iterations";
 	protected static final String energy_vs_iterations_title = "Energy Vs Iterations";
 	protected static final String energy_vs_time_title = "Energy Vs Time (m)";
 	protected static final String std_dev_vs_time_title = "Std. Dev. Vs Time (m)";
 	protected static final String iterations_vs_time_title = "Iterations Vs Time (m)";
+	protected static final String parallel_iterations_vs_time_title = "Parallel Iterations Vs Time (m)";
+	protected static final String energy_vs_parallel_iterations_title = "Energy vs Parallel Iterations";
 	
 	private static ArbitrarilyDiscretizedFunc[] loadCSV (
 			File file, int targetPPM) throws IOException {
@@ -107,10 +108,117 @@ public class ResultPlotter {
 		return ret;
 	}
 	
+	private static int getIntForKey(String name, String key) {
+		String[] splits = name.split("_");
+		for (String split : splits) {
+			if (split.contains(key)) {
+				split = split.substring(0, split.indexOf(key));
+				try {
+					return Integer.parseInt(split);
+				} catch (NumberFormatException e) {
+					return 0;
+				}
+			}
+		}
+		return 0;
+	}
+	
+	private static int getSizeScore(String name) {
+		if (name == null || name.isEmpty()) {
+			return 0;
+		} else {
+			if (name.contains("dsa")) {
+				int score =  10 + getIntForKey(name, "nodes");
+				if (name.contains("EXTRAPOLATED"))
+					score--;
+				if (name.contains("minimum") || name.contains("maximum"))
+					score--;
+				return score;
+			} else {
+				return getIntForKey(name, "threads");
+			}
+		}
+	}
+	
+	private static ArrayList<DiscretizedFunc> getParallelIters(ArrayList<DiscretizedFunc> funcs, boolean itersIsX) {
+		ArrayList<DiscretizedFunc> ret = new ArrayList<DiscretizedFunc>();
+		
+		for (DiscretizedFunc func : funcs) {
+			String name = func.getName();
+			if (name == null || name.length()<10 || !(name.contains("dsa") || name.contains("tsa"))) {
+				ret.add(new ArbitrarilyDiscretizedFunc());
+				continue;
+			}
+			int threads = getIntForKey(name, "threads");
+			if (threads < 1) {
+				ret.add(new ArbitrarilyDiscretizedFunc());
+				continue;
+			}
+			int nodes = getIntForKey(name, "nodes");
+			if (nodes == 0)
+				nodes = 1;
+			
+			threads *= nodes;
+			
+			ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+			newFunc.setName(name);
+			
+			for (int i=0; i<func.getNum(); i++) {
+				double iters, other;
+				if (itersIsX) {
+					iters = func.getX(i);
+					other = func.getY(i);
+				} else {
+					iters = func.getY(i);
+					other = func.getX(i);
+				}
+				
+				iters *= (double)threads;
+				
+				if (itersIsX)
+					newFunc.set(iters, other);
+				else
+					newFunc.set(other, iters);
+			}
+			
+			ret.add(newFunc);
+		}
+		
+		return ret;
+	}
+	
 	private static GraphiWindowAPI_Impl getGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
 			ArrayList<PlotCurveCharacterstics> chars, String xAxisName, String yAxisName, boolean visible) {
+		if (sort_by_size) {
+			ArrayList<DiscretizedFunc> sortedFuncs = new ArrayList<DiscretizedFunc>();
+			ArrayList<PlotCurveCharacterstics> sortedChars = new ArrayList<PlotCurveCharacterstics>();
+			ArrayList<Integer> sortedSizes = new ArrayList<Integer>();
+			for (int i=0; i<funcs.size(); i++) {
+				String name = funcs.get(i).getName();
+				int size = getSizeScore(name);
+				int insertion = -1;
+				for (int j=0; j<sortedSizes.size(); j++) {
+					if (sortedSizes.get(j) < size) {
+						insertion = j;
+						break;
+					}
+				}
+				if (insertion < 0)
+					insertion = sortedSizes.size();
+				sortedFuncs.add(insertion, funcs.get(i));
+				sortedChars.add(insertion, chars.get(i));
+				sortedSizes.add(insertion, size);
+			}
+			funcs = sortedFuncs;
+			chars = sortedChars;
+		}
+		
 		GraphiWindowAPI_Impl gwAPI = new GraphiWindowAPI_Impl(funcs, title, chars, visible);
 		GraphWindow gw = gwAPI.getGraphWindow();
+		gw.setPlotLabelFontSize(30);
+		gw.setAxisLabelFontSize(18);
+		gw.setTickLabelFontSize(14);
+		gw.setPlottingOrder(DatasetRenderingOrder.REVERSE);
 //		gw.getGraphPanel().setBackgroundColor(Color.WHITE);
 		gw.setXAxisLabel(xAxisName);
 		gw.setYAxisLabel(yAxisName);
@@ -209,6 +317,7 @@ public class ResultPlotter {
 			max -= 0.001;
 			
 			EvenlyDiscretizedFunc speedupFunc = new EvenlyDiscretizedFunc(min, max, numX);
+			speedupFunc.setName(func.getName());
 			
 			for (int i=0; i<numX; i++) {
 				double energy = speedupFunc.getX(i);
@@ -274,6 +383,7 @@ public class ResultPlotter {
 			return null;
 		
 		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
+		ret.setName(ref.getName()+" (EXTRAPOLATED)");
 		double startTime = ref.getX(ref.getNum()-1);
 		double timeDelta = startTime - ref.getX(ref.getNum()-2);
 		
@@ -314,6 +424,7 @@ public class ResultPlotter {
 		
 		for (DiscretizedFunc comp : energyTimeComparisons) {
 			ArbitrarilyDiscretizedFunc speedupFunc = new ArbitrarilyDiscretizedFunc();
+			speedupFunc.setName(comp.getName());
 			
 			for (int i=0; i<comp.getNum(); i++) {
 				double time = comp.getX(i);
@@ -368,6 +479,7 @@ public class ResultPlotter {
 			}
 			
 			EvenlyDiscretizedFunc speedupFunc = new EvenlyDiscretizedFunc(minTime, maxTime, numX);
+			speedupFunc.setName(func.getName());
 			
 			for (int i=0; i<numX; i++) {
 				double time = speedupFunc.getX(i);
@@ -401,6 +513,7 @@ public class ResultPlotter {
 				max = refMax;
 			
 			EvenlyDiscretizedFunc speedupFunc = new EvenlyDiscretizedFunc(min, max, numX);
+			speedupFunc.setName(func.getName());
 			
 			for (int i=0; i<numX; i++) {
 				double time = speedupFunc.getX(i);
@@ -499,21 +612,27 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "mult_state_2_comb_3");
 //		dsaDir = new File(mainDir, "multi/ranger_ncal_1");
 		
-		dsaDir = new File(mainDir, "poster/ncal_constrained");
+//		dsaDir = new File(mainDir, "poster/ncal_constrained");
 //		dsaDir = new File(mainDir, "poster/ncal_unconstrained");
 //		dsaDir = new File(mainDir, "poster/state_constrained");
 //		dsaDir = new File(mainDir, "poster/state_unconstrained");
 		
+//		dsaDir = new File(mainDir, "2011_09_07_morgan_NoCS_UCERF2MagDist");
+		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
+		
 		ArrayList<String> plots = new ArrayList<String>();
-//		plots.add(energy_vs_time_title);
+		plots.add(energy_vs_time_title);
 		plots.add(avg_energy_vs_time_title);
-//		plots.add(std_dev_vs_time_title);
+		plots.add(std_dev_vs_time_title);
 //		plots.add(improvement_vs_time_title);
 //		plots.add(time_speedup_vs_energy_title);
-		plots.add(time_comparison_title);
+//		plots.add(time_comparison_title);
 		plots.add(time_speedup_vs_time_title);
 //		plots.add(speedup_vs_time_title);
 //		plots.add(energy_vs_iterations_title);
+//		plots.add(avg_energy_vs_iterations_title);
+//		plots.add(energy_vs_parallel_iterations_title);
+//		plots.add(parallel_iterations_vs_time_title);
 //		plots.add(iterations_vs_time_title);
 		
 		String highlight = null;
@@ -568,6 +687,8 @@ public class ResultPlotter {
 		HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> runsEnergyTimeMap =
 			new HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
 		HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> runsIterTimeMap =
+			new HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
+		HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> runsEnergyIterMap =
 			new HashMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
 		HashMap<String, PlotCurveCharacterstics> runsChars = new HashMap<String, PlotCurveCharacterstics>();
 		
@@ -717,11 +838,13 @@ public class ResultPlotter {
 				if (!runsEnergyTimeMap.containsKey(shortName)) {
 					runsEnergyTimeMap.put(shortName, new ArrayList<ArbitrarilyDiscretizedFunc>());
 					runsIterTimeMap.put(shortName, new ArrayList<ArbitrarilyDiscretizedFunc>());
+					runsEnergyIterMap.put(shortName, new ArrayList<ArbitrarilyDiscretizedFunc>());
 					runsChars.put(shortName, new PlotCurveCharacterstics(type, size, c));
 				}
 				
 				runsEnergyTimeMap.get(shortName).add(funcs[1]);
 				runsIterTimeMap.get(shortName).add(funcs[2]);
+				runsEnergyIterMap.get(shortName).add(funcs[0]);
 			}
 			
 			chars.add(new PlotCurveCharacterstics(type, size, c));
@@ -734,28 +857,36 @@ public class ResultPlotter {
 		ArrayList<DiscretizedFunc> minFuncs = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> maxFuncs = new ArrayList<DiscretizedFunc>();
 		ArrayList<DiscretizedFunc> iterTimeAvgs = new ArrayList<DiscretizedFunc>();
+		ArrayList<DiscretizedFunc> energyIterAvgs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> avgChars = new ArrayList<PlotCurveCharacterstics>();
 		if (plots.contains(avg_energy_vs_time_title)
 				|| plots.contains(std_dev_vs_time_title)
 				|| plots.contains(improvement_vs_time_title)
-				|| plots.contains(time_speedup_vs_energy_title)) {
+				|| plots.contains(time_speedup_vs_energy_title)
+				|| plots.contains(time_comparison_title)
+				|| plots.contains(time_speedup_vs_time_title)
+				|| plots.contains(avg_energy_vs_iterations_title)
+				|| plots.contains(energy_vs_parallel_iterations_title)) {
 			for (String name : runsEnergyTimeMap.keySet()) {
 				ArrayList<ArbitrarilyDiscretizedFunc> runs = runsEnergyTimeMap.get(name);
 				if (runs == null || runs.size() <= 1)
 					continue;
 				
-				String cName = name + " (average of "+runs.size()+" curves)";
+				String avgName = name + " (average of "+runs.size()+" curves)";
+				String maxName = name + " (maximum of "+runs.size()+" curves)";
+				String minName = name + " (minimum of "+runs.size()+" curves)";
+				String stdDevName = name + " (std dev of "+runs.size()+" curves)";
 				
 				System.out.println("Averaging: "+name);
 				
 				DiscretizedFunc[] ret = calcAvgAndStdDev(runs, avgNumX, true);
 				DiscretizedFunc avg = ret[0];
-				avg.setName(cName);
+				avg.setName(avgName);
 				averages.add(avg);
 				
 				DiscretizedFunc stdDev = ret[1];
 				if (stdDev != null) {
-					stdDev.setName(cName);
+					stdDev.setName(stdDevName);
 					stdDevs.add(stdDev);
 				}
 				
@@ -763,14 +894,18 @@ public class ResultPlotter {
 				DiscretizedFunc maxFunc = ret[3];
 				if (minFunc != null && maxFunc != null) {
 					minFuncs.add(minFunc);
-					minFunc.setName(cName);
+					minFunc.setName(minName);
 					maxFuncs.add(maxFunc);
-					maxFunc.setName(cName);
+					maxFunc.setName(maxName);
 				}
 				
 				DiscretizedFunc iterTimeAvg = calcAvg(runsIterTimeMap.get(name), avgNumX);
-				iterTimeAvg.setName(cName);
+				iterTimeAvg.setName(avgName);
 				iterTimeAvgs.add(iterTimeAvg);
+				
+				DiscretizedFunc energyIterAvg = calcAvg(runsEnergyIterMap.get(name), avgNumX);
+				energyIterAvg.setName(avgName);
+				energyIterAvgs.add(energyIterAvg);
 				
 				avgChars.add(runsChars.get(name));
 				
@@ -825,14 +960,26 @@ public class ResultPlotter {
 			if (do_extrap) {
 				DiscretizedFunc extrapRef = getExtrapolatedRef(refFunc, getLowestEnergy(plotFuncs));
 				if (extrapRef != null) {
+					if (visible) {
+						ArrayList<DiscretizedFunc> extrapFuncs = new ArrayList<DiscretizedFunc>();
+						extrapFuncs.add(refFunc);
+						extrapFuncs.add(extrapRef);
+						ArrayList<PlotCurveCharacterstics> extrapChars = new ArrayList<PlotCurveCharacterstics>();
+						extrapChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+						extrapChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK));
+						getGraphWindow(extrapFuncs, "Extrapolated Curve", extrapChars, time_label, energy_label, visible);
+					}
 					timeComparisons.addAll(generateEnergyTimeComparison(plotFuncs, extrapRef, avgNumX/2));
 					for (int i=numOrig-1; i>=0; i--) {
 						int extrapI = i+numOrig;
 						if (timeComparisons.get(extrapI) == null) {
 							timeComparisons.remove(extrapI);
 						} else {
+							DiscretizedFunc func = timeComparisons.get(extrapI);
+							func.setName(func.getName()+" (EXTRAPOLATED)");
 							PlotCurveCharacterstics cloned = (PlotCurveCharacterstics)timeCompChars.get(i).clone();
 							cloned.setLineType(PlotLineType.DOTTED);
+							cloned.setColor(getSaturated(cloned.getColor(), 0.5f));
 							timeCompChars.add(numOrig, cloned);
 						}
 					}
@@ -895,6 +1042,12 @@ public class ResultPlotter {
 					windows.put(energy_speedup_vs_time_title,
 							getGraphWindow(timeSpeedups, energy_speedup_vs_time_title, avgChars, time_label, energy_speedup_label, visible));
 				}
+			} else if (plot.equals(avg_energy_vs_iterations_title)) {
+				if (energyIterAvgs.size() > 0) {
+					System.out.println("displaying "+avg_energy_vs_iterations_title);
+					windows.put(avg_energy_vs_iterations_title,
+							getGraphWindow(energyIterAvgs, avg_energy_vs_iterations_title, avgChars, iterations_label, energy_label, visible));
+				}
 			} else if (plot.equals(energy_vs_iterations_title)) {
 				System.out.println("displaying "+energy_vs_iterations_title);
 				windows.put(energy_vs_iterations_title,
@@ -911,6 +1064,34 @@ public class ResultPlotter {
 				else
 					windows.put(iterations_vs_time_title,
 							getGraphWindow(iterVsTime, iterations_vs_time_title, chars, time_label, iterations_label, visible));
+			} else if (plot.equals(parallel_iterations_vs_time_title)) {
+				System.out.println("displaying "+parallel_iterations_vs_time_title);
+				ArrayList<DiscretizedFunc> regIterTimeCurves;
+				ArrayList<PlotCurveCharacterstics> iterTimeChars;
+				if (iterTimeAvgs.size() > 0) {
+					regIterTimeCurves = iterTimeAvgs;
+					iterTimeChars = avgChars;
+				} else {
+					regIterTimeCurves = iterVsTime;
+					iterTimeChars = chars;
+				}
+				ArrayList<DiscretizedFunc> piters = getParallelIters(regIterTimeCurves, false);
+				windows.put(parallel_iterations_vs_time_title,
+							getGraphWindow(piters, parallel_iterations_vs_time_title, iterTimeChars, time_label, parallel_iterations_label, visible));
+			} else if (plot.equals(energy_vs_parallel_iterations_title)) {
+				System.out.println("displaying "+energy_vs_parallel_iterations_title);
+				ArrayList<DiscretizedFunc> regEnergyIterCurves;
+				ArrayList<PlotCurveCharacterstics> iterTimeChars;
+				if (energyIterAvgs.size() > 0) {
+					regEnergyIterCurves = energyIterAvgs;
+					iterTimeChars = avgChars;
+				} else {
+					regEnergyIterCurves = energyVsIter;
+					iterTimeChars = chars;
+				}
+				ArrayList<DiscretizedFunc> piters = getParallelIters(regEnergyIterCurves, true);
+				windows.put(energy_vs_parallel_iterations_title,
+							getGraphWindow(piters, energy_vs_parallel_iterations_title, iterTimeChars, parallel_iterations_label, energy_label, visible));
 			} else {
 				System.out.println("Unknown plot type: "+plot);
 			}

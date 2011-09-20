@@ -26,6 +26,10 @@ public class PosterImageGen {
 	static {
 		wikiTable.add(new ArrayList<String>());
 		wikiTable.get(0).add("!Dataset");
+		wikiTable.get(0).add("!Northern California (Well Constrained)<br>17,777 elements");
+		wikiTable.get(0).add("!Northern California (Poorly Constrained)<br>17,777 elements");
+		wikiTable.get(0).add("!All California (Well Constrained)<br>65,393 elements");
+		wikiTable.get(0).add("!All California (Poorly Constrained)<br>65,393 elements");
 		wikiTable.add(new ArrayList<String>());
 		wikiTable.get(1).add("!Energy vs Time");
 		wikiTable.add(new ArrayList<String>());
@@ -56,6 +60,18 @@ public class PosterImageGen {
 		
 		gp.saveAsPDF(new File(dir, fName+".pdf").getAbsolutePath(), width, height);
 		gp.saveAsPNG(new File(dir, fName+".png").getAbsolutePath(), width, height);
+		
+		gw.setPlotLabelFontSize(16);
+		gw.setAxisLabelFontSize(14);
+		gw.setTickLabelFontSize(10);
+		gp.setSize(png_thumb_width, png_thumb_height);
+		gw.drawGraph();
+		gp.setVisible(true);
+
+		gp.togglePlot(null);
+		
+		gp.validate();
+		gp.repaint();
 		gp.saveAsPNG(new File(dir, fName+".small.png").getAbsolutePath(), png_thumb_width, png_thumb_height);
 	}
 	
@@ -82,7 +98,7 @@ public class PosterImageGen {
 				myAvgNumX, myTargetNum, false, plots);
 		GraphiWindowAPI_Impl gw;
 		
-		wikiTable.get(0).add("!"+dir.getName());
+//		wikiTable.get(0).add("!"+dir.getName());
 		String prefix = dir.getName()+"_";
 		String fName;
 		
@@ -198,41 +214,41 @@ public class PosterImageGen {
 				// % improvement range
 				new Range(0, 10));
 		
-		handleDir(ncalUnconst,
-				// time range
-				new Range(0, 120),
-				// energy plot range
-				new Range(1.5, 8),
-//				// speedup range
-//				new Range(0.5, 10),
-				// std. dev. range
-				new Range(0, 1),
-				// % improvement range
-				new Range(0, 10));
-		
-		handleDir(stateConst,
-				// time range
-				new Range(0, 480),
-				// energy plot range
-				new Range(2200000.0, 4000000.0),
-//				// speedup range
-//				new Range(0.5, 6),
-				// std. dev. range
-				new Range(0, 55000),
-				// % improvement range
-				new Range(0, 1));
-		
-		handleDir(stateUnonst,
-				// time range
-				new Range(0, 480),
-				// energy plot range
-				new Range(7.5, 35),
-//				// speedup range
-//				new Range(0.5, 6.5),
-				// std. dev. range
-				new Range(0, 10),
-				// % improvement range
-				new Range(0, 10));
+//		handleDir(ncalUnconst,
+//				// time range
+//				new Range(0, 120),
+//				// energy plot range
+//				new Range(1.5, 8),
+////				// speedup range
+////				new Range(0.5, 10),
+//				// std. dev. range
+//				new Range(0, 1),
+//				// % improvement range
+//				new Range(0, 10));
+//		
+//		handleDir(stateConst,
+//				// time range
+//				new Range(0, 480),
+//				// energy plot range
+//				new Range(2000000.0, 4000000.0),
+////				// speedup range
+////				new Range(0.5, 6),
+//				// std. dev. range
+//				new Range(0, 55000),
+//				// % improvement range
+//				new Range(0, 1));
+//		
+//		handleDir(stateUnonst,
+//				// time range
+//				new Range(0, 480),
+//				// energy plot range
+//				new Range(7.5, 35),
+////				// speedup range
+////				new Range(0.5, 6.5),
+//				// std. dev. range
+//				new Range(0, 10),
+//				// % improvement range
+//				new Range(0, 10));
 		
 		printTable();
 		
