@@ -19,9 +19,12 @@
 
 package org.opensha.sha.cybershake.db;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.opensha.commons.data.CSVFile;
 import org.opensha.sha.earthquake.AbstractERF;
 
 public class CybershakeSiteManager {
@@ -96,13 +99,26 @@ public class CybershakeSiteManager {
 	
 	public static void main(String[] args) throws IOException {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, false);
-		int typeID = 1;
-		CybershakeSite site = new CybershakeSite(35.21083, -120.85611, "Diablo Canyon", "DBCN");
+		CSVFile<String> csv = CSVFile.readFile(new File("/tmp/sites.csv"), true, 5);
+		
 		AbstractERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		int erfID = 35;
 		double cutoffDistance = 200;
 		
-		insertCybershakeSite(db, site, erf, erfID, cutoffDistance, typeID);
+		for (int i=1; i<csv.getNumRows(); i++) {
+			List<String> row = csv.getLine(i);
+			String shortName = row.get(0);
+			String name = row.get(1);
+			double lat = Double.parseDouble(row.get(2));
+			double lon = Double.parseDouble(row.get(3));
+			int typeID = Integer.parseInt(row.get(4));
+			
+			CybershakeSite site = new CybershakeSite(lat, lon, name, shortName);
+			System.out.println("Inserting: "+site);
+			
+			insertCybershakeSite(db, site, erf, erfID, cutoffDistance, typeID);
+		}
+//		int typeID = 1;
 		
 		db.destroy();
 	}
