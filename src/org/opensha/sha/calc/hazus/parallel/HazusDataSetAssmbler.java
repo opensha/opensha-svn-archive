@@ -166,8 +166,9 @@ public class HazusDataSetAssmbler {
 		int years = -1;
 		if (args.length == 0) {
 			System.err.println("WARNING: Running with hardcoded paths!");
-			dataDir = "/home/kevin/OpenSHA/hazus/ca_0.1_test/curves";
-			years = 30;
+			dataDir = "/home/kevin/OpenSHA/hazus/grid_fix/indep/curves_merged";
+			years = 50;
+			metadataFile = "/home/kevin/OpenSHA/hazus/grid_fix/indep/metadata.dat";
 		} else if (args.length == 2 || args.length == 3) {
 			dataDir = args[0];
 			years = Integer.parseInt(args[1]);

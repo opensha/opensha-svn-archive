@@ -52,7 +52,7 @@ public class HazardDataSetLoader {
 		return curves;
 	}
 	
-	private static boolean shouldSkip(File file) {
+	public static boolean shouldSkip(File file) {
 		if (file.getName().startsWith("."))
 			return true;
 		

@@ -1,4 +1,4 @@
-package scratch.kevin;
+package scratch.kevin.hazus;
 
 import java.io.File;
 import java.io.IOException;
