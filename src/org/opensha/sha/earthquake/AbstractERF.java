@@ -313,5 +313,10 @@ public abstract class AbstractERF implements
 	public int compareTo(BaseERF o) {
 		return getName().compareToIgnoreCase(o.getName());
 	}
+	
+	@Override
+	public Iterator<ProbEqkSource> iterator() {
+		return getSourceList().iterator();
+	}
 
 }

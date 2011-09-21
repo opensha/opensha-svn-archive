@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.TimeSpan;
@@ -133,6 +134,11 @@ public class ERFTestSubset implements ERF {
 	@Override
 	public int compareTo(BaseERF o) {
 		return baseERF.compareTo(o);
+	}
+
+	@Override
+	public Iterator<ProbEqkSource> iterator() {
+		return getSourceList().iterator();
 	}
 
 }

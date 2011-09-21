@@ -41,7 +41,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public abstract class ProbEqkSource implements EqkSource, Named {
+public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEqkRupture> {
 
 	/**
 	 * 
@@ -93,8 +93,7 @@ public abstract class ProbEqkSource implements EqkSource, Named {
 	 * @return the iterator object for the RuptureList
 	 */
 	public Iterator<ProbEqkRupture> getRupturesIterator() {
-		ArrayList<ProbEqkRupture> v= getRuptureList();
-		return v.iterator();
+		return getRuptureList().iterator();
 	}
 
 
@@ -402,6 +401,11 @@ public abstract class ProbEqkSource implements EqkSource, Named {
 		if(tectonicRegionType == null)
 			throw new RuntimeException("tectonicRegionType cannot be set as null");
 		this.tectonicRegionType=tectonicRegionType;
+	}
+
+	@Override
+	public Iterator<ProbEqkRupture> iterator() {
+		return getRupturesIterator();
 	}
 
 

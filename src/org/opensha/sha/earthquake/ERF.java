@@ -28,7 +28,7 @@ import java.util.List;
  * @version $Id$
  */
 
-public interface ERF extends BaseERF {
+public interface ERF extends BaseERF, Iterable<ProbEqkSource> {
 
 	/**
 	 * 
@@ -40,7 +40,7 @@ public interface ERF extends BaseERF {
 	 * Returns the list of all earthquake sources.
 	 * @return list of all possible earthquake sources
 	 */
-	public List<? extends ProbEqkSource> getSourceList();
+	public List<ProbEqkSource> getSourceList();
 
 	/**
 	 * Returns the earthquake source at the supplied index.

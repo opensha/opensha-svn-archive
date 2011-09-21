@@ -40,7 +40,7 @@ public class CyberShakeERF extends AbstractERF {
 	
 	private static final boolean SAVE_OBJECTS = false;
 
-	ArrayList<CyberShakeProbEqkSource> sources = new ArrayList<CyberShakeProbEqkSource>();
+	ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 
 	public static final String ERF_ID_SELECTOR_PARAM = "Earthquake Rupture Forecast";
 
@@ -121,7 +121,7 @@ public class CyberShakeERF extends AbstractERF {
 	}
 
 	@Override
-	public ArrayList<CyberShakeProbEqkSource> getSourceList() {
+	public ArrayList<ProbEqkSource> getSourceList() {
 		return sources;
 	}
 
@@ -154,11 +154,14 @@ public class CyberShakeERF extends AbstractERF {
 			String fileName = "cyberShakeERFSources_" + this.selectedERF.id + ".obj";
 			File objFile = new File(fileName);
 			if (objFile.exists() && SAVE_OBJECTS) {
-				sources = (ArrayList<CyberShakeProbEqkSource>)FileUtils.loadObject(fileName);
+				sources = (ArrayList<ProbEqkSource>)FileUtils.loadObject(fileName);
 				updated = true;
 			} else {
 				long start = System.currentTimeMillis();
-				sources = this.erf2db.getSources(this.selectedERF.id);
+				ArrayList<CyberShakeProbEqkSource> csSources = this.erf2db.getSources(this.selectedERF.id);
+				sources = new ArrayList<ProbEqkSource>();
+				for (CyberShakeProbEqkSource csSource : csSources)
+					sources.add(csSource);
 				double secs = (double)(System.currentTimeMillis() - start) / 1000d;
 				System.out.println("Took " + secs + " seconds to update forecast!");
 				updated = true;
