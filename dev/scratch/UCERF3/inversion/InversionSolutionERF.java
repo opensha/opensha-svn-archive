@@ -87,7 +87,7 @@ public class InversionSolutionERF extends AbstractERF {
 	private FaultSystemSolution solution;
 	
 	private HashMap<String, SimpleSource> sourceNameMap = new HashMap<String, InversionSolutionERF.SimpleSource>();
-	private ArrayList<SimpleSource> sources = new ArrayList<InversionSolutionERF.SimpleSource>();
+	private ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 	
 	private HashMap<FaultSectionPrefData, EvenlyGriddedSurface> surfMap =
 		new HashMap<FaultSectionPrefData, EvenlyGriddedSurface>();
@@ -199,8 +199,8 @@ public class InversionSolutionERF extends AbstractERF {
 			} else {
 				// just changed the time span
 				if (D) System.out.println("Updating rates for new time span: "+years+" years.");
-				for (SimpleSource source : sources) {
-					source.calcProbs(years);
+				for (ProbEqkSource source : sources) {
+					((SimpleSource)source).calcProbs(years);
 				}
 			}
 			
@@ -230,7 +230,7 @@ public class InversionSolutionERF extends AbstractERF {
 	}
 
 	@Override
-	public ArrayList<? extends ProbEqkSource> getSourceList() {
+	public ArrayList<ProbEqkSource> getSourceList() {
 		return sources;
 	}
 	
