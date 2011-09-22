@@ -52,7 +52,10 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 		if (!particRatesCache.containsKey(key)) {
 			double[] particRates = new double[getNumSections()];
 			CalcProgressBar p = null;
-			if (showProgress) p = new CalcProgressBar("Fault System Solution", "Calculating Participation Rates");
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Participation Rates", "Calculating Participation Rates");
+				p.displayProgressBar();
+			}
 			for (int i=0; i<particRates.length; i++) {
 				if (showProgress) p.updateProgress(i, particRates.length);
 				particRates[i] = super.calcParticRateForSect(i, magLow, magHigh);
@@ -77,7 +80,10 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 		if (totParticRatesCache == null) {
 			totParticRatesCache = new double[getNumSections()];
 			CalcProgressBar p = null;
-			if (showProgress) p = new CalcProgressBar("Fault System Solution", "Calculating Total Participation Rates");
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Total Participation Rates", "Calculating Total Participation Rates");
+				p.displayProgressBar();
+			}
 			for (int i=0; i<totParticRatesCache.length; i++) {
 				if (showProgress) p.updateProgress(i, totParticRatesCache.length);
 				totParticRatesCache[i] = super.calcTotParticRateForSect(i);
@@ -101,7 +107,10 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 		if (paleoVisibleRatesCache == null) {
 			paleoVisibleRatesCache = new double[getNumSections()];
 			CalcProgressBar p = null;
-			if (showProgress) p = new CalcProgressBar("Fault System Solution", "Calculating Paleo Visible Rates");
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Paleo Visible Rates", "Calculating Paleo Visible Rates");
+				p.displayProgressBar();
+			}
 			for (int i=0; i<paleoVisibleRatesCache.length; i++) {
 				if (showProgress) p.updateProgress(i, paleoVisibleRatesCache.length);
 				paleoVisibleRatesCache[i] = super.calcTotPaleoVisibleRateForSect(i);
@@ -125,7 +134,10 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 		if (slipRatesCache == null) {
 			slipRatesCache = new double[getNumSections()];
 			CalcProgressBar p = null;
-			if (showProgress) p = new CalcProgressBar("Fault System Solution", "Calculating Slip Rates");
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Slip Rates", "Calculating Slip Rates");
+				p.displayProgressBar();
+			}
 			for (int i=0; i<slipRatesCache.length; i++) {
 				if (showProgress) p.updateProgress(i, slipRatesCache.length);
 				slipRatesCache[i] = super.calcSlipRateForSect(i);

@@ -95,6 +95,6 @@
 			<attribute name="javadoc_location" value="http://poi.apache.org/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jxlayer.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jxlayer.jar"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>
