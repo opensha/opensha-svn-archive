@@ -4,15 +4,33 @@ import java.util.HashMap;
 
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
-
+/**
+ * This class wraps a FaultSystemSolution in to provide caching for lengthly calculations.
+ * 
+ * @author kevin
+ *
+ */
 public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	private boolean showProgress;
 
+	/**
+	 * Creates a new CachedFaultSystemSolution wrapper around the given solution. Progress bars will
+	 * not be shown.
+	 * 
+	 * @param solution
+	 */
 	public CachedFaultSystemSolution(FaultSystemSolution solution) {
 		this(solution, false);
 	}
 	
+	/**
+	 * Creates a new CachedFaultSystemSolution wrapper around the given solution. Progress bars will
+	 * be shown on lengthy calculations if <code>showProgress</code> is true.
+	 * 
+	 * @param solution
+	 * @param showProgress
+	 */
 	public CachedFaultSystemSolution(FaultSystemSolution solution, boolean showProgress) {
 		super(solution);
 		this.showProgress = showProgress;
