@@ -901,7 +901,8 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		
 		/*		Hazus Control					*/
 		controlComboBox.addItem(GenerateHazusControlPanelForSingleMultipleIMRs.NAME);
-		controlPanels.add(new GenerateHazusControlPanelForSingleMultipleIMRs(this,this));
+		hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
+		controlPanels.add(hazusControl);
 		
 		/*		Puente Hills Control			*/
 		controlComboBox.addItem(PuenteHillsScenarioControlPanelUsingEqkRuptureCreation.NAME);

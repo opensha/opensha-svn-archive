@@ -494,6 +494,7 @@ implements Runnable{
 //			step = 0;
 //		}
 		catch (RuntimeException ee) {
+			ee.printStackTrace();
 			JOptionPane.showMessageDialog(frame, ee.getMessage(), "Input or Server Problem",
 					JOptionPane.INFORMATION_MESSAGE);
 			step = 0;
