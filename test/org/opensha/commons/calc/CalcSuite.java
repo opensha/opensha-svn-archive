@@ -8,7 +8,8 @@ import org.junit.runners.Suite;
 	TestFaultMomentCalc.class,
 	TestFractileCurveCalculator.class,
 	TestFunctionListCalc.class,
-	TestGaussianDistCalc.class
+	TestGaussianDistCalc.class,
+	TestPoissonSampler.class
 })
 
 public class CalcSuite
