@@ -237,6 +237,16 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	public List<Integer> getSectionsIndicesForRup(int rupIndex) {
 		return sectionForRups.get(rupIndex);
 	}
+	
+	@Override
+	public List<Integer> getRupturesForSection(int secIndex) {
+		ArrayList<Integer> rups = new ArrayList<Integer>();
+		for (int rupID=0; rupID<getNumRuptures(); rupID++) {
+			if (getSectionsIndicesForRup(rupID).contains(secIndex))
+				rups.add(rupID);
+		}
+		return rups;
+	}
 
 	@Override
 	public double[] getMagForAllRups() {

@@ -42,6 +42,13 @@ public interface FaultSystemRupSet {
 	 * @return
 	 */
 	public List<Integer> getSectionsIndicesForRup(int rupIndex);
+	
+	/**
+	 * This returns the a list of all ruptures that occur on each section
+	 * @param secIndex
+	 * @return
+	 */
+	public List<Integer> getRupturesForSection(int secIndex);
 
 	/**
 	 * This gives the magnitude for each rth rupture

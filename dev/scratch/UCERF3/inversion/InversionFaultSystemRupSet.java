@@ -454,6 +454,16 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	public ArrayList<Integer> getSectionsIndicesForRup(int rupIndex) {
 		return sectionClusterList.get(clusterIndexForRup[rupIndex]).getSectionIndicesForRupture(rupIndexInClusterForRup[rupIndex]);
 	}
+	
+	@Override
+	public List<Integer> getRupturesForSection(int secIndex) {
+		ArrayList<Integer> rups = new ArrayList<Integer>();
+		for (int rupID=0; rupID<getNumRuptures(); rupID++) {
+			if (getSectionsIndicesForRup(rupID).contains(secIndex))
+				rups.add(rupID);
+		}
+		return rups;
+	}
 
 	public double[] getMagForAllRups() {
 		return rupMeanMag;

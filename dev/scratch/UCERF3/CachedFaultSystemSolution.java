@@ -1,6 +1,8 @@
 package scratch.UCERF3;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
@@ -57,10 +59,10 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 				p.displayProgressBar();
 			}
 			for (int i=0; i<particRates.length; i++) {
-				if (showProgress) p.updateProgress(i, particRates.length);
+				if (p != null) p.updateProgress(i, particRates.length);
 				particRates[i] = super.calcParticRateForSect(i, magLow, magHigh);
 			}
-			if (showProgress) p.dispose();
+			if (p != null) p.dispose();
 			particRatesCache.put(key, particRates);
 		}
 		return particRatesCache.get(key);
@@ -85,10 +87,10 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 				p.displayProgressBar();
 			}
 			for (int i=0; i<totParticRatesCache.length; i++) {
-				if (showProgress) p.updateProgress(i, totParticRatesCache.length);
+				if (p != null) p.updateProgress(i, totParticRatesCache.length);
 				totParticRatesCache[i] = super.calcTotParticRateForSect(i);
 			}
-			if (showProgress) p.dispose();
+			if (p != null) p.dispose();
 		}
 		return totParticRatesCache;
 	}
@@ -112,10 +114,10 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 				p.displayProgressBar();
 			}
 			for (int i=0; i<paleoVisibleRatesCache.length; i++) {
-				if (showProgress) p.updateProgress(i, paleoVisibleRatesCache.length);
+				if (p != null) p.updateProgress(i, paleoVisibleRatesCache.length);
 				paleoVisibleRatesCache[i] = super.calcTotPaleoVisibleRateForSect(i);
 			}
-			if (showProgress) p.dispose();
+			if (p != null) p.dispose();
 		}
 		return paleoVisibleRatesCache;
 	}
@@ -139,12 +141,41 @@ public class CachedFaultSystemSolution extends SimpleFaultSystemSolution {
 				p.displayProgressBar();
 			}
 			for (int i=0; i<slipRatesCache.length; i++) {
-				if (showProgress) p.updateProgress(i, slipRatesCache.length);
+				if (p != null) p.updateProgress(i, slipRatesCache.length);
 				slipRatesCache[i] = super.calcSlipRateForSect(i);
 			}
-			if (showProgress) p.dispose();
+			if (p != null) p.dispose();
 		}
 		return slipRatesCache;
+	}
+	
+	/* Ruptures for Section */
+	
+	private ArrayList<ArrayList<Integer>> rupturesForSectionCache = null;
+
+	@Override
+	public List<Integer> getRupturesForSection(int secIndex) {
+		if (rupturesForSectionCache == null) {
+			CalcProgressBar p = null;
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Ruptures for each Section", "Calculating Ruptures for each Section");
+				p.displayProgressBar();
+			}
+			rupturesForSectionCache = new ArrayList<ArrayList<Integer>>();
+			for (int secID=0; secID<getNumSections(); secID++)
+				rupturesForSectionCache.add(new ArrayList<Integer>());
+			
+			int numRups = getNumRuptures();
+			for (int rupID=0; rupID<numRups; rupID++) {
+				if (p != null) p.updateProgress(rupID, numRups);
+				for (int secID : getSectionsIndicesForRup(rupID)) {
+					rupturesForSectionCache.get(secID).add(rupID);
+				}
+			}
+			if (p != null) p.dispose();
+		}
+		
+		return rupturesForSectionCache.get(secIndex);
 	}
 
 }
