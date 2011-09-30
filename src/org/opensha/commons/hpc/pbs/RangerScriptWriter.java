@@ -1,7 +1,8 @@
-package scratch.UCERF3.simulatedAnnealing.hpc;
+package org.opensha.commons.hpc.pbs;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class RangerScriptWriter extends BatchScriptWriter {
 

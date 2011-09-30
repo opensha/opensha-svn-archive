@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.gridComputing;
+package org.opensha.commons.hpc.grid;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;

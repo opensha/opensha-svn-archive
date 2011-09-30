@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.opensha.commons.hpc.JavaShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.pbs.BatchScriptWriter;
+import org.opensha.commons.hpc.pbs.RangerScriptWriter;
+import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
+
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
-import scratch.UCERF3.simulatedAnnealing.hpc.BatchScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.hpc.DistributedScriptCreator;
-import scratch.UCERF3.simulatedAnnealing.hpc.RangerScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.hpc.ThreadedScriptCreator;
-import scratch.UCERF3.simulatedAnnealing.hpc.USC_HPCC_ScriptWriter;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 
 public class MultiSABenchmarkPBSWriter {
@@ -25,7 +28,7 @@ public class MultiSABenchmarkPBSWriter {
 //		String runName = "2011_09-06-ncal_const_100node";
 //		String runName = "2011_09_08-ranger-morgan-new";
 //		String runName = "ncal_1_sup_1thread_long";
-		String runName = "2011_09_16_genetic_test";
+		String runName = "2011_09_29_new_create_test";
 		
 		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/"+runName);
 		if (!writeDir.exists())
@@ -67,6 +70,8 @@ public class MultiSABenchmarkPBSWriter {
 		jars.add(new File(runDir, "csparsej.jar"));
 
 		int heapSizeMB = 2048;
+		
+		boolean useMxdev = false;
 
 		File aMat, dMat, initialMat;
 
@@ -82,17 +87,20 @@ public class MultiSABenchmarkPBSWriter {
 
 		CompletionCriteria dsaCriteria = TimeCompletionCriteria.getInMinutes(dsaAnnealMins);
 		CompletionCriteria tsaCriteria = TimeCompletionCriteria.getInMinutes(tsaAnnealMins);
+		
+		MPJShellScriptWriter mpjWriter = new MPJShellScriptWriter(javaBin, heapSizeMB, jars, mpjHome, useMxdev);
+		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, heapSizeMB, jars);
 
-		DistributedScriptCreator dsa_create = new DistributedScriptCreator(javaBin, jars, heapSizeMB, aMat, dMat,
+		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, aMat, dMat,
 				initialMat, subIterations, -1, null, dsaCriteria, mpjHome, false);
-		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaBin, jars, heapSizeMB, aMat, dMat,
+		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, aMat, dMat,
 				initialMat, subIterations, -1, null, tsaCriteria);
 
 		int[] dsa_threads = { 4 };
 
-//		int[] tsa_threads = { 1 };
+		int[] tsa_threads = { 1 };
 //		int[] tsa_threads = { 1,2,4,8 };
-		int[] tsa_threads = new int[0];
+//		int[] tsa_threads = new int[0];
 
 //		int[] nodes = { 20,50,100,200 };
 //		int[] nodes = { 500 };

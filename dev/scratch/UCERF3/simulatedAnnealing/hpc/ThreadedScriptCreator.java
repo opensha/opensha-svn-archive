@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.hpc.JavaShellScriptWriter;
+
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -17,9 +19,7 @@ import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 public class ThreadedScriptCreator {
 	
 	// required -- java
-	private File javaBin;
-	private List<File> jars;
-	private int heapSizeMB;
+	private JavaShellScriptWriter writer;
 	
 	// required -- args
 	private File aMat;
@@ -37,12 +37,10 @@ public class ThreadedScriptCreator {
 	private NonnegativityConstraintType nonNeg;
 	private boolean setSubIterationsZero = false;
 	
-	public ThreadedScriptCreator(File javaBin, List<File> jars, int heapSizeMB,
+	public ThreadedScriptCreator(JavaShellScriptWriter writer,
 			File aMat, File dMat, File initial, int subIterations, int numThreads,
 			File solFile, CompletionCriteria criteria) {
-		this.javaBin = javaBin;
-		this.jars = jars;
-		this.heapSizeMB = heapSizeMB;
+		this.writer = writer;
 		
 		this.aMat = aMat;
 		this.dMat = dMat;
@@ -51,34 +49,6 @@ public class ThreadedScriptCreator {
 		this.numThreads = numThreads;
 		this.solFile = solFile;
 		this.criteria = criteria;
-	}
-	
-	String getJavaCommand() {
-		return getJavaCommand(ThreadedSimulatedAnnealing.class.getName());
-	}
-	
-	String getJavaArgs(String className) {
-		String cp = "";
-		if (jars != null && !jars.isEmpty()) {
-			cp = " -cp ";
-			for (int i=0; i<jars.size(); i++) {
-				if (i>0)
-					cp += ":";
-				cp += jars.get(i).getAbsolutePath();
-			}
-		}
-		
-		String heap = "";
-		if (heapSizeMB > 0)
-			heap = " -Xmx"+heapSizeMB+"M";
-		
-		return heap+cp+" "+className;
-	}
-	
-	String getJavaCommand(String className) {
-		
-		
-		return javaBin.getAbsolutePath()+getJavaArgs(className);
 	}
 	
 	String getArgs() {
@@ -113,10 +83,6 @@ public class ThreadedScriptCreator {
 		return args;
 	}
 	
-	String buildCommand() {
-		return getJavaCommand()+" "+getArgs();
-	}
-	
 	// moved to BatchScriptWriter implementations
 //	public List<String> buildPBSScript(int mins, int nodes, int ppn, String queue) {
 //		ArrayList<String> pbs = new ArrayList<String>();
@@ -134,24 +100,16 @@ public class ThreadedScriptCreator {
 //		return script;
 //	}
 	
+	String getClassName() {
+		return ThreadedSimulatedAnnealing.class.getName();
+	}
+	
 	public List<String> buildScript() {
-		ArrayList<String> script = new ArrayList<String>();
-		
-		script.add("#!/bin/bash");
-		script.add("");
-		script.add(buildCommand());
-		script.add("exit $?");
-		
-		return script;
+		return writer.buildScript(getClassName(), getArgs());
 	}
 	
 	public void writeScript(File file, List<String> script) throws IOException {
-		FileWriter fw = new FileWriter(file);
-		
-		for (String line: script)
-			fw.write(line + "\n");
-		
-		fw.close();
+		JavaShellScriptWriter.writeScript(file, script);
 	}
 
 	public void setaMat(File aMat) {

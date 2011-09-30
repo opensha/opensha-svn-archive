@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.region.SitesInGriddedRegion;
-import org.opensha.commons.gridComputing.GridResourcesList;
-import org.opensha.commons.gridComputing.ResourceProvider;
-import org.opensha.commons.gridComputing.ResourceProviderEditor;
-import org.opensha.commons.gridComputing.StorageHost;
-import org.opensha.commons.gridComputing.SubmitHost;
-import org.opensha.commons.gridComputing.SubmitHostEditor;
+import org.opensha.commons.hpc.grid.GridResourcesList;
+import org.opensha.commons.hpc.grid.ResourceProvider;
+import org.opensha.commons.hpc.grid.ResourceProviderEditor;
+import org.opensha.commons.hpc.grid.StorageHost;
+import org.opensha.commons.hpc.grid.SubmitHost;
+import org.opensha.commons.hpc.grid.SubmitHostEditor;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.ParameterConstraint;

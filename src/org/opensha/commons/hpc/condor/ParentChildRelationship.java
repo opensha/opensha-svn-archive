@@ -1,4 +1,4 @@
-package org.opensha.commons.gridComputing.condor;
+package org.opensha.commons.hpc.condor;
 
 /**
  * This represents a single parent child relationship between two {@link SubmitScriptForDAG}'s

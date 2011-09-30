@@ -24,12 +24,15 @@ import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
+import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
@@ -58,6 +61,8 @@ public class HardCodedTest {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
+	
+	private static final boolean MPJ = true;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -352,13 +357,26 @@ public class HardCodedTest {
 		String curveDir = jobDir + "curves/";
 		CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir, true, false);
 		
-		String javaExec = "/auto/usc/jdk/1.6.0/jre/bin/java";
-		String jarFile = "/home/scec-02/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar";
+		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
+		File jarFile = new File("/home/scec-02/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar");
 		
-		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
-				calcSet, archiver, javaExec, jarFile, years, spacing);
-		
-		dag.writeDAG(new File(jobDir), sitesPerJob, false);
+//		if (MPJ) {
+//			ArrayList<File> classpath = new ArrayList<File>();
+//			classpath.add(jarFile);
+//			
+//			MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 3000, classpath,
+//					USC_HPCC_ScriptWriter.MPJ_HOME, false);
+//			
+//			mpj.buildScript(MPJHazardCurveDriver.class.getName(), args)
+//			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
+//			
+//			writer.buildScript(script, mins, nodes, ppn, queue);
+//		} else {
+			HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
+					calcSet, archiver, javaBin.getAbsolutePath(), jarFile.getAbsolutePath(), years, spacing);
+			
+			dag.writeDAG(new File(jobDir), sitesPerJob, false);
+//		}
 	}
 
 }

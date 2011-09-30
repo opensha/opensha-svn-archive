@@ -211,6 +211,8 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		this.info = info;
 		
 		// can be null
+		Preconditions.checkArgument(closeSections == null || closeSections.size() == numSects,
+		"close sub section size doesn't match number of sections!");
 		this.closeSections = closeSections;
 		// can be null
 		this.clusterRups = clusterRups;

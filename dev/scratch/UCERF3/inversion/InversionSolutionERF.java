@@ -60,11 +60,11 @@ public class InversionSolutionERF extends AbstractERF {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 
 	public static final String NAME = "Inversion Solution ERF";
 	
-	private static final String FILE_PARAM_NAME = "Solution XML File";
+	private static final String FILE_PARAM_NAME = "Solution Input File";
 	private FileParameter fileParam;
 	
 	// these help keep track of what's changed
@@ -139,7 +139,7 @@ public class InversionSolutionERF extends AbstractERF {
 			if (isNewSolution) {
 				if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
 				try {
-					solution = SimpleFaultSystemSolution.fromXMLFile(file);
+					solution = SimpleFaultSystemSolution.fromFile(file);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}

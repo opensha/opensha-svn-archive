@@ -37,9 +37,13 @@ import scratch.UCERF3.inversion.InversionSolutionERF;
 public class InversionSolutionERFMapGen {
 	
 	public static void main(String[] args) throws IOException {
-		File solutionFile = new File("/home/scec-02/kmilner/ucerf3/" +
-				"inversion_solutions/dsa_4threads_50nodes_FAST_SA_dSub200_sub100_run3.xml");
-		File outputDir = new File("/home/scec-02/kmilner/hazMaps/ucerf3_inv_state_run_1/curves");
+//		File solutionFile = new File("/home/scec-02/kmilner/ucerf3/" +
+//				"inversion_solutions/dsa_4threads_50nodes_FAST_SA_dSub200_sub100_run3.xml");
+//		File outputDir = new File("/home/scec-02/kmilner/hazMaps/ucerf3_inv_state_run_1/curves");
+		File solutionFile = new File("/home/kevin/2011_09_08-morgan-CS_fixed.zip");
+		File outputDir = new File("/tmp/hazMapTest");
+		
+		double spacing = 0.2;
 		
 		InversionSolutionERF erf = new InversionSolutionERF();
 		erf.setSolutionFile(solutionFile);
@@ -55,12 +59,14 @@ public class InversionSolutionERFMapGen {
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
 		imrMaps.add(imrMap);
 		
-		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.02);
+		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 		ArrayList<SiteData<?>> provList = new ArrayList<SiteData<?>>();
 		provList.add(new WillsMap2006());
 		provList.add(new WaldAllenGlobalVs30());
 		provList.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		provList.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+		
+		System.out.println("Region has "+region.getNodeCount()+" sites");
 		
 		
 		ArrayList<Site> sites = new ArrayList<Site>();

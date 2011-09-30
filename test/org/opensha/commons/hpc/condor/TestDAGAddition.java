@@ -1,4 +1,4 @@
-package org.opensha.commons.gridComputing.condor;
+package org.opensha.commons.hpc.condor;
 
 import static org.junit.Assert.*;
 
@@ -8,7 +8,10 @@ import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opensha.commons.gridComputing.condor.DAG.DAG_ADD_LOCATION;
+import org.opensha.commons.hpc.condor.DAG;
+import org.opensha.commons.hpc.condor.ParentChildRelationship;
+import org.opensha.commons.hpc.condor.SubmitScriptForDAG;
+import org.opensha.commons.hpc.condor.DAG.DAG_ADD_LOCATION;
 import org.opensha.commons.util.FileUtils;
 
 public class TestDAGAddition {

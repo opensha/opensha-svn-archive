@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
+import org.opensha.commons.hpc.condor.SubmitScript.Universe;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.dagGen.TestHazardDataSetDAGCreator;

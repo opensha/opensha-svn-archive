@@ -17,7 +17,7 @@ import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
+import org.opensha.commons.hpc.condor.SubmitScript.Universe;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;

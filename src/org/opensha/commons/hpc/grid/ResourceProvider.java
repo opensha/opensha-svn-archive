@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.gridComputing;
+package org.opensha.commons.hpc.grid;
 
 import java.util.ArrayList;
 import java.util.List;

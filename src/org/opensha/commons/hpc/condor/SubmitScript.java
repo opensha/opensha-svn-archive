@@ -1,4 +1,4 @@
-package org.opensha.commons.gridComputing.condor;
+package org.opensha.commons.hpc.condor;
 
 import static com.google.common.base.Preconditions.*;
 

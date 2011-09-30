@@ -25,8 +25,10 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
+import com.google.common.base.Preconditions;
+
 /**
- * This class represends all of the inputs to the hazard map calculation process,
+ * This class represents all of the inputs to the hazard map calculation process,
  * and handles writing/loading them to/from XML.
  * 
  * @author kevin
@@ -154,6 +156,12 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	}
 	
 	public static CalculationInputsXMLFile loadXML(Document doc) throws InvocationTargetException, IOException {
+		return loadXML(doc, 1)[0];
+	}
+	
+	public static CalculationInputsXMLFile[] loadXML(Document doc, int threads)
+	throws InvocationTargetException, IOException {
+		Preconditions.checkArgument(threads >= 1, "threads must be >= 1");
 		Element root = doc.getRootElement();
 		
 		/* Load the ERF 							*/
@@ -171,9 +179,14 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		
 		/* Load the IMRs							*/
 		Element imrsEl = root.element(XML_IMRS_NAME);
-		ArrayList<ScalarIMR> imrs =imrsFromXML(imrsEl);
+		ArrayList<ArrayList<ScalarIMR>> imrsList = new ArrayList<ArrayList<ScalarIMR>>();
+		for (int i=0; i<threads; i++) {
+			ArrayList<ScalarIMR> imrs = imrsFromXML(imrsEl);
+			imrsList.add(imrs);
+		}
+		
 		ArrayList<Parameter> paramsToAdd = new ArrayList<Parameter>();
-		for (ScalarIMR imr : imrs) {
+		for (ScalarIMR imr : imrsList.get(0)) {
 			ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
 			while (it.hasNext()) {
 				Parameter param = it.next();
@@ -191,11 +204,14 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		
 		/* Load the IMR Maps						*/
 		Element imrMapsEl = root.element(XML_IMR_MAP_LIST_NAME);
-		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps =
-			imrMapsFromXML(imrs, imrMapsEl);
+		ArrayList<ArrayList<HashMap<TectonicRegionType, ScalarIMR>>> imrMapsList =
+			new  ArrayList<ArrayList<HashMap<TectonicRegionType, ScalarIMR>>>();
+		for (int i=0; i<threads; i++) {
+			imrMapsList.add(imrMapsFromXML(imrsList.get(i), imrMapsEl));
+		}
 		
 		/* Load the IMTs if applicaple				*/
-		List<Parameter<Double>> imts = imtsFromXML(imrs.get(0), imrMapsEl);
+		List<Parameter<Double>> imts = imtsFromXML(imrsList.get(0).get(0), imrMapsEl);
 		
 		/* Load the sites 							*/
 		Element sitesEl = root.element(Site.XML_METADATA_LIST_NAME);
@@ -209,7 +225,13 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		Element calcSettingsEl = root.element(CalculationSettings.XML_METADATA_NAME);
 		CalculationSettings calcSettings = CalculationSettings.fromXMLMetadata(calcSettingsEl);
 		
-		return new CalculationInputsXMLFile(erf, imrMaps, imts, sites, calcSettings, archiver);
+		CalculationInputsXMLFile[] inputs = new CalculationInputsXMLFile[threads];
+		
+		for (int i=0; i<threads; i++) {
+			inputs[i] = new CalculationInputsXMLFile(erf, imrMapsList.get(i), imts, sites, calcSettings, archiver);
+		}
+		
+		return inputs;
 	}
 	
 	public static final String XML_IMRS_NAME = "IMRs";

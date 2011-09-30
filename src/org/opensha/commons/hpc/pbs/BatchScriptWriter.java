@@ -1,4 +1,4 @@
-package scratch.UCERF3.simulatedAnnealing.hpc;
+package org.opensha.commons.hpc.pbs;
 
 import java.io.File;
 import java.io.FileWriter;

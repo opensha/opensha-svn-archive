@@ -19,6 +19,8 @@ import org.opensha.commons.geo.Location;
  */
 public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 	
+	private static final boolean D = false;
+	
 	public static final String XML_METADATA_NAME = "AsciiFileCurveArchiver";
 	
 	private String outputDir;
@@ -47,11 +49,11 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 
 	public void archiveCurve(ArbitrarilyDiscretizedFunc curve, CurveMetadata meta) throws IOException {
 		String outFileName = getFileName(meta);
-		System.out.println("Writing '" + outFileName + "'");
+		if (D) System.out.println("Writing '" + outFileName + "'");
 		AbstractDiscretizedFunc.writeSimpleFuncFile(curve, outFileName);
 	}
 	
-	private String getFileName(CurveMetadata meta) {
+	private synchronized String getFileName(CurveMetadata meta) {
 		Location loc = meta.getSite().getLocation();
 		String dir = outputDir;
 		dir += meta.getShortLabel() + File.separator;

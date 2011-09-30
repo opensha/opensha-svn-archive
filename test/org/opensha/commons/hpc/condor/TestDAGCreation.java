@@ -1,4 +1,4 @@
-package org.opensha.commons.gridComputing.condor;
+package org.opensha.commons.hpc.condor;
 
 
 import java.io.File;
@@ -7,7 +7,9 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.junit.Before;
-import org.opensha.commons.gridComputing.condor.SubmitScript.Universe;
+import org.opensha.commons.hpc.condor.DAG;
+import org.opensha.commons.hpc.condor.SubmitScriptForDAG;
+import org.opensha.commons.hpc.condor.SubmitScript.Universe;
 import org.opensha.commons.util.FileUtils;
 
 public class TestDAGCreation extends TestCase {

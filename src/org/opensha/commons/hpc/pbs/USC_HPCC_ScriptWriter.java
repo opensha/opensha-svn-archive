@@ -1,9 +1,14 @@
-package scratch.UCERF3.simulatedAnnealing.hpc;
+package org.opensha.commons.hpc.pbs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
+	
+	public static final File MPJ_HOME = new File("/home/rcf-12/kmilner/mpj-v0_38");
+	public static final File JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
 
 	@Override
 	public List<String> getBatchHeader(int mins, int nodes,
