@@ -35,12 +35,13 @@ import org.opensha.commons.exceptions.InvalidRangeException;
  *
  * <b>Description:</b>  This class is similar to ArbitraryDiscretizedFunction,
  * except that rather than replacing a point that has the same x value (or within
- * tolerance, which is required to be zero here), the y values are added together.
+ * tolerance, which is required to be near zero here), the y values are added together.
  * This is useful for making an empirical distribution where the y-values represent
  * the frequency of occurrence of each x value.  In this context, a nonzero tolerance
  * would not make sense because a values might fall into different points depending
  * on what order they're added.  Due to the numerical precision of floating point
- * arithmetic, the tolerance is really about 1e-16.<p>
+ * arithmetic, the tolerance is really about 1e-16 (multiple values within this 
+ * tolerance will be added together).<p>
  *
  * The getNormalizedCumDist() method enables one to get a normalized cumulative distribution.<p>
  * The getFractile(fraction) method gets the x-axis value for the specified fraction (does so by
