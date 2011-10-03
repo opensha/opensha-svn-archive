@@ -7,6 +7,7 @@ package scratch.UCERF3;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -46,6 +47,49 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @return
 	 */
 	public abstract double[] getRateForAllRups();
+	
+	
+	/**
+	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of slips for the 
+	 * specified section index, where the rate of each rupture is taken into account.
+	 * @param sectIndex
+	 * @return
+	 */
+	public ArbDiscrEmpiricalDistFunc calcSlipPFD_ForSect(int sectIndex) {
+		ArbDiscrEmpiricalDistFunc slipPDF = new ArbDiscrEmpiricalDistFunc();
+		for (int r : getRupturesForSection(sectIndex)) {
+			List<Integer> sectIndices = getSectionsIndicesForRup(r);
+			double[] slips = this.getSlipOnSectionsForRup(r);
+			for(int s=0; s<sectIndices.size(); s++) {
+				if(sectIndices.get(s) == sectIndex) {
+					slipPDF.set(slips[s], getRateForRup(r));
+					break;
+				}
+			}
+		}
+		return slipPDF;
+	}
+	
+	
+	/**
+	 * This returns the rate that pairs of section rupture together.  
+	 * Most entries are zero because the sections are far from each other, 
+	 * so a sparse matrix might be in order if this bloats memory.
+	 * @return
+	 */
+	public double[][] getSectionPairRupRates() {
+		double[][] rates = new double[getNumSections()][getNumSections()];
+		for(int r=0; r< getNumRuptures(); r++) {
+			List<Integer> indices = getSectionsIndicesForRup(r);
+			for(int s=1;s<indices.size();s++) {
+				double rate = getRateForRup(r);
+				rates[indices.get(s-1)][indices.get(s)] += rate;
+				rates[indices.get(s)][indices.get(s-1)] += rate;    // fill in the symmetric point
+			}
+		}
+		return rates;
+	}
+
 
 	
 	/**
