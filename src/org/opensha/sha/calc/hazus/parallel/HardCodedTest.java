@@ -381,7 +381,7 @@ public class HardCodedTest {
 			classpath.add(jarFile);
 			classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 			
-			MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 3000, classpath,
+			MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 2000, classpath,
 					USC_HPCC_ScriptWriter.MPJ_HOME, false);
 			
 			ArrayList<Parameter<Double>> imts = HazusDataSetDAGCreator.getIMTList(imrMaps);

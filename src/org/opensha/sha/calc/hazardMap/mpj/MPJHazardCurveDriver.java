@@ -47,10 +47,9 @@ public class MPJHazardCurveDriver {
 	private int minDispatch;
 	private int maxDispatch;
 	
-	private int rank = MPI.COMM_WORLD.Rank();
-	private int size = MPI.COMM_WORLD.Size();
+	private int rank;
 	
-	public MPJHazardCurveDriver(Document doc, int numThreads, int minDispatch, int maxDispatch)
+	public MPJHazardCurveDriver(int rank, Document doc, int numThreads, int minDispatch, int maxDispatch)
 	throws InvocationTargetException, IOException {
 		Preconditions.checkArgument(numThreads >= 1, "threads must be >= 1. you supplied: "+numThreads);
 		
@@ -62,14 +61,14 @@ public class MPJHazardCurveDriver {
 		for (int i=0; i<inputs.length; i++)
 			calcs[i] = new HazardCurveSetCalculator(inputs[i]);
 		
-		init(calcs, sites, minDispatch, maxDispatch);
+		init(rank, calcs, sites, minDispatch, maxDispatch);
 	}
 	
-	public MPJHazardCurveDriver(HazardCurveSetCalculator[] calcs, List<Site> sites, int minDispatch, int maxDispatch) {
-		init(calcs, sites, minDispatch, maxDispatch);
+	public MPJHazardCurveDriver(int rank, HazardCurveSetCalculator[] calcs, List<Site> sites, int minDispatch, int maxDispatch) {
+		init(rank, calcs, sites, minDispatch, maxDispatch);
 	}
 	
-	private void init(HazardCurveSetCalculator[] calcs, List<Site> sites, int minDispatch, int maxDispatch) {
+	private void init(int rank, HazardCurveSetCalculator[] calcs, List<Site> sites, int minDispatch, int maxDispatch) {
 		Preconditions.checkNotNull(calcs, "calcs cannot be null!");
 		Preconditions.checkArgument(calcs.length > 0, "calcs cannot be empty!");
 		for (HazardCurveSetCalculator calc : calcs)
@@ -80,9 +79,14 @@ public class MPJHazardCurveDriver {
 		this.sites = sites;
 		this.minDispatch = minDispatch;
 		this.maxDispatch = maxDispatch;
+		this.rank = rank;
 	}
 	
 	private void debug(String message) {
+		debug(rank, message);
+	}
+	
+	private static void debug(int rank, String message) {
 		if (!D)
 			return;
 		
@@ -90,14 +94,6 @@ public class MPJHazardCurveDriver {
 	}
 	
 	public void run() throws IOException, InterruptedException {
-		if (rank == 0) {
-			// launch the dispatcher
-			// TODO make min/max dispatch sizes user selectable
-			debug("starting dispatcher!");
-			DispatcherThread dispatch = new DispatcherThread(size, sites.size(),
-					minDispatch, maxDispatch);
-			dispatch.start();
-		}
 		
 		ThreadedHazardCurveSetCalculator threadCalc = new ThreadedHazardCurveSetCalculator(calcs);
 		
@@ -153,6 +149,11 @@ public class MPJHazardCurveDriver {
 		maxDispatchOption.setRequired(false);
 		ops.addOption(maxDispatchOption);
 		
+		Option rootDispatchOnlyOption = new Option("rdo", "root-dispatch-only", false, "Flag for root node only" +
+				"dispatching tasks and not calculating itself");
+		maxDispatchOption.setRequired(false);
+		ops.addOption(maxDispatchOption);
+		
 		return ops;
 	}
 	
@@ -176,6 +177,7 @@ public class MPJHazardCurveDriver {
 			int numThreads = Runtime.getRuntime().availableProcessors();
 			int minDispatch = MIN_DISPATCH_DEFAULT;
 			int maxDispatch = MAX_DISPATCH_DEFAULT;
+			boolean rootDispatchOnly = false;
 			try {
 				cmd = parser.parse(options, args);
 				
@@ -187,6 +189,9 @@ public class MPJHazardCurveDriver {
 				
 				if (cmd.hasOption("max-dispatch"))
 					maxDispatch = Integer.parseInt(cmd.getOptionValue("max-dispatch"));
+				
+				if (cmd.hasOption("root-dispatch-only"))
+					rootDispatchOnly = true;
 			} catch (Exception e1) {
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp(
@@ -203,6 +208,9 @@ public class MPJHazardCurveDriver {
 				System.exit(2);
 			}
 			
+			int rank = MPI.COMM_WORLD.Rank();
+			int size = MPI.COMM_WORLD.Size();
+			
 			File xmlFile = new File(args[0]);
 			
 			if (!xmlFile.exists()) {
@@ -211,9 +219,35 @@ public class MPJHazardCurveDriver {
 			
 			Document doc = XMLUtils.loadDocument(xmlFile.getAbsolutePath());
 			
-			MPJHazardCurveDriver driver = new MPJHazardCurveDriver(doc, numThreads, minDispatch, maxDispatch);
+			Preconditions.checkArgument(numThreads >= 1, "threads must be >= 1. you supplied: "+numThreads);
 			
-			driver.run();
+			debug(rank, "loading inputs for "+numThreads+" threads");
+			CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, numThreads);
+			List<Site> sites = inputs[0].getSites();
+			
+			if (rank == 0) {
+				// launch the dispatcher
+				DispatcherThread dispatch = new DispatcherThread(size, sites.size(),
+						minDispatch, maxDispatch);
+				if (rootDispatchOnly) {
+					debug(0, "starting dispatcher serially");
+					dispatch.run();
+				} else {
+					debug(0, "starting dispatcher threaded");
+					dispatch.start();
+				}
+			}
+			
+			if (rank != 0 || !rootDispatchOnly) {
+				HazardCurveSetCalculator[] calcs = new HazardCurveSetCalculator[numThreads];
+				for (int i=0; i<inputs.length; i++)
+					calcs[i] = new HazardCurveSetCalculator(inputs[i]);
+				
+				MPJHazardCurveDriver driver = new MPJHazardCurveDriver(rank, calcs, sites,
+						minDispatch, maxDispatch);
+				
+				driver.run();
+			}
 			
 			MPI.Finalize();
 			System.exit(0);
