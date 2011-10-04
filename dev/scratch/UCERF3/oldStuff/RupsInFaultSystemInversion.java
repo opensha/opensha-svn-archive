@@ -31,7 +31,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
+import scratch.UCERF3.utils.FindEquivNoCalUCERF2_Ruptures;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
@@ -244,7 +244,7 @@ public class RupsInFaultSystemInversion {
 		//
 		// 2) This currently only works for N. Cal Inversions
 		//		
-		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSectionData, precomputedDataDir);
+		FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups = new FindEquivNoCalUCERF2_Ruptures(faultSectionData, precomputedDataDir);
 		ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures(rupList);
 		// the following plot verifies that associations are made properly from the perspective of mag-freq-dists
 		// this is valid only if createNorthCalSubSections() has been used in TestInversion!
@@ -684,7 +684,7 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	public void doInversion(FindEquivUCERF2_Ruptures findUCERF2_Rups, ArrayList<ArrayList<Integer>> rupList) {
+	public void doInversion(FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups, ArrayList<ArrayList<Integer>> rupList) {
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
 		int numRows=numSections + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
@@ -907,7 +907,8 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	private void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
+	private void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, 
+			double relativeMagDistWt, FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups) {
 		
 		
 		// Plot the rupture rates

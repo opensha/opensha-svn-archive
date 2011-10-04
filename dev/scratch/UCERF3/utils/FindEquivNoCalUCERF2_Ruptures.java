@@ -82,7 +82,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * 
  * @author field
  */
-public class FindEquivUCERF2_Ruptures {
+public class FindEquivNoCalUCERF2_Ruptures {
 	
 	protected final static boolean D = false;  // for debugging
 	
@@ -126,7 +126,7 @@ public class FindEquivUCERF2_Ruptures {
 	 * @param faultSectionData
 	 * @param precomputedDataDir
 	 */
-	public FindEquivUCERF2_Ruptures(List<FaultSectionPrefData> faultSectionData, File precomputedDataDir) {
+	public FindEquivNoCalUCERF2_Ruptures(List<FaultSectionPrefData> faultSectionData, File precomputedDataDir) {
 		
 		this.faultSectionData = faultSectionData;
 		this.precomputedDataDir=precomputedDataDir;

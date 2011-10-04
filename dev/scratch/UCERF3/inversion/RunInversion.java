@@ -22,7 +22,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.DeformationModelFetcher;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
+import scratch.UCERF3.utils.FindEquivNoCalUCERF2_Ruptures;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF2_PaleoSegRateData;
@@ -111,7 +111,7 @@ public class RunInversion {
 
 		// create class the gives UCERF2-related constraints
 		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
-		FindEquivUCERF2_Ruptures findUCERF2_Rups = new FindEquivUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
+		FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups = new FindEquivNoCalUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
 		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
 		
 		
@@ -238,7 +238,7 @@ public class RunInversion {
 	}
 	
 	
-	private double[] getUCERF2Solution(FindEquivUCERF2_Ruptures findUCERF2_Rups, FaultSystemRupSet faultSystemRupSet) {
+	private double[] getUCERF2Solution(FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups, FaultSystemRupSet faultSystemRupSet) {
 		int numRuptures=faultSystemRupSet.getNumRuptures();
 		double[] initial_state = new double[numRuptures];
 		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures(faultSystemRupSet.getSectionIndicesForAllRups());
