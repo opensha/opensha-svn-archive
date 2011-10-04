@@ -151,8 +151,8 @@ public class MPJHazardCurveDriver {
 		
 		Option rootDispatchOnlyOption = new Option("rdo", "root-dispatch-only", false, "Flag for root node only" +
 				"dispatching tasks and not calculating itself");
-		maxDispatchOption.setRequired(false);
-		ops.addOption(maxDispatchOption);
+		rootDispatchOnlyOption.setRequired(false);
+		ops.addOption(rootDispatchOnlyOption);
 		
 		return ops;
 	}
