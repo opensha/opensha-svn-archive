@@ -220,6 +220,8 @@ public class HardCodedTest {
 //			new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0);
 //		SiteDataValue<?> hardcodedVal = null;
 		
+		File hazMapsDir = new File("/home/scec-02/kmilner/hazMaps");
+		
 		double sigmaTrunc = 3;
 		ScalarIMR imr = getIMR(imrStr, sigmaTrunc, propEffectSpeedup);
 		HashMap<TectonicRegionType, ScalarIMR> imrMap =
@@ -248,8 +250,8 @@ public class HardCodedTest {
 //		Location bottomRight = new Location(32.4, -114.1);
 //		GriddedRegion region = new GriddedRegion(topLeft, bottomRight, spacing, topLeft);
 //		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
-		String spacingFile = "/home/scec-02/kmilner/hazMaps/"+spacingCode+"grid.csv";
-		LocationList locs = loadCSV(new File(spacingFile));
+		File spacingFile = new File(hazMapsDir, spacingCode+"grid.csv");
+		LocationList locs = loadCSV(spacingFile);
 		
 		ArrayList<SiteData<?>> provs = null;
 		if (hardcodedVal == null) {
@@ -350,13 +352,16 @@ public class HardCodedTest {
 		CalculationSettings calcSet = new CalculationSettings(imtXValMap, 200.0);
 		
 //		String jobDir = "/home/scec-00/kmilner/hazMaps/hazus_test-" + df.format(new Date()) + "/";
-		String jobDir = "/home/scec-02/kmilner/hazMaps/"+dirName+"/";
-		File jobDirFile = new File(jobDir);
-		String curveDir = jobDir + "curves/";
+//		String jobDir = "/home/scec-02/kmilner/hazMaps/"+dirName+"/";
+		File jobDir = new File(hazMapsDir, dirName);
+		String curveDir = new File(jobDir, "curves").getAbsolutePath()+File.separator;
 		CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir, true, false);
 		
 		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
-		File jarFile = new File("/home/scec-02/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar");
+		File svnDir = new File(hazMapsDir, "svn");
+		File distDir = new File(svnDir, "dist");
+		File libDir = new File(svnDir, "lib");
+		File jarFile = new File(distDir, "OpenSHA_complete.jar");
 		
 		if (MPJ) {
 			int mins = Integer.parseInt(args[7]);
@@ -374,6 +379,7 @@ public class HardCodedTest {
 			
 			ArrayList<File> classpath = new ArrayList<File>();
 			classpath.add(jarFile);
+			classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 			
 			MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 3000, classpath,
 					USC_HPCC_ScriptWriter.MPJ_HOME, false);
@@ -383,9 +389,9 @@ public class HardCodedTest {
 			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, imts,
 					sites, calcSet, archiver);
 			
-			jobDirFile.mkdir();
+			jobDir.mkdir();
 			
-			File inputsFile = new File(jobDirFile, "inputs.xml");
+			File inputsFile = new File(jobDir, "inputs.xml");
 			XMLUtils.writeObjectToXMLAsRoot(inputs, inputsFile);
 			
 			String cliArgs = inputsFile.getAbsolutePath();
@@ -395,7 +401,7 @@ public class HardCodedTest {
 			
 			script = writer.buildScript(script, mins, nodes, ppn, queue);
 			
-			File pbsFile = new File(jobDirFile, "mpj.pbs");
+			File pbsFile = new File(jobDir, "mpj.pbs");
 			JavaShellScriptWriter.writeScript(pbsFile, script);
 		} else {
 			int sitesPerJob;
@@ -407,7 +413,7 @@ public class HardCodedTest {
 			HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
 					calcSet, archiver, javaBin.getAbsolutePath(), jarFile.getAbsolutePath(), years, spacing);
 			
-			dag.writeDAG(new File(jobDir), sitesPerJob, false);
+			dag.writeDAG(jobDir, sitesPerJob, false);
 		}
 	}
 
