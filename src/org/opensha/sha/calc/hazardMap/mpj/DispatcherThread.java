@@ -98,6 +98,7 @@ public class DispatcherThread extends Thread {
 					// if we're done and we haven't initialized the dones array, do it now
 					if (D) System.out.println(D_PREFIX+"initializing dones array "+proc_id);
 					dones = new boolean[size];
+					dones[0] = true; // hard code this node to done, since it operates outside of MPJ
 				}
 				
 				if (dones != null) {
