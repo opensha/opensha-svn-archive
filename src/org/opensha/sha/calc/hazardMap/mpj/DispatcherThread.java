@@ -87,18 +87,18 @@ public class DispatcherThread extends Thread {
 				
 				// now we send the the length of the batch
 				single_int_buf[0] = batch.length;
+				if (D) System.out.println(D_PREFIX+"sending batch length ("+batch.length+") to: "+proc_id);
 				MPI.COMM_WORLD.Send(single_int_buf, 0, 1, MPI.INT, proc_id, MPJHazardCurveDriver.TAG_NEW_BATCH_LENGH);
 				
-				if (batch.length > 0)
+				if (batch.length > 0) {
 					// now we send the batch to the process.
+					if (D) System.out.println(D_PREFIX+"sending batch of length "+batch.length+" to: "+proc_id);
 					MPI.COMM_WORLD.Send(batch, 0, batch.length, MPI.INT, proc_id, MPJHazardCurveDriver.TAG_NEW_BATCH);
-				else if (dones == null)
+				} else if (dones == null) {
 					// if we're done and we haven't initialized the dones array, do it now
+					if (D) System.out.println(D_PREFIX+"initializing dones array "+proc_id);
 					dones = new boolean[size];
-				
-				if (D) System.out.println(D_PREFIX+"sending NEW BATCH of size "+batch.length+" to "+proc_id);
-				
-				
+				}
 				
 				if (dones != null) {
 					// set the index for the process we just communicated with to "done"
