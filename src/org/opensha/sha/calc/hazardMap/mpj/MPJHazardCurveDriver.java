@@ -110,6 +110,7 @@ public class MPJHazardCurveDriver {
 				debug("receiving batch of length "+batch.length);
 				MPI.COMM_WORLD.Recv(batch, 0, batch.length, MPI.INT, 0, TAG_NEW_BATCH);
 			} else {
+				debug("getting next batch directly");
 				batch = dispatcher.getNextBatch();
 				
 				if (batch == null || batch.length == 0) {
