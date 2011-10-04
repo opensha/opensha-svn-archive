@@ -38,7 +38,7 @@ public class MPJHazardCurveDriver {
 	private static final int MAX_DISPATCH_DEFAULT = 100;
 	
 	public static final boolean D = true;
-	private static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
+	protected static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
 	
 	private HazardCurveSetCalculator[] calcs;
 	private List<Site> sites;
