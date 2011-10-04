@@ -69,12 +69,14 @@ public class DispatcherThread extends Thread {
 	
 	@Override
 	public void run() {
+		if (D) System.out.println(D_PREFIX+"now running.");
 		try {
 			// this keeps track of if each process has finished once all batches have been sent out;
 			boolean[] dones = null;
 			
 			int[] single_int_buf = new int[1];
 			while (true) {
+				if (D) System.out.println(D_PREFIX+"waiting for READY message.");
 				// this receives a READY_FOR_BATCH message from any process. the process # is sent
 				MPI.COMM_WORLD.Recv(single_int_buf, 0, 1, MPI.INT, MPI.ANY_SOURCE, MPJHazardCurveDriver.TAG_READY_FOR_BATCH);
 				int proc_id = single_int_buf[0];
