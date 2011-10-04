@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import com.google.common.base.Preconditions;
 
 import mpi.MPI;
 
-public class MPJHazardCurveDriver {
+public class MPJHazardCurveDriver implements Runnable {
 	
 	protected static final int TAG_READY_FOR_BATCH = 1;
 	protected static final int TAG_NEW_BATCH_LENGH = 2;
@@ -93,7 +94,8 @@ public class MPJHazardCurveDriver {
 		System.out.println("["+df.format(new Date())+" Process "+rank+"]: "+message);
 	}
 	
-	public void run() throws IOException, InterruptedException {
+	@Override
+	public void run() {
 		
 		ThreadedHazardCurveSetCalculator threadCalc = new ThreadedHazardCurveSetCalculator(calcs);
 		
@@ -123,7 +125,13 @@ public class MPJHazardCurveDriver {
 			
 			// now calculate the batch
 			debug("calculating batch");
-			threadCalc.calculateCurves(sites, batch);
+			try {
+				threadCalc.calculateCurves(sites, batch);
+			} catch (Exception e) {
+				if (e instanceof RuntimeException)
+					throw (RuntimeException)e;
+				throw new RuntimeException(e);
+			}
 		}
 		
 		System.out.println("Process "+rank+" DONE!");
@@ -221,21 +229,24 @@ public class MPJHazardCurveDriver {
 			
 			Preconditions.checkArgument(numThreads >= 1, "threads must be >= 1. you supplied: "+numThreads);
 			
+			// if this is the root thread, and we have more than 1 threads available, then subtract one
+			// so that there's plenty of room for the dispatcher
+			if (rank == 0 && numThreads > 1 && !rootDispatchOnly)
+				numThreads--;
+			
 			debug(rank, "loading inputs for "+numThreads+" threads");
 			CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, numThreads);
 			List<Site> sites = inputs[0].getSites();
 			
+			ArrayList<Thread> threadsToJoin = new ArrayList<Thread>();
+			
 			if (rank == 0) {
 				// launch the dispatcher
+				debug(0, "creating dispatcher");
 				DispatcherThread dispatch = new DispatcherThread(size, sites.size(),
 						minDispatch, maxDispatch);
-				if (rootDispatchOnly) {
-					debug(0, "starting dispatcher serially");
-					dispatch.run();
-				} else {
-					debug(0, "starting dispatcher threaded");
-					dispatch.start();
-				}
+				
+				threadsToJoin.add(dispatch);
 			}
 			
 			if (rank != 0 || !rootDispatchOnly) {
@@ -246,7 +257,18 @@ public class MPJHazardCurveDriver {
 				MPJHazardCurveDriver driver = new MPJHazardCurveDriver(rank, calcs, sites,
 						minDispatch, maxDispatch);
 				
-				driver.run();
+				threadsToJoin.add(new Thread(driver));
+			}
+			
+			if (threadsToJoin.size() == 1) {
+				threadsToJoin.get(0).run();
+			} else {
+				for (Thread thread : threadsToJoin) {
+					thread.start();
+				}
+				for (Thread thread : threadsToJoin) {
+					thread.join();
+				}
 			}
 			
 			MPI.Finalize();
