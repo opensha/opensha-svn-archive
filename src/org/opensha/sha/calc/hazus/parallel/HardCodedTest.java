@@ -29,7 +29,9 @@ import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
+import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
@@ -61,8 +63,6 @@ public class HardCodedTest {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
-	
-	private static final boolean MPJ = true;
 	
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
@@ -181,14 +181,16 @@ public class HardCodedTest {
 	private static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
-		if (args.length < 7 || args.length > 8) {
+		if (args.length < 7 || args.length > 11) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
 					" <HardCoded Vs30 (or 'null' for site data providers>"+
-					" <spacing> <dir name> [<sites per job>]");
+					" <spacing> <dir name> [<sites per job>] (OR) [<minutes> <nodes> [<ppn> [<queue>]]]");
 			System.exit(2);
 		}
+		boolean MPJ = args.length > 8;
+		
 		boolean timeDep = Boolean.parseBoolean(args[0]);
 		String imrStr = args[1];
 		boolean propEffectSpeedup = Boolean.parseBoolean(args[2]);
@@ -209,12 +211,6 @@ public class HardCodedTest {
 		else
 			startYear = -1;
 		AbstractERF erf = getERF(years, startYear, includeBackSeis);
-		
-		int sitesPerJob;
-		if (args.length == 8)
-			sitesPerJob = Integer.parseInt(args[7]);
-		else
-			sitesPerJob = 20;
 		
 //		SiteDataValue<?> hardcodedVal =
 //			new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS, SiteDataAPI.TYPE_FLAG_INFERRED, "B");
@@ -354,29 +350,59 @@ public class HardCodedTest {
 		
 //		String jobDir = "/home/scec-00/kmilner/hazMaps/hazus_test-" + df.format(new Date()) + "/";
 		String jobDir = "/home/scec-02/kmilner/hazMaps/"+dirName+"/";
+		File jobDirFile = new File(jobDir);
 		String curveDir = jobDir + "curves/";
 		CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir, true, false);
 		
 		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
 		File jarFile = new File("/home/scec-02/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar");
 		
-//		if (MPJ) {
-//			ArrayList<File> classpath = new ArrayList<File>();
-//			classpath.add(jarFile);
-//			
-//			MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 3000, classpath,
-//					USC_HPCC_ScriptWriter.MPJ_HOME, false);
-//			
-//			mpj.buildScript(MPJHazardCurveDriver.class.getName(), args)
-//			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
-//			
-//			writer.buildScript(script, mins, nodes, ppn, queue);
-//		} else {
+		if (MPJ) {
+			int mins = Integer.parseInt(args[7]);
+			int nodes = Integer.parseInt(args[8]);
+			int ppn;
+			if (args.length > 9)
+				ppn = Integer.parseInt(args[9]);
+			else
+				ppn = 0;
+			String queue;
+			if (args.length > 10)
+				queue = args[10];
+			else
+				queue = null;
+			
+			ArrayList<File> classpath = new ArrayList<File>();
+			classpath.add(jarFile);
+			
+			MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 3000, classpath,
+					USC_HPCC_ScriptWriter.MPJ_HOME, false);
+			
+			ArrayList<Parameter<Double>> imts = HazusDataSetDAGCreator.getIMTList(imrMaps);
+			
+			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, imts,
+					sites, calcSet, archiver);
+			
+			File inputsFile = new File(jobDirFile, "inputs.xml");
+			XMLUtils.writeObjectToXMLAsRoot(inputs, inputsFile);
+			
+			String cliArgs = inputsFile.getAbsolutePath();
+			
+			List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
+			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
+			
+			writer.buildScript(script, mins, nodes, ppn, queue);
+		} else {
+			int sitesPerJob;
+			if (args.length == 8)
+				sitesPerJob = Integer.parseInt(args[7]);
+			else
+				sitesPerJob = 20;
+			
 			HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
 					calcSet, archiver, javaBin.getAbsolutePath(), jarFile.getAbsolutePath(), years, spacing);
 			
 			dag.writeDAG(new File(jobDir), sitesPerJob, false);
-//		}
+		}
 	}
 
 }

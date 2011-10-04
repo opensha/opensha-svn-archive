@@ -37,6 +37,7 @@ public class ResultPlotter {
 	private static final String energy_speedup_label = "Energy (serial) / Energy (parallel)";
 	private static final String std_dev_label = "Std. Dev. (Energy)";
 	private static final String improvement_label = "% Improvement";
+	private static final String threads_label = "# Threads";
 	
 	protected static final String avg_energy_vs_time_title = "Averaged Energy Vs Time (m)";
 	protected static final String improvement_vs_time_title = "% Improvement (over "+pDiffMins+" min invervals)";
@@ -51,6 +52,7 @@ public class ResultPlotter {
 	protected static final String iterations_vs_time_title = "Iterations Vs Time (m)";
 	protected static final String parallel_iterations_vs_time_title = "Parallel Iterations Vs Time (m)";
 	protected static final String energy_vs_parallel_iterations_title = "Energy vs Parallel Iterations";
+	protected static final String speedup_vs_threads_title = "Speedup vs Threads";
 	
 	private static ArbitrarilyDiscretizedFunc[] loadCSV (
 			File file, int targetPPM) throws IOException {
@@ -530,7 +532,76 @@ public class ResultPlotter {
 		return speedups;
 	}
 	
-	
+	private static ArrayList<DiscretizedFunc> generateSpeedupVsThreads(ArrayList<DiscretizedFunc> speedupVsTime) {
+		double smallestMaxTime = Double.MAX_VALUE;
+		
+		for (DiscretizedFunc func : speedupVsTime) {
+			if (func.getMaxX() < smallestMaxTime)
+				smallestMaxTime = func.getMaxX();
+		}
+		
+		ArbitrarilyDiscretizedFunc spd = new ArbitrarilyDiscretizedFunc();
+		spd.setName(speedup_vs_threads_title);
+		
+		int maxThreads = 0;
+		
+		for (DiscretizedFunc func : speedupVsTime) {
+			String name = func.getName();
+			System.out.println("Processing threads for func: "+name);
+			if (name == null || name.length()<10 || !(name.contains("dsa") || name.contains("tsa"))) {
+				continue;
+			}
+			if (name.contains("min") || name.contains("max"))
+				continue;
+			int threads = getIntForKey(name, "threads");
+			if (threads < 1)
+				continue;
+				
+			int nodes = getIntForKey(name, "nodes");
+			if (nodes == 0)
+				nodes = 1;
+			
+			threads *= nodes;
+			
+			if (threads > maxThreads)
+				maxThreads = threads;
+			
+			double maxSpeedup = func.getInterpolatedY(smallestMaxTime);
+			
+			try {
+				double prev = func.getY(smallestMaxTime);
+				if (prev > maxSpeedup) {
+					System.out.println("already have a better speedup for "+threads+" threads, keeping that.");
+					continue;
+				} else {
+					System.out.println("already have a worse speedup for "+threads+" threads, replacing.");
+				}
+			} catch (Exception e) {}
+			
+			System.out.println("Adding thread speedup for "+threads+" threads: "+name);
+			
+			spd.set((double)threads, maxSpeedup);
+		}
+		
+		ArrayList<DiscretizedFunc> spds = new ArrayList<DiscretizedFunc>();
+		spds.add(spd);
+
+		ArbitrarilyDiscretizedFunc linearFunc = new ArbitrarilyDiscretizedFunc();
+		linearFunc.setName("Linear Speedup");
+		ArbitrarilyDiscretizedFunc sqrtFunc = new ArbitrarilyDiscretizedFunc();
+		sqrtFunc.setName("Sqrt Speedup");
+		for (int threads=1; threads<maxThreads; threads++) {
+			double dthreads = (double)threads;
+			linearFunc.set(dthreads, dthreads);
+			
+			sqrtFunc.set(dthreads, Math.sqrt(dthreads));
+		}
+		
+		spds.add(linearFunc);
+		spds.add(sqrtFunc);
+		
+		return spds;
+	}
 	
 	private static ArrayList<DiscretizedFunc> generatePercentImprovementOverTime(
 			List<DiscretizedFunc> funcs, double mins) {
@@ -615,19 +686,20 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "poster/ncal_constrained");
 //		dsaDir = new File(mainDir, "poster/ncal_unconstrained");
 //		dsaDir = new File(mainDir, "poster/state_constrained");
-//		dsaDir = new File(mainDir, "poster/state_unconstrained");
+		dsaDir = new File(mainDir, "poster/state_unconstrained");
 		
 //		dsaDir = new File(mainDir, "2011_09_07_morgan_NoCS_UCERF2MagDist");
-		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
+//		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
 		
 		ArrayList<String> plots = new ArrayList<String>();
-		plots.add(energy_vs_time_title);
-		plots.add(avg_energy_vs_time_title);
-		plots.add(std_dev_vs_time_title);
+//		plots.add(energy_vs_time_title);
+//		plots.add(avg_energy_vs_time_title);
+//		plots.add(std_dev_vs_time_title);
 //		plots.add(improvement_vs_time_title);
 //		plots.add(time_speedup_vs_energy_title);
 //		plots.add(time_comparison_title);
 		plots.add(time_speedup_vs_time_title);
+		plots.add(speedup_vs_threads_title);
 //		plots.add(speedup_vs_time_title);
 //		plots.add(energy_vs_iterations_title);
 //		plots.add(avg_energy_vs_iterations_title);
@@ -921,9 +993,12 @@ public class ResultPlotter {
 		
 		ArrayList<DiscretizedFunc> timeComparisons = null;
 		ArrayList<PlotCurveCharacterstics> timeCompChars = null;
+		ArrayList<DiscretizedFunc> timeSpeedups = null;
+		ArrayList<DiscretizedFunc> combinedSpeedups = null;
 		if (refFunc != null && 
 				(plots.contains(time_comparison_title)
-						|| plots.contains(time_speedup_vs_time_title))) {
+						|| plots.contains(time_speedup_vs_time_title)
+						|| plots.contains(speedup_vs_threads_title))) {
 			
 			timeCompChars = new ArrayList<PlotCurveCharacterstics>();
 			for (PlotCurveCharacterstics pltChar : avgChars)
@@ -955,6 +1030,17 @@ public class ResultPlotter {
 			
 			System.out.println("generating time comparisons");
 			timeComparisons = generateEnergyTimeComparison(plotFuncs, refFunc, avgNumX);
+			ArrayList<DiscretizedFunc> combTimeComps = null;
+			if (plots.contains(speedup_vs_threads_title)) {
+				combTimeComps = new ArrayList<DiscretizedFunc>();
+				for (DiscretizedFunc func : timeComparisons) {
+					String name = func.getName().toLowerCase();
+					if (name.contains("min") || name.contains("max"))
+						combTimeComps.add(null);
+					else
+						combTimeComps.add(func);
+				}
+			}
 			
 			int numOrig = timeComparisons.size();
 			if (do_extrap) {
@@ -971,6 +1057,7 @@ public class ResultPlotter {
 					}
 					timeComparisons.addAll(generateEnergyTimeComparison(plotFuncs, extrapRef, avgNumX/2));
 					for (int i=numOrig-1; i>=0; i--) {
+						DiscretizedFunc origFunc = timeComparisons.get(i);
 						int extrapI = i+numOrig;
 						if (timeComparisons.get(extrapI) == null) {
 							timeComparisons.remove(extrapI);
@@ -981,9 +1068,31 @@ public class ResultPlotter {
 							cloned.setLineType(PlotLineType.DOTTED);
 							cloned.setColor(getSaturated(cloned.getColor(), 0.5f));
 							timeCompChars.add(numOrig, cloned);
+							if (combTimeComps != null && combTimeComps.get(i) !=  null) {
+								DiscretizedFunc stitched = new ArbitrarilyDiscretizedFunc();
+								stitched.setName(origFunc.getName()+" (STICHED WITH EXTRAP)");
+								for (int j=0; j<origFunc.getNum(); j++) {
+									stitched.set(origFunc.get(j));
+								}
+								for (int j=0; j<func.getNum(); j++) {
+									stitched.set(func.get(j));
+								}
+								combTimeComps.set(i, stitched);
+							}
 						}
 					}
 				}
+			}
+			
+			if (plots.contains(time_speedup_vs_time_title) || plots.contains(speedup_vs_threads_title)) {
+				System.out.println("generating "+time_speedup_vs_time_title);
+				timeSpeedups = generateEnergyTimeSpeedup(timeComparisons);
+			}
+			if (combTimeComps != null) {
+				for (int i=combTimeComps.size()-1; i>=0; i--)
+					if (combTimeComps.get(i) == null)
+						combTimeComps.remove(i);
+				combinedSpeedups = generateEnergyTimeSpeedup(combTimeComps);
 			}
 		}
 		
@@ -1027,20 +1136,31 @@ public class ResultPlotter {
 									parallel_time_label, serial_time_label, visible));
 				}
 			} else if (plot.equals(time_speedup_vs_time_title)) {
-				if (timeComparisons != null) {
+				if (timeSpeedups != null) {
 					System.out.println("displaying "+time_speedup_vs_time_title);
-					ArrayList<DiscretizedFunc> energySpeedups = generateEnergyTimeSpeedup(timeComparisons);
 					windows.put(time_speedup_vs_time_title,
-							getGraphWindow(energySpeedups, time_speedup_vs_time_title, timeCompChars,
+							getGraphWindow(timeSpeedups, time_speedup_vs_time_title, timeCompChars,
 									parallel_time_label, time_speedup_label, visible));
+				}
+			} else if (plot.equals(speedup_vs_threads_title)) {
+				if (combinedSpeedups != null) {
+					System.out.println("generating "+speedup_vs_threads_title);
+					ArrayList<DiscretizedFunc> spdThreadFuncs = generateSpeedupVsThreads(combinedSpeedups);
+					System.out.println("displaying "+speedup_vs_threads_title);
+					ArrayList<PlotCurveCharacterstics> spdThreadChars = new ArrayList<PlotCurveCharacterstics>();
+					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN));
+					windows.put(energy_speedup_vs_time_title,
+							getGraphWindow(spdThreadFuncs, speedup_vs_threads_title, spdThreadChars, threads_label, time_speedup_label, visible));
 				}
 			} else if (plot.equals(energy_speedup_vs_time_title)) {
 				if (refFunc != null) {
-					System.out.println("generating time speedup");
-					ArrayList<DiscretizedFunc> timeSpeedups = generateTimeSpeedup(averages, refFunc, avgNumX);
+					System.out.println("generating energy speedup");
+					ArrayList<DiscretizedFunc> energySpeedups = generateTimeSpeedup(averages, refFunc, avgNumX);
 					System.out.println("displaying "+energy_speedup_vs_time_title);
 					windows.put(energy_speedup_vs_time_title,
-							getGraphWindow(timeSpeedups, energy_speedup_vs_time_title, avgChars, time_label, energy_speedup_label, visible));
+							getGraphWindow(energySpeedups, energy_speedup_vs_time_title, avgChars, time_label, energy_speedup_label, visible));
 				}
 			} else if (plot.equals(avg_energy_vs_iterations_title)) {
 				if (energyIterAvgs.size() > 0) {

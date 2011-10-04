@@ -17,7 +17,10 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 		
 		if (queue != null && !queue.isEmpty())
 			pbs.add("#PBS -q "+queue);
-		pbs.add("#PBS -l walltime=00:"+mins+":00,nodes="+nodes+":ppn="+ppn);
+		String dashL = "#PBS -l walltime=00:"+mins+":00,nodes="+nodes;
+		if (ppn > 0)
+			dashL += ":ppn="+ppn;
+		pbs.add(dashL);
 		pbs.add("#PBS -V");
 		pbs.add("");
 		
