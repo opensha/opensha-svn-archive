@@ -24,6 +24,7 @@ import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.param.Parameter;
@@ -382,6 +383,8 @@ public class HardCodedTest {
 			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, imts,
 					sites, calcSet, archiver);
 			
+			jobDirFile.mkdir();
+			
 			File inputsFile = new File(jobDirFile, "inputs.xml");
 			XMLUtils.writeObjectToXMLAsRoot(inputs, inputsFile);
 			
@@ -390,7 +393,10 @@ public class HardCodedTest {
 			List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
 			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
 			
-			writer.buildScript(script, mins, nodes, ppn, queue);
+			script = writer.buildScript(script, mins, nodes, ppn, queue);
+			
+			File pbsFile = new File(jobDirFile, "mpj.pbs");
+			JavaShellScriptWriter.writeScript(pbsFile, script);
 		} else {
 			int sitesPerJob;
 			if (args.length == 8)
