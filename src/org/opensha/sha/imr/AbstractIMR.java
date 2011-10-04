@@ -583,7 +583,7 @@ implements IntensityMeasureRelationship {
 
 	public static AbstractIMR fromXMLMetadata(Element root, ParameterChangeWarningListener listener) throws InvocationTargetException {
 		String className = root.attribute("className").getValue();
-		System.out.println("Loading IMR: " + className);
+//		System.out.println("Loading IMR: " + className);
 		ArrayList<Object> args = new ArrayList<Object>();
 		ArrayList<String> argNames = new ArrayList<String>();
 		args.add(listener);
@@ -592,46 +592,46 @@ implements IntensityMeasureRelationship {
 		imr.setParamDefaults();
 
 		// add params
-		System.out.println("Setting params...");
+//		System.out.println("Setting params...");
 		Element paramsElement = root.element(AbstractParameter.XML_GROUP_METADATA_NAME);
 		ListIterator paramIt = imr.getOtherParamsIterator();
 		while (paramIt.hasNext()) {
 			AbstractParameter param = (AbstractParameter)paramIt.next();
 			if (param.getName().equals(TectonicRegionTypeParam.NAME))
 				continue;
-			System.out.println("Setting param " + param.getName());
+//			System.out.println("Setting param " + param.getName());
 			Iterator<Element> it = paramsElement.elementIterator();
 			while (it.hasNext()) {
 				Element el = it.next();
 				if (param.getName().equals(el.attribute("name").getValue())) {
-					System.out.println("Found a match!");
+//					System.out.println("Found a match!");
 					if (param.setValueFromXMLMetadata(el)) {
-						System.out.println("Parameter set successfully!");
+//						System.out.println("Parameter set successfully!");
 					} else {
-						System.out.println("Parameter could not be set from XML!");
-						System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+						System.err.println("Parameter "+param.getName()+" could not be set from XML!");
+						System.err.println("It is possible that the parameter type doesn't yet support loading from XML");
 					}
 				}
 			}
 		}
 
-		System.out.println("Setting site params...");
+//		System.out.println("Setting site params...");
 		Element siteParamsElement = root.element(AbstractIMR.XML_METADATA_SITE_PARAMETERS_NAME);
 		if (siteParamsElement != null) {
 			paramIt = imr.getSiteParamsIterator();
 			while (paramIt.hasNext()) {
 				AbstractParameter param = (AbstractParameter)paramIt.next();
-				System.out.println("Setting param " + param.getName());
+//				System.out.println("Setting param " + param.getName());
 				Iterator<Element> it = siteParamsElement.elementIterator();
 				while (it.hasNext()) {
 					Element el = it.next();
 					if (param.getName().equals(el.attribute("name").getValue())) {
-						System.out.println("Found a match!");
+//						System.out.println("Found a match!");
 						if (param.setValueFromXMLMetadata(el)) {
-							System.out.println("Parameter set successfully!");
+//							System.out.println("Parameter set successfully!");
 						} else {
-							System.out.println("Parameter could not be set from XML!");
-							System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+							System.err.println("Parameter "+param.getName()+" could not be set from XML!");
+							System.err.println("It is possible that the parameter type doesn't yet support loading from XML");
 						}
 					}
 				}
@@ -643,7 +643,7 @@ implements IntensityMeasureRelationship {
 		if (imtElem != null) {
 			String imtName = imtElem.attributeValue("name");
 
-			System.out.println("IMT Name: " + imtName);
+//			System.out.println("IMT Name: " + imtName);
 
 			imr.setIntensityMeasure(imtName);
 

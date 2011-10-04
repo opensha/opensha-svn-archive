@@ -274,11 +274,11 @@ public abstract class AbstractERF implements
 
 	public static AbstractERF fromXMLMetadata(Element root) throws InvocationTargetException {
 		String className = root.attribute("className").getValue();
-		System.out.println("Loading ERF: " + className);
+//		System.out.println("Loading ERF: " + className);
 		AbstractERF erf = (AbstractERF)MetadataLoader.createClassInstance(className);
 
 		// add params
-		System.out.println("Setting params...");
+//		System.out.println("Setting params...");
 		Element paramsElement = root.element(AbstractParameter.XML_GROUP_METADATA_NAME);
 		ParameterList.setParamsInListFromXML(erf.getAdjustableParameterList(), paramsElement);
 
