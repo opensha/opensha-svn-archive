@@ -386,7 +386,8 @@ public class HardCodedTest {
 			
 			ArrayList<Parameter<Double>> imts = HazusDataSetDAGCreator.getIMTList(imrMaps);
 			
-			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, imts,
+			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf,
+					HazusDataSetDAGCreator.getHAZUSMaps(imrMaps), imts,
 					sites, calcSet, archiver);
 			
 			jobDir.mkdir();
