@@ -135,7 +135,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		}
 	}
 	
-	private static List<HashMap<TectonicRegionType, ScalarIMR>> getHAZUSMaps(
+	public static List<HashMap<TectonicRegionType, ScalarIMR>> getHAZUSMaps(
 			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps) throws InvocationTargetException {
 		if (imrMaps.size() == 1) {
 			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> newIMRMaps =
