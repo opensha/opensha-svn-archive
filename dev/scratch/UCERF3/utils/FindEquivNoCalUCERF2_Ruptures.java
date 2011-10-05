@@ -86,8 +86,8 @@ public class FindEquivNoCalUCERF2_Ruptures {
 	
 	protected final static boolean D = false;  // for debugging
 	
-	String DATA_FILE_NAME = "equivUCERF2_RupData";
-	String INFO_FILE_NAME = "sectEndsForUCERF2_RupsResults_AllButNonCA_B";
+	String DATA_FILE_NAME = "equivUCERF2_RupDataNoCal";
+	String INFO_FILE_NAME = "sectEndsForUCERF2_RupsResults_AllButNonCA_B_NoCal";
 	private File precomputedDataDir;
 	File dataFile;
 	
