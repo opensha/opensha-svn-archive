@@ -55,7 +55,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_Fortran
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient;
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 
+
 import scratch.UCERF3.inversion.InversionSolutionERF;
+import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.christine.URS.URS_MeanUCERF2;
 
 public enum ERF_Ref {
@@ -134,6 +136,9 @@ public enum ERF_Ref {
 	
 	/** WGCEP Mean UCERF 2 */
 	MEAN_UCERF_2(MeanUCERF2.class, MeanUCERF2.NAME, PRODUCTION, false, false),
+	
+	/** WGCEP Mean UCERF 2 */
+	MEAN_UCERF_2_Mod(ModMeanUCERF2.class, ModMeanUCERF2.NAME, PRODUCTION, false, false),
 
 	/** Yucca Mountain ERF */
 	YUCCA_MOUNTAIN(YuccaMountainERF.class, YuccaMountainERF.NAME, PRODUCTION, false, false),
