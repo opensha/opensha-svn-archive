@@ -84,7 +84,7 @@ public class ModMeanUCERF2 extends AbstractERF {
 	protected boolean D = true;
 
 	// name of this ERF
-	public final static String NAME = new String("WGCEP (2007) UCERF2 - Single Branch");
+	public final static String NAME = new String("WGCEP (2007) UCERF2 - Single Branch (Modified)");
 
 //	ArrayList allSourceNames;
 
