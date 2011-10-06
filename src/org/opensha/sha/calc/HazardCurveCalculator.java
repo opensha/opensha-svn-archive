@@ -32,11 +32,13 @@ import java.util.Map;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.calc.params.MaxDistanceParam;
@@ -323,47 +325,57 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			// loop over these ruptures
 			for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
-				EqkRupture rupture = source.getRupture(n);
+				try {
+					EqkRupture rupture = source.getRupture(n);
 
-				// get the rupture probability
-				qkProb = ((ProbEqkRupture)rupture).getProbability();
+					// get the rupture probability
+					qkProb = ((ProbEqkRupture)rupture).getProbability();
 
-				// apply magThreshold if we're to use the mag-dist cutoff filter
-				if(includeMagDistFilter && rupture.getMag() < magThresh) {
-					numRupRejected += 1;
-					continue;
+					// apply magThreshold if we're to use the mag-dist cutoff filter
+					if(includeMagDistFilter && rupture.getMag() < magThresh) {
+						numRupRejected += 1;
+						continue;
+					}
+
+					// indicate that a source has been used (put here because of above filter)
+					sourceUsed = true;
+
+					// set the EqkRup in the IMR
+					imr.setEqkRupture(rupture);
+
+					// get the conditional probability of exceedance from the IMR
+					condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+
+
+					// For poisson source
+					if(poissonSource) {
+						/* First make sure the probability isn't 1.0 (or too close); otherwise rates are
+					infinite and all IMLs will be exceeded (because of ergodic assumption).  This
+					can happen if the number of expected events (over the timespan) exceeds ~37,
+					because at this point 1.0-Math.exp(-num) = 1.0 by numerical precision (and thus,
+					an infinite number of events).  The number 30 used in the check below provides a
+					safe margin.
+						 */
+						if(Math.log(1.0-qkProb) < -30.0)
+							throw new RuntimeException("Error: The probability for this ProbEqkRupture ("+qkProb+
+							") is too high for a Possion source (~infinite number of events)");
+
+						for(k=0;k<numPoints;k++)
+							hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+					}
+					// For non-Poissin source
+					else
+						for(k=0;k<numPoints;k++)
+							sourceHazFunc.set(k,sourceHazFunc.getY(k) + qkProb*condProbFunc.getY(k));
+				} catch (Throwable t) {
+					System.err.println("Error occured while calculating hazard curve " +
+							"for rupture:  "+sourceIndex+" "+n);
+					System.err.println("ERF: "+eqkRupForecast.getName());
+					System.err.println("IMR: "+imr.getName());
+					System.err.println("Site: "+site);
+					System.err.println("Curve: "+hazFunction);
+					ExceptionUtils.throwAsRuntimeException(t);
 				}
-
-				// indicate that a source has been used (put here because of above filter)
-				sourceUsed = true;
-
-				// set the EqkRup in the IMR
-				imr.setEqkRupture(rupture);
-
-				// get the conditional probability of exceedance from the IMR
-				condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
-
-
-				// For poisson source
-				if(poissonSource) {
-					/* First make sure the probability isn't 1.0 (or too close); otherwise rates are
-             	infinite and all IMLs will be exceeded (because of ergodic assumption).  This
-             	can happen if the number of expected events (over the timespan) exceeds ~37,
-             	because at this point 1.0-Math.exp(-num) = 1.0 by numerical precision (and thus,
-             	an infinite number of events).  The number 30 used in the check below provides a
-             	safe margin.
-					 */
-					if(Math.log(1.0-qkProb) < -30.0)
-						throw new RuntimeException("Error: The probability for this ProbEqkRupture ("+qkProb+
-						") is too high for a Possion source (~infinite number of events)");
-
-					for(k=0;k<numPoints;k++)
-						hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
-				}
-				// For non-Poissin source
-				else
-					for(k=0;k<numPoints;k++)
-						sourceHazFunc.set(k,sourceHazFunc.getY(k) + qkProb*condProbFunc.getY(k));
 			}
 			// for non-poisson source:
 			if(!poissonSource)
