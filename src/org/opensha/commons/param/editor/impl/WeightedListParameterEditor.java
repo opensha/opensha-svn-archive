@@ -112,11 +112,11 @@ public class WeightedListParameterEditor extends AbstractParameterEditor<Weighte
 		System.out.println("updating!");
 		gui.setList(getList());
 		if (shouldGuiBeVisible()) {
-			System.out.println("gui mode now!");
+//			System.out.println("gui mode now!");
 			isGuiMode = true;
 			return gui;
 		} else {
-			System.out.println("button mode now!");
+//			System.out.println("button mode now!");
 			isGuiMode = false;
 			return editButton;
 		}

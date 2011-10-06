@@ -142,7 +142,11 @@ public class HazardCurveSetCalculator {
 				System.err.println("Error calculating hazard curve. Metadata below.");
 				System.err.println("Site: "+site);
 				System.err.println("ERF: "+erf.getName());
-				System.err.println("IMR: "+IMR_MultiGuiBean.getIMRMetadataHTML(imrMap).replaceAll("<br>", "\n"));
+				try {
+					System.err.println("IMR: "+IMR_MultiGuiBean.getIMRMetadataHTML(imrMap).replaceAll("<br>", "\n"));
+				} catch (Exception e1) {
+					System.err.println("IMR: "+imrMap.values().iterator().next().getName());
+				}
 				System.err.println("Function: "+calcFunction);
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
