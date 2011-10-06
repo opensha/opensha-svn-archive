@@ -1,4 +1,4 @@
-package util;
+package util.nshmp;
 
 import org.opensha.commons.geo.Location;
 
