@@ -803,6 +803,10 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 	}
 	
 	public NtoNMap<TectonicRegionType, ScalarIMR> getNtoNMap() {
+		return getNtoNMap(imrMap);
+	}
+	
+	public static NtoNMap<TectonicRegionType, ScalarIMR> getNtoNMap(Map<TectonicRegionType, ScalarIMR> imrMap) {
 		NtoNMap<TectonicRegionType, ScalarIMR> map =
 			new NtoNMap<TectonicRegionType, ScalarIMR>();
 		for (TectonicRegionType trt : imrMap.keySet()) {
@@ -811,41 +815,45 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		return map;
 	}
 	
+	public static String getIMRMetadataHTML(Map<TectonicRegionType, ScalarIMR> imrMap) {
+		NtoNMap<TectonicRegionType, ScalarIMR> map = getNtoNMap(imrMap);
+		String meta = null;
+		Set<ScalarIMR> myIMRs = map.getRights();
+		for (ScalarIMR imr : myIMRs) {
+			if (meta == null)
+				meta = "";
+			else
+				meta += "<br>";
+			meta += "--- IMR: " + imr.getName() + " ---<br>";
+			String trtNames = null;
+			Collection<TectonicRegionType> trtsForIMR = map.getLefts(imr);
+			for (TectonicRegionType trt : trtsForIMR) {
+				if (trtNames == null)
+					trtNames = "";
+				else
+					trtNames += ", ";
+				trtNames += trt.toString();
+			}
+			meta += "--- TectonicRegion";
+			if (trtsForIMR.size() > 1)
+				meta += "s";
+			meta += ": " + trtNames + " ---<br>";
+			meta += "--- Params ---<br>";
+			ParameterList paramList = (ParameterList) imr.getOtherParamsList().clone();
+			if (paramList.containsParameter(TectonicRegionTypeParam.NAME))
+				paramList.removeParameter(TectonicRegionTypeParam.NAME);
+			meta += paramList.getParameterListMetadataString();
+		}
+		return meta;
+	}
+	
 	/**
 	 * 
 	 * @return IMR metadata as HTML for display
 	 */
 	public String getIMRMetadataHTML() {
 		if (isMultipleIMRs()) {
-			NtoNMap<TectonicRegionType, ScalarIMR> map = getNtoNMap();
-			String meta = null;
-			Set<ScalarIMR> myIMRs = map.getRights();
-			for (ScalarIMR imr : myIMRs) {
-				if (meta == null)
-					meta = "";
-				else
-					meta += "<br>";
-				meta += "--- IMR: " + imr.getName() + " ---<br>";
-				String trtNames = null;
-				Collection<TectonicRegionType> trtsForIMR = map.getLefts(imr);
-				for (TectonicRegionType trt : trtsForIMR) {
-					if (trtNames == null)
-						trtNames = "";
-					else
-						trtNames += ", ";
-					trtNames += trt.toString();
-				}
-				meta += "--- TectonicRegion";
-				if (trtsForIMR.size() > 1)
-					meta += "s";
-				meta += ": " + trtNames + " ---<br>";
-				meta += "--- Params ---<br>";
-				ParameterList paramList = (ParameterList) imr.getOtherParamsList().clone();
-				if (paramList.containsParameter(TectonicRegionTypeParam.NAME))
-					paramList.removeParameter(TectonicRegionTypeParam.NAME);
-				meta += paramList.getParameterListMetadataString();
-			}
-			return meta;
+			return getIMRMetadataHTML(imrMap);
 		} else {
 			String meta = "IMR = " + getSelectedIMR().getName() + "; ";
 			meta += paramEdit.getVisibleParameters().getParameterListMetadataString();

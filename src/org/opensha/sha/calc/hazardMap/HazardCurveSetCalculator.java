@@ -11,12 +11,14 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TRTUtils;
@@ -134,7 +136,16 @@ public class HazardCurveSetCalculator {
 			long curveStart = System.currentTimeMillis();
 			if (D) System.out.println("Calculating Hazard Curve. timestamp=" + curveStart);
 			// actually calculate the curve from the log hazard function, site, IMR, and ERF
-			calc.getHazardCurve(calcFunction,site,imrMap,erf);
+			try {
+				calc.getHazardCurve(calcFunction,site,imrMap,erf);
+			} catch (Exception e) {
+				System.err.println("Error calculating hazard curve. Metadata below.");
+				System.err.println("Site: "+site);
+				System.err.println("ERF: "+erf.getName());
+				System.err.println("IMR: "+IMR_MultiGuiBean.getIMRMetadataHTML(imrMap).replaceAll("<br>", "\n"));
+				System.err.println("Function: "+calcFunction);
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
 			long curveEnd = System.currentTimeMillis();
 			float curveSecs = (float)(curveEnd - curveStart) / 1000f;
 			if (D) System.out.println("Calculated a curve! timestamp=" + curveEnd + " ("+curveSecs+" secs)");
