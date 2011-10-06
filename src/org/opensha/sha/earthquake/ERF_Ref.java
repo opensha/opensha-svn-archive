@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.opensha.commons.util.DevStatus;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
@@ -319,12 +320,7 @@ public enum ERF_Ref {
 			return con.newInstance();
 		} catch (Exception e) {
 			// TODO init logging
-			RuntimeException re;
-			if (e instanceof RuntimeException)
-				re = (RuntimeException)e;
-			else
-				re = new RuntimeException(e);
-			throw re;
+			throw ExceptionUtils.asRuntimeException(e);
 		}
 	}
 
