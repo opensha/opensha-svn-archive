@@ -3,12 +3,15 @@ package util;
 import org.opensha.commons.geo.Location;
 
 /**
- * Add comments here
- *
+ * List of 34 city sites in regions of the United States of greatest seismic
+ * risk as specified in the 2009 edition of the <a
+ * href="http://www.fema.gov/library/viewRecord.do?id=4103" target=_blank">NEHRP
+ * Recommended Seismic Provisions</a>
  * 
  * @author Peter Powers
  * @version $Id:$
  */
+@SuppressWarnings("all")
 public enum NEHRP_TestCity {
 
 	// SoCal
@@ -23,7 +26,6 @@ public enum NEHRP_TestCity {
 	SAN_DIEGO(32.70,-117.15),
 	SANTA_BARBARA(34.45,-119.70),
 	VENTURA(34.30,-119.30),
-	
 	
 	OAKLAND(37.80,-122.25),
 	CONCORD(37.95,-122.00),
