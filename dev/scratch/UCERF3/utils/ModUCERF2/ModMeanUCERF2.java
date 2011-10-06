@@ -80,11 +80,11 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  */
 public class ModMeanUCERF2 extends AbstractERF {
 	//for Debug purposes
-	protected static String  C = new String("MeanUCERF2");
+	protected static String  C = new String("MeanUCERF2 Modified");
 	protected boolean D = true;
 
 	// name of this ERF
-	public final static String NAME = new String("WGCEP (2007) UCERF2 - Single Branch (Modified)");
+	public final static String NAME = new String("WGCEP (2007) UCERF2 - Single Branch, Modified");
 
 //	ArrayList allSourceNames;
 
