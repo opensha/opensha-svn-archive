@@ -367,17 +367,18 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 */
 	private void createAndUpdateSites() {
 
-		double minLatitude= ((Double)minLat.getValue()).doubleValue();
-		double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
-		double minLongitude=((Double)minLon.getValue()).doubleValue();
-		double maxLongitude=((Double)maxLon.getValue()).doubleValue();
+		double minLatitude= minLat.getValue();
+		double maxLatitude= maxLat.getValue();
+		double minLongitude=minLon.getValue();
+		double maxLongitude=maxLon.getValue();
 		//checkLatLonParamValues();
 		GriddedRegion eggr = 
 			new GriddedRegion(
 					new Location(minLatitude,minLongitude),
 					new Location(maxLatitude,maxLongitude),
-					((Double)gridSpacing.getValue()).doubleValue(), 
-					new Location(0,0));
+					gridSpacing.getValue(),
+					new Location(minLatitude, minLongitude));
+//					new Location(0,0));
 		sites= new SitesInGriddedRegion(eggr);
 	}
 
