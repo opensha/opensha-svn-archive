@@ -5,20 +5,20 @@
 4	Calaveras;CN+CC+CS	0	Calaveras (No)	Calaveras (Central)	Calaveras (So)
 5	Calaveras;CS	0	Calaveras (So)
 6	Elsinore;CM	0	Elsinore (Coyote Mountain)
-7	Elsinore;GI	0	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)
-8	Elsinore;GI+T	0	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)	Elsinore (Temecula) rev	Elsinore (Temecula stepover)
-9	Elsinore;GI+T+J	0	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)	Elsinore (Temecula) rev	Elsinore (Temecula stepover)	Elsinore (Julian)
-10	Elsinore;GI+T+J+CM	0	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)	Elsinore (Temecula) rev	Elsinore (Temecula stepover)	Elsinore (Julian)	Elsinore (Coyote Mountain)
+7	Elsinore;GI	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)
+8	Elsinore;GI+T	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev
+9	Elsinore;GI+T+J	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)
+10	Elsinore;GI+T+J+CM	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
 11	Elsinore;J	0	Elsinore (Julian)
 12	Elsinore;J+CM	0	Elsinore (Julian)	Elsinore (Coyote Mountain)
-13	Elsinore;T	0	Elsinore (Temecula) rev	Elsinore (Temecula stepover)
-14	Elsinore;T+J	0	Elsinore (Temecula) rev	Elsinore (Temecula stepover)	Elsinore (Julian)
-15	Elsinore;T+J+CM	0	Elsinore (Temecula) rev	Elsinore (Temecula stepover)	Elsinore (Julian)	Elsinore (Coyote Mountain)
+13	Elsinore;T	0	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev
+14	Elsinore;T+J	0	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)
+15	Elsinore;T+J+CM	0	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
 16	Elsinore;W	0	Whittier, alt 2
-17	Elsinore;W+GI	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)
-18	Elsinore;W+GI+T	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)	Elsinore (Temecula) rev	Elsinore (Temecula stepover)
-19	Elsinore;W+GI+T+J	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)	Elsinore (Temecula) rev	Elsinore (Temecula stepover)	Elsinore (Julian)
-20	Elsinore;W+GI+T+J+CM	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)	Elsinore (Temecula) rev	Elsinore (Temecula stepover)	Elsinore (Julian)	Elsinore (Coyote Mountain)
+17	Elsinore;W+GI	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)
+18	Elsinore;W+GI+T	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev
+19	Elsinore;W+GI+T+J	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)
+20	Elsinore;W+GI+T+J+CM	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
 21	Garlock;GC	0	Garlock (Central)
 22	Garlock;GC+GW	0	Garlock (Central)	Garlock (West)
 23	Garlock;GE	0	Garlock (East)
@@ -96,39 +96,39 @@
 95	S. San Andreas;SSB	0	San Andreas (San Bernardino S)
 96	S. San Andreas;SSB+BG	0	San Andreas (San Bernardino S)	San Andreas (San Gorgonio Pass-Garnet HIll)
 97	S. San Andreas;SSB+BG+CO	0	San Andreas (San Bernardino S)	San Andreas (San Gorgonio Pass-Garnet HIll)	San Andreas (Coachella) rev
-98	San Jacinto;A	0	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev
-99	San Jacinto;A+C	0	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
-100	San Jacinto;A+CC	0	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)
-101	San Jacinto;A+CC+B	0	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)
-102	San Jacinto;A+CC+B+SM	0	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	Superstition Mtn
+98	San Jacinto;A	0	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev
+99	San Jacinto;A+C	0	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
+100	San Jacinto;A+CC	0	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)
+101	San Jacinto;A+CC+B	0	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)
+102	San Jacinto;A+CC+B+SM	0	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	San Jacinto (Superstition Mtn)
 103	San Jacinto;B	0	San Jacinto (Borrego)
-104	San Jacinto;B+SM	0	San Jacinto (Borrego)	Superstition Mtn
+104	San Jacinto;B+SM	0	San Jacinto (Borrego)	San Jacinto (Superstition Mtn)
 105	San Jacinto;C	0	San Jacinto (Clark) rev
 106	San Jacinto;CC	0	San Jacinto (Coyote Creek)
 107	San Jacinto;CC+B	0	San Jacinto (Coyote Creek)	San Jacinto (Borrego)
-108	San Jacinto;CC+B+SM	0	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	Superstition Mtn
+108	San Jacinto;CC+B+SM	0	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	San Jacinto (Superstition Mtn)
 109	San Jacinto;SBV	0	San Jacinto (San Bernardino)
-110	San Jacinto;SBV+SJV	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)
-111	San Jacinto;SBV+SJV+A	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev
-112	San Jacinto;SBV+SJV+A+C	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
-113	San Jacinto;SBV+SJV+A+CC	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)
-114	San Jacinto;SBV+SJV+A+CC+B	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)
-115	San Jacinto;SBV+SJV+A+CC+B+SM	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	Superstition Mtn
-116	San Jacinto;SJV	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)
-117	San Jacinto;SJV+A	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev
-118	San Jacinto;SJV+A+C	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
-119	San Jacinto;SJV+A+CC	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)
-120	San Jacinto;SJV+A+CC+B	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)
-121	San Jacinto;SJV+A+CC+B+SM	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	Superstition Mtn
-122	San Jacinto;SM	0	Superstition Mtn
+110	San Jacinto;SBV+SJV	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)
+111	San Jacinto;SBV+SJV+A	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev
+112	San Jacinto;SBV+SJV+A+C	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
+113	San Jacinto;SBV+SJV+A+CC	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)
+114	San Jacinto;SBV+SJV+A+CC+B	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)
+115	San Jacinto;SBV+SJV+A+CC+B+SM	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	San Jacinto (Superstition Mtn)
+116	San Jacinto;SJV	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)
+117	San Jacinto;SJV+A	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev
+118	San Jacinto;SJV+A+C	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
+119	San Jacinto;SJV+A+CC	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)
+120	San Jacinto;SJV+A+CC+B	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)
+121	San Jacinto;SJV+A+CC+B+SM	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	San Jacinto (Superstition Mtn)
+122	San Jacinto;SM	0	San Jacinto (Superstition Mtn)
 123	Calaveras	0	Calaveras (No)	Calaveras (Central)	Calaveras (So)
-124	Elsinore	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Glen Ivy stepover)	Elsinore (Temecula) rev	Elsinore (Temecula stepover)	Elsinore (Julian)	Elsinore (Coyote Mountain)
+124	Elsinore	0	Whittier, alt 2	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
 125	Garlock	0	Garlock (East)	Garlock (Central)	Garlock (West)
 126	Hayward-Rodgers Creek	0	Rodgers Creek	Hayward (No)	Hayward (So)
 127	N. San Andreas	0	San Andreas (Offshore)	San Andreas (North Coast)	San Andreas (Peninsula)	San Andreas (Santa Cruz Mtn)
 128	S. San Andreas	0	San Andreas (Parkfield)	San Andreas (Cholame) rev	San Andreas (Carrizo) rev	San Andreas (Big Bend)	San Andreas (Mojave N)	San Andreas (Mojave S)	San Andreas (San Bernardino N)	San Andreas (San Bernardino S)	San Andreas (San Gorgonio Pass-Garnet HIll)	San Andreas (Coachella) rev
-129	San Jacinto (CC to SM)	0	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	Superstition Mtn
-130	San Jacinto (SB to C)	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (San Jacinto Valley, stepover)	San Jacinto (Anza, stepover)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
+129	San Jacinto (CC to SM)	0	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	San Jacinto (Superstition Mtn)
+130	San Jacinto (SB to C)	0	San Jacinto (San Bernardino)	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Clark) rev
 131	Anacapa-Dume, alt 1	1	Anacapa-Dume, alt 1
 132	Anacapa-Dume, alt 2	2	Anacapa-Dume, alt 2
 133	Bartlett Springs	0	Bartlett Springs
@@ -142,7 +142,7 @@
 141	Cedar Mtn-Mahogany Mtn	0	Cedar Mtn-Mahogany Mtn
 142	Channel Islands Thrust	0	Channel Islands Thrust
 143	Chino, alt 1	1	Chino, alt 1
-144	Chino, alt 2	2	Chino, alt 1
+144	Chino, alt 2	2	Chino, alt 2
 145	Clamshell-Sawpit	0	Clamshell-Sawpit
 146	Cleghorn	0	Cleghorn
 147	Collayomi	0	Collayomi
