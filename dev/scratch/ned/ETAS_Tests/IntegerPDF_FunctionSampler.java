@@ -19,6 +19,11 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
  */
 public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	boolean dataChange = true;
 	double[] cumDistVals;
 	
@@ -60,7 +65,7 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	 * @param prob - a value between 0 and 1.
 	 * @return
 	 */
-	private int getInt(double prob) {
+	public int getInt(double prob) {
 		// update if needed
 		if(dataChange) {
 			updateCumDistVals();

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
+
 import static com.google.common.base.Preconditions.*;
 
 /**
@@ -16,25 +18,12 @@ import static com.google.common.base.Preconditions.*;
  *
  * @param <T>
  */
-public class PoissonSampler<T> {
+public class WeightedSampler<T> {
 	
 	// left as default for in-package testing
-	List<Item> items;
+	private List<T> objects;
 	private Random r;
-	
-	class Item implements Comparable<Item> {
-		T item;
-		double rate;
-		double cumRate;
-		public Item(T item, double rate) {
-			this.item = item;
-			this.rate = rate;
-		}
-		@Override
-		public int compareTo(Item o) {
-			return Double.compare(rate, o.rate);
-		}
-	}
+	private IntegerPDF_FunctionSampler sampler;
 	
 	/**
 	 * Creates a PoissonSampler with the given list of objects and rates. Rates will be normalized
@@ -47,7 +36,7 @@ public class PoissonSampler<T> {
 	 * @throws IllegalArgumentException if lists of objects and rates are empty, or of different sizes.
 	 * Will also be thrown if any rates are less than zero, or if all rates are equal to zero.
 	 */
-	public PoissonSampler(List<T> objects, List<Double> rates)
+	public WeightedSampler(List<T> objects, List<Double> rates)
 	throws NullPointerException, IllegalArgumentException {
 		this(objects, rates, new Random());
 	}
@@ -64,7 +53,7 @@ public class PoissonSampler<T> {
 	 * @throws IllegalArgumentException if lists of objects and rates are empty, or of different sizes.
 	 * Will also be thrown if any rates are less than zero, or if all rates are equal to zero.
 	 */
-	public PoissonSampler(List<T> objects, List<Double> rates, Random r)
+	public WeightedSampler(List<T> objects, List<Double> rates, Random r)
 	throws NullPointerException, IllegalArgumentException {
 		checkNotNull(objects, "objects cannot be null!");
 		checkArgument(!objects.isEmpty(), "objects cannot be empty!");
@@ -79,57 +68,15 @@ public class PoissonSampler<T> {
 		}
 		checkArgument(hasNonZero, "must be at least one non zero rate");
 		checkNotNull(r, "random cannot be null!");
-		this.items = new ArrayList<Item>();
-		for (int i=0; i<objects.size(); i++) {
-			this.items.add(new Item(objects.get(i), rates.get(i)));
-		}
-		this.r = r;
-		// sort it (least to greatest)
-		Collections.sort(items);
-		// revers it (greatest to least)
-		Collections.reverse(items);
 		
-		// now normalize. it is important that this happens after sorting because we also set
-		// the cumulative rates here
-		normalizeRates();
-	}
-	
-	private void normalizeRates() {
-		double sum = 0d;
-		for (Item item : items)
-			sum += item.rate;
-		double cum = 0d;
-		for (Item item : items) {
-			// normalize it
-			item.rate = item.rate / sum;
-			// set the cumulative rate at this point
-			cum += item.rate;
-			item.cumRate = cum;
+		this.r = r;
+		
+		this.objects = Collections.unmodifiableList(objects);
+		
+		sampler = new IntegerPDF_FunctionSampler(objects.size());
+		for (int i=0; i<objects.size(); i++) {
+			sampler.set(i, rates.get(i));
 		}
-		// make it immutable as changing things after this would cause problems
-		items = Collections.unmodifiableList(items);
-	}
-	
-	Item next() {
-		double rate = r.nextDouble();
-		return getForCumRate(rate);
-	}
-	
-	Item getForCumRate(double rate) {
-		checkState(rate >= 0d && rate <= 1d, "rate must be within zero and one");
-		Item lastNonZero = null;
-		for (Item item : items) {
-			if (rate <= item.cumRate)
-				return item;
-			if (item.rate > 0)
-				lastNonZero = item;
-			else
-				// not worth iterating over items with zero rate
-				break;
-		}
-		return lastNonZero;
-//		throw new IllegalStateException("Cannot locate item for rate: "+rate
-//				+" (max cum rate: "+items.get(items.size()-1).cumRate+")");
 	}
 	
 	/**
@@ -141,7 +88,9 @@ public class PoissonSampler<T> {
 	 * @return
 	 */
 	public T getItemForNormCumRate(double rate) {
-		return getForCumRate(rate).item;
+		checkState(rate >= 0d && rate <= 1d, "rate must be within zero and one");
+		int ind = sampler.getInt(rate);
+		return objects.get(ind);
 	}
 	
 	/**
@@ -149,7 +98,7 @@ public class PoissonSampler<T> {
 	 * @return the next randomly selected item
 	 */
 	public T nextItem() {
-		return next().item;
+		return getItemForNormCumRate(r.nextDouble());
 	}
 	
 	/**
