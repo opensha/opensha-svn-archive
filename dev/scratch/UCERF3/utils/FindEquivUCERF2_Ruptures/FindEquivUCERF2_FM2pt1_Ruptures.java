@@ -691,6 +691,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		
 		// now make UCERF2 A & B fault Cum MFD (from Table 8 of the report)
 		ucerf2_AandB_FaultCumMFD = new EvenlyDiscretizedFunc(5.0,35,0.1);
+		ucerf2_AandB_FaultCumMFD.setName("MFD for A and B Faults");
+		ucerf2_AandB_FaultCumMFD.setInfo("(from Table 8 of UCERF2 Report)");
 		ucerf2_AandB_FaultCumMFD.setTolerance(0.0001);
 		ucerf2_AandB_FaultCumMFD.set(5.0, 0.329465);
 		ucerf2_AandB_FaultCumMFD.set(5.1, 0.329465);
@@ -730,7 +732,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 
 	}
 	
-	public void plotMFD_TestForNcal() {
+	public void plotMFD_Test() {
 		computeOtherMFDs();
 		ArrayList funcs = new ArrayList();
 		funcs.add(mfdOfAssocRupsAndModMags);
@@ -754,11 +756,11 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		ArrayList cumFuncs = new ArrayList();
 		cumFuncs.add(mfdOfAssocRupsAndModMags.getCumRateDistWithOffset());
 		cumFuncs.add(mfdOfAssocRupsWithOrigMags.getCumRateDistWithOffset());
+		cumFuncs.add(ucerf2_AandB_FaultCumMFD);
 		cumFuncs.add(mfdOfFaultMod2pt1_RupsOnly.getCumRateDistWithOffset());
 		cumFuncs.add(mfdOfFaultMod2pt2_RupsOnly.getCumRateDistWithOffset());
 		cumFuncs.add(mfdOfSubSeismoRups.getCumRateDistWithOffset());
 		cumFuncs.add(mfdOfOtherUnassocInvsionRups.getCumRateDistWithOffset());
-		cumFuncs.add(ucerf2_AandB_FaultCumMFD);
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(cumFuncs, "Cumulative Mag-Freq Dists"); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
@@ -1076,7 +1078,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		
 		FindEquivUCERF2_FM2pt1_Ruptures test = new FindEquivUCERF2_FM2pt1_Ruptures(faultSysRupSet, precompDataDir);
 		
-		test.plotMFD_TestForNcal();
+		test.plotMFD_Test();
    		
 		
 /*   		// To Make XML **********************
