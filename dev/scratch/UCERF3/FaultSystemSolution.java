@@ -5,12 +5,14 @@ package scratch.UCERF3;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -34,6 +36,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	
+	private boolean showProgress = false;
+	
 	/**
 	 * These gives the long-term rate (events/yr) of the rth rupture
 	 * @param rupIndex
@@ -48,6 +52,26 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 */
 	public abstract double[] getRateForAllRups();
 	
+	/**
+	 * This enables/disables visible progress bars for long calculations
+	 * 
+	 * @param showProgress
+	 */
+	public void setShowProgress(boolean showProgress) {
+		this.showProgress = showProgress;
+	}
+	
+	public void clearCache() {
+		slipPDFMap.clear();
+		particRatesCache.clear();
+		totParticRatesCache = null;
+		paleoVisibleRatesCache = null;
+		slipRatesCache = null;
+		rupturesForSectionCache.clear();
+	}
+	
+	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPDFMap =
+		new HashMap<Integer, ArbDiscrEmpiricalDistFunc>();
 	
 	/**
 	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of slips for the 
@@ -55,8 +79,11 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public ArbDiscrEmpiricalDistFunc calcSlipPFD_ForSect(int sectIndex) {
-		ArbDiscrEmpiricalDistFunc slipPDF = new ArbDiscrEmpiricalDistFunc();
+	public synchronized ArbDiscrEmpiricalDistFunc calcSlipPFD_ForSect(int sectIndex) {
+		ArbDiscrEmpiricalDistFunc slipPDF = slipPDFMap.get(sectIndex);
+		if (slipPDF != null)
+			return slipPDF;
+		slipPDF = new ArbDiscrEmpiricalDistFunc();
 		for (int r : getRupturesForSection(sectIndex)) {
 			List<Integer> sectIndices = getSectionsIndicesForRup(r);
 			double[] slips = this.getSlipOnSectionsForRup(r);
@@ -67,6 +94,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 				}
 			}
 		}
+		slipPDFMap.put(sectIndex, slipPDF);
 		return slipPDF;
 	}
 	
@@ -90,7 +118,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		return rates;
 	}
 
-
+	private HashMap<String, double[]> particRatesCache = new HashMap<String, double[]>();
 	
 	/**
 	 * This computes the participation rate (events/yr) of the sth section for magnitudes 
@@ -101,6 +129,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @return
 	 */
 	public double calcParticRateForSect(int sectIndex, double magLow, double magHigh) {
+		return calcParticRateForAllSects(magLow, magHigh)[sectIndex];
+	}
+		
+	private double doCalcParticRateForSect(int sectIndex, double magLow, double magHigh) {
 		double partRate=0;
 		for (int r : getRupturesForSection(sectIndex)) {
 			double mag = this.getMagForRup(r);
@@ -119,14 +151,26 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param magHigh
 	 * @return
 	 */
-	public double[] calcParticRateForAllSects(double magLow, double magHigh) {
-		double[] partRate = new double[getNumSections()];
-		for(int s=0;s<partRate.length;s++) {
-			partRate[s]=calcParticRateForSect(s, magLow, magHigh);
+	public synchronized double[] calcParticRateForAllSects(double magLow, double magHigh) {
+		String key = (float)magLow+"_"+(float)magHigh;
+		if (!particRatesCache.containsKey(key)) {
+			double[] particRates = new double[getNumSections()];
+			CalcProgressBar p = null;
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Participation Rates", "Calculating Participation Rates");
+				p.displayProgressBar();
+			}
+			for (int i=0; i<particRates.length; i++) {
+				if (p != null) p.updateProgress(i, particRates.length);
+				particRates[i] = doCalcParticRateForSect(i, magLow, magHigh);
+			}
+			if (p != null) p.dispose();
+			particRatesCache.put(key, particRates);
 		}
-		return partRate;
+		return particRatesCache.get(key);
 	}
 	
+	private double[] totParticRatesCache;
 	
 	/**
 	 * This computes the total participation rate (events/yr) of the sth section.
@@ -135,6 +179,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @return
 	 */
 	public double calcTotParticRateForSect(int sectIndex) {
+		return calcTotParticRateForAllSects()[sectIndex];
+	}
+	
+	private double doCalcTotParticRateForSect(int sectIndex) {
 		double partRate=0;
 		for (int r : getRupturesForSection(sectIndex))
 			partRate += getRateForRup(r);
@@ -147,14 +195,24 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * 
 	 * @return
 	 */
-	public double[] calcTotParticRateForAllSects() {
-		double[] partRate = new double[getNumSections()];
-		for(int s=0;s<partRate.length;s++) {
-			partRate[s]=calcTotParticRateForSect(s);
+	public synchronized double[] calcTotParticRateForAllSects() {
+		if (totParticRatesCache == null) {
+			totParticRatesCache = new double[getNumSections()];
+			CalcProgressBar p = null;
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Total Participation Rates", "Calculating Total Participation Rates");
+				p.displayProgressBar();
+			}
+			for (int i=0; i<totParticRatesCache.length; i++) {
+				if (p != null) p.updateProgress(i, totParticRatesCache.length);
+				totParticRatesCache[i] = doCalcTotParticRateForSect(i);
+			}
+			if (p != null) p.dispose();
 		}
-		return partRate;
+		return totParticRatesCache;
 	}
 	
+	private double[] paleoVisibleRatesCache;
 	
 	/**
 	 * This gives the total paleoseismically observable rate (events/yr) of the sth section.
@@ -165,6 +223,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @return
 	 */
 	public double calcTotPaleoVisibleRateForSect(int sectIndex) {
+		return calcTotPaleoVisibleRateForAllSects()[sectIndex];
+	}
+	
+	public double doCalcTotPaleoVisibleRateForSect(int sectIndex) {
 		double partRate=0;
 		for (int r : getRupturesForSection(sectIndex))
 			partRate += getRateForRup(r)*getProbPaleoVisible(getMagForRup(r));
@@ -179,13 +241,24 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * 
 	 * @return
 	 */
-	public double[] calcTotPaleoVisibleRateForAllSects() {
-		double[] partRate = new double[getNumSections()];
-		for(int s=0;s<partRate.length;s++) {
-			partRate[s]=calcTotPaleoVisibleRateForSect(s);
+	public synchronized double[] calcTotPaleoVisibleRateForAllSects() {
+		if (paleoVisibleRatesCache == null) {
+			paleoVisibleRatesCache = new double[getNumSections()];
+			CalcProgressBar p = null;
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Paleo Visible Rates", "Calculating Paleo Visible Rates");
+				p.displayProgressBar();
+			}
+			for (int i=0; i<paleoVisibleRatesCache.length; i++) {
+				if (p != null) p.updateProgress(i, paleoVisibleRatesCache.length);
+				paleoVisibleRatesCache[i] = doCalcTotPaleoVisibleRateForSect(i);
+			}
+			if (p != null) p.dispose();
 		}
-		return partRate;
+		return paleoVisibleRatesCache;
 	}
+	
+	private double[] slipRatesCache;
 	
 	/**
 	 * This computes the slip rate of the sth section (meters/year))
@@ -194,25 +267,36 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @return
 	 */
 	public double calcSlipRateForSect(int sectIndex) {
+		return calcSlipRateForAllSects()[sectIndex];
+	}
+	
+	private double doCalcSlipRateForSect(int sectIndex) {
 		double slipRate=0;
 		for (int r : getRupturesForSection(sectIndex))
 			slipRate += getRateForRup(r)*getAveSlipForRup(r);
 		return slipRate;
-
 	}
-
 	
 	/**
 	 * This computes the slip rate of all sections (meters/year))
 	 * 
 	 * @return
 	 */
-	public double[] calcSlipRateForAllSects()  {
-		double[] slipRate = new double[getNumSections()];
-		for(int s=0;s<slipRate.length;s++) {
-			slipRate[s]=calcSlipRateForSect(s);
+	public synchronized double[] calcSlipRateForAllSects() {
+		if (slipRatesCache == null) {
+			slipRatesCache = new double[getNumSections()];
+			CalcProgressBar p = null;
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Slip Rates", "Calculating Slip Rates");
+				p.displayProgressBar();
+			}
+			for (int i=0; i<slipRatesCache.length; i++) {
+				if (p != null) p.updateProgress(i, slipRatesCache.length);
+				slipRatesCache[i] = doCalcSlipRateForSect(i);
+			}
+			if (p != null) p.dispose();
 		}
-		return slipRate;
+		return slipRatesCache;
 	}
 
 	/**
@@ -311,6 +395,32 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			datas.add(getFaultSectionData(ind));
 		return datas;
 	}
-
+	
+	private ArrayList<ArrayList<Integer>> rupturesForSectionCache = null;
+	
+	@Override
+	public List<Integer> getRupturesForSection(int secIndex) {
+		if (rupturesForSectionCache == null) {
+			CalcProgressBar p = null;
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Ruptures for each Section", "Calculating Ruptures for each Section");
+				p.displayProgressBar();
+			}
+			rupturesForSectionCache = new ArrayList<ArrayList<Integer>>();
+			for (int secID=0; secID<getNumSections(); secID++)
+				rupturesForSectionCache.add(new ArrayList<Integer>());
+			
+			int numRups = getNumRuptures();
+			for (int rupID=0; rupID<numRups; rupID++) {
+				if (p != null) p.updateProgress(rupID, numRups);
+				for (int secID : getSectionsIndicesForRup(rupID)) {
+					rupturesForSectionCache.get(secID).add(rupID);
+				}
+			}
+			if (p != null) p.dispose();
+		}
+		
+		return rupturesForSectionCache.get(secIndex);
+	}
 
 }

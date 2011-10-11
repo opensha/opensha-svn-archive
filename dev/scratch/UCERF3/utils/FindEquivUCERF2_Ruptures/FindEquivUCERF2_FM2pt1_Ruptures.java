@@ -46,7 +46,6 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.UCERF3.utils.DeformationModelFetcher;
-import sun.tools.tree.ThisExpression;
 
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
