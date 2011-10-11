@@ -74,8 +74,11 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * with
  * 
  * 		protected NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGeneratorMod2();
+ * 
+ * NOTES: not sure the getTotalMFD() method still works.  I also added the method getB_FaultMFD() here
+ * in order to test subclasses of this.
  *       
- * @author 
+ * @author Ned Field
  *
  */
 public class ModMeanUCERF2 extends AbstractERF {
@@ -403,6 +406,14 @@ public class ModMeanUCERF2 extends AbstractERF {
 		totalMFD.addIncrementalMagFreqDist(nonCA_B_FaultsSummedMFD);
 		return totalMFD;
 	}
+	
+	/**
+	 * This includes the time dependence (if applied)
+	 */
+	public IncrementalMagFreqDist getB_FaultMFD() {
+		return bFaultSummedMFD;
+	}
+	
 
 	/**
 	 * update the forecast
