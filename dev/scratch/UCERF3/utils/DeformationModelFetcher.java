@@ -17,6 +17,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
@@ -33,6 +34,16 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 public class DeformationModelFetcher {
 	
 	protected final static boolean D = true;  // for debugging
+	
+	//	 Stepover fix for Elsinor
+	private final static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
+	private final static int TEMECULA_STEPOVER_FAULT_SECTION_ID = 298;
+	private final static int ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID = 402;
+	//	 Stepover fix for San Jacinto
+	private final static int SJ_VALLEY_STEPOVER_FAULT_SECTION_ID = 290;
+	private final static int SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
+	private final static int SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401;
+
 	
 	public enum DefModName {
 		UCERF2_NCAL,
@@ -94,7 +105,7 @@ public class DeformationModelFetcher {
 
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = this.getAll_UCERF2Sections(includeSectionsWithNaN_slipRates);
+		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = getAll_UCERF2Sections(includeSectionsWithNaN_slipRates);
 
 		// make subsection data
 		ArrayList<FaultSectionPrefData> subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
@@ -163,14 +174,59 @@ public class DeformationModelFetcher {
 	
 	/**
 	 * This gets all section data from the UCERF2 deformation model, where the list is alphabetized,
-	 * and the creeping section is removed because aseismicity is not set correctly
+	 * and section with NaN slip rates are removed.  
+	 * Note that overlapping sections on the Elsinore and San Jacinto are replaced with the combined sections
+	 * (the ones used in the UCERF2 un-segmented models rather than the segmented models).  This means
+	 * the sections here are not exactly the same as in the official UCERF2 deformation models.
 	 */
 	private ArrayList<FaultSectionPrefData> getAll_UCERF2Sections(boolean includeSectionsWithNaN_slipRates) {
 
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(ucerf2_DefModelId);
+		ArrayList<FaultSectionPrefData> prelimFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(ucerf2_DefModelId);
+		
+//		ArrayList<FaultSectionPrefData> allFaultSectionPrefData=prelimFaultSectionPrefData;
 
+		// ****  Make a revised list, replacing step over sections on Elsinore and San Jacinto with the combined sections
+		ArrayList<FaultSectionPrefData> allFaultSectionPrefData= new ArrayList<FaultSectionPrefData>();
+		
+		FaultSectionPrefData glenIvyStepoverfaultSectionPrefData=null,temeculaStepoverfaultSectionPrefData=null,anzaStepoverfaultSectionPrefData=null,valleyStepoverfaultSectionPrefData=null;
+		
+		for(FaultSectionPrefData data : prelimFaultSectionPrefData) {
+			int id = data.getSectionId();
+			if(id==GLEN_IVY_STEPOVER_FAULT_SECTION_ID) {
+				glenIvyStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else if(id==TEMECULA_STEPOVER_FAULT_SECTION_ID) {
+				temeculaStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else if(id==SJ_ANZA_STEPOVER_FAULT_SECTION_ID) {
+				anzaStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else if(id==SJ_VALLEY_STEPOVER_FAULT_SECTION_ID) {
+				valleyStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else {
+				allFaultSectionPrefData.add(data);
+			}
+		}
+		PrefFaultSectionDataFinal faultSectionDataFinal = new PrefFaultSectionDataFinal();
+
+		FaultSectionPrefData newElsinoreSectionData = faultSectionDataFinal.getFaultSectionPrefData(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID);
+		newElsinoreSectionData.setAveLongTermSlipRate(glenIvyStepoverfaultSectionPrefData.getAveLongTermSlipRate()+temeculaStepoverfaultSectionPrefData.getAveLongTermSlipRate());
+		newElsinoreSectionData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getSlipRateStdDev());
+		allFaultSectionPrefData.add(newElsinoreSectionData);
+		
+		FaultSectionPrefData newSanJacinntoSectionData = faultSectionDataFinal.getFaultSectionPrefData(SJ_COMBINED_STEPOVER_FAULT_SECTION_ID);
+		newSanJacinntoSectionData.setAveLongTermSlipRate(anzaStepoverfaultSectionPrefData.getAveLongTermSlipRate()+valleyStepoverfaultSectionPrefData.getAveLongTermSlipRate());
+		newSanJacinntoSectionData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getSlipRateStdDev());
+		allFaultSectionPrefData.add(newSanJacinntoSectionData);
+
+		
 		//Alphabetize:
 		if(alphabetize)
 			Collections.sort(allFaultSectionPrefData, new NamedComparator());
@@ -185,13 +241,22 @@ public class DeformationModelFetcher {
 				}	 
 		}
 		
+/*
 		// REMOVE CREEPING SECTION for now (aseismicity not incorporated correctly)
 		if (D)System.out.println("Removing SAF Creeping Section.");
 		for(int i=0; i< allFaultSectionPrefData.size();i++) {
 			if (allFaultSectionPrefData.get(i).getSectionId() == 57)
 				allFaultSectionPrefData.remove(i);
 		}
-		
+*/
+/*		
+		if(D) {
+			System.out.println("FINAL SECTIONS");
+			for(FaultSectionPrefData data : allFaultSectionPrefData) {
+				System.out.println(data.getName());
+			}
+		}
+*/		
 		return allFaultSectionPrefData;
 	}
 	
