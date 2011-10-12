@@ -187,9 +187,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
 				for (int rup=0; rup<numRuptures; rup++) {
 					if (A.get(constraint.getSegIndex(), rup)>0) {
-						long time1 = System.currentTimeMillis();
+					//	long time1 = System.currentTimeMillis();
 						A.set(i, rup, (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean()));
-						if (D) System.out.println("Line 1 Time = "+ (System.currentTimeMillis()-time1)/1000.0);
+					//	if (D) System.out.println("Line 1 Time = "+ (System.currentTimeMillis()-time1)/1000.0);
 						if(D) numNonZeroElements++;			
 					}
 				}
