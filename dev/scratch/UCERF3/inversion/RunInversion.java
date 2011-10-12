@@ -82,7 +82,7 @@ public class RunInversion {
 		
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
-		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
+		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_ALL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
 				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	
 /*		SimpleFaultSystemRupSet invFaultSystemRupSet;
@@ -136,9 +136,9 @@ public class RunInversion {
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 
 		// create class the gives UCERF2-related constraints
-		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
-		FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups = new FindEquivNoCalUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
-		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
+//		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
+//		FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups = new FindEquivNoCalUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
+//		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
 		
 		
 		
@@ -147,7 +147,7 @@ public class RunInversion {
 		// a priori constraint
 		double[] aPrioriRupConstraint = null;
 		// Use UCERF2 Solution (Only works for Northern CA)
-		aPrioriRupConstraint = UCERF2Solution;
+//		aPrioriRupConstraint = UCERF2Solution;
 		// Or use smooth starting solution with target MFD:
 //		aPrioriRupConstraint = getSmoothStartingSolution(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD());  
 //		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
@@ -170,7 +170,7 @@ public class RunInversion {
 		
 		
 		// UCERF2 MFD constraints for subregions - 1-degree boxes
-		Region region = new CaliforniaRegions.RELM_NOCAL();
+		Region region = new CaliforniaRegions.RELM_GRIDDED();
 		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region);
 		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
 		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
