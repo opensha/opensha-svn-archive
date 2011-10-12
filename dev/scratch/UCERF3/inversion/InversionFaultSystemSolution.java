@@ -8,10 +8,13 @@ import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -148,6 +151,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
+		long startTime = System.currentTimeMillis();
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = getSlipOnSectionsForRup(rup);
 			List<Integer> sects = getSectionsIndicesForRup(rup);
@@ -165,6 +169,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				d[sect] = sectSlipRateReduced[sect];	
 			} else d[sect] = 1; // Normalize by slip rate
 		}
+		long runTime = System.currentTimeMillis()-startTime;
+		if(D) System.out.println("Slip-Rate Constraints took " + (runTime/1000) + " seconds.");
 		if(D) System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 
 //		System.out.println("");
@@ -173,33 +179,67 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (relativeSegRateWt > 0.0) {
 			numNonZeroElements = 0;
+			long startTimeTotal = System.currentTimeMillis();
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+segRateConstraints.size(); i++) {
+				if(D) startTime = System.currentTimeMillis();
 				SegRateConstraint constraint = segRateConstraints.get(i-numSlipRateConstraints);
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
 				for (int rup=0; rup<numRuptures; rup++) {
 					if (A.get(constraint.getSegIndex(), rup)>0) {
+						long time1 = System.currentTimeMillis();
 						A.set(i, rup, (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean()));
+						if (D) System.out.println("Line 1 Time = "+ (System.currentTimeMillis()-time1)/1000.0);
 						if(D) numNonZeroElements++;			
 					}
 				}
+				if(D) runTime = System.currentTimeMillis()-startTime;
+				if(D) System.out.println("Segment-Rate Constraint #" + (i-numSlipRateConstraints+1) + " took " + (runTime/1000) + " seconds.");
+				
 			}
+			long runTimeTotal = System.currentTimeMillis()-startTimeTotal;
+			if(D) System.out.println("Total Segment-Rate Constraint time = " + runTimeTotal/1000 + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 
-		
-		
+			
 		// Constrain Solution MFD to equal the Target MFD 
 		// CHANGE THIS TO AN INEQUALITY CONSTRAINT? *****************************
 		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
 		if (relativeMagDistWt > 0.0) {	
+			long startTimeTotal = System.currentTimeMillis();
 			numNonZeroElements = 0;
-			if(D) System.out.println("\nAdding " + mfdConstraints.size()+ " magnitude constraints to A matrix ...");		
+			if(D) System.out.println("\nAdding " + mfdConstraints.size()+ " magnitude constraints to A matrix ...");	
+			// first make matrix of the fraction of each section inside each region
+			// (this could be faster if we could assume non-overlapping regions)
+			double[][] fractSectInsideRegion = new double[mfdConstraints.size()][getNumSections()];
+			int[] numPtsInSection = new int[getNumSections()];
+			double gridSpacing=1; // km; this will be faster if this is increased, or if we used the section trace rather than the whole surface
+			boolean aseisReducesArea = true;
+			for(int r=0;r<mfdConstraints.size(); r++) {
+				Region region = mfdConstraints.get(r).getRegion();
+				for(int s=0;s<getNumSections(); s++) {
+					StirlingGriddedSurface surf = new StirlingGriddedSurface(getFaultSectionData(s).getSimpleFaultData(aseisReducesArea), gridSpacing);
+					fractSectInsideRegion[r][s] = RegionUtils.getFractionInside(region, surf.getLocationList());
+					if(r==0) // set only once
+						numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
+				}
+			}
+			long setupTimeTotal = System.currentTimeMillis()-startTimeTotal;
+			if(D) System.out.println("Initial MFD Setup time = " + setupTimeTotal/1000 + " seconds.");
 			for (int i=0; i < mfdConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
+				if(D) startTime = System.currentTimeMillis();
 				targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();	
 				for(int rup=0; rup<numRuptures; rup++) {
 					double mag = rupMeanMag[rup];
-					double fractionRupInRegion = mfdConstraints.get(i).getFractionInRegion(this.getFaultSectionDataForRupture(rup));  // percentage of each rupture that is in region for that MFD
+					List<Integer> sectionsIndicesForRup = getSectionsIndicesForRup(rup);
+					double fractionRupInRegion=0;
+					int totNumPts = 0;
+					for(Integer s:sectionsIndicesForRup) {
+						fractionRupInRegion += fractSectInsideRegion[i][s]*numPtsInSection[s];
+						totNumPts += numPtsInSection[s];
+					}
+					fractionRupInRegion /= totNumPts;
 					if (fractionRupInRegion > 0) {
 						A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagDistWt * fractionRupInRegion);
 						numNonZeroElements++;
@@ -208,11 +248,17 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
 					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagDistWt;
 					rowIndex++; 
-				}			
+				}	
+				if(D) runTime = System.currentTimeMillis()-startTime;
+				if(D) System.out.println("MFD Constraint #" + i + " took " + (runTime/1000) + " seconds.");
 			}
+			long runTimeTotal = System.currentTimeMillis()-startTimeTotal;
+			if(D) System.out.println("Total MFD Constraint time = " + runTimeTotal/1000 + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
-			
+		
+		
+		
 		
 		// Constrain Rupture Rate Solution to approximately equal aPrioriRupConstraint
 		if (relativeRupRateConstraintWt > 0.0) {	
