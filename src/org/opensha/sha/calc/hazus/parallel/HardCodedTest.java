@@ -363,6 +363,15 @@ public class HardCodedTest {
 		File libDir = new File(svnDir, "lib");
 		File jarFile = new File(distDir, "OpenSHA_complete.jar");
 		
+		int sitesPerJob;
+		if (args.length == 8)
+			sitesPerJob = Integer.parseInt(args[7]);
+		else
+			sitesPerJob = 20;
+		
+		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
+				calcSet, archiver, javaBin.getAbsolutePath(), jarFile.getAbsolutePath(), years, spacing);
+		
 		if (MPJ) {
 			int mins = Integer.parseInt(args[7]);
 			int nodes = Integer.parseInt(args[8]);
@@ -402,18 +411,16 @@ public class HardCodedTest {
 			
 			script = writer.buildScript(script, mins, nodes, ppn, queue);
 			
+			JavaShellScriptWriter assembleWriter = new JavaShellScriptWriter(javaBin, 2048, classpath);
+			String metadataFile = dag.writeMetadataFile(jobDir.getAbsolutePath());
+			String assembleArgs = archiver.getStoreDir().getPath() + " " + years + " " + metadataFile;
+			String assembleCommand = assembleWriter.buildCommand(HazusDataSetAssmbler.class.getName(), assembleArgs);
+			script.add("");
+			script.add(assembleCommand);
+			
 			File pbsFile = new File(jobDir, "mpj.pbs");
 			JavaShellScriptWriter.writeScript(pbsFile, script);
 		} else {
-			int sitesPerJob;
-			if (args.length == 8)
-				sitesPerJob = Integer.parseInt(args[7]);
-			else
-				sitesPerJob = 20;
-			
-			HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
-					calcSet, archiver, javaBin.getAbsolutePath(), jarFile.getAbsolutePath(), years, spacing);
-			
 			dag.writeDAG(jobDir, sitesPerJob, false);
 		}
 	}
