@@ -895,8 +895,8 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 			try {
 				param = this.getIndependentParameter(name);
 				boolean newSuccess = param.setValueFromXMLMetadata(paramEl);
-				System.out.println("Setting indep param " + name +
-					" from XML...success? " + newSuccess);
+//				System.out.println("Setting indep param " + name +
+//					" from XML...success? " + newSuccess);
 				if (!newSuccess) success = false;
 			} catch (ParameterException e) {
 				System.err.println("Parameter '" + getName() +

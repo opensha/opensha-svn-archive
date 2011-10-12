@@ -77,7 +77,7 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		return args+" "+className;
 	}
 	
-	private String buildCommand(String className, String args) {
+	public String buildCommand(String className, String args) {
 		String command = javaBin.getAbsolutePath()+getJVMArgs(className);
 		
 		command += getFormattedArgs(args);

@@ -276,7 +276,9 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 			+ erf.getAdjustableParameterList().getParameterListMetadataString();
 	}
 	
-	private String writeMetadataFile(String odir) throws IOException {
+	protected String writeMetadataFile(String odir) throws IOException {
+		if (!odir.endsWith(File.separator))
+			odir += File.separator;
 		String fileName = odir + "metadata.dat";
 		FileWriter fw = new FileWriter(fileName);
 		
