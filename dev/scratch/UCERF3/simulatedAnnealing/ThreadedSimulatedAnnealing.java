@@ -29,6 +29,7 @@ import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 import scratch.UCERF3.utils.MatrixIO;
 
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
@@ -353,7 +354,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	public static ThreadedSimulatedAnnealing parseOptions(CommandLine cmd) throws IOException {
 		File aFile = new File(cmd.getOptionValue("a"));
 		if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
-		DoubleMatrix2D A = MatrixIO.loadSparse(aFile);
+		DoubleMatrix2D A = MatrixIO.loadSparse(aFile, SparseCCDoubleMatrix2D.class);
 		
 		File dFile = new File(cmd.getOptionValue("d"));
 		if (D) System.out.println("Loading d matrix from: "+dFile.getAbsolutePath());
