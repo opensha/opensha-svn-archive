@@ -27,8 +27,12 @@ import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
+import cern.colt.list.tdouble.DoubleArrayList;
+import cern.colt.list.tint.IntArrayList;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
 
 /**
  * This class represents the UCERF3 "Grand Inversion".
@@ -137,7 +141,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		
 		// Components of matrix equation to invert (Ax=d)
-		A = new SparseCCDoubleMatrix2D(numRows,numRuptures); // A matrix
+		A = new SparseDoubleMatrix2D(numRows,numRuptures); // A matrix
 		d = new double[numRows];	// data vector d
 		rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
 		
@@ -182,13 +186,22 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			long startTimeTotal = System.currentTimeMillis();
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+segRateConstraints.size(); i++) {
+				long getTime = 0l;
+				long setTime = 0l;
+				long t1;
 				if(D) startTime = System.currentTimeMillis();
 				SegRateConstraint constraint = segRateConstraints.get(i-numSlipRateConstraints);
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
 				for (int rup=0; rup<numRuptures; rup++) {
-					if (A.get(constraint.getSegIndex(), rup)>0) {
+					t1 = System.currentTimeMillis();
+					double getVal = A.get(constraint.getSegIndex(), rup);
+					getTime += System.currentTimeMillis()-t1;
+					if (getVal>0) {
 					//	long time1 = System.currentTimeMillis();
-						A.set(i, rup, (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean()));
+						double setVal = (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());
+						t1 = System.currentTimeMillis();
+						A.set(i, rup, setVal);
+						setTime += System.currentTimeMillis()-t1;
 					//	if (D) System.out.println("Line 1 Time = "+ (System.currentTimeMillis()-time1)/1000.0);
 						if(D) numNonZeroElements++;			
 					}
@@ -196,6 +209,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				if(D) runTime = System.currentTimeMillis()-startTime;
 				if(D) System.out.println("Segment-Rate Constraint #" + (i-numSlipRateConstraints+1) + " took " + (runTime/1000) + " seconds.");
 				
+				if(D) System.out.println("Get time: "+((double)getTime/1000d));
+				if(D) System.out.println("Set time: "+((double)setTime/1000d));
 			}
 			long runTimeTotal = System.currentTimeMillis()-startTimeTotal;
 			if(D) System.out.println("Total Segment-Rate Constraint time = " + runTimeTotal/1000 + " seconds.");
@@ -283,6 +298,19 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 
 		
 		// Solve the inverse problem
+		if (numIterations > 0 && A instanceof SparseDoubleMatrix2D) {
+			// if we're annealing, and A is in the SparseDoubleMatrix2D format then
+			// we should convert it for faster matrix multiplications
+			if (D) System.out.println("converting to SparseRCDoubleMatrix2D");
+			SparseRCDoubleMatrix2D Anew = new SparseRCDoubleMatrix2D(A.rows(), A.columns());
+			IntArrayList rows = new IntArrayList();
+			IntArrayList cols = new IntArrayList();
+			DoubleArrayList vals = new DoubleArrayList();
+			A.getNonZeros(rows, cols, vals);
+			for (int i=0; i<rows.size(); i++)
+				Anew.set(rows.get(i), cols.get(i), vals.get(i));
+			A = Anew;
+		}
 		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel);
 		sa.iterate(numIterations);
 		rupRateSolution = sa.getBestSolution();

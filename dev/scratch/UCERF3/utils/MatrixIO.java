@@ -16,6 +16,8 @@ import cern.colt.list.tdouble.DoubleArrayList;
 import cern.colt.list.tint.IntArrayList;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
 
 public class MatrixIO {
 	
@@ -72,6 +74,10 @@ public class MatrixIO {
 	 * @see MatrixIO.saveSparse
 	 */
 	public static DoubleMatrix2D loadSparse(File file) throws IOException {
+		return loadSparse(file, null);
+	}
+	
+	public static DoubleMatrix2D loadSparse(File file, Class<? extends DoubleMatrix2D> clazz) throws IOException {
 		Preconditions.checkNotNull(file, "File cannot be null!");
 		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
 		DataInputStream in = new DataInputStream(new FileInputStream(file));
@@ -96,9 +102,17 @@ public class MatrixIO {
 			vals[i] = in.readDouble();
 		}
 		
-		DoubleMatrix2D mat = new SparseCCDoubleMatrix2D(nRows, nCols, rows, cols, vals, false, false, false);
-		
 		in.close();
+		
+		DoubleMatrix2D mat;
+		if (clazz == null || clazz.equals(SparseCCDoubleMatrix2D.class))
+			mat = new SparseCCDoubleMatrix2D(nRows, nCols, rows, cols, vals, false, false, false);
+		else if (clazz.equals(SparseRCDoubleMatrix2D.class))
+			mat = new SparseRCDoubleMatrix2D(nRows, nCols, rows, cols, vals, false, false, false);
+		else if (clazz.equals(SparseDoubleMatrix2D.class))
+			mat = new SparseDoubleMatrix2D(nRows, nCols, rows, cols, vals);
+		else
+			throw new IllegalArgumentException("Unknown matrix type: "+clazz);
 		
 		return mat;
 	}
