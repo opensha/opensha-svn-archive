@@ -59,32 +59,81 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.base.Strings;
 
 /**
- * This class associates UCERF2 ruptures with inversion ruptures.  That is, for a given inversion rupture,
- * this will give a total rate and average magnitude (preserving moment rate) from UCERF2 for that rupture
- * (an average in case more than one UCERF2 associates with a given inversion rupture).  Right now 
- * the only faults exhibiting problems are those that have sub-seismogenic ruptures (see the last lines of
- * the info file: sectEndsForUCERF2_RupsResults_AllButNonCA_B.txt).  The version of UCERF2 used here applies
- * the rupture all the way down-dip option, so a sub-seismogenic rupture is defined here as one where the  
- * first and last associated inversion subsections are the same (which would be inconsistent with our 
- * requirement that a rupture be two or more subsections given their aspect ratios).
+ * This class associates UCERF2 ruptures with ruptures in the given FaultSystemRuptureSet.  That is, for 
+ * a given FaultSystemRuptureSet rupture, this will give a total rate and average magnitude (preserving 
+ * moment rate) from UCERF2 for that rupture (an average in case more than one UCERF2 rupture associates 
+ * with a given FaultSystemRuptureSet rupture).  The resultant UCERF2-equivalent mag and rate for each 
+ * FaultSystemRuptureSet rupture is given by the getMagsAndRatesForRuptures() method.
+ * 
+ * This class assumes the FaultSystemRuptureSet has been constructed using parent sections from UCERF2
+ * Fault Model 2.1 (or deformation models 2.1, 2.2, or 2.3).
+ * 
+ * This class works for any subset of sections used in building the FaultSystemRuptureSet (e.g., just the
+ * bay area or just N. Cal.).
+ * 
+ * On first run this class will generate data file that gets stored in the given precomputedDataDir, and
+ * on subsequent runs it will read this file rather than recompute everything.  The naming convention for
+ * this file is DATA_FILE_PREFIX plus the number of section and ruptures in the given
+ * FaultSystemRuptureSet (separated by "_").  This convention assumes that the number of sections and 
+ * ruptures uniquely defines a faultSysRupSet (in terms of the UCERF2 mapping).
+ * 
+ * This class also generates an info file on the first run (named INFO_FILE_PATH_PREFIX plus the number of
+ * sections and ruptures, as in the data file described above).  For each rupture in UCERF2, this info file 
+ * gives the associated FaultSystemRuptureSet sections assigned to the end of the rupture.  This file also 
+ * reports any problems in this mapping (i.e., where no sections from FaultSystemRuptureSet could be assigned
+ * to the ends of a given UCERF2 rupture (e.g., as will be the case for any S. Cal. UCERF2 ruptures when 
+ * FaultSystemRuptureSet has been created for N. Cal.).  All sources that suffer this problem are listed under
+ * "Problem Sources (can't find associated inv section for one end of at least one rupture):" at the end of
+ * this info file.  Also listed are any "subseismogenic" ruptures, defined as UCERF2 ruptures that are assigned
+ * the same FaultSystemRuptureSet section to both ends of the rupture (for which there will be no mapping since
+ * FaultSystemRuptureSet ruptures are composed of two or more sections, which we assume here).  Sources
+ * that have one or more subsection ruptures are also listed at the end of this info file (under
+ * "Subseimso Sources (has one or more subseismogenic ruptures):"), together with the fraction moment rate
+ * these subseismogenic ruptures constitute for the source.  Finally, the very end of this file also lists
+ * any UCERF2 ruptures that went un-associated (but not reported as a "problem" source above, meaning 
+ * sections were assigned to the rup ends so some corresponding FaultSystemRuptureSet rupture should exist).
+ * 
+ * This class also compute various MFDs for verification.
+ * 
  * 
  * Important Notes:
  * 
- * 1) This uses only Fault Model 2.1 (Deformation Models 2.1, 2.2, and 2.3), and this is modified to take
- *    the overlapping sections on the San Jacinto and Elsinore step-overs out (and replace with the 
- *    combined section); see DeformationModelFetcher.createAll_UCERF2_SubSections for these details.
- * 2) UCERF2 ruptures that are "sub-seimogenic" are not associated (since there is no meaningful mapping)
- * 3) Most of the inversion ruptures have no UCERF2 association (I think); these are null.
- * 4) This ignores the non-CA type B faults in UCERF2 (since they are not included in the current inversion).
- * 5) This reads from or writes to some pre-computed data files; these must be deleted if inputs change as
- *    noted in the constructor below.
- * 6) This uses a special version of MeanUCERF2 (that computes floating rupture areas as the average of 
- *    HB and EllB) and also used only branches for fault model 2.1..  This also applies the option where 
- *    floating ruptures are extended all the way down dip.
- * 7) Note that the Mendocino section was not used in UCERF2, so there are no UCERF2 ruptures for this fault
+ * 1) Most of the inversion ruptures have no UCERF2 association (I think); these are null.
+ * 2) This ignores the non-CA type B faults in UCERF2 (since they are not included in the current inversion).
+ * 3) This uses a special version of MeanUCERF2 (that computes floating rupture areas as the average of 
+ *    HB and EllB) and also used only branches for fault model 2.1 (crrrecting rates accordingly.  This also 
+ *    applies the option where floating ruptures are extended all the way down dip.
+ * 4) The DeformationModelFetcher.createAll_UCERF2_SubSections was modified in developing this class
+ *    to take the overlapping sections on the San Jacinto and Elsinore step-overs out (and replaced with the 
+ *    combined section) in order to simpligy the mapping; see DeformationModelFetcher.createAll_UCERF2_SubSections 
+ *    for these details.
+ * 5) Note that the Mendocino section was not used in UCERF2, so there are no UCERF2 ruptures for this fault
  * 
+ * To make a version of this class for Fault Model 2.2 (or Deformation Models 2.4, 2.5, and 2.6):
  * 
- * This class also compute various MFDs.
+ *    a) use modMeanUCERF2_FM2pt2 in getMeanUCERF2_Instance()
+ *    b) change "if(faultModelForSource == 2)" to "if(faultModelForSource == 1)"
+ *    c) change the deformation model verification
+ *    
+ * To make a version of this class for Fault Model 3.x (or Deformation Models 3.x):
+ * 
+ *    a) create an associated "SECT_FOR_UCERF2_SRC_FILE_PATH_NAME" file for UCERF3 fault models (stating
+ *    which UCERF3 fault sections are used by each UCERF2 source; some like fault sections like Landers have 
+ *    been split up in going from UCERF2 to UCERF3)
+ *    b) change the deformation model verification
+ *
+ * TO DO:
+ * ------
+ * 
+ * 1) Verify mappings in SCEC-VDO
+ * 
+ * 2) Figure out why some UCERF2 ruptures don't map into the state wide FaultSystemRuptureSet (see bottom 
+ *    of info file for the list).
+ * 
+ * 3) Verify that a valid deformation model was used by checking what comes from 
+ *    FaultSystemRuptureSet.getDeformationModelName() (as soon as Kevin adds the latter 
+ *    as I requested on 10-13-11).
+
  * 
  * @author field
  */
@@ -93,7 +142,6 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	protected final static boolean D = true;  // for debugging
 	
 	ArrayList<ArrayList<String>> parentSectionNamesForUCERF2_Sources;
-	int[] faultModelForSource;
 	
 	ArrayList<double[]> magsAndRatesForRuptures;
 	
@@ -101,16 +149,13 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	final static int NUM_UCERF2_RUPTURES=11706;	// this was found after running this once
 	final static int NUM_UCERF2_SRC_TO_USE=274; // this is to exclude non-CA B faults
 	final static int NUM_UCERF2_SRC = 394;
-	
-//	final static int NUM_SECTIONS=1593;		// including the SAF Creeping Section
-//	final static int NUM_INVERSION_RUPTURES = 57736;
 
 	int NUM_SECTIONS;		// including the SAF Creeping Section
 	int NUM_INVERSION_RUPTURES;
 	
-	String DATA_FILE_NAME = "equivUCERF2_RupDataAllCal";
-	String INFO_FILE_PATH_NAME = "dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/sectEndsInfoForUCERF2_Rups_AllButNonCA_B.txt";
-	String SECT_FOR_UCERF2_SRC_FILE_PATH_NAME = "dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/SectionsForUCERF2_Sources.txt";
+	String DATA_FILE_PREFIX = "equivUCERF2_RupData";
+	String INFO_FILE_PATH_PREFIX = "dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/InfoForUCERF2_RupAssociations";
+	String SECT_FOR_UCERF2_SRC_FILE_PATH_NAME = "dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt";
 	File dataFile;
 	FileWriter info_fw;
 	
@@ -119,41 +164,31 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	// the following hold info about each UCERF2 rupture
 	int[] firstSectOfUCERF2_Rup, lastSectOfUCERF2_Rup, srcIndexOfUCERF2_Rup, rupIndexOfUCERF2_Rup, invRupIndexForUCERF2_Rup;
 	double[] magOfUCERF2_Rup, lengthOfUCERF2_Rup, rateOfUCERF2_Rup;
-	boolean[] subSeismoUCERF2_Rup;
+	boolean[] subSeismoUCERF2_Rup, problemUCERF2_Source;
 	
 	// the following lists the indices of all  UCERF2 ruptures associated with each inversion rupture
 	ArrayList<ArrayList<Integer>> rupAssociationList;
 	
 	SummedMagFreqDist mfdOfAssocRupsAndModMags;		// this is the mfd of the associated ruptures (including ave mag from mult rups)
 	SummedMagFreqDist mfdOfAssocRupsWithOrigMags;	// this is the mfd of the associated ruptures (including orig mag from all rups)
+	SummedMagFreqDist mfdOfSummedUCERF2_Sources;
 	SummedMagFreqDist mfdOfSubSeismoRups,mfdOfOtherUnassocInvsionRups;
 	EvenlyDiscretizedFunc ucerf2_AandB_FaultCumMFD;
 	
-	
 	/**
-	 * This uses a pre-computed SimpleFaultSystemRupSet
-	 * @param precomputedDataDir
-	 */
-	public FindEquivUCERF2_FM2pt1_Ruptures(File precomputedDataDir) {
-		this(getFaultSystemRupSetFromFile(precomputedDataDir),precomputedDataDir);
-	}
-
-		
-	/**
+	 * 
 	 * See important notes given above for this class.
 	 * 
-	 * Note that the file saved/read here in precomputedDataDir (with name defined by DATA_FILE_NAME) 
-	 * should be deleted any time there are changes to the sections or rupture set in the passed-in
-	 * faultSysRupSet (this will be rebuilt an subsequently saved on the next run).  The only check
-	 * here is with respect to the number of sections and number of ruptures (where an exception will
-	 * be thrown if these differ between the file and the given faultSysRupSet.
+	 * Note that the file saved/read here in precomputedDataDir (with name defined by DATA_FILE_PREFIX
+	 * plus the number of inversion section and ruptures separated by "_") assumes that the number of
+	 * inversion sections and ruptures uniquely defines a faultSysRupSet.
 	 * 
 	 * @param faultSysRupSet
 	 * @param precomputedDataDir
 	 */
 	public FindEquivUCERF2_FM2pt1_Ruptures(SimpleFaultSystemRupSet faultSysRupSet, File precomputedDataDir) {
 		
-		this.faultSectionData = faultSysRupSet.getFaultSectionDataList();
+		faultSectionData = faultSysRupSet.getFaultSectionDataList();
 				
 		NUM_SECTIONS = faultSectionData.size();
 		NUM_INVERSION_RUPTURES = faultSysRupSet.getNumRuptures();
@@ -173,13 +208,15 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		rateOfUCERF2_Rup = new double[NUM_UCERF2_RUPTURES];
 		subSeismoUCERF2_Rup = new boolean[NUM_UCERF2_RUPTURES]; 
 		invRupIndexForUCERF2_Rup = new int[NUM_UCERF2_RUPTURES];
+		
+		problemUCERF2_Source = new boolean[NUM_UCERF2_SRC_TO_USE];
 
-
-		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+DATA_FILE_NAME;
+		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+DATA_FILE_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES;
 		dataFile = new File (fullpathname);
+		
 		// read from file if it exists
 		if(dataFile.exists()) {
-			if(D) System.out.println("Reading existing file: "+ DATA_FILE_NAME);
+			if(D) System.out.println("Reading existing file: "+ fullpathname);
 			try {
 				// Wrap the FileInputStream with a DataInputStream
 				FileInputStream file_input = new FileInputStream (dataFile);
@@ -189,11 +226,11 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				if(NUM_SECTIONS != numInvSections)
 					throw new RuntimeException("Error: Input file number of inversion sections ("+numInvSections+
 							") is inconsistent with that from the given faultSysRupSet ("+faultSectionData.size()+
-							"); you may need to delete this file and rebuild it");
+					"); there must be a filename problem");
 				if(NUM_INVERSION_RUPTURES != numInvRups) {
 					throw new RuntimeException("Error: Input file number of rupturess ("+numInvRups+
 							") is inconsistent with that from the given faultSysRupSet ("+faultSysRupSet.getNumRuptures()+
-							"); you may need to delete this file and rebuild it");
+					"); there must be a filename problem");
 				}
 				// now read the rest of the file
 				for(int i=0; i<NUM_UCERF2_RUPTURES;i++) {
@@ -207,12 +244,16 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 					subSeismoUCERF2_Rup[i]=data_in.readBoolean();
 					invRupIndexForUCERF2_Rup[i]=data_in.readInt();
 				}
+				for(int s=0;s<NUM_UCERF2_SRC_TO_USE;s++) {
+					problemUCERF2_Source[s] = data_in.readBoolean();
+				}
+
 				data_in.close ();
-				if(D) System.out.println("Done reading file:"+DATA_FILE_NAME);
+				if(D) System.out.println("Done reading file:"+fullpathname);
 			} catch  (IOException e) {
 				System.out.println ( "IO Exception =: " + e );
 			}
-			
+
 			// make the rupAssociationList from invRupIndexForUCERF2_Rup
 			rupAssociationList = new ArrayList<ArrayList<Integer>>();
 			for(int ir=0; ir<NUM_INVERSION_RUPTURES;ir++)
@@ -221,13 +262,16 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				if(invRupIndexForUCERF2_Rup[ur] != -1)
 					rupAssociationList.get(invRupIndexForUCERF2_Rup[ur]).add(ur);
 		}
-		else {	// compute things from scratch
+		else {	// create the files
 			
-			readSectionsForUCERF2_SourcesFile();
-			
-			// do the following methods writing to the info file
+			// check that the deformation model is legitimate
+			// DeformationModelFetcher.DefModName defModName = 
+
+			readSectionNamesForUCERF2_SourcesFile();
+
+			// do the following methods (which write to the info file)
 			try {
-				info_fw = new FileWriter(INFO_FILE_PATH_NAME);
+				info_fw = new FileWriter(INFO_FILE_PATH_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES+".txt");
 				findSectionEndsForUCERF2_Rups();
 				findAssociations(faultSysRupSet.getSectionIndicesForAllRups());
 				info_fw.close();
@@ -311,10 +355,10 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		ArrayList<String> resultsString = new ArrayList<String>();
 		ArrayList<String> problemSourceList = new ArrayList<String>();
 		ArrayList<String> subseismoRateString = new ArrayList<String> ();
-		
+		problemUCERF2_Source = new boolean[NUM_UCERF2_SRC_TO_USE];	// this will not include sources that have subseismo ruptures
 		int rupIndex = -1;
 		for(int s=0; s<NUM_UCERF2_SRC_TO_USE; s++){
-			boolean problemSource = false;				// this will indicate that source has some problem
+			problemUCERF2_Source[s] = false;				// this will indicate that source has some problem
 			boolean srcHasSubSeismogenicRups = false;	// this will check whether any ruptures are sub-seismogenic
 			ProbEqkSource src = modMeanUCERF2_FM2pt1.getSource(s);
 			if (D) System.out.println("working on source "+src.getName()+" "+s+" of "+NUM_UCERF2_SRC_TO_USE);
@@ -336,40 +380,23 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				lengthOfUCERF2_Rup[rupIndex] = len;
 				rateOfUCERF2_Rup[rupIndex] = rup.getMeanAnnualRate(30.0);
 				
-				//don't fill in anymore if it's part of Fault Model 2.2 (no association)
-				if(faultModelForSource[s]==2)
-					continue;
-
 				subSeismoUCERF2_Rup[rupIndex] = false;  // the default
-/*				if(ddw < srcDDW) {
-					subSeismoUCERF2_Rup[rupIndex] = true;
-					srcHasSubSeismogenicRups = true;
-					problemSource = true;
-					String errorString = rupIndex+":\t"+"Sub-Seismogenic Rupture:  ddw="+(float)ddw+"\tsrcDDW="+(float)srcDDW+
-					                     "\tddw/srcDDW="+(float)(ddw/srcDDW)+"\trupLen="+(float)len+"\tmag="+(float)mag+
-					                     "\tiRup="+r+"\tiSrc="+s+"\t("+src.getName()+")\n";
-					if(D) System.out.print(errorString);
-					resultsString.add(errorString);
-					partMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
-					continue;
-				}				
-*/				
+
 				FaultTrace rupTrace = rup.getRuptureSurface().getRowAsTrace(0);
 				Location rupEndLoc1 = rupTrace.get(0);
-				Location rupEndLoc2 = rupTrace.get(rupTrace.size()-1);
-				
+				Location rupEndLoc2 = rupTrace.get(rupTrace.size()-1);	
 
 				// find the appropriate sections for each rup endpoint
 				int firstEndIndex = getCloseSection(rupEndLoc1, rupTrace, parentSectionNames);
 				int secondEndIndex  = getCloseSection(rupEndLoc2, rupTrace, parentSectionNames);
 				
-				// check if it's sub-seismogenic (first and last sections are the same)
-				if(firstEndIndex == secondEndIndex){
+				// check if it's sub-seismogenic (first and last sections are the same and not -1)
+				if(firstEndIndex == secondEndIndex && firstEndIndex != -1){
 					if(ddw != srcDDW)
 						throw new RuntimeException("Problem");
 					subSeismoUCERF2_Rup[rupIndex] = true;
 					srcHasSubSeismogenicRups = true;
-					problemSource = true;
+//					problemSource = true;
 					String errorString = rupIndex+":\t"+"Sub-Seismogenic Rupture:  rup & src ddw="+(float)ddw+
 										"\trupLen="+(float)len+"\tlength/ddw="+(float)(len/ddw)+"\tmag="+(float)mag+
 					                     "\tiRup="+r+"\tiSrc="+s+"\t("+src.getName()+")\n";
@@ -387,7 +414,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 					sectName1=faultSectionData.get(firstEndIndex).getSectionName();
 				}
 				else {
-					problemSource = true;
+					problemUCERF2_Source[s] = true;
 					String errorString = "Error - end1 section not found for rup "+r+
 										 " of src "+s+", M="+(float)rup.getMag()+", ("+src.getName()+")\n";
 					if(D) System.out.print(errorString);
@@ -399,7 +426,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 					sectName2=faultSectionData.get(secondEndIndex).getSectionName();
 				}
 				else {
-					problemSource = true;
+					problemUCERF2_Source[s] = true;
 					String errorString = "Error - end2 section not found for rup "+r+
 										 " of src "+s+", M="+(float)rup.getMag()+", ("+src.getName()+")\n";
 					if(D) System.out.print(errorString);
@@ -410,7 +437,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 								sectName2+")  are the Sections at ends of rup "+ r+" of src "+s+", M="+(float)rup.getMag()+", ("+src.getName()+")\n";
 				resultsString.add(result);
 				
-				if(problemSource && !problemSourceList.contains(src.getName()))
+				if(problemUCERF2_Source[s] && !problemSourceList.contains(src.getName()))
 					problemSourceList.add(src.getName());
 
 			}
@@ -425,10 +452,10 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		try {
 			for(String line:resultsString)
 				info_fw.write(line);
-			info_fw.write("\nProblem Sources:\n\n");
+			info_fw.write("\nProblem Sources (can't find associated inv section for one end of at least one rupture):\n\n");
 			for(String line:problemSourceList)
 				info_fw.write("\t"+line+"\n");
-			info_fw.write("\nSubseimso Sources:\n\n");
+			info_fw.write("\nSubseimso Sources (has one or more subseismogenic ruptures):\n\n");
 			for(String line:subseismoRateString)
 				info_fw.write("\t"+line+"\n");
 		} catch (IOException e) {
@@ -437,6 +464,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		}
 		
 	}
+	
 	
 	/**
 	 * This saves the following data to a file with name set by DATA_FILE_NAME: 
@@ -471,6 +499,10 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				data_out.writeBoolean(subSeismoUCERF2_Rup[i]);
 				data_out.writeInt(invRupIndexForUCERF2_Rup[i]);
 			}
+			for(int s=0;s<NUM_UCERF2_SRC_TO_USE;s++) {
+				data_out.writeBoolean(problemUCERF2_Source[s]);
+			}
+
 			file_output.close ();
 		}
 		catch (IOException e) {
@@ -544,7 +576,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		
 		// this will give the inversion rup index for each UCERF2 rupture (-1 if no association)
 //		invRupIndexForUCERF2_Rup = new int[NUM_UCERF2_RUPTURES];
-		for(int r=0;r<NUM_UCERF2_RUPTURES;r++) 
+		for(int r=0;r<NUM_UCERF2_RUPTURES;r++)
+			// initialize to -1 (no association)
 			invRupIndexForUCERF2_Rup[r] = -1;
 		
 		// loop over inversion ruptures (ir)
@@ -606,12 +639,12 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		// write un-associated UCERF2 ruptures
 		try {
 			int numUnassociated=0;
-			info_fw.write("\nUnassociated UCERF2 ruptures (that aren't from fault model 2.2. and aren't subseismogenic)\n\n");
-			info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tfaultMod\tsubSeis\tinvRupIndex\tsrcName\n");
+			info_fw.write("\nUnassociated UCERF2 ruptures (not from FM 2.2 or subseismogenic, so there should be a mapping?)\n\n");
+			info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\n");
 			for(int r=0;r<NUM_UCERF2_RUPTURES;r++) {
-				if((faultModelForSource[srcIndexOfUCERF2_Rup[r]] != 2) && !subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1)) { // first make sure it's not for fault model 2.2
+				int srcIndex = srcIndexOfUCERF2_Rup[r];
+				if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
 					info_fw.write("\t"+r+"\t"+srcIndexOfUCERF2_Rup[r]+"\t"+rupIndexOfUCERF2_Rup[r]+
-									"\t"+faultModelForSource[srcIndexOfUCERF2_Rup[r]]+
 									"\t"+subSeismoUCERF2_Rup[r]+"\t"+invRupIndexForUCERF2_Rup[r]+"\t"+
 									modMeanUCERF2_FM2pt1.getSource(srcIndexOfUCERF2_Rup[r]).getName()+"\n");
 							numUnassociated+=1;
@@ -662,7 +695,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 
 		mfdOfOtherUnassocInvsionRups = new SummedMagFreqDist(5.05,35,0.1);
 		mfdOfOtherUnassocInvsionRups.setName("MFD for inversion rups with no association");
-		mfdOfOtherUnassocInvsionRups.setInfo("not including sub-seismo or fault model 2.2 rups; don't know why these exist");
+		mfdOfOtherUnassocInvsionRups.setInfo("not including sub-seismo or fault model 2.2 rups");
 		
 		for(int r=0; r<NUM_UCERF2_RUPTURES; r++) {
 			double rate = magOfUCERF2_Rup[r];
@@ -673,6 +706,19 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			}
 			if(!subSeismoUCERF2_Rup[r] && this.invRupIndexForUCERF2_Rup[r] == -1)
 				mfdOfOtherUnassocInvsionRups.addResampledMagRate(rate,mag,true);
+		}
+		
+		// make MFD of non-problematic UCERF2 sources
+		getMeanUCERF2_Instance();
+		mfdOfSummedUCERF2_Sources = new SummedMagFreqDist(5.05,35,0.1);
+		mfdOfSummedUCERF2_Sources.setName("MFD summed from UCERF2 sources");
+		mfdOfSummedUCERF2_Sources.setInfo("(only including non-problematic sources)");
+		double duration = modMeanUCERF2_FM2pt1.getTimeSpan().getDuration();
+		for(int s=0;s<NUM_UCERF2_SRC_TO_USE;s++) {
+			if(!problemUCERF2_Source[s]) {
+				ProbEqkSource src = modMeanUCERF2_FM2pt1.getSource(s);
+				mfdOfSummedUCERF2_Sources.addIncrementalMagFreqDist(ERF_Calculator.getTotalMFD_ForSource(src, duration, 5.05, 8.45, 35, true));
+			}
 		}
 		
 		// now make UCERF2 A & B fault Cum MFD (from Table 8 of the report)
@@ -719,10 +765,12 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	}
 	
 	public void plotMFD_Test() {
+		
 		computeOtherMFDs();
 		ArrayList funcs = new ArrayList();
 		funcs.add(mfdOfAssocRupsAndModMags);
 		funcs.add(mfdOfAssocRupsWithOrigMags);
+		funcs.add(mfdOfSummedUCERF2_Sources);
 		funcs.add(mfdOfSubSeismoRups);
 		funcs.add(mfdOfOtherUnassocInvsionRups);
 		
@@ -740,6 +788,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		ArrayList cumFuncs = new ArrayList();
 		cumFuncs.add(mfdOfAssocRupsAndModMags.getCumRateDistWithOffset());
 		cumFuncs.add(mfdOfAssocRupsWithOrigMags.getCumRateDistWithOffset());
+		cumFuncs.add(mfdOfSummedUCERF2_Sources.getCumRateDistWithOffset());
 		cumFuncs.add(ucerf2_AandB_FaultCumMFD);
 		cumFuncs.add(mfdOfSubSeismoRups.getCumRateDistWithOffset());
 		cumFuncs.add(mfdOfOtherUnassocInvsionRups.getCumRateDistWithOffset());
@@ -803,16 +852,14 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	
 	/**
 	 * This reads a file that contains the sections names used by each UCERF2 source put in 
-	 * parentSectionNamesForUCERF2_Sources), plus indicates which fault model each source is 
-	 * associated with (faultModelForSource[]).
+	 * parentSectionNamesForUCERF2_Sources).
 	 */
-	private void readSectionsForUCERF2_SourcesFile() {
+	private void readSectionNamesForUCERF2_SourcesFile() {
 		
 		// make sure UCERF2 is instantiated
 		getMeanUCERF2_Instance();
 		
 		parentSectionNamesForUCERF2_Sources = new ArrayList<ArrayList<String>>();
-		faultModelForSource = new int[NUM_UCERF2_SRC_TO_USE];
 		if(D) System.out.println("Reading file: "+SECT_FOR_UCERF2_SRC_FILE_PATH_NAME);
 	    try {
 			BufferedReader reader = new BufferedReader(new FileReader(SECT_FOR_UCERF2_SRC_FILE_PATH_NAME));
@@ -867,12 +914,12 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
     	   }
 
     	   ArrayList<String> leftoverSectionNames = (ArrayList<String>)parentSectionNames.clone();
-    	   System.out.println("\nTesting parentSectionNamesForUCERF2_Sources (index,name,FaultModel):\n");
+    	   System.out.println("\nTesting parentSectionNamesForUCERF2_Sources (index,name):\n");
     	   for(int s=0;s<parentSectionNamesForUCERF2_Sources.size();s++) {
     		   ArrayList<String> parNames = parentSectionNamesForUCERF2_Sources.get(s);
     		   for(String name: parNames) {
     			   if(!parentSectionNames.contains(name)) {
-    				   System.out.println("\t"+s+"\t"+name+"\t"+faultModelForSource[s]);
+    				   System.out.println("\t"+s+"\t"+name);
     			   }
     			   leftoverSectionNames.remove(name);
     		   }
@@ -965,11 +1012,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			if(!parentSectionNames.contains(sectionData.getParentSectionName()))
 				continue;
 
-			//		System.out.println(sectionData.getName());
-
 			FaultTrace sectionTrace = sectionData.getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
 			dist = sectionTrace.minDistToLocation(rupEndLoc);
-// System.out.println(sectionData.getName()+"\t"+dist);
 			if(dist<closestDist) {
 				secondClosestDist=closestDist;
 				secondClosestSect=clostestSect;
@@ -980,10 +1024,9 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				secondClosestDist=dist;
 				secondClosestSect=i;
 			}
-		}
+		}	
 		
-		
-		// return -1 if nothing found (e.g., creeping section)
+		// return -1 if nothing found
 		if(clostestSect == -1)
 			return targetSection;
 			
@@ -995,8 +1038,6 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		double dist1 =rupTrace.minDistToLocation(sectEnd1);
 		double dist2 =rupTrace.minDistToLocation(sectEnd2);
 		double maxDistClosest = Math.max(dist1, dist2);
-// System.out.println("clostestSect\t"+faultSectionData.get(clostestSect).getName()+"\tclosestDist="+closestDist+"\tsectHalfLength="+
-//		sectHalfLength+"\tdist1="+dist1+"\tdist2="+dist2);
 		if(dist1 <sectHalfLength && dist2 <sectHalfLength)
 			targetSection = clostestSect;
 		
@@ -1010,8 +1051,6 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			dist1 =rupTrace.minDistToLocation(sectEnd1);
 			dist2 =rupTrace.minDistToLocation(sectEnd2);
 			maxDistSecondClosest = Math.max(dist1, dist2);
-// System.out.println("secondClosestSect\t"+faultSectionData.get(secondClosestSect).getName()+"\tsecondClosestDist="+secondClosestDist+"\tsectHalfLength="+
-//		sectHalfLength+"\tdist1="+dist1+"\tdist2="+dist2);
 			if(dist1 <sectHalfLength && dist2 <sectHalfLength)
 				targetSection = secondClosestSect;
 		}
@@ -1033,15 +1072,20 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		return targetSection;
 	}
 	
+
 	/**
-	 * This reads an XML file of an InversionFaultSystemRupSet 
-	 * @return
+	 * @param args
 	 */
-	private static SimpleFaultSystemRupSet getFaultSystemRupSetFromFile(File precompDataDir) {
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
+/*	*/	
    		// read XML rup set file
 		if(D) System.out.println("Reading XML file");
    		SimpleFaultSystemRupSet faultSysRupSet=null;
    		try {
+//			faultSysRupSet = SimpleFaultSystemRupSet.fromXMLFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml"));
 			faultSysRupSet = SimpleFaultSystemRupSet.fromXMLFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSet.xml"));
 		} catch (MalformedURLException e1) {
 			// TODO Auto-generated catch block
@@ -1051,10 +1095,13 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			e1.printStackTrace();
 		}
 		if(D) System.out.println("Done Reading XML file");
-
-		return faultSysRupSet;
 		
-		/*   // The Code To Make The Above Read XML **********************
+		FindEquivUCERF2_FM2pt1_Ruptures test = new FindEquivUCERF2_FM2pt1_Ruptures(faultSysRupSet, precompDataDir);
+		
+		test.plotMFD_Test();
+
+		
+		/*   // The Code To Make The Statewide InversionFaultSystemRuptureSet XML **********************
 		double maxJumpDist = 5.0;
 		double maxAzimuthChange = 45;
 		double maxTotAzimuthChange = 90;
@@ -1085,24 +1132,40 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		// End making XML ********************
 */
 
+/*		
+   // The Code To Make The No Cal InversionFaultSystemRuptureSet XML **********************
+		double maxJumpDist = 5.0;
+		double maxAzimuthChange = 45;
+		double maxTotAzimuthChange = 90;
+		double maxRakeDiff = 90;
+		int minNumSectInRup = 2;
+		double moRateReduction = 0.1;
+		ArrayList<MagAreaRelationship> magAreaRelList = new ArrayList<MagAreaRelationship>();
+		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
+		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
+		
+		// Instantiate the FaultSystemRupSet
+		System.out.println("\nStarting FaultSystemRupSet instantiation");
+		long startTime = System.currentTimeMillis();
+		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
+				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
+				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precompDataDir);
+		long runTime = System.currentTimeMillis()-startTime;
+		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");
+		
+		File xmlOut = new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml");
+		try {
+			new SimpleFaultSystemRupSet(invFaultSystemRupSet).toXMLFile(xmlOut);
+			if (D) System.out.println("DONE");
+		} catch (IOException e) {
+			System.out.println("IOException saving Rup Set to XML!");
+			e.printStackTrace();
+		}
+		// End making XML ********************
+*/
 
-	}
-	
-	
-	
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		
-		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
-		
-		FindEquivUCERF2_FM2pt1_Ruptures test = new FindEquivUCERF2_FM2pt1_Ruptures(precompDataDir);
-		
-		test.plotMFD_Test();
-   		
+		   		
 		
 //		FindEquivUCERF2_FM2pt1_Ruptures test = new FindEquivUCERF2_FM2pt1_Ruptures();
 //		test.writePrelimFM2pt1_SectionsForUCERF2_Sources();
