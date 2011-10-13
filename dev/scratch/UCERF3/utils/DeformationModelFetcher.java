@@ -43,6 +43,8 @@ public class DeformationModelFetcher {
 	private final static int SJ_VALLEY_STEPOVER_FAULT_SECTION_ID = 290;
 	private final static int SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
 	private final static int SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401;
+	
+	DefModName chosenDefModName;
 
 	
 	public enum DefModName {
@@ -76,6 +78,7 @@ public class DeformationModelFetcher {
 	 */
 	public DeformationModelFetcher(DefModName name, File precomputedDataDir) {
 		this.precomputedDataDir = precomputedDataDir;
+		chosenDefModName = name;
 		if(name == DefModName.UCERF2_NCAL) {
 			faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, 0.5);
 			fileNamePrefix = "nCal_0_82_500";	// now hard coded as no NaN slip rates, defModID=82, & section length = 0.5 times seimso thickness
@@ -88,6 +91,10 @@ public class DeformationModelFetcher {
 			faultSubSectPrefDataList = this.createBayAreaSubSections(0.5);
 			fileNamePrefix = "bayArea_0_82_500_";						
 		}
+	}
+	
+	public DefModName getDefModName() {
+		return chosenDefModName;
 	}
 	
 	public ArrayList<FaultSectionPrefData> getSubSectionList() {
@@ -138,7 +145,7 @@ public class DeformationModelFetcher {
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = getAll_UCERF2Sections(includeSectionsWithNaN_slipRates);
 
-		// remove those that don't have a trace in in the N Cal RELM region
+		// remove those that don't have at least one trace end-point in in the N Cal RELM region
 		Region relm_nocal_reg = new CaliforniaRegions.RELM_NOCAL();
 		Region mod_relm_nocal_reg = new Region(relm_nocal_reg.getBorder(), BorderType.GREAT_CIRCLE); // needed to exclude Parkfield
 		ArrayList<FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
