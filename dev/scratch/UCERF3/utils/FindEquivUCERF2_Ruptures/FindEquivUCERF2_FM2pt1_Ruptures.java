@@ -41,6 +41,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
@@ -166,6 +167,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	double[] magOfUCERF2_Rup, lengthOfUCERF2_Rup, rateOfUCERF2_Rup;
 	boolean[] subSeismoUCERF2_Rup, problemUCERF2_Source;
 	
+	FaultSystemRupSet faultSysRupSet;
+	
 	// the following lists the indices of all  UCERF2 ruptures associated with each inversion rupture
 	ArrayList<ArrayList<Integer>> rupAssociationList;
 	
@@ -186,7 +189,9 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	 * @param faultSysRupSet
 	 * @param precomputedDataDir
 	 */
-	public FindEquivUCERF2_FM2pt1_Ruptures(SimpleFaultSystemRupSet faultSysRupSet, File precomputedDataDir) {
+	public FindEquivUCERF2_FM2pt1_Ruptures(FaultSystemRupSet faultSysRupSet, File precomputedDataDir) {
+		
+		this.faultSysRupSet = faultSysRupSet;
 		
 		faultSectionData = faultSysRupSet.getFaultSectionDataList();
 				
@@ -1070,6 +1075,45 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 
 		
 		return targetSection;
+	}
+	
+	/**
+	 * This returns the total number of UCERF2 ruptures 
+	 * (adding up the number of ruptures for every source)
+	 * @return
+	 */
+	public int getNumUCERF2_Ruptures() {
+		return NUM_UCERF2_RUPTURES;
+	}
+	
+	/**
+	 * This gives the ProbEqkRupture for the rth UCERF2 rupture (where the index is
+	 * relative to the total number given by getNumUCERF2_Ruptures())
+	 * @param r
+	 * @return
+	 */
+	public ProbEqkRupture getRthUCERF2_Rupture(int r) {
+		return modMeanUCERF2_FM2pt1.getSource(srcIndexOfUCERF2_Rup[r]).getRupture(rupIndexOfUCERF2_Rup[r]);
+	}
+	
+	
+	/**
+	 * This gives the faultSystemRupSet index for the rupture that is equivalent to the 
+	 * specified UCERF2 rupture.  The returned value is -1 if there is no equivalent.
+	 * @param r
+	 * @return
+	 */
+	public int getEquivFaultSystemRupSetRupIndexForUCERF2_Rupture(int r) {
+		return invRupIndexForUCERF2_Rup[r];
+	}
+
+	
+	/**
+	 *  this returns the passed in faultSysRupSet.
+	 * @return
+	 */
+	public FaultSystemRupSet getFaultSysRupSet() {
+		return faultSysRupSet;
 	}
 	
 
