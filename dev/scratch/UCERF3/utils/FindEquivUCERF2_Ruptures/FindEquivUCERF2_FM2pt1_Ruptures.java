@@ -1103,7 +1103,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	 * @param r
 	 * @return
 	 */
-	public int getEquivFaultSystemRupSetRupIndexForUCERF2_Rupture(int r) {
+	public int getEquivFaultSystemRupIndexForUCERF2_Rupture(int r) {
 		return invRupIndexForUCERF2_Rup[r];
 	}
 
