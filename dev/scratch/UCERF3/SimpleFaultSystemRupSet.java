@@ -498,6 +498,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	}
 
 	@Override
+	@Deprecated
 	public Element toXMLMetadata(Element root) {
 		Element el = root.addElement(XML_METADATA_NAME);
 		
@@ -633,6 +634,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		return simple;
 	}
 	
+	@Deprecated
 	public void toXMLFile(File file) throws IOException {
 		XMLUtils.writeObjectToXMLAsRoot(this, file);
 	}
@@ -872,6 +874,17 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		return new SimpleFaultSystemRupSet(faultSectionData, mags, rupAveSlips, rupSectionSlips,
 				sectSlipRates, sectSlipRateStdDevs, rakes, rupAreas, sectAreas, sectionForRups, info,
 				closeSections, clusterRups, clusterSects);
+	}
+	
+	public static boolean isXMLFile(File file) {
+		return file.getName().toLowerCase().endsWith(".xml");
+	}
+	
+	public static SimpleFaultSystemRupSet fromFile(File file) throws IOException, DocumentException {
+		if (isXMLFile(file))
+			return fromXMLFile(file);
+		else
+			return fromZipFile(file);
 	}
 
 }

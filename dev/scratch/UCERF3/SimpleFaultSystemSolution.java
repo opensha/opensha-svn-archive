@@ -187,6 +187,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	}
 
 	@Override
+	@Deprecated
 	public Element toXMLMetadata(Element root) {
 		Element el = root.addElement(XML_METADATA_NAME);
 		
@@ -207,19 +208,15 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		return new SimpleFaultSystemSolution(simpleRupSet, rupRateSolution);
 	}
 	
-	private static boolean isXMLFile(File file) {
-		return file.getName().toLowerCase().endsWith(".xml");
-	}
-	
 	public static SimpleFaultSystemSolution fromFile(File file) throws IOException, DocumentException {
-		if (isXMLFile(file))
+		if (SimpleFaultSystemRupSet.isXMLFile(file))
 			return fromXMLFile(file);
 		else
 			return fromZipFile(file);
 	}
 	
 	public static FaultSystemRupSet fromFileAsApplicable(File file) throws IOException, DocumentException {
-		if (isXMLFile(file)) {
+		if (SimpleFaultSystemRupSet.isXMLFile(file)) {
 			Document doc = XMLUtils.loadDocument(file);
 			Element root = doc.getRootElement();
 			// first try to load as a solution
@@ -240,6 +237,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		}
 	}
 	
+	@Deprecated
 	public void toXMLFile(File file) throws IOException {
 		XMLUtils.writeObjectToXMLAsRoot(this, file);
 	}
