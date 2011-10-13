@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+
 
 /**
  * This interface represents the attributes of ruptures in a fault system, 
@@ -224,5 +226,11 @@ public interface FaultSystemRupSet {
 	 * @throws IndexOutOfBoundsException if the index is invalid
 	 */
 	public List<Integer> getRupturesForCluster(int index) throws IndexOutOfBoundsException;
+	
+	/**
+	* This returns the deformation model name
+	* @return
+	*/
+	public DefModName getDeformationModelName();
 	
 }

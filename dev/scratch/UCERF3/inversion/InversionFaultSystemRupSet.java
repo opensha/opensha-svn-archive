@@ -20,6 +20,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 
 /**
@@ -710,5 +711,11 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	@Override
 	public List<List<Integer>> getCloseSectionsListList() {
 		return sectionConnectionsListList;
+	}
+
+
+	@Override
+	public DefModName getDeformationModelName() {
+		return defModName;
 	}
 }

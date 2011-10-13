@@ -143,9 +143,21 @@ public class InversionFaultSystemRupSetFactory {
 	 * @throws DocumentException
 	 */
 	public FaultSystemRupSet getRupSet() throws IOException, DocumentException {
+		return getRupSet(false);
+	}
+	
+	/**
+	 * This will load the given rup set. It will first try to load it locally, then it will
+	 * attempt to download it, then if all else fails it will recreate it.
+	 * 
+	 * @return
+	 * @throws IOException
+	 * @throws DocumentException
+	 */
+	public FaultSystemRupSet getRupSet(boolean forceRebuild) throws IOException, DocumentException {
 		File file = new File(dir, fileName);
 		
-		if (!file.exists()) {
+		if (!forceRebuild && !file.exists()) {
 			// try downloading it from the internet
 			URL url = new URL(dataURL+fileName);
 			try {
@@ -156,7 +168,7 @@ public class InversionFaultSystemRupSetFactory {
 			}
 		}
 		
-		if (file.exists()) {
+		if (!forceRebuild && file.exists()) {
 			if (D) System.out.println("Loading rup set from "+file.getAbsolutePath());
 			return SimpleFaultSystemRupSet.fromFile(file);
 		}
@@ -174,9 +186,9 @@ public class InversionFaultSystemRupSetFactory {
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
-		NCAL_SMALL.getRupSet();
-		NCAL_SMALL_UNIFORM.getRupSet();
-		NCAL.getRupSet();
+		NCAL_SMALL.getRupSet(true);
+		NCAL_SMALL_UNIFORM.getRupSet(true);
+		NCAL.getRupSet(true);
 		ALLCAL_SMALL.getRupSet();
 		ALLCAL.getRupSet();
 	}

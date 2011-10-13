@@ -23,6 +23,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
@@ -59,6 +60,8 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	private List<List<Integer>> clusterRups;
 	private List<List<Integer>> clusterSects;
 	
+	private DefModName defModName;
+	
 	/**
 	 * This converts any FaultSytemRupSet into a SimpleFaultSystemRupSet, which allows it
 	 * to be saved to a file. If the given rupSet is already a SimpleFaultSystemRupSet, 
@@ -83,7 +86,8 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 				rupSet.getSlipOnSectionsForAllRups(), rupSet.getSlipRateForAllSections(),
 				rupSet.getSlipRateStdDevForAllSections(),
 				rupSet.getAveRakeForAllRups(), rupSet.getAreaForAllRups(), rupSet.getAreaForAllSections(),
-				rupSet.getSectionIndicesForAllRups(), rupSet.getInfoString(), rupSet.getCloseSectionsListList());
+				rupSet.getSectionIndicesForAllRups(), rupSet.getInfoString(),
+				rupSet.getCloseSectionsListList(), rupSet.getDeformationModelName());
 		if (rupSet.isClusterBased()) {
 			clusterRups = new ArrayList<List<Integer>>();
 			clusterSects = new ArrayList<List<Integer>>();
@@ -122,9 +126,10 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 			double[] sectAreas,
 			List<List<Integer>> sectionForRups,
 			String info,
-			List<List<Integer>> closeSections) {
+			List<List<Integer>> closeSections,
+			DefModName defModName) {
 		this(faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
-				rupAreas, sectAreas, sectionForRups, info, closeSections, null, null);
+				rupAreas, sectAreas, sectionForRups, info, closeSections, defModName, null, null);
 	}
 	
 	/**
@@ -158,6 +163,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 			List<List<Integer>> sectionForRups,
 			String info,
 			List<List<Integer>> closeSections,
+			DefModName defModName,
 			List<List<Integer>> clusterRups,
 			List<List<Integer>> clusterSects) {
 		int numRups = mags.length;
@@ -214,6 +220,10 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		Preconditions.checkArgument(closeSections == null || closeSections.size() == numSects,
 		"close sub section size doesn't match number of sections!");
 		this.closeSections = closeSections;
+		
+		// can be null
+		this.defModName = defModName;
+		
 		// can be null
 		this.clusterRups = clusterRups;
 		// can be null
@@ -393,6 +403,14 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		return clusterSects.get(index);
 	}
 	
+	/**
+	* This returns the deformation model name
+	* @return
+	*/
+	public DefModName getDeformationModelName() {
+		return defModName;
+	}
+	
 	private static void listDoubleArrayToXML(Element root, List<double[]> list, String elName) {
 		Element el = root.addElement(elName);
 		
@@ -477,8 +495,11 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		return lists;
 	}
 	
-	private static void fsDataToXML(Element parent, List<FaultSectionPrefData> list, String elName) {
+	private static void fsDataToXML(Element parent, List<FaultSectionPrefData> list,
+			String elName, DefModName defModName) {
 		Element el = parent.addElement(elName);
+		if (defModName != null)
+			el.addAttribute("defModName", defModName.name());
 		
 		for (int i=0; i<list.size(); i++) {
 			FaultSectionPrefData data = list.get(i);
@@ -525,7 +546,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		if (closeSections != null)
 			intListArrayToXML(el, closeSections, "closeSections");
 		
-		fsDataToXML(el, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List");
+		fsDataToXML(el, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List", defModName);
 		
 		if (isClusterBased()) {
 			el.addAttribute("numClusters", getNumClusters()+"");
@@ -615,8 +636,15 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		}
 		
 		if (D) System.out.println("Loading faultSectionData");
+		Element fsEl = rupSetEl.element(FaultSectionPrefData.XML_METADATA_NAME+"List");
 		ArrayList<FaultSectionPrefData> faultSectionData =
-			fsDataFromXML(rupSetEl.element(FaultSectionPrefData.XML_METADATA_NAME+"List"));
+			fsDataFromXML(fsEl);
+		DefModName defModName;
+		Attribute defModAtt = fsEl.attribute("defModName");
+		if (defModAtt != null && !defModAtt.getValue().isEmpty())
+			defModName = DefModName.valueOf(defModAtt.getValue());
+		else
+			defModName = null;
 		
 		List<List<Integer>> clusterRups = null;
 		List<List<Integer>> clusterSects = null;
@@ -630,7 +658,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		SimpleFaultSystemRupSet simple = new SimpleFaultSystemRupSet(
 				faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
-				rupAreas, sectAreas, sectionForRups, info, closeSections, clusterRups, clusterSects);
+				rupAreas, sectAreas, sectionForRups, info, closeSections, defModName, clusterRups, clusterSects);
 		return simple;
 	}
 	
@@ -659,7 +687,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		File fsdFile = new File(tempDir, "fault_sections.xml");
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
-		fsDataToXML(root, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List");
+		fsDataToXML(root, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List", defModName);
 		XMLUtils.writeDocumentToFile(fsdFile, doc);
 		zipFileNames.add(fsdFile.getName());
 		
@@ -739,9 +767,11 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		String info = getInfoString();
 		if (info != null && !info.isEmpty()) {
-			FileWriter fw = new FileWriter(new File("info.txt"));
+			File infoFile = new File(tempDir, "info.txt");
+			FileWriter fw = new FileWriter(infoFile);
 			fw.write(info+"\n");
 			fw.close();
+			zipFileNames.add(infoFile.getName());
 		}
 		
 		FileUtils.createZipFile(file.getAbsolutePath(), tempDir.getAbsolutePath(), zipFileNames);
@@ -848,8 +878,15 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		ZipEntry fsdEntry = zip.getEntry("fault_sections.xml");
 		Document doc = XMLUtils.loadDocument(
 				new BufferedInputStream(zip.getInputStream(fsdEntry)));
-		List<FaultSectionPrefData> faultSectionData = 
-			fsDataFromXML(doc.getRootElement().element(FaultSectionPrefData.XML_METADATA_NAME+"List"));
+		Element fsEl = doc.getRootElement().element(FaultSectionPrefData.XML_METADATA_NAME+"List");
+		ArrayList<FaultSectionPrefData> faultSectionData =
+			fsDataFromXML(fsEl);
+		DefModName defModName;
+		Attribute defModAtt = fsEl.attribute("defModName");
+		if (defModAtt != null && !defModAtt.getValue().isEmpty())
+			defModName = DefModName.valueOf(defModAtt.getValue());
+		else
+			defModName = null;
 		
 		ZipEntry infoEntry = zip.getEntry("info.txt");
 		String info;
@@ -873,7 +910,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		return new SimpleFaultSystemRupSet(faultSectionData, mags, rupAveSlips, rupSectionSlips,
 				sectSlipRates, sectSlipRateStdDevs, rakes, rupAreas, sectAreas, sectionForRups, info,
-				closeSections, clusterRups, clusterSects);
+				closeSections, defModName, clusterRups, clusterSects);
 	}
 	
 	public static boolean isXMLFile(File file) {

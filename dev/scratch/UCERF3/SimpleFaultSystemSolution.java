@@ -18,6 +18,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
@@ -312,6 +313,11 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	public List<Integer> getRupturesForCluster(int index)
 			throws IndexOutOfBoundsException {
 		return rupSet.getRupturesForCluster(index);
+	}
+
+	@Override
+	public DefModName getDeformationModelName() {
+		return rupSet.getDeformationModelName();
 	}
 
 }
