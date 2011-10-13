@@ -158,6 +158,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
 					// get point projected from first trace point in opposite direction of the ave trace
 					LocationVector dir = LocationUtils.vector(lastTraceLoc, firstTraceLoc); 		
 					dir.setHorzDistance(1000); // project to 1000 km
+					dir.setVertDistance(0d);
 					Location projectedLoc1 = LocationUtils.location(firstTraceLoc, dir);
 
 
