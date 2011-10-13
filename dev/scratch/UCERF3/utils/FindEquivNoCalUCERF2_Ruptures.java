@@ -93,7 +93,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 	
 	final static int NUM_RUPTURES=12463;	// this was found after running this once
 	//final static int NUM_SECTIONS=717;		// this was found after running this once
-	final static int NUM_SECTIONS=696;		// Morgan edit: This is for NCal without the SAF Creeping Section
+	final static int NUM_SECTIONS=717;		// Morgan edit: This is for NCal without the SAF Creeping Section
 	
 	List<FaultSectionPrefData> faultSectionData;
 	
