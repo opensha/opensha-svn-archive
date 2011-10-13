@@ -93,6 +93,29 @@ public class ERF_Calculator {
   
   
   /**
+   * This computes the annualized total magnitude frequency distribution for the ERF.
+   * Magnitudes that are out of the range specified are ignored.
+   * @param src - an earthquake source
+   * @param duration - the forecast duration (e.g., from a time span)
+   * @param min - for MagFreqDist x axis
+   * @param max - for MagFreqDist x axis
+   * @param num - for MagFreqDist x axis
+   * @param preserveRates - if true rates are assigned to nearest discrete magnitude 
+   * without modification,if false rates are adjusted to preserve moment rate.
+   * @return
+   */
+  public static SummedMagFreqDist getTotalMFD_ForSource(ProbEqkSource src, double duration, double min,double max,int num, boolean preserveRates) {
+	  SummedMagFreqDist mfd = new SummedMagFreqDist(min,max,num);
+	  for(int r=0;r<src.getNumRuptures();r++) {
+		  ProbEqkRupture rup = src.getRupture(r);
+		  mfd.addResampledMagRate(rup.getMag(), rup.getMeanAnnualRate(duration), preserveRates);
+	  }
+	  return mfd;
+  }
+
+  
+  
+  /**
    * This computes the total magnitude frequency distribution (equivalent poisson rates) for the
    * ERF inside the region (only the fraction of each rupture inside the region is included)
    * @param erf
