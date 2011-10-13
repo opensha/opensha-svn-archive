@@ -2,138 +2,41 @@ package org.opensha.commons.data;
 
 import java.awt.geom.Point2D;
 import java.util.Collection;
-import java.util.TreeSet;
 
-public class Point2DToleranceSortedList extends TreeSet<Point2D> {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	private double minY = Double.NaN;
-	private double maxY = Double.NaN;
-	
-	public Point2DToleranceSortedList(Point2DComparator comparator) {
-		super(comparator);
-	}
-	
-	public double getTolerance() {
-		return ((Point2DComparator)comparator()).getTolerance();
-	}
-	
-	public void setTolerance(double newTolerance) {
-		((Point2DComparator)comparator()).setTolerance(newTolerance);
-	}
-	
-	private void checkMinMaxY(Point2D p) {
-		double y = p.getY();
-		if (Double.isNaN(minY) || y < minY)
-			minY = y;
-		if (Double.isNaN(maxY) || y > maxY)
-			maxY = y;
-	}
-	
-	protected void recalcMinMaxYs() {
-		minY = Double.NaN;
-		maxY = Double.NaN;
-		for (Point2D p : this) {
-			checkMinMaxY(p);
-		}
-	}
+public interface Point2DToleranceSortedList extends Iterable<Point2D> {
 
-	@Override
-	public boolean add(Point2D e) {
-		checkMinMaxY(e);
-		if (super.contains(e))
-			super.remove(e);
-		return super.add(e);
-	}
+	public double getTolerance();
 
-	@Override
-	public boolean addAll(Collection<? extends Point2D> c) {
-		for (Point2D p : c)
-			if (super.contains(p))
-				super.remove(p);
-		boolean ret = super.addAll(c);
-		if (ret)
-			recalcMinMaxYs();
-		return ret;
-	}
+	public void setTolerance(double newTolerance);
 
-	@Override
-	public boolean remove(Object obj) {
-		boolean ret = super.remove(obj);
-		if (ret)
-			recalcMinMaxYs();
-		return ret;
-	}
+	public boolean add(Point2D e);
 
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		boolean ret = super.removeAll(c);
-		if (ret)
-			recalcMinMaxYs();
-		return ret;
-	}
+	public boolean addAll(Collection<? extends Point2D> c);
+
+	public boolean remove(Object obj);
+
+	public boolean removeAll(Collection<?> c);
+
+	public double getMinY();
+
+	public double getMaxY();
+
+	public double getMinX();
+
+	public double getMaxX();
+
+	public Point2D get(int index);
+
+	public boolean remove(int index);
+
+	public Point2D get(double x);
+
+	public int indexOf(Point2D findPoint);
 	
-	public double getMinY() {
-		return minY;
-	}
+	public Point2DComparator getComparator();
 	
-	public double getMaxY() {
-		return maxY;
-	}
+	public int size();
 	
-	public double getMinX() {
-		return this.first().getX();
-	}
-	
-	public double getMaxX() {
-		return this.last().getX();
-	}
-	
-	public Point2D get(int index) {
-		if (index > size())
-			throw new IndexOutOfBoundsException();
-		int cnt = 0;
-		for (Point2D p : this) {
-			if (cnt == index)
-				return p;
-			cnt++;
-		}
-		return null; // unreachable
-	}
-	
-	public boolean remove(int index) {
-		if (index > size())
-			throw new IndexOutOfBoundsException();
-		int cnt = 0;
-		for (Point2D p : this) {
-			if (cnt == index)
-				return remove(p);
-			cnt++;
-		}
-		return false; // unreachable
-	}
-	
-	public Point2D get(double x) {
-		Point2D findPoint = new Point2D.Double(x,0.0);
-		for (Point2D p : this) {
-			if(comparator().compare(p, findPoint) == 0)
-				return p;
-		}
-		return null;
-	}
-	
-	public int getIndex(Point2D findPoint) {
-		int cnt = 0;
-		for (Point2D p : this) {
-			if(comparator().compare(p, findPoint) == 0)
-				return cnt;
-			cnt++;
-		}
-		return -1;
-	}
+	public void clear();
 
 }

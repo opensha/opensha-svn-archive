@@ -98,12 +98,7 @@ public class Point2DToleranceComparator implements Point2DComparator,
      * @exception  InvalidRangeException  Thrown if tolerance is negative
      */
     public Point2DToleranceComparator( double tolerance ) throws InvalidRangeException {
-
-        if ( tolerance < 0 ) {
-            throw new InvalidRangeException( "Tolerance must be larger or equal to 0" );
-        }
-
-        this.tolerance = tolerance;
+    	setTolerance(tolerance);
     }
 
 
@@ -120,6 +115,9 @@ public class Point2DToleranceComparator implements Point2DComparator,
         if ( tolerance < 0 ) {
             throw new InvalidRangeException( "Tolerance must be larger or equal to 0" );
         }
+        if (tolerance > 0)
+        	throw new IllegalStateException("Tolerance is now fixed at 0.0 until we decide what to do" +
+        			" with it. See trac ticket #341");
 
         tolerance = newTolerance;
     }

@@ -415,8 +415,10 @@ public class HardCodedTest {
 			String metadataFile = dag.writeMetadataFile(jobDir.getAbsolutePath());
 			String assembleArgs = archiver.getStoreDir().getPath() + " " + years + " " + metadataFile;
 			String assembleCommand = assembleWriter.buildCommand(HazusDataSetAssmbler.class.getName(), assembleArgs);
-			script.add("");
+			String exitLine = script.remove(script.size()-1);
 			script.add(assembleCommand);
+			script.add("");
+			script.add(exitLine);
 			
 			File pbsFile = new File(jobDir, "mpj.pbs");
 			JavaShellScriptWriter.writeScript(pbsFile, script);

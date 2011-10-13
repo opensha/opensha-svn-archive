@@ -30,7 +30,9 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.data.Point2DToleranceComparator;
+import org.opensha.commons.data.Point2DToleranceSortedArrayList;
 import org.opensha.commons.data.Point2DToleranceSortedList;
+import org.opensha.commons.data.Point2DToleranceSortedTreeSet;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
@@ -113,15 +115,18 @@ implements Serializable {
 	 * locations.
 	 */
 	public ArbitrarilyDiscretizedFunc(Point2DComparator comparator) {
-		this(new Point2DToleranceSortedList(comparator));
+//		this(new Point2DToleranceSortedTreeSet(comparator));
+		this(new Point2DToleranceSortedArrayList(comparator));
 	}
 
 	/**
 	 * No-Arg Constructor that uses the default DataPoint2DToleranceComparator comparator.
 	 * The comparator is used for sorting the DataPoint2D. This default Comparator
 	 * compares only x-values within tolerance to determine if two points are equal.<p>
+	 * 
+	 * made private pending ticket #341
 	 */
-	public ArbitrarilyDiscretizedFunc(double tolerance) {
+	private ArbitrarilyDiscretizedFunc(double tolerance) {
 		this(new Point2DToleranceComparator(tolerance));
 	}
 
@@ -159,8 +164,8 @@ implements Serializable {
 	public void setTolerance(double newTolerance) throws InvalidRangeException {
 		if( newTolerance < 0 )
 			throw new InvalidRangeException("Tolerance must be larger or equal to 0");
-		tolerance = newTolerance;
 		points.setTolerance(newTolerance);
+		tolerance = newTolerance;
 	}
 
 	/** returns the number of points in this function list */
@@ -223,10 +228,10 @@ implements Serializable {
 
 
 	/** returns the Y value given an x value - within tolerance, returns null if not found */
-	public int getIndex(Point2D point){ return points.getIndex( point ); }
+	public int getIndex(Point2D point){ return points.indexOf( point ); }
 
 	/** Returns the x value of a point given the index */
-	public int getXIndex(double x){ return points.getIndex( new Point2D.Double(x, 0.0 ) ); }
+	public int getXIndex(double x){ return points.indexOf( new Point2D.Double(x, 0.0 ) ); }
 
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
@@ -693,7 +698,7 @@ if(debug) {
 	private void writeObject(ObjectOutputStream s){
 		Iterator<Point2D> it =getPointsIterator();
 		try{
-			s.writeObject(points.comparator());
+			s.writeObject(points.getComparator());
 			s.writeObject(new Integer(getNum()));
 			while(it.hasNext()){
 				Point2D data = (Point2D)it.next();
@@ -712,7 +717,7 @@ if(debug) {
 	private void readObject(ObjectInputStream s){
 		try{
 			Point2DComparator comp = (Point2DComparator)s.readObject();
-			points = new Point2DToleranceSortedList(comp);
+			points = new Point2DToleranceSortedTreeSet(comp);
 			int num = ((Integer)s.readObject()).intValue();
 			for(int i=0;i<num;++i){
 				Point2D data = (Point2D)s.readObject();

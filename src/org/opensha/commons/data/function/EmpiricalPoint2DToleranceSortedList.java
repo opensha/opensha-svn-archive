@@ -4,9 +4,10 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 
 import org.opensha.commons.data.Point2DComparator;
-import org.opensha.commons.data.Point2DToleranceSortedList;
+import org.opensha.commons.data.Point2DToleranceSortedArrayList;
+import org.opensha.commons.data.Point2DToleranceSortedTreeSet;
 
-public class EmpiricalPoint2DToleranceSortedList extends Point2DToleranceSortedList {
+public class EmpiricalPoint2DToleranceSortedList extends Point2DToleranceSortedArrayList {
 
 	/**
 	 * 
@@ -28,7 +29,7 @@ public class EmpiricalPoint2DToleranceSortedList extends Point2DToleranceSortedL
 			point.setLocation(x, point.getY() + y);
 		boolean isNew = super.add(point);
 		
-		super.recalcMinMaxYs();
+//		super.recalcMinMaxYs();
 		
 		return isNew;
 	}
@@ -37,7 +38,8 @@ public class EmpiricalPoint2DToleranceSortedList extends Point2DToleranceSortedL
 	public boolean addAll(Collection<? extends Point2D> c) {
 		boolean isNew = false;
 		for (Point2D pt : c) {
-			isNew = isNew || add(pt);
+			if (add(pt))
+				isNew = true;
 		}
 		return isNew;
 	}

@@ -75,12 +75,6 @@ public class ArbDiscrFuncWithParams
     public ArbDiscrFuncWithParams(Point2DComparator comparator) { super(comparator); }
 
     /**
-     *  Easiest one to use, uses the default DataPoint2DToleranceComparator comparator.
-     */
-    public ArbDiscrFuncWithParams(double tolerance) { super(tolerance); }
-
-
-    /**
      *  basic No-Arg constructor
      */
     public ArbDiscrFuncWithParams() { super(); }

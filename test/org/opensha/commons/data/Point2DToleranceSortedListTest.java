@@ -8,9 +8,14 @@ import java.util.Random;
 import org.junit.Test;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
-public class Point2DToleranceSortedListTest {
+public abstract class Point2DToleranceSortedListTest {
 
 	private static Random rand = new Random();
+	
+	protected abstract Point2DToleranceSortedList buildList();
+//		return new Point2DToleranceSortedArrayList(new Point2DToleranceComparator());
+////		return new Point2DToleranceSortedTreeSet(new Point2DToleranceComparator());
+//	}
 	
 	private static double getRandVal() {
 		double val = rand.nextDouble();
@@ -47,9 +52,23 @@ public class Point2DToleranceSortedListTest {
 	
 	@Test
 	public void testMinMaxYSimple() {
-		Point2DToleranceSortedList list = new Point2DToleranceSortedList(new Point2DToleranceComparator());
+		Point2DToleranceSortedList list = buildList();
 		
 		addRandom(list, 100);
+		
+		validateMinMax(list);
+	}
+	
+	@Test
+	public void testMinMaxYSpecial() {
+		Point2DToleranceSortedList list = buildList();
+		
+		list.add(new Point2D.Double(0d, 0d));
+		list.add(new Point2D.Double(55d, 5d));
+		
+		validateMinMax(list);
+		
+		list.add(new Point2D.Double(0d, 2d));
 		
 		validateMinMax(list);
 	}
@@ -71,7 +90,7 @@ public class Point2DToleranceSortedListTest {
 	
 	@Test
 	public void testMinMaxYComplicated() {
-		Point2DToleranceSortedList list = new Point2DToleranceSortedList(new Point2DToleranceComparator());
+		Point2DToleranceSortedList list = buildList();
 		
 		addRandom(list, 100);
 		
@@ -86,13 +105,22 @@ public class Point2DToleranceSortedListTest {
 			addRandom(list);
 			validateMinMax(list);
 		}
+		
+		for (int i=0; i<10; i++) {
+			removeRandom(list);
+			validateMinMax(list);
+		}
 	}
 	
 	private static void validateListOrder(Point2DToleranceSortedList list) {
 		Point2D prev = null;
 		for (Point2D pt : list) {
 			if (prev != null) {
-				assertTrue("list order error: " + prev + ", " + pt, prev.getX() < pt.getX());
+				double x1 = prev.getX();
+				double x2 = pt.getX();
+				assertTrue("list order error: " + prev + ", " + pt, x1 < x2);
+				// now assert that it's not greater than the tolerance
+				assertTrue(Math.abs(x1 - x2) > list.getTolerance());
 			}
 			prev = pt;
 		}
@@ -100,7 +128,7 @@ public class Point2DToleranceSortedListTest {
 	
 	@Test
 	public void testListOrder() {
-		Point2DToleranceSortedList list = new Point2DToleranceSortedList(new Point2DToleranceComparator());
+		Point2DToleranceSortedList list = buildList();
 		
 		for (int i=0; i<100; i++) {
 			addRandom(list);
@@ -117,6 +145,41 @@ public class Point2DToleranceSortedListTest {
 			validateListOrder(list);
 		}
 	}
-
+	
+	@Test
+	public void testAddIdentical() {
+		Point2DToleranceSortedList list = buildList();
+		list.add(new Point2D.Double(5d, 5d));
+		list.add(new Point2D.Double(5d, 4d));
+		
+		assertEquals("list size should equal 1 when duplicate x value added", 1, list.size());
+		assertEquals("old value still present when duplicate added", 4d, list.get(0).getY(), 0.00001);
+		
+		// now test adding identical within tolerance
+		// disabled pending ticket #341
+//		list.setTolerance(0.5);
+//		
+//		list.add(new Point2D.Double(5.5, 3d));
+//		
+//		assertEquals("list size should equal 1 when duplicate (within tolerance) x value added", 1, list.size());
+//		assertEquals("old value still present when duplicate added", 3d, list.get(0).getY(), 0.00001);
+//		
+//		list.add(new Point2D.Double(4.9, 2d));
+//		
+//		assertEquals("list size should equal 1 when duplicate (within tolerance) x value added", 1, list.size());
+//		
+//		list.add(new Point2D.Double(4.5001, 2d));
+//		
+//		assertEquals("list size should equal 1 when duplicate (within tolerance) x value added", 1, list.size());
+//		assertEquals("old value still present when duplicate added", 2d, list.get(0).getY(), 0.00001);
+//		
+//		list.add(new Point2D.Double(4.49, 2d));
+//		
+//		assertEquals("list size should increase when x value added just outside of tolerence", 2, list.size());
+//		
+//		list.add(new Point2D.Double(5.51, 2d));
+//		
+//		assertEquals("list size should increase when x value added just outside of tolerence", 3, list.size());
+	}
 	
 }

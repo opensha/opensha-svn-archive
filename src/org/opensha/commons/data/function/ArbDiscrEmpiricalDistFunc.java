@@ -272,7 +272,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      */
     private ArbitrarilyDiscretizedFunc getCumDist(double totSum) {
 
-      ArbitrarilyDiscretizedFunc cumDist = new ArbitrarilyDiscretizedFunc(0.0);
+      ArbitrarilyDiscretizedFunc cumDist = new ArbitrarilyDiscretizedFunc();
       Point2D dp;
       double sum = 0;
       Iterator it = getPointsIterator();
