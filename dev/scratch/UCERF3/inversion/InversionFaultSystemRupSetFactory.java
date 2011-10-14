@@ -105,7 +105,7 @@ public class InversionFaultSystemRupSetFactory {
 	private ArrayList<MagAreaRelationship> magAreaRelList; 
 	private double moRateReduction;
 	
-	private File dir = new File("dev/scratch/UCERF3/preComputedData/");
+	private File dir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
 	
 	private String dataURL = "http://opensha.usc.edu/ftp/ucerf3/rup_sets/";
 	

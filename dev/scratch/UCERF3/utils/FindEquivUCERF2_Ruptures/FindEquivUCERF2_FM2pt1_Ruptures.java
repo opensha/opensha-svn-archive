@@ -630,13 +630,15 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		try {
 			int numUnassociated=0;
 			info_fw.write("\nUnassociated UCERF2 ruptures (not from FM 2.2 or subseismogenic, so there should be a mapping?)\n\n");
-			info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\n");
+			info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
 			for(int r=0;r<NUM_UCERF2_RUPTURES;r++) {
 				int srcIndex = srcIndexOfUCERF2_Rup[r];
 				if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
 					info_fw.write("\t"+r+"\t"+srcIndexOfUCERF2_Rup[r]+"\t"+rupIndexOfUCERF2_Rup[r]+
 									"\t"+subSeismoUCERF2_Rup[r]+"\t"+invRupIndexForUCERF2_Rup[r]+"\t"+
-									modMeanUCERF2_FM2pt1.getSource(srcIndexOfUCERF2_Rup[r]).getName()+"\n");
+									modMeanUCERF2_FM2pt1.getSource(srcIndexOfUCERF2_Rup[r]).getName()+
+									"\t("+faultSectionData.get(firstSectOfUCERF2_Rup[r]).getName()+
+									"\t"+faultSectionData.get(lastSectOfUCERF2_Rup[r]).getName()+")\n");
 							numUnassociated+=1;
 				}
 			}
@@ -1112,7 +1114,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 /*	*/	
    		// read XML rup set file
 		if(D) System.out.println("Reading rup set file");
-   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.NCAL_SMALL.getRupSet();
+   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.ALLCAL_SMALL.getRupSet();
 //   		try {
 ////			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml"));
 //			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSet.xml"));
