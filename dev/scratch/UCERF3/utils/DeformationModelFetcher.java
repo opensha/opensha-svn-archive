@@ -81,15 +81,15 @@ public class DeformationModelFetcher {
 		chosenDefModName = name;
 		if(name == DefModName.UCERF2_NCAL) {
 			faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, 0.5);
-			fileNamePrefix = "nCal_0_82_500";	// now hard coded as no NaN slip rates, defModID=82, & section length = 0.5 times seimso thickness
+			fileNamePrefix = "nCal_0_82_"+faultSubSectPrefDataList.size();	// now hard coded as no NaN slip rates (the 0), defModID=82, & number of sections
 		}
 		else if(name == DefModName.UCERF2_ALL) {
 			faultSubSectPrefDataList = createAll_UCERF2_SubSections(false, 0.5);
-			fileNamePrefix = "all_0_82_500";			
+			fileNamePrefix = "all_0_82_"+faultSubSectPrefDataList.size();			
 		}
 		else {
 			faultSubSectPrefDataList = this.createBayAreaSubSections(0.5);
-			fileNamePrefix = "bayArea_0_82_500_";						
+			fileNamePrefix = "bayArea_0_82_"+faultSubSectPrefDataList.size();						
 		}
 	}
 	
