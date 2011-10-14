@@ -186,9 +186,9 @@ public class InversionFaultSystemRupSetFactory {
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
-		NCAL_SMALL.getRupSet(true);
-		NCAL_SMALL_UNIFORM.getRupSet(true);
-		NCAL.getRupSet(true);
+		NCAL_SMALL.getRupSet();
+		NCAL_SMALL_UNIFORM.getRupSet();
+		NCAL.getRupSet();
 		ALLCAL_SMALL.getRupSet();
 		ALLCAL.getRupSet();
 	}

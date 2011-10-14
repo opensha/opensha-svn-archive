@@ -3,61 +3,40 @@
  */
 package scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.DocumentException;
-import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.eq.MagUtils;
-import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.geo.Region;
-import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
-import scratch.UCERF3.utils.DeformationModelFetcher;
-
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
-
-import com.google.common.base.Strings;
 
 /**
  * This class associates UCERF2 ruptures with ruptures in the given FaultSystemRuptureSet.  That is, for 
@@ -155,8 +134,11 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	int NUM_INVERSION_RUPTURES;
 	
 	String DATA_FILE_PREFIX = "equivUCERF2_RupData";
-	String INFO_FILE_PATH_PREFIX = "dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/InfoForUCERF2_RupAssociations";
-	String SECT_FOR_UCERF2_SRC_FILE_PATH_NAME = "dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt";
+	final static String INFO_FILE_PATH_PREFIX = "InfoForUCERF2_RupAssociations";
+	final static String SECT_FOR_UCERF2_SRC_FILE_PATH_NAME = "FM2_SectionsForUCERF2_Sources.txt";
+	final static String SUB_DIR_NAME = "FindEquivUCERF2_Ruptures";
+	private File precomputedDataSubDir;
+	private File precomputedDataDir;
 	File dataFile;
 	FileWriter info_fw;
 	
@@ -190,6 +172,10 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	 * @param precomputedDataDir
 	 */
 	public FindEquivUCERF2_FM2pt1_Ruptures(FaultSystemRupSet faultSysRupSet, File precomputedDataDir) {
+		this.precomputedDataDir = precomputedDataDir;
+		precomputedDataSubDir = new File(precomputedDataDir, SUB_DIR_NAME);
+		if (!precomputedDataSubDir.exists())
+			precomputedDataSubDir.mkdir();
 		
 		this.faultSysRupSet = faultSysRupSet;
 		
@@ -216,12 +202,11 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		
 		problemUCERF2_Source = new boolean[NUM_UCERF2_SRC_TO_USE];
 
-		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+DATA_FILE_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES;
-		dataFile = new File (fullpathname);
+		dataFile = new File(precomputedDataSubDir, DATA_FILE_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES);
 		
 		// read from file if it exists
 		if(dataFile.exists()) {
-			if(D) System.out.println("Reading existing file: "+ fullpathname);
+			if(D) System.out.println("Reading existing file: "+ dataFile.getAbsolutePath());
 			try {
 				// Wrap the FileInputStream with a DataInputStream
 				FileInputStream file_input = new FileInputStream (dataFile);
@@ -254,7 +239,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				}
 
 				data_in.close ();
-				if(D) System.out.println("Done reading file:"+fullpathname);
+				if(D) System.out.println("Done reading file:"+dataFile.getAbsolutePath());
 			} catch  (IOException e) {
 				System.out.println ( "IO Exception =: " + e );
 			}
@@ -276,13 +261,14 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 
 			// do the following methods (which write to the info file)
 			try {
-				info_fw = new FileWriter(INFO_FILE_PATH_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES+".txt");
+				info_fw = new FileWriter(
+						new File(precomputedDataSubDir,
+								INFO_FILE_PATH_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES+".txt"));
 				findSectionEndsForUCERF2_Rups();
 				findAssociations(faultSysRupSet.getSectionIndicesForAllRups());
 				info_fw.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ExceptionUtils.throwAsRuntimeException(e);
 			}
 
 			writePreComputedDataFile();
@@ -464,8 +450,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			for(String line:subseismoRateString)
 				info_fw.write("\t"+line+"\n");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		
 	}
@@ -657,8 +642,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			}
 			info_fw.write("\tTot Num of Above Problems = "+numUnassociated+" (of "+NUM_UCERF2_RUPTURES+")\n\n");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 
 		if(D) System.out.println("Done with associations");
@@ -865,9 +849,10 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		getMeanUCERF2_Instance();
 		
 		parentSectionNamesForUCERF2_Sources = new ArrayList<ArrayList<String>>();
-		if(D) System.out.println("Reading file: "+SECT_FOR_UCERF2_SRC_FILE_PATH_NAME);
+		File sectsFile = new File(precomputedDataSubDir, SECT_FOR_UCERF2_SRC_FILE_PATH_NAME);
+		if(D) System.out.println("Reading file: "+sectsFile.getPath());
 	    try {
-			BufferedReader reader = new BufferedReader(new FileReader(SECT_FOR_UCERF2_SRC_FILE_PATH_NAME));
+			BufferedReader reader = new BufferedReader(new FileReader(sectsFile.getPath()));
 			int l=-1;
 			int s = -1;	// source index for ModMeanUCERF2_FM2pt1
 			String line;
@@ -902,8 +887,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 
 	        }
        } catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
        
 		if(D) System.out.println("Done reading file");
@@ -946,7 +930,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	 */
 	private void writePrelimSectionsForUCERF2_Sources() {
 
-		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_ALL,new File("dev/scratch/UCERF3/preComputedData/"));
+		DeformationModelFetcher deformationModelFetcher =
+			new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_ALL,precomputedDataDir);
 		ArrayList<FaultSectionPrefData> faultSectionData = deformationModelFetcher.getSubSectionList();
 		ArrayList<String> parentSectionNames = new ArrayList<String>();
 		for(int i=0; i<faultSectionData.size();i++) {
@@ -962,8 +947,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		modMeanUCERF2.updateForecast();
 
 		// Preliminary filename
-		String fullpathname = "dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/SectionsForUCERF2_SourcesPrelim.txt";
-		File file = new File (fullpathname);
+		File file = new File (precomputedDataSubDir, "SectionsForUCERF2_SourcesPrelim.txt");
 		FileOutputStream file_output;
 		try {
 			file_output = new FileOutputStream (file);
@@ -981,8 +965,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 
 			file_output.close ();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 
 	}
@@ -1093,7 +1076,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 	 * @return
 	 */
 	public ProbEqkRupture getRthUCERF2_Rupture(int r) {
-		return modMeanUCERF2_FM2pt1.getSource(srcIndexOfUCERF2_Rup[r]).getRupture(rupIndexOfUCERF2_Rup[r]);
+		return getMeanUCERF2_Instance().getSource(srcIndexOfUCERF2_Rup[r]).getRupture(rupIndexOfUCERF2_Rup[r]);
 	}
 	
 	
@@ -1119,26 +1102,28 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 
 	/**
 	 * @param args
+	 * @throws IOException 
+	 * @throws DocumentException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, DocumentException {
 		// TODO Auto-generated method stub
 		
 		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
 /*	*/	
    		// read XML rup set file
-		if(D) System.out.println("Reading XML file");
-   		SimpleFaultSystemRupSet faultSysRupSet=null;
-   		try {
-//			faultSysRupSet = SimpleFaultSystemRupSet.fromXMLFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml"));
-			faultSysRupSet = SimpleFaultSystemRupSet.fromXMLFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSet.xml"));
-		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (DocumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		if(D) System.out.println("Done Reading XML file");
+		if(D) System.out.println("Reading rup set file");
+   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.NCAL_SMALL.getRupSet();
+//   		try {
+////			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml"));
+//			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSet.xml"));
+//		} catch (MalformedURLException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		} catch (DocumentException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		if(D) System.out.println("Done Reading rup set file");
 		
 		FindEquivUCERF2_FM2pt1_Ruptures test = new FindEquivUCERF2_FM2pt1_Ruptures(faultSysRupSet, precompDataDir);
 		
