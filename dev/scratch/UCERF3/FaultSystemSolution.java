@@ -109,8 +109,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		double[][] rates = new double[getNumSections()][getNumSections()];
 		for(int r=0; r< getNumRuptures(); r++) {
 			List<Integer> indices = getSectionsIndicesForRup(r);
+			double rate = getRateForRup(r);
+			if (rate == 0)
+				continue;
 			for(int s=1;s<indices.size();s++) {
-				double rate = getRateForRup(r);
 				rates[indices.get(s-1)][indices.get(s)] += rate;
 				rates[indices.get(s)][indices.get(s-1)] += rate;    // fill in the symmetric point
 			}
