@@ -307,7 +307,15 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     return locList;
   }
 
-  public EvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+  
+  /**
+   * This approximates the source as a point at 1.0 km depth.
+   */
+  public EvenlyGriddedSurface getSourceSurface() { 
+	  PointSurface newPtSurface = new PointSurface(ptSurface.getLocation());
+	  newPtSurface.setDepth(1.0);
+	  return newPtSurface;
+  }
 
 
 
