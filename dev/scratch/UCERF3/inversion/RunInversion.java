@@ -198,13 +198,13 @@ public class RunInversion {
 				aPrioriRupConstraint, initialRupModel, mfdConstraints);
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
-		if (D) System.out.print("Saving Solution to XML . . . \n");
-		File xmlOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"solution.xml");
+		if (D) System.out.print("Saving Solution to zip file . . . \n");
+		File xmlOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"solution.zip");
 		try {
-			new SimpleFaultSystemSolution(inversion).toXMLFile(xmlOut);
+			new SimpleFaultSystemSolution(inversion).toZipFile(xmlOut);
 			if (D) System.out.println("DONE");
 		} catch (IOException e) {
-			System.out.println("IOException saving Rup Set to XML!");
+			System.out.println("IOException saving Rup Set to zip file!");
 			e.printStackTrace();
 		}
 	}
@@ -380,11 +380,6 @@ public class RunInversion {
 		return initial_state;
 		
 	}
-
-
-	
-
-
 
 	/**
 	 * @param args

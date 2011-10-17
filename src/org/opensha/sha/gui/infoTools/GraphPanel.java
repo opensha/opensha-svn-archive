@@ -103,7 +103,7 @@ public class GraphPanel extends JSplitPane {
 	/**
 	 * default color scheme for plotting curves
 	 */
-	Color[] defaultColor = {Color.red,Color.blue,Color.green,Color.darkGray,Color.magenta,Color.cyan,
+	public static final Color[] defaultColor = {Color.red,Color.blue,Color.green,Color.darkGray,Color.magenta,Color.cyan,
 			Color.orange,Color.pink,Color.yellow,Color.gray};
 
 
