@@ -475,6 +475,14 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	public int getNodeCount() {
 		return nodeCount;
 	}
+	
+	/**
+	 * Alternative to getNodeCount().
+	 * @return
+	 */
+	public int getNumLocations() {
+		return getNodeCount();
+	}
 
 	/**
 	 * Returns whether this region contains any grid nodes. If a regions
@@ -616,6 +624,16 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
+	}
+	
+	
+	/**
+	 * Alternative to locationForIndex(int index)
+	 * @param index
+	 * @return
+	 */
+	public Location getLocation(int index) {
+		return locationForIndex(index);
 	}
 
 	/**
