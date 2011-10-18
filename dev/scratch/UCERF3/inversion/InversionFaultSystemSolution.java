@@ -142,6 +142,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Components of matrix equation to invert (Ax=d)
 		A = new SparseDoubleMatrix2D(numRows,numRuptures); // A matrix
+//		A = new SparseRCDoubleMatrix2D(numRows,numRuptures);
 		d = new double[numRows];	// data vector d
 		rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
 		
@@ -174,46 +175,29 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			} else d[sect] = 1; // Normalize by slip rate
 		}
 		long runTime = System.currentTimeMillis()-startTime;
-		if(D) System.out.println("Slip-Rate Constraints took " + (runTime/1000) + " seconds.");
+		if(D) System.out.println("Adding Slip-Rate Constraints took " + (runTime/1000.) + " seconds.");
 		if(D) System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
-
-//		System.out.println("");
 		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (relativeSegRateWt > 0.0) {
 			numNonZeroElements = 0;
-			long startTimeTotal = System.currentTimeMillis();
+			startTime = System.currentTimeMillis();
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+segRateConstraints.size(); i++) {
-				long getTime = 0l;
-				long setTime = 0l;
-				long t1;
-				if(D) startTime = System.currentTimeMillis();
 				SegRateConstraint constraint = segRateConstraints.get(i-numSlipRateConstraints);
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
 				for (int rup=0; rup<numRuptures; rup++) {
-					t1 = System.currentTimeMillis();
 					double getVal = A.get(constraint.getSegIndex(), rup);
-					getTime += System.currentTimeMillis()-t1;
 					if (getVal>0) {
-					//	long time1 = System.currentTimeMillis();
 						double setVal = (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());
-						t1 = System.currentTimeMillis();
 						A.set(i, rup, setVal);
-						setTime += System.currentTimeMillis()-t1;
-					//	if (D) System.out.println("Line 1 Time = "+ (System.currentTimeMillis()-time1)/1000.0);
 						if(D) numNonZeroElements++;			
 					}
 				}
-				if(D) runTime = System.currentTimeMillis()-startTime;
-				if(D) System.out.println("Segment-Rate Constraint #" + (i-numSlipRateConstraints+1) + " took " + (runTime/1000) + " seconds.");
-				
-				if(D) System.out.println("Get time: "+((double)getTime/1000d));
-				if(D) System.out.println("Set time: "+((double)setTime/1000d));
 			}
-			long runTimeTotal = System.currentTimeMillis()-startTimeTotal;
-			if(D) System.out.println("Total Segment-Rate Constraint time = " + runTimeTotal/1000 + " seconds.");
+			runTime = System.currentTimeMillis()-startTime;
+			if(D) System.out.println("Adding Segment-Rate Constraints took " + (runTime/1000.) + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 
@@ -222,7 +206,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		// CHANGE THIS TO AN INEQUALITY CONSTRAINT? *****************************
 		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
 		if (relativeMagDistWt > 0.0) {	
-			long startTimeTotal = System.currentTimeMillis();
+			startTime = System.currentTimeMillis();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding " + mfdConstraints.size()+ " magnitude constraints to A matrix ...");	
 			// first make matrix of the fraction of each section inside each region
@@ -240,10 +224,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 						numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
 				}
 			}
-			long setupTimeTotal = System.currentTimeMillis()-startTimeTotal;
-			if(D) System.out.println("Initial MFD Setup time = " + setupTimeTotal/1000 + " seconds.");
 			for (int i=0; i < mfdConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
-				if(D) startTime = System.currentTimeMillis();
 				targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();	
 				for(int rup=0; rup<numRuptures; rup++) {
 					double mag = rupMeanMag[rup];
@@ -264,30 +245,30 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagDistWt;
 					rowIndex++; 
 				}	
-				if(D) runTime = System.currentTimeMillis()-startTime;
-				if(D) System.out.println("MFD Constraint #" + i + " took " + (runTime/1000) + " seconds.");
 			}
-			long runTimeTotal = System.currentTimeMillis()-startTimeTotal;
-			if(D) System.out.println("Total MFD Constraint time = " + runTimeTotal/1000 + " seconds.");
+			runTime = System.currentTimeMillis()-startTime;
+			if(D) System.out.println("Adding MFD Constraints took " + (runTime/1000.) + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
 		
-		
-		
 		// Constrain Rupture Rate Solution to approximately equal aPrioriRupConstraint
-		if (relativeRupRateConstraintWt > 0.0) {	
-			if(D) System.out.println("\nAdding rupture rate constraint to A matrix ...");
+		if (relativeRupRateConstraintWt > 0.0) {
+			startTime = System.currentTimeMillis();
+			if(D) System.out.println("\nAdding rupture-rate constraint to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
 				A.set(rowIndex,rup,relativeRupRateConstraintWt);
 				d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
 				numNonZeroElements++; rowIndex++;
-			}		
+			}
+			runTime = System.currentTimeMillis()-startTime;
+			if(D) System.out.println("Adding MFD Constraints took " + (runTime/1000.) + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
-		// Write out A and d to binary files
+		
+		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)
 		try {
 			MatrixIO.doubleArrayToFile(d,new File("dev/scratch/UCERF3/preComputedData/d.bin"));
 			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/A.bin"));
@@ -297,20 +278,31 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}	
 
 		
-		// Solve the inverse problem
+		// Transform A matrix to different type that's fast for multiplication
 		if (numIterations > 0 && A instanceof SparseDoubleMatrix2D) {
 			// if we're annealing, and A is in the SparseDoubleMatrix2D format then
 			// we should convert it for faster matrix multiplications
-			if (D) System.out.println("converting to SparseRCDoubleMatrix2D");
+			if (D) System.out.println("\nConverting A matrix to SparseRCDoubleMatrix2D ...");
+			startTime = System.currentTimeMillis();
 			SparseRCDoubleMatrix2D Anew = new SparseRCDoubleMatrix2D(A.rows(), A.columns());
 			IntArrayList rows = new IntArrayList();
 			IntArrayList cols = new IntArrayList();
 			DoubleArrayList vals = new DoubleArrayList();
+			long startTime1 = System.currentTimeMillis();
 			A.getNonZeros(rows, cols, vals);
+			if (D) System.out.println("Non-zero entries stored after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.\n");
+			startTime1 = System.currentTimeMillis();
 			for (int i=0; i<rows.size(); i++)
 				Anew.set(rows.get(i), cols.get(i), vals.get(i));
+			if (D) System.out.println("Anew formed after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.\n");
+			startTime1 = System.currentTimeMillis();
 			A = Anew;
+			if (D) System.out.println("New A matrix formed after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.\n");
+			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.\n");
 		}
+		
+		// SOLVE THE INVERSE PROBLEM
+		// Run Simulated Annealing
 		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel);
 		sa.iterate(numIterations);
 		rupRateSolution = sa.getBestSolution();

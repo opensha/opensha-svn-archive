@@ -28,6 +28,7 @@ import scratch.UCERF3.utils.FindEquivNoCalUCERF2_Ruptures;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF2_PaleoSegRateData;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 
 
 /**
@@ -82,12 +83,12 @@ public class RunInversion {
 		
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
-		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_ALL,
+		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
-				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	
+				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);		
 /*		SimpleFaultSystemRupSet invFaultSystemRupSet;
 		try {
-			invFaultSystemRupSet = SimpleFaultSystemRupSet.fromZipFile(new File("/Users/pagem/Desktop/rupSet.zip"));
+			invFaultSystemRupSet = SimpleFaultSystemRupSet.fromZipFile(new File("/Users/pagem/Desktop/models/NCAL.zip"));
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -107,14 +108,15 @@ public class RunInversion {
 		// plot the mag histogram
 //		invFaultSystemRupSet.plotMagHistogram();
 		
-/*		// save to XML
-		if (D) System.out.print("Saving RupSet to XML...");
-		File xmlOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"rupSet.xml");
+		
+/*		// save to zip file
+		if (D) System.out.print("Saving RupSet to zip file...");
+		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"DeathValley.zip");
 		try {
-			new SimpleFaultSystemRupSet(invFaultSystemRupSet).toXMLFile(xmlOut);
+			new SimpleFaultSystemRupSet(invFaultSystemRupSet).toZipFile(zipOut);
 			if (D) System.out.println("DONE");
 		} catch (IOException e) {
-			System.out.println("IOException saving Rup Set to XML!");
+			System.out.println("IOException saving Rup Set to zip file!");
 			e.printStackTrace();
 		}	*/
 		
@@ -129,25 +131,23 @@ public class RunInversion {
 		// Parameters for InversionFaultSystemSolution
 		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
 		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativeMagDistWt = 10000.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint - WORKS ONLY FOR NORTHERN CALIFORNIA INVERSION (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
-		double relativeRupRateConstraintWt = 0.0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
+		double relativeMagDistWt = 1000.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
+		double relativeRupRateConstraintWt = 10.0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
 		int numIterations = 0;  // number of simulated annealing iterations (increase this to decrease misfit) - For Northern CA inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 
 		// create class the gives UCERF2-related constraints
-//		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
-//		FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups = new FindEquivNoCalUCERF2_Ruptures(faultSystemRupSet.getFaultSectionDataList(), precomputedDataDir);
-//		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);  // need to run this if we use getN_CalTargetMinusBackground_MFD() method in initial model or MFD constraints (below)
-		
-		
+		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
+		FindEquivUCERF2_FM2pt1_Ruptures findUCERF2_Rups = new FindEquivUCERF2_FM2pt1_Ruptures(faultSystemRupSet, precomputedDataDir);
+		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);
 		
 		if(D) System.out.println("\nDefining inversion constraints . . .");
 		
 		// a priori constraint
 		double[] aPrioriRupConstraint = null;
-		// Use UCERF2 Solution (Only works for Northern CA)
-//		aPrioriRupConstraint = UCERF2Solution;
+		// Use UCERF2 Solution 
+		aPrioriRupConstraint = UCERF2Solution;
 		// Or use smooth starting solution with target MFD:
 //		aPrioriRupConstraint = getSmoothStartingSolution(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD());  
 //		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
@@ -164,14 +164,15 @@ public class RunInversion {
 		// Create the MFD constraints (ArrayList so we can apply this to multiple subregions)
 		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
 		// Just add the N CAL one for now with a null region (apply it to full model)
-//		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);
-//		MFD_InversionConstraint mfdConstraintGR = new MFD_InversionConstraint(getGR_Dist(faultSystemRupSet, 1.0, 8.3), null);
-//		mfdConstraints.add(mfdConstraintGR);
+//		MFD_InversionConstraint mfdConstraintUCERF2 = new MFD_InversionConstraint(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(), null);	// OLD VERSION - see below
+//		MFD_InversionConstraint mfdConstraintGR = new MFD_InversionConstraint(getGR_Dist(faultSystemRupSet, 1.0, 8.3), null); mfdConstraints.add(mfdConstraintGR);
 		
 		
 		// UCERF2 MFD constraints for subregions - 1-degree boxes
-		Region region = new CaliforniaRegions.RELM_GRIDDED();
+//		Region region = new CaliforniaRegions.RELM_GRIDDED();
+		Region region = new CaliforniaRegions.RELM_NOCAL();
 		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region);
+		mfdConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());	// add MFD constraint for whole region
 		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
 		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
 		double latBoxSize = 1; double lonBoxSize = 1; // width of MFD subregion boxes, in degrees
@@ -198,15 +199,20 @@ public class RunInversion {
 				aPrioriRupConstraint, initialRupModel, mfdConstraints);
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
+
+		
+		
 		if (D) System.out.print("Saving Solution to zip file . . . \n");
-		File xmlOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"solution.zip");
+		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"solution.zip");
 		try {
-			new SimpleFaultSystemSolution(inversion).toZipFile(xmlOut);
+			new SimpleFaultSystemSolution(inversion).toZipFile(zipOut);
 			if (D) System.out.println("DONE");
 		} catch (IOException e) {
 			System.out.println("IOException saving Rup Set to zip file!");
 			e.printStackTrace();
 		}
+		
+		
 	}
 	
 	
@@ -264,10 +270,10 @@ public class RunInversion {
 	}
 	
 	
-	private double[] getUCERF2Solution(FindEquivNoCalUCERF2_Ruptures findUCERF2_Rups, FaultSystemRupSet faultSystemRupSet) {
+	private double[] getUCERF2Solution(FindEquivUCERF2_FM2pt1_Ruptures findUCERF2_Rups, FaultSystemRupSet faultSystemRupSet) {
 		int numRuptures=faultSystemRupSet.getNumRuptures();
 		double[] initial_state = new double[numRuptures];
-		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures(faultSystemRupSet.getSectionIndicesForAllRups());
+		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures();
 		for (int r=0; r<numRuptures; r++) {
 			double[] magAndRate = ucerf2_magsAndRates.get(r);
 			if(magAndRate != null) 
