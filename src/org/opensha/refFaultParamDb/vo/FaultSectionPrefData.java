@@ -270,11 +270,30 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * applying asiesmicity reductions of down-dip-width (taken equally from the top and bottom).
 	 * @param aseisReducesArea
 	 * @param gridSpacing
+	 * @param preserveGridSpacingExactly - if false, this will increase the grid spacing to fit the length 
+	 * and ddw exactly (otherwise trimming occurs)
+	 * @return
+	 */
+	public StirlingGriddedSurface getStirlingGriddedSurface(boolean aseisReducesArea, double gridSpacing, 
+			boolean preserveGridSpacingExactly) {
+		if(preserveGridSpacingExactly)
+			return new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing);
+		else
+			return new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing, gridSpacing);
+	}
+	
+	/**
+	 * This returns a StirlingGriddedSurface with the specified grid spacing, with the option of
+	 * applying asiesmicity reductions of down-dip-width (taken equally from the top and bottom).
+	 * The grid spacing is preserved, meaning the surface will be trimmed at the ends.
+	 * @param aseisReducesArea
+	 * @param gridSpacing
 	 * @return
 	 */
 	public StirlingGriddedSurface getStirlingGriddedSurface(boolean aseisReducesArea, double gridSpacing) {
-		return new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing);
+		return getStirlingGriddedSurface(aseisReducesArea, gridSpacing, true);
 	}
+
 	
 	public Element toXMLMetadata(Element root) {
 		return toXMLMetadata(root, XML_METADATA_NAME);
