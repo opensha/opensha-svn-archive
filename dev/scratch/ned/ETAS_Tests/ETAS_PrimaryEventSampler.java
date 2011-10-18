@@ -237,7 +237,7 @@ public class ETAS_PrimaryEventSampler {
 				if(srcIndexList.get(j) == srcIndex)
 					blockMagDist.addResampledMagRate(magList.get(j), rateInsideList.get(j), true);
 			}
-			blockMagDist.multiplyY_ValsBy(blockProb/total);
+			blockMagDist.scale(blockProb/total);
 			for(int j=0; j<blockMagDist.getNum(); j++) magDist.add(blockMagDist.getX(j), blockMagDist.getY(j));
 		}
 		return magDist;

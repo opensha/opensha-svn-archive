@@ -22,7 +22,7 @@ public class CodeTests {
 		
 		// make sure sampler is normalized
 		double total = sampler.calcSumOfY_Vals();
-		sampler.multiplyY_ValsBy(1.0/total);
+		sampler.scale(1.0/total);
 		
 		
 		// now check that monte carlo sampling of the function converges to y-axis values

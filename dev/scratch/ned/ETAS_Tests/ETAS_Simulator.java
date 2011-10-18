@@ -186,7 +186,7 @@ public class ETAS_Simulator {
 		expMagProbDist.setInfo(" ");
 		// get expected cum MFD for sequence
 		EvenlyDiscretizedFunc expCumDist = expMagProbDist.getCumRateDist();
-		expCumDist.multiplyY_ValsBy(expectedNumPrimaryAftershocks);
+		expCumDist.scale(expectedNumPrimaryAftershocks);
 		expCumDist.setName("Expected num 1st-generation >=M in "+(float)days+" days");
 		expCumDist.setInfo(" ");
 		magProbDists.add(expMagProbDist);
@@ -211,7 +211,7 @@ public class ETAS_Simulator {
 		if(srcIndex != null) {
 			ArbIncrementalMagFreqDist expMagProbDistForSource = etas_FirstGenSampler.getMagProbDistForSource(srcIndex);
 			expCumDistForSource = expMagProbDistForSource.getCumRateDist();
-			expCumDistForSource.multiplyY_ValsBy(expectedNumPrimaryAftershocks);
+			expCumDistForSource.scale(expectedNumPrimaryAftershocks);
 			expCumDistForSource.setName("Expected num 1st-generation >=M in "+(float)days+" days for source: "+erf.getSource(srcIndex).getName());
 			expCumDistForSource.setInfo(" ");
 			expMagProbDistForSource.setName("Expected Mag-Prob Dist for first-generation events for source: "+erf.getSource(srcIndex).getName());
@@ -248,7 +248,7 @@ public class ETAS_Simulator {
 		// GR dist for comparison
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0,2.55,8.95, 65);
 		double scaleBy = expectedNumPrimaryAftershocks/gr.getY(2.55);
-		gr.multiplyY_ValsBy(scaleBy);
+		gr.scale(scaleBy);
 		String name = gr.getName();
 		gr.setName(name+" (for comparison)");
 		expNumDists.add(gr);
@@ -855,7 +855,7 @@ public class ETAS_Simulator {
 				aftershockList.addAll(getPrimaryAftershocksList(mainShocksToProcess.get(i)));
 				// add to the total expected MFD
 				ArbIncrementalMagFreqDist expMFD = etas_sampler.getMagProbDist();
-				expMFD.multiplyY_ValsBy(expectedNum);
+				expMFD.scale(expectedNum);
 				totalExpectedNumMagDist.addIncrementalMagFreqDist(expMFD);
 			}	
 			

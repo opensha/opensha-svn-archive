@@ -239,7 +239,8 @@ Named,java.io.Serializable{
 		return sum;
 	}
 	
-	public void multiplyY_ValsBy(double val) {
+	@Override
+	public void scale(double val) {
 		for(int i=0; i<getNum();i++) this.set(i, val*getY(i));
 	}
 

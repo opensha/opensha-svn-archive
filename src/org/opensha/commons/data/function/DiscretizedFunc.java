@@ -158,5 +158,11 @@ public interface DiscretizedFunc extends XY_DataSet {
 	 * else returns -1.
 	 */
 	public int getIndex(Point2D point);
+	
+	/**
+	 * Scales (multiplies) the y-values of this function by the esupplied value.
+	 * @param scale
+	 */
+	public void scale(double scale);
 
 }
