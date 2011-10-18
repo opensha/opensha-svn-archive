@@ -105,21 +105,20 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
  * TO DO:
  * ------
  * 
- * 1) Verify mappings in SCEC-VDO
+ * 1) Further verify mappings in SCEC-VDO
  * 
- * 2) Figure out why some UCERF2 ruptures don't map into the state wide FaultSystemRuptureSet (see bottom 
- *    of info file for the list).
- * 
- * 3) Verify that a valid deformation model was used by checking what comes from 
+ * 2) Verify that a valid deformation model was used by checking what comes from 
  *    FaultSystemRuptureSet.getDeformationModelName() (as soon as Kevin adds the latter 
  *    as I requested on 10-13-11).
-
+ *    
+ * 3) Fix the problem where the associated rupture can be extended on both ends (relative to the UCERF2 orig rup), whereas if one 
+ *    end is and extension the other should be shorter (to preserve area better)?
  * 
  * @author field
  */
 public class FindEquivUCERF2_FM2pt1_Ruptures {
 	
-	protected final static boolean D = true;  // for debugging
+	protected final static boolean D = false;  // for debugging
 	
 	ArrayList<ArrayList<String>> parentSectionNamesForUCERF2_Sources;
 	
@@ -1002,7 +1001,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			if(!parentSectionNames.contains(sectionData.getParentSectionName()))
 				continue;
 
-			FaultTrace sectionTrace = sectionData.getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
+			FaultTrace sectionTrace = sectionData.getStirlingGriddedSurface(true, 1.0, false).getRowAsTrace(0);
 			dist = sectionTrace.minDistToLocation(rupEndLoc);
 			if(dist<closestDist) {
 				secondClosestDist=closestDist;
@@ -1021,7 +1020,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			return targetSection;
 			
 		// now see if both ends of closest section are within half the section length
-		FaultTrace sectionTrace = faultSectionData.get(clostestSect).getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
+		FaultTrace sectionTrace = faultSectionData.get(clostestSect).getStirlingGriddedSurface(true, 1.0, false).getRowAsTrace(0);
 		double sectHalfLength = 0.5*sectionTrace.getTraceLength()+0.5; 
 		Location sectEnd1 = sectionTrace.get(0);
 		Location sectEnd2 = sectionTrace.get(sectionTrace.size()-1);
@@ -1034,7 +1033,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		// check the second closest if the above failed
 		double maxDistSecondClosest=Double.NaN;
 		if(targetSection == -1) {	// check the second closest if the above failed
-			sectionTrace = faultSectionData.get(secondClosestSect).getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
+			sectionTrace = faultSectionData.get(secondClosestSect).getStirlingGriddedSurface(true, 1.0, false).getRowAsTrace(0);
 			sectHalfLength = 0.5*sectionTrace.getTraceLength()+0.5; 
 			sectEnd1 = sectionTrace.get(0);
 			sectEnd2 = sectionTrace.get(sectionTrace.size()-1);
@@ -1114,7 +1113,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 /*	*/	
    		// read XML rup set file
 		if(D) System.out.println("Reading rup set file");
-   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.ALLCAL_SMALL.getRupSet();
+   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.NCAL_SMALL.getRupSet();
+ //  		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.ALLCAL.getRupSet();
 //   		try {
 ////			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml"));
 //			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSet.xml"));
