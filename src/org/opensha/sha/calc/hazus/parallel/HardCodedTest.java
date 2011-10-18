@@ -19,6 +19,7 @@ import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.exceptions.ParameterException;
@@ -198,9 +199,13 @@ public class HardCodedTest {
 		boolean includeBackSeis = Boolean.parseBoolean(args[3]);
 		String vs30Str = args[4];
 		SiteDataValue<?> hardcodedVal;
-		if (vs30Str.equals("null"))
+		boolean useWald = false;
+		if (vs30Str.equals("null")) {
 			hardcodedVal = null;
-		else
+		} else if (vs30Str.equalsIgnoreCase("wald")) {
+			useWald = true;
+			hardcodedVal = null;
+		} else
 			hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED,
 					Double.parseDouble(vs30Str));
 		String dirName = args[6];
@@ -257,8 +262,14 @@ public class HardCodedTest {
 		if (hardcodedVal == null) {
 			provs = new ArrayList<SiteData<?>>();
 			SiteDataTypeParameterNameMap siteDataMap = SiteTranslator.DATA_TYPE_PARAM_NAME_MAP;
-			if (siteDataMap.isTypeApplicable(SiteData.TYPE_VS30, imr))
-				provs.add(new WillsMap2006());
+			if (useWald) {
+				System.out.println("Using WALD/ALLEN!");
+				if (siteDataMap.isTypeApplicable(SiteData.TYPE_VS30, imr))
+					provs.add(new WaldAllenGlobalVs30());
+			} else {
+				if (siteDataMap.isTypeApplicable(SiteData.TYPE_VS30, imr))
+					provs.add(new WillsMap2006());
+			}
 			if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_2_5, imr))
 				provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_1_0, imr))
