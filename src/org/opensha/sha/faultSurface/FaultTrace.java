@@ -21,6 +21,7 @@ package org.opensha.sha.faultSurface;
 
 import java.util.Iterator;
 
+import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -198,16 +199,32 @@ public class FaultTrace extends LocationList implements Named {
 	}
 
 
-	private final static String TAB = "  ";
-	public String toString(){
+//	private final static String TAB = "  ";
+//	public String toString(){
+//
+//		StringBuffer b = new StringBuffer("FaultTrace");
+//		b.append('\n');
+//		b.append(TAB + "Name = " + faultName);
+//
+//		b.append( super.toString() ) ;
+//		return b.toString();
+//
+//	}
 
-		StringBuffer b = new StringBuffer("FaultTrace");
-		b.append('\n');
-		b.append(TAB + "Name = " + faultName);
-
-		b.append( super.toString() ) ;
+	@Override
+	public String toString() {
+		// @formatter:off
+		StringBuffer b = new StringBuffer()
+			.append("Fault Trace: ").append(faultName)
+			.append("       size: ").append(size())
+			.append(IOUtils.LINE_SEPARATOR)
+			.append("Locations: ");
+		for (Location loc : this) {
+			b.append(loc).append(IOUtils.LINE_SEPARATOR)
+			.append("           ");
+		}
 		return b.toString();
-
+		// @formatter:on
 	}
 
 	public FaultTrace clone() {
