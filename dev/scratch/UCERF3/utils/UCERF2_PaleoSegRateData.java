@@ -177,7 +177,7 @@ public class UCERF2_PaleoSegRateData {
 					Color color = GraphPanel.defaultColor[i % GraphPanel.defaultColor.length];
 					
 					EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
-					func.setName("Solution "+i+" rates for: "+name);
+					func.setName("(x="+x+") Solution "+i+" rates for: "+name);
 					for (int j=0; j<numSects; j++) {
 						double rate = 0;
 						int mySectID = minSect + j;
