@@ -21,10 +21,15 @@ public class DefaultExceptoinHandler implements UncaughtExceptionHandler {
 
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
-		e.printStackTrace();
-		BugReport bug = new BugReport(e, null, appName, appVersion, app);
-		BugReportDialog dialog = new BugReportDialog(parent, bug, false);
-		dialog.setVisible(true);
+		try {
+			e.printStackTrace();
+			BugReport bug = new BugReport(e, null, appName, appVersion, app);
+			BugReportDialog dialog = new BugReportDialog(parent, bug, false);
+			dialog.setVisible(true);
+		} catch (Throwable e1) {
+			System.err.println("Error in exception handler!");
+			e1.printStackTrace();
+		}
 	}
 
 	public String getAppName() {
