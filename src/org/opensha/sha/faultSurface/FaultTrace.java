@@ -216,6 +216,7 @@ public class FaultTrace extends LocationList implements Named {
 		// @formatter:off
 		StringBuffer b = new StringBuffer()
 			.append("Fault Trace: ").append(faultName)
+			.append(IOUtils.LINE_SEPARATOR)
 			.append("       size: ").append(size())
 			.append(IOUtils.LINE_SEPARATOR)
 			.append("Locations: ");
