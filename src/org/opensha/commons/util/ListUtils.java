@@ -31,5 +31,11 @@ public class ListUtils {
 		}
 		return names;
 	}
+	
+	public static <T> ArrayList<T> wrapInList(T object) {
+		ArrayList<T> list = new ArrayList<T>();
+		list.add(object);
+		return list;
+	}
 
 }
