@@ -19,6 +19,7 @@
 
 package org.opensha.commons.data.region;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -30,6 +31,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
 
 /**
  * This wrapper class contains a number of California regions commonly and 
@@ -60,6 +62,7 @@ public class CaliforniaRegions {
 	 * NOTE: This is an alternative version of the RELM_TESTING_GRIDDED region
 	 * below.
 	 */
+	@Deprecated
 	public static final class RELM_GRIDDED extends 
 			GriddedRegion {
 		/** New instance of region. */
@@ -246,6 +249,11 @@ public class CaliforniaRegions {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	public static void main(String[] args) {
+		RegionUtils.regionToKML(new RELM_GRIDDED(), "Relm Gridded", Color.BLUE);
+		RegionUtils.regionToKML(new RELM_TESTING_GRIDDED(), "Relm Testing", Color.RED);
+		
 	}
 
 }
