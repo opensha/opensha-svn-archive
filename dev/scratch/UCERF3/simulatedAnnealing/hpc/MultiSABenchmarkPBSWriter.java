@@ -99,9 +99,9 @@ public class MultiSABenchmarkPBSWriter {
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, heapSizeMB, jars);
 
 		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, aMat, dMat,
-				initialMat, -1, null, dsaCriteria, subCompletion, mpjHome, false);
+				initialMat, null, null, dsaCriteria, subCompletion, mpjHome, false);
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, aMat, dMat,
-				initialMat, -1, null, tsaCriteria, subCompletion);
+				initialMat, null, null, tsaCriteria, subCompletion);
 
 		int[] dsa_threads = { 4, 6, 8 };
 
@@ -137,7 +137,7 @@ public class MultiSABenchmarkPBSWriter {
 
 							dsa_create.setProgFile(new File(runSubDir, name+".csv"));
 							dsa_create.setSolFile(new File(runSubDir, name+".mat"));
-							dsa_create.setNumThreads(dsaThreads);
+							dsa_create.setNumThreads(""+dsaThreads);
 							dsa_create.setCool(cool);
 							if (dSubComp == subCompletion)
 								dsa_create.setDistSubCompletion(null);
@@ -161,7 +161,7 @@ public class MultiSABenchmarkPBSWriter {
 
 					tsa_create.setProgFile(new File(runSubDir, name+".csv"));
 					tsa_create.setSolFile(new File(runSubDir, name+".mat"));
-					tsa_create.setNumThreads(tsaThreads);
+					tsa_create.setNumThreads(""+tsaThreads);
 					tsa_create.setCool(cool);
 					tsa_create.setSubCompletion(subCompletion);
 

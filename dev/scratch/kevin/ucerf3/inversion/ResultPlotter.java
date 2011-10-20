@@ -848,8 +848,15 @@ public class ResultPlotter {
 						c = Color.MAGENTA;
 					else
 						c = Color.PINK;
+					
 					if (name.contains("1thread"))
 						type = PlotLineType.DASHED;
+//					else if (name.contains("4threads"))
+//						c = Color.GREEN;
+					else if (name.contains("6threads"))
+						size += 1;
+					else if (name.contains("8threads"))
+						size += 1;
 				}
 			} else {
 				if (bundleTsaBySubs && name.contains("sub")) {

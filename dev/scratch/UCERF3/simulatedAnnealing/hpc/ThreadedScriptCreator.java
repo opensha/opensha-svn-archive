@@ -25,7 +25,7 @@ public class ThreadedScriptCreator {
 	private File aMat;
 	private File dMat;
 	private File initial;
-	private int numThreads;
+	private String numThreads;
 	private File solFile;
 	private CompletionCriteria criteria;
 	private CompletionCriteria subCompletion;
@@ -38,7 +38,7 @@ public class ThreadedScriptCreator {
 	private boolean setSubIterationsZero = false;
 	
 	public ThreadedScriptCreator(JavaShellScriptWriter writer,
-			File aMat, File dMat, File initial, int numThreads,
+			File aMat, File dMat, File initial, String numThreads,
 			File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion) {
 		this.writer = writer;
 		
@@ -56,7 +56,8 @@ public class ThreadedScriptCreator {
 		Preconditions.checkNotNull(dMat, "d matrix file is required!");
 //		Preconditions.checkNotNull(initial, "initial file is required!"); // no longer required
 		Preconditions.checkNotNull(subCompletion, "subCompletion cannot be null");
-		Preconditions.checkState(numThreads > 0, "numThreads must be > 0");
+		Preconditions.checkNotNull(numThreads, "numThreads cannot be null");
+		Preconditions.checkState(!numThreads.isEmpty(), "numThreads cannot be blank");
 		Preconditions.checkNotNull(solFile, "solution file is required!");
 		String args =	  "--a-matrix-file "+aMat.getAbsolutePath()
 						+" --d-matrix-file "+dMat.getAbsolutePath();
@@ -129,7 +130,7 @@ public class ThreadedScriptCreator {
 		this.subCompletion = subCompletion;
 	}
 
-	public void setNumThreads(int numThreads) {
+	public void setNumThreads(String numThreads) {
 		this.numThreads = numThreads;
 	}
 

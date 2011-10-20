@@ -28,7 +28,7 @@ public class PBSScriptWriter {
 			int annealMins = Integer.parseInt(args[cnt++]);
 			CompletionCriteria subCompletion = ThreadedSimulatedAnnealing.parseSubCompletionCriteria(args[cnt++]);
 			int ppn = Integer.parseInt(args[cnt++]);
-			int numThreads = Integer.parseInt(args[cnt++]);
+			String numThreads = args[cnt++];
 			File dir = new File(args[cnt++]).getCanonicalFile();
 			File aFile = new File(args[cnt++]).getCanonicalFile();
 			File dFile = new File(args[cnt++]).getCanonicalFile();
