@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.opensha.commons.util.ListUtils;
+
 public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 
 	
@@ -515,19 +517,23 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
 		
-		System.out.println(amps.getPeakAmpSites().size() + " sites");
-		System.out.println(amps.getPeakAmpRuns().size() + " runs");
+		ArrayList<CybershakeIM> ims = amps.getIMForPeriods(ListUtils.wrapInList(0.1d), 885, new HazardCurve2DB(db));
+		for (CybershakeIM im : ims)
+			System.out.println(im);
 		
-		System.out.println("Amps for 90, 36? " + amps.hasAmps(90, 36) + " (false!)");
-		System.out.println("Amps for 90, 35? " + amps.hasAmps(90, 35) + " (true!)");
-		System.out.println("Amps for run 1? " + amps.hasAmps(1) + " (false!)");
-		System.out.println("Amps for run 216? " + amps.hasAmps(216) + " (true!)");
-		
-		for (CybershakeIM im : amps.getSupportedIMs()) {
-			System.out.println("IM: " + im);
-		}
-		
-		System.out.println("Count for 216: " + amps.countAmps(216, null));
+//		System.out.println(amps.getPeakAmpSites().size() + " sites");
+//		System.out.println(amps.getPeakAmpRuns().size() + " runs");
+//		
+//		System.out.println("Amps for 90, 36? " + amps.hasAmps(90, 36) + " (false!)");
+//		System.out.println("Amps for 90, 35? " + amps.hasAmps(90, 35) + " (true!)");
+//		System.out.println("Amps for run 1? " + amps.hasAmps(1) + " (false!)");
+//		System.out.println("Amps for run 216? " + amps.hasAmps(216) + " (true!)");
+//		
+//		for (CybershakeIM im : amps.getSupportedIMs()) {
+//			System.out.println("IM: " + im);
+//		}
+//		
+//		System.out.println("Count for 216: " + amps.countAmps(216, null));
 		
 		db.destroy();
 		

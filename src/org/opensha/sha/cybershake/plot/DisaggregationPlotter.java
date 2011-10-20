@@ -213,7 +213,7 @@ public class DisaggregationPlotter {
 	public void disaggregate() throws IOException {
 		for (CybershakeIM im : ims) {
 			double period = im.getVal();
-			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), (int)period);
+			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
 			
 			System.out.println("IMR Metadata: "+imr.getAllParamMetadata());
 			

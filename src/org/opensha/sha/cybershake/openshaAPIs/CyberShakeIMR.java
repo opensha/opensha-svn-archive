@@ -396,14 +396,58 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 	@Override
 	protected void initSupportedIntensityMeasureParams() {
+		
+		// hard coded so that we don't have to retrieve from the DB whenever this IMR is included in an application
 
 		// Create SA Parameter:
 		DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-//		periodConstraint.addDouble(1);
+		
+		periodConstraint.addDouble(0.01);
+		periodConstraint.addDouble(0.1);
+		periodConstraint.addDouble(0.1111111);
+		periodConstraint.addDouble(0.125);
+		periodConstraint.addDouble(0.1428571);
+		periodConstraint.addDouble(0.1666667);
+		periodConstraint.addDouble(0.2);
+		periodConstraint.addDouble(0.2222222);
+		periodConstraint.addDouble(0.25);
+		periodConstraint.addDouble(0.2857143);
+		periodConstraint.addDouble(0.3333333);
+		periodConstraint.addDouble(0.4);
+		periodConstraint.addDouble(0.5);
+		periodConstraint.addDouble(0.6666667);
+		periodConstraint.addDouble(1);
+		periodConstraint.addDouble(1.111111);
+		periodConstraint.addDouble(1.25);
+		periodConstraint.addDouble(1.428571);
+		periodConstraint.addDouble(1.666667);
 		periodConstraint.addDouble(2);
+		periodConstraint.addDouble(2.2);
+		periodConstraint.addDouble(2.4);
+		periodConstraint.addDouble(2.6);
+		periodConstraint.addDouble(2.8);
 		periodConstraint.addDouble(3);
+		periodConstraint.addDouble(3.2);
+		periodConstraint.addDouble(3.4);
+		periodConstraint.addDouble(3.6);
+		periodConstraint.addDouble(3.8);
+		periodConstraint.addDouble(4);
+		periodConstraint.addDouble(4.2);
+		periodConstraint.addDouble(4.4);
+		periodConstraint.addDouble(4.6);
+		periodConstraint.addDouble(4.8);
 		periodConstraint.addDouble(5);
+		periodConstraint.addDouble(5.5);
+		periodConstraint.addDouble(6);
+		periodConstraint.addDouble(6.5);
+		periodConstraint.addDouble(7);
+		periodConstraint.addDouble(7.5);
+		periodConstraint.addDouble(8);
+		periodConstraint.addDouble(8.5);
+		periodConstraint.addDouble(9);
+		periodConstraint.addDouble(9.5);
 		periodConstraint.addDouble(10);
+
 		periodConstraint.setNonEditable();
 		saPeriodParam = new PeriodParam(periodConstraint, 3.0, false);
 		saDampingParam = new DampingParam();
