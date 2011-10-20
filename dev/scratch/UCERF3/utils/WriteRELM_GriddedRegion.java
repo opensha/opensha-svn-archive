@@ -3,6 +3,8 @@ package scratch.UCERF3.utils;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
@@ -15,25 +17,19 @@ public class WriteRELM_GriddedRegion {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
-		CaliforniaRegions.RELM_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_GRIDDED();
-		File file = new File ("dev/scratch/UCERF3/preComputedData/", "RELM_GriddedRegion.txt");
-		FileOutputStream file_output;
+		
+		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 		try {
-			file_output = new FileOutputStream (file);
-			DataOutputStream data_out = new DataOutputStream (file_output);
-			data_out.writeChars("lat\tlon\n");
+			FileWriter fileWriter = new FileWriter(new File("dev/scratch/UCERF3/preComputedData/", "RELM_GriddedRegion.txt"));
+			fileWriter.write("lat\tlon\n");
 			for(int i=0; i<griddedRegion.getNumLocations(); i++) {
 				Location loc = griddedRegion.getLocation(i);
-				String lat = Float.toString((float)loc.getLatitude());
-				String lon = Float.toString((float)loc.getLongitude());
-				data_out.writeChars(lat+"\t"+lon+"\n");
+				fileWriter.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\n");
 			}
-			file_output.close ();
-		} catch (Exception e) {
+			fileWriter.close();
+		} catch (IOException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
-
 
 	}
 

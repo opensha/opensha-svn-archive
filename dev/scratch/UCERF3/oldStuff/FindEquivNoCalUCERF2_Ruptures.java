@@ -1,7 +1,7 @@
 /**
  * 
  */
-package scratch.UCERF3.utils;
+package scratch.UCERF3.oldStuff;
 
 import java.awt.Color;
 import java.io.DataInputStream;

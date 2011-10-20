@@ -31,7 +31,6 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
-import scratch.UCERF3.utils.FindEquivNoCalUCERF2_Ruptures;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
