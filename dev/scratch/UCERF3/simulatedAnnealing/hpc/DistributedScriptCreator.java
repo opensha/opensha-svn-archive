@@ -9,31 +9,33 @@ import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.simulatedAnnealing.DistributedSimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 
 
 public class DistributedScriptCreator extends ThreadedScriptCreator {
 	
-	private int numDistSubIterations = -1;
+	private CompletionCriteria distSubCompletion = null;
 
 	public DistributedScriptCreator(MPJShellScriptWriter mpj, File aMat, File dMat, File initial,
-			int subIterations, int numThreads, File solFile, CompletionCriteria criteria,
+			int numThreads, File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion,
 			File mpjHome, boolean useMxdev) {
-		super(mpj, aMat, dMat, initial, subIterations,
-				numThreads, solFile, criteria);
+		super(mpj, aMat, dMat, initial,
+				numThreads, solFile, criteria, subCompletion);
 		Preconditions.checkNotNull(mpjHome, "MPJ_HOME cannot be null!");
 	}
 
-	public void setNumDistSubIterations(int numDistSubIterations) {
-		this.numDistSubIterations = numDistSubIterations;
+	public void setDistSubCompletion(CompletionCriteria distSubCompletion) {
+		this.distSubCompletion = distSubCompletion;
 	}
 
 	@Override
 	String getArgs() {
 		String args = super.getArgs();
 		
-		if (numDistSubIterations > 0) {
-			args += " --dist-sub-iterations "+numDistSubIterations;
+		if (distSubCompletion != null) {
+			args += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(
+					"dist-sub-completion", distSubCompletion);
 		}
 		
 		return args;

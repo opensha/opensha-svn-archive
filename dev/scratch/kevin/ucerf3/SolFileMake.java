@@ -7,8 +7,10 @@ import java.util.Arrays;
 import org.apache.commons.math.stat.StatUtils;
 import org.dom4j.DocumentException;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.MatrixIO;
 
 public class SolFileMake {
@@ -19,9 +21,13 @@ public class SolFileMake {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws DocumentException, IOException {
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/2011_09_08-morgan-CS_fixed");
-		File rupSetFile = new File(dir, "rupSet.xml");
-		File binFile = new File(dir, "run1.mat");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/2011_10_17-morgan-ncal2");
+		
+//		File rupSetFile = new File(dir, "rupSet.xml");
+//		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromXMLFile(rupSetFile);
+		FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
+		
+		File binFile = new File(dir, "dsa_4threads_10nodes_FAST_SA_dSub200_sub200_run0.mat");
 		File outputFile = new File(dir, dir.getName()+".zip");
 		
 		double[] rupRateSolution = MatrixIO.doubleArrayFromFile(binFile);
@@ -46,7 +52,6 @@ public class SolFileMake {
 //		System.out.println("std dev: "+Math.sqrt(var));
 //		System.exit(0);
 		
-		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromXMLFile(rupSetFile);
 		SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rupRateSolution);
 		
 		sol.toZipFile(outputFile);

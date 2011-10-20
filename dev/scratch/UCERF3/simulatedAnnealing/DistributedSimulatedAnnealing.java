@@ -31,7 +31,7 @@ public class DistributedSimulatedAnnealing {
 
 	private CompletionCriteria criteria;
 	
-	private long subIterations;
+	private CompletionCriteria subCompletion;
 	
 	private boolean startSubIterationsAtZero;
 
@@ -47,7 +47,7 @@ public class DistributedSimulatedAnnealing {
 	private StopWatch totWatch;
 	private StopWatch commWatch;
 
-	public DistributedSimulatedAnnealing(CompletionCriteria criteria, long subIterations,
+	public DistributedSimulatedAnnealing(CompletionCriteria criteria, CompletionCriteria subCompletion,
 			boolean startSubIterationsAtZero,
 			SimulatedAnnealing annealer) {
 		rank = MPI.COMM_WORLD.Rank();
@@ -58,7 +58,7 @@ public class DistributedSimulatedAnnealing {
 		this.annealer = annealer;
 		this.criteria = criteria;
 		
-		this.subIterations = subIterations;
+		this.subCompletion = subCompletion;
 		this.startSubIterationsAtZero = startSubIterationsAtZero;
 		
 		debug("constructor end");
@@ -130,6 +130,7 @@ public class DistributedSimulatedAnnealing {
 		watch.start();
 		
 		double[] pool_double_buf = new double[size];
+		long[] pool_long_buf = new long[size];
 		boolean[] pool_boolean_buf = new boolean[size];
 		
 		double Ebest = Double.MAX_VALUE;
@@ -139,30 +140,31 @@ public class DistributedSimulatedAnnealing {
 		while (!criteria.isSatisfied(watch, iter, Ebest)) {
 			debug("starting loop "+cnt+", iter: "+iter);
 			
-			// send num and start interations
-			debug("sending num iterations");
-			if (D) commWatch = new StopWatch();
-			if (D) commWatch.start();
-			bcastSingleLong(subIterations);
-			if (D) commWatch.suspend();
 			long startIter;
 			if (startSubIterationsAtZero)
 				startIter = 0;
 			else
 				startIter = iter;
 			debug("sending start iteration");
-			if (D) commWatch.resume();
+			if (D) commWatch = new StopWatch();
+			if (D) commWatch.start();
 			bcastSingleLong(startIter);
 			if (D) commWatch.suspend();
 			
 			// do work yourself
-			doWork(startIter, new IterationCompletionCriteria(startIter+subIterations));
+			iter = doWork(startIter, subCompletion);
 			
 			single_double_buf[0] = annealer.getBestEnergy();
 			debug("my best energy: "+single_double_buf[0]);
 			debug("gathering best energy");
 			if (D) commWatch.resume();
 			MPI.COMM_WORLD.Gather(single_double_buf, 0, 1, MPI.DOUBLE, pool_double_buf, 0, 1, MPI.DOUBLE, 0);
+			if (D) commWatch.suspend();
+			
+			debug("gathering iterations");
+			single_long_buf[0] = iter;
+			if (D) commWatch.resume();
+			MPI.COMM_WORLD.Gather(single_long_buf, 0, 1, MPI.LONG, pool_long_buf, 0, 1, MPI.LONG, 0);
 			if (D) commWatch.suspend();
 			
 			int bestRank = 0;
@@ -174,6 +176,8 @@ public class DistributedSimulatedAnnealing {
 					Ebest = energy;
 					bestRank = i;
 				}
+				if (pool_long_buf[i] > iter)
+					iter = pool_long_buf[i];
 			}
 			
 			debug("Process "+bestRank+" has best solution with energy: "+Ebest);
@@ -217,7 +221,8 @@ public class DistributedSimulatedAnnealing {
 			annealer.setResults(Ebest, solution);
 			
 			cnt++;
-			iter += subIterations;
+			// this is now done above
+//			iter += subIterations;
 		}
 		
 		if (D) commWatch.resume();
@@ -229,7 +234,8 @@ public class DistributedSimulatedAnnealing {
 		debug("DONE");
 	}
 	
-	private void doWork(long startIter, CompletionCriteria criteria) {
+	private long doWork(long startIter, CompletionCriteria criteria) {
+		criteria = ThreadedSimulatedAnnealing.getForStartIter(startIter, criteria);
 		debug("starting my annealing. start Ebest: "+annealer.getBestEnergy()+
 				", startIter: "+startIter+", criteria: "+criteria);
 		if (workWatch == null) {
@@ -238,9 +244,10 @@ public class DistributedSimulatedAnnealing {
 		} else {
 			workWatch.resume();
 		}
-		annealer.iterate(startIter, criteria);
+		long iter = annealer.iterate(startIter, criteria);
 		workWatch.suspend();
 		debug("done with my annealing. Ebest: "+annealer.getBestEnergy());
+		return iter;
 	}
 
 	private long getBcastLong() {
@@ -251,27 +258,24 @@ public class DistributedSimulatedAnnealing {
 	}
 
 	private void runWorker() {
-		debug("getting num iterations");
-		long numIterations = getBcastLong();
-		while (numIterations != WORK_DONE) {
-			debug("getting start iteration");
-			if (D) commWatch = new StopWatch();
-			if (D) commWatch.start();
-			long startIter = getBcastLong();
-			if (D) commWatch.suspend();
+		debug("getting start iteration");
+		if (D) commWatch = new StopWatch();
+		if (D) commWatch.start();
+		long startIter = getBcastLong();
+		if (D) commWatch.suspend();
+		while (startIter != WORK_DONE) {
+			long iter = doWork(startIter, subCompletion);
 
-			doWork(startIter, new IterationCompletionCriteria(startIter+numIterations));
-
-			reportResults();
+			reportResults(iter);
 			
 			fetchSolution();
 
 			debug("getting num iterations");
-			numIterations = getBcastLong();
+			startIter = getBcastLong();
 		}
 	}
 
-	private void reportResults() {
+	private void reportResults(long iter) {
 		// send energy
 		single_double_buf[0] = annealer.getBestEnergy();
 		debug("sending my best energy ("+single_double_buf[0]+")");
@@ -279,6 +283,13 @@ public class DistributedSimulatedAnnealing {
 		MPI.COMM_WORLD.Gather(single_double_buf, 0, 1, MPI.DOUBLE, null, 0, 1, MPI.DOUBLE, 0);
 		if (D) commWatch.suspend();
 //		MPI.COMM_WORLD.Send(single_double_buf, 0, 1, MPI.DOUBLE, 0, TAG_ENGERGY);
+		
+		// send max iteration
+		single_long_buf[0] = iter;
+		debug("sending my best energy ("+single_double_buf[0]+")");
+		if (D) commWatch.resume();
+		MPI.COMM_WORLD.Gather(single_long_buf, 0, 1, MPI.LONG, null, 0, 1, MPI.LONG, 0);
+		if (D) commWatch.suspend();
 
 		// find out if we should send result
 		debug("checking if i should send my result");
@@ -325,7 +336,7 @@ public class DistributedSimulatedAnnealing {
 	public static Options createOptions() {
 		Options options = ThreadedSimulatedAnnealing.createOptions();
 		
-		Option dsubIterOption = new Option("ds", "dist-sub-iterations", true,
+		Option dsubIterOption = new Option("ds", "dist-sub-completion", true,
 				"number of distributed sub iterations (optional...defaults to subIterations)");
 		dsubIterOption.setRequired(false);
 		options.addOption(dsubIterOption);
@@ -337,13 +348,14 @@ public class DistributedSimulatedAnnealing {
 		ThreadedSimulatedAnnealing annealer = ThreadedSimulatedAnnealing.parseOptions(cmd);
 		CompletionCriteria criteria = ThreadedSimulatedAnnealing.parseCompletionCriteria(cmd);
 		
-		int numSubIterations;
-		if (cmd.hasOption("dist-sub-iterations"))
-			numSubIterations = Integer.parseInt(cmd.getOptionValue("dist-sub-iterations"));
+		CompletionCriteria subCompletion;
+		if (cmd.hasOption("dist-sub-completion"))
+			subCompletion = ThreadedSimulatedAnnealing.parseSubCompletionCriteria(
+					cmd.getOptionValue("dist-sub-completion"));
 		else
-			numSubIterations = annealer.getNumSubIterations();
+			subCompletion = annealer.getSubCompetionCriteria();
 		
-		return new DistributedSimulatedAnnealing(criteria, numSubIterations,
+		return new DistributedSimulatedAnnealing(criteria, subCompletion,
 				annealer.isStartSubIterationsAtZero(), annealer);
 	}
 	

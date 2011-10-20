@@ -23,6 +23,11 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 		pbs.add(dashL);
 		pbs.add("#PBS -V");
 		pbs.add("");
+		pbs.add("NEW_NODEFILE=\"/tmp/${USER}-hostfile-${PBS_JOBID}\"");
+		pbs.add("echo \"creating PBS_NODEFILE: $NEW_NODEFILE\"");
+		pbs.add("cat $PBS_NODEFILE | sort | uniq > $NEW_NODEFILE");
+		pbs.add("export PBS_NODEFILE=$NEW_NODEFILE");
+		pbs.add("");
 		
 		return pbs;
 	}

@@ -30,10 +30,10 @@ public interface SimulatedAnnealing {
 
 	public void setResults(double Ebest, double[] xbest);
 
-	public void iterate(long numIterations);
+	public long iterate(long numIterations);
 
-	public void iterate(CompletionCriteria completion);
+	public long iterate(CompletionCriteria completion);
 
-	public void iterate(long startIter, CompletionCriteria criteria);
+	public long iterate(long startIter, CompletionCriteria criteria);
 
 }

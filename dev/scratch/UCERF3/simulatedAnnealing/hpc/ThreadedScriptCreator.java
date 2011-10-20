@@ -25,10 +25,10 @@ public class ThreadedScriptCreator {
 	private File aMat;
 	private File dMat;
 	private File initial;
-	private int subIterations;
 	private int numThreads;
 	private File solFile;
 	private CompletionCriteria criteria;
+	private CompletionCriteria subCompletion;
 	
 	// optional -- args
 	private File progFile;
@@ -38,36 +38,37 @@ public class ThreadedScriptCreator {
 	private boolean setSubIterationsZero = false;
 	
 	public ThreadedScriptCreator(JavaShellScriptWriter writer,
-			File aMat, File dMat, File initial, int subIterations, int numThreads,
-			File solFile, CompletionCriteria criteria) {
+			File aMat, File dMat, File initial, int numThreads,
+			File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion) {
 		this.writer = writer;
 		
 		this.aMat = aMat;
 		this.dMat = dMat;
 		this.initial = initial;
-		this.subIterations = subIterations;
 		this.numThreads = numThreads;
 		this.solFile = solFile;
 		this.criteria = criteria;
+		this.subCompletion = subCompletion;
 	}
 	
 	String getArgs() {
 		Preconditions.checkNotNull(aMat, "A matrix file is required!");
 		Preconditions.checkNotNull(dMat, "d matrix file is required!");
 //		Preconditions.checkNotNull(initial, "initial file is required!"); // no longer required
-		Preconditions.checkState(subIterations > 0, "subIterations must be > 0");
+		Preconditions.checkNotNull(subCompletion, "subCompletion cannot be null");
 		Preconditions.checkState(numThreads > 0, "numThreads must be > 0");
 		Preconditions.checkNotNull(solFile, "solution file is required!");
 		String args =	  "--a-matrix-file "+aMat.getAbsolutePath()
 						+" --d-matrix-file "+dMat.getAbsolutePath();
 		if (initial != null)
 			args	+=	 " --initial-state-file "+initial.getAbsolutePath();
-		args		+=	 " --sub-iterations "+subIterations
-						+" --num-threads "+numThreads
+		args		+=	 " --num-threads "+numThreads
 						+" --solution-file "+solFile.getAbsolutePath();
 		
 		Preconditions.checkNotNull(criteria, "Criteria cannot be null!");
 		args += " "+ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
+		Preconditions.checkNotNull(subCompletion, "subCompletion cannot be null!");
+		args += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
 		
 		if (progFile != null)
 			args +=		 " --progress-file "+progFile.getAbsolutePath();
@@ -124,8 +125,8 @@ public class ThreadedScriptCreator {
 		this.initial = initial;
 	}
 
-	public void setSubIterations(int subIterations) {
-		this.subIterations = subIterations;
+	public void setSubCompletion(CompletionCriteria subCompletion) {
+		this.subCompletion = subCompletion;
 	}
 
 	public void setNumThreads(int numThreads) {

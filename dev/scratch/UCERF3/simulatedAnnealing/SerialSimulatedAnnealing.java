@@ -31,7 +31,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 	protected static final String XML_METADATA_NAME = "SimulatedAnnealing";
 
-	protected final static boolean D = true;  // for debugging
+	protected final static boolean D = false;  // for debugging
 
 	private static CoolingScheduleType COOLING_FUNC_DEFAULT = CoolingScheduleType.VERYFAST_SA;
 	private CoolingScheduleType coolingFunc = COOLING_FUNC_DEFAULT;
@@ -41,7 +41,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private NonnegativityConstraintType nonnegativeityConstraintAlgorithm = NONNEGATIVITY_CONST_DEFAULT;
 	
 	private static GenerationFunctionType PERTURB_FUNC_DEFAULT = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
-	private GenerationFunctionType perturbationFunc = PERTURB_FUNC_DEFAULT;;
+	private GenerationFunctionType perturbationFunc = PERTURB_FUNC_DEFAULT;
 	
 	private DoubleMatrix2D A;
 	private double[] d;
@@ -163,17 +163,17 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	@Override
-	public synchronized void iterate(long numIterations) {
-		iterate(new IterationCompletionCriteria(numIterations));
+	public synchronized long iterate(long numIterations) {
+		return iterate(new IterationCompletionCriteria(numIterations));
 	}
 	
 	@Override
-	public synchronized void iterate(CompletionCriteria completion) {
-		iterate(0, completion);
+	public synchronized long iterate(CompletionCriteria completion) {
+		return iterate(0, completion);
 	}
 
 	@Override
-	public synchronized void iterate(long startIter, CompletionCriteria criteria) {
+	public synchronized long iterate(long startIter, CompletionCriteria criteria) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -191,7 +191,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		double E = Ebest;
 		double T;
 
-		while (!criteria.isSatisfied(watch, iter, Ebest)) {
+		// we do iter-1 because iter here is 1-based, not 0-based
+		while (!criteria.isSatisfied(watch, iter-1, Ebest)) {
 
 			// Find current simulated annealing "temperature" based on chosen cooling schedule
 			switch (coolingFunc) {
@@ -282,6 +283,9 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			double runSecs = watch.getTime() / 1000d;
 			System.out.println("Done with Inversion after " + runSecs + " seconds.");
 		}
+		
+		// we added one to it before, remove it to make it zero-based
+		return iter-1;
 	}
 
 	private double getPerturbation(GenerationFunctionType perturbationFunc, double T) {

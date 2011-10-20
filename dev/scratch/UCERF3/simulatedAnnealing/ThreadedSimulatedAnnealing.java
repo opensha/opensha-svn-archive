@@ -37,7 +37,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
-	private int numSubIterations;
+	private CompletionCriteria subCompetionCriteria;
 	private boolean startSubIterationsAtZero;
 	
 	private int numThreads;
@@ -48,22 +48,22 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
-			int numThreads, int numSubIterations) {
+			int numThreads, CompletionCriteria subCompetionCriteria) {
 		// SA inputs are checked in SA constructor, no need to dupliate checks
 		
 		Preconditions.checkArgument(numThreads > 0, "numThreads must be > 0");
-		Preconditions.checkArgument(numSubIterations > 0, "numSubIterations must be > 0");
+		Preconditions.checkNotNull(subCompetionCriteria, "subCompetionCriteria cannot be null");
 		
 		this.numThreads = numThreads;
-		this.numSubIterations = numSubIterations;
+		this.subCompetionCriteria = subCompetionCriteria;
 		
 		sas = new ArrayList<SerialSimulatedAnnealing>();
 		for (int i=0; i<numThreads; i++)
 			sas.add(new SerialSimulatedAnnealing(A, d, initialState));
 	}
 	
-	public int getNumSubIterations() {
-		return numSubIterations;
+	public CompletionCriteria getSubCompetionCriteria() {
+		return subCompetionCriteria;
 	}
 	
 	public boolean isStartSubIterationsAtZero() {
@@ -74,20 +74,29 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		this.startSubIterationsAtZero = startSubIterationsAtZero;
 	}
 	
+	protected static CompletionCriteria getForStartIter(long startIter, CompletionCriteria subComp) {
+		if (subComp instanceof IterationCompletionCriteria) {
+			long iters = ((IterationCompletionCriteria)subComp).getMinIterations();
+			subComp = new IterationCompletionCriteria(startIter + iters);
+		}
+		return subComp;
+	}
+	
 	private class SAThread extends Thread {
 		private SimulatedAnnealing sa;
-		private long numSubIterations;
+		private CompletionCriteria subComp;
 		private long startIter;
+		private long endIter;
 		
-		public SAThread(SimulatedAnnealing sa, long startIter, long numSubIterations) {
+		public SAThread(SimulatedAnnealing sa, long startIter, CompletionCriteria subComp) {
 			this.sa = sa;
-			this.numSubIterations = numSubIterations;
+			this.subComp = subComp;
 			this.startIter = startIter;
 		}
 		
 		@Override
 		public void run() {
-			sa.iterate(startIter, new IterationCompletionCriteria(startIter+numSubIterations));
+			endIter = sa.iterate(startIter, getForStartIter(startIter, subComp));
 		}
 	}
 
@@ -153,19 +162,19 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	}
 
 	@Override
-	public void iterate(long numIterations) {
-		iterate(0l, new IterationCompletionCriteria(numIterations));
+	public long iterate(long numIterations) {
+		return iterate(0l, new IterationCompletionCriteria(numIterations));
 	}
 
 	@Override
-	public void iterate(CompletionCriteria completion) {
-		iterate(0l, completion);
+	public long iterate(CompletionCriteria completion) {
+		return iterate(0l, completion);
 	}
 
 	@Override
-	public void iterate(long startIter, CompletionCriteria criteria) {
+	public long iterate(long startIter, CompletionCriteria criteria) {
 		if (D) System.out.println("Threaded Simulated Annealing starting with "+numThreads
-				+" threads, "+criteria+", "+numSubIterations+" sub iterations");
+				+" threads, "+criteria+", SUB: "+subCompetionCriteria);
 		
 		StopWatch watch = new StopWatch();
 		watch.start();
@@ -182,7 +191,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 					start = 0l;
 				else
 					start = iter;
-				threads.add(new SAThread(sas.get(i), start, numSubIterations));
+				threads.add(new SAThread(sas.get(i), start, subCompetionCriteria));
 			}
 			
 			// start the threads
@@ -206,10 +215,16 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 					Ebest = E;
 					xbest = sa.getBestSolution();
 				}
+				
+				// now set the current iteration count to the max iteration acheived
+				long endIter = threads.get(i).endIter;
+				if (endIter > iter)
+					iter = endIter;
 			}
 			
 			rounds++;
-			iter += numSubIterations;
+			// this is now done in the loop above
+//			iter += numSubIterations;
 			
 			if (D) {
 				double secs = watch.getTime() / 1000d;
@@ -231,6 +246,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			System.out.println("Total Iterations: "+iter);
 			System.out.println("Best energy: "+Ebest);
 		}
+		
+		return iter;
 	}
 	
 	protected static Options createOptions() {
@@ -245,11 +262,13 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		dMatrix.setRequired(true);
 		ops.addOption(dMatrix);
 		
-		Option subItOption = new Option("s", "sub-iterations", true, "number of sub iterations");
-		subItOption.setRequired(true);
-		ops.addOption(subItOption);
+		Option subOption = new Option("s", "sub-completion", true, "number of sub iterations. Optionally, append 's'" +
+		" to specify in seconds or 'm' to specify in minutes instead of iterations.");
+		subOption.setRequired(true);
+		ops.addOption(subOption);
 		
-		Option numThreadsOption = new Option("t", "num-threads", true, "number of threads");
+		Option numThreadsOption = new Option("t", "num-threads", true, "number of threads (percentage of available" +
+				" can also be specified, for example, '50%')");
 		numThreadsOption.setRequired(true);
 		ops.addOption(numThreadsOption);
 		
@@ -287,6 +306,23 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		ops.addOption(subIterationsStartOption);
 		
 		return ops;
+	}
+	
+	public static String subCompletionCriteriaToArgument(CompletionCriteria subCompletion) {
+		return subCompletionCriteriaToArgument("sub-completion", subCompletion);
+	}
+	
+	public static String subCompletionCriteriaToArgument(String argName, CompletionCriteria subCompletion) {
+		return "--"+argName+" "+subCompletionArgVal(subCompletion);
+	}
+	
+	public static String subCompletionArgVal(CompletionCriteria subCompletion) {
+		if (subCompletion instanceof IterationCompletionCriteria)
+			return ""+((IterationCompletionCriteria)subCompletion).getMinIterations();
+		else if (subCompletion instanceof TimeCompletionCriteria)
+			return ((TimeCompletionCriteria)subCompletion).getTimeStr();
+		else
+			throw new UnsupportedOperationException("Can't create command line argument for: "+subCompletion);
 	}
 	
 	public static String completionCriteriaToArgument(CompletionCriteria criteria) {
@@ -351,6 +387,28 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		return criteria;
 	}
 	
+	public static CompletionCriteria parseSubCompletionCriteria(String optionVal) {
+		if (optionVal.endsWith("s") || optionVal.endsWith("m") || optionVal.endsWith("h")) {
+			return TimeCompletionCriteria.fromTimeString(optionVal);
+		}
+		return new IterationCompletionCriteria(Long.parseLong(optionVal));
+	}
+	
+	public static int parseNumThreads(String threadsVal) {
+		if (threadsVal.endsWith("%")) {
+			threadsVal = threadsVal.substring(0, threadsVal.length()-1);
+			double threadPercent = Double.parseDouble(threadsVal);
+			int avail = Runtime.getRuntime().availableProcessors();
+			double threadDouble = avail * threadPercent * 0.01;
+			int numThreads = (int)(threadDouble + 0.5);
+			System.out.println("Percentage based threads..."+threadsVal+"% of "+avail+" = "
+					+threadDouble+" = "+numThreads);
+			
+			return numThreads < 1 ? 1 : numThreads;
+		}
+		return Integer.parseInt(threadsVal);
+	}
+	
 	public static ThreadedSimulatedAnnealing parseOptions(CommandLine cmd) throws IOException {
 		File aFile = new File(cmd.getOptionValue("a"));
 		if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
@@ -369,11 +427,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			initialState = new double[A.columns()]; // use default initial state of all zeros
 		}
 		
-		int numSubIterations = Integer.parseInt(cmd.getOptionValue("s"));
+		CompletionCriteria subCompletionCriteria = parseSubCompletionCriteria(cmd.getOptionValue("s"));
 		
-		int numThreads = Integer.parseInt(cmd.getOptionValue("t"));
+		int numThreads = parseNumThreads(cmd.getOptionValue("t"));
 		
-		ThreadedSimulatedAnnealing tsa = new ThreadedSimulatedAnnealing(A, d, initialState, numThreads, numSubIterations);
+		ThreadedSimulatedAnnealing tsa =
+			new ThreadedSimulatedAnnealing(A, d, initialState, numThreads, subCompletionCriteria);
 		
 		for (SerialSimulatedAnnealing sa : tsa.sas)
 			sa.setCalculationParamsFromOptions(cmd);

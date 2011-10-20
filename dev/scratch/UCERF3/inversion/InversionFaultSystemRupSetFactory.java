@@ -68,29 +68,24 @@ import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
  * @author Kevin
  *
  */
-public class InversionFaultSystemRupSetFactory {
+public enum InversionFaultSystemRupSetFactory {
+	
+	NCAL_SMALL("NCAL_SMALL.zip", DefModName.UCERF2_NCAL,
+				45, SlipModelType.TAPERED_SLIP_MODEL),
+	
+	NCAL_SMALL_UNIFORM("NCAL_SMALL_UNIFORM.zip", DefModName.UCERF2_NCAL,
+				45, SlipModelType.UNIFORM_SLIP_MODEL),
+	
+	NCAL("NCAL.zip", DefModName.UCERF2_NCAL,
+				90, SlipModelType.TAPERED_SLIP_MODEL),
+	
+	ALLCAL_SMALL("ALLCAL_SMALL.zip", DefModName.UCERF2_ALL,
+				45, SlipModelType.TAPERED_SLIP_MODEL),
+	
+	ALLCAL("ALLCAL.zip", DefModName.UCERF2_ALL,
+				90, SlipModelType.TAPERED_SLIP_MODEL);
 	
 	private static final boolean D = true;
-	
-	public static InversionFaultSystemRupSetFactory NCAL_SMALL =
-		new InversionFaultSystemRupSetFactory("NCAL_SMALL.zip", DefModName.UCERF2_NCAL,
-				45, SlipModelType.TAPERED_SLIP_MODEL);
-	
-	public static InversionFaultSystemRupSetFactory NCAL_SMALL_UNIFORM =
-		new InversionFaultSystemRupSetFactory("NCAL_SMALL_UNIFORM.zip", DefModName.UCERF2_NCAL,
-				45, SlipModelType.UNIFORM_SLIP_MODEL);
-	
-	public static InversionFaultSystemRupSetFactory NCAL =
-		new InversionFaultSystemRupSetFactory("NCAL.zip", DefModName.UCERF2_NCAL,
-				90, SlipModelType.TAPERED_SLIP_MODEL);
-	
-	public static InversionFaultSystemRupSetFactory ALLCAL_SMALL =
-		new InversionFaultSystemRupSetFactory("ALLCAL_SMALL.zip", DefModName.UCERF2_ALL,
-				45, SlipModelType.TAPERED_SLIP_MODEL);
-	
-	public static InversionFaultSystemRupSetFactory ALLCAL =
-		new InversionFaultSystemRupSetFactory("ALLCAL.zip", DefModName.UCERF2_ALL,
-				90, SlipModelType.TAPERED_SLIP_MODEL);
 	
 	private String fileName;
 	
@@ -144,6 +139,10 @@ public class InversionFaultSystemRupSetFactory {
 	 */
 	public FaultSystemRupSet getRupSet() throws IOException, DocumentException {
 		return getRupSet(false);
+	}
+	
+	public void setStoreDir(File dir) {
+		this.dir = dir;
 	}
 	
 	/**
