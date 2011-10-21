@@ -81,7 +81,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @author Ned Field
  *
  */
-public class ModMeanUCERF2 extends AbstractERF<ProbEqkSource> {
+public class ModMeanUCERF2 extends AbstractERF {
 	//for Debug purposes
 	protected static String  C = new String("MeanUCERF2 Modified");
 	protected boolean D = true;

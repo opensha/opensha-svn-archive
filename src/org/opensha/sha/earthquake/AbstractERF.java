@@ -46,8 +46,8 @@ import org.opensha.sha.util.TectonicRegionType;
  * @author Ned Field
  * @version $Id$
  */
-public abstract class AbstractERF<T extends ProbEqkSource> implements
-		ERF<T>,
+public abstract class AbstractERF implements
+		ERF,
 		TimeSpanChangeListener,
 		ParameterChangeListener,
 		XMLSaveable {
@@ -280,7 +280,7 @@ public abstract class AbstractERF<T extends ProbEqkSource> implements
 	 * This draws a random event set.  Non-poisson sources are not yet implemented
 	 * @return
 	 */
-	public List<EqkRupture> drawRandomEventSet() {
+	public ArrayList<EqkRupture> drawRandomEventSet() {
 		ArrayList<EqkRupture> rupList = new ArrayList<EqkRupture>();
 		for(int s=0; s<this.getNumSources(); s++)
 			rupList.addAll(getSource(s).drawRandomEqkRuptures());
@@ -305,7 +305,7 @@ public abstract class AbstractERF<T extends ProbEqkSource> implements
 	}
 	
 	@Override
-	public Iterator<T> iterator() {
+	public Iterator<ProbEqkSource> iterator() {
 		return getSourceList().iterator();
 	}
 

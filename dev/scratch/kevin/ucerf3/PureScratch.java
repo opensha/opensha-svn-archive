@@ -40,7 +40,7 @@ public class PureScratch {
 		
 		if (doUCERF2) {
 			System.out.println("Creating UCERF2");
-			ERF<ProbEqkSource> erf = new MeanUCERF2();
+			ERF erf = new MeanUCERF2();
 			erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
 			erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 			erf.getTimeSpan().setDuration(1, TimeSpan.YEARS);
