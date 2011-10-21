@@ -3,6 +3,7 @@
  */
 package scratch.pagem;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -39,7 +40,7 @@ public class MeanUCERF2_RandomEvents {
 		meanUCERF2.getTimeSpan().setDuration(3000.0);
 		meanUCERF2.updateForecast();
 //		for(int i=0;i<5;i++) {
-			ArrayList<EqkRupture> rupList = meanUCERF2.drawRandomEventSet();
+			List<EqkRupture> rupList = meanUCERF2.drawRandomEventSet();
 			System.out.println("Num Random Events ="+rupList.size());			
 //		}
 		
