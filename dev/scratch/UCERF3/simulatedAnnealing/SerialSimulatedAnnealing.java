@@ -31,7 +31,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 	protected static final String XML_METADATA_NAME = "SimulatedAnnealing";
 
-	protected final static boolean D = false;  // for debugging
+	protected final static boolean D = true;  // for debugging
 
 	private static CoolingScheduleType COOLING_FUNC_DEFAULT = CoolingScheduleType.VERYFAST_SA;
 	private CoolingScheduleType coolingFunc = COOLING_FUNC_DEFAULT;
