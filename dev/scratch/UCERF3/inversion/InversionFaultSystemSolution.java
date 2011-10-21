@@ -60,11 +60,12 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	FaultSystemRupSet faultSystemRupSet;
 	boolean weightSlipRates;
-	double relativeSegRateWt, relativeMagDistWt, relativeRupRateConstraintWt;
+	double relativeSegRateWt, relativeMagDistWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt;
 	int numIterations;
 	ArrayList<SegRateConstraint> segRateConstraints;
 	
 	double[] aPrioriRupConstraint;
+	double[] minimizationConstraint;
 	double[] initialRupModel;
 		
 	ArrayList<MFD_InversionConstraint> mfdConstraints;
@@ -79,27 +80,31 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param relativeSegRateWt
 	 * @param relativeMagDistWt
 	 * @param relativeRupRateConstraintWt
+	 * @param relativeMinimizationConstraintWt
 	 * @param numIterations
 	 * @param segRateConstraints
 	 * @param aPrioriRupConstraint
 	 * @param initialRupModel
 	 * @param mfdConstraints
+	 * @param minimizationConstraint
 	 */
 	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, boolean weightSlipRates, double relativeSegRateWt, 
-			double relativeMagDistWt, double relativeRupRateConstraintWt, int numIterations,
+			double relativeMagDistWt, double relativeRupRateConstraintWt, double relativeMinimizationConstraintWt, int numIterations,
 			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint,
-			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints) {
+			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints, double[] minimizationConstraint) {
 		super(faultSystemRupSet, null);
 		this.faultSystemRupSet=faultSystemRupSet;
 		this.weightSlipRates=weightSlipRates;
 		this.relativeSegRateWt=relativeSegRateWt;
 		this.relativeMagDistWt=relativeMagDistWt;
 		this.relativeRupRateConstraintWt=relativeRupRateConstraintWt;
+		this.relativeMinimizationConstraintWt=relativeMinimizationConstraintWt;
 		this.numIterations=numIterations;
 		this.segRateConstraints=segRateConstraints;
 		this.aPrioriRupConstraint=aPrioriRupConstraint;
 		this.initialRupModel=initialRupModel;
 		this.mfdConstraints=mfdConstraints;
+		this.minimizationConstraint=minimizationConstraint;
 		
 		doInversion();
 	}
@@ -125,8 +130,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
 		if(D) System.out.println("Number of segment-rate constraints: " + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size());
 		if(D) System.out.println("Number of rupture-rate constraints: " + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures);
+		if(D) System.out.println("Number of minimization constraints: " + (int)Math.signum(relativeMinimizationConstraintWt)*numRuptures);
 		int numRows = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + 
-				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
+				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures + (int)Math.signum(relativeMinimizationConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (relativeMagDistWt > 0.0) {
 			// RIGHT NOW THIS ASSUMES THE MAGNITUDE CONSTRAINT WEIGHT MUST BE THE SAME FOR ALL MAG-DIST CONSTRAINTS
@@ -263,9 +269,27 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				numNonZeroElements++; rowIndex++;
 			}
 			runTime = System.currentTimeMillis()-startTime;
-			if(D) System.out.println("Adding MFD Constraints took " + (runTime/1000.) + " seconds.");
+			if(D) System.out.println("Adding rupture-rate Constraints took " + (runTime/1000.) + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
+		
+		
+		// Penalize Ruptures with small Coulomb weights
+		if (relativeMinimizationConstraintWt > 0.0) {
+			startTime = System.currentTimeMillis();
+			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
+			numNonZeroElements = 0;
+			for(int rup=0; rup<numRuptures; rup++) {
+				A.set(rowIndex,rup,relativeMinimizationConstraintWt*minimizationConstraint[rup]);
+				d[rowIndex]=0;
+				numNonZeroElements++; rowIndex++;
+			}
+			runTime = System.currentTimeMillis()-startTime;
+			if(D) System.out.println("Adding Minimization Constraints took " + (runTime/1000.) + " seconds.");
+			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
+		}
+		
+		
 		
 		
 		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)

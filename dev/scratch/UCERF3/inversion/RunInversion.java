@@ -1,6 +1,11 @@
 package scratch.UCERF3.inversion;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +50,11 @@ public class RunInversion {
 
 	protected final static boolean D = true;  // for debugging
 	
+	public enum CoulombWeightType {
+		MEAN_SIGMA,
+		WEAKEST_LINK;
+	}
+	
 	FaultSystemRupSet faultSystemRupSet;
 	private InversionFaultSystemSolution inversion;
 
@@ -55,7 +65,7 @@ public class RunInversion {
 	private static FaultSystemRupSet buildRupSet(File precomputedDataDir) {
 		// the InversionFaultSystemRupSet parameters
 		double maxJumpDist = 5.0;
-		double maxAzimuthChange = 45;
+		double maxAzimuthChange = 90;
 		double maxTotAzimuthChange = 90;
 		double maxRakeDiff = 90;
 		int minNumSectInRup = 2;
@@ -84,10 +94,10 @@ public class RunInversion {
 		long startTime = System.currentTimeMillis();
 		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
-				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);		
+				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	
 /*		SimpleFaultSystemRupSet invFaultSystemRupSet;
 		try {
-			invFaultSystemRupSet = SimpleFaultSystemRupSet.fromZipFile(new File("/Users/pagem/Desktop/models/NCAL.zip"));
+			invFaultSystemRupSet = SimpleFaultSystemRupSet.fromZipFile(new File("/Users/pagem/Desktop/models/NCAL_SMALL.zip"));
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -110,7 +120,7 @@ public class RunInversion {
 		
 /*		// save to zip file
 		if (D) System.out.print("Saving RupSet to zip file...");
-		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"DeathValley.zip");
+		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_UNIFORM.zip");
 		try {
 			new SimpleFaultSystemRupSet(invFaultSystemRupSet).toZipFile(zipOut);
 			if (D) System.out.println("DONE");
@@ -132,6 +142,7 @@ public class RunInversion {
 		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double relativeMagDistWt = 1000.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
 		double relativeRupRateConstraintWt = 10.0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
+		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint
 		int numIterations = 0;  // number of simulated annealing iterations (increase this to decrease misfit) - For Northern CA inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
@@ -148,8 +159,13 @@ public class RunInversion {
 		// Use UCERF2 Solution 
 		aPrioriRupConstraint = UCERF2Solution;
 		// Or use smooth starting solution with target MFD:
-//		aPrioriRupConstraint = getSmoothStartingSolution(findUCERF2_Rups.getN_CalTargetMinusBackground_MFD());  
+//		Region region = new CaliforniaRegions.RELM_GRIDDED(); UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region); aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet, UCERF2Constraints.getTargetMinusBackgroundMFD());  
 //		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
+		
+		// Minimization constraint for troublesome Multi-fault ruptures
+		// Use Tom Parsons' Coulomb weights to penalize ruptures  (These are computed for NCAL_SMALL rupture set only!) -- can use mean sigma weights or "weakest link" weights
+		double[] minimizationConstraint = null;
+		minimizationConstraint = getCoulombWeights(faultSystemRupSet.getNumRuptures(), CoulombWeightType.MEAN_SIGMA, precomputedDataDir);
 		
 		
 		// Initial model
@@ -172,7 +188,7 @@ public class RunInversion {
 		Region region = new CaliforniaRegions.RELM_NOCAL();
 		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region);
 		mfdConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());	// add MFD constraint for whole region
-		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
+/*		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
 		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
 		double latBoxSize = 1; double lonBoxSize = 1; // width of MFD subregion boxes, in degrees
 		for (double lat=minLat; lat<maxLat; lat+=latBoxSize){
@@ -187,34 +203,82 @@ public class RunInversion {
 					mfdConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
 				}
 			}
-		}
+		}	*/
 		
 		
 		
 		if(D) System.out.println("\nStarting inversion . . .");
 		long startTime = System.currentTimeMillis();
 		inversion = new InversionFaultSystemSolution(faultSystemRupSet, weightSlipRates, relativeSegRateWt, 
-				relativeMagDistWt, relativeRupRateConstraintWt, numIterations, segRateConstraints, 
-				aPrioriRupConstraint, initialRupModel, mfdConstraints);
+				relativeMagDistWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt, numIterations, segRateConstraints, 
+				aPrioriRupConstraint, initialRupModel, mfdConstraints, minimizationConstraint);
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds");
 
 		
 		
-		if (D) System.out.print("Saving Solution to zip file . . . \n");
-		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"solution.zip");
+/*		if (D) System.out.print("Saving Solution to zip file . . . \n");
+		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_Model1.zip");
 		try {
 			new SimpleFaultSystemSolution(inversion).toZipFile(zipOut);
 			if (D) System.out.println("DONE");
 		} catch (IOException e) {
 			System.out.println("IOException saving Rup Set to zip file!");
 			e.printStackTrace();
+		}	*/
+		
+		
+	}	
+	
+	
+	private double[] getCoulombWeights(int numRups, CoulombWeightType coulombWeight, File precomputedDataDir) {
+		
+		double[] weights = new double[numRups];
+		String fullpathname = null;
+		
+		switch (coulombWeight) {
+		case MEAN_SIGMA: // Use mean stress of all rupture connections
+			fullpathname = precomputedDataDir.getAbsolutePath()+"/MeanSigma.txt";
+			break;
+		case WEAKEST_LINK: // Use stress of "weakest link" connection
+			fullpathname = precomputedDataDir.getAbsolutePath()+"/WeakestLink.txt";
+			break;
+		default:
+			throw new IllegalStateException("Unspecified Coulomb Weight Type");
 		}
 		
+	
+		FileReader inputFile;
+		try {
+			inputFile = new FileReader(fullpathname);
+			BufferedReader in = new BufferedReader(inputFile);
+			String s = in.readLine();
+			int i = 0;
+			while(s!=null)
+			{
+			    weights[i] = 1.0 / Double.parseDouble(s);
+			    s = in.readLine();
+			    i++;
+			}
+			in.close();
+			if (i != numRups) {
+				throw new Exception("Number of ruptures does not match number of Coulomb weights");
+			}
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return weights;
+	
 		
 	}
-	
-	
+
 	private IncrementalMagFreqDist getGR_Dist(FaultSystemRupSet faultSystemRupSet, double bValue, double Mmax) {
 		// This method returns a G-R magnitude distribution with specified b-value. The a-value is set
 		// to match the target moment rate implied by the slip rates FOR THE WHOLE REGION.
