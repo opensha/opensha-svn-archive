@@ -90,5 +90,11 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 	protected JComponent updateWidget() {
 		return buildWidget();
 	}
+	
+	public void setDefaultDir(File dir) {
+		if (chooser == null)
+			chooser = new JFileChooser();
+		chooser.setCurrentDirectory(dir);
+	}
 
 }
