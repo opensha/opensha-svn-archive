@@ -201,16 +201,6 @@ public abstract class AbstractERF<T extends ProbEqkSource> implements
 	}
 
 	/**
-	 * Return  iterator over all the earthquake sources
-	 *
-	 * @return Iterator over all earhtquake sources
-	 */
-	public Iterator<? extends ProbEqkSource> getSourcesIterator() {
-		Iterator<? extends ProbEqkSource> i = getSourceList().iterator();
-		return i;
-	}
-
-	/**
 	 * Return the earthquake source at index i. This methos DOES NOT return the
 	 * reference to the class variable. So, when you call this method again,
 	 * result from previous method call is still valid. This behavior is in contrast
