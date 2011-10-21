@@ -440,7 +440,7 @@ public class RunInversion {
 	public static void main(String[] args) {
 		
 		RunInversion test = new RunInversion();
-		test.inversion.plotStuff();
+// no longer here:		test.inversion.plotStuff();
 	}
 
 

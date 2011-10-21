@@ -1,5 +1,6 @@
 package scratch.UCERF3;
 
+import java.awt.Color;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +14,24 @@ import java.util.zip.ZipFile;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
@@ -37,6 +50,8 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	
 	private FaultSystemRupSet rupSet;
 	protected double[] rupRateSolution;
+	
+	protected double[][] fractRupsInsideMFD_Regions = null;
 	
 	/**
 	 * Creates a SimpleFaultSystemSolution from any solution.
@@ -319,5 +334,217 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	public DefModName getDeformationModelName() {
 		return rupSet.getDeformationModelName();
 	}
+	
+	
+	/**
+	 * This plots the rupture rates (rate versus rupture index)
+	 */
+	public void plotRuptureRates() {
+		// Plot the rupture rates
+		ArrayList funcs = new ArrayList();		
+		EvenlyDiscretizedFunc ruprates = new EvenlyDiscretizedFunc(0,(double)rupRateSolution.length-1,rupRateSolution.length);
+		for(int i=0; i<rupRateSolution.length; i++)
+			ruprates.set(i,rupRateSolution[i]);
+		funcs.add(ruprates); 	
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Inverted Rupture Rates"); 
+		graph.setX_AxisLabel("Rupture Index");
+		graph.setY_AxisLabel("Rate");
 
+	}
+	
+	/**
+	 * This plots original and final slip rates versus section index.
+	 * This also plot these averaged over parent sections.
+	 */
+	public void plotSlipRates() {
+		int numSections = this.getNumSections();
+		int numRuptures = this.getNumRuptures();
+		List<FaultSectionPrefData> faultSectionData = this.getFaultSectionDataList();
+
+		ArrayList funcs2 = new ArrayList();		
+		EvenlyDiscretizedFunc syn = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		EvenlyDiscretizedFunc data = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		for (int i=0; i<numSections; i++) {
+			data.set(i, this.getSlipRateForSection(i));
+			syn.set(i,0);
+		}
+		for (int rup=0; rup<numRuptures; rup++) {
+			double[] slips = getSlipOnSectionsForRup(rup);
+			List<Integer> sects = getSectionsIndicesForRup(rup);
+			for (int i=0; i < slips.length; i++) {
+				int row = sects.get(i);
+				syn.add(row,slips[i]*rupRateSolution[rup]);
+			}
+		}
+		for (int i=0; i<numSections; i++) data.set(i, this.getSlipRateForSection(i));
+		funcs2.add(syn);
+		funcs2.add(data);
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
+		graph2.setX_AxisLabel("Fault Section Index");
+		graph2.setY_AxisLabel("Slip Rate");
+		
+		String info = "index\tratio\tpredSR\tdataSR\tParentSectionName\n";
+		String parentSectName = "";
+		double aveData=0, aveSyn=0, numSubSect=0;
+		ArrayList<Double> aveDataList = new ArrayList<Double>();
+		ArrayList<Double> aveSynList = new ArrayList<Double>();
+		for (int i = 0; i < numSections; i++) {
+			if(!faultSectionData.get(i).getParentSectionName().equals(parentSectName)) {
+				if(i != 0) {
+					double ratio  = aveSyn/aveData;
+					aveSyn /= numSubSect;
+					aveData /= numSubSect;
+					info += aveSynList.size()+"\t"+(float)ratio+"\t"+(float)aveSyn+"\t"+(float)aveData+"\t"+faultSectionData.get(i-1).getParentSectionName()+"\n";
+//					System.out.println(ratio+"\t"+aveSyn+"\t"+aveData+"\t"+faultSectionData.get(i-1).getParentSectionName());
+					aveSynList.add(aveSyn);
+					aveDataList.add(aveData);
+				}
+				aveSyn=0;
+				aveData=0;
+				numSubSect=0;
+				parentSectName = faultSectionData.get(i).getParentSectionName();
+			}
+			aveSyn +=  syn.getY(i);
+			aveData +=  data.getY(i);
+			numSubSect += 1;
+		}
+		ArrayList funcs5 = new ArrayList();		
+		EvenlyDiscretizedFunc aveSynFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
+		EvenlyDiscretizedFunc aveDataFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
+		for(int i=0; i<aveSynList.size(); i++ ) {
+			aveSynFunc.set(i, aveSynList.get(i));
+			aveDataFunc.set(i, aveDataList.get(i));
+		}
+		aveSynFunc.setName("Predicted ave slip rates on parent section");
+		aveDataFunc.setName("Original (Data) ave slip rates on parent section");
+		aveSynFunc.setInfo(info);
+		funcs5.add(aveSynFunc);
+		funcs5.add(aveDataFunc);
+		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs5, "Average Slip Rates on Parent Sections"); 
+		graph5.setX_AxisLabel("Parent Section Index");
+		graph5.setY_AxisLabel("Slip Rate");
+
+	}
+	
+	/**
+	 * This compares observed section rates (supplied) with those implied by the
+	 * Fault System Solution.
+	 * 
+	 */
+	public void plotPaleoObsAndPredPaleoEventRates(ArrayList<SegRateConstraint> segRateConstraints) {
+		int numSections = this.getNumSections();
+		int numRuptures = this.getNumRuptures();
+		ArrayList funcs3 = new ArrayList();		
+		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		EvenlyDiscretizedFunc finalPaleoVisibleEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);	
+		for (int r=0; r<numRuptures; r++) {
+			List<Integer> rup= getSectionsIndicesForRup(r);
+			for (int i=0; i<rup.size(); i++) {			
+				finalEventRateFunc.add(rup.get(i),rupRateSolution[r]);  
+				finalPaleoVisibleEventRateFunc.add(rup.get(i),this.getProbPaleoVisible(this.getMagForRup(r))*rupRateSolution[r]);  			
+			}
+		}	
+		finalEventRateFunc.setName("Total Event Rates oer Section");
+		finalPaleoVisibleEventRateFunc.setName("Paleo Visible Event Rates oer Section");
+		funcs3.add(finalEventRateFunc);
+		funcs3.add(finalPaleoVisibleEventRateFunc);	
+		int num = segRateConstraints.size();
+		ArbitrarilyDiscretizedFunc func;
+		ArrayList obs_er_funcs = new ArrayList();
+		SegRateConstraint constraint;
+		for (int c = 0; c < num; c++) {
+			func = new ArbitrarilyDiscretizedFunc();
+			constraint = segRateConstraints.get(c);
+			int seg = constraint.getSegIndex();
+			func.set((double) seg - 0.0001, constraint.getLower95Conf());
+			func.set((double) seg, constraint.getMean());
+			func.set((double) seg + 0.0001, constraint.getUpper95Conf());
+			func.setName(constraint.getFaultName());
+			funcs3.add(func);
+		}			
+		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)");
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(
+				PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(
+				PlotLineType.SOLID, 2f, Color.BLUE));
+		for (int c = 0; c < num; c++)
+			plotChars.add(new PlotCurveCharacterstics(
+					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
+		graph3.setPlottingFeatures(plotChars);
+		graph3.setX_AxisLabel("Fault Section Index");
+		graph3.setY_AxisLabel("Event Rate (per year)");
+
+	}
+	
+	
+	/**
+	 * This compares the MFDs in the given MFD constraints with the MFDs 
+	 * implied by the Fault System Solution
+	 * @param mfdConstraints
+	 */
+	public void plotMFDs(ArrayList<MFD_InversionConstraint> mfdConstraints) {
+		
+		for (int i=0; i<mfdConstraints.size(); i++) {  // Loop over each MFD constraint 	
+			IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
+			magHist.setTolerance(0.2);	// this makes it a histogram
+			for(int r=0; r<getNumRuptures();r++) {
+				double fractionRupInRegion = mfdConstraints.get(i).getFractionInRegion(this.getFaultSectionDataForRupture(r));  // percentage of each rupture that is in region for that MFD
+				magHist.add(getMagForRup(r), fractionRupInRegion*rupRateSolution[r]);
+			}
+			ArrayList funcs4 = new ArrayList();
+			magHist.setName("Magnitude Distribution of SA Solution");
+			magHist.setInfo("(number in each mag bin)");
+			funcs4.add(magHist);
+			IncrementalMagFreqDist targetMagFreqDist = mfdConstraints.get(i).getMagFreqDist();; 
+			targetMagFreqDist.setTolerance(0.1); 
+			targetMagFreqDist.setName("Target Magnitude Distribution");
+			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
+			funcs4.add(targetMagFreqDist);
+			GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
+			graph4.setX_AxisLabel("Magnitude");
+			graph4.setY_AxisLabel("Frequency (per bin)");
+		}
+	}
+	
+	
+	/**
+	 * This computes the fraction of each rupture inside each region in the given mfdConstraints, where results
+	 * are stored in the fractRupsInsideMFD_Regions[iRegion][iRup] double array
+	 * @param mfdConstraints
+	 */
+	protected void computeFractRupsInsideMFD_Regions(ArrayList<MFD_InversionConstraint> mfdConstraints) {
+		if(fractRupsInsideMFD_Regions == null) {	// do only if not already done
+			int numRuptures = getNumRuptures();
+			fractRupsInsideMFD_Regions = new double[mfdConstraints.size()][numRuptures];
+			double[][] fractSectionInsideMFD_Regions = new double[mfdConstraints.size()][getNumSections()];
+			int[] numPtsInSection = new int[getNumSections()];
+			double gridSpacing=1; // km; this will be faster if this is increased, or if we used the section trace rather than the whole surface
+			boolean aseisReducesArea = true;
+			// first fill in fraction of section in each region (do each only once)
+			for(int s=0;s<getNumSections(); s++) {
+				StirlingGriddedSurface surf = new StirlingGriddedSurface(getFaultSectionData(s).getSimpleFaultData(aseisReducesArea), gridSpacing);
+				numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
+				for(int i=0;i<mfdConstraints.size(); i++) {
+					Region region = mfdConstraints.get(i).getRegion();
+					fractSectionInsideMFD_Regions[i][s] = RegionUtils.getFractionInside(region, surf.getLocationList());
+				}
+			}
+			// now fill in fraction of rupture in each region
+			for (int i=0; i < mfdConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
+				IncrementalMagFreqDist targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();	
+				for(int rup=0; rup<numRuptures; rup++) {
+					double mag = getMagForRup(rup);
+					List<Integer> sectionsIndicesForRup = getSectionsIndicesForRup(rup);
+					double fractionRupInRegion=0;
+					int totNumPts = 0;
+					for(Integer s:sectionsIndicesForRup) {
+						fractRupsInsideMFD_Regions[i][rup] += fractSectionInsideMFD_Regions[i][s]*numPtsInSection[s];
+						totNumPts += numPtsInSection[s];
+					}
+					fractRupsInsideMFD_Regions[i][rup] /= totNumPts;
+				}
+			}
+		}
+	}
 }
