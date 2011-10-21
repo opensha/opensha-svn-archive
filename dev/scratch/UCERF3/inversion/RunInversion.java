@@ -74,35 +74,19 @@ public class RunInversion {
 		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
 		
-/*		SimpleFaultSystemRupSet sol;
-		try {
-			sol = SimpleFaultSystemRupSet.fromXMLFile(new File("/Users/pagem/Desktop/rupSet.xml"));
-			sol.toZipFile(new File("/Users/pagem/Desktop/rupSet.zip"));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (DocumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		System.out.println("\nDone with making Zip File!\n");  */
-		
-		
-		
 		
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
-		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
+/*		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
-				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	
-/*		SimpleFaultSystemRupSet invFaultSystemRupSet;
+				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	*/
+		SimpleFaultSystemRupSet invFaultSystemRupSet;
 		try {
-			invFaultSystemRupSet = SimpleFaultSystemRupSet.fromZipFile(new File("/Users/pagem/Desktop/models/NCAL_SMALL.zip"));
+			invFaultSystemRupSet = SimpleFaultSystemRupSet.fromZipFile(new File(precomputedDataDir.getAbsolutePath()+"/FaultSystemRupSets/NCAL_SMALL.zip"));
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			throw new RuntimeException(e1);
-		} 			*/
+		} 			
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");
 		
