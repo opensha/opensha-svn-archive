@@ -321,28 +321,7 @@ ChangeListener {
 			return;
 		}
 
-		FileWriter fw = new FileWriter(file);
-
-		for (int i=0; i<csv.getNumRows(); i++) {
-			List<String> line = csv.getLine(i);
-
-			String lineStr = null;
-			for (String val : line) {
-				if (lineStr == null)
-					lineStr = "";
-				else
-					lineStr += "\t";
-				lineStr += val;
-			}
-
-			if (i == 0)
-				// header
-				lineStr = "# "+lineStr;
-
-			fw.write(lineStr + "\n");
-		}
-
-		fw.close();
+		csv.writeToTabSeparatedFile(file, 1);
 	}
 
 	@Override

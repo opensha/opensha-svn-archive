@@ -161,6 +161,31 @@ public class CSVFile<E> implements Iterable<List<E>> {
 		fw.close();
 	}
 	
+	public void writeToTabSeparatedFile(File file, int headerLines) throws IOException {
+		FileWriter fw = new FileWriter(file);
+
+		for (int i=0; i<getNumRows(); i++) {
+			List<E> line = getLine(i);
+
+			String lineStr = null;
+			for (E val : line) {
+				if (lineStr == null)
+					lineStr = "";
+				else
+					lineStr += "\t";
+				lineStr += val.toString();
+			}
+
+			if (i < headerLines)
+				// header
+				lineStr = "# "+lineStr;
+
+			fw.write(lineStr + "\n");
+		}
+
+		fw.close();
+	}
+	
 	public void removeColumn(int i) {
 		Preconditions.checkArgument(i >= 0, "column must be >= 0");
 		Preconditions.checkArgument(cols < 0 || i < cols, "invalid column: "+i);
