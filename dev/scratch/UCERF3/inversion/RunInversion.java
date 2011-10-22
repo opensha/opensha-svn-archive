@@ -91,14 +91,13 @@ public class RunInversion {
 		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");
 		
 		// These lines make files like those sent to Tom Parsons on April 19th 
-		// for the DefModName.UCERF2_NCAL case (see email that day).  The results are 
-		// no longer the same due to Morgan taking the creeping section out and a change 
-		// in the header for the sections file (and maybe other changes)
+		// for the DefModName.UCERF2_NCAL case (see email that day).  To recreate these results, 
+		// use NCAL_SMALL rupture set, which leaves in the creeping section and has maxAzimuthChange = 45
 //		invFaultSystemRupSet.writeSectionsToFile("sectionsForTom041911");
 //		invFaultSystemRupSet.writeRupsToFiles("rupturesForTom041911");
 
 		
-		// plot the mag histogram
+		// plot the mag histogram - DOESN"T WORK NOW that invFaultSystemRupSet is a SimpleFaultSystemRupSet
 //		invFaultSystemRupSet.plotMagHistogram();
 		
 		
@@ -201,7 +200,7 @@ public class RunInversion {
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds.");	
 
 		
-/*		//Alternatively, load solution from zip file instead of running inversion
+/*		// Alternatively, load solution from zip file instead of running inversion
 		if (D) System.out.print("\nLoading Solution from zip file . . . ");
 		File zipFile = new File(precomputedDataDir.getAbsolutePath()+"/InversionSolutions/NCAL_SMALL_Model1.zip");
 		SimpleFaultSystemSolution inversion = null;
