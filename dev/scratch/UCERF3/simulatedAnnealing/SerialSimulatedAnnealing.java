@@ -33,7 +33,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 	protected final static boolean D = true;  // for debugging
 
-	private static CoolingScheduleType COOLING_FUNC_DEFAULT = CoolingScheduleType.VERYFAST_SA;
+	private static CoolingScheduleType COOLING_FUNC_DEFAULT = CoolingScheduleType.FAST_SA;
 	private CoolingScheduleType coolingFunc = COOLING_FUNC_DEFAULT;
 	
 	private static NonnegativityConstraintType NONNEGATIVITY_CONST_DEFAULT =
@@ -200,10 +200,10 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				T = 1/Math.log( (double) iter); // classical SA cooling schedule (Geman and Geman, 1984) (slow but ensures convergence)
 				break;
 			case FAST_SA:
-				T = 1 / (double) iter;  // fast SA cooling schedule (Szu and Hartley, 1987)
+				T = 1 / (double) iter;  // fast SA cooling schedule (Szu and Hartley, 1987) (recommended)
 				break;
 			case VERYFAST_SA:
-				T = Math.exp(-( (double) iter - 1)); // very fast SA cooling schedule (Ingber, 1989) (recommended)
+				T = Math.exp(-( (double) iter - 1)); // very fast SA cooling schedule (Ingber, 1989)  (= 0 to machine precision for high iteration #)
 				break;
 			default:
 				throw new IllegalStateException("It's impossible to get here, as long as all cooling schedule enum cases are stated above!");
