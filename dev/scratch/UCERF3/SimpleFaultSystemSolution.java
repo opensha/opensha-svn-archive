@@ -488,9 +488,10 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		for (int i=0; i<mfdConstraints.size(); i++) {  // Loop over each MFD constraint 	
 			IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
 			magHist.setTolerance(0.2);	// this makes it a histogram
-			for(int r=0; r<getNumRuptures();r++) {
-				double fractionRupInRegion = mfdConstraints.get(i).getFractionInRegion(this.getFaultSectionDataForRupture(r));  // percentage of each rupture that is in region for that MFD
-				magHist.add(getMagForRup(r), fractionRupInRegion*rupRateSolution[r]);
+			computeFractRupsInsideMFD_Regions(mfdConstraints);
+			for(int rup=0; rup<getNumRuptures(); rup++) {
+				double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
+				magHist.add(getMagForRup(rup), fractRupInside*rupRateSolution[rup]);
 			}
 			ArrayList funcs4 = new ArrayList();
 			magHist.setName("Magnitude Distribution of SA Solution");
