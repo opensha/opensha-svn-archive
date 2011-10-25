@@ -21,6 +21,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ListUtils;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
@@ -213,7 +214,12 @@ public class DisaggregationPlotter {
 	public void disaggregate() throws IOException {
 		for (CybershakeIM im : ims) {
 			double period = im.getVal();
-			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
+			SA_Param saParam = (SA_Param)imr.getIntensityMeasure();
+			ArrayList<Double> periods = saParam.getPeriodParam().getAllowedDoubles();
+			int closestPeriod = ListUtils.getClosestIndex(periods, period);
+			if (closestPeriod < 0)
+				throw new IllegalStateException("no match found for period: "+period);
+			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), periods.get(closestPeriod));
 			
 			System.out.println("IMR Metadata: "+imr.getAllParamMetadata());
 			

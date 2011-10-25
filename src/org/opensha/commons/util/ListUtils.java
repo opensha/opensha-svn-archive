@@ -37,5 +37,19 @@ public class ListUtils {
 		list.add(object);
 		return list;
 	}
+	
+	public static int getClosestIndex(List<Double> values, double target) {
+		double dist = Double.MAX_VALUE;
+		int index = -1;
+		for (int i=0; i<values.size(); i++) {
+			double val = values.get(i);
+			double myDist = Math.abs(target - val);
+			if (myDist < dist) {
+				dist = myDist;
+				index = i;
+			}
+		}
+		return index;
+	}
 
 }
