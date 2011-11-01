@@ -221,7 +221,7 @@ public class SoSAF_SubSectionInversion {
 				FaultSectionPrefData sectData = subSectionList.get(s);
 				StirlingGriddedSurface surface = new StirlingGriddedSurface(sectData.getFaultTrace(), sectData.getAveDip(),
 						sectData.getAveUpperDepth(), sectData.getAveLowerDepth(), 1.0);
-				LocationList perimLocs = surface.getSurfacePerimeterLocsList();
+				LocationList perimLocs = surface.getEvenlyDiscritizedPerimeter();
 				String datafilename;
 				if(s<10) datafilename = subdirName2+"/section_0"+s+".txt";
 				else	 datafilename = subdirName2+"/section_"+s+".txt";

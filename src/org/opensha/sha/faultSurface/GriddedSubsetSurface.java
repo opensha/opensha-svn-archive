@@ -161,7 +161,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
      *
      * @return
      */
-    public LocationList getLocationList() {
+    public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
       LocationList locList = new LocationList();
       Iterator<Location> it = listIterator();
       while(it.hasNext()) locList.add((Location)it.next());
@@ -235,7 +235,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
      * This returns the total length of the surface
      * @return double
      */
-    public double getSurfaceLength() {
+    public double getAveLength() {
 
         return getGridSpacingAlongStrike() * (getNumCols()-1);
     }
@@ -244,13 +244,13 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
      * This returns the surface width (down dip)
      * @return double
      */
-    public double getSurfaceWidth() {
+    public double getAveWidth() {
       return getGridSpacingDownDip() * (getNumRows()-1);
     }
     
 
     /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
-    public LocationList getSurfacePerimeterLocsList() {
+    public LocationList getEvenlyDiscritizedPerimeter() {
   	  LocationList locList = new LocationList();
   	  for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
   	  for(int r=0;r<getNumRows();r++) locList.add(get(r, getNumCols()-1));
@@ -323,8 +323,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
      * This returns the surface area in km-sq
      * @return double
      */
-    public double getSurfaceArea() {
-      return getSurfaceWidth()*getSurfaceLength();
+    public double getArea() {
+      return getAveWidth()*getAveLength();
     }
 
 

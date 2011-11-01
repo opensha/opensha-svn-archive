@@ -121,7 +121,7 @@ public class ETAS_PrimaryEventSampler {
 		// compute relative probability of each block
 		relBlockProb = new double[numBlocks];
 		
-		double rupLength = parentRup.getRuptureSurface().getSurfaceLength();
+		double rupLength = parentRup.getRuptureSurface().getAveLength();
 		
 		if(D) {
 			System.out.println("\nnum revised blocks="+numBlocks);

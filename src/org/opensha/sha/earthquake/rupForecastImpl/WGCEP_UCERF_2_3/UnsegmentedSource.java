@@ -539,7 +539,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			if(isSlipRateCorrection) rupture = getRupture(rupIndex);
 			else rupture = getRupture(rupIndex);
 			EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
-			area = rupSurface.getSurfaceLength()*rupSurface.getSurfaceWidth();
+			area = rupSurface.getAveLength()*rupSurface.getAveWidth();
 			moRate = MagUtils.magToMoment(rupture.getMag());
 			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);
 			slip = FaultMomentCalc.getSlip(area*1e6,moRate);
@@ -924,7 +924,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
 				if(LocationUtils.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
-					double area = rupture.getRuptureSurface().getSurfaceLength()*rupture.getRuptureSurface().getSurfaceWidth();
+					double area = rupture.getRuptureSurface().getAveLength()*rupture.getRuptureSurface().getAveWidth();
 					double slip = FaultMomentCalc.getSlip(area*1e6,MagUtils.magToMoment(rupture.getMag()));
 					slipRate+= rupture.getMeanAnnualRate(this.duration)*slip;
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
@@ -1079,8 +1079,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 				(float)moRate+"\n");
 		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
-		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
-				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
+		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getAveWidth()+"\t"+
+				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getAveLength()+"\n");
 		FaultTrace faultTrace = surface.getFaultTrace();
 		// All fault trace locations
 		strBuffer.append(faultTrace.getNumLocations()+"\n");
@@ -1118,8 +1118,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 		strBuffer.append((float)sourceMag+"\t"+rate+"\t"+wt+"\t"+(float)moRate+"\n");
 		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
-		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
-				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
+		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getAveWidth()+"\t"+
+				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getAveLength()+"\n");
 		FaultTrace faultTrace = surface.getFaultTrace();
 		// All fault trace locations
 		strBuffer.append(faultTrace.getNumLocations()+"\n");
@@ -1196,7 +1196,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			if(applyCyberShakeDDW_Corr) rupArea = somerville_magAreaRel.getMedianArea(mag);
 			else rupArea  = hb_MagAreaRel.getMedianArea(mag);
 			double rup_width = Math.sqrt(rupArea);
-			if (rup_width > surface.getSurfaceWidth()) rup_width = surface.getSurfaceWidth();
+			if (rup_width > surface.getAveWidth()) rup_width = surface.getAveWidth();
 			
 			double rupLen = rupArea/rup_width;
 			int numRup=-1, firstRupIndex=-1, lastRupIndex=-1, rupIndexOffset=-1;

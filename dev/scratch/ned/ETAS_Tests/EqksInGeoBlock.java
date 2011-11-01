@@ -198,7 +198,7 @@ public class EqksInGeoBlock {
 	public void processRupture(ProbEqkRupture rup, int srcIndex, int rupIndex, double forecastDuration) {
 		double rate = rup.getMeanAnnualRate(forecastDuration);
 		if(rate > 0) {
-			LocationList locList = rup.getRuptureSurface().getLocationList();
+			LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			int numLoc = locList.size();
 			int numLocInside = 0;
 			for(Location loc : locList)

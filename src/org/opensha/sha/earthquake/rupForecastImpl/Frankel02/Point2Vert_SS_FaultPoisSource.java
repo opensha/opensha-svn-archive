@@ -199,8 +199,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   * of this source
   */
   public LocationList getAllSourceLocs() {
-    if(this.finiteFault!=null) return finiteFault.getLocationList();
-    else return ptSurface.getLocationList();
+    if(this.finiteFault!=null) return finiteFault.getEvenlyDiscritizedListOfLocsOnSurface();
+    else return ptSurface.getEvenlyDiscritizedListOfLocsOnSurface();
   }
   
   public EvenlyGriddedSurface getSourceSurface() {

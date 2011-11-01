@@ -190,7 +190,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     LocationList locList = new LocationList(); //master location list
     // get location list of all possible ruptures
     for(int i=0; i<numRuptures; ++i) {
-      LocationList rupLocList = getRuptureSurface(i).getLocationList();
+      LocationList rupLocList = getRuptureSurface(i).getEvenlyDiscritizedListOfLocsOnSurface();
       // add all locations in a rupture to the master location list
       for(int j=0; j<rupLocList.size(); ++j)
         locList.add(rupLocList.get(j));

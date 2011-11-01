@@ -321,7 +321,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	public LocationList getAllSourceLocs() {
 		LocationList locList = new LocationList();
 		for(int r=0;r< getNumRuptures(); r++) {
-			locList.addAll(probEqkRuptureList.get(r).getRuptureSurface().getLocationList());
+			locList.addAll(probEqkRuptureList.get(r).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface());
 		}
 		return locList;
 	}

@@ -297,7 +297,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 				// if floater
 				if(mag < fullFaultRupMagThresh) {
 					// get down-dip width of fault
-					double ddw=faultSurface.getSurfaceWidth();
+					double ddw=faultSurface.getAveWidth();
 
 					rupLen = getRupLength(magScalingRel,magScalingSigma,numSigma,rupAspectRatio,mag);
 					rupWidth= rupLen/rupAspectRatio;
@@ -361,7 +361,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 * of this source
 	 */
 	public LocationList getAllSourceLocs() {
-		return this.faultSurface.getLocationList();
+		return this.faultSurface.getEvenlyDiscritizedListOfLocsOnSurface();
 	}
 
 	public EvenlyGriddedSurface getSourceSurface() { return this.faultSurface; }

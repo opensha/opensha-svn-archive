@@ -27,7 +27,7 @@ import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.faultSurface.GriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 /**
  * <b>Title:</b> GriddedSurfaceXYDataSet<p>
@@ -74,7 +74,7 @@ public class GriddedSurfaceXYDataSet extends DefaultXYDataset implements  Named 
      *   As far as XYDataset is concerned the data is a collection of
      *   data series, one series maps to one row in the GriddedSurfaceAPI.
      */
-    protected GriddedSurface surface = null;
+    protected EvenlyGriddedSurface surface = null;
 
     /** XYDatasetAPI - list of listeners for data changes */
     protected ArrayList listeners = new ArrayList();
@@ -95,7 +95,7 @@ public class GriddedSurfaceXYDataSet extends DefaultXYDataset implements  Named 
     }
 
     /** Constructor that sets the GriddedSurfaceAPI dataset. */
-    public GriddedSurfaceXYDataSet(GriddedSurface surface) {
+    public GriddedSurfaceXYDataSet(EvenlyGriddedSurface surface) {
         this.group = new DatasetGroup();
         this.surface = surface;
     }

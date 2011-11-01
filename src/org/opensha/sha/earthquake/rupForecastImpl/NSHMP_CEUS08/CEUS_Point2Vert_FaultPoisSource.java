@@ -287,7 +287,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 	LocationList locList = new LocationList();
     
 	if(this.finiteFaultSurface1!=null) { 
-    	locList = finiteFaultSurface1.getLocationList();
+    	locList = finiteFaultSurface1.getEvenlyDiscritizedListOfLocsOnSurface();
     }
     
     if(this.finiteFaultSurface2!=null) { 

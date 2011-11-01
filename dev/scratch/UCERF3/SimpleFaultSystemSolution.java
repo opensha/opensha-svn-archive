@@ -528,7 +528,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 				numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
 				for(int i=0;i<mfdConstraints.size(); i++) {
 					Region region = mfdConstraints.get(i).getRegion();
-					fractSectionInsideMFD_Regions[i][s] = RegionUtils.getFractionInside(region, surf.getLocationList());
+					fractSectionInsideMFD_Regions[i][s] = RegionUtils.getFractionInside(region, surf.getEvenlyDiscritizedListOfLocsOnSurface());
 				}
 			}
 			// now fill in fraction of rupture in each region

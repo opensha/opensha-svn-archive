@@ -1,11 +1,11 @@
 package org.opensha.refFaultParamDb.calc.sectionDists;
 
-import org.opensha.sha.faultSurface.GriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 public interface SurfaceFilter {
 	
 	public double getCornerMidptFilterDist();
 	
-	public boolean isIncluded(GriddedSurface surface, int row, int col);
+	public boolean isIncluded(EvenlyGriddedSurface surface, int row, int col);
 
 }

@@ -20,20 +20,34 @@
 package org.opensha.sha.faultSurface;
 
 import java.io.Serializable;
+import java.util.ListIterator;
+
+import org.opensha.commons.data.Container2D;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 
 
 /**
- * <b>Title:</b> EvenlyGriddedSurfaceAPI<p>
+ * <b>Title:</b> EvenlyGriddedSurface<p>
  * <b>Description:</b>
  *
- * This extends GriddedSurfaceAPI assuming the locations are in some way evenly
- * spaced. <p>
+ * This represents a geographical
+ * surface of Location objects slicing through or on the surface of the earth.
+ * Recall that a Container2DAPI represents a collection of Objects in
+ * a matrix, or grid, accessed by row and column inedexes. All GriddedSurfaces
+ * do is to constrain the object at each grid point to be a Location object.
+ * There are also methods for getting info about the surface (e.g., ave dip,
+ * ave strike, etc.). <p>
  *
- * @author
+ * There are no constraints on what locations are put where, but the presumption
+ * is that the the grid of locations map out the surface .
+ * it is also presumed that the zeroeth row represent the top edge (or trace). <p>
+ *
+ * @author field
  * @created
  * @version    1.0
  */
-public interface EvenlyGriddedSurface extends GriddedSurface, Serializable {
+public interface EvenlyGriddedSurface extends Container2D<Location>, Serializable {
 
 
 	/**
@@ -57,23 +71,81 @@ public interface EvenlyGriddedSurface extends GriddedSurface, Serializable {
 	public Boolean isGridSpacingSame();
 
     /**
-     * This returns the total length of the surface in km
-     * @return double
-     */
-    public double getSurfaceLength();
-
-    /**
-     * This returns the surface width (down dip) in km
-     * @return double
-     */
-    public double getSurfaceWidth();
-    
-    /**
      * This returns the surface area in km-sq
      * @return double
      */
-    public double getSurfaceArea();
+    public double getArea();
+    
+	/** Returns the average dip of the surface.  */
+	public double getAveDip()throws UnsupportedOperationException;
+	;
 
 
+	/** Returns the average strike of the surface.  */
+	public double getAveStrike()throws UnsupportedOperationException;
+
+	/**
+	 * Put all the locations of this surface into a location list
+	 *
+	 * @return
+	 */
+	public LocationList getEvenlyDiscritizedListOfLocsOnSurface();
+
+	/** Common debug string that most Java classes implement */
+	public String toString();
+
+	/** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+	public LocationList getEvenlyDiscritizedPerimeter();
+
+	/**
+	 * Returns the Metadata for the surface
+	 * @return String
+	 */
+	public String getSurfaceMetadata();
+
+
+	/**
+	 * This returns the total length of the surface
+	 * @return double
+	 */
+	public double getAveLength();
+
+	/**
+	 * This returns the surface width (down dip)
+	 * @return double
+	 */
+	public double getAveWidth();
+
+	/**
+	 * Method to get location...same as get(row, column)
+	 * 
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	public Location getLocation(int row, int column);
+	
+	/**
+	 * Method to set location...same as set(row, column, loc)
+	 * 
+	 * @param row
+	 * @param column
+	 * @param loc
+	 */
+	public void setLocation(int row, int column, Location loc);
+	
+	/**
+	 * Returns listiterator()
+	 * 
+	 * @return
+	 */
+	public ListIterator<Location> getLocationsIterator();
+	
+	/**
+	 * This returns a given row as a FaultTrace object
+	 * @param row
+	 * @return FaultTrace
+	 */
+	public FaultTrace getRowAsTrace(int row);
 
 }

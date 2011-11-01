@@ -239,7 +239,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		rupTopDepthParam.setValueIgnoreWarning(depth);
 		dipParam.setValueIgnoreWarning(surface.getAveDip());
 		// this means line sources will have zero width
-		rupWidthParam.setValue(surface.getSurfaceWidth());
+		rupWidthParam.setValue(surface.getAveWidth());
 		aftershockParam.setValue(false);
 		setPropagationEffectParams();
 	}
@@ -283,7 +283,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		rupTopDepthParam.setValueIgnoreWarning(depth);
 		dipParam.setValueIgnoreWarning(surface.getAveDip());
 		// this means line sources will have zero width
-		rupWidthParam.setValue(surface.getSurfaceWidth());
+		rupWidthParam.setValue(surface.getAveWidth());
 		setPropagationEffectParams();
 		aftershockParam.setValue(false);
 		propEffectUpdate();

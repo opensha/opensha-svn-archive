@@ -117,7 +117,7 @@ implements EvenlyGriddedSurface {
 	 *
 	 * @return
 	 */
-	public LocationList getLocationList() {
+	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
 		LocationList locList = new LocationList();
 		Iterator<Location> it = listIterator();
 		while(it.hasNext()) locList.add((Location)it.next());
@@ -426,7 +426,7 @@ implements EvenlyGriddedSurface {
 	 * This returns the total length of the surface in km
 	 * @return double
 	 */
-	public double getSurfaceLength() {
+	public double getAveLength() {
 
 		return getGridSpacingAlongStrike() * (getNumCols()-1);
 	}
@@ -435,7 +435,7 @@ implements EvenlyGriddedSurface {
 	 * This returns the surface width (down dip) in km
 	 * @return double
 	 */
-	public double getSurfaceWidth() {
+	public double getAveWidth() {
 		return getGridSpacingDownDip() * (getNumRows()-1);
 	}
 
@@ -443,8 +443,8 @@ implements EvenlyGriddedSurface {
 	 * This returns the surface area in km-sq
 	 * @return double
 	 */
-	public double getSurfaceArea() {
-		return getSurfaceWidth()*getSurfaceLength();
+	public double getArea() {
+		return getAveWidth()*getAveLength();
 	}
 
 
@@ -475,7 +475,7 @@ implements EvenlyGriddedSurface {
 
 
 	/** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
-	public LocationList getSurfacePerimeterLocsList() {
+	public LocationList getEvenlyDiscritizedPerimeter() {
 		LocationList locList = new LocationList();
 		for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
 		for(int r=0;r<getNumRows();r++) locList.add(get(r, getNumCols()-1));
@@ -508,8 +508,8 @@ implements EvenlyGriddedSurface {
 	public String getSurfaceMetadata() {
 		String surfaceMetadata;
 		surfaceMetadata = (float)aveDip + "\t";
-		surfaceMetadata += (float)getSurfaceLength() + "\t";
-		surfaceMetadata += (float)getSurfaceWidth() + "\t";
+		surfaceMetadata += (float)getAveLength() + "\t";
+		surfaceMetadata += (float)getAveWidth() + "\t";
 		surfaceMetadata += (float)Double.NaN + "\t";
 		int numRows = getNumRows();
 		int numCols = getNumCols();

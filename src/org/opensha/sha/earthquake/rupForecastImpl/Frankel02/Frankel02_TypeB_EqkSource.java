@@ -229,7 +229,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 	  if(this.magAreaRel == null)
 		  return Math.pow(10.0,-3.22+0.69*mag); 
 	  else
-		  return magAreaRel.getMedianArea(mag)/surface.getSurfaceWidth();
+		  return magAreaRel.getMedianArea(mag)/surface.getAveWidth();
   }
 
   /**

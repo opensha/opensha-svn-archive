@@ -169,7 +169,7 @@ public class ERF_Calculator {
 		  for (int r = 0; r < source.getNumRuptures(); ++r) {
 			  ProbEqkRupture rupture = source.getRupture(r);
 			  if(rupture.getMag()>= minMag) {
-				  double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getLocationList());
+				  double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface());
 				  totRate += fractionInside*rupture.getMeanAnnualRate(duration);
 			  }
 		  }

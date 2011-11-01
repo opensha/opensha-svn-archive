@@ -217,7 +217,7 @@ public class PointSurface implements EvenlyGriddedSurface {
 	 *
 	 * @return
 	 */
-	public LocationList getLocationList() {
+	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
 		LocationList locList = new LocationList();
 		locList.add(getLocation());
 		return locList;
@@ -369,7 +369,7 @@ public class PointSurface implements EvenlyGriddedSurface {
 	 * This returns the total length of the surface
 	 * @return double
 	 */
-	public double getSurfaceLength() {
+	public double getAveLength() {
 
 		return 0;
 	}
@@ -379,7 +379,7 @@ public class PointSurface implements EvenlyGriddedSurface {
 	 * This returns the surface width (down dip)
 	 * @return double
 	 */
-	public double getSurfaceWidth() {
+	public double getAveWidth() {
 		return 0;
 	}
 
@@ -387,7 +387,7 @@ public class PointSurface implements EvenlyGriddedSurface {
 	 * This returns the surface area
 	 * @return double
 	 */
-	public double getSurfaceArea() {
+	public double getArea() {
 		return 0;
 	}
 
@@ -414,8 +414,8 @@ public class PointSurface implements EvenlyGriddedSurface {
 	public String getSurfaceMetadata() {
 		String surfaceMetadata;
 		surfaceMetadata = (float)aveDip + "\t";
-		surfaceMetadata += (float)getSurfaceLength() + "\t";
-		surfaceMetadata += (float)getSurfaceWidth() + "\t";
+		surfaceMetadata += (float)getAveLength() + "\t";
+		surfaceMetadata += (float)getAveWidth() + "\t";
 		surfaceMetadata += (float)Double.NaN + "\t";
 		surfaceMetadata += "1" + "\t";
 		surfaceMetadata += "1" + "\t";
@@ -430,7 +430,7 @@ public class PointSurface implements EvenlyGriddedSurface {
 
 
 	/** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
-	public LocationList getSurfacePerimeterLocsList() {
+	public LocationList getEvenlyDiscritizedPerimeter() {
 		LocationList locList = new LocationList();
 		locList.add(this.getLocation());
 		return locList;

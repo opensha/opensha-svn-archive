@@ -960,7 +960,7 @@ public class MeanUCERF2 extends AbstractERF {
 			FileWriter fw = new FileWriter("meanUCERF2_FltSrcSurfOutln.txt");
 			for(int isrc=0; isrc<allFltSources.size(); isrc++) {
 				EqkSource source = allFltSources.get(isrc);
-				LocationList locList = source.getSourceSurface().getSurfacePerimeterLocsList();
+				LocationList locList = source.getSourceSurface().getEvenlyDiscritizedPerimeter();
 				System.out.println("# "+source.getName());
 				fw.write("# "+source.getName()+"\n");
 				for(int i=0;i<locList.size();i++) {
@@ -998,7 +998,7 @@ public class MeanUCERF2 extends AbstractERF {
 				for(int r=0;r<faultRuptureSource.getNumRuptures();r++) {
 					ProbEqkRupture rup = faultRuptureSource.getRupture(r);
 					EvenlyGriddedSurface surf = rup.getRuptureSurface();
-					double rupArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
+					double rupArea = surf.getAveLength()*surf.getAveWidth();
 					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
 					fw.write(
 							faultRuptureSource.getName()+"\t"+
@@ -1006,8 +1006,8 @@ public class MeanUCERF2 extends AbstractERF {
 							rup.getMag()+"\t"+
 							rup.getProbability()+"\t"+
 							rupArea+"\t"+
-							surf.getSurfaceLength()+"\t"+
-							surf.getSurfaceWidth()+"\t"+
+							surf.getAveLength()+"\t"+
+							surf.getAveWidth()+"\t"+
 							somArea/rupArea+"\t"+
 							FULL_RUP+"\n");
 				}
@@ -1020,7 +1020,7 @@ public class MeanUCERF2 extends AbstractERF {
 				for(int r=0;r<unsegmentedSource.getNumRuptures();r++) {
 					ProbEqkRupture rup = unsegmentedSource.getRupture(r);
 					EvenlyGriddedSurface surf = rup.getRuptureSurface();
-					double rupArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
+					double rupArea = surf.getAveLength()*surf.getAveWidth();
 					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
 					fw.write(
 							unsegmentedSource.getName()+"\t"+
@@ -1028,8 +1028,8 @@ public class MeanUCERF2 extends AbstractERF {
 							rup.getMag()+"\t"+
 							rup.getProbability()+"\t"+
 							rupArea+"\t"+
-							surf.getSurfaceLength()+"\t"+
-							surf.getSurfaceWidth()+"\t"+
+							surf.getAveLength()+"\t"+
+							surf.getAveWidth()+"\t"+
 							somArea/rupArea+"\t"+
 							FLOATING_RUP+"\n");
 				}
@@ -1046,7 +1046,7 @@ public class MeanUCERF2 extends AbstractERF {
 						type = FULL_RUP;
 					ProbEqkRupture rup = unsegmentedSource.getRupture(r);
 					EvenlyGriddedSurface surf = rup.getRuptureSurface();
-					double rupArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
+					double rupArea = surf.getAveLength()*surf.getAveWidth();
 					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
 					fw.write(
 							unsegmentedSource.getName()+"\t"+
@@ -1054,8 +1054,8 @@ public class MeanUCERF2 extends AbstractERF {
 							rup.getMag()+"\t"+
 							rup.getProbability()+"\t"+
 							rupArea+"\t"+
-							surf.getSurfaceLength()+"\t"+
-							surf.getSurfaceWidth()+"\t"+
+							surf.getAveLength()+"\t"+
+							surf.getAveWidth()+"\t"+
 							somArea/rupArea+"\t"+
 							type+"\n");
 				}
@@ -1087,7 +1087,7 @@ public class MeanUCERF2 extends AbstractERF {
 					totMagTimesRat += rup.getMeanAnnualRate(getTimeSpan().getDuration())*rup.getMag();
 				}
 				ProbEqkRupture rup = segmentedSource.getRupture(0);
-				fw.write(rup.getRuptureSurface().getSurfaceLength()*rup.getRuptureSurface().getSurfaceWidth()+"\t"+
+				fw.write(rup.getRuptureSurface().getAveLength()*rup.getRuptureSurface().getAveWidth()+"\t"+
 						(float)(totMagTimesRat/totRate)+"\t"+
 						segmentedSource.getName()+"\n");
 			}
@@ -1103,7 +1103,7 @@ public class MeanUCERF2 extends AbstractERF {
 				}
 				if(!(unsegmentedSource.getNumGR_rups() == unsegmentedSource.getNumRuptures())) {
 					ProbEqkRupture rup = unsegmentedSource.getRupture(unsegmentedSource.getNumGR_rups());
-					fw.write(rup.getRuptureSurface().getSurfaceLength()*rup.getRuptureSurface().getSurfaceWidth()+"\t"+
+					fw.write(rup.getRuptureSurface().getAveLength()*rup.getRuptureSurface().getAveWidth()+"\t"+
 							(float)(totMagTimesRat/totRate)+"\t"+
 							unsegmentedSource.getName()+"\n");
 				}

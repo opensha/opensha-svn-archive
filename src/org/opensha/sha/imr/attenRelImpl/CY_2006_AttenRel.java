@@ -410,7 +410,7 @@ public class CY_2006_AttenRel extends AttenuationRelationship implements
 	  dipParam.setValue(surface.getAveDip());
 	  double depth = surface.getLocation(0, 0).getDepth();
 	  rupTopDepthParam.setValue(depth);
-	  double rupDownDipWidth = eqkRupture.getRuptureSurface().getSurfaceWidth();
+	  double rupDownDipWidth = eqkRupture.getRuptureSurface().getAveWidth();
 	  if(rupDownDipWidth ==0)
 		  rupDownDipWidth = 1;
 	  rupWidthParam.setValue(rupDownDipWidth);

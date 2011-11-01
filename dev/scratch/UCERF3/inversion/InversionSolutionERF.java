@@ -371,7 +371,7 @@ public class InversionSolutionERF extends AbstractERF {
 
 		@Override
 		public LocationList getAllSourceLocs() {
-			return surface.getLocationList();
+			return surface.getEvenlyDiscritizedListOfLocsOnSurface();
 		}
 
 		@Override

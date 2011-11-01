@@ -16,7 +16,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.faultSurface.GriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSurfaceImpl;
 
 import com.google.common.base.Preconditions;
@@ -31,8 +31,8 @@ public class NGAWestParser {
 		}
 	};
 	
-	public static HashMap<Integer, ArrayList<GriddedSurface>> loadPolTlls(File dir) throws IOException {
-		HashMap<Integer, ArrayList<GriddedSurface>> map = new HashMap<Integer, ArrayList<GriddedSurface>>();
+	public static HashMap<Integer, ArrayList<EvenlyGriddedSurface>> loadPolTlls(File dir) throws IOException {
+		HashMap<Integer, ArrayList<EvenlyGriddedSurface>> map = new HashMap<Integer, ArrayList<EvenlyGriddedSurface>>();
 		
 		for (File polFile : dir.listFiles(polFilter)) {
 			File tllFile = new File(dir, polFile.getName().replace(".POL", ".TLL"));
@@ -144,7 +144,7 @@ public class NGAWestParser {
 			}
 			
 			if (!map.containsKey(eqID))
-				map.put(eqID, new ArrayList<GriddedSurface>());
+				map.put(eqID, new ArrayList<EvenlyGriddedSurface>());
 			map.get(eqID).add(surface);
 		}
 		
@@ -161,7 +161,7 @@ public class NGAWestParser {
 		Preconditions.checkArgument(polTllDir.isDirectory(), "Excel directory isn't a directory!");
 		
 		// first load the pol/tll files
-		HashMap<Integer, ArrayList<GriddedSurface>> surfaces = loadPolTlls(polTllDir);
+		HashMap<Integer, ArrayList<EvenlyGriddedSurface>> surfaces = loadPolTlls(polTllDir);
 		
 		ArrayList<NGAWestEqkRupture> rups = new ArrayList<NGAWestEqkRupture>();
 		

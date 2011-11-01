@@ -87,7 +87,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   * of this source
   */
   public LocationList getAllSourceLocs() {
-    return this.surface.getLocationList();
+    return this.surface.getEvenlyDiscritizedListOfLocsOnSurface();
   }
   
   public EvenlyGriddedSurface getSourceSurface() { return this.surface; }

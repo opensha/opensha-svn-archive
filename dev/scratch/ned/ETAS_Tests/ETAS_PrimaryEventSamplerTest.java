@@ -127,7 +127,7 @@ public class ETAS_PrimaryEventSamplerTest {
 		}
 		
 		double total=0;
-		for(Location loc: rupSurf.getLocationList()) {
+		for(Location loc: rupSurf.getEvenlyDiscritizedListOfLocsOnSurface()) {
 			double[] relBlockProbTemp = new double[numBlocks];
 			revisedBlockDistances = new ArrayList<Double>();
 			minBlockDist = Double.MAX_VALUE;

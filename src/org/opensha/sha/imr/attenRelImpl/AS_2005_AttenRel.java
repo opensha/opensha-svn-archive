@@ -261,8 +261,8 @@ public class AS_2005_AttenRel extends AttenuationRelationship implements
       aspectRatioParam.setValue(1.0);
     }
     else {
-      aspectRatioParam.setValue(surface.getSurfaceLength() /
-                                surface.getSurfaceWidth());
+      aspectRatioParam.setValue(surface.getAveLength() /
+                                surface.getAveWidth());
     }
 
 //    setFaultTypeFromRake(eqkRupture.getAveRake());

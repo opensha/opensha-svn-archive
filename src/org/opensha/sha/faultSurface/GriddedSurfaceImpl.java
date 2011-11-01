@@ -37,8 +37,7 @@ import org.opensha.commons.geo.LocationList;
  * @version 1.0
  */
 
-public class GriddedSurfaceImpl extends Container2DImpl<Location>
-implements GriddedSurface {
+public class GriddedSurfaceImpl extends Container2DImpl<Location> implements EvenlyGriddedSurface {
 
 
 	/**
@@ -63,57 +62,28 @@ implements GriddedSurface {
 		super(numRows, numCols);
 	}
 
-
-
-	/**
-	 *  Add a Location to the grid - does the same thing as set except that it
-	 *  ensures the object is a Location object.
-	 *
-	 * @param  row                                 The row to set this Location at.
-	 * @param  column                              The column to set this Location at.
-	 * @param  location                            The new location value.
-	 * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
-	 */
+	@Override
 	public void setLocation(int row, int column, Location location) {
 		super.set(row, column, location);
 	}
 
-	/**
-	 * Returns the average dip of this surface into the Earth.
-	 *
-	 * @throws UnsupportedOperationException
-	 * @return double
-	 * @todo Implement this org.opensha.sha.surface.GriddedSurfaceAPI method
-	 */
+	@Override
 	public double getAveDip() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException(
-		"getAveDip() not supported by GriddedSurface class");
+		"getAveDip() not yet supported by GriddedSurfaceImpl class");
 	}
 
-	/**
-	 * Returns the average strike of this surface into the Earth.
-	 *
-	 * @throws UnsupportedOperationException
-	 * @return double
-	 * @todo Implement this org.opensha.sha.surface.GriddedSurfaceAPI method
-	 */
+	@Override
 	public double getAveStrike() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException(
-		"getAveStrike() not supported by GriddedSurface class");
+		"getAveStrike() yte not supported by GriddedSurfaceImpl class");
 	}
 
 
-
-	/**
-	 * Returns the lenth of this surface.
-	 *
-	 * @throws UnsupportedOperationException
-	 * @return double
-	 * @todo Implement this org.opensha.sha.surface.GriddedSurfaceAPI method
-	 */
-	public double getSurfaceLength() throws UnsupportedOperationException {
+	@Override
+	public double getAveLength() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException(
-		"getSurfaceLength() not supported by GriddedSurface class");
+		"getSurfaceLength() not yet supported by GriddedSurfaceImpl class");
 	}
 
 	/**
@@ -123,17 +93,13 @@ implements GriddedSurface {
 	 * @return double
 	 * @todo Implement this org.opensha.sha.surface.GriddedSurfaceAPI method
 	 */
-	public double getSurfaceWidth() throws UnsupportedOperationException {
+	public double getAveWidth() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException(
-		"getSurfaceWidth() not supported by GriddedSurface class");
+		"getSurfaceWidth() not yet supported by GriddedSurfaceImple class");
 	}
 
-	/**
-	 * Put all the locations of this surface into a location list
-	 *
-	 * @return
-	 */
-	public LocationList getLocationList() {
+	@Override
+	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
 		LocationList locList = new LocationList();
 		Iterator<Location> it = this.listIterator();
 		while (it.hasNext()) locList.add( (Location) it.next());
@@ -162,8 +128,8 @@ implements GriddedSurface {
 	}
 
 
-	/** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
-	public LocationList getSurfacePerimeterLocsList() {
+	@Override
+	public LocationList getEvenlyDiscritizedPerimeter() {
 		LocationList locList = new LocationList();
 		for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
 		for(int r=0;r<getNumRows();r++) locList.add(get(r, getNumCols()-1));
@@ -232,6 +198,38 @@ implements GriddedSurface {
 		for(int col=0; col<numCols; col++)
 			trace.add(get(row, col));
 		return trace;
+	}
+
+
+
+	@Override
+	public double getArea() {
+		throw new UnsupportedOperationException(
+		"getArea() not yet supported by GriddedSurfaceImpl class");
+	}
+
+
+
+	@Override
+	public double getGridSpacingAlongStrike() {
+		throw new UnsupportedOperationException(
+		"getGridSpacingAlongStrike() not yet supported by GriddedSurfaceImpl class");
+	}
+
+
+
+	@Override
+	public double getGridSpacingDownDip() {
+		throw new UnsupportedOperationException(
+		"getGridSpacingDownDip() not yet supported by GriddedSurfaceImpl class");
+	}
+
+
+
+	@Override
+	public Boolean isGridSpacingSame() {
+		throw new UnsupportedOperationException(
+		"isGridSpacingSame() not yet supported by GriddedSurfaceImpl class");
 	}
 
 }

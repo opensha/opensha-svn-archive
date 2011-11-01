@@ -991,8 +991,8 @@ public class A_FaultSegmentedSourceGenerator {
 			strBuffer.append((float)this.getRupMeanMag(rupIndex)+"\t"+(float)fixRate+"\t"+wt+"\n");
 			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
 			// dip, Down dip width, upper seismogenic depth, rup Area
-			strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
-					(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
+			strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getAveWidth()+"\t"+
+					(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getAveLength()+"\n");
 			FaultTrace faultTrace = surface.getFaultTrace();
 			// All fault trace locations
 			strBuffer.append(faultTrace.getNumLocations()+"\n");

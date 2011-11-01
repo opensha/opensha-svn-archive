@@ -87,7 +87,7 @@ public class CyberShakeProbEqkSource extends ProbEqkSource {
 	public LocationList getAllSourceLocs() {
 		EvenlyGriddedSurface surface = this.getSourceSurface();
 		
-		return surface.getLocationList();
+		return surface.getEvenlyDiscritizedListOfLocsOnSurface();
 	}
 
 	public EvenlyGriddedSurface getSourceSurface() {

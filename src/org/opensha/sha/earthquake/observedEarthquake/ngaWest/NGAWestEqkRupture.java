@@ -10,7 +10,6 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.GriddedSurface;
 
 public class NGAWestEqkRupture {
 	
@@ -44,7 +43,7 @@ public class NGAWestEqkRupture {
 	private double finiteFaultRuptureLength;
 	private double finiteFaultRuptureWidth;
 	
-	private List<GriddedSurface> finiteRuptureSurfaces;
+	private List<EvenlyGriddedSurface> finiteRuptureSurfaces;
 	private List<EvenlyGriddedSurface> evenlyGriddedFiniteRuptureSurfaces;
 	
 	private static GregorianCalendar parseDate(int year, String monthDayStr, String hourMinStr) {
@@ -207,11 +206,11 @@ public class NGAWestEqkRupture {
 		} catch (NullPointerException e) {}
 	}
 
-	public List<GriddedSurface> getFiniteRuptureSurfaces() {
+	public List<EvenlyGriddedSurface> getFiniteRuptureSurfaces() {
 		return finiteRuptureSurfaces;
 	}
 
-	public void setFiniteRuptureSurfaces(List<GriddedSurface> finiteRuptureSurfaces) {
+	public void setFiniteRuptureSurfaces(List<EvenlyGriddedSurface> finiteRuptureSurfaces) {
 		this.finiteRuptureSurfaces = finiteRuptureSurfaces;
 		this.evenlyGriddedFiniteRuptureSurfaces = null;
 	}
@@ -219,7 +218,7 @@ public class NGAWestEqkRupture {
 	public List<EvenlyGriddedSurface> getEvenlyGriddedFiniteRuptureSurfaces() {
 		if (evenlyGriddedFiniteRuptureSurfaces == null && finiteRuptureSurfaces != null) {
 			evenlyGriddedFiniteRuptureSurfaces = new ArrayList<EvenlyGriddedSurface>();
-			for (GriddedSurface surf : finiteRuptureSurfaces) {
+			for (EvenlyGriddedSurface surf : finiteRuptureSurfaces) {
 				FaultTrace top = new FaultTrace(name);
 				FaultTrace bottom = new FaultTrace(name);
 				int botRow = surf.getNumRows()-1;

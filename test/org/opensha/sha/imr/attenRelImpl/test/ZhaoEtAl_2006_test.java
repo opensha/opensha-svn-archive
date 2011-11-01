@@ -69,7 +69,7 @@ public class ZhaoEtAl_2006_test {
 		// Find hypocenter
 		double mLo = 0.0;
 		double mLa = 0.0;
-		LocationList locl = fltSurf.getLocationList();
+		LocationList locl = fltSurf.getEvenlyDiscritizedListOfLocsOnSurface();
 		Iterator<Location> iter = locl.iterator();
 		double cnt = 0.0;
 		while (iter.hasNext()){

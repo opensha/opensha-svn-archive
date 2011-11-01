@@ -390,7 +390,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 			boolean srcHasSubSeismogenicRups = false;	// this will check whether any ruptures are sub-seismogenic
 			ProbEqkSource src = meanUCERF2.getSource(ucerf2_srcIndexList.get(s));
 			if (D) System.out.println("working on source "+src.getName()+" "+s+" of "+ucerf2_srcIndexList.size());
-			double srcDDW = src.getSourceSurface().getSurfaceWidth();
+			double srcDDW = src.getSourceSurface().getAveWidth();
 			double totMoRate=0, partMoRate=0;
 			// determine if src is in N Cal.
 			EvenlyGriddedSurface srcSurf = src.getSourceSurface();
@@ -403,8 +403,8 @@ public class FindEquivNoCalUCERF2_Ruptures {
 			for(int r=0; r<src.getNumRuptures(); r++){
 				rupIndex += 1;
 				ProbEqkRupture rup = src.getRupture(r);
-				double ddw = rup.getRuptureSurface().getSurfaceWidth();
-				double len = rup.getRuptureSurface().getSurfaceLength();
+				double ddw = rup.getRuptureSurface().getAveWidth();
+				double len = rup.getRuptureSurface().getAveLength();
 				double mag = ((int)(rup.getMag()*100.0))/100.0;	// nice value for writing
 				totMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
 				srcIndexOfUCERF2_Rup[rupIndex] = s;

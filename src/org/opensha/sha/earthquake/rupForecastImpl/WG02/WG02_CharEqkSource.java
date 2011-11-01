@@ -154,7 +154,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   * of this source
   */
   public LocationList getAllSourceLocs() {
-    return this.rupSurface.getLocationList();
+    return this.rupSurface.getEvenlyDiscritizedListOfLocsOnSurface();
   }
   
   public EvenlyGriddedSurface getSourceSurface() { return this.rupSurface; }

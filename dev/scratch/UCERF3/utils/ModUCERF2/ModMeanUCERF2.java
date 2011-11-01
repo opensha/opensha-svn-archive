@@ -1032,7 +1032,7 @@ public class ModMeanUCERF2 extends AbstractERF {
 			FileWriter fw = new FileWriter("meanUCERF2_FltSrcSurfOutln.txt");
 			for(int isrc=0; isrc<allFltSources.size(); isrc++) {
 				EqkSource source = allFltSources.get(isrc);
-				LocationList locList = source.getSourceSurface().getSurfacePerimeterLocsList();
+				LocationList locList = source.getSourceSurface().getEvenlyDiscritizedPerimeter();
 				System.out.println("# "+source.getName());
 				fw.write("# "+source.getName()+"\n");
 				for(int i=0;i<locList.size();i++) {
