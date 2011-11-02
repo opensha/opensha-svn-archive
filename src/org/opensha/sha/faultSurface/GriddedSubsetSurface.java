@@ -19,6 +19,7 @@
 
 package org.opensha.sha.faultSurface;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -26,47 +27,34 @@ import org.opensha.commons.data.ContainerSubset2D;
 import org.opensha.commons.data.Window2D;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 
 /**
  * <b>Title:</b> GriddedSubsetSurface<p>
  *
- * <b>Description:</b> Implements the same functionality as a GriddedSurface,
- * but only maintains a small read only window view into a GriddedSurface. The
- * Gridded Surface actually stores the data points.<p>
+ * <b>Description:</b> This represents a subset of an EvenlyGriddedSurface
+ * (as a pointer, not duplicated in memory)
  *
  * <b>Note:</b> This class is purely a convinience class that translates indexes so the
  * user can deal with a smaller window than the full GriddedSurface. Think of
  * this as a "ZOOM" function into a GriddedSurface.<p>
  *
- * <b>Note:</b> SetLocation, setAveStrike, setAveDip have been disabled, this
- * class is read-only into the dataset. <p>
  *
  * @see Window2D
- * @author     Steven W. Rock
+ * @author     Steven W. Rock & revised by Ned Field
  * @created    February 26, 2002
  * @version    1.0
  */
-public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements EvenlyGriddedSurface {
+public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implements GriddedSurfaceInterface {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	/**
-     *  Constructor for the GriddedSubsetSurface object
-     *
-     * @param  numRows                             Specifies the length of the window.
-     * @param  numCols                             Specifies the height of the window
-     * @param  startRow                            Start row into the main GriddedSurface.
-     * @param  startCol                            Start column into the main GriddedSurface.
-     * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
-     * main GriddedSurface indexes.
-     */
-    public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol )
-             throws ArrayIndexOutOfBoundsException {
-        super( numRows, numCols, startRow, startCol );
-    }
+	
+	// for distance measures
+	Location locForDistCalcs=null;
+	double distanceJB, distanceSeis, distanceRup, distanceX;
 
 
     /**
@@ -84,6 +72,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
              throws ArrayIndexOutOfBoundsException {
         super( numRows, numCols, startRow, startCol, data );
     }
+    
 
 
     /** Add a Location to the grid. This method throws UnsupportedOperationException as it is disabled. */
@@ -92,82 +81,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
         throw new java.lang.UnsupportedOperationException( "This function is not implemented in this subclass" );
     }
 
-
-    /**
-     * Resizes the window view into the main GriddedSurface data. <p>
-     *
-     * Note: This function uses some advanced features of a transactional nature.
-     * A transaction is basically a series of steps that must follow each other.
-     * If any of the steps fails, the previous steps must be rolled back. I
-     * perform this by calling initTransaction(), rollback() if error, else commit().
-     * It sounds more complicated than it it. This approach basically resets
-     * the window size to the starting size if any of the new indexes fail. Each
-     * is checked one at a time.
-     *
-     * @param  startRow                            The Start row into the main GriddedSurface.
-     * @param  startCol                            Start column into the main GriddedSurface.
-     * @param  numRows                             The new length of the window.
-     * @param  numCols                             The new height of the window
-     * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
-     * main GriddedSurface indexes.
-     */
-    public void setLimits(
-            int startRow,
-            int startCol,
-            int numRows,
-            int numCols )
-             throws ArrayIndexOutOfBoundsException {
-
-        String S = C + ": setLimits():";
-        initTransaction();
-
-
-        window.setStartRow(startRow);
-        window.setStartCol(startCol);
-        window.setNumRows(numRows);
-        window.setNumCols(numCols);
-
-        try {
-            window.checkLowerBounds( S );
-            window.calcUpperBounds();
-            if ( data != null ) {
-                window.checkUpperBounds( S );
-            }
-        } catch ( ArrayIndexOutOfBoundsException e ) {
-            rollback();
-            throw e;
-        }
-        commit();
-    }
-
-
-     /**
-     * Replaces the real data of the GriddedSurface with
-     * a new surface. <p>
-     *
-     * Note: This could be a dangerous thing to do if the
-     * indexes are invalid for the new surface. I am not
-     * sure if this is being checked. Please consult the
-     * Container2D documentation for further information.
-     *
-     * @param  gs  The new newMainSurface value
-     */
-    public void setNewMainSurface( AbstractEvenlyGriddedSurface gs ) {
-        super.setContainer2D(gs);
-    }
-
-    /**
-     * Put all the locations of this surface into a location list
-     *
-     * @return
-     */
-    public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
-      LocationList locList = new LocationList();
-      Iterator<Location> it = listIterator();
-      while(it.hasNext()) locList.add((Location)it.next());
-      return locList;
-
-    }
 
     /** Proxy method that returns the number of rows in the main GriddedSurface. */
     public int getMainNumRows() {
@@ -181,33 +94,33 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
     }
 
 
-    /**
-     *  Proxy method that returns the aveStrike of the main GriddedSurface. <P>
-     *
-     *  SWR: Note - should we be returning the main GriddedSurface ave strike,
-     *  or the ave. strike for the subsurface, which may be different from the
-     *  main surface.
-     *
-     * @return    The aveStrike value
-     */
+     @Override
     public double getAveStrike() {
-        return ( ( EvenlyGriddedSurface) data ).getAveStrike();
+        return getEvenlyDiscritizedUpperEdge().getAveStrike();
+    }
+     
+    
+     @Override
+    public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
+      LocationList locList = new LocationList();
+      Iterator<Location> it = listIterator();
+      while(it.hasNext()) locList.add((Location)it.next());
+      return locList;
+
     }
 
 
     /**
      *  Proxy method that returns the aveDip of the main GriddedSurface. <P>
      *
-     *  SWR: Note - should we be returning the main GriddedSurface ave. dip, or
-     *  the ave. dip for the subsurface, which may be different from the main
-     *  surface.  This is especially important now that we have a
-     *  SimpleListricGriddedFaultFactory (Ned's comment).
-     *
-     * @return    The aveDip value
+     *  This should actually be recomputed if the main surface is a
+     *  SimpleListricGriddedSurface.
      */
+     @Override
     public double getAveDip() {
         return ( ( AbstractEvenlyGriddedSurface ) data ).getAveDip();
     }
+     
 
     /** Debug string to represent a tab. Used by toString().  */
     final static char TAB = '\t';
@@ -231,25 +144,19 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
     }
 
 
-    /**
-     * This returns the total length of the surface
-     * @return double
-     */
+    @Override
     public double getAveLength() {
-
         return getGridSpacingAlongStrike() * (getNumCols()-1);
     }
 
-    /**
-     * This returns the surface width (down dip)
-     * @return double
-     */
+
+    @Override
     public double getAveWidth() {
       return getGridSpacingDownDip() * (getNumRows()-1);
     }
     
 
-    /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+    @Override
     public LocationList getEvenlyDiscritizedPerimeter() {
   	  LocationList locList = new LocationList();
   	  for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
@@ -281,7 +188,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
      * @return String
      */
     public String getSurfaceMetadata() {
-
        return ((EvenlyGriddedSurface)data).getSurfaceMetadata();
     }
 
@@ -306,38 +212,30 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
     }
     
 	/**
-	 * this tells whether along strike and down dip grip
+	 * this tells whether along-strike and down-dip grid spacings are the same
 	 * @return
 	 */
 	public Boolean isGridSpacingSame() {
 		return ((EvenlyGriddedSurface)data).isGridSpacingSame();
 	}
 
-   
-    /**
-     * This returns the total length of the surface in km
-     * @return double
-     */
-    
-    /**
-     * This returns the surface area in km-sq
-     * @return double
-     */
-    public double getArea() {
+ 
+	@Override
+   public double getArea() {
       return getAveWidth()*getAveLength();
     }
 
-
-	@Override
+	
 	public Location getLocation(int row, int column) {
 		return get(row, column);
 	}
-
+	
 
 	@Override
 	public ListIterator<Location> getLocationsIterator() {
 		return listIterator();
 	}
+	
 	
 	public FaultTrace getRowAsTrace(int row) {
 		FaultTrace trace = new FaultTrace(null);
@@ -347,5 +245,145 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location> implements
 	}
 
 
+	@Override
+	public double getAveDipDirection() {
+		return ( ( EvenlyGriddedSurface) data ).getAveDipDirection();
+	}
+
+
+	@Override
+	public double getAveGridSpacing() {
+		return ( ( EvenlyGriddedSurface) data ).getAveGridSpacing();
+	}
+
+
+	@Override
+	public FaultTrace getEvenlyDiscritizedUpperEdge() {
+		return getRowAsTrace(0);
+	}
+
+
+	@Override
+	public Location getFirstLocOnUpperEdge() {
+		return get(0,0);
+	}
+
+
+	@Override
+	public Location getLastLocOnUpperEdge() {
+		// TODO Auto-generated method stub
+		return get(0,getNumCols()-1);
+	}
+
+
+	@Override
+	public LocationList getPerimeter() {
+		FaultTrace topTr = getRowAsTrace(0);
+		FaultTrace botTr = getRowAsTrace(getNumRows()-1);
+		botTr.reverse();
+		LocationList list = new LocationList();
+		list.addAll(topTr);
+		list.addAll(botTr);
+		list.add(topTr.get(0));
+		return list;
+	}
+
+
+	/**
+	 * Returns same as getEvenlyDiscritizedUpperEdge()
+	 */
+	@Override
+	public FaultTrace getUpperEdge() {
+		return getEvenlyDiscritizedUpperEdge();
+	}
+	
+	private void setPropagationDistances() {
+		double[] dists = GriddedSurfaceUtils.getPropagationDistances(this, locForDistCalcs);
+		distanceRup = dists[0];
+		distanceJB = dists[1];
+		distanceSeis = dists[2];
+	}
+	
+	
+	/**
+	 * This returns rupture distance (kms to closest point on the 
+	 * rupture surface), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return 
+	 */
+	public double getDistanceRup(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			setPropagationDistances();
+		}
+		return distanceRup;
+	}
+
+	/**
+	 * This returns distance JB (shortest horz distance in km to surface projection 
+	 * of rupture), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	public double getDistanceJB(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			setPropagationDistances();
+		}
+		return distanceJB;
+	}
+
+	/**
+	 * This returns "distance seis" (shortest distance in km to point on rupture 
+	 * deeper than 3 km), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	public double getDistanceSeis(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			setPropagationDistances();
+		}
+		return distanceSeis;
+	}
+
+	/**
+	 * This returns distance X (the shortest distance in km to the rupture 
+	 * trace extended to infinity), where values >= 0 are on the hanging wall
+	 * and values < 0 are on the foot wall.  The location is assumed to be at zero
+	 * depth (for numerical expediency).
+	 * @return
+	 */
+	public double getDistanceX(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			distanceX = GriddedSurfaceUtils.getDistanceX(this, locForDistCalcs);
+		}
+		return distanceX;
+	}
+	
+
+	@Override
+	public double getAveRupTopDepth() {
+		if (this.data instanceof EvenlyGriddedSurfFromSimpleFaultData) // all depths are the same on the top row
+			return getLocation(0,0).getDepth();
+		else {
+			double depth = 0;
+			FaultTrace topTrace = getRowAsTrace(0);
+			for(Location loc:topTrace)
+				depth += loc.getDepth();
+			return depth/topTrace.size();
+		}
+	}
+
+	@Override
+	public double getFractionOfSurfaceInRegion(Region region) {
+		double numInside=0;
+		for(Location loc: this) {
+			if(region.contains(loc))
+				numInside += 1;
+		}
+		return numInside/size();
+	}
 
 }

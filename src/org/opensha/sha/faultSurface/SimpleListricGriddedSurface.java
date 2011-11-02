@@ -24,22 +24,20 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultUtils;
 
 
-
-
-
 /**
- * <b>Title:</b> SimpleListricGriddedFaultFactory.   <br>
+ * <b>Title:</b> SimpleListricGriddedSurface.   <br>
  * <b>Description: This creates an EvenlyGriddedSurface for a listric fault
  * (a fault where dip changes with depth).  As with the StirlingGriddedSurface,
  * grid points are projected down at an angle perpendicular to the end points of
  * the faultTrace.<br>NOTE: this assumes that all depths in the fault trace are
- * the same as the first depth in the ArrayList (this is check for).<br>  Accuracy Note:
+ * the same as the first depth in the ArrayList (this is checked for).<br>  Accuracy Note:
  * the bending points can be off by up to the gridSpacing (this could be fixed).
 </b> <br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
@@ -48,21 +46,16 @@ import org.opensha.commons.util.FaultUtils;
  * @version 1.0
  */
 
-public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
+public class SimpleListricGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected final static String C = "SimpleListricGriddedFaultFactory";
+	protected final static String C = "SimpleListricGriddedSurface";
 	protected final static boolean D = false;
 
 	protected final static double PI_RADIANS = Math.PI / 180;
-
-	/**
-	 * The fault trace to use.
-	 */
-	protected FaultTrace faultTrace;
 
 	/**
 	 * A ArrayList of Double objects representing the dips (from top to
@@ -72,17 +65,14 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 	protected ArrayList<Double> dips;
 
 	/**
-	 * A ArrayList of Double objects representing the depth intervals on the fault
+	 * An ArrayList of Double objects representing the depth intervals on the fault
 	 * surface (from top to bottom).  This must have one more element that the dips ArrayList.
 	 */
 	protected ArrayList<Double> depths;
 
 
-	public SimpleListricGriddedSurface( FaultTrace faultTrace,
-			ArrayList<Double> dips,
-			ArrayList<Double> depths,
-			double gridSpacing )
-	throws FaultException {
+	public SimpleListricGriddedSurface( FaultTrace faultTrace, ArrayList<Double> dips,
+			ArrayList<Double> depths, double gridSpacing ) throws FaultException {
 
 		this.faultTrace = faultTrace;
 		this.dips = dips;
@@ -90,6 +80,9 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 		this.gridSpacingAlong = gridSpacing;
 		this.gridSpacingDown = gridSpacing;
 		this.sameGridSpacing = true;
+		this.upperSeismogenicDepth= depths.get(0);
+		this.lowerSeismogenicDepth= depths.get(depths.size()-1);
+		
 		if(D){
 			System.out.println("FaultTrace: "+faultTrace.toString()+"\n"+
 					"gridSpacing :"+gridSpacing);
@@ -127,7 +120,7 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 		double cumDistance = 0;
 		int i = 0;
 
-		double aveDipDirection = faultTrace.getDipDirection();
+		double aveDipDirection = getAveDipDirection();
 
 		// Iterate over each Location in Fault Trace
 		// Calculate distance, cumulativeDistance and azimuth for
@@ -159,7 +152,7 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 		double downDipWidth = 0;
 		double totVert=0, totHorz=0;
 		double depth, dip;
-		double depthLast = ( (Double) depths.get(0) ).doubleValue();
+		double depthLast = depths.get(0);
 		for(i=1; i<depths.size(); i++) {
 			depth = ( (Double) depths.get(i) ).doubleValue();
 			dip = ( (Double) dips.get(i-1) ).doubleValue();
@@ -170,6 +163,8 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 		}
 
 		aveDip = Math.atan(totVert/totHorz) / PI_RADIANS;
+		FaultUtils.assertValidDip(aveDip);
+
 
 		// Calculate the number of rows and columns
 		int rows = 1 + Math.round((float) (downDipWidth/gridSpacingDown));
@@ -228,7 +223,7 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 			// location on the trace
 			Location topLocation = LocationUtils.location( location1, dir  );
 
-			setLocation(0, ith_col, topLocation.clone());
+			set(0, ith_col, topLocation.clone());
 			if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
 			// Loop over each row - calculating location at depth along the fault trace
@@ -248,7 +243,7 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 						+ "; vDist = " + dir.getVertDistance() );
 
 				Location nextLocation = LocationUtils.location( lastLocation, dir );
-				setLocation(ith_row, ith_col, nextLocation.clone());
+				set(ith_row, ith_col, nextLocation.clone());
 
 				if( D ) System.out.println(S + "(x,y) nextLocation = (" + ith_row + ", " + ith_col + ") " + nextLocation );
 
@@ -270,7 +265,6 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 		}
 
 		if( D ) System.out.println(S + "Ending");
-		setAveDip(aveDip);
 	}
 
 
@@ -283,10 +277,8 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 	protected void assertValidData() throws FaultException {
 
 		// check the dips
-		ListIterator<Double> it1 = dips.listIterator();
-		while(it1.hasNext()) {
-			FaultUtils.assertValidDip( ((Double)it1.next()).doubleValue() );
-		}
+		for(Double dip:dips)
+			FaultUtils.assertValidDip(dip);
 
 		// check the depths
 		ListIterator<Double> it2 = depths.listIterator();
@@ -321,15 +313,6 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 
 	}
 
-	/**
-	 * Sets the AveDip.
-	 * @param aveDip double
-	 * @throws FaultException
-	 */
-	private void setAveDip(double aveDip) throws FaultException {
-		FaultUtils.assertValidDip(aveDip);
-		this.aveDip = aveDip;
-	}
 
 
 	/**
@@ -394,4 +377,29 @@ public class SimpleListricGriddedSurface extends AbstractEvenlyGriddedSurface {
 		}
 
 	}
+
+
+	@Override
+	public double getAveDipDirection() {
+		return faultTrace.getDipDirection();
+	}
+
+
+	/**
+	 * This returns the same as getEvenlyDiscritizedPerimeter()
+	 */
+	@Override
+	public LocationList getPerimeter() {
+		return getEvenlyDiscritizedPerimeter();
+	}
+	
+	/**
+	 * This returns the given faultTrace since the first depth must be 
+	 * the same as depths in the trace
+	 */
+	@Override
+	public FaultTrace getUpperEdge() {
+		return faultTrace;
+	}
+
 }

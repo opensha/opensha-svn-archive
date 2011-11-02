@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.util.Iterator;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.util.FaultTraceUtils;
@@ -26,6 +27,8 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	FaultTrace upperFaultTrace=null,lowerFaultTrace=null;
 
 
 	/**
@@ -58,6 +61,8 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
 		gridSpacingAlong = aveGridSpacing;
 		gridSpacingDown = aveGridSpacing;
 		sameGridSpacing = true;
+		this.upperFaultTrace = upperFaultTrace;
+		this.lowerFaultTrace = lowerFaultTrace;
 
 		// check that the traces are both in the same order
 		Location firstUpperLoc = upperFaultTrace.get(0);
@@ -199,7 +204,7 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
 	 * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
 	 */
 	public void setLocation( int row, int column, Location location ) {
-		super.setLocation( row, column, location );
+		super.set( row, column, location );
 	}
 
 
@@ -325,6 +330,51 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
 		test2(top2, bot2);
 		
 	
+	}
+
+
+	@Override
+	public double getAveDip() {
+		throw new RuntimeException("Method not yet implemented");
+	}
+
+
+	@Override
+	public double getAveDipDirection() {
+		throw new RuntimeException("Method not yet implemented");
+	}
+
+	@Override
+	public double getAveRupTopDepth() {
+		double aveDepth = 0;
+		FaultTrace topTrace = getRowAsTrace(0);
+		for(Location loc:topTrace)
+			aveDepth += loc.getDepth();
+		return aveDepth/topTrace.size();
+	}
+
+
+	@Override
+	public double getAveStrike() {
+		throw new RuntimeException("Method not yet implemented");
+	}
+
+
+	@Override
+	public LocationList getPerimeter() {
+		LocationList perimeter = new LocationList();
+		perimeter.addAll(upperFaultTrace);
+		FaultTrace reversedLower = this.lowerFaultTrace.clone();
+		reversedLower.reverse();
+		perimeter.addAll(reversedLower);
+		perimeter.add(upperFaultTrace.get(0));  // to close the polygon
+		return perimeter;
+	}
+
+
+	@Override
+	public FaultTrace getUpperEdge() {
+		return upperFaultTrace;
 	}
 
 /*

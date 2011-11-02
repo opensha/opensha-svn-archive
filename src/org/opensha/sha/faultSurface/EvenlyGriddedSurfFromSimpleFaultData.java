@@ -62,6 +62,11 @@ extends AbstractEvenlyGriddedSurface{
 	protected double upperSeismogenicDepth = Double.NaN;
 	protected double lowerSeismogenicDepth = Double.NaN;
 	protected double aveDip;
+	
+	/**
+	 * No are constructor needed by subclasses
+	 */
+	protected EvenlyGriddedSurfFromSimpleFaultData() {}
 
 	/**
 	 * This applies the grid spacing exactly as given, both along strike and down dip, clipping
@@ -246,11 +251,6 @@ extends AbstractEvenlyGriddedSurface{
 	@Override
 	public double getAveDip() {
 		return aveDip;
-	}
-
-	@Override
-	public double getAveGridSpacing() {
-		return (gridSpacingAlong+gridSpacingDown)/2;
 	}
 
 	@Override
