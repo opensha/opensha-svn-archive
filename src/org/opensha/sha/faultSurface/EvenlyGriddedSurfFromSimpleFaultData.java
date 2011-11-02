@@ -30,6 +30,8 @@ import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FaultUtils;
 
 
@@ -59,6 +61,7 @@ extends AbstractEvenlyGriddedSurface{
 	protected FaultTrace faultTrace;
 	protected double upperSeismogenicDepth = Double.NaN;
 	protected double lowerSeismogenicDepth = Double.NaN;
+	protected double aveDip;
 
 	/**
 	 * This applies the grid spacing exactly as given, both along strike and down dip, clipping
@@ -210,7 +213,6 @@ extends AbstractEvenlyGriddedSurface{
 
 	public FaultTrace getFaultTrace() { return faultTrace; }
 
-
 	public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
 
 	public double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
@@ -240,21 +242,41 @@ extends AbstractEvenlyGriddedSurface{
 			}
 		}
 	}
-
+	
 	@Override
-	public Location getLocation(int row, int column) {
-		return get(row, column);
+	public double getAveDip() {
+		return aveDip;
 	}
 
-
 	@Override
-	public ListIterator<Location> getLocationsIterator() {
-		return listIterator();
+	public double getAveGridSpacing() {
+		return (gridSpacingAlong+gridSpacingDown)/2;
 	}
 
+	@Override
+	public double getAveRupTopDepth() {
+		return upperSeismogenicDepth;
+	}
 
 	@Override
-	public void setLocation(int row, int column, Location loc) {
-		set(row, column, loc);
+	public double getAveStrike() {
+		return faultTrace.getAveStrike();
 	}
+
+	@Override
+	public FaultTrace getUpperEdge() {
+		// check that the location depths in faultTrace are same as upperSeismogenicDepth
+		double aveTraceDepth = 0;
+		for(Location loc:faultTrace)
+			aveTraceDepth += loc.getDepth();
+		aveTraceDepth /= faultTrace.size();
+		double diff = Math.abs(aveTraceDepth-upperSeismogenicDepth); // km
+		if(diff < 0.001)
+			return faultTrace;
+		else
+			throw new RuntimeException(" method not yet implemented where depths in the " +
+					"trace differ from upperSeismogenicDepth (and projecting will cleate " +
+					"loops for FrankelGriddedSurface projections");
+	}
+
 }

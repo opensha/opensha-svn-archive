@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 
 
 
@@ -203,7 +205,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 			while( segmentNumber <= numSegments && distanceAlong > segmentCumLenth[ segmentNumber - 1] ){
 				segmentNumber++;
 			}
-			// put back in last segment if grid point has just barely stepped off the end
+			// put back in last segment if grid point has just barely stepped off the end of the trace
 			if( segmentNumber == numSegments+1) segmentNumber--;
 
 			if( D ) System.out.println(S + "segmentNumber " + segmentNumber );
@@ -263,6 +265,12 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		if( D ) System.out.println(S + "Ending");
 
 	}
+	
+	@Override
+	public double getAveDipDirection() {
+		return faultTrace.getDipDirection();
+	}
+
 
 
 	public static void main(String args[]) {
@@ -288,6 +296,12 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 			System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
 		}
 
+	}
+
+	@Override
+	public LocationList getPerimeter() {
+		throw new RuntimeException("method undefined for this class since projection of the " +
+				"trace to lower seismogenic depths will cause loops where strike changes");
 	}
 
 }

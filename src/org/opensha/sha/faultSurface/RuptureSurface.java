@@ -88,7 +88,7 @@ public interface RuptureSurface {
 	 * the Aki and Richards convention.
 	 * @return
 	 */
-	public LocationList getEvenlyDiscritizedUpperEdge();
+	public FaultTrace getEvenlyDiscritizedUpperEdge();
 	
 	/**
 	 * This returns the average grid spacing used to define the discretization 

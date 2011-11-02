@@ -24,9 +24,12 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Container2DImpl;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
+import org.opensha.commons.geo.Region;
 
 /**
  * <b>Title:</b> GriddedSurface<p>
@@ -41,7 +44,6 @@ public abstract class AbstractEvenlyGriddedSurface
 extends Container2DImpl<Location>
 implements EvenlyGriddedSurface {
 
-
 	/**
 	 * 
 	 */
@@ -51,19 +53,15 @@ implements EvenlyGriddedSurface {
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-
-	/** The average strike of this surface on the Earth.  */
-	protected double aveStrike=Double.NaN;
-
-	/** The average dip of this surface into the Earth.  */
-	protected double aveDip=Double.NaN;
-
-	/**
-	 * @todo Variables
-	 */
 	protected double gridSpacingAlong;
 	protected double gridSpacingDown;
 	protected Boolean sameGridSpacing;
+	
+	// for distance measures
+	Location locForDistCalcs=null;
+	double distanceJB, distanceSeis, distanceRup, distanceX;
+	final static double SEIS_DEPTH = 3.0;
+
 
 	/**
 	 * No Argument constructor, called from classes extending it.
@@ -102,21 +100,10 @@ implements EvenlyGriddedSurface {
 			sameGridSpacing = true;
 		else
 			sameGridSpacing = false;
-
 	}
 
 
-	/** Returns the average strike of this surface on the Earth.  */
-	public double getAveStrike() { return aveStrike; }
-
-	/** Returns the average dip of this surface into the Earth.  */
-	public double getAveDip() { return aveDip; }
-
-	/**
-	 * Put all the locations of this surface into a location list
-	 *
-	 * @return
-	 */
+	@Override
 	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
 		LocationList locList = new LocationList();
 		Iterator<Location> it = listIterator();
@@ -132,8 +119,6 @@ implements EvenlyGriddedSurface {
 
 		StringBuffer b = new StringBuffer();
 		b.append( C + '\n');
-		if ( aveStrike != Double.NaN ) b.append( "Ave. Strike = " + aveStrike + '\n' );
-		if ( aveDip != Double.NaN ) b.append( "Ave. Dip = " + aveDip + '\n' );
 
 		b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
 
@@ -145,32 +130,18 @@ implements EvenlyGriddedSurface {
 		return b.toString();
 	}
 
-
-
-	/**
-	 * returns the grid spacing along strike
-	 *
-	 * @return
-	 */
+	@Override
 	public double getGridSpacingAlongStrike() {
 		return this.gridSpacingAlong;
 	}
 
-	
-	/**
-	 * returns the grid spacing down dip
-	 *
-	 * @return
-	 */
+	@Override
 	public double getGridSpacingDownDip() {
 		return this.gridSpacingDown;
 	}
 	
 	
-	/**
-	 * this tells whether along strike and down dip grip
-	 * @return
-	 */
+	@Override
 	public Boolean isGridSpacingSame() {
 		return this.sameGridSpacing;
 	}
@@ -420,61 +391,26 @@ implements EvenlyGriddedSurface {
 		return nSubSurfaceAlong;
 	}
 
-
-
-	/**
-	 * This returns the total length of the surface in km
-	 * @return double
-	 */
+	@Override
 	public double getAveLength() {
-
 		return getGridSpacingAlongStrike() * (getNumCols()-1);
 	}
 
-	/**
-	 * This returns the surface width (down dip) in km
-	 * @return double
-	 */
+	@Override
 	public double getAveWidth() {
 		return getGridSpacingDownDip() * (getNumRows()-1);
 	}
 
-	/**
-	 * This returns the surface area in km-sq
-	 * @return double
-	 */
+	@Override
 	public double getArea() {
 		return getAveWidth()*getAveLength();
 	}
 
 
 
-	/**
-	 * Calculate the minimum distance of this surface from user provided surface
-	 * @param surface EvenlyGriddedSurface 
-	 * @return distance in km
-	 */
-	public double getMinDistance(EvenlyGriddedSurface surface) {
-		Iterator<Location> it = listIterator();
-		double min3dDist = Double.POSITIVE_INFINITY;
-		double dist;
-		// find distance between all location pairs in the two surfaces
-		while(it.hasNext()) { // iterate over all locations in this surface
-			Location loc1 = (Location)it.next();
-			Iterator<Location> it2 = surface.listIterator();
-			while(it2.hasNext()) { // iterate over all locations on the user provided surface
-				Location loc2 = (Location)it2.next();
-				dist = LocationUtils.linearDistanceFast(loc1, loc2);
-				if(dist<min3dDist){
-					min3dDist = dist;
-				}
-			}
-		}
-		return min3dDist;
-	}
 
 
-	/** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+	@Override
 	public LocationList getEvenlyDiscritizedPerimeter() {
 		LocationList locList = new LocationList();
 		for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
@@ -506,8 +442,7 @@ implements EvenlyGriddedSurface {
 	 * @return String
 	 */
 	public String getSurfaceMetadata() {
-		String surfaceMetadata;
-		surfaceMetadata = (float)aveDip + "\t";
+		String surfaceMetadata = "";
 		surfaceMetadata += (float)getAveLength() + "\t";
 		surfaceMetadata += (float)getAveWidth() + "\t";
 		surfaceMetadata += (float)Double.NaN + "\t";
@@ -539,16 +474,275 @@ implements EvenlyGriddedSurface {
 	}
 
 
-	@Override
+	
 	public void setLocation(int row, int column, Location loc) {
 		set(row, column, loc);
 	}
 	
+	@Override
 	public FaultTrace getRowAsTrace(int row) {
 		FaultTrace trace = new FaultTrace(null);
 		for(int col=0; col<numCols; col++)
 			trace.add(get(row, col));
 		return trace;
 	}
+	
+	/**
+	 * Calculate the minimum distance of this surface from user provided surface
+	 * @param surface EvenlyGriddedSurface 
+	 * @return distance in km
+	 */
+	public double getMinDistance(EvenlyGriddedSurface surface) {
+		Iterator<Location> it = listIterator();
+		double min3dDist = Double.POSITIVE_INFINITY;
+		double dist;
+		// find distance between all location pairs in the two surfaces
+		while(it.hasNext()) { // iterate over all locations in this surface
+			Location loc1 = (Location)it.next();
+			Iterator<Location> it2 = surface.listIterator();
+			while(it2.hasNext()) { // iterate over all locations on the user provided surface
+				Location loc2 = (Location)it2.next();
+				dist = LocationUtils.linearDistanceFast(loc1, loc2);
+				if(dist<min3dDist){
+					min3dDist = dist;
+				}
+			}
+		}
+		return min3dDist;
+	}
+	
+	private void calcPropagationDistances() {
+		
+		Location loc1 = locForDistCalcs;
+		Location loc2;
+		distanceJB = Double.MAX_VALUE;
+		distanceSeis = Double.MAX_VALUE;
+		distanceRup = Double.MAX_VALUE;
+		
+		double horzDist, vertDist, rupDist;
+
+		int numLocs = (int) this.size();
+
+		// flag to project to seisDepth if only one row and depth is below seisDepth
+		boolean projectToDepth = false;
+		if (getNumRows() == 1 && getLocation(0,0).getDepth() < SEIS_DEPTH)
+			projectToDepth = true;
+
+		// get locations to iterate over depending on dip
+		ListIterator it;
+		if(getAveDip() > 89) {
+			it = getColumnIterator(0);
+			if (getLocation(0,0).getDepth() < SEIS_DEPTH)
+				projectToDepth = true;
+		}
+		else
+			it = getLocationsIterator();
+
+		while( it.hasNext() ){
+
+			loc2 = (Location) it.next();
+
+			// get the vertical distance
+			vertDist = LocationUtils.vertDistance(loc1, loc2);
+
+			// get the horizontal dist depending on desired accuracy
+			horzDist = LocationUtils.horzDistanceFast(loc1, loc2);
+
+			if(horzDist < distanceJB) distanceJB = horzDist;
+
+			rupDist = horzDist * horzDist + vertDist * vertDist;
+			if(rupDist < distanceRup) distanceRup = rupDist;
+
+			if (loc2.getDepth() >= SEIS_DEPTH) {
+				if (rupDist < distanceSeis)
+					distanceSeis = rupDist;
+			}
+			// take care of shallow line or point source case
+			else if(projectToDepth) {
+				rupDist = horzDist * horzDist + SEIS_DEPTH * SEIS_DEPTH;
+				if (rupDist < distanceSeis)
+					distanceSeis = rupDist;
+			}
+		}
+
+		distanceRup = Math.pow(distanceRup,0.5);
+		distanceSeis = Math.pow(distanceSeis,0.5);
+
+		if(D) {
+			System.out.println(C+": distanceRup = " + distanceRup);
+			System.out.println(C+": distanceSeis = " + distanceSeis);
+			System.out.println(C+": distanceJB = " + distanceJB);
+		}
+
+	}
+	
+	/**
+	 * This returns rupture distance (kms to closest point on the 
+	 * rupture surface), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return 
+	 */
+	public double getDistanceRup(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			calcPropagationDistances();
+		}
+		return distanceRup;
+	}
+
+	/**
+	 * This returns distance JB (shortest horz distance in km to surface projection 
+	 * of rupture), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	public double getDistanceJB(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			calcPropagationDistances();
+		}
+		return distanceJB;
+	}
+
+	/**
+	 * This returns "distance seis" (shortest distance in km to point on rupture 
+	 * deeper than 3 km), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	public double getDistanceSeis(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			calcPropagationDistances();
+		}
+		return distanceSeis;
+	}
+
+	/**
+	 * This returns distance X (the shortest distance in km to the rupture 
+	 * trace extended to infinity), where values >= 0 are on the hanging wall
+	 * and values < 0 are on the foot wall.  The location is assumed to be at zero
+	 * depth (for numerical expediency).
+	 * @return
+	 */
+	public double getDistanceX(Location loc){
+		if(!locForDistCalcs.equals(loc)) {
+			locForDistCalcs = loc;
+			calcDistanceX();
+		}
+		return distanceX;
+	}
+	
+	private void calcDistanceX() {
+//		Location siteLoc this.locForDistCalcs;
+
+		// set to zero if it's a point source
+		if(getNumCols() == 1) {
+			distanceX = 0;
+		}
+		else {
+			// We should probably set something here here too if it's vertical strike-slip
+			// (to avoid unnecessary calculations)
+
+				// get points projected off the ends
+				Location firstTraceLoc = getLocation(0, 0); 						// first trace point
+				Location lastTraceLoc = getLocation(0, getNumCols()-1); 	// last trace point
+
+				// get point projected from first trace point in opposite direction of the ave trace
+				LocationVector dir = LocationUtils.vector(lastTraceLoc, firstTraceLoc); 		
+				dir.setHorzDistance(1000); // project to 1000 km
+				dir.setVertDistance(0d);
+				Location projectedLoc1 = LocationUtils.location(firstTraceLoc, dir);
+
+
+				// get point projected from last trace point in ave trace direction
+				dir.setAzimuth(dir.getAzimuth()+180);  // flip to ave trace dir
+				Location projectedLoc2 = LocationUtils.location(lastTraceLoc, dir);
+				// point down dip by adding 90 degrees to the azimuth
+				dir.setAzimuth(dir.getAzimuth()+90);  // now point down dip
+
+				// get points projected in the down dip directions at the ends of the new trace
+				Location projectedLoc3 = LocationUtils.location(projectedLoc1, dir);
+
+				Location projectedLoc4 = LocationUtils.location(projectedLoc2, dir);
+
+				LocationList locsForExtendedTrace = new LocationList();
+				LocationList locsForRegion = new LocationList();
+
+				locsForExtendedTrace.add(projectedLoc1);
+				locsForRegion.add(projectedLoc1);
+				for(int c=0; c<getNumCols(); c++) {
+					locsForExtendedTrace.add(getLocation(0, c));
+					locsForRegion.add(getLocation(0, c));     	
+				}
+				locsForExtendedTrace.add(projectedLoc2);
+				locsForRegion.add(projectedLoc2);
+
+				// finish the region
+				locsForRegion.add(projectedLoc4);
+				locsForRegion.add(projectedLoc3);
+
+				// write these out if in debug mode
+				if(D) {
+					System.out.println("Projected Trace:");
+					for(int l=0; l<locsForExtendedTrace.size(); l++) {
+						Location loc = locsForExtendedTrace.get(l);
+						System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
+					}
+					System.out.println("Region:");
+					for(int l=0; l<locsForRegion.size(); l++) {
+						Location loc = locsForRegion.get(l);
+						System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
+					}
+				}
+
+				Region polygon = new Region(locsForRegion, BorderType.MERCATOR_LINEAR);
+				boolean isInside = polygon.contains(locForDistCalcs);
+
+				double distToExtendedTrace = locsForExtendedTrace.minDistToLine(locForDistCalcs);
+
+				if(isInside || distToExtendedTrace == 0.0) // zero values are always on the hanging wall
+					distanceX = distToExtendedTrace;
+				else 
+					distanceX = -distToExtendedTrace;
+		}
+	}
+	
+
+	@Override
+	public FaultTrace getEvenlyDiscritizedUpperEdge() {
+		return getRowAsTrace(0);
+	}
+
+
+	@Override
+	public double getFractionOfSurfaceInRegion(Region region) {
+		double numInside=0;
+		for(Location loc: this) {
+			if(region.contains(loc))
+				numInside += 1;
+		}
+		return numInside/size();
+	}
+
+
+	/**
+	 * This returns the first location on row zero
+	 * (which should be the same as the first loc of the FaultTrace)
+	 */
+	@Override
+	public Location getFirstLocOnUpperEdge() {
+		return get(0,0);
+	}
+	
+	/**
+	 * This returns the last location on row zero (which may not be the 
+	 * same as the last loc of the FaultTrace depending on the discretization)
+	 */
+	@Override
+	public Location getLastLocOnUpperEdge() {
+		return get(0,getNumCols()-1);
+	}
+
 
 }
