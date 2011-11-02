@@ -37,7 +37,7 @@ import org.opensha.commons.geo.LocationList;
  * @version 1.0
  */
 
-public class GriddedSurfaceImpl extends EvenlyGriddedSurface {
+public class GriddedSurfaceImpl extends AbstractEvenlyGriddedSurface {
 
 
 	/**

@@ -19,10 +19,10 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
@@ -91,8 +91,8 @@ public class InversionSolutionERF extends AbstractERF {
 	private HashMap<String, SimpleSource> sourceNameMap = new HashMap<String, InversionSolutionERF.SimpleSource>();
 	private ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 	
-	private HashMap<FaultSectionPrefData, EvenlyGriddedSurface> surfMap =
-		new HashMap<FaultSectionPrefData, EvenlyGriddedSurface>();
+	private HashMap<FaultSectionPrefData, AbstractEvenlyGriddedSurface> surfMap =
+		new HashMap<FaultSectionPrefData, AbstractEvenlyGriddedSurface>();
 	
 	public InversionSolutionERF() {
 		fileParam = new FileParameter(FILE_PARAM_NAME);
@@ -269,7 +269,7 @@ public class InversionSolutionERF extends AbstractERF {
 	}
 	
 	private ProbEqkRupture buildRupture(List<FaultSectionPrefData> datas, double mag, double rake, double prob) {
-		EvenlyGriddedSurface surface;
+		AbstractEvenlyGriddedSurface surface;
 		if (isRuptureSingleParent(datas)) {
 			// simple case
 			ArrayList<SimpleFaultData> sfds = new ArrayList<SimpleFaultData>();
@@ -277,14 +277,14 @@ public class InversionSolutionERF extends AbstractERF {
 				sfds.add(data.getSimpleFaultData(aseisReduce));
 			surface = new StirlingGriddedSurface(sfds, faultGridSpacing);
 		} else {
-			ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
+			ArrayList<AbstractEvenlyGriddedSurface> surfaces = new ArrayList<AbstractEvenlyGriddedSurface>();
 			
 			double dip = 0d;
 			
 			for (FaultSectionPrefData data : datas) {
 				if (!surfMap.containsKey(data))
 					surfMap.put(data, new StirlingGriddedSurface(data.getSimpleFaultData(aseisReduce), 1.0d));
-				EvenlyGriddedSurface surf = surfMap.get(data);
+				AbstractEvenlyGriddedSurface surf = surfMap.get(data);
 				surfaces.add(surf);
 				dip += data.getAveDip();
 			}
@@ -294,35 +294,35 @@ public class InversionSolutionERF extends AbstractERF {
 		return new ProbEqkRupture(mag, rake, prob, surface, null);
 	}
 	
-	private static int calcNCol(List<EvenlyGriddedSurface> surfaces) {
+	private static int calcNCol(List<AbstractEvenlyGriddedSurface> surfaces) {
 		int ncol = 0;
-		for (EvenlyGriddedSurface surf : surfaces)
+		for (AbstractEvenlyGriddedSurface surf : surfaces)
 			ncol += surf.getNumCols();
 		return ncol;
 	}
 	
-	private static int calcNRow(List<EvenlyGriddedSurface> surfaces) {
+	private static int calcNRow(List<AbstractEvenlyGriddedSurface> surfaces) {
 		int nrow = 0;
-		for (EvenlyGriddedSurface surf : surfaces)
+		for (AbstractEvenlyGriddedSurface surf : surfaces)
 			if (surf.getNumRows() > nrow)
 				nrow = surf.getNumRows();
 		return nrow;
 	}
 	
-	private class KludgeMultiSurface extends AbstractEvenlyGriddedSurface {
+	private class KludgeMultiSurface extends AbstractEvenlyGriddedSurfaceWithSubsets {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
-		public KludgeMultiSurface(List<EvenlyGriddedSurface> surfaces, double dip) {
+		public KludgeMultiSurface(List<AbstractEvenlyGriddedSurface> surfaces, double dip) {
 			super(calcNRow(surfaces), calcNCol(surfaces), faultGridSpacing);
 //			aveDip = dip;
 			
 			// TODO: this is DIRTYYYYYYYYYYYYYYYYY...need ruptures with multiple surfaces
 			
 			int colCnt = 0;
-			for (EvenlyGriddedSurface dataSurf : surfaces) {
+			for (AbstractEvenlyGriddedSurface dataSurf : surfaces) {
 				int myNRows = dataSurf.getNumRows();
 				for (int col=0; col<dataSurf.getNumCols(); col++) {
 					Location loc = null;
@@ -380,7 +380,7 @@ public class InversionSolutionERF extends AbstractERF {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private GriddedSurfaceInterface surface;
+		private EvenlyGriddedSurface surface;
 		private ArrayList<Double> rates = new ArrayList<Double>();
 		private ArrayList<ProbEqkRupture> rups = new ArrayList<ProbEqkRupture>();
 		
@@ -392,7 +392,7 @@ public class InversionSolutionERF extends AbstractERF {
 			rups.add(rup);
 			rates.add(rate);
 			
-			GriddedSurfaceInterface rupSurf = rup.getRuptureSurface();
+			EvenlyGriddedSurface rupSurf = rup.getRuptureSurface();
 			// TODO kludge for setting the source surface
 			if (surface == null || rupSurf.getNumCols() > surface.getNumCols())
 				surface = rupSurf;
@@ -413,7 +413,7 @@ public class InversionSolutionERF extends AbstractERF {
 		}
 
 		@Override
-		public GriddedSurfaceInterface getSourceSurface() {
+		public EvenlyGriddedSurface getSourceSurface() {
 			return surface;
 		}
 

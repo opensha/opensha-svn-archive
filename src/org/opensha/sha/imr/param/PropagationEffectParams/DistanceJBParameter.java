@@ -28,8 +28,8 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * <b>Title:</b> DistanceJBParameter<p>
@@ -130,7 +130,7 @@ public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 	/**
 	 * Note that this does not throw a warning
 	 */
-	public static double getDistance(Location loc, GriddedSurfaceInterface rupSurf) {
+	public static double getDistance(Location loc, EvenlyGriddedSurface rupSurf) {
 
 			Location loc2;
 			double minDistance = 999999;
@@ -160,7 +160,7 @@ public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 	protected void calcValueFromSiteAndEqkRup(){
 		if( ( this.site != null ) && ( this.eqkRupture != null )) {
 			Location loc = site.getLocation();
-			GriddedSurfaceInterface rupSurf = eqkRupture.getRuptureSurface();
+			EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
 			double dist = getDistance(loc, rupSurf);
 			// fix distanceJB if needed
 			if(fix_dist_JB){

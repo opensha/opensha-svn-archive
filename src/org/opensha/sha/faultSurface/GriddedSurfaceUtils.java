@@ -26,7 +26,7 @@ public class GriddedSurfaceUtils {
 	 * @param loc
 	 * @return
 	 */
-	public static double[] getPropagationDistances(GriddedSurfaceInterface surface, Location loc) {
+	public static double[] getPropagationDistances(EvenlyGriddedSurface surface, Location loc) {
 		
 		Location loc1 = loc;
 		Location loc2;
@@ -99,7 +99,7 @@ public class GriddedSurfaceUtils {
 	 * @param siteLoc
 	 * @return
 	 */
-	public static double getDistanceX(GriddedSurfaceInterface surface, Location siteLoc) {
+	public static double getDistanceX(EvenlyGriddedSurface surface, Location siteLoc) {
 
 		double distanceX;
 		

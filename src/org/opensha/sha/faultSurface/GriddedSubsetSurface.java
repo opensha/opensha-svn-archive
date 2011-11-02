@@ -45,7 +45,7 @@ import org.opensha.commons.geo.Region;
  * @created    February 26, 2002
  * @version    1.0
  */
-public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implements GriddedSurfaceInterface {
+public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implements EvenlyGriddedSurface {
 
     /**
 	 * 
@@ -68,7 +68,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
      * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
      * main GriddedSurface indexes.
      */
-    public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, EvenlyGriddedSurface data )
+    public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, AbstractEvenlyGriddedSurface data )
              throws ArrayIndexOutOfBoundsException {
         super( numRows, numCols, startRow, startCol, data );
     }
@@ -118,7 +118,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
      */
      @Override
     public double getAveDip() {
-        return ( ( AbstractEvenlyGriddedSurface ) data ).getAveDip();
+        return ( ( AbstractEvenlyGriddedSurfaceWithSubsets ) data ).getAveDip();
     }
      
 
@@ -130,8 +130,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 
         StringBuffer b = new StringBuffer();
         b.append( C + '\n');
-        if ( data != null ) b.append( "Ave. Strike = " + ( ( AbstractEvenlyGriddedSurface ) data ).getAveStrike() + '\n' );
-        if ( data != null ) b.append( "Ave. Dip = " + ( ( AbstractEvenlyGriddedSurface ) data ).getAveDip() + '\n' );
+        if ( data != null ) b.append( "Ave. Strike = " + ( ( AbstractEvenlyGriddedSurfaceWithSubsets ) data ).getAveStrike() + '\n' );
+        if ( data != null ) b.append( "Ave. Dip = " + ( ( AbstractEvenlyGriddedSurfaceWithSubsets ) data ).getAveDip() + '\n' );
 
         b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
 
@@ -188,7 +188,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
      * @return String
      */
     public String getSurfaceMetadata() {
-       return ((EvenlyGriddedSurface)data).getSurfaceMetadata();
+       return ((AbstractEvenlyGriddedSurface)data).getSurfaceMetadata();
     }
 
 
@@ -198,7 +198,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
      * @return
      */
     public double getGridSpacingAlongStrike() {
-      return ((EvenlyGriddedSurface)data).getGridSpacingAlongStrike();
+      return ((AbstractEvenlyGriddedSurface)data).getGridSpacingAlongStrike();
     }
 
 
@@ -208,7 +208,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
      * @return
      */
     public double getGridSpacingDownDip() {
-      return ((EvenlyGriddedSurface)data).getGridSpacingDownDip();
+      return ((AbstractEvenlyGriddedSurface)data).getGridSpacingDownDip();
     }
     
 	/**
@@ -216,7 +216,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * @return
 	 */
 	public Boolean isGridSpacingSame() {
-		return ((EvenlyGriddedSurface)data).isGridSpacingSame();
+		return ((AbstractEvenlyGriddedSurface)data).isGridSpacingSame();
 	}
 
  
@@ -247,13 +247,13 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 
 	@Override
 	public double getAveDipDirection() {
-		return ( ( EvenlyGriddedSurface) data ).getAveDipDirection();
+		return ( ( AbstractEvenlyGriddedSurface) data ).getAveDipDirection();
 	}
 
 
 	@Override
 	public double getAveGridSpacing() {
-		return ( ( EvenlyGriddedSurface) data ).getAveGridSpacing();
+		return ( ( AbstractEvenlyGriddedSurface) data ).getAveGridSpacing();
 	}
 
 

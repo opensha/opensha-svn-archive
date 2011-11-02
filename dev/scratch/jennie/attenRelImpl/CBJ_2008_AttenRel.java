@@ -20,9 +20,9 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
@@ -440,7 +440,7 @@ public class CBJ_2008_AttenRel
 		  fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
 	  }
 	  
-	  GriddedSurfaceInterface surface = eqkRupture.getRuptureSurface();
+	  EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
 	  double depth = surface.getLocation(0, 0).getDepth();
 	  rupTopDepthParam.setValue(depth);
 	  

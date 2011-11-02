@@ -7,9 +7,9 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 /**
  * <p>Title: </p>
@@ -100,7 +100,7 @@ public final class DistDecayFromRupCalc {
     else {
       // this is a rupture surface.  get  the sum squared distance from
       // all grid nodes to the rupture surface.
-    	GriddedSurfaceInterface ruptureSurface = mainshock.getRuptureSurface();
+    	EvenlyGriddedSurface ruptureSurface = mainshock.getRuptureSurface();
 
       while (zoneIT.hasNext()) {
     	  gLoc = zoneIT.next();
@@ -136,7 +136,7 @@ public final class DistDecayFromRupCalc {
   /**
    * getRupDist
    */
-  private static double getRupDist(GriddedSurfaceInterface ruptureSurface, Location gridLoc) {
+  private static double getRupDist(EvenlyGriddedSurface ruptureSurface, Location gridLoc) {
     int ind = 0;
     double nodeDistFromRup, minDistFromRup = 0;
     ListIterator rupIT = ruptureSurface.listIterator();

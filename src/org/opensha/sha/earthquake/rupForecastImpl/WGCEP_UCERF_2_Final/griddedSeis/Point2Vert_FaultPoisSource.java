@@ -31,7 +31,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_RelativeLocation;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
@@ -311,7 +311,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
   /**
    * This approximates the source as a point at 1.0 km depth.
    */
-  public EvenlyGriddedSurface getSourceSurface() { 
+  public AbstractEvenlyGriddedSurface getSourceSurface() { 
 	  PointSurface newPtSurface = new PointSurface(ptSurface.getLocation());
 	  newPtSurface.setDepth(1.0);
 	  return newPtSurface;

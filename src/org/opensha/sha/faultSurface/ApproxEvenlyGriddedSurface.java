@@ -18,7 +18,7 @@ import org.opensha.commons.util.FaultTraceUtils;
  * We could add methods here like: getMinGridSpacing(), getMaxGridSpacing(), etc.
  * @author field
  */
-public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
+public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWithSubsets {
 
 	// for debugging
 	private final static boolean D = false;

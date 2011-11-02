@@ -31,7 +31,7 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -312,7 +312,7 @@ public class PEER_NonPlanarFaultForecast extends AbstractERF{
          }
 
          // make the source
-         source = new FloatingPoissonFaultSource(grMagFreqDist,(AbstractEvenlyGriddedSurface)surfaceAll,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(AbstractEvenlyGriddedSurfaceWithSubsets)surfaceAll,
                                              magScalingRel,lengthSigma,rupAspectRatio,offset,
                                              RAKE,timeSpan.getDuration(),minMag);
          // add it to the source list
@@ -352,7 +352,7 @@ public class PEER_NonPlanarFaultForecast extends AbstractERF{
                                                  LOWER_SEISMO_DEPTH,
                                                  gridSpacing);
          source = new FloatingPoissonFaultSource(grMagFreqDist,
-                                                 (AbstractEvenlyGriddedSurface)
+                                                 (AbstractEvenlyGriddedSurfaceWithSubsets)
                                                  surfaceA,
                                                  magScalingRel, lengthSigma,
                                                  rupAspectRatio, offset,
@@ -372,7 +372,7 @@ public class PEER_NonPlanarFaultForecast extends AbstractERF{
                                                  LOWER_SEISMO_DEPTH,
                                                  gridSpacing);
          source = new FloatingPoissonFaultSource(grMagFreqDist,
-                                                 (AbstractEvenlyGriddedSurface)
+                                                 (AbstractEvenlyGriddedSurfaceWithSubsets)
                                                  surfaceB,
                                                  magScalingRel, lengthSigma,
                                                  rupAspectRatio, offset,
@@ -392,7 +392,7 @@ public class PEER_NonPlanarFaultForecast extends AbstractERF{
                                                  LOWER_SEISMO_DEPTH,
                                                  gridSpacing);
          source = new FloatingPoissonFaultSource(grMagFreqDist,
-                                                 (AbstractEvenlyGriddedSurface)
+                                                 (AbstractEvenlyGriddedSurfaceWithSubsets)
                                                  surfaceC,
                                                  magScalingRel, lengthSigma,
                                                  rupAspectRatio, offset,
@@ -412,7 +412,7 @@ public class PEER_NonPlanarFaultForecast extends AbstractERF{
                                                  LOWER_SEISMO_DEPTH,
                                                  gridSpacing);
          source = new FloatingPoissonFaultSource(grMagFreqDist,
-                                                 (AbstractEvenlyGriddedSurface)
+                                                 (AbstractEvenlyGriddedSurfaceWithSubsets)
                                                  surfaceD,
                                                  magScalingRel, lengthSigma,
                                                  rupAspectRatio, offset,
@@ -432,7 +432,7 @@ public class PEER_NonPlanarFaultForecast extends AbstractERF{
                                                  LOWER_SEISMO_DEPTH,
                                                  gridSpacing);
          source = new FloatingPoissonFaultSource(grMagFreqDist,
-                                                 (AbstractEvenlyGriddedSurface) surfaceE,
+                                                 (AbstractEvenlyGriddedSurfaceWithSubsets) surfaceE,
                                                  magScalingRel, lengthSigma,
                                                  rupAspectRatio, offset,
                                                  RAKE, timeSpan.getDuration(),

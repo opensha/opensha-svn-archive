@@ -33,7 +33,7 @@ import org.dom4j.Namespace;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultElement;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 
 import com.google.common.base.Preconditions;
 
@@ -399,7 +399,7 @@ public class RegionUtils {
 	
 	/**
 	 * The returns the fraction of points in the given collection of locations that is inside
-	 * the given region. This will commonly be used with the {@link EvenlyGriddedSurface} class
+	 * the given region. This will commonly be used with the {@link AbstractEvenlyGriddedSurface} class
 	 * to determine the fraction of a fault surface that is inside of a region.
 	 * 
 	 * @param region the region for which to test

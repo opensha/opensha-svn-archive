@@ -30,8 +30,8 @@ import java.util.Collection;
 import java.util.ListIterator;
 
 import org.apache.commons.math.util.MathUtils;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * This class contains static utility methods to operate on geographic
@@ -305,7 +305,7 @@ public final class LocationUtils {
 	 * @param rupSurf an EvenlyGriddedSurfaceAPI
 	 * @return
 	 */
-	public static double distanceToSurf(Location loc, EvenlyGriddedSurface rupSurf) {
+	public static double distanceToSurf(Location loc, AbstractEvenlyGriddedSurface rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		for(Location loc2: rupSurf) {
@@ -327,7 +327,7 @@ public final class LocationUtils {
 	 * @param rupSurf an EvenlyGriddedSurfaceAPI
 	 * @return
 	 */
-	public static double distanceToSurfFast(Location loc, GriddedSurfaceInterface rupSurf) {
+	public static double distanceToSurfFast(Location loc, EvenlyGriddedSurface rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		

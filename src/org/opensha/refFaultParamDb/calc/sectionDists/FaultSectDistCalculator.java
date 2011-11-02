@@ -11,14 +11,14 @@ import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
 public class FaultSectDistCalculator implements Runnable {
 	
 	private ArrayList<Integer> sectionIDs;
-	private ArrayList<EvenlyGriddedSurface> surfaces;
+	private ArrayList<AbstractEvenlyGriddedSurface> surfaces;
 	
 	private HashMap<Pairing, FaultSectDistRecord> records;
 	
@@ -42,7 +42,7 @@ public class FaultSectDistCalculator implements Runnable {
 		this(fast, createSurfaces(disc, data), getIDs(data));
 	}
 	
-	public FaultSectDistCalculator(boolean fast, ArrayList<EvenlyGriddedSurface> surfaces, ArrayList<Integer> ids) {
+	public FaultSectDistCalculator(boolean fast, ArrayList<AbstractEvenlyGriddedSurface> surfaces, ArrayList<Integer> ids) {
 		this.fast = fast;
 		this.surfaces = surfaces;
 		this.sectionIDs = ids;
@@ -56,8 +56,8 @@ public class FaultSectDistCalculator implements Runnable {
 		return sectionIDs;
 	}
 	
-	private static ArrayList<EvenlyGriddedSurface> createSurfaces(double disc, ArrayList<FaultSectionPrefData> data) {
-		ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
+	private static ArrayList<AbstractEvenlyGriddedSurface> createSurfaces(double disc, ArrayList<FaultSectionPrefData> data) {
+		ArrayList<AbstractEvenlyGriddedSurface> surfaces = new ArrayList<AbstractEvenlyGriddedSurface>();
 		
 		for (FaultSectionPrefData section : data) {
 			SimpleFaultData simpleFaultData = section.getSimpleFaultData(false);
@@ -96,9 +96,9 @@ public class FaultSectDistCalculator implements Runnable {
 		long start = System.currentTimeMillis();
 		records = new HashMap<Pairing, FaultSectDistRecord>();
 		for (int i=0; i<surfaces.size(); i++) {
-			EvenlyGriddedSurface surface1 = surfaces.get(i);
+			AbstractEvenlyGriddedSurface surface1 = surfaces.get(i);
 			for (int j=0; j<surfaces.size(); j++) {
-				EvenlyGriddedSurface surface2 = surfaces.get(j);
+				AbstractEvenlyGriddedSurface surface2 = surfaces.get(j);
 				if (surface1 == surface2)
 					continue;
 				int id1 = sectionIDs.get(i);

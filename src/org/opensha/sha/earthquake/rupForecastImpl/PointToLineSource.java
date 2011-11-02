@@ -34,7 +34,7 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -330,7 +330,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 	/**
 	 * don't know what to return here (deprecate this method?)
 	 */
-	public EvenlyGriddedSurface getSourceSurface() { 
+	public AbstractEvenlyGriddedSurface getSourceSurface() { 
 		throw new RuntimeException("Method not supported");
 	}
 

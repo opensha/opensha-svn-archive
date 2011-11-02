@@ -1,6 +1,6 @@
 package org.opensha.refFaultParamDb.calc.sectionDists;
 
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 
 public class SmartSurfaceFilter implements SurfaceFilter {
@@ -21,7 +21,7 @@ public class SmartSurfaceFilter implements SurfaceFilter {
 	}
 
 	@Override
-	public boolean isIncluded(GriddedSurfaceInterface surface, int row, int col) {
+	public boolean isIncluded(EvenlyGriddedSurface surface, int row, int col) {
 		// include all corners
 		if (isCorner(surface, row, col))
 			return true;
@@ -40,7 +40,7 @@ public class SmartSurfaceFilter implements SurfaceFilter {
 		return row % internalModulus == 0 && col % internalModulus == 0;
 	}
 	
-	private static boolean isCorner(GriddedSurfaceInterface surface, int row, int col) {
+	private static boolean isCorner(EvenlyGriddedSurface surface, int row, int col) {
 		if (row == 0 || row == surface.getNumRows()-1)
 			return col == 0 || col == surface.getNumCols()-1;
 		return false;

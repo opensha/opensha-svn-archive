@@ -34,7 +34,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 
@@ -172,7 +172,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    * @param nthRupture
    * @return
    */
-  private EvenlyGriddedSurface getRuptureSurface(int nthRupture) {
+  private AbstractEvenlyGriddedSurface getRuptureSurface(int nthRupture) {
     // set the parameters for the fault factory
     frankelFaultSurface = new FrankelGriddedSurface((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
     return frankelFaultSurface;
@@ -198,7 +198,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     return locList;
   }
   
-  public EvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+  public AbstractEvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
 
 
 

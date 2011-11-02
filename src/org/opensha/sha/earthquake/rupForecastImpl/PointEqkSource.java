@@ -30,8 +30,8 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -176,7 +176,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
    return locList;
  }
  
- public GriddedSurfaceInterface getSourceSurface() { return probEqkRupture.getRuptureSurface(); }
+ public EvenlyGriddedSurface getSourceSurface() { return probEqkRupture.getRuptureSurface(); }
 
 
  /**

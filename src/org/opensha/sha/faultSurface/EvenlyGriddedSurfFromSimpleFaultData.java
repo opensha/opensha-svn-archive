@@ -44,7 +44,7 @@ import org.opensha.commons.util.FaultUtils;
  * @version 1.0
  */
 public abstract class EvenlyGriddedSurfFromSimpleFaultData
-extends AbstractEvenlyGriddedSurface{
+extends AbstractEvenlyGriddedSurfaceWithSubsets{
 
 	/**
 	 * 

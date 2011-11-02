@@ -22,9 +22,9 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.AttenRelRef;
@@ -250,7 +250,7 @@ public class GeneralIMR_ParameterTests {
 	}
 	
 	private void verifyRupParams(EqkRupture rup) {
-		GriddedSurfaceInterface surf = rup.getRuptureSurface();
+		EvenlyGriddedSurface surf = rup.getRuptureSurface();
 		try {
 			DipParam dipParam = (DipParam)imr.getParameter(DipParam.NAME);
 			assertEquals(shortName+": dip not set correctly",

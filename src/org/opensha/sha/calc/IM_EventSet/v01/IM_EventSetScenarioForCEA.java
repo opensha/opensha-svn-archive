@@ -40,7 +40,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel;
@@ -121,7 +121,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	    eqkRupture = new EqkRupture();
 	    faultParameter = new SimpleFaultParameter("Set Fault Surface");
 		createSimpleFaultParam(faultParameter);
-		eqkRupture.setRuptureSurface((EvenlyGriddedSurface)faultParameter.getValue());
+		eqkRupture.setRuptureSurface((AbstractEvenlyGriddedSurface)faultParameter.getValue());
 		eqkRupture.setAveRake(90);
 		eqkRupture.setMag(7.15);
 	}

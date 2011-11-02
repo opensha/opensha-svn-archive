@@ -35,8 +35,8 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -108,7 +108,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 		
 //	private ArrayList<Location> faultCornerLocations = new ArrayList<Location>();   // used for the getMinDistance(Site) method
 	private double duration;
-	private AbstractEvenlyGriddedSurface faultSurface;
+	private AbstractEvenlyGriddedSurfaceWithSubsets faultSurface;
 	
 	// used for the getMinDistance(Site) method
 	private Region sourceRegion;
@@ -135,7 +135,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 * @param fullFaultRupMagThresh - magnitudes greater than or equal to this value will be forced to rupture the entire fault
 	 */
 	public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
-			AbstractEvenlyGriddedSurface faultSurface,
+			AbstractEvenlyGriddedSurfaceWithSubsets faultSurface,
 			MagScalingRelationship magScalingRel,
 			double magScalingSigma,
 			double rupAspectRatio,
@@ -189,7 +189,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 * This constructor sets floatTypeFlag=1 and fullFaultRupMagThresh = Double.MAX_VALUE.  Otherwise it's the same.
 	 */
 	public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
-			AbstractEvenlyGriddedSurface faultSurface,
+			AbstractEvenlyGriddedSurfaceWithSubsets faultSurface,
 			MagScalingRelationship magScalingRel,
 			double magScalingSigma,
 			double rupAspectRatio,
@@ -206,7 +206,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 * fullFaultRupMagThresh = Double.MAX_VALUE.  Otherwise it's the same.
 	 */
 	public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
-			AbstractEvenlyGriddedSurface faultSurface,
+			AbstractEvenlyGriddedSurfaceWithSubsets faultSurface,
 			MagScalingRelationship magScalingRel,
 			double magScalingSigma,
 			double rupAspectRatio,
@@ -262,7 +262,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 * This method makes and adds ruptures to the list
 	 */
 	private void addRupturesToList(IncrementalMagFreqDist magDist,
-			AbstractEvenlyGriddedSurface faultSurface,
+			AbstractEvenlyGriddedSurfaceWithSubsets faultSurface,
 			MagScalingRelationship magScalingRel,
 			double magScalingSigma,
 			double rupAspectRatio,
@@ -364,7 +364,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 		return this.faultSurface.getEvenlyDiscritizedListOfLocsOnSurface();
 	}
 
-	public EvenlyGriddedSurface getSourceSurface() { return this.faultSurface; }
+	public AbstractEvenlyGriddedSurface getSourceSurface() { return this.faultSurface; }
 
 	/**
 	 * @return the total num of rutures for all magnitudes
@@ -400,7 +400,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 	 * 
 	 * @param faultSurface
 	 */
-	private void mkApproxSourceSurface(AbstractEvenlyGriddedSurface faultSurface) {
+	private void mkApproxSourceSurface(AbstractEvenlyGriddedSurfaceWithSubsets faultSurface) {
 
 		if(faultSurface.getAveDip() != 90) {
 			int nRows = faultSurface.getNumRows();

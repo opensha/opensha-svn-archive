@@ -43,11 +43,11 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -430,7 +430,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends AbstractERF{
     double test, test2=0;
     double magEp, wtEp;
 
-    AbstractEvenlyGriddedSurface surface;
+    AbstractEvenlyGriddedSurfaceWithSubsets surface;
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -1482,7 +1482,7 @@ Mount Diablo (no floater here)
     FileWriter fw2 = new FileWriter(filename2);
     FileWriter fw3 = new FileWriter(filename3);
     ProbEqkSource src;
-    GriddedSurfaceInterface surf;
+    EvenlyGriddedSurface surf;
     Location loc;
     double rake;
     int i,n;

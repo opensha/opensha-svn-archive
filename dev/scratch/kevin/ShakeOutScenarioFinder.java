@@ -13,8 +13,8 @@ import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 public class ShakeOutScenarioFinder {
 	
@@ -23,7 +23,7 @@ public class ShakeOutScenarioFinder {
 		if (rup.getMag() < (targetMag - 0.7) || rup.getMag() > (targetMag + 0.7))
 			return;
 		boolean closeEnough = false;
-		GriddedSurfaceInterface surface = rup.getRuptureSurface();
+		EvenlyGriddedSurface surface = rup.getRuptureSurface();
 		Iterator<Location> it = surface.iterator();
 		while (it.hasNext()) {
 			Location surfLoc = it.next();

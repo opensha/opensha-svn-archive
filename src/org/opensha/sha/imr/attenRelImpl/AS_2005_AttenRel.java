@@ -35,8 +35,8 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
@@ -253,7 +253,7 @@ public class AS_2005_AttenRel extends AttenuationRelationship implements
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     rakeParam.setValue(eqkRupture.getAveRake());
-    GriddedSurfaceInterface surface = eqkRupture.getRuptureSurface();
+    EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
     dipParam.setValue(surface.getAveDip());
     double depth = surface.getLocation(0, 0).getDepth();
     rupTopDepthParam.setValue(depth);
@@ -308,7 +308,7 @@ public class AS_2005_AttenRel extends AttenuationRelationship implements
 
       // set the srcSiteAngle parameter (could make a subclass of
       // PropagationEffectParameter later if others use this
-      GriddedSurfaceInterface surface = eqkRupture.getRuptureSurface();
+      EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
       Location fltLoc1 = surface.getLocation(0, 0);
       Location fltLoc2 = surface.getLocation(0, surface.getNumCols() - 1);
       double angle1 = LocationUtils.azimuth(fltLoc1, fltLoc2);

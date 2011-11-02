@@ -23,10 +23,10 @@ import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.FaultTrace;
 
-public class CyberShakeEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
+public class CyberShakeEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWithSubsets {
 
 	public CyberShakeEvenlyGriddedSurface( int numRows, int numCols, double gridSpacing) {
 		super(numRows, numCols, gridSpacing);

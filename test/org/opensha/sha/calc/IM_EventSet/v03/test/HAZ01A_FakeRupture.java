@@ -21,8 +21,8 @@ package org.opensha.sha.calc.IM_EventSet.v03.test;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 public class HAZ01A_FakeRupture extends ProbEqkRupture {
 	
@@ -39,7 +39,7 @@ public class HAZ01A_FakeRupture extends ProbEqkRupture {
 	public HAZ01A_FakeRupture(double mag,
             double aveRake,
             double probability,
-            GriddedSurfaceInterface ruptureSurface,
+            EvenlyGriddedSurface ruptureSurface,
             Location hypocenterLocation, int sourceID, int rupID) {
 		super(mag, aveRake, probability, ruptureSurface, hypocenterLocation);
 		this.sourceID = sourceID;

@@ -35,8 +35,8 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 
@@ -215,7 +215,7 @@ public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObjec
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
         EqkRupture rupture = source.getRupture(n);
-        GriddedSurfaceInterface surface = rupture.getRuptureSurface();
+        EvenlyGriddedSurface surface = rupture.getRuptureSurface();
         ListIterator it = surface.getAllByRowsIterator();
         boolean ruptureWithinDist = false;
         while(it.hasNext()){

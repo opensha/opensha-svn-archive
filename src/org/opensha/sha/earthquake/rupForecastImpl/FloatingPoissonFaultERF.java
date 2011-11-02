@@ -30,7 +30,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -272,7 +272,7 @@ public class FloatingPoissonFaultERF extends AbstractERF{
 //       System.out.println(((EvenlyGriddedSurface) faultParam.getValue()).getSurfaceLength());
 
        source = new FloatingPoissonFaultSource((IncrementalMagFreqDist) magDistParam.getValue(),
-                                             (AbstractEvenlyGriddedSurface) faultParam.getValue(),
+                                             (AbstractEvenlyGriddedSurfaceWithSubsets) faultParam.getValue(),
                                              (MagScalingRelationship) magScalingRel,
                                              ((Double) sigmaParam.getValue()).doubleValue(),
                                              ((Double) aspectRatioParam.getValue()).doubleValue(),

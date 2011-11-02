@@ -41,7 +41,7 @@ import org.opensha.commons.util.FaultUtils;
  * @version    1.0
  */
 
-public class PointSurface extends EvenlyGriddedSurface {
+public class PointSurface extends AbstractEvenlyGriddedSurface {
 
 	/**
 	 * 
