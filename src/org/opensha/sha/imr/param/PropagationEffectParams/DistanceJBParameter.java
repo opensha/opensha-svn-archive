@@ -45,14 +45,10 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
  */
 public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 
-
-
 	/** Class name used in debug strings */
 	protected final static String C = "DistanceJBParameter";
 	/** If true debug statements are printed out */
 	protected final static boolean D = false;
-
-	protected boolean fix_dist_JB = false;
 
 	/** Hardcoded name */
 	public final static String NAME = "DistanceJB";
@@ -83,35 +79,6 @@ public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 	}
 
 
-
-//	/** Constructor that sets up constraints. This is a constrained parameter. */
-//	public DistanceJBParameter(ParameterConstraintAPI warningConstraint)
-//	throws ConstraintException
-//	{
-//		if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
-//			throw new ConstraintException(
-//					C + " : Constructor(): " +
-//					"Input constraint must be a DoubleConstraint"
-//			);
-//		}
-//		init( (DoubleConstraint)warningConstraint );
-//	}
-//	
-//    /** Constructor that sets up constraints & the default value. This is a constrained parameter. */
-//    public DistanceJBParameter(ParameterConstraintAPI warningConstraint, double defaultValue)
-//        throws ConstraintException
-//    {
-//        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
-//            throw new ConstraintException(
-//                C + " : Constructor(): " +
-//                "Input constraint must be a DoubleConstraint"
-//            );
-//        }
-//        init( (DoubleConstraint)warningConstraint );
-//        setDefaultValue(defaultValue);
-//    }
-
-
 	/** Initializes the constraints, name, etc. for this parameter */
 	protected void init( DoubleConstraint warningConstraint){
 		this.warningConstraint = warningConstraint;
@@ -128,75 +95,16 @@ public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 	protected void init() { init(null); }
 
 	/**
-	 * Note that this does not throw a warning
-	 */
-	public static double getDistance(Location loc, EvenlyGriddedSurface rupSurf) {
-
-			Location loc2;
-			double minDistance = 999999;
-			double currentDistance;
-			
-			// get locations to iterate over depending on dip
-			ListIterator it;
-			if(rupSurf.getAveDip() > 89)
-				it = rupSurf.getColumnIterator(0);
-			else
-				it = rupSurf.getLocationsIterator();
-
-			while( it.hasNext() ){
-
-				loc2 = (Location) it.next();
-				currentDistance = LocationUtils.horzDistance(loc, loc2);
-				if( currentDistance < minDistance ) minDistance = currentDistance;
-			}				
-
-			return minDistance;
-		}
-	
-	
-	/**
 	 * Note that this doesn't not throw a warning
 	 */
 	protected void calcValueFromSiteAndEqkRup(){
-		if( ( this.site != null ) && ( this.eqkRupture != null )) {
-			Location loc = site.getLocation();
-			EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
-			double dist = getDistance(loc, rupSurf);
-			// fix distanceJB if needed
-			if(fix_dist_JB){
-				if(rupSurf.getNumCols() > 1 && rupSurf.getNumRows() > 1) {
-					double d1, d2,min_dist;
-					loc = rupSurf.getLocation(0, 0);
-					Location loc2 = rupSurf.getLocation(1, 1);
-					d1 = LocationUtils.horzDistance(loc,loc2);
-					loc = rupSurf.getLocation(0, 1);
-					loc2 = rupSurf.getLocation(1, 0);
-					d2 = LocationUtils.horzDistance(loc,loc2);
-					min_dist = Math.min(d1, d1)/2;
-					if(dist<=min_dist) dist = 0;
-				}
-			}
-			this.setValueIgnoreWarning(dist);
-		}
+		if( ( site != null ) && ( eqkRupture != null ))
+			setValueIgnoreWarning(eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation()));
 		else
-			this.value = null;
+			value = null;
 	}
 
 	
-
-	/**
-	 * Setting this as true will change the calculated distanceJB value to 0.0 if it's less
-	 * than half the distance between diagonally neighboring points on the rupture surface
-	 * (otherwise it's never exactly zero everywhere above the entire surface).  This is useful
-	 * where differences between 0.0 and 0.5 km are important. The default value is false.
-	 * @param fixIt
-	 */
-	public void fixDistanceJB(boolean fixIt) {
-		fix_dist_JB = fixIt;
-	}
-
-
-
 	/** This is used to determine what widget editor to use in GUI Applets.  */
 	public String getType() {
 		String type = "DoubleParameter";

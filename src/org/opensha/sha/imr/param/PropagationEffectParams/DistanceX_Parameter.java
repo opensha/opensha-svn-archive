@@ -136,99 +136,10 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
      * Note that this does not throw a warning
      */
     protected void calcValueFromSiteAndEqkRup(){
-    	if( ( this.site != null ) && ( this.eqkRupture != null ) ){
-
-    		Location siteLoc = site.getLocation();
-
-    		EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
-
-    		// set to zero if it's a point source
-    		if(rupSurf.getNumCols() == 1) {
-    			this.setValue(0.0);
-    		}
-    		else {
-
-    			// We should probably set something here here too if it's vertical strike-slip
-    			// (to avoid unnecessary calculations)
-
-    			try {
-					// get points projected off the ends
-					Location firstTraceLoc = rupSurf.getLocation(0, 0); 						// first trace point
-					Location lastTraceLoc = rupSurf.getLocation(0, rupSurf.getNumCols()-1); 	// last trace point
-
-					// get point projected from first trace point in opposite direction of the ave trace
-					LocationVector dir = LocationUtils.vector(lastTraceLoc, firstTraceLoc); 		
-					dir.setHorzDistance(1000); // project to 1000 km
-					dir.setVertDistance(0d);
-					Location projectedLoc1 = LocationUtils.location(firstTraceLoc, dir);
-
-
-					// get point projected from last trace point in ave trace direction
-					dir.setAzimuth(dir.getAzimuth()+180);  // flip to ave trace dir
-					Location projectedLoc2 = LocationUtils.location(lastTraceLoc, dir);
-//System.out.println("HERE21 "+projectedLoc1+"\t"+projectedLoc2);
-					// point down dip by adding 90 degrees to the azimuth
-					dir.setAzimuth(dir.getAzimuth()+90);  // now point down dip
-
-					// get points projected in the down dip directions at the ends of the new trace
-					Location projectedLoc3 = LocationUtils.location(projectedLoc1, dir);
-
-					Location projectedLoc4 = LocationUtils.location(projectedLoc2, dir);
-
-					LocationList locsForExtendedTrace = new LocationList();
-					LocationList locsForRegion = new LocationList();
-
-					locsForExtendedTrace.add(projectedLoc1);
-					locsForRegion.add(projectedLoc1);
-					for(int c=0; c<rupSurf.getNumCols(); c++) {
-						locsForExtendedTrace.add(rupSurf.getLocation(0, c));
-						locsForRegion.add(rupSurf.getLocation(0, c));     	
-					}
-					locsForExtendedTrace.add(projectedLoc2);
-					locsForRegion.add(projectedLoc2);
-
-					// finish the region
-					locsForRegion.add(projectedLoc4);
-					locsForRegion.add(projectedLoc3);
-
-					// write these out if in debug mode
-					if(D) {
-						System.out.println("Projected Trace:");
-						for(int l=0; l<locsForExtendedTrace.size(); l++) {
-							Location loc = locsForExtendedTrace.get(l);
-							System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
-						}
-						System.out.println("Region:");
-						for(int l=0; l<locsForRegion.size(); l++) {
-							Location loc = locsForRegion.get(l);
-							System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
-						}
-					}
-
-					Region polygon = new Region(locsForRegion, BorderType.MERCATOR_LINEAR);
-					boolean isInside = polygon.contains(siteLoc);
-
-					double distToExtendedTrace = locsForExtendedTrace.minDistToLine(siteLoc);
-
-					if(isInside || distToExtendedTrace == 0.0) // zero values are always on the hanging wall
-						this.setValue(distToExtendedTrace);
-					else 
-						this.setValue(-distToExtendedTrace);
-				} catch (Exception e) {
-					System.err.println("Error calculating distX for:");
-					System.err.println("Site: "+site);
-					System.err.println("Rupture Surface: ");
-					EvenlyGriddedSurface surf = eqkRupture.getRuptureSurface();
-					for (int i=0; i<surf.getNumRows(); i++) {
-						for (int j=0; j<surf.getNumCols(); j++) {
-							System.err.println(i+", "+j+": "+surf.getLocation(i, j));
-						}
-					}
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-    		}
-    	}
-    	else this.setValue(null);
+    	if( ( site != null ) && ( eqkRupture != null ) )
+    		setValueIgnoreWarning(eqkRupture.getRuptureSurface().getDistanceX(site.getLocation()));
+    	else 
+    		setValue(null);
     }
 
 

@@ -391,7 +391,6 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 		warn.setNonEditable();
 		distanceJBParam.setWarningConstraint(warn);
 		distanceJBParam.setNonEditable();
-		distanceJBParam.fixDistanceJB(true);
 		
 		propagationEffectParams.addParameter(distanceJBParam);
 

@@ -126,14 +126,15 @@ public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 	 * Note that this doesn't not throw a warning
 	 */
 	protected void calcValueFromSiteAndEqkRup(){
-		if( ( this.site != null ) && ( this.eqkRupture != null ))
-			this.setValueIgnoreWarning(getDistance(site.getLocation(), eqkRupture.getRuptureSurface()));
+		if( ( site != null ) && ( eqkRupture != null ))
+			setValueIgnoreWarning(eqkRupture.getRuptureSurface().getDistanceRup(site.getLocation()));
 		else
-			this.value = null;
+			value = null;
 	}
 	
 	
 	/**
+	 * This is a utility method that is not actually used in this class (it's for other classes).
 	 * Note that this assumes the location is at the earth's surface (or at least above the rupSurface)
 	 * @param loc
 	 * @param rupSurf

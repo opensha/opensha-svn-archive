@@ -87,6 +87,26 @@ public class GriddedSurfaceUtils {
 			System.out.println(C+": distJB = " + distJB);
 		}
 		
+		// fix small values of distanceJB (since they can be non-zero over the rupture)
+		// WAY1
+		if(surface.size() > 1) {
+			double d1, d2,min_dist;
+			d1 = LocationUtils.horzDistanceFast(surface.getLocation(0, 0),surface.getLocation(1, 1));
+			d2 = LocationUtils.horzDistanceFast(surface.getLocation(0, 1),surface.getLocation(1, 0));
+			min_dist = 1.1*Math.min(d1, d1)/2;
+			if(distJB<=min_dist) distJB = 0;
+		}
+		
+		// WAY2
+		/*
+		if(distJB <surface.getAveGridSpacing()) {
+			Region region = new Region(surface.getPerimeter(), BorderType.MERCATOR_LINEAR);
+			if(region.contains(loc))
+				distJB = 0;;
+		}
+		*/
+
+		
 		double[] results = {distRup, distJB, distSeis};
 		
 		return results;

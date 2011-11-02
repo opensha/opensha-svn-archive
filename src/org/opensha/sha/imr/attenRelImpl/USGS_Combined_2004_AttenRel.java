@@ -1071,7 +1071,7 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		ar.setParamDefaults();
 		Site site = new Site(new Location(34,-117,0));
 		site.addParameter(ar.getParameter(Vs30_Param.NAME));
-		ProbEqkRupture qk = new ProbEqkRupture(6.25, 0, 8.27442E-4, new PointSurface(34.0,-117,0.0), null);
+		ProbEqkRupture qk = new ProbEqkRupture(6.25, 0, 8.27442E-4, new PointSurface(new Location(34.0,-117,0.0)), null);
 		ar.setEqkRupture(qk);
 		ar.setSite(site);
 		ar.setIntensityMeasure(PGA_Param.NAME);

@@ -154,7 +154,7 @@ public class EqkRupture implements java.io.Serializable {
 
 
     public void setPointSurface(Location location){
-        PointSurface ps = new PointSurface(location.getLatitude(), location.getLongitude(), location.getDepth());
+        PointSurface ps = new PointSurface(location);
         setPointSurface(ps);
     }
 
