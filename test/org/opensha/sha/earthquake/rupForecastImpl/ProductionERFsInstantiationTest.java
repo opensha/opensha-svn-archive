@@ -23,6 +23,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -81,7 +82,7 @@ public class ProductionERFsInstantiationTest {
 	private void validateRupture(int sourceID, int rupID, ProbEqkRupture rupture) {
 		String rupStr = erfRef+": source "+sourceID+", rup "+rupID;
 		assertNotNull(rupStr+" is null!", rupture);
-		EvenlyGriddedSurface surface = rupture.getRuptureSurface();
+		GriddedSurfaceInterface surface = rupture.getRuptureSurface();
 		assertNotNull(rupStr+" surface is null!", surface);
 		assertTrue(rupStr+" surface has zero points!", surface.size()>0l);
 		double prob = rupture.getProbability();
@@ -96,7 +97,7 @@ public class ProductionERFsInstantiationTest {
 	
 	private void validateSourceSurface(String srcStr, ProbEqkSource source) {
 		try {
-			EvenlyGriddedSurface sourceSurface = source.getSourceSurface();
+			GriddedSurfaceInterface sourceSurface = source.getSourceSurface();
 			assertNotNull(srcStr+" surface is null!", sourceSurface);
 			assertTrue(srcStr+" surface has zero points!", sourceSurface.size()>0l);
 		} catch (RuntimeException e) {

@@ -36,6 +36,7 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -237,7 +238,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 				ProbEqkRupture rupture = source.getRupture(r);
 				double mag = rupture.getMag();
 				double equivRate = rupture.getMeanAnnualRate(duration);
-				EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+				GriddedSurfaceInterface rupSurface = rupture.getRuptureSurface();
 				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
 				double fractInside = 0;
 				while (it.hasNext()) {
@@ -393,7 +394,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 			double srcDDW = src.getSourceSurface().getAveWidth();
 			double totMoRate=0, partMoRate=0;
 			// determine if src is in N Cal.
-			EvenlyGriddedSurface srcSurf = src.getSourceSurface();
+			GriddedSurfaceInterface srcSurf = src.getSourceSurface();
 			Location loc1 = srcSurf.get(0, 0);
 			Location loc2 = srcSurf.get(0, srcSurf.getNumCols()-1);
 			boolean srcInsideN_Cal = false;
@@ -1027,7 +1028,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 				ProbEqkRupture rupture = source.getRupture(r);
 				double mag = rupture.getMag();
 				double equivRate = rupture.getMeanAnnualRate(duration);
-				EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+				GriddedSurfaceInterface rupSurface = rupture.getRuptureSurface();
 				double ptRate = equivRate/rupSurface.size();
 				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
 				while (it.hasNext()) {

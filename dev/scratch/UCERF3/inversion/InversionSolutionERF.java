@@ -21,6 +21,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
@@ -315,7 +317,7 @@ public class InversionSolutionERF extends AbstractERF {
 
 		public KludgeMultiSurface(List<EvenlyGriddedSurface> surfaces, double dip) {
 			super(calcNRow(surfaces), calcNCol(surfaces), faultGridSpacing);
-			aveDip = dip;
+//			aveDip = dip;
 			
 			// TODO: this is DIRTYYYYYYYYYYYYYYYYY...need ruptures with multiple surfaces
 			
@@ -334,6 +336,42 @@ public class InversionSolutionERF extends AbstractERF {
 				}
 			}
 		}
+
+		@Override
+		public double getAveDip() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public double getAveDipDirection() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public double getAveRupTopDepth() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public double getAveStrike() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public LocationList getPerimeter() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public FaultTrace getUpperEdge() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	private class SimpleSource extends ProbEqkSource {
@@ -342,7 +380,7 @@ public class InversionSolutionERF extends AbstractERF {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private EvenlyGriddedSurface surface;
+		private GriddedSurfaceInterface surface;
 		private ArrayList<Double> rates = new ArrayList<Double>();
 		private ArrayList<ProbEqkRupture> rups = new ArrayList<ProbEqkRupture>();
 		
@@ -354,7 +392,7 @@ public class InversionSolutionERF extends AbstractERF {
 			rups.add(rup);
 			rates.add(rate);
 			
-			EvenlyGriddedSurface rupSurf = rup.getRuptureSurface();
+			GriddedSurfaceInterface rupSurf = rup.getRuptureSurface();
 			// TODO kludge for setting the source surface
 			if (surface == null || rupSurf.getNumCols() > surface.getNumCols())
 				surface = rupSurf;
@@ -375,7 +413,7 @@ public class InversionSolutionERF extends AbstractERF {
 		}
 
 		@Override
-		public EvenlyGriddedSurface getSourceSurface() {
+		public GriddedSurfaceInterface getSourceSurface() {
 			return surface;
 		}
 

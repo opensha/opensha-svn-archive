@@ -40,6 +40,7 @@ public interface GriddedSurfaceInterface extends Container2D<Location>, RuptureS
 	public FaultTrace getRowAsTrace(int row);
 
 
+	public String getSurfaceMetadata();
 	
 
 

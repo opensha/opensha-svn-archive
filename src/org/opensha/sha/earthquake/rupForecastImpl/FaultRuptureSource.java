@@ -30,6 +30,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -116,7 +117,7 @@ public class FaultRuptureSource
    * is similar to Rupture Surface.
    * @return GriddedSurfaceAPI
    */
-  public EvenlyGriddedSurface getSourceSurface() {
+  public GriddedSurfaceInterface getSourceSurface() {
     return ( (ProbEqkRupture) ruptureList.get(0)).getRuptureSurface();
   }
 

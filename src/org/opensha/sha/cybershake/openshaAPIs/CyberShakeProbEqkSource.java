@@ -28,6 +28,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 public class CyberShakeProbEqkSource extends ProbEqkSource {
 	
@@ -85,12 +86,12 @@ public class CyberShakeProbEqkSource extends ProbEqkSource {
 	}
 
 	public LocationList getAllSourceLocs() {
-		EvenlyGriddedSurface surface = this.getSourceSurface();
+		GriddedSurfaceInterface surface = this.getSourceSurface();
 		
 		return surface.getEvenlyDiscritizedListOfLocsOnSurface();
 	}
 
-	public EvenlyGriddedSurface getSourceSurface() {
+	public GriddedSurfaceInterface getSourceSurface() {
 		if (wrapperSource != null)
 			return wrapperSource.getSourceSurface();
 		double maxMag = 0;

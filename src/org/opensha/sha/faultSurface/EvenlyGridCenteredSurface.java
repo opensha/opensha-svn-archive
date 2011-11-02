@@ -41,14 +41,14 @@ public class EvenlyGridCenteredSurface extends AbstractEvenlyGriddedSurface {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private EvenlyGriddedSurface origSurface;
+	private GriddedSurfaceInterface origSurface;
 
 	/**
 	 * Class constructor that takes in a EvenGriddedSurface and computes a EvenlyGridCentered
 	 * Surface.
 	 * @param surface EvenlyGriddedSurface
 	 */
-	public EvenlyGridCenteredSurface(EvenlyGriddedSurface surface) {
+	public EvenlyGridCenteredSurface(GriddedSurfaceInterface surface) {
 		if (surface instanceof FrankelGriddedSurface)
 			throw new UnsupportedOperationException(
 					"Grid-Centered Surface not defined " +
@@ -99,7 +99,7 @@ public class EvenlyGridCenteredSurface extends AbstractEvenlyGriddedSurface {
 	 * This returns the original surface
 	 * @return EvenlyGriddedSurfaceAPI
 	 */
-	public EvenlyGriddedSurface getOrigSurface() {return origSurface; }
+	public GriddedSurfaceInterface getOrigSurface() {return origSurface; }
 
 	@Override
 	public double getAveStrike() { return origSurface.getAveStrike(); }

@@ -27,6 +27,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 
@@ -62,7 +63,7 @@ public class EqkRupture implements java.io.Serializable {
 
 
     /** object to specify Rupture distribution and AveDip */
-    protected EvenlyGriddedSurface ruptureSurface = null;
+    protected GriddedSurfaceInterface ruptureSurface = null;
 
     /** object to contain arbitrary parameters */
     protected ParameterList otherParams ;
@@ -82,7 +83,7 @@ public class EqkRupture implements java.io.Serializable {
     public EqkRupture(
         double mag,
         double aveRake,
-	EvenlyGriddedSurface ruptureSurface,
+        GriddedSurfaceInterface ruptureSurface,
 	Location hypocenterLocation) throws InvalidRangeException{
       this.mag = mag;
       FaultUtils.assertValidRake(aveRake);
@@ -138,14 +139,14 @@ public class EqkRupture implements java.io.Serializable {
     }
 
 
-    public EvenlyGriddedSurface getRuptureSurface() { return ruptureSurface; }
+    public GriddedSurfaceInterface getRuptureSurface() { return ruptureSurface; }
 
 
     /**
      * Note: Since this takes a GriddedSurfaceAPI both a
      * PointSurface and GriddedSurface can be set here
      */
-    public void setRuptureSurface(EvenlyGriddedSurface r) { ruptureSurface = r; }
+    public void setRuptureSurface(GriddedSurfaceInterface r) { ruptureSurface = r; }
 
     public Location getHypocenterLocation() { return hypocenterLocation; }
     public void setHypocenterLocation(Location h) { hypocenterLocation = h; }

@@ -24,6 +24,7 @@ package org.opensha.sha.earthquake;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * <p>Title:ProbEqkRupture </p>
@@ -62,7 +63,7 @@ public class ProbEqkRupture extends EqkRupture {
 	public ProbEqkRupture(double mag,
 			double aveRake,
 			double probability,
-			EvenlyGriddedSurface ruptureSurface,
+			GriddedSurfaceInterface ruptureSurface,
 			Location hypocenterLocation)
 	throws InvalidRangeException {
 

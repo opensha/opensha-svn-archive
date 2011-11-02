@@ -36,6 +36,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds575_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds595_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -170,7 +171,7 @@ public class BommerEtAl_2009_AttenRel
 	  
 	  magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
 	  
-	  EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
+	  GriddedSurfaceInterface surface = eqkRupture.getRuptureSurface();
 	  double depth = surface.getLocation(0, 0).getDepth();
 	  rupTopDepthParam.setValueIgnoreWarning(depth);
 	  

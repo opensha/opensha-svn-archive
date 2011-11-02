@@ -19,6 +19,7 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
@@ -706,7 +707,7 @@ public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
 		// Computing the hypocentral depth
 //		System.out.println("Zhao et al -->"+this.eqkRupture.getInfo());
 	
-		EvenlyGriddedSurface surf = this.eqkRupture.getRuptureSurface();
+		GriddedSurfaceInterface surf = this.eqkRupture.getRuptureSurface();
 		
 		// ---------------------------------------------------------------------- MARCO 2010.03.15
 		// Compute the hypocenter as the middle point of the rupture

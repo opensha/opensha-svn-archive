@@ -20,6 +20,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_Fau
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EmpiricalModelDataFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * Analyze the rate in various polygons as defined in Appendix I of UCERF2 report
@@ -90,7 +91,7 @@ public class PolygonRatesAnalysis {
 					// iterate over all sources
 					for(int srcIndex=0; srcIndex<numSrc; ++srcIndex) {
 						FaultRuptureSource faultRupSrc = aFaultSources.get(srcIndex);
-						EvenlyGriddedSurface surface  = faultRupSrc.getSourceSurface();
+						GriddedSurfaceInterface surface  = faultRupSrc.getSourceSurface();
 						writeFractonOfPointsInFile(fw, srcGen.getFaultSegmentData().getFaultName(), index++, surface);
 					}
 				} else { // unsegmented source
@@ -158,7 +159,7 @@ public class PolygonRatesAnalysis {
 			// iterate over all sources
 			for(int i=0; i<numNonCA_B_Faults; ++i) {
 				ProbEqkSource probEqkSrc = (ProbEqkSource)nonCA_B_FaultSources.get(i);
-				EvenlyGriddedSurface surface  = null;
+				GriddedSurfaceInterface surface  = null;
 				if(probEqkSrc instanceof FaultRuptureSource) surface = ((FaultRuptureSource)probEqkSrc).getRupture(0).getRuptureSurface();
 				else surface = ((Frankel02_TypeB_EqkSource)probEqkSrc).getSourceSurface();
 				writeFractonOfPointsInFile(fw, probEqkSrc.getName(), i, surface);
@@ -239,7 +240,7 @@ public class PolygonRatesAnalysis {
 	 * @param surface
 	 * @throws IOException
 	 */
-	private void writeFractonOfPointsInFile(FileWriter fw, String faultName, int srcIndex, EvenlyGriddedSurface surface) throws IOException {
+	private void writeFractonOfPointsInFile(FileWriter fw, String faultName, int srcIndex, GriddedSurfaceInterface surface) throws IOException {
 		double []pointInEachPolygon = findFractionOfPointsInPolygons(surface);
 		fw.write(faultName+","+srcIndex+","+(float)this.totPointsInRELM_Region);	
 		for(int regionIndex=0; regionIndex<pointInEachPolygon.length; ++regionIndex) {
@@ -254,7 +255,7 @@ public class PolygonRatesAnalysis {
 	 * @param surface
 	 * @return
 	 */
-	private double[] findFractionOfPointsInPolygons(EvenlyGriddedSurface surface) {
+	private double[] findFractionOfPointsInPolygons(GriddedSurfaceInterface surface) {
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		double []pointInEachPolygon = new double[numPolygons];
 		int numPoints = surface.getNumCols();

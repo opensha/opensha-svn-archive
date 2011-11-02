@@ -43,6 +43,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -137,7 +138,7 @@ public class ERF_Calculator {
 			  ProbEqkRupture rupture = source.getRupture(r);
 			  double mag = rupture.getMag();
 			  double equivRate = rupture.getMeanAnnualRate(duration);
-			  EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+			  GriddedSurfaceInterface rupSurface = rupture.getRuptureSurface();
 			  double ptRate = equivRate/rupSurface.size();
 			  ListIterator<Location> it = rupSurface.getAllByRowsIterator();
 			  while (it.hasNext()) {
@@ -209,7 +210,7 @@ public class ERF_Calculator {
 			  ProbEqkRupture rupture = source.getRupture(r);
 			  double mag = rupture.getMag();
 			  double equivRate = rupture.getMeanAnnualRate(duration);
-			  EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+			  GriddedSurfaceInterface rupSurface = rupture.getRuptureSurface();
 			  double ptRate = equivRate/rupSurface.size();
 			  ListIterator<Location> it = rupSurface.getAllByRowsIterator();
 			  while (it.hasNext()) {

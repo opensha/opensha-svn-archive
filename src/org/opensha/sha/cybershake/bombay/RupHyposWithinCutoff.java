@@ -20,6 +20,7 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 public class RupHyposWithinCutoff {
 	
@@ -99,7 +100,7 @@ public class RupHyposWithinCutoff {
 	private boolean shouldIncludeRup(ProbEqkRupture rup) {
 		if (rup.getMag() < minMag)
 			return false;
-		EvenlyGriddedSurface surface = rup.getRuptureSurface();
+		GriddedSurfaceInterface surface = rup.getRuptureSurface();
 		for (int i=0; i<surface.getNumRows(); i++) {
 			for (int j=0; j<surface.getNumCols(); j++) {
 				Location loc = surface.getLocation(i, j);

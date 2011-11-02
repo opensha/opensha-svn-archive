@@ -45,6 +45,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -538,7 +539,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			ProbEqkRupture rupture;
 			if(isSlipRateCorrection) rupture = getRupture(rupIndex);
 			else rupture = getRupture(rupIndex);
-			EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+			GriddedSurfaceInterface rupSurface = rupture.getRuptureSurface();
 			area = rupSurface.getAveLength()*rupSurface.getAveWidth();
 			moRate = MagUtils.magToMoment(rupture.getMag());
 			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);

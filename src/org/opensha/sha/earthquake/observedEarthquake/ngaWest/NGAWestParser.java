@@ -130,7 +130,7 @@ public class NGAWestParser {
 				continue;
 					
 			
-			GriddedSurfaceImpl surface = new GriddedSurfaceImpl(2, size+1);
+			GriddedSurfaceImpl surface = new GriddedSurfaceImpl(2, size+1, Double.NaN);
 			
 			Preconditions.checkState(surface.size()>=4, "surface's size is <4: "+surface.size()+" (dims: 2x"+(size+1)+")");
 			

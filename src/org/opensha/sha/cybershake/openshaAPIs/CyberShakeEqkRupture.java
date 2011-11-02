@@ -25,6 +25,7 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 public class CyberShakeEqkRupture extends ProbEqkRupture {
 	
@@ -75,7 +76,7 @@ public class CyberShakeEqkRupture extends ProbEqkRupture {
 	
 
 	@Override
-	public EvenlyGriddedSurface getRuptureSurface() {
+	public GriddedSurfaceInterface getRuptureSurface() {
 		if (ruptureSurface == null && erf2db != null) {
 			ruptureSurface = erf2db.getRuptureSurface(erfID, srcID, rupID);
 		}

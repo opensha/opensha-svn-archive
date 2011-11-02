@@ -41,6 +41,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 /**
@@ -313,7 +314,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+        GriddedSurfaceInterface rupSurface = rupture.getRuptureSurface();
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -505,7 +506,7 @@ public class ERF2RuptureForSTF_Generator {
     rupInfo += "Probability = " + (float)rupture.getProbability() +"\n";
     rupInfo += "Magnitude = " + (float)rupture.getMag() +"\n";
 
-    EvenlyGriddedSurface surface = rupture.getRuptureSurface();
+    GriddedSurfaceInterface surface = rupture.getRuptureSurface();
     double gridSpacing = (float)this.getGridSpacing(surface);
     rupInfo += "GridSpacing = " + gridSpacing +"\n";
     ListIterator it = rupture.getAddedParametersIterator();
@@ -543,7 +544,7 @@ public class ERF2RuptureForSTF_Generator {
    * @param surface GriddedSurfaceAPI
    * @return double[]
    */
-  private double[] getLocalStrikeList(EvenlyGriddedSurface surface){
+  private double[] getLocalStrikeList(GriddedSurfaceInterface surface){
     int numCols = surface.getNumCols();
     double[] localStrike = null;
     //if it not a point surface, then get the Azimuth(strike) for 2 neighbouring
@@ -573,7 +574,7 @@ public class ERF2RuptureForSTF_Generator {
    * Returns the gridspacing between the 2 locations on the surface
    * @return double
    */
-  private double getGridSpacing(EvenlyGriddedSurface surface) {
+  private double getGridSpacing(GriddedSurfaceInterface surface) {
 
     double gridSpacing = surface.getGridSpacingAlongStrike();
     // Ned added the following in case different grid spacings are implemented at some time (existing class breaks?)

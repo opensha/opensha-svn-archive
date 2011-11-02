@@ -27,6 +27,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.util.TectonicRegionType;
 /**
  * <p>Title: ProbEqkSource</p>
@@ -321,7 +322,7 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 		int totPoints = 0;
 		if(region!=null) {
 			// get num surface points inside region
-			EvenlyGriddedSurface rupSurface = tempRup.getRuptureSurface();
+			GriddedSurfaceInterface rupSurface = tempRup.getRuptureSurface();
 			Location loc1 = rupSurface.getLocation(0, 0);
 			Location loc2 = rupSurface.getLocation(0, rupSurface.getNumCols()-1);
 			// if both surface points are within region, rupture is considered within region

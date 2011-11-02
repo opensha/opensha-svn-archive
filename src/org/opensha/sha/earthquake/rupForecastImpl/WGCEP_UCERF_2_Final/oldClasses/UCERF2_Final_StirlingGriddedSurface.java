@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -363,7 +364,7 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
 				else
 					topLocation = traceLocation;
 
-				setLocation(0, ith_col, topLocation.clone());
+				set(0, ith_col, topLocation.clone());
 				if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
 				// Loop over each row - calculating location at depth along the fault trace
@@ -381,7 +382,7 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
 					dir = new LocationVector(aveDipDirection, hDistance, vDistance);
 
 					Location depthLocation = UCERF2_Final_RelativeLocation.getLocation( topLocation, dir );
-					setLocation(ith_row, ith_col, depthLocation.clone());
+					set(ith_row, ith_col, depthLocation.clone());
 					if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
 					ith_row++;
@@ -455,6 +456,18 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
             System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
         }
 		 */
+	}
+
+	@Override
+	public double getAveDipDirection() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public LocationList getPerimeter() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

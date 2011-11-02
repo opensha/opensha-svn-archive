@@ -31,6 +31,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -646,7 +647,7 @@ public class ETAS_Simulator {
 			for(int r=0; r<numRups;r++) {
 				ProbEqkRupture rup = src.getRupture(r);
 				ArbDiscrEmpiricalDistFunc numInEachNode = new ArbDiscrEmpiricalDistFunc(); // node on x-axis and num on y-axis
-				EvenlyGriddedSurface surface = rup.getRuptureSurface();
+				GriddedSurfaceInterface surface = rup.getRuptureSurface();
 				double rate = rup.getMeanAnnualRate(forecastDuration);
 				int numUnAssigned=0;
 				for(Location loc: surface) {

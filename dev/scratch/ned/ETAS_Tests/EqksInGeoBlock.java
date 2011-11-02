@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
@@ -359,7 +360,7 @@ public class EqksInGeoBlock {
 	 * @return
 	 */
 	public void setRandomHypocenterLoc(EqkRupture rupture) {
-		EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+		GriddedSurfaceInterface rupSurface = rupture.getRuptureSurface();
 		if(rupSurface.size() == 1) { // randomly assign a point inside the block assuming uniform distribution
 			double lat = minLat + Math.random()*(maxLat-minLat);
 			double lon = minLon + Math.random()*(maxLon-minLon);

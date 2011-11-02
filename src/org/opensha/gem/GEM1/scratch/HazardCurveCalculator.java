@@ -47,11 +47,10 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
-import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -810,7 +809,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * 
 	 */
 	private double getJBdist(EqkRupture rup, Site site) {
-		EvenlyGriddedSurface rupSurf =  rup.getRuptureSurface();
+		GriddedSurfaceInterface rupSurf =  rup.getRuptureSurface();
 		Location loc = site.getLocation();
 
 		double minDis = 1e20;

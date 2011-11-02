@@ -4,6 +4,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 public class FaultParticipationProbTest {
 
@@ -14,7 +15,7 @@ public class FaultParticipationProbTest {
 		MeanUCERF2 ucerf = new MeanUCERF2();
 		ucerf.updateForecast();
 		
-		EvenlyGriddedSurface bigSurface = ucerf.getSource(128).getSourceSurface();
+		GriddedSurfaceInterface bigSurface = ucerf.getSource(128).getSourceSurface();
 		
 		for (int sourceID=0; sourceID<ucerf.getNumSources(); sourceID++) {
 			int numOnSurface = 0;

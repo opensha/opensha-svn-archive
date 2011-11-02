@@ -28,6 +28,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -83,7 +84,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 		}
 	}
 	
-	private static double getStrikeEst(EvenlyGriddedSurface surface) {
+	private static double getStrikeEst(GriddedSurfaceInterface surface) {
 		Location pt1 = surface.get(0, 0);
 		Location pt2 = surface.get(0, surface.getNumCols()-1);
 		return LocationUtils.azimuth(pt2, pt1);
@@ -141,7 +142,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 		@Override
 		public void compute() {
 			double mag = rup.getMag();
-			EvenlyGriddedSurface rupSurface = rup.getRuptureSurface();
+			GriddedSurfaceInterface rupSurface = rup.getRuptureSurface();
 			FocalMechanism fm = new FocalMechanism(getStrikeEst(rupSurface), Double.NaN, rup.getAveRake());
 			double meanAnnualRate = rup.getMeanAnnualRate(duration);
 			for (Location rupPt : rupSurface) {
@@ -353,7 +354,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 	}
 
 	private ArrayList<FaultProbPairing> getFaultsForSource(ProbEqkSource source) {
-		EvenlyGriddedSurface sourceSurface = source.getSourceSurface();
+		GriddedSurfaceInterface sourceSurface = source.getSourceSurface();
 
 		ArrayList<FaultProbPairing> faultsForSource = new ArrayList<FaultProbPairing>();
 
@@ -361,7 +362,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 			Double slip = fault.getSlipRate();
 			if (slip.isNaN() || slip <= 0)
 				continue;
-			EvenlyGriddedSurface faultSurface = fault.getSurface();
+			GriddedSurfaceInterface faultSurface = fault.getSurface();
 			FaultSectDistRecord dists = new FaultSectDistRecord(0, faultSurface, 1, sourceSurface);
 			if (dists.calcMinCornerMidptDist(fastDist) > filter.getCornerMidptFilterDist())
 				continue;

@@ -29,6 +29,7 @@ import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * <b>Title:</b> DistanceSeisParameter<p>
@@ -145,7 +146,7 @@ public class DistanceSeisParameter extends AbstractDoublePropEffectParam {
 			double minDistance = Double.MAX_VALUE;
 			double totalDist, horzDist, vertDist;
 
-			EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
+			GriddedSurfaceInterface rupSurf = eqkRupture.getRuptureSurface();
 
 			// flag to project to seisDepth if only one row and depth is below seisDepth
 			boolean projectToDepth = false;

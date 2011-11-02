@@ -24,6 +24,7 @@ import java.util.Iterator;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EmpiricalModelDataFetcher;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * 
@@ -40,7 +41,7 @@ public class EmpiricalModel  implements java.io.Serializable {
 	 * @param surface
 	 * @return
 	 */
-	public double getCorrection(EvenlyGriddedSurface surface) {
+	public double getCorrection(GriddedSurfaceInterface surface) {
 		Iterator locIt = surface.getColumnIterator(0);
 		double totCorr = 0;
 		while(locIt.hasNext()) 

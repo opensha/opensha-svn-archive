@@ -31,6 +31,7 @@ import java.util.ListIterator;
 
 import org.apache.commons.math.util.MathUtils;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * This class contains static utility methods to operate on geographic
@@ -326,7 +327,7 @@ public final class LocationUtils {
 	 * @param rupSurf an EvenlyGriddedSurfaceAPI
 	 * @return
 	 */
-	public static double distanceToSurfFast(Location loc, EvenlyGriddedSurface rupSurf) {
+	public static double distanceToSurfFast(Location loc, GriddedSurfaceInterface rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		

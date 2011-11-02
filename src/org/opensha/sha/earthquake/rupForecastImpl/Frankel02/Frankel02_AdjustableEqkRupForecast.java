@@ -45,6 +45,7 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -1412,7 +1413,7 @@ public class Frankel02_AdjustableEqkRupForecast extends AbstractERF{
     FileWriter fw2 = new FileWriter(filename2);
     FileWriter fw3 = new FileWriter(filename3);
     ProbEqkSource src;
-    EvenlyGriddedSurface surf;
+    GriddedSurfaceInterface surf;
     Location loc;
     double rake;
     int i,n;

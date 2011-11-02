@@ -37,6 +37,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceInterface;
 
 /**
  * <b>Title:</b> DistanceX_Parameter<p>
@@ -139,7 +140,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
 
     		Location siteLoc = site.getLocation();
 
-    		EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
+    		GriddedSurfaceInterface rupSurf = eqkRupture.getRuptureSurface();
 
     		// set to zero if it's a point source
     		if(rupSurf.getNumCols() == 1) {
@@ -217,7 +218,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
 					System.err.println("Error calculating distX for:");
 					System.err.println("Site: "+site);
 					System.err.println("Rupture Surface: ");
-					EvenlyGriddedSurface surf = eqkRupture.getRuptureSurface();
+					GriddedSurfaceInterface surf = eqkRupture.getRuptureSurface();
 					for (int i=0; i<surf.getNumRows(); i++) {
 						for (int j=0; j<surf.getNumCols(); j++) {
 							System.err.println(i+", "+j+": "+surf.getLocation(i, j));
