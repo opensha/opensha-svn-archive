@@ -1,4 +1,4 @@
-package org.opensha.sha.faultSurface;
+package org.opensha.sha.faultSurface.utils;
 
 import java.util.ListIterator;
 
@@ -8,6 +8,8 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
 public class GriddedSurfaceUtils {
 	
@@ -16,7 +18,8 @@ public class GriddedSurfaceUtils {
 	/** If true print out debug statements. */
 	protected final static boolean D = false;
 
-	final static double SEIS_DEPTH = 3.0;
+	/** minimum depth for Campbell model */
+	final static double SEIS_DEPTH = DistanceSeisParameter.SEIS_DEPTH;
 	
 	
 	/**

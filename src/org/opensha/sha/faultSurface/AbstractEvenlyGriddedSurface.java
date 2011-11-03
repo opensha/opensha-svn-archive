@@ -30,6 +30,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
+import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 
 
 /**
@@ -63,7 +64,7 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	protected Boolean sameGridSpacing;
 	
 	// for distance measures
-	Location locForDistCalcs=null;
+	Location siteLocForDistCalcs=null;
 	double distanceJB, distanceSeis, distanceRup, distanceX;
 	
 	
@@ -262,7 +263,7 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	}
 	
 	private void setPropagationDistances() {
-		double[] dists = GriddedSurfaceUtils.getPropagationDistances(this, locForDistCalcs);
+		double[] dists = GriddedSurfaceUtils.getPropagationDistances(this, siteLocForDistCalcs);
 		distanceRup = dists[0];
 		distanceJB = dists[1];
 		distanceSeis = dists[2];
@@ -275,9 +276,9 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return 
 	 */
-	public double getDistanceRup(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
+	public double getDistanceRup(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
 		}
 		return distanceRup;
@@ -289,9 +290,9 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceJB(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
+	public double getDistanceJB(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
 		}
 		return distanceJB;
@@ -303,9 +304,9 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceSeis(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
+	public double getDistanceSeis(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
 		}
 		return distanceSeis;
@@ -318,10 +319,10 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * depth (for numerical expediency).
 	 * @return
 	 */
-	public double getDistanceX(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(this, locForDistCalcs);
+	public double getDistanceX(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
+			distanceX = GriddedSurfaceUtils.getDistanceX(this, siteLocForDistCalcs);
 		}
 		return distanceX;
 	}

@@ -61,7 +61,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	private boolean nshmpPtSrcCorr = false;
 
 	// Seis depth
-	double seisDepth = DistanceSeisParameter.seisDepth;
+	double seisDepth = DistanceSeisParameter.SEIS_DEPTH;
 
 	// Approx Horz Dist Parameter
 	public final static String APPROX_DIST_PARAM_NAME = "Use Approximate Distance";

@@ -28,6 +28,7 @@ import org.opensha.commons.data.Window2D;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 
 /**
  * <b>Title:</b> GriddedSubsetSurface<p>
@@ -53,7 +54,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	private static final long serialVersionUID = 1L;
 	
 	// for distance measures
-	Location locForDistCalcs=null;
+	Location siteLocForDistCalcs=null;
 	double distanceJB, distanceSeis, distanceRup, distanceX;
 
 
@@ -298,7 +299,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	}
 	
 	private void setPropagationDistances() {
-		double[] dists = GriddedSurfaceUtils.getPropagationDistances(this, locForDistCalcs);
+		double[] dists = GriddedSurfaceUtils.getPropagationDistances(this, siteLocForDistCalcs);
 		distanceRup = dists[0];
 		distanceJB = dists[1];
 		distanceSeis = dists[2];
@@ -311,9 +312,9 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * expediency).
 	 * @return 
 	 */
-	public double getDistanceRup(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
+	public double getDistanceRup(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
 		}
 		return distanceRup;
@@ -325,9 +326,9 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceJB(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
+	public double getDistanceJB(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
 		}
 		return distanceJB;
@@ -339,9 +340,9 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceSeis(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
+	public double getDistanceSeis(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
 		}
 		return distanceSeis;
@@ -354,10 +355,10 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * depth (for numerical expediency).
 	 * @return
 	 */
-	public double getDistanceX(Location loc){
-		if(!locForDistCalcs.equals(loc)) {
-			locForDistCalcs = loc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(this, locForDistCalcs);
+	public double getDistanceX(Location siteLoc){
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
+			distanceX = GriddedSurfaceUtils.getDistanceX(this, siteLocForDistCalcs);
 		}
 		return distanceX;
 	}

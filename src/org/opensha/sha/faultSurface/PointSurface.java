@@ -26,7 +26,9 @@ import java.util.ListIterator;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultUtils;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
 
 /**
@@ -36,7 +38,7 @@ import org.opensha.commons.util.FaultUtils;
  * that only has one Location. <p>
  *
  *
- * @author     Steven W. Rock and rewritten by Ned Field
+ * @author     Ned Field (completely rewritten)
  * @created    February 26, 2002
  * @version    1.0
  */
@@ -48,7 +50,14 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Location location;
+	private Location pointLocation;
+	
+	final static double SEIS_DEPTH = DistanceSeisParameter.SEIS_DEPTH;   // minimum depth for Campbell model
+	
+	// flag to indicate that the ptLocChanged
+	boolean ptLocChanged;
+	
+	
 
 	/**
 	 * The average strike of this surface on the Earth. Even though this is a
@@ -124,16 +133,17 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 
 	/** Since this is a point source, the single Location can be set without indexes. Does a clone copy. */
 	public void setLocation( Location location ) {
-		this.location = location;
+		pointLocation = location;
 		set(0,0,location);
+		ptLocChanged = true;
 	}
 	
 
-	public double getDepth() { return location.getDepth(); }
+	public double getDepth() { return pointLocation.getDepth(); }
 
 	
 	public void setDepth(double depth) {
-		Location newLocation = new Location(location.getLatitude(), location.getLongitude(), depth);
+		Location newLocation = new Location(pointLocation.getLatitude(), pointLocation.getLongitude(), depth);
 		setLocation(newLocation);
 	}
 
@@ -144,7 +154,7 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	 * @return
 	 */
 	public Location getLocation() {
-		return location;
+		return pointLocation;
 	}
 
 
@@ -184,9 +194,9 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 		surfaceMetadata += "1" + "\t";
 		surfaceMetadata += "1" + "\n";
 		surfaceMetadata += "#Surface locations (Lat Lon Depth) \n";
-		surfaceMetadata += (float) location.getLatitude() + "\t";
-		surfaceMetadata += (float) location.getLongitude() + "\t";
-		surfaceMetadata += (float) location.getDepth();
+		surfaceMetadata += (float) pointLocation.getLatitude() + "\t";
+		surfaceMetadata += (float) pointLocation.getLongitude() + "\t";
+		surfaceMetadata += (float) pointLocation.getDepth();
 
 		return surfaceMetadata;
 	}
@@ -198,7 +208,7 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 
 	@Override
 	public double getAveRupTopDepth() {
-		return location.getDepth();
+		return pointLocation.getDepth();
 	}
 
 	@Override
@@ -213,6 +223,71 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	}
 
 
+	private void setPropagationDistances(Location siteLoc) {
+
+		// calc distances if either location has changed
+		if(!siteLocForDistCalcs.equals(siteLoc) || ptLocChanged) {
+			siteLocForDistCalcs = siteLoc;
+
+			double vertDist = LocationUtils.vertDistance(pointLocation, siteLocForDistCalcs);
+			distanceJB = LocationUtils.horzDistanceFast(pointLocation, siteLocForDistCalcs);
+			distanceRup = Math.sqrt(distanceJB * distanceJB + vertDist * vertDist);
+
+			if (pointLocation.getDepth() < SEIS_DEPTH)
+				distanceSeis = Math.sqrt(distanceJB * distanceJB + SEIS_DEPTH * SEIS_DEPTH);
+			else
+				distanceSeis = distanceRup;
+		}
+	}
+	
+	
+	/**
+	 * This returns rupture distance (kms to closest point on the 
+	 * rupture surface), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return 
+	 */
+	@Override
+	public double getDistanceRup(Location siteLoc){
+		setPropagationDistances(siteLoc);
+		return distanceRup;
+	}
+
+	/**
+	 * This returns distance JB (shortest horz distance in km to surface projection 
+	 * of rupture), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	@Override
+	public double getDistanceJB(Location siteLoc){
+		setPropagationDistances(siteLoc);
+		return distanceJB;
+	}
+
+	/**
+	 * This returns "distance seis" (shortest distance in km to point on rupture 
+	 * deeper than 3 km), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	@Override
+	public double getDistanceSeis(Location siteLoc){
+		setPropagationDistances(siteLoc);
+		return distanceSeis;
+	}
+
+	/**
+	 * This returns distance X (the shortest distance in km to the rupture 
+	 * trace extended to infinity), where values >= 0 are on the hanging wall
+	 * and values < 0 are on the foot wall.  The given site location is assumed to be at zero
+	 * depth (for numerical expediency).  This always returns zero since this is a point surface.
+	 * @return
+	 */
+	@Override
+	public double getDistanceX(Location siteLoc){
+		return 0.0;
+	}
 
 
 }

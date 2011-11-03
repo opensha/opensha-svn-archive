@@ -69,7 +69,7 @@ public class DistanceSeisParameter extends AbstractDoublePropEffectParam {
 	private final static Double MAX = new Double(Double.MAX_VALUE);
 
 	/** set default seismogenic depth. actually hard-wired for now. */
-	public final static double seisDepth = 3.0;
+	public final static double SEIS_DEPTH = 3.0;
 
 
 	/**
@@ -124,7 +124,7 @@ public class DistanceSeisParameter extends AbstractDoublePropEffectParam {
 	/** Initializes the constraints, name, etc. for this parameter */
 	protected void init( DoubleConstraint warningConstraint){
 		this.warningConstraint = warningConstraint;
-		this.constraint = new DoubleConstraint(seisDepth, Double.MAX_VALUE );
+		this.constraint = new DoubleConstraint(SEIS_DEPTH, Double.MAX_VALUE );
 		this.name = NAME;
 		this.constraint.setName( this.name );
 		this.constraint.setNullAllowed(false);

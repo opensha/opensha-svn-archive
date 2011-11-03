@@ -104,7 +104,7 @@ public interface RuptureSurface {
 	 * expediency).
 	 * @return 
 	 */
-	public double getDistanceRup(Location loc);
+	public double getDistanceRup(Location siteLoc);
 
 	/**
 	 * This returns distance JB (shortest horz distance in km to surface projection 
@@ -112,7 +112,7 @@ public interface RuptureSurface {
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceJB(Location loc);
+	public double getDistanceJB(Location siteLoc);
 
 	/**
 	 * This returns "distance seis" (shortest distance in km to point on rupture 
@@ -120,7 +120,7 @@ public interface RuptureSurface {
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceSeis(Location loc);
+	public double getDistanceSeis(Location siteLoc);
 
 	/**
 	 * This returns distance X (the shortest distance in km to the rupture 
@@ -129,7 +129,7 @@ public interface RuptureSurface {
 	 * depth (for numerical expediency).
 	 * @return
 	 */
-	public double getDistanceX(Location loc);
+	public double getDistanceX(Location siteLoc);
 
 	/**
 	 * Average depth (km) to top of rupture (always a positive number)
