@@ -28,6 +28,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultUtils;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
 
@@ -57,6 +58,11 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	// flag to indicate that the ptLocChanged
 	boolean ptLocChanged;
 	
+	double vertDist;
+	
+	/** variables for the point-source distance correction */
+	PtSrcDistCorr.Type corrType = PtSrcDistCorr.Type.NONE;
+	double corrMag = Double.NaN;
 	
 
 	/**
@@ -221,23 +227,43 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	public FaultTrace getUpperEdge() {
 		return this.getRowAsTrace(0);
 	}
+	
+	
+	/**
+	 * This sets the magnitude and type for the point-source distance corrections
+	 * @param mag
+	 * @param type
+	 */
+	public void setDistCorrMagAndType(double mag, PtSrcDistCorr.Type type) {
+		corrMag=mag;
+		corrType = type;
+	}
 
 
+	/**
+	 * This sets the three propagation distances (distanceJB, distanceRup, & distanceSeis)
+	 * @param siteLoc
+	 */
 	private void setPropagationDistances(Location siteLoc) {
 
 		// calc distances if either location has changed
+		// IS THIS REALLY SAVING MUCH TIME (is the check faster than recomputing the distances)?
 		if(!siteLocForDistCalcs.equals(siteLoc) || ptLocChanged) {
 			siteLocForDistCalcs = siteLoc;
-
-			double vertDist = LocationUtils.vertDistance(pointLocation, siteLocForDistCalcs);
+			vertDist = LocationUtils.vertDistance(pointLocation, siteLocForDistCalcs);
 			distanceJB = LocationUtils.horzDistanceFast(pointLocation, siteLocForDistCalcs);
-			distanceRup = Math.sqrt(distanceJB * distanceJB + vertDist * vertDist);
-
-			if (pointLocation.getDepth() < SEIS_DEPTH)
-				distanceSeis = Math.sqrt(distanceJB * distanceJB + SEIS_DEPTH * SEIS_DEPTH);
-			else
-				distanceSeis = distanceRup;
 		}
+		
+		// always do this point source-distance correction since mag is generally always changing 
+		// (looping over point source) & type NONE returns 1.0
+		distanceJB *= PtSrcDistCorr.getCorrection(distanceJB, corrMag, corrType);		
+		
+		// set distanceRup & distanceSeis
+		distanceRup = Math.sqrt(distanceJB * distanceJB + vertDist * vertDist);
+		if (pointLocation.getDepth() < SEIS_DEPTH)
+			distanceSeis = Math.sqrt(distanceJB * distanceJB + SEIS_DEPTH * SEIS_DEPTH);
+		else
+			distanceSeis = distanceRup;
 	}
 	
 	
