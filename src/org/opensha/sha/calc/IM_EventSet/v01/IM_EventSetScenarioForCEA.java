@@ -41,7 +41,6 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel;
@@ -262,8 +261,6 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	  
 	  
 	  private void createMeanStdDevFile(){
-		  PropagationEffect propEffect = new PropagationEffect();
-		  propEffect.setEqkRupture(eqkRupture);
 		  
 		  try {
 			FileWriter fw = new FileWriter("IM_MeanStdDevFile.txt");
@@ -304,8 +301,8 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 						Location loc = locList.get(k);
 						site.setLocation(loc);
 						setSiteParamsInIMR(attenRel,((Integer)vs30List.get(k)).intValue());
-						propEffect.setSite(site);
-						attenRel.setPropagationEffect(propEffect);
+						attenRel.setSite(site);
+						attenRel.setEqkRupture(eqkRupture);
 						double mean = Math.exp(attenRel.getMean());
 						double stdDev = attenRel.getStdDev();
 						fw.write(attenRel.getName()+","+imt+","+(String)this.stationIds.get(k)+

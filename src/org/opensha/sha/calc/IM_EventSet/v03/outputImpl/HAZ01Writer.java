@@ -36,7 +36,6 @@ import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -177,8 +176,7 @@ public class HAZ01Writer extends IM_EventSetOutputWriter {
 					ProbEqkRupture rup = source.getRupture(rupID);
 					attenRel.setEqkRupture(rup);
 					
-					PropagationEffect propEffect = new PropagationEffect(site,rup);
-					double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+					double rupDist = rup.getRuptureSurface().getDistanceRup(site.getLocation());
 					
 					double mean = attenRel.getMean();
 					stdDevParam.setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);

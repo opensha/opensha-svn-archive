@@ -40,7 +40,6 @@ import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -209,30 +208,6 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 
 	}
 
-	/**
-	 * This sets the site and eqkRupture, and the related parameters,
-	 * from the propEffect object passed in. Warning constrains are ingored.
-	 * @param propEffect
-	 * @throws ParameterException : Thrown if the Site object doesn't contain
-	 * "Campbell Site Type" and "Campbell Basin Depth" Parameters
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	ParameterException, InvalidRangeException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-
-		siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
-		basinDepthParam.setValueIgnoreWarning((Double)site.getParameter(BASIN_DEPTH_NAME).
-				getValue());
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-
-		propEffect.setParamValue(distanceSeisParam);
-
-	}
 
 	/**
 	 * This sets the DistanceSeis propagation effect parameter based on the current

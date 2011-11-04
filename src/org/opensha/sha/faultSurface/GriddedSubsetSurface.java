@@ -54,7 +54,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	private static final long serialVersionUID = 1L;
 	
 	// for distance measures
-	Location siteLocForDistCalcs=null;
+	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
+	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
 	double distanceJB, distanceSeis, distanceRup, distanceX;
 
 
@@ -356,8 +357,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * @return
 	 */
 	public double getDistanceX(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
+		if(!siteLocForDistXCalc.equals(siteLoc)) {
+			siteLocForDistXCalc = siteLoc;
 			distanceX = GriddedSurfaceUtils.getDistanceX(this, siteLocForDistCalcs);
 		}
 		return distanceX;

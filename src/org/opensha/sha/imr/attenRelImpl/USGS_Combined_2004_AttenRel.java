@@ -41,7 +41,6 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.calc.Borcherdt2004_SiteAmpCalc;
 import org.opensha.sha.imr.attenRelImpl.calc.Wald_MMI_Calc;
@@ -226,7 +225,6 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 
 		// init the BC boundary site object, and set it in the attenuation relationships:
 		site_BC = new Site();
-		this.propEffect = new PropagationEffect();
 
 		as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
 				as_1997_attenRel.SITE_TYPE_ROCK);
@@ -257,35 +255,6 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 
 	}
 
-	/**
-	 *  This sets the eqkRupture related parameters (magParam
-	 *  and fltTypeParam) based on the eqkRupture passed in.
-	 *  The internally held eqkRupture object is also set as that
-	 *  passed in.  Warning constrains are ingored.
-	 *
-	 * @param  eqkRupture  The new eqkRupture value
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Wills site parameter
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	ParameterException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-
-		this.propEffect.setEqkRupture(eqkRupture);
-
-		vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
-
-		// set the location of the BC bounday site object
-		site_BC.setLocation(site.getLocation());
-		this.propEffect.setSite(site_BC);
-
-		as_1997_attenRel.setPropagationEffect(this.propEffect);
-		bjf_1997_attenRel.setPropagationEffect(this.propEffect);
-		scemy_1997_attenRel.setPropagationEffect(this.propEffect);
-		cb_2003_attenRel.setPropagationEffect(this.propEffect);
-	}
 
 	/**
 	 *  This sets the eqkRupture.
@@ -293,17 +262,12 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 	 * @param  eqkRupture
 	 */
 	public void setEqkRupture(EqkRupture eqkRupture) {
-
 		// Set the eqkRupture
 		this.eqkRupture = eqkRupture;
-
-		this.propEffect.setEqkRupture(eqkRupture);
-		if (propEffect.getSite() != null) {
-			as_1997_attenRel.setPropagationEffect(propEffect);
-			bjf_1997_attenRel.setPropagationEffect(propEffect);
-			scemy_1997_attenRel.setPropagationEffect(propEffect);
-			cb_2003_attenRel.setPropagationEffect(propEffect);
-		}
+		as_1997_attenRel.setEqkRupture(eqkRupture);
+		bjf_1997_attenRel.setEqkRupture(eqkRupture);
+		scemy_1997_attenRel.setEqkRupture(eqkRupture);
+		cb_2003_attenRel.setEqkRupture(eqkRupture);
 	}
 
 	/**
@@ -324,13 +288,11 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		// set the location of the BC bounday site object
 		site_BC.setLocation(site.getLocation());
 
-		this.propEffect.setSite(site_BC);
-		if (this.eqkRupture != null) {
-			as_1997_attenRel.setPropagationEffect(propEffect);
-			bjf_1997_attenRel.setPropagationEffect(propEffect);
-			scemy_1997_attenRel.setPropagationEffect(propEffect);
-			cb_2003_attenRel.setPropagationEffect(propEffect);
-		}
+		as_1997_attenRel.setSite(site_BC);
+		bjf_1997_attenRel.setSite(site_BC);
+		scemy_1997_attenRel.setSite(site_BC);
+		cb_2003_attenRel.setSite(site_BC);
+
 	}
 
 	/**
@@ -343,13 +305,10 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		}
 		site.setLocation(loc);
 		site_BC.setLocation(loc);
-		this.propEffect.setSite(site_BC);
-		if (this.eqkRupture != null) {
-			as_1997_attenRel.setPropagationEffect(propEffect);
-			bjf_1997_attenRel.setPropagationEffect(propEffect);
-			scemy_1997_attenRel.setPropagationEffect(propEffect);
-			cb_2003_attenRel.setPropagationEffect(propEffect);
-		}
+		as_1997_attenRel.setSite(site_BC);
+		bjf_1997_attenRel.setSite(site_BC);
+		scemy_1997_attenRel.setSite(site_BC);
+		cb_2003_attenRel.setSite(site_BC);
 	}
 
 	/**
@@ -1077,9 +1036,7 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		ar.setIntensityMeasure(PGA_Param.NAME);
 		System.out.println(ar.getMean());
 		System.out.println(ar.getStdDev());
-		PropagationEffect pe = new PropagationEffect();
-		pe.setAll(qk,site);
-		System.out.println(pe.getParamValue(DistanceSeisParameter.NAME));
+		System.out.println(qk.getRuptureSurface().getDistanceSeis(site.getLocation()));
 		System.out.println(ar.getMean());
 		System.out.println(ar.getStdDev());
 

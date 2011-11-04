@@ -44,7 +44,6 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.CAV_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -181,9 +180,6 @@ public class CB_2010_CAV_AttenRel
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
     
-    propEffect = new PropagationEffect();
-    propEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
-
   }
   
   public void getCoeffs(){
@@ -275,11 +271,8 @@ public class CB_2010_CAV_AttenRel
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
    
-    	propEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-//    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
-    	distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup());
-    	//distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
-    	double dist_jb = ((Double)propEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
+    	distanceRupParam.setValue(eqkRupture, site);
+		double dist_jb = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
     	if(rRup == 0)
     		distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
     	else

@@ -45,7 +45,6 @@ import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -127,12 +126,6 @@ extends HttpServlet implements ParameterChangeWarningListener {
 			//gets the selected IMT
 			String selectedIMT = (String) inputFromApplication.readObject();
 
-			//getting the propagationEffect from the application. This would set the propagation Effect
-			//in the ScenarioshakeMap Calc so as to serialize the propagation from the application on to
-			//the server.
-			PropagationEffect propEffect = (PropagationEffect) inputFromApplication.
-			readObject();
-
 			//close of the input from the application
 			inputFromApplication.close();
 
@@ -140,8 +133,7 @@ extends HttpServlet implements ParameterChangeWarningListener {
 			getIMR_ParametersAndAddListeners(selectedAttenRels);
 
 			//creating the object for the ScenarioShakeMapCalculator to compute the XYZ data for the selected region
-			ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator(
-					propEffect);
+			ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator();
 
 			GeoDataSet xyzData = null;
 			if (!selectedIMT.equals(PGV_Param.NAME)) {

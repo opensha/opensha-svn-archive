@@ -133,11 +133,6 @@ implements IntensityMeasureRelationship {
 	protected EqkRupture eqkRupture;
 
 	/**
-	 * This is used for efficiency
-	 */
-	protected PropagationEffect propEffect;
-
-	/**
 	 *  Intensity Measure.  This is a specification of the type of shaking one
 	 *  is concerned about.  Its representation as a Parameter makes the
 	 *  specification quite general and flexible.  IMRs compute the probability
@@ -202,16 +197,6 @@ implements IntensityMeasureRelationship {
 	 */
 	public void setSite(Site site) {
 		this.site = site;
-	}
-
-	/**
-	 * This sets the Site & EqkRupture (and subclasses can set propagation effect params more
-	 * efficiently by overriding this).
-	 * @param propEffect
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) {
-		setSite(propEffect.getSite());
-		setEqkRupture(propEffect.getEqkRupture());
 	}
 
 	/**

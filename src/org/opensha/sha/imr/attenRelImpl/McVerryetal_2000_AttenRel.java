@@ -40,7 +40,6 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.gcim.imr.param.EqkRuptureParams.FocalDepthParam;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -237,7 +236,6 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
 
-    propEffect = new PropagationEffect();
   }
 
   /**
@@ -305,9 +303,7 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
    
-    	propEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-    	distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup());
-//    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+		distanceRupParam.setValueIgnoreWarning(eqkRupture.getRuptureSurface().getDistanceRup(site.getLocation()));
     }
   }
 

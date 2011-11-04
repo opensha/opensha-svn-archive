@@ -62,13 +62,6 @@ public interface IntensityMeasureRelationship
   public void setSite(Site site);
 
   /**
-   * This sets the Site, EqkRupture, and perhaps other things from the propEffect 
-   * object passed in (implementation details will vary according to efficiency considerations).
-   * @param propEffect
-   */
-  public void setPropagationEffect(PropagationEffect propEffect);
-
-  /**
    * This sets the probability to be used for getting the IML at a user-specified
    * probability.  This value is not what is returned by the getExceedProbability() 
    * method, as the latter is what is computed for a specified given IML. It's 

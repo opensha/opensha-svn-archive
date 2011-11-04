@@ -18,7 +18,6 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -150,8 +149,6 @@ public class McVerryetal_2000_AttenRelv1
   private String stdDevType, fltType, component;
   private boolean parameterChange;
   
-  private PropagationEffect propagationEffect;
-
   protected final static Double MAG_WARN_MIN = new Double(5.0);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
@@ -210,7 +207,6 @@ public class McVerryetal_2000_AttenRelv1
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
 
-    propagationEffect = new PropagationEffect();
   }
 
   /**
@@ -254,8 +250,7 @@ public class McVerryetal_2000_AttenRelv1
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
    
-    	propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-    	distanceRupParam.setValueIgnoreWarning((Double)propagationEffect.getParamValue(DistanceRupParameter.NAME)); // this sets rRup too
+    	distanceRupParam.setValue(eqkRupture, site); // use this for efficiency
     }
   }
 

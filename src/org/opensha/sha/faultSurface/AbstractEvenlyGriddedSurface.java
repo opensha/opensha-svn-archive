@@ -64,7 +64,8 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	protected Boolean sameGridSpacing;
 	
 	// for distance measures
-	Location siteLocForDistCalcs=null;
+	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
+	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
 	double distanceJB, distanceSeis, distanceRup, distanceX;
 	
 	
@@ -320,8 +321,8 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * @return
 	 */
 	public double getDistanceX(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
+		if(!siteLocForDistXCalc.equals(siteLoc)) {
+			siteLocForDistXCalc = siteLoc;
 			distanceX = GriddedSurfaceUtils.getDistanceX(this, siteLocForDistCalcs);
 		}
 		return distanceX;

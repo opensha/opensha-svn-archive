@@ -50,7 +50,6 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TRTUtils;
@@ -467,12 +466,12 @@ implements DisaggregationCalculatorAPI{
 							mag = myMag;
 					}
 					
-					ProbEqkRupture fakeRupture = new ProbEqkRupture(mag, 0, 0, source.getSourceSurface(), null);
-					PropagationEffect pEffect = new PropagationEffect(site, fakeRupture);
-					sourceDisaggInfo += "\t" + f2.format(pEffect.getDistanceRup())
-							+ "\t" + f2.format(pEffect.getDistanceX())
-							+ "\t" + f2.format(pEffect.getDistanceSeis())
-							+ "\t" + f2.format(pEffect.getDistanceJB());
+					ProbEqkRupture fakeRup = new ProbEqkRupture(mag, 0, 0, source.getSourceSurface(), null);
+					sourceDisaggInfo += "\t" + f2.format(fakeRup.getRuptureSurface().getDistanceRup(site.getLocation()))
+							+ "\t" + f2.format(fakeRup.getRuptureSurface().getDistanceX(site.getLocation()))
+							+ "\t" + f2.format(fakeRup.getRuptureSurface().getDistanceSeis(site.getLocation()))
+							+ "\t" + f2.format(fakeRup.getRuptureSurface().getDistanceJB(site.getLocation()));
+
 				}
 				
 				sourceDisaggInfo += "\n";

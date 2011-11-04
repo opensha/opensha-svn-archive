@@ -25,7 +25,6 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -118,8 +117,6 @@ public class CBJ_2008_AttenRel
   private boolean magSaturation;
   private boolean parameterChange;
   
-  private PropagationEffect propagationEffect;
-
   // values for warning parameters
   protected final static Double MAG_WARN_MIN = new Double(4.0);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
@@ -168,10 +165,6 @@ public class CBJ_2008_AttenRel
 
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
-    
-    propagationEffect = new PropagationEffect();
-    propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
-    
     
     // write coeffs as a check
     //  per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho
@@ -480,10 +473,8 @@ public class CBJ_2008_AttenRel
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
    
-    	propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-//    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
-    	distanceRupParam.setValueIgnoreWarning((Double)propagationEffect.getParamValue(DistanceRupParameter.NAME)); // this sets rRup too
-    	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
+		distanceRupParam.setValue(eqkRupture, site); // this sets rRup too
+		double dist_jb = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
     	double dRupMinusJB_OverRup = (rRup-dist_jb)/rRup;
     	distRupMinusJB_OverRupParam.setValueIgnoreWarning(dRupMinusJB_OverRup);
     }

@@ -40,7 +40,6 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds575_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds595_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
@@ -153,8 +152,6 @@ public class BommerEtAl_2009_AttenRel
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
     
-    propEffect = new PropagationEffect();
-    propEffect.fixDistanceJB(true);
   }
   
   
@@ -206,10 +203,7 @@ public class BommerEtAl_2009_AttenRel
   protected void setPropagationEffectParams() {
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
-   
-    	propEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-    	distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup());
-    	//distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+    	distanceRupParam.setValue(eqkRupture, site);
     }
   }
 

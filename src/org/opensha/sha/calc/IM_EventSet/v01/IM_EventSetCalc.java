@@ -49,7 +49,6 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -626,8 +625,7 @@ public class IM_EventSetCalc
             for(int s=0 ; s<numSites ; ++s){
               Location loc = locList.get(s);
               Site site = new Site(loc);
-              PropagationEffect propEffect = new PropagationEffect(site,rupture);
-              double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+ 			  double rupDist = rupture.getRuptureSurface().getDistanceRup(site.getLocation());
               fwRup.write((float)rupDist+"  ");
             }
             fwRup.write("\n");

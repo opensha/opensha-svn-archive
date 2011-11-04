@@ -92,7 +92,7 @@ public class GriddedSurfaceUtils {
 		
 		// fix small values of distanceJB (since they can be non-zero over the rupture)
 		// WAY1
-		if(surface.size() > 1) {
+		if(surface.getNumCols() > 1 && surface.getNumRows() > 1) {
 			double d1, d2,min_dist;
 			d1 = LocationUtils.horzDistanceFast(surface.getLocation(0, 0),surface.getLocation(1, 1));
 			d2 = LocationUtils.horzDistanceFast(surface.getLocation(0, 1),surface.getLocation(1, 0));

@@ -41,7 +41,6 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.servlets.ScenarioShakeMapCalcServlet;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 
 
 /**
@@ -64,27 +63,14 @@ public class ScenarioShakeMapCalculator {
 	private int currentSiteBeingProcessed;
 
 	//the propagation effect object
-	private PropagationEffect propagationEffect;
 	private FileWriter fw ;
 	private DecimalFormat locFormat = new DecimalFormat("0.000000");
 
 	//
 
-	/**
-	 * class constructor that receives the propagation effect from the outside source and sets
-	 * as its own propagation.
-	 * Currently used in the server side so as to set the Propagation from the application to the
-	 * server , where we create a new instance of the propagationEffect.
-	 * @param propEffect: PropagationEffect Object.
-	 */
-	public ScenarioShakeMapCalculator(PropagationEffect propEffect) {
-		propagationEffect = propEffect;
-	}
-
 
 	//class default constructor
 	public ScenarioShakeMapCalculator() {
-		propagationEffect = new PropagationEffect();
 	}
 
 
@@ -111,9 +97,6 @@ public class ScenarioShakeMapCalculator {
 
 		//instance of the XYZ dataSet.
 		GeoDataSet xyzDataSet =null;
-
-		//setting the rupture inside the propagationeffect.
-		propagationEffect.setEqkRupture(rupture);
 
 		// get the selected attenuationRelation array size.
 		int size = selectedAttenRels.size();
@@ -195,8 +178,6 @@ public class ScenarioShakeMapCalculator {
 			//getting one site at a time
 			Site site = sites.getSite(k);
 
-			//setting the site in the PropagationEffect
-			propagationEffect.setSite(site);
 			/*
       // write out useful info
       System.out.print((float)site.getLocation().getLatitude()+"\t"+
@@ -207,15 +188,15 @@ public class ScenarioShakeMapCalculator {
                        site.getParameter(CB_2003_AttenRel.SITE_TYPE_NAME).getValue()+"\t"+
                        site.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME).getValue()+"\t"+
                        ((Double)site.getParameter(Field_2000_AttenRel.BASIN_DEPTH_NAME).getValue()).floatValue()+"\t"+
-                       propagationEffect.getParamValue(DistanceRupParameter.NAME)+"\t"+
-                       propagationEffect.getParamValue(DistanceSeisParameter.NAME)+"\t"+
-                       propagationEffect.getParamValue(DistanceJBParameter.NAME)+"\n");
+                       rupture.getRuptureSurface().getDistanceRup(site.getLocation())+"\t"+
+                       rupture.getRuptureSurface().getDistanceSeis(site.getLocation())+"\t"+
+                       rupture.getRuptureSurface().getDistanceJB(site.getLocation())+"\n");
 			 */
 			//iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
 			for(int i=0;i<size;++i){
 				AttenuationRelationship attenRel = selectedAttenRels.get(i);
 				//getting the calculated value for the scenarioshakemap for the i-th attenRel and for this site.
-				double val= scenarioShakeMapDataCalc(propagationEffect,attenRel,isProbAtIML);
+				double val= scenarioShakeMapDataCalc(rupture,site,attenRel,isProbAtIML);
 
 				//multiplying the value for the attenuation with the relative normalised wt for it
 				val *= (attenRelWts.get(i)).doubleValue();
@@ -306,10 +287,6 @@ public class ScenarioShakeMapCalculator {
 			//sending the selected IMT to the server
 			outputToServlet.writeObject(selectedIMT);
 
-			//sending the Propagation effect parameter to the servlet
-			outputToServlet.writeObject(propagationEffect);
-
-
 			// Receive the "actual webaddress of all the gmt related files"
 			// from the servlet after it has received all the data
 			inputToServlet = new
@@ -350,10 +327,11 @@ public class ScenarioShakeMapCalculator {
 	 * @return computed value for the exceed Prob or IML based on above argument.
 	 * @throws ParameterException
 	 */
-	private double scenarioShakeMapDataCalc(PropagationEffect propagationEffect,
+	private double scenarioShakeMapDataCalc(EqkRupture rupture, Site site,
 			AttenuationRelationship imr,boolean isProbAtIML) throws ParameterException {
 
-		imr.setPropagationEffect(propagationEffect);
+		imr.setEqkRupture(rupture);
+		imr.setSite(site);
 		if(D) {
 			try {
 				Location loc = imr.getSite().getLocation();
@@ -434,11 +412,12 @@ public class ScenarioShakeMapCalculator {
 
 	/**
 	 *
-	 * @return the ParameterList for the Propagation Effect.
-	 * But later we will be creating a adjustable parameterlist for the calculator.
+	 * @return the list of adjustable parameters.
 	 */
 	public ParameterList getAdjustableParams(){
-		return propagationEffect.getAdjustableParameterList();
+//		return propagationEffect.getAdjustableParameterList();
+		ParameterList nullList = new ParameterList();
+		return nullList;
 	}
 
 }

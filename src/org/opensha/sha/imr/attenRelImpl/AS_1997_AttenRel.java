@@ -45,7 +45,6 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -225,41 +224,6 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 
 	}
 
-	/**
-	 * This sets the site and eqkRupture, and the related parameters,
-	 *  from the propEffect object passed in. Warning constrains are ingored.
-	 * @param propEffect
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Vs30 parameter
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	ParameterException, InvalidRangeException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-
-		// set the locat site-type param
-		siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
-
-		// set the eqkRupture params
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-
-		// set the distance param
-		propEffect.setParamValue(distanceRupParam);
-
-		// now the hanging wall param
-		int numPts = eqkRupture.getRuptureSurface().getNumCols();
-		if (eqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() &&
-				numPts > 1) {
-			isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
-		}
-		else {
-			isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
-		}
-	}
 
 	/**
 	 * This sets the two propagation-effect parameters (distanceRupParam and

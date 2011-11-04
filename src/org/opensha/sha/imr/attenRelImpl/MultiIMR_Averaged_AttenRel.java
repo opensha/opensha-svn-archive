@@ -26,7 +26,6 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
@@ -62,7 +61,6 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	
 	public static final String PROP_EFFECT_SPEEDUP_PARAM_NAME = "Prop. Effect. Speedup";
 	public static final Boolean PROP_EFFECT_SPEEDUP_DEFAULT = true;
-	private BooleanParameter propEffectSpeedupParam;
 	
 	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIMR> imrs) {
 		this(imrs, null);
@@ -83,7 +81,6 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		
 		this.imrs = imrs;
 		setWeights(weights);
-		this.propEffect = new PropagationEffect();
 
 		initSupportedIntensityMeasureParams();
 		initEqkRuptureParams();
@@ -372,10 +369,6 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		// link up default params
 //		linkParams(otherParams);
 		
-		propEffectSpeedupParam = new BooleanParameter(PROP_EFFECT_SPEEDUP_PARAM_NAME);
-		propEffectSpeedupParam.setDefaultValue(PROP_EFFECT_SPEEDUP_DEFAULT);
-		otherParams.addParameter(propEffectSpeedupParam);
-		
 		weightsParam = new WeightedListParameter<ScalarIMR>(IMR_WEIGHTS_PARAM_NAME, null);
 		weightsParam.setValue(weights);
 		otherParams.addParameter(weightsParam);
@@ -499,40 +492,19 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	public void setEqkRupture(EqkRupture eqkRupture) {
 		// Set the eqkRupture
 		this.eqkRupture = eqkRupture;
-
-		this.propEffect.setEqkRupture(eqkRupture);
-		if (propEffectSpeedupParam.getValue() && propEffect.getSite() != null) {
-			setPropagationEffect(propEffect);
-		} else {
-			for (ScalarIMR imr : imrs) {
-				imr.setEqkRupture(eqkRupture);
-			}
+		for (ScalarIMR imr : imrs) {
+			imr.setEqkRupture(eqkRupture);
 		}
 	}
 
 	@Override
 	public void setSite(Site site) {
 		this.site = site;
-		
 		for (Parameter param : siteParams) {
 			param.setValue(site.getParameter(param.getName()).getValue());
 		}
-		
-		propEffect.setSite(site);
-		if (propEffectSpeedupParam.getValue() && propEffect.getEqkRupture() != null) {
-			setPropagationEffect(propEffect);
-		} else {
-			for (ScalarIMR imr : imrs) {
-				imr.setSite(site);
-			}
-		}
-	}
-
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect) {
-		this.propEffect = propEffect;
 		for (ScalarIMR imr : imrs) {
-			imr.setPropagationEffect(propEffect);
+			imr.setSite(site);
 		}
 	}
 
@@ -788,7 +760,6 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 
 	@Override
 	public void setParamDefaults() {
-		propEffectSpeedupParam.setValueAsDefault();
 		if (weightsParam.getValue() == null)
 			weightsParam.setValue(weights);
 //			throw new IllegalStateException("weights param value can't be null!");

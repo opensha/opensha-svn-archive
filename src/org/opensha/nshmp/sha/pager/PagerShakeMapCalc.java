@@ -47,7 +47,6 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.param.SimpleFaultParameter;
@@ -415,21 +414,16 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 	 */
 	private GeoDataSet pagerShakeMapCalc() throws ParameterException {
 
-		PropagationEffect propagationEffect = new PropagationEffect();
+		calc = new ScenarioShakeMapCalculator();
 
-		ParameterList paramList = propagationEffect.getAdjustableParameterList();
-		paramList.getParameter(propagationEffect.APPROX_DIST_PARAM_NAME).setValue(new
-				Boolean(true));
-
-		if (pointSourceCorrection)
-			paramList.getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).
-			setValue(new Boolean(true));
-		else
-			paramList.getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).
-			setValue(new Boolean(false));
-
+		// set the point source correction parameter below when it's implemented in the ScenarioShakeMapCalculator
+		if (pointSourceCorrection){
+//			propEffect.getAdjustableParameterList().getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).setValue(new Boolean(true));
+		}
+		else {
+//			propEffect.getAdjustableParameterList().getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).setValue(new Boolean(false));
+		}
 		//Calls the ScenarioShakeMap Calculator to generate Median File
-		calc = new ScenarioShakeMapCalculator(propagationEffect);
 		ArrayList attenRelsSupported = new ArrayList();
 		attenRelsSupported.add(attenRel);
 		ArrayList attenRelWts = new ArrayList();

@@ -23,7 +23,6 @@ import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
@@ -247,15 +246,14 @@ public class NGAComparisonCalc {
 				for (Iterator<Parameter<?>> it = site.getParametersIterator(); it.hasNext(); )
 					line.add(it.next().getValue()+"");
 				
-				PropagationEffect propEffect = new PropagationEffect(site, rup);
-				
-				line.add(propEffect.getDistanceJB()+"");
-				line.add(propEffect.getDistanceRup()+"");
-				line.add(propEffect.getDistanceSeis()+"");
-				line.add(propEffect.getDistanceX()+"");
+				line.add(rup.getRuptureSurface().getDistanceJB(site.getLocation())+"");
+				line.add(rup.getRuptureSurface().getDistanceRup(site.getLocation())+"");
+				line.add(rup.getRuptureSurface().getDistanceSeis(site.getLocation())+"");
+				line.add(rup.getRuptureSurface().getDistanceX(site.getLocation())+"");
 				
 				for (ScalarIMR imr : imrs) {
-					imr.setPropagationEffect(propEffect);
+					imr.setEqkRupture(rup);
+					imr.setSite(site);
 					
 					// natural log of SA at given period, in G's
 					double mean = imr.getMean();

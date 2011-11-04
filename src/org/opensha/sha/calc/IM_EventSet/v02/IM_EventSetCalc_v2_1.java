@@ -51,7 +51,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkR
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
@@ -709,8 +708,7 @@ implements ParameterChangeWarningListener {
 						for(int s=0 ; s<numSites ; ++s){
 							Location loc = locList.get(s);
 							Site site = new Site(loc);
-							PropagationEffect propEffect = new PropagationEffect(site,rupture);
-							double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+							double rupDist = rupture.getRuptureSurface().getDistanceRup(site.getLocation());
 							fwRup.write((float)rupDist+"  ");
 						}
 						fwRup.write("\n");

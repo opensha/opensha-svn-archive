@@ -21,7 +21,6 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -198,9 +197,6 @@ public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
 	private String stdDevType;
 	private String tecRegType;
 
-	//	private boolean parameterChange;
-	private PropagationEffect propagationEffect;
-
 	// Site class Definitions - 
 	private StringParameter siteTypeParam = null;
 	public final static String SITE_TYPE_INFO = "Geological conditions at the site";
@@ -319,28 +315,6 @@ public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
 		}
 	}
 
-	/**
-	 * This sets the site and eqkRupture, and the related parameters,
-	 *  from the propEffect object passed in. Warning constrains are ingored.
-	 * @param propEffect
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Vs30 parameter
-	 * @throws InvalidRangeException    If not valid rake angle
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	ParameterException, InvalidRangeException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-		siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		
-		// TODO
-		//	    setFaultTypeFromRake(eqkRupture.getAveRake());
-
-		// set the distance param
-		propEffect.setParamValue(distanceRupParam);
-	}
 
 	/**
 	 * 
