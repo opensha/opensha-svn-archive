@@ -37,7 +37,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 /**
  * <b>Title:</b> DistanceX_Parameter<p>
@@ -217,7 +217,7 @@ public class DistanceX_Parameter extends AbstractDoublePropEffectParam {
 		  ProbEqkRupture sierraMadreRup = meanUCERF2.getSource(271).getRupture(meanUCERF2.getSource(271).getNumRuptures()-1);
 		  
 		  Site site = new Site();
-		  site.setLocation(sierraMadreRup.getRuptureSurface().getLocation(0, 0));
+		  site.setLocation(sierraMadreRup.getRuptureSurface().getFirstLocOnUpperEdge());
 		  
 		  DistanceX_Parameter distX = new DistanceX_Parameter();
 		  distX.setValue(sierraMadreRup, site);

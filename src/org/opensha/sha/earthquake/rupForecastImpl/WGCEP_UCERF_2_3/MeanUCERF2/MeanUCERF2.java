@@ -44,7 +44,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.A_FaultsF
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -998,7 +998,7 @@ public class MeanUCERF2 extends AbstractERF {
 				FaultRuptureSource faultRuptureSource = aFaultSegmentedSources.get(i);
 				for(int r=0;r<faultRuptureSource.getNumRuptures();r++) {
 					ProbEqkRupture rup = faultRuptureSource.getRupture(r);
-					EvenlyGriddedSurface surf = rup.getRuptureSurface();
+					RuptureSurface surf = rup.getRuptureSurface();
 					double rupArea = surf.getAveLength()*surf.getAveWidth();
 					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
 					fw.write(
@@ -1020,7 +1020,7 @@ public class MeanUCERF2 extends AbstractERF {
 				UnsegmentedSource unsegmentedSource = aFaultUnsegmentedSources.get(i);
 				for(int r=0;r<unsegmentedSource.getNumRuptures();r++) {
 					ProbEqkRupture rup = unsegmentedSource.getRupture(r);
-					EvenlyGriddedSurface surf = rup.getRuptureSurface();
+					RuptureSurface surf = rup.getRuptureSurface();
 					double rupArea = surf.getAveLength()*surf.getAveWidth();
 					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
 					fw.write(
@@ -1046,7 +1046,7 @@ public class MeanUCERF2 extends AbstractERF {
 					if(r == unsegmentedSource.getNumGR_rups())
 						type = FULL_RUP;
 					ProbEqkRupture rup = unsegmentedSource.getRupture(r);
-					EvenlyGriddedSurface surf = rup.getRuptureSurface();
+					RuptureSurface surf = rup.getRuptureSurface();
 					double rupArea = surf.getAveLength()*surf.getAveWidth();
 					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
 					fw.write(

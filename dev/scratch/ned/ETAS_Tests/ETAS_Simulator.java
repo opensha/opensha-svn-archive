@@ -16,6 +16,7 @@ import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -31,7 +32,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -547,7 +548,7 @@ public class ETAS_Simulator {
 		
 		System.out.println("latDada\t"+minLat+"\t"+maxLat+"\t"+minLon+"\t"+maxLon+"\t");
 		
-		FaultTrace trace = mainShock.getRuptureSurface().getRowAsTrace(0);
+		FaultTrace trace = mainShock.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
 		ArbitrarilyDiscretizedFunc traceFunc = new ArbitrarilyDiscretizedFunc();
 		traceFunc.setName("Main Shock Trace");
 		for(Location loc:trace)
@@ -647,10 +648,10 @@ public class ETAS_Simulator {
 			for(int r=0; r<numRups;r++) {
 				ProbEqkRupture rup = src.getRupture(r);
 				ArbDiscrEmpiricalDistFunc numInEachNode = new ArbDiscrEmpiricalDistFunc(); // node on x-axis and num on y-axis
-				EvenlyGriddedSurface surface = rup.getRuptureSurface();
+				LocationList locsOnRupSurf = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 				double rate = rup.getMeanAnnualRate(forecastDuration);
 				int numUnAssigned=0;
-				for(Location loc: surface) {
+				for(Location loc: locsOnRupSurf) {
 					int nodeIndex = griddedRegion.indexForLocation(loc);
 					if(nodeIndex != -1)
 						numInEachNode.set((double)nodeIndex,1.0);
@@ -661,12 +662,12 @@ public class ETAS_Simulator {
 				if(numNodes>0) {
 					for(int i=0;i<numNodes;i++) {
 						int nodeIndex = (int)Math.round(numInEachNode.getX(i));
-						double fracInside = numInEachNode.getY(i)/surface.size();
+						double fracInside = numInEachNode.getY(i)/locsOnRupSurf.size();
 						double nodeRate = rate*fracInside;	// fraction of rate in node
 						blockList.get(nodeIndex).processRate(nodeRate, fracInside, s, r, rup.getMag());
 					}
 				}
-				float fracUnassigned = (float)numUnAssigned/(float)surface.size();
+				float fracUnassigned = (float)numUnAssigned/(float)locsOnRupSurf.size();
 				if(numUnAssigned>0) System.out.println(fracUnassigned+" of rup "+r+" were unassigned for source "+s+" ("+erf.getSource(s).getName()+")");
 				rateUnAssigned += rate*fracUnassigned;
 			}

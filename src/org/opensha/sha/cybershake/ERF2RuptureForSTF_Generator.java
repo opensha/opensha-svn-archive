@@ -42,6 +42,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 /**
@@ -110,7 +111,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+        AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface((EvenlyGriddedSurface)rupture.getRuptureSurface());
 
 
         //getting the iterator for all points on the rupture
@@ -204,7 +205,7 @@ public class ERF2RuptureForSTF_Generator {
 
           //getting the rupture on the source and its gridCentered Surface
           ProbEqkRupture rupture = source.getRupture(rupIndex);
-          AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+          AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface((EvenlyGriddedSurface) rupture.getRuptureSurface());
 
           //getting the iterator for all points on the rupture
           ListIterator lit = rupSurface.getAllByRowsIterator();
@@ -267,7 +268,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+        AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface((EvenlyGriddedSurface) rupture.getRuptureSurface());
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -314,10 +315,10 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+        RuptureSurface rupSurface = rupture.getRuptureSurface();
 
         //getting the iterator for all points on the rupture
-        ListIterator it = rupSurface.getAllByRowsIterator();
+        ListIterator it = rupSurface.getLocationsIterator();
         boolean rupInside = false;
         //looping over all the rupture pt locations and if any of those lies
         //within the provided distance range then include the rupture in the list.
@@ -328,7 +329,7 @@ public class ERF2RuptureForSTF_Generator {
             break;
           }
         }
-        it = rupSurface.getAllByRowsIterator();
+        it = rupSurface.getLocationsIterator();
         while (it.hasNext() && rupInside) {
           Location ptLoc = (Location) it.next();
           double lat = ptLoc.getLatitude();
@@ -506,8 +507,8 @@ public class ERF2RuptureForSTF_Generator {
     rupInfo += "Probability = " + (float)rupture.getProbability() +"\n";
     rupInfo += "Magnitude = " + (float)rupture.getMag() +"\n";
 
-    EvenlyGriddedSurface surface = rupture.getRuptureSurface();
-    double gridSpacing = (float)this.getGridSpacing(surface);
+    RuptureSurface surface = rupture.getRuptureSurface();
+    double gridSpacing = (float)this.getGridSpacing((EvenlyGriddedSurface)surface);
     rupInfo += "GridSpacing = " + gridSpacing +"\n";
     ListIterator it = rupture.getAddedParametersIterator();
     if (it != null) {
@@ -521,9 +522,9 @@ public class ERF2RuptureForSTF_Generator {
     double dip = surface.getAveDip();
 
     //Local Strike for each grid centered location on the rupture
-    double[] localStrikeList = this.getLocalStrikeList(surface);
+    double[] localStrikeList = this.getLocalStrikeList((EvenlyGriddedSurface)surface);
 
-    AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(surface);
+    AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface((EvenlyGriddedSurface)surface);
     int numRows = rupSurface.getNumRows();
     int numCols = rupSurface.getNumCols();
     rupInfo += "NumRows = "+numRows+"\n";

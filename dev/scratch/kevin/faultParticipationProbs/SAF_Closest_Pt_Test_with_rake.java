@@ -29,6 +29,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -84,9 +85,9 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 		}
 	}
 	
-	private static double getStrikeEst(EvenlyGriddedSurface surface) {
-		Location pt1 = surface.get(0, 0);
-		Location pt2 = surface.get(0, surface.getNumCols()-1);
+	private static double getStrikeEst(RuptureSurface surface) {
+		Location pt1 = surface.getFirstLocOnUpperEdge();
+		Location pt2 = surface.getLastLocOnUpperEdge();
 		return LocationUtils.azimuth(pt2, pt1);
 	}
 
@@ -142,10 +143,10 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 		@Override
 		public void compute() {
 			double mag = rup.getMag();
-			EvenlyGriddedSurface rupSurface = rup.getRuptureSurface();
+			RuptureSurface rupSurface = rup.getRuptureSurface();
 			FocalMechanism fm = new FocalMechanism(getStrikeEst(rupSurface), Double.NaN, rup.getAveRake());
 			double meanAnnualRate = rup.getMeanAnnualRate(duration);
-			for (Location rupPt : rupSurface) {
+			for (Location rupPt : rupSurface.getEvenlyDiscritizedListOfLocsOnSurface()) {
 				SummedMagFreqDist closestMFD = getClosestMFD(faultsForRup, rupPt, fm);
 				if (closestMFD == null) {
 					numUnassigned++;
@@ -354,7 +355,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 	}
 
 	private ArrayList<FaultProbPairing> getFaultsForSource(ProbEqkSource source) {
-		EvenlyGriddedSurface sourceSurface = source.getSourceSurface();
+		EvenlyGriddedSurface sourceSurface = (EvenlyGriddedSurface) source.getSourceSurface();
 
 		ArrayList<FaultProbPairing> faultsForSource = new ArrayList<FaultProbPairing>();
 

@@ -127,7 +127,10 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
     /** Debug string to represent a tab. Used by toString().  */
     final static char TAB = '\t';
 
-    /** Prints out each location and fault information for debugging */
+    /** 
+     * Prints out each location and fault information for debugging
+     *  
+     */
     public String toString(){
 
         StringBuffer b = new StringBuffer();
@@ -168,30 +171,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
   	  return locList;
     }
 
-
-
-    /**
-     * Returns the Surface Metadata with the following info:
-     * <ul>
-     * <li>AveDip
-     * <li>Surface length
-     * <li>Surface DownDipWidth
-     * <li>GridSpacing
-     * <li>NumRows
-     * <li>NumCols
-     * <li>Number of locations on surface
-     * <p>Each of these elements are represented in Single line with tab("\t") delimitation.
-     * <br>Then follows the location of each point on the surface with the comment String
-     * defining how locations are represented.</p>
-     * <li>#Surface locations (Lat Lon Depth)
-     * <p>Then until surface locations are done each line is the point location on the surface.
-     *
-     * </ul>
-     * @return String
-     */
-    public String getSurfaceMetadata() {
-       return ((AbstractEvenlyGriddedSurface)data).getSurfaceMetadata();
-    }
 
 
     /**
@@ -387,5 +366,17 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 		}
 		return numInside/size();
 	}
+	
+	@Override
+	public String getInfo() {
+	      return GriddedSurfaceUtils.getSurfaceInfo(this);
+	}
+	
+	@Override
+	public boolean isPointSurface() {
+		return (size() == 1);
+	}
+
+
 
 }

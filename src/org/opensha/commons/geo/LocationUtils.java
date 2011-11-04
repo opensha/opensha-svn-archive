@@ -31,7 +31,7 @@ import java.util.ListIterator;
 
 import org.apache.commons.math.util.MathUtils;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 /**
  * This class contains static utility methods to operate on geographic
@@ -319,7 +319,7 @@ public final class LocationUtils {
 
 	/**
 	 * Calculates the shortest distance between the <code>Location</code>s and
-	 * the EventlyGridddedSurface by simply looping over all the locations in
+	 * the RuptureSurface by simply looping over all the locations in
 	 * the surface and keeping the smallest one obtained from 
 	 * {@link #horzDistanceFast(Location, Location)}.
 	 * 
@@ -327,11 +327,11 @@ public final class LocationUtils {
 	 * @param rupSurf an EvenlyGriddedSurfaceAPI
 	 * @return
 	 */
-	public static double distanceToSurfFast(Location loc, EvenlyGriddedSurface rupSurf) {
+	public static double distanceToSurfFast(Location loc, RuptureSurface rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		
-		for(Location loc2: rupSurf) {
+		for(Location loc2: rupSurf.getEvenlyDiscritizedListOfLocsOnSurface()) {
 			horzDist = horzDistanceFast(loc, loc2);
 			vertDist = vertDistance(loc, loc2);
 			totalDist = horzDist * horzDist + vertDist * vertDist;

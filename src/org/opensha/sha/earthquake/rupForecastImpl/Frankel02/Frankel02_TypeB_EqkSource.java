@@ -298,8 +298,8 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
       rup = src.getRupture(i);
       System.out.print("rup #"+i+":\n\tmag="+rup.getMag()+"\n\tprob="+
                           rup.getProbability()+"\n\tRup Ends: "+
-                          (float)rup.getRuptureSurface().getLocation(0,0).getLatitude()+"  "+
-                          (float)rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1).getLatitude()+
+                          (float)rup.getRuptureSurface().getFirstLocOnUpperEdge().getLatitude()+"  "+
+                          (float)rup.getRuptureSurface().getLastLocOnUpperEdge().getLatitude()+
                           "\n\n");
     }
 

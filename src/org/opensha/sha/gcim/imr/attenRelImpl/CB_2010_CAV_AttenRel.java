@@ -40,7 +40,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.CAV_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -231,10 +231,8 @@ public class CB_2010_CAV_AttenRel
 		  fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
 	  }
 	  
-	  EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
-	  double depth = surface.getLocation(0, 0).getDepth();
-	  rupTopDepthParam.setValueIgnoreWarning(depth);
-	  
+	  RuptureSurface surface = eqkRupture.getRuptureSurface();
+	  rupTopDepthParam.setValueIgnoreWarning(surface.getAveRupTopDepth());
 	  dipParam.setValueIgnoreWarning(surface.getAveDip());
 	  
 //	  setFaultTypeFromRake(eqkRupture.getAveRake());

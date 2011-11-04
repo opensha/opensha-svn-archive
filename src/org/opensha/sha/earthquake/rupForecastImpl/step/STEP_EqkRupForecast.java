@@ -427,7 +427,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
      double duration = qkSrc.getDuration();
      for(int i=0;i<qkSrc.getNumRuptures();i++) {
        rup = qkSrc.getRupture(i);
-       Location loc = (Location) rup.getRuptureSurface().get(0,0);
+       Location loc = (Location) rup.getRuptureSurface().getFirstLocOnUpperEdge();
        if(i==0) System.out.println("First Source:\n" + loc.getLongitude()+"  "+loc.getLatitude());
        rate = -Math.log(1-rup.getProbability())/duration;
        System.out.println((float)rup.getMag()+"  "+rate);
@@ -439,7 +439,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
      duration = qkSrc.getDuration();
      for(int i=0;i<qkSrc.getNumRuptures();i++) {
        rup = qkSrc.getRupture(i);
-       Location loc = (Location) rup.getRuptureSurface().get(0,0);
+       Location loc = (Location) rup.getRuptureSurface().getFirstLocOnUpperEdge();
        if(i==0) System.out.println("Last Source:\n" + loc.getLongitude()+"  "+loc.getLatitude());
        rate = -Math.log(1-rup.getProbability())/duration;
        System.out.println((float)rup.getMag()+"  "+rate);

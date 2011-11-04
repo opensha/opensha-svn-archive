@@ -29,7 +29,7 @@ import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 
 /**
@@ -140,14 +140,14 @@ public class DistanceRupParameter extends AbstractDoublePropEffectParam {
 	 * @param rupSurf
 	 * @return
 	 */
-	public static double getDistance(Location loc, EvenlyGriddedSurface rupSurf) {
+	public static double getDistance(Location loc, RuptureSurface rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
 		
 		// get locations to iterate over depending on dip
 		ListIterator it;
 		if(rupSurf.getAveDip() > 89)
-			it = rupSurf.getColumnIterator(0);
+			it = rupSurf.getEvenlyDiscritizedUpperEdge().listIterator();
 		else
 			it = rupSurf.getLocationsIterator();
 

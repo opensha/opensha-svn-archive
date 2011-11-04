@@ -28,6 +28,7 @@ import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -37,7 +38,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gcim.imr.param.EqkRuptureParams.FocalDepthParam;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
@@ -256,20 +257,17 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
     
     if (tecRegType.equals(FLT_TEC_ENV_INTERFACE) || tecRegType.equals(FLT_TEC_ENV_INTERFACE)) {
     	//Determine the focal depth
-    	EvenlyGriddedSurface surf = this.eqkRupture.getRuptureSurface();
+    	RuptureSurface surf = this.eqkRupture.getRuptureSurface();
     	double hypoLon = 0.0;
 		double hypoLat = 0.0;
 		double hypoDep = 0.0;
 		double cnt = 0.0;
-		for (int j=0; j < surf.getNumCols(); j++){
-			for (int k=0; k < surf.getNumRows(); k++){
-				hypoLon += surf.getLocation(k,j).getLongitude();
-				hypoLat += surf.getLocation(k,j).getLatitude();
-				hypoDep = hypoDep + surf.getLocation(k,j).getDepth();
-				cnt += 1;
-			}
+		for(Location loc: surf.getEvenlyDiscritizedListOfLocsOnSurface()) {
+			hypoLon += loc.getLongitude();
+			hypoLat += loc.getLatitude();
+			hypoDep += loc.getDepth();
+			cnt += 1;		
 		}
-		//double chk = surf.getNumCols() * surf.getNumRows();
 		
 		hypoLon = hypoLon / cnt;
 		hypoLat = hypoLat / cnt;

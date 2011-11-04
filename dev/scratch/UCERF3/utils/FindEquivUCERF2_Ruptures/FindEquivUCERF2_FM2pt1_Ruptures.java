@@ -372,7 +372,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				
 				subSeismoUCERF2_Rup[rupIndex] = false;  // the default
 
-				FaultTrace rupTrace = rup.getRuptureSurface().getRowAsTrace(0);
+				FaultTrace rupTrace = rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
 				Location rupEndLoc1 = rupTrace.get(0);
 				Location rupEndLoc2 = rupTrace.get(rupTrace.size()-1);	
 

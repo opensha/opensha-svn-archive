@@ -35,6 +35,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
@@ -321,7 +322,7 @@ for(int m=0;m<testFunc.getNum();m++)
         if (mag < minMag)
           continue;
 
-        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurface rupSurface = (EvenlyGriddedSurface) rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -380,7 +381,7 @@ for(int m=0;m<testFunc.getNum();m++)
         if (mag < minMag)
           continue;
 
-        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurface rupSurface = (EvenlyGriddedSurface) rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -442,7 +443,7 @@ for(int m=0;m<testFunc.getNum();m++)
         if (mag < minMagnitude)
           continue;
 
-        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurface rupSurface = (EvenlyGriddedSurface) rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -494,7 +495,7 @@ for(int m=0;m<testFunc.getNum();m++)
         if (mag < minMagnitude)
           continue;
 
-        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurface rupSurface = (EvenlyGriddedSurface) rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -575,7 +576,7 @@ for(int m=0;m<testFunc.getNum();m++)
         if (rupture.getMag() < minMag)
           continue;
 
-        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurface rupSurface = (EvenlyGriddedSurface) rupture.getRuptureSurface();
         double ptProb = rupture.getProbability() / rupSurface.size();
 
         //getting the iterator for all points on the rupture

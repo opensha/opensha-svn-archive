@@ -91,7 +91,7 @@ public class TestSTEP_EqkRupForecast
 		for(int i=0;i<qkSrc.getNumRuptures();i++)
 		{
 			rup = qkSrc.getRupture(i);
-			Location loc = (Location) rup.getRuptureSurface().get(0,0);
+			Location loc = (Location) rup.getRuptureSurface().getFirstLocOnUpperEdge();
 			if(i==0)
 			{
 				assertTrue("First Rupture Lat/Long Check:" + loc.getLongitude() + " " +
@@ -112,7 +112,7 @@ public class TestSTEP_EqkRupForecast
 		for(int i=0;i<qkSrc.getNumRuptures();i++)
 		{
 			rup = qkSrc.getRupture(i);
-			Location loc = (Location) rup.getRuptureSurface().get(0,0);
+			Location loc = (Location) rup.getRuptureSurface().getFirstLocOnUpperEdge();
 			if(i==0)
 			{
 				assertTrue("Last Source:\n" + loc.getLongitude()+"  "+loc.getLatitude(),((-116.825==loc.getLongitude()) && (34.275==loc.getLatitude())));

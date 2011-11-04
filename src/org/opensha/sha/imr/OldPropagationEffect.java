@@ -32,6 +32,7 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -306,7 +307,7 @@ public class OldPropagationEffect implements java.io.Serializable, ParameterChan
 
 			double horzDist, vertDist, rupDist;
 
-			EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
+			EvenlyGriddedSurface rupSurf = (EvenlyGriddedSurface) eqkRupture.getRuptureSurface();
 			int numLocs = rupSurf.getNumCols()*rupSurf.getNumRows();
 
 			// flag to project to seisDepth if only one row and depth is below seisDepth

@@ -27,7 +27,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 
@@ -63,7 +63,7 @@ public class EqkRupture implements java.io.Serializable {
 
 
     /** object to specify Rupture distribution and AveDip */
-    protected EvenlyGriddedSurface ruptureSurface = null;
+    protected RuptureSurface ruptureSurface = null;
 
     /** object to contain arbitrary parameters */
     protected ParameterList otherParams ;
@@ -83,7 +83,7 @@ public class EqkRupture implements java.io.Serializable {
     public EqkRupture(
         double mag,
         double aveRake,
-        EvenlyGriddedSurface ruptureSurface,
+        RuptureSurface ruptureSurface,
 	Location hypocenterLocation) throws InvalidRangeException{
       this.mag = mag;
       FaultUtils.assertValidRake(aveRake);
@@ -139,14 +139,14 @@ public class EqkRupture implements java.io.Serializable {
     }
 
 
-    public EvenlyGriddedSurface getRuptureSurface() { return ruptureSurface; }
+    public RuptureSurface getRuptureSurface() { return ruptureSurface; }
 
 
     /**
      * Note: Since this takes a GriddedSurfaceAPI both a
      * PointSurface and GriddedSurface can be set here
      */
-    public void setRuptureSurface(EvenlyGriddedSurface r) { ruptureSurface = r; }
+    public void setRuptureSurface(RuptureSurface r) { ruptureSurface = r; }
 
     public Location getHypocenterLocation() { return hypocenterLocation; }
     public void setHypocenterLocation(Location h) { hypocenterLocation = h; }
@@ -174,47 +174,14 @@ public class EqkRupture implements java.io.Serializable {
     }
 
     public String getInfo() {
-      String info1, info2;
-      info1 = new String("\tMag. = " + (float) mag + "\n" +
+       String info = new String("\tMag. = " + (float) mag + "\n" +
                          "\tAve. Rake = " + (float) aveRake + "\n" +
                          "\tAve. Dip = " + (float) ruptureSurface.getAveDip() +
                          "\n" +
                          "\tHypocenter = " + hypocenterLocation + "\n");
 
-      // write our rupture surface information
-      if (ruptureSurface.getNumCols() == 1 && ruptureSurface.getNumRows() == 1) {
-        Location loc = ruptureSurface.getLocation(0, 0);
-        info2 = new String("\tPoint-Surface Location (lat, lon, depth (km):" +
-                           "\n\n" +
-                           "\t\t" + (float) loc.getLatitude() + ", " +
-                           (float) loc.getLongitude() +
-                           ", " + (float) loc.getDepth());
-      }
-      else {
-        Location loc1 = ruptureSurface.getLocation(0, 0);
-        Location loc2 = ruptureSurface.getLocation(0,
-                                                   ruptureSurface.getNumCols() - 1);
-        Location loc3 = ruptureSurface.getLocation(ruptureSurface.getNumRows() -
-                                                   1, 0);
-        Location loc4 = ruptureSurface.getLocation(ruptureSurface.getNumRows() -
-                                                   1,
-                                                   ruptureSurface.getNumCols() - 1);
-        info2 = new String("\tRup. Surf. Corner Locations (lat, lon, depth (km):" +
-                           "\n\n" +
-                           "\t\t" + (float) loc1.getLatitude() + ", " +
-                           (float) loc1.getLongitude() + ", " +
-                           (float) loc1.getDepth() + "\n" +
-                           "\t\t" + (float) loc2.getLatitude() + ", " +
-                           (float) loc2.getLongitude() + ", " +
-                           (float) loc2.getDepth() + "\n" +
-                           "\t\t" + (float) loc3.getLatitude() + ", " +
-                           (float) loc3.getLongitude() + ", " +
-                           (float) loc3.getDepth() + "\n" +
-                           "\t\t" + (float) loc4.getLatitude() + ", " +
-                           (float) loc4.getLongitude() + ", " +
-                           (float) loc4.getDepth() + "\n");
-      }
-      return info1 + info2;
+      info += ruptureSurface.getInfo();
+      return info;
     }
 
 }

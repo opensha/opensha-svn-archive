@@ -21,8 +21,9 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
@@ -392,7 +393,7 @@ public class InversionSolutionERF extends AbstractERF {
 			rups.add(rup);
 			rates.add(rate);
 			
-			EvenlyGriddedSurface rupSurf = rup.getRuptureSurface();
+			EvenlyGriddedSurface rupSurf = (EvenlyGriddedSurface)rup.getRuptureSurface();
 			// TODO kludge for setting the source surface
 			if (surface == null || rupSurf.getNumCols() > surface.getNumCols())
 				surface = rupSurf;
@@ -413,7 +414,7 @@ public class InversionSolutionERF extends AbstractERF {
 		}
 
 		@Override
-		public EvenlyGriddedSurface getSourceSurface() {
+		public RuptureSurface getSourceSurface() {
 			return surface;
 		}
 

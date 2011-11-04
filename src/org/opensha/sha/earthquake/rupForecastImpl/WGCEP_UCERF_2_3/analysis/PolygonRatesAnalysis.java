@@ -21,6 +21,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.Empirical
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 /**
  * Analyze the rate in various polygons as defined in Appendix I of UCERF2 report
@@ -91,7 +92,7 @@ public class PolygonRatesAnalysis {
 					// iterate over all sources
 					for(int srcIndex=0; srcIndex<numSrc; ++srcIndex) {
 						FaultRuptureSource faultRupSrc = aFaultSources.get(srcIndex);
-						EvenlyGriddedSurface surface  = faultRupSrc.getSourceSurface();
+						RuptureSurface surface  = faultRupSrc.getSourceSurface();
 						writeFractonOfPointsInFile(fw, srcGen.getFaultSegmentData().getFaultName(), index++, surface);
 					}
 				} else { // unsegmented source
@@ -159,7 +160,7 @@ public class PolygonRatesAnalysis {
 			// iterate over all sources
 			for(int i=0; i<numNonCA_B_Faults; ++i) {
 				ProbEqkSource probEqkSrc = (ProbEqkSource)nonCA_B_FaultSources.get(i);
-				EvenlyGriddedSurface surface  = null;
+				RuptureSurface surface  = null;
 				if(probEqkSrc instanceof FaultRuptureSource) surface = ((FaultRuptureSource)probEqkSrc).getRupture(0).getRuptureSurface();
 				else surface = ((Frankel02_TypeB_EqkSource)probEqkSrc).getSourceSurface();
 				writeFractonOfPointsInFile(fw, probEqkSrc.getName(), i, surface);
@@ -240,8 +241,8 @@ public class PolygonRatesAnalysis {
 	 * @param surface
 	 * @throws IOException
 	 */
-	private void writeFractonOfPointsInFile(FileWriter fw, String faultName, int srcIndex, EvenlyGriddedSurface surface) throws IOException {
-		double []pointInEachPolygon = findFractionOfPointsInPolygons(surface);
+	private void writeFractonOfPointsInFile(FileWriter fw, String faultName, int srcIndex, RuptureSurface surface) throws IOException {
+		double []pointInEachPolygon = findFractionOfPointsInPolygons((EvenlyGriddedSurface)surface);
 		fw.write(faultName+","+srcIndex+","+(float)this.totPointsInRELM_Region);	
 		for(int regionIndex=0; regionIndex<pointInEachPolygon.length; ++regionIndex) {
 				fw.write(","+(float)pointInEachPolygon[regionIndex]);

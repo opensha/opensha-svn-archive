@@ -218,8 +218,8 @@ public class Point2MultVertSS_FaultERF_List extends AbstractEpistemicListERF{
      System.out.println("numSrcsInFirstERF="+erfList.getERF(0).getNumSources());
      System.out.println("numRupsInFirstSrcOfFirstERF="+erfList.getERF(0).getSource(0).getNumRuptures());
      System.out.println("probOfFirstRupInFirstSrcOfFirstERF="+erfList.getERF(0).getSource(0).getRupture(0).getProbability());
-     System.out.println(erfList.getERF(0).getSource(0).getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
-     System.out.println(erfList.getERF(1).getSource(0).getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
+     System.out.println(erfList.getERF(0).getSource(0).getRupture(0).getRuptureSurface().getFirstLocOnUpperEdge().getLatitude());
+     System.out.println(erfList.getERF(1).getSource(0).getRupture(0).getRuptureSurface().getFirstLocOnUpperEdge().getLatitude());
    }
 
 }

@@ -255,11 +255,10 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 			distanceSeisParam.setValue(eqkRupture, site);
 
 			// hanging wall effect
-			int numPts = eqkRupture.getRuptureSurface().getNumCols();
 			double dip = eqkRupture.getRuptureSurface().getAveDip();
 			String fltType = (String) fltTypeParam.getValue();
 
-			if (dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
+			if (dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && !eqkRupture.getRuptureSurface().isPointSurface()) {
 				double jbDist = ( (Double) distanceJBParam.getValue(eqkRupture, site)).
 				doubleValue();
 				if (jbDist < 1.0) {

@@ -19,7 +19,7 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -681,7 +681,7 @@ public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
 		// Computing the hypocentral depth
 //		System.out.println("Zhao et al -->"+this.eqkRupture.getInfo());
 	
-		EvenlyGriddedSurface surf = this.eqkRupture.getRuptureSurface();
+		RuptureSurface surf = this.eqkRupture.getRuptureSurface();
 		
 		// ---------------------------------------------------------------------- MARCO 2010.03.15
 		// Compute the hypocenter as the middle point of the rupture
@@ -689,18 +689,12 @@ public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
 		double hypoLat = 0.0;
 		double hypoDep = 0.0;
 		double cnt = 0.0;
-		for (int j=0; j < surf.getNumCols(); j++){
-			for (int k=0; k < surf.getNumRows(); k++){
-				hypoLon += surf.getLocation(k,j).getLongitude();
-				hypoLat += surf.getLocation(k,j).getLatitude();
-				hypoDep = hypoDep + surf.getLocation(k,j).getDepth();
-				//System.out.println(surf.getLocation(k,j).getDepth());
-				cnt += 1;
-			}
-		}
-		double chk = surf.getNumCols() * surf.getNumRows();
-		//System.out.println(cnt+" "+chk);
-		
+		for(Location loc: surf.getEvenlyDiscritizedListOfLocsOnSurface()) {
+			hypoLon += loc.getLongitude();
+			hypoLat += loc.getLatitude();
+			hypoDep += loc.getDepth();
+			cnt += 1;		
+		}		
 		hypoLon = hypoLon / cnt;
 		hypoLat = hypoLat / cnt;
 		hypoDep = hypoDep / cnt;

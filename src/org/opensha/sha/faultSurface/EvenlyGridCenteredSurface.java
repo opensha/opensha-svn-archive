@@ -99,7 +99,7 @@ public class EvenlyGridCenteredSurface extends AbstractEvenlyGriddedSurfaceWithS
 	 * This returns the original surface
 	 * @return EvenlyGriddedSurfaceAPI
 	 */
-	public EvenlyGriddedSurface getOrigSurface() {return origSurface; }
+	public RuptureSurface getOrigSurface() {return origSurface; }
 
 	@Override
 	public double getAveStrike() { return origSurface.getAveStrike(); }

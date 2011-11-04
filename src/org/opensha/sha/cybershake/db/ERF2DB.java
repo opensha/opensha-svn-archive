@@ -40,6 +40,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 public  class ERF2DB implements ERF2DBAPI{
@@ -710,7 +711,7 @@ public  class ERF2DB implements ERF2DBAPI{
 
 		Region circular;
 
-		AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+		AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface((EvenlyGriddedSurface)rupture.getRuptureSurface());
 
 		ListIterator it = rupSurface.getAllByRowsIterator();
 
@@ -801,9 +802,9 @@ public  class ERF2DB implements ERF2DBAPI{
 		double prob = rupture.getProbability();
 		double aveRake = rupture.getAveRake();
 		AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(
-				rupture.getRuptureSurface());
+				(EvenlyGriddedSurface)rupture.getRuptureSurface());
 		// Local Strike for each grid centered location on the rupture
-		double[] localStrikeList = this.getLocalStrikeList(rupture
+		double[] localStrikeList = this.getLocalStrikeList((EvenlyGriddedSurface)rupture
 				.getRuptureSurface());
 		double dip = rupSurface.getAveDip();
 		int numRows = rupSurface.getNumRows();

@@ -46,7 +46,7 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -534,7 +534,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			ProbEqkRupture rupture;
 			if(isSlipRateCorrection) rupture = getRupture(rupIndex);
 			else rupture = getRupture(rupIndex);
-			EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+			RuptureSurface rupSurface = rupture.getRuptureSurface();
 			area = rupSurface.getAveLength()*rupSurface.getAveWidth();
 			moRate = MagUtils.magToMoment(rupture.getMag());
 			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);
@@ -544,8 +544,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 			//if(this.segmentData.getFaultName().equalsIgnoreCase("S. San Andreas") && isSlipRateCorrection)
 			// System.out.println(rupIndex+","+rupture.getMag()+","+slipRate);
 			ArbitrarilyDiscretizedFunc magBasedFunc = magFuncMap.get(rupture.getMag());
-			int index1 = this.surfaceLocList.indexOf(rupSurface.getLocation(0, 0));
-			int index2 = this.surfaceLocList.indexOf(rupSurface.getLocation(0, rupSurface.getNumCols()-1));
+			int index1 = this.surfaceLocList.indexOf(rupSurface.getFirstLocOnUpperEdge());
+			int index2 = this.surfaceLocList.indexOf(rupSurface.getLastLocOnUpperEdge());
 			for(int col=index1; col<=index2; ++col) { // update the slip rates for this rupture
 				slipRateFunc.set(col, slipRateFunc.getY(col)+slipRate);
 				magBasedFunc.set(col, magBasedFunc.getY(col)+slipRate);
@@ -1391,8 +1391,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 			rup = src.getRupture(i);
 			System.out.print("rup #"+i+":\n\tmag="+rup.getMag()+"\n\tprob="+
 					rup.getProbability()+"\n\tRup Ends: "+
-					(float)rup.getRuptureSurface().getLocation(0,0).getLatitude()+"  "+
-					(float)rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1).getLatitude()+
+					(float)rup.getRuptureSurface().getFirstLocOnUpperEdge().getLatitude()+"  "+
+					(float)rup.getRuptureSurface().getLastLocOnUpperEdge().getLatitude()+
 			"\n\n");
 		}
 

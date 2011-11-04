@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.calc.sectionDists;
 
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 
 public class SmartSurfaceFilter implements SurfaceFilter {

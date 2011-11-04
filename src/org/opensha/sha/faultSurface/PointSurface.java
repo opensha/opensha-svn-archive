@@ -28,6 +28,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultUtils;
+import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
@@ -313,6 +314,20 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	@Override
 	public double getDistanceX(Location siteLoc){
 		return 0.0;
+	}
+	
+	@Override
+	public String getInfo() {
+        return new String("\tPoint-Surface Location (lat, lon, depth (km):" +
+                "\n\n" +
+                "\t\t" + (float) pointLocation.getLatitude() + ", " +
+                (float) pointLocation.getLongitude() +
+                ", " + (float) pointLocation.getDepth());
+	}
+
+	@Override
+	public boolean isPointSurface() {
+		return true;
 	}
 
 

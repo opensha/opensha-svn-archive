@@ -34,6 +34,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 public class CybershakeSiteInfo2DB {
 
@@ -213,7 +214,7 @@ public class CybershakeSiteInfo2DB {
 				ProbEqkRupture rupture = source.getRupture(rupIndex);
 
 				AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(
-						rupture.getRuptureSurface());
+						(EvenlyGriddedSurface)rupture.getRuptureSurface());
 
 				// getting the iterator for all points on the rupture
 				ListIterator it = rupSurface.getAllByRowsIterator();
@@ -375,7 +376,7 @@ public class CybershakeSiteInfo2DB {
 	      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
 	        ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-	        AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+	        AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface((EvenlyGriddedSurface)rupture.getRuptureSurface());
 
 	        //getting the iterator for all points on the rupture
 	        ListIterator it = rupSurface.getAllByRowsIterator();

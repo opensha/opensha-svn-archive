@@ -329,8 +329,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     System.out.println("Rupture mags and end locs:");
     for(int r=0; r<src.getNumRuptures();r++) {
       rup = src.getRupture(r);
-      loc1 = rup.getRuptureSurface().getLocation(0,0);
-      loc2 = rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1);
+      loc1 = rup.getRuptureSurface().getFirstLocOnUpperEdge();
+      loc2 = rup.getRuptureSurface().getLastLocOnUpperEdge();
       length = LocationUtils.horzDistance(loc1,loc2);
       aveLat = (loc1.getLatitude()+loc2.getLatitude())/2;
       aveLon = (loc1.getLongitude()+loc2.getLongitude())/2;

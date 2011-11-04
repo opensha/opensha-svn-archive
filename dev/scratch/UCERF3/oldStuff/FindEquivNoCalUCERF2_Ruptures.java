@@ -23,6 +23,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -36,7 +37,7 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -238,14 +239,14 @@ public class FindEquivNoCalUCERF2_Ruptures {
 				ProbEqkRupture rupture = source.getRupture(r);
 				double mag = rupture.getMag();
 				double equivRate = rupture.getMeanAnnualRate(duration);
-				EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
-				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+				LocationList locsOnRupSurf = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+				ListIterator<Location> it = locsOnRupSurf.listIterator();
 				double fractInside = 0;
 				while (it.hasNext()) {
 					if (relm_nocal_reg.contains(it.next()))
 						fractInside += 1.0;
 				}
-				fractInside /= rupSurface.size();
+				fractInside /= locsOnRupSurf.size();
 				nucleationMFD.addResampledMagRate(mag, equivRate*fractInside, true);
 				if(ucerf2_rupUsed[rupIndex]) // if assoc w/ Inversion add to outside region MFD
 					outsideRegionMFD.addResampledMagRate(mag, equivRate*(1.0-fractInside), true);
@@ -394,9 +395,9 @@ public class FindEquivNoCalUCERF2_Ruptures {
 			double srcDDW = src.getSourceSurface().getAveWidth();
 			double totMoRate=0, partMoRate=0;
 			// determine if src is in N Cal.
-			EvenlyGriddedSurface srcSurf = src.getSourceSurface();
-			Location loc1 = srcSurf.get(0, 0);
-			Location loc2 = srcSurf.get(0, srcSurf.getNumCols()-1);
+			RuptureSurface srcSurf = src.getSourceSurface();
+			Location loc1 = srcSurf.getFirstLocOnUpperEdge();
+			Location loc2 = srcSurf.getLastLocOnUpperEdge();
 			boolean srcInsideN_Cal = false;
 			if(relm_nocal_reg.contains(loc1) || relm_nocal_reg.contains(loc2))
 				srcInsideN_Cal = true;
@@ -424,7 +425,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 					partMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
 					continue;
 				}
-				FaultTrace rupTrace = rup.getRuptureSurface().getRowAsTrace(0);
+				FaultTrace rupTrace = rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
 
 				Location rupEndLoc1 = rupTrace.get(0);
 				Location rupEndLoc2 = rupTrace.get(rupTrace.size()-1);
@@ -1028,9 +1029,10 @@ public class FindEquivNoCalUCERF2_Ruptures {
 				ProbEqkRupture rupture = source.getRupture(r);
 				double mag = rupture.getMag();
 				double equivRate = rupture.getMeanAnnualRate(duration);
-				EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
-				double ptRate = equivRate/rupSurface.size();
-				ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+				RuptureSurface rupSurface = rupture.getRuptureSurface();
+				LocationList locsOnRupSurf = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+				double ptRate = equivRate/locsOnRupSurf.size();
+				ListIterator<Location> it = locsOnRupSurf.listIterator();
 				while (it.hasNext()) {
 					//discard the pt if outside the region 
 					if (!region.contains(it.next()))

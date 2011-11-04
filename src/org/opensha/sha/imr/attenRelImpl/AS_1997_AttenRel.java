@@ -43,7 +43,8 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -243,10 +244,10 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 
 			// here is the hanging wall term.  This should really be implemented as a
 			// formal propagation-effect parameter.
-			int numPts = eqkRupture.getRuptureSurface().getNumCols();
+			boolean isPointSurface = eqkRupture.getRuptureSurface().isPointSurface();
 
 			if (eqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() &&
-					numPts > 1) {
+					!isPointSurface) {
 				isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
 			}
 			else {
@@ -264,18 +265,20 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 	 * This determines whether the rupture is on the hanging wall by creating a
 	 * polygon that is extended in the down-dip direction, and then checking
 	 * whether the site is inside. This should really be implemented as a formal
-	 * PropagationEffectParameter, but we don't yet have a boolean parameter
-	 * implemented.
+	 * PropagationEffectParameter.
 	 * @return
 	 */
 	protected boolean isOnHangingWall() {
+		
+		
 
 		// this is used to scale lats and lons to large numbers that can
 		// be converted to ints without losing info.
 		double toIntFactor = 1.0e7; // makes results accurate to ~cm.
 
-		EvenlyGriddedSurface surface = this.eqkRupture.getRuptureSurface();
-		int numCols = surface.getNumCols();
+		RuptureSurface surface = this.eqkRupture.getRuptureSurface();
+		FaultTrace upperTrace = surface.getEvenlyDiscritizedUpperEdge();
+		int numCols = upperTrace.size();
 
 		int[] xVals = new int[numCols + 2];
 		int[] yVals = new int[numCols + 2];
@@ -284,24 +287,25 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 		LocationVector dir;
 
 		for (int c = 0; c < numCols; c++) {
-			loc = surface.getLocation(0, c);
+			loc = upperTrace.get(c);
 			xVals[c] = (int) (loc.getLongitude() * toIntFactor);
 			yVals[c] = (int) (loc.getLatitude() * toIntFactor);
 		}
 
 		// now get the locations projected way down dip
-		loc = surface.getLocation(0, numCols - 1);
-		loc2 = surface.getLocation(surface.getNumRows() - 1, numCols - 1);
-		dir = LocationUtils.vector(loc, loc2);
-		dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
+		loc = upperTrace.get(upperTrace.size()-1);
+		dir = new LocationVector(surface.getAveDipDirection(), 100.0, 0.0);
+//		loc2 = surface.getLocation(surface.getNumRows() - 1, numCols - 1);
+//		dir = LocationUtils.vector(loc, loc2);
+//		dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
 		loc3 = LocationUtils.location(loc, dir);
 		xVals[numCols] = (int) (loc3.getLongitude() * toIntFactor);
 		yVals[numCols] = (int) (loc3.getLatitude() * toIntFactor);
 
-		loc = surface.getLocation(0, 0);
-		loc2 = surface.getLocation(surface.getNumRows() - 1, 0);
-		dir = LocationUtils.vector(loc, loc2);
-		dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
+		loc = upperTrace.get(0);
+//		loc2 = surface.getLocation(surface.getNumRows() - 1, 0);
+//		dir = LocationUtils.vector(loc, loc2);
+//		dir.setHorzDistance(100.0); // anything that makes rup dist > 25 km
 		loc3 = LocationUtils.location(loc, dir);
 		xVals[numCols + 1] = (int) (loc3.getLongitude() * toIntFactor);
 		yVals[numCols + 1] = (int) (loc3.getLatitude() * toIntFactor);

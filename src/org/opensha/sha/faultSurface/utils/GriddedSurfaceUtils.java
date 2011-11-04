@@ -9,6 +9,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
 public class GriddedSurfaceUtils {
@@ -199,6 +200,33 @@ public class GriddedSurfaceUtils {
 		
 		return distanceX;
 	}
-
+	
+	
+	/**
+	 * This returns brief info about this surface
+	 * @param surf
+	 * @return
+	 */
+	public static String getSurfaceInfo(EvenlyGriddedSurface surf) {
+		Location loc1 = surf.getLocation(0, 0);
+		Location loc2 = surf.getLocation(0,surf.getNumCols() - 1);
+		Location loc3 = surf.getLocation(surf.getNumRows()-1, 0);
+		Location loc4 = surf.getLocation(surf.getNumRows()-1,surf.getNumCols()-1);
+		return new String("\tRup. Surf. Corner Locations (lat, lon, depth (km):" +
+				"\n\n" +
+				"\t\t" + (float) loc1.getLatitude() + ", " +
+				(float) loc1.getLongitude() + ", " +
+				(float) loc1.getDepth() + "\n" +
+				"\t\t" + (float) loc2.getLatitude() + ", " +
+				(float) loc2.getLongitude() + ", " +
+				(float) loc2.getDepth() + "\n" +
+				"\t\t" + (float) loc3.getLatitude() + ", " +
+				(float) loc3.getLongitude() + ", " +
+				(float) loc3.getDepth() + "\n" +
+				"\t\t" + (float) loc4.getLatitude() + ", " +
+				(float) loc4.getLongitude() + ", " +
+				(float) loc4.getDepth() + "\n");
+	}
+	
 
 }

@@ -42,7 +42,8 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -255,15 +256,17 @@ public class Abrahamson_2000_AttenRel extends AttenuationRelationship {
 	 */
 	protected void setDirectivityParams() {
 
-		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
+		RuptureSurface surface = eqkRupture.getRuptureSurface();
 		Location siteLoc = site.getLocation();
 		Location hypLoc = eqkRupture.getHypocenterLocation();
 		if (hypLoc == null) {
 			throw new RuntimeException(
 					"The hypocenter has not been set for the earthquake rupture!");
 		}
+		
+		FaultTrace surfTrace = surface.getEvenlyDiscritizedUpperEdge();
 
-		int numTrPts = surface.getNumCols();
+		int numTrPts = surfTrace.size();
 
 		if (numTrPts == 1) {
 			throw new RuntimeException(
@@ -275,19 +278,17 @@ public class Abrahamson_2000_AttenRel extends AttenuationRelationship {
 		double dist, closestDist = Double.MAX_VALUE;
 		Location closestLoc = null;
 		for (int c = 0; c < numTrPts; c++) {
-			dist = LocationUtils.horzDistance(siteLoc, surface.getLocation(0, c));
+			dist = LocationUtils.horzDistance(siteLoc, surfTrace.get(c));
 			if (dist < closestDist) {
 				closestDist = dist;
-				closestLoc = surface.getLocation(0, c);
+				closestLoc = surfTrace.get(c);
 			}
 		}
 
 		// compute the distance between the closest point on the trace and the hypocenter
 		double s = LocationUtils.horzDistance(closestLoc, hypLoc);
 		// get total length of rupture
-		double L = LocationUtils.horzDistance(surface.getLocation(0, 0),
-				surface.getLocation(0,
-						numTrPts - 1));
+		double L = LocationUtils.horzDistance(surfTrace.get(0), surfTrace.get(surfTrace.size()-1));
 		double x = s / L;
 		// make sure that x isn't slightly larger (due to numerical impecision)
 		if (x > 1.0 & x < 1.001) {

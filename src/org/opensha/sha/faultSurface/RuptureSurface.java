@@ -178,4 +178,15 @@ public interface RuptureSurface {
 	 */
 	public double getFractionOfSurfaceInRegion(Region region);
 	
+	/**
+	 * This is a string giving brief info about the surface (e.g., used in GUIs)
+	 */
+	public String getInfo();
+	
+	/**
+	 * This indicates whether this is a point surface
+	 * @return
+	 */
+	public boolean isPointSurface();
+	
 }

@@ -15,7 +15,7 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 public class ClosestRupsToLoc {
 	
@@ -79,15 +79,11 @@ public class ClosestRupsToLoc {
 			ProbEqkSource source = erf.getSource(sourceID);
 			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
 				ProbEqkRupture rup = source.getRupture(rupID);
-				EvenlyGriddedSurface surface = rup.getRuptureSurface();
 				double closestDist = 99999999;
-				for (int i=0; i<surface.getNumRows(); i++) {
-					for (int j=0; j<surface.getNumCols(); j++) {
-						Location loc = (Location)surface.get(i, j);
+				for(Location loc: rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
 						double distKM = LocationUtils.horzDistanceFast(site, loc);
 						if (distKM < closestDist)
 							closestDist = distKM;
-					}
 				}
 				if (closestDist < 15)
 					recs.add(new Record(sourceID, rupID, rup.getMag(), closestDist, source.getName()));

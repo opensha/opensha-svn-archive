@@ -36,7 +36,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
@@ -231,9 +231,8 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		this.eqkRupture = eqkRupture;
 		magParam.setValueIgnoreWarning(eqkRupture.getMag());
 		setFaultTypeFromRake(eqkRupture.getAveRake());
-		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
-		double depth = surface.getLocation(0, 0).getDepth();
-		rupTopDepthParam.setValueIgnoreWarning(depth);
+		RuptureSurface surface = eqkRupture.getRuptureSurface();
+		rupTopDepthParam.setValueIgnoreWarning(surface.getAveRupTopDepth());
 		dipParam.setValueIgnoreWarning(surface.getAveDip());
 		// this means line sources will have zero width
 		rupWidthParam.setValue(surface.getAveWidth());

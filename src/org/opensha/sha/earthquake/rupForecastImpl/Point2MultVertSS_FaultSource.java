@@ -35,6 +35,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 
@@ -230,7 +231,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     Point2MultVertSS_FaultSource src = new Point2MultVertSS_FaultSource(34,-118,mag,1,magLengthRel,0,10,2,5);
     System.out.println("numRuptures="+src.getNumRuptures());
     for(int r=0; r<src.getNumRuptures(); r++) {
-      int lastCol = src.getRupture(r).getRuptureSurface().getNumCols()-1;
+      int lastCol = ((EvenlyGriddedSurface)src.getRupture(r).getRuptureSurface()).getNumCols()-1;
 /*      System.out.println((float)src.getRupture(r).getRuptureSurface().getLocation(0,0).getLongitude()+"\t"+
                          (float)src.getRupture(r).getRuptureSurface().getLocation(0,0).getLatitude()+"\t"+
                          (float)src.getRupture(r).getRuptureSurface().getLocation(0,lastCol).getLongitude()+"\t"+

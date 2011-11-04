@@ -45,9 +45,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkS
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -1495,7 +1496,7 @@ Mount Diablo (no floater here)
       else if (rake == 90) fw3.write("#"+src.getName()+"\n");
       else System.out.println("ERROR!!!!!!!!!!!");
       System.out.println(i+"  "+src.getName());
-      surf = src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
+      surf = (EvenlyGriddedSurface) src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
       for(n=0;n<surf.getNumCols();n++){
         loc = surf.getLocation(0,n);
         if (rake == 0)
@@ -1527,7 +1528,7 @@ Mount Diablo (no floater here)
       else if (rake == -90) fw2.write("#"+src.getName()+"\n");
       else if (rake == 90) fw3.write("#"+src.getName()+"\n");
       else System.out.println("ERROR!!!!!!!!!!!");
-      surf = src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
+      surf = (EvenlyGriddedSurface) src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
       for(n=0;n<surf.getNumCols();n++){
         loc = surf.getLocation(0,n);
         if (rake == 0)
@@ -1560,7 +1561,7 @@ Mount Diablo (no floater here)
       else if (rake == -90) fw2.write("#"+src.getName()+"\n");
       else if (rake == 90) fw3.write("#"+src.getName()+"\n");
       else System.out.println("ERROR!!!!!!!!!!!");
-      surf = src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
+      surf = (EvenlyGriddedSurface) src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
       for(n=0;n<surf.getNumCols();n++){
         loc = surf.getLocation(0,n);
         if (rake == 0)

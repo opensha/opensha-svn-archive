@@ -38,10 +38,5 @@ public interface EvenlyGriddedSurface extends Container2D<Location>, RuptureSurf
 	 * @return
 	 */
 	public FaultTrace getRowAsTrace(int row);
-
-
-	public String getSurfaceMetadata();
 	
-
-
 }
