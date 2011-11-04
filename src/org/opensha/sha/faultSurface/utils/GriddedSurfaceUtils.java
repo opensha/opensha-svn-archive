@@ -100,7 +100,7 @@ public class GriddedSurfaceUtils {
 			if(distJB<=min_dist) distJB = 0;
 		}
 		
-		// WAY2
+		// WAY2 - BUT WHAT WILL HAPPEN WITH FRANKEL SURFACE
 		/*
 		if(distJB <surface.getAveGridSpacing()) {
 			Region region = new Region(surface.getPerimeter(), BorderType.MERCATOR_LINEAR);
