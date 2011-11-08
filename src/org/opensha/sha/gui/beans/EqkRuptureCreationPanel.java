@@ -42,6 +42,7 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.param.SimpleFaultParameter;
 
 /**
@@ -101,7 +102,6 @@ extends JPanel implements EqkRupSelectorGuiBeanAPI, ParameterChangeListener {
 	private final static String FAULT_PARAM_INFO =
 		"Source location parameters for finite rupture";
 
-
 	//Location Parameter
 	public final static String LOCATION_PARAM_NAME = "Location";
 	private final static String LOCATION_PARAM_INFO =
@@ -147,7 +147,7 @@ extends JPanel implements EqkRupSelectorGuiBeanAPI, ParameterChangeListener {
 	private ArrayList<Location> hypocenterList;
 
 	//gridded rupture surface
-	private AbstractEvenlyGriddedSurface ruptureSurface = null;
+	private RuptureSurface ruptureSurface = null;
 
 	public EqkRuptureCreationPanel() {
 
@@ -250,7 +250,7 @@ extends JPanel implements EqkRupSelectorGuiBeanAPI, ParameterChangeListener {
 		}
 
 		// The first row of all the rupture surfaces is the list of their hypocenter locations
-		ListIterator<Location> hypoLocationsIt = ruptureSurface.getColumnIterator(0);
+		ListIterator<Location> hypoLocationsIt = ruptureSurface.getEvenlyDiscritizedUpperEdge().listIterator();
 		Location loc;
 		if (hypocenterList == null) {
 			hypocenterList = new ArrayList<Location>();

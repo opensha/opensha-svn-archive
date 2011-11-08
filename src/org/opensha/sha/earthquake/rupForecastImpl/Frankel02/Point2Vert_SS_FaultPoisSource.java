@@ -33,6 +33,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -203,7 +204,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     else return ptSurface.getEvenlyDiscritizedListOfLocsOnSurface();
   }
   
-  public AbstractEvenlyGriddedSurface getSourceSurface() {
+  public RuptureSurface getSourceSurface() {
 	    if(this.finiteFault!=null) return finiteFault;
 	    else return ptSurface;
 	  }

@@ -36,6 +36,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -311,7 +312,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
   /**
    * This approximates the source as a point at 1.0 km depth.
    */
-  public AbstractEvenlyGriddedSurface getSourceSurface() { 
+  public RuptureSurface getSourceSurface() { 
 	  PointSurface newPtSurface = new PointSurface(ptSurface.getLocation());
 	  newPtSurface.setDepth(1.0);
 	  return newPtSurface;

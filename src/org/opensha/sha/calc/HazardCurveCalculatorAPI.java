@@ -32,6 +32,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -60,7 +61,20 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @throws java.rmi.RemoteException
 	 */
 	public ListIterator<Parameter<?>> getAdjustableParamsIterator()  throws java.rmi.RemoteException;
+	
+	/**
+	 * This sets the type of point-source distance correction that is desired
+	 * (see the class PtSrcDistCorr for options)
+	 * @param ptSrcDistCorrType
+	 */
+	public void setPtSrcDistCorrType(PtSrcDistCorr.Type ptSrcDistCorrType);
 
+	/**
+	 * This gets the type of point-source distance correction that is desired
+	 * (see the class PtSrcDistCorr for options)
+	 * @param ptSrcDistCorrType
+	 */
+	public PtSrcDistCorr.Type getPtSrcDistCorrType();
 
 	/**
 	 * This sets the maximum distance of sources to be considered in the calculation.

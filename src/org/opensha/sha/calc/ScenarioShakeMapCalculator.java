@@ -38,7 +38,9 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.sha.calc.params.PtSrcDistanceCorrectionParam;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.gui.servlets.ScenarioShakeMapCalcServlet;
 import org.opensha.sha.imr.AttenuationRelationship;
 
@@ -65,12 +67,18 @@ public class ScenarioShakeMapCalculator {
 	//the propagation effect object
 	private FileWriter fw ;
 	private DecimalFormat locFormat = new DecimalFormat("0.000000");
-
-	//
-
+	
+	// This tell what type of point-source distance correction to apply
+	private PtSrcDistanceCorrectionParam ptSrcDistCorrParam;
+	
+	// adjustable parameters for this calculator
+	private ParameterList adjustableParams;
 
 	//class default constructor
 	public ScenarioShakeMapCalculator() {
+		ptSrcDistCorrParam = new PtSrcDistanceCorrectionParam();
+		adjustableParams = new ParameterList();
+		adjustableParams.addParameter(ptSrcDistCorrParam);
 	}
 
 
@@ -94,6 +102,10 @@ public class ScenarioShakeMapCalculator {
 			boolean isProbAtIML,double value) throws ParameterException {
 
 		numSites = sites.getRegion().getNodeCount();
+		
+		// set point-source distance correction type & mag if it's a pointSurface
+		if(rupture.getRuptureSurface() instanceof PointSurface)
+			((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), ptSrcDistCorrParam.getValueAsTypePtSrcDistCorr());
 
 		//instance of the XYZ dataSet.
 		GeoDataSet xyzDataSet =null;
@@ -238,6 +250,11 @@ public class ScenarioShakeMapCalculator {
 	public String getScenarioShakeMapDataUsingServer(ArrayList selectedAttenRels, ArrayList attenRelWts,
 			String griddedRegionSitesFile,EqkRupture rupture,
 			boolean isProbAtIML,double value, String selectedIMT) throws ParameterException {
+		
+		// set point-source distance correction type & mag if it's a pointSurface
+		if(rupture.getRuptureSurface() instanceof PointSurface)
+			((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), ptSrcDistCorrParam.getValueAsTypePtSrcDistCorr());
+		
 		ObjectOutputStream outputToServlet = null;
 		ObjectInputStream inputToServlet = null;
 		try{

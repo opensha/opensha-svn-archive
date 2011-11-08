@@ -246,8 +246,7 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 			// formal propagation-effect parameter.
 			boolean isPointSurface = eqkRupture.getRuptureSurface().isPointSurface();
 
-			if (eqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() &&
-					!isPointSurface) {
+			if (!isPointSurface && eqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall()) {
 				isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
 			}
 			else {

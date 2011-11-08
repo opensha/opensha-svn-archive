@@ -27,6 +27,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
@@ -36,8 +37,8 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 /**
  * <b>Title:</b> PointSurface<p>
  *
- * <b>Description:</b> This is a special case of EvenlyGriddedSurface
- * that only has one Location. <p>
+ * <b>Description:</b> This is a special case of RuptureSurface
+ * that is a point surface (has only one Location). <p>
  *
  *
  * @author     Ned Field (completely rewritten)
@@ -45,7 +46,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
  * @version    1.0
  */
 
-public class PointSurface extends AbstractEvenlyGriddedSurface {
+public class PointSurface implements RuptureSurface {
 
 	/**
 	 * 
@@ -53,6 +54,11 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	private static final long serialVersionUID = 1L;
 
 	private Location pointLocation;
+	
+	// for distance measures
+	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
+	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
+	double distanceJB, distanceSeis, distanceRup, distanceX;
 	
 	final static double SEIS_DEPTH = DistanceSeisParameter.SEIS_DEPTH;   // minimum depth for Campbell model
 	
@@ -102,7 +108,6 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	 * @param  loc    the Location object for this point source.
 	 */
 	public PointSurface( Location loc ) {
-		super(1,1,0.0);
 		setLocation(loc);
 	}
 
@@ -139,9 +144,8 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 
 
 	/** Since this is a point source, the single Location can be set without indexes. Does a clone copy. */
-	public void setLocation( Location location ) {
+	public void setLocation(Location location ) {
 		pointLocation = location;
-		set(0,0,location);
 		ptLocChanged = true;
 	}
 	
@@ -223,10 +227,16 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 		// TODO Auto-generated method stub
 		return getEvenlyDiscritizedPerimeter();
 	}
+	
+	private FaultTrace getFaultTrace() {
+		FaultTrace trace = new FaultTrace(null);
+		trace.add(pointLocation);
+		return trace;
+	}
 
 	@Override
 	public FaultTrace getUpperEdge() {
-		return this.getRowAsTrace(0);
+		return getFaultTrace();
 	}
 	
 	
@@ -245,7 +255,7 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	 * This sets the three propagation distances (distanceJB, distanceRup, & distanceSeis)
 	 * @param siteLoc
 	 */
-	private void setPropagationDistances(Location siteLoc) {
+	private void calcPropagationDistances(Location siteLoc) {
 
 		// calc distances if either location has changed
 		// IS THIS REALLY SAVING MUCH TIME (is the check faster than recomputing the distances)?
@@ -276,7 +286,7 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	 */
 	@Override
 	public double getDistanceRup(Location siteLoc){
-		setPropagationDistances(siteLoc);
+		calcPropagationDistances(siteLoc);
 		return distanceRup;
 	}
 
@@ -288,7 +298,7 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	 */
 	@Override
 	public double getDistanceJB(Location siteLoc){
-		setPropagationDistances(siteLoc);
+		calcPropagationDistances(siteLoc);
 		return distanceJB;
 	}
 
@@ -300,7 +310,7 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	 */
 	@Override
 	public double getDistanceSeis(Location siteLoc){
-		setPropagationDistances(siteLoc);
+		calcPropagationDistances(siteLoc);
 		return distanceSeis;
 	}
 
@@ -328,6 +338,70 @@ public class PointSurface extends AbstractEvenlyGriddedSurface {
 	@Override
 	public boolean isPointSurface() {
 		return true;
+	}
+
+	@Override
+	public double getArea() {
+		return 0;
+	}
+
+	@Override
+	public double getAveGridSpacing() {
+		return 0;
+	}
+
+	@Override
+	public double getAveLength() {
+		return 0;
+	}
+
+	@Override
+	public double getAveWidth() {
+		return 0;
+	}
+	
+	private LocationList getLocationList() {
+		LocationList list = new LocationList();
+		list.add(pointLocation);
+		return list;
+	}
+
+	@Override
+	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
+		return getLocationList();
+	}
+
+	@Override
+	public LocationList getEvenlyDiscritizedPerimeter() {
+		return getLocationList();
+	}
+
+	@Override
+	public FaultTrace getEvenlyDiscritizedUpperEdge() {
+		return getFaultTrace();
+	}
+
+	@Override
+	public Location getFirstLocOnUpperEdge() {
+		return pointLocation;
+	}
+
+	@Override
+	public Location getLastLocOnUpperEdge() {
+		return pointLocation;
+	}
+
+	@Override
+	public double getFractionOfSurfaceInRegion(Region region) {
+		if(region.contains(pointLocation))
+			return 1.0;
+		else
+			return 0.0;
+	}
+
+	@Override
+	public ListIterator<Location> getLocationsIterator() {
+		return getLocationList().listIterator();
 	}
 
 
