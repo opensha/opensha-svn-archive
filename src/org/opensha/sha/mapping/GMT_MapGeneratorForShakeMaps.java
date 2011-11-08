@@ -739,7 +739,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	public GMT_Map getGMTMapSpecification(GeoDataSet xyzData) {
 		GMT_Map map =  super.getGMTMapSpecification(xyzData);
 
-		addRupture(map, (EvenlyGriddedSurface) eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());
+		// temporary fix:
+		if(eqkRup.getRuptureSurface() instanceof EvenlyGriddedSurface)
+			addRupture(map, (EvenlyGriddedSurface) eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());
 
 		//				// make the file in the script:
 		//				gmtLines.add(COMMAND_PATH+"cat << END > "+EQK_RUP_XYZ_FILE_NAME);

@@ -432,9 +432,7 @@ public class ScenarioShakeMapCalculator {
 	 * @return the list of adjustable parameters.
 	 */
 	public ParameterList getAdjustableParams(){
-//		return propagationEffect.getAdjustableParameterList();
-		ParameterList nullList = new ParameterList();
-		return nullList;
+		return adjustableParams;
 	}
 
 }

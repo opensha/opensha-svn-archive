@@ -55,6 +55,7 @@ public class PtSrcDistanceCorrectionParam extends StringParameter {
 		setConstraint(constraint);
 	    setInfo(INFO);
 	    setDefaultValue(PT_SRC_DIST_CORR_NONE);
+	    setValue(PT_SRC_DIST_CORR_NONE);
 	    setNonEditable();
 	}
 	
