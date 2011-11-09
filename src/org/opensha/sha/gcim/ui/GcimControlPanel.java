@@ -972,7 +972,7 @@ public class GcimControlPanel extends ControlPanel
 					//Now check if any IMRs support the IMj
 					//Loop over all of the ImCorrRels
 					for (ScalarIMR imr : imrs) {
-						ParameterList imjImrParamList = imr.getSupportedIntensityMeasuresList();
+						ParameterList imjImrParamList = imr.getSupportedIntensityMeasures();
 						for (Parameter<?> imjImrParam : imjImrParamList) {
 						//for (int j = 0; j<imjImrParamList.size(); j++) {
 							//ParameterAPI<?> imjImrParam = imjImrParamList.getParameter(j);

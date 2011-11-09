@@ -125,10 +125,10 @@ public class DSI_AttenRelWrapper
     setDefaultImCorrRel();
 
     initSupportedIntensityMeasureParams();
-    siteParams = attenRelToWrap.getSiteParamsList();
-    eqkRuptureParams = attenRelToWrap.getEqkRuptureParamsList();
-    propagationEffectParams = attenRelToWrap.getPropagationEffectParamsList();
-    otherParams = attenRelToWrap.getOtherParamsList();
+    siteParams = attenRelToWrap.getSiteParams();
+    eqkRuptureParams = attenRelToWrap.getEqkRuptureParams();
+    propagationEffectParams = attenRelToWrap.getPropagationEffectParams();
+    otherParams = attenRelToWrap.getOtherParams();
     sigmaTruncTypeParam = (SigmaTruncTypeParam)otherParams.getParameter(SigmaTruncTypeParam.NAME);
     sigmaTruncLevelParam = (SigmaTruncLevelParam)otherParams.getParameter(SigmaTruncLevelParam.NAME);
     initIndependentParamLists(); // This must be called after the above
@@ -330,12 +330,12 @@ public class DSI_AttenRelWrapper
    * independentParamaters.
    */
   protected void initIndependentParamLists() {
-    meanIndependentParams = attenRelToWrap.getMeanIndependentParamsList();
-    stdDevIndependentParams = attenRelToWrap.getStdDevIndependentParamsList();
+    meanIndependentParams = attenRelToWrap.getMeanIndependentParams();
+    stdDevIndependentParams = attenRelToWrap.getStdDevIndependentParams();
     //because of the DSI formulation on Sa, stdDev depends on the meanIndependentParams also
     stdDevIndependentParams.addParameterList(meanIndependentParams);
-    exceedProbIndependentParams = attenRelToWrap.getExceedProbIndependentParamsList();
-    imlAtExceedProbIndependentParams = attenRelToWrap.getIML_AtExceedProbIndependentParamsList();
+    exceedProbIndependentParams = attenRelToWrap.getExceedProbIndependentParams();
+    imlAtExceedProbIndependentParams = attenRelToWrap.getIML_AtExceedProbIndependentParams();
   }
 
   /**

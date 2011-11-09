@@ -219,7 +219,7 @@ public abstract class MPJTaskCalculator {
 			formatter.printHelp(
 					ClassUtils.getClassNameWithoutPackage(clazz),
 					options, true );
-			System.exit(2);
+			abortAndExit(2);
 			return null; // not accessible
 		}
 	}

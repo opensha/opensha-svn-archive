@@ -144,7 +144,7 @@ public class AttenRels2DB {
 		String sql = "INSERT INTO "+ATTEN_REL_METADATA_TABLE_NAME+" VALUES ";
 		
 		boolean first = true;
-		for (Parameter<?> param : imr.getOtherParamsList()) {
+		for (Parameter<?> param : imr.getOtherParams()) {
 			if (first) {
 				first = false;
 				sql += "\n";

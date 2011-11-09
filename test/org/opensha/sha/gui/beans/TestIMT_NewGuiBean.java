@@ -53,7 +53,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 	public void testIMTList() {
 		ArrayList<String> supportedIMTs = gui.getSupportedIMTs();
 		for (ScalarIMR imr : imrs) {
-			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasures()) {
 				String imtName = imtParam.getName();
 				assertTrue("IMT '" + imtName + "' should be in list!",
 						supportedIMTs.contains(imtName));
@@ -210,7 +210,7 @@ public class TestIMT_NewGuiBean implements IMTChangeListener {
 		
 		ArrayList<String> supportedIMTs = gui.getSupportedIMTs();
 		
-		for (Parameter<?> imtParam : cb2008.getSupportedIntensityMeasuresList()) {
+		for (Parameter<?> imtParam : cb2008.getSupportedIntensityMeasures()) {
 			String imtName = imtParam.getName();
 			assertTrue("IMT '" + imtName + "' should be in list!",
 					supportedIMTs.contains(imtName));

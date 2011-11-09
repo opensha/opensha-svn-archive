@@ -25,6 +25,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.util.TectonicRegionType;
 
 
@@ -174,7 +175,17 @@ public interface ScalarIMR extends IntensityMeasureRelationship {
 	 *
 	 * @return    The Independent Params Iterator
 	 */
+	@Deprecated
 	public ListIterator getMeanIndependentParamsIterator();
+
+	/**
+	 *  Returns a list of all the Parameters that the Mean calculation depends upon.
+	 *  (not including the intensity-measure related parameters and their internal,
+	 *  independent parameters).
+	 *
+	 * @return    The Independent Params list
+	 */
+	public ParameterList getMeanIndependentParams();
 
 	/**
 	 *  Returns an iterator over all the Parameters that the StdDev calculation depends upon
@@ -183,7 +194,17 @@ public interface ScalarIMR extends IntensityMeasureRelationship {
 	 *
 	 * @return    The Independent Parameters Iterator
 	 */
+	@Deprecated
 	public ListIterator getStdDevIndependentParamsIterator();
+
+	/**
+	 *  Returns a list of all the Parameters that the StdDev calculation depends upon
+	 *  (not including the intensity-measure related parameters and their internal,
+	 *  independent parameters).
+	 *
+	 * @return    The Independent Parameters list
+	 */
+	public ParameterList getStdDevIndependentParams();
 
 	/**
 	 *  Returns an iterator over all the Parameters that the exceedProb calculation
@@ -192,7 +213,17 @@ public interface ScalarIMR extends IntensityMeasureRelationship {
 	 *
 	 * @return    The Independent Params Iterator
 	 */
+	@Deprecated
 	public ListIterator getExceedProbIndependentParamsIterator();
+
+	/**
+	 *  Returns a list of all the Parameters that the exceedProb calculation
+	 *  depends upon (not including the intensity-measure related parameters and
+	 *  their internal, independent parameters).
+	 *
+	 * @return    The Independent Params list
+	 */
+	public ParameterList getExceedProbIndependentParams();
 
 	/**
 	 *  Returns an iterator over all the Parameters that the IML-at-exceed-
@@ -201,7 +232,17 @@ public interface ScalarIMR extends IntensityMeasureRelationship {
 	 *
 	 * @return    The Independent Params Iterator
 	 */
+	@Deprecated
 	public ListIterator getIML_AtExceedProbIndependentParamsIterator();
+
+	/**
+	 *  Returns a list of all the Parameters that the IML-at-exceed-
+	 *  probability calculation depends upon. (not including the intensity-measure
+	 *  related paramters and their internal, independent parameters).
+	 *
+	 * @return    The Independent Params list
+	 */
+	public ParameterList getIML_AtExceedProbIndependentParams();
 
 	/**
 	 * This method sets the location in the site.

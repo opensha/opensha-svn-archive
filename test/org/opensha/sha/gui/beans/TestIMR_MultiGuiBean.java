@@ -350,14 +350,14 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	}
 	
 	private void verifyParamEditor(ParameterListEditor paramEdit, ScalarIMR imr) {
-		for (Parameter<?> param : imr.getOtherParamsList()) {
+		for (Parameter<?> param : imr.getOtherParams()) {
 			assertTrue("Param '" + param.getName() + "' from IMR isn't in the param list!",
 					paramEdit.getParameterList().containsParameter(param));
 		}
 		
 		for (Parameter<?> param : paramEdit.getParameterList()) {
 			assertTrue("Param '" + param.getName() + "' from param list isn't in the IMR!",
-					imr.getOtherParamsList().containsParameter(param));
+					imr.getOtherParams().containsParameter(param));
 		}
 	}
 	
@@ -407,7 +407,7 @@ public class TestIMR_MultiGuiBean implements ScalarIMRChangeListener {
 	private void checkMetaForIMR(ScalarIMR imr, String meta) {
 		assertTrue("Metadata doesn't contain IMR name!", meta.contains(imr.getName()));
 		
-		for (Parameter<?> param : imr.getOtherParamsList()) {
+		for (Parameter<?> param : imr.getOtherParams()) {
 			if (param.getName().equals(SigmaTruncLevelParam.NAME))
 				continue;
 			if (param.getName().equals(TectonicRegionTypeParam.NAME))

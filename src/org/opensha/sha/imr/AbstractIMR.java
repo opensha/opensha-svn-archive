@@ -480,7 +480,7 @@ implements IntensityMeasureRelationship {
 		return siteParams.getParametersIterator();
 	}
 	
-	public ParameterList getSiteParamsList() {
+	public ParameterList getSiteParams() {
 		return siteParams;
 	}
 
@@ -497,7 +497,7 @@ implements IntensityMeasureRelationship {
 		return otherParams.getParametersIterator();
 	}
 	
-	public ParameterList getOtherParamsList() {
+	public ParameterList getOtherParams() {
 		return otherParams;
 	}
 
@@ -510,7 +510,7 @@ implements IntensityMeasureRelationship {
 		return eqkRuptureParams.getParametersIterator();
 	}
 	
-	public ParameterList getEqkRuptureParamsList() {
+	public ParameterList getEqkRuptureParams() {
 		return eqkRuptureParams;
 	}
 
@@ -526,7 +526,7 @@ implements IntensityMeasureRelationship {
 		return propagationEffectParams.getParametersIterator();
 	}
 	
-	public ParameterList getPropagationEffectParamsList() {
+	public ParameterList getPropagationEffectParams() {
 		return propagationEffectParams;
 	}
 
@@ -547,7 +547,7 @@ implements IntensityMeasureRelationship {
 	 *
 	 * @return    The Supported Intensity-Measures Iterator
 	 */
-	public ParameterList getSupportedIntensityMeasuresList() {
+	public ParameterList getSupportedIntensityMeasures() {
 		return supportedIMParams;
 	}
 

@@ -54,7 +54,7 @@ public class TestIMT_IMR_Interactions {
 	public void testIMTList() {
 		ArrayList<String> supportedIMTs = imtGui.getSupportedIMTs();
 		for (ScalarIMR imr : imrGui.getIMRs()) {
-			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> imtParam : imr.getSupportedIntensityMeasures()) {
 				String imtName = imtParam.getName();
 				assertTrue("IMT '" + imtName + "' should be in list!",
 						supportedIMTs.contains(imtName));

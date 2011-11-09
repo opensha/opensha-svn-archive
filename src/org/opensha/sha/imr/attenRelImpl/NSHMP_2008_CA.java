@@ -198,7 +198,7 @@ ParameterChangeListener {
 	protected void initSupportedIntensityMeasureParams() {
 		// clone periods from ba08
 		DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint(
-			((SA_Param) ba08.getSupportedIntensityMeasuresList().getParameter(
+			((SA_Param) ba08.getSupportedIntensityMeasures().getParameter(
 				SA_Param.NAME)).getPeriodParam().getAllowedDoubles());
 		periodConstraint.setNonEditable();
 		saPeriodParam = new PeriodParam(periodConstraint, 1.0, false);
@@ -313,7 +313,7 @@ ParameterChangeListener {
 		
 		// enforce default values used by NSHMP
 		for (AttenuationRelationship ar : arList) {
-			ParameterList list = ar.getOtherParamsList();
+			ParameterList list = ar.getOtherParams();
 
 			ComponentParam cp = (ComponentParam) list.getParameter(
 				ComponentParam.NAME);
@@ -518,12 +518,12 @@ ParameterChangeListener {
 		// pass through those changes that are picked up at calculation time
 		if (otherParams.containsParameter(e.getParameter())) {
 			for (AttenuationRelationship ar : arList) {
-				ParameterList pList = ar.getOtherParamsList();
+				ParameterList pList = ar.getOtherParams();
 				String pName = e.getParameterName();
 				if (!pList.containsParameter(pName)) continue;
 				// TODO above shouldn't be necessary; pLists should not throw
 				// exceptions fo missing parameters
-				Parameter<?> param = ar.getOtherParamsList().getParameter(
+				Parameter<?> param = ar.getOtherParams().getParameter(
 					e.getParameterName());
 				if (param instanceof StringParameter) {
 					((StringParameter) param).setValue((String) e
@@ -540,7 +540,7 @@ ParameterChangeListener {
 		// children
 		if (e.getParameterName().equals(PeriodParam.NAME)) {
 			for (AttenuationRelationship ar : arList) {
-				ParameterList pList = ar.getSupportedIntensityMeasuresList();
+				ParameterList pList = ar.getSupportedIntensityMeasures();
 				SA_Param sap = (SA_Param) pList.getParameter(SA_Param.NAME);
 				sap.getPeriodParam().setValue(saPeriodParam.getValue());
 			}

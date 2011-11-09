@@ -39,8 +39,6 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 	
 	private int rank;
 	
-	private DispatcherThread dispatcher;
-	
 	public MPJHazardCurveDriver(CommandLine cmd, String[] args) throws IOException, DocumentException, InvocationTargetException {
 		super(cmd);
 		if (args.length != 1) {
@@ -90,8 +88,6 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 		
 		try {
 			Options options = createOptions();
-			
-			CommandLineParser parser = new GnuParser();
 			
 			CommandLine cmd = parse(options, args, MPJHazardCurveDriver.class);
 			

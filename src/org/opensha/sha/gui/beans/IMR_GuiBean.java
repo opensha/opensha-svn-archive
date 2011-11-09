@@ -258,7 +258,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 	   */
 	  public boolean isIntensityMeasureSupported(AttenuationRelationship attenRel,String intensityMeasure, double period){
 		  if(attenRel.isIntensityMeasureSupported(intensityMeasure)){
-			Parameter imParam = attenRel.getSupportedIntensityMeasuresList().getParameter(intensityMeasure);
+			Parameter imParam = attenRel.getSupportedIntensityMeasures().getParameter(intensityMeasure);
 			if(imParam.getName().equals(SA_Param.NAME)){
 		        if (attenRel.getParameter(PeriodParam.NAME).isAllowed(period)) {
 		          return true;

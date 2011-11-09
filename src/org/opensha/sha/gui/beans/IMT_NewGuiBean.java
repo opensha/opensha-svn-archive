@@ -119,7 +119,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		ArrayList<Double> saPeriods;
 		ParameterList paramList = new ParameterList();
 		for (ScalarIMR imr : imrs) {
-			for (Parameter<?> param : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> param : imr.getSupportedIntensityMeasures()) {
 				if (paramList.containsParameter(param.getName())) {
 					// it's already in there, do nothing
 				} else {
@@ -135,7 +135,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 			for (Parameter param : paramList) {
 				boolean remove = false;
 				for (ScalarIMR imr : imrs) {
-					if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
+					if (!imr.getSupportedIntensityMeasures().containsParameter(param.getName())) {
 						remove = true;
 						break;
 					}

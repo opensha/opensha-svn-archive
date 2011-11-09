@@ -67,7 +67,7 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 			Location loc = new Location(surfLoc.getLatitude(), surfLoc.getLongitude());
 			site = new Site(loc);
 			FakeTRTBasedIMR imr = new FakeTRTBasedIMR(TectonicRegionType.ACTIVE_SHALLOW);
-			for (Parameter<?> param : imr.getSiteParamsList())
+			for (Parameter<?> param : imr.getSiteParams())
 				site.addParameter(param);
 			IMT_Info imtInfo = new IMT_Info();
 			func = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure());

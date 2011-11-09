@@ -66,7 +66,7 @@ public class MultiIMR_ParamTest {
 		for (ArrayList<ScalarIMR> bundle : bundles) {
 			MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(bundle);
 			
-			for (Parameter<?> imt : multi.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> imt : multi.getSupportedIntensityMeasures()) {
 				for (ScalarIMR imr : bundle) {
 					assertTrue("IMT '"+imt.getName()+"' is included but not supported by imr '"+imr.getName()+"'",
 							imr.isIntensityMeasureSupported(imt));

@@ -153,7 +153,7 @@ public class HardCodedScenarioShakeMapGen {
 		sites.setSiteDataValueLists(valsLists);
 		
 		ArrayList<Parameter<?>> defaultSiteParams = new ArrayList<Parameter<?>>();
-		for (Parameter<?> param : attenRel.getSiteParamsList()) {
+		for (Parameter<?> param : attenRel.getSiteParams()) {
 			defaultSiteParams.add((Parameter<?>) param.clone());
 		}
 		sites.setDefaultSiteParams(defaultSiteParams);

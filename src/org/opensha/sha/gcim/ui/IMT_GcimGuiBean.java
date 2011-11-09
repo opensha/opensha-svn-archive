@@ -160,7 +160,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 					//check to see if any IMRs support this imiParamName
 					for (ScalarIMR imr : imrs) {
 						//Loop over the IMR supported IMis
-						ParameterList imiIMRParamList = imr.getSupportedIntensityMeasuresList();
+						ParameterList imiIMRParamList = imr.getSupportedIntensityMeasures();
 						for (Parameter<?> imiIMRParam : imiIMRParamList) {
 						//for (int j = 0; j<imiIMRParamList.size(); j++) {
 							//ParameterAPI<?> imiIMRParam = imiIMRParamList.getParameter(j);
@@ -235,7 +235,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 			for (Parameter param : imiParamList) {
 				boolean remove = false;
 				for (ScalarIMR imr : imrs) {
-					if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
+					if (!imr.getSupportedIntensityMeasures().containsParameter(param.getName())) {
 						remove = true;
 						break;
 					}

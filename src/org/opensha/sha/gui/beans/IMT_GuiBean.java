@@ -86,7 +86,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 	 */
 	public void setIM(ScalarIMR imr,Iterator<Parameter<?>> supportedIntensityMeasureIt){
 		this.imr = imr;
-		init_imtParamListAndEditor(imr.getSupportedIntensityMeasuresList());
+		init_imtParamListAndEditor(imr.getSupportedIntensityMeasures());
 	}
 	
 	/**
@@ -107,7 +107,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		double defaultPeriod = -1;
 		ParameterList paramList = new ParameterList();
 		for (ScalarIMR imr : multipleIMRs) {
-			for (Parameter param : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter param : imr.getSupportedIntensityMeasures()) {
 				if (paramList.containsParameter(param.getName())) {
 					// it's already in there
 				} else {
@@ -137,7 +137,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		for (Parameter param : paramList) {
 			boolean remove = false;
 			for (ScalarIMR imr : multipleIMRs) {
-				if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
+				if (!imr.getSupportedIntensityMeasures().containsParameter(param.getName())) {
 					remove = true;
 					break;
 				}
@@ -152,7 +152,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 			ArrayList<Double> badPeriods = new ArrayList<Double>();
 			if (param.getName().equals(SA_Param.NAME)) {
 				for (ScalarIMR imr : multipleIMRs) {
-					SA_Param saParam = (SA_Param) imr.getSupportedIntensityMeasuresList().getParameter(SA_Param.NAME);
+					SA_Param saParam = (SA_Param) imr.getSupportedIntensityMeasures().getParameter(SA_Param.NAME);
 					PeriodParam periodParam = saParam.getPeriodParam();
 					ArrayList<Double> periods = periodParam.getSupportedPeriods();
 					for (double period : saPeriods) {

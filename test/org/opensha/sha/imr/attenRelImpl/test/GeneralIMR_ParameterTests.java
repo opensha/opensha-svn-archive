@@ -158,7 +158,7 @@ public class GeneralIMR_ParameterTests {
 	
 	@Test
 	public void testSupportedIMs() {
-		for (Parameter<?> im : imr.getSupportedIntensityMeasuresList()) {
+		for (Parameter<?> im : imr.getSupportedIntensityMeasures()) {
 			try {
 				imr.setIntensityMeasure(im);
 			} catch (ParameterException e) {
