@@ -3,10 +3,17 @@ package org.opensha.sra.gui.portfolioeal.gui;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JPanel;
 
+import org.opensha.commons.data.siteData.SiteData;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.ListUtils;
+import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.util.SiteTranslator;
 
 /**
  * This class creates an instance of <code>SiteGuiBeanFacade</code>.
@@ -32,9 +39,13 @@ public class SitePanel {
 		BCR_ApplicationFacade bcr = BCR_ApplicationFacade.getBCR();
 		//siteBean = new Site_GuiBean();
 		siteBean = new SiteGuiBeanFacade();
+		
+		siteBean.getParameterListEditor().setParameterVisible(Site_GuiBean.LATITUDE, false);
+		siteBean.getParameterListEditor().setParameterVisible(Site_GuiBean.LONGITUDE, false);
+		
 		siteBean.addSiteParams(imr.getSiteParamsIterator());
-		siteBean.getParameterListEditor().getParameterEditor("Latitude").setEnabled(false);
-		siteBean.getParameterListEditor().getParameterEditor("Longitude").setEnabled(false);
+//		siteBean.getParameterListEditor().getParameterEditor("Latitude").setEnabled(false);
+//		siteBean.getParameterListEditor().getParameterEditor("Longitude").setEnabled(false);
 //		siteBean.getParameterListEditor().getParameterEditor("Vs30").setEnabled(false);
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints gridbagc = setGridBagConstraints();

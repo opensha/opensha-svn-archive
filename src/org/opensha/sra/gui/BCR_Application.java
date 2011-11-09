@@ -65,6 +65,7 @@ import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.bugReports.BugReport;
@@ -747,10 +748,10 @@ IMR_GuiBeanAPI{
 
 		}
 
-		EALCalculator currentCalc = new EALCalculator(currentAnnualizedRates,currentModel.getDFVals(),
+		EALCalculator currentCalc = new EALCalculator(currentAnnualizedRates,currentModel.getVulnerabilityFunc(),
 				bcbean.getCurrentReplaceCost());
 		double currentEALVal = currentCalc.computeEAL();
-		EALCalculator retroCalc = new EALCalculator(retroAnnualizedRates,newModel.getDFVals(),bcbean.getRetroReplaceCost());
+		EALCalculator retroCalc = new EALCalculator(retroAnnualizedRates,newModel.getVulnerabilityFunc(),bcbean.getRetroReplaceCost());
 		double newEALVal = retroCalc.computeEAL();
 
 		BenefitCostCalculator bcCalc = new BenefitCostCalculator(currentEALVal,newEALVal,bcbean.getDiscountRate(),
@@ -915,7 +916,11 @@ IMR_GuiBeanAPI{
 	 */
 	protected void initBenefitCostBean(){
 		//	creates the instance of the BenefitCost bean
-		bcbean = new BenefitCostBean();
+		try {
+			bcbean = new BenefitCostBean();
+		} catch (IOException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
 		bcPanel = (JPanel) bcbean.getVisualization(GuiBeanAPI.APPLICATION);
 		bcbean.getRetroVulnParam().addParameterChangeListener(this);
 		bcbean.getCurrentVulnParam().addParameterChangeListener(this);	  

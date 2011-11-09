@@ -483,7 +483,7 @@ implements java.io.Serializable {
 				// this is a Wills Site Class that needs to be translated
 				vsValue = getVS30FromWillsClass((String)data.getValue());
 			}
-			if (isVS30ValueValid(vsValue)) {
+			if (isVS30ValueValid(vsValue) && data.getDataMeasurementType() != null) {
 				if (data.getDataMeasurementType().equals(SiteData.TYPE_FLAG_MEASURED)) {
 					if (D) System.out.println("setSiteParamsForData: +++ Setting VS measured");
 					param.setValue(Vs30_TypeParam.VS30_TYPE_MEASURED); // set it to measured

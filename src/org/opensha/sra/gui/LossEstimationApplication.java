@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -105,6 +106,16 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import org.opensha.sra.calc.LossCurveCalculator;
 import org.opensha.sra.vulnerability.AbstractVulnerability;
+import org.opensha.sra.vulnerability.Vulnerability;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseImmediateOccupancy;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseRigidDiaphram;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseTypical;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCLargeHouseWaistWall;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCSmallHouseRetro;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCSmallHouseTypical;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseLimitedDrift;
+import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseTypical;
+import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor;
 import org.opensha.sra.gui.components.GuiBeanAPI;
 import org.opensha.sra.gui.components.VulnerabilityBean;
 
@@ -329,6 +340,24 @@ IMR_GuiBeanAPI{
 		}
 		return version;
 	}
+	
+	public static List<AbstractVulnerability> fetchVulns() throws IOException {
+		VulnerabilityServletAccessor access = new VulnerabilityServletAccessor();
+		ArrayList<AbstractVulnerability> vms = new ArrayList<AbstractVulnerability>();
+		for (Vulnerability vuln : access.getVulnMap().values()) {
+			if (vuln instanceof AbstractVulnerability)
+				vms.add((AbstractVulnerability)vuln);
+		}
+		vms.add(new CCSmallHouseTypical());
+		vms.add(new CCSmallHouseRetro());
+		vms.add(new CCLargeHouseTypical());
+		vms.add(new CCLargeHouseWaistWall());
+		vms.add(new CCLargeHouseImmediateOccupancy());
+		vms.add(new CCLargeHouseRigidDiaphram());
+		vms.add(new CCTownhouseTypical());
+		vms.add(new CCTownhouseLimitedDrift());
+		return vms;
+	}
 
 	//Initialize the applet
 	public void init() {
@@ -342,7 +371,7 @@ IMR_GuiBeanAPI{
 
 
 			// initialize the various GUI beans
-			initVulnerabilityGuiBean();
+			initVulnerabilityGuiBean(fetchVulns());
 			initIMR_GuiBean();
 			this.initSiteGuiBean();
 			try{
@@ -1089,10 +1118,10 @@ IMR_GuiBeanAPI{
 	/**
 	 * Initialize the Vulnerability Gui Bean
 	 */
-	private void initVulnerabilityGuiBean() {
+	private void initVulnerabilityGuiBean(List<AbstractVulnerability> vulns) {
 
 		// create the Vulnerability Gui Bean object
-		vulnBean = new VulnerabilityBean();
+		vulnBean = new VulnerabilityBean(vulns);
 		vulnBean.getParameter().addParameterChangeListener(this);
 		vulPanel.setLayout(gridBagLayout8);
 		vulPanel.add((Component) vulnBean.getVisualization(GuiBeanAPI.APPLICATION),

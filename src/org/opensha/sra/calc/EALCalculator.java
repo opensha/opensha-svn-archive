@@ -207,6 +207,9 @@ public class EALCalculator {
 					) 
 					);
 			
+			if (Double.isNaN(holder) || Double.isInfinite(holder))
+				continue;
+			
 			answer += holder;
 			
 		} // END: for(int i < IML.size())

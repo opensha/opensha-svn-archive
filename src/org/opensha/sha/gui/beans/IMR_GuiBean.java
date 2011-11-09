@@ -241,6 +241,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener {
 		int numSupportedAttenRels = supportedAttenRels.size();
 		for(int i=0;i < numSupportedAttenRels;++i){
 			AttenuationRelationship attenRel = (AttenuationRelationship)supportedAttenRels.get(i);
+			System.out.println("Getting IMRs for IMTs: "+currentIMT+", "+retroIMT);
 			if(isIntensityMeasureSupported(attenRel,currentIMT,currentPeriod) && 
 					isIntensityMeasureSupported(attenRel,retroIMT,retroPeriod) )
 				attenRelsSupportedForIM.add(attenRel);

@@ -247,20 +247,26 @@ public class HardCodedScenarioShakeMapGen {
 //		int sourceID = 89;
 //		int rupID = 3;
 //		Location hypo = new Location(35.849, -120.3858, 15.5655);
-		int sourceID = 242;
-		int rupID = 26;
-		Location hypo = new Location(34.093,-118.0315,13.2411);
+//		int sourceID = 242;
+//		int rupID = 26;
+//		Location hypo = new Location(34.093,-118.0315,13.2411);
+		
+		// ShakeOut 2011
+		int sourceID = 254;
+		int rupID = 30;
+		Location hypo = new Location(34.34, -119.17, 11.1);
+		
 		boolean useBaseMap = true;
-		double[] periods = { -3.0 };
+		double[] periods = { 3.0 };
 		System.out.println("Creating Atten Rels...");
 		ArrayList<AttenuationRelationship> attenRels = getAttenRels(periods);
 		
-//		String scatterHardCodeFile = null;
+		String scatterHardCodeFile = null;
 //		String scatterHardCodeFile = "/home/kevin/CyberShake/eew/parkfield/min7.0/shakemap.txt";
-		String scatterHardCodeFile = "/home/kevin/ShakeOut/bband/pga.txt";
+//		String scatterHardCodeFile = "/home/kevin/ShakeOut/bband/pga.txt";
 		
-//		String outputDir = "/home/kevin/CyberShake/ShakeOut/maps";
-		String outputDir = "/home/kevin/CyberShake/ShakeOut/bband/maps";
+		String outputDir = "/home/kevin/CyberShake/ShakeOut/2011/maps";
+//		String outputDir = "/home/kevin/CyberShake/ShakeOut/bband/maps";
 		
 		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(0.005);
 		region.setName("CSReg");

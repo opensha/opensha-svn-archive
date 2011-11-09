@@ -44,7 +44,7 @@ public abstract class AbstractPortfolioLECCalculator {
 					if (D) System.out.println("src: " + sourceID + " rup: " + rupID + " prob: " + rupProb);
 					
 					double normCumDistVal = normCumDist.getY(k);
-					if (D) System.out.println("normCumDist[iml]: " + normCumDistVal);
+					if (D) System.out.println("normCumDifunctionst[iml]: " + normCumDistVal);
 					if (Double.isNaN(normCumDistVal)) {
 						if (D) System.out.println("it's NaN, skipping");
 						continue;

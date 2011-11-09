@@ -57,6 +57,8 @@ import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
+import com.google.common.base.Preconditions;
+
 
 /**
  * <p>Title: HazardCurveCalculator </p>
@@ -581,6 +583,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		int num = arb.getNum();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);
+		Preconditions.checkState(num == arb.getNum(), "initializing X values changed size of function! " +
+				"It is possible that there is a NaN or infitite value in the hazard curve.");
 	}
 
 	@Override

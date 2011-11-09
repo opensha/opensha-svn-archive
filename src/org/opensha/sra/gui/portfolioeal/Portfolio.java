@@ -72,14 +72,14 @@ public class Portfolio {
 	 * @param erf The erf gotten from the view
 	 * @param controller The controller
 	 */
-	public double calculatePortfolioEAL( ScalarIMR imr, double value,
+	public double calculatePortfolioEAL( ScalarIMR imr, double maxSourceDistance,
 										 Site site, BaseERF erf,
 										 PortfolioEALCalculatorController controller ) {
 		String toWrite = "";
 		try {
 			BufferedWriter out = null;
 			for( Asset asset : assetList ) {
-				EAL += asset.calculateEAL( imr, value, site, erf, controller );
+				EAL += asset.calculateEAL( imr, maxSourceDistance, site, erf, controller );
 				toWrite += asset.getParameterList().getParameter("Lat").getValue();
 				toWrite += ", ";
 				toWrite += asset.getParameterList().getParameter("Lon").getValue();

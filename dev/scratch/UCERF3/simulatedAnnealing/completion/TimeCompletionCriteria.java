@@ -43,7 +43,7 @@ public class TimeCompletionCriteria implements CompletionCriteria {
 	
 	public String getTimeStr() {
 		if (millis % 1000 != 0)
-			return millis+"";
+			return millis+"mi";
 		long secs = millis / 1000;
 		if (secs % 60 != 0)
 			return secs+"s";
@@ -66,6 +66,8 @@ public class TimeCompletionCriteria implements CompletionCriteria {
 			return getInSeconds(Long.parseLong(str));
 		}
 		// just do millis
+		if (str.endsWith("mi"))
+			str = str.substring(0, str.length()-2);
 		return new TimeCompletionCriteria(Long.parseLong(str));
 	}
 

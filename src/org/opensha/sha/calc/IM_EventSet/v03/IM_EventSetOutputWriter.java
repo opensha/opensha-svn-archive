@@ -138,7 +138,7 @@ public abstract class IM_EventSetOutputWriter {
 			} else {
 				// this is a HAZ01 style IMT
 				logger.log(Level.FINEST, "Split into IMT: " + theIMT + ", Period portion (HAZ01 style): " + perSt);
-				period = Double.parseDouble(perSt) / 10;
+				period = Double.parseDouble(perSt) / 10d;
 			}
 			attenRel.setIntensityMeasure(theIMT);
 			Parameter imtParam = (Parameter)attenRel.getIntensityMeasure();

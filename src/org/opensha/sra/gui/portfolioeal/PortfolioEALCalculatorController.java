@@ -19,10 +19,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.CustomFileFilter;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.sra.vulnerability.Vulnerability;
@@ -45,7 +47,7 @@ import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor
  * @author Jeremy Leakakos
  * @see    PortfolioEALCalculatorView
  */
-public class PortfolioEALCalculatorController implements ActionListener, ItemListener, Runnable {
+public class PortfolioEALCalculatorController implements ActionListener, ItemListener, Runnable, CalculationExceptionHandler {
 	
 	public static final String APP_NAME = "Portfolio EAL Application";
 	public static final String APP_SHORT_NAME = "PortfolioEAL";
@@ -74,75 +76,80 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 		EAL = 0.0;
 	}
 	
-	public static HashMap<String, Vulnerability> vulnerabilities;
+	private static HashMap<String, Vulnerability> vulnerabilities;
 	
-	static {
-		vulnerabilities = new HashMap<String, Vulnerability>();
-		Vulnerability vuln;
-		
-		vuln = new CCLargeHouseImmediateOccupancy();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		vuln = new CCLargeHouseRigidDiaphram();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		vuln = new CCLargeHouseTypical();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		vuln = new CCLargeHouseWaistWall();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		vuln = new CCSmallHouseRetro();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		vuln = new CCSmallHouseTypical();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		vuln = new CCTownhouseLimitedDrift();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		vuln = new CCTownhouseTypical();
-		vulnerabilities.put(vuln.getShortName(), vuln);
-		
-		//String fileName = "/Users/emartinez/Desktop/2010_02_23_vulns.txt";
-		String fileName = "/resources/data/vulnerability_20100223_keith.txt";
-		File file = new File(fileName);
-		InputStream vulnFileInput = null;
-		
-		if ( file.exists() ) {
-			try {
-				vulnFileInput = new FileInputStream(file);
-			} catch (IOException iox) {
-				iox.printStackTrace(System.err);
-			}
-		} else {
-			vulnFileInput = PortfolioEALCalculatorController.class
-					.getResourceAsStream(fileName);
-		}
-		
-		try {
-			ArrayList<SimpleVulnerability> fileVulns = VulnFileReader.readVUL06File(vulnFileInput);
-			System.out.println("Loaded " + fileVulns.size() + " vulns from " + fileName);
-			for (SimpleVulnerability sVuln : fileVulns) {
-				vulnerabilities.put(sVuln.getShortName(), sVuln);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-			VulnerabilityServletAccessor accessor = new VulnerabilityServletAccessor();
-			try {
-				HashMap<String, Vulnerability> map = accessor.getVulnMap();
-				for (String shortName : map.keySet()) {
-					vulnerabilities.put(shortName, map.get(shortName));
+	public static HashMap<String, Vulnerability> getVulnerabilities() {
+		return getVulnerabilities(null);
+	}
+	
+	public static synchronized HashMap<String, Vulnerability> getVulnerabilities(File file) {
+		if (vulnerabilities == null) {
+			vulnerabilities = new HashMap<String, Vulnerability>();
+			Vulnerability vuln;
+			
+			vuln = new CCLargeHouseImmediateOccupancy();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			vuln = new CCLargeHouseRigidDiaphram();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			vuln = new CCLargeHouseTypical();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			vuln = new CCLargeHouseWaistWall();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			vuln = new CCSmallHouseRetro();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			vuln = new CCSmallHouseTypical();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			vuln = new CCTownhouseLimitedDrift();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			vuln = new CCTownhouseTypical();
+			vulnerabilities.put(vuln.getShortName(), vuln);
+			
+			//String fileName = "/Users/emartinez/Desktop/2010_02_23_vulns.txt";
+//			String fileName = "/resources/data/vulnerability_20100223_keith.txt";
+//			File file = new File(fileName);
+			InputStream vulnFileInput = null;
+			
+			if (file != null && file.exists()) {
+				try {
+					vulnFileInput = new FileInputStream(file);
+				} catch (IOException iox) {
+					iox.printStackTrace(System.err);
 				}
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				e1.printStackTrace();
-				System.out.println("couldn't get vulnerabilities from file or servlet!");
 			}
+			
+			try {
+				ArrayList<SimpleVulnerability> fileVulns = VulnFileReader.readVUL06File(vulnFileInput);
+				System.out.println("Loaded " + fileVulns.size() + " vulns from " + file.getAbsolutePath());
+				for (SimpleVulnerability sVuln : fileVulns) {
+					vulnerabilities.put(sVuln.getShortName(), sVuln);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+//				e.printStackTrace();
+				VulnerabilityServletAccessor accessor = new VulnerabilityServletAccessor();
+				try {
+					HashMap<String, Vulnerability> map = accessor.getVulnMap();
+					for (String shortName : map.keySet()) {
+						vulnerabilities.put(shortName, map.get(shortName));
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					e1.printStackTrace();
+					System.out.println("couldn't get vulnerabilities from file or servlet!");
+				}
+			}
+			System.out.println("Added " + vulnerabilities.size() + " vulnerabilities!");
 		}
-		System.out.println("Added " + vulnerabilities.size() + " vulnerabilities!");
+		
+		return vulnerabilities;
 	}
 	
 	/**
@@ -171,8 +178,8 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 					view.getERF().getPanel().getSelectedERF(),
 					this
 					);
-		} catch ( InvocationTargetException e ) {
-		} catch ( IOException e ) {
+		} catch ( Exception e ) {
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		return retVal;
 	}
@@ -185,7 +192,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 	 * formatted/printed text in it.  There is a counter to keep track of the number of calculations
 	 * already done.
 	 */
-	private void printToIO() {
+	private void printToIO(double secs) {
 		// This variable keeps track of the number of Portfolio EAL's that have been calculated
 		count += 1;
 		
@@ -227,6 +234,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 		// format the EAL into a proper money format; $0.00
 		String formatEAL = money.format(EAL);
 		aString += "Portfolio EAL " + count + " = "  + formatEAL + "\n\n";
+		aString += "\nCalculation Time: "+secs+" seconds\n";
 		aString += "----------------------------------------\n\n";
 		// Send the string to the view to set the I/O pane
 		view.setIO(aString);
@@ -379,8 +387,12 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 	 * default state.  It also prints the calculation information to the I/O pane.
 	 */
 	public void run() {
+		StopWatch watch = new StopWatch();
+		watch.start();
 		EAL = computeEAL();
-		printToIO();
+		watch.stop();
+		double secs = watch.getTime() / 1000d;
+		printToIO(secs);
 		// The next call is not appropriately named, but it has the proper functionality
 		view.setButtonsOnCancel();
 	}

@@ -12,6 +12,7 @@ import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sra.asset.Asset;
 import org.opensha.sra.asset.Portfolio;
 import org.opensha.sra.vulnerability.Vulnerability;
@@ -104,6 +105,8 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 		NormalDistributionImpl normDist = new NormalDistributionImpl();
 		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			Boolean[] sourceIncludes = new Boolean[n];
+			
 			ProbEqkSource src = erf.getSource(sourceID);
 			
 			// TODO skip sources not within cutoff distance of any asset?
@@ -122,11 +125,26 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 					if (D) System.out.println("Asset " + k);
 					
 					Asset asset = portfolio.get(k);
+					
+					if (sourceIncludes[k] == null) {
+						double dist = src.getMinDistance(asset.getSite());
+						sourceIncludes[k] = dist < 200d;
+					}
+					if (!sourceIncludes[k]) {
+						assetRupResults.add(null);
+						continue;
+					}
+					
 					Vulnerability vuln = asset.getVulnerability();
 					
 					// TODO: deal with setting period for SA in a better way
 					String imt = vuln.getIMT();
-					IM_EventSetOutputWriter.setIMTFromString(imt, imr);
+					imr.setIntensityMeasure(imt);
+					if (imt.equals(SA_Param.NAME))
+						SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), vuln.getPeriod());
+					imr.setIntensityMeasure(imt);
+					if (imt.equals(SA_Param.NAME))
+						SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), vuln.getPeriod());
 					imr.setSite(asset.getSite());
 					imr.setEqkRupture(src.getRupture(rupID));
 					
@@ -221,6 +239,9 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 				for (int i=0; i<portfolio.size(); i++) {
 					AssetRuptureResult assetRupResult = assetRupResults.get(i);
 					
+					if (assetRupResult == null)
+						continue;
+					
 					double tempVal;
 					
 					if (D) System.out.println("Asset " + i + " (showing intermediate sums for L's)");
@@ -287,6 +308,8 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 				double sumSquares = 0;
 				for (int i=0; i<portfolio.size(); i++) {
 					AssetRuptureResult assetRupResult = assetRupResults.get(i);
+					if (assetRupResult == null)
+						continue;
 					double medDamage_mIML = assetRupResult.getMedDamage_medIML();
 					double medDamage_hIntra = assetRupResult.getMedDamage_hIntra();
 					double medDamage_lIntra = assetRupResult.getMedDamage_lIntra();
