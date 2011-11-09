@@ -127,30 +127,30 @@ public class EnumParameterEditor<E extends Enum<E>> extends
 	
 	
 	
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new ParamTester());
-	}
-
-	private static class ParamTester extends JFrame implements Runnable {
-
-		public ParamTester() {
-			JPanel p = new JPanel();
-			p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-			EnumParameter<FaultType> ep = new EnumParameter<FaultType>(
-				"FaultType", EnumSet.allOf(FaultType.class), null,
-				"All");
-			JComponent editor = (JComponent) ep.getEditor();
-			p.add(editor, BorderLayout.CENTER);
-
-			getContentPane().add(p);
-
-			setDefaultCloseOperation(EXIT_ON_CLOSE);
-		}
-
-		public void run() {
-			setVisible(true);
-		}
-
-	}
+//	public static void main(String[] args) {
+//		SwingUtilities.invokeLater(new ParamTester());
+//	}
+//
+//	private static class ParamTester extends JFrame implements Runnable {
+//
+//		public ParamTester() {
+//			JPanel p = new JPanel();
+//			p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+//
+//			EnumParameter<FaultType> ep = new EnumParameter<FaultType>(
+//				"FaultType", EnumSet.allOf(FaultType.class), null,
+//				"All");
+//			JComponent editor = (JComponent) ep.getEditor();
+//			p.add(editor, BorderLayout.CENTER);
+//
+//			getContentPane().add(p);
+//
+//			setDefaultCloseOperation(EXIT_ON_CLOSE);
+//		}
+//
+//		public void run() {
+//			setVisible(true);
+//		}
+//
+//	}
 }
