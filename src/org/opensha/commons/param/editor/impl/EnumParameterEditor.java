@@ -37,7 +37,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.EnumConstraint;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.impl.EnumParameter;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
+//import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
 
 /**
  * The editor used to render <code>EnumParameter</code>s.
