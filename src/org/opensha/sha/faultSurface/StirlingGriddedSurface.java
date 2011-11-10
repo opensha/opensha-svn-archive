@@ -311,8 +311,6 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 	@Override
 	public LocationList getPerimeter() {
 		
-		throw new RuntimeException("This method is written but untested; uncomment below, test, and get rid of this line");
-/*		
 		LocationList topTrace = new LocationList();
 		LocationList botTrace = new LocationList();
 		final double avDipRadians = aveDip * PI_RADIANS;
@@ -344,7 +342,6 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 		perimiter.add(topTrace.get(0));
 		
 		return perimiter;
-*/
 	}
 
 

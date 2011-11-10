@@ -118,23 +118,6 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 
 
 
-	/** Prints out each location and fault information for debugging */
-	public String toString(){
-		char TAB = '\t';
-		StringBuffer b = new StringBuffer();
-		b.append( C + '\n');
-
-		b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
-
-		String superStr = super.toString();
-		//int index = superStr.indexOf('\n');
-		//if( index > 0 ) superStr = superStr.substring(index + 1);
-		b.append( '\n' + superStr );
-
-		return b.toString();
-	}
-	
-
 	/**
 	 * Returns the grid spacing along strike
 	 * @return

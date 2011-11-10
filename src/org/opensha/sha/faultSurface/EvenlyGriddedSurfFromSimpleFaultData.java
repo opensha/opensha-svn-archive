@@ -208,13 +208,6 @@ extends AbstractEvenlyGriddedSurfaceWithSubsets{
 	/** @todo  Serializing Helpers - overide to increase performance */
 	// ***************************************************************
 
-	protected void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		ois.defaultReadObject();
-	}
-	protected void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-	}
-
 
 	public FaultTrace getFaultTrace() { return faultTrace; }
 

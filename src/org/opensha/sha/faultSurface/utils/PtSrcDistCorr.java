@@ -41,9 +41,10 @@ public class PtSrcDistCorr {
 					// the value down to the next closest compatible M
 					
 					// this was Peter's original correction, but it explodes if it's given say 6.449999999999999 (which converts to 6.39999999999999)
-					//double adjMag = ((int) (mag*100) % 10 != 5) ? mag - 0.05 : mag;
-					double adjMag = ((double)Math.round((mag-0.05)*10))/10 + 0.05;
-					System.out.println(mag+"\t"+adjMag);
+//					double adjMagAlt = ((int) (mag*100) % 10 != 5) ? mag - 0.05 : mag;
+					double adjMag = ((double)Math.round(mag/0.05))*0.05;
+//					if(adjMagAlt != adjMag)
+//						System.out.println("mag,adj,alt:\t"+mag+"\t"+adjMag+"\t"+adjMagAlt);
 					if(horzDist==0)
 						corr = 1;
 					else

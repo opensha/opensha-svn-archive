@@ -127,27 +127,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
     /** Debug string to represent a tab. Used by toString().  */
     final static char TAB = '\t';
 
-    /** 
-     * Prints out each location and fault information for debugging
-     *  
-     */
-    public String toString(){
-
-        StringBuffer b = new StringBuffer();
-        b.append( C + '\n');
-        if ( data != null ) b.append( "Ave. Strike = " + ( ( AbstractEvenlyGriddedSurfaceWithSubsets ) data ).getAveStrike() + '\n' );
-        if ( data != null ) b.append( "Ave. Dip = " + ( ( AbstractEvenlyGriddedSurfaceWithSubsets ) data ).getAveDip() + '\n' );
-
-        b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
-
-        String superStr = super.toString();
-        //int index = superStr.indexOf('\n');
-        //if( index > 0 ) superStr = superStr.substring(index + 1);
-        b.append( '\n' + superStr );
-
-        return b.toString();
-    }
-
 
     @Override
     public double getAveLength() {

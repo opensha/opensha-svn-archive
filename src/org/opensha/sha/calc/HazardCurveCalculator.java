@@ -154,13 +154,13 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	
 	
 //	@Override
-	public void setPtSrcDistCorrType(PtSrcDistCorr.Type type) {
+	public void setPtSrcDistCorrType(PtSrcDistCorr.Type type) throws java.rmi.RemoteException {
 		ptSrcDistCorrParam.setValueFromTypePtSrcDistCorr(type);
 	}
 	
 
 //	@Override
-	public PtSrcDistCorr.Type getPtSrcDistCorrType(){
+	public PtSrcDistCorr.Type getPtSrcDistCorrType() throws java.rmi.RemoteException{
 		return ptSrcDistCorrParam.getValueAsTypePtSrcDistCorr();
 	}
 
