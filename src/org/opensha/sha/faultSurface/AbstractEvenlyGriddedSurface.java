@@ -144,15 +144,16 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	
 	@Override
 	public LocationList getEvenlyDiscritizedPerimeter() {
-		LocationList locList = new LocationList();
-		for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
-		for(int r=0;r<getNumRows();r++) locList.add(get(r, getNumCols()-1));
-		for(int c=getNumCols()-1;c>=0;c--) locList.add(get(getNumRows()-1, c));
-		for(int r=getNumRows()-1;r>=0;r--) locList.add(get(r, 0));
-		return locList;
+		return GriddedSurfaceUtils.getEvenlyDiscritizedPerimeter(this);
 	}
-
-
+	
+	@Override
+	/**
+	 * Default is to return the evenly discretized version
+	 */
+	public LocationList getPerimeter() {
+		return getEvenlyDiscritizedPerimeter();
+	}
 
 	/**
 	 * gets the location from the 2D container
@@ -266,7 +267,7 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	public double getDistanceX(Location siteLoc){
 		if(!siteLocForDistXCalc.equals(siteLoc)) {
 			siteLocForDistXCalc = siteLoc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(this, siteLocForDistCalcs);
+			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistCalcs);
 		}
 		return distanceX;
 	}
@@ -277,6 +278,15 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	public FaultTrace getEvenlyDiscritizedUpperEdge() {
 		return getRowAsTrace(0);
 	}
+	
+	@Override
+	/**
+	 * Default is to return the evenly discretized version
+	 */
+	public FaultTrace getUpperEdge() {
+		return getEvenlyDiscritizedUpperEdge();
+	}
+
 
 
 	@Override
@@ -337,6 +347,5 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	public boolean isPointSurface() {
 		return (size() == 1);
 	}
-
-
+	
 }

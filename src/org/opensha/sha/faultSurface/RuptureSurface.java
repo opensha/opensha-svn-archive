@@ -55,8 +55,9 @@ public interface RuptureSurface {
 	 * This returns a list of locations that are evenly spread (at least 
 	 * approximately) over the rupture surface, with a spacing given by
 	 * what's returned by the getGridSpacing() method.  Further details 
-	 * are specified by the implementing class.  These locations should
-	 * be ordered as one reads the words on a page in a book.
+	 * are specified by the implementing class.  Don't assume the locations 
+	 * are ordered as one reads the words on a page in a book (not the case
+	 * for CompoundGriddedSurface).
 	 * @return
 	 */
 	public LocationList getEvenlyDiscritizedListOfLocsOnSurface();

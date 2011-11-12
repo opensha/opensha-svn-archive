@@ -119,17 +119,4 @@ public class EvenlyGridCenteredSurface extends AbstractEvenlyGriddedSurfaceWithS
 		return origSurface.getAveRupTopDepth()+gridSpacingDown/2;
 	}
 
-
-	@Override
-	public LocationList getPerimeter() {
-		throw new RuntimeException("Method not yet implemented");
-	}
-
-
-	@Override
-	public FaultTrace getUpperEdge() {
-		throw new RuntimeException("Method not yet implemented");
-	}
-
-
 }

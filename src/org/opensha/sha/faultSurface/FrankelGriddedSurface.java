@@ -298,10 +298,4 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 
 	}
 
-	@Override
-	public LocationList getPerimeter() {
-		throw new RuntimeException("method undefined for this class since projection of the " +
-				"trace to lower seismogenic depths will cause loops where strike changes");
-	}
-
 }

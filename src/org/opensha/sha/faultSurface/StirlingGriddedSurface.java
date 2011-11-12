@@ -309,6 +309,9 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 	
 	
 	@Override
+	/**
+	 * Override the parent with a version with fewer points
+	 */
 	public LocationList getPerimeter() {
 		
 		LocationList topTrace = new LocationList();
@@ -331,7 +334,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 			hDistance = vDistance / Math.tan( avDipRadians );
 			dir = new LocationVector(aveDipDirection, hDistance, vDistance);
 			Location botLoc = LocationUtils.location( traceLoc, dir );
-			topTrace.add(botLoc);
+			botTrace.add(botLoc);
 		}
 		
 		// now make and close the list

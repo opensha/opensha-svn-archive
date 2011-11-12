@@ -25,6 +25,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.ContainerSubset2D;
 import org.opensha.commons.data.Window2D;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
@@ -57,6 +58,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
 	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
 	double distanceJB, distanceSeis, distanceRup, distanceX;
+	AbstractEvenlyGriddedSurface parentSurface;
 
 
     /**
@@ -73,6 +75,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
     public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, AbstractEvenlyGriddedSurface data )
              throws ArrayIndexOutOfBoundsException {
         super( numRows, numCols, startRow, startCol, data );
+        parentSurface = data;
     }
     
 
@@ -142,12 +145,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 
     @Override
     public LocationList getEvenlyDiscritizedPerimeter() {
-  	  LocationList locList = new LocationList();
-  	  for(int c=0;c<getNumCols();c++) locList.add(get(0, c));
-  	  for(int r=0;r<getNumRows();r++) locList.add(get(r, getNumCols()-1));
-  	  for(int c=getNumCols()-1;c>=0;c--) locList.add(get(getNumRows()-1, c));
-  	  for(int r=getNumRows()-1;r>=0;r--) locList.add(get(r, 0));
-  	  return locList;
+    	return GriddedSurfaceUtils.getEvenlyDiscritizedPerimeter(this);
     }
 
 
@@ -237,6 +235,9 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 
 
 	@Override
+	/**
+	 * This assumes the lateral edges are straight lines
+	 */
 	public LocationList getPerimeter() {
 		FaultTrace topTr = getRowAsTrace(0);
 		FaultTrace botTr = getRowAsTrace(getNumRows()-1);
@@ -317,7 +318,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	public double getDistanceX(Location siteLoc){
 		if(!siteLocForDistXCalc.equals(siteLoc)) {
 			siteLocForDistXCalc = siteLoc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(this, siteLocForDistCalcs);
+			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistCalcs);
 		}
 		return distanceX;
 	}
@@ -356,6 +357,14 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 		return (size() == 1);
 	}
 
+
+	/**
+	 * This returns the parent surface
+	 * @return
+	 */
+	public AbstractEvenlyGriddedSurface getParentSurface() {
+		return parentSurface;
+	}
 
 
 }

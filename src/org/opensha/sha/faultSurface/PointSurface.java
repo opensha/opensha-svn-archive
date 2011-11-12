@@ -403,6 +403,5 @@ public class PointSurface implements RuptureSurface {
 	public ListIterator<Location> getLocationsIterator() {
 		return getLocationList().listIterator();
 	}
-
-
+	
 }

@@ -361,18 +361,6 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWith
 
 
 	@Override
-	public LocationList getPerimeter() {
-		LocationList perimeter = new LocationList();
-		perimeter.addAll(upperFaultTrace);
-		FaultTrace reversedLower = this.lowerFaultTrace.clone();
-		reversedLower.reverse();
-		perimeter.addAll(reversedLower);
-		perimeter.add(upperFaultTrace.get(0));  // to close the polygon
-		return perimeter;
-	}
-
-
-	@Override
 	public FaultTrace getUpperEdge() {
 		return upperFaultTrace;
 	}

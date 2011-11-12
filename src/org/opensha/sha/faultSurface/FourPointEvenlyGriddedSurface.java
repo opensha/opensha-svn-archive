@@ -71,23 +71,4 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 		return getUpperEdge().getAveStrike();
 	}
 
-	@Override
-	public LocationList getPerimeter() {
-		LocationList perim = new LocationList();
-		perim.add(getLocation(0,0));
-		perim.add(getLocation(0,1));
-		perim.add(getLocation(1,1));
-		perim.add(getLocation(1,0));
-		perim.add(getLocation(0,0));  // to close the polygon
-		return perim;
-	}
-
-	@Override
-	public FaultTrace getUpperEdge() {
-		FaultTrace trace = new FaultTrace(null);
-		trace.add(getLocation(0,0));
-		trace.add(getLocation(0,1));
-		return trace;
-	}
-
 }

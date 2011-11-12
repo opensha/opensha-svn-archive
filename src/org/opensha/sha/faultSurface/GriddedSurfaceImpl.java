@@ -89,17 +89,5 @@ public class GriddedSurfaceImpl extends AbstractEvenlyGriddedSurface {
 		return dep/trace.size();
 	}
 
-	@Override
-	public LocationList getPerimeter() {
-		return getEvenlyDiscritizedPerimeter();
-	}
-
-	@Override
-	public FaultTrace getUpperEdge() {
-		return getRowAsTrace(0);
-	}
-
-
-
 }
 

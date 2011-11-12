@@ -9,6 +9,9 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
@@ -91,34 +94,30 @@ public class GriddedSurfaceUtils {
 			System.out.println(C+": distJB = " + distJB);
 		}
 		
-		// fix small values of distanceJB (since they can be non-zero over the rupture)
-		// WAY1
-		if(distJB < 1.5*surface.getAveGridSpacing()) {
-			if(surface.getNumCols() > 1 && surface.getNumRows() > 1) {
-				double d1, d2,min_dist;
-				d1 = LocationUtils.horzDistanceFast(surface.getLocation(0, 0),surface.getLocation(1, 1));
-				d2 = LocationUtils.horzDistanceFast(surface.getLocation(0, 1),surface.getLocation(1, 0));
-				min_dist = 1.1*Math.min(d1, d2)/2;
-				if(distJB<=min_dist) distJB = 0;
+		// Check whether small values of distJB should really be zero
+		if(distJB <surface.getAveGridSpacing()) { // check this first since the next steps could take time
+			
+			// first identify whether it's a frankel type surface
+			boolean frankelTypeSurface=false;
+			if(surface instanceof FrankelGriddedSurface) {
+				frankelTypeSurface = true;
+			}
+			else if(surface instanceof GriddedSubsetSurface) {
+				if(((GriddedSubsetSurface)surface).getParentSurface() instanceof FrankelGriddedSurface) {
+					frankelTypeSurface = true;
+				}
+			}
+					
+			if(frankelTypeSurface)
+				if(isDistJB_ReallyZero(surface,distJB))
+					distJB=0;
+			else {
+				Region reg = new Region(surface.getPerimeter(),BorderType.MERCATOR_LINEAR);
+				if(reg.contains(loc)) 
+					distJB=0;
 			}
 		}
-		
-		// WAY2 - BUT WHAT WILL HAPPEN WITH FRANKEL SURFACE
-//		if(distJB <surface.getAveGridSpacing()) {
-//			Region region;
-//			try {
-//				region = new Region(surface.getPerimeter(), BorderType.MERCATOR_LINEAR);
-//				if(region.contains(loc))
-//					distJB = 0;;
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				System.out.println(surface.getClass().getName());
-//				e.printStackTrace();
-//			}
-//		}
-		
 
-		
 		double[] results = {distRup, distJB, distSeis};
 		
 		return results;
@@ -131,12 +130,12 @@ public class GriddedSurfaceUtils {
 	 * @param siteLoc
 	 * @return
 	 */
-	public static double getDistanceX(EvenlyGriddedSurface surface, Location siteLoc) {
+	public static double getDistanceX(FaultTrace trace, Location siteLoc) {
 
 		double distanceX;
 		
 		// set to zero if it's a point source
-		if(surface.getNumCols() == 1) {
+		if(trace.size() == 1) {
 			distanceX = 0;
 		}
 		else {
@@ -144,8 +143,8 @@ public class GriddedSurfaceUtils {
 			// (to avoid unnecessary calculations)
 
 				// get points projected off the ends
-				Location firstTraceLoc = surface.getLocation(0, 0); 						// first trace point
-				Location lastTraceLoc = surface.getLocation(0, surface.getNumCols()-1); 	// last trace point
+				Location firstTraceLoc = trace.get(0); 						// first trace point
+				Location lastTraceLoc = trace.get(trace.size()-1); 	// last trace point
 
 				// get point projected from first trace point in opposite direction of the ave trace
 				LocationVector dir = LocationUtils.vector(lastTraceLoc, firstTraceLoc); 		
@@ -170,9 +169,9 @@ public class GriddedSurfaceUtils {
 
 				locsForExtendedTrace.add(projectedLoc1);
 				locsForRegion.add(projectedLoc1);
-				for(int c=0; c<surface.getNumCols(); c++) {
-					locsForExtendedTrace.add(surface.getLocation(0, c));
-					locsForRegion.add(surface.getLocation(0, c));     	
+				for(int c=0; c<trace.size(); c++) {
+					locsForExtendedTrace.add(trace.get(c));
+					locsForRegion.add(trace.get(c));     	
 				}
 				locsForExtendedTrace.add(projectedLoc2);
 				locsForRegion.add(projectedLoc2);
@@ -236,5 +235,47 @@ public class GriddedSurfaceUtils {
 				(float) loc4.getDepth() + "\n");
 	}
 	
+	
+	/**
+	 * This gets the perimeter locations
+	 * @param surface
+	 * @return
+	 */
+	public static LocationList getEvenlyDiscritizedPerimeter(EvenlyGriddedSurface surface) {
+		LocationList locList = new LocationList();
+		int lastRow = surface.getNumRows()-1;
+		int lastCol = surface.getNumCols()-1;
+		for(int c=0;c<=lastCol;c++) locList.add(surface.get(0, c));
+		for(int r=0;r<=lastRow;r++) locList.add(surface.get(r, lastCol));
+		for(int c=lastCol;c>=0;c--) locList.add(surface.get(lastRow, c));
+		for(int r=lastRow;r>=0;r--) locList.add(surface.get(r, 0));
+		return locList;
+	}
+	
+	/**
+	 * This is used to check whether a small value of DistJB should really be zero
+	 * because of surface discretization.  This is used where a contains call on 
+	 * the surface perimeter wont work (e.g., because of loops and gaps at the bottom 
+	 * of a FrankelGriddedSurface).  Surfaces that only have one row or column always
+	 * return false (which means non-zero distJB along the trace of a straight line source).
+	 * Note that this will return true for locations that are slightly off the surface projection
+	 * (essentially expanding the edge of the fault by about have the discretization level. 
+	 * 
+	 */
+	public static boolean isDistJB_ReallyZero(EvenlyGriddedSurface surface, double distJB) {
+			if(surface.getNumCols() > 1 && surface.getNumRows() > 1) {
+				double d1, d2,min_dist;
+				d1 = LocationUtils.horzDistanceFast(surface.getLocation(0, 0),surface.getLocation(1, 1));
+				d2 = LocationUtils.horzDistanceFast(surface.getLocation(0, 1),surface.getLocation(1, 0));
+				min_dist = 1.1*Math.min(d1, d2)/2;	// the 1.1 is to prevent a precisely centered point to  return false
+				if(distJB<=min_dist) 
+					return true;
+				else
+					return false;
+			}
+			else
+				return false;
+	}
+
 
 }
