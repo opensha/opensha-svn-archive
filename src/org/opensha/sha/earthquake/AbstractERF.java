@@ -262,7 +262,7 @@ public abstract class AbstractERF implements
 	protected static BaseERF baseERF_FromXML(Element el) throws InvocationTargetException {
 		String className = el.attribute("className").getValue();
 //		System.out.println("Loading ERF: " + className);
-		AbstractERF erf = (AbstractERF)MetadataLoader.createClassInstance(className);
+		BaseERF erf = (BaseERF)MetadataLoader.createClassInstance(className);
 
 		// add params
 //		System.out.println("Setting params...");

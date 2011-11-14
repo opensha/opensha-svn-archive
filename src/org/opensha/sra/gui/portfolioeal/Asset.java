@@ -89,7 +89,8 @@ public class Asset implements Cloneable {
 	 * CheckBox is checked.
 	 */
 	private void startCalcProgressBar() {
-		if(PortfolioEALCalculatorView.getView().getProgressBarChecked()) {
+		if(PortfolioEALCalculatorView.isViewInitialized() && 
+				PortfolioEALCalculatorView.getView().getProgressBarChecked()) {
 			CalcProgressListener progressBar = new CalcProgressListener(this);
 			progressBar.start();
 		}
@@ -146,7 +147,8 @@ public class Asset implements Cloneable {
 		} catch( Exception e ) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Parameter type " + paramName + " in file not recognized!", "Error", JOptionPane.ERROR_MESSAGE );
-			PortfolioEALCalculatorView.getView().setButtonsOnCancel();
+			if (PortfolioEALCalculatorView.isViewInitialized())
+				PortfolioEALCalculatorView.getView().setButtonsOnCancel();
 		}
 		return param;
 	}
