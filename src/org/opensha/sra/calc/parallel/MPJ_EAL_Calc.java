@@ -16,6 +16,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.math.stat.StatUtils;
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -41,6 +42,8 @@ import com.google.common.base.Preconditions;
 
 public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExceptionHandler {
 	
+	public static final String BATCH_ELEMENT_NAME = "BatchCalculation";
+	
 	private Portfolio portfolio;
 	private List<Asset> assets;
 	private double maxSourceDistance = 200; // TODO set
@@ -52,27 +55,27 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 	
 	private File outputFile;
 	
-	public MPJ_EAL_Calc(CommandLine cmd, String[] args) throws IOException, DocumentException, InvocationTargetException {
+	public MPJ_EAL_Calc(CommandLine cmd, Portfolio portfolio, Element el) throws IOException, DocumentException, InvocationTargetException {
+		this(cmd, portfolio, el, null);
+	}
+	
+	public MPJ_EAL_Calc(CommandLine cmd, Portfolio portfolio, Element el, File outputFile) throws IOException, DocumentException, InvocationTargetException {
 		super(cmd);
 		
-		if (args.length != 3) {
-			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJ_EAL_Calc.class)
-					+" [options] <portfolio_file> <calculation_params_file> <output_file>");
-			abortAndExit(2);
-		}
-		
-		portfolio = Portfolio.createPortfolio(new File(args[0]));
+		this.portfolio = portfolio;
 		assets = portfolio.getAssetList();
 		System.gc();
 		
-		Document doc = XMLUtils.loadDocument(new File(args[1]));
-		Element root = doc.getRootElement();
-		ERF erf = loadERF(root);
+		if (outputFile == null)
+			outputFile = new File(el.attributeValue("outputFile"));
+		this.outputFile = outputFile;
+		
+		ERF erf = loadERF(el);
 		erf.updateForecast();
 		
 		ScalarIMR[] imrs = new ScalarIMR[getNumThreads()];
 		for (int i=0; i<imrs.length; i++) {
-			imrs[i] = (ScalarIMR)AbstractIMR.fromXMLMetadata(root.element(AbstractIMR.XML_METADATA_NAME), null);
+			imrs[i] = (ScalarIMR)AbstractIMR.fromXMLMetadata(el.element(AbstractIMR.XML_METADATA_NAME), null);
 		}
 		
 		if (cmd.hasOption("vuln-file")) {
@@ -82,8 +85,6 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 		}
 		
 		calc = new ThreadedEALCalc(assets, erf, imrs, this, maxSourceDistance);
-		
-		outputFile = new File(args[2]);
 	}
 	
 	private ERF loadERF(Element root) throws InvocationTargetException {
@@ -206,9 +207,34 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 			
 			args = cmd.getArgs();
 			
-			MPJ_EAL_Calc driver = new MPJ_EAL_Calc(cmd, args);
+			if (args.length < 2 || args.length > 3) {
+				System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJ_EAL_Calc.class)
+						+" [options] <portfolio_file> <calculation_params_file> [<output_file>]");
+				abortAndExit(2);
+			}
+
+			Portfolio portfolio = Portfolio.createPortfolio(new File(args[0]));
+
+			Document doc = XMLUtils.loadDocument(new File(args[1]));
+			Element root = doc.getRootElement();
 			
-			driver.run();
+			if (args.length == 2) {
+				// batch mode
+				
+				Iterator<Element> it = root.elementIterator(BATCH_ELEMENT_NAME);
+				
+				while (it.hasNext()) {
+					MPJ_EAL_Calc driver = new MPJ_EAL_Calc(cmd, portfolio, it.next());
+					
+					driver.run();
+				}
+			} else {
+				File outputFile = new File(args[2]);
+				
+				MPJ_EAL_Calc driver = new MPJ_EAL_Calc(cmd, portfolio, root, outputFile);
+				
+				driver.run();
+			}
 			
 			finalizeMPJ();
 			

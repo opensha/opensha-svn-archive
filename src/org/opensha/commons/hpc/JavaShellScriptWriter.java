@@ -12,6 +12,7 @@ import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class JavaShellScriptWriter implements XMLSaveable {
 	
@@ -99,11 +100,19 @@ public class JavaShellScriptWriter implements XMLSaveable {
 	}
 	
 	public List<String> buildScript(String className, String args) {
+		return buildScript(Lists.newArrayList(className), Lists.newArrayList(args));
+	}
+	
+	public List<String> buildScript(List<String> classNames, List<String> argss) {
 		ArrayList<String> script = new ArrayList<String>();
 		
+		Preconditions.checkArgument(classNames.size() == argss.size());
+		
 		script.add("#!/bin/bash");
-		script.add("");
-		script.add(buildCommand(className, args));
+		for (int i=0; i<classNames.size(); i++) {
+			script.add("");
+			script.add(buildCommand(classNames.get(i), argss.get(i)));
+		}
 		script.add("exit $?");
 		
 		return script;

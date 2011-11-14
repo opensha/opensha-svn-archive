@@ -49,7 +49,7 @@ public class MPJShellScriptWriter extends JavaShellScriptWriter {
 	}
 	
 	@Override
-	public List<String> buildScript(String className, String args) {
+	public List<String> buildScript(List<String> classNames, List<String> argss) {
 		ArrayList<String> script = new ArrayList<String>();
 		
 		script.add("#!/bin/bash");
@@ -74,20 +74,23 @@ public class MPJShellScriptWriter extends JavaShellScriptWriter {
 		script.add("date");
 		script.add("echo \"STARTING MPJ\"");
 		script.add("mpjboot $PBS_NODEFILE");
-		script.add("");
-		script.add("date");
-		script.add("echo \"RUNNING MPJ\"");
+		
 		
 		String dev;
 		if (useMXDev)
 			dev = "mxdev";
 		else
 			dev = "niodev";
-		String command = "mpjrun.sh -machinesfile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$MPJ_HOME/lib";
-		command += getJVMArgs(className);
-		command += getFormattedArgs(args);
+		for (int i=0; i<classNames.size(); i++) {
+			script.add("");
+			script.add("date");
+			script.add("echo \"RUNNING MPJ\"");
+			String command = "mpjrun.sh -machinesfile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$MPJ_HOME/lib";
+			command += getJVMArgs(classNames.get(i));
+			command += getFormattedArgs(argss.get(i));
+			script.add(command);
+		}
 		
-		script.add(command);
 		script.add("ret=$?");
 		script.add("");
 		script.add("date");
