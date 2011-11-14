@@ -62,6 +62,10 @@ public class CSVFile<E> implements Iterable<List<E>> {
 		return strictRowSizes;
 	}
 	
+	public void set(int row, int col, E value) {
+		getLine(row).set(col, value);
+	}
+	
 	public void addLine(List<E> line) {
 		checkValidLine(line);
 		values.add(line);
