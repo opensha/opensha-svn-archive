@@ -692,9 +692,9 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
 		
 //		dsaDir = new File(mainDir, "agu/ncal_constrained");
-		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
-//		dsaDir = new File(mainDir, "poster/state_constrained");
-//		dsaDir = new File(mainDir, "poster/state_unconstrained");
+//		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
+//		dsaDir = new File(mainDir, "agu/allcal_constrained");
+		dsaDir = new File(mainDir, "agu/allcal_unconstrained");
 		
 //		dsaDir = new File(mainDir, "2011_09_07_morgan_NoCS_UCERF2MagDist");
 //		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
@@ -702,7 +702,7 @@ public class ResultPlotter {
 		ArrayList<String> plots = new ArrayList<String>();
 		plots.add(energy_vs_time_title);
 		plots.add(avg_energy_vs_time_title);
-		plots.add(std_dev_vs_time_title);
+//		plots.add(std_dev_vs_time_title);
 //		plots.add(improvement_vs_time_title);
 //		plots.add(time_speedup_vs_energy_title);
 //		plots.add(time_comparison_title);
@@ -710,10 +710,10 @@ public class ResultPlotter {
 		plots.add(speedup_vs_threads_title);
 //		plots.add(speedup_vs_time_title);
 //		plots.add(energy_vs_iterations_title);
-		plots.add(avg_energy_vs_iterations_title);
+//		plots.add(avg_energy_vs_iterations_title);
 //		plots.add(energy_vs_parallel_iterations_title);
-		plots.add(parallel_iterations_vs_time_title);
-		plots.add(iterations_vs_time_title);
+//		plots.add(parallel_iterations_vs_time_title);
+//		plots.add(iterations_vs_time_title);
 		
 		String highlight = null;
 		
