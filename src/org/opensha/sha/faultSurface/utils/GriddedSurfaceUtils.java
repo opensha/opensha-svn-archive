@@ -1,5 +1,6 @@
 package org.opensha.sha.faultSurface.utils;
 
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.geo.BorderType;
@@ -276,6 +277,34 @@ public class GriddedSurfaceUtils {
 			else
 				return false;
 	}
+	
+	
+	/**
+	 * This returns the minimum distance as the minimum among all location
+	 * pairs between the two surfaces
+	 * @param surface1 RuptureSurface 
+	 * @param surface2 RuptureSurface 
+	 * @return distance in km
+	 */
+	public static double getMinDistanceBetweenSurfaces(RuptureSurface surface1, RuptureSurface surface2) {
+		Iterator<Location> it = surface1.getLocationsIterator();
+		double min3dDist = Double.POSITIVE_INFINITY;
+		double dist;
+		// find distance between all location pairs in the two surfaces
+		while(it.hasNext()) { // iterate over all locations in this surface
+			Location loc1 = (Location)it.next();
+			Iterator<Location> it2 = surface2.getEvenlyDiscritizedListOfLocsOnSurface().iterator();
+			while(it2.hasNext()) { // iterate over all locations on the user provided surface
+				Location loc2 = (Location)it2.next();
+				dist = LocationUtils.linearDistanceFast(loc1, loc2);
+				if(dist<min3dDist){
+					min3dDist = dist;
+				}
+			}
+		}
+		return min3dDist;
+	}
+
 
 
 }

@@ -190,4 +190,10 @@ public interface RuptureSurface {
 	 */
 	public boolean isPointSurface();
 	
+	/**
+	 * Calculate the minimum distance of this rupture surface to the given surface
+	 * @param surface EvenlyGriddedSurface 
+	 * @return distance in km
+	 */
+	public double getMinDistance(RuptureSurface surface);
 }

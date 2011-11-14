@@ -742,6 +742,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		// temporary fix:
 		if(eqkRup.getRuptureSurface() instanceof EvenlyGriddedSurface)
 			addRupture(map, (EvenlyGriddedSurface) eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());
+		else
+			System.out.println("Can't yet plot non-EvenlyGriddedSurface types in GMT_MapGeneratorForShakeMaps");
 
 		//				// make the file in the script:
 		//				gmtLines.add(COMMAND_PATH+"cat << END > "+EQK_RUP_XYZ_FILE_NAME);

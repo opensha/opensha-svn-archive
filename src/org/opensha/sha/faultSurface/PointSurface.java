@@ -403,5 +403,17 @@ public class PointSurface implements RuptureSurface {
 	public ListIterator<Location> getLocationsIterator() {
 		return getLocationList().listIterator();
 	}
+
 	
+	/**
+	 * This returns the minimum distance as the minimum among all location
+	 * pairs between the two surfaces
+	 * @param surface RuptureSurface 
+	 * @return distance in km
+	 */
+	@Override
+	public double getMinDistance(RuptureSurface surface) {
+		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
+	}
+
 }

@@ -184,27 +184,14 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	}
 	
 	/**
-	 * Calculate the minimum distance of this surface from user provided surface
-	 * @param surface EvenlyGriddedSurface 
+	 * This returns the minimum distance as the minimum among all location
+	 * pairs between the two surfaces
+	 * @param surface RuptureSurface 
 	 * @return distance in km
 	 */
-	public double getMinDistance(AbstractEvenlyGriddedSurface surface) {
-		Iterator<Location> it = listIterator();
-		double min3dDist = Double.POSITIVE_INFINITY;
-		double dist;
-		// find distance between all location pairs in the two surfaces
-		while(it.hasNext()) { // iterate over all locations in this surface
-			Location loc1 = (Location)it.next();
-			Iterator<Location> it2 = surface.listIterator();
-			while(it2.hasNext()) { // iterate over all locations on the user provided surface
-				Location loc2 = (Location)it2.next();
-				dist = LocationUtils.linearDistanceFast(loc1, loc2);
-				if(dist<min3dDist){
-					min3dDist = dist;
-				}
-			}
-		}
-		return min3dDist;
+	@Override
+	public double getMinDistance(RuptureSurface surface) {
+		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
 	}
 	
 	private void setPropagationDistances() {

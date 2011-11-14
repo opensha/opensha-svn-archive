@@ -47,6 +47,16 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		computeInitialStuff();
 	}
 	
+	
+	/** this returns the list of surfaces provided in the constructor
+	 * 
+	 * @return ArrayList<AbstractEvenlyGriddedSurface>
+	 */
+	public ArrayList<AbstractEvenlyGriddedSurface> getSurfaceList() {
+		return surfaces;
+	}
+	
+	
 	private void computeInitialStuff() {
 		
 		reverseSurfTrace = new boolean[surfaces.size()];
@@ -429,6 +439,19 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	public boolean isPointSurface() {
 		return false;
 	}
+	
+	
+	/**
+	 * This returns the minimum distance as the minimum among all location
+	 * pairs between the two surfaces
+	 * @param surface RuptureSurface 
+	 * @return distance in km
+	 */
+	@Override
+	public double getMinDistance(RuptureSurface surface) {
+		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
+	}
+
 	
 	/**
 	 * @param args

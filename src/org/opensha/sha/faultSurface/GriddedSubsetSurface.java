@@ -365,6 +365,19 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	public AbstractEvenlyGriddedSurface getParentSurface() {
 		return parentSurface;
 	}
+	
+	
+	/**
+	 * This returns the minimum distance as the minimum among all location
+	 * pairs between the two surfaces
+	 * @param surface RuptureSurface 
+	 * @return distance in km
+	 */
+	@Override
+	public double getMinDistance(RuptureSurface surface) {
+		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
+	}
+
 
 
 }
