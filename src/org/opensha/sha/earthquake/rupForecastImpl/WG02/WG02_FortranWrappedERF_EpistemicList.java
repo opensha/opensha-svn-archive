@@ -26,6 +26,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -77,6 +79,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends AbstractEpistemicListE
 	// this is the old path on gravity
 	//  private final static String WG02_CODE_PATH ="/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/wg99/wg99_src_v27/";
 	private final static String WG02_INPUT_FILE ="base_OpenSHA.inp";   // the templet WG02-code input file modified for OpenSHA purposes
+	private final static String WG02_LOCAL_INPUT_FILE ="base_OpenSHA.txt";   // the templet WG02-code input file modified for OpenSHA purposes
 	private final static String WG02_OPENSHA_INPUT_FILE = "OpenSHA.inp";     // the WG02-code input file that we create on the fly
 	public final static String INPUT_FILE_NAME_1 = "WG02_WRAPPER_INPUT.DAT"; // the WG02-code output file that we read
 	// output file from WG-02 code that contains substanial info., not used anywhere in OpenSHA just created for info purposes
@@ -307,6 +310,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends AbstractEpistemicListE
 			
 			String dirName = WG02_DIRS+System.currentTimeMillis();
 			
+			new File(dirName).mkdir();
+			
 			//overwriting the WG-02 input file with the changes in the file
 			FileWriter fw = new FileWriter(WG02_CODE_PATH+dirName+"/"+WG02_OPENSHA_INPUT_FILE);
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -405,8 +410,9 @@ public class WG02_FortranWrappedERF_EpistemicList extends AbstractEpistemicListE
 		if(D)System.out.print("Inside the create function to get the params for the fortran code");
 
 		try{
-			FileReader fr = new FileReader(WG02_CODE_PATH+WG02_INPUT_FILE);
-			BufferedReader  br = new BufferedReader(fr);
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(this.getClass().getResourceAsStream(WG02_LOCAL_INPUT_FILE)));
+//			BufferedReader  br = new BufferedReader(fr);
 			String lineFromInputFile = br.readLine();
 
 			//number of Faults
