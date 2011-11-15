@@ -7,9 +7,7 @@ import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 public class FaultSectDistRecord implements Serializable {
@@ -212,11 +210,11 @@ public class FaultSectDistRecord implements Serializable {
 		return dists2;
 	}
 
-	public RuptureSurface getSurface1() {
+	public EvenlyGriddedSurface getSurface1() {
 		return surface1;
 	}
 
-	public RuptureSurface getSurface2() {
+	public EvenlyGriddedSurface getSurface2() {
 		return surface2;
 	}
 
