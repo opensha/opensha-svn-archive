@@ -30,6 +30,8 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeFailListener;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 /**
  * Parial implementation of the <code>Paameter</code>. The common fields with
@@ -105,13 +107,13 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 * ArrayList of all the objects who want to listen on change of this
 	 * paramter
 	 */
-	private transient ArrayList changeListeners;
+	private transient ArrayList<ParameterChangeListener> changeListeners;
 
 	/**
 	 * ArrayList of all the objects who want to listen if the value for this
 	 * paramter is not valid
 	 */
-	private transient ArrayList failListeners;
+	private transient ArrayList<ParameterChangeFailListener> failListeners;
 
 	/** Empty no-arg constructor. Does nothing but initialize object. */
 	public AbstractParameter() {}
@@ -249,7 +251,6 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 */
 	public void unableToSetValue(Object value) throws ConstraintException {
 
-		String S = C + ": unableToSetValue():";
 		org.opensha.commons.param.event.ParameterChangeFailEvent event = new org.opensha.commons.param.event.ParameterChangeFailEvent(
 			this, getName(), getValue(), value);
 
@@ -265,8 +266,8 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 *        ParameterChangeFailListener attribute
 	 */
 	public synchronized void addParameterChangeFailListener(
-			org.opensha.commons.param.event.ParameterChangeFailListener listener) {
-		if (failListeners == null) failListeners = new ArrayList();
+			ParameterChangeFailListener listener) {
+		if (failListeners == null) failListeners = new ArrayList<ParameterChangeFailListener>();
 		if (!failListeners.contains(listener)) failListeners.add(listener);
 	}
 
@@ -290,7 +291,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 * @param listener Description of the Parameter
 	 */
 	public synchronized void removeParameterChangeFailListener(
-			org.opensha.commons.param.event.ParameterChangeFailListener listener) {
+			ParameterChangeFailListener listener) {
 		if (failListeners != null && failListeners.contains(listener))
 			failListeners.remove(listener);
 	}
@@ -314,15 +315,14 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 			System.out.println(S + "Model Value = " +
 				event.getSource().toString());
 
-		ArrayList vector;
+		ParameterChangeFailListener[] listeners;
 		synchronized (this) {
 			if (failListeners == null) return;
-			vector = (ArrayList) failListeners.clone();
+			listeners = new ParameterChangeFailListener[failListeners.size()];
+			failListeners.toArray(listeners);
 		}
 
-		for (int i = 0; i < vector.size(); i++) {
-			org.opensha.commons.param.event.ParameterChangeFailListener listener = (org.opensha.commons.param.event.ParameterChangeFailListener) vector
-				.get(i);
+		for (ParameterChangeFailListener listener : failListeners) {
 			listener.parameterChangeFailed(event);
 		}
 	}
@@ -337,8 +337,8 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 */
 
 	public synchronized void addParameterChangeListener(
-			org.opensha.commons.param.event.ParameterChangeListener listener) {
-		if (changeListeners == null) changeListeners = new ArrayList();
+			ParameterChangeListener listener) {
+		if (changeListeners == null) changeListeners = new ArrayList<ParameterChangeListener>();
 		if (!changeListeners.contains(listener)) changeListeners.add(listener);
 	}
 
@@ -348,7 +348,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 * @param listener Description of the Parameter
 	 */
 	public synchronized void removeParameterChangeListener(
-			org.opensha.commons.param.event.ParameterChangeListener listener) {
+			ParameterChangeListener listener) {
 		if (changeListeners != null && changeListeners.contains(listener))
 			changeListeners.remove(listener);
 	}
@@ -375,15 +375,14 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 			System.out.println(S + "Model Value = " +
 				event.getSource().toString());
 
-		ArrayList vector;
+		ParameterChangeListener[] listeners;
 		synchronized (this) {
 			if (changeListeners == null) return;
-			vector = (ArrayList) changeListeners.clone();
+			listeners = new ParameterChangeListener[changeListeners.size()];
+			changeListeners.toArray(listeners);
 		}
 
-		for (int i = 0; i < vector.size(); i++) {
-			org.opensha.commons.param.event.ParameterChangeListener listener = (org.opensha.commons.param.event.ParameterChangeListener) vector
-				.get(i);
+		for (ParameterChangeListener listener : listeners) {
 			listener.parameterChange(event);
 		}
 	}
