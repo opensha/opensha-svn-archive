@@ -153,14 +153,6 @@ implements RemoteEqkRupForecastAPI{
 	}
 
 	/* (non-Javadoc)
-	 * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParamsIterator()
-	 */
-	public ListIterator getAdjustableParamsIterator() throws RemoteException {
-		// TODO Auto-generated method stub
-		return eqkRupForecast.getAdjustableParamsIterator();
-	}
-
-	/* (non-Javadoc)
 	 * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getApplicableRegion()
 	 */
 	public Region getApplicableRegion() throws RemoteException {

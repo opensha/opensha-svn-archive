@@ -64,15 +64,6 @@ public abstract class AbstractERF implements
 	protected boolean parameterChangeFlag = true;
 
 	/**
-	 * get the adjustable parameters for this forecast
-	 *
-	 * @return
-	 */
-	public ListIterator<Parameter<?>> getAdjustableParamsIterator() {
-		return adjustableParams.getParametersIterator();
-	}
-
-	/**
 	 * Get the region for which this forecast is applicable
 	 * @return : Geographic region object specifying the applicable region of forecast
 	 */

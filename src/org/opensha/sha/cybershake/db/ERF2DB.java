@@ -890,10 +890,8 @@ public  class ERF2DB implements ERF2DBAPI{
 	public void insertForecaseInDB(String erfDescription, GriddedRegion region){
 		int erfId = insertERFId(eqkRupForecast.getName(), erfDescription);
 
-		ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
 		//adding the forecast parameters
-		while(it.hasNext()){
-			Parameter param = (Parameter)it.next();
+		for (Parameter<?> param : eqkRupForecast.getAdjustableParameterList()){
 			Object paramValue = param.getValue();
 			if(paramValue instanceof String)
 				paramValue = ((String)paramValue).replaceAll("'", "");
@@ -901,10 +899,8 @@ public  class ERF2DB implements ERF2DBAPI{
 			paramType = paramType.replaceAll("Parameter", "");
 			insertERFParams(erfId, param.getName(), paramValue.toString(), paramType,param.getUnits());
 		}
-		it = eqkRupForecast.getTimeSpan().getAdjustableParamsIterator();
 		//adding the timespan parameters
-		while(it.hasNext()){
-			Parameter param = (Parameter)it.next();
+		for (Parameter<?> param : eqkRupForecast.getTimeSpan().getAdjustableParams()) {
 			String paramType = param.getType();
 			paramType = paramType.replaceAll("Parameter", "");
 			insertERFParams(erfId, param.getName(), param.getValue().toString(), paramType,param.getUnits());

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.TimeSpan;
@@ -13,6 +14,12 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -47,6 +54,17 @@ public class PureScratch {
 				"InversionSolutions/NCAL_Model1.zip");
 		SimpleFaultSystemSolution.fromZipFile(zipFile).toXMLFile(
 				new File(zipFile.getAbsolutePath().replaceAll(".zip", ".xml")));
+		System.exit(0);
+		
+		
+		// this get's the DB accessor (version 3)
+		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
+
+		PrefFaultSectionDataDB_DAO faultSectionDB_DAO = new PrefFaultSectionDataDB_DAO(db);
+
+		List<FaultSectionPrefData> sections = faultSectionDB_DAO.getAllFaultSectionPrefData(); 
+		for (FaultSectionPrefData data : sections)
+			System.out.println(data);
 		System.exit(0);
 		
 		

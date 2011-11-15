@@ -85,9 +85,7 @@ public class TimeSpanGuiBean extends JPanel {
 			this.remove(editor);
 		if (timeSpan != null) {
 			// get the adjustable params and add them to the list
-			Iterator it = timeSpan.getAdjustableParamsIterator();
-			while (it.hasNext()) {
-				Parameter param = (Parameter) it.next();
+			for (Parameter<?> param : timeSpan.getAdjustableParams()) {
 				this.parameterList.addParameter(param);
 			}
 			this.remove(timespanEditor);
