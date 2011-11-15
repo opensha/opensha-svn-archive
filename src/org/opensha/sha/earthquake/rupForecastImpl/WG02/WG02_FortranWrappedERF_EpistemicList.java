@@ -310,10 +310,12 @@ public class WG02_FortranWrappedERF_EpistemicList extends AbstractEpistemicListE
 			
 			String dirName = WG02_DIRS+System.currentTimeMillis();
 			
-			new File(dirName).mkdir();
+			File dir = new File(WG02_CODE_PATH+dirName);
+			
+			dir.mkdir();
 			
 			//overwriting the WG-02 input file with the changes in the file
-			FileWriter fw = new FileWriter(WG02_CODE_PATH+dirName+"/"+WG02_OPENSHA_INPUT_FILE);
+			FileWriter fw = new FileWriter(new File(dir, WG02_OPENSHA_INPUT_FILE));
 			BufferedWriter bw = new BufferedWriter(fw);
 			ListIterator it= fileLines.listIterator();
 			while(it.hasNext())
