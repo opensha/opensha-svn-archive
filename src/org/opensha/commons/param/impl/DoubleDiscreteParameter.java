@@ -20,6 +20,7 @@
 package org.opensha.commons.param.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.exceptions.ConstraintException;
@@ -281,7 +282,7 @@ implements Parameter<Double>
 
 
 	/** Returns a clone of all allowed values. Proxy to constraint object. */
-	public ArrayList<Double> getAllowedDoubles() {
+	public List<Double> getAllowedDoubles() {
 		return ( ( DoubleDiscreteConstraint ) this.constraint ).getAllowedDoubles();
 	}
 

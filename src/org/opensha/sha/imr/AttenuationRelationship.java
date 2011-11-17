@@ -22,6 +22,7 @@ package org.opensha.sha.imr;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.GaussianDistCalc;
@@ -454,7 +455,7 @@ extends AbstractIMR implements ScalarIMR {
 		this.setIntensityMeasure(SA_Param.NAME);
 		setIntensityMeasureLevel(new Double(iml));
 		DiscretizedFunc exeedProbFunction =  new ArbitrarilyDiscretizedFunc();
-		ArrayList allowedSA_Periods = saPeriodParam.getAllowedDoubles();
+		List allowedSA_Periods = saPeriodParam.getAllowedDoubles();
 		int size = allowedSA_Periods.size();
 		for(int i=0;i<size;++i){
 			Double saPeriod = (Double)allowedSA_Periods.get(i);
@@ -478,7 +479,7 @@ extends AbstractIMR implements ScalarIMR {
 		//sets the value of the exceedProb Param.
 		exceedProbParam.setValue(exceedProb);
 		DiscretizedFunc imlFunction =  new ArbitrarilyDiscretizedFunc();
-		ArrayList allowedSA_Periods = saPeriodParam.getAllowedDoubles();
+		List allowedSA_Periods = saPeriodParam.getAllowedDoubles();
 		int size = allowedSA_Periods.size();
 		for(int i=0;i<size;++i){
 			Double saPeriod = (Double)allowedSA_Periods.get(i);

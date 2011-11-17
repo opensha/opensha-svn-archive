@@ -22,6 +22,7 @@ package org.opensha.sha.calc;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -161,7 +162,7 @@ implements SpectrumCalculatorAPI {
 			ScalarIMR imr,
 			ERF eqkRupForecast,
 			double probVal,
-			ArrayList supportedSA_Periods) throws
+			List supportedSA_Periods) throws
 			java.rmi.RemoteException {
 
 		this.currRuptures = -1;
@@ -397,7 +398,7 @@ implements SpectrumCalculatorAPI {
 			ScalarIMR imr,
 			ERF eqkRupForecast,
 			double imlVal,
-			ArrayList supportedSA_Periods) throws
+			List supportedSA_Periods) throws
 			RemoteException {
 
 		//creating the Master function that initializes the Function with supported SA Periods Vals
@@ -574,7 +575,7 @@ implements SpectrumCalculatorAPI {
 	 *
 	 * @param arb
 	 */
-	private void initDiscretizeValues(DiscretizedFunc arb, ArrayList supportedSA_Periods,
+	private void initDiscretizeValues(DiscretizedFunc arb, List supportedSA_Periods,
 			double val){
 		int num = supportedSA_Periods.size();
 		for(int i=0;i<num;++i)

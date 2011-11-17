@@ -22,6 +22,7 @@ package org.opensha.sha.calc;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -70,7 +71,7 @@ public interface SpectrumCalculatorAPI extends Remote{
                                                  ScalarIMR imr,
                                                  ERF
                                                  eqkRupForecast, double probVal,
-                                                 ArrayList supportedSA_Periods) throws
+                                                 List supportedSA_Periods) throws
       RemoteException;
 
   /**
@@ -87,7 +88,7 @@ public interface SpectrumCalculatorAPI extends Remote{
                                              ScalarIMR imr,
                                              ERF eqkRupForecast,
                                              double imlVal,
-                                             ArrayList supportedSA_Periods)
+                                             List supportedSA_Periods)
       throws RemoteException;
 
   /**

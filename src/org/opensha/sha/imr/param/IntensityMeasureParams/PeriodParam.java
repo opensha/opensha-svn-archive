@@ -20,6 +20,7 @@
 package org.opensha.sha.imr.param.IntensityMeasureParams;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
@@ -64,9 +65,9 @@ public class PeriodParam extends DoubleDiscreteParameter {
 	 * 
 	 * @return
 	 */
-	public ArrayList<Double> getSupportedPeriods() {
+	public List<Double> getSupportedPeriods() {
 		DoubleDiscreteConstraint constr = (DoubleDiscreteConstraint) getConstraint();
-		ArrayList<Double> periods = constr.getAllowedDoubles();
+		List<Double> periods = constr.getAllowedDoubles();
 		return periods;
 	}
 	
@@ -75,7 +76,7 @@ public class PeriodParam extends DoubleDiscreteParameter {
 	 * @return
 	 */
 	public double getMinPeriod() {
-		ArrayList<Double> periods = getSupportedPeriods();
+		List<Double> periods = getSupportedPeriods();
 		return periods.get(0);
 	}
 	
@@ -84,12 +85,12 @@ public class PeriodParam extends DoubleDiscreteParameter {
 	 * @return
 	 */
 	public double getMaxPeriod() {
-		ArrayList<Double> periods = getSupportedPeriods();
+		List<Double> periods = getSupportedPeriods();
 		return periods.get(periods.size()-1);
 	}
 	
 	public double[] getPeriods() {
-		ArrayList<Double> periods = getSupportedPeriods();
+		List<Double> periods = getSupportedPeriods();
 		double[] pers = new double[periods.size()];
 		for(int i=0;i<periods.size();i++)
 			pers[i] = periods.get(i).doubleValue();

@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -137,7 +138,7 @@ implements ItemListener
 		DoubleDiscreteConstraint con = ((DoubleDiscreteConstraint)
 				getParameter().getConstraint());
 		
-		ArrayList<Double> vals = con.getAllowedDoubles();
+		List<Double> vals = con.getAllowedDoubles();
 
 		if(vals.size() > 1){
 			JComboBox combo = new JComboBox(vals.toArray());
@@ -165,7 +166,7 @@ implements ItemListener
 		DoubleDiscreteConstraint con = ((DoubleDiscreteConstraint)
 				getParameter().getConstraint());
 		
-		ArrayList<Double> vals = con.getAllowedDoubles();
+		List<Double> vals = con.getAllowedDoubles();
 		
 		if (vals.size() > 1) {
 			if (widget instanceof JComboBox) {

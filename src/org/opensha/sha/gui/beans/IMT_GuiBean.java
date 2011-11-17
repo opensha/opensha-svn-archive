@@ -21,6 +21,7 @@ package org.opensha.sha.gui.beans;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.param.Parameter;
@@ -119,7 +120,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 					PeriodParam periodParam = saParam.getPeriodParam();
 					if (defaultPeriod < 0)
 						defaultPeriod = periodParam.getValue();
-					ArrayList<Double> periods = periodParam.getSupportedPeriods();
+					List<Double> periods = periodParam.getSupportedPeriods();
 //					System.out.println("Located " + periods.size() + " supported periods for " + imr.getShortName());
 					for (double period : periods) {
 						if (!saPeriods.contains(period)) {
@@ -154,7 +155,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 				for (ScalarIMR imr : multipleIMRs) {
 					SA_Param saParam = (SA_Param) imr.getSupportedIntensityMeasures().getParameter(SA_Param.NAME);
 					PeriodParam periodParam = saParam.getPeriodParam();
-					ArrayList<Double> periods = periodParam.getSupportedPeriods();
+					List<Double> periods = periodParam.getSupportedPeriods();
 					for (double period : saPeriods) {
 						if (!periods.contains(period)) {
 							// this period is not supported by this IMR

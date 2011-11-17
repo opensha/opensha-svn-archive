@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.Before;
@@ -337,7 +338,7 @@ public class ZhaoEtAl_2006_test {
 				while(it1.hasNext()){
 					Parameter independentParam = (Parameter)it1.next();
 					if (independentParam.getName().equalsIgnoreCase(PeriodParam.NAME)){
-						ArrayList<Double> saPeriodVector = ((DoubleDiscreteParameter)independentParam).getAllowedDoubles();
+						List<Double> saPeriodVector = ((DoubleDiscreteParameter)independentParam).getAllowedDoubles();
 
 						for (int h=0; h<saPeriodVector.size(); h++){
 							if (h == 0 && saPeriodVector.get(h)>0.0){

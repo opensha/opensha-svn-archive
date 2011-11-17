@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -215,7 +216,7 @@ public class DisaggregationPlotter {
 		for (CybershakeIM im : ims) {
 			double period = im.getVal();
 			SA_Param saParam = (SA_Param)imr.getIntensityMeasure();
-			ArrayList<Double> periods = saParam.getPeriodParam().getAllowedDoubles();
+			List<Double> periods = saParam.getPeriodParam().getAllowedDoubles();
 			int closestPeriod = ListUtils.getClosestIndex(periods, period);
 			if (closestPeriod < 0)
 				throw new IllegalStateException("no match found for period: "+period);
