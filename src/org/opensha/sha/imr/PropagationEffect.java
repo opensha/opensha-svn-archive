@@ -52,7 +52,8 @@ import org.opensha.sha.util.NSHMP_Util;
  * @author Ned Field
  * @version 1.0
  */
-public class OldPropagationEffect implements java.io.Serializable, ParameterChangeListener{
+@Deprecated
+public class PropagationEffect implements java.io.Serializable, ParameterChangeListener{
 
 	private final static String C = "PropagationEffect";
 	private final static boolean D = false;
@@ -110,7 +111,7 @@ public class OldPropagationEffect implements java.io.Serializable, ParameterChan
 	protected boolean DISTANCE_X_STALE = true;
 
 	/** No Argument consructor */
-	public OldPropagationEffect() {
+	public PropagationEffect() {
 
 		approxDistParam = new BooleanParameter(APPROX_DIST_PARAM_NAME, new Boolean(approxHorzDist));
 		approxDistParam.setInfo(APPROX_DIST_PARAM_INFO);
@@ -132,7 +133,7 @@ public class OldPropagationEffect implements java.io.Serializable, ParameterChan
 	}
 
 	/** Constructor that is give Site and EqkRupture objects */
-	public OldPropagationEffect( Site site, EqkRupture eqkRupture) {
+	public PropagationEffect( Site site, EqkRupture eqkRupture) {
 		this();
 		this.site = site;
 		this.eqkRupture = eqkRupture;
