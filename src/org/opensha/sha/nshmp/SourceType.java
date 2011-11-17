@@ -1,6 +1,6 @@
 package org.opensha.sha.nshmp;
 
-import com.sun.xml.internal.ws.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Identifier for different earthquake source types.

@@ -19,7 +19,6 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.org.apache.bcel.internal.classfile.SourceFile;
 
 /**
  * Add comments here // TODO getNumSources(Location) ?
