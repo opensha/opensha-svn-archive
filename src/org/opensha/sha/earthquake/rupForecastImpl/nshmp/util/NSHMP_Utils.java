@@ -22,7 +22,6 @@ import org.opensha.commons.eq.MagUtils;
 
 import com.google.common.collect.Iterators;
 import com.google.common.io.LittleEndianDataInputStream;
-import com.sun.xml.internal.rngom.parse.compact.EOFException;
 
 /**
  * NSHMP uility methods. Some will eventually be relocated to commons.
