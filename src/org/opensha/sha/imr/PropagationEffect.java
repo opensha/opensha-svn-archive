@@ -339,7 +339,6 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 				// make point source correction if desired
 
 				if(numLocs == 1 && ptSrcCorr) {
-					
 					if (nshmpPtSrcCorr) {
 						double MM = eqkRupture.getMag();
 						if (MM > 6) {
@@ -347,7 +346,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 							// centered bins. Non-UCERF erf's often do not make
 							// this assumption and are 0.1 based so we push
 							// the value down to the next closest compatible M
-							MM = ((int) (MM*100) % 10 != 5) ? MM - 0.05 : MM;
+							MM = ((int) Math.round(MM*100) % 10 != 5) ? MM - 0.05 : MM;
 							horzDist = NSHMP_Util.getMeanRJB(MM, horzDist);
 						}
 					} else {
