@@ -388,7 +388,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	public static CompletionCriteria parseSubCompletionCriteria(String optionVal) {
-		if (optionVal.endsWith("s") || optionVal.endsWith("m") || optionVal.endsWith("h")) {
+		if (optionVal.endsWith("s") || optionVal.endsWith("m") || optionVal.endsWith("h") || optionVal.endsWith("mi")) {
 			return TimeCompletionCriteria.fromTimeString(optionVal);
 		}
 		return new IterationCompletionCriteria(Long.parseLong(optionVal));

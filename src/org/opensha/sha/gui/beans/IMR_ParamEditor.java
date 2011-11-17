@@ -42,7 +42,7 @@ public class IMR_ParamEditor extends ParameterListEditor implements ParameterCha
 			this.validate();
 			return;
 		}
-		ParameterList paramList = imr.getOtherParamsList();
+		ParameterList paramList = imr.getOtherParams();
 		this.setParameterList(paramList);
 		for (Parameter<?> param : paramList) {
 			if (param.getName().equals(SigmaTruncTypeParam.NAME)) {

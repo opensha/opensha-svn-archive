@@ -89,13 +89,6 @@ public interface BaseERF extends Named, Serializable, Comparable<BaseERF> {
 	public boolean setParameter(String name, Object value);
 
 	/**
-	 * get the adjustable parameters for this forecast
-	 *
-	 * @return
-	 */
-	public ListIterator<Parameter<?>> getAdjustableParamsIterator();
-
-	/**
 	 * Gets the Adjustable parameter list for the ERF
 	 * @return
 	 */

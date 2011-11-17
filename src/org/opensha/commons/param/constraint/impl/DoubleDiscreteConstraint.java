@@ -20,12 +20,15 @@
 package org.opensha.commons.param.constraint.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * <b>Title:</b> DoubleDiscreteConstraint<p>
@@ -54,7 +57,7 @@ public class DoubleDiscreteConstraint
     protected final static boolean D = false;
 
     /** List of possible Double values allowed by this constraint */
-    private ArrayList<Double> doubles = new ArrayList<Double>();
+    private List<Double> doubles = new ArrayList<Double>();
 
 
     /** No-arg Constructor, just calls super() */
@@ -67,7 +70,7 @@ public class DoubleDiscreteConstraint
      * @param  doubles                  A vector of allowed Doubles in this constraint.
      * @exception  ConstraintException  Is thrown if passed in list is empty.
      */
-    public DoubleDiscreteConstraint( ArrayList<Double> doubles ) throws ConstraintException {
+    public DoubleDiscreteConstraint( List<Double> doubles ) throws ConstraintException {
 
         if ( doubles.size() > 0 ) {
             this.doubles = doubles;
@@ -84,7 +87,7 @@ public class DoubleDiscreteConstraint
      *
      * @param  doubles  The new list of allowed doubles
      */
-    public void setDoubles( ArrayList<Double> doubles ) throws EditableException {
+    public void setDoubles( List<Double> doubles ) throws EditableException {
 
         if( !this.editable ) throw new EditableException(C + ": setStrings(): " +
             "This constraint is currently not editable." );
@@ -99,17 +102,17 @@ public class DoubleDiscreteConstraint
      *
      * @return    The allowed doubles in a Vectoru
      */
-    public ArrayList<Double> getAllowedValues() { return getAllowedDoubles(); }
+    public List<Double> getAllowedValues() { return getAllowedDoubles(); }
 
 
     /**
-     *  Returns cloned vector of allowed values. unable to modify
-     *  original values.
+     *  Returns an immutable view of the allowed values.
      *
      * @return    The allowed doubles in a Vectoru
      */
-    public ArrayList<Double> getAllowedDoubles() {
-        return ( ArrayList<Double> ) doubles.clone();
+    public List<Double> getAllowedDoubles() {
+    	return ImmutableList.copyOf(doubles);
+//        return ( ArrayList<Double> ) doubles.clone();
     }
 
     /**
@@ -238,7 +241,7 @@ public class DoubleDiscreteConstraint
 
         DoubleDiscreteConstraint c1 = new DoubleDiscreteConstraint();
         c1.setName( name );
-        ArrayList<Double> v = getAllowedDoubles();
+        List<Double> v = getAllowedDoubles();
         ListIterator<Double> it = v.listIterator();
         while ( it.hasNext() ) {
             Double val = ( Double ) it.next();

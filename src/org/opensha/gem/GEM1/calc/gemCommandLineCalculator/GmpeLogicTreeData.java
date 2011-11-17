@@ -330,13 +330,13 @@ public class GmpeLogicTreeData {
     		}
     		
     		// set intensity measure type
-    		if(ar.getSupportedIntensityMeasuresList().containsParameter(intensityMeasureType)){
+    		if(ar.getSupportedIntensityMeasures().containsParameter(intensityMeasureType)){
     			ar.setIntensityMeasure(intensityMeasureType);
     		}
     		else{
     	        System.out.println("The chosen intensity measure type: "+intensityMeasureType+" is not supported by "+gmpeName);
     	        System.out.println("The supported types are the following: ");
-    	        System.out.println(ar.getSupportedIntensityMeasuresList().toString());
+    	        System.out.println(ar.getSupportedIntensityMeasures().toString());
     	        System.out.println("Check your input file!");
     	        System.out.println("Execution stopped.");
     	        System.exit(0);

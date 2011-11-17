@@ -95,6 +95,10 @@ public class PortfolioEALCalculatorView extends JFrame {
 		setupLayout(getContentPane());
 		setSize(WIDTH, HEIGHT);
 	}
+	
+	public static boolean isViewInitialized() {
+		return view != null;
+	}
 
 	public static PortfolioEALCalculatorView getView() {
 		if ( view == null ) view = new PortfolioEALCalculatorView("Portfolio EAL Calculator");

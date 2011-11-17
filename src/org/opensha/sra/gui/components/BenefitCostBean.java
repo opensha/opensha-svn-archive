@@ -4,7 +4,9 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.IOException;
 import java.util.EventListener;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -22,6 +24,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 
+import org.opensha.sra.gui.LossEstimationApplication;
 import org.opensha.sra.vulnerability.AbstractVulnerability;
 
 /**
@@ -59,6 +62,8 @@ public class BenefitCostBean implements GuiBeanAPI {
 	private DoubleParameter dsgnLifeParam = null;
 	private DoubleParameter retroCostParam = null;
 	
+	private List<AbstractVulnerability> vms;
+	
 	////////////////////////////////////////////////////////////////////////////////
 	//                              Public Functions                              //
 	////////////////////////////////////////////////////////////////////////////////
@@ -70,10 +75,12 @@ public class BenefitCostBean implements GuiBeanAPI {
 	 * visualization method, which returns a <code>JPanel</code> that can be embedded into
 	 * a parent container.  The bean listens to itself and updates all its parameters accordingly.
 	 * Use the public getter methods to retrieve information captured by this bean.
+	 * @throws IOException 
 	 */
-	public BenefitCostBean() {
-		structNow = new StructureDescriptorBean("Current Construction Conditions");
-		structRetro = new StructureDescriptorBean("What-If Construction Conditions");
+	public BenefitCostBean() throws IOException {
+		vms = LossEstimationApplication.fetchVulns();
+		structNow = new StructureDescriptorBean("Current Construction Conditions", vms);
+		structRetro = new StructureDescriptorBean("What-If Construction Conditions", vms);
 		listener = new BenefitCostParameterListener();
 		
 		descParam = new StringParameter(DESC_PARAM, "Describe this BCR Action");

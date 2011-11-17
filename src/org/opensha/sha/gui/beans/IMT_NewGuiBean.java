@@ -54,8 +54,8 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	
 	private ArrayList<IMTChangeListener> listeners = new ArrayList<IMTChangeListener>();
 	
-	private ArrayList<Double> allPeriods;
-	private ArrayList<Double> currentSupportedPeriods;
+	private List<Double> allPeriods;
+	private List<Double> currentSupportedPeriods;
 
 	/**
 	 * Init with single IMR
@@ -119,7 +119,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		ArrayList<Double> saPeriods;
 		ParameterList paramList = new ParameterList();
 		for (ScalarIMR imr : imrs) {
-			for (Parameter<?> param : imr.getSupportedIntensityMeasuresList()) {
+			for (Parameter<?> param : imr.getSupportedIntensityMeasures()) {
 				if (paramList.containsParameter(param.getName())) {
 					// it's already in there, do nothing
 				} else {
@@ -135,7 +135,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 			for (Parameter param : paramList) {
 				boolean remove = false;
 				for (ScalarIMR imr : imrs) {
-					if (!imr.getSupportedIntensityMeasuresList().containsParameter(param.getName())) {
+					if (!imr.getSupportedIntensityMeasures().containsParameter(param.getName())) {
 						remove = true;
 						break;
 					}
@@ -215,7 +215,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 			Parameter<?> param = paramIt.next();
 			if (param.getName().equals(PeriodParam.NAME)) {
 				PeriodParam periodParam = (PeriodParam) param;
-				ArrayList<Double> periods = currentSupportedPeriods;
+				List<Double> periods = currentSupportedPeriods;
 				if (periods == null)
 					periods = allPeriods;
 				DoubleDiscreteConstraint pConst = new DoubleDiscreteConstraint(periods);
@@ -369,7 +369,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * 
 	 * @param supportedPeriods
 	 */
-	public void setSupportedPeriods(ArrayList<Double> supportedPeriods) {
+	public void setSupportedPeriods(List<Double> supportedPeriods) {
 		this.currentSupportedPeriods = supportedPeriods;
 		Collections.sort(currentSupportedPeriods);
 		updateGUI();

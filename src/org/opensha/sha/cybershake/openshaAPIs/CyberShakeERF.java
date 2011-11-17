@@ -105,12 +105,6 @@ public class CyberShakeERF extends AbstractERF {
 	}
 
 	@Override
-	public ListIterator getAdjustableParamsIterator() {
-		checkLoadIDs();
-		return super.getAdjustableParamsIterator();
-	}
-
-	@Override
 	public int getNumSources() {
 		return sources.size();
 	}

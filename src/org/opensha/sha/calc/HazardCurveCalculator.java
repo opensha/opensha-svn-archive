@@ -60,6 +60,8 @@ import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
+import com.google.common.base.Preconditions;
+
 
 /**
  * <p>Title: HazardCurveCalculator </p>
@@ -251,8 +253,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		 */
 		boolean poissonSource = false;
 
-		ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
-		ArbitrarilyDiscretizedFunc sourceHazFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+		DiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+		DiscretizedFunc sourceHazFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
 
 		// declare some varibles used in the calculation
 		double qkProb, distance;
@@ -285,17 +287,15 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		sourceIndex =0;
 		for(sourceIndex=0;sourceIndex<numSources;++sourceIndex)
 			totRuptures+=eqkRupForecast.getSource(sourceIndex).getNumRuptures();
-		//    System.out.println("Total number of ruptures:"+ totRuptures);
+		//System.out.println("Total number of ruptures:"+ totRuptures);
 
 
 		// init the current rupture number (also for progress bar)
 		currRuptures = 0;
 		int numRupRejected =0;
 
-
 		// initialize the hazard function to 1.0
 		initDiscretizeValues(hazFunction, 1.0);
-
 
 		// this boolean will tell us whether a source was actually used
 		// (e.g., all sources could be outside MAX_DISTANCE, leading to numerical problems)
@@ -306,6 +306,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		// loop over sources
 		for(sourceIndex=0;sourceIndex < numSources ;sourceIndex++) {
 
+			//if (sourceIndex%1000 ==0) System.out.println("SourceIdx: " + sourceIndex);
+			
 			// get the ith source
 			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 			TectonicRegionType trt = source.getTectonicRegionType();
@@ -369,9 +371,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 					imr.setEqkRupture(rupture);
 
 					// get the conditional probability of exceedance from the IMR
-					condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
-
-
+					condProbFunc = imr.getExceedProbabilities(condProbFunc);
+					
 					// For poisson source
 					if(poissonSource) {
 						/* First make sure the probability isn't 1.0 (or too close); otherwise rates are
@@ -399,6 +400,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 					System.err.println("IMR: "+imr.getName());
 					System.err.println("Site: "+site);
 					System.err.println("Curve: "+hazFunction);
+					//System.err.println("RupM: "+source.getRupture(n).getMag());
 					ExceptionUtils.throwAsRuntimeException(t);
 				}
 			}
@@ -619,6 +621,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		int num = arb.getNum();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);
+		Preconditions.checkState(num == arb.getNum(), "initializing X values changed size of function! " +
+				"It is possible that there is a NaN or infitite value in the hazard curve.");
 	}
 
 	@Override

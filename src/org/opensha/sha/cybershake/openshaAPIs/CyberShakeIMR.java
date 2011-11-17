@@ -663,10 +663,10 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	}
 
 	@Override
-	public ParameterList getOtherParamsList() {
+	public ParameterList getOtherParams() {
 		// this is called when the IMR gets activated in the GUI bean
 		checkInit();
-		return super.getOtherParamsList();
+		return super.getOtherParams();
 	}
 	
 	public void setForcedRunID(int forcedRunID) {

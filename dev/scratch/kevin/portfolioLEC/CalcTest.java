@@ -29,7 +29,8 @@ public class CalcTest {
 		StopWatch watch = new StopWatch();
 		watch.start();
 		Portfolio port = CSVPortfolioParser.loadSingleCSV(
-				new File("/home/kevin/OpenSHA/portfolio_lec/Porter (24 Jun 2011) Portfolio LEC CEA proxy portfolio.csv"));
+//				new File("/home/kevin/OpenSHA/portfolio_lec/Porter (24 Jun 2011) Portfolio LEC CEA proxy portfolio.csv"));
+				new File("/home/kevin/OpenSHA/portfolio_lec/cea_100.csv"));
 		
 		if (numToKeep > 0) {
 			Portfolio newPort = new Portfolio(port.getName());

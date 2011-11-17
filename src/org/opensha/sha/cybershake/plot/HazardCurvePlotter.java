@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.apache.commons.cli.CommandLine;
@@ -1043,7 +1044,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		// set IMT
 		attenRel.setIntensityMeasure(SA_Param.NAME);
 		DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)attenRel.getParameter(PeriodParam.NAME);
-		ArrayList<Double> allowedVals = saPeriodParam.getAllowedDoubles();
+		List<Double> allowedVals = saPeriodParam.getAllowedDoubles();
 		
 		double closestPeriod = Double.NaN;
 		double minDistance = Double.POSITIVE_INFINITY;

@@ -22,6 +22,7 @@ import mpi.MPI;
 public class DistributedSimulatedAnnealing {
 	
 	private static final boolean D = true;
+	private static final boolean DD = false;
 	private static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
 
 	private int rank;
@@ -53,7 +54,7 @@ public class DistributedSimulatedAnnealing {
 		rank = MPI.COMM_WORLD.Rank();
 		size = MPI.COMM_WORLD.Size();
 		
-		debug("constructor start");
+		ddebug("constructor start");
 		
 		this.annealer = annealer;
 		this.criteria = criteria;
@@ -61,7 +62,11 @@ public class DistributedSimulatedAnnealing {
 		this.subCompletion = subCompletion;
 		this.startSubIterationsAtZero = startSubIterationsAtZero;
 		
-		debug("constructor end");
+		ddebug("constructor end");
+	}
+	
+	private void ddebug(String str) {
+		if (DD) debug(str);
 	}
 	
 	private void debug(String str) {
@@ -125,7 +130,7 @@ public class DistributedSimulatedAnnealing {
 	}
 
 	private void runMaster() {
-		debug("starting watch");
+		ddebug("starting watch");
 		StopWatch watch = new StopWatch();
 		watch.start();
 		
@@ -138,14 +143,18 @@ public class DistributedSimulatedAnnealing {
 		int cnt = 0;
 		long iter = 0;
 		while (!criteria.isSatisfied(watch, iter, Ebest)) {
-			debug("starting loop "+cnt+", iter: "+iter);
+			boolean dd = cnt % 1000 == 0;
+			if (dd)
+				ddebug("starting loop "+cnt+", iter: "+iter);
+			else
+				debug("starting loop "+cnt+", iter: "+iter);
 			
 			long startIter;
 			if (startSubIterationsAtZero)
 				startIter = 0;
 			else
 				startIter = iter;
-			debug("sending start iteration");
+			ddebug("sending start iteration");
 			if (D) commWatch = new StopWatch();
 			if (D) commWatch.start();
 			bcastSingleLong(startIter);
@@ -155,13 +164,13 @@ public class DistributedSimulatedAnnealing {
 			iter = doWork(startIter, subCompletion);
 			
 			single_double_buf[0] = annealer.getBestEnergy();
-			debug("my best energy: "+single_double_buf[0]);
-			debug("gathering best energy");
+			ddebug("my best energy: "+single_double_buf[0]);
+			ddebug("gathering best energy");
 			if (D) commWatch.resume();
 			MPI.COMM_WORLD.Gather(single_double_buf, 0, 1, MPI.DOUBLE, pool_double_buf, 0, 1, MPI.DOUBLE, 0);
 			if (D) commWatch.suspend();
 			
-			debug("gathering iterations");
+			ddebug("gathering iterations");
 			single_long_buf[0] = iter;
 			if (D) commWatch.resume();
 			MPI.COMM_WORLD.Gather(single_long_buf, 0, 1, MPI.LONG, pool_long_buf, 0, 1, MPI.LONG, 0);
@@ -180,12 +189,15 @@ public class DistributedSimulatedAnnealing {
 					iter = pool_long_buf[i];
 			}
 			
-			debug("Process "+bestRank+" has best solution with energy: "+Ebest);
+			if (dd)
+				ddebug("Process "+bestRank+" has best solution with energy: "+Ebest);
+			else
+				debug("Process "+bestRank+" has best solution with energy: "+Ebest);
 			
 			for (int i=0; i<size; i++)
 				pool_boolean_buf[i] = i == bestRank;
 			
-			debug("sending report booleans");
+			ddebug("sending report booleans");
 			if (D) commWatch.resume();
 			MPI.COMM_WORLD.Scatter(pool_boolean_buf, 0, 1, MPI.BOOLEAN, single_boolean_buf, 0, 1, MPI.BOOLEAN, 0);
 			if (D) commWatch.suspend();
@@ -193,10 +205,10 @@ public class DistributedSimulatedAnnealing {
 			// sent requests for results
 			double[] solution;
 			if (bestRank == 0) {
-				debug("I already have the best solution!");
+				ddebug("I already have the best solution!");
 				solution = annealer.getBestSolution();
 			} else {
-				debug("gathering solution from "+bestRank);
+				ddebug("gathering solution from "+bestRank);
 				solution = new double[annealer.getBestSolution().length];
 				if (D) commWatch.resume();
 				MPI.COMM_WORLD.Recv(solution, 0, solution.length, MPI.DOUBLE, bestRank, TAG_BEST_RESULT);
@@ -205,19 +217,19 @@ public class DistributedSimulatedAnnealing {
 			
 			// distribute best energy
 			single_double_buf[0] = Ebest;
-			debug("distributing best energy");
+			ddebug("distributing best energy");
 			if (D) commWatch.resume();
 			MPI.COMM_WORLD.Bcast(single_double_buf, 0, 1, MPI.DOUBLE, 0);
 			if (D) commWatch.suspend();
 			
 			// distribute best solution
-			debug("distributing best solution");
+			ddebug("distributing best solution");
 			if (D) commWatch.resume();
 			MPI.COMM_WORLD.Bcast(solution, 0, solution.length, MPI.DOUBLE, 0);
 			if (D) commWatch.suspend();
 			
 			// now set it myself
-			debug("setting my own results");
+			ddebug("setting my own results");
 			annealer.setResults(Ebest, solution);
 			
 			cnt++;
@@ -231,12 +243,12 @@ public class DistributedSimulatedAnnealing {
 		
 		watch.stop();
 		
-		debug("DONE");
+		ddebug("DONE");
 	}
 	
 	private long doWork(long startIter, CompletionCriteria criteria) {
 		criteria = ThreadedSimulatedAnnealing.getForStartIter(startIter, criteria);
-		debug("starting my annealing. start Ebest: "+annealer.getBestEnergy()+
+		ddebug("starting my annealing. start Ebest: "+annealer.getBestEnergy()+
 				", startIter: "+startIter+", criteria: "+criteria);
 		if (workWatch == null) {
 			workWatch = new StopWatch();
@@ -246,7 +258,7 @@ public class DistributedSimulatedAnnealing {
 		}
 		long iter = annealer.iterate(startIter, criteria);
 		workWatch.suspend();
-		debug("done with my annealing. Ebest: "+annealer.getBestEnergy());
+		ddebug("done with my annealing. Ebest: "+annealer.getBestEnergy());
 		return iter;
 	}
 
@@ -258,7 +270,7 @@ public class DistributedSimulatedAnnealing {
 	}
 
 	private void runWorker() {
-		debug("getting start iteration");
+		ddebug("getting start iteration");
 		if (D) commWatch = new StopWatch();
 		if (D) commWatch.start();
 		long startIter = getBcastLong();
@@ -270,7 +282,7 @@ public class DistributedSimulatedAnnealing {
 			
 			fetchSolution();
 
-			debug("getting num iterations");
+			ddebug("getting num iterations");
 			startIter = getBcastLong();
 		}
 	}
@@ -278,7 +290,7 @@ public class DistributedSimulatedAnnealing {
 	private void reportResults(long iter) {
 		// send energy
 		single_double_buf[0] = annealer.getBestEnergy();
-		debug("sending my best energy ("+single_double_buf[0]+")");
+		ddebug("sending my best energy ("+single_double_buf[0]+")");
 		if (D) commWatch.resume();
 		MPI.COMM_WORLD.Gather(single_double_buf, 0, 1, MPI.DOUBLE, null, 0, 1, MPI.DOUBLE, 0);
 		if (D) commWatch.suspend();
@@ -286,13 +298,13 @@ public class DistributedSimulatedAnnealing {
 		
 		// send max iteration
 		single_long_buf[0] = iter;
-		debug("sending my best energy ("+single_double_buf[0]+")");
+		ddebug("sending my best energy ("+single_double_buf[0]+")");
 		if (D) commWatch.resume();
 		MPI.COMM_WORLD.Gather(single_long_buf, 0, 1, MPI.LONG, null, 0, 1, MPI.LONG, 0);
 		if (D) commWatch.suspend();
 
 		// find out if we should send result
-		debug("checking if i should send my result");
+		ddebug("checking if i should send my result");
 		if (D) commWatch.resume();
 		MPI.COMM_WORLD.Scatter(null, 0, 1, MPI.BOOLEAN, single_boolean_buf, 0, 1, MPI.BOOLEAN, 0);
 		if (D) commWatch.suspend();
@@ -301,7 +313,7 @@ public class DistributedSimulatedAnnealing {
 		if (single_boolean_buf[0]) {
 			// this means the master wants our result, lets report it
 			double[] sol = annealer.getBestSolution();
-			debug("sending my best solution");
+			ddebug("sending my best solution");
 			if (D) commWatch.resume();
 			MPI.COMM_WORLD.Send(sol, 0, sol.length, MPI.DOUBLE, 0, TAG_BEST_RESULT);
 			if (D) commWatch.suspend();
@@ -310,7 +322,7 @@ public class DistributedSimulatedAnnealing {
 	
 	private void fetchSolution() {
 		// receive energy
-		debug("receiving best energy");
+		ddebug("receiving best energy");
 //		MPI.COMM_WORLD.Recv(single_double_buf, 0, 1, MPI.DOUBLE, 0, TAG_BEST_ENGERGY);
 		if (D) commWatch.resume();
 		MPI.COMM_WORLD.Bcast(single_double_buf, 0, 1, MPI.DOUBLE, 0);
@@ -318,18 +330,20 @@ public class DistributedSimulatedAnnealing {
 		double Ebest = single_double_buf[0];
 		
 		double[] sol = new double[annealer.getBestSolution().length];
-		debug("receiving best solution");
+		ddebug("receiving best solution");
 //		MPI.COMM_WORLD.Recv(sol, 0, sol.length, MPI.DOUBLE, 0, TAG_BEST_RESULT);
 		if (D) commWatch.resume();
 		MPI.COMM_WORLD.Bcast(sol, 0, sol.length, MPI.DOUBLE, 0);
 		if (D) commWatch.suspend();
-		int numZero = 0;
-		for (int i=0; i<sol.length; i++)
-			if (sol[i] == 0)
-				numZero++;
-		debug("num zero: "+numZero);
+		if (DD) {
+			int numZero = 0;
+			for (int i=0; i<sol.length; i++)
+				if (sol[i] == 0)
+					numZero++;
+			ddebug("num zero: "+numZero);
+		}
 		
-		debug("setting my own results");
+		ddebug("setting my own results");
 		annealer.setResults(Ebest, sol);
 	}
 	

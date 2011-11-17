@@ -48,6 +48,15 @@ import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
+import org.opensha.sha.nshmp.imr.AB2006_140_AttenRel;
+import org.opensha.sha.nshmp.imr.AB2006_200_AttenRel;
+import org.opensha.sha.nshmp.imr.Campbell_2003_AttenRel;
+import org.opensha.sha.nshmp.imr.FrankelEtAl_1996_AttenRel;
+import org.opensha.sha.nshmp.imr.NSHMP08_CEUS;
+import org.opensha.sha.nshmp.imr.SilvaEtAl_2002_AttenRel;
+import org.opensha.sha.nshmp.imr.SomervilleEtAl_2001_AttenRel;
+import org.opensha.sha.nshmp.imr.TP2005_AttenRel;
+import org.opensha.sha.nshmp.imr.ToroEtAl_1997_AttenRel;
 
 import com.sun.xml.rpc.processor.generator.writer.EnumerationSerializerWriter;
 
@@ -152,8 +161,42 @@ public enum AttenRelRef {
 	/** Average of 3 NGA's used in the 20008 NSHMP */
 	NSHMP_2008(NSHMP_2008_CA.class, NSHMP_2008_CA.NAME, DEVELOPMENT),
 
+	/** Multiple weighted attenuation relationships used in 20008 CEUS NSHMP */
+	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, DEVELOPMENT),
+
+	/** Atkinson and Booore (2006) with 140bar stress drop. For NSHMP CEUS. */
+	AB_2006_140(AB2006_140_AttenRel.class, AB2006_140_AttenRel.NAME,
+			DEVELOPMENT),
+
+	/** Atkinson and Booore (2006) with 140bar stress drop. For NSHMP CEUS. */
+	AB_2006_200(AB2006_200_AttenRel.class, AB2006_200_AttenRel.NAME,
+			DEVELOPMENT),
+
+	/** Campbell CEUS (2003). For NSHMP CEUS. */
+	CAMPBELL_2003(Campbell_2003_AttenRel.class, Campbell_2003_AttenRel.NAME,
+			DEVELOPMENT),
+
+	/** Frankel et al. (1996). For NSHMP CEUS. */
+	FEA_1996(FrankelEtAl_1996_AttenRel.class, FrankelEtAl_1996_AttenRel.NAME,
+			DEVELOPMENT),
+
+	/** Somerville et al. (2001). For NSHMP CEUS. */
+	SOMERVILLE_2001(SomervilleEtAl_2001_AttenRel.class,
+			SomervilleEtAl_2001_AttenRel.NAME, DEVELOPMENT),
+
+	/** Silva et al. (2002). For NSHMP CEUS. */
+	SILVA_2002(SilvaEtAl_2002_AttenRel.class, SilvaEtAl_2002_AttenRel.NAME,
+			DEVELOPMENT),
+
+	/** Toro et al. (1997). For NSHMP CEUS. */
+	TORO_1997(ToroEtAl_1997_AttenRel.class, ToroEtAl_1997_AttenRel.NAME,
+			DEVELOPMENT),
+
+	/** Tavakoli and Pezeshk (2005). For NSHMP CEUS. */
+	TP_2005(TP2005_AttenRel.class, TP2005_AttenRel.NAME, DEVELOPMENT),
+
 	// EXPERIMENTAL
-	
+
 	/** Cybershake fake attnuation relation */
 	CYBERSHAKE(CyberShakeIMR.class, CyberShakeIMR.NAME, EXPERIMENTAL),
 
@@ -237,15 +280,16 @@ public enum AttenRelRef {
 	public static Set<AttenRelRef> get() {
 		return get(PRODUCTION, DEVELOPMENT, EXPERIMENTAL);
 	}
-	
+
 	/**
 	 * Convenience method to return references for all
-	 * <code>AttenuationRelationship</code> implementations that should be included
-	 * in applications with the given ServerPrefs. Production applications only include
-	 * production IMRs, and development applications include everything but
-	 * deprecated IMRs.
+	 * <code>AttenuationRelationship</code> implementations that should be
+	 * included in applications with the given ServerPrefs. Production
+	 * applications only include production IMRs, and development applications
+	 * include everything but deprecated IMRs.
 	 * 
-	 * @param prefs <code>ServerPrefs</code> instance for which IMRs should be selected
+	 * @param prefs <code>ServerPrefs</code> instance for which IMRs should be
+	 *        selected
 	 * @return
 	 */
 	public static Set<AttenRelRef> get(ServerPrefs prefs) {
@@ -254,7 +298,8 @@ public enum AttenRelRef {
 		else if (prefs == ServerPrefs.PRODUCTION_PREFS)
 			return get(PRODUCTION);
 		else
-			throw new IllegalArgumentException("Unknown ServerPrefs instance: "+prefs);
+			throw new IllegalArgumentException(
+				"Unknown ServerPrefs instance: " + prefs);
 	}
 
 	/**
@@ -290,19 +335,21 @@ public enum AttenRelRef {
 			ParameterChangeWarningListener listener, boolean sorted) {
 		return buildInstanceList(get(), listener, sorted);
 	}
-	
+
 	/**
 	 * Returns a <code>List</code> of <code>AttenuationRelationship</code>
 	 * instances that are appropriate for an application with the given
 	 * <code>ServerPrefs</code>.
 	 * @param listener to initialize instances with; may be <code>null</code>
 	 * @param sorted whether to sort the list by name
-	 * @param prefs <code>ServerPrefs</code> instance for which IMRs should be selected
+	 * @param prefs <code>ServerPrefs</code> instance for which IMRs should be
+	 *        selected
 	 * @return a <code>List</code> of all non-deprecated
 	 *         <code>AttenuationRelationship</code>s
 	 */
 	public static List<AttenuationRelationship> instanceList(
-			ParameterChangeWarningListener listener, boolean sorted, ServerPrefs prefs) {
+			ParameterChangeWarningListener listener, boolean sorted,
+			ServerPrefs prefs) {
 		return buildInstanceList(get(prefs), listener, sorted);
 	}
 

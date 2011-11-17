@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -12,14 +14,23 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
 
 public class PureScratch {
@@ -27,8 +38,36 @@ public class PureScratch {
 	/**
 	 * @param args
 	 * @throws IOException 
+	 * @throws DocumentException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, DocumentException {
+		UCERF2_TimeIndependentEpistemicList ti_ep = new UCERF2_TimeIndependentEpistemicList();
+		UCERF2_TimeDependentEpistemicList td_ep = new UCERF2_TimeDependentEpistemicList();
+//		ep.updateForecast();
+		System.out.println(ti_ep.getNumERFs());
+		System.out.println(td_ep.getNumERFs());
+		
+		System.exit(0);
+		
+		
+		File zipFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/" +
+				"InversionSolutions/NCAL_Model1.zip");
+		SimpleFaultSystemSolution.fromZipFile(zipFile).toXMLFile(
+				new File(zipFile.getAbsolutePath().replaceAll(".zip", ".xml")));
+		System.exit(0);
+		
+		
+		// this get's the DB accessor (version 3)
+		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
+
+		PrefFaultSectionDataDB_DAO faultSectionDB_DAO = new PrefFaultSectionDataDB_DAO(db);
+
+		List<FaultSectionPrefData> sections = faultSectionDB_DAO.getAllFaultSectionPrefData(); 
+		for (FaultSectionPrefData data : sections)
+			System.out.println(data);
+		System.exit(0);
+		
+		
 		double minX = -9d;
 		double maxX = 0d;
 		int num = 200;

@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
@@ -80,7 +81,7 @@ extends HazardCurveLocalModeApplication {
 	private IMLorProbSelectorGuiBean imlProbGuiBean;
 
 	//ArrayList that stores the SA Period values for the IMR
-	private ArrayList saPeriodVector;
+	private List saPeriodVector;
 
 	//Graph Title
 	protected String TITLE = new String("Response Spectra Curves");

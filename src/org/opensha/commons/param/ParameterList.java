@@ -175,6 +175,20 @@ public class ParameterList implements Serializable, Iterable<Parameter<?>> {
 		}
 
 	}
+	
+	/**
+	 * Returns a Parameter of the given name, cast to the given type. For example,
+	 * <code>getParameter(String.class, "MyStringParameter")</code> would return a
+	 * Parameter<String> instead of a raw typed Parameter instance.
+	 * 
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> Parameter<T> getParameter(Class<T> type, String name) {
+		return (Parameter<T>)getParameter(name);
+	}
 
 
 	/** Returns parameter contained value object if the parameter exist, else throws exception. */

@@ -376,7 +376,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		HashMap<String, ArrayList<Parameter<?>>> newParams = new HashMap<String, ArrayList<Parameter<?>>>();
 		// now gather new params from IMRs
 		for (ScalarIMR imr : imrs) {
-			for (Parameter<?> param : imr.getOtherParamsList()) {
+			for (Parameter<?> param : imr.getOtherParams()) {
 				if (otherParams.containsParameter(param))
 					continue;
 				if (!newParams.containsKey(param.getName()))

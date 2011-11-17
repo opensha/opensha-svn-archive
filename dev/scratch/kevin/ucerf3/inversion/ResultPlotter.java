@@ -82,6 +82,8 @@ public class ResultPlotter {
 		double newMod = (double)rows/targetPts;
 		
 		int mod = (int)(newMod + 0.5);
+		if (mod < 1)
+			mod = 1;
 		
 		for (int i=1; i<rows; i++) {
 			if (i % mod > 0)
@@ -682,18 +684,24 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "multi/ncal_1");
 //		dsaDir = new File(mainDir, "mult_state_2_comb_3");
 //		dsaDir = new File(mainDir, "multi/ranger_ncal_1");
+//		dsaDir = new File(mainDir, "2011_10_19-threads_test");
+//		dsaDir = new File(mainDir, "2011_10_20-ncal-bench-orig_single");
+//		dsaDir = new File(mainDir, "2011_10_21-ncal-bench-sub200");
+//		dsaDir = new File(mainDir, "2011_10_21-ncal-bench-sub200-orig_single");
+//		dsaDir = new File(mainDir, "2011_10_27-ncal-bench-sub-secs-test");
+//		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
 		
-//		dsaDir = new File(mainDir, "poster/ncal_constrained");
-//		dsaDir = new File(mainDir, "poster/ncal_unconstrained");
-//		dsaDir = new File(mainDir, "poster/state_constrained");
-		dsaDir = new File(mainDir, "poster/state_unconstrained");
+//		dsaDir = new File(mainDir, "agu/ncal_constrained");
+//		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
+//		dsaDir = new File(mainDir, "agu/allcal_constrained");
+		dsaDir = new File(mainDir, "agu/allcal_unconstrained");
 		
 //		dsaDir = new File(mainDir, "2011_09_07_morgan_NoCS_UCERF2MagDist");
 //		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
 		
 		ArrayList<String> plots = new ArrayList<String>();
-//		plots.add(energy_vs_time_title);
-//		plots.add(avg_energy_vs_time_title);
+		plots.add(energy_vs_time_title);
+		plots.add(avg_energy_vs_time_title);
 //		plots.add(std_dev_vs_time_title);
 //		plots.add(improvement_vs_time_title);
 //		plots.add(time_speedup_vs_energy_title);
@@ -806,24 +814,43 @@ public class ResultPlotter {
 			Color c;
 			if (name.contains("dsa")) {
 				if (bundleDsaBySubs && name.contains("dSub")) {
-					if (name.contains("dSub200_"))
+					if (name.contains("dSub25_") || name.contains("dSub500mi_"))
 						c = Color.BLACK;
-					else if (name.contains("dSub500_"))
-						c = Color.DARK_GRAY;
-					else if (name.contains("dSub1000_"))
+					else if (name.contains("dSub50_") || name.contains("dSub1s_"))
 						c = Color.BLUE;
-					else if (name.contains("dSub1500_"))
-						c = Color.CYAN;
-					else if (name.contains("dSub2000_"))
+					else if (name.contains("dSub100_") || name.contains("dSub2500mi_"))
 						c = Color.GREEN;
-					else if (name.contains("dSub5000_"))
+					else if (name.contains("dSub200_") || name.contains("dSub5s_"))
 						c = Color.YELLOW;
-					else if (name.contains("dSub10000_"))
+					else if (name.contains("dSub500_") || name.contains("dSub10s_"))
 						c = Color.ORANGE;
-					else if (name.contains("dSub15000_"))
-						c = Color.RED;
 					else
 						c = Color.MAGENTA;
+					
+					if (name.contains("dSub500mi_") || name.contains("dSub1s_")
+							|| name.contains("dSub2500mi_") || name.contains("dSub5s_")
+							|| name.contains("dSub10s_"))
+						type = PlotLineType.DASHED;
+					
+//					if (name.contains("dSub25_") || name.contains("dSub500mi_"))
+//						c = Color.BLACK;
+//					else if (name.contains("dSub50_") || name.contains("dSub1s_"))
+//						c = Color.BLUE;
+//					else if (name.contains("dSub100_") || name.contains("dSub2s_"))
+//						c = Color.GREEN;
+//					else if (name.contains("dSub200_") || name.contains("dSub3s_"))
+//						c = Color.YELLOW;
+//					else if (name.contains("dSub500_") || name.contains("dSub4s_"))
+//						c = Color.ORANGE;
+//					else if (name.contains("dSub5s_"))
+//						c = Color.RED;
+//					else
+//						c = Color.MAGENTA;
+//					
+//					if (name.contains("dSub500mi_") || name.contains("dSub1s_")
+//							|| name.contains("dSub2s_") || name.contains("dSub3s_")
+//							|| name.contains("dSub4s_") ||name.contains("dSub5s_"))
+//						type = PlotLineType.DASHED;
 					
 //					if (name.contains("5nodes"))
 //						size = 2f;
@@ -853,10 +880,10 @@ public class ResultPlotter {
 						type = PlotLineType.DASHED;
 //					else if (name.contains("4threads"))
 //						c = Color.GREEN;
-					else if (name.contains("6threads"))
-						size += 1;
-					else if (name.contains("8threads"))
-						size += 1;
+//					else if (name.contains("6threads"))
+//						size += 1;
+//					else if (name.contains("8threads"))
+//						size += 1;
 				}
 			} else {
 				if (bundleTsaBySubs && name.contains("sub")) {
@@ -1183,7 +1210,7 @@ public class ResultPlotter {
 				System.out.println("displaying "+energy_vs_time_title);
 				windows.put(energy_vs_time_title,
 						getGraphWindow(energyVsTime, energy_vs_time_title, chars, time_label, energy_label, visible));
-			} else if (plot.equals(energy_vs_iterations_title)) {
+			} else if (plot.equals(iterations_vs_time_title)) {
 				System.out.println("displaying "+iterations_vs_time_title);
 				if (iterTimeAvgs.size() > 0)
 					windows.put(iterations_vs_time_title,

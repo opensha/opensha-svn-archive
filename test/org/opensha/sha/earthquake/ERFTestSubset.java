@@ -33,11 +33,6 @@ public class ERFTestSubset implements ERF {
 	}
 
 	@Override
-	public ListIterator<Parameter<?>> getAdjustableParamsIterator() {
-		return baseERF.getAdjustableParamsIterator();
-	}
-
-	@Override
 	public Region getApplicableRegion() {
 		return baseERF.getApplicableRegion();
 	}

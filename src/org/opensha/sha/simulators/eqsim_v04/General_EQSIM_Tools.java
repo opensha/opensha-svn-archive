@@ -228,7 +228,12 @@ public class General_EQSIM_Tools {
 			tok = new StringTokenizer(line);
 			kindOfLine = Integer.parseInt(tok.nextToken());
 			if(kindOfLine ==200) {	// event record
-				evRec = new EventRecord(line);
+				try {
+					evRec = new EventRecord(line);
+				} catch (Exception e) {
+					System.err.println("Unable to parse line: "+line.trim()+" (error: "+e.getMessage()+")");
+					continue;
+				}
 				numEventRecs+=1;
 				
 				// check whether this is the first event in the list

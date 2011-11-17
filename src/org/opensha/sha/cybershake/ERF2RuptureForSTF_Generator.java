@@ -171,9 +171,7 @@ public class ERF2RuptureForSTF_Generator {
         String erfString = "EqkRupForecast_Class = " +
             eqkRupForecast.getClass().getName() + "\n";
         //filling the metadata for ERF params.
-        ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
-        while (it.hasNext()) {
-          Parameter param = (Parameter) it.next();
+				for (Parameter<?> param : eqkRupForecast.getAdjustableParameterList()) {
           erfString += param.getName() + "=" + param.getValue() + "\n";
         }
         fw.write(erfString);

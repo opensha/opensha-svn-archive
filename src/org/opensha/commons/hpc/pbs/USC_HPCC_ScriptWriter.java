@@ -9,6 +9,16 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 	
 	public static final File MPJ_HOME = new File("/home/rcf-12/kmilner/mpj-v0_38");
 	public static final File JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
+	
+	private String nodesAddition;
+	
+	public USC_HPCC_ScriptWriter() {
+		this(null);
+	}
+	
+	public USC_HPCC_ScriptWriter(String nodesAddition) {
+		this.nodesAddition = nodesAddition;
+	}
 
 	@Override
 	public List<String> getBatchHeader(int mins, int nodes,
@@ -18,6 +28,8 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 		if (queue != null && !queue.isEmpty())
 			pbs.add("#PBS -q "+queue);
 		String dashL = "#PBS -l walltime=00:"+mins+":00,nodes="+nodes;
+		if (nodesAddition != null && !nodesAddition.isEmpty())
+			dashL += ":"+nodesAddition;
 		if (ppn > 0)
 			dashL += ":ppn="+ppn;
 		pbs.add(dashL);

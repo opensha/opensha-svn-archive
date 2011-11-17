@@ -2,7 +2,10 @@ package scratch.UCERF3.simulatedAnnealing.hpc;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
@@ -12,6 +15,7 @@ import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 
@@ -27,6 +31,8 @@ public class MultiSABenchmarkPBSWriter {
 		jars.add(new File(RUN_DIR, "csparsej.jar"));
 		return jars;
 	}
+	
+	private static DateFormat df = new SimpleDateFormat("yyyy_MM_dd");
 
 	/**
 	 * @param args
@@ -40,15 +46,26 @@ public class MultiSABenchmarkPBSWriter {
 //		String runName = "ncal_1_sup_1thread_long";
 //		String runName = "2011_09_29_new_create_test";
 //		String runName = "2011_10_17-morgan-ncal1";
-		String runName = "2011_10_19-threads_test";
+//		String runName = "2011_10_19-threads_test";
+//		String runName = "2011_10_20-ncal-bench";
+//		String runName = "2011_10_27-ncal-bench-sub-secs-test";
+//		String runName = "2011_10_31-allcal-bench-sub-secs-test";
+		
+		
+		String runName = "agu/";
+		
+		runName += "ncal_constrained";
+		
+		runName += "/"+df.format(new Date());
 		
 		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/"+runName);
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
-		String queue = "nbns";
-//		String queue = null;
-		BatchScriptWriter batch = new USC_HPCC_ScriptWriter();
+//		String queue = "nbns";
+		String queue = null;
+//		BatchScriptWriter batch = new USC_HPCC_ScriptWriter("pe1950");
+		BatchScriptWriter batch = new USC_HPCC_ScriptWriter("quadcore");
 		int ppn = 8;
 		File mpjHome = USC_HPCC_ScriptWriter.MPJ_HOME;
 		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
@@ -62,17 +79,31 @@ public class MultiSABenchmarkPBSWriter {
 		
 		File runSubDir = new File(RUN_DIR, runName);
 		
-		//		int annealMins = 60*8;
-		//		int annealMins = 60*16;
-		int dsaAnnealMins = 60*2;
-		//		int tsaAnnealMins = dsaAnnealMins*2;
-//		int tsaAnnealMins = 60*23;
-		int tsaAnnealMins = 60*2;
+		int dsaAnnealMins, tsaAnnealMins, tsaSingleMins;
+		CompletionCriteria subCompletion;
+		
+		if (runName.contains("agu")) {
+			if (runName.contains("ncal")) {
+				subCompletion = new TimeCompletionCriteria(500);
+				dsaAnnealMins = 60*2;
+			} else if (runName.contains("allcal")) {
+				subCompletion = TimeCompletionCriteria.getInSeconds(1);
+				dsaAnnealMins = 60*8;
+			} else
+				throw new IllegalStateException("how'd we get here???");
+			tsaAnnealMins = dsaAnnealMins;
+			tsaSingleMins = 60*72;
+		} else {
+			subCompletion = TimeCompletionCriteria.getInSeconds(1);
+			
+			dsaAnnealMins = 60*2;
+			tsaAnnealMins = dsaAnnealMins;
+			tsaSingleMins = 60*8;
+		}
 
 		int dsaWallMins = dsaAnnealMins + 60;
 		int tsaWallMins = tsaAnnealMins + 30;
-
-		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(5);
+		int tsaSingleWallMins = tsaSingleMins + 30;
 
 		ArrayList<File> jars = getClasspath();
 
@@ -82,8 +113,8 @@ public class MultiSABenchmarkPBSWriter {
 
 		File aMat, dMat, initialMat;
 
-		aMat = new File(runSubDir, "A.mat");
-		dMat = new File(runSubDir, "d.mat");
+		aMat = new File(runSubDir, "A.bin");
+		dMat = new File(runSubDir, "d.bin");
 		initialMat = null;
 //		initialMat = new File(runSubDir, "initial.mat");
 		
@@ -93,7 +124,11 @@ public class MultiSABenchmarkPBSWriter {
 //		initialMat = null;
 
 		CompletionCriteria dsaCriteria = TimeCompletionCriteria.getInMinutes(dsaAnnealMins);
+		System.out.println("DSA criteria: "+dsaCriteria);
 		CompletionCriteria tsaCriteria = TimeCompletionCriteria.getInMinutes(tsaAnnealMins);
+		System.out.println("TSA criteria: "+tsaCriteria);
+		CompletionCriteria tsaSingleCriteria = TimeCompletionCriteria.getInMinutes(tsaSingleMins);
+		System.out.println("TSA (single node) criteria: "+tsaSingleCriteria);
 		
 		MPJShellScriptWriter mpjWriter = new MPJShellScriptWriter(javaBin, heapSizeMB, jars, mpjHome, useMxdev);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, heapSizeMB, jars);
@@ -102,26 +137,51 @@ public class MultiSABenchmarkPBSWriter {
 				initialMat, null, null, dsaCriteria, subCompletion, mpjHome, false);
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, aMat, dMat,
 				initialMat, null, null, tsaCriteria, subCompletion);
+		
+		/* OFFICIAL AGU 2011 BENCHMARKS */
+//		int[] dsa_threads = { 4 };
+//		int[] tsa_threads = { 1,2,4,8 };
+//		int[] nodes = { 2, 5, 10, 20 };
+//		CompletionCriteria[] dSubComps = { subCompletion };
+//		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
+//		int numRuns = 5;
+		
+		/* OFFICIAL HUGE SUPLEMENT */
+		int[] dsa_threads = { 4 };
+		int[] tsa_threads = new int[0];
+		int[] nodes = { 50, 100, 200 };
+		CompletionCriteria[] dSubComps = { subCompletion };
+		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
+		int numRuns = 5;
 
-		int[] dsa_threads = { 4, 6, 8 };
+//		int[] dsa_threads = { 4 };
+//		int[] dsa_threads = { 8 };
 
-		int[] tsa_threads = { 1 };
+//		int[] tsa_threads = { 1 };
 //		int[] tsa_threads = { 1,2,4,8 };
 //		int[] tsa_threads = new int[0];
 
 //		int[] nodes = { 20,50,100,200 };
 //		int[] nodes = { 500 };
-//		int[] nodes = { 50 };
+//		int[] nodes = { 10 };
 //		int[] nodes = { 100, 200 };
-		int[] nodes = { 5 };
+//		int[] nodes = { 2, 5, 10, 20 };
 //		int[] nodes = new int[0];
 
 		//		int[] dSubIters = { 200, 600 };
-		CompletionCriteria[] dSubComps = { subCompletion };
-		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
+//		CompletionCriteria[] dSubComps = { subCompletion };
+//		CompletionCriteria[] dSubComps = {
+//				new IterationCompletionCriteria(25), new IterationCompletionCriteria(50),
+//				new IterationCompletionCriteria(100), new IterationCompletionCriteria(200),
+//				new IterationCompletionCriteria(500), new TimeCompletionCriteria(500),
+//				TimeCompletionCriteria.getInSeconds(1), new TimeCompletionCriteria(2500),
+//				TimeCompletionCriteria.getInSeconds(5), TimeCompletionCriteria.getInSeconds(10),
+//				TimeCompletionCriteria.getInSeconds(15), TimeCompletionCriteria.getInSeconds(20),  };
+		
+//		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
 
 //		int numRuns = 1;
-		int numRuns = 5;
+//		int numRuns = 5;
 
 		double nodeHours = 0;
 
@@ -130,16 +190,22 @@ public class MultiSABenchmarkPBSWriter {
 				for (int dsaThreads : dsa_threads) {
 					for (CompletionCriteria dSubComp : dSubComps) {
 						for (int r=0; r<numRuns; r++) {
+							CompletionCriteria mySubCrit;
+							if (subCompletion == null)
+								mySubCrit = dSubComp;
+							else
+								mySubCrit = subCompletion;
+							dsa_create.setSubCompletion(mySubCrit);
 							String name = "dsa_"+dsaThreads+"threads_"+numNodes+"nodes_"+cool.name();
 							name += "_dSub"+ThreadedSimulatedAnnealing.subCompletionArgVal(dSubComp);
-							name += "_sub"+ThreadedSimulatedAnnealing.subCompletionArgVal(subCompletion);
+							name += "_sub"+ThreadedSimulatedAnnealing.subCompletionArgVal(mySubCrit);
 							name += "_run"+r;
 
 							dsa_create.setProgFile(new File(runSubDir, name+".csv"));
 							dsa_create.setSolFile(new File(runSubDir, name+".mat"));
 							dsa_create.setNumThreads(""+dsaThreads);
 							dsa_create.setCool(cool);
-							if (dSubComp == subCompletion)
+							if (dSubComp == mySubCrit)
 								dsa_create.setDistSubCompletion(null);
 							else
 								dsa_create.setDistSubCompletion(dSubComp);
@@ -154,21 +220,33 @@ public class MultiSABenchmarkPBSWriter {
 				}
 			}
 			for (int tsaThreads : tsa_threads) {
+				int wallMins;
+				if (tsaThreads == 1) {
+					tsa_create.setCriteria(tsaSingleCriteria);
+					wallMins = tsaSingleWallMins;
+				} else {
+					tsa_create.setCriteria(tsaCriteria);
+					wallMins = tsaWallMins;
+				}
 				for (int r=0; r<numRuns; r++) {
+					CompletionCriteria mySubCompletion = subCompletion;
+					if (mySubCompletion == null)
+						mySubCompletion = dSubComps[0];
+					
 					String name = "tsa_"+tsaThreads+"threads_"+cool.name();
-					name += "_sub"+ThreadedSimulatedAnnealing.subCompletionArgVal(subCompletion);
+					name += "_sub"+ThreadedSimulatedAnnealing.subCompletionArgVal(mySubCompletion);
 					name += "_run"+r;
 
 					tsa_create.setProgFile(new File(runSubDir, name+".csv"));
 					tsa_create.setSolFile(new File(runSubDir, name+".mat"));
 					tsa_create.setNumThreads(""+tsaThreads);
 					tsa_create.setCool(cool);
-					tsa_create.setSubCompletion(subCompletion);
+					tsa_create.setSubCompletion(mySubCompletion);
 
 					File pbs = new File(writeDir, name+".pbs");
 					System.out.println("Writing: "+pbs.getName());
 					nodeHours += (double)tsaAnnealMins / 60d;
-						batch.writeScript(pbs, tsa_create.buildScript(), tsaWallMins, 1, 1, queue);
+						batch.writeScript(pbs, tsa_create.buildScript(), wallMins, 1, 1, queue);
 					}
 			}
 		}

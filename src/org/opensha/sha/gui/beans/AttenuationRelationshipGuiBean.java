@@ -700,7 +700,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 					Parameter param2 = (Parameter ) it2.next();
 					
 					Parameter<?> independentParam;
-					ArrayList<Double> discAllowedValues = null;
+					List<Double> discAllowedValues = null;
 					if (param2 instanceof DoubleDiscreteParameter) {
 						DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
 						// add all the periods relating to the SA
@@ -728,7 +728,7 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 					if(param1.containsIndependentParameter(independentParam.getName())) {
 						if (independentParam instanceof DoubleDiscreteParameter) {
 							Parameter tempParam = param1.getIndependentParameter(independentParam.getName());
-							ArrayList paramVals = ((DoubleDiscreteConstraint)tempParam.getConstraint()).getAllowedValues();
+							List paramVals = ((DoubleDiscreteConstraint)tempParam.getConstraint()).getAllowedValues();
 							//keeps track if the constraint of the independent param has been changed.
 							boolean changedFlag = false;
 							int size = discAllowedValues.size();

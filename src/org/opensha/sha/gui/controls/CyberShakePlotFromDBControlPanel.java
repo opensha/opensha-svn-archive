@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -983,7 +984,7 @@ extends ControlPanel implements ParameterChangeListener {
 		imtGui.getParameterEditor(IMT_NewGuiBean.IMT_PARAM_NAME).setValue("SA");
 		double saPeriodVal = this.im.getVal();
 		DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor(PeriodParam.NAME).getParameter();
-		ArrayList allowedVals = saPeriodParam.getAllowedDoubles();
+		List allowedVals = saPeriodParam.getAllowedDoubles();
 		int size = allowedVals.size();
 		double minSaVal = ((Double)allowedVals.get(0)).doubleValue();
 		double maxSaVal = ((Double)allowedVals.get(size -1)).doubleValue();

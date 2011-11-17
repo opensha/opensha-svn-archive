@@ -64,15 +64,6 @@ public abstract class AbstractERF implements
 	protected boolean parameterChangeFlag = true;
 
 	/**
-	 * get the adjustable parameters for this forecast
-	 *
-	 * @return
-	 */
-	public ListIterator<Parameter<?>> getAdjustableParamsIterator() {
-		return adjustableParams.getParametersIterator();
-	}
-
-	/**
 	 * Get the region for which this forecast is applicable
 	 * @return : Geographic region object specifying the applicable region of forecast
 	 */
@@ -247,33 +238,45 @@ public abstract class AbstractERF implements
 
 
 	public static final String XML_METADATA_NAME = "ERF";
-
-	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(AbstractERF.XML_METADATA_NAME);
-		xml.addAttribute("className", this.getClass().getName());
-		ListIterator<Parameter<?>> paramIt = this.getAdjustableParameterList().getParametersIterator();
-		Element paramsElement = xml.addElement(AbstractParameter.XML_GROUP_METADATA_NAME);
+	
+	protected static void baseERF_ToXML(BaseERF erf, Element erfEl) {
+		erfEl.addAttribute("className", erf.getClass().getName());
+		ListIterator<Parameter<?>> paramIt = erf.getAdjustableParameterList().getParametersIterator();
+		Element paramsElement = erfEl.addElement(AbstractParameter.XML_GROUP_METADATA_NAME);
 		while (paramIt.hasNext()) {
 			Parameter<?> param = paramIt.next();
 			paramsElement = param.toXMLMetadata(paramsElement);
 		}
-		xml = timeSpan.toXMLMetadata(xml);
-
-		return root;
+		erfEl = erf.getTimeSpan().toXMLMetadata(erfEl);
 	}
-
-	public static AbstractERF fromXMLMetadata(Element root) throws InvocationTargetException {
-		String className = root.attribute("className").getValue();
+	
+	protected static BaseERF baseERF_FromXML(Element el) throws InvocationTargetException {
+		String className = el.attribute("className").getValue();
 //		System.out.println("Loading ERF: " + className);
-		AbstractERF erf = (AbstractERF)MetadataLoader.createClassInstance(className);
+		BaseERF erf = (BaseERF)MetadataLoader.createClassInstance(className);
 
 		// add params
 //		System.out.println("Setting params...");
-		Element paramsElement = root.element(AbstractParameter.XML_GROUP_METADATA_NAME);
+		Element paramsElement = el.element(AbstractParameter.XML_GROUP_METADATA_NAME);
 		ParameterList.setParamsInListFromXML(erf.getAdjustableParameterList(), paramsElement);
 
-		erf.setTimeSpan(TimeSpan.fromXMLMetadata(root.element("TimeSpan")));
+		erf.setTimeSpan(TimeSpan.fromXMLMetadata(el.element("TimeSpan")));
+		
 		return erf;
+	}
+
+	public Element toXMLMetadata(Element root) {
+		Element xml = root.addElement(AbstractERF.XML_METADATA_NAME);
+		
+		baseERF_ToXML(this, xml);
+
+		return root;
+	}
+	
+	
+
+	public static AbstractERF fromXMLMetadata(Element el) throws InvocationTargetException {
+		return (AbstractERF)baseERF_FromXML(el);
 	}
 
 	/**

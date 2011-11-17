@@ -12,6 +12,7 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sra.asset.Asset;
 import org.opensha.sra.asset.Portfolio;
 import org.opensha.sra.vulnerability.Vulnerability;
@@ -81,7 +82,9 @@ AbstractPortfolioLECCalculator {
 
 						// TODO: deal with setting period for SA in a better way
 						String imt = vuln.getIMT();
-						IM_EventSetOutputWriter.setIMTFromString(imt, imr);
+						imr.setIntensityMeasure(imt);
+						if (imt.equals(SA_Param.NAME))
+							SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), vuln.getPeriod());
 						imr.setSite(asset.getSite());
 
 						ShakingResult imrResult = calcShaking(imr);

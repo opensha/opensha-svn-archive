@@ -15,6 +15,7 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -80,13 +81,13 @@ public class RunInversion {
 /*		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
 				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	*/
-		SimpleFaultSystemRupSet invFaultSystemRupSet;
+		FaultSystemRupSet invFaultSystemRupSet;
 		try {
-			invFaultSystemRupSet = SimpleFaultSystemRupSet.fromZipFile(new File(precomputedDataDir.getAbsolutePath()+"/FaultSystemRupSets/NCAL.zip"));
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			throw new RuntimeException(e1);
-		} 			
+//			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
+			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.ALLCAL.getRupSet();
+		} catch (Exception e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}	
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");
 		
@@ -123,10 +124,15 @@ public class RunInversion {
 		// Parameters for InversionFaultSystemSolution
 		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
 		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
+		
 		double relativeMagDistWt = 1000.0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
 		double relativeRupRateConstraintWt = 10.0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
+//		double relativeMagDistWt = 0;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
+//		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
+		
 		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
-		int numIterations = 1000000;  // number of simulated annealing iterations (increase this to decrease misfit) - For Northern CA inversion, 100,000 iterations is ~5 min.
+//		int numIterations = 1000000;  // number of simulated annealing iterations (increase this to decrease misfit) - For Northern CA inversion, 100,000 iterations is ~5 min.
+		int numIterations = 0;  // number of simulated annealing iterations (increase this to decrease misfit) - For Northern CA inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 		long startTime, runTime;

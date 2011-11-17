@@ -129,10 +129,10 @@ public class InterpolatedSA_AttenRelWrapper extends AttenuationRelationship impl
     this.listener = listener;
 
     initSupportedIntensityMeasureParams();
-    siteParams = attenRelToWrap.getSiteParamsList();
-    eqkRuptureParams = attenRelToWrap.getEqkRuptureParamsList();
-    propagationEffectParams = attenRelToWrap.getPropagationEffectParamsList();
-    otherParams = attenRelToWrap.getOtherParamsList();
+    siteParams = attenRelToWrap.getSiteParams();
+    eqkRuptureParams = attenRelToWrap.getEqkRuptureParams();
+    propagationEffectParams = attenRelToWrap.getPropagationEffectParams();
+    otherParams = attenRelToWrap.getOtherParams();
     sigmaTruncTypeParam = (SigmaTruncTypeParam)otherParams.getParameter(SigmaTruncTypeParam.NAME);
     sigmaTruncLevelParam = (SigmaTruncLevelParam)otherParams.getParameter(SigmaTruncLevelParam.NAME);
     initIndependentParamLists(); // This must be called after the above
@@ -244,10 +244,10 @@ public class InterpolatedSA_AttenRelWrapper extends AttenuationRelationship impl
    * independentParamaters.
    */
   protected void initIndependentParamLists() {
-    meanIndependentParams = attenRelToWrap.getMeanIndependentParamsList();
-    stdDevIndependentParams = attenRelToWrap.getStdDevIndependentParamsList();
-    exceedProbIndependentParams = attenRelToWrap.getExceedProbIndependentParamsList();
-    imlAtExceedProbIndependentParams = attenRelToWrap.getIML_AtExceedProbIndependentParamsList();
+    meanIndependentParams = attenRelToWrap.getMeanIndependentParams();
+    stdDevIndependentParams = attenRelToWrap.getStdDevIndependentParams();
+    exceedProbIndependentParams = attenRelToWrap.getExceedProbIndependentParams();
+    imlAtExceedProbIndependentParams = attenRelToWrap.getIML_AtExceedProbIndependentParams();
   }
 
 

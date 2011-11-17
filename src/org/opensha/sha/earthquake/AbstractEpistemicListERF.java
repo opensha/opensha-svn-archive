@@ -20,13 +20,17 @@
 package org.opensha.sha.earthquake;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.ListIterator;
 
+import org.dom4j.Attribute;
+import org.dom4j.Element;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -46,12 +50,14 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 
 public abstract class AbstractEpistemicListERF implements EpistemicListERF,
-TimeSpanChangeListener,ParameterChangeListener {
+TimeSpanChangeListener,ParameterChangeListener, XMLSaveable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public static final String XML_METADATA_NAME = "ERF_Epistemic";
 	
 	// vector to hold the instances of Eqk Rup Forecasts
 	protected ArrayList<ERF> erf_List = new ArrayList<ERF>();
@@ -289,6 +295,33 @@ TimeSpanChangeListener,ParameterChangeListener {
 	@Override
 	public int compareTo(BaseERF o) {
 		return getName().compareToIgnoreCase(o.getName());
+	}
+	
+	@Override
+	public Element toXMLMetadata(Element root) {
+		return toXMLMetadata(root, -1);
+	}
+	
+	public Element toXMLMetadata(Element root, int index) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		AbstractERF.baseERF_ToXML(this, el);
+		if (index >= 0)
+			el.addAttribute("index", index+"");
+		
+		return root;
+	}
+	
+	public static BaseERF fromXMLMetadata(Element el) throws InvocationTargetException {
+		BaseERF erf = AbstractERF.baseERF_FromXML(el);
+		
+		Attribute indexAtt = el.attribute("index");
+		if (indexAtt != null) {
+			int index = Integer.parseInt(indexAtt.getValue());
+			return ((EpistemicListERF)erf).getERF(index);
+		}
+		
+		return erf;
 	}
 
 }

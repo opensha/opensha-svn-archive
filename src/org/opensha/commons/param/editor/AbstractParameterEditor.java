@@ -231,6 +231,7 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 		mainPanel.setBorder(border);
 	}
 
+	// TODO this should take an object and call toString()
 	public static JLabel makeSingleConstraintValueLabel( String label ) {
 
 		JLabel l = new JLabel();

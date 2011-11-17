@@ -196,7 +196,15 @@ public interface IntensityMeasureRelationship
    *
    * @return    The Site Parameters Iterator
    */
+  @Deprecated
   public ListIterator<Parameter<?>> getSiteParamsIterator();
+  
+  /**
+   *  Returns a list of all Site-related parameters.
+   *
+   * @return    The Site Parameters Iterator
+   */
+  public ParameterList getSiteParams();
 
   /**
    *  Returns an iterator over all other parameters.  Other parameters are those
@@ -207,25 +215,34 @@ public interface IntensityMeasureRelationship
    *
    * @return    Iterator for otherParameters
    */
+  @Deprecated
   public ListIterator<Parameter<?>> getOtherParamsIterator();
   
   /**
-   *  Returns an ParameterList of all other parameters.  Other parameters are those
+   *  Returns a ParameterList of all other parameters.  Other parameters are those
    *  that the exceedance probability depends upon, but that are not a
    *  supported IMT (or one of their independent parameters) and are not contained
    *  in, or computed from, the site or eqkRutpure objects.  Note that this does not
    *  include the exceedProbParam (which exceedance probability does not depend on).
    *
-   * @return    Iterator for otherParameters
+   * @return    list of otherParameters
    */
-  public ParameterList getOtherParamsList();
+  public ParameterList getOtherParams();
 
   /**
    *  Returns an iterator over all earthquake-rupture related parameters.
    *
    * @return    The Earthquake-Rupture Parameters Iterator
    */
+  @Deprecated
   public ListIterator<Parameter<?>> getEqkRuptureParamsIterator();
+
+  /**
+   *  Returns a list of all earthquake-rupture related parameters.
+   *
+   * @return    The Earthquake-Rupture Parameters list
+   */
+  public ParameterList getEqkRuptureParams();
 
   /**
    *  Returns the iterator over all Propagation-Effect related parameters
@@ -234,7 +251,17 @@ public interface IntensityMeasureRelationship
    *
    * @return    The Propagation Effect Parameters Iterator
    */
+  @Deprecated
   public ListIterator<Parameter<?>> getPropagationEffectParamsIterator();
+
+  /**
+   *  Returns the list of all Propagation-Effect related parameters
+   *  A Propagation-Effect related parameter is any parameter
+   *  for which the value can be compute from a Site and eqkRupture object.
+   *
+   * @return    The Propagation Effect Parameters list
+   */
+  public ParameterList getPropagationEffectParams();
 
   /**
    *  Returns the iterator over all supported Intensity-Measure
@@ -242,15 +269,16 @@ public interface IntensityMeasureRelationship
    *
    * @return    The Supported Intensity-Measures Iterator
    */
+  @Deprecated
   public ListIterator<Parameter<?>> getSupportedIntensityMeasuresIterator();
   
   /**
    *  Returns a list of all supported Intensity-Measure
    *  Parameters.
    *
-   * @return    The Supported Intensity-Measures Iterator
+   * @return    The Supported Intensity-Measures list
    */
-  public ParameterList getSupportedIntensityMeasuresList();
+  public ParameterList getSupportedIntensityMeasures();
   
   /**
    *  Returns name of the IntensityMeasureRelationship.

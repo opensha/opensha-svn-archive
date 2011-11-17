@@ -1,6 +1,7 @@
 package org.opensha.sra.gui.components;
 
 import java.util.EventListener;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -41,8 +42,8 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 	/**
 	 * Creates an unnamed StructureDescriptorBean
 	 */
-	public StructureDescriptorBean() {
-		this("");
+	public StructureDescriptorBean(List<AbstractVulnerability> vulns) {
+		this("", vulns);
 	}
 	
 	/**
@@ -50,9 +51,9 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 	 * within the application.
 	 * @param name The title of this bean.
 	 */
-	public StructureDescriptorBean(String name) {
+	public StructureDescriptorBean(String name, List<AbstractVulnerability> vulns) {
 		descriptorName = name;
-		vulnBean = new VulnerabilityBean();
+		vulnBean = new VulnerabilityBean(vulns);
 		listener = new StructureDescriptorParameterListener();
 		
 		replaceCost = new DoubleParameter(REPLACE_PARAM, 0, 10E+10, "$$$");
@@ -109,7 +110,7 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 	private ParameterListEditor getApplicationVisualization() {
 		if(applicationEditor == null) {
 			ParameterList plist = new ParameterList();
-			plist.addParameter(vulnBean.getParameter());
+			plist.addParameterList(vulnBean.getDisplayParameters());
 			plist.addParameter(replaceCost);
 			applicationEditor = new ParameterListEditor(plist);
 			applicationEditor.setTitle(descriptorName);

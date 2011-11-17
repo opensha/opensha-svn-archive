@@ -839,7 +839,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 				meta += "s";
 			meta += ": " + trtNames + " ---<br>";
 			meta += "--- Params ---<br>";
-			ParameterList paramList = (ParameterList) imr.getOtherParamsList().clone();
+			ParameterList paramList = (ParameterList) imr.getOtherParams().clone();
 			if (paramList.containsParameter(TectonicRegionTypeParam.NAME))
 				paramList.removeParameter(TectonicRegionTypeParam.NAME);
 			meta += paramList.getParameterListMetadataString();

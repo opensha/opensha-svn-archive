@@ -25,8 +25,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EventObject;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.TimeZone;
 
 import org.dom4j.Attribute;
@@ -619,12 +617,11 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 	 * (0 and Double.MAX_VALUE, respectively).
 	 * @param doubles - a vector of doubles
 	 */
-	public void setDurationConstraint(ArrayList doubles) {
+	public void setDurationConstraint(ArrayList<Double> doubles) {
 
 		// make sure new values are all positive (within the originals)
-		Iterator it = doubles.iterator();
-		while(it.hasNext()) {
-			if( ((Double)it.next()).doubleValue() < 0  )
+		for (double d : doubles){
+			if ( d < 0 )
 				throw new RuntimeException(C+"setDuractionConstraint - negative values not allowed");
 		}
 
@@ -1021,15 +1018,6 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 			String prec = (String) startTimePrecisionParam.getValue();
 			throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
 		}
-	}
-
-	/**
-	 * This returns a ParameterList Iterator(e.g., to put in a GUI so users can set values).
-	 * This only includes start-time parameters that are within the chosen precision.
-	 * @return
-	 */
-	public ListIterator getAdjustableParamsIterator() {
-		return this.getAdjustableParams().getParametersIterator();
 	}
 
 	/**

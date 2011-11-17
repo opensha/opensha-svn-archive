@@ -105,11 +105,11 @@ public class MatrixIO {
 		in.close();
 		
 		DoubleMatrix2D mat;
-		if (clazz.equals(SparseCCDoubleMatrix2D.class))
-			mat = new SparseCCDoubleMatrix2D(nRows, nCols, rows, cols, vals, false, false, false);
-		else if (clazz == null || clazz.equals(SparseRCDoubleMatrix2D.class))
+		if (clazz == null || clazz.equals(SparseRCDoubleMatrix2D.class))
 			// default
 			mat = new SparseRCDoubleMatrix2D(nRows, nCols, rows, cols, vals, false, false, false);
+		else if (clazz.equals(SparseCCDoubleMatrix2D.class))
+			mat = new SparseCCDoubleMatrix2D(nRows, nCols, rows, cols, vals, false, false, false);
 		else if (clazz.equals(SparseDoubleMatrix2D.class))
 			mat = new SparseDoubleMatrix2D(nRows, nCols, rows, cols, vals);
 		else

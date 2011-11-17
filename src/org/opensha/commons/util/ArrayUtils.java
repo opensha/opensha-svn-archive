@@ -1,5 +1,8 @@
 package org.opensha.commons.util;
 
+import static com.google.common.base.Preconditions.*;
+
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -159,6 +162,26 @@ public class ArrayUtils {
 		return out;
 	}
 	
+	/**
+	 * Duplicates the supplied array of unkown type using
+	 * <code>System.arrayCopy()</code>.
+	 * @param source array to copy
+	 * @return a copy
+	 * @throws NullPointerException if supplied <code>source</code> is
+	 *         <code>null</code>
+	 * @throws IllegalArgumentException if supplied <code>source</code> is not
+	 *         an array
+	 */
+	public Object duplicateArray(Object source) {
+		checkNotNull(source, "Supplied source array is null");
+		checkArgument(source.getClass().isArray(),
+			"Supplied source is not an array");
+		Object out = Array.newInstance(source.getClass().getComponentType(),
+			Array.getLength(source));
+		System.arraycopy(source, 0, out, 0, Array.getLength(source));
+		return out;
+	}
+
 	public static void main(String[] args) {
 		double[] aa = {1,6,4,5,12,9};
 		double[] bb = {8,6,4,2,0,4};

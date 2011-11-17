@@ -9,6 +9,7 @@ import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -48,10 +49,23 @@ public class ShakeMapComputation {
 			rvsToInclude = null;
 		} else {
 			HashMap<Integer, Location> rvHypos = erf2db.getHypocenters(erfID, sourceID, rupID, rupVarScenID);
+			
+			// find closest to this hypocenter
+			Location closestRV = null;
+			double closestDist = Double.MAX_VALUE;
+			for (Location rvHypo : rvHypos.values()) {
+				double dist = LocationUtils.linearDistance(hypo, rvHypo);
+				if (dist < closestDist) {
+					closestDist = dist;
+					closestRV = rvHypo;
+				}
+			}
+			System.out.println("Matched hypocenter with RV hypo "+closestDist+" KM away.");
+			
 			rvsToInclude = new ArrayList<Integer>();
 			for (int rvID : rvHypos.keySet()) {
 				Location rvHypo = rvHypos.get(rvID);
-				if (hypo.equals(rvHypo))
+				if (closestRV.equals(rvHypo))
 					rvsToInclude.add(rvID);
 			}
 		}
@@ -95,6 +109,7 @@ public class ShakeMapComputation {
 							newIMVals.add(imVals.get(rvID));
 					}
 					imVals = newIMVals;
+					System.out.println("new size: " + imVals.size());
 				}
 				
 //				if (rvsToInclude != null) {
@@ -115,7 +130,9 @@ public class ShakeMapComputation {
 					double logIM = Math.log(imVals.get(i) / HazardCurveComputation.CONVERSION_TO_G);
 					logTotal += logIM;
 				}
+				System.out.println("logTotal: " + logTotal);
 				double logMean = logTotal / (double)imVals.size();
+				System.out.println("logMean: " + logMean);
 				double mean = Math.exp(logMean);
 				
 				System.out.println("Mean: " + mean);

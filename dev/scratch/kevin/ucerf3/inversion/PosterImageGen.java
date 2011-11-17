@@ -195,60 +195,61 @@ public class PosterImageGen {
 	}
 	
 	public static void main(String args[]) throws IOException {
-		File main = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/poster");
+//		File main = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/poster");
+		File main = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/agu");
 		
 		File ncalConst = new File(main, "ncal_constrained");
 		File ncalUnconst = new File(main, "ncal_unconstrained");
-		File stateConst = new File(main, "state_constrained");
-		File stateUnonst = new File(main, "state_unconstrained");
+		File stateConst = new File(main, "allcal_constrained");
+		File stateUnonst = new File(main, "allcal_unconstrained");
 		
 		handleDir(ncalConst,
 				// time range
 				new Range(0, 120),
 				// energy plot range
-				new Range(220, 260),
+				new Range(30, 70),
 //				// speedup range
 //				new Range(0.5, 21),
 				// std. dev. range
-				new Range(0, 40),
+				new Range(0, 10),
 				// % improvement range
 				new Range(0, 10));
 		
-//		handleDir(ncalUnconst,
-//				// time range
-//				new Range(0, 120),
-//				// energy plot range
-//				new Range(1.5, 8),
-////				// speedup range
-////				new Range(0.5, 10),
-//				// std. dev. range
-//				new Range(0, 1),
-//				// % improvement range
-//				new Range(0, 10));
-//		
-//		handleDir(stateConst,
-//				// time range
-//				new Range(0, 480),
-//				// energy plot range
-//				new Range(2000000.0, 4000000.0),
-////				// speedup range
-////				new Range(0.5, 6),
-//				// std. dev. range
-//				new Range(0, 55000),
-//				// % improvement range
-//				new Range(0, 1));
-//		
-//		handleDir(stateUnonst,
-//				// time range
-//				new Range(0, 480),
-//				// energy plot range
-//				new Range(7.5, 35),
-////				// speedup range
-////				new Range(0.5, 6.5),
-//				// std. dev. range
-//				new Range(0, 10),
-//				// % improvement range
-//				new Range(0, 10));
+		handleDir(ncalUnconst,
+				// time range
+				new Range(0, 120),
+				// energy plot range
+				new Range(0, 20),
+//				// speedup range
+//				new Range(0.5, 10),
+				// std. dev. range
+				new Range(0, 10),
+				// % improvement range
+				new Range(0, 10));
+		
+		handleDir(stateConst,
+				// time range
+				new Range(0, 480),
+				// energy plot range
+				new Range(25, 400),
+//				// speedup range
+//				new Range(0.5, 6),
+				// std. dev. range
+				new Range(0, 10),
+				// % improvement range
+				new Range(0, 10));
+		
+		handleDir(stateUnonst,
+				// time range
+				new Range(0, 480),
+				// energy plot range
+				new Range(0, 300),
+//				// speedup range
+//				new Range(0.5, 6.5),
+				// std. dev. range
+				new Range(0, 10),
+				// % improvement range
+				new Range(0, 10));
 		
 		printTable();
 		

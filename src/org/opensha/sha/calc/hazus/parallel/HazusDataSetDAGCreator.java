@@ -254,7 +254,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		HashMap<TectonicRegionType, ScalarIMR> imrMap1 = this.imrMaps.get(0);
 		if (imrMap1.size() == 1) {
 			ScalarIMR imr = imrMap1.values().iterator().next();
-			meta = "IMR = " + imr.getName() + "; " + imr.getOtherParamsList().getParameterListMetadataString();
+			meta = "IMR = " + imr.getName() + "; " + imr.getOtherParams().getParameterListMetadataString();
 		} else {
 			meta = "IMR = (multiple)";
 			for (TectonicRegionType trt : imrMap1.keySet()) {
