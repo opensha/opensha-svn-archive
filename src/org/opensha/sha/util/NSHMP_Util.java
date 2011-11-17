@@ -75,8 +75,8 @@ public class NSHMP_Util {
 	}
 
 	private static void readHwDat(
-		Map<Integer, Map<Integer, Map<Integer, Double>>> map, String path,
-		double startMag) {
+			Map<Integer, Map<Integer, Map<Integer, Double>>> map, String path,
+			double startMag) {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 				NSHMP_Util.class.getResourceAsStream(path)));
@@ -113,19 +113,19 @@ public class NSHMP_Util {
 	 * Returns a corrected distance value corresponding to the supplied JB
 	 * distance and magnitude. Magnitude is expected to be a 0.05 centered value
 	 * between 6 and 7.6 (e.g [6.05, 6.15, ... 7.55]). Distance values should be
-	 * &lt;200km. If <code>D</code> &ge; 200km, method returns D.
+	 * &lt;1000km. If <code>D</code> &ge; 1000km, method returns D.
 	 * 
 	 * @param M magnitude
 	 * @param D distance
-	 * @return the corrected distance or <code>D</code> if <code>D</code> ≥ 200
+	 * @return the corrected distance or <code>D</code> if <code>D</code> ≥ 1000
 	 * @throws IllegalArgumentException if <code>M</code> is not one of [6.05,
 	 *         6.15, ... 7.55]
 	 */
 	public static double getMeanRJB(double M, double D) {
-		int magKey = new Double(M * 100).intValue();
+		int magKey = (int) Math.round(M * 100);
 		checkArgument(rjb_map.containsKey(magKey), "Invalid mag value: " + M);
-		int distKey = new Double(Math.floor(D)).intValue();
-		return (D <= 200) ? rjb_map.get(magKey).get(distKey) : D;
+		int distKey = (int) Math.floor(D);
+		return (D <= 1000) ? rjb_map.get(magKey).get(distKey) : D;
 	}
 
 	/**
@@ -175,8 +175,8 @@ public class NSHMP_Util {
 	}
 
 	private static double getAvgHW(
-		Map<Integer, Map<Integer, Map<Integer, Double>>> map, double M,
-		double D, double P) {
+			Map<Integer, Map<Integer, Map<Integer, Double>>> map, double M,
+			double D, double P) {
 		int perKey = (int) (P * 1000);
 		checkArgument(map.containsKey(perKey), "Invalid period: " + P);
 		Map<Integer, Map<Integer, Double>> magMap = map.get(perKey);
