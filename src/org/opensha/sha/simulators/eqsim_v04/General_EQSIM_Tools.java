@@ -1215,7 +1215,7 @@ public class General_EQSIM_Tools {
 						double lastTime = lastTimeForElement[index];
 						double lastSlip = lastSlipForElement[index];
 						double slipRate = rectElementsList.get(index).getSlipRate();
-						double area = rectElementsList.get(index).getGriddedSurface().getSurfaceArea();
+						double area = rectElementsList.get(index).getGriddedSurface().getArea();
 						if(area<minElementArea) minElementArea = area;
 						if(area>maxElementArea) maxElementArea = area;
 						aveLastEvTime += lastTime;
@@ -1498,7 +1498,7 @@ public class General_EQSIM_Tools {
 				int numElements = slipList.size();
 				for(int e=0;e<numElements;e++) {
 					int index = elementID_List.get(e).intValue() -1;
-					double area = rectElementsList.get(index).getGriddedSurface().getSurfaceArea();
+					double area = rectElementsList.get(index).getGriddedSurface().getArea();
 					double slip = slipList.get(e); // this is in meters
 					moment += FaultMomentCalc.getMoment(area*1e6, slip);	// convert area to meters squared
 				}

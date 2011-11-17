@@ -35,7 +35,9 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
@@ -252,17 +254,16 @@ public class AS_2005_AttenRel extends AttenuationRelationship implements
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     rakeParam.setValue(eqkRupture.getAveRake());
-    EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
+    RuptureSurface surface = eqkRupture.getRuptureSurface();
     dipParam.setValue(surface.getAveDip());
-    double depth = surface.getLocation(0, 0).getDepth();
-    rupTopDepthParam.setValue(depth);
+    rupTopDepthParam.setValue(surface.getAveRupTopDepth());
     // for point surface
-    if (surface.size() == 1) {
+    if (surface.isPointSurface()) {
       aspectRatioParam.setValue(1.0);
     }
     else {
-      aspectRatioParam.setValue(surface.getSurfaceLength() /
-                                surface.getSurfaceWidth());
+      aspectRatioParam.setValue(surface.getAveLength() /
+                                surface.getAveWidth());
     }
 
 //    setFaultTypeFromRake(eqkRupture.getAveRake());
@@ -307,22 +308,21 @@ public class AS_2005_AttenRel extends AttenuationRelationship implements
 
       // set the srcSiteAngle parameter (could make a subclass of
       // PropagationEffectParameter later if others use this
-      EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
-      Location fltLoc1 = surface.getLocation(0, 0);
-      Location fltLoc2 = surface.getLocation(0, surface.getNumCols() - 1);
+      RuptureSurface surface = eqkRupture.getRuptureSurface();
+      FaultTrace surfTrace = eqkRupture.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
+      Location fltLoc1 = surfTrace.get(0);
+      Location fltLoc2 = surfTrace.get(surfTrace.size()-1);
       double angle1 = LocationUtils.azimuth(fltLoc1, fltLoc2);
       double minDist = Double.MAX_VALUE, dist;
       int minDistLocIndex = -1;
-      for (int i = 0; i < surface.getNumCols(); i++) {
-        dist = LocationUtils.horzDistanceFast(site.getLocation(),
-            surface.getLocation(0, i));
+      for (int i = 0; i < surfTrace.size(); i++) {
+        dist = LocationUtils.horzDistanceFast(site.getLocation(), surfTrace.get(i));
         if (dist < minDist) {
           minDist = dist;
           minDistLocIndex = i;
         }
       }
-      double angle2 = LocationUtils.azimuth(surface.getLocation(0,
-          minDistLocIndex), site.getLocation());
+      double angle2 = LocationUtils.azimuth(surfTrace.get(minDistLocIndex), site.getLocation());
       srcSiteAngleParam.setValue(angle2 - angle1);
 
     }

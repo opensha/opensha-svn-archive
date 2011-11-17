@@ -49,7 +49,9 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.commons.util.cpt.LinearBlender;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -737,7 +739,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	public GMT_Map getGMTMapSpecification(GeoDataSet xyzData) {
 		GMT_Map map =  super.getGMTMapSpecification(xyzData);
 
-		addRupture(map, eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());
+		// temporary fix:
+		if(eqkRup.getRuptureSurface() instanceof EvenlyGriddedSurface)
+			addRupture(map, (EvenlyGriddedSurface) eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());
+		else
+			System.out.println("Can't yet plot non-EvenlyGriddedSurface types in GMT_MapGeneratorForShakeMaps");
 
 		//				// make the file in the script:
 		//				gmtLines.add(COMMAND_PATH+"cat << END > "+EQK_RUP_XYZ_FILE_NAME);
@@ -788,7 +794,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			String commandLine;
 
 			// Get the surface and associated info
-			EvenlyGriddedSurface surface = eqkRup.getRuptureSurface();
+			EvenlyGriddedSurface surface = (EvenlyGriddedSurface) eqkRup.getRuptureSurface();
 			ArrayList fileLines = new ArrayList();
 			Location loc;
 			int rows = surface.getNumRows();

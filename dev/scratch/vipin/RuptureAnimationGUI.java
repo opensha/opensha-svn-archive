@@ -360,7 +360,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
    private void addLocationListToPlot(LocationList locList,
                                      int index) throws
       InvalidRangeException, ClassCastException, ArrayIndexOutOfBoundsException {
-    GriddedSurfaceImpl griddedSurface = new GriddedSurfaceImpl(1, locList.size());
+    GriddedSurfaceImpl griddedSurface = new GriddedSurfaceImpl(1, locList.size(), Double.NaN);
     for (int i = 0; i < locList.size(); ++i)
       griddedSurface.setLocation(0, i, locList.get(i));
     GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);

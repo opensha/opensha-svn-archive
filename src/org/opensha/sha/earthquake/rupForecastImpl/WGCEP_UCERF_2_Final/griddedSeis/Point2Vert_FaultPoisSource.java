@@ -31,11 +31,12 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_RelativeLocation;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -295,7 +296,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 	LocationList locList = new LocationList();
     
 	if(this.finiteFaultSurface1!=null) { 
-    	locList = finiteFaultSurface1.getLocationList();
+    	locList = finiteFaultSurface1.getEvenlyDiscritizedListOfLocsOnSurface();
     }
     
     if(this.finiteFaultSurface2!=null) { 
@@ -311,7 +312,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
   /**
    * This approximates the source as a point at 1.0 km depth.
    */
-  public EvenlyGriddedSurface getSourceSurface() { 
+  public RuptureSurface getSourceSurface() { 
 	  PointSurface newPtSurface = new PointSurface(ptSurface.getLocation());
 	  newPtSurface.setDepth(1.0);
 	  return newPtSurface;
@@ -394,7 +395,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     				Location loc = finiteFault.getLocation(i, j);
     				loc = new Location(
     						loc.getLatitude(), loc.getLongitude(), depth);
-    				finiteFault.setLocation(i, j, loc);
+    				finiteFault.set(i, j, loc);
     			}
     		}
 //    		Iterator<Location> it = finiteFault.getLocationsIterator();

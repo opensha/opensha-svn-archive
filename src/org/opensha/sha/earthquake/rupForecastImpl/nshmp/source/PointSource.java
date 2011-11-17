@@ -31,6 +31,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -144,7 +145,7 @@ public class PointSource extends ProbEqkSource {
 	}
 
 	@Override
-	public EvenlyGriddedSurface getSourceSurface() {
+	public RuptureSurface getSourceSurface() {
 		// NOTE this returns the shared mutable (possibly depth varying) point
 		// surface instance
 		return ptSurface;

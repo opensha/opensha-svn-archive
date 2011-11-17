@@ -45,12 +45,15 @@ import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
 import org.opensha.sha.calc.params.NumStochasticEventSetsParam;
+import org.opensha.sha.calc.params.PtSrcDistanceCorrectionParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TRTUtils;
@@ -184,6 +187,9 @@ implements DisaggregationCalculatorAPI{
 			AbstractERF eqkRupForecast, ParameterList calcParams) throws RemoteException {
 		
 		MaxDistanceParam maxDistanceParam = (MaxDistanceParam)calcParams.getParameter(MaxDistanceParam.NAME);
+		PtSrcDistanceCorrectionParam ptSrcDistCorrParam = (PtSrcDistanceCorrectionParam)calcParams.getParameter(PtSrcDistanceCorrectionParam.NAME);
+		PtSrcDistCorr.Type distCorrType = ptSrcDistCorrParam.getValueAsTypePtSrcDistCorr();
+
 //		NumStochasticEventSetsParam numStochEventSetRealizationsParam =
 //			(NumStochasticEventSetsParam)calcParams.getParameter(NumStochasticEventSetsParam.NAME);
 		IncludeMagDistFilterParam includeMagDistFilterParam =
@@ -328,6 +334,10 @@ implements DisaggregationCalculatorAPI{
 
 				// get the rupture
 				ProbEqkRupture rupture = source.getRupture(n);
+				
+				// set point-source distance correction type & mag if it's a pointSurface
+				if(rupture.getRuptureSurface() instanceof PointSurface)
+					((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), distCorrType);
 
 				double qkProb = rupture.getProbability();
 				
@@ -467,12 +477,12 @@ implements DisaggregationCalculatorAPI{
 							mag = myMag;
 					}
 					
-					ProbEqkRupture fakeRupture = new ProbEqkRupture(mag, 0, 0, source.getSourceSurface(), null);
-					PropagationEffect pEffect = new PropagationEffect(site, fakeRupture);
-					sourceDisaggInfo += "\t" + f2.format(pEffect.getDistanceRup())
-							+ "\t" + f2.format(pEffect.getDistanceX())
-							+ "\t" + f2.format(pEffect.getDistanceSeis())
-							+ "\t" + f2.format(pEffect.getDistanceJB());
+					RuptureSurface surf = source.getSourceSurface();
+					sourceDisaggInfo += "\t" + f2.format(surf.getDistanceRup(site.getLocation()))
+							+ "\t" + f2.format(surf.getDistanceX(site.getLocation()))
+							+ "\t" + f2.format(surf.getDistanceSeis(site.getLocation()))
+							+ "\t" + f2.format(surf.getDistanceJB(site.getLocation()));
+
 				}
 				
 				sourceDisaggInfo += "\n";

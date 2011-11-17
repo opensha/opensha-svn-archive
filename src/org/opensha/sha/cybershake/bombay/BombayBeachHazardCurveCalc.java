@@ -29,7 +29,7 @@ import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 
 public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityModifier {
 	

@@ -133,7 +133,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 				  ProbEqkRupture rupture = source.getRupture(r);
 				  double mag = rupture.getMag();
 				  double equivRate = rupture.getMeanAnnualRate(duration);
-				  double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getLocationList());
+				  double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface());
 				  totalMFD.addResampledMagRate(mag, equivRate*fractionInside, true);
 				  if(s<=LAST_FLT_SRC_INDEX)
 					  faultMFD.addResampledMagRate(mag, equivRate*fractionInside, true);

@@ -5,6 +5,8 @@ import java.util.Iterator;
 
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -221,9 +223,6 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
  
     }
 
-	public double getAveDipDir() {
-		return aveDipDir;
-	}
 
 
 	/**
@@ -363,7 +362,7 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
 				else
 					topLocation = traceLocation;
 
-				setLocation(0, ith_col, topLocation.clone());
+				set(0, ith_col, topLocation.clone());
 				if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
 				// Loop over each row - calculating location at depth along the fault trace
@@ -381,7 +380,7 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
 					dir = new LocationVector(aveDipDirection, hDistance, vDistance);
 
 					Location depthLocation = UCERF2_Final_RelativeLocation.getLocation( topLocation, dir );
-					setLocation(ith_row, ith_col, depthLocation.clone());
+					set(ith_row, ith_col, depthLocation.clone());
 					if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
 					ith_row++;
@@ -456,5 +455,47 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
         }
 		 */
 	}
+
+	@Override
+	public double getAveDipDirection() {
+		return aveDipDir;
+	}
+
+	@Override
+	public LocationList getPerimeter() {
+		
+		LocationList topTrace = new LocationList();
+		LocationList botTrace = new LocationList();
+		final double avDipRadians = aveDip * PI_RADIANS;
+		double aveDipDirection;
+		if( Double.isNaN(aveDipDir) ) {
+			aveDipDirection = faultTrace.getDipDirection();
+		} else {
+			aveDipDirection = aveDipDir;
+		}
+		for(Location traceLoc:faultTrace) {
+			double vDistance = upperSeismogenicDepth - traceLoc.getDepth();
+			double hDistance = vDistance / Math.tan( avDipRadians );
+			LocationVector dir = new LocationVector(aveDipDirection, hDistance, vDistance);
+			Location topLoc = LocationUtils.location( traceLoc, dir );
+			topTrace.add(topLoc);
+			
+			vDistance = lowerSeismogenicDepth - traceLoc.getDepth();
+			hDistance = vDistance / Math.tan( avDipRadians );
+			dir = new LocationVector(aveDipDirection, hDistance, vDistance);
+			Location botLoc = LocationUtils.location( traceLoc, dir );
+			botTrace.add(botLoc);
+		}
+		
+		// now make and close the list
+		LocationList perimiter = new LocationList();
+		perimiter.addAll(topTrace);
+		botTrace.reverse();
+		perimiter.addAll(botTrace);
+		perimiter.add(topTrace.get(0));
+		
+		return perimiter;
+	}
+
 
 }

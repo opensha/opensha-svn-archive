@@ -19,7 +19,8 @@ import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 public class RupHyposWithinCutoff {
 	
@@ -99,14 +100,10 @@ public class RupHyposWithinCutoff {
 	private boolean shouldIncludeRup(ProbEqkRupture rup) {
 		if (rup.getMag() < minMag)
 			return false;
-		EvenlyGriddedSurface surface = rup.getRuptureSurface();
-		for (int i=0; i<surface.getNumRows(); i++) {
-			for (int j=0; j<surface.getNumCols(); j++) {
-				Location loc = surface.getLocation(i, j);
-				double dist = LocationUtils.linearDistance(hypoLocation, loc);
-				if (dist < maxDistance) {
-					return true;
-				}
+		for(Location loc:rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+			double dist = LocationUtils.linearDistance(hypoLocation, loc);
+			if (dist < maxDistance) {
+				return true;
 			}
 		}
 		return false;

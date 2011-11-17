@@ -26,7 +26,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.param.SimpleFaultParameter;
 
 
@@ -155,7 +155,7 @@ public class SingleFaultRuptureERF extends AbstractERF{
 
      if(parameterChangeFlag) {
        source = new FaultRuptureSource(((Double) magParam.getValue()).doubleValue(),
-                                             (AbstractEvenlyGriddedSurface) faultParam.getValue(),
+                                             (AbstractEvenlyGriddedSurfaceWithSubsets) faultParam.getValue(),
                                              ((Double) rakeParam.getValue()).doubleValue(),
                                              ((Double) probParam.getValue()).doubleValue());
        parameterChangeFlag = false;

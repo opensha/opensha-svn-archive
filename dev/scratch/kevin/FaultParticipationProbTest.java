@@ -3,7 +3,9 @@ package scratch.kevin;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 public class FaultParticipationProbTest {
 
@@ -14,7 +16,7 @@ public class FaultParticipationProbTest {
 		MeanUCERF2 ucerf = new MeanUCERF2();
 		ucerf.updateForecast();
 		
-		EvenlyGriddedSurface bigSurface = ucerf.getSource(128).getSourceSurface();
+		EvenlyGriddedSurface bigSurface = (EvenlyGriddedSurface) ucerf.getSource(128).getSourceSurface();
 		
 		for (int sourceID=0; sourceID<ucerf.getNumSources(); sourceID++) {
 			int numOnSurface = 0;
@@ -22,7 +24,7 @@ public class FaultParticipationProbTest {
 			ProbEqkSource source = ucerf.getSource(sourceID);
 			String name = source.getName();
 			if (name.toLowerCase().contains("andreas")) {
-				for (Location loc : source.getSourceSurface()) {
+				for (Location loc : source.getSourceSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
 					boolean found = false;
 					for (Location bigLoc : bigSurface) {
 						if (bigLoc.equals(loc)) {

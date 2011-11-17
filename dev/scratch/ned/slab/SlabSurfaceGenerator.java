@@ -18,7 +18,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.GMT_GrdFile;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.util.FaultTraceUtils;
 

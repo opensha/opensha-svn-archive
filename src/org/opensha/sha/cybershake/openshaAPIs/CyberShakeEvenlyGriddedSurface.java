@@ -22,9 +22,11 @@ package org.opensha.sha.cybershake.openshaAPIs;
 import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
+import org.opensha.sha.faultSurface.FaultTrace;
 
-public class CyberShakeEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface {
+public class CyberShakeEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWithSubsets {
 
 	public CyberShakeEvenlyGriddedSurface( int numRows, int numCols, double gridSpacing) {
 		super(numRows, numCols, gridSpacing);
@@ -51,6 +53,42 @@ public class CyberShakeEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface
 		String S = C + ": set(): ";
 		checkBounds( row, column, S );
 		data[row * numCols + column] = loc;
+	}
+
+	@Override
+	public double getAveDip() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getAveDipDirection() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getAveRupTopDepth() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getAveStrike() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public LocationList getPerimeter() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FaultTrace getUpperEdge() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

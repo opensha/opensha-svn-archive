@@ -26,8 +26,8 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 /**
  * <p>Title: Frankel96CharEqkSource</p>
@@ -52,7 +52,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   private static final String C = new String("Frankel96_CharEqkSource");
 
   private boolean D = false;
-  private AbstractEvenlyGriddedSurface surface;
+  private AbstractEvenlyGriddedSurfaceWithSubsets surface;
 
 
   /**
@@ -66,7 +66,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   public Frankel96_CharEqkSource(double rake,
                                 double mag,
                                 double rate,
-                                AbstractEvenlyGriddedSurface surface,
+                                AbstractEvenlyGriddedSurfaceWithSubsets surface,
                                 String faultName) {
 
       this.rate = rate;
@@ -87,10 +87,10 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   * of this source
   */
   public LocationList getAllSourceLocs() {
-    return this.surface.getLocationList();
+    return this.surface.getEvenlyDiscritizedListOfLocsOnSurface();
   }
   
-  public EvenlyGriddedSurface getSourceSurface() { return this.surface; }
+  public AbstractEvenlyGriddedSurface getSourceSurface() { return this.surface; }
 
 
 
@@ -135,7 +135,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
    public double getMinDistance(Site site) {
 
       double min;
-      AbstractEvenlyGriddedSurface surface = (AbstractEvenlyGriddedSurface) probEqkRupture.getRuptureSurface();
+      AbstractEvenlyGriddedSurfaceWithSubsets surface = (AbstractEvenlyGriddedSurfaceWithSubsets) probEqkRupture.getRuptureSurface();
 
       // get first location on fault trace
       LocationVector dir = LocationUtils.vector(site.getLocation(),(Location) surface.get(0,0));

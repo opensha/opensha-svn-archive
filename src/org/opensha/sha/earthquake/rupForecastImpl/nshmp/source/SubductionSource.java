@@ -76,7 +76,7 @@ public class SubductionSource extends FaultSource {
 
 	@Override
 	public LocationList getAllSourceLocs() {
-		return surface.getLocationList();
+		return null; //surface.getLocationList();
 	}
 
 	@Override

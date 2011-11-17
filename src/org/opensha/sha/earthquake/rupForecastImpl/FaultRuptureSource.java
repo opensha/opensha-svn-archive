@@ -28,8 +28,9 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -80,7 +81,7 @@ public class FaultRuptureSource
    * @param probability - the probability of the source
    */
   public FaultRuptureSource(double magnitude,
-                            AbstractEvenlyGriddedSurface ruptureSurface,
+                            AbstractEvenlyGriddedSurfaceWithSubsets ruptureSurface,
                             double rake,
                             double probability) {
 
@@ -116,7 +117,7 @@ public class FaultRuptureSource
    * is similar to Rupture Surface.
    * @return GriddedSurfaceAPI
    */
-  public EvenlyGriddedSurface getSourceSurface() {
+  public RuptureSurface getSourceSurface() {
     return ( (ProbEqkRupture) ruptureList.get(0)).getRuptureSurface();
   }
 
@@ -129,7 +130,7 @@ public class FaultRuptureSource
    */
   public LocationList getAllSourceLocs() {
     LocationList locList = new LocationList();
-    Iterator it = ( (AbstractEvenlyGriddedSurface) getSourceSurface()).
+    Iterator it = ( (AbstractEvenlyGriddedSurfaceWithSubsets) getSourceSurface()).
         getAllByRowsIterator();
     while (it.hasNext()) locList.add( (Location) it.next());
     return locList;
@@ -144,7 +145,7 @@ public class FaultRuptureSource
    * @param duration - the duration in years
    */
   public FaultRuptureSource(IncrementalMagFreqDist magDist,
-                            AbstractEvenlyGriddedSurface ruptureSurface,
+                            AbstractEvenlyGriddedSurfaceWithSubsets ruptureSurface,
                             double rake,
                             double duration) {
 
@@ -195,7 +196,7 @@ public class FaultRuptureSource
    * @param rake - average rake of the ruptures
    */
   public FaultRuptureSource(double prob, IncrementalMagFreqDist magDist,
-                            AbstractEvenlyGriddedSurface ruptureSurface,
+                            AbstractEvenlyGriddedSurfaceWithSubsets ruptureSurface,
                             double rake) {
 
     this.isPoissonian = false;
@@ -299,7 +300,7 @@ public class FaultRuptureSource
    * method.
    * @param faultSurface
    */
-  private void makeFaultCornerLocs(AbstractEvenlyGriddedSurface faultSurface) {
+  private void makeFaultCornerLocs(AbstractEvenlyGriddedSurfaceWithSubsets faultSurface) {
 
     int nRows = faultSurface.getNumRows();
     int nCols = faultSurface.getNumCols();

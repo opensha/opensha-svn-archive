@@ -38,7 +38,6 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds575_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.Ds595_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
@@ -146,9 +145,6 @@ public class KS_2006_AttenRel
 
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
-    
-    propEffect = new PropagationEffect();
-    
   }
   
   
@@ -196,10 +192,7 @@ public class KS_2006_AttenRel
   protected void setPropagationEffectParams() {
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
-   
-    	propEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-    	distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup());
-    	//distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+    	distanceRupParam.setValue(eqkRupture, site);
     }
   }
 

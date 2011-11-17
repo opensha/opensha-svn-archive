@@ -34,7 +34,7 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -259,7 +259,7 @@ public class PointToLineSource_old extends ProbEqkSource implements java.io.Seri
 	public LocationList getAllSourceLocs() {
 		LocationList locList = new LocationList();
 		for(int r=0;r< getNumRuptures(); r++) {
-			locList.addAll(probEqkRuptureList.get(r).getRuptureSurface().getLocationList());
+			locList.addAll(probEqkRuptureList.get(r).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface());
 		}
 		return locList;
 	}
@@ -268,7 +268,7 @@ public class PointToLineSource_old extends ProbEqkSource implements java.io.Seri
 	/**
 	 * don't know what to return here (deprecate this method?)
 	 */
-	public EvenlyGriddedSurface getSourceSurface() { 
+	public AbstractEvenlyGriddedSurface getSourceSurface() { 
 		throw new RuntimeException("Method not supported");
 	}
 

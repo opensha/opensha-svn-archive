@@ -34,11 +34,11 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -221,9 +221,6 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
 
-		propEffect = new PropagationEffect();
-		propEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
-
 		// do this to set the primitive types for each parameter;
 		setParamDefaults();
 	}
@@ -234,12 +231,11 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		this.eqkRupture = eqkRupture;
 		magParam.setValueIgnoreWarning(eqkRupture.getMag());
 		setFaultTypeFromRake(eqkRupture.getAveRake());
-		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
-		double depth = surface.getLocation(0, 0).getDepth();
-		rupTopDepthParam.setValueIgnoreWarning(depth);
+		RuptureSurface surface = eqkRupture.getRuptureSurface();
+		rupTopDepthParam.setValueIgnoreWarning(surface.getAveRupTopDepth());
 		dipParam.setValueIgnoreWarning(surface.getAveDip());
 		// this means line sources will have zero width
-		rupWidthParam.setValue(surface.getSurfaceWidth());
+		rupWidthParam.setValue(surface.getAveWidth());
 		aftershockParam.setValue(false);
 		setPropagationEffectParams();
 	}
@@ -259,34 +255,8 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	@Override
 	protected void setPropagationEffectParams() {
 		if (site != null && eqkRupture != null) {
-			propEffect.setAll(eqkRupture, site);
 			propEffectUpdate();
 		}
-	}
-
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect)
-			throws InvalidRangeException, ParameterException {
-		this.propEffect = propEffect;
-		site = propEffect.getSite();
-		eqkRupture = propEffect.getEqkRupture();
-		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
-			.getValue());
-		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double) site
-			.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue());
-		vs30_TypeParam.setValue((String)site.getParameter(Vs30_TypeParam.NAME)
-			.getValue());
-		magParam.setValueIgnoreWarning(eqkRupture.getMag());
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
-		double depth = surface.getLocation(0, 0).getDepth();
-		rupTopDepthParam.setValueIgnoreWarning(depth);
-		dipParam.setValueIgnoreWarning(surface.getAveDip());
-		// this means line sources will have zero width
-		rupWidthParam.setValue(surface.getSurfaceWidth());
-		setPropagationEffectParams();
-		aftershockParam.setValue(false);
-		propEffectUpdate();
 	}
 
 	private void propEffectUpdate() {
@@ -302,9 +272,11 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		 * Ned Field, Norm Abrahamson, and Ken Campbell.
 		 */
 		
-		distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup()); // this sets rRup too
-		double dist_jb = propEffect.getDistanceJB();
-		double distX = propEffect.getDistanceX();
+		
+		distanceRupParam.setValue(eqkRupture, site); // this sets rRup too
+//		distanceRupParam.setValueIgnoreWarning(eqkRupture.getRuptureSurface().getDistanceRup(site.getLocation())); // this sets rRup too
+		double dist_jb = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
+		double distX = eqkRupture.getRuptureSurface().getDistanceX(site.getLocation());
 		if(rRup>0.0) {
 			distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
 			if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)

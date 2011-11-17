@@ -31,7 +31,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
@@ -287,7 +287,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 	LocationList locList = new LocationList();
     
 	if(this.finiteFaultSurface1!=null) { 
-    	locList = finiteFaultSurface1.getLocationList();
+    	locList = finiteFaultSurface1.getEvenlyDiscritizedListOfLocsOnSurface();
     }
     
     if(this.finiteFaultSurface2!=null) { 
@@ -299,7 +299,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
     return locList;
   }
 
-  public EvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+  public AbstractEvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
 
 
 

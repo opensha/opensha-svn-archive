@@ -28,7 +28,8 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 /**
  * <b>Title:</b> DistanceSeisParameter<p>
@@ -68,7 +69,7 @@ public class DistanceSeisParameter extends AbstractDoublePropEffectParam {
 	private final static Double MAX = new Double(Double.MAX_VALUE);
 
 	/** set default seismogenic depth. actually hard-wired for now. */
-	public final static double seisDepth = 3.0;
+	public final static double SEIS_DEPTH = 3.0;
 
 
 	/**
@@ -123,7 +124,7 @@ public class DistanceSeisParameter extends AbstractDoublePropEffectParam {
 	/** Initializes the constraints, name, etc. for this parameter */
 	protected void init( DoubleConstraint warningConstraint){
 		this.warningConstraint = warningConstraint;
-		this.constraint = new DoubleConstraint(seisDepth, Double.MAX_VALUE );
+		this.constraint = new DoubleConstraint(SEIS_DEPTH, Double.MAX_VALUE );
 		this.name = NAME;
 		this.constraint.setName( this.name );
 		this.constraint.setNullAllowed(false);
@@ -139,53 +140,10 @@ public class DistanceSeisParameter extends AbstractDoublePropEffectParam {
 	 * Note that this does not throw a warning
 	 */
 	protected void calcValueFromSiteAndEqkRup(){
-		if( ( this.site != null ) && ( this.eqkRupture != null ) ){
-
-			Location loc1 = site.getLocation();
-			double minDistance = Double.MAX_VALUE;
-			double totalDist, horzDist, vertDist;
-
-			EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
-
-			// flag to project to seisDepth if only one row and depth is below seisDepth
-			boolean projectToDepth = false;
-			if (rupSurf.getNumRows() == 1 && rupSurf.getLocation(0,0).getDepth() < seisDepth)
-				projectToDepth = true;
-
-			// get locations to iterate over depending on dip
-			ListIterator it;
-			if(rupSurf.getAveDip() > 89) {
-				it = rupSurf.getColumnIterator(0);
-				if (rupSurf.getLocation(0,0).getDepth() < seisDepth)
-					projectToDepth = true;
-			}
-			else
-				it = rupSurf.getLocationsIterator();
-
-			while( it.hasNext() ){
-
-				Location loc2 = (Location)it.next();
-				// ignore locations with depth less than siesDepth (unless projectToDepth=true):
-				if (loc2.getDepth() >= seisDepth) {
-					horzDist = LocationUtils.horzDistance(loc1, loc2);
-					vertDist = LocationUtils.vertDistance(loc1, loc2);
-					totalDist = horzDist * horzDist + vertDist * vertDist;
-					if( totalDist < minDistance )  minDistance = totalDist;
-				}
-				// put a zero-depth point source at the seisDepth
-				else if (projectToDepth) {
-					horzDist = LocationUtils.horzDistance(loc1, loc2);
-					totalDist = horzDist * horzDist + seisDepth * seisDepth;
-					if( totalDist < minDistance )  minDistance = totalDist;
-				}
-
-			}
-			// take square root before returning
-			// Steve- is this effiecient?
-			this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
-
-		}
-		else this.setValue(null);
+		if( ( site != null ) && ( eqkRupture != null ) )
+			setValueIgnoreWarning( eqkRupture.getRuptureSurface().getDistanceSeis(site.getLocation()));
+		else 
+			setValue(null);
 
 	}
 

@@ -26,42 +26,51 @@ import java.util.ListIterator;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FaultUtils;
+import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
 
 /**
  * <b>Title:</b> PointSurface<p>
  *
- * <b>Description:</b> This is a special case of the GriddedSurface
- * that defaults to one point, i.e. there is only one Location, and the
- * grid size is only [1,1], one row and one column. <p>
+ * <b>Description:</b> This is a special case of RuptureSurface
+ * that is a point surface (has only one Location). <p>
  *
- * This will be used by point source models of Potential Earthquake.
- * This is the simplist model, with no rupture surface. <p>
  *
- * Note: all the methods of a GriddedSurface are implemented so it behaves
- * just like a surface instead of a point source. Thus this class can
- * be used anywhere a GriddedSurface can. It plugs right into the framework.<p>
- *
- * Since there is only one Location this class extends Location instead of the
- * base implementing GriddedSurface class. There is no need to set up an array,
- * etc. All the list accessor functions can be bypassed and simply return this
- * location everytime. Improves performace over the base class. <p>
- *
- * @author     Steven W. Rock
+ * @author     Ned Field (completely rewritten)
  * @created    February 26, 2002
  * @version    1.0
  */
-// TODO note in docs that class now wraps Location rather tan subclasses
-//public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
-public class PointSurface implements EvenlyGriddedSurface {
+
+public class PointSurface implements RuptureSurface {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Location location;
+	private Location pointLocation;
+	
+	// for distance measures
+	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
+	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
+	double distanceJB, distanceSeis, distanceRup, distanceX;
+	
+	final static double SEIS_DEPTH = DistanceSeisParameter.SEIS_DEPTH;   // minimum depth for Campbell model
+	
+	// flag to indicate that the ptLocChanged
+	boolean ptLocChanged;
+	
+	double vertDist;
+	
+	/** variables for the point-source distance correction */
+	PtSrcDistCorr.Type corrType = PtSrcDistCorr.Type.NONE;
+	double corrMag = Double.NaN;
+	
 
 	/**
 	 * The average strike of this surface on the Earth. Even though this is a
@@ -80,10 +89,6 @@ public class PointSurface implements EvenlyGriddedSurface {
 	/** The name of this point source.  */
 	protected String name;
 
-	/** Constructor for the PointSurface object - just calls super(). */
-	//public PointSurface() { super(); }
-
-
 	/**
 	 *  Constructor for the PointSurface object. Sets all the fields
 	 *  for a Location object. Mirrors the Location constructor.
@@ -93,8 +98,6 @@ public class PointSurface implements EvenlyGriddedSurface {
 	 * @param  depth  depth below the earth for the Location of this point source.
 	 */
 	public PointSurface( double lat, double lon, double depth ) {
-		//super( lat, lon, depth );
-		// init a Locaiton to perform bounds checking of inputs
 		this(new Location(lat, lon, depth));
 	}
 
@@ -120,6 +123,10 @@ public class PointSurface implements EvenlyGriddedSurface {
 		this.aveStrike = aveStrike ;
 	}
 
+	
+	/** Returns the average strike of this surface on the Earth.  */
+	public double getAveStrike() { return aveStrike; }
+
 
 	/**
 	 * Sets the average dip of this surface into the Earth. An InvalidRangeException
@@ -132,122 +139,25 @@ public class PointSurface implements EvenlyGriddedSurface {
 		this.aveDip =  aveDip ;
 	}
 
-
-
-
-	/**
-	 *  Add a Location to the grid - does the same thing as set except that it
-	 *  ensures the object is a Location object. Note that x and y must always
-	 *  be 0,0.
-	 *
-	 * @param  row                                 The row to set this Location at.
-	 * @param  column                              The column to set this Location at.
-	 * @param  location                            The new location value.
-	 * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
-	 */
-	public void setLocation( int x, int y, Location location ) throws ArrayIndexOutOfBoundsException {
-		if ( x == 0 && y == 0 ) {
-			this.setLocation( location );
-		} else {
-			throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
-		}
-	}
-
-
-	/** Since this is a point source, the single Location can be set without indexes. Does a clone copy. */
-	public void setLocation( Location location ) {
-		this.location = location;
-		//        lat = loc.getLatitude();
-		//        lon = loc.getLongitude();
-		//        depth = loc.getDepth();
-		//        this.setLatitude( location.getLatitude() );
-		//        this.setLongitude( location.getLongitude() );
-		//        this.setDepth( location.getDepth() );
-	}
-	//    public double getLatitude() { return lat; }
-	//    public void setLatitude(double lat) {
-	//    	GeoTools.validateLat(lat);
-	//    	this.lat = lat;
-	//    }
-	//    public double getLongitude() { return lon; }
-	//    public void setLongitude(double lon) {
-	//    	GeoTools.validateLon(lon);
-	//    	this.lon = lon;
-	//    }
-	public double getDepth() { return location.getDepth(); }
-	public void setDepth(double depth) {
-		location = new Location(
-				location.getLatitude(), 
-				location.getLongitude(),
-				depth);
-	}
-
-
-	/**
-	 *  Set an object in the 2D grid. Ensures the object passed in is a Location.
-	 *  Note that x and y must always be 0,0.
-	 *
-	 * @param  row                                 The row to set the Location. Must be 0.
-	 * @param  column                              The row to set the Location. Must be 0.
-	 * @param  obj                                 Must be a Location object
-	 * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
-	 * @exception  ClassCastException              Thrown if the passed in Obejct is not a Location.
-	 */
-	public void set( int row, int column, Location obj )
-	throws
-	ArrayIndexOutOfBoundsException,
-	ClassCastException {
-
-		if ( row == 0 && column == 0 ) {
-			location = obj;
-		} else {
-			throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
-		}
-	}
-
-
-	/** Returns the average strike of this surface on the Earth.  */
-	public double getAveStrike() { return aveStrike; }
-
 	/** Returns the average dip of this surface into the Earth.  */
 	public double getAveDip() { return aveDip; }
 
-	/**
-	 * Put all the locations of this surface into a location list
-	 *
-	 * @return
-	 */
-	public LocationList getLocationList() {
-		LocationList locList = new LocationList();
-		locList.add(getLocation());
-		return locList;
+
+	/** Since this is a point source, the single Location can be set without indexes. Does a clone copy. */
+	public void setLocation(Location location ) {
+		pointLocation = location;
+		ptLocChanged = true;
+	}
+	
+
+	public double getDepth() { return pointLocation.getDepth(); }
+
+	
+	public void setDepth(double depth) {
+		Location newLocation = new Location(pointLocation.getLatitude(), pointLocation.getLongitude(), depth);
+		setLocation(newLocation);
 	}
 
-
-
-	/** return getLocationsIterator() */
-	public ListIterator<Location> getColumnIterator( int row ) throws ArrayIndexOutOfBoundsException {
-		return listIterator();
-	}
-
-	/** return getLocationsIterator() */
-	public ListIterator<Location> getRowIterator( int column ) throws ArrayIndexOutOfBoundsException {
-		return listIterator();
-	}
-
-	/** return getLocationsIterator() */
-	public ListIterator<Location> getAllByColumnsIterator() { return listIterator(); }
-
-	/** return getLocationsIterator() */
-	public ListIterator<Location> getAllByRowsIterator() { return listIterator();}
-
-
-	/** Gets the numRows of the PointSurface. Always returns 1. */
-	public int getNumRows() { return 1; }
-
-
-	/** Gets the numRows of the PointSurface. Always returns 1. */
-	public int getNumCols() { return 1; }
 
 	/**
 	 * Gets the location for this point source.
@@ -255,141 +165,15 @@ public class PointSurface implements EvenlyGriddedSurface {
 	 * @return
 	 */
 	public Location getLocation() {
-		return location;
+		return pointLocation;
 	}
 
-
-	/**
-	 *  Get's the Location of this PointSource.
-	 *
-	 * @param  row              The row to get this Location from. Must be 0.
-	 * @param  column           The column to get this Location from. Must be 0.
-	 * @return Value            The Location.
-	 *
-	 * @exception  ArrayIndexOutOfBoundsException  Thrown if row or column not equal to 0.
-	 */
-	public Location get( int row, int column )
-	throws ArrayIndexOutOfBoundsException {
-
-		if ( row == 0 && column == 0 ) {
-			return getLocation();
-		} else {
-			throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
-		}
-	}
-
-
-	/** Make a clone ( copies all fields ) of the Location. */
-	//    protected Location cloneLocation() {
-	//
-	//        Location location = new Location(
-	//                this.getLatitude(),
-	//                this.getLongitude(),
-	//                this.getDepth()
-	//                 );
-	//
-	//        return location;
-	//    }
-
-
-	/** return getLocationsIterator() */
-	public ListIterator<Location> listIterator() {
-		ArrayList<Location> v = new ArrayList<Location>();
-		v.add(getLocation());
-		return v.listIterator();
-	}
-
-
-	/** FIX *** Does nothing - should clear the Location values  */
-	public void clear() { }
-
-
-	/**
-	 *  Check if this grid point has data. Will return false for all
-	 *  rows and columns != 0.
-	 *
-	 * @param  row     The row to get this Location from. Must be 0.
-	 * @param  column  The column to get this Location from. Must be 0.
-	 * @return         Description of the Return Value
-	 */
-	public boolean exist( int row, int column ) {
-		if ( row == 0 || column == 0 ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Returns the grid centered location on each grid surface.
-	 * @return GriddedSurfaceAPI returns a Surface that has one less
-	 * row and col then the original surface. It averages the 4 corner location
-	 * on each grid surface to get the grid centered location.
-	 */
-	public EvenlyGriddedSurface getGridCenteredSurface() {
-		return this;
-	}
-
-
-	/** returns number of elements in array. Returns 1.  */
-	public long size() {
-		return 1L;
-	}
 
 	/** Sets the name of this PointSource. Uesful for lookup in a list */
 	public void setName(String name) { this.name = name; }
+	
 	/** Gets the name of this PointSource. Uesful for lookup in a list */
 	public String getName() { return name; }
-
-	/**
-	 *  this sets the lat, lon, and depth to be NaN
-	 *
-	 * @param  row            The row to get this Location from. Must be 0.
-	 * @param  column         The column to get this Location from. Must be 0.
-	 * @exception  ArrayIndexOutOfBoundsException  Thrown if row or column is not zero.
-	 */
-	/* implementation */
-	//    public void delete( int row, int column )
-	//             throws ArrayIndexOutOfBoundsException {
-	//        if ( row == 0 && column == 0 ) {
-	//
-	//        	setLatitude(0);
-	//        	setLongitude(0);
-	//        	setDepth(0);
-	////            this.latitude = Double.NaN;
-	////            this.longitude = Double.NaN;
-	////            this.depth = Double.NaN;
-	//        	
-	//        } else {
-	//            throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
-	//        }
-	//    }
-
-	/**
-	 * This returns the total length of the surface
-	 * @return double
-	 */
-	public double getSurfaceLength() {
-
-		return 0;
-	}
-
-
-	/**
-	 * This returns the surface width (down dip)
-	 * @return double
-	 */
-	public double getSurfaceWidth() {
-		return 0;
-	}
-
-	/**
-	 * This returns the surface area
-	 * @return double
-	 */
-	public double getSurfaceArea() {
-		return 0;
-	}
 
 
 	/**
@@ -414,76 +198,222 @@ public class PointSurface implements EvenlyGriddedSurface {
 	public String getSurfaceMetadata() {
 		String surfaceMetadata;
 		surfaceMetadata = (float)aveDip + "\t";
-		surfaceMetadata += (float)getSurfaceLength() + "\t";
-		surfaceMetadata += (float)getSurfaceWidth() + "\t";
+		surfaceMetadata += (float)getAveLength() + "\t";
+		surfaceMetadata += (float)getAveWidth() + "\t";
 		surfaceMetadata += (float)Double.NaN + "\t";
 		surfaceMetadata += "1" + "\t";
 		surfaceMetadata += "1" + "\t";
 		surfaceMetadata += "1" + "\n";
 		surfaceMetadata += "#Surface locations (Lat Lon Depth) \n";
-		surfaceMetadata += (float) location.getLatitude() + "\t";
-		surfaceMetadata += (float) location.getLongitude() + "\t";
-		surfaceMetadata += (float) location.getDepth();
+		surfaceMetadata += (float) pointLocation.getLatitude() + "\t";
+		surfaceMetadata += (float) pointLocation.getLongitude() + "\t";
+		surfaceMetadata += (float) pointLocation.getDepth();
 
 		return surfaceMetadata;
 	}
 
-
-	/** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
-	public LocationList getSurfacePerimeterLocsList() {
-		LocationList locList = new LocationList();
-		locList.add(this.getLocation());
-		return locList;
-	}
-
-
-
-
-	/**
-	 * returns the grid spacing
-	 *
-	 * @return
-	 */
-	public double getGridSpacingAlongStrike() {
-		return Double.NaN;
-	}
-	/**
-	 * returns the grid spacing
-	 *
-	 * @return
-	 */
-	public double getGridSpacingDownDip() {
-		return Double.NaN;
-	}
-	/**
-	 * returns the grid spacing
-	 *
-	 * @return
-	 */
-	public Boolean isGridSpacingSame() {
-		return null;
+	@Override
+	public double getAveDipDirection() {
+		throw new RuntimeException("Method not yet implemented");
 	}
 
 	@Override
-	public Location getLocation(int row, int column) {
-		return get(row, column);
+	public double getAveRupTopDepth() {
+		return pointLocation.getDepth();
+	}
+
+	@Override
+	public LocationList getPerimeter() {
+		// TODO Auto-generated method stub
+		return getEvenlyDiscritizedPerimeter();
+	}
+	
+	private FaultTrace getFaultTrace() {
+		FaultTrace trace = new FaultTrace(null);
+		trace.add(pointLocation);
+		return trace;
+	}
+
+	@Override
+	public FaultTrace getUpperEdge() {
+		return getFaultTrace();
+	}
+	
+	
+	/**
+	 * This sets the magnitude and type for the point-source distance corrections
+	 * @param mag
+	 * @param type
+	 */
+	public void setDistCorrMagAndType(double mag, PtSrcDistCorr.Type type) {
+		corrMag=mag;
+		corrType = type;
+	}
+
+
+	/**
+	 * This sets the three propagation distances (distanceJB, distanceRup, & distanceSeis)
+	 * @param siteLoc
+	 */
+	private void calcPropagationDistances(Location siteLoc) {
+
+		// calc distances if either location has changed
+		// IS THIS REALLY SAVING MUCH TIME (is the check faster than recomputing the distances)?
+		if(!siteLocForDistCalcs.equals(siteLoc) || ptLocChanged) {
+			siteLocForDistCalcs = siteLoc;
+			vertDist = LocationUtils.vertDistance(pointLocation, siteLocForDistCalcs);
+			distanceJB = LocationUtils.horzDistanceFast(pointLocation, siteLocForDistCalcs);
+		}
+		
+		// always do this point source-distance correction since mag is generally always changing 
+		// (looping over point source) & type NONE returns 1.0
+		distanceJB *= PtSrcDistCorr.getCorrection(distanceJB, corrMag, corrType);		
+		
+		// set distanceRup & distanceSeis
+		distanceRup = Math.sqrt(distanceJB * distanceJB + vertDist * vertDist);
+		if (pointLocation.getDepth() < SEIS_DEPTH)
+			distanceSeis = Math.sqrt(distanceJB * distanceJB + SEIS_DEPTH * SEIS_DEPTH);
+		else
+			distanceSeis = distanceRup;
+	}
+	
+	
+	/**
+	 * This returns rupture distance (kms to closest point on the 
+	 * rupture surface), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return 
+	 */
+	@Override
+	public double getDistanceRup(Location siteLoc){
+		calcPropagationDistances(siteLoc);
+		return distanceRup;
+	}
+
+	/**
+	 * This returns distance JB (shortest horz distance in km to surface projection 
+	 * of rupture), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	@Override
+	public double getDistanceJB(Location siteLoc){
+		calcPropagationDistances(siteLoc);
+		return distanceJB;
+	}
+
+	/**
+	 * This returns "distance seis" (shortest distance in km to point on rupture 
+	 * deeper than 3 km), assuming the location has zero depth (for numerical 
+	 * expediency).
+	 * @return
+	 */
+	@Override
+	public double getDistanceSeis(Location siteLoc){
+		calcPropagationDistances(siteLoc);
+		return distanceSeis;
+	}
+
+	/**
+	 * This returns distance X (the shortest distance in km to the rupture 
+	 * trace extended to infinity), where values >= 0 are on the hanging wall
+	 * and values < 0 are on the foot wall.  The given site location is assumed to be at zero
+	 * depth (for numerical expediency).  This always returns zero since this is a point surface.
+	 * @return
+	 */
+	@Override
+	public double getDistanceX(Location siteLoc){
+		return 0.0;
+	}
+	
+	@Override
+	public String getInfo() {
+        return new String("\tPoint-Surface Location (lat, lon, depth (km):" +
+                "\n\n" +
+                "\t\t" + (float) pointLocation.getLatitude() + ", " +
+                (float) pointLocation.getLongitude() +
+                ", " + (float) pointLocation.getDepth());
+	}
+
+	@Override
+	public boolean isPointSurface() {
+		return true;
+	}
+
+	@Override
+	public double getArea() {
+		return 0;
+	}
+
+	@Override
+	public double getAveGridSpacing() {
+		return 0;
+	}
+
+	@Override
+	public double getAveLength() {
+		return 0;
+	}
+
+	@Override
+	public double getAveWidth() {
+		return 0;
+	}
+	
+	private LocationList getLocationList() {
+		LocationList list = new LocationList();
+		list.add(pointLocation);
+		return list;
+	}
+
+	@Override
+	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
+		return getLocationList();
+	}
+
+	@Override
+	public LocationList getEvenlyDiscritizedPerimeter() {
+		return getLocationList();
+	}
+
+	@Override
+	public FaultTrace getEvenlyDiscritizedUpperEdge() {
+		return getFaultTrace();
+	}
+
+	@Override
+	public Location getFirstLocOnUpperEdge() {
+		return pointLocation;
+	}
+
+	@Override
+	public Location getLastLocOnUpperEdge() {
+		return pointLocation;
+	}
+
+	@Override
+	public double getFractionOfSurfaceInRegion(Region region) {
+		if(region.contains(pointLocation))
+			return 1.0;
+		else
+			return 0.0;
 	}
 
 	@Override
 	public ListIterator<Location> getLocationsIterator() {
-		return listIterator();
+		return getLocationList().listIterator();
 	}
 
+	
+	/**
+	 * This returns the minimum distance as the minimum among all location
+	 * pairs between the two surfaces
+	 * @param surface RuptureSurface 
+	 * @return distance in km
+	 */
 	@Override
-	public Iterator<Location> iterator() {
-		return listIterator();
+	public double getMinDistance(RuptureSurface surface) {
+		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
 	}
-
-	public FaultTrace getRowAsTrace(int row) {
-		FaultTrace trace = new FaultTrace(null);
-		trace.add(location);
-		return trace;
-	}
-
 
 }

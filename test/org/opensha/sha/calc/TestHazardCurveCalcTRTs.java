@@ -63,7 +63,7 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 		erf.getSource(0).setTectonicRegionType(trt);
 		
 		if (site == null) {
-			Location surfLoc = erf.getSource(0).getRupture(0).getRuptureSurface().iterator().next();
+			Location surfLoc = erf.getSource(0).getRupture(0).getRuptureSurface().getLocationsIterator().next();
 			Location loc = new Location(surfLoc.getLatitude(), surfLoc.getLongitude());
 			site = new Site(loc);
 			FakeTRTBasedIMR imr = new FakeTRTBasedIMR(TectonicRegionType.ACTIVE_SHALLOW);

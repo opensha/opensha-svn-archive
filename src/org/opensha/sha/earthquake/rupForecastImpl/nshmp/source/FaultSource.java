@@ -18,6 +18,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -53,7 +54,7 @@ public class FaultSource extends ProbEqkSource {
 
 	int size = 0;
 	// TODO this should not be using abstract impl
-	AbstractEvenlyGriddedSurface surface;
+	AbstractEvenlyGriddedSurfaceWithSubsets surface;
 
 	List<FloatingPoissonFaultSource> sources;
 	List<Integer> rupCount;
@@ -93,7 +94,7 @@ public class FaultSource extends ProbEqkSource {
 
 	@Override
 	public LocationList getAllSourceLocs() {
-		return surface.getLocationList();
+		return null; //surface.getLocationList();
 	}
 
 	@Override

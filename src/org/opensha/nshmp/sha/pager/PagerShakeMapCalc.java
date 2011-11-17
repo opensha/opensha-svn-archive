@@ -44,10 +44,11 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.param.SimpleFaultParameter;
@@ -161,7 +162,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 				lats, lons, dips, depths, SimpleFaultParameter.STIRLING);
 		faultParameter.setEvenlyGriddedSurfaceFromParams();
 		rupture = new EqkRupture();
-		rupture.setRuptureSurface((EvenlyGriddedSurface)faultParameter.getValue());
+		rupture.setRuptureSurface((AbstractEvenlyGriddedSurface)faultParameter.getValue());
 		rupture.setAveRake(aveRake);
 		rupture.setMag(mag);
 
@@ -334,7 +335,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
 	/**
 	 * Checking if the point source corection needs to be applied for the calculation
-	 * @param str String
+	 * @param str String ("0" means no, and "1" means yes (for the Field (2004) correction)
 	 */
 	private void setPointSrcCorrection(String str) {
 		StringTokenizer tokenizer = new StringTokenizer(str);
@@ -415,21 +416,19 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 	 */
 	private GeoDataSet pagerShakeMapCalc() throws ParameterException {
 
-		PropagationEffect propagationEffect = new PropagationEffect();
+		calc = new ScenarioShakeMapCalculator();
 
-		ParameterList paramList = propagationEffect.getAdjustableParameterList();
-		paramList.getParameter(propagationEffect.APPROX_DIST_PARAM_NAME).setValue(new
-				Boolean(true));
-
-		if (pointSourceCorrection)
-			paramList.getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).
-			setValue(new Boolean(true));
-		else
-			paramList.getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).
-			setValue(new Boolean(false));
-
+		// set the point source correction parameter below when it's implemented in the ScenarioShakeMapCalculator
+		if(rupture.getRuptureSurface() instanceof PointSurface) {
+			if (pointSourceCorrection)
+				((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), PtSrcDistCorr.Type.FIELD);
+			else
+				((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), PtSrcDistCorr.Type.NONE);
+		}
+		
+		
+		
 		//Calls the ScenarioShakeMap Calculator to generate Median File
-		calc = new ScenarioShakeMapCalculator(propagationEffect);
 		ArrayList attenRelsSupported = new ArrayList();
 		attenRelsSupported.add(attenRel);
 		ArrayList attenRelWts = new ArrayList();

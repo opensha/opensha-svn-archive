@@ -33,9 +33,9 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.AftershockParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -210,8 +210,6 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
 
-		propEffect = new PropagationEffect();
-		propEffect.fixDistanceJB(true);
 	}
 
 	@Override
@@ -220,10 +218,9 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 		this.eqkRupture = eqkRupture;
 		magParam.setValueIgnoreWarning(eqkRupture.getMag());
 		setFaultTypeFromRake(eqkRupture.getAveRake());
-		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
+		RuptureSurface surface = eqkRupture.getRuptureSurface();
 		dipParam.setValue(surface.getAveDip());
-		double depth = surface.getLocation(0, 0).getDepth();
-		rupTopDepthParam.setValue(depth);
+		rupTopDepthParam.setValueIgnoreWarning(surface.getAveRupTopDepth());
 		aftershockParam.setValue(false);
 		setPropagationEffectParams();
 	}
@@ -243,33 +240,10 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 	@Override
 	protected void setPropagationEffectParams() {
 		if (site != null && eqkRupture != null) {
-			propEffect.setAll(this.eqkRupture, this.site);
 			propEffectUpdate();
 		}
 	}
 	
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect)
-			throws InvalidRangeException, ParameterException {
-		this.propEffect = propEffect;
-		site = propEffect.getSite();
-		eqkRupture = propEffect.getEqkRupture();
-		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
-			.getValue());
-		depthTo1pt0kmPerSecParam.setValueIgnoreWarning((Double) site.getParameter(
-			DepthTo1pt0kmPerSecParam.NAME).getValue());
-		vs30_TypeParam.setValue((String) site.getParameter(Vs30_TypeParam.NAME)
-			.getValue());
-		magParam.setValueIgnoreWarning(eqkRupture.getMag());
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-		EvenlyGriddedSurface surface = eqkRupture.getRuptureSurface();
-		dipParam.setValue(surface.getAveDip());
-		double depth = surface.getLocation(0, 0).getDepth();
-		rupTopDepthParam.setValue(depth);
-		aftershockParam.setValue(false);
-		propEffectUpdate();
-	}
-
 	
 	private void propEffectUpdate() {
 		
@@ -284,9 +258,9 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 		 * Ned Field, Norm Abrahamson, and Ken Campbell.
 		 */
 		
-		distanceRupParam.setValueIgnoreWarning(propEffect.getDistanceRup()); // this sets rRup too
-		double dist_jb = propEffect.getDistanceJB();
-		double distX = propEffect.getDistanceX();
+		distanceRupParam.setValueIgnoreWarning(eqkRupture.getRuptureSurface().getDistanceRup(site.getLocation())); // this sets rRup too
+		double dist_jb = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
+		double distX = eqkRupture.getRuptureSurface().getDistanceX(site.getLocation());
 		if(rRup>0.0) {
 			distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
 			if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)

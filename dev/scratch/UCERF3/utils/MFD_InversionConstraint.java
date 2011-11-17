@@ -61,7 +61,7 @@ public class MFD_InversionConstraint {
 			StirlingGriddedSurface surf = new StirlingGriddedSurface(data.getSimpleFaultData(true), gridSpacing);
 			double numPts = (double) surf.size();
 			totNum += numPts;
-			numInside += numPts*RegionUtils.getFractionInside(region, surf.getLocationList());
+			numInside += numPts*RegionUtils.getFractionInside(region, surf.getEvenlyDiscritizedListOfLocsOnSurface());
 			data.getSimpleFaultData(true);
 		}
 		return numInside/totNum;

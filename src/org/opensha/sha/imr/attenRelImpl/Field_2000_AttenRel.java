@@ -39,7 +39,6 @@ import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -187,32 +186,6 @@ public class Field_2000_AttenRel extends AttenuationRelationship {
 
 	}
 
-	/**
-	 * This sets the site and eqkRupture, and the related parameters,
-	 *  from the propEffect object passed in. Warning constrains are ingored.
-	 * @param propEffect
-	 * @throws ParameterException Thrown if the Site object doesn't contain
-	 * Vs30 parameter.
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	ParameterException, InvalidRangeException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-
-		// set the locat site-type param
-		vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
-		basinDepthParam.setValueIgnoreWarning((Double)site.getParameter(BASIN_DEPTH_NAME).
-				getValue());
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-
-		// set the distance param
-		propEffect.setParamValue(distanceJBParam);
-
-	}
 
 	/**
 	 * This calculates the Distance JB propagation effect parameter based

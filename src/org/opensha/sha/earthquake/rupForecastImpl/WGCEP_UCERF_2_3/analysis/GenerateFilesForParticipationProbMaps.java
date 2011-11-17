@@ -18,7 +18,8 @@ import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -250,9 +251,9 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	        double mag = rupture.getMag();
 	        double meanAnnualRate = rupture.getMeanAnnualRate(duration);
 	        ArrayList<Integer> locIndices = new ArrayList<Integer>();
-	        EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
+	        RuptureSurface rupSurface = rupture.getRuptureSurface();
 	        //getting the iterator for all points on the rupture
-	        ListIterator it = rupSurface.getAllByRowsIterator();
+	        ListIterator it = rupSurface.getLocationsIterator();
 	        int locIndex;
 	        //looping over all the rupture pt location and finding the nearest location
 	        //to them in the Geographical Region.

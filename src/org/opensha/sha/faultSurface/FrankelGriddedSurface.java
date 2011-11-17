@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 
 
 
@@ -203,7 +205,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 			while( segmentNumber <= numSegments && distanceAlong > segmentCumLenth[ segmentNumber - 1] ){
 				segmentNumber++;
 			}
-			// put back in last segment if grid point has just barely stepped off the end
+			// put back in last segment if grid point has just barely stepped off the end of the trace
 			if( segmentNumber == numSegments+1) segmentNumber--;
 
 			if( D ) System.out.println(S + "segmentNumber " + segmentNumber );
@@ -234,7 +236,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 			else
 				topLocation = traceLocation;
 
-			setLocation(0, ith_col, topLocation.clone());
+			set(0, ith_col, topLocation.clone());
 			if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
 			// Loop over each row - calculating location at depth along the fault trace
@@ -252,7 +254,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 				dir = new LocationVector(segmentAzimuth[ segmentNumber - 1 ]+90, hDistance, vDistance);
 
 				Location depthLocation = LocationUtils.location( topLocation, dir );
-				setLocation(ith_row, ith_col, depthLocation.clone());
+				set(ith_row, ith_col, depthLocation.clone());
 				if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
 				ith_row++;
@@ -263,6 +265,12 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		if( D ) System.out.println(S + "Ending");
 
 	}
+	
+	@Override
+	public double getAveDipDirection() {
+		return faultTrace.getDipDirection();
+	}
+
 
 
 	public static void main(String args[]) {

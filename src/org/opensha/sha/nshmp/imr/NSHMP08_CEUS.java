@@ -1,7 +1,7 @@
 package org.opensha.sha.nshmp.imr;
 
 import static com.google.common.base.Preconditions.*;
-import static org.opensha.sha.imr.PropagationEffect.*;
+//import static org.opensha.sha.imr.PropagationEffect.*;
 import static org.opensha.sha.imr.AttenRelRef.*;
 import static org.opensha.sha.nshmp.Period.*;
 import static org.opensha.sha.nshmp.SiteType.FIRM_ROCK;
@@ -36,7 +36,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.nshmp.CEUS_ERF.SourceCEUS;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
+//import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -120,8 +120,8 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 	public NSHMP08_CEUS(ParameterChangeWarningListener listener) {
 		initIMRs();
 
-		propEffect = new PropagationEffect();
-		propEffect.fixDistanceJB(true);
+//		propEffect = new PropagationEffect();
+//		propEffect.fixDistanceJB(true);
 
 		// these methods are called for each attenRel upon construction; we
 		// do some local cloning so that a minimal set of params may be
@@ -288,16 +288,16 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 		otherParams.addParameter(tectonicRegionTypeParam);
 
 		// Prop effect pt src correction - hidden
-		ptSrcCorrParam = (BooleanParameter) propEffect
-			.getAdjustableParameterList().getParameter(
-				POINT_SRC_CORR_PARAM_NAME);
-		ptSrcCorrParam.setDefaultValue(true);
+//		ptSrcCorrParam = (BooleanParameter) propEffect
+//			.getAdjustableParameterList().getParameter(
+//				POINT_SRC_CORR_PARAM_NAME);
+//		ptSrcCorrParam.setDefaultValue(true);
 
 		// NSHMP pt src correction - hidden
-		nshmpPtSrcCorrParam = (BooleanParameter) propEffect
-			.getAdjustableParameterList().getParameter(
-				NSHMP_PT_SRC_CORR_PARAM_NAME);
-		nshmpPtSrcCorrParam.setDefaultValue(true);
+//		nshmpPtSrcCorrParam = (BooleanParameter) propEffect
+//			.getAdjustableParameterList().getParameter(
+//				NSHMP_PT_SRC_CORR_PARAM_NAME);
+//		nshmpPtSrcCorrParam.setDefaultValue(true);
 		// otherParams.addParameter(nshmpPtSrcCorrParam);
 
 		// enforce default values used by NSHMP
@@ -340,34 +340,34 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 	@Override
 	public void setSite(Site site) {
 		this.site = site;
-		propEffect.setSite(site);
+//		propEffect.setSite(site);
 
 		// being done to satisfy unit tests
 		vs30Param.setValueIgnoreWarning((Double) site.getParameter(
 			Vs30_Param.NAME).getValue());
 
-		if (propEffect.getEqkRupture() != null) {
-			setPropagationEffect(propEffect);
-		}
+//		if (propEffect.getEqkRupture() != null) {
+//			setPropagationEffect(propEffect);
+//		}
 	}
 
 	@Override
 	public void setEqkRupture(EqkRupture eqkRupture) {
 		this.eqkRupture = eqkRupture;
-		propEffect.setEqkRupture(eqkRupture);
-		if (propEffect.getSite() != null) {
-			setPropagationEffect(propEffect);
-		}
+//		propEffect.setEqkRupture(eqkRupture);
+//		if (propEffect.getSite() != null) {
+//			setPropagationEffect(propEffect);
+//		}
 	}
 
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect) {
-		this.propEffect = propEffect;
-		if (sourceParam.getValue() == GRID) return;
-		for (ScalarIMR imr : imrMap.keySet()) {
-			imr.setPropagationEffect(propEffect);
-		}
-	}
+//	@Override
+//	public void setPropagationEffect(PropagationEffect propEffect) {
+//		this.propEffect = propEffect;
+//		if (sourceParam.getValue() == GRID) return;
+//		for (ScalarIMR imr : imrMap.keySet()) {
+//			imr.setPropagationEffect(propEffect);
+//		}
+//	}
 
 	@Override
 	public double getMean() {
@@ -394,8 +394,8 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 			throws ParameterException {
 
 		if (sourceParam.getValue() == GRID) {
-			double M = propEffect.getEqkRupture().getMag();
-			double D = propEffect.getDistanceJB();
+			double M = eqkRupture.getMag();
+			double D = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
 			Period P = Period.valueForPeriod((Double) getParameter(
 				PeriodParam.NAME).getValue());
 			return gridTable.get(D, M, P);
@@ -534,9 +534,9 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 		// toggling nshmp pt src is picked up directly by PropEffect,
 		// need to turn off basic point source correction too; TODO this
 		// could be implemented better e.g. as a choice: none | field | nshmp
-		if (e.getParameterName().equals(NSHMP_PT_SRC_CORR_PARAM_NAME)) {
-			ptSrcCorrParam.setValue((Boolean) e.getParameter().getValue());
-		}
+//		if (e.getParameterName().equals(NSHMP_PT_SRC_CORR_PARAM_NAME)) {
+//			ptSrcCorrParam.setValue((Boolean) e.getParameter().getValue());
+//		}
 
 	}
 

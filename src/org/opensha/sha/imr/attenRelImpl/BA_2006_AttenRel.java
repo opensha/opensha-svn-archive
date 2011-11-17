@@ -35,7 +35,6 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -376,28 +375,6 @@ public class BA_2006_AttenRel extends AttenuationRelationship implements
     imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
   }
 
-  /**
-   * This sets the site and eqkRu passed in. Warning constrains are ingored.
-   * @param propEffect
-   * @throws ParameterException Thrown if the Site object doesn't contain a
-   * Vs30 parameter
-   * @throws InvalidRangeException thrown if rake is out of bounds
-   */
-  public void setPropagationEffect(PropagationEffect propEffect) throws
-      InvalidRangeException, ParameterException {
-
-    this.site = propEffect.getSite();
-    this.eqkRupture = propEffect.getEqkRupture();
-
-    vs30Param.setValueIgnoreWarning((Double)site.getParameter(Vs30_Param.NAME).getValue());
-
-    magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-    setFaultTypeFromRake(eqkRupture.getAveRake());
-
-    propEffect.setParamValue(distanceJBParam);
-  }
-  
-  
   
   
   /**

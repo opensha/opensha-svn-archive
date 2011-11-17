@@ -40,7 +40,6 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -223,51 +222,6 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 
 	}
 
-	/**
-	 * This sets the site and eqkRupture, and the related parameters,
-	 *  from the propEffect object passed in. Warning constrains are ingored.
-	 * @param propEffect
-	 * @throws ParameterException Thrown if the Site object doesn't contains
-	 * the site-related parameters.
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	ParameterException, InvalidRangeException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-
-		this.siteTypeParam.setValue((String)site.getParameter(SITE_TYPE_NAME).getValue());
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		setFaultTypeFromRake(eqkRupture.getAveRake(),
-				eqkRupture.getRuptureSurface().getAveDip());
-
-		propEffect.setParamValue(distanceSeisParam);
-
-		// set the hanging-wall parameter
-		int numPts = eqkRupture.getRuptureSurface().getNumCols();
-		double dip = eqkRupture.getRuptureSurface().getAveDip();
-		String fltType = (String) fltTypeParam.getValue();
-
-		if (dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
-			//          double jbDist = ( (Double) distanceJBParam.getValue( eqkRupture, site ) ).doubleValue();
-			double jbDist = ( (Double) propEffect.getParamValue(distanceJBParam.NAME)).
-			doubleValue();
-			if (jbDist < 1.0) {
-				hangingWallParam.setValue(1.0);
-			}
-			else if (jbDist < 5.0) {
-				hangingWallParam.setValue( (5.0 - jbDist) / 5.0);
-			}
-			else {
-				hangingWallParam.setValue(0.0);
-			}
-		}
-		else { // turn it off for normal, strike-slip, or vertically dipping faults
-			hangingWallParam.setValue(0.0);
-		}
-	}
 
 	/**
 	 * get the name of this IMR
@@ -301,11 +255,10 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 			distanceSeisParam.setValue(eqkRupture, site);
 
 			// hanging wall effect
-			int numPts = eqkRupture.getRuptureSurface().getNumCols();
 			double dip = eqkRupture.getRuptureSurface().getAveDip();
 			String fltType = (String) fltTypeParam.getValue();
 
-			if (dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
+			if (dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && !eqkRupture.getRuptureSurface().isPointSurface()) {
 				double jbDist = ( (Double) distanceJBParam.getValue(eqkRupture, site)).
 				doubleValue();
 				if (jbDist < 1.0) {

@@ -34,8 +34,8 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -278,13 +278,13 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
                                                  RAKE,timeSpan.getDuration(),minMag);
 
       // for fault C:
-      EvenlyGriddedSurface surfaceC = new FrankelGriddedSurface( faultTraceC,
+      AbstractEvenlyGriddedSurface surfaceC = new FrankelGriddedSurface( faultTraceC,
                                                                      DIP,
                                                                      seisUpper,
                                                                      seisLower,
                                                                      gridSpacing );
 
-      fltSourceC = new  FloatingPoissonFaultSource(dist_yc_C,(AbstractEvenlyGriddedSurface) surfaceC,
+      fltSourceC = new  FloatingPoissonFaultSource(dist_yc_C,(AbstractEvenlyGriddedSurfaceWithSubsets) surfaceC,
                                                  magScalingRel,lengthSigma,rupAspectRatio,offset,
                                                  RAKE,timeSpan.getDuration(),minMag);
 

@@ -44,6 +44,7 @@ import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
 import org.opensha.sha.calc.params.NumStochasticEventSetsParam;
+import org.opensha.sha.calc.params.PtSrcDistanceCorrectionParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ERF;
@@ -51,6 +52,8 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
+import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
@@ -88,12 +91,10 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	//Info for parameter tells whether to apply a magnitude-dependent distance cutoff
 	private IncludeMagDistFilterParam includeMagDistFilterParam;
 	
-
 	//Info for parameter that specifies a magnitude-dependent distance cutoff
 	// (distance on x-axis and mag on y-axis)
 	private MagDistCutoffParam magDistCutoffParam;
 	
-
 	//Info for parameter that sets the maximum distance considered
 	private NumStochasticEventSetsParam numStochEventSetRealizationsParam;
 	
@@ -102,6 +103,9 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	
 	// This tells the calculator what to do if the TRT is not supported by the IMR
 	private NonSupportedTRT_OptionsParam nonSupportedTRT_OptionsParam;
+	
+	// This tell what type of point-source distance correction to apply
+	private PtSrcDistanceCorrectionParam ptSrcDistCorrParam;
 	
 
 	private ParameterList adjustableParams;
@@ -136,6 +140,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		setTRTinIMR_FromSourceParam = new SetTRTinIMR_FromSourceParam();
 		
 		nonSupportedTRT_OptionsParam = new NonSupportedTRT_OptionsParam();
+		
+		ptSrcDistCorrParam = new PtSrcDistanceCorrectionParam();
 
 		adjustableParams = new ParameterList();
 		adjustableParams.addParameter(maxDistanceParam);
@@ -144,7 +150,20 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		adjustableParams.addParameter(magDistCutoffParam);
 		adjustableParams.addParameter(setTRTinIMR_FromSourceParam);
 		adjustableParams.addParameter(nonSupportedTRT_OptionsParam);
+		adjustableParams.addParameter(ptSrcDistCorrParam);
 
+	}
+	
+	
+//	@Override
+	public void setPtSrcDistCorrType(PtSrcDistCorr.Type type) throws java.rmi.RemoteException {
+		ptSrcDistCorrParam.setValueFromTypePtSrcDistCorr(type);
+	}
+	
+
+//	@Override
+	public PtSrcDistCorr.Type getPtSrcDistCorrType() throws java.rmi.RemoteException{
+		return ptSrcDistCorrParam.getValueAsTypePtSrcDistCorr();
 	}
 
 
@@ -216,7 +235,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		//	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
 		//	  System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
 		//	  System.out.println("Haz Curv Calc: includeMagDistFilterParam.getValue()="+includeMagDistFilterParam.getValue().toString());
-		if(includeMagDistFilterParam.getValue())
+		if(includeMagDistFilterParam.getValue() && D)
 			System.out.println("Haz Curv Calc: magDistCutoffParam.getValue()="+magDistCutoffParam.getValue().toString());
 		
 		boolean setTRTinIMR_FromSource = setTRTinIMR_FromSourceParam.getValue();
@@ -225,6 +244,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			trtOrigVals = TRTUtils.getTRTsSetInIMRs(imrMap);
 
 		this.currRuptures = -1;
+		
+		PtSrcDistCorr.Type distCorrType = getPtSrcDistCorrType();
 
 		/* this determines how the calucations are done (doing it the way it's outlined
     in our original SRL paper gives probs greater than 1 if the total rate of events for the
@@ -338,6 +359,10 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 						numRupRejected += 1;
 						continue;
 					}
+					
+					// set point-source distance correction type & mag if it's a pointSurface
+					if(rupture.getRuptureSurface() instanceof PointSurface)
+						((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), distCorrType);
 
 					// indicate that a source has been used (put here because of above filter)
 					sourceUsed = true;
@@ -480,6 +505,9 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		if (D) System.out.println(C+": starting hazard curve calculation");
 
 		//	  System.out.println("totRuptures="+totRuptures);
+		
+		PtSrcDistCorr.Type distCorrType = getPtSrcDistCorrType();
+
 
 		// loop over ruptures
 		for(int n=0; n < totRups ; n++) {
@@ -487,6 +515,11 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			if(updateCurrRuptures)++currRuptures;
 
 			EqkRupture rupture = eqkRupList.get(n);
+			
+			// set point-source distance correction type (& mag) if it's a pointSurface
+			if(rupture.getRuptureSurface() instanceof PointSurface)
+				((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), distCorrType);
+
 
 			/*
     		// apply mag-dist cutoff filter
@@ -542,6 +575,11 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		// resetting the Parameter change Listeners on the AttenuationRelationship parameters,
 		// allowing the Server version of our application to listen to the parameter changes.
 		( (AttenuationRelationship) imr).resetParameterEventListeners();
+		
+		// set point-source distance correction type (& mag) if it's a pointSurface
+		if(rupture.getRuptureSurface() instanceof PointSurface)
+			((PointSurface)rupture.getRuptureSurface()).setDistCorrMagAndType(rupture.getMag(), getPtSrcDistCorrType());
+
 
 		// set the Site in IMR
 		imr.setSite(site);

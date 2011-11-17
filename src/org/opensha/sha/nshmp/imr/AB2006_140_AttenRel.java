@@ -28,7 +28,6 @@ import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -264,16 +263,16 @@ public class AB2006_140_AttenRel extends AttenuationRelationship implements
 		imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
 	}
 
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect)
-			throws InvalidRangeException, ParameterException {
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-		siteTypeParam.setValue((SiteType) site.getParameter(
-			siteTypeParam.getName()).getValue());
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		propEffect.setParamValue(distanceRupParam);
-	}
+//	@Override
+//	public void setPropagationEffect(PropagationEffect propEffect)
+//			throws InvalidRangeException, ParameterException {
+//		this.site = propEffect.getSite();
+//		this.eqkRupture = propEffect.getEqkRupture();
+//		siteTypeParam.setValue((SiteType) site.getParameter(
+//			siteTypeParam.getName()).getValue());
+//		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
+//		propEffect.setParamValue(distanceRupParam);
+//	}
 
 	@Override
 	protected void initSiteParams() {

@@ -22,7 +22,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.util.TectonicRegionType;
 
 /**
@@ -81,9 +82,9 @@ public class ProductionERFsInstantiationTest {
 	private void validateRupture(int sourceID, int rupID, ProbEqkRupture rupture) {
 		String rupStr = erfRef+": source "+sourceID+", rup "+rupID;
 		assertNotNull(rupStr+" is null!", rupture);
-		EvenlyGriddedSurface surface = rupture.getRuptureSurface();
+		RuptureSurface surface = rupture.getRuptureSurface();
 		assertNotNull(rupStr+" surface is null!", surface);
-		assertTrue(rupStr+" surface has zero points!", surface.size()>0l);
+		assertTrue(rupStr+" surface has zero points!", surface.getEvenlyDiscritizedListOfLocsOnSurface().size()>0l);
 		double prob = rupture.getProbability();
 		assertFalse(rupStr+" probability is NaN", Double.isNaN(prob));
 		assertTrue(rupStr+" probability is <0", prob>=0d);
@@ -96,16 +97,16 @@ public class ProductionERFsInstantiationTest {
 	
 	private void validateSourceSurface(String srcStr, ProbEqkSource source) {
 		try {
-			EvenlyGriddedSurface sourceSurface = source.getSourceSurface();
+			RuptureSurface sourceSurface = source.getSourceSurface();
 			assertNotNull(srcStr+" surface is null!", sourceSurface);
-			assertTrue(srcStr+" surface has zero points!", sourceSurface.size()>0l);
+			assertTrue(srcStr+" surface has zero points!", sourceSurface.getEvenlyDiscritizedListOfLocsOnSurface().size()>0l);
 		} catch (RuntimeException e) {
 			// if there was an error, only throw it if not a point source
 			// dirty, I know
 			if (ClassUtils.getClassNameWithoutPackage(source.getClass()).toLowerCase().contains("point"))
 				return;
 			ProbEqkRupture rup1 = source.getRupture(0);
-			if (rup1.getRuptureSurface().size() != 1l)
+			if (rup1.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size() != 1l)
 				throw e;
 		}
 	}

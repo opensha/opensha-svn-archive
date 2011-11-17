@@ -48,7 +48,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -556,8 +555,7 @@ public class MedianCalc_Cybershake
 	            //setting different intensity measures for each site and writing those to the file.
 	            medianFile.write(format.format(Math.exp(imr.getMean())) + " ");
 	            Site site = new Site(loc);
-	            PropagationEffect propEffect = new PropagationEffect(site,rupture);
-	            double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+	            double rupDist = rupture.getRuptureSurface().getDistanceRup(site.getLocation());
 	            medianFile.write((float)rupDist+"  ");	
 	          }
 	          medianFile.write("\n");
@@ -668,8 +666,7 @@ public class MedianCalc_Cybershake
 	            for(int s=0 ; s<numSites ; ++s){
 	              Location loc = locList.get(s);
 	              Site site = new Site(loc);
-	              PropagationEffect propEffect = new PropagationEffect(site,rupture);
-	              double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+	              double rupDist = rupture.getRuptureSurface().getDistanceRup(site.getLocation());
 	              fwRup.write((float)rupDist+"  ");
 	            }
 	            fwRup.write("\n");

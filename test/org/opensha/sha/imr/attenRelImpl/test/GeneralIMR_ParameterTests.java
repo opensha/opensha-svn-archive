@@ -22,12 +22,12 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.AttenRelRef;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -191,28 +191,7 @@ public class GeneralIMR_ParameterTests {
 		return site;
 	}
 	
-	private void assertDistanceParamsValid(Site site, EqkRupture rup) {
-		PropagationEffect peffect = new PropagationEffect(site, rup);
-		
-		for (Parameter<?> param : getAllIMRParams(imr)) {
-			try {
-				Object val = peffect.getParamValue(param.getName());
-				if (val instanceof Double) {
-					double d = (Double)val;
-					double pDiff = DataUtils.getPercentDiff((Double)param.getValue(), d);
-					
-					assertTrue(shortName+": param '"+param.getName()+"' not set correctly!"
-							+"\npDiff: "+pDiff
-							+"\nexpected: " + d
-							+"\nactual: " + param.getValue(),
-							pDiff < 0.1);
-				}
-			} catch (Exception e) {
-				// do nothing, this param just isn't a distance param
-			}
-		}
-		
-	}
+
 	
 	@Test
 	public void testSetSiteRup() {
@@ -232,24 +211,19 @@ public class GeneralIMR_ParameterTests {
 		
 		imr.setEqkRupture(rup2);
 		assertEquals(shortName+": setSite didn't change the site object", rup2, imr.getEqkRupture());
-		assertDistanceParamsValid(site2, rup2);
 		
 		imr.setEqkRupture(rup1);
-		assertDistanceParamsValid(site2, rup1);
 		
 		imr.setSite(site);
-		assertDistanceParamsValid(site, rup1);
 		imr.setEqkRupture(rup2);
-		assertDistanceParamsValid(site, rup2);
 		
 		imr.setAll(rup1, site2, im);
 		assertEquals(shortName+": setAll didn't change the site object", site2, imr.getSite());
-		assertDistanceParamsValid(site2, rup1);
 		
 	}
 	
 	private void verifyRupParams(EqkRupture rup) {
-		EvenlyGriddedSurface surf = rup.getRuptureSurface();
+		RuptureSurface surf = rup.getRuptureSurface();
 		try {
 			DipParam dipParam = (DipParam)imr.getParameter(DipParam.NAME);
 			assertEquals(shortName+": dip not set correctly",

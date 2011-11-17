@@ -34,7 +34,7 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.ParameterListParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.SimpleListricGriddedSurface;
@@ -185,7 +185,7 @@ java.io.Serializable{
 	 * @param  name   Name of the parameter
 	 * @param  surface  EvenlyGriddedSurface  object
 	 */
-	public SimpleFaultParameter(String name, AbstractEvenlyGriddedSurface surface){
+	public SimpleFaultParameter(String name, AbstractEvenlyGriddedSurfaceWithSubsets surface){
 		super(name,null,null,surface);
 		//initializing the simple fault parameter
 		initParamList();
@@ -545,7 +545,7 @@ java.io.Serializable{
 			faultParameterChange = false;
 			ParameterList independentParamList  = new ParameterList();
 			// EvenlyGriddedSurface
-			AbstractEvenlyGriddedSurface surface = null;
+			AbstractEvenlyGriddedSurfaceWithSubsets surface = null;
 			//gets the faultName
 			String fltName = (String)parameterList.getParameter(this.FAULT_NAME).getValue();
 			//creates the fault trace data
@@ -671,7 +671,7 @@ java.io.Serializable{
 			setValue(surface);
 
 			if(D) {
-				AbstractEvenlyGriddedSurface surf = surface;
+				AbstractEvenlyGriddedSurfaceWithSubsets surf = surface;
 				for(int i=0;i<surf.getNumCols();i++)
 					for(int k=0;k<surf.getNumRows();k++)
 						System.out.println(surf.getLocation(k,i).toString());

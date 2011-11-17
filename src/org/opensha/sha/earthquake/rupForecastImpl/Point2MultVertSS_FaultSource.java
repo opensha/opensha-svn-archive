@@ -34,6 +34,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
@@ -172,7 +173,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    * @param nthRupture
    * @return
    */
-  private EvenlyGriddedSurface getRuptureSurface(int nthRupture) {
+  private AbstractEvenlyGriddedSurface getRuptureSurface(int nthRupture) {
     // set the parameters for the fault factory
     frankelFaultSurface = new FrankelGriddedSurface((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
     return frankelFaultSurface;
@@ -190,7 +191,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     LocationList locList = new LocationList(); //master location list
     // get location list of all possible ruptures
     for(int i=0; i<numRuptures; ++i) {
-      LocationList rupLocList = getRuptureSurface(i).getLocationList();
+      LocationList rupLocList = getRuptureSurface(i).getEvenlyDiscritizedListOfLocsOnSurface();
       // add all locations in a rupture to the master location list
       for(int j=0; j<rupLocList.size(); ++j)
         locList.add(rupLocList.get(j));
@@ -198,7 +199,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     return locList;
   }
   
-  public EvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+  public AbstractEvenlyGriddedSurface getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
 
 
 
@@ -230,7 +231,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     Point2MultVertSS_FaultSource src = new Point2MultVertSS_FaultSource(34,-118,mag,1,magLengthRel,0,10,2,5);
     System.out.println("numRuptures="+src.getNumRuptures());
     for(int r=0; r<src.getNumRuptures(); r++) {
-      int lastCol = src.getRupture(r).getRuptureSurface().getNumCols()-1;
+      int lastCol = ((EvenlyGriddedSurface)src.getRupture(r).getRuptureSurface()).getNumCols()-1;
 /*      System.out.println((float)src.getRupture(r).getRuptureSurface().getLocation(0,0).getLongitude()+"\t"+
                          (float)src.getRupture(r).getRuptureSurface().getLocation(0,0).getLatitude()+"\t"+
                          (float)src.getRupture(r).getRuptureSurface().getLocation(0,lastCol).getLongitude()+"\t"+

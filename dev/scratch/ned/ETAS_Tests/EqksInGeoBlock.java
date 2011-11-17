@@ -12,7 +12,8 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
@@ -198,7 +199,7 @@ public class EqksInGeoBlock {
 	public void processRupture(ProbEqkRupture rup, int srcIndex, int rupIndex, double forecastDuration) {
 		double rate = rup.getMeanAnnualRate(forecastDuration);
 		if(rate > 0) {
-			LocationList locList = rup.getRuptureSurface().getLocationList();
+			LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			int numLoc = locList.size();
 			int numLocInside = 0;
 			for(Location loc : locList)
@@ -261,7 +262,7 @@ public class EqksInGeoBlock {
 						int iSrc = srcIndexList.get(r);
 						int iRup = rupIndexList.get(r);
 						ProbEqkRupture rup = erf.getRupture(iSrc, iRup);
-						if(rup.getRuptureSurface().size() > 1)
+						if(!rup.getRuptureSurface().isPointSurface())
 							subBlock.processRupture(rup, iSrc, iRup, forecastDuration);	
 						else { // assume point sources equally divided
 							double rate = rup.getMeanAnnualRate(forecastDuration)/numSubBlocks;
@@ -359,8 +360,8 @@ public class EqksInGeoBlock {
 	 * @return
 	 */
 	public void setRandomHypocenterLoc(EqkRupture rupture) {
-		EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
-		if(rupSurface.size() == 1) { // randomly assign a point inside the block assuming uniform distribution
+		RuptureSurface rupSurface = rupture.getRuptureSurface();
+		if(rupSurface.isPointSurface()) { // randomly assign a point inside the block assuming uniform distribution
 			double lat = minLat + Math.random()*(maxLat-minLat);
 			double lon = minLon + Math.random()*(maxLon-minLon);
 			double depth = minDepth + Math.random()*(maxDepth-minDepth);

@@ -25,7 +25,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
@@ -127,7 +127,7 @@ public class PoissonFaultERF extends AbstractERF{
      if(parameterChangeFlag) {
 
        source = new FaultRuptureSource((IncrementalMagFreqDist) magDistParam.getValue(),
-                                             (AbstractEvenlyGriddedSurface) faultParam.getValue(),
+                                             (AbstractEvenlyGriddedSurfaceWithSubsets) faultParam.getValue(),
                                              ((Double)rakeParam.getValue()).doubleValue(),
                                              timeSpan.getDuration());
        parameterChangeFlag = false;

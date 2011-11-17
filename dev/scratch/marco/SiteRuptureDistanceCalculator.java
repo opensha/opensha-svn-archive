@@ -4,7 +4,9 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 public class SiteRuptureDistanceCalculator {
 	
@@ -26,7 +28,7 @@ public class SiteRuptureDistanceCalculator {
 	 * @return minDis
 	 */
 	public double getRRupDistance(){
-		EvenlyGriddedSurface rupSurf =  this.rupture.getRuptureSurface();
+		EvenlyGriddedSurface rupSurf =  (EvenlyGriddedSurface) this.rupture.getRuptureSurface();
 		Location loc = site.getLocation();
 		double minDis = 1e100; 
 		for (int i=0; i < rupSurf.getNumRows(); i++){
@@ -44,7 +46,7 @@ public class SiteRuptureDistanceCalculator {
 	 * @return minDis
 	 */
 	public double getJBDistance(){
-		 EvenlyGriddedSurface rupSurf =  this.rupture.getRuptureSurface();
+		EvenlyGriddedSurface rupSurf =  (EvenlyGriddedSurface)this.rupture.getRuptureSurface();
 		 Location loc = site.getLocation();
 		 double minDis = 1e100;
 		 // Loop over the left side of the rupture

@@ -4,6 +4,7 @@
 package org.opensha.sha.faultSurface;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 
 /**
@@ -21,7 +22,6 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 	 */
 	private static final long serialVersionUID = 1L;
 
-
 	/**
 	 * The constructs the surface from the Locations given (counter clockwise 
 	 * when looking at surface from positive side).  This computes gridSpacingAlong and 
@@ -35,10 +35,10 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 										 Location lowerRight, Location upperRight) {
 		setNumRowsAndNumCols(2, 2);
 		
-		setLocation(0, 0, upperLeft);
-		setLocation(0, 1, upperRight);
-		setLocation(1, 0, lowerLeft);
-		setLocation(1, 1, lowerRight);
+		set(0, 0, upperLeft);
+		set(0, 1, upperRight);
+		set(1, 0, lowerLeft);
+		set(1, 1, lowerRight);
 		
 		gridSpacingAlong = (LocationUtils.linearDistanceFast(getLocation(0, 0), getLocation(0, 1)) +
 							LocationUtils.linearDistanceFast(getLocation(1, 0), getLocation(1, 1)))/2;
@@ -49,6 +49,26 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 			sameGridSpacing = true;
 		else
 			sameGridSpacing = false;
+	}
+
+	@Override
+	public double getAveDip() {
+		throw new RuntimeException("Method not yet implemented");
+	}
+
+	@Override
+	public double getAveDipDirection() {
+		throw new RuntimeException("Method not yet implemented");
+	}
+
+	@Override
+	public double getAveRupTopDepth() {
+		return (get(0,0).getDepth()+get(0,1).getDepth())/2;
+	}
+
+	@Override
+	public double getAveStrike() {
+		return getUpperEdge().getAveStrike();
 	}
 
 }

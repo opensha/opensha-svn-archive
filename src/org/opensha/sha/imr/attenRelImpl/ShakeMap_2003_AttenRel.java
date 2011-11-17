@@ -42,7 +42,6 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.calc.Wald_MMI_Calc;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -249,29 +248,6 @@ public class ShakeMap_2003_AttenRel extends AttenuationRelationship {
 		willsSiteParam.setValue((String)site.getParameter(WILLS_SITE_NAME).getValue());
 		this.site = site;
 		setPropagationEffectParams();
-
-	}
-
-	/**
-	 * This sets the site and eqkRupture, and the related parameters,
-	 *  from the propEffect object passed in. Warning constrains are ingored.
-	 * @param propEffect
-	 * @throws ParameterException Thrown if the Site object doesn't contain a
-	 * Wills site parameter
-	 * @throws InvalidRangeException thrown if rake is out of bounds
-	 */
-	public void setPropagationEffect(PropagationEffect propEffect) throws
-	ParameterException, InvalidRangeException {
-
-		this.site = propEffect.getSite();
-		this.eqkRupture = propEffect.getEqkRupture();
-
-		willsSiteParam.setValue((String)site.getParameter(this.WILLS_SITE_NAME).getValue());
-
-		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-
-		propEffect.setParamValue(distanceJBParam);
 
 	}
 

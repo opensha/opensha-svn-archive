@@ -35,8 +35,8 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -247,7 +247,7 @@ public class Frankel96_AdjustableEqkRupForecast
     // Debug
     String S = C + ": makeSoureces(): ";
     if (D) System.out.println(S + "Starting");
-    EvenlyGriddedSurface surface;
+    AbstractEvenlyGriddedSurface surface;
     String faultClass = "", faultingStyle, faultName = "";
     int i;
     double lowerSeismoDepth, upperSeismoDepth;
@@ -371,7 +371,7 @@ public class Frankel96_AdjustableEqkRupForecast
         if (moRate > 0.0) {
           Frankel96_GR_EqkSource frankel96_GR_src = new Frankel96_GR_EqkSource(
               rake, B_VALUE, MAG_LOWER,
-              mag, moRate, DELTA_MAG, rupOffset, (AbstractEvenlyGriddedSurface) surface,
+              mag, moRate, DELTA_MAG, rupOffset, (AbstractEvenlyGriddedSurfaceWithSubsets) surface,
               faultName);
           frankel96_GR_src.setTimeSpan(timeDuration);
           FrankelB_GR_EqkSources.add(frankel96_GR_src);
@@ -380,7 +380,7 @@ public class Frankel96_AdjustableEqkRupForecast
         if (rate > 0.0) {
           Frankel96_CharEqkSource frankel96_Char_src = new
               Frankel96_CharEqkSource(rake, mag, rate,
-                                      (AbstractEvenlyGriddedSurface) surface, faultName);
+                                      (AbstractEvenlyGriddedSurfaceWithSubsets) surface, faultName);
           frankel96_Char_src.setTimeSpan(timeDuration);
           FrankelB_CharEqkSources.add(frankel96_Char_src);
         }
@@ -388,7 +388,7 @@ public class Frankel96_AdjustableEqkRupForecast
       else if (faultClass.equalsIgnoreCase(FAULT_CLASS_B)) { // if class B and mag<=6.5, it's all characteristic
         Frankel96_CharEqkSource frankel96_Char_src = new
             Frankel96_CharEqkSource(rake, mag, charRate,
-                                    (AbstractEvenlyGriddedSurface) surface, faultName);
+                                    (AbstractEvenlyGriddedSurfaceWithSubsets) surface, faultName);
         frankel96_Char_src.setTimeSpan(timeDuration);
         FrankelB_CharEqkSources.add(frankel96_Char_src);
 
@@ -396,7 +396,7 @@ public class Frankel96_AdjustableEqkRupForecast
       else if (faultClass.equalsIgnoreCase(FAULT_CLASS_A)) { // class A fault
         Frankel96_CharEqkSource frankel96_Char_src = new
             Frankel96_CharEqkSource(rake, mag, charRate,
-                                    (AbstractEvenlyGriddedSurface) surface, faultName);
+                                    (AbstractEvenlyGriddedSurfaceWithSubsets) surface, faultName);
         frankel96_Char_src.setTimeSpan(timeDuration);
         FrankelA_CharEqkSources.add(frankel96_Char_src);
       }

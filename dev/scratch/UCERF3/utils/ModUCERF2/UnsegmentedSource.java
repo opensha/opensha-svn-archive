@@ -44,11 +44,12 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalM
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -79,7 +80,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	private final static double RUPTURE_WIDTH =100.0;
 	private double rupOffset= UCERF2.RUP_OFFSET;
 	private int totNumRups, totNumGR_rups, totNumChar_rups;
-	private AbstractEvenlyGriddedSurface surface;
+	private AbstractEvenlyGriddedSurfaceWithSubsets surface;
 	private ArrayList gr_mags, char_mags, gr_rates, char_rates;
 	public final static double DEFAULT_DURATION  = 1;
 	//name for this classs
@@ -449,7 +450,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 *
 	 */
 	private void saveSurfaceLocs() {
-		AbstractEvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurfaceWithSubsets sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
 		//System.out.println(this.segmentData.getFaultName());
 		// Surface trace location list
@@ -505,7 +506,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			ArrayList<ArbitrarilyDiscretizedFunc> magBasedFuncs,
 			boolean isSlipRateCorrection) {
 		int numRups = this.getNumRuptures();
-		AbstractEvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurfaceWithSubsets sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
 		for(int col=0; col<numCols; ++col) { // initialize all slip rates to 0
 			slipRateFunc.set((double)col,0);
@@ -530,8 +531,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 			ProbEqkRupture rupture;
 			if(isSlipRateCorrection) rupture = getRupture(rupIndex);
 			else rupture = getRupture(rupIndex);
-			EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
-			area = rupSurface.getSurfaceLength()*rupSurface.getSurfaceWidth();
+			RuptureSurface rupSurface = rupture.getRuptureSurface();
+			area = rupSurface.getAveLength()*rupSurface.getAveWidth();
 			moRate = MagUtils.magToMoment(rupture.getMag());
 			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);
 			slip = FaultMomentCalc.getSlip(area*1e6,moRate);
@@ -540,8 +541,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 			//if(this.segmentData.getFaultName().equalsIgnoreCase("S. San Andreas") && isSlipRateCorrection)
 			// System.out.println(rupIndex+","+rupture.getMag()+","+slipRate);
 			ArbitrarilyDiscretizedFunc magBasedFunc = magFuncMap.get(rupture.getMag());
-			int index1 = this.surfaceLocList.indexOf(rupSurface.getLocation(0, 0));
-			int index2 = this.surfaceLocList.indexOf(rupSurface.getLocation(0, rupSurface.getNumCols()-1));
+			int index1 = this.surfaceLocList.indexOf(rupSurface.getFirstLocOnUpperEdge());
+			int index2 = this.surfaceLocList.indexOf(rupSurface.getLastLocOnUpperEdge());
 			for(int col=index1; col<=index2; ++col) { // update the slip rates for this rupture
 				slipRateFunc.set(col, slipRateFunc.getY(col)+slipRate);
 				magBasedFunc.set(col, magBasedFunc.getY(col)+slipRate);
@@ -582,7 +583,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			totSegLength += this.segmentData.getSegmentLength(segIndex)/1e3;
 			segLengths.set((double)segIndex, totSegLength);
 		}
-		AbstractEvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurfaceWithSubsets sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
 		double slipRate=0;
 		// Iterate over all points to get the orig slip rate on each gridded location
@@ -898,7 +899,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public double getPredSlipRate(Location loc) {
 		// find distance to closest point on surface trace
-		AbstractEvenlyGriddedSurface surface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurfaceWithSubsets surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
 			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
@@ -916,7 +917,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
 				if(LocationUtils.horzDistanceFast(surfaceLoc, loc)< distanceCutOff) {
-					double area = rupture.getRuptureSurface().getSurfaceLength()*rupture.getRuptureSurface().getSurfaceWidth();
+					double area = rupture.getRuptureSurface().getAveLength()*rupture.getRuptureSurface().getAveWidth();
 					double slip = FaultMomentCalc.getSlip(area*1e6,MagUtils.magToMoment(rupture.getMag()));
 					slipRate+= rupture.getMeanAnnualRate(this.duration)*slip;
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
@@ -941,7 +942,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public double getPredEventRate(Location loc) {
 		// find distance to closest point on surface trace
-		AbstractEvenlyGriddedSurface surface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurfaceWithSubsets surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
 			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
@@ -983,7 +984,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public double getPredObsEventRate(Location loc) {
 		// find distance to closest point on surface trace
-		AbstractEvenlyGriddedSurface surface = this.getSourceSurface();
+		AbstractEvenlyGriddedSurfaceWithSubsets surface = this.getSourceSurface();
 		double minDist = Double.MAX_VALUE, dist;
 		for(int col=0; col < surface.getNumCols(); col++){
 			dist = LocationUtils.horzDistanceFast(surface.getLocation(0,col), loc);
@@ -1071,8 +1072,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 				(float)moRate+"\n");
 		UCERF2_Final_StirlingGriddedSurface surface = (UCERF2_Final_StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
-		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
-				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
+		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getAveWidth()+"\t"+
+				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getAveLength()+"\n");
 		FaultTrace faultTrace = surface.getFaultTrace();
 		// All fault trace locations
 		strBuffer.append(faultTrace.getNumLocations()+"\n");
@@ -1110,8 +1111,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 		strBuffer.append((float)sourceMag+"\t"+rate+"\t"+wt+"\t"+(float)moRate+"\n");
 		UCERF2_Final_StirlingGriddedSurface surface = (UCERF2_Final_StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
-		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
-				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
+		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getAveWidth()+"\t"+
+				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getAveLength()+"\n");
 		FaultTrace faultTrace = surface.getFaultTrace();
 		// All fault trace locations
 		strBuffer.append(faultTrace.getNumLocations()+"\n");
@@ -1163,7 +1164,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 *                      1 = float along strike and down dip;
 	 *                      2 = float along strike & centered down dip
 	 */
-	private void mkRuptureList(AbstractEvenlyGriddedSurface surface,
+	private void mkRuptureList(AbstractEvenlyGriddedSurfaceWithSubsets surface,
 			double rupOffset,
 			double rake,
 			double duration,
@@ -1188,7 +1189,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			if(applyCyberShakeDDW_Corr) rupArea = somerville_magAreaRel.getMedianArea(mag);
 			else rupArea  = (hb_MagAreaRel.getMedianArea(mag)+ellB_magAreaRel.getMedianArea(mag))/2;
 			double rup_width = Math.sqrt(rupArea);
-			if (rup_width > surface.getSurfaceWidth()) rup_width = surface.getSurfaceWidth();
+			if (rup_width > surface.getAveWidth()) rup_width = surface.getAveWidth();
 			
 			double rupLen = rupArea/rup_width;
 			int numRup=-1, firstRupIndex=-1, lastRupIndex=-1, rupIndexOffset=-1;
@@ -1278,7 +1279,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * 
 	 * @return
 	 */
-	public AbstractEvenlyGriddedSurface getSourceSurface() { return this.surface; }
+	public AbstractEvenlyGriddedSurfaceWithSubsets getSourceSurface() { return this.surface; }
 
 	public int getNumRuptures() { return ruptureList.size(); }
 
@@ -1387,8 +1388,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 			rup = src.getRupture(i);
 			System.out.print("rup #"+i+":\n\tmag="+rup.getMag()+"\n\tprob="+
 					rup.getProbability()+"\n\tRup Ends: "+
-					(float)rup.getRuptureSurface().getLocation(0,0).getLatitude()+"  "+
-					(float)rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1).getLatitude()+
+					(float)rup.getRuptureSurface().getFirstLocOnUpperEdge().getLatitude()+"  "+
+					(float)rup.getRuptureSurface().getLastLocOnUpperEdge().getLatitude()+
 			"\n\n");
 		}
 

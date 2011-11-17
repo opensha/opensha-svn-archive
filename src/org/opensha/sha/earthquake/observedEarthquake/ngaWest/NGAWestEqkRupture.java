@@ -8,9 +8,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.GriddedSurface;
 
 public class NGAWestEqkRupture {
 	
@@ -44,8 +43,8 @@ public class NGAWestEqkRupture {
 	private double finiteFaultRuptureLength;
 	private double finiteFaultRuptureWidth;
 	
-	private List<GriddedSurface> finiteRuptureSurfaces;
-	private List<EvenlyGriddedSurface> evenlyGriddedFiniteRuptureSurfaces;
+	private List<AbstractEvenlyGriddedSurface> finiteRuptureSurfaces;
+	private List<AbstractEvenlyGriddedSurface> evenlyGriddedFiniteRuptureSurfaces;
 	
 	private static GregorianCalendar parseDate(int year, String monthDayStr, String hourMinStr) {
 		int month, day, hour, min;
@@ -207,19 +206,19 @@ public class NGAWestEqkRupture {
 		} catch (NullPointerException e) {}
 	}
 
-	public List<GriddedSurface> getFiniteRuptureSurfaces() {
+	public List<AbstractEvenlyGriddedSurface> getFiniteRuptureSurfaces() {
 		return finiteRuptureSurfaces;
 	}
 
-	public void setFiniteRuptureSurfaces(List<GriddedSurface> finiteRuptureSurfaces) {
+	public void setFiniteRuptureSurfaces(List<AbstractEvenlyGriddedSurface> finiteRuptureSurfaces) {
 		this.finiteRuptureSurfaces = finiteRuptureSurfaces;
 		this.evenlyGriddedFiniteRuptureSurfaces = null;
 	}
 	
-	public List<EvenlyGriddedSurface> getEvenlyGriddedFiniteRuptureSurfaces() {
+	public List<AbstractEvenlyGriddedSurface> getEvenlyGriddedFiniteRuptureSurfaces() {
 		if (evenlyGriddedFiniteRuptureSurfaces == null && finiteRuptureSurfaces != null) {
-			evenlyGriddedFiniteRuptureSurfaces = new ArrayList<EvenlyGriddedSurface>();
-			for (GriddedSurface surf : finiteRuptureSurfaces) {
+			evenlyGriddedFiniteRuptureSurfaces = new ArrayList<AbstractEvenlyGriddedSurface>();
+			for (AbstractEvenlyGriddedSurface surf : finiteRuptureSurfaces) {
 				FaultTrace top = new FaultTrace(name);
 				FaultTrace bottom = new FaultTrace(name);
 				int botRow = surf.getNumRows()-1;
@@ -227,7 +226,7 @@ public class NGAWestEqkRupture {
 					top.add(surf.get(0, col));
 					bottom.add(surf.get(botRow, col));
 				}
-				EvenlyGriddedSurface evenSurface = new ApproxEvenlyGriddedSurface(top, bottom, 1.0d);
+				AbstractEvenlyGriddedSurface evenSurface = new ApproxEvenlyGriddedSurface(top, bottom, 1.0d);
 				evenlyGriddedFiniteRuptureSurfaces.add(evenSurface);
 			}
 		}

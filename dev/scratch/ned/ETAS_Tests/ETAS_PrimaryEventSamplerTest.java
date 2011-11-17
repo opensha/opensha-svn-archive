@@ -14,6 +14,7 @@ import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -22,7 +23,8 @@ import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
@@ -71,7 +73,7 @@ public class ETAS_PrimaryEventSamplerTest {
 		this.distDecay = distDecay;
 		this.minDist = minDist;
 		
-		EvenlyGriddedSurface rupSurf = parentRup.getRuptureSurface();
+		RuptureSurface rupSurf = parentRup.getRuptureSurface();
 		
 		revisedBlockList = new ArrayList<EqksInGeoBlock>();  // revised is for replacing blocks with sub-blocks close in
 		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
@@ -127,7 +129,8 @@ public class ETAS_PrimaryEventSamplerTest {
 		}
 		
 		double total=0;
-		for(Location loc: rupSurf.getLocationList()) {
+		LocationList listOfLocsOnRupSurface = rupSurf.getEvenlyDiscritizedListOfLocsOnSurface();
+		for(Location loc: listOfLocsOnRupSurface) {
 			double[] relBlockProbTemp = new double[numBlocks];
 			revisedBlockDistances = new ArrayList<Double>();
 			minBlockDist = Double.MAX_VALUE;
@@ -176,7 +179,7 @@ public class ETAS_PrimaryEventSamplerTest {
 			// normalize
 			for(int i=0; i<numBlocks;i++) {
 				relBlockProbTemp[i] /= total;
-				relBlockProb[i] += relBlockProbTemp[i]/rupSurf.size();
+				relBlockProb[i] += relBlockProbTemp[i]/listOfLocsOnRupSurface.size();
 			}
 
 		}

@@ -28,11 +28,12 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -199,11 +200,11 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   * of this source
   */
   public LocationList getAllSourceLocs() {
-    if(this.finiteFault!=null) return finiteFault.getLocationList();
-    else return ptSurface.getLocationList();
+    if(this.finiteFault!=null) return finiteFault.getEvenlyDiscritizedListOfLocsOnSurface();
+    else return ptSurface.getEvenlyDiscritizedListOfLocsOnSurface();
   }
   
-  public EvenlyGriddedSurface getSourceSurface() {
+  public RuptureSurface getSourceSurface() {
 	    if(this.finiteFault!=null) return finiteFault;
 	    else return ptSurface;
 	  }
@@ -329,8 +330,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     System.out.println("Rupture mags and end locs:");
     for(int r=0; r<src.getNumRuptures();r++) {
       rup = src.getRupture(r);
-      loc1 = rup.getRuptureSurface().getLocation(0,0);
-      loc2 = rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1);
+      loc1 = rup.getRuptureSurface().getFirstLocOnUpperEdge();
+      loc2 = rup.getRuptureSurface().getLastLocOnUpperEdge();
       length = LocationUtils.horzDistance(loc1,loc2);
       aveLat = (loc1.getLatitude()+loc2.getLatitude())/2;
       aveLon = (loc1.getLongitude()+loc2.getLongitude())/2;

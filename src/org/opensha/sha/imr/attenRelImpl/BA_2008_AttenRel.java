@@ -34,7 +34,6 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
@@ -193,17 +192,6 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 		}
 	}
 
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect)
-			throws InvalidRangeException, ParameterException {
-		site = propEffect.getSite();
-		eqkRupture = propEffect.getEqkRupture();
-		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
-			.getValue());
-		magParam.setValueIgnoreWarning(eqkRupture.getMag());
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-		propEffect.setParamValue(distanceJBParam);
-	}
 
 	/**
 	 * Set style of faulting from the rake angle. NGA report is not explicit,
@@ -391,7 +379,6 @@ public class BA_2008_AttenRel extends AttenuationRelationship implements
 		warn.setNonEditable();
 		distanceJBParam.setWarningConstraint(warn);
 		distanceJBParam.setNonEditable();
-		distanceJBParam.fixDistanceJB(true);
 		
 		propagationEffectParams.addParameter(distanceJBParam);
 

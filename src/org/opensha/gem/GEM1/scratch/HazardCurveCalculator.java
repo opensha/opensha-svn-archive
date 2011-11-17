@@ -48,10 +48,11 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr.Type;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
-import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
@@ -666,7 +667,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 	/**
 	 *
-	 * @return the current rupture being traversed
+	 * @return the current rupture being traversed (used in a progress bar)
 	 * @throws java.rmi.RemoteException
 	 */
 	public int getCurrRuptures() throws java.rmi.RemoteException{
@@ -675,7 +676,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 	/**
 	 *
-	 * @return the total number of ruptures in the earthquake rupture forecast model
+	 * @return the total number of ruptures in the earthquake rupture forecast 
+	 * model (used in a progress bar)
 	 * @throws java.rmi.RemoteException
 	 */
 	public int getTotRuptures() throws java.rmi.RemoteException{
@@ -810,7 +812,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * 
 	 */
 	private double getJBdist(EqkRupture rup, Site site) {
-		EvenlyGriddedSurface rupSurf =  rup.getRuptureSurface();
+		EvenlyGriddedSurface rupSurf =  (EvenlyGriddedSurface) rup.getRuptureSurface();
 		Location loc = site.getLocation();
 
 		double minDis = 1e20;
@@ -861,6 +863,18 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
       System.out.println((float)n+"\t"+temp1+"\t"+temp2+"\t"+temp3+"\t"+temp4+"\t"+OK);
     }
 		 */
+	}
+
+
+	@Override
+	public Type getPtSrcDistCorrType() {
+		throw new RuntimeException("pt src dist corr not yet implemented here");
+	}
+
+
+	@Override
+	public void setPtSrcDistCorrType(Type ptSrcDistCorrType) {
+		throw new RuntimeException("pt src dist corr not yet implemented here");
 	}
 }
 

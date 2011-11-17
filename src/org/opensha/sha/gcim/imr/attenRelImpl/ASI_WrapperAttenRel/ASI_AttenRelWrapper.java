@@ -42,7 +42,6 @@ import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.BakerJayaram08_ImCorrRel;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.ASI_Param;
 import org.opensha.sha.gcim.imr.param.IntensityMeasureParams.SI_Param;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -348,21 +347,6 @@ public class ASI_AttenRelWrapper
     exceedProbIndependentParams = attenRelToWrap.getExceedProbIndependentParams();
     imlAtExceedProbIndependentParams = attenRelToWrap.getIML_AtExceedProbIndependentParams();
   }
-
-  /**
-   * This sets the site and eqkRu passed in. Warning constrains are ingored.
-   * @param propEffect
-   */
-  public void setPropagationEffect(PropagationEffect propEffect) throws
-  InvalidRangeException, ParameterException {
-
-	  this.attenRelToWrap.setPropagationEffect(propEffect);
-
-	  this.site = propEffect.getSite();
-	  this.eqkRupture = propEffect.getEqkRupture();
-
-  }
-
 
 
   /**

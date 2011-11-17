@@ -40,8 +40,9 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.param.SimpleFaultParameter;
 
 /**
@@ -101,7 +102,6 @@ extends JPanel implements EqkRupSelectorGuiBeanAPI, ParameterChangeListener {
 	private final static String FAULT_PARAM_INFO =
 		"Source location parameters for finite rupture";
 
-
 	//Location Parameter
 	public final static String LOCATION_PARAM_NAME = "Location";
 	private final static String LOCATION_PARAM_INFO =
@@ -147,7 +147,7 @@ extends JPanel implements EqkRupSelectorGuiBeanAPI, ParameterChangeListener {
 	private ArrayList<Location> hypocenterList;
 
 	//gridded rupture surface
-	private EvenlyGriddedSurface ruptureSurface = null;
+	private RuptureSurface ruptureSurface = null;
 
 	public EqkRuptureCreationPanel() {
 
@@ -246,11 +246,11 @@ extends JPanel implements EqkRupSelectorGuiBeanAPI, ParameterChangeListener {
 		}
 		else if (ruptureType.equals(FINITE_SRC_NAME)) {
 			faultParam.setEvenlyGriddedSurfaceFromParams();
-			ruptureSurface = (EvenlyGriddedSurface) faultParam.getValue();
+			ruptureSurface = (AbstractEvenlyGriddedSurface) faultParam.getValue();
 		}
 
 		// The first row of all the rupture surfaces is the list of their hypocenter locations
-		ListIterator<Location> hypoLocationsIt = ruptureSurface.getColumnIterator(0);
+		ListIterator<Location> hypoLocationsIt = ruptureSurface.getEvenlyDiscritizedUpperEdge().listIterator();
 		Location loc;
 		if (hypocenterList == null) {
 			hypocenterList = new ArrayList<Location>();

@@ -22,7 +22,8 @@ import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
@@ -71,7 +72,7 @@ public class ETAS_PrimaryEventSampler {
 		this.distDecay = distDecay;
 		this.minDist = minDist;
 		
-		EvenlyGriddedSurface rupSurf = parentRup.getRuptureSurface();
+		RuptureSurface rupSurf = parentRup.getRuptureSurface();
 		
 		revisedBlockList = new ArrayList<EqksInGeoBlock>();  // revised is for replacing blocks with sub-blocks close in
 		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
@@ -121,7 +122,7 @@ public class ETAS_PrimaryEventSampler {
 		// compute relative probability of each block
 		relBlockProb = new double[numBlocks];
 		
-		double rupLength = parentRup.getRuptureSurface().getSurfaceLength();
+		double rupLength = parentRup.getRuptureSurface().getAveLength();
 		
 		if(D) {
 			System.out.println("\nnum revised blocks="+numBlocks);

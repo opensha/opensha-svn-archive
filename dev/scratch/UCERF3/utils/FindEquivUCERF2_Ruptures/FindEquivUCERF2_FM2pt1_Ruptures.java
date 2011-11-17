@@ -352,7 +352,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			boolean srcHasSubSeismogenicRups = false;	// this will check whether any ruptures are sub-seismogenic
 			ProbEqkSource src = modMeanUCERF2_FM2pt1.getSource(s);
 			if (D) System.out.println("working on source "+src.getName()+" "+s+" of "+NUM_UCERF2_SRC_TO_USE);
-			double srcDDW = src.getSourceSurface().getSurfaceWidth();
+			double srcDDW = src.getSourceSurface().getAveWidth();
 			double totMoRate=0, partMoRate=0;
 			
 			ArrayList<String> parentSectionNames = parentSectionNamesForUCERF2_Sources.get(s);
@@ -360,8 +360,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			for(int r=0; r<src.getNumRuptures(); r++){
 				rupIndex += 1;
 				ProbEqkRupture rup = src.getRupture(r);
-				double ddw = rup.getRuptureSurface().getSurfaceWidth();
-				double len = rup.getRuptureSurface().getSurfaceLength();
+				double ddw = rup.getRuptureSurface().getAveWidth();
+				double len = rup.getRuptureSurface().getAveLength();
 				double mag = ((int)(rup.getMag()*100.0))/100.0;	// nice value for writing
 				totMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
 				srcIndexOfUCERF2_Rup[rupIndex] = s;
@@ -372,7 +372,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 				
 				subSeismoUCERF2_Rup[rupIndex] = false;  // the default
 
-				FaultTrace rupTrace = rup.getRuptureSurface().getRowAsTrace(0);
+				FaultTrace rupTrace = rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
 				Location rupEndLoc1 = rupTrace.get(0);
 				Location rupEndLoc2 = rupTrace.get(rupTrace.size()-1);	
 

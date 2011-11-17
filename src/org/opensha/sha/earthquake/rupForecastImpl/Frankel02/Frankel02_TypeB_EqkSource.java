@@ -30,7 +30,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -65,7 +65,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   private final static double RUPTURE_WIDTH =100.0;
   private double rupOffset;
   private int totNumRups;
-  private AbstractEvenlyGriddedSurface surface;
+  private AbstractEvenlyGriddedSurfaceWithSubsets surface;
   private ArrayList mags, rates;
   private MagAreaRelationship magAreaRel;
 
@@ -89,7 +89,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
    * @param sourceName - source name
    */
   public Frankel02_TypeB_EqkSource(IncrementalMagFreqDist magFreqDist,
-		  AbstractEvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurfaceWithSubsets surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -101,7 +101,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   
   
   public void setAll(IncrementalMagFreqDist magFreqDist,
-		  AbstractEvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurfaceWithSubsets surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -113,7 +113,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 
     
   public void setAll(IncrementalMagFreqDist magFreqDist,
-		  AbstractEvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurfaceWithSubsets surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -126,7 +126,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 
     
   private void updateAll(IncrementalMagFreqDist magFreqDist,
-		  AbstractEvenlyGriddedSurface surface,
+		  AbstractEvenlyGriddedSurfaceWithSubsets surface,
 		  double rupOffset,
 		  double rake,
 		  double duration,
@@ -165,7 +165,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
    * 
    * @return
    */
-  public AbstractEvenlyGriddedSurface getSourceSurface() { return this.surface; }
+  public AbstractEvenlyGriddedSurfaceWithSubsets getSourceSurface() { return this.surface; }
 
   public int getNumRuptures() { return totNumRups; }
 
@@ -229,7 +229,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 	  if(this.magAreaRel == null)
 		  return Math.pow(10.0,-3.22+0.69*mag); 
 	  else
-		  return magAreaRel.getMedianArea(mag)/surface.getSurfaceWidth();
+		  return magAreaRel.getMedianArea(mag)/surface.getAveWidth();
   }
 
   /**
@@ -298,8 +298,8 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
       rup = src.getRupture(i);
       System.out.print("rup #"+i+":\n\tmag="+rup.getMag()+"\n\tprob="+
                           rup.getProbability()+"\n\tRup Ends: "+
-                          (float)rup.getRuptureSurface().getLocation(0,0).getLatitude()+"  "+
-                          (float)rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1).getLatitude()+
+                          (float)rup.getRuptureSurface().getFirstLocOnUpperEdge().getLatitude()+"  "+
+                          (float)rup.getRuptureSurface().getLastLocOnUpperEdge().getLatitude()+
                           "\n\n");
     }
 

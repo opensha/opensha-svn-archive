@@ -42,7 +42,8 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -137,9 +138,9 @@ public class ERF_Calculator {
 			  ProbEqkRupture rupture = source.getRupture(r);
 			  double mag = rupture.getMag();
 			  double equivRate = rupture.getMeanAnnualRate(duration);
-			  EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
-			  double ptRate = equivRate/rupSurface.size();
-			  ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+			  LocationList surfLocs = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+			  double ptRate = equivRate/surfLocs.size();
+			  ListIterator<Location> it = surfLocs.listIterator();
 			  while (it.hasNext()) {
 				  //discard the pt if outside the region 
 				  if (!region.contains(it.next()))
@@ -169,7 +170,7 @@ public class ERF_Calculator {
 		  for (int r = 0; r < source.getNumRuptures(); ++r) {
 			  ProbEqkRupture rupture = source.getRupture(r);
 			  if(rupture.getMag()>= minMag) {
-				  double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getLocationList());
+				  double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface());
 				  totRate += fractionInside*rupture.getMeanAnnualRate(duration);
 			  }
 		  }
@@ -209,9 +210,9 @@ public class ERF_Calculator {
 			  ProbEqkRupture rupture = source.getRupture(r);
 			  double mag = rupture.getMag();
 			  double equivRate = rupture.getMeanAnnualRate(duration);
-			  EvenlyGriddedSurface rupSurface = rupture.getRuptureSurface();
-			  double ptRate = equivRate/rupSurface.size();
-			  ListIterator<Location> it = rupSurface.getAllByRowsIterator();
+			  LocationList surfLocs = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+			  double ptRate = equivRate/surfLocs.size();
+			  ListIterator<Location> it = surfLocs.listIterator();
 			  while (it.hasNext()) {
 				  Location loc = it.next();
 				  int index = griddedRegion.indexForLocation(loc);

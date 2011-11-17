@@ -34,8 +34,10 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.ned.slab.SlabSurfaceGenerator;
@@ -156,12 +158,12 @@ public class TestSubductionZoneERF extends AbstractERF{
        for(int s=0; s<clipFileNames.size(); s++) {
     	   ApproxEvenlyGriddedSurface surf = surfGen.getGriddedSurface(clipFileNames.get(s), 
     			   grdFileNames.get(s), aveGridSpaceing);
-    	   System.out.println("SurfaceLength="+surf.getSurfaceLength()+"\tSurfaceWidth="+surf.getSurfaceWidth()+
+    	   System.out.println("SurfaceLength="+surf.getAveLength()+"\tSurfaceWidth="+surf.getAveWidth()+
     			   "\taveGridSpacing="+surf.getGridSpacingAlongStrike()+"\tnumRows="+surf.getNumRows()+"\tnumCols="+surf.getNumCols());
 
-    	   double totArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
+    	   double totArea = surf.getAveLength()*surf.getAveWidth();
     	   double magMax = magScalingRel.getMedianMag(totArea);
-    	   double floatArea = (0.5*surf.getSurfaceWidth())*(0.5*surf.getSurfaceWidth());
+    	   double floatArea = (0.5*surf.getAveWidth())*(0.5*surf.getAveWidth());
     	   double magFloat = magScalingRel.getMedianMag(floatArea);
     	   System.out.println("totArea="+totArea+"\tmagMax="+magMax+"\tfloatArea="+floatArea+"\tmagFloat="+magFloat);
    	   
@@ -174,7 +176,7 @@ public class TestSubductionZoneERF extends AbstractERF{
     	   magDist.set(0, 0.01);
     	   magDist.set(1, 0.001);
     	   
-    	   double rupOffset = 0.25*surf.getSurfaceWidth();
+    	   double rupOffset = 0.25*surf.getAveWidth();
 //    	   double rupOffset = ((Double) rupOffsetParam.getValue()).doubleValue();
     	   
     	   FloatingPoissonFaultSource src = new FloatingPoissonFaultSource(magDist,
@@ -251,7 +253,7 @@ public class TestSubductionZoneERF extends AbstractERF{
 			ProbEqkSource src = testERF.getSource(s);
 			System.out.println("src "+s+"\t numRups="+src.getNumRuptures());
 			for(int r=0; r<src.getNumRuptures();r++) {
-				EvenlyGriddedSurface surf = src.getRupture(r).getRuptureSurface();
+				EvenlyGriddedSurface surf = (EvenlyGriddedSurface) src.getRupture(r).getRuptureSurface();
 				Iterator it = surf.getLocationsIterator();
 				int num=0;
 				while(it.hasNext()) {
@@ -259,8 +261,8 @@ public class TestSubductionZoneERF extends AbstractERF{
 					it.next();
 				}
 				System.out.println("\trup "+r+"\t mag="+src.getRupture(r).getMag()+"\t numRows="+surf.getNumRows()+"\t numCos="+
-						surf.getNumCols()+"\t numLocsFromIterator="+num+"\t numLocsFromList="+surf.getLocationList().size()+
-						"\t rupArea="+surf.getSurfaceArea());
+						surf.getNumCols()+"\t numLocsFromIterator="+num+"\t numLocsFromList="+surf.getEvenlyDiscritizedListOfLocsOnSurface().size()+
+						"\t rupArea="+surf.getArea());
 			}
 		}
 	}

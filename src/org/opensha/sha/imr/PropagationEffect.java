@@ -30,7 +30,9 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -50,6 +52,7 @@ import org.opensha.sha.util.NSHMP_Util;
  * @author Ned Field
  * @version 1.0
  */
+@Deprecated
 public class PropagationEffect implements java.io.Serializable, ParameterChangeListener{
 
 	private final static String C = "PropagationEffect";
@@ -60,7 +63,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 	private boolean nshmpPtSrcCorr = false;
 
 	// Seis depth
-	double seisDepth = DistanceSeisParameter.seisDepth;
+	double seisDepth = DistanceSeisParameter.SEIS_DEPTH;
 
 	// Approx Horz Dist Parameter
 	public final static String APPROX_DIST_PARAM_NAME = "Use Approximate Distance";
@@ -305,7 +308,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
 			double horzDist, vertDist, rupDist;
 
-			EvenlyGriddedSurface rupSurf = eqkRupture.getRuptureSurface();
+			EvenlyGriddedSurface rupSurf = (EvenlyGriddedSurface) eqkRupture.getRuptureSurface();
 			int numLocs = rupSurf.getNumCols()*rupSurf.getNumRows();
 
 			// flag to project to seisDepth if only one row and depth is below seisDepth
@@ -339,6 +342,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 				// make point source correction if desired
 
 				if(numLocs == 1 && ptSrcCorr) {
+					
 					if (nshmpPtSrcCorr) {
 						double MM = eqkRupture.getMag();
 						if (MM > 6) {
@@ -346,7 +350,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 							// centered bins. Non-UCERF erf's often do not make
 							// this assumption and are 0.1 based so we push
 							// the value down to the next closest compatible M
-							MM = ((int) Math.round(MM*100) % 10 != 5) ? MM - 0.05 : MM;
+							MM = ((int) (MM*100) % 10 != 5) ? MM - 0.05 : MM;
 							horzDist = NSHMP_Util.getMeanRJB(MM, horzDist);
 						}
 					} else {

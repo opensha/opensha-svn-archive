@@ -1,31 +1,15 @@
 package org.opensha.sha.imr.attenRelImpl;
 
-import static com.google.common.base.Preconditions.*;
-import static org.opensha.sha.imr.PropagationEffect.*;
-
-import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
-import javax.naming.OperationNotSupportedException;
-
-import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
-import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
@@ -38,10 +22,8 @@ import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -52,7 +34,6 @@ import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
-import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -129,7 +110,6 @@ ParameterChangeListener {
 	private boolean includeImrUncert = true;
 	private static final String HW_EFFECT_PARAM_NAME = "Hanging Wall Effect Approx.";
 	private boolean hwEffectApprox = true;
-	private BooleanParameter ptSrcCorrParam;
 
 	// flags and tuning values
 	private double imrUncert = 0.0;
@@ -145,9 +125,6 @@ ParameterChangeListener {
 		arList.add(cb08);
 		arList.add(cy08);
 
-		propEffect = new PropagationEffect();
-		propEffect.fixDistanceJB(true);
-		
 		// these methods are called for each attenRel upon construction; we
 		// do some local cloning so that a minimal set of params may be
 		// exposed and modified in gui's and/or to ensure some parameters
@@ -282,23 +259,11 @@ ParameterChangeListener {
 		BooleanParameter hwEffectApproxParam = new BooleanParameter(
 			HW_EFFECT_PARAM_NAME, hwEffectApprox);
 
-		// display prop effect pt src correction; set generic pt src to true
-		ptSrcCorrParam = (BooleanParameter) propEffect
-			.getAdjustableParameterList().getParameter(POINT_SRC_CORR_PARAM_NAME);
-		ptSrcCorrParam.setDefaultValue(true);
-		ptSrcCorrParam.setValue(true);
-		// as well as nshmp pt src correction
-		BooleanParameter nshmpPtSrcCorrParam = (BooleanParameter) propEffect
-			.getAdjustableParameterList().getParameter(NSHMP_PT_SRC_CORR_PARAM_NAME);
-		nshmpPtSrcCorrParam.setValue(true);
-		nshmpPtSrcCorrParam.setDefaultValue(true);
-		
 		// add these to the list
 		otherParams.addParameter(componentParam);
 		otherParams.addParameter(stdDevTypeParam);
 		otherParams.addParameter(imrUncertParam);
 		otherParams.addParameter(hwEffectApproxParam);
-		otherParams.addParameter(nshmpPtSrcCorrParam);
 		
 		sigmaTruncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 		sigmaTruncLevelParam.setValue(3.0);
@@ -348,30 +313,27 @@ ParameterChangeListener {
 	@Override
 	public void setSite(Site site) {
 		this.site = site;
-		propEffect.setSite(site);
 
 		// being done to satisfy unit tests
 		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME).getValue());
 
-		if (propEffect.getEqkRupture() != null) {
-			setPropagationEffect(propEffect);
+		if (eqkRupture != null) {
+			setPropagationEffect();
 		}
 	}
 	
 	@Override
 	public void setEqkRupture(EqkRupture eqkRupture) {
 		this.eqkRupture = eqkRupture;
-		propEffect.setEqkRupture(eqkRupture);
-		if (propEffect.getSite() != null) {
-			setPropagationEffect(propEffect);
+		if (site != null) {
+			setPropagationEffect();
 		}
 	}
 	
-	@Override
-	public void setPropagationEffect(PropagationEffect propEffect) {
-		this.propEffect = propEffect;
+	public void setPropagationEffect() {
 		for (AttenuationRelationship ar : arList) {
-			ar.setPropagationEffect(propEffect);
+			ar.setEqkRupture(eqkRupture);
+			ar.setSite(site);
 		}
 	}
 
@@ -407,8 +369,8 @@ ParameterChangeListener {
 		// flag for epistemic uncertainty
 		if (includeImrUncert) {
 			// lookup M and dist
-			double mag = propEffect.getEqkRupture().getMag();
-			double dist = propEffect.getDistanceJB();
+			double mag =eqkRupture.getMag();
+			double dist = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
 			double uncert = getUncertainty(mag, dist);
 			for (AttenuationRelationship ar : arList) {
 				for (int i=0; i<3; i++) {
@@ -554,13 +516,6 @@ ParameterChangeListener {
 		// handle locals
 		if (e.getParameterName().equals(HW_EFFECT_PARAM_NAME)) {
 			hwEffectApprox = (Boolean) e.getParameter().getValue();
-		}
-		
-		// toggling nshmp pt src is picked up directly by PropEffect,
-		// need to turn off basic point source correction too; TODO this
-		// could be implemented better e.g. as a choice: none | field | nshmp
-		if (e.getParameterName().equals(NSHMP_PT_SRC_CORR_PARAM_NAME)) {
-			ptSrcCorrParam.setValue((Boolean) e.getParameter().getValue());
 		}
 		
 	}

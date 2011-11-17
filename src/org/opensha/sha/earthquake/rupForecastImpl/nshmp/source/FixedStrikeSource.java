@@ -325,7 +325,7 @@ public class FixedStrikeSource extends ProbEqkSource {
   public EvenlyGriddedSurface getSourceSurface() { 
 	  PointSurface newPtSurface = new PointSurface(ptSurface.getLocation());
 	  newPtSurface.setDepth(1.0);
-	  return newPtSurface;
+	  return null; //newPtSurface;
   }
 
 
@@ -405,7 +405,7 @@ public class FixedStrikeSource extends ProbEqkSource {
     				Location loc = finiteFault.getLocation(i, j);
     				loc = new Location(
     						loc.getLatitude(), loc.getLongitude(), depth);
-    				finiteFault.setLocation(i, j, loc);
+    				//finiteFault.setLocation(i, j, loc);
     			}
     		}
 //    		Iterator<Location> it = finiteFault.getLocationsIterator();
