@@ -137,14 +137,14 @@ public interface SpectrumCalculatorAPI extends Remote{
 	 * (see the class PtSrcDistCorr for options)
 	 * @param ptSrcDistCorrType
 	 */
-	public void setPtSrcDistCorrType(PtSrcDistCorr.Type ptSrcDistCorrType);
+	public void setPtSrcDistCorrType(PtSrcDistCorr.Type ptSrcDistCorrType)  throws java.rmi.RemoteException;
 
 	/**
 	 * This gets the type of point-source distance correction that is desired
 	 * (see the class PtSrcDistCorr for options)
 	 * @param ptSrcDistCorrType
 	 */
-	public PtSrcDistCorr.Type getPtSrcDistCorrType();
+	public PtSrcDistCorr.Type getPtSrcDistCorrType()  throws java.rmi.RemoteException;
 
 
 }
