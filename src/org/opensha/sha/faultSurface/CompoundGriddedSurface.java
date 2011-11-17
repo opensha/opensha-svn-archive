@@ -23,9 +23,9 @@ import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
  * @author field
  *
  */
-public class CompoundRuptureSurface implements RuptureSurface {
+public class CompoundGriddedSurface implements RuptureSurface {
 	
-	ArrayList<RuptureSurface> surfaces;
+	ArrayList<EvenlyGriddedSurface> surfaces;
 	
 	final static boolean D = true;
 	
@@ -42,7 +42,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 
 	
 	
-	public CompoundRuptureSurface(ArrayList<RuptureSurface> surfaces) {
+	public CompoundGriddedSurface(ArrayList<EvenlyGriddedSurface> surfaces) {
 		this.surfaces = surfaces;
 		computeInitialStuff();
 	}
@@ -50,9 +50,9 @@ public class CompoundRuptureSurface implements RuptureSurface {
 	
 	/** this returns the list of surfaces provided in the constructor
 	 * 
-	 * @return ArrayList<AbstractEvenlyGriddedSurface>
+	 * @return ArrayList<EvenlyGriddedSurface>
 	 */
-	public ArrayList<RuptureSurface> getSurfaceList() {
+	public ArrayList<EvenlyGriddedSurface> getSurfaceList() {
 		return surfaces;
 	}
 	
@@ -62,8 +62,8 @@ public class CompoundRuptureSurface implements RuptureSurface {
 		reverseSurfTrace = new boolean[surfaces.size()];
 
 		// determine if either of the first two sections need to be reversed
-		RuptureSurface surf1 = surfaces.get(0);
-		RuptureSurface surf2 = surfaces.get(1);
+		EvenlyGriddedSurface surf1 = surfaces.get(0);
+		EvenlyGriddedSurface surf2 = surfaces.get(1);
 		double[] dist = new double[4];
 		dist[0] = LocationUtils.horzDistanceFast(surf1.getFirstLocOnUpperEdge(), surf2.getFirstLocOnUpperEdge());
 		dist[1] = LocationUtils.horzDistanceFast(surf1.getFirstLocOnUpperEdge(), surf2.getLastLocOnUpperEdge());
@@ -117,7 +117,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 		aveDip = 0;
 		totArea=0;
 		for(int s=0; s<surfaces.size();s++) {
-			RuptureSurface surf = surfaces.get(s);
+			EvenlyGriddedSurface surf = surfaces.get(s);
 			double area = surf.getArea();
 			totArea += area;
 			if(reverseSurfTrace[s])
@@ -165,7 +165,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 	public double getAveGridSpacing() {
 		if(aveGridSpacing == -1) {
 			aveGridSpacing = 0;
-			for(RuptureSurface surf: surfaces) {
+			for(EvenlyGriddedSurface surf: surfaces) {
 				aveGridSpacing += surf.getAveGridSpacing()*surf.getArea();
 			}
 			aveGridSpacing /= getArea();
@@ -180,7 +180,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 	public double getAveLength() {
 		if(aveLength == -1) {
 			aveLength = 0;
-			for(RuptureSurface surf: surfaces) {
+			for(EvenlyGriddedSurface surf: surfaces) {
 				aveLength += surf.getAveLength();
 			}
 		}
@@ -194,7 +194,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 	public double getAveRupTopDepth() {
 		if(aveRupTopDepth == -1) {
 			aveRupTopDepth = 0;
-			for(RuptureSurface surf: surfaces) {
+			for(EvenlyGriddedSurface surf: surfaces) {
 				aveRupTopDepth += surf.getAveRupTopDepth()*surf.getArea();
 			}
 			aveRupTopDepth /= getArea();
@@ -217,7 +217,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 	public double getAveWidth() {
 		if(aveWidth == -1) {
 			aveWidth = 0;
-			for(RuptureSurface surf: surfaces) {
+			for(EvenlyGriddedSurface surf: surfaces) {
 				aveWidth += surf.getAveWidth()*surf.getArea();
 			}
 			aveWidth /= getArea();
@@ -235,7 +235,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 		distanceSeis = Double.MAX_VALUE;
 		distanceRup = Double.MAX_VALUE;
 		double dist;
-		for(RuptureSurface surf: surfaces) {
+		for(EvenlyGriddedSurface surf: surfaces) {
 			dist = surf.getDistanceJB(siteLocForDistCalcs);
 			if(dist<distanceJB) distanceJB=dist;
 			dist = surf.getDistanceRup(siteLocForDistCalcs);
@@ -288,7 +288,7 @@ public class CompoundRuptureSurface implements RuptureSurface {
 	 */
 	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
 		LocationList locList = new LocationList();
-		for(RuptureSurface surf:surfaces) {
+		for(EvenlyGriddedSurface surf:surfaces) {
 			locList.addAll(surf.getEvenlyDiscritizedListOfLocsOnSurface());
 		}
 		return locList;
@@ -302,29 +302,27 @@ public class CompoundRuptureSurface implements RuptureSurface {
 		// make the lower edge
 		if(reverseOrderOfSurfaces) {
 			for(int s=0; s<surfaces.size(); s++) {
-				RuptureSurface surf = surfaces.get(s);
-				FaultTrace trace = surf.getEvenlyDiscritizedUpperEdge(); 
+				EvenlyGriddedSurface surf = surfaces.get(s);
 				if(reverseSurfTrace[s]) { // start at the beginning
-					for(int c=trace.size()-1; c>=0 ; c--)
-						perimeter.add(trace.get(c));					
+					for(int c=surf.getNumCols()-1; c>=0 ; c--)
+						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));					
 				}
 				else { // start at the end
-					for(int c=0; c< trace.size(); c++)
-						perimeter.add(trace.get(c));
+					for(int c=0; c< surf.getNumCols(); c++)
+						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));
 				}
 			}
 		}
 		else { // no reverse order of surfaces; start at last surface
 			for(int s=surfaces.size()-1; s>=0; s--) {
-				RuptureSurface surf = surfaces.get(s);
-				FaultTrace trace = surf.getEvenlyDiscritizedUpperEdge(); 
+				EvenlyGriddedSurface surf = surfaces.get(s);
 				if(reverseSurfTrace[s]) { // start at the beginning
-					for(int c=0; c< trace.size(); c++)
-						perimeter.add(trace.get(c));
+					for(int c=0; c< surf.getNumCols(); c++)
+						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));
 				}
 				else { // start at the end
-					for(int c=trace.size()-1; c>=0 ; c--)
-						perimeter.add(trace.get(c));					
+					for(int c=surf.getNumCols()-1; c>=0 ; c--)
+						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));					
 				}
 			}
 		}
@@ -485,12 +483,12 @@ public class CompoundRuptureSurface implements RuptureSurface {
 	    System.out.println(sierraMadre.getFaultTrace().getName());
 	    System.out.println(cucamonga.getFaultTrace().getName());
 	    System.out.println(sanJacintoSanBer.getFaultTrace().getName());
-	    ArrayList<RuptureSurface> surfList = new ArrayList<RuptureSurface>();
+	    ArrayList<EvenlyGriddedSurface> surfList = new ArrayList<EvenlyGriddedSurface>();
 	    surfList.add(new StirlingGriddedSurface(sierraMadre,1.0));
 	    surfList.add(new StirlingGriddedSurface(cucamonga,1.0));
 	    surfList.add(new StirlingGriddedSurface(sanJacintoSanBer,1.0));
 	    
-	    CompoundRuptureSurface compoundSurf = new CompoundRuptureSurface(surfList);
+	    CompoundGriddedSurface compoundSurf = new CompoundGriddedSurface(surfList);
 	    
 	    System.out.println("aveDipDir="+compoundSurf.getAveDipDirection());
 	    System.out.println("aveStrike="+compoundSurf.getAveStrike());
