@@ -7,8 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
-//import org.opensha.sha.earthquake.rupForecastImpl.nshmp.source.FaultParser;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.source.FaultParserTests;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 
 
