@@ -19,6 +19,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @author vipingupta
  *
  */
+// TODO ArrayLists should be Lists
 public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 
 	private ArrayList funcs;
