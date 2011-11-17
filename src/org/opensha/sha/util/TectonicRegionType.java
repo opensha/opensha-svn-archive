@@ -16,24 +16,26 @@ public enum TectonicRegionType implements Serializable {
 	
 	
 	/** Active shallow crust tectonic region. */
-	ACTIVE_SHALLOW("Active Shallow Crust"),
+	ACTIVE_SHALLOW("Active Shallow Crust", 200),
 	
 	/** Stable shallow crust tectonic region. */
-	STABLE_SHALLOW("Stable Shallow Crust"),
+	STABLE_SHALLOW("Stable Shallow Crust", 1000),
 	
 	/** Subduction Interface tectonic region. */
-	SUBDUCTION_INTERFACE("Subduction Interface"),
+	SUBDUCTION_INTERFACE("Subduction Interface", 1000),
 	
 	/** Subduction IntraSlab tectonic region. */
-	SUBDUCTION_SLAB("Subduction IntraSlab"),
+	SUBDUCTION_SLAB("Subduction IntraSlab", 1000),
 	
 	/** Volcanic tectonic region. */
-	VOLCANIC("Volcanic");
+	VOLCANIC("Volcanic", 200);
 	
 	private String name;
+	private double cutoff;
 	
-	private TectonicRegionType(String name) {
+	private TectonicRegionType(String name, double cutoff) {
 		this.name = name;
+		this.cutoff = cutoff;
 	}
 	
 	/**
@@ -66,6 +68,14 @@ public enum TectonicRegionType implements Serializable {
 	@Override
 	public String toString() {
 		return name;
+	}
+	
+	/**
+	 * Returns the default calculation cutoff distance for this type.
+	 * @return the default calcualtion cutoff distance
+	 */
+	public double defaultCutoffDist() {
+		return cutoff;
 	}
 	
 	//public 
