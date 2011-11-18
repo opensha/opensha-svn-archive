@@ -18,7 +18,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.nshmp.NEHRP_TestCity;
+//import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -339,7 +339,7 @@ public class GridERF extends AbstractERF {
 
 	public static GridERF getTestGrid() {
 		String name = "Small Test GridERF";
-		Location loc = NEHRP_TestCity.MEMPHIS.location();
+		Location loc = new Location(35.15, -90.05); // NEHRP_TestCity.MEMPHIS.location();
 		double d = 0.01;
 		GriddedRegion region = new GriddedRegion(
 			new Location(loc.getLatitude() - d, loc.getLongitude() - d),
