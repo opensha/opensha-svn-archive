@@ -25,7 +25,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_RelativeLocation;
 import org.opensha.sha.faultSurface.FaultTrace;
 
@@ -78,9 +78,9 @@ public class SubSectionsRupCalc {
 	   */
 	  private ArrayList getAllSubSections() {
 			ArrayList faultSectionPrefList = faultSectionPrefDataDAO.getAllFaultSectionPrefData();
-			ArrayList<FaultSectionPrefData> subSecList = new ArrayList<FaultSectionPrefData>();
+			ArrayList<UCERF2_FaultSectionPrefData> subSecList = new ArrayList<UCERF2_FaultSectionPrefData>();
 			for(int i=0; i<faultSectionPrefList.size(); ++i) {
-				FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)faultSectionPrefList.get(i);
+				UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)faultSectionPrefList.get(i);
 				//if(!faultSectionPrefData.getSectionName().equalsIgnoreCase("Battle Creek")) continue;
 				subSecList.addAll(faultSectionPrefData.getSubSectionsList(maxSubSectionLength));
 			}
@@ -102,7 +102,7 @@ public class SubSectionsRupCalc {
 		 // create trees 
 		 doneList = new ArrayList();
 		 for(int i=0; i<subSectionList.size(); ++i) {
-	    	FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)subSectionList.get(i);
+			 UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)subSectionList.get(i);
 	    	if(doneList.contains(faultSectionPrefData.getSectionName())) continue;
 	    	Tree tree = new Tree();
 	    	getAdjacentFaultSectionNodes(tree, i);
@@ -171,12 +171,12 @@ public class SubSectionsRupCalc {
 	   * @param adjacentFaultNames
 	   */
 	  private void getAdjacentFaultSectionNodes(Tree tree, int subSectionIndex) {
-		  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)subSectionList.get(subSectionIndex);
+		  UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)subSectionList.get(subSectionIndex);
 		  doneList.add(faultSectionPrefData.getSectionName());
 		  tree.connectInTree(faultSectionPrefData.getSectionId(), faultSectionPrefData.getSectionId());
 		  for(int i=0; i<subSectionList.size(); ++i) {
 			  if(i==subSectionIndex) continue;
-			  FaultSectionPrefData faultSectionPrefData1 = (FaultSectionPrefData)subSectionList.get(i);
+			  UCERF2_FaultSectionPrefData faultSectionPrefData1 = (UCERF2_FaultSectionPrefData)subSectionList.get(i);
 			  if(!isWithinCutOffDist(faultSectionPrefData, faultSectionPrefData1)) continue;
 			  tree.connectInTree(faultSectionPrefData.getSectionId(), faultSectionPrefData1.getSectionId());
 			  if(doneList.contains(faultSectionPrefData1.getSectionName())) continue;
@@ -191,8 +191,8 @@ public class SubSectionsRupCalc {
 	   * @param faultSectionPrefData2
 	   * @return
 	   */
-	  private boolean isWithinCutOffDist(FaultSectionPrefData faultSectionPrefData1, 
-			  FaultSectionPrefData faultSectionPrefData2) {
+	  private boolean isWithinCutOffDist(UCERF2_FaultSectionPrefData faultSectionPrefData1, 
+			  UCERF2_FaultSectionPrefData faultSectionPrefData2) {
 		  FaultTrace trace1= faultSectionPrefData1.getFaultTrace();
 		  int endIndex1 = trace1.getNumLocations()-1;
 		  FaultTrace trace2 = faultSectionPrefData2.getFaultTrace();

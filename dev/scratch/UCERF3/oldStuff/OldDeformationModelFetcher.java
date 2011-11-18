@@ -1,4 +1,4 @@
-package scratch.UCERF3.utils;
+package scratch.UCERF3.oldStuff;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,7 +15,6 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
@@ -32,7 +31,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
  * @author Field
  *
  */
-public class DeformationModelFetcher {
+public class OldDeformationModelFetcher {
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -57,7 +56,7 @@ public class DeformationModelFetcher {
 	String fileNamePrefix;
 	File precomputedDataDir;
 	
-	ArrayList<FaultSectionPrefData> faultSubSectPrefDataList;
+	ArrayList<UCERF2_FaultSectionPrefData> faultSubSectPrefDataList;
 	
 	/** Set the UCERF2 deformation model ID
 	 * D2.1 = 82
@@ -77,7 +76,7 @@ public class DeformationModelFetcher {
 	 * @param name - then name of the desire deformation model (from the DefModName enum here).
 	 * @param precomputedDataDir - the dir where pre-computed data can be found (for faster instantiation)
 	 */
-	public DeformationModelFetcher(DefModName name, File precomputedDataDir) {
+	public OldDeformationModelFetcher(DefModName name, File precomputedDataDir) {
 		this.precomputedDataDir = precomputedDataDir;
 		chosenDefModName = name;
 		if(name == DefModName.UCERF2_NCAL) {
@@ -98,7 +97,7 @@ public class DeformationModelFetcher {
 		return chosenDefModName;
 	}
 	
-	public ArrayList<FaultSectionPrefData> getSubSectionList() {
+	public ArrayList<UCERF2_FaultSectionPrefData> getSubSectionList() {
 		return faultSubSectPrefDataList;
 	}
 	
@@ -109,19 +108,19 @@ public class DeformationModelFetcher {
 	 * @param maxSubSectionLength - in units of seismogenic thickness
 	 * 
 	 */
-	private ArrayList<FaultSectionPrefData> createAll_UCERF2_SubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
+	private ArrayList<UCERF2_FaultSectionPrefData> createAll_UCERF2_SubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
 
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = getAll_UCERF2Sections(includeSectionsWithNaN_slipRates);
+		ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData = getAll_UCERF2Sections(includeSectionsWithNaN_slipRates);
 
 		// make subsection data
-		ArrayList<FaultSectionPrefData> subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
+		ArrayList<UCERF2_FaultSectionPrefData> subSectionPrefDataList = new ArrayList<UCERF2_FaultSectionPrefData>();
 		int subSectionIndex=0;
 		for(int i=0; i<allFaultSectionPrefData.size(); ++i) {
-			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
+			UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)allFaultSectionPrefData.get(i);
 			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
+			ArrayList<UCERF2_FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
 		}		
@@ -140,16 +139,17 @@ public class DeformationModelFetcher {
 	 * @param includeSectionsWithNaN_slipRates
 	 * @param maxSubSectionLength - in units of seismogenic thickness
 	 */
-	private ArrayList<FaultSectionPrefData>  createNorthCal_UCERF2_SubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
+	private ArrayList<UCERF2_FaultSectionPrefData>  createNorthCal_UCERF2_SubSections(boolean includeSectionsWithNaN_slipRates, double maxSubSectionLength) {
 		
 		// fetch the sections
-		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = getAll_UCERF2Sections(includeSectionsWithNaN_slipRates);
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+		ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData = getAll_UCERF2Sections(includeSectionsWithNaN_slipRates);
 
 		// remove those that don't have at least one trace end-point in in the N Cal RELM region
 		Region relm_nocal_reg = new CaliforniaRegions.RELM_NOCAL();
 		Region mod_relm_nocal_reg = new Region(relm_nocal_reg.getBorder(), BorderType.GREAT_CIRCLE); // needed to exclude Parkfield
-		ArrayList<FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
-		for(FaultSectionPrefData sectData:allFaultSectionPrefData) {
+		ArrayList<UCERF2_FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<UCERF2_FaultSectionPrefData>();
+		for(UCERF2_FaultSectionPrefData sectData:allFaultSectionPrefData) {
 			FaultTrace trace = sectData.getFaultTrace();
 			Location endLoc1 = trace.get(0);
 			Location endLoc2 = trace.get(trace.size()-1);
@@ -165,12 +165,12 @@ public class DeformationModelFetcher {
 		}
 
 		// make subsection data
-		ArrayList<FaultSectionPrefData> subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
+		ArrayList<UCERF2_FaultSectionPrefData> subSectionPrefDataList = new ArrayList<UCERF2_FaultSectionPrefData>();
 		int subSectionIndex=0;
 		for(int i=0; i<nCalFaultSectionPrefData.size(); ++i) {
-			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)nCalFaultSectionPrefData.get(i);
+			UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)nCalFaultSectionPrefData.get(i);
 			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
+			ArrayList<UCERF2_FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
 		}		
@@ -186,18 +186,20 @@ public class DeformationModelFetcher {
 	 * (the ones used in the UCERF2 un-segmented models rather than the segmented models).  This means
 	 * the sections here are not exactly the same as in the official UCERF2 deformation models.
 	 */
-	private ArrayList<FaultSectionPrefData> getAll_UCERF2Sections(boolean includeSectionsWithNaN_slipRates) {
+	private ArrayList<UCERF2_FaultSectionPrefData> getAll_UCERF2Sections(boolean includeSectionsWithNaN_slipRates) {
 
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<UCERF2_FaultSectionPrefData> prelimUCERF2_FaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(ucerf2_DefModelId);
+		ArrayList<UCERF2_FaultSectionPrefData> prelimFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(ucerf2_DefModelId);
 		
+//		ArrayList<FaultSectionPrefData> allFaultSectionPrefData=prelimFaultSectionPrefData;
+
 		// ****  Make a revised list, replacing step over sections on Elsinore and San Jacinto with the combined sections
 		ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData= new ArrayList<UCERF2_FaultSectionPrefData>();
 		
 		UCERF2_FaultSectionPrefData glenIvyStepoverfaultSectionPrefData=null,temeculaStepoverfaultSectionPrefData=null,anzaStepoverfaultSectionPrefData=null,valleyStepoverfaultSectionPrefData=null;
 		
-		for(UCERF2_FaultSectionPrefData data : prelimUCERF2_FaultSectionPrefData) {
+		for(UCERF2_FaultSectionPrefData data : prelimFaultSectionPrefData) {
 			int id = data.getSectionId();
 			if(id==GLEN_IVY_STEPOVER_FAULT_SECTION_ID) {
 				glenIvyStepoverfaultSectionPrefData = data;
@@ -262,7 +264,7 @@ public class DeformationModelFetcher {
 			}
 		}
 */		
-		return convertFaultSectionPrefData(allFaultSectionPrefData);
+		return allFaultSectionPrefData;
 	}
 	
 	
@@ -271,7 +273,7 @@ public class DeformationModelFetcher {
 	 * 
 	 * @param maxSubSectionLength - in units of seismogenic thickness
 	 */
-	private ArrayList<FaultSectionPrefData> createBayAreaSubSections(double maxSubSectionLength) {
+	private ArrayList<UCERF2_FaultSectionPrefData> createBayAreaSubSections(double maxSubSectionLength) {
 
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();	
 		
@@ -307,7 +309,7 @@ public class DeformationModelFetcher {
 			subSectionPrefDataList.addAll(subSectData);
 		}
 		
-		return convertFaultSectionPrefData(subSectionPrefDataList);
+		return subSectionPrefDataList;
 	}
 	
 	
@@ -455,36 +457,5 @@ public class DeformationModelFetcher {
 		  }
 		  
 		  return subSectionAzimuths;
-	  }
-	  
-	  
-	  /**
-	   * This converts a list of old UCERF2_FaultSectionPrefData to a list of the 
-	   * new FaultSectionPrefData objects.
-	   * @param dataList
-	   * @return
-	   */
-	  private ArrayList<FaultSectionPrefData> convertFaultSectionPrefData(ArrayList<UCERF2_FaultSectionPrefData> dataList) {
-		  ArrayList<FaultSectionPrefData> newDataList = new ArrayList<FaultSectionPrefData>();
-		  for(UCERF2_FaultSectionPrefData oldData: dataList) {
-			  FaultSectionPrefData newData = new FaultSectionPrefData();
-			  
-			  newData.setSectionId(oldData.getSectionId());
-			  newData.setSectionName(oldData.getSectionName());
-			  newData.setShortName(oldData.getShortName());
-			  newData.setAveLongTermSlipRate(oldData.getAveLongTermSlipRate());
-			  newData.setSlipRateStdDev(oldData.getSlipRateStdDev());
-			  newData.setAveDip(oldData.getAveDip());
-			  newData.setAveRake(oldData.getAveRake());
-			  newData.setAveUpperDepth(oldData.getAveUpperDepth());
-			  newData.setAveLowerDepth(oldData.getAveLowerDepth());
-			  newData.setAseismicSlipFactor(oldData.getAseismicSlipFactor());
-			  newData.setFaultTrace(oldData.getFaultTrace());
-			  newData.setDipDirection(oldData.getDipDirection());
-			  newData.setParentSectionId(oldData.getParentSectionId());
-			  newData.setParentSectionName(oldData.getParentSectionName());
-			  newDataList.add(newData);
-		  }
-		  return newDataList;
 	  }
 }

@@ -20,6 +20,8 @@ import org.opensha.sha.faultSurface.FaultTrace;
  * Write Segment latitude and longitudes in a file.
  * One file for each segment.
  * 
+ *  THIS CLASS MAY NO LONGER WORK FOLLOWING THE CHANGES OF FaultSectionPrefData ON NOV. 18, 2011
+ * 
  * @author vipingupta
  *
  */

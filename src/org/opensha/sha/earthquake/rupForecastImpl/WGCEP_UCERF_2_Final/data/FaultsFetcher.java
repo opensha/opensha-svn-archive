@@ -26,11 +26,11 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.util.FileUtils;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 
 /**
 *
@@ -210,7 +210,7 @@ public abstract class FaultsFetcher {
 			for(int j=0; j<sectionList.size(); ++j) {
 				//System.out.println(faultModel+","+j);
 				int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
-				FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, faultSectionId);
+				UCERF2_FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, faultSectionId);
 				if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
 					//System.out.println(faultSectionPrefData.getSectionName());
 					continue;
@@ -224,8 +224,8 @@ public abstract class FaultsFetcher {
 				// If we encounter Glen Ivy Stepover, then we need to replace it with combined stepover section
 				if(this.isUnsegmented && faultName.equalsIgnoreCase("Elsinore") &&  
 						faultSectionPrefData.getSectionId()==GLEN_IVY_STEPOVER_FAULT_SECTION_ID)  {
-					FaultSectionPrefData glenIvyStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, GLEN_IVY_STEPOVER_FAULT_SECTION_ID);
-					FaultSectionPrefData temeculaStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, TEMECULA_STEPOVER_FAULT_SECTION_ID);
+					UCERF2_FaultSectionPrefData glenIvyStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, GLEN_IVY_STEPOVER_FAULT_SECTION_ID);
+					UCERF2_FaultSectionPrefData temeculaStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, TEMECULA_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData = faultSectionDataFinal.getFaultSectionPrefData(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData.setAveLongTermSlipRate(glenIvyStepoverfaultSectionPrefData.getAveLongTermSlipRate()+temeculaStepoverfaultSectionPrefData.getAveLongTermSlipRate());
 					faultSectionPrefData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getSlipRateStdDev());
@@ -237,8 +237,8 @@ public abstract class FaultsFetcher {
 				// If we encounter SJ Valley Stepover, then we need to replace it with combined stepover section
 				if(this.isUnsegmented && faultName.equalsIgnoreCase("San Jacinto (SB to C)") &&  
 						faultSectionPrefData.getSectionId()==this.SJ_VALLEY_STEPOVER_FAULT_SECTION_ID)  {
-					FaultSectionPrefData anzaStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, SJ_ANZA_STEPOVER_FAULT_SECTION_ID);
-					FaultSectionPrefData valleyStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, SJ_VALLEY_STEPOVER_FAULT_SECTION_ID);
+					UCERF2_FaultSectionPrefData anzaStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, SJ_ANZA_STEPOVER_FAULT_SECTION_ID);
+					UCERF2_FaultSectionPrefData valleyStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, SJ_VALLEY_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData = faultSectionDataFinal.getFaultSectionPrefData(this.SJ_COMBINED_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData.setAveLongTermSlipRate(anzaStepoverfaultSectionPrefData.getAveLongTermSlipRate()+valleyStepoverfaultSectionPrefData.getAveLongTermSlipRate());
 					faultSectionPrefData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getSlipRateStdDev());
@@ -303,7 +303,7 @@ public abstract class FaultsFetcher {
 		ArrayList faultSectionsIdList = new ArrayList();
 		StringTokenizer tokenizer = new StringTokenizer(line,"\n,");
 		while(tokenizer.hasMoreTokens()) {
-			FaultSectionPrefData faultSectionPrefData = faultSectionDataFinal.getFaultSectionPrefData(Integer.parseInt(tokenizer.nextToken().trim()));
+			UCERF2_FaultSectionPrefData faultSectionPrefData = faultSectionDataFinal.getFaultSectionPrefData(Integer.parseInt(tokenizer.nextToken().trim()));
 			faultSectionsIdList.add(new FaultSectionSummary(faultSectionPrefData.getSectionId(), faultSectionPrefData.getSectionName()));
 		}
 		return faultSectionsIdList;

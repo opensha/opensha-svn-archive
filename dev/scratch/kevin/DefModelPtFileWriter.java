@@ -7,8 +7,8 @@ import java.util.Collections;
 
 import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.geo.Location;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 public class DefModelPtFileWriter {
@@ -21,7 +21,7 @@ public class DefModelPtFileWriter {
 		
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
+		ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
 
 		//Alphabetize:
 		Collections.sort(allFaultSectionPrefData, new NamedComparator());
@@ -43,7 +43,7 @@ public class DefModelPtFileWriter {
 		
 		FileWriter fw = new FileWriter("/tmp/dm_d.1_pts.txt");
 		
-		for (FaultSectionPrefData fault : allFaultSectionPrefData) {
+		for (UCERF2_FaultSectionPrefData fault : allFaultSectionPrefData) {
 			String name = fault.getName();
 			double slip = fault.getAveLongTermSlipRate();
 			double rake = fault.getAveRake();

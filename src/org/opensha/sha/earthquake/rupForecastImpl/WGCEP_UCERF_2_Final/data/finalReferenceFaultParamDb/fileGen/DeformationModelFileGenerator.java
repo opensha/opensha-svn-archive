@@ -33,9 +33,9 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelSummaryFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 public class DeformationModelFileGenerator {
@@ -48,7 +48,7 @@ public class DeformationModelFileGenerator {
 	DeformationModelPrefDataFinal defModels = new DeformationModelPrefDataFinal();
 	
 	ArrayList<DeformationModelSummary> deformationModelSummariesList;
-	ArrayList<ArrayList<FaultSectionPrefData>> faulSectionIDListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
+	ArrayList<ArrayList<UCERF2_FaultSectionPrefData>> faulSectionIDListList = new ArrayList<ArrayList<UCERF2_FaultSectionPrefData>>();
 	
 	/**
 	 * This class generates files representations of each deformation model. 
@@ -66,11 +66,11 @@ public class DeformationModelFileGenerator {
 		for (DeformationModelSummary summary : deformationModelSummariesList) {
 			int id = summary.getDeformationModelId();
 			
-			ArrayList<FaultSectionPrefData> faultSections = defModels.getAllFaultSectionPrefData(id);
+			ArrayList<UCERF2_FaultSectionPrefData> faultSections = defModels.getAllFaultSectionPrefData(id);
 			
-			ArrayList<FaultSectionPrefData> noSlips = new ArrayList<FaultSectionPrefData>();
+			ArrayList<UCERF2_FaultSectionPrefData> noSlips = new ArrayList<UCERF2_FaultSectionPrefData>();
 			
-			for (FaultSectionPrefData section : faultSections) {
+			for (UCERF2_FaultSectionPrefData section : faultSections) {
 				// skip all sections with NaN slip rates
 				if (section.getAveLongTermSlipRate() == Double.NaN ||
 						(section.getAveLongTermSlipRate() + "").equals(Double.NaN + "")) {
@@ -98,7 +98,7 @@ public class DeformationModelFileGenerator {
 	public void saveToFiles() {
 		for (int i=0; i<deformationModelSummariesList.size(); i++) {
 			DeformationModelSummary summary = deformationModelSummariesList.get(i);
-			ArrayList<FaultSectionPrefData> sections = faulSectionIDListList.get(i);
+			ArrayList<UCERF2_FaultSectionPrefData> sections = faulSectionIDListList.get(i);
 			
 			String filePrefix = FILE_PATH + "DeformationModel_" + summary.getDeformationModelName();
 			
@@ -114,7 +114,7 @@ public class DeformationModelFileGenerator {
 	 * @param sections
 	 * @param filePrefix
 	 */
-	private void saveDefModelToText(DeformationModelSummary model, ArrayList<FaultSectionPrefData> sections, String filePrefix) {
+	private void saveDefModelToText(DeformationModelSummary model, ArrayList<UCERF2_FaultSectionPrefData> sections, String filePrefix) {
 		String fileName = filePrefix + ".txt";
 		
 		System.out.println("Writing Text " + model.getDeformationModelName() + " to " + fileName);
@@ -159,7 +159,7 @@ public class DeformationModelFileGenerator {
 			fw.write("# latN lonN" + "\n");
 			fw.write("#********************************" + "\n");
 			
-			for (FaultSectionPrefData section : sections) {
+			for (UCERF2_FaultSectionPrefData section : sections) {
 				fw.write(section.getSectionName() + "\n");
 				fw.write((float)section.getAveUpperDepth() + "\n");
 				fw.write((float)section.getAveLowerDepth() + "\n");
@@ -193,7 +193,7 @@ public class DeformationModelFileGenerator {
 	 * @param sections
 	 * @param filePrefix
 	 */
-	private void saveDefModelToXML(DeformationModelSummary model, ArrayList<FaultSectionPrefData> sections, String filePrefix) {
+	private void saveDefModelToXML(DeformationModelSummary model, ArrayList<UCERF2_FaultSectionPrefData> sections, String filePrefix) {
 		String fileName = filePrefix + ".xml";
 		
 		Document document = DocumentHelper.createDocument();
@@ -202,7 +202,7 @@ public class DeformationModelFileGenerator {
 		root = model.toXMLMetadata(root);
 		root = model.getFaultModel().toXMLMetadata(root);
 		Element sectionsEl = root.addElement("FaultSections");
-		for (FaultSectionPrefData section : sections) {
+		for (UCERF2_FaultSectionPrefData section : sections) {
 			sectionsEl = section.toXMLMetadata(root);
 		}
 		
@@ -231,17 +231,17 @@ public class DeformationModelFileGenerator {
 			if (i == max_model)
 				break;
 			DeformationModelSummary summary = deformationModelSummariesList.get(i);
-			ArrayList<FaultSectionPrefData> sections = faulSectionIDListList.get(i);
+			ArrayList<UCERF2_FaultSectionPrefData> sections = faulSectionIDListList.get(i);
 			
 			for (int j=0; j<sections.size(); j++) {
-				FaultSectionPrefData section = sections.get(j);
+				UCERF2_FaultSectionPrefData section = sections.get(j);
 				for (int k=0; k<deformationModelSummariesList.size(); k++) {
 					if (k == max_model)
 						break;
 					DeformationModelSummary summary2 = deformationModelSummariesList.get(k);
-					ArrayList<FaultSectionPrefData> sections2 = faulSectionIDListList.get(k);
+					ArrayList<UCERF2_FaultSectionPrefData> sections2 = faulSectionIDListList.get(k);
 					
-					FaultSectionPrefData section2 = sections2.get(j);
+					UCERF2_FaultSectionPrefData section2 = sections2.get(j);
 					
 					float slip1 = (float)section.getAveLongTermSlipRate();
 					float slip2 = (float)section2.getAveLongTermSlipRate();
@@ -277,7 +277,7 @@ public class DeformationModelFileGenerator {
 			for (int i=0; i<deformationModelSummariesList.size(); i++) {
 				if (i == max_model)
 					break;
-				ArrayList<FaultSectionPrefData> sections = faulSectionIDListList.get(i);
+				ArrayList<UCERF2_FaultSectionPrefData> sections = faulSectionIDListList.get(i);
 				float slip = (float)sections.get(id).getAveLongTermSlipRate();
 				float stdDev = (float)sections.get(id).getSlipRateStdDev();
 				System.out.print(slip + "(" + stdDev + ")" + "\t");
@@ -297,7 +297,7 @@ public class DeformationModelFileGenerator {
 	 * @author kevin
 	 *
 	 */
-	class FaultSectionNameComparator implements Comparator<FaultSectionPrefData> {
+	class FaultSectionNameComparator implements Comparator<UCERF2_FaultSectionPrefData> {
 		// A Collator does string comparisons
 		private Collator c = Collator.getInstance();
 		
@@ -307,7 +307,7 @@ public class DeformationModelFileGenerator {
 		 * It simply compares their names using a Collator. It doesn't know how to compare
 		 * a file with a directory, and returns -1 in this case.
 		 */
-		public int compare(FaultSectionPrefData f1, FaultSectionPrefData f2) {
+		public int compare(UCERF2_FaultSectionPrefData f1, UCERF2_FaultSectionPrefData f2) {
 			if(f1 == f2)
 				return 0;
 

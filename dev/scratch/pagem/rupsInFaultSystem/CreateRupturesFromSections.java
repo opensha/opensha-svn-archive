@@ -14,8 +14,8 @@ import java.util.Iterator;
 import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -25,15 +25,15 @@ public class CreateRupturesFromSections {
     protected final static boolean D = false;  // for debugging
 
 	
-	ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
+	ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData;
 	double subSectionDistances[][],subSectionAzimuths[][];;
 	String endPointNames[];
 	Location endPointLocs[];
 	int numSections, numSubSections, minNumSubSectInRup;
 	ArrayList<ArrayList<Integer>> subSectionConnectionsListList, endToEndSectLinksList;
 	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxSubSectionLength;
-	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataListList;
-	ArrayList<FaultSectionPrefData> subSectionPrefDataList; // same as above, but a sequential list (not list of lists)
+	ArrayList<ArrayList<UCERF2_FaultSectionPrefData>> subSectionPrefDataListList;
+	ArrayList<UCERF2_FaultSectionPrefData> subSectionPrefDataList; // same as above, but a sequential list (not list of lists)
 	
 	// this is to store the section and subsection indices for the ith subsection.
 	int[]  sectForSubSectionMapping,subSectForSubSectMapping, firstSubsectOfSectMapping;
@@ -224,7 +224,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  // this is a trimmed list of subsections for testing; 
 		  // make sure includeSectionsWithNaN_slipRates=false for the IDs below to be good choices
 		  test = "_test";
-		  ArrayList<FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
+		  ArrayList<UCERF2_FaultSectionPrefData> trimmedFaultSectionPrefData = new ArrayList<UCERF2_FaultSectionPrefData>();
 		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(77));
 		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(75));
 		  //trimmedFaultSectionPrefData.add(allFaultSectionPrefData.get(164));
@@ -261,15 +261,15 @@ System.out.println("Working on rupture list for cluster "+i);
 	  
 
 		  // make subsection data
-		  subSectionPrefDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
-		  subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
+		  subSectionPrefDataListList = new ArrayList<ArrayList<UCERF2_FaultSectionPrefData>>();
+		  subSectionPrefDataList = new ArrayList<UCERF2_FaultSectionPrefData>();
 		  numSubSections=0;
 		  numSections = allFaultSectionPrefData.size();
 		  int maxNumSubSections=0;
 		  for(int i=0; i<numSections; ++i) {
-			  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
+			  UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)allFaultSectionPrefData.get(i);
 			  double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
+			  ArrayList<UCERF2_FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
 			  numSubSections += subSectData.size(); // bug fixed!  (this used to be below the following line)
 			  if(subSectData.size()>maxNumSubSections) maxNumSubSections = numSubSections;
 			  subSectionPrefDataListList.add(subSectData);
@@ -411,9 +411,9 @@ System.out.println("Working on rupture list for cluster "+i);
 		  
 		  // now add subsections on other sections, keeping only one connection between each section (the closest)
 		  for(int i=0; i<subSectionPrefDataListList.size(); ++i) {
-			  ArrayList<FaultSectionPrefData> sect1_List = subSectionPrefDataListList.get(i);
+			  ArrayList<UCERF2_FaultSectionPrefData> sect1_List = subSectionPrefDataListList.get(i);
 			  for(int j=i+1; j<subSectionPrefDataListList.size(); ++j) {
-				  ArrayList<FaultSectionPrefData> sect2_List = subSectionPrefDataListList.get(j);
+				  ArrayList<UCERF2_FaultSectionPrefData> sect2_List = subSectionPrefDataListList.get(j);
 				  double minDist=Double.MAX_VALUE;
 				  int subSectIndex1 = -1;
 				  int subSectIndex2 = -1;

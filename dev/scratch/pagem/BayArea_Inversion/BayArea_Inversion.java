@@ -25,9 +25,9 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.RunScript;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -56,7 +56,7 @@ public class BayArea_Inversion {
 	public final static double GAUSS_MFD_SIGMA = 0.12;
 	public final static double GAUSS_MFD_TRUNCATION = 2;
 
-	private ArrayList<FaultSectionPrefData> subSectionList;
+	private ArrayList<UCERF2_FaultSectionPrefData> subSectionList;
 
 	private int num_seg, num_rup;
 
@@ -983,10 +983,10 @@ public class BayArea_Inversion {
 		// list
 		numSubSections = new int[faultSectionIds.size()];
 
-		subSectionList = new ArrayList<FaultSectionPrefData>();
+		subSectionList = new ArrayList<UCERF2_FaultSectionPrefData>();
 		int lastNum = 0;
 		for (int i = 0; i < faultSectionIds.size(); ++i) {
-			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB
+			UCERF2_FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB
 					.getFaultSectionPrefData(deformationModelId,
 							faultSectionIds.get(i));
 			subSectionList.addAll(faultSectionPrefData
@@ -1015,7 +1015,7 @@ public class BayArea_Inversion {
 	}
 
 	private void transitionAseisAtEnds() {
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 
 		/**/
 		// transition aseismicity factors for Parkfield sections
@@ -1112,7 +1112,7 @@ public class BayArea_Inversion {
 	 * subsection.
 	 */
 	private void transitionSlipRateAtEnds() {
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 
 		// write out the original data
 		/*
@@ -1205,7 +1205,7 @@ public class BayArea_Inversion {
 	 * 
 	 * @return
 	 */
-	public ArrayList<FaultSectionPrefData> getAllSubsections() {
+	public ArrayList<UCERF2_FaultSectionPrefData> getAllSubsections() {
 		return this.subSectionList;
 	}
 
@@ -1279,7 +1279,7 @@ public class BayArea_Inversion {
 		double maxLength = 0;
 		double minArea = Double.MAX_VALUE;
 		double maxArea = 0;
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 		totMoRate = 0;
 		double aveSegDDW = 0, aveSegLength = 0;
 
@@ -1345,7 +1345,7 @@ public class BayArea_Inversion {
 	 */
 	private void computeSegSlipInRupMatrix() {
 		segSlipInRup = new double[num_seg][num_rup];
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 
 		// for case segment slip is independent of rupture (constant), and equal
 		// to slip-rate * MRI

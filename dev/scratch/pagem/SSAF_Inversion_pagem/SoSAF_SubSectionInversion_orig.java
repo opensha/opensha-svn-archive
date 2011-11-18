@@ -25,9 +25,9 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.RunScript;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -56,7 +56,7 @@ public class SoSAF_SubSectionInversion_orig {
 	public final static double GAUSS_MFD_SIGMA = 0.12;
 	public final static double GAUSS_MFD_TRUNCATION = 2;
 	
-	private ArrayList<FaultSectionPrefData> subSectionList;
+	private ArrayList<UCERF2_FaultSectionPrefData> subSectionList;
 	
 	private int num_seg, num_rup;
 	
@@ -796,10 +796,10 @@ public class SoSAF_SubSectionInversion_orig {
 		// this will store the number of subsections for the ith section in the list
 		numSubSections = new int[faultSectionIds.size()];
 		
-		subSectionList = new ArrayList<FaultSectionPrefData>();	
+		subSectionList = new ArrayList<UCERF2_FaultSectionPrefData>();	
 		int lastNum=0;
 		for(int i=0; i<faultSectionIds.size(); ++i) {
-			FaultSectionPrefData faultSectionPrefData = 
+			UCERF2_FaultSectionPrefData faultSectionPrefData = 
 				deformationModelPrefDB.getFaultSectionPrefData(deformationModelId, faultSectionIds.get(i));
 			subSectionList.addAll(faultSectionPrefData.getSubSectionsList(this.maxSubsectionLength));
 			// compute & write the number of subsections for this section
@@ -827,7 +827,7 @@ public class SoSAF_SubSectionInversion_orig {
 	
 	
 	private void transitionAseisAtEnds() {
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 		
 		/**/
 		// transition aseismicity factors for Parkfield sections
@@ -902,7 +902,7 @@ public class SoSAF_SubSectionInversion_orig {
 	 * number of points in the subsection.
 	 */
 	private void transitionSlipRateAtEnds() {
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 		
 		// write out the original data
 		/*
@@ -982,7 +982,7 @@ public class SoSAF_SubSectionInversion_orig {
 	 * 
 	 * @return
 	 */
-	public ArrayList<FaultSectionPrefData> getAllSubsections() {
+	public ArrayList<UCERF2_FaultSectionPrefData> getAllSubsections() {
 		return this.subSectionList;
 	}
 	
@@ -1066,7 +1066,7 @@ public class SoSAF_SubSectionInversion_orig {
 		double maxLength = 0;
 		double minArea = Double.MAX_VALUE;
 		double maxArea = 0;
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 		totMoRate = 0;
 		double aveSegDDW = 0, aveSegLength =0;
 		
@@ -1117,7 +1117,7 @@ public class SoSAF_SubSectionInversion_orig {
 	 */
 	private void computeSegSlipInRupMatrix() {
 		segSlipInRup = new double[num_seg][num_rup];
-		FaultSectionPrefData segData;
+		UCERF2_FaultSectionPrefData segData;
 		
 		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
@@ -2079,9 +2079,9 @@ public class SoSAF_SubSectionInversion_orig {
 		
 		
 /*		
-		ArrayList<FaultSectionPrefData> subsectionList = soSAF_SubSections.getAllSubsections();
+		ArrayList<UCERF2_FaultSectionPrefData> subsectionList = soSAF_SubSections.getAllSubsections();
 		for(int i=0; i<subsectionList.size(); ++i) {
-			FaultSectionPrefData subSection = subsectionList.get(i);
+			UCERF2_FaultSectionPrefData subSection = subsectionList.get(i);
 			System.out.println(i+"\t"+subSection.getSectionName()+"\t"+(float)subSection.getLength());
 //			System.out.println(subSection.getFaultTrace());
 		}

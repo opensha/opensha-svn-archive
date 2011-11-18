@@ -190,8 +190,8 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 		sourceParam.setValueAsDefault();
 		componentParam.setValueAsDefault();
 		tectonicRegionTypeParam.setValueAsDefault();
-		ptSrcCorrParam.setValueAsDefault();
-		nshmpPtSrcCorrParam.setValueAsDefault();
+//		ptSrcCorrParam.setValueAsDefault();
+//		nshmpPtSrcCorrParam.setValueAsDefault();
 
 		for (ScalarIMR imr : imrMap.keySet()) {
 			imr.setParamDefaults();

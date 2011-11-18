@@ -9,9 +9,9 @@ import java.util.Iterator;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegmentTimeDepData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_RelativeLocation;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -561,7 +561,7 @@ public class FaultSegmentData implements java.io.Serializable {
 		double totRake=0, totArea=0, area;
 		for(int i=0; i<segIndex.length; ++i) {
 			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
-			ArrayList<FaultSectionPrefData> faultSectionPrefDataList =  (ArrayList)this.sectionToSegmentData.get(segIndex[i]);
+			ArrayList<UCERF2_FaultSectionPrefData> faultSectionPrefDataList =  (ArrayList)this.sectionToSegmentData.get(segIndex[i]);
 			for(int j=0; j<faultSectionPrefDataList.size(); ++j) {
 				area = UCERF2_Final_RelativeLocation.getOldFaultLength(faultSectionPrefDataList.get(j).getFaultTrace())*faultSectionPrefDataList.get(j).getDownDipWidth();
 				totArea+=area;
@@ -606,7 +606,7 @@ public class FaultSegmentData implements java.io.Serializable {
 			sectionsInSegString[seg]="";
 			ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData>();
 			while(it.hasNext()) {
-				FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
+				UCERF2_FaultSectionPrefData sectData = (UCERF2_FaultSectionPrefData) it.next();
 				simpleFaultData.add(sectData.getSimpleFaultData(aseisReducesArea));
 				if(it.hasNext()) sectionsInSegString[seg]+=sectData.getSectionName()+" + ";
 				else sectionsInSegString[seg]+=sectData.getSectionName();

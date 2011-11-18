@@ -37,6 +37,8 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
  *  in fault section databse with the values in deformation model. 
  *  If the values differ for any fault section, that section name and deformation model name is printed
  *  This was done to check which fault sections differ in different deformation models
+ *  
+ *  THIS CLASS MAY NO LONGER WORK FOLLOWING THE CHANGES OF FaultSectionPrefData ON NOV. 18, 2011.
  * 
  *  @author vipingupta
   */

@@ -20,6 +20,10 @@ import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
  * surface.  The main method here was used to make various tests to ensure that these things are
  * handled properly (these data were analyzed externally using Igor).
  * 
+ * This can  be abstracted to CompoundRuptureSurface, with the only two current problem here being
+ * the get*Perimeter* methods (these presently assume an evenly gridded surfaces); these could be fixed
+ * if we added getFirstDownDipEdge() and getLastDownDipEdge(), plus evenly discretized equivalents.
+ * 
  * @author field
  *
  */

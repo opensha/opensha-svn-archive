@@ -40,6 +40,7 @@ import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.LognormalDistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -75,7 +76,7 @@ public class General_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
 	
-	private ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
+	private ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData;
 	ArrayList<RectangularElement> rectElementsList;
 	ArrayList<Vertex> vertexList;
 	ArrayList<ArrayList<RectangularElement>> rectElementsListForSections;
@@ -499,7 +500,7 @@ public class General_EQSIM_Tools {
 			ArrayList<RectangularElement> sectionElementsList = new ArrayList<RectangularElement>();
 			ArrayList<Vertex> sectionVertexList = new ArrayList<Vertex>();
 			sectionNumber +=1; // starts from 1, not zero
-			FaultSectionPrefData faultSectionPrefData = allFaultSectionPrefData.get(i);
+			UCERF2_FaultSectionPrefData faultSectionPrefData = allFaultSectionPrefData.get(i);
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(faultSectionPrefData.getSimpleFaultData(aseisReducesArea), maxDiscretization, maxDiscretization);
 			EvenlyGridCenteredSurface gridCenteredSurf = new EvenlyGridCenteredSurface(surface);
 			double elementLength = gridCenteredSurf.getGridSpacingAlongStrike();
