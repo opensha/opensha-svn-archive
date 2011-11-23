@@ -27,13 +27,12 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
-
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
@@ -98,7 +97,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 	//final static int NUM_SECTIONS=717;		// this was found after running this once
 	final static int NUM_SECTIONS=717;		// Morgan edit: This is for NCal without the SAF Creeping Section
 	
-	List<UCERF2_FaultSectionPrefData> faultSectionData;
+	List<FaultSectionPrefData> faultSectionData;
 	
 	Region relm_nocal_reg;
 	
@@ -129,7 +128,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 	 * @param faultSectionData
 	 * @param precomputedDataDir
 	 */
-	public FindEquivNoCalUCERF2_Ruptures(List<UCERF2_FaultSectionPrefData> faultSectionData, File precomputedDataDir) {
+	public FindEquivNoCalUCERF2_Ruptures(List<FaultSectionPrefData> faultSectionData, File precomputedDataDir) {
 		
 		this.faultSectionData = faultSectionData;
 		this.precomputedDataDir=precomputedDataDir;

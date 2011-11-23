@@ -22,6 +22,7 @@ import org.dom4j.io.XMLWriter;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 /**
  * 
@@ -144,10 +145,10 @@ public class DeformationModelPrefDataFinal implements Serializable {
 	 * @param faultSectionId
 	 * @return
 	 */
-	public UCERF2_FaultSectionPrefData getFaultSectionPrefData(int deformationModelId, int faultSectionId) {
+	public FaultSectionPrefData getFaultSectionPrefData(int deformationModelId, int faultSectionId) {
 
 		// first get the default preferred data
-		UCERF2_FaultSectionPrefData faultSectionPrefData = prefFaultSectionDataFinal.getFaultSectionPrefData(faultSectionId).clone();
+		FaultSectionPrefData faultSectionPrefData = prefFaultSectionDataFinal.getFaultSectionPrefData(faultSectionId).clone();
 		
 		HashMap faultSectionIdIndexMap = (HashMap) faultSectionIdIndexMapMap.get(deformationModelId);
 		int indexForSectId = ((Integer) faultSectionIdIndexMap.get(faultSectionId)).intValue();
@@ -178,10 +179,10 @@ public class DeformationModelPrefDataFinal implements Serializable {
 	 * @param deformationModelId
 	 * @return
 	 */
-	public ArrayList<UCERF2_FaultSectionPrefData> getAllFaultSectionPrefData(int deformationModelId) {
+	public ArrayList<FaultSectionPrefData> getAllFaultSectionPrefData(int deformationModelId) {
 		ArrayList<Integer> ids = this.getFaultSectionIdsForDeformationModel(deformationModelId);
 		
-		ArrayList<UCERF2_FaultSectionPrefData> sections = new ArrayList<UCERF2_FaultSectionPrefData>();
+		ArrayList<FaultSectionPrefData> sections = new ArrayList<FaultSectionPrefData>();
 		
 		for (int id : ids) {
 			sections.add(this.getFaultSectionPrefData(deformationModelId, id).clone());

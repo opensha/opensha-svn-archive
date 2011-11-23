@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
@@ -33,7 +33,7 @@ public class SAF_Test {
 		System.out.println("Creating surfaces");
 		ArrayList<StirlingGriddedSurface> surfaces = new ArrayList<StirlingGriddedSurface>();
 		for (int faultSectionId : data.getFaultSectionIdsForDeformationModel(defModel)) {
-			UCERF2_FaultSectionPrefData fault = data.getFaultSectionPrefData(defModel, faultSectionId);
+			FaultSectionPrefData fault = data.getFaultSectionPrefData(defModel, faultSectionId);
 			SimpleFaultData simpleFaultData = fault.getSimpleFaultData(false);
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, gridSpacing, gridSpacing);
 			surfaces.add(surface);

@@ -8,9 +8,6 @@ import java.util.HashMap;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -79,10 +76,10 @@ public class FaultSectDistCalcTest {
 		double disc = 1.0;
 		
 		System.out.println("Discretization: " + disc + " KM");
-
-		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
-	    PrefFaultSectionDataDB_DAO faultSectionDB_DAO = new PrefFaultSectionDataDB_DAO(db);
-	    ArrayList<FaultSectionPrefData> data = faultSectionDB_DAO.getAllFaultSectionPrefData();
+		
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+		ArrayList<FaultSectionPrefData> data =
+			deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 		
 		ArrayList<FrankelGriddedSurface> surfaces = new ArrayList<FrankelGriddedSurface>();
 		

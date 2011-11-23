@@ -22,12 +22,13 @@ import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
+import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
@@ -57,7 +58,7 @@ public class RupsInFaultSystemInversion {
 	
 	final static String PALEO_DATA_FILE_NAME = "Appendix_C_Table7_091807.xls";
 
-	ArrayList<UCERF2_FaultSectionPrefData> faultSectionData;
+	ArrayList<FaultSectionPrefData> faultSectionData;
 	double sectionDistances[][],sectionAzimuths[][];;
 	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff;
 	int minNumSectInRup;
@@ -73,7 +74,7 @@ public class RupsInFaultSystemInversion {
 	
 	ArrayList<SegRateConstraint> segRateConstraints;
 
-	ArrayList<OldSectionCluster> sectionClusterList;
+	ArrayList<SectionCluster> sectionClusterList;
 	
 	// rupture attributes (all in SI units)
 	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength;
@@ -140,7 +141,7 @@ public class RupsInFaultSystemInversion {
 	 *    variations and/or off-fault MFD assumptions?)
 	 * 
 	 */
-	public RupsInFaultSystemInversion(ArrayList<UCERF2_FaultSectionPrefData> faultSectionData,
+	public RupsInFaultSystemInversion(ArrayList<FaultSectionPrefData> faultSectionData,
 			double[][] sectionDistances, double[][] sectionAzimuths, double maxJumpDist, 
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, int minNumSectInRup,
 			ArrayList<MagAreaRelationship> magAreaRelList, File precomputedDataDir, double moRateReduction,
@@ -259,7 +260,7 @@ public class RupsInFaultSystemInversion {
 	 * This returns the list of FaultSectionPrefData used in the inversion
 	 * @return
 	 */
-	public ArrayList<UCERF2_FaultSectionPrefData> getFaultSectionData() {
+	public ArrayList<FaultSectionPrefData> getFaultSectionData() {
 		return faultSectionData;
 	}
 
@@ -269,7 +270,7 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	public OldSectionCluster getCluster(int clusterIndex) {
+	public SectionCluster getCluster(int clusterIndex) {
 		return sectionClusterList.get(clusterIndex);
 	}
 
@@ -314,14 +315,14 @@ public class RupsInFaultSystemInversion {
 
 		// in case the sections here are subsections of larger sections, create a subSectionDataListList where each
 		// ArrayList<FaultSectionPrefData> is a list of subsections from the parent section
-		ArrayList<ArrayList<UCERF2_FaultSectionPrefData>> subSectionDataListList = new ArrayList<ArrayList<UCERF2_FaultSectionPrefData>>();
+		ArrayList<ArrayList<FaultSectionPrefData>> subSectionDataListList = new ArrayList<ArrayList<FaultSectionPrefData>>();
 		int lastID=-1;
-		ArrayList<UCERF2_FaultSectionPrefData> newList = new ArrayList<UCERF2_FaultSectionPrefData>();
+		ArrayList<FaultSectionPrefData> newList = new ArrayList<FaultSectionPrefData>();
 		for(int i=0; i<faultSectionData.size();i++) {
-			UCERF2_FaultSectionPrefData subSect = faultSectionData.get(i);
+			FaultSectionPrefData subSect = faultSectionData.get(i);
 			int parentID = subSect.getParentSectionId();
 			if(parentID != lastID || parentID == -1) { // -1 means there is no parent
-				newList = new ArrayList<UCERF2_FaultSectionPrefData>();
+				newList = new ArrayList<FaultSectionPrefData>();
 				subSectionDataListList.add(newList);
 				lastID = subSect.getParentSectionId();
 			}
@@ -332,7 +333,7 @@ public class RupsInFaultSystemInversion {
 		// First, if larger sections have been sub-sectioned, fill in neighboring subsection connections
 		// (using the other algorithm below might lead to subsections being skipped if their width is < maxJumpDist) 
 		for(int i=0; i<subSectionDataListList.size(); ++i) {
-			ArrayList<UCERF2_FaultSectionPrefData> subSectList = subSectionDataListList.get(i);
+			ArrayList<FaultSectionPrefData> subSectList = subSectionDataListList.get(i);
 			int numSubSect = subSectList.size();
 			for(int j=0;j<numSubSect;j++) {
 				// get index of section
@@ -347,9 +348,9 @@ public class RupsInFaultSystemInversion {
 
 		// now add subsections on other sections, keeping only one connection between each section (the closest)
 		for(int i=0; i<subSectionDataListList.size(); ++i) {
-			ArrayList<UCERF2_FaultSectionPrefData> sect1_List = subSectionDataListList.get(i);
+			ArrayList<FaultSectionPrefData> sect1_List = subSectionDataListList.get(i);
 			for(int j=i+1; j<subSectionDataListList.size(); ++j) {
-				ArrayList<UCERF2_FaultSectionPrefData> sect2_List = subSectionDataListList.get(j);
+				ArrayList<FaultSectionPrefData> sect2_List = subSectionDataListList.get(j);
 				double minDist=Double.MAX_VALUE;
 				int subSectIndex1 = -1;
 				int subSectIndex2 = -1;
@@ -387,11 +388,11 @@ public class RupsInFaultSystemInversion {
 		ArrayList<Integer> availableSections = new ArrayList<Integer>();
 		for(int i=0; i<numSections; i++) availableSections.add(i);
 
-		sectionClusterList = new ArrayList<OldSectionCluster>();
+		sectionClusterList = new ArrayList<SectionCluster>();
 		while(availableSections.size()>0) {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
-			OldSectionCluster newCluster = new OldSectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
+			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
 					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
@@ -406,7 +407,7 @@ public class RupsInFaultSystemInversion {
 	}
 
 
-	private void addClusterLinks(int subSectIndex, OldSectionCluster list) {
+	private void addClusterLinks(int subSectIndex, SectionCluster list) {
 		List<Integer> branches = sectionConnectionsListList.get(subSectIndex);
 		for(int i=0; i<branches.size(); i++) {
 			Integer subSect = branches.get(i);
@@ -546,7 +547,7 @@ public class RupsInFaultSystemInversion {
 		double[] sectMoRate = new double[numSects];
 		int index=0;
 		for(Integer sectID: sectionIndices) {	
-			UCERF2_FaultSectionPrefData sectData = faultSectionData.get(sectID);
+			FaultSectionPrefData sectData = faultSectionData.get(sectID);
 			sectArea[index] = sectData.getLength()*sectData.getDownDipWidth()*1e6*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; 1e6 for sq-km --> sq-m
 			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], sectSlipRateReduced[sectID]);
 			index += 1;
@@ -644,7 +645,7 @@ public class RupsInFaultSystemInversion {
 				
 		int rupIndex=-1;
 		for(int c=0;c<sectionClusterList.size();c++) {
-			OldSectionCluster cluster = sectionClusterList.get(c);
+			SectionCluster cluster = sectionClusterList.get(c);
 			ArrayList<ArrayList<Integer>> clusterRups = cluster.getSectionIndicesForRuptures();
 			for(int r=0;r<clusterRups.size();r++) {
 				rupIndex+=1;
@@ -655,7 +656,7 @@ public class RupsInFaultSystemInversion {
 				double totMoRate=0;
 				ArrayList<Integer> sectsInRup = clusterRups.get(r);
 				for(Integer sectID:sectsInRup) {
-					UCERF2_FaultSectionPrefData sectData = faultSectionData.get(sectID);
+					FaultSectionPrefData sectData = faultSectionData.get(sectID);
 					double length = sectData.getLength()*1e3;	// km --> m
 					totLength += length;
 					double area = length*sectData.getDownDipWidth()*1e3*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; km --> m on DDW

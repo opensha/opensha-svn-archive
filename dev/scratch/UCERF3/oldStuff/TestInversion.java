@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.FaultSectionDataWriter;
+
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -22,8 +25,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
@@ -32,7 +35,7 @@ public class TestInversion {
 
 	protected final static boolean D = true;  // for debugging
 
-	ArrayList<UCERF2_FaultSectionPrefData> subSectionPrefDataList;
+	ArrayList<FaultSectionPrefData> subSectionPrefDataList;
 	int numSubSections; int numRuptures;
 	double subSectionDistances[][],subSectionAzimuths[][];
 	double maxSubSectionLength;
@@ -103,7 +106,7 @@ public class TestInversion {
 		// create (or read) subSectionAzimuths[i][j]
 //		calcSubSectionAzimuths();
 		
-		OldDeformationModelFetcher deformationModelFetcher = new OldDeformationModelFetcher(OldDeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir);
+		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir);
 		subSectionPrefDataList = deformationModelFetcher.getSubSectionList();
 		numSubSections = subSectionPrefDataList.size();
 		subSectionAzimuths=deformationModelFetcher.getSubSectionAzimuthMatrix();
@@ -147,7 +150,7 @@ public class TestInversion {
 
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 
 		//Alphabetize:
 		Collections.sort(allFaultSectionPrefData, new NamedComparator());
@@ -165,8 +168,8 @@ public class TestInversion {
 		// remove those that don't have a trace in in the N Cal RELM region
 		Region relm_nocal_reg = new CaliforniaRegions.RELM_NOCAL();
 		Region mod_relm_nocal_reg = new Region(relm_nocal_reg.getBorder(), BorderType.GREAT_CIRCLE); // needed to exclude Parkfield
-		ArrayList<UCERF2_FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<UCERF2_FaultSectionPrefData>();
-		for(UCERF2_FaultSectionPrefData sectData:allFaultSectionPrefData) {
+		ArrayList<FaultSectionPrefData> nCalFaultSectionPrefData = new ArrayList<FaultSectionPrefData>();
+		for(FaultSectionPrefData sectData:allFaultSectionPrefData) {
 			FaultTrace trace = sectData.getFaultTrace();
 			Location endLoc1 = trace.get(0);
 			Location endLoc2 = trace.get(trace.size()-1);
@@ -193,12 +196,12 @@ public class TestInversion {
 
 
 		// make subsection data
-		subSectionPrefDataList = new ArrayList<UCERF2_FaultSectionPrefData>();
+		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
 		int subSectionIndex=0;
 		for(int i=0; i<nCalFaultSectionPrefData.size(); ++i) {
-			UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)nCalFaultSectionPrefData.get(i);
+			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)nCalFaultSectionPrefData.get(i);
 			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-			ArrayList<UCERF2_FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
+			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
 		}		
@@ -239,7 +242,7 @@ public class TestInversion {
 
 		// fetch the sections
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
+		ArrayList<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
 
 		//Alphabetize:
 		Collections.sort(allFaultSectionPrefData, new NamedComparator());
@@ -261,12 +264,12 @@ public class TestInversion {
 		}
 
 		// make subsection data
-		subSectionPrefDataList = new ArrayList<UCERF2_FaultSectionPrefData>();
+		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
 		int subSectionIndex=0;
 		for(int i=0; i<allFaultSectionPrefData.size(); ++i) {
-			UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)allFaultSectionPrefData.get(i);
+			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
 			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-			ArrayList<UCERF2_FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
+			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
 		}		
@@ -337,13 +340,13 @@ public class TestInversion {
 		faultSectionIds.add(28);	//San Jacinto (Superstition Mtn)
 */		
 		
-		subSectionPrefDataList = new ArrayList<UCERF2_FaultSectionPrefData>();
+		subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
 		int subSectIndex = 0;
 		for (int i = 0; i < faultSectionIds.size(); ++i) {
-			UCERF2_FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB
+			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB
 					.getFaultSectionPrefData(deformationModelId, faultSectionIds.get(i));
 			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
-			ArrayList<UCERF2_FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectIndex);
+			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectIndex);
 			subSectIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
 		}
@@ -501,7 +504,7 @@ public class TestInversion {
 		  metaData.add("deformationModelId = "+deformationModelId);
 		  metaData.add("includeSectionsWithNaN_slipRates = "+includeSectionsWithNaN_slipRates);
 		  metaData.add("maxSubSectionLength = "+maxSubSectionLength+"  (in units of section down-dip width)");
-		  OldFaultSectionDataWriter.writeSectionsToFile(subSectionPrefDataList, 
+		  FaultSectionDataWriter.writeSectionsToFile(subSectionPrefDataList, 
 					metaData, filePathAndName);
 
 	  }

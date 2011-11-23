@@ -4,15 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Stack;
 
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
@@ -32,6 +28,13 @@ public class FaultSectDistCalculator implements Runnable {
 	
 	private double calcTimeSecs;
 	private double pairTimeSecs;
+	
+	public FaultSectDistCalculator(
+			double disc, boolean fast,
+			DeformationModelPrefDataFinal deformationModelPrefDB,
+			int deformationModelId) {
+		this(disc, fast, deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId));
+	}
 	
 	public FaultSectDistCalculator(
 			double disc, boolean fast,
@@ -127,8 +130,8 @@ public class FaultSectDistCalculator implements Runnable {
 	 */
 	public static void main(String[] args) throws IOException {
 		long start = System.currentTimeMillis();
-	    DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
-	    PrefFaultSectionDataDB_DAO faultSectionDB_DAO = new PrefFaultSectionDataDB_DAO(db);
+		int deformationModelId = 82;
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		double disc = 1.0;
 		double filterDist = 15;
 		double cornerMidptFilterDist = 50;
@@ -137,7 +140,7 @@ public class FaultSectDistCalculator implements Runnable {
 		SurfaceFilter filter = new SmartSurfaceFilter(outlineModulus, internalModulus, cornerMidptFilterDist);
 //		double disc = 3.0;
 		FaultSectDistCalculator calc = new FaultSectDistCalculator(disc, true,
-				faultSectionDB_DAO.getAllFaultSectionPrefData());
+				deformationModelPrefDB, deformationModelId);
 		calc.createPairings(filter, filterDist);
 		System.out.println("Pair time: " + calc.getPairTimeSecs());
 		int threads = Runtime.getRuntime().availableProcessors();

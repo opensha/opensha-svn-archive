@@ -186,6 +186,18 @@ public enum ERF_Ref {
 	
 	INVERSION_SOLUTION_ERF(InversionSolutionERF.class, InversionSolutionERF.NAME, EXPERIMENTAL, false, false),
 	
+	// DEPRECATED
+	/** WGCEP UCERF 2 Version 2.3 ERF */
+	UCERF_2_VER_2_3(
+			org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2.class,
+			org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2.NAME,
+			DEPRECATED, false, false),
+	
+	/** WGCEP UCERF 2 Version 2.3 */
+	MEAN_UCERF_2_VER_2_3(
+			org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2.class,
+			org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2.NAME,
+			DEPRECATED, false, false),
 	
 	/* 
 	 * ********************

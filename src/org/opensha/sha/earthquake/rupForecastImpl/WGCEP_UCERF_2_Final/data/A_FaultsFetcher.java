@@ -15,9 +15,9 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 
 /**
  *
@@ -269,9 +269,9 @@ public class A_FaultsFetcher extends FaultsFetcher implements java.io.Serializab
 	private int getClosestFaultSectionId(Location loc) {
 		ArrayList<Integer> faultSectionIdList = getAllFaultSectionsIdList();
 		double minDist = Double.MAX_VALUE, dist;
-		UCERF2_FaultSectionPrefData closestFaultSection=null;
+		FaultSectionPrefData closestFaultSection=null;
 		for(int i=0; i<faultSectionIdList.size(); ++i) {
-			UCERF2_FaultSectionPrefData  prefFaultSectionData = faultSectionPrefDataFinal.getFaultSectionPrefData(faultSectionIdList.get(i));
+			FaultSectionPrefData  prefFaultSectionData = faultSectionPrefDataFinal.getFaultSectionPrefData(faultSectionIdList.get(i));
 			//System.out.println(faultSectionIdList.get(i));
 			dist  = prefFaultSectionData.getFaultTrace().minDistToLine(loc);
 			//System.out.println(prefFaultSectionData.getSectionId()+":"+dist);

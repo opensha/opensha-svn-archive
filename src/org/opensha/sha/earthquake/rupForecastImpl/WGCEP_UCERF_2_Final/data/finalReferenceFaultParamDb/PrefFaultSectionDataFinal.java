@@ -22,6 +22,7 @@ import org.dom4j.io.XMLWriter;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 /**
  * <p>Title: PrefFaultSectionDataFinal.java </p>
@@ -31,8 +32,8 @@ import org.opensha.sha.faultSurface.FaultTrace;
  *
  */
 public class PrefFaultSectionDataFinal implements Serializable {
-	private static ArrayList<UCERF2_FaultSectionPrefData> faultSectionsList;
-	private static ArrayList<UCERF2_FaultSectionPrefData> dbFaultSectionsList = new ArrayList<UCERF2_FaultSectionPrefData>();
+	private static ArrayList<FaultSectionPrefData> faultSectionsList;
+	private static ArrayList<FaultSectionPrefData> dbFaultSectionsList = new ArrayList<FaultSectionPrefData>();
 	private static HashMap indexForID_Map;
 	private static HashMap dbMap;
 	
@@ -52,8 +53,8 @@ public class PrefFaultSectionDataFinal implements Serializable {
 		for (Integer num : faultNums) {
 			int i = num;
 //			System.out.println("Testint fault " + i);
-			UCERF2_FaultSectionPrefData dbFault = (UCERF2_FaultSectionPrefData)dbFaultSectionsList.get((Integer)dbMap.get(new Integer(i)));
-			UCERF2_FaultSectionPrefData fileFault = (UCERF2_FaultSectionPrefData)faultSectionsList.get((Integer)dbMap.get(new Integer(i)));
+			FaultSectionPrefData dbFault = (FaultSectionPrefData)dbFaultSectionsList.get((Integer)dbMap.get(new Integer(i)));
+			FaultSectionPrefData fileFault = (FaultSectionPrefData)faultSectionsList.get((Integer)dbMap.get(new Integer(i)));
 			
 			if (dbFault.getSectionId() != fileFault.getSectionId())
 				System.out.println("ERROR: Id's not equal!");
@@ -128,9 +129,9 @@ public class PrefFaultSectionDataFinal implements Serializable {
 		// make the index to ID hashmap
 		indexForID_Map = new HashMap();
 		dbMap = new HashMap();
-		UCERF2_FaultSectionPrefData fspd;
+		FaultSectionPrefData fspd;
 		for(int i=0; i<faultSectionDataListFromDatabase.size(); i++) {
-			fspd = (UCERF2_FaultSectionPrefData) faultSectionDataListFromDatabase.get(i);
+			fspd = (FaultSectionPrefData) faultSectionDataListFromDatabase.get(i);
 			
 			root = fspd.toXMLMetadata(root);
 			
@@ -168,7 +169,7 @@ public class PrefFaultSectionDataFinal implements Serializable {
 	private void readFaultSectionDataFromXML() {
 		
 		SAXReader reader = new SAXReader();
-		faultSectionsList = new ArrayList<UCERF2_FaultSectionPrefData>();
+		faultSectionsList = new ArrayList<FaultSectionPrefData>();
 		indexForID_Map = new HashMap();
         try {
 			URL xmlURL = PrefFaultSectionDataFinal.class.getResource(XML_DATA_FILENAME);
@@ -179,13 +180,13 @@ public class PrefFaultSectionDataFinal implements Serializable {
 			while (it.hasNext()) {
 				Element el = it.next();
 
-				UCERF2_FaultSectionPrefData data;
-				data = UCERF2_FaultSectionPrefData.fromXMLMetadata(el);
+				FaultSectionPrefData data;
+				data = FaultSectionPrefData.fromXMLMetadata(el);
 				faultSectionsList.add(data);
 			}
 			
 			for (int i=0; i<faultSectionsList.size(); i++) {
-				UCERF2_FaultSectionPrefData fspd = faultSectionsList.get(i);
+				FaultSectionPrefData fspd = faultSectionsList.get(i);
 				indexForID_Map.put(fspd.getSectionId(), new Integer(i));
 			}
 		} catch (DocumentException e) {
@@ -207,7 +208,7 @@ public class PrefFaultSectionDataFinal implements Serializable {
 	 * @param faultSectionId
 	 * @return
 	 */
-	public UCERF2_FaultSectionPrefData getFaultSectionPrefData(int faultSectionId) {
+	public FaultSectionPrefData getFaultSectionPrefData(int faultSectionId) {
 		int index = ((Integer)indexForID_Map.get(faultSectionId)).intValue();
 		return faultSectionsList.get(index);
 	}
@@ -215,10 +216,10 @@ public class PrefFaultSectionDataFinal implements Serializable {
 	public static void main(String[] args) {
 		PrefFaultSectionDataFinal test = new PrefFaultSectionDataFinal();
 		ArrayList junk = test.getAllFaultSectionPrefData();
-		UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData) junk.get(5);
+		FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData) junk.get(5);
 		int id = faultSectionPrefData.getSectionId();
 		System.out.println(id);
-		UCERF2_FaultSectionPrefData faultSectionPrefData2 = test.getFaultSectionPrefData(id);
+		FaultSectionPrefData faultSectionPrefData2 = test.getFaultSectionPrefData(id);
 		System.out.println(faultSectionPrefData2.getSectionId());
 		
 		test.test();

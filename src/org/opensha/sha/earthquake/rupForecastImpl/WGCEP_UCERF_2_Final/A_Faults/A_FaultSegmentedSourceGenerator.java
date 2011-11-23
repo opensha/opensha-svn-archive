@@ -1831,7 +1831,7 @@ public class A_FaultSegmentedSourceGenerator {
 		ArrayList sectionToSegmentData = new ArrayList();
 		
 		ArrayList faultSectDataList1 = new ArrayList();
-		UCERF2_FaultSectionPrefData sectData1 = new UCERF2_FaultSectionPrefData();
+		FaultSectionPrefData sectData1 = new FaultSectionPrefData();
 		sectData1.setAseismicSlipFactor(0.0);
 		sectData1.setAveDip(90);
 		sectData1.setAveLongTermSlipRate(10);
@@ -1854,7 +1854,7 @@ public class A_FaultSegmentedSourceGenerator {
 		sectionToSegmentData.add(faultSectDataList1);
 
 		ArrayList faultSectDataList2 = new ArrayList();
-		UCERF2_FaultSectionPrefData sectData2 = new UCERF2_FaultSectionPrefData();
+		FaultSectionPrefData sectData2 = new FaultSectionPrefData();
 		sectData2.setAseismicSlipFactor(0.0);
 		sectData2.setAveDip(90);
 		sectData2.setAveLongTermSlipRate(10);

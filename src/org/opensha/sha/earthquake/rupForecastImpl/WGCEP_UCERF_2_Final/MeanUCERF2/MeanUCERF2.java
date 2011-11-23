@@ -1018,88 +1018,88 @@ public class MeanUCERF2 extends AbstractERF {
 		}
 	}
 	
-//	/**
-//	 * This was written to verify that this class is identical to org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2
-//	 * 
-//	 * The test was passed
-//	 * 
-//	 * This test is no longer valid because the sources have since been sorted by name here 
-//	 * (although you could comment out this sorting in the updataForecast() method)
-//	 */
-//	public void testFinalMeanUCERF2() {
-//		
-//		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
-//		meanFinalUCERF2.calcSummedMFDs  =false;
-//		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-//		meanFinalUCERF2.updateForecast();
-//		
-//		org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2 oldMeanUCERF2 = new org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2();
-//		oldMeanUCERF2.calcSummedMFDs  =false;
-//		oldMeanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-//		oldMeanUCERF2.updateForecast();
-//		
-//		System.out.println("OLD numSrc ="+oldMeanUCERF2.getNumSources());
-//		System.out.println("NEW numSrc ="+meanFinalUCERF2.getNumSources());
-//		
-//		int numSrc = oldMeanUCERF2.getNumSources();
-//		
-//		for(int i=0; i<numSrc;i++) {
-//			System.out.println("src "+i);
-//			int numRup = oldMeanUCERF2.getNumRuptures(i);
-//			if(numRup != meanFinalUCERF2.getNumRuptures(i))
-//				System.out.println("Error: Number of ruptures differs for source "+i);
-//			for(int r=0; r<numRup; r++) {
-//				ProbEqkRupture oldRup = oldMeanUCERF2.getRupture(i, r);
-//				ProbEqkRupture newRup = meanFinalUCERF2.getRupture(i, r);
-//				double fractDiff = Math.abs((oldRup.getProbability()-newRup.getProbability())/newRup.getProbability());
-//				if(fractDiff > 0.01)
-//					System.out.println("DIFFERENCE: "+fractDiff+" at src "+i+" and rup "+r);
-////				System.out.println(fractDiff);
-//				
-//			}
-//		}
-//	}
+	/**
+	 * This was written to verify that this class is identical to org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2
+	 * 
+	 * The test was passed
+	 * 
+	 * This test is no longer valid because the sources have since been sorted by name here 
+	 * (although you could comment out this sorting in the updataForecast() method)
+	 */
+	public void testFinalMeanUCERF2() {
+		
+		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
+		meanFinalUCERF2.calcSummedMFDs  =false;
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		meanFinalUCERF2.updateForecast();
+		
+		org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2 oldMeanUCERF2 = new org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2();
+		oldMeanUCERF2.calcSummedMFDs  =false;
+		oldMeanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		oldMeanUCERF2.updateForecast();
+		
+		System.out.println("OLD numSrc ="+oldMeanUCERF2.getNumSources());
+		System.out.println("NEW numSrc ="+meanFinalUCERF2.getNumSources());
+		
+		int numSrc = oldMeanUCERF2.getNumSources();
+		
+		for(int i=0; i<numSrc;i++) {
+			System.out.println("src "+i);
+			int numRup = oldMeanUCERF2.getNumRuptures(i);
+			if(numRup != meanFinalUCERF2.getNumRuptures(i))
+				System.out.println("Error: Number of ruptures differs for source "+i);
+			for(int r=0; r<numRup; r++) {
+				ProbEqkRupture oldRup = oldMeanUCERF2.getRupture(i, r);
+				ProbEqkRupture newRup = meanFinalUCERF2.getRupture(i, r);
+				double fractDiff = Math.abs((oldRup.getProbability()-newRup.getProbability())/newRup.getProbability());
+				if(fractDiff > 0.01)
+					System.out.println("DIFFERENCE: "+fractDiff+" at src "+i+" and rup "+r);
+//				System.out.println(fractDiff);
+				
+			}
+		}
+	}
 
 	
-//	/**
-//	 * This tests this class after the resorting of sources was done to 
-//	 * make sure the number of sources and total rate hadn't changed
-//	 * (everything looks good).
-//	 */
-//	public void testResortedSources() {
-//		
-//		// New ERF
-//		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
-//		meanFinalUCERF2.calcSummedMFDs  =false;
-//		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-//		meanFinalUCERF2.updateForecast();
-//		
-//		// Old ERF
-//		org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2 oldMeanUCERF2 = new org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2();
-//		oldMeanUCERF2.calcSummedMFDs  =false;
-//		oldMeanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-//		oldMeanUCERF2.updateForecast();
-//		
-//		System.out.println("OLD numSrc ="+oldMeanUCERF2.getNumSources());
-//		System.out.println("NEW numSrc ="+meanFinalUCERF2.getNumSources());
-//		
-//		int numSrc = oldMeanUCERF2.getNumSources();
-//		
-//		double totRateOld=0, totRateNew=0;
-//		for(int i=0; i<numSrc;i++) {
-//			System.out.println("src "+i);
-//			
-//			for(int r=0; r<oldMeanUCERF2.getNumRuptures(i); r++)
-//				totRateOld += oldMeanUCERF2.getRupture(i, r).getMeanAnnualRate(DURATION_DEFAULT);
-//
-//			for(int r=0; r<meanFinalUCERF2.getNumRuptures(i); r++)
-//				totRateNew += meanFinalUCERF2.getRupture(i, r).getMeanAnnualRate(DURATION_DEFAULT);
-//		}
-//		System.out.println("OLD tot rate ="+totRateOld);
-//		System.out.println("NEW tot rate ="+totRateNew);
-//	}
-//	
-//	
+	/**
+	 * This tests this class after the resorting of sources was done to 
+	 * make sure the number of sources and total rate hadn't changed
+	 * (everything looks good).
+	 */
+	public void testResortedSources() {
+		
+		// New ERF
+		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
+		meanFinalUCERF2.calcSummedMFDs  =false;
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		meanFinalUCERF2.updateForecast();
+		
+		// Old ERF
+		org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2 oldMeanUCERF2 = new org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2();
+		oldMeanUCERF2.calcSummedMFDs  =false;
+		oldMeanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		oldMeanUCERF2.updateForecast();
+		
+		System.out.println("OLD numSrc ="+oldMeanUCERF2.getNumSources());
+		System.out.println("NEW numSrc ="+meanFinalUCERF2.getNumSources());
+		
+		int numSrc = oldMeanUCERF2.getNumSources();
+		
+		double totRateOld=0, totRateNew=0;
+		for(int i=0; i<numSrc;i++) {
+			System.out.println("src "+i);
+			
+			for(int r=0; r<oldMeanUCERF2.getNumRuptures(i); r++)
+				totRateOld += oldMeanUCERF2.getRupture(i, r).getMeanAnnualRate(DURATION_DEFAULT);
+
+			for(int r=0; r<meanFinalUCERF2.getNumRuptures(i); r++)
+				totRateNew += meanFinalUCERF2.getRupture(i, r).getMeanAnnualRate(DURATION_DEFAULT);
+		}
+		System.out.println("OLD tot rate ="+totRateOld);
+		System.out.println("NEW tot rate ="+totRateNew);
+	}
+	
+	
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {

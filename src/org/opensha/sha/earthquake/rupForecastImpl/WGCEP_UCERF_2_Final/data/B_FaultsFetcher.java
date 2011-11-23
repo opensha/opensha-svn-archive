@@ -9,9 +9,9 @@ import java.util.HashMap;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.oldClasses.UCERF2_Final_StirlingGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
@@ -95,7 +95,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 				continue;
 			}
 			int faultSectionId = ((Integer)faultSectionsInDefModel.get(i)).intValue();
-			UCERF2_FaultSectionPrefData faultSectionPrefData = deformationModelPrefDataFinal.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
+			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDataFinal.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
 			// add to B type faults only if slip is not 0 and not NaN
 			if(faultSectionPrefData.getAveLongTermSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) continue;
 			bFaultNames.add(faultSectionPrefData.getSectionName());
@@ -187,7 +187,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 			fwTrace.write("#SectionName,AvgUppeSeisDepth, AvgLowerSeisDepth, AveDip\n");
 			for(int index=0; index< bFaultNames.size(); ++index) {
 				FaultSegmentData faultSegmentData = getFaultSegmentData((String)bFaultNames.get(index), false);
-				ArrayList<UCERF2_FaultSectionPrefData> faultSectionPredDataList = faultSegmentData.getPrefFaultSectionDataList();
+				ArrayList<FaultSectionPrefData> faultSectionPredDataList = faultSegmentData.getPrefFaultSectionDataList();
 				if(faultSectionPredDataList.size()<2) continue;
 				ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData> ();
 				for(int i=0; i<faultSectionPredDataList.size(); ++i) {
@@ -241,7 +241,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 		// def model ids from 42-49, 61 - 68
 		B_FaultsFetcher b = new B_FaultsFetcher();
 		ArrayList bFaults = b.getFaultSegmentDataList( true);
-		ArrayList<UCERF2_FaultSectionPrefData> preFaultSectionDataList = new ArrayList<UCERF2_FaultSectionPrefData>();
+		ArrayList<FaultSectionPrefData> preFaultSectionDataList = new ArrayList<FaultSectionPrefData>();
 		
 		for(int i=0; i<bFaults.size(); ++i) {
 			FaultSegmentData faultSegmentData = (FaultSegmentData)bFaults.get(i);

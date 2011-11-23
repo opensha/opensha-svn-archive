@@ -8,8 +8,8 @@ import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
@@ -27,7 +27,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 
 	 */
 	
-	ArrayList<UCERF2_FaultSectionPrefData> allFaultSectionPrefData;
+	ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
 	double sectionDistances[][], sectionAngleDiffs[][];
 	String endPointNames[];
 	Location endPointLocs[];
@@ -35,7 +35,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	ArrayList<ArrayList<Integer>> sectionConnectionsList, endToEndSectLinksList;
 	ArrayList<OldSectionCluster> sectionClusterList;
 	double maxJumpDist, maxAngle, maxTotStrikeChange, maxSubSectionLength;
-	ArrayList<ArrayList<UCERF2_FaultSectionPrefData>> subSectionPrefDataList;
+	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataList;
 
 	
 	/**
@@ -142,12 +142,12 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		 
 
 		 // make subsection data
-		 subSectionPrefDataList = new ArrayList<ArrayList<UCERF2_FaultSectionPrefData>>();
+		 subSectionPrefDataList = new ArrayList<ArrayList<FaultSectionPrefData>>();
 		 numSubSections=0;
 		 numSections = allFaultSectionPrefData.size();
 		 for(int i=0; i<numSections; ++i) {
-			 UCERF2_FaultSectionPrefData faultSectionPrefData = (UCERF2_FaultSectionPrefData)allFaultSectionPrefData.get(i);
-			 ArrayList<UCERF2_FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
+			 FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
+			 ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
 			 numSubSections += subSectData.size();
 			 subSectionPrefDataList.add(subSectData);
 		 }
@@ -168,7 +168,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		
 		// loop over first fault section (A)
 		for(int a=0;a<numSections;a++) {
-			UCERF2_FaultSectionPrefData dataA = allFaultSectionPrefData.get(a);
+			FaultSectionPrefData dataA = allFaultSectionPrefData.get(a);
 			int indexA_firstPoint = 2*a;
 			int indexA_lastPoint = indexA_firstPoint+1;
 			endPointNames[indexA_firstPoint] = dataA.getSectionName() +" -- first";
@@ -180,7 +180,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 //			System.out.println(endPointNames[indexA_firstPoint]+"\t"+endPointNames[indexA_lastPoint]);
 			// loop over second fault section (B)
 			for(int b=0;b<allFaultSectionPrefData.size();b++) {
-				UCERF2_FaultSectionPrefData dataB = allFaultSectionPrefData.get(b);
+				FaultSectionPrefData dataB = allFaultSectionPrefData.get(b);
 				int indexB_firstPoint = 2*b;
 				int indexB_lastPoint = indexB_firstPoint+1;
 				Location locB_1st = dataB.getFaultTrace().get(0);
@@ -580,10 +580,10 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 			String outputString = new String();
 			outputString += "Section Distances\n";
 			for(int i=0;i<num;i++) {
-				UCERF2_FaultSectionPrefData data1 = allFaultSectionPrefData.get(i);
+				FaultSectionPrefData data1 = allFaultSectionPrefData.get(i);
 				FaultTrace trace1 = data1.getFaultTrace();
 				for(int j=i+1; j<num; j++) {
-					UCERF2_FaultSectionPrefData data2 = allFaultSectionPrefData.get(j);
+					FaultSectionPrefData data2 = allFaultSectionPrefData.get(j);
 					FaultTrace trace2 = data2.getFaultTrace();
 					
 					double minDist = Double.MAX_VALUE;

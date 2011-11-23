@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
-
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 /**
  * @author field
@@ -14,7 +13,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.final
  */
 public class SectionCluster extends ArrayList<Integer> {
 	
-	ArrayList<UCERF2_FaultSectionPrefData> subSectionPrefDataList;
+	ArrayList<FaultSectionPrefData> subSectionPrefDataList;
 	ArrayList<Integer> allSubSectionsIdList = null;
 	ArrayList<ArrayList<Integer>> subSectionConnectionsListList;
 	ArrayList<ArrayList<Integer>> rupListIndices;			// elements here are subsection IDs
@@ -23,7 +22,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	double maxAzimuthChange, maxTotAzimuthChange;
 	double[][] subSectionAzimuths;
 	
-	public SectionCluster(ArrayList<UCERF2_FaultSectionPrefData> subSectionPrefDataList, int minNumSubSectInRup, 
+	public SectionCluster(ArrayList<FaultSectionPrefData> subSectionPrefDataList, int minNumSubSectInRup, 
 			ArrayList<ArrayList<Integer>> subSectionConnectionsListList, double[][] subSectionAzimuths,
 			double maxAzimuthChange, double maxTotAzimuthChange) {
 		this.minNumSubSectInRup = minNumSubSectInRup;

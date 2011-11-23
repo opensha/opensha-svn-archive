@@ -3,7 +3,7 @@ package scratch.ned.rupsInFaultSystem.OLD_STUFF;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.UCERF2_FaultSectionPrefData;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 
 /**
@@ -18,7 +18,7 @@ public class OldSectionCluster {
 	
 	ArrayList<ArrayList<Integer>> localEndToEndSectLinksList;
 	ArrayList<Integer> allSectEndPtsInCluster;
-	ArrayList<ArrayList<UCERF2_FaultSectionPrefData>> subSectionPrefDataList;
+	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataList;
 	ArrayList<Integer> allSubSectionsIdList;
 	ArrayList<ArrayList<Integer>> rupList;
 	int minNumSubSectInRup;
@@ -49,7 +49,7 @@ public class OldSectionCluster {
 	 * @return
 	 */
 	public ArrayList<ArrayList<Integer>> CreateCluster(ArrayList<ArrayList<Integer>> endToEndSectLinksList, 
-			ArrayList<ArrayList<UCERF2_FaultSectionPrefData>> subSectionPrefDataList, int minNumSubSectInRup) {
+			ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataList, int minNumSubSectInRup) {
 		
 		this.subSectionPrefDataList = subSectionPrefDataList;
 		this.minNumSubSectInRup = minNumSubSectInRup;
@@ -127,7 +127,7 @@ public class OldSectionCluster {
 		for(int i=0; i< allSectEndPtsInCluster.size();i+=2) {
 			sectionIndex = allSectEndPtsInCluster.get(i).intValue()/2; // convert from endpoint index to section index
 //			System.out.println("sectionIndex="+sectionIndex);
-			ArrayList<UCERF2_FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
+			ArrayList<FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
 			for(int k=0; k< prefSubsectDataForSection.size();k++) {
 //				System.out.println(prefSubsectDataForSection.get(k).getSectionId());
 				allSubSectionsIdList.add(prefSubsectDataForSection.get(k).getSectionId());
@@ -154,7 +154,7 @@ public class OldSectionCluster {
 		ArrayList<Integer> sectIndicesInCluster = getSectionIndicesInCluster();
 		for(int i=0; i<sectIndicesInCluster.size();i+=2) {
 			sectionIndex = sectIndicesInCluster.get(i).intValue()/2; // convert from endpoint index to section index
-			ArrayList<UCERF2_FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
+			ArrayList<FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
 			for(int k=0; k< prefSubsectDataForSection.size();k++) {
 				Integer key = prefSubsectDataForSection.get(k).getSectionId();
 //				keys.add(key);
@@ -184,7 +184,7 @@ public class OldSectionCluster {
 			ArrayList<Integer> endToEndSubsectionIDs = new ArrayList<Integer>();
 			for(int i=0; i< endToEndLink.size();i+=2) {
 				sectionIndex = endToEndLink.get(i).intValue()/2; // convert from endpoint index to section index
-				ArrayList<UCERF2_FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
+				ArrayList<FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
 				for(int k=0; k< prefSubsectDataForSection.size();k++) {
 					endToEndSubsectionIDs.add(prefSubsectDataForSection.get(k).getSectionId());
 				}

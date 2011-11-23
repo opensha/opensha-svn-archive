@@ -8,8 +8,8 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 
 public class ERFSaveAndSerializeTest {
 	
