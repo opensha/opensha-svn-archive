@@ -353,7 +353,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		for(int r=0;r<getNumRuptures();r++) {
 			double numInside=0, totNum=0;
 			for(Integer s:getSectionsIndicesForRup(r)) {
-				StirlingGriddedSurface sectSurf = getFaultSectionData(s).getStirlingGriddedSurface(true, 1.0);
+				StirlingGriddedSurface sectSurf = getFaultSectionData(s).getStirlingGriddedSurface(1.0);
 				for(int col=0; col<sectSurf.getNumCols();col++) {
 					totNum +=1;
 					if(region.contains(sectSurf.get(0, col))) 

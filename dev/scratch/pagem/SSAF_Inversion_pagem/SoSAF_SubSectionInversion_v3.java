@@ -1048,8 +1048,8 @@ public class SoSAF_SubSectionInversion_v3 {
 		double totProd = 0, totArea = 0;
 		for (int seg = 0; seg < numSubSectForParkfield; seg++) {
 			segData = subSectionList.get(seg);
-			totArea += segData.getLength() * segData.getDownDipWidth();
-			totProd += segData.getLength() * segData.getDownDipWidth()
+			totArea += segData.getTraceLength() * segData.getOrigDownDipWidth();
+			totProd += segData.getTraceLength() * segData.getOrigDownDipWidth()
 					* segData.getAseismicSlipFactor();
 			// System.out.println(seg+"\t"+(float)segData.getAveLongTermSlipRate()+"\t"+(float)segData.getAseismicSlipFactor()+
 			// "\t"+(float)segData.getLength()+
@@ -1085,8 +1085,8 @@ public class SoSAF_SubSectionInversion_v3 {
 		totArea = 0;
 		for (int seg = totNumSubSections - numSubSectForCoachella; seg < totNumSubSections; seg++) {
 			segData = subSectionList.get(seg);
-			totArea += segData.getLength() * segData.getDownDipWidth();
-			totProd += segData.getLength() * segData.getDownDipWidth()
+			totArea += segData.getTraceLength() * segData.getOrigDownDipWidth();
+			totProd += segData.getTraceLength() * segData.getOrigDownDipWidth()
 					* segData.getAseismicSlipFactor();
 			// System.out.println(seg+"\t"+(float)segData.getAveLongTermSlipRate()+"\t"+(float)segData.getAseismicSlipFactor()+
 			// "\t"+(float)segData.getLength()+
@@ -1124,7 +1124,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		 */
 
 		int numSubSectForParkfield = numSubSections[0]; // Parkfield
-		double origSlipRate = subSectionList.get(0).getAveLongTermSlipRate(); // the
+		double origSlipRate = subSectionList.get(0).getOrigAveSlipRate(); // the
 																				// value
 																				// is
 																				// currently
@@ -1135,7 +1135,7 @@ public class SoSAF_SubSectionInversion_v3 {
 																				// subsections
 		for (int i = 0; i < numSubSectForParkfield; i++) {
 			segData = subSectionList.get(i);
-			segData.setAveLongTermSlipRate(origSlipRate * (i + 1)
+			segData.setAveSlipRate(origSlipRate * (i + 1)
 					/ numSubSectForParkfield);
 			// System.out.println(i+"\t"+origSlipRate+"\t"+segData.getAveLongTermSlipRate());
 		}
@@ -1143,11 +1143,11 @@ public class SoSAF_SubSectionInversion_v3 {
 		int totNumSubSections = subSectionList.size();
 		int numSubSectForCoachella = numSubSections[numSubSections.length - 1]; // Coachella
 		origSlipRate = subSectionList.get(totNumSubSections - 1)
-				.getAveLongTermSlipRate(); // the value is currently the same
+				.getOrigAveSlipRate(); // the value is currently the same
 											// for all subsections
 		for (int i = totNumSubSections - numSubSectForCoachella; i < totNumSubSections; i++) {
 			segData = subSectionList.get(i);
-			segData.setAveLongTermSlipRate(origSlipRate
+			segData.setAveSlipRate(origSlipRate
 					* (totNumSubSections - i) / numSubSectForCoachella);
 			// System.out.println(i+"\t"+origSlipRate+"\t"+segData.getAveLongTermSlipRate());
 		}
@@ -1164,9 +1164,9 @@ public class SoSAF_SubSectionInversion_v3 {
 		int n_seg = subSectionList.size();
 
 		for (int seg = 0; seg < n_seg; seg++) {
-			slipRate[seg] = subSectionList.get(seg).getAveLongTermSlipRate();
+			slipRate[seg] = subSectionList.get(seg).getOrigAveSlipRate();
 			smoothSlipRate[seg] = subSectionList.get(seg)
-					.getAveLongTermSlipRate();
+					.getOrigAveSlipRate();
 		}
 
 		for (int seg = numPts; seg < n_seg; seg++) {
@@ -1178,7 +1178,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		}
 
 		for (int seg = 0; seg < n_seg; seg++)
-			subSectionList.get(seg).setAveLongTermSlipRate(smoothSlipRate[seg]);
+			subSectionList.get(seg).setAveSlipRate(smoothSlipRate[seg]);
 
 		// plot orig and final slip rates
 		double min = 0, max = n_seg - 1;
@@ -1285,26 +1285,26 @@ public class SoSAF_SubSectionInversion_v3 {
 
 		for (int seg = 0; seg < num_seg; seg++) {
 			segData = subSectionList.get(seg);
-			segArea[seg] = segData.getDownDipWidth() * segData.getLength()
+			segArea[seg] = segData.getOrigDownDipWidth() * segData.getTraceLength()
 					* 1e6 * (1.0 - segData.getAseismicSlipFactor()); // km
 																		// --> m
-			segSlipRate[seg] = segData.getAveLongTermSlipRate() * 1e-3; // mm/yr
+			segSlipRate[seg] = segData.getOrigAveSlipRate() * 1e-3; // mm/yr
 																		// -->
 																		// m/yr
-			segSlipRateStdDev[seg] = segData.getSlipRateStdDev() * 1e-3; // mm/yr
+			segSlipRateStdDev[seg] = segData.getOrigSlipRateStdDev() * 1e-3; // mm/yr
 																			// -->
 																			// m/yr
 			segMoRate[seg] = FaultMomentCalc.getMoment(segArea[seg],
 					segSlipRate[seg]); // 
 			totMoRate += segMoRate[seg];
-			aveSegDDW += segData.getDownDipWidth();
-			aveSegLength += segData.getLength();
+			aveSegDDW += segData.getOrigDownDipWidth();
+			aveSegLength += segData.getTraceLength();
 
 			// keep min and max length and area
-			if (segData.getLength() < minLength)
-				minLength = segData.getLength();
-			if (segData.getLength() > maxLength)
-				maxLength = segData.getLength();
+			if (segData.getTraceLength() < minLength)
+				minLength = segData.getTraceLength();
+			if (segData.getTraceLength() > maxLength)
+				maxLength = segData.getTraceLength();
 			if (segArea[seg] / 1e6 < minArea)
 				minArea = segArea[seg] / 1e6;
 			if (segArea[seg] / 1e6 > maxArea)
@@ -2209,7 +2209,7 @@ public class SoSAF_SubSectionInversion_v3 {
 				min, max, num_seg);
 		for (int seg = 0; seg < num_seg; seg++) {
 			origSlipRateFunc.set(seg, segSlipRate[seg] * (1 - moRateReduction));
-			double sigma = subSectionList.get(seg).getSlipRateStdDev() * 1e-3;
+			double sigma = subSectionList.get(seg).getOrigSlipRateStdDev() * 1e-3;
 			origUpper95_SlipRateFunc.set(seg, (segSlipRate[seg] + 1.96 * sigma)
 					* (1 - moRateReduction));
 			origLower95_SlipRateFunc.set(seg, (segSlipRate[seg] - 1.96 * sigma)

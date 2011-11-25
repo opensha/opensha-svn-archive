@@ -52,9 +52,9 @@ public class CheckFaultSectionDatabase {
 		ArrayList<FaultSectionData> faultSectionsList =  faultSectionDAO.getAllFaultSections();
 		for(int i=0; i<faultSectionsList.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData  = faultSectionsList.get(i).getFaultSectionPrefData();
-			prefFaultSectionSlipRates.put(faultSectionPrefData.getSectionName(), faultSectionPrefData.getAveLongTermSlipRate());
+			prefFaultSectionSlipRates.put(faultSectionPrefData.getSectionName(), faultSectionPrefData.getOrigAveSlipRate());
 			prefFaultSectionAseisFactors.put(faultSectionPrefData.getSectionName(), faultSectionPrefData.getAseismicSlipFactor());
-			prefFaultSectionSlipRateStdDevs.put(faultSectionPrefData.getSectionName(), faultSectionPrefData.getSlipRateStdDev());
+			prefFaultSectionSlipRateStdDevs.put(faultSectionPrefData.getSectionName(), faultSectionPrefData.getOrigSlipRateStdDev());
 		}
 		
 		// Deformation models
@@ -79,16 +79,16 @@ public class CheckFaultSectionDatabase {
 				double origAseisFactor = prefFaultSectionAseisFactors.get(faultName);
 				double origSlipRateStdDev = prefFaultSectionSlipRateStdDevs.get(faultName);
 				
-				if( (!Double.isNaN(defModelData.getAveLongTermSlipRate()) || 
+				if( (!Double.isNaN(defModelData.getOrigAveSlipRate()) || 
 						!Double.isNaN(origSlipRate)) &&
-						Math.abs(defModelData.getAveLongTermSlipRate()-origSlipRate)>1e-6) {
-					System.out.println(faultName+"\tOrigSlipRate\t"+origSlipRate+"\t"+defModelName+"\t"+defModelData.getAveLongTermSlipRate());
+						Math.abs(defModelData.getOrigAveSlipRate()-origSlipRate)>1e-6) {
+					System.out.println(faultName+"\tOrigSlipRate\t"+origSlipRate+"\t"+defModelName+"\t"+defModelData.getOrigAveSlipRate());
 				}
 				
-				if((!Double.isNaN(defModelData.getSlipRateStdDev()) || 
+				if((!Double.isNaN(defModelData.getOrigSlipRateStdDev()) || 
 						!Double.isNaN(origSlipRateStdDev)) &&
-						Math.abs(defModelData.getSlipRateStdDev()-origSlipRateStdDev)>1e-6) {
-					System.out.println(faultName+"\tOrigSlipStdDev\t"+origSlipRateStdDev+"\t"+defModelName+"\t"+defModelData.getSlipRateStdDev());
+						Math.abs(defModelData.getOrigSlipRateStdDev()-origSlipRateStdDev)>1e-6) {
+					System.out.println(faultName+"\tOrigSlipStdDev\t"+origSlipRateStdDev+"\t"+defModelName+"\t"+defModelData.getOrigSlipRateStdDev());
 				}
 				
 				if((!Double.isNaN(defModelData.getAseismicSlipFactor()) || 

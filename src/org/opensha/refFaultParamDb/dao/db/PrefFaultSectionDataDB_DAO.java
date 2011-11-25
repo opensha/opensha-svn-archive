@@ -112,7 +112,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		String columnVals = "";
 
 		// check if slip rate is present for this fault section
-		double slipRate = faultSectionPrefData.getAveLongTermSlipRate();
+		double slipRate = faultSectionPrefData.getOrigAveSlipRate();
 		if(!Double.isNaN(slipRate)) { // if slip rate estimate is present
 			columnNames+=PREF_SLIP_RATE+",";
 			columnVals+=slipRate+",";
@@ -144,7 +144,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		columnNames+PREF_DIP+","+PREF_UPPER_DEPTH+","+PREF_LOWER_DEPTH+","+SECTION_NAME+","+
 		FAULT_TRACE+","+PREF_ASEISMIC_SLIP+") values ("+
 		faultSectionPrefData.getSectionId()+","+columnVals+
-		faultSectionPrefData.getAveDip()+","+faultSectionPrefData.getAveUpperDepth()+","+
+		faultSectionPrefData.getAveDip()+","+faultSectionPrefData.getOrigAveUpperDepth()+","+
 		faultSectionPrefData.getAveLowerDepth()+",'"+faultSectionPrefData.getSectionName()+"',?,"+
 		faultSectionPrefData.getAseismicSlipFactor()+")";
 		try {
@@ -252,7 +252,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 				// get slip rate estimate if slip rate is provided for this fault section
 				double slipRate= rs.getFloat(PREF_SLIP_RATE);
 				if(rs.wasNull()) slipRate = Double.NaN;
-				faultSectionPrefData.setAveLongTermSlipRate(slipRate);
+				faultSectionPrefData.setAveSlipRate(slipRate);
 
 				// get rake estimate if rake is provided for this fault section
 				double rake= rs.getFloat(PREF_RAKE);
@@ -274,7 +274,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 				if(!rs.wasNull()) faultSectionPrefData.setShortName(shortName);
 
 				ArrayList<JGeometry> geometries = spatialQueryResult.getGeometryObjectsList(i++);
-				FaultTrace faultTrace = FaultSectionVer2_DB_DAO.getFaultTrace(sectionName, faultSectionPrefData.getAveUpperDepth(), geometries);	
+				FaultTrace faultTrace = FaultSectionVer2_DB_DAO.getFaultTrace(sectionName, faultSectionPrefData.getOrigAveUpperDepth(), geometries);	
 				faultSectionPrefData.setFaultTrace(faultTrace);
 				faultSectionsList.add(faultSectionPrefData);
 				cachedSections.put(new Integer(faultSectionPrefData.getSectionId()), faultSectionPrefData);

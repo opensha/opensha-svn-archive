@@ -35,7 +35,7 @@ public class DefModelPtFileWriter {
 		// remove those with no slip rate
 		if (removeNans) {
 			for(int i=allFaultSectionPrefData.size()-1; i>=0;i--) {
-				if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+				if(Double.isNaN(allFaultSectionPrefData.get(i).getOrigAveSlipRate())) {
 					allFaultSectionPrefData.remove(i);
 				}
 			}
@@ -45,7 +45,7 @@ public class DefModelPtFileWriter {
 		
 		for (FaultSectionPrefData fault : allFaultSectionPrefData) {
 			String name = fault.getName();
-			double slip = fault.getAveLongTermSlipRate();
+			double slip = fault.getOrigAveSlipRate();
 			double rake = fault.getAveRake();
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(fault.getSimpleFaultData(aseisReducesArea),
 					maxDiscretization, maxDiscretization);

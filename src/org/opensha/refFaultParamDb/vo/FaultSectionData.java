@@ -166,7 +166,7 @@ public class FaultSectionData implements Cloneable, Named, Serializable {
 		 faultSectionPrefData.setAseismicSlipFactor(getPrefForEstimate(aseismicSlipFactorEst));
 		 faultSectionPrefData.setAveDip(getPrefForEstimate(aveDipEst));
 		 faultSectionPrefData.setSlipRateStdDev(getSlipRateStdDev(aveLongTermSlipRateEst));
-		 faultSectionPrefData.setAveLongTermSlipRate(getPrefForEstimate(aveLongTermSlipRateEst));
+		 faultSectionPrefData.setAveSlipRate(getPrefForEstimate(aveLongTermSlipRateEst));
 		 faultSectionPrefData.setAveLowerDepth(getPrefForEstimate(aveLowerDepthEst));
 		 faultSectionPrefData.setAveRake(getPrefForEstimate(aveRakeEst));
 		 faultSectionPrefData.setAveUpperDepth(getPrefForEstimate(aveUpperDepthEst));

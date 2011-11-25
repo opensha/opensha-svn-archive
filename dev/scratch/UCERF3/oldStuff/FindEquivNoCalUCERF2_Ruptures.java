@@ -439,7 +439,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 						if(!faultSectionData.get(i).getParentSectionName().equals(src.getName()))
 							continue;
 					
-					FaultTrace sectionTrace = faultSectionData.get(i).getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
+					FaultTrace sectionTrace = faultSectionData.get(i).getStirlingGriddedSurface(1.0).getRowAsTrace(0);
 					double sectHalfLength = 0.5*sectionTrace.getTraceLength()+0.5; 
 					// Process first end of rupture
 					dist = sectionTrace.minDistToLocation(rupEndLoc1);
@@ -470,8 +470,8 @@ public class FindEquivNoCalUCERF2_Ruptures {
 				// of farthest section (where distance of section is the ave of the distances of the ends to the end of rupture)
 				// this breaks down for closely space sections (like Fickle Hill & Mad River)
 				if(closeSections1.size() == 2) {
-					FaultTrace sect1_trace = faultSectionData.get(closeSections1.get(0)).getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
-					FaultTrace sect2_trace = faultSectionData.get(closeSections1.get(1)).getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
+					FaultTrace sect1_trace = faultSectionData.get(closeSections1.get(0)).getStirlingGriddedSurface(1.0).getRowAsTrace(0);
+					FaultTrace sect2_trace = faultSectionData.get(closeSections1.get(1)).getStirlingGriddedSurface(1.0).getRowAsTrace(0);
 					double dist_tr1_end1=LocationUtils.horzDistanceFast(rupEndLoc1, sect1_trace.get(0));
 					double dist_tr1_end2=LocationUtils.horzDistanceFast(rupEndLoc1, sect1_trace.get(sect1_trace.size()-1));
 					double aveDistTr1 =  (dist_tr1_end1+dist_tr1_end2)/2;
@@ -510,8 +510,8 @@ public class FindEquivNoCalUCERF2_Ruptures {
 						
 				}
 				if(closeSections2.size() == 2) {
-					FaultTrace sect1_trace = faultSectionData.get(closeSections2.get(0)).getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
-					FaultTrace sect2_trace = faultSectionData.get(closeSections2.get(1)).getStirlingGriddedSurface(true, 1.0).getRowAsTrace(0);
+					FaultTrace sect1_trace = faultSectionData.get(closeSections2.get(0)).getStirlingGriddedSurface(1.0).getRowAsTrace(0);
+					FaultTrace sect2_trace = faultSectionData.get(closeSections2.get(1)).getStirlingGriddedSurface(1.0).getRowAsTrace(0);
 					double dist_tr1_end1=LocationUtils.horzDistanceFast(rupEndLoc1, sect1_trace.get(0));
 					double dist_tr1_end2=LocationUtils.horzDistanceFast(rupEndLoc1, sect1_trace.get(sect1_trace.size()-1));
 					double aveDistTr1 =  (dist_tr1_end1+dist_tr1_end2)/2;

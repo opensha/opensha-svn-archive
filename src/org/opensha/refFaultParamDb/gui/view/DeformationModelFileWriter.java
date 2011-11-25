@@ -163,21 +163,21 @@ public class DeformationModelFileWriter implements Runnable {
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveDip()));
 		++colIndex;
-		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveLongTermSlipRate()));
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getOrigAveSlipRate()));
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAseismicSlipFactor()));
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveRake()));
 		++colIndex;
-		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveUpperDepth()));
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getOrigAveUpperDepth()));
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveLowerDepth()));
 		++colIndex;
-		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getLength());
+		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getTraceLength());
 		++colIndex;
-		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getDownDipWidth());
+		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getOrigDownDipWidth());
 		++colIndex;
-		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getLength()*faultSectionPrefData.getDownDipWidth());
+		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getTraceLength()*faultSectionPrefData.getOrigDownDipWidth());
 		++colIndex;
 		
 		row.createCell((short)colIndex).setCellValue(numLocations);
@@ -214,11 +214,11 @@ public class DeformationModelFileWriter implements Runnable {
 		FaultTrace faultTrace = faultSectionPrefData.getFaultTrace(); 
 		String str =  "#"+faultSectionPrefData.getSectionName()+"\n"+
 		    getValue(faultSectionPrefData.getShortName())+"\n"+
-			getValue(faultSectionPrefData.getAveUpperDepth())+"\n"+
+			getValue(faultSectionPrefData.getOrigAveUpperDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveLowerDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveDip()) +"\n"+
 			getValue(faultSectionPrefData.getDipDirection())+"\n"+
-			getValue(faultSectionPrefData.getAveLongTermSlipRate())+"\n"+
+			getValue(faultSectionPrefData.getOrigAveSlipRate())+"\n"+
 			getValue(faultSectionPrefData.getAseismicSlipFactor())+"\n"+
 			getValue(faultSectionPrefData.getAveRake())+"\n"+
 			getValue(faultTrace.getTraceLength())+"\n"+

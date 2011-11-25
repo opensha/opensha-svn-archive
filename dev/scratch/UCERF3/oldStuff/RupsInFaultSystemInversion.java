@@ -186,7 +186,7 @@ public class RupsInFaultSystemInversion {
 		// compute sectSlipRateReduced (add standard deviations here as well?)
 		sectSlipRateReduced = new double[numSections];
 		for(int s=0; s<numSections; s++)
-			sectSlipRateReduced[s] = faultSectionData.get(s).getAveLongTermSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
+			sectSlipRateReduced[s] = faultSectionData.get(s).getOrigAveSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
 
 		// make the list of nearby sections for each section (branches)
 		if(D) System.out.println("Making sectionConnectionsListList");
@@ -548,7 +548,7 @@ public class RupsInFaultSystemInversion {
 		int index=0;
 		for(Integer sectID: sectionIndices) {	
 			FaultSectionPrefData sectData = faultSectionData.get(sectID);
-			sectArea[index] = sectData.getLength()*sectData.getDownDipWidth()*1e6*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; 1e6 for sq-km --> sq-m
+			sectArea[index] = sectData.getTraceLength()*sectData.getOrigDownDipWidth()*1e6*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; 1e6 for sq-km --> sq-m
 			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], sectSlipRateReduced[sectID]);
 			index += 1;
 		}
@@ -657,9 +657,9 @@ public class RupsInFaultSystemInversion {
 				ArrayList<Integer> sectsInRup = clusterRups.get(r);
 				for(Integer sectID:sectsInRup) {
 					FaultSectionPrefData sectData = faultSectionData.get(sectID);
-					double length = sectData.getLength()*1e3;	// km --> m
+					double length = sectData.getTraceLength()*1e3;	// km --> m
 					totLength += length;
-					double area = length*sectData.getDownDipWidth()*1e3*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; km --> m on DDW
+					double area = length*sectData.getOrigDownDipWidth()*1e3*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; km --> m on DDW
 					totArea += area;
 					totMoRate = FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
 				}

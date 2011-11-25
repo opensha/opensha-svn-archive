@@ -97,7 +97,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 			int faultSectionId = ((Integer)faultSectionsInDefModel.get(i)).intValue();
 			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDataFinal.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
 			// add to B type faults only if slip is not 0 and not NaN
-			if(faultSectionPrefData.getAveLongTermSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) continue;
+			if(faultSectionPrefData.getOrigAveSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getOrigAveSlipRate())) continue;
 			bFaultNames.add(faultSectionPrefData.getSectionName());
 			bFaultIds.add(new Integer(faultSectionPrefData.getSectionId()));
 			// Arraylist of segments of list of sections
@@ -191,7 +191,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 				if(faultSectionPredDataList.size()<2) continue;
 				ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData> ();
 				for(int i=0; i<faultSectionPredDataList.size(); ++i) {
-					simpleFaultData.add(faultSectionPredDataList.get(i).getSimpleFaultData(isAseisReducesArea));
+					simpleFaultData.add(faultSectionPredDataList.get(i).getSimpleFaultDataOld(isAseisReducesArea));
 				}
 				UCERF2_Final_StirlingGriddedSurface surface = new UCERF2_Final_StirlingGriddedSurface(simpleFaultData, 1);
 				// write to a file for connecting sections so that we can view them in SCEC-VDO

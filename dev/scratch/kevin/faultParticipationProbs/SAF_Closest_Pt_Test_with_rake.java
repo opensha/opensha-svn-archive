@@ -81,7 +81,7 @@ public class SAF_Closest_Pt_Test_with_rake implements TaskProgressListener {
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, gridSpacing, gridSpacing);
 			FocalMechanism fm = new FocalMechanism(getStrikeEst(surface), fault.getAveDip(), fault.getAveRake());
 			faults.add(new FaultProbPairing(surface, fault.getName(), faultSectionId,
-					fault.getAveLongTermSlipRate(), fm));
+					fault.getOrigAveSlipRate(), fm));
 		}
 	}
 	

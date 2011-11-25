@@ -79,7 +79,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 			SimpleFaultData simpleFaultData = fault.getSimpleFaultData(false);
 			StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, gridSpacing, gridSpacing);
 
-			faults.add(new FaultProbPairing(surface, fault.getName(), faultSectionId, fault.getAveLongTermSlipRate()));
+			faults.add(new FaultProbPairing(surface, fault.getName(), faultSectionId, fault.getOrigAveSlipRate()));
 		}
 	}
 

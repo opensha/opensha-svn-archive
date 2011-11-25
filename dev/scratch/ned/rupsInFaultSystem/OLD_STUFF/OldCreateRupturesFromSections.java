@@ -121,7 +121,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		double maxDDW=0;
 		int index=-1;
 		for(int i=0; i<allFaultSectionPrefData.size(); i++) {
-			double ddw = allFaultSectionPrefData.get(i).getDownDipWidth();
+			double ddw = allFaultSectionPrefData.get(i).getOrigDownDipWidth();
 			if(ddw>maxDDW) {
 				maxDDW = ddw;
 				index=i;
@@ -134,7 +134,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 		 if(!includeSectionsWithNaN_slipRates) {
 				System.out.println("Removing the following due to NaN slip rate:");
 				for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
-					if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+					if(Double.isNaN(allFaultSectionPrefData.get(i).getOrigAveSlipRate())) {
 						System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
 						allFaultSectionPrefData.remove(i);
 					}	 

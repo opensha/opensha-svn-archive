@@ -154,7 +154,7 @@ public class DeformationModelPrefDataFinal implements Serializable {
 		int indexForSectId = ((Integer) faultSectionIdIndexMap.get(faultSectionId)).intValue();
 		
 		double[] slipRateList = (double[]) slipRateMap.get(deformationModelId);
-		faultSectionPrefData.setAveLongTermSlipRate(slipRateList[indexForSectId]);
+		faultSectionPrefData.setAveSlipRate(slipRateList[indexForSectId]);
 
 		double[] stdDevList = (double[]) stdDevMap.get(deformationModelId);
 		faultSectionPrefData.setSlipRateStdDev(stdDevList[indexForSectId]);

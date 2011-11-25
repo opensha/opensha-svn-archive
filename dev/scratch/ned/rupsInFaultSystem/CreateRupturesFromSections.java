@@ -205,7 +205,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  if(!includeSectionsWithNaN_slipRates) {
 			  if (D)System.out.println("Removing the following due to NaN slip rate:");
 			  for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
-				  if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+				  if(Double.isNaN(allFaultSectionPrefData.get(i).getOrigAveSlipRate())) {
 					  if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
 					  allFaultSectionPrefData.remove(i);
 				  }	 
@@ -283,7 +283,7 @@ System.out.println("Working on rupture list for cluster "+i);
 		  int maxNumSubSections=0;
 		  for(int i=0; i<numSections; ++i) {
 			  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
-			  double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
+			  double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			  ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength);
 			  // if(subSectData.size()>maxNumSubSections) maxNumSubSections = numSubSections;  // this was a bug - fixed below
 			  if(subSectData.size()>maxNumSubSections) maxNumSubSections = subSectData.size();
@@ -355,10 +355,10 @@ System.out.println("Working on rupture list for cluster "+i);
 					  System.out.print("\t"+progress);
 					  progress += progressInterval;
 				  }
-				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0, 2.0);
+				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultDataOld(false), 2.0, 2.0);
 
 				  for(int b=a+1;b<numSubSections;b++) {
-					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0, 2.0);
+					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultDataOld(false), 2.0, 2.0);
 					  double minDist = surf1.getMinDistance(surf2);
 					  subSectionDistances[a][b] = minDist;
 					  subSectionDistances[b][a] = minDist;
@@ -391,10 +391,10 @@ System.out.println("Working on rupture list for cluster "+i);
 	  private void old_calcSubSectionAzimuths() {
 		  subSectionAzimuths = new double[numSubSections][numSubSections];
 			  for(int a=0;a<numSubSections;a++) {
-				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 1.0);
+				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultDataOld(false), 1.0);
 				  Location loc1 = surf1.getLocation(surf1.getNumRows()/2, surf1.getNumCols()/2);
 				  for(int b=0;b<numSubSections;b++) {
-					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 1.0);
+					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultDataOld(false), 1.0);
 					  Location loc2 = surf2.getLocation((int)(surf2.getNumRows()/2), (int)(surf2.getNumCols()/2));
 					  subSectionAzimuths[a][b] = LocationUtils.azimuth(loc1, loc2);
 				  }
@@ -439,10 +439,10 @@ System.out.println("Working on rupture list for cluster "+i);
 					  System.out.print("\t"+progress);
 					  progress += progressInterval;
 				  }
-				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 1.0);
+				  StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultDataOld(false), 1.0);
 				  Location loc1 = surf1.getLocation(surf1.getNumRows()/2, surf1.getNumCols()/2);
 				  for(int b=0;b<numSubSections;b++) {
-					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 1.0);
+					  StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultDataOld(false), 1.0);
 					  Location loc2 = surf2.getLocation((int)(surf2.getNumRows()/2), (int)(surf2.getNumCols()/2));
 					  subSectionAzimuths[a][b] = LocationUtils.azimuth(loc1, loc2);
 				  }

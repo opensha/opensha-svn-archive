@@ -270,7 +270,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		santaSusanaData = new FaultSectionPrefData();
 		santaSusanaData.setSectionId(227);
 		santaSusanaData.setSectionName("Santa Susana, alt 1");
-		santaSusanaData.setAveLongTermSlipRate(5.0);
+		santaSusanaData.setAveSlipRate(5.0);
 		santaSusanaData.setSlipRateStdDev(0.0);
 		santaSusanaData.setAveDip(55.0);
 		santaSusanaData.setAveRake(90.0);
@@ -325,7 +325,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		sierraMadreData = new FaultSectionPrefData();
 		sierraMadreData.setSectionId(114);
 		sierraMadreData.setSectionName("Sierra Madre");
-		sierraMadreData.setAveLongTermSlipRate(2.0);
+		sierraMadreData.setAveSlipRate(2.0);
 		sierraMadreData.setSlipRateStdDev(0.0);
 		sierraMadreData.setAveDip(53.0);
 		sierraMadreData.setAveRake(90.0);
@@ -379,7 +379,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		sierraMadreSanFernData = new FaultSectionPrefData();
 		sierraMadreSanFernData.setSectionId(113);
 		sierraMadreSanFernData.setSectionName("Sierra Madre (San Fernando)");
-		sierraMadreSanFernData.setAveLongTermSlipRate(2.0);
+		sierraMadreSanFernData.setAveSlipRate(2.0);
 		sierraMadreSanFernData.setSlipRateStdDev(0.0);
 		sierraMadreSanFernData.setAveDip(45.0);
 		sierraMadreSanFernData.setAveRake(90.0);
@@ -422,7 +422,7 @@ public class URS_MeanUCERF2 extends MeanUCERF2 {
 		verdugoData = new FaultSectionPrefData();
 		verdugoData.setSectionId(112);
 		verdugoData.setSectionName("Verdugo");
-		verdugoData.setAveLongTermSlipRate(0.5);
+		verdugoData.setAveSlipRate(0.5);
 		verdugoData.setSlipRateStdDev(0.0);
 		verdugoData.setAveDip(55.0);
 		verdugoData.setAveRake(90.0);

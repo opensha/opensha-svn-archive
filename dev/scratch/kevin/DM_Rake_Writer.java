@@ -22,7 +22,7 @@ public class DM_Rake_Writer {
 		for (FaultSectionPrefData data : allFaultSectionPrefData) {
 			String name = data.getName();
 			double rake = data.getAveRake();
-			double slip = data.getAveLongTermSlipRate();
+			double slip = data.getOrigAveSlipRate();
 			double strike = data.getFaultTrace().getStrikeDirection();
 			double dip = data.getAveDip();
 			

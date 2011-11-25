@@ -27,7 +27,7 @@ public class SectionInfoTextFileWriter extends AbstractSectionInfoFileWriter {
 		FaultTrace faultTrace = faultSectionPrefData.getFaultTrace(); 
 		String str =  "#"+faultSectionPrefData.getSectionName()+"\n"+
 			getValue(faultSectionPrefData.getShortName())+"\n"+
-			getValue(faultSectionPrefData.getAveUpperDepth())+"\n"+
+			getValue(faultSectionPrefData.getOrigAveUpperDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveLowerDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveDip()) +"\n"+
 			getValue(faultSectionPrefData.getDipDirection())+"\n"+

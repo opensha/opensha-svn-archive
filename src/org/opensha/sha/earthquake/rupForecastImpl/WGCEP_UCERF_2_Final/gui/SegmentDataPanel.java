@@ -706,23 +706,23 @@ class FaultSectionTableModel extends AbstractTableModel {
 			case 0:
 				return faultSectionPrefData.getSectionName();
 			case 1: // convert to mm/yr
-				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getAveLongTermSlipRate());
+				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getOrigAveSlipRate());
 			case 2: 
-				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getSlipRateStdDev());
+				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getOrigSlipRateStdDev());
 			case 3:
 				return ASEISMSIC__FORMAT.format(faultSectionPrefData.getAseismicSlipFactor());
 			case 4:
 				// km
-				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getLength());
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getTraceLength());
 			case 5:
 				// convert to km
-				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getDownDipWidth());
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getOrigDownDipWidth());
 			case 6:
 				// sq km
-				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getDownDipWidth() *
-						faultSectionPrefData.getLength());
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getOrigDownDipWidth() *
+						faultSectionPrefData.getTraceLength());
 			case 7:
-				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveUpperDepth());
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getOrigAveUpperDepth());
 			case 8:
 				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveLowerDepth());
 			case 9:

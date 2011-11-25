@@ -563,7 +563,7 @@ public class FaultSegmentData implements java.io.Serializable {
 			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
 			ArrayList<FaultSectionPrefData> faultSectionPrefDataList =  (ArrayList)this.sectionToSegmentData.get(segIndex[i]);
 			for(int j=0; j<faultSectionPrefDataList.size(); ++j) {
-				area = UCERF2_Final_RelativeLocation.getOldFaultLength(faultSectionPrefDataList.get(j).getFaultTrace())*faultSectionPrefDataList.get(j).getDownDipWidth();
+				area = UCERF2_Final_RelativeLocation.getOldFaultLength(faultSectionPrefDataList.get(j).getFaultTrace())*faultSectionPrefDataList.get(j).getOrigDownDipWidth();
 				totArea+=area;
 				totRake+=(area*faultSectionPrefDataList.get(j).getAveRake()); // weight the rake by section area
 			}
@@ -607,25 +607,25 @@ public class FaultSegmentData implements java.io.Serializable {
 			ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData>();
 			while(it.hasNext()) {
 				FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
-				simpleFaultData.add(sectData.getSimpleFaultData(aseisReducesArea));
+				simpleFaultData.add(sectData.getSimpleFaultDataOld(aseisReducesArea));
 				if(it.hasNext()) sectionsInSegString[seg]+=sectData.getSectionName()+" + ";
 				else sectionsInSegString[seg]+=sectData.getSectionName();
 				//set the area & moRate
 				segLength[seg]+= UCERF2_Final_RelativeLocation.getOldFaultLength(sectData.getFaultTrace())*1e3;  // converted to meters
-				double ddw = sectData.getDownDipWidth()*1e3; // converted to meters
+				double ddw = sectData.getOrigDownDipWidth()*1e3; // converted to meters
 				double area = ddw*UCERF2_Final_RelativeLocation.getOldFaultLength(sectData.getFaultTrace())*1e3; // converted to meters-squared
-				double slipRate = sectData.getAveLongTermSlipRate()*1e-3;  // converted to m/sec
+				double slipRate = sectData.getOrigAveSlipRate()*1e-3;  // converted to m/sec
 				double alpha = 1.0 - sectData.getAseismicSlipFactor();  // reduction factor
 				segMoRateIgnoringAseis[seg] += FaultMomentCalc.getMoment(area,slipRate); // SI units
 				segOrigArea[seg] +=  area;
 				if(aseisReducesArea) {
 					segArea[seg] += area*alpha;
-					stdDevTotal += (sectData.getSlipRateStdDev()/sectData.getAveLongTermSlipRate())*area*alpha;
+					stdDevTotal += (sectData.getOrigSlipRateStdDev()/sectData.getOrigAveSlipRate())*area*alpha;
 					segMoRate[seg] += FaultMomentCalc.getMoment(area*alpha,slipRate); // SI units
 				}
 				else {
 					segArea[seg] +=  area;// meters-squared
-					stdDevTotal += (sectData.getSlipRateStdDev()/sectData.getAveLongTermSlipRate())*area;
+					stdDevTotal += (sectData.getOrigSlipRateStdDev()/sectData.getOrigAveSlipRate())*area;
 					segMoRate[seg] += FaultMomentCalc.getMoment(area,slipRate*alpha); // SI units
 				}
 			}

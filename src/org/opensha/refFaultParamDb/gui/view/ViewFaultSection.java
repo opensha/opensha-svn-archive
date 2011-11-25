@@ -553,10 +553,10 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		faultTraceLabel.setTextAsHTML(locsAsString);
 		FaultSectionPrefData faultsectionPrefData = selectedFaultSection.getFaultSectionPrefData();
 		// fault trace length
-		double length = faultsectionPrefData.getLength();
+		double length = faultsectionPrefData.getTraceLength();
 		this.sectionLengthLabel.setTextAsHTML(SECTION_LENGTH, ""+(float)length);
 		// down dip width
-		double ddw = faultsectionPrefData.getDownDipWidth();
+		double ddw = faultsectionPrefData.getOrigDownDipWidth();
 		this.downDipWidthLabel.setTextAsHTML(SECTION_DOWN_DIP_WIDTH, ""+(float)ddw);
 		// area
 		this.sectionAreaLabel.setTextAsHTML(SECTION_AREA, ""+(float)(length*ddw));

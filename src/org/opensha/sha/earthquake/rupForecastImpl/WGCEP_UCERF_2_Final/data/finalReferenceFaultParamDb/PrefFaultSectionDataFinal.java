@@ -78,7 +78,7 @@ public class PrefFaultSectionDataFinal implements Serializable {
 //				System.out.println(dbFault.getAveRake() + " " + dbFault.getAveRake());
 //			}
 			
-			if (dbFault.getAveUpperDepth() != fileFault.getAveUpperDepth())
+			if (dbFault.getOrigAveUpperDepth() != fileFault.getOrigAveUpperDepth())
 				System.out.println("ERROR: Test Failed 6");
 			
 			if (dbFault.getDipDirection() != fileFault.getDipDirection())
@@ -93,13 +93,13 @@ public class PrefFaultSectionDataFinal implements Serializable {
 //			if (!dbFault.getShortName().equals(dbFault.getShortName()))
 //				System.out.println("ERROR: Test Failed 11");
 			
-			if (dbFault.getLength() != fileFault.getLength())
+			if (dbFault.getTraceLength() != fileFault.getTraceLength())
 				System.out.println("ERROR: Test Failed 12");
 			
-			if (dbFault.getDownDipWidth() != fileFault.getDownDipWidth())
+			if (dbFault.getOrigDownDipWidth() != fileFault.getOrigDownDipWidth())
 				System.out.println("ERROR: Test Failed 13");
 			
-			if (dbFault.getSlipRateStdDev() != fileFault.getSlipRateStdDev())
+			if (dbFault.getOrigSlipRateStdDev() != fileFault.getOrigSlipRateStdDev())
 				System.out.println("ERROR: Test Failed 14");
 			
 			FaultTrace dbTrace = dbFault.getFaultTrace();

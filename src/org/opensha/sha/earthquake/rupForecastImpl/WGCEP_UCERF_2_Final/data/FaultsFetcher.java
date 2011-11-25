@@ -211,7 +211,7 @@ public abstract class FaultsFetcher {
 				//System.out.println(faultModel+","+j);
 				int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
 				FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, faultSectionId);
-				if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
+				if(Double.isNaN(faultSectionPrefData.getOrigAveSlipRate())) {
 					//System.out.println(faultSectionPrefData.getSectionName());
 					continue;
 				}
@@ -227,8 +227,8 @@ public abstract class FaultsFetcher {
 					FaultSectionPrefData glenIvyStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, GLEN_IVY_STEPOVER_FAULT_SECTION_ID);
 					FaultSectionPrefData temeculaStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, TEMECULA_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData = faultSectionDataFinal.getFaultSectionPrefData(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID);
-					faultSectionPrefData.setAveLongTermSlipRate(glenIvyStepoverfaultSectionPrefData.getAveLongTermSlipRate()+temeculaStepoverfaultSectionPrefData.getAveLongTermSlipRate());
-					faultSectionPrefData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getSlipRateStdDev());
+					faultSectionPrefData.setAveSlipRate(glenIvyStepoverfaultSectionPrefData.getOrigAveSlipRate()+temeculaStepoverfaultSectionPrefData.getOrigAveSlipRate());
+					faultSectionPrefData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getOrigSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getOrigSlipRateStdDev());
 				}
 				
 				if(this.isUnsegmented && faultName.equalsIgnoreCase("San Jacinto (SB to C)") &&  // SKIP for Anza Stepover
@@ -240,8 +240,8 @@ public abstract class FaultsFetcher {
 					FaultSectionPrefData anzaStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, SJ_ANZA_STEPOVER_FAULT_SECTION_ID);
 					FaultSectionPrefData valleyStepoverfaultSectionPrefData = this.deformationModelPrefDataFinal.getFaultSectionPrefData(deformationModelId, SJ_VALLEY_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData = faultSectionDataFinal.getFaultSectionPrefData(this.SJ_COMBINED_STEPOVER_FAULT_SECTION_ID);
-					faultSectionPrefData.setAveLongTermSlipRate(anzaStepoverfaultSectionPrefData.getAveLongTermSlipRate()+valleyStepoverfaultSectionPrefData.getAveLongTermSlipRate());
-					faultSectionPrefData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getSlipRateStdDev());
+					faultSectionPrefData.setAveSlipRate(anzaStepoverfaultSectionPrefData.getOrigAveSlipRate()+valleyStepoverfaultSectionPrefData.getOrigAveSlipRate());
+					faultSectionPrefData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getOrigSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getOrigSlipRateStdDev());
 				}
 				
 				

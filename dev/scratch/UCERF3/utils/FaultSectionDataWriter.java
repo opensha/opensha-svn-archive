@@ -58,11 +58,11 @@ public class FaultSectionDataWriter {
 				String str =  i+"\n"+sectData.getSectionName()+"\n"+
 			    	getValue(sectData.getParentSectionId())+"\n"+
 			    	getValue(sectData.getParentSectionName())+"\n"+
-					getValue(sectData.getAveUpperDepth())+"\n"+
+					getValue(sectData.getOrigAveUpperDepth())+"\n"+
 					getValue(sectData.getAveLowerDepth())+"\n"+
 					getValue(sectData.getAveDip()) +"\n"+
 					getValue(sectData.getDipDirection())+"\n"+
-					getValue(sectData.getAveLongTermSlipRate())+"\n"+
+					getValue(sectData.getOrigAveSlipRate())+"\n"+
 					getValue(sectData.getAseismicSlipFactor())+"\n"+
 					getValue(sectData.getAveRake())+"\n"+
 					getValue(faultTrace.getTraceLength())+"\n"+

@@ -119,7 +119,7 @@ public class DeformationModelFetcher {
 		int subSectionIndex=0;
 		for(int i=0; i<allFaultSectionPrefData.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
-			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
+			double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
@@ -169,7 +169,7 @@ public class DeformationModelFetcher {
 		int subSectionIndex=0;
 		for(int i=0; i<nCalFaultSectionPrefData.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)nCalFaultSectionPrefData.get(i);
-			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
+			double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
@@ -224,13 +224,13 @@ public class DeformationModelFetcher {
 		PrefFaultSectionDataFinal faultSectionDataFinal = new PrefFaultSectionDataFinal();
 
 		FaultSectionPrefData newElsinoreSectionData = faultSectionDataFinal.getFaultSectionPrefData(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID);
-		newElsinoreSectionData.setAveLongTermSlipRate(glenIvyStepoverfaultSectionPrefData.getAveLongTermSlipRate()+temeculaStepoverfaultSectionPrefData.getAveLongTermSlipRate());
-		newElsinoreSectionData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getSlipRateStdDev());
+		newElsinoreSectionData.setAveSlipRate(glenIvyStepoverfaultSectionPrefData.getOrigAveSlipRate()+temeculaStepoverfaultSectionPrefData.getOrigAveSlipRate());
+		newElsinoreSectionData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getOrigSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getOrigSlipRateStdDev());
 		allFaultSectionPrefData.add(newElsinoreSectionData);
 		
 		FaultSectionPrefData newSanJacinntoSectionData = faultSectionDataFinal.getFaultSectionPrefData(SJ_COMBINED_STEPOVER_FAULT_SECTION_ID);
-		newSanJacinntoSectionData.setAveLongTermSlipRate(anzaStepoverfaultSectionPrefData.getAveLongTermSlipRate()+valleyStepoverfaultSectionPrefData.getAveLongTermSlipRate());
-		newSanJacinntoSectionData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getSlipRateStdDev());
+		newSanJacinntoSectionData.setAveSlipRate(anzaStepoverfaultSectionPrefData.getOrigAveSlipRate()+valleyStepoverfaultSectionPrefData.getOrigAveSlipRate());
+		newSanJacinntoSectionData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getOrigSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getOrigSlipRateStdDev());
 		allFaultSectionPrefData.add(newSanJacinntoSectionData);
 
 		
@@ -242,7 +242,7 @@ public class DeformationModelFetcher {
 		if(!includeSectionsWithNaN_slipRates) {
 			if (D)System.out.println("Removing the following due to NaN slip rate:");
 			for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
-				if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+				if(Double.isNaN(allFaultSectionPrefData.get(i).getOrigAveSlipRate())) {
 					if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
 					allFaultSectionPrefData.remove(i);
 				}	 
@@ -303,7 +303,7 @@ public class DeformationModelFetcher {
 		int subSectIndex = 0;
 		for (int i = 0; i < faultSectionIds.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB.getFaultSectionPrefData(ucerf2_DefModelId, faultSectionIds.get(i));
-			double maxSectLength = faultSectionPrefData.getDownDipWidth()*maxSubSectionLength;
+			double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectIndex);
 			subSectIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);

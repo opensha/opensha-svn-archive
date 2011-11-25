@@ -479,7 +479,7 @@ public class General_EQSIM_Tools {
 		// remove those with no slip rate
 		if (D)System.out.println("Removing the following due to NaN slip rate:");
 		for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
-			if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+			if(Double.isNaN(allFaultSectionPrefData.get(i).getOrigAveSlipRate())) {
 				if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
 				allFaultSectionPrefData.remove(i);
 			}	 
@@ -505,7 +505,7 @@ public class General_EQSIM_Tools {
 			double elementLength = gridCenteredSurf.getGridSpacingAlongStrike();
 			double elementDDW = gridCenteredSurf.getGridSpacingDownDip(); // down dip width
 			elementRake = faultSectionPrefData.getAveRake();
-			elementSlipRate = faultSectionPrefData.getAveLongTermSlipRate()/1000;
+			elementSlipRate = faultSectionPrefData.getOrigAveSlipRate()/1000;
 			elementAseis = faultSectionPrefData.getAseismicSlipFactor();
 			sectionName = faultSectionPrefData.getName();
 			for(int col=0; col<gridCenteredSurf.getNumCols();col++) {

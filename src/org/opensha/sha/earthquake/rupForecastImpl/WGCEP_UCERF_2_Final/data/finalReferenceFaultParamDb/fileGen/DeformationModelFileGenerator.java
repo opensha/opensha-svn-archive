@@ -72,8 +72,8 @@ public class DeformationModelFileGenerator {
 			
 			for (FaultSectionPrefData section : faultSections) {
 				// skip all sections with NaN slip rates
-				if (section.getAveLongTermSlipRate() == Double.NaN ||
-						(section.getAveLongTermSlipRate() + "").equals(Double.NaN + "")) {
+				if (section.getOrigAveSlipRate() == Double.NaN ||
+						(section.getOrigAveSlipRate() + "").equals(Double.NaN + "")) {
 //					System.out.println("Skipping Fault " + section.getSectionName());
 					noSlips.add(section);
 				}
@@ -161,11 +161,11 @@ public class DeformationModelFileGenerator {
 			
 			for (FaultSectionPrefData section : sections) {
 				fw.write(section.getSectionName() + "\n");
-				fw.write((float)section.getAveUpperDepth() + "\n");
+				fw.write((float)section.getOrigAveUpperDepth() + "\n");
 				fw.write((float)section.getAveLowerDepth() + "\n");
 				fw.write((float)section.getAveDip() + "\n");
-				fw.write((float)section.getAveLongTermSlipRate() + "\n");
-				fw.write((float)section.getSlipRateStdDev() + "\n");
+				fw.write((float)section.getOrigAveSlipRate() + "\n");
+				fw.write((float)section.getOrigSlipRateStdDev() + "\n");
 				fw.write((float)section.getAseismicSlipFactor() + "\n");
 				fw.write((float)section.getAveRake() + "\n");
 				
@@ -243,8 +243,8 @@ public class DeformationModelFileGenerator {
 					
 					FaultSectionPrefData section2 = sections2.get(j);
 					
-					float slip1 = (float)section.getAveLongTermSlipRate();
-					float slip2 = (float)section2.getAveLongTermSlipRate();
+					float slip1 = (float)section.getOrigAveSlipRate();
+					float slip2 = (float)section2.getOrigAveSlipRate();
 					
 					if (slip1 != slip2) {
 
@@ -278,8 +278,8 @@ public class DeformationModelFileGenerator {
 				if (i == max_model)
 					break;
 				ArrayList<FaultSectionPrefData> sections = faulSectionIDListList.get(i);
-				float slip = (float)sections.get(id).getAveLongTermSlipRate();
-				float stdDev = (float)sections.get(id).getSlipRateStdDev();
+				float slip = (float)sections.get(id).getOrigAveSlipRate();
+				float stdDev = (float)sections.get(id).getOrigSlipRateStdDev();
 				System.out.print(slip + "(" + stdDev + ")" + "\t");
 			}
 			System.out.print(faulSectionIDListList.get(0).get(id).getSectionName());
