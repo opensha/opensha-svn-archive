@@ -153,8 +153,8 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		sectSlipRateReduced = new double[numSections];
 		sectSlipRateStdDevReduced = new double[numSections];
 		for(int s=0; s<numSections; s++) {
-			sectSlipRateReduced[s] = faultSectionData.get(s).getOrigAveSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
-			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getOrigSlipRateStdDev()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
+			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
+			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
 		}
 
 		// make the list of SectionCluster objects 
@@ -513,7 +513,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		int index=0;
 		for(Integer sectID: sectionIndices) {	
 			FaultSectionPrefData sectData = faultSectionData.get(sectID);
-			sectArea[index] = sectData.getTraceLength()*sectData.getOrigDownDipWidth()*1e6*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; 1e6 for sq-km --> sq-m
+			sectArea[index] = sectData.getTraceLength()*sectData.getReducedDownDipWidth()*1e6;	// aseismicity reduces area; 1e6 for sq-km --> sq-m
 			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], sectSlipRateReduced[sectID]);
 			index += 1;
 		}
@@ -628,7 +628,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	 */
 	public double getAreaForSection(int sectIndex) {
 		FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
-		return sectData.getTraceLength()*1e3*sectData.getOrigDownDipWidth()*1e3*(1.0-sectData.getAseismicSlipFactor());	// aseismicity reduces area; km --> m on length & DDW
+		return sectData.getTraceLength()*1e3*sectData.getReducedDownDipWidth()*1e3;	// aseismicity reduces area; km --> m on length & DDW
 	}
 
 	public String getInfoString() {
