@@ -78,7 +78,7 @@ public abstract class AbstractERF implements
 	 */
 	@SuppressWarnings("rawtypes")
 	public Parameter getParameter(String paramName) {
-		return adjustableParams.getParameter(paramName);
+		return getAdjustableParameterList().getParameter(paramName);
 	}
 
 	/**
