@@ -502,7 +502,6 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		double aveUpperDepth = Double.parseDouble(el.attributeValue("aveUpperDepth"));
 		double aveLowerDepth = Double.parseDouble(el.attributeValue("aveLowerDepth"));
 		double aseismicSlipFactor = Double.parseDouble(el.attributeValue("aseismicSlipFactor"));
-		double couplingCoeff = Double.parseDouble(el.attributeValue("couplingCoeff"));
 		float dipDirection = Float.parseFloat(el.attributeValue("dipDirection"));
 		
 		Attribute parentSectNameAtt = el.attribute("parentSectionName");
@@ -542,7 +541,9 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		data.setAveUpperDepth(aveUpperDepth);
 		data.setAveLowerDepth(aveLowerDepth);
 		data.setAseismicSlipFactor(aseismicSlipFactor);
-		data.setAseismicSlipFactor(couplingCoeff);
+		Attribute couplingAtt = el.attribute("couplingCoeff");
+		if (couplingAtt != null)
+			data.setAseismicSlipFactor(Double.parseDouble(couplingAtt.getStringValue()));
 		data.setDipDirection(dipDirection);
 		data.setFaultTrace(trace);
 		data.setParentSectionName(parentSectionName);
