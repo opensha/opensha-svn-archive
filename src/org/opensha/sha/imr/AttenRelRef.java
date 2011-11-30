@@ -161,8 +161,9 @@ public enum AttenRelRef {
 	/** Average of 3 NGA's used in the 20008 NSHMP */
 	NSHMP_2008(NSHMP_2008_CA.class, NSHMP_2008_CA.NAME, DEVELOPMENT),
 
-	/** Multiple weighted attenuation relationships used in 20008 CEUS NSHMP */
-	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, DEVELOPMENT),
+	// TODO fix
+//	/** Multiple weighted attenuation relationships used in 20008 CEUS NSHMP */
+//	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, DEVELOPMENT),
 
 	/** Atkinson and Booore (2006) with 140bar stress drop. For NSHMP CEUS. */
 	AB_2006_140(AB2006_140_AttenRel.class, AB2006_140_AttenRel.NAME,
