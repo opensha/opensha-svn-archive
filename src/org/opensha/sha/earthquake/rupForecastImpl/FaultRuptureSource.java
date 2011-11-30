@@ -30,6 +30,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -70,7 +72,7 @@ public class FaultRuptureSource
   protected double duration;
 
   private ArrayList ruptureList; // keep this in case we add more mags later
-  private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
+  private ArrayList<Location> faultCornerLocations = new ArrayList<Location>(); // used for the getMinDistance(Site) method
   
  
   /**
@@ -78,19 +80,32 @@ public class FaultRuptureSource
    * @param magnitude
    * @param ruptureSurface - any EvenlyGriddedSurface representation of the fault
    * @param rake - average rake of the ruptures
-   * @param probability - the probability of the source
+   * @param probability - the probability of the source/rupture
+   */
+  public FaultRuptureSource(double magnitude, RuptureSurface ruptureSurface,
+                            double rake, double probability) {
+    this(magnitude,ruptureSurface,rake,probability, false);
+  }
+  
+  
+  /**
+   * Constructor - this is for a single mag source.
+   * @param magnitude
+   * @param ruptureSurface - any EvenlyGriddedSurface representation of the fault
+   * @param rake - average rake of the ruptures
+   * @param probability - the probability of the source/rupture
+   * @param isPoissonian - whether or not it's a poisson source
    */
   public FaultRuptureSource(double magnitude,
-                            AbstractEvenlyGriddedSurfaceWithSubsets ruptureSurface,
+                            RuptureSurface ruptureSurface,
                             double rake,
-                            double probability) {
+                            double probability,
+                            boolean isPoisson) {
 
-    this.isPoissonian = false;
+    this.isPoissonian = isPoisson;
 
     if (D) {
       System.out.println("mag: " + magnitude);
-      System.out.println("surface rows, cols: " + ruptureSurface.getNumCols() +
-                         ", " + ruptureSurface.getNumRows());
       System.out.println("rake: " + rake);
       System.out.println("probability: " + probability);
 
@@ -110,6 +125,7 @@ public class FaultRuptureSource
     ruptureList.add(probEqkRupture);
 
   }
+
 
   /**
    * Returns the Source Surface.
@@ -144,18 +160,14 @@ public class FaultRuptureSource
    * @param rake - average rake of the ruptures
    * @param duration - the duration in years
    */
-  public FaultRuptureSource(IncrementalMagFreqDist magDist,
-                            AbstractEvenlyGriddedSurfaceWithSubsets ruptureSurface,
-                            double rake,
-                            double duration) {
+  public FaultRuptureSource(IncrementalMagFreqDist magDist, RuptureSurface  ruptureSurface,
+                            double rake, double duration) {
 
     this.isPoissonian = true;
     this.duration = duration;
 
     if (D) {
-      System.out.println("surface rows, cols: " + ruptureSurface.getNumCols() +
-                         ", " + ruptureSurface.getNumRows());
-      System.out.println("rake: " + rake);
+       System.out.println("rake: " + rake);
       System.out.println("duration: " + duration);
     }
 
@@ -196,7 +208,7 @@ public class FaultRuptureSource
    * @param rake - average rake of the ruptures
    */
   public FaultRuptureSource(double prob, IncrementalMagFreqDist magDist,
-                            AbstractEvenlyGriddedSurfaceWithSubsets ruptureSurface,
+                            RuptureSurface ruptureSurface,
                             double rake) {
 
     this.isPoissonian = false;
@@ -300,16 +312,33 @@ public class FaultRuptureSource
    * method.
    * @param faultSurface
    */
-  private void makeFaultCornerLocs(AbstractEvenlyGriddedSurfaceWithSubsets faultSurface) {
-
-    int nRows = faultSurface.getNumRows();
-    int nCols = faultSurface.getNumCols();
-    faultCornerLocations.add(faultSurface.get(0, 0));
-    faultCornerLocations.add(faultSurface.get(0, (int) (nCols / 2)));
-    faultCornerLocations.add(faultSurface.get(0, nCols - 1));
-    faultCornerLocations.add(faultSurface.get(nRows - 1, 0));
-    faultCornerLocations.add(faultSurface.get(nRows - 1, (int) (nCols / 2)));
-    faultCornerLocations.add(faultSurface.get(nRows - 1, nCols - 1));
+  private void makeFaultCornerLocs(RuptureSurface faultSurface) {
+	  if(faultSurface instanceof AbstractEvenlyGriddedSurface) {
+		  AbstractEvenlyGriddedSurface griddedSurf = (AbstractEvenlyGriddedSurface) faultSurface;
+		    int nRows = griddedSurf.getNumRows();
+		    int nCols = griddedSurf.getNumCols();
+		    faultCornerLocations.add(griddedSurf.get(0, 0));
+		    faultCornerLocations.add(griddedSurf.get(0, (int) (nCols / 2)));
+		    faultCornerLocations.add(griddedSurf.get(0, nCols - 1));
+		    faultCornerLocations.add(griddedSurf.get(nRows - 1, 0));
+		    faultCornerLocations.add(griddedSurf.get(nRows - 1, (int) (nCols / 2)));
+		    faultCornerLocations.add(griddedSurf.get(nRows - 1, nCols - 1));
+	  }
+	  else if (faultSurface instanceof CompoundGriddedSurface) {
+		  // here we assume each surface is small enough to just take the top and bottom of 
+		  //  first columns, plus the top and bottom of the last column of the last surface
+		  ArrayList<EvenlyGriddedSurface> surfaces = ((CompoundGriddedSurface) faultSurface).getSurfaceList();
+		  for(EvenlyGriddedSurface griddedSurf: surfaces) {
+			    faultCornerLocations.add(griddedSurf.get(0, 0));
+			    faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, 0));
+		  }
+		  EvenlyGriddedSurface griddedSurf = surfaces.get(surfaces.size()-1);
+		  int lastCol = griddedSurf.getNumCols() - 1;
+		    faultCornerLocations.add(griddedSurf.get(0, lastCol));
+		    faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, lastCol));
+	  }
+	  else
+		  throw new RuntimeException("Surface type is not supported");
 
   }
 

@@ -308,6 +308,15 @@ public abstract class AbstractERF implements
 	}
 	
 	@Override
+	public List<ProbEqkSource> getSourceList() {
+		ArrayList<ProbEqkSource> list = new ArrayList<ProbEqkSource>();
+		for(int s=0;s<getNumSources();s++)
+			list.add(this.getSource(s));
+		return list;
+		
+	}
+	
+	@Override
 	public Iterator<ProbEqkSource> iterator() {
 		return getSourceList().iterator();
 	}

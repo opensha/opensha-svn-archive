@@ -12,6 +12,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionSolutionERF;
+import scratch.UCERF3.oldStuff.OldInversionSolutionERF;
 
 public class MultiFaultProbStats {
 
@@ -40,9 +41,9 @@ public class MultiFaultProbStats {
 				continue;
 			List<FaultSectionPrefData> datas = sol.getFaultSectionDataForRupture(rupID);
 
-			boolean single = InversionSolutionERF.isRuptureSingleParent(datas);
+			boolean single = OldInversionSolutionERF.isRuptureSingleParent(datas);
 
-			double prob = InversionSolutionERF.calcProb(rate, years);
+			double prob = OldInversionSolutionERF.calcProb(rate, years);
 			
 			if (!single) {
 				// make sure it's not just a bunch of sections of the same fault
@@ -58,7 +59,7 @@ public class MultiFaultProbStats {
 					}
 				}
 				System.out.println("isActuallySame? "+isActuallySame+" : "
-						+InversionSolutionERF.getRuptureSourceName(datas));
+						+OldInversionSolutionERF.getRuptureSourceName(datas));
 				single = isActuallySame;
 			}
 

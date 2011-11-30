@@ -112,7 +112,7 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 	private RateTable gridTable;
 
 	// custom params
-	private BooleanParameter ptSrcCorrParam;
+//	private BooleanParameter ptSrcCorrParam;
 	private BooleanParameter nshmpPtSrcCorrParam;
 	private EnumParameter<SourceCEUS> sourceParam;
 	private EnumParameter<SiteType> siteTypeParam;
@@ -190,8 +190,8 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 		sourceParam.setValueAsDefault();
 		componentParam.setValueAsDefault();
 		tectonicRegionTypeParam.setValueAsDefault();
-		ptSrcCorrParam.setValueAsDefault();
-		nshmpPtSrcCorrParam.setValueAsDefault();
+//		ptSrcCorrParam.setValueAsDefault();
+//		nshmpPtSrcCorrParam.setValueAsDefault();
 
 		for (ScalarIMR imr : imrMap.keySet()) {
 			imr.setParamDefaults();

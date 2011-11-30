@@ -32,7 +32,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.UCERF3.inversion.InversionSolutionERF;
+import scratch.UCERF3.oldStuff.OldInversionSolutionERF;
 
 public class InversionSolutionERFMapGen {
 	
@@ -45,7 +45,7 @@ public class InversionSolutionERFMapGen {
 		
 		double spacing = 0.2;
 		
-		InversionSolutionERF erf = new InversionSolutionERF();
+		OldInversionSolutionERF erf = new OldInversionSolutionERF();
 		erf.setSolutionFile(solutionFile);
 		
 		ScalarIMR imr = new CB_2008_AttenRel(null);

@@ -53,7 +53,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	private int parentSectionId=-1;
 	
 	// for the stirling surface:
-	double lastGridSpacing = -1;; 
+	double lastGridSpacing = Double.NaN; 
 	boolean lastPreserveGridSpacingExactly;
 	StirlingGriddedSurface stirlingGriddedSurface=null;
 
@@ -432,6 +432,9 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 				stirlingGriddedSurface = new StirlingGriddedSurface(getSimpleFaultData(true), gridSpacing);
 			else
 				stirlingGriddedSurface = new StirlingGriddedSurface(getSimpleFaultData(true), gridSpacing, gridSpacing);
+			// set the last values used
+			lastPreserveGridSpacingExactly = preserveGridSpacingExactly;
+			lastGridSpacing = gridSpacing;
 		}
 		return stirlingGriddedSurface;
 	}

@@ -11,6 +11,8 @@ import java.util.List;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -424,5 +426,21 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		
 		return rupturesForSectionCache.get(secIndex);
 	}
+	
+	/**
+	 * This creates a CompoundGriddedSurface for the specified rupture
+	 * @param rupIndex
+	 * @param gridSpacing
+	 * @return
+	 */
+	public CompoundGriddedSurface getCompoundGriddedSurfaceForRupupture(int rupIndex, double gridSpacing) {
+		ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
+		for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
+			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, true));
+		}
+		return new CompoundGriddedSurface(surfaces);
+		
+	}
+	
 
 }
