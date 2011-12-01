@@ -24,7 +24,10 @@ public enum DevStatus implements Named {
 	EXPERIMENTAL("Experimental", null),
 
 	/** Status indicating something is deprecated. */
-	DEPRECATED("Deprecated", null);
+	DEPRECATED("Deprecated", null),
+	
+	/** Status indicating something has a critical error and is disabled until fixed */
+	ERROR("Error", null);
 	
 	private String name;
 	private String buildDirName;

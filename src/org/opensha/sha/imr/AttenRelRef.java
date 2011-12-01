@@ -178,7 +178,7 @@ public enum AttenRelRef {
 
 	/** Frankel et al. (1996). For NSHMP CEUS. */
 	FEA_1996(FrankelEtAl_1996_AttenRel.class, FrankelEtAl_1996_AttenRel.NAME,
-			DEVELOPMENT),
+			ERROR), // TODO set to error because of ticket #366
 
 	/** Somerville et al. (2001). For NSHMP CEUS. */
 	SOMERVILLE_2001(SomervilleEtAl_2001_AttenRel.class,
