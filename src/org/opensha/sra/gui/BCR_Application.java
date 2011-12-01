@@ -277,7 +277,7 @@ IMR_GuiBeanAPI{
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		startAppProgressClass.dispose();
 		((JPanel)getContentPane()).updateUI();
