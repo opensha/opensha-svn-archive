@@ -42,6 +42,7 @@ public class FaultGridSpacingParam extends DoubleParameter {
 		getConstraint().setNonEditable();
 	    setInfo(INFO);
 	    setDefaultValue(defaultMag);
+	    this.setValueAsDefault();
 	}
 
 	/**
