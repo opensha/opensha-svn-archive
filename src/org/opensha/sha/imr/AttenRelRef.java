@@ -162,7 +162,7 @@ public enum AttenRelRef {
 	NSHMP_2008(NSHMP_2008_CA.class, NSHMP_2008_CA.NAME, DEVELOPMENT),
 
 	/** Multiple weighted attenuation relationships used in 20008 CEUS NSHMP */
-	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, DEVELOPMENT),
+	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, ERROR), // TODO set to error because of ticket #366
 
 	/** Atkinson and Booore (2006) with 140bar stress drop. For NSHMP CEUS. */
 	AB_2006_140(AB2006_140_AttenRel.class, AB2006_140_AttenRel.NAME,
