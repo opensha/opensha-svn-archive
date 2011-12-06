@@ -22,7 +22,7 @@ public class ERFPanel {
 	public ERFPanel() {
 		
 		try {
-			erfPanel = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
+			erfPanel = new ERF_GuiBean(ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
 		}
 		catch ( Exception e ) {
 			e.printStackTrace();

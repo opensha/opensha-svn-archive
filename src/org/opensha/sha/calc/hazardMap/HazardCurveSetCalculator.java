@@ -67,11 +67,8 @@ public class HazardCurveSetCalculator {
 			throw new IllegalArgumentException("If IMTs are specified for each IMR map, there must me exactly one" +
 					" for every IMR map.");
 		
-		try {
-			this.calc = new HazardCurveCalculator();
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
+	
+		this.calc = new HazardCurveCalculator();
 		
 		erf.updateForecast();
 	}

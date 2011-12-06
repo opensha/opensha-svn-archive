@@ -207,42 +207,36 @@ public class GemComputeHazard implements Runnable {
 			}
 	        
     		// perform hazard calculation
-		    try {
-		    	
-		        // define hazard curve calculator
-			    hcc = new HazardCurveCalculator();
-			    
-			    // set maximum source distance
-			    hcc.setMaxSourceDistance(maxSourceDist);
-			    
-			    // compute hazard curve
-			   // if(sourceListThread.){
-			    	//hcc.getHazardCurve(hcThread,siteList.get(i),gmpeTmp,sourceList);
-			    //}
-			    //else{
-			    	hcc.getHazardCurve(hcThread,siteList.get(i),gmpeTmp,ERFThread);
-			    //}
-				
-				Double[] tmp = new Double[hcThread.getNum()];
-				for (int j=0; j<hcThread.getNum(); j++){
-					tmp[j] = hcThread.getY(j);
-				}
-				
-                // Store the hazard curve
-				hcRep.setHazardCurveGridNode(i,siteList.get(i).getLocation().getLatitude(),siteList.get(i).getLocation().getLongitude(),tmp);
-				
-				
-				// Info
-                System.out.printf("thrd: %3d node: %5d/%d site (%.2f,%.2f)\n",
-                		(start-startLoop)/(end-start),(i-start),(end-start),siteList.get(i).getLocation().getLatitude(),
-                		siteList.get(i).getLocation().getLongitude());
-//                System.out.printf("thrd: %3d node: %5d/%d site (%.2f,%.2f) - pex(0.1) %8.6e\n",
-//                		(start-startLoop)/(end-start),(i-start),(end-start),siteList.get(i).getLocation().getLatitude(),
-//                		siteList.get(i).getLocation().getLongitude(),Math.exp(hcThread.getFirstInterpolatedX(0.1)));
-
-		    } catch (RemoteException e) {
-				e.printStackTrace();
+	        // define hazard curve calculator
+		    hcc = new HazardCurveCalculator();
+		    
+		    // set maximum source distance
+		    hcc.setMaxSourceDistance(maxSourceDist);
+		    
+		    // compute hazard curve
+		   // if(sourceListThread.){
+		    	//hcc.getHazardCurve(hcThread,siteList.get(i),gmpeTmp,sourceList);
+		    //}
+		    //else{
+		    	hcc.getHazardCurve(hcThread,siteList.get(i),gmpeTmp,ERFThread);
+		    //}
+			
+			Double[] tmp = new Double[hcThread.getNum()];
+			for (int j=0; j<hcThread.getNum(); j++){
+				tmp[j] = hcThread.getY(j);
 			}
+			
+               // Store the hazard curve
+			hcRep.setHazardCurveGridNode(i,siteList.get(i).getLocation().getLatitude(),siteList.get(i).getLocation().getLongitude(),tmp);
+			
+			
+			// Info
+               System.out.printf("thrd: %3d node: %5d/%d site (%.2f,%.2f)\n",
+               		(start-startLoop)/(end-start),(i-start),(end-start),siteList.get(i).getLocation().getLatitude(),
+               		siteList.get(i).getLocation().getLongitude());
+//               System.out.printf("thrd: %3d node: %5d/%d site (%.2f,%.2f) - pex(0.1) %8.6e\n",
+//               		(start-startLoop)/(end-start),(i-start),(end-start),siteList.get(i).getLocation().getLatitude(),
+//               		siteList.get(i).getLocation().getLongitude(),Math.exp(hcThread.getFirstInterpolatedX(0.1)));
 	     			
 		}
 	}

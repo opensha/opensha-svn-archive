@@ -143,7 +143,7 @@ public class IM_EventSetGUI extends JFrame implements ActionListener {
 	
 	private ERF_GuiBean createERF_GUI_Bean() {
 		try {
-			return new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
+			return new ERF_GuiBean(ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}

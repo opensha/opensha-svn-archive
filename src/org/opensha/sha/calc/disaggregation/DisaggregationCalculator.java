@@ -25,8 +25,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +74,7 @@ import com.google.common.base.Preconditions;
  * @version 1.0
  */
 
-public class DisaggregationCalculator extends UnicastRemoteObject
+public class DisaggregationCalculator
 implements DisaggregationCalculatorAPI{
 
 	/**
@@ -147,10 +145,9 @@ implements DisaggregationCalculatorAPI{
 	/**
 	 * creates the DisaggregationCalculator object
 	 *
-	 * @throws java.rmi.RemoteException
 	 * @throws IOException
 	 */
-	public DisaggregationCalculator()throws java.rmi.RemoteException {
+	public DisaggregationCalculator() {
 
 		//set defaults
 		setMagRange(5, 9, 0.5);
@@ -174,8 +171,7 @@ implements DisaggregationCalculatorAPI{
 	public boolean disaggregate(double iml, Site site,
 			ScalarIMR imr,
 			AbstractERF eqkRupForecast,
-			ParameterList calcParams) 
-			throws java.rmi.RemoteException {
+			ParameterList calcParams) {
 		return disaggregate(iml, site, TRTUtils.wrapInHashMap(imr), eqkRupForecast, calcParams);
 	}
 	
@@ -184,7 +180,7 @@ implements DisaggregationCalculatorAPI{
 			double iml,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap,
-			AbstractERF eqkRupForecast, ParameterList calcParams) throws RemoteException {
+			AbstractERF eqkRupForecast, ParameterList calcParams) {
 		
 		MaxDistanceParam maxDistanceParam = (MaxDistanceParam)calcParams.getParameter(MaxDistanceParam.NAME);
 		PtSrcDistanceCorrectionParam ptSrcDistCorrParam = (PtSrcDistanceCorrectionParam)calcParams.getParameter(PtSrcDistanceCorrectionParam.NAME);
@@ -578,9 +574,8 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * 4)Percentage Contribution of the source in Hazard at the site.
 	 *
 	 * @return String
-	 * @throws RemoteException
 	 */
-	public String getDisaggregationSourceInfo() throws java.rmi.RemoteException{
+	public String getDisaggregationSourceInfo() {
 		if(numSourcesToShow >0)
 			return sourceDisaggInfo;
 		return "";
@@ -592,8 +587,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * @param numMags int
 	 * @param deltaMag double
 	 */
-	public void setMagRange(double minMag, int numMags, double deltaMag) throws
-	java.rmi.RemoteException {
+	public void setMagRange(double minMag, int numMags, double deltaMag) {
 		mag_center = new double[numMags];
 		mag_binEdges = new double[numMags+1];
 		mag_binEdges[0] = minMag-deltaMag/2;
@@ -607,8 +601,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * Setting up the Mag Range
 	 * @param dmagBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
 	 */
-	public void setMagRange(double[] magBinEdges) throws
-	java.rmi.RemoteException {
+	public void setMagRange(double[] magBinEdges) {
 		this.mag_binEdges = magBinEdges;
 		mag_center = new double[mag_binEdges.length-1];
 		for(int i=0;i<mag_center.length;i++)
@@ -623,8 +616,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * @param numDist int
 	 * @param deltaDist double
 	 */
-	public void setDistanceRange(double minDist, int numDist, double deltaDist) throws
-	java.rmi.RemoteException {
+	public void setDistanceRange(double minDist, int numDist, double deltaDist) {
 		dist_center = new double[numDist];
 		dist_binEdges = new double[numDist+1];
 		dist_binEdges[0] = minDist-deltaDist/2;
@@ -642,8 +634,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * Setting up the Distance Range
 	 * @param distBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
 	 */
-	public void setDistanceRange(double[] distBinEdges) throws
-	java.rmi.RemoteException {
+	public void setDistanceRange(double[] distBinEdges) {
 		this.dist_binEdges = distBinEdges;
 		dist_center = new double[distBinEdges.length-1];
 		for(int i=0;i<dist_center.length;i++)
@@ -655,10 +646,8 @@ System.out.println("numRupRejected="+numRupRejected);
 	/**
 	 * Sets the Max Z Axis Range value for plotting purposes
 	 * @param zMax
-	 * @throws java.rmi.RemoteException
 	 */
-	public void setMaxZAxisForPlot(double zMax) throws
-	java.rmi.RemoteException {
+	public void setMaxZAxisForPlot(double zMax) {
 		if(!Double.isNaN(zMax))
 			maxContrEpsilonForGMT_Plot = zMax;
 		else
@@ -669,7 +658,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * gets the number of current rupture being processed
 	 * @return
 	 */
-	public int getCurrRuptures() throws java.rmi.RemoteException{
+	public int getCurrRuptures() {
 		return this.currRuptures;
 	}
 
@@ -677,7 +666,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * gets the total number of ruptures
 	 * @return
 	 */
-	public int getTotRuptures() throws java.rmi.RemoteException{
+	public int getTotRuptures() {
 		return this.totRuptures;
 	}
 
@@ -686,16 +675,15 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * have been completed.
 	 * @return
 	 */
-	public boolean done() throws java.rmi.RemoteException{
+	public boolean done() {
 		return (currRuptures==totRuptures);
 	}
 
 	/**
 	 *
 	 * @return resultant disaggregation in a String format.
-	 * @throws java.rmi.RemoteException
 	 */
-	public String getMeanAndModeInfo() throws java.rmi.RemoteException{
+	public String getMeanAndModeInfo() {
 
 
 		float mm_l = (float) mag_binEdges[M_index_mode3D]; 
@@ -738,9 +726,8 @@ System.out.println("numRupRejected="+numRupRejected);
 	/**
 	 * Returns the Bin Data in the String format
 	 * @return String
-	 * @throws RemoteException
 	 */
-	public String getBinData() throws java.rmi.RemoteException {
+	public String getBinData() {
 
 		DecimalFormat f1 = new DecimalFormat("0.00");
 		DecimalFormat f2 = new DecimalFormat("00.00");
@@ -844,8 +831,7 @@ System.out.println("numRupRejected="+numRupRejected);
 	 * @param metadata String
 	 * @return String
 	 */
-	public String getDisaggregationPlotUsingServlet(String metadata) throws java.
-	rmi.RemoteException {
+	public String getDisaggregationPlotUsingServlet(String metadata) {
 		DisaggregationPlotData data = getDisaggPlotData();
 		disaggregationPlotImgWebAddr = openServletConnection(data, metadata);
 		return disaggregationPlotImgWebAddr;
@@ -1121,13 +1107,12 @@ System.out.println("numRupRejected="+numRupRejected);
 	/**
 	 * Sets the number of sources to be shown in the Disaggregation.
 	 * @param numSources int
-	 * @throws RemoteException
 	 */
-	public void setNumSourcestoShow(int numSources) throws RemoteException {
+	public void setNumSourcestoShow(int numSources) {
 		numSourcesToShow = numSources;
 	}
 	
-	public void setShowDistances(boolean showDistances) throws java.rmi.RemoteException {
+	public void setShowDistances(boolean showDistances) {
 		this.showDistances = showDistances;
 	}
 

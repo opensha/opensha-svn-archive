@@ -19,9 +19,6 @@
 
 package org.opensha.sha.calc;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -33,13 +30,12 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
 
-public interface SpectrumCalculatorAPI extends Remote{
+public interface SpectrumCalculatorAPI {
 	/**
 	 *
 	 * @return the current rupture being traversed
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getCurrRuptures() throws RemoteException;
+	public int getCurrRuptures();
 
 	/**
 	 * This function computes a deterministic exceedance curve for the given Site, IMR, and ProbEqkrupture.  The curve
@@ -53,7 +49,7 @@ public interface SpectrumCalculatorAPI extends Remote{
 	 */
 	public DiscretizedFunc getDeterministicSpectrumCurve(Site site,
 			ScalarIMR imr, EqkRupture rupture, boolean probAtIML,
-			double imlProbVal) throws RemoteException;
+			double imlProbVal);
 
 	/**
 	 * This function computes a spectrum curve for all SA Period supported
@@ -71,9 +67,7 @@ public interface SpectrumCalculatorAPI extends Remote{
 			spectrumFunction, Site site,
 			ScalarIMR imr,
 			ERF
-			eqkRupForecast, double probVal,
-                                                 List supportedSA_Periods) throws
-			RemoteException;
+			eqkRupForecast, double probVal, List supportedSA_Periods);
 
 	/**
 	 * This function computes a spectrum curve for the given Site, IMR, and ERF.  The curve
@@ -89,15 +83,13 @@ public interface SpectrumCalculatorAPI extends Remote{
 			ScalarIMR imr,
 			ERF eqkRupForecast,
 			double imlVal,
-                                             List supportedSA_Periods)
-	throws RemoteException;
+			List supportedSA_Periods);
 
 	/**
 	 *
 	 * @return the total number of ruptures in the earthquake rupture forecast model
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getTotRuptures() throws RemoteException;
+	public int getTotRuptures();
 
 	/**
 	 * This sets the maximum distance of sources to be considered in the calculation
@@ -107,44 +99,44 @@ public interface SpectrumCalculatorAPI extends Remote{
 	 *
 	 * @param distance: the maximum distance in km
 	 */
-	public void setMaxSourceDistance(double distance) throws RemoteException;
+	public void setMaxSourceDistance(double distance);
 
-	public double getMaxSourceDistance()  throws java.rmi.RemoteException;
+	public double getMaxSourceDistance();
 
 	/**
 	 *
 	 * @return This was created so new instances of this calculator could be
 	 * given pointers to a set of parameter that already exist.
 	 */
-	public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException;
+	public void setAdjustableParams(ParameterList paramList);
 
 
 	/**
 	 *
 	 * @return the adjustable ParameterList
 	 */
-	public ParameterList getAdjustableParams()  throws java.rmi.RemoteException;
+	public ParameterList getAdjustableParams();
 
 	/**
 	 * get the adjustable parameters
 	 *
 	 * @return
 	 */
-	public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException;
+	public ListIterator getAdjustableParamsIterator();
 
 	/**
 	 * This sets the type of point-source distance correction that is desired
 	 * (see the class PtSrcDistCorr for options)
 	 * @param ptSrcDistCorrType
 	 */
-	public void setPtSrcDistCorrType(PtSrcDistCorr.Type ptSrcDistCorrType)  throws java.rmi.RemoteException;
+	public void setPtSrcDistCorrType(PtSrcDistCorr.Type ptSrcDistCorrType);
 
 	/**
 	 * This gets the type of point-source distance correction that is desired
 	 * (see the class PtSrcDistCorr for options)
 	 * @param ptSrcDistCorrType
 	 */
-	public PtSrcDistCorr.Type getPtSrcDistCorrType()  throws java.rmi.RemoteException;
+	public PtSrcDistCorr.Type getPtSrcDistCorrType();
 
 
 }

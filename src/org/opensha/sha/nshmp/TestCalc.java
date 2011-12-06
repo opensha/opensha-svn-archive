@@ -63,87 +63,80 @@ public class TestCalc {
 		vs30param.setValueAsDefault();
 		SiteTypeParam siteTypeParam = new SiteTypeParam();
 
-		try {
-
-			// init
-//			String imt = (period == 0) ? "PGA" : "SA";
-//			String imtString = imt;
-//			imtString += (period != 0) ? 
-//				"_" + periodFormat.format(period) + "sec" : "";
+		// init
+//		String imt = (period == 0) ? "PGA" : "SA";
+//		String imtString = imt;
+//		imtString += (period != 0) ? 
+//			"_" + periodFormat.format(period) + "sec" : "";
+		
+		imr.setIntensityMeasure((per == Period.GM0P00)? "PGA" : "SA");
+		imr.getParameter(PeriodParam.NAME).setValue(per.getValue());
 			
+		hazardCurveCalculator = new HazardCurveCalculator();
+		hazardCurveCalculator.getAdjustableParams().getParameter(MaxDistanceParam.NAME).setValue(1000.0);
+//		File outputDir = new File(outDir);
+//		outputDir.mkdirs();
 
-			imr.setIntensityMeasure((per == Period.GM0P00)? "PGA" : "SA");
-			imr.getParameter(PeriodParam.NAME).setValue(per.getValue());
+		// Do for First Lat
+//		double twoPercentProb, tenPercentProb;
+//		int colIndex=1;
+//		for(double lon=minLon; lon<=maxLon; lon+=GRID_SPACING, ++colIndex) {
+//			System.out.println("Doing Site :" + latLonFormat.format(lat) + 
+//				"," + latLonFormat.format(lon) + " " + imtString);
 			
-			hazardCurveCalculator = new HazardCurveCalculator();
-			hazardCurveCalculator.getAdjustableParams().getParameter(MaxDistanceParam.NAME).setValue(1000.0);
-//			File outputDir = new File(outDir);
-//			outputDir.mkdirs();
-
-			// Do for First Lat
-//			double twoPercentProb, tenPercentProb;
-//			int colIndex=1;
-//			for(double lon=minLon; lon<=maxLon; lon+=GRID_SPACING, ++colIndex) {
-//				System.out.println("Doing Site :" + latLonFormat.format(lat) + 
-//					"," + latLonFormat.format(lon) + " " + imtString);
-				
-//				// ensure that DEPTH_2_5KM_PARAM value iis set from default
-//				DEPTH_2_5KM_PARAM.setValueAsDefault();
-//				// set DEPTH_1_0KM_PARAM based on vs30; this could conceivably
-//				if (vs30 == 760.0) {
-//					DEPTH_1_0KM_PARAM.setValue(40.0);
-//				} else if (vs30 == 259.0) {
-//					DEPTH_1_0KM_PARAM.setValue(330.0);
-//				}
-				Site site = new Site(loc);
-				site.addParameter(vs30param);
-				site.addParameter(siteTypeParam);
-//				site.addParameter(DEPTH_2_5KM_PARAM); // used by CB2008
-//				site.addParameter(DEPTH_1_0KM_PARAM); // used by CY2008
-//				site.addParameter(VS_30_TYPE_PARAM);  
-				
-				// do log of X axis values
-				DiscretizedFunc hazFunc = per.getFunction();
-//				for(int i=0; i<numX_Vals; ++i)
-//					hazFunc.set(Math.log(function.getX(i)), 1);
-				
-				// Note here that hazardCurveCalculator accepts the Log of X-Values
-				hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, erf);
-				
-				// convert to annual rate
-				for (Point2D p : hazFunc) {
-					hazFunc.set(p.getX(), -Math.log(1-p.getY()));
-				}
-				System.out.println(hazFunc);
-				// Unlog the X-Values before doing interpolation. The Y Values we get from hazardCurveCalculator are unmodified
-//				DiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
-//				for(int i=0; i<numX_Vals; ++i)
-//					newFunc.set(function.getX(i), hazFunc.getY(i));
-//				
-//				try {
-//					twoPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.02);
-//				} catch (InvalidRangeException ire) {
-//					twoPercentProb = 0.0;
-//				}
-//				try {
-//					tenPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.1);
-//				} catch (InvalidRangeException ire) {
-//					tenPercentProb = 0.0;
-//				}
-//				sheet.getRow(0).createCell((short)colIndex).setCellValue(latLonFormat.format(lon));
-//				for(int i=0; i<numX_Vals; ++i)
-//					sheet.createRow(i+1).createCell((short)colIndex).setCellValue(newFunc.getY(i));
-//
-//				sheet.createRow(twoPercentProbRoIndex).createCell((short)colIndex).setCellValue(twoPercentProb);
-//				sheet.createRow(tenPercentProbRoIndex).createCell((short)colIndex).setCellValue(tenPercentProb);
-//				
+//			// ensure that DEPTH_2_5KM_PARAM value iis set from default
+//			DEPTH_2_5KM_PARAM.setValueAsDefault();
+//			// set DEPTH_1_0KM_PARAM based on vs30; this could conceivably
+//			if (vs30 == 760.0) {
+//				DEPTH_1_0KM_PARAM.setValue(40.0);
+//			} else if (vs30 == 259.0) {
+//				DEPTH_1_0KM_PARAM.setValue(330.0);
 //			}
-//			FileOutputStream fileOut = new FileOutputStream(outputFileName);
-//			wb.write(fileOut);
-//			fileOut.close();
-		}catch(RemoteException e) {
-			e.printStackTrace();
-		}
+			Site site = new Site(loc);
+			site.addParameter(vs30param);
+			site.addParameter(siteTypeParam);
+//			site.addParameter(DEPTH_2_5KM_PARAM); // used by CB2008
+//			site.addParameter(DEPTH_1_0KM_PARAM); // used by CY2008
+//			site.addParameter(VS_30_TYPE_PARAM);  
+			
+			// do log of X axis values
+			DiscretizedFunc hazFunc = per.getFunction();
+//			for(int i=0; i<numX_Vals; ++i)
+//				hazFunc.set(Math.log(function.getX(i)), 1);
+			
+			// Note here that hazardCurveCalculator accepts the Log of X-Values
+			hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, erf);
+			
+			// convert to annual rate
+			for (Point2D p : hazFunc) {
+				hazFunc.set(p.getX(), -Math.log(1-p.getY()));
+			}
+			System.out.println(hazFunc);
+			// Unlog the X-Values before doing interpolation. The Y Values we get from hazardCurveCalculator are unmodified
+//			DiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+//			for(int i=0; i<numX_Vals; ++i)
+//				newFunc.set(function.getX(i), hazFunc.getY(i));
+//			
+//			try {
+//				twoPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.02);
+//			} catch (InvalidRangeException ire) {
+//				twoPercentProb = 0.0;
+//			}
+//			try {
+//				tenPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.1);
+//			} catch (InvalidRangeException ire) {
+//				tenPercentProb = 0.0;
+//			}
+//			sheet.getRow(0).createCell((short)colIndex).setCellValue(latLonFormat.format(lon));
+//			for(int i=0; i<numX_Vals; ++i)
+//				sheet.createRow(i+1).createCell((short)colIndex).setCellValue(newFunc.getY(i));
+////				sheet.createRow(twoPercentProbRoIndex).createCell((short)colIndex).setCellValue(twoPercentProb);
+//			sheet.createRow(tenPercentProbRoIndex).createCell((short)colIndex).setCellValue(tenPercentProb);
+//			
+//		}
+//		FileOutputStream fileOut = new FileOutputStream(outputFileName);
+//		wb.write(fileOut);
+//		fileOut.close();
 //		System.exit(0);
 
 	}

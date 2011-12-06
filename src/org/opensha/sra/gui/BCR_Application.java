@@ -33,9 +33,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -74,9 +72,9 @@ import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.params.MaxDistanceParam;
-import org.opensha.sha.earthquake.ERF_Ref;
-import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.BaseERF;
+import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
@@ -85,17 +83,15 @@ import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-
 import org.opensha.sra.calc.BenefitCostCalculator;
 import org.opensha.sra.calc.EALCalculator;
-import org.opensha.sra.vulnerability.AbstractVulnerability;
 import org.opensha.sra.gui.components.BenefitCostBean;
 import org.opensha.sra.gui.components.GuiBeanAPI;
+import org.opensha.sra.vulnerability.AbstractVulnerability;
 
 
 
@@ -730,23 +726,17 @@ IMR_GuiBeanAPI{
 
 		ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentPeriod,currentIMLs,site,forecast,imr);
 		ArbitrarilyDiscretizedFunc currentAnnualizedRates= null;
-		try {
-			currentAnnualizedRates = 
+		currentAnnualizedRates = 
 				(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(currentHazardCurve, 
 						forecast.getTimeSpan().getDuration());
-		} catch (RemoteException e) {
 
-		}
 
 		ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newPeriod,newIMLs,site,forecast,imr);
 		ArbitrarilyDiscretizedFunc retroAnnualizedRates = null;
-		try {
-			retroAnnualizedRates = 
+		retroAnnualizedRates = 
 				(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(retroHazardCurve, 
 						forecast.getTimeSpan().getDuration());
-		} catch (RemoteException e) {
 
-		}
 
 		EALCalculator currentCalc = new EALCalculator(currentAnnualizedRates,currentModel.getVulnerabilityFunc(),
 				bcbean.getCurrentReplaceCost());
@@ -895,7 +885,7 @@ IMR_GuiBeanAPI{
 		if (erfGuiBean == null) {
 			try {
 
-				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
 				erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}
@@ -1103,7 +1093,7 @@ IMR_GuiBeanAPI{
 			try{
 				calc.stopCalc();
 				calc = null;
-			}catch(RemoteException ee){
+			}catch(RuntimeException ee){
 				ee.printStackTrace();
 				setButtonsEnable(true);
 				BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME, getAppVersion(), this);

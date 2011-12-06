@@ -28,7 +28,6 @@ import java.util.ListIterator;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.Parameter;
@@ -36,7 +35,6 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.TimeSpanChangeListener;
-import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 import org.opensha.sha.util.TectonicRegionType;
 
 
@@ -257,27 +255,6 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable {
 			return true;
 		}
 		return false;
-	}
-
-
-
-	/**
-	 *
-	 * @param index
-	 * @return the instance of the remotely existing ERF in the ERF List
-	 * on the server given the index.
-	 * **NOTE: All the functionality in this functionlity remains same as that of getERF but only differs
-	 * when returning each ERF from the ERF List. getERF() return the instance of the
-	 * EqkRupForecastAPI which is transferring the whole object on to the user's machine, but this functin
-	 * return back the RemoteEqkRupForecastAPI. This is useful becuase whole ERF object does not
-	 * get transfer to the users machine, just a stub of the remotely existing ERF gets
-	 * transferred.
-	 *
-	 * This function returns null, but if anyone needs to host his ERF as the remote
-	 * then he will have to implement this method.
-	 */
-	public RemoteEqkRupForecastAPI getRemoteERF(int index){
-		return null;
 	}
 
 	/**

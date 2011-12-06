@@ -196,11 +196,7 @@ public class DisaggregationPlotter {
 		String velModelStr = runs2db.getVelocityModel(run.getVelModelID()).toString();
 		imr.getParameter(CyberShakeIMR.VEL_MODEL_PARAM).setValue(velModelStr);
 		
-		try {
-			disaggCalc = new DisaggregationCalculator();
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
+		disaggCalc = new DisaggregationCalculator();
 		
 		disaggParams = new ParameterList();
 		disaggParams.addParameter(new MaxDistanceParam());
@@ -243,19 +239,15 @@ public class DisaggregationPlotter {
 			}
 			
 			for (double iml : imlLevels) {
-				try {
-					System.out.println("Disaggregating");
-					disaggCalc.setMagRange(minMag, numMags, deltaMag);
-					disaggCalc.setNumSourcestoShow(numSourcesForDisag);
-					disaggCalc.setShowDistances(showSourceDistances);
-					boolean success = disaggCalc.disaggregate(Math.log(iml), site, imr, erf, disaggParams);
-					if (!success)
-						throw new RuntimeException("Disagg calc failed (see errors above, if any).");
-					disaggCalc.setMaxZAxisForPlot(maxZAxis);
-					System.out.println("Done Disaggregating");
-				} catch (RemoteException e) {
-					throw new RuntimeException(e);
-				}
+				System.out.println("Disaggregating");
+				disaggCalc.setMagRange(minMag, numMags, deltaMag);
+				disaggCalc.setNumSourcestoShow(numSourcesForDisag);
+				disaggCalc.setShowDistances(showSourceDistances);
+				boolean success = disaggCalc.disaggregate(Math.log(iml), site, imr, erf, disaggParams);
+				if (!success)
+					throw new RuntimeException("Disagg calc failed (see errors above, if any).");
+				disaggCalc.setMaxZAxisForPlot(maxZAxis);
+				System.out.println("Done Disaggregating");
 				String metadata = "temp metadata";
 				try {
 					

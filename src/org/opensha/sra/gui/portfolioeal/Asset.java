@@ -230,10 +230,6 @@ public class Asset implements Cloneable {
 		try {
 			calc = new HazardCurveCalculator();
 			wait(5000);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-			error = true;
-			errorMessage += e.getMessage();
 		} catch( Exception e ) {
 		}
 

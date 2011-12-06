@@ -115,8 +115,6 @@ public class HazardCurveBean implements GuiBeanAPI, IMR_GuiBeanAPI {
 		try {
 			newFunc = calculator.getHazardCurve(newFunc, siteBean.getSite(), 
 					imrBean.getSelectedIMR_Instance(), (ERF) erfBean.getSelectedERF());
-		} catch (RemoteException e) {
-			e.printStackTrace();
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
@@ -212,11 +210,7 @@ public class HazardCurveBean implements GuiBeanAPI, IMR_GuiBeanAPI {
 
 	/* Initializes the bean */
 	public void jbInit() {
-		try {
-			calculator = new HazardCurveCalculator();
-		} catch (RemoteException ex) {
-			System.err.println(ex.getMessage());
-		}
+		calculator = new HazardCurveCalculator();
 	}
 	
 	/* Creates the embeddable JFrame to an EMBED visualization */

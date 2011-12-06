@@ -64,7 +64,7 @@ public class ProductionERFsInstantiationTest {
 	
 	@Parameters
 	public static Collection<ERF_Ref[]> data() {
-		Set<ERF_Ref> set = ERF_Ref.get(false, true, DevStatus.PRODUCTION);
+		Set<ERF_Ref> set = ERF_Ref.get(true, DevStatus.PRODUCTION);
 		ArrayList<ERF_Ref[]> ret = new ArrayList<ERF_Ref[]>();
 		for (ERF_Ref erf : set) {
 			ERF_Ref[] array = { erf };

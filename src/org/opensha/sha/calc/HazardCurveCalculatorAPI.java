@@ -19,8 +19,6 @@
 
 package org.opensha.sha.calc;
 
-import java.rmi.Remote;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ListIterator;
@@ -44,37 +42,35 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public interface HazardCurveCalculatorAPI extends Remote{
+public interface HazardCurveCalculatorAPI {
 
 	/**
 	 * Get the adjustable parameter list of calculation parameters
 	 *
 	 * @return the adjustable ParameterList
-	 * @throws java.rmi.RemoteException
 	 */
-	public ParameterList getAdjustableParams()  throws java.rmi.RemoteException;
+	public ParameterList getAdjustableParams();
 
 	/**
 	 * Get iterator for the adjustable parameters
 	 *
 	 * @return parameter iterator
-	 * @throws java.rmi.RemoteException
 	 */
-	public ListIterator<Parameter<?>> getAdjustableParamsIterator()  throws java.rmi.RemoteException;
+	public ListIterator<Parameter<?>> getAdjustableParamsIterator();
 	
 	/**
 	 * This sets the type of point-source distance correction that is desired
 	 * (see the class PtSrcDistCorr for options)
 	 * @param ptSrcDistCorrType
 	 */
-	public void setPtSrcDistCorrType(PtSrcDistCorr.Type ptSrcDistCorrType) throws java.rmi.RemoteException;
+	public void setPtSrcDistCorrType(PtSrcDistCorr.Type ptSrcDistCorrType);
 
 	/**
 	 * This gets the type of point-source distance correction that is desired
 	 * (see the class PtSrcDistCorr for options)
 	 * @param ptSrcDistCorrType
 	 */
-	public PtSrcDistCorr.Type getPtSrcDistCorrType() throws java.rmi.RemoteException;
+	public PtSrcDistCorr.Type getPtSrcDistCorrType();
 
 	/**
 	 * This sets the maximum distance of sources to be considered in the calculation.
@@ -83,26 +79,23 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * Default value is 250 km.
 	 *
 	 * @param distance: the maximum distance in km
-	 * @throws java.rmi.RemoteException
 	 */
-	public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
+	public void setMaxSourceDistance(double distance);
 
 	/**
 	 * This is a direct way of getting the distance cutoff from that parameter
 	 * 
 	 * @return max source distance
-	 * @throws java.rmi.RemoteException
 	 */
-	public double getMaxSourceDistance()  throws java.rmi.RemoteException;
+	public double getMaxSourceDistance();
 
 	/**
 	 * This sets the mag-dist filter function (distance on x-axis and 
 	 * mag on y-axis), and also sets the value of includeMagDistFilterParam as true
 	 * 
 	 * @param magDistfunc function to set
-	 * @throws java.rmi.RemoteException
 	 */
-	public void setMagDistCutoffFunc(ArbitrarilyDiscretizedFunc magDistfunc)  throws java.rmi.RemoteException;
+	public void setMagDistCutoffFunc(ArbitrarilyDiscretizedFunc magDistfunc);
 
 	/**
 	 * Set the number of stochastic event set realizations for average event set hazard
@@ -110,18 +103,16 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * parameter.
 	 * 
 	 * @param numRealizations number of stochastic event set realizations
-	 * @throws java.rmi.RemoteException
 	 */
-	public void setNumStochEventSetRealizations(int numRealizations) throws java.rmi.RemoteException;
+	public void setNumStochEventSetRealizations(int numRealizations);
 
 	/**
 	 * Sets the <code>IncludeMagDistFilterParam</code> parameter, which determines if the
 	 * magnitude/distance filter is used in calculation.
 	 * 
 	 * @param include if true, the magnitude/distance filter is included
-	 * @throws java.rmi.RemoteException
 	 */
-	public void setIncludeMagDistCutoff(boolean include)  throws java.rmi.RemoteException;
+	public void setIncludeMagDistCutoff(boolean include);
 
 	/**
 	 * This gets the mag-dist filter function (distance on x-axis and 
@@ -129,18 +120,16 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * has been set to false.
 	 * 
 	 * @return  mag-dist filter function
-	 * @throws java.rmi.RemoteException
 	 */
-	public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc()  throws java.rmi.RemoteException;
+	public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc();
 
 	/**
 	 * This was created so new instances of this calculator could be
 	 * given pointers to a set of parameter that already exist.
 	 * 
 	 * @param paramList parameters to be set
-	 * @throws java.rmi.RemoteException
 	 */
-	public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException;
+	public void setAdjustableParams(ParameterList paramList);
 
 
 
@@ -149,10 +138,8 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * 
 	 * @param hazFunction Discretized Hazard Function
 	 * @return annualized rates for the given hazard function
-	 * @throws java.rmi.RemoteException
 	 */
-	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) 
-	throws java.rmi.RemoteException;
+	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years);
 
 	/**
 	 * This function computes a hazard curve for the given Site, IMR, ERF, and 
@@ -169,8 +156,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @return
 	 */
 	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
-			Site site, ScalarIMR imr, ERF eqkRupForecast)
-	throws java.rmi.RemoteException ;
+			Site site, ScalarIMR imr, ERF eqkRupForecast);
 
 	/**
 	 * This function computes a hazard curve for the given Site, imrMap, ERF, and 
@@ -201,7 +187,6 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @param eqkRupForecast selected Earthquake rup forecast
 	 * @return hazard curve. Function passed in is updated in place, so this is just a pointer to
 	 * the <code>hazFunction</code> param.
-	 * @throws java.rmi.RemoteException
 	 * @throws NullPointerException if there are multiple IMRs in the mapping, but no mapping exists for
 	 * a soruce in the ERF.
 	 */
@@ -209,7 +194,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
 			DiscretizedFunc hazFunction,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap, 
-			ERF eqkRupForecast) throws java.rmi.RemoteException;
+			ERF eqkRupForecast);
 
 
 	/**
@@ -222,12 +207,10 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @param rupture Single Earthquake Rupture
 	 * @return hazard curve. Function passed in is updated in place, so this is just a pointer to
 	 * the <code>hazFunction</code> param.
-	 * @throws java.rmi.RemoteException
 	 */
 	public DiscretizedFunc getHazardCurve(DiscretizedFunc
 			hazFunction,
-			Site site, ScalarIMR imr, EqkRupture rupture) throws
-			java.rmi.RemoteException;
+			Site site, ScalarIMR imr, EqkRupture rupture);
 
 
 
@@ -235,23 +218,20 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * gets the current rupture that is being processed
 	 * 
 	 * @returncurrent rupture that is being processed
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getCurrRuptures() throws java.rmi.RemoteException;
+	public int getCurrRuptures();
 
 	/**
 	 * gets the total number of ruptures.
 	 * 
 	 * @return total number of ruptures.
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getTotRuptures() throws java.rmi.RemoteException;
+	public int getTotRuptures();
 
 	/**
 	 * stops the Hazard Curve calculations.
-	 * @throws java.rmi.RemoteException
 	 */
-	public void stopCalc() throws java.rmi.RemoteException;
+	public void stopCalc();
 
 	/**
 	 * This function computes an average hazard curve from a number of stochastic event sets
@@ -270,12 +250,10 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @param eqkRupForecast selected Earthquake rup forecast
 	 * @return hazard curve. Function passed in is updated in place, so this is just a pointer to
 	 * the <code>hazFunction</code> param.
-	 * @throws java.rmi.RemoteException
 	 */
 	public DiscretizedFunc getAverageEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			ERF eqkRupForecast)
-	throws java.rmi.RemoteException;
+			ERF eqkRupForecast);
 
 	/**
 	 * This function computes a hazard curve for the given Site, IMR, and event set
@@ -294,11 +272,9 @@ public interface HazardCurveCalculatorAPI extends Remote{
 	 * @param updateCurrRuptures tells whether to update current ruptures (for the getCurrRuptures() method used for progress bars)
 	 * @return hazard curve. Function passed in is updated in place, so this is just a pointer to
 	 * the <code>hazFunction</code> param.
-	 * @throws java.rmi.RemoteException
 	 */
 	public DiscretizedFunc getEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			List<EqkRupture> eqkRupList, boolean updateCurrRuptures)
-	throws java.rmi.RemoteException;
+			List<EqkRupture> eqkRupList, boolean updateCurrRuptures);
 
 }

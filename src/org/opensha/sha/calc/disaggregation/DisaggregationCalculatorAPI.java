@@ -19,12 +19,9 @@
 
 package org.opensha.sha.calc.disaggregation;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.util.Map;
 
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.imr.ScalarIMR;
@@ -41,15 +38,13 @@ import org.opensha.sha.util.TectonicRegionType;
  * @created Oct 01,2004
  * @version 1.0
  */
-public interface DisaggregationCalculatorAPI extends Remote{
+public interface DisaggregationCalculatorAPI {
 
 	/**
 	 * Sets the Max Z Axis Range value fro the plotting purposes
 	 * @param zMax
-	 * @throws java.rmi.RemoteException
 	 */
-	public void setMaxZAxisForPlot(double zMax) throws
-	java.rmi.RemoteException ; 
+	public void setMaxZAxisForPlot(double zMax); 
 
 	/**
 	 * this function performs the disaggregation.
@@ -66,7 +61,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	public boolean disaggregate(double iml, Site site,
 			ScalarIMR imr,
 			AbstractERF eqkRupForecast,
-			ParameterList calcParams) throws java.rmi.RemoteException;
+			ParameterList calcParams);
 
 	/**
 	 * this function performs the disaggregation.
@@ -83,23 +78,20 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	public boolean disaggregate(double iml, Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap,
 			AbstractERF eqkRupForecast,
-			ParameterList calcParams) throws java.rmi.RemoteException;
+			ParameterList calcParams);
 
 	/**
 	 * Sets the number of sources to be shown in the Disaggregation.
 	 * @param numSources int
-	 * @throws RemoteException
 	 */
-	public void setNumSourcestoShow(int numSources)throws
-	java.rmi.RemoteException ;
+	public void setNumSourcestoShow(int numSources);
 	
 	/**
 	 * Enables/disables calculation and display of source distances in source data list.
 	 * 
 	 * @param showDistances
-	 * @throws RemoteException 
 	 */
-	public void setShowDistances(boolean showDistances) throws RemoteException;
+	public void setShowDistances(boolean showDistances);
 
 	/**
 	 * This sets the maximum distance of sources to be considered in the calculation
@@ -120,22 +112,21 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * 4)Percentage Contribution of the source in Hazard at the site.
 	 *
 	 * @return String
-	 * @throws RemoteException
 	 */
-	public String getDisaggregationSourceInfo() throws java.rmi.RemoteException;
+	public String getDisaggregationSourceInfo();
 
 	/**
 	 * gets the number of current rupture being processed
 	 * @return
 	 */
-	public int getCurrRuptures() throws java.rmi.RemoteException;
+	public int getCurrRuptures();
 
 
 	/**
 	 * gets the total number of ruptures
 	 * @return
 	 */
-	public int getTotRuptures() throws java.rmi.RemoteException;
+	public int getTotRuptures();
 
 
 	/**
@@ -143,7 +134,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * have been completed.
 	 * @return
 	 */
-	public boolean done() throws java.rmi.RemoteException;
+	public boolean done();
 
 
 	/**
@@ -153,8 +144,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * @return String
 	 * @throws RemoteException
 	 */
-	public String getDisaggregationPlotUsingServlet(String metadata) throws java.
-	rmi.RemoteException;
+	public String getDisaggregationPlotUsingServlet(String metadata);
 
 
 	/**
@@ -163,8 +153,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * @param numMags int
 	 * @param deltaMag double
 	 */
-	public void setMagRange(double minMag, int numMags, double deltaMag) throws
-	java.rmi.RemoteException ;
+	public void setMagRange(double minMag, int numMags, double deltaMag);
 
 	/**
 	 * Setting up the Distance Range
@@ -172,27 +161,23 @@ public interface DisaggregationCalculatorAPI extends Remote{
 	 * @param numDist int
 	 * @param deltaDist double
 	 */
-	public void setDistanceRange(double minDist, int numDist, double deltaDist) throws
-	java.rmi.RemoteException;
+	public void setDistanceRange(double minDist, int numDist, double deltaDist);
 
 	/**
 	 * Setting up custom distance bins
 	 * @param distBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
 	 */
-	public void setDistanceRange(double[] distBinEdges) throws
-	java.rmi.RemoteException;
+	public void setDistanceRange(double[] distBinEdges);
 
 	/**
 	 * Returns the Bin Data in the String format
 	 * @return String
-	 * @throws RemoteException
 	 */
-	public String getBinData()throws java.rmi.RemoteException;
+	public String getBinData();
 
 	/**
 	 *
 	 * @return resultant disaggregation in a String format.
-	 * @throws java.rmi.RemoteException
 	 */
-	public String getMeanAndModeInfo() throws java.rmi.RemoteException;
+	public String getMeanAndModeInfo();
 }

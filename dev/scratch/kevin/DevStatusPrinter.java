@@ -8,17 +8,12 @@ import org.opensha.sha.imr.AttenRelRef;
 
 public class DevStatusPrinter {
 	
-	private static void printERFs(boolean remote) {
-		String str;
-		if (remote)
-			str = " (remote)";
-		else
-			str = " (local)";
-		System.out.println("'''ERFs"+str+"'''\n");
-		printStatus(ERF_Ref.get(remote, true, DevStatus.PRODUCTION), DevStatus.PRODUCTION);
-		printStatus(ERF_Ref.get(remote, true, DevStatus.DEVELOPMENT), DevStatus.DEVELOPMENT);
-		printStatus(ERF_Ref.get(remote, true, DevStatus.EXPERIMENTAL), DevStatus.EXPERIMENTAL);
-		printStatus(ERF_Ref.get(remote, true, DevStatus.DEPRECATED), DevStatus.DEPRECATED);
+	private static void printERFs() {
+		System.out.println("'''ERFs'''\n");
+		printStatus(ERF_Ref.get(true, DevStatus.PRODUCTION), DevStatus.PRODUCTION);
+		printStatus(ERF_Ref.get(true, DevStatus.DEVELOPMENT), DevStatus.DEVELOPMENT);
+		printStatus(ERF_Ref.get(true, DevStatus.EXPERIMENTAL), DevStatus.EXPERIMENTAL);
+		printStatus(ERF_Ref.get(true, DevStatus.DEPRECATED), DevStatus.DEPRECATED);
 	}
 	
 	private static void printIMRs() {
@@ -53,8 +48,7 @@ public class DevStatusPrinter {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		printERFs(false);
-		printERFs(true);
+		printERFs();
 		printIMRs();
 	}
 
