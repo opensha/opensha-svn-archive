@@ -1,8 +1,6 @@
 package org.opensha.sha.calc.hazardMap;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;

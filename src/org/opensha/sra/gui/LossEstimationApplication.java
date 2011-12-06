@@ -982,8 +982,6 @@ IMR_GuiBeanAPI{
 			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(currentHazardCurve, 
 					forecast.getTimeSpan().getDuration());
 		getAnnualizedPE(currentAnnualizedRates);
-	} catch (RemoteException e) {
-		e.printStackTrace();
 	}*/
 		LossCurveCalculator lCalc = new LossCurveCalculator();
 		ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(currentHazardCurve, vulnBean.getCurrentModel());

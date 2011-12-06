@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -105,11 +104,9 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 	 * rather the IMR's parameter is maintained. It sets the setTRTinIMR_FromSourceParam to
 	 * false, then does calculations with ERFs of all sorts of TRTs. With each calculation,
 	 * it verifies that the TRT parameter is never changed.
-	 * 
-	 * @throws RemoteException
 	 */
 	@Test
-	public void testHCSetBySourceFalse() throws RemoteException {
+	public void testHCSetBySourceFalse() {
 		setTRTinIMR_FromSourceParam.setValue(false);
 		
 		TectonicRegionTypeParam trtParam = (TectonicRegionTypeParam)allIMR.getParameter(TectonicRegionTypeParam.NAME);
@@ -135,11 +132,9 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 	 * 
 	 * It verifies that the TRT param is being set to the source's TRT (via listeners), and that the TRT param is
 	 * set back to the original value at the end of the calculation. 
-	 * 
-	 * @throws RemoteException
 	 */
 	@Test
-	public void testHCSetBySourceTrueSupported() throws RemoteException {
+	public void testHCSetBySourceTrueSupported() {
 		setTRTinIMR_FromSourceParam.setValue(true);
 		
 		TectonicRegionTypeParam trtParam = (TectonicRegionTypeParam)allIMR.getParameter(TectonicRegionTypeParam.NAME);
@@ -189,11 +184,9 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 	 * 
 	 * it does calculations with multiple unsupported TRT's, and verifies via listeners that the
 	 * value used for calculation is always the default value for the TRT param 
-	 * 
-	 * @throws RemoteException
 	 */
 	@Test
-	public void testHCSetBySourceUnsupportedAsDefault() throws RemoteException {
+	public void testHCSetBySourceUnsupportedAsDefault() {
 		setTRTinIMR_FromSourceParam.setValue(true);
 		
 		ArrayList<TectonicRegionType> subdTypes = new ArrayList<TectonicRegionType>();
@@ -233,11 +226,9 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 	/**
 	 * same as testHCSetBySourceUnsupportedAsDefault, except it tests that the original value of the
 	 * IMR's TRT paramis used for calculation when nonSupportedTRT_OptionsParam is set as such. 
-	 * 
-	 * @throws RemoteException
 	 */
 	@Test
-	public void testHCSetBySourceUnsupportedUseOrig() throws RemoteException {
+	public void testHCSetBySourceUnsupportedUseOrig() {
 		setTRTinIMR_FromSourceParam.setValue(true);
 		
 		ArrayList<TectonicRegionType> subdTypes = new ArrayList<TectonicRegionType>();
@@ -270,11 +261,9 @@ public class TestHazardCurveCalcTRTs implements ParameterChangeListener {
 	 * this tests when nonSupportedTRT_OptionsParam is set to throw an exception on unsupported TRT's 
 	 * 
 	 * it simply checks that an exception is thrown in the unsupported case, and is not thrown when it's supported.
-	 * 
-	 * @throws RemoteException
 	 */
 	@Test
-	public void testHCSetBySourceUnsupportedThrow() throws RemoteException {
+	public void testHCSetBySourceUnsupportedThrow() {
 		setTRTinIMR_FromSourceParam.setValue(true);
 		
 		ArrayList<TectonicRegionType> subdTypes = new ArrayList<TectonicRegionType>();

@@ -94,16 +94,6 @@ public interface DisaggregationCalculatorAPI {
 	public void setShowDistances(boolean showDistances);
 
 	/**
-	 * This sets the maximum distance of sources to be considered in the calculation
-	 * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
-	 * Sources more than this distance away are ignored.
-	 * Default value is 250 km.
-	 *
-	 * @param distance: the maximum distance in km
-	 */
-	//public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
-
-	/**
 	 *
 	 * Returns the disaggregated source list with following info ( in each line)
 	 * 1)Source Id as given by OpenSHA
@@ -142,7 +132,6 @@ public interface DisaggregationCalculatorAPI {
 	 * image web address as the URL string.
 	 * @param metadata String
 	 * @return String
-	 * @throws RemoteException
 	 */
 	public String getDisaggregationPlotUsingServlet(String metadata);
 

@@ -2,7 +2,6 @@ package org.opensha.sra.gui.portfolioeal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.RemoteException;
 
 import javax.swing.Timer;
 
@@ -41,7 +40,6 @@ public class CalcProgressListener extends Thread implements ActionListener {
 		try {
 			totalRuptures = asset.getTotalRuptures();
 			currentRuptures = asset.getCurrentRuptures();
-		} catch ( RemoteException ex ) {
 		} catch ( NullPointerException ex) {
 		}
 		

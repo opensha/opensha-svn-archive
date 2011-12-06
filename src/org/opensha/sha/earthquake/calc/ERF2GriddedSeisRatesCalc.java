@@ -612,13 +612,8 @@ for(int m=0;m<testFunc.getNum();m++)
 
     Frankel02_AdjustableEqkRupForecast frankelForecast = null;
 
-    //try {
     frankelForecast = new
         Frankel02_AdjustableEqkRupForecast();
-    //}
-    //catch (RemoteException ex) {
-    // ex.printStackTrace();
-    //}
 
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.

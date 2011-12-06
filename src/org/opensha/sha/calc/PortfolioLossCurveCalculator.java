@@ -68,8 +68,6 @@ public class PortfolioLossCurveCalculator {
 
 	/**
 	 * creates the HazardCurveCalculator object
-	 *
-	 * @throws java.rmi.RemoteException
 	 * @throws IOException
 	 */
 	public PortfolioLossCurveCalculator() {}
@@ -264,7 +262,6 @@ public class PortfolioLossCurveCalculator {
 	/**
 	 *
 	 * @return the current rupture being traversed
-	 * @throws java.rmi.RemoteException
 	 */
 	public int getCurrRuptures() {
 		return this.currRuptures;
@@ -273,7 +270,6 @@ public class PortfolioLossCurveCalculator {
 	/**
 	 *
 	 * @return the total number of ruptures in the earthquake rupture forecast model
-	 * @throws java.rmi.RemoteException
 	 */
 	public int getTotRuptures() {
 		return this.totRuptures;
@@ -281,7 +277,6 @@ public class PortfolioLossCurveCalculator {
 
 	/**
 	 * stops the Hazard Curve calculations.
-	 * @throws java.rmi.RemoteException
 	 */
 	public void stopCalc() {
 		sourceIndex = numSources;

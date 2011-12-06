@@ -1,7 +1,5 @@
 package org.opensha.gem.GEM1.calc.gemHazardCalculator;
 
-
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;

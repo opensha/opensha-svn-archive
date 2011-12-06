@@ -2,7 +2,6 @@ package org.opensha.sha.imr.attenRelImpl.test;
 
 import static org.junit.Assert.*;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import org.junit.BeforeClass;
@@ -114,78 +113,78 @@ public class MultiIMR_CalcTest {
 	}
 
 	@Test
-	public void testSingleIMRs_PGA() throws RemoteException {
+	public void testSingleIMRs_PGA() {
 		doHC_NGA_Test(PGA_Param.NAME, -1.0);
 	}
 
 	@Test
-	public void testSingleIMRs_PGV() throws RemoteException {
+	public void testSingleIMRs_PGV() {
 		doHC_NGA_Test(PGV_Param.NAME, -1.0);
 	}
 
 	@Test
-	public void testSingleIMRs_SA01() throws RemoteException {
+	public void testSingleIMRs_SA01() {
 		doHC_NGA_Test(SA_Param.NAME, 0.1);
 	}
 
 	@Test
-	public void testSingleIMRs_SA10() throws RemoteException {
+	public void testSingleIMRs_SA10() {
 		doHC_NGA_Test(SA_Param.NAME, 1.0);
 	}
 
 	@Test
-	public void testSingleIMRs_SA20() throws RemoteException {
+	public void testSingleIMRs_SA20() {
 		doHC_NGA_Test(SA_Param.NAME, 2.0);
 	}
 
 	@Test
-	public void testMultiIMRs_SA10() throws RemoteException {
+	public void testMultiIMRs_SA10() {
 		ArrayList<ScalarIMR> ngas1 = createNGAs(true);
 		ArrayList<ScalarIMR> ngas2 = createNGAs(true);
 		testMultiIMRAverageCurve(buildMulti(ngas1, false), ngas2, SA_Param.NAME, 1.0);
 	}
 
 	@Test
-	public void testSingleIMRs_EPSILON_SA10() throws RemoteException {
+	public void testSingleIMRs_EPSILON_SA10() {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.EPSILON);
 	}
 
 	@Test
-	public void testSingleIMRs_MEAN_SA10() throws RemoteException {
+	public void testSingleIMRs_MEAN_SA10() {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.MEAN);
 	}
 
 	@Test
-	public void testSingleIMRs_STD_DEV_SA10() throws RemoteException {
+	public void testSingleIMRs_STD_DEV_SA10() {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.STD_DEV);
 	}
 
 	@Test
-	public void testSingleIMRs_EXCEED_PROB_SA10() throws RemoteException {
+	public void testSingleIMRs_EXCEED_PROB_SA10() {
 		doVal_NGA_Test(SA_Param.NAME, 1.0, IMR_PROP.EXCEED_PROB);
 	}
 
 	@Test
-	public void testSingleIMRs_EPSILON_PGA() throws RemoteException {
+	public void testSingleIMRs_EPSILON_PGA() {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.EPSILON);
 	}
 
 	@Test
-	public void testSingleIMRs_MEAN_PGA() throws RemoteException {
+	public void testSingleIMRs_MEAN_PGA() {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.MEAN);
 	}
 
 	@Test
-	public void testSingleIMRs_STD_DEV_PGA() throws RemoteException {
+	public void testSingleIMRs_STD_DEV_PGA() {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.STD_DEV);
 	}
 
 	@Test
-	public void testSingleIMRs_EXCEED_PROB_PGA() throws RemoteException {
+	public void testSingleIMRs_EXCEED_PROB_PGA() {
 		doVal_NGA_Test(PGA_Param.NAME, -1.0, IMR_PROP.EXCEED_PROB);
 	}
 
-	private void doHC_NGA_Test(String imt, double period) throws RemoteException {
+	private void doHC_NGA_Test(String imt, double period) {
 		ArrayList<ScalarIMR> imrs1 = createNGAs(true);
 		ArrayList<ScalarIMR> imrs2 = createNGAs(true);
 		ArrayList<ScalarIMR> imrs3 = createNGAs(true);
@@ -197,7 +196,7 @@ public class MultiIMR_CalcTest {
 					imt, period);
 	}
 
-	private void doVal_NGA_Test(String imt, double period, IMR_PROP prop) throws RemoteException {
+	private void doVal_NGA_Test(String imt, double period, IMR_PROP prop) {
 		ArrayList<ScalarIMR> imrs1 = createNGAs(true);
 		ArrayList<ScalarIMR> imrs2 = createNGAs(true);
 		ArrayList<ScalarIMR> imrs3 = createNGAs(true);
@@ -237,7 +236,7 @@ public class MultiIMR_CalcTest {
 	private void testSingleIMRIndVal(ScalarIMR imr,
 			MultiIMR_Averaged_AttenRel multi,
 			MultiIMR_Averaged_AttenRel multis,
-			String imt, double period, IMR_PROP prop) throws RemoteException {
+			String imt, double period, IMR_PROP prop) {
 
 		setIMT(imr, imt, period);
 		setIMT(multi, imt, period);
@@ -305,7 +304,7 @@ public class MultiIMR_CalcTest {
 
 	private void testMultiIMRAverageCurve(MultiIMR_Averaged_AttenRel multi,
 			ArrayList<ScalarIMR> imrs,
-			String imt, double period) throws RemoteException {
+			String imt, double period) {
 
 		IMT_Info imtInfo = new IMT_Info();
 		ArrayList<DiscretizedFunc> singleCurves = new ArrayList<DiscretizedFunc>();
@@ -371,7 +370,7 @@ public class MultiIMR_CalcTest {
 	private void testSingleIMRHazardCurve(ScalarIMR imr,
 			MultiIMR_Averaged_AttenRel multi,
 			MultiIMR_Averaged_AttenRel multis,
-			String imt, double period) throws RemoteException {
+			String imt, double period) {
 
 		setIMT(imr, imt, period);
 		setIMT(multi, imt, period);
@@ -423,21 +422,21 @@ public class MultiIMR_CalcTest {
 	}
 
 	@Test
-	public void testCurveAverage_SA01() throws RemoteException {
+	public void testCurveAverage_SA01() {
 		testCurveAverage(SA_Param.NAME, 0.1);
 	}
 
 	@Test
-	public void testCurveAverage_SA10() throws RemoteException {
+	public void testCurveAverage_SA10() {
 		testCurveAverage(SA_Param.NAME, 1.0);
 	}
 
 	@Test
-	public void testCurveAverage_PGA() throws RemoteException {
+	public void testCurveAverage_PGA() {
 		testCurveAverage(PGA_Param.NAME, -1.0);
 	}
 
-	private void testCurveAverage(String imt, double period) throws RemoteException {
+	private void testCurveAverage(String imt, double period) {
 		CB_2008_AttenRel cb08_master = new CB_2008_AttenRel(null);
 		CB_2008_AttenRel cb08_multi = new CB_2008_AttenRel(null);
 		BA_2008_AttenRel ba08_master = new BA_2008_AttenRel(null);

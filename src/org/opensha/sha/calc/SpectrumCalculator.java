@@ -76,8 +76,6 @@ implements SpectrumCalculatorAPI {
 
 	/**
 	 * SpectrumCalculator
-	 *
-	 * @throws RemoteException
 	 */
 	public SpectrumCalculator() {
 
@@ -559,7 +557,6 @@ implements SpectrumCalculatorAPI {
 	/**
 	 *
 	 * @return the current rupture being traversed
-	 * @throws java.rmi.RemoteException
 	 */
 	public int getCurrRuptures() {
 		return this.currRuptures;
@@ -568,7 +565,6 @@ implements SpectrumCalculatorAPI {
 	/**
 	 *
 	 * @return the total number of ruptures in the earthquake rupture forecast model
-	 * @throws java.rmi.RemoteException
 	 */
 	public int getTotRuptures() {
 		return this.totRuptures;
