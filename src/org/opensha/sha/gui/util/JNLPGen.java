@@ -22,12 +22,9 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gcim.ui.GCIM_HazardCurveApp;
-import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.HazardSpectrumLocalModeApplication;
-import org.opensha.sha.gui.HazardSpectrumServerModeApplication;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
-import org.opensha.sha.gui.ScenarioShakeMapLocalModeCalcApp;
 import org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet;
 import org.opensha.sha.magdist.gui.MagFreqDistApp;
 
@@ -244,26 +241,17 @@ public class JNLPGen {
 		}
 		ArrayList<JNLPGen> appsToBuild = new ArrayList<JNLPGen>();
 		/*		Hazard Curve				*/
-		appsToBuild.add(new JNLPGen(HazardCurveLocalModeApplication.class,
-				HazardCurveLocalModeApplication.APP_SHORT_NAME, 
-				HazardCurveLocalModeApplication.APP_NAME, "HC", true));
 		appsToBuild.add(new JNLPGen(GCIM_HazardCurveApp.class,
 				GCIM_HazardCurveApp.APP_SHORT_NAME, 
 				GCIM_HazardCurveApp.APP_NAME, "GC", true));
 		appsToBuild.add(new JNLPGen(HazardCurveServerModeApplication.class,
 				HazardCurveServerModeApplication.APP_SHORT_NAME, 
-				HazardCurveServerModeApplication.APP_NAME, "HC", false));
+				HazardCurveServerModeApplication.APP_NAME, "HC", true));
 		/*		Hazard Spectrum				*/
 		appsToBuild.add(new JNLPGen(HazardSpectrumLocalModeApplication.class,
 				HazardSpectrumLocalModeApplication.APP_SHORT_NAME, 
 				HazardSpectrumLocalModeApplication.APP_NAME, "HS", true));
-		appsToBuild.add(new JNLPGen(HazardSpectrumServerModeApplication.class,
-				HazardSpectrumServerModeApplication.APP_SHORT_NAME, 
-				HazardSpectrumServerModeApplication.APP_NAME, "HS", false));
 		/*		Scenario ShakeMap			*/
-		appsToBuild.add(new JNLPGen(ScenarioShakeMapLocalModeCalcApp.class,
-				ScenarioShakeMapLocalModeCalcApp.APP_SHORT_NAME, 
-				ScenarioShakeMapLocalModeCalcApp.APP_NAME, "SM", true));
 		appsToBuild.add(new JNLPGen(ScenarioShakeMapApp.class,
 				ScenarioShakeMapApp.APP_SHORT_NAME, 
 				ScenarioShakeMapApp.APP_NAME, "SM", false));

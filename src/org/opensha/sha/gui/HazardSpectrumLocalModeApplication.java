@@ -65,7 +65,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
  *
  */
 public class HazardSpectrumLocalModeApplication
-extends HazardCurveLocalModeApplication {
+extends HazardCurveServerModeApplication {
 
 	public static final String APP_NAME = "Hazard Spectrum Local Mode Application";
 	public static final String APP_SHORT_NAME = "HazardSpectrumLocal";
@@ -101,15 +101,9 @@ extends HazardCurveLocalModeApplication {
 	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
-		try {
-			if (calc == null)
-				createCalcInstance();
-			return calc.getAdjustableParams();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		if (calc == null)
+			createCalcInstance();
+		return calc.getAdjustableParams();
 	}
 
 	/**
@@ -573,15 +567,7 @@ extends HazardCurveLocalModeApplication {
 
 
 				}
-			}
-			catch(RemoteException e){
-				setButtonsEnable(true);
-				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
-				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
-				bugDialog.setVisible(true);
-			}
-			catch (RuntimeException e) {
+			} catch (RuntimeException e) {
 				//e.printStackTrace();
 				setButtonsEnable(true);
 				JOptionPane.showMessageDialog(this, e.getMessage(),

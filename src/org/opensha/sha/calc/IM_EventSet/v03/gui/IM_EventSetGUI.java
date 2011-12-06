@@ -54,7 +54,6 @@ import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.OriginalModWriter;
 import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.BaseERF;
-import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.imr.ScalarIMR;
 

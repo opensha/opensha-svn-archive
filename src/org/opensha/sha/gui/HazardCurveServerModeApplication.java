@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,8 +86,6 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
-import org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
-import org.opensha.sha.calc.remoteCalc.RemoteHazardCurveClient;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -177,8 +174,8 @@ ScalarIMRChangeListener {
 	
 	private static ApplicationVersion version;
 	
-	public static final String APP_NAME = "Hazard Curve Server Mode Application";
-	public static final String APP_SHORT_NAME = "HazardCurveServer";
+	public static final String APP_NAME = "Hazard Curve Local Mode Application";
+	public static final String APP_SHORT_NAME = "HazardCurveLocal";
 	
 	/**
 	 * this is the short name for the application (not static because other apps extend this).
@@ -946,33 +943,26 @@ ScalarIMRChangeListener {
 	}
 
 	/**
-	 * This method creates the HazardCurveCalc and Disaggregation Calc(if
-	 * selected) instances. If the internet connection is available then it
-	 * creates a remote instances of the calculators on server where the
-	 * calculations take place, else calculations are performed on the user's
-	 * own machine.
+	 * This method creates the HazardCurveCalc and Disaggregation Calc(if selected) instances.
+	 * Calculations are performed on the user's own machine, no internet connection
+	 * is required for it.
 	 */
-	protected void createCalcInstance() {
-		//System.out.println("createCalcInstance()");
-		if (!isDeterministicCurve){
-			calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
-		}
-		else if (calc == null && isDeterministicCurve) {
-			try {
+	protected void createCalcInstance(){
+		try{
+			if(calc == null) {
 				calc = new HazardCurveCalculator();
-				//System.out.println("Created new calc from ServeModeApp when isDeterministicCurve=true");
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
-				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
-				bugDialog.setVisible(true);
+//System.out.println("Created new calc from LocalModeApp");
 			}
+			if(disaggregationFlag)
+				if(disaggCalc == null)
+					disaggCalc = new DisaggregationCalculator();
+		}catch(Exception e){
+			e.printStackTrace();
+			BugReport bug = new BugReport(e, this.getParametersInfoAsString(), appShortName, getAppVersion(), this);
+			BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
+			bugDialog.setVisible(true);
 		}
-		if (disaggregationFlag)
-			disaggCalc = (new RemoteDisaggregationCalcClient())
-			.getRemoteDisaggregationCalc();
-
-
+		
 	}
 
 	/**
@@ -1567,7 +1557,7 @@ ScalarIMRChangeListener {
 				// binDataAsHTML = binDataAsHTML.replaceAll("\n", "<br>");
 				// binDataAsHTML = binDataAsHTML.replaceAll("\t",
 				// "&nbsp;&nbsp;&nbsp;");
-			} catch (RemoteException ex) {
+			} catch (RuntimeException ex) {
 				setButtonsEnable(true);
 				ex.printStackTrace();
 				BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
@@ -1848,35 +1838,33 @@ ScalarIMRChangeListener {
 	 */
 	protected void initERF_GuiBean() {
 
-		if (erfGuiBean == null) {
+		if(erfGuiBean == null){
+			// create the ERF Gui Bean object
+
 			try {
-				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(true, true, ServerPrefUtils.SERVER_PREFS));
-				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME)
-				.addParameterChangeListener(this);
-			} catch (InvocationTargetException e) {
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(true, ServerPrefUtils.SERVER_PREFS));
+				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).
+				addParameterChangeListener(this);
+			}
+			catch (InvocationTargetException e) {
 				e.printStackTrace();
+				
 				BugReport bug = new BugReport(e, errorInInitializationMessage, appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, true);
 				bugDialog.setVisible(true);
 			}
-		} else {
-			boolean isCustomRupture = erfRupSelectorGuiBean
-			.isCustomRuptureSelected();
-			if (!isCustomRupture) {
-				BaseERF eqkRupForecast = erfRupSelectorGuiBean
-				.getSelectedEqkRupForecastModel();
+		}
+		else{
+			boolean isCustomRupture = erfRupSelectorGuiBean.isCustomRuptureSelected();
+			if(!isCustomRupture){
+				BaseERF eqkRupForecast = erfRupSelectorGuiBean.getSelectedEqkRupForecastModel();
 				erfGuiBean.setERF(eqkRupForecast);
 			}
 		}
-		//		erfPanel.removeAll();
-		//		erfPanel.add(erfGuiBean, BorderLayout.CENTER);
-		//		 erfPanel.add(erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-		//		 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0,
-		//		 0));
-
-		// TODO delete; not sure why needed, ui shouldn't have changed from launch
-		//erfPanel.updateUI();
-
+//		erfPanel.removeAll(); TODO clean
+//		erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//				GridBagConstraints.CENTER,GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0 ));
+//		erfPanel.updateUI();
 	}
 
 	/**
@@ -1887,25 +1875,27 @@ ScalarIMRChangeListener {
 		BaseERF erf = null;
 		try {
 			erf = erfGuiBean.getSelectedERF();
-		} catch (InvocationTargetException ex) {
+		}
+		catch (InvocationTargetException ex) {
 			ex.printStackTrace();
 		}
-		if (erfRupSelectorGuiBean == null) {
+		if(erfRupSelectorGuiBean == null){
 
 			try {
-				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,
-						ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
-			} catch (InvocationTargetException e) {
+
+				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf, ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
+			}
+			catch (InvocationTargetException e) {
 				throw new RuntimeException("Connection to ERF's failed");
 			}
 		}
-		//		erfPanel.removeAll();
-		//		// erfGuiBean = null;
-		//		erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints(0, 0, 1, 1,
-		//				1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-		//				defaultInsets, 0, 0));
-		// TODO delete; not sure why needed, ui shouldn't have changed from launch
-		//erfPanel.updateUI();
+		else
+			erfRupSelectorGuiBean.setEqkRupForecastModel(erf);
+//		erfPanel.removeAll(); TODO clean
+//		//erfGuiBean = null;
+//		erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+//				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+//		erfPanel.updateUI();
 	}
 
 	protected void initCommonControlList() {
@@ -1992,13 +1982,7 @@ ScalarIMRChangeListener {
 	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
-		try {
-			return calc.getAdjustableParams();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		return calc.getAdjustableParams();
 	}
 
 
@@ -2481,7 +2465,7 @@ ScalarIMRChangeListener {
 			try {
 				calc.stopCalc();
 				calc = null;
-			} catch (RemoteException ee) {
+			} catch (RuntimeException ee) {
 				ee.printStackTrace();
 				BugReport bug = new BugReport(ee, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);

@@ -37,7 +37,6 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.earthquake.ERF_Ref;
 import org.opensha.sha.earthquake.BaseERF;
-import org.opensha.sha.gui.HazardCurveLocalModeApplication;
 import org.opensha.sha.gui.HazardCurveServerModeApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
@@ -240,7 +239,7 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
 
 	public static void main(String[] args) {
 		CEA_HazardCurveLocalModeApp applet = new CEA_HazardCurveLocalModeApp(
-				HazardCurveLocalModeApplication.APP_SHORT_NAME);
+				HazardCurveServerModeApplication.APP_SHORT_NAME);
 		applet.checkAppVersion();
 		applet.init();
 		applet.setTitle("CEA Hazard Curve Calculator "+"("+getAppVersion()+")" );

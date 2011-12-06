@@ -113,8 +113,8 @@ import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListener,
 AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Runnable, ScalarIMRChangeListener{
 	
-	public static final String APP_NAME = "Scenario ShakeMap Server Mode Application";
-	public static final String APP_SHORT_NAME = "ScenarioShakeMapServer";
+	public static final String APP_NAME = "Scenario ShakeMap Local Mode Application";
+	public static final String APP_SHORT_NAME = "ScenarioShakeMapLocal";
 	
 	/**
 	 * this is the short name for the application (not static because other apps extend this).
@@ -482,13 +482,16 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 	 * Initialize the ERF Gui Bean
 	 */
 	protected void initERFSelector_GuiBean() {
-		try{
-			erfGuiBean = new EqkRupSelectorGuiBean(ERF_Ref.get(true, false, ServerPrefUtils.SERVER_PREFS));
-		}catch(InvocationTargetException e){
-			throw new RuntimeException("Connection to ERF's failed", e);
+
+		try {
+			erfGuiBean = new EqkRupSelectorGuiBean(ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
 		}
-		eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+		catch (InvocationTargetException e) {
+			throw new RuntimeException("Connection to ERF's failed");
+		}
+		eqkRupPanel.add(erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0));
+		calculationFromServer = false;
 	}
 
 	/**
@@ -749,15 +752,6 @@ AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Ru
 		//gets the IML or Prob selected value
 		getIMLorProb();
 
-		//gets the map data calc option
-		if (calcControl != null) {
-			String mapCalcOption = calcControl.getMapCalculationOption();
-			//checks if the user wants to do the calc. on his local system or on the server.
-			if (mapCalcOption.equals(GMTMapCalcOptionControl.USE_LOCAL))
-				calculationFromServer = false;
-			else
-				calculationFromServer = true;
-		}
 		//get the site values for each site in the gridded region
 		getGriddedRegionSites();
 
