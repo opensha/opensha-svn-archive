@@ -645,9 +645,9 @@ ScalarIMRChangeListener {
 				JSplitPane.HORIZONTAL_SPLIT, true, 
 				plotPanel, paramsTabbedPane);
 		contentSplitPane.setResizeWeight(1.0);
-		//contentSplitPane.setDividerLocation(0.5); //TODO revisit
+		//contentSplitPane.setDividerLocation(0.5);
 		contentSplitPane.setBorder(null);
-		//contentSplitPane.setDividerLocation(550);
+		//contentSplitPane.setDividerLocation(550); // moved below resize line
 
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
@@ -677,6 +677,7 @@ ScalarIMRChangeListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Hazard Curve Application (" + getAppVersion() + " )");
 		setSize(1000, 720);
+		contentSplitPane.setDividerLocation(500);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int xPos = (dim.width - getWidth()) / 2;
 		setLocation(xPos, 0);
