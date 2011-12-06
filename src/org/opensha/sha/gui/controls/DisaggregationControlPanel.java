@@ -43,7 +43,7 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 
 
 /**
@@ -141,14 +141,14 @@ implements ParameterChangeFailListener, ParameterChangeListener{
 
 
 	// applet which called this control panel
-	HazardCurveServerModeApplication parent;
+	HazardCurveApplication parent;
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 	private JFrame frame;
 
 	private Component parentComponent;
 
-	public DisaggregationControlPanel(HazardCurveServerModeApplication parent,
+	public DisaggregationControlPanel(HazardCurveApplication parent,
 			Component parentComponent) {
 		super(NAME);
 		this.parent = parent;

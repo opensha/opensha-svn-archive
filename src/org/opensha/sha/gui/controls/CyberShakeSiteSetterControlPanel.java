@@ -46,7 +46,7 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.param.CyberShakeERFSelectorParam;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
 public class CyberShakeSiteSetterControlPanel extends ControlPanel implements

@@ -26,7 +26,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class TestHazardCurveMultiIMRs {
 	
-	HazardCurveServerModeApplication app;
+	HazardCurveApplication app;
 	ERF_GuiBean erfGui;
 	IMR_MultiGuiBean imrGui;
 	IMT_NewGuiBean imtGui;
@@ -39,9 +39,9 @@ public class TestHazardCurveMultiIMRs {
 
 	@Before
 	public void setUp() throws Exception {
-		app = new HazardCurveServerModeApplication(HazardCurveServerModeApplication.APP_SHORT_NAME);
+		app = new HazardCurveApplication(HazardCurveApplication.APP_SHORT_NAME);
 		app.init();
-		app.setTitle("Hazard Curve Local mode Application "+"("+HazardCurveServerModeApplication.getAppVersion()+")" );
+		app.setTitle("Hazard Curve Local mode Application "+"("+HazardCurveApplication.getAppVersion()+")" );
 		app.setVisible(true);
 		app.createCalcInstance();
 		

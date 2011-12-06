@@ -22,8 +22,8 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gcim.ui.GCIM_HazardCurveApp;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
-import org.opensha.sha.gui.HazardSpectrumLocalModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
+import org.opensha.sha.gui.HazardSpectrumApplication;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
 import org.opensha.sha.imr.attenRelImpl.gui.AttenuationRelationshipApplet;
 import org.opensha.sha.magdist.gui.MagFreqDistApp;
@@ -244,13 +244,13 @@ public class JNLPGen {
 		appsToBuild.add(new JNLPGen(GCIM_HazardCurveApp.class,
 				GCIM_HazardCurveApp.APP_SHORT_NAME, 
 				GCIM_HazardCurveApp.APP_NAME, "GC", true));
-		appsToBuild.add(new JNLPGen(HazardCurveServerModeApplication.class,
-				HazardCurveServerModeApplication.APP_SHORT_NAME, 
-				HazardCurveServerModeApplication.APP_NAME, "HC", true));
+		appsToBuild.add(new JNLPGen(HazardCurveApplication.class,
+				HazardCurveApplication.APP_SHORT_NAME, 
+				HazardCurveApplication.APP_NAME, "HC", true));
 		/*		Hazard Spectrum				*/
-		appsToBuild.add(new JNLPGen(HazardSpectrumLocalModeApplication.class,
-				HazardSpectrumLocalModeApplication.APP_SHORT_NAME, 
-				HazardSpectrumLocalModeApplication.APP_NAME, "HS", true));
+		appsToBuild.add(new JNLPGen(HazardSpectrumApplication.class,
+				HazardSpectrumApplication.APP_SHORT_NAME, 
+				HazardSpectrumApplication.APP_NAME, "HS", true));
 		/*		Scenario ShakeMap			*/
 		appsToBuild.add(new JNLPGen(ScenarioShakeMapApp.class,
 				ScenarioShakeMapApp.APP_SHORT_NAME, 

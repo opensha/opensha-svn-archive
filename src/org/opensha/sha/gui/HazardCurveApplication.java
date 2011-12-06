@@ -160,7 +160,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public class HazardCurveServerModeApplication extends JFrame implements
+public class HazardCurveApplication extends JFrame implements
 Runnable, ParameterChangeListener,
 CurveDisplayAppAPI, ButtonControlPanelAPI,
 GraphPanelAPI, GraphWindowAPI, 
@@ -174,7 +174,7 @@ ScalarIMRChangeListener {
 	
 	private static ApplicationVersion version;
 	
-	public static final String APP_NAME = "Hazard Curve Local Mode Application";
+	public static final String APP_NAME = "Hazard Curve Application";
 	public static final String APP_SHORT_NAME = "HazardCurveLocal";
 	
 	/**
@@ -356,7 +356,7 @@ ScalarIMRChangeListener {
 				"during initialization the ERF's. All parameters are set to default.";
 
 	// Construct the applet
-	public HazardCurveServerModeApplication(String appShortName) {
+	public HazardCurveApplication(String appShortName) {
 		this.appShortName = appShortName;
 	}
 
@@ -766,7 +766,7 @@ ScalarIMRChangeListener {
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
-		HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication(APP_SHORT_NAME);
+		HazardCurveApplication applet = new HazardCurveApplication(APP_SHORT_NAME);
 		exp.setApp(applet);
 		exp.setParent(applet);
 		applet.init();

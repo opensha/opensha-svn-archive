@@ -124,7 +124,7 @@ import org.opensha.sha.gcim.calc.GcimCalculator;
 import org.opensha.sha.gcim.calc.GcimCalculatorAPI;
 import org.opensha.sha.gcim.ui.GcimControlPanel;
 import org.opensha.sha.gcim.ui.infoTools.GcimPlotViewerWindow;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -196,7 +196,7 @@ import scratch.christine.URS.URS_MeanUCERF2;
  * @version 1.0
  */
 
-public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
+public class GCIM_HazardCurveApp  extends HazardCurveApplication {
 
 	/**
 	 * 

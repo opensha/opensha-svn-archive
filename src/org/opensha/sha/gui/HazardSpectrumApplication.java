@@ -64,10 +64,10 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
  * @author nitingupta
  *
  */
-public class HazardSpectrumLocalModeApplication
-extends HazardCurveServerModeApplication {
+public class HazardSpectrumApplication
+extends HazardCurveApplication {
 
-	public static final String APP_NAME = "Hazard Spectrum Local Mode Application";
+	public static final String APP_NAME = "Hazard Spectrum Application";
 	public static final String APP_SHORT_NAME = "HazardSpectrumLocal";
 
 	//Static String to tell the IMT as the SA becuase it is the only supported IMT for this Application
@@ -91,7 +91,7 @@ extends HazardCurveServerModeApplication {
 	//Prob@IML or IML@Prob
 	boolean probAtIML;
 
-	public HazardSpectrumLocalModeApplication(String appShortName) {
+	public HazardSpectrumApplication(String appShortName) {
 		super(appShortName);
 	}
 
@@ -681,8 +681,8 @@ extends HazardCurveServerModeApplication {
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
-		HazardSpectrumLocalModeApplication applet = new
-				HazardSpectrumLocalModeApplication(APP_SHORT_NAME);
+		HazardSpectrumApplication applet = new
+				HazardSpectrumApplication(APP_SHORT_NAME);
 		exp.setApp(applet);
 		exp.setParent(applet);
 		applet.init();

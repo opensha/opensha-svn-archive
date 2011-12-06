@@ -68,7 +68,7 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
@@ -167,7 +167,7 @@ extends ControlPanel implements ParameterChangeListener {
 	private ParameterList paramList;
 
 	//handle to the application using this control panel
-	private HazardCurveServerModeApplication application;
+	private HazardCurveApplication application;
 	
 	double prevIMVal = 3;
 
@@ -211,7 +211,7 @@ extends ControlPanel implements ParameterChangeListener {
 
 	private JFrame frame;
 	
-	public CyberShakePlotFromDBControlPanel(HazardCurveServerModeApplication app) {
+	public CyberShakePlotFromDBControlPanel(HazardCurveApplication app) {
 		super(NAME);
 		this.application = app;
 	}
@@ -479,11 +479,11 @@ extends ControlPanel implements ParameterChangeListener {
 		String curveType = (String)curveTypeSelectorParam.getValue();
 		if(curveType.equals(PROB_CURVE)) {
 			this.isDeterministic = false;
-			application.setCurveType(HazardCurveServerModeApplication.PROBABILISTIC);
+			application.setCurveType(HazardCurveApplication.PROBABILISTIC);
 		}
 		else {
 			this.isDeterministic = true;
-			application.setCurveType(HazardCurveServerModeApplication.DETERMINISTIC);
+			application.setCurveType(HazardCurveApplication.DETERMINISTIC);
 		}
 		listEditor.getParameterEditor(SRC_INDEX_PARAM).setVisible(isDeterministic);
 		listEditor.getParameterEditor(RUP_INDEX_PARAM).setVisible(isDeterministic);
