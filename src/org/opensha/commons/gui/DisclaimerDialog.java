@@ -34,6 +34,7 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.ui.components.Resources;
 
@@ -180,7 +181,7 @@ public class DisclaimerDialog extends JDialog implements ActionListener {
 			public void hyperlinkUpdate(HyperlinkEvent he) {
 				try {
 					if (he.getEventType() == EventType.ACTIVATED) {
-						Desktop.getDesktop().browse(he.getURL().toURI());
+						BrowserUtils.launch(he.getURL());
 					}
 				} catch (Exception e) {}
 			}

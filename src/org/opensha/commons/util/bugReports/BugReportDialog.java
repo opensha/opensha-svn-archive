@@ -36,6 +36,7 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.bugReports.knownBugImpl.ExceptionTypeKnownBugDetector;
 
 public class BugReportDialog extends JDialog implements ActionListener, HyperlinkListener {
@@ -297,7 +298,7 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 				return;
 			}
 			try {
-				Desktop.getDesktop().browse(url.toURI());
+				BrowserUtils.launch(url.toURI());
 			} catch (Exception e1) {
 				String text = "Java couldn't open the bug report URL in your web browser. " +
 						"Please copy/paste this entire link manually into your web browser to " +
@@ -327,15 +328,7 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 	@Override
 	public void hyperlinkUpdate(HyperlinkEvent e) {
 		if (e.getEventType() == EventType.ACTIVATED) {
-			try {
-				Desktop.getDesktop().browse(e.getURL().toURI());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (URISyntaxException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			BrowserUtils.launch(e.getURL());
 		}
 	}
 	

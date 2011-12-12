@@ -4,12 +4,14 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.bugReports.BugReport;
 
 // TODO if JDesktop.browse() fails, dialog with clickable/copiable url should
@@ -99,50 +101,31 @@ public class HelpMenuBuilder implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == homepageItem) {
-			try {
-				Desktop.getDesktop().browse(new URL(OPENSHA_HOMEPAGE_URL).toURI());
-			} catch (Exception e1) {
-				e1.printStackTrace();
+		try {
+			if (e.getSource() == homepageItem) {
+				BrowserUtils.launch(new URL(OPENSHA_HOMEPAGE_URL));
+			} else if (e.getSource() == docsItem) {
+				BrowserUtils.launch(new URL(OPENSHA_DOCUMENTATION_URL));
+			} else if (e.getSource() == contactItem) {
+				BrowserUtils.launch(new URL(OPENSHA_CONTACT_URL));
+			} else if (e.getSource() == submitBugItem) {
+				BugReport bug = new BugReport(null, null, appShortName, appVersion, application);
+				BrowserUtils.launch(bug.buildTracURL());
+			} else if (guideItem != null && e.getSource() == guideItem) {
+				BrowserUtils.launch(new URL(guideURL));
+			} else if (tutorialItem != null && e.getSource() == tutorialItem) {
+				BrowserUtils.launch(new URL(tutorialURL));
+			} else if (e.getSource() == aboutItem) {
+				if (appVersionDialog ==  null) {
+					appVersionDialog = new AppVersionDialog(appName, appVersion);
+				}
+//				System.out.println("pp: " + application);
+				appVersionDialog.setLocationRelativeTo(application);
+				appVersionDialog.setVisible(true);
 			}
-		} else if (e.getSource() == docsItem) {
-			try {
-				Desktop.getDesktop().browse(new URL(OPENSHA_DOCUMENTATION_URL).toURI());
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		} else if (e.getSource() == contactItem) {
-			try {
-				Desktop.getDesktop().browse(new URL(OPENSHA_CONTACT_URL).toURI());
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		} else if (e.getSource() == submitBugItem) {
-			BugReport bug = new BugReport(null, null, appShortName, appVersion, application);
-			try {
-				Desktop.getDesktop().browse(bug.buildTracURL().toURI());
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		} else if (guideItem != null && e.getSource() == guideItem) {
-			try {
-				Desktop.getDesktop().browse(new URL(guideURL).toURI());
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		} else if (tutorialItem != null && e.getSource() == tutorialItem) {
-			try {
-				Desktop.getDesktop().browse(new URL(tutorialURL).toURI());
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		} else if (e.getSource() == aboutItem) {
-			if (appVersionDialog ==  null) {
-				appVersionDialog = new AppVersionDialog(appName, appVersion);
-			}
-//			System.out.println("pp: " + application);
-			appVersionDialog.setLocationRelativeTo(application);
-			appVersionDialog.setVisible(true);
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 

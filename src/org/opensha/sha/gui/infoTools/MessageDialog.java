@@ -40,6 +40,7 @@ import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.FileUtils;
 
 /**
@@ -89,7 +90,7 @@ extends JDialog implements HyperlinkListener{
 		HyperlinkEvent.EventType type = e.getEventType();  // what happened?
 		if (type == HyperlinkEvent.EventType.ACTIVATED) {     // Click!
 			try{
-				Desktop.getDesktop().browse(e.getURL().toURI());
+				BrowserUtils.launch(e.getURL().toURI());
 			}catch(Exception ex) { ex.printStackTrace(); }
 
 			//displayPage(e.getURL());   // Follow the link; display new page

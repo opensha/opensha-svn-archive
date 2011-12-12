@@ -42,6 +42,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import org.opensha.commons.util.BrowserUtils;
+
 /**
  * <p>Title: UserAuthorizationCheckWindow</p>
  * <p>Description: This class provide controlled access to the users who want to generate
@@ -327,7 +329,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
 	 */
 	public void newUserButton_actionPerformed(ActionEvent actionEvent) {
 		try {
-			Desktop.getDesktop().browse(new URI("http://gravity.usc.edu:8080/usermanagement/AccountRequest.do"));
+			BrowserUtils.launch(new URI("http://gravity.usc.edu:8080/usermanagement/AccountRequest.do"));
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
@@ -341,7 +343,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
 	 */
 	public void forgetPassButton_actionPerformed(ActionEvent actionEvent) {
 		try{
-			Desktop.getDesktop().browse(new URI("http://gravity.usc.edu:8080/usermanagement/PasswdRequest.do"));
+			BrowserUtils.launch(new URI("http://gravity.usc.edu:8080/usermanagement/PasswdRequest.do"));
 		}catch(Exception ex) { ex.printStackTrace(); }
 	}
 

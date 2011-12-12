@@ -427,6 +427,7 @@
 		<unjar src="${lib.dir}/servlet.jar" dest="${build}" />
 		<unjar src="${lib.dir}/Jama-1.0.2.jar" dest="${build}" />
 		<unjar src="${lib.dir}/mysql-connector-java-5.1.16-bin.jar" dest="${build}" />
+		<unjar src="${lib.dir}/BrowserLauncher2-1_3.jar" dest="${build}" />
 	</target>
 	
 	<target name="unjar.libs.extra">

@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
+import org.opensha.commons.util.BrowserUtils;
+
 public class SimpleBugMessagePanel extends JPanel implements ActionListener {
 	
 	private JButton submitButton = new JButton(BugReportDialog.submitButtonTextDefault);
@@ -46,15 +48,8 @@ public class SimpleBugMessagePanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			Desktop.getDesktop().browse(bug.buildTracURL().toURI());
+			BrowserUtils.launch(bug.buildTracURL());
 		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}

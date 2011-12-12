@@ -76,6 +76,7 @@ import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gcim.imr.attenRelImpl.BommerEtAl_2009_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.CB_2010_CAV_AttenRel;
@@ -1618,7 +1619,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 				JOptionPane.showMessageDialog(this, "No information exists for the selected Attenuation Relationship");
 				return;
 			}
-			Desktop.getDesktop().browse(url.toURI());
+			BrowserUtils.launch(url);
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(this, "No information exists for the selected Attenuation Relationship");
 			return;

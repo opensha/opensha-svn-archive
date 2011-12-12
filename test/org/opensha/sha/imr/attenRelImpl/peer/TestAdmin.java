@@ -36,6 +36,7 @@ import org.dom4j.Namespace;
 import org.dom4j.io.HTMLWriter;
 import org.dom4j.tree.DefaultElement;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 
 /**
@@ -272,7 +273,7 @@ public class TestAdmin {
 		try {
 			URI summaryURI = summaryFile.toURI();
 			if (display) {
-				Desktop.getDesktop().browse(summaryURI);
+				BrowserUtils.launch(summaryURI);
 			} else {
 				System.out.println(summaryURI);
 			}

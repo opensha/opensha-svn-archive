@@ -53,6 +53,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.jpedal.PdfDecoder;
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.commons.util.DataUtil;
 import org.opensha.commons.util.FileUtils;
@@ -487,7 +488,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 		if (type == HyperlinkEvent.EventType.ACTIVATED) {     // Click!
 			try{
 				//       org.opensha.util.BrowserLauncher.openURL(e.getURL().toString());
-				Desktop.getDesktop().browse(e.getURL().toURI());
+				BrowserUtils.launch(e.getURL().toURI());
 			}catch(Exception ex) { ex.printStackTrace(); }
 
 			//displayPage(e.getURL());   // Follow the link; display new page

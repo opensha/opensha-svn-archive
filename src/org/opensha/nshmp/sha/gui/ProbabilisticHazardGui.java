@@ -49,6 +49,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.Versioner;
 
@@ -268,7 +269,7 @@ public class ProbabilisticHazardGui
 	private void okButton_notCurrent(ActionEvent actionEvent) {
 		this.dispose();
 		try {
-		    Desktop.getDesktop().browse(new URI(DOWNLOAD_PAGE));
+			BrowserUtils.launch(new URI(DOWNLOAD_PAGE));
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Could not open the download page.  Please visit:\n\n\t" +
 				DOWNLOAD_PAGE + "\n\nto update your version" +

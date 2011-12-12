@@ -45,6 +45,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.FileUtils;
 
 /**
@@ -174,7 +175,7 @@ extends JDialog {
 
 	public void yesButton_actionPerformed(ActionEvent actionEvent) {
 		try {
-			Desktop.getDesktop().browse(new URI(urlToApp));
+			BrowserUtils.launch(new URI(urlToApp));
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();

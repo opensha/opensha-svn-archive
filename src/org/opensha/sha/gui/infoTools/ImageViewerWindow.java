@@ -50,6 +50,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.FileUtils;
 
 import com.lowagie.text.Document;
@@ -355,7 +356,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
 		HyperlinkEvent.EventType type = e.getEventType();  // what happened?
 		if (type == HyperlinkEvent.EventType.ACTIVATED) {     // Click!
 			try{
-				Desktop.getDesktop().browse(e.getURL().toURI());
+				BrowserUtils.launch(e.getURL().toURI());
 			}catch(Exception ex) { ex.printStackTrace(); }
 
 			//displayPage(e.getURL());   // Follow the link; display new page
