@@ -56,25 +56,6 @@ public class ServerPrefUtils {
 		"http://"+OPENSHA_SERVER_DEV_HOST+":8080/OpenSHA_dev/";
 	
 	/**
-	 * This is the production port for RMI
-	 */
-	static final int OPENSHA_RMI_PRODUCTION_PORT = 1099;
-	
-	/**
-	 * This is the development port for RMI
-	 */
-	static final int OPENSHA_RMI_DEV_PORT = 1098;
-	
-	/**
-	 * This is the RMI port range min
-	 */
-	static final int OPENSHA_RMI_SOCKET_MIN_PORT = 40000;
-	/**
-	 * This is the RMI port range max
-	 */
-	static final int OPENSHA_RMI_SOCKET_MAX_PORT = 40500;
-	
-	/**
 	 * This is the preferences enum for OpenSHA...it should always be link to the production prefs
 	 * when applications are final and being distributed, the the development prefs should be used when
 	 * changes are being made that would break the currently released apps.

@@ -39,7 +39,6 @@ public enum ServerPrefs {
 	DEV_PREFS(ServerPrefUtils.OPENSHA_SERVER_DEV_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_DEV_DIR,
-			ServerPrefUtils.OPENSHA_RMI_DEV_PORT,
 			DevStatus.DEVELOPMENT),
 	/**
 	 * Preferences for stable production releases
@@ -47,20 +46,17 @@ public enum ServerPrefs {
 	PRODUCTION_PREFS(ServerPrefUtils.OPENSHA_SERVER_PRODUCTION_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_PRODUCTION_DIR,
-			ServerPrefUtils.OPENSHA_RMI_PRODUCTION_PORT,
 			DevStatus.PRODUCTION);
 	
 	private String hostName;
 	private String servletURL;
 	private String tomcatDir;
-	private int rmiPort;
 	private DevStatus buildType;
 	
-	private ServerPrefs(String hostName, String servletURL, String tomcatDir, int rmiPort, DevStatus buildType) {
+	private ServerPrefs(String hostName, String servletURL, String tomcatDir, DevStatus buildType) {
 		this.hostName = hostName;
 		this.servletURL = servletURL;
 		this.tomcatDir = tomcatDir;
-		this.rmiPort = rmiPort;
 		this.buildType = buildType;
 	}
 
@@ -80,25 +76,6 @@ public enum ServerPrefs {
 	public String getTomcatDir() {
 		return tomcatDir;
 	}
-	
-	/**
-	 * The RMI port used for all RMI applications. This will differ based if this is a development
-	 * or production release.
-	 * 
-	 * @return RMI port number
-	 */
-	public int getRMIPort() {
-		return rmiPort;
-	}
-	
-	/**
-	 * The base URL for all RMI lookups 
-	 * 
-	 * @return RMI base URL
-	 */
-	public String getRMIBaseURL() {
-		return "rmi://"+hostName+":"+rmiPort+"/";
-	}
 
 	/**
 	 * String designating the build type, such as "nightly" or "dist".
@@ -116,24 +93,6 @@ public enum ServerPrefs {
 	 */
 	public String getHostName() {
 		return hostName;
-	}
-	
-	/**
-	 * The minimum socket port used by RMI
-	 * 
-	 * @return min socket port used by RMI
-	 */
-	public int getMinRMISocketPort() {
-		return ServerPrefUtils.OPENSHA_RMI_SOCKET_MIN_PORT;
-	}
-	
-	/**
-	 * The maximum socket port used by RMI
-	 * 
-	 * @return max socket port used by RMI
-	 */
-	public int getMaxRMISocketPort() {
-		return ServerPrefUtils.OPENSHA_RMI_SOCKET_MAX_PORT;
 	}
 	
 	/**
