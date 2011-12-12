@@ -30,7 +30,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
-import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -198,12 +197,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		runs2db = new Runs2DB(db);
 		curve2db = new HazardCurve2DB(this.db);
 		
-		try {
-			calc = new HazardCurveCalculator();
-			calc.setMaxSourceDistance(maxSourceDistance);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
+		calc = new HazardCurveCalculator();
+		calc.setMaxSourceDistance(maxSourceDistance);
 	}
 	
 	private OrderedSiteDataProviderList getProviders() {
@@ -945,18 +940,14 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			Site site = this.setAttenRelParams(attenRel, im);
 			
 			System.out.print("Calculating comparison curve for " + site.getLocation().getLatitude() + "," + site.getLocation().getLongitude() + "...");
-			try {
-				ArbitrarilyDiscretizedFunc curve = plotChars.getHazardFunc();
-				ArbitrarilyDiscretizedFunc logHazFunction = this.getLogFunction(curve);
-				calc.getHazardCurve(logHazFunction, site, attenRel, erf);
-				curve = this.unLogFunction(curve, logHazFunction);
-				curve.setInfo(this.getCurveParametersInfoAsString(attenRel, erf, site));
-				System.out.println("done!");
-				curves.add(curve);
-				names.add(attenRel.getName());
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
+			ArbitrarilyDiscretizedFunc curve = plotChars.getHazardFunc();
+			ArbitrarilyDiscretizedFunc logHazFunction = this.getLogFunction(curve);
+			calc.getHazardCurve(logHazFunction, site, attenRel, erf);
+			curve = this.unLogFunction(curve, logHazFunction);
+			curve.setInfo(this.getCurveParametersInfoAsString(attenRel, erf, site));
+			System.out.println("done!");
+			curves.add(curve);
+			names.add(attenRel.getName());
 			i++;
 		}
 		return names;

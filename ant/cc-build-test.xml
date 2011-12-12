@@ -28,7 +28,6 @@
 	<target name="svn.update.build" depends="svn.update">
 		<ant antfile="build.xml" target="build"/>
 		<ant antfile="build.xml" target="resource.all"/>
-		<ant antfile="build.xml" target="rmi.all"/>
 	</target>
 	
 	<!-- Called by the OpenSHA-continuous CC project -->
@@ -44,14 +43,12 @@
 	<!-- Called by the OpenSHA-nightly CC project -->
 	<target name="svn.update.app.build" depends="svn.update.build">
 		<ant antfile="MultiAppBuilder.xml" target="build.nightly"/>
-		<antcall target="restart.rmi"/>
 		<ant antfile="CompleteJar.xml" target="build.nightly"/>
 	</target>
 	
 	<!-- Called by the OpenSHA-DistManualAppBuild CC project (only run manually) -->
 	<target name="svn.update.app.dist.build" depends="svn.update.build">
 		<ant antfile="MultiAppBuilder.xml" target="build.dist"/>
-		<antcall target="restart.rmi"/>
 		<ant antfile="CompleteJar.xml" target="build.dist"/>
 	</target>
 	
@@ -70,13 +67,6 @@
 	<!-- this isn't called anymore -->
 	<target name="svn.build.run.weekly.coverage" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.cobertura.weekly"/>
-	</target>
-	
-	<target name="restart.rmi">
-		<echo message="restarting RMI"/>
-		<exec executable="/bin/bash" spawn="true">
-			<arg value="../scripts/rmi/restart_rmi.sh"/>
-		</exec>
 	</target>
 	
 	<target name="restart.tomcat">

@@ -22,7 +22,6 @@ package org.opensha.sha.calc;
 
 
 import java.io.IOException;
-import java.rmi.server.UnicastRemoteObject;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -46,7 +45,7 @@ import org.opensha.sha.imr.ScalarIMR;
  * @version 1.0
  */
 
-public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
+public class PortfolioLossCurveCalculator {
 
 	protected final static String C = "HazardCurveCalculator";
 	protected final static boolean D = false;
@@ -69,12 +68,9 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 
 	/**
 	 * creates the HazardCurveCalculator object
-	 *
-	 * @throws java.rmi.RemoteException
 	 * @throws IOException
 	 */
-	public PortfolioLossCurveCalculator()
-	throws java.rmi.RemoteException {}
+	public PortfolioLossCurveCalculator() {}
 
 
 	/**
@@ -85,7 +81,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 *
 	 * @param distance: the maximum distance in km
 	 */
-	public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
+	public void setMaxSourceDistance(double distance) {
 		MAX_DISTANCE = distance;
 	}
 
@@ -95,8 +91,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 * @param hazFunction Discretized Hazard Function
 	 * @return DiscretizedFuncAPI Annualized Rate Curve
 	 */
-	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) 
-	throws java.rmi.RemoteException{
+	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) {
 		DiscretizedFunc annualizedRateFunc = (DiscretizedFunc)hazFunction.deepClone();
 		int size = annualizedRateFunc.getNum();
 		for(int i=0;i<size;++i){
@@ -117,8 +112,7 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	 * @return
 	 */
 	public DiscretizedFunc getLossCurve(DiscretizedFunc hazFunction,
-			Site site, ScalarIMR imr, ERF eqkRupForecast)
-	throws java.rmi.RemoteException{
+			Site site, ScalarIMR imr, ERF eqkRupForecast) {
 		// TODO Replace site with Portfolio
 		this.currRuptures = -1;
 
@@ -268,26 +262,23 @@ public class PortfolioLossCurveCalculator extends UnicastRemoteObject {
 	/**
 	 *
 	 * @return the current rupture being traversed
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getCurrRuptures() throws java.rmi.RemoteException{
+	public int getCurrRuptures() {
 		return this.currRuptures;
 	}
 
 	/**
 	 *
 	 * @return the total number of ruptures in the earthquake rupture forecast model
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getTotRuptures() throws java.rmi.RemoteException{
+	public int getTotRuptures() {
 		return this.totRuptures;
 	}
 
 	/**
 	 * stops the Hazard Curve calculations.
-	 * @throws java.rmi.RemoteException
 	 */
-	public void stopCalc() throws java.rmi.RemoteException{
+	public void stopCalc() {
 		sourceIndex = numSources;
 	}
 

@@ -44,7 +44,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForeca
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
@@ -157,7 +157,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 	private ArrayList faultE_Lats, faultE_Lons, faultE_Dips, faultE_Depths;
 
 	//Instance of the application implementing the PEER_TestCaseSelectorControlPanelAPI
-	HazardCurveServerModeApplication api;
+	HazardCurveApplication api;
 
 	//Stores the X Values for generating the hazard curve using the PEER values.
 	ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
@@ -176,7 +176,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 	 * @param timeSpanGuiBean
 	 * @param distanceControlPanel
 	 */
-	public PEER_TestCaseSelectorControlPanel(Component parent, HazardCurveServerModeApplication api,
+	public PEER_TestCaseSelectorControlPanel(Component parent, HazardCurveApplication api,
 			IMR_MultiGuiBean imrGuiBean,
 			Site_GuiBean siteGuiBean,
 			IMT_NewGuiBean imtGuiBean,

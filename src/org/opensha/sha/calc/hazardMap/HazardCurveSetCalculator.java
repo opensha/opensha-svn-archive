@@ -1,8 +1,6 @@
 package org.opensha.sha.calc.hazardMap;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -67,11 +65,8 @@ public class HazardCurveSetCalculator {
 			throw new IllegalArgumentException("If IMTs are specified for each IMR map, there must me exactly one" +
 					" for every IMR map.");
 		
-		try {
-			this.calc = new HazardCurveCalculator();
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
+	
+		this.calc = new HazardCurveCalculator();
 		
 		erf.updateForecast();
 	}

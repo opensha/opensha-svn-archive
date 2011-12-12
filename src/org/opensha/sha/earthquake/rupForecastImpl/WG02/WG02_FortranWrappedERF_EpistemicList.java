@@ -46,8 +46,6 @@ import org.opensha.commons.util.RunScript;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WG02.servlet.WG02Servlet;
-import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient;
 
 /**
  * <p>Title: WG02_FortranWrappedERF_EpistemicList</p>
@@ -583,37 +581,6 @@ public class WG02_FortranWrappedERF_EpistemicList extends AbstractEpistemicListE
 
 		return new WG02_EqkRupForecast(inputFileStrings, rupOffset, gridSpacing,
 				deltaMag, backSeis, grTail, "no name", timeSpan);
-	}
-
-
-	/**
-	 * get the remote ERF in the list with the specified index
-	 * @param index : index of Eqk rup forecast to return
-	 * @return
-	 *
-	 * Note:
-	 * This function remains same as that of getERF() but only differs
-	 * when returning each ERF from the ERF List. In getERF() instance of the
-	 * EqkRupForecastAPI which is transferring the whole object on to the user's machine, but this function
-	 * return back the RemoteEqkRupForecastAPI. This is useful becuase whole ERF object does not
-	 * get transfer to the users machine, just a stub of the remotely existing ERF gets
-	 * transferred.
-	 *
-	 */
-	public RemoteEqkRupForecastAPI getRemoteERF(int index) {
-
-		ArrayList inputFileStrings = getDataForERF(index);
-
-		try{
-			WG02_EqkRupForecastClient wg02 =new WG02_EqkRupForecastClient(inputFileStrings, rupOffset, gridSpacing,
-					deltaMag, backSeis, grTail, "no name", timeSpan);
-			return wg02.getERF_Server();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-
-		return null;
-
 	}
 
 	/**

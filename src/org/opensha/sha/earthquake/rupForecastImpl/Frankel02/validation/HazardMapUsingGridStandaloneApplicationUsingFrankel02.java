@@ -36,7 +36,6 @@ import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
@@ -84,7 +83,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
 
 
   // make the Frankel-02 forecast
-  private Frankel02_AdjustableEqkRupForecastClient forecast=null;
+  private Frankel02_AdjustableEqkRupForecast forecast=null;
 
   // region bounds
   private final double MIN_LAT= 33.5;
@@ -184,7 +183,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
    */
   private void initERFSelector_GuiBean() {
     try{
-      forecast = new Frankel02_AdjustableEqkRupForecastClient();
+      forecast = new Frankel02_AdjustableEqkRupForecast();
       ParameterList forecastParamList = forecast.getAdjustableParameterList();
       forecastParamList.getParameter(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_NAME).setValue(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_FRANKEL);
       forecastParamList.getParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);

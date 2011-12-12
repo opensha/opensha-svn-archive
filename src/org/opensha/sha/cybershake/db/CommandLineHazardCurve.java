@@ -50,9 +50,9 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 	private static String DB_NAME = "CyberShake";
 	private static double[] siteCoords = new double[2];
 
-	 // site translator
+	// site translator
 	SiteTranslator siteTranslator = new SiteTranslator();
-	
+
 	private String site;
 	private MeanUCERF2 meanUCERF2;
 	private ScalarIMR imr;		
@@ -60,7 +60,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 
 	private String ERF_NAME = "WGCEP (2007) UCERF2 - Single Branch";
 	private static final DBAccess db = new DBAccess(HOSTNAME,DB_NAME); 
-	
+
 	public static void main(String[] args) {
 		if (args.length<3) {
 			System.out.println("Usage:  java CommandLineHazardCurve <site> <sgt_variation_id> <rup_var_scenario_id>");
@@ -72,17 +72,17 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		int velModelID = 1; //TODO don't hardcode
 		siteCoords = getSiteCoordinates(siteName);
 		System.out.println(siteCoords[0] + " " + siteCoords[1]);
-//		siteCoords[0] = 34.0192;
-//		siteCoords[1] = -118.286;
+		//		siteCoords[0] = 34.0192;
+		//		siteCoords[1] = -118.286;
 		System.out.println("Preparing for curve generation.");
 		CommandLineHazardCurve clhc = new CommandLineHazardCurve(siteName);
-//		System.out.println("Calculating Attenuation curve.");
-//		clhc.calcAttenuationCurve(siteName);
+		//		System.out.println("Calculating Attenuation curve.");
+		//		clhc.calcAttenuationCurve(siteName);
 		System.out.println("Calculating CS curve.");
 		clhc.calcCyberShakeCurve(siteName, sgtVariationID, rupVarID, velModelID);
 		System.exit(0);
 	}
-	
+
 	private void calcCyberShakeCurve(String siteName, int sgtVariationID, int rupVarID, int velModelID) {
 		HazardCurveComputation hazCurve = new HazardCurveComputation(db);
 		ArrayList<Double> imlVals = new ArrayList<Double>();
@@ -92,97 +92,93 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		DiscretizedFunc cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, velModelID, im);
 		System.out.println("Writing out CS file.");
 		try {
-		    FileWriter fr = new FileWriter(siteName + "_cybershake.txt");
-		    for(int i=0;i<cyberShakeHazardData.getNum();++i) {
-			fr.write(cyberShakeHazardData.getX(i)+" "+cyberShakeHazardData.getY(i)+"\n");
-		    }
-		    fr.flush();
-		    fr.close();
-	        } catch(IOException e) {
-		    e.printStackTrace();
-	        }
+			FileWriter fr = new FileWriter(siteName + "_cybershake.txt");
+			for(int i=0;i<cyberShakeHazardData.getNum();++i) {
+				fr.write(cyberShakeHazardData.getX(i)+" "+cyberShakeHazardData.getY(i)+"\n");
+			}
+			fr.flush();
+			fr.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void calcAttenuationCurve(String siteName) {
 		HazardCurveCalculator hazCurveCalc;
-		
-		try {
-			hazCurveCalc = new HazardCurveCalculator();
-			setSiteParamsInIMR();
-			Site site = new Site(new Location(siteCoords[0], siteCoords[1]), siteName);
-			
-			Iterator it = imr.getSiteParamsIterator();
-			while(it.hasNext())  {
-				site.addParameter((Parameter)it.next());
-			}
 
-			//log the IML valuesbefore passing to HazardCurveCalculator
-			DiscretizedFunc logIML_Func = new ArbitrarilyDiscretizedFunc();
-			for(int i=0; i<function.getNum(); ++i)
-				logIML_Func.set(Math.log(function.getX(i)), 1);
-			
-			// calculate the hazard curve
-			hazCurveCalc.getHazardCurve(logIML_Func, site, imr, meanUCERF2);
-			
-			// Unlog the IML values. The Y Values we get from hazardCurveCalculator are unmodified
-			DiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
-			for(int i=0; i<function.getNum(); ++i)
-				hazFunc.set(function.getX(i), logIML_Func.getY(i));
-			
-			try {
-				FileWriter fr = new FileWriter(site.getName() + ".txt");
-				for(int i=0;i<hazFunc.getNum();++i) {
-					fr.write(hazFunc.getX(i)+" "+hazFunc.getY(i)+"\n");
-				}
-				fr.flush();
-				fr.close();
-	        } catch(IOException e) {
-	        	e.printStackTrace();
-	        }
-	        
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
+		hazCurveCalc = new HazardCurveCalculator();
+		setSiteParamsInIMR();
+		Site site = new Site(new Location(siteCoords[0], siteCoords[1]), siteName);
+
+		Iterator it = imr.getSiteParamsIterator();
+		while(it.hasNext())  {
+			site.addParameter((Parameter)it.next());
 		}
-		
+
+		//log the IML valuesbefore passing to HazardCurveCalculator
+		DiscretizedFunc logIML_Func = new ArbitrarilyDiscretizedFunc();
+		for(int i=0; i<function.getNum(); ++i)
+			logIML_Func.set(Math.log(function.getX(i)), 1);
+
+		// calculate the hazard curve
+		hazCurveCalc.getHazardCurve(logIML_Func, site, imr, meanUCERF2);
+
+		// Unlog the IML values. The Y Values we get from hazardCurveCalculator are unmodified
+		DiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
+		for(int i=0; i<function.getNum(); ++i)
+			hazFunc.set(function.getX(i), logIML_Func.getY(i));
+
+		try {
+			FileWriter fr = new FileWriter(site.getName() + ".txt");
+			for(int i=0;i<hazFunc.getNum();++i) {
+				fr.write(hazFunc.getX(i)+" "+hazFunc.getY(i)+"\n");
+			}
+			fr.flush();
+			fr.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+
 	}
-	
+
 	/**
-	   * set the site params in IMR according to basin Depth and vs 30
-	   * @param imr
-	   * @param lon
-	   * @param lat
-	   * @param willsClass
-	   * @param basinDepth
-	   */
-	  private void setSiteParamsInIMR() {
-		  LocationList locList = new LocationList();
-		  locList.add(new Location(siteCoords[0],siteCoords[1]));
-		  String willsClass = "NA";
-		  double basinDepth = Double.NaN;
-		  try{
-			  // get the vs 30 and basin depth from cvm
-			  willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(locList)).get(0);
-			  basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(locList)).get(0)).doubleValue();
-		  }catch(Exception ee){
-			  ee.printStackTrace();
-			  return;
-		  }
+	 * set the site params in IMR according to basin Depth and vs 30
+	 * @param imr
+	 * @param lon
+	 * @param lat
+	 * @param willsClass
+	 * @param basinDepth
+	 */
+	private void setSiteParamsInIMR() {
+		LocationList locList = new LocationList();
+		locList.add(new Location(siteCoords[0],siteCoords[1]));
+		String willsClass = "NA";
+		double basinDepth = Double.NaN;
+		try{
+			// get the vs 30 and basin depth from cvm
+			willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(locList)).get(0);
+			basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(locList)).get(0)).doubleValue();
+		}catch(Exception ee){
+			ee.printStackTrace();
+			return;
+		}
 
-		  Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
-		  while(it.hasNext()) {
-			  Parameter tempParam = (Parameter)it.next();
-			  System.out.println("Param:"+tempParam.getName());
-			  //adding the site Params from the CVM, if site is out the range of CVM then it
-			  //sets the site with whatever site Parameter Value user has choosen in the application
-			  boolean flag = siteTranslator.setParameterValue(tempParam,willsClass,basinDepth);
-			  if( !flag ) {
-				  String message = "cannot set the site parameter \""+tempParam.getName()+"\" from Wills class \""+willsClass+"\""+
-				  "\n (no known, sanctioned translation - please set by hand)";
-				  throw new RuntimeException(message);
-			  }
-		  }
+		Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
+		while(it.hasNext()) {
+			Parameter tempParam = (Parameter)it.next();
+			System.out.println("Param:"+tempParam.getName());
+			//adding the site Params from the CVM, if site is out the range of CVM then it
+			//sets the site with whatever site Parameter Value user has choosen in the application
+			boolean flag = siteTranslator.setParameterValue(tempParam,willsClass,basinDepth);
+			if( !flag ) {
+				String message = "cannot set the site parameter \""+tempParam.getName()+"\" from Wills class \""+willsClass+"\""+
+						"\n (no known, sanctioned translation - please set by hand)";
+				throw new RuntimeException(message);
+			}
+		}
 
-	  }
+	}
 
 	/**
 	 *  Function that must be implemented by all Listeners for
@@ -195,9 +191,9 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		WarningParameter param = e.getWarningParameter();
 		param.setValueIgnoreWarning(e.getNewValue());
 	}
-	
+
 	private static double[] getSiteCoordinates(String site) {
-        try {
+		try {
 			ResultSet result = db.selectData("select CS_Site_Lat, CS_Site_Lon from CyberShake_Sites where CS_Site_Name='" + site + "'");
 			result.first();
 			if (result.getRow()==0) {
@@ -209,10 +205,10 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 			latLon[1] = result.getDouble("CS_Site_Lon");
 			result.close();
 			return latLon;
-        } catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-        return null;
+		return null;
 	}
 
 	public CommandLineHazardCurve(String s) {
@@ -227,15 +223,15 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		String imtString = "SA_3.0sec";
 		createUSGS_SA_Function();// for SA
 	}
-	
-	  /**
-	   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
-	   * the y values are modified with the values entered by the user
-	   */
-	  private void createUSGS_SA_Function(){
-	    function= new ArbitrarilyDiscretizedFunc();
-	 
-	   /* function.set(.0025,1);
+
+	/**
+	 * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+	 * the y values are modified with the values entered by the user
+	 */
+	private void createUSGS_SA_Function(){
+		function= new ArbitrarilyDiscretizedFunc();
+
+		/* function.set(.0025,1);
 	    function.set(.00375,1);
 	    function.set(.00563 ,1);
 	    function.set(.00844,1);
@@ -255,9 +251,9 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 	    function.set(2.46,1);
 	    function.set(3.69,1);
 	    function.set(5.54,1);*/
-	    //new function mirroring the gui app
-	    function.set(0.0001,1);
-	    function.set(0.00013,1);
+		//new function mirroring the gui app
+		function.set(0.0001,1);
+		function.set(0.00013,1);
 		function.set(0.00016,1);
 		function.set(0.0002,1);
 		function.set(0.00025,1);
@@ -308,7 +304,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		function.set(7.94328,1);
 		function.set(10,1);
 
-	  }
+	}
 
 	/**
 	 * Parameters here should be same as in opensha.calc.cybershake.db.MeanUCERF2_ToDB class
@@ -325,8 +321,8 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		meanUCERF2.updateForecast();
 		return meanUCERF2;
 	}
-	
-	
+
+
 	/**
 	 * Set up the IMR with default values
 	 * @return

@@ -1,8 +1,6 @@
 package org.opensha.sra.gui.portfolioeal;
 
 import java.lang.reflect.Constructor;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -20,21 +18,16 @@ import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetOutputWriter;
-import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.BaseERF;
-import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.SiteTranslator;
+import org.opensha.sra.calc.EALCalculator;
 import org.opensha.sra.gui.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.sra.vulnerability.Vulnerability;
 
-import org.opensha.sra.calc.EALCalculator;
-
 import com.google.common.base.Preconditions;
-
-import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
 
 
 
@@ -230,10 +223,6 @@ public class Asset implements Cloneable {
 		try {
 			calc = new HazardCurveCalculator();
 			wait(5000);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-			error = true;
-			errorMessage += e.getMessage();
 		} catch( Exception e ) {
 		}
 
@@ -332,17 +321,15 @@ public class Asset implements Cloneable {
 
 	/**
 	 * @return The total amount of ruptures in a hazard calculation.
-	 * @throws RemoteException
 	 */
-	public int getTotalRuptures() throws RemoteException {
+	public int getTotalRuptures() {
 		return calc.getTotRuptures();
 	}
 
 	/**
 	 * @return The current amount of ruptures in a hazard calculation.
-	 * @throws RemoteException
 	 */
-	public int getCurrentRuptures() throws RemoteException {
+	public int getCurrentRuptures() {
 		return calc.getCurrRuptures();
 	}
 

@@ -41,7 +41,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 
 
 
@@ -69,7 +69,7 @@ implements ParameterChangeFailListener{
 
 
 	// saving the instance of caller class
-	HazardCurveServerModeApplication api;
+	HazardCurveApplication api;
 	private JCheckBox avgCheckBox = new JCheckBox();
 	private JScrollPane fractileScrollPane = new JScrollPane();
 	private JTextArea fractilesTextArea = new JTextArea();
@@ -87,7 +87,7 @@ implements ParameterChangeFailListener{
 	 * @param api : the calling class. It should implement the ERF_EpistemicListControlPanelAPI
 	 * @param parentComponent
 	 */
-	public ERF_EpistemicListControlPanel(HazardCurveServerModeApplication api,
+	public ERF_EpistemicListControlPanel(HazardCurveApplication api,
 			Component parentComponent) {
 		super(NAME);
 		this.api = api;

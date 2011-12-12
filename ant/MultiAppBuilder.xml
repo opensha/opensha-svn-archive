@@ -60,11 +60,6 @@
 	</target>
 	
 	<target name="build.all">
-		<antcall target="build.local" />
-		<antcall target="build.server" />
-	</target>
-
-	<target name="build.local">
 		<antcall target="build.hc.local" />
 		<antcall target="build.hc.gcim" />
 		<antcall target="build.hs.local" />
@@ -73,12 +68,6 @@
 		<antcall target="build.gmt" />
 		<antcall target="build.mfd" />
 		<antcall target="build.site.data" />
-	</target>
-	
-	<target name="build.server">
-		<antcall target="build.hc.server" />
-		<antcall target="build.hs.server" />
-		<antcall target="build.sm.server" />
 	</target>
 	
 	<target name="build.wgcep">
@@ -97,10 +86,9 @@
 	<target name="build.hc.local">
 		<ant antfile="${app.build.file}" target="build.app">
 			<property name="app.short.name" value="HazardCurveLocal" />
-			<property name="app.main.class" value="${sha.gui.package}.HazardCurveLocalModeApplication" />
-			<property name="javac.includes"     value="${sha.gui.dir}/HazardCurveLocalModeApplication.java" />
+			<property name="app.main.class" value="${sha.gui.package}.HazardCurveApplication" />
+			<property name="javac.includes"     value="${sha.gui.dir}/HazardCurveApplication.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
 			<property name="resource.target" value="resource.hazard.apps" />
 		</ant>
 	</target>
@@ -111,74 +99,27 @@
 			<property name="app.main.class" value="org.opensha.sha.gcim.ui.GCIM_HazardCurveApp" />
 			<property name="javac.includes"     value="org/opensha/sha/gcim/ui/GCIM_HazardCurveApp.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
 			<property name="resource.target" value="resource.hazard.apps" />
-		</ant>
-	</target>
-	
-	<target name="build.hc.server">
-		<ant antfile="${app.build.file}" target="build.app">
-			<property name="app.short.name" value="HazardCurveServer" />
-			<property name="app.main.class" value="${sha.gui.package}.HazardCurveServerModeApplication" />
-			<property name="javac.includes"     value="${sha.gui.dir}/HazardCurveServerModeApplication.java" />
-			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
-			<property name="resource.target" value="resource.hazard.apps.server" />
-		</ant>
-	</target>
-	
-	<target name="build.rmi.test">
-		<ant antfile="${app.build.file}" target="build.app">
-			<property name="app.short.name" value="RMITest" />
-			<property name="app.main.class" value="org.opensha.sha.earthquake.rupForecastImpl.remote.RMIDebug" />
-			<property name="javac.includes"     value="org/opensha/sha/earthquake/rupForecastImpl/remote/RMIDebug.java" />
-			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
-			<property name="resource.target" value="resource.hazard.apps.server" />
 		</ant>
 	</target>
 	
 	<target name="build.hs.local">
 		<ant antfile="${app.build.file}" target="build.app">
 			<property name="app.short.name" value="HazardSpectrumLocal" />
-			<property name="app.main.class" value="${sha.gui.package}.HazardSpectrumLocalModeApplication" />
-			<property name="javac.includes"     value="${sha.gui.dir}/HazardSpectrumLocalModeApplication.java" />
+			<property name="app.main.class" value="${sha.gui.package}.HazardSpectrumApplication" />
+			<property name="javac.includes"     value="${sha.gui.dir}/HazardSpectrumApplication.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.spectrum" />
 			<property name="resource.target" value="resource.hazard.apps" />
-		</ant>
-	</target>
-	
-	<target name="build.hs.server">
-		<ant antfile="${app.build.file}" target="build.app">
-			<property name="app.short.name" value="HazardSpectrumServer" />
-			<property name="app.main.class" value="${sha.gui.package}.HazardSpectrumServerModeApplication" />
-			<property name="javac.includes"     value="${sha.gui.dir}/HazardSpectrumServerModeApplication.java" />
-			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.spectrum" />
-			<property name="resource.target" value="resource.hazard.apps.server" />
 		</ant>
 	</target>
 	
 	<target name="build.sm.local">
 		<ant antfile="${app.build.file}" target="build.app">
 			<property name="app.short.name" value="ScenarioShakeMapLocal" />
-			<property name="app.main.class" value="${sha.gui.package}.ScenarioShakeMapLocalModeCalcApp" />
-			<property name="javac.includes"     value="${sha.gui.dir}/ScenarioShakeMapLocalModeCalcApp.java" />
-			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
-			<property name="resource.target" value="resource.hazard.apps" />
-		</ant>
-	</target>
-	
-	<target name="build.sm.server">
-		<ant antfile="${app.build.file}" target="build.app">
-			<property name="app.short.name" value="ScenarioShakeMapServer" />
 			<property name="app.main.class" value="${sha.gui.package}.ScenarioShakeMapApp" />
 			<property name="javac.includes"     value="${sha.gui.dir}/ScenarioShakeMapApp.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
-			<property name="resource.target" value="resource.hazard.apps.server" />
+			<property name="resource.target" value="resource.hazard.apps" />
 		</ant>
 	</target>
 	
@@ -275,7 +216,6 @@
 			<property name="app.main.class" value="org.opensha.sra.gui.BCR_Application" />
 			<property name="javac.includes"     value="org/opensha/sra/gui/BCR_Application.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
 			<property name="resource.target" value="resource.hazard.apps" />
 		</ant>
 	</target>
@@ -286,7 +226,6 @@
 			<property name="app.main.class" value="org.opensha.sra.gui.LossEstimationApplication" />
 			<property name="javac.includes"     value="org/opensha/sra/gui/LossEstimationApplication.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
 			<property name="resource.target" value="resource.hazard.apps" />
 		</ant>
 	</target>
@@ -297,7 +236,6 @@
 			<property name="app.main.class" value="org.opensha.sra.gui.portfolioeal.PortfolioEALCalculatorController" />
 			<property name="javac.includes"     value="org/opensha/sra/gui/portfolioeal/PortfolioEALCalculatorController.java" />
 			<property name="javac.excludes" value="" />
-			<property name="rmi.target" value="rmi.hazard.curve" />
 			<property name="resource.target" value="resource.hazard.apps" />
 		</ant>
 	</target>

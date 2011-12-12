@@ -19,9 +19,6 @@
 
 package org.opensha.gem.GEM1.scratch;
 
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -48,7 +45,6 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr.Type;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
@@ -69,7 +65,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @version 1.0
  */
 
-public class HazardCurveCalculator extends UnicastRemoteObject
+public class HazardCurveCalculator
 implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 	protected final static String C = "HazardCurveCalculator";
@@ -117,10 +113,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 	/**
 	 * creates the HazardCurveCalculator object
-	 *
-	 * @throws java.rmi.RemoteException
 	 */
-	public HazardCurveCalculator() throws java.rmi.RemoteException {
+	public HazardCurveCalculator() {
 
 		// Create adjustable parameters and add to list
 
@@ -163,7 +157,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 *
 	 * @param distance: the maximum distance in km
 	 */
-	public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
+	public void setMaxSourceDistance(double distance) {
 		maxDistanceParam.setValue(distance);
 	}
 
@@ -175,7 +169,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	/**
 	 * This is a direct way of getting the distance cutoff from that parameter
 	 */
-	public double getMaxSourceDistance() throws java.rmi.RemoteException { 
+	public double getMaxSourceDistance() { 
 		return maxDistanceParam.getValue().doubleValue(); 
 	}
 
@@ -185,12 +179,12 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * as true.
 	 * @param magDistfunc
 	 */
-	public void setMagDistCutoffFunc(ArbitrarilyDiscretizedFunc magDistfunc)  throws java.rmi.RemoteException{
+	public void setMagDistCutoffFunc(ArbitrarilyDiscretizedFunc magDistfunc) {
 		includeMagDistFilterParam.setValue(true);
 		magDistCutoffParam.setValue(magDistfunc);
 	}
 
-	public void setIncludeMagDistCutoff(boolean include)  throws java.rmi.RemoteException{
+	public void setIncludeMagDistCutoff(boolean include) {
 		this.includeMagDistFilterParam.setValue(include);
 	}
 
@@ -200,7 +194,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * mag on y-axis), returning null if the includeMagDistFilterParam
 	 * has been set to false.
 	 */
-	public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc()  throws java.rmi.RemoteException{
+	public ArbitrarilyDiscretizedFunc getMagDistCutoffFunc() {
 		if(includeMagDistFilterParam.getValue())
 			return magDistCutoffParam.getValue();
 		else
@@ -214,8 +208,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param hazFunction Discretized Hazard Function
 	 * @return DiscretizedFuncAPI Annualized Rate Curve
 	 */
-	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) 
-	throws java.rmi.RemoteException{
+	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) {
 		DiscretizedFunc annualizedRateFunc = (DiscretizedFunc)hazFunction.deepClone();
 		int size = annualizedRateFunc.getNum();
 		for(int i=0;i<size;++i){
@@ -243,8 +236,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 */
 	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			ERF eqkRupForecast)
-	throws java.rmi.RemoteException{
+			ERF eqkRupForecast) {
 
 		// make hashtable with single IMR (so we can use the other method)
 		Map<TectonicRegionType, ScalarIMR> imrMap =
@@ -279,7 +271,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			DiscretizedFunc hazFunction,
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap, 
-			ERF eqkRupForecast) throws java.rmi.RemoteException{
+			ERF eqkRupForecast) {
 
 		//	  System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
 		//	  System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
@@ -481,8 +473,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 */
 	public DiscretizedFunc getAverageEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			ERF eqkRupForecast)
-	throws java.rmi.RemoteException{
+			ERF eqkRupForecast) {
 
 		System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
 		System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
@@ -532,8 +523,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 */
 	public DiscretizedFunc getEventSetHazardCurve(DiscretizedFunc hazFunction,
 			Site site, ScalarIMR imr, 
-			List<EqkRupture> eqkRupList, boolean updateCurrRuptures)
-	throws java.rmi.RemoteException{
+			List<EqkRupture> eqkRupList, boolean updateCurrRuptures) {
 
 
 		ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
@@ -633,8 +623,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @return
 	 */
 	public DiscretizedFunc getHazardCurve(DiscretizedFunc hazFunction,
-			Site site, ScalarIMR imr, EqkRupture rupture) throws
-			java.rmi.RemoteException {
+			Site site, ScalarIMR imr, EqkRupture rupture) {
 
 		System.out.println("Haz Curv Calc: maxDistanceParam.getValue()="+maxDistanceParam.getValue().toString());
 		System.out.println("Haz Curv Calc: numStochEventSetRealizationsParam.getValue()="+numStochEventSetRealizationsParam.getValue().toString());
@@ -670,7 +659,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @return the current rupture being traversed (used in a progress bar)
 	 * @throws java.rmi.RemoteException
 	 */
-	public int getCurrRuptures() throws java.rmi.RemoteException{
+	public int getCurrRuptures() {
 		return this.currRuptures;
 	}
 
@@ -680,7 +669,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * model (used in a progress bar)
 	 * @throws java.rmi.RemoteException
 	 */
-	public int getTotRuptures() throws java.rmi.RemoteException{
+	public int getTotRuptures() {
 		return this.totRuptures;
 	}
 
@@ -688,7 +677,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * stops the Hazard Curve calculations.
 	 * @throws java.rmi.RemoteException
 	 */
-	public void stopCalc() throws java.rmi.RemoteException{
+	public void stopCalc() {
 		sourceIndex = numSources;
 	}
 
@@ -707,7 +696,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 *
 	 * @return the adjustable ParameterList
 	 */
-	public ParameterList getAdjustableParams()  throws java.rmi.RemoteException{
+	public ParameterList getAdjustableParams() {
 		return this.adjustableParams;
 	}
 
@@ -717,7 +706,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @return This was created so new instances of this calculator could be
 	 * given pointers to a set of parameter that already exist.
 	 */
-	public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException{
+	public void setAdjustableParams(ParameterList paramList) {
 		this.adjustableParams = paramList;
 		this.maxDistanceParam= (DoubleParameter)paramList.getParameter(this.MAX_DISTANCE_PARAM_NAME);
 		this.numStochEventSetRealizationsParam= (IntegerParameter)paramList.getParameter(NUM_STOCH_EVENT_SETS_PARAM_NAME);
@@ -731,7 +720,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 *
 	 * @return
 	 */
-	public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException{
+	public ListIterator getAdjustableParamsIterator() {
 		return adjustableParams.getParametersIterator();
 	}
 
@@ -768,22 +757,12 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 		hazCurve.setName("Hazard Curve");
 
-		try {
-			this.getHazardCurve(hazCurve, site, imr, eqkRupForecast);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.getHazardCurve(hazCurve, site, imr, eqkRupForecast);
 
 		System.out.println(hazCurve.toString());
 
 		ArbitrarilyDiscretizedFunc aveCurve = hazCurve.deepClone();
-		try {
-			getAverageEventSetHazardCurve(aveCurve,site, imr,eqkRupForecast);
-		} catch (RemoteException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		getAverageEventSetHazardCurve(aveCurve,site, imr,eqkRupForecast);
 
 		/*
 	this.initDiscretizeValues(aveCurve, 0.0);
@@ -843,13 +822,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		HazardCurveCalculator calc;
-		try {
-			calc = new HazardCurveCalculator();
-			calc.testEventSetHazardCurve(1000);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		calc = new HazardCurveCalculator();
+		calc.testEventSetHazardCurve(1000);
 
 		/*
     double temp1, temp2, temp3, temp4;

@@ -58,7 +58,7 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
 import org.opensha.sha.gui.controls.ControlPanel;

@@ -1,7 +1,5 @@
 package scratch.kevin;
 
-import java.rmi.RemoteException;
-
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
@@ -24,9 +22,8 @@ public class MultiIMRSpeedTest {
 
 	/**
 	 * @param args
-	 * @throws RemoteException 
 	 */
-	public static void main(String[] args) throws RemoteException {
+	public static void main(String[] args) {
 		NGA_2008_Averaged_AttenRel multi = new NGA_2008_Averaged_AttenRel(null);
 		multi.setParamDefaults();
 		

@@ -24,7 +24,6 @@
 	<description>
         Builds an OpenSHA application as a launchable jar...must be called by another build file with the following
 		properties set: app.short.name, app.main.class, javac.includes, javac.excludes, resource.target,
-		and optionally: rmi.target
     </description>
 
 	<import file="include/utils.xml"/>
@@ -92,7 +91,6 @@
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile">
 		<antcall target="compile.java" />
-		<antcall target="compile.rmi" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -113,13 +111,6 @@
 			<src path="${src}" />
 			<src path="${dev}" />
 		</javac>
-	</target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: compile.rmi
-         - - - - - - - - - - - - - - - - - -->
-	<target name="compile.rmi" if="rmi.target">
-		<ant antfile="build.xml" target="${rmi.target}"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

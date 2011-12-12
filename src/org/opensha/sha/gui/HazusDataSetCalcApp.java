@@ -29,7 +29,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -327,7 +326,7 @@ public class HazusDataSetCalcApp extends JFrame
    */
   private void initERFSelector_GuiBean() {
    try{
-     erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
+     erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
    }catch(InvocationTargetException e){
      throw new RuntimeException("Connection to ERF servlets failed");
    }

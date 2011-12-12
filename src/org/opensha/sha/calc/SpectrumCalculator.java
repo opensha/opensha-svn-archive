@@ -19,8 +19,6 @@
 
 package org.opensha.sha.calc;
 
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -53,7 +51,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
  * @author Nitin Gupta
  * @version 1.0
  */
-public class SpectrumCalculator extends UnicastRemoteObject
+public class SpectrumCalculator
 implements SpectrumCalculatorAPI {
 
 
@@ -78,10 +76,8 @@ implements SpectrumCalculatorAPI {
 
 	/**
 	 * SpectrumCalculator
-	 *
-	 * @throws RemoteException
 	 */
-	public SpectrumCalculator() throws RemoteException {
+	public SpectrumCalculator() {
 
 		// Create adjustable parameters and add to list
 		adjustableParams = new ParameterList();
@@ -95,7 +91,7 @@ implements SpectrumCalculatorAPI {
 	 *
 	 * @return the adjustable ParameterList
 	 */
-	public ParameterList getAdjustableParams()  throws java.rmi.RemoteException{
+	public ParameterList getAdjustableParams() {
 		return this.adjustableParams;
 	}
 
@@ -105,7 +101,7 @@ implements SpectrumCalculatorAPI {
 	 * @return This was created so new instances of this calculator could be
 	 * given pointers to a set of parameter that already exist.
 	 */
-	public void setAdjustableParams(ParameterList paramList)  throws java.rmi.RemoteException{
+	public void setAdjustableParams(ParameterList paramList) {
 		this.adjustableParams = paramList;
 		this.maxDistanceParam= (MaxDistanceParam)paramList.getParameter(MaxDistanceParam.NAME);
 		this.ptSrcDistCorrParam= (PtSrcDistanceCorrectionParam)paramList.getParameter(PtSrcDistanceCorrectionParam.NAME);
@@ -114,7 +110,7 @@ implements SpectrumCalculatorAPI {
 	/**
 	 * This is a direct way of getting the distance cutoff from that parameter
 	 */
-	public double getMaxSourceDistance() throws java.rmi.RemoteException { 
+	public double getMaxSourceDistance() { 
 		return maxDistanceParam.getValue().doubleValue(); 
 	}
 
@@ -124,7 +120,7 @@ implements SpectrumCalculatorAPI {
 	 *
 	 * @return
 	 */
-	public ListIterator getAdjustableParamsIterator()  throws java.rmi.RemoteException{
+	public ListIterator getAdjustableParamsIterator() {
 		return adjustableParams.getParametersIterator();
 	}
 
@@ -138,7 +134,7 @@ implements SpectrumCalculatorAPI {
 	 *
 	 * @param distance: the maximum distance in km
 	 */
-	public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
+	public void setMaxSourceDistance(double distance){
 		maxDistanceParam.setValue(distance);
 	}
 
@@ -159,8 +155,7 @@ implements SpectrumCalculatorAPI {
 			ScalarIMR imr,
 			ERF eqkRupForecast,
 			double probVal,
-			List supportedSA_Periods) throws
-			java.rmi.RemoteException {
+			List supportedSA_Periods) {
 
 		this.currRuptures = -1;
 		
@@ -402,8 +397,7 @@ implements SpectrumCalculatorAPI {
 			ScalarIMR imr,
 			ERF eqkRupForecast,
 			double imlVal,
-			List supportedSA_Periods) throws
-			RemoteException {
+			List supportedSA_Periods) {
 
 		//creating the Master function that initializes the Function with supported SA Periods Vals
 		DiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -563,18 +557,16 @@ implements SpectrumCalculatorAPI {
 	/**
 	 *
 	 * @return the current rupture being traversed
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getCurrRuptures() throws java.rmi.RemoteException {
+	public int getCurrRuptures() {
 		return this.currRuptures;
 	}
 
 	/**
 	 *
 	 * @return the total number of ruptures in the earthquake rupture forecast model
-	 * @throws java.rmi.RemoteException
 	 */
-	public int getTotRuptures() throws java.rmi.RemoteException {
+	public int getTotRuptures() {
 		return this.totRuptures;
 	}
 
@@ -605,7 +597,7 @@ implements SpectrumCalculatorAPI {
 	 */
 	public DiscretizedFunc getDeterministicSpectrumCurve(
 			Site site, ScalarIMR imr, EqkRupture rupture,
-			boolean probAtIML, double imlProbVal)  throws RemoteException{
+			boolean probAtIML, double imlProbVal) {
 
 
 		//resetting the Parameter change Listeners on the AttenuationRelationship

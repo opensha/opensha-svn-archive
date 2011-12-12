@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,20 +117,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF;
 import org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_LogicTreeERF_ListClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Point2MultVertSS_FaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Point2MultVertSS_FaultERF_ListClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient;
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 import org.opensha.sha.gcim.calc.DisaggregationCalculator;
 import org.opensha.sha.gcim.calc.DisaggregationCalculatorAPI;
@@ -139,7 +124,7 @@ import org.opensha.sha.gcim.calc.GcimCalculator;
 import org.opensha.sha.gcim.calc.GcimCalculatorAPI;
 import org.opensha.sha.gcim.ui.GcimControlPanel;
 import org.opensha.sha.gcim.ui.infoTools.GcimPlotViewerWindow;
-import org.opensha.sha.gui.HazardCurveServerModeApplication;
+import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -211,7 +196,7 @@ import scratch.christine.URS.URS_MeanUCERF2;
  * @version 1.0
  */
 
-public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
+public class GCIM_HazardCurveApp  extends HazardCurveApplication {
 
 	/**
 	 * 
@@ -1865,7 +1850,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 				// binDataAsHTML = binDataAsHTML.replaceAll("\n", "<br>");
 				// binDataAsHTML = binDataAsHTML.replaceAll("\t",
 				// "&nbsp;&nbsp;&nbsp;");
-			} catch (RemoteException ex) {
+			} catch (RuntimeException ex) {
 				setButtonsEnable(true);
 				ex.printStackTrace();
 				BugReport bug = new BugReport(ex, getParametersInfoAsString(), appShortName, getAppVersion(), this);
@@ -2234,7 +2219,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			// create the ERF Gui Bean object
 
 			try {
-				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, true, ServerPrefUtils.SERVER_PREFS));
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(true, ServerPrefUtils.SERVER_PREFS));
 				erfGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}
@@ -2343,7 +2328,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 
 			try {
 
-				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
+				erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
 			}
 			catch (InvocationTargetException e) {
 				throw new RuntimeException("Connection to ERF's failed");
@@ -2451,13 +2436,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
-		try {
-			return calc.getAdjustableParams();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		return calc.getAdjustableParams();
 	}
 
 
@@ -2940,7 +2919,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveServerModeApplication {
 			try {
 				calc.stopCalc();
 				calc = null;
-			} catch (RemoteException ee) {
+			} catch (RuntimeException ee) {
 				ee.printStackTrace();
 				BugReport bug = new BugReport(ee, getParametersInfoAsString(), appShortName, getAppVersion(), this);
 				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);

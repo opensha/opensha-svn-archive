@@ -33,7 +33,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -983,8 +982,6 @@ IMR_GuiBeanAPI{
 			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(currentHazardCurve, 
 					forecast.getTimeSpan().getDuration());
 		getAnnualizedPE(currentAnnualizedRates);
-	} catch (RemoteException e) {
-		e.printStackTrace();
 	}*/
 		LossCurveCalculator lCalc = new LossCurveCalculator();
 		ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(currentHazardCurve, vulnBean.getCurrentModel());
@@ -1158,7 +1155,7 @@ IMR_GuiBeanAPI{
 
 		if (erfGuiBean == null) {
 			try {
-				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, false, ServerPrefUtils.SERVER_PREFS));
+				erfGuiBean = new ERF_GuiBean(ERF_Ref.get(false, ServerPrefUtils.SERVER_PREFS));
 				erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
 				addParameterChangeListener(this);
 			}
@@ -1622,7 +1619,7 @@ IMR_GuiBeanAPI{
 			try{
 				calc.stopCalc();
 				calc = null;
-			}catch(RemoteException ee){
+			}catch(RuntimeException ee){
 				setButtonsEnable(true);
 				BugReport bug = new BugReport(ee, getParametersInfoAsString(), APP_SHORT_NAME,
 						getAppVersion(), this);

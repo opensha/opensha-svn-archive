@@ -64,10 +64,10 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
  * @author nitingupta
  *
  */
-public class HazardSpectrumLocalModeApplication
-extends HazardCurveLocalModeApplication {
+public class HazardSpectrumApplication
+extends HazardCurveApplication {
 
-	public static final String APP_NAME = "Hazard Spectrum Local Mode Application";
+	public static final String APP_NAME = "Hazard Spectrum Application";
 	public static final String APP_SHORT_NAME = "HazardSpectrumLocal";
 
 	//Static String to tell the IMT as the SA becuase it is the only supported IMT for this Application
@@ -91,7 +91,7 @@ extends HazardCurveLocalModeApplication {
 	//Prob@IML or IML@Prob
 	boolean probAtIML;
 
-	public HazardSpectrumLocalModeApplication(String appShortName) {
+	public HazardSpectrumApplication(String appShortName) {
 		super(appShortName);
 	}
 
@@ -101,15 +101,9 @@ extends HazardCurveLocalModeApplication {
 	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
-		try {
-			if (calc == null)
-				createCalcInstance();
-			return calc.getAdjustableParams();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		if (calc == null)
+			createCalcInstance();
+		return calc.getAdjustableParams();
 	}
 
 	/**
@@ -573,15 +567,7 @@ extends HazardCurveLocalModeApplication {
 
 
 				}
-			}
-			catch(RemoteException e){
-				setButtonsEnable(true);
-				e.printStackTrace();
-				BugReport bug = new BugReport(e, getParametersInfoAsString(), appShortName, getAppVersion(), this);
-				BugReportDialog bugDialog = new BugReportDialog(this, bug, false);
-				bugDialog.setVisible(true);
-			}
-			catch (RuntimeException e) {
+			} catch (RuntimeException e) {
 				//e.printStackTrace();
 				setButtonsEnable(true);
 				JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -695,8 +681,8 @@ extends HazardCurveLocalModeApplication {
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
-		HazardSpectrumLocalModeApplication applet = new
-				HazardSpectrumLocalModeApplication(APP_SHORT_NAME);
+		HazardSpectrumApplication applet = new
+				HazardSpectrumApplication(APP_SHORT_NAME);
 		exp.setApp(applet);
 		exp.setParent(applet);
 		applet.init();

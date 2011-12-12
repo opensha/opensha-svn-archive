@@ -1,7 +1,5 @@
 package scratch.kevin;
 
-import java.rmi.RemoteException;
-
 import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -22,7 +20,7 @@ public class AnnualizedRatesAddTest {
 	 * @param args
 	 * @throws RemoteException 
 	 */
-	public static void main(String[] args) throws RemoteException {
+	public static void main(String[] args) {
 		MeanUCERF2 erf = new MeanUCERF2();
 		
 		ScalarIMR imr = new CB_2008_AttenRel(null);

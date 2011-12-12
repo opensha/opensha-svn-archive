@@ -47,7 +47,6 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
@@ -83,7 +82,7 @@ public class MeanSigmaCalc
   protected LocationList locList;
   private ArrayList locNameList;
 
-  protected Frankel02_AdjustableEqkRupForecastClient frankelForecast;
+  protected Frankel02_AdjustableEqkRupForecast frankelForecast;
 
   //supported Attenuations
   protected ArrayList supportedAttenuationsList;
@@ -121,7 +120,7 @@ public class MeanSigmaCalc
  * @throws MalformedURLException 
    */
   protected void createFrankel02Forecast() throws RemoteException, MalformedURLException, NotBoundException{
-    frankelForecast = new Frankel02_AdjustableEqkRupForecastClient();
+    frankelForecast = new Frankel02_AdjustableEqkRupForecast();
     frankelForecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
     frankelForecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.

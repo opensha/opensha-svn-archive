@@ -243,26 +243,22 @@ public class LossCurveApplication extends JFrame {
 	
 	private ArbitrarilyDiscretizedFunc getHazardCurve() {
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
-		try {
-			HazardCurveCalculator hCalc = new HazardCurveCalculator();
-			
-			VulnerabilityModel curVulnModel = vulnBean.getCurrentModel();
-			ArrayList<Double> imls = curVulnModel.getIMLVals();
-			Site site = siteBean.getSite();
-			
-			// We are currently only doing SA, so use log
-			for(int i = 0; i < imls.size(); ++i)
-				hazFunc.set(Math.log(imls.get(i)), 0.0);
-			hazFunc = (ArbitrarilyDiscretizedFunc) hCalc.getHazardCurve(hazFunc,
-					site, imr, (ERF) forecast);
-			ArbitrarilyDiscretizedFunc tmpFunc = 
-					(ArbitrarilyDiscretizedFunc) hazFunc.deepClone();
-			hazFunc.clear();
-			for(int i = 0; i < imls.size(); ++i)
-				hazFunc.set(imls.get(i), tmpFunc.getY(i));
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+		HazardCurveCalculator hCalc = new HazardCurveCalculator();
+		
+		VulnerabilityModel curVulnModel = vulnBean.getCurrentModel();
+		ArrayList<Double> imls = curVulnModel.getIMLVals();
+		Site site = siteBean.getSite();
+		
+		// We are currently only doing SA, so use log
+		for(int i = 0; i < imls.size(); ++i)
+			hazFunc.set(Math.log(imls.get(i)), 0.0);
+		hazFunc = (ArbitrarilyDiscretizedFunc) hCalc.getHazardCurve(hazFunc,
+				site, imr, (ERF) forecast);
+		ArbitrarilyDiscretizedFunc tmpFunc = 
+				(ArbitrarilyDiscretizedFunc) hazFunc.deepClone();
+		hazFunc.clear();
+		for(int i = 0; i < imls.size(); ++i)
+			hazFunc.set(imls.get(i), tmpFunc.getY(i));
 		return hazFunc;
 	}
 	

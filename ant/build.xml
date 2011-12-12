@@ -102,7 +102,7 @@
 	<target name="svn.build" depends="svn.update,build">
 	</target>
 
-	<target name="build" depends="precompilecleanup,init,compile,rmi.all">
+	<target name="build" depends="precompilecleanup,init,compile">
 		<delete dir="${build}" failonerror="yes" verbose="no" />
 
 		<move todir="${build}">
@@ -112,7 +112,7 @@
 		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
 	</target>
 
-	<target name="pre.jar" depends="precompilecleanup,init,compile,rmi.all">
+	<target name="pre.jar" depends="precompilecleanup,init,compile">
 	</target>
 	
 	<target name="sign.jar" if="sign.jars">
@@ -355,11 +355,16 @@
 	</target>
 	
 	<target name="resource.app.icons" if="app.short.name">
-		<copy todir="${build}/resources/images/icons" overwrite="true">
-			<fileset dir="${project.jnlp.dir}/${app.build.type}/icons/">
-				<include name="${app.short.name}*.png" />
-			</fileset>
-		</copy>
+		<trycatch>
+			<try>
+				<copy todir="${build}/resources/images/icons" overwrite="true">
+					<fileset dir="${project.jnlp.dir}/${app.build.type}/icons/">
+						<include name="${app.short.name}*.png" />
+					</fileset>
+				</copy>
+			</try>
+			<catch/>
+		</trycatch>
 	</target>
 
 	<target name="resource.hazard.apps.server">
@@ -428,41 +433,6 @@
 		<unjar src="${lib.dir}/csparsej.jar" dest="${build}" />
 		<unjar src="${lib.dir}/parallelcolt-0.9.4.jar" dest="${build}" />
 		<unjar src="${lib.dir}/jxlayer.jar" dest="${build}" />
-	</target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
-	These targets are for RMIC       
-	 - - - - - - - - - - - - - - - - - -->
-
-	<target name="rmi.erfs">
-		<rmic base="${build}">
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteERF_ListFactoryImpl.class" />
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteEqkRupForecast_Impl.class" />
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteERF_ListImpl.class" />
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/remote/RemoteERF_FactoryImpl.class" />
-		</rmic>
-	</target>
-
-	<target name="rmi.hazard.curve">
-		<antcall target="rmi.erfs" />
-		<rmic base="${build}">
-			<include name="org/opensha/sha/calc/remoteCalc/RemoteHazardCurveFactoryImpl.class" />
-			<include name="org/opensha/sha/calc/remoteCalc/RemoteDisaggregationCalcFactoryImpl.class" />
-			<include name="org/opensha/sha/calc/disaggregation/DisaggregationCalculator.class" />
-			<include name="org/opensha/sha/calc/HazardCurveCalculator.class" />
-		</rmic>
-	</target>
-
-	<target name="rmi.hazard.spectrum">
-		<antcall target="rmi.hazard.curve" />
-		<rmic base="${build}">
-			<include name="org/opensha/sha/calc/remoteCalc/RemoteResponseSpectrumFactoryImpl.class" />
-			<include name="org/opensha/sha/calc/SpectrumCalculator.class" />
-		</rmic>
-	</target>
-
-	<target name="rmi.all">
-		<antcall target="rmi.hazard.spectrum" />
 	</target>
 
 	<target name="javadoc">
