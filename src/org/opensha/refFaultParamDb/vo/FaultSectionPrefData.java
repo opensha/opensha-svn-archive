@@ -138,17 +138,24 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		return couplingCoeff;
 	}
 
-	
+	/**
+	 * This returns the average dip (degrees)
+	 * @return
+	 */
 	public double getAveDip() {
 		return aveDip;
 	}
 	
+	/**
+	 * This sets the average dip (degrees)
+	 * @return
+	 */
 	public void setAveDip(double aveDip) {
 		this.aveDip = aveDip;
 	}
 	
 	/**
-	 * This returns the slip rate unmodified by the coupling coefficient
+	 * This returns the slip rate (mm/yr) unmodified by the coupling coefficient
 	 * @return
 	 */
 	public double getOrigAveSlipRate() {
@@ -157,7 +164,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	
 	
 	/**
-	 * This returns the product of the slip rate times the coupling coefficient
+	 * This returns the product of the slip rate (mm/yr) times the coupling coefficient
 	 * @return
 	 */
 	public double getReducedAveSlipRate() {
@@ -166,7 +173,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 
 	
 	/**
-	 * This sets the aveLongTermSlipRate, which should not already by modified by any
+	 * This sets the aveLongTermSlipRate (mm/yr), which should not already by modified by any
 	 * non-unit coupling coefficient.
 	 * @param aveLongTermSlipRate
 	 */
@@ -174,23 +181,40 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		this.aveLongTermSlipRate = aveLongTermSlipRate;
 	}
 	
+	/**
+	 * This returns the average lower seismogenic depth in km
+	 * @return
+	 */
 	public double getAveLowerDepth() {
 		return aveLowerDepth;
 	}
 	
+	/**
+	 * This gets the average lower seismogenic depth in km
+	 * @return
+	 */
 	public void setAveLowerDepth(double aveLowerDepth) {
 		this.aveLowerDepth = aveLowerDepth;
 	}
 	
+	/**
+	 * This gets the average rake in degrees
+	 * @return
+	 */
 	public double getAveRake() {
 		return aveRake;
 	}
+	
+	/**
+	 * This sets the average rake in degrees
+	 * @return
+	 */
 	public void setAveRake(double aveRake) {
 		this.aveRake = aveRake;
 	}
 	
 	/**
-	 * This returns the upper seismogenic depth that has not been modified
+	 * This returns the upper seismogenic (km) depth that has not been modified
 	 * by the aseismicity factor
 	 * @return
 	 */
@@ -199,7 +223,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	}
 	
 	/**
-	 * This sets the upper seismogenic depth, which should not have been modified
+	 * This sets the upper seismogenic depth (km), which should not have been modified
 	 * by the aseismicity factor
 	 * @return
 	 */
@@ -207,27 +231,51 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		this.aveUpperDepth = aveUpperDepth;
 	}
 	
+	/**
+	 * This returns the dip direction (degrees)
+	 * @return
+	 */
 	public float getDipDirection() {
 		return dipDirection;
 	}
 
+	/**
+	 * This sets the dip direction (degrees)
+	 * @return
+	 */
 	public void setDipDirection(float dipDirection) {
 		this.dipDirection = dipDirection;
 	}
 	
+	/**
+	 * This returns the fault trace
+	 * @return
+	 */
 	public FaultTrace getFaultTrace() {
 		
 		return faultTrace;
 	}
 	
+	/**
+	 * This sets the fault trace
+	 * @return
+	 */
 	public void setFaultTrace(FaultTrace faultTrace) {
 		this.faultTrace = faultTrace;
 	}
 	
+	/**
+	 * This returns the section ID 
+	 * @return
+	 */
 	public int getSectionId() {
 		return sectionId;
 	}
 	
+	/**
+	 * This sets the section ID 
+	 * @return
+	 */
 	public void setSectionId(int sectionId) {
 		this.sectionId = sectionId;
 	}
@@ -246,10 +294,17 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		this.parentSectionId = parentSectionId;
 	}
 	
+	/**
+	 * this returns the name (string) of the section
+	 * @return
+	 */
 	public String getSectionName() {
 		return sectionName;
 	}
 	
+	/**
+	 * this sets the name (string) of the section
+	 */
 	public void setSectionName(String sectionName) {
 		this.sectionName = sectionName;
 	}
@@ -268,12 +323,16 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		this.parentSectionName = parentSectionName;
 	}
 	
+	/**
+	 * this returns the length of the trace in km.
+	 * @return
+	 */
 	public double getTraceLength() {
 		return this.faultTrace.getTraceLength();
 	}
 	
 	/**
-	 * This returns the original down dip width (unmodified by the aseismicity factor)
+	 * This returns the original down dip width in km (unmodified by the aseismicity factor)
 	 * @return
 	 */
 	public double getOrigDownDipWidth() {
@@ -282,7 +341,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 
 	
 	/**
-	 * This returns the down-dip width reduced by the aseismicity factor
+	 * This returns the down-dip width (km) reduced by the aseismicity factor
 	 * @return
 	 */
 	public double getReducedDownDipWidth() {
@@ -338,7 +397,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 
 
 	/**
-	 * This returns the slip rate standard deviation (not modified by the coupling coefficient)
+	 * This returns the slip rate standard deviation (mm/yr) (not modified by the coupling coefficient)
 	 * @return
 	 */
 	public double getOrigSlipRateStdDev() {
@@ -346,7 +405,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	}
 
 	/**
-	 * This returns the product of the slip rate standard deviation times the coupling coefficient
+	 * This returns the product of the slip rate standard deviation (mm/yr) times the coupling coefficient
 	 * @return
 	 */
 	public double getReducedSlipRateStdDev() {
@@ -354,7 +413,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	}
 
 	/**
-	 * This sets the slip rate standard deviation (which should not have been modified 
+	 * This sets the slip rate standard deviation (mm/yr) (which should not have been modified 
 	 * by the coupling coefficient).
 	 * @return
 	 */
