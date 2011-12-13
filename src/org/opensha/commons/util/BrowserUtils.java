@@ -10,6 +10,12 @@ import com.google.common.base.Throwables;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
+/**
+ * This util class
+ * 
+ * @author Kevin
+ *
+ */
 public class BrowserUtils {
 	
 	public static void launch(String url) {
