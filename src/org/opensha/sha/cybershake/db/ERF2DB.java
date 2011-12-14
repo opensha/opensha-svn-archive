@@ -865,7 +865,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	 * @param surface GriddedSurfaceAPI
 	 * @return double[]
 	 */
-	private double[] getLocalStrikeList(EvenlyGriddedSurface surface){
+	public static double[] getLocalStrikeList(EvenlyGriddedSurface surface){
 		int numCols = surface.getNumCols();
 		double[] localStrike = null;
 		//if it not a point surface, then get the Azimuth(strike) for 2 neighbouring
@@ -878,6 +878,9 @@ public  class ERF2DB implements ERF2DBAPI{
 				Location loc1 = surface.getLocation(0, i);
 				Location loc2 = surface.getLocation(0, i + 1);
 				double strike = LocationUtils.azimuth(loc1, loc2);
+				// change to 0->360 range
+				if (strike < 0)
+					strike += 360;
 				localStrike[i] = strike;
 			}
 		}
