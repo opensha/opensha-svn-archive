@@ -70,26 +70,40 @@ public class ObsEqkRupture extends EqkRupture implements java.io.Serializable{
 		this.eventId=eventId;
 	}
 
+	/**
+	 * This returns the origin time of this event as a GregorianCalendar
+	 * (note the TimeZone of this calendar will be wherever the code is 
+	 * running when this method is called, as this is the default returned
+	 * by GregorianCalendar.getTimeZone())
+	 */
 	public GregorianCalendar getOriginTimeCal() {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.setTimeInMillis(originTimeInMillis);
 		return cal;
 	}	
 
+	/**
+	 * This sets the origin time of this event from the given GregorianCalendar
+	 */
 	public void setOriginTimeCal(GregorianCalendar origTimeCal) {
 		originTimeInMillis = origTimeCal.getTimeInMillis();
 	}
 
+	/**
+	 * This returns the origin time of this event
+	 * @return - the origin time in UTC milliseconds from the epoch
+	 */
 	public long getOriginTime() {
 		return this.originTimeInMillis;
 	}
 	
+	/**
+	 * This sets the origin time of this event
+	 * @return - the origin time in UTC milliseconds from the epoch
+	 */
 	public void setOriginTime(long originTimeInMillis) {
 		this.originTimeInMillis=originTimeInMillis;
 	}
-
-
-
 
 	/**
 	 * Checks whether eventId and mag of the given ObsEqkRupture 
