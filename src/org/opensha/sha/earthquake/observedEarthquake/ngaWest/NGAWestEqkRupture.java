@@ -3,6 +3,7 @@ package org.opensha.sha.earthquake.observedEarthquake.ngaWest;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.opensha.commons.geo.Location;
@@ -79,7 +80,9 @@ public class NGAWestEqkRupture extends ObsEqkRupture {
 			throw new RuntimeException("invalid hour/min string: "+hourMinStr);
 		}
 		
-		return new GregorianCalendar(year, month, day, hour, min);
+		GregorianCalendar cal = new  GregorianCalendar(year, month, day, hour, min);
+		cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+		return cal;
 	}
 	
 	public NGAWestEqkRupture(HSSFRow row, String dataSource) {
