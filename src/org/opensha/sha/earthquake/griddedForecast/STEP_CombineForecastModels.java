@@ -541,9 +541,8 @@ public class STEP_CombineForecastModels
     //System.out.println("From Timespan ="+startDate.toString());
     double duration = this.timeSpan.getDuration(durationUnits);
     ObsEqkRupture mainshock = this.getMainShock();
-    GregorianCalendar mainshockDate = mainshock.getOriginTime();
     double startInMils = startDate.getTimeInMillis();
-    double mainshockInMils = mainshockDate.getTimeInMillis();
+    double mainshockInMils = mainshock.getOriginTime();
     double timeDiffMils = startInMils - mainshockInMils;
     this.daysSinceMainshockStart = timeDiffMils / 1000.0 / 60.0 / 60.0 / 24.0;
     this.daysSinceMainshockEnd = this.daysSinceMainshockStart + duration;

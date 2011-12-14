@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
@@ -128,8 +129,8 @@ public class CubeToObsEqkRupture {
       int hour = Integer.parseInt(sHour);
       int min = Integer.parseInt(sMinute);
       int sec = (int) Double.parseDouble(sSecond);
-      GregorianCalendar originTime = new GregorianCalendar(year, month-1, day, hour,
-          min, sec);
+      GregorianCalendar originTime = new GregorianCalendar(year, month-1, day, hour, min, sec);
+      originTime.setTimeZone(TimeZone.getTimeZone("UTC"));  // make sure time zone is consistent with GMT/UTC
 
       //Hypocenter Location at which EqkRupture occured
 
@@ -144,7 +145,7 @@ public class CubeToObsEqkRupture {
         vertErr = Double.parseDouble(sErzz);
       if(sMagnitudeError !=null && !sMagnitudeError.equals(""))
         magErr = Double.parseDouble(sMagnitudeError);
-      rupture = new ObsEqkRupture(sEventId,sDataSource,originTime,hypoLoc,mag);
+      rupture = new ObsEqkRupture(sEventId,originTime.getTimeInMillis(),hypoLoc,mag);
     }
     return rupture;
   }

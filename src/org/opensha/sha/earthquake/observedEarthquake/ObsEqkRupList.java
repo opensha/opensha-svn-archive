@@ -115,19 +115,18 @@ public class ObsEqkRupList implements java.io.Serializable{
 	}
 
 	/**
-	 * Returns the list of Observed events before a given time period
-	 * @param cal GregorianCalendar Time Period
+	 * Returns the list of Observed events before a given time in milliseconds (epoch)
+	 * @param timeInMillis - what returned by GregorianCalendar.getTimeInMillis()
 	 * @return the subset of total observed events as ObsEqkRupList list
 	 * before a given time period
 	 */
-	public ObsEqkRupList getObsEqkRupsBefore(GregorianCalendar cal) {
-
+	public ObsEqkRupList getObsEqkRupsBefore(long timeInMillis) {
 		ObsEqkRupList obsEventList = new ObsEqkRupList();
 		int size = size();
 		for (int i = 0; i < size; ++i) {
 			ObsEqkRupture eqkRup = obsEqkList.get(i);
-			GregorianCalendar eventTime = eqkRup.getOriginTime();
-			if (eventTime.before(cal))
+			long eventTime = eqkRup.getOriginTime();
+			if (eventTime < timeInMillis)
 				obsEventList.addObsEqkEvent(eqkRup);
 		}
 		return obsEventList;
@@ -136,18 +135,18 @@ public class ObsEqkRupList implements java.io.Serializable{
 
 
 	/**
-	 * Returns the list of Observed events after a given time period
-	 * @param cal GregorianCalendar Time Period
+	 * Returns the list of Observed events after a given time in milliseconds (epoch)
+	 * @param timeInMillis - what returned by GregorianCalendar.getTimeInMillis()
 	 * @return the subset of total observed events as ObsEqkRupList list
 	 * after a given time period
 	 */
-	public ObsEqkRupList getObsEqkRupsAfter(GregorianCalendar cal) {
+	public ObsEqkRupList getObsEqkRupsAfter(long timeInMillis) {
 		ObsEqkRupList obsEventList = new ObsEqkRupList();
 		int size = size();
 		for (int i = 0; i < size; ++i) {
 			ObsEqkRupture eqkRup = obsEqkList.get(i);
-			GregorianCalendar eventTime = eqkRup.getOriginTime();
-			if (eventTime.after(cal))
+			long eventTime = eqkRup.getOriginTime();
+			if (eventTime > timeInMillis)
 				obsEventList.addObsEqkEvent(eqkRup);
 		}
 		return obsEventList;
@@ -161,14 +160,14 @@ public class ObsEqkRupList implements java.io.Serializable{
 	 * @return the subset of total observed events as ObsEqkRupList list
 	 * between 2 given time periods.
 	 */
-	public ObsEqkRupList getObsEqkRupsBetween(GregorianCalendar cal1,
-			GregorianCalendar cal2) {
+	public ObsEqkRupList getObsEqkRupsBetween(long timeInMillis1,
+			long timeInMillis2) {
 		ObsEqkRupList obsEventList = new ObsEqkRupList();
 		int size = size();
 		for (int i = 0; i < size; ++i) {
 			ObsEqkRupture eqkRup = obsEqkList.get(i);
-			GregorianCalendar eventTime = eqkRup.getOriginTime();
-			if (eventTime.after(cal1) && eventTime.before(cal2))
+			long eventTime = eqkRup.getOriginTime();
+			if (eventTime > timeInMillis1 && eventTime < timeInMillis2)
 				obsEventList.addObsEqkEvent(eqkRup);
 		}
 		return obsEventList;

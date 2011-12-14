@@ -209,7 +209,8 @@ public class NGAWestEqkRupture extends ObsEqkRupture {
 			finiteFaultRuptureWidth = row.getCell(29).getNumericCellValue();
 		} catch (NullPointerException e) {}
 		
-		setObsEqkRup(id+"", dataSource, date);
+		setEventId(id+"");
+		setOriginTimeCal(date);
 		setRuptureSurface(ruptureSurface);
 	}
 //

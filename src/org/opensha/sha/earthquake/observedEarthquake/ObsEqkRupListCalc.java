@@ -88,8 +88,8 @@ public class ObsEqkRupListCalc {
     long[] interEventTimes = new long[size-1];
 
     for(int i=0;i<size -1;++i){
-      long time = obsEqkEvents.getObsEqkRuptureAt(i+1).getOriginTime().getTimeInMillis() -
-          obsEqkEvents.getObsEqkRuptureAt(i).getOriginTime().getTimeInMillis();
+      long time = obsEqkEvents.getObsEqkRuptureAt(i+1).getOriginTime() -
+          obsEqkEvents.getObsEqkRuptureAt(i).getOriginTime();
       interEventTimes[i] = time;
     }
 
