@@ -195,7 +195,15 @@ public class GriddedSurfaceUtils {
 					}
 				}
 
-				Region polygon = new Region(locsForRegion, BorderType.MERCATOR_LINEAR);
+				Region polygon=null;
+				try {
+					polygon = new Region(locsForRegion, BorderType.MERCATOR_LINEAR);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.out.println(locsForRegion);
+					System.exit(0);
+				}
 				boolean isInside = polygon.contains(siteLoc);
 
 				double distToExtendedTrace = locsForExtendedTrace.minDistToLine(siteLoc);

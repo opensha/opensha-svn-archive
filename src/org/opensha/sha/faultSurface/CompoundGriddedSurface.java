@@ -27,7 +27,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	
 	ArrayList<EvenlyGriddedSurface> surfaces;
 	
-	final static boolean D = true;
+	final static boolean D = false;
 	
 	// this tells whether any traces need to be reversed
 	boolean[] reverseSurfTrace; //  indicates which surface traces need to be reversed in building the entire upper surface
