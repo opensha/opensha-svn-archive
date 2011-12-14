@@ -23,15 +23,14 @@ package org.opensha.sha.earthquake;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
 /**
  * <p>Title:ProbEqkRupture </p>
  * <p>Description: Probabilistic Earthquake Rupture</p>
  *
- * @author Nitin Gupta & Vipin Gupta
- * @date aug 27, 2002
+ * @author rewritten by Ned Field
+ * @date Dec. 14, 2011
  * @version 1.0
  */
 
@@ -44,13 +43,6 @@ public class ProbEqkRupture extends EqkRupture {
 	private static final long serialVersionUID = 1L;
 
 	protected double probability;
-
-	//index of rupture for a given source as defined by a ERF
-	private int rupIndex,srcIndex;
-	
-	// Pointer to the parent ERF (no guarantee that ERF doesn't change, however)
-	private ERF parentERF;
-
 
 	/* **********************/
 	/** @todo  Constructors */
@@ -100,31 +92,6 @@ public class ProbEqkRupture extends EqkRupture {
 
 
 	 /**
-	  * Sets the rupture index from given source.
-	  * @param sourceIndex int source of the rupture
-	  * @param ruptureIndex int rupture index of the given source
-	  * @param parentERF a pointer to the ERF this object came from (but no guarantee the ERF hasn't changed)
-	  *
-	  */
-	 public void setRuptureIndexAndSourceInfo(int sourceIndex,
-			 int ruptureIndex, ERF parentERF){
-		 srcIndex = sourceIndex;
-		 rupIndex = ruptureIndex;
-		 this.parentERF = parentERF;
-	 }
-
-
-	 /**
-	  * Returns the rupture index as defined by the Source
-	  * @return int
-	  */
-	 public int getRuptureIndex(){
-		 return rupIndex;
-	 }
-
-
-
-	 /**
 	  * Returns the Metadata for the rupture of a given source. Following information
 	  * is represented as a single line for the rupture.
 	  * <ul>
@@ -147,13 +114,10 @@ public class ProbEqkRupture extends EqkRupture {
 	 public String getRuptureMetadata(){
 		 //rupture Metadata
 		 String ruptureMetadata;
-		 ruptureMetadata = srcIndex + "\t";
-		 ruptureMetadata += rupIndex + "\t";
-		 ruptureMetadata += (float)mag + "\t";
+		 ruptureMetadata = (float)mag + "\t";
 		 ruptureMetadata += (float)probability + "\t";
 		 ruptureMetadata += (float)aveRake + "\t";
-		 ruptureMetadata += (float)ruptureSurface.getAveDip()+"\t";
-		 ruptureMetadata += "\""+parentERF.getName()+"\"";
+		 ruptureMetadata += (float)ruptureSurface.getAveDip();
 		 return ruptureMetadata;
 
 	 }
