@@ -38,129 +38,133 @@ import org.opensha.sha.faultSurface.PointSurface;
  * @version 1.0
  */
 public class ObsEqkRupture
-    extends EqkRupture implements java.io.Serializable{
+extends EqkRupture implements java.io.Serializable{
 
 
-  private String eventId;
-  private String dataSource;
-  private GregorianCalendar originTime;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String eventId;
+	private String dataSource;
+	private GregorianCalendar originTime;
 
-  public ObsEqkRupture(){}
+	public ObsEqkRupture(){}
 
-  public ObsEqkRupture(String eventId, String dataSource, GregorianCalendar originTime, 
-		  Location hypoLoc, double mag) {
+	public ObsEqkRupture(String eventId, String dataSource, GregorianCalendar originTime, 
+			Location hypoLoc, double mag) {
 
-   super(mag,0,null,hypoLoc);
-   //making the Obs Rupture Surface to just be the hypocenter location.
-   PointSurface surface = new PointSurface(hypoLoc);
-   this.setRuptureSurface(surface);
-   this.setObsEqkRup(eventId,dataSource,originTime);
-  }
+		super(mag,0,null,hypoLoc);
+		//making the Obs Rupture Surface to just be the hypocenter location.
+		PointSurface surface = new PointSurface(hypoLoc);
+		this.setRuptureSurface(surface);
+		this.setObsEqkRup(eventId,dataSource,originTime);
+	}
 
-  public String getDataSource() {
-    return dataSource;
-  }
+	public String getDataSource() {
+		return dataSource;
+	}
 
-  public String getEventId() {
-    return eventId;
-  }
+	public String getEventId() {
+		return eventId;
+	}
 
-  public GregorianCalendar getOriginTime() {
-    return originTime;
-  }
-
-
-  public void setObsEqkRup(String eventId, String dataSource, GregorianCalendar originTime){
-    this.eventId = eventId;
-    this.dataSource = dataSource;
-    this.originTime = originTime;
-
-  }
-  public void setDataSource(String dataSource) {
-    this.dataSource = dataSource;
-  }
-
-  public void setEventId(String eventId) {
-    this.eventId = eventId;
-  }
-
-  public void setOriginTime(GregorianCalendar originTime) {
-    this.originTime = originTime;
-  }
+	public GregorianCalendar getOriginTime() {
+		return originTime;
+	}
 
 
-  /**
-   * Checks if the given ObsEqkRupture objects are same
-   * @param obsRupEvent ObsEqkRupture
-   * Note : Currently we are not checking if 2 Observed Eqk Rupture events
-   * have same Gridded Surface, I don't think that is necessary, so havn't
-   * added.  THIS DOES NOT CHECK ORIGIN TIME!
-   * @return boolean
-   */
-  public boolean equalsObsEqkRupEvent(ObsEqkRupture obsRupEvent){
+	public void setObsEqkRup(String eventId, String dataSource, GregorianCalendar originTime){
+		this.eventId = eventId;
+		this.dataSource = dataSource;
+		this.originTime = originTime;
 
-    boolean eventsEqual = true;
+	}
+	public void setDataSource(String dataSource) {
+		this.dataSource = dataSource;
+	}
 
-    //if any of the condition is not true else return false
-    if(!eventId.equals(obsRupEvent.getEventId()) ||
-       getMag() != obsRupEvent.getMag())
-      return false;
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
 
-    return eventsEqual;
-  }
+	public void setOriginTime(GregorianCalendar originTime) {
+		this.originTime = originTime;
+	}
 
 
+	/**
+	 * Checks if the given ObsEqkRupture objects are same
+	 * @param obsRupEvent ObsEqkRupture
+	 * Note : Currently we are not checking if 2 Observed Eqk Rupture events
+	 * have same Gridded Surface, I don't think that is necessary, so havn't
+	 * added.  THIS DOES NOT CHECK ORIGIN TIME!
+	 * @return boolean
+	 */
+	public boolean equalsObsEqkRupEvent(ObsEqkRupture obsRupEvent){
 
-  /**
-   * Checks if the passed object (obj) is similar to the object equalsObsEqkRup Object
-   * on which this function was called.
-   * Indicates whether some other object is "equal to" this one.
-   * The equals method implements an equivalence relation  on non-null object references:
-   * It is reflexive: for any non-null reference value  x, x.equals(x) should return  true.
-   * It is symmetric: for any non-null reference values  x and y, x.equals(y)  should return true if and only if  y.equals(x) returns true.
-   * It is transitive: for any non-null reference values  x, y, and z, if  x.equals(y) returns true and  y.equals(z) returns true, then  x.equals(z) should return true.
-   * It is consistent: for any non-null reference values  x and y, multiple invocations of  x.equals(y) consistently return true  or consistently return false, provided no  information used in equals comparisons on the  objects is modified.
-   * For any non-null reference value x,  x.equals(null) should return false.
-   * The equals method for class Object implements the most discriminating possible equivalence relation on objects; that is, for any non-null reference values x and  y, this method returns true if and only  if x and y refer to the same object  (x == y has the value true).
-   * Note that it is generally necessary to override the hashCode  method whenever this method is overridden, so as to maintain the  general contract for the hashCode method, which states  that equal objects must have equal hash codes
-   * @param obj Object the reference object with which to compare
-   * @return boolean true if this object is the same as the obj  argument; false otherwise.
-   */
-  public boolean equals(Object obj) {
-    if (obj instanceof ObsEqkRupture)return equalsObsEqkRupEvent( (
-        ObsEqkRupture) obj);
-    return false;
-  }
+		boolean eventsEqual = true;
+
+		//if any of the condition is not true else return false
+		if(!eventId.equals(obsRupEvent.getEventId()) ||
+				getMag() != obsRupEvent.getMag())
+			return false;
+
+		return eventsEqual;
+	}
 
 
-  /**
-   * Gets the Info for the Observed EqkRupture
-   * @return String
-   */
-  public String getInfo(){
-    String obsEqkInfo = super.getInfo();
-    obsEqkInfo += "EventId ="+eventId+"\n";
-    obsEqkInfo += "DataSource ="+dataSource+"\n";
-    obsEqkInfo += "OriginTime ="+originTime.toString()+"\n";
-    return obsEqkInfo;
-  }
+
+	/**
+	 * Checks if the passed object (obj) is similar to the object equalsObsEqkRup Object
+	 * on which this function was called.
+	 * Indicates whether some other object is "equal to" this one.
+	 * The equals method implements an equivalence relation  on non-null object references:
+	 * It is reflexive: for any non-null reference value  x, x.equals(x) should return  true.
+	 * It is symmetric: for any non-null reference values  x and y, x.equals(y)  should return true if and only if  y.equals(x) returns true.
+	 * It is transitive: for any non-null reference values  x, y, and z, if  x.equals(y) returns true and  y.equals(z) returns true, then  x.equals(z) should return true.
+	 * It is consistent: for any non-null reference values  x and y, multiple invocations of  x.equals(y) consistently return true  or consistently return false, provided no  information used in equals comparisons on the  objects is modified.
+	 * For any non-null reference value x,  x.equals(null) should return false.
+	 * The equals method for class Object implements the most discriminating possible equivalence relation on objects; that is, for any non-null reference values x and  y, this method returns true if and only  if x and y refer to the same object  (x == y has the value true).
+	 * Note that it is generally necessary to override the hashCode  method whenever this method is overridden, so as to maintain the  general contract for the hashCode method, which states  that equal objects must have equal hash codes
+	 * @param obj Object the reference object with which to compare
+	 * @return boolean true if this object is the same as the obj  argument; false otherwise.
+	 */
+	public boolean equals(Object obj) {
+		if (obj instanceof ObsEqkRupture)return equalsObsEqkRupEvent( (
+				ObsEqkRupture) obj);
+		return false;
+	}
 
 
-  /**
-   * Clones the eqk rupture and returns the new cloned object
-   * @return
-   */
- public Object clone() {
-   ObsEqkRupture eqkEventClone=new ObsEqkRupture();
-   eqkEventClone.setEventId(eventId);
-   eqkEventClone.setMag(mag);
-   eqkEventClone.setRuptureSurface(getRuptureSurface());
-   eqkEventClone.setHypocenterLocation(hypocenterLocation);
-   eqkEventClone.setDataSource(dataSource);
-   eqkEventClone.setOriginTime(originTime);
-   eqkEventClone.setAveRake(aveRake);
-   return eqkEventClone;
-  }
+	/**
+	 * Gets the Info for the Observed EqkRupture
+	 * @return String
+	 */
+	public String getInfo(){
+		String obsEqkInfo = super.getInfo();
+		obsEqkInfo += "EventId ="+eventId+"\n";
+		obsEqkInfo += "DataSource ="+dataSource+"\n";
+		obsEqkInfo += "OriginTime ="+originTime.toString()+"\n";
+		return obsEqkInfo;
+	}
+
+
+	/**
+	 * Clones the eqk rupture and returns the new cloned object
+	 * @return
+	 */
+	public Object clone() {
+		ObsEqkRupture eqkEventClone=new ObsEqkRupture();
+		eqkEventClone.setEventId(eventId);
+		eqkEventClone.setMag(mag);
+		eqkEventClone.setRuptureSurface(getRuptureSurface());
+		eqkEventClone.setHypocenterLocation(hypocenterLocation);
+		eqkEventClone.setDataSource(dataSource);
+		eqkEventClone.setOriginTime(originTime);
+		eqkEventClone.setAveRake(aveRake);
+		return eqkEventClone;
+	}
 
 
 }

@@ -7,16 +7,23 @@ import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.FocalMechanism;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
-public class NGAWestEqkRupture {
+public class NGAWestEqkRupture extends ObsEqkRupture {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private int id;
 	private String name;
 	private GregorianCalendar date;
-	private double mag;
+//	private double mag;
 	private String magType;
 	private double magUncertaintyKegan, magUncertaintyStatistical, magUncertaintyStudyClass;
 	private int magSampleSize;
@@ -27,7 +34,7 @@ public class NGAWestEqkRupture {
 	private double pTrendDegrees;
 	private double tPlungeDegrees;
 	private double tTrendDegrees;
-	private Location hypocenter;
+//	private Location hypocenter;
 	
 	private enum CoseismicSurfaceRupture {
 		YES_KNOWN,
@@ -42,9 +49,6 @@ public class NGAWestEqkRupture {
 	private double depthToTopOfFiniteRupture;
 	private double finiteFaultRuptureLength;
 	private double finiteFaultRuptureWidth;
-	
-	private List<AbstractEvenlyGriddedSurface> finiteRuptureSurfaces;
-	private List<AbstractEvenlyGriddedSurface> evenlyGriddedFiniteRuptureSurfaces;
 	
 	private static GregorianCalendar parseDate(int year, String monthDayStr, String hourMinStr) {
 		int month, day, hour, min;
@@ -78,7 +82,7 @@ public class NGAWestEqkRupture {
 		return new GregorianCalendar(year, month, day, hour, min);
 	}
 	
-	public NGAWestEqkRupture(HSSFRow row) {
+	public NGAWestEqkRupture(HSSFRow row, String dataSource) {
 		id = (int)row.getCell(0).getNumericCellValue();
 		
 		// parse the date
@@ -127,10 +131,10 @@ public class NGAWestEqkRupture {
 		} catch (NullPointerException e) {}
 		
 		try {
+			aveRake = row.getCell(14).getNumericCellValue();
 			double strike = row.getCell(12).getNumericCellValue();
 			double dip = row.getCell(13).getNumericCellValue();
-			double rake = row.getCell(14).getNumericCellValue();
-			focalMech = new FocalMechanism(strike, dip, rake);
+			focalMech = new FocalMechanism(strike, dip, aveRake);
 		} catch (NullPointerException e) {}
 		
 		try {
@@ -162,7 +166,7 @@ public class NGAWestEqkRupture {
 			} catch (NullPointerException e) {
 				dep = 0;
 			}
-			hypocenter = new Location(lat, lon, dep);
+			hypocenterLocation = new Location(lat, lon, dep);
 		} catch (NullPointerException e) {}
 		
 		try {
@@ -204,34 +208,37 @@ public class NGAWestEqkRupture {
 		try {
 			finiteFaultRuptureWidth = row.getCell(29).getNumericCellValue();
 		} catch (NullPointerException e) {}
+		
+		setObsEqkRup(id+"", dataSource, date);
+		setRuptureSurface(ruptureSurface);
 	}
-
-	public List<AbstractEvenlyGriddedSurface> getFiniteRuptureSurfaces() {
-		return finiteRuptureSurfaces;
-	}
-
-	public void setFiniteRuptureSurfaces(List<AbstractEvenlyGriddedSurface> finiteRuptureSurfaces) {
-		this.finiteRuptureSurfaces = finiteRuptureSurfaces;
-		this.evenlyGriddedFiniteRuptureSurfaces = null;
-	}
-	
-	public List<AbstractEvenlyGriddedSurface> getEvenlyGriddedFiniteRuptureSurfaces() {
-		if (evenlyGriddedFiniteRuptureSurfaces == null && finiteRuptureSurfaces != null) {
-			evenlyGriddedFiniteRuptureSurfaces = new ArrayList<AbstractEvenlyGriddedSurface>();
-			for (AbstractEvenlyGriddedSurface surf : finiteRuptureSurfaces) {
-				FaultTrace top = new FaultTrace(name);
-				FaultTrace bottom = new FaultTrace(name);
-				int botRow = surf.getNumRows()-1;
-				for (int col=0; col<surf.getNumCols(); col++) {
-					top.add(surf.get(0, col));
-					bottom.add(surf.get(botRow, col));
-				}
-				AbstractEvenlyGriddedSurface evenSurface = new ApproxEvenlyGriddedSurface(top, bottom, 1.0d);
-				evenlyGriddedFiniteRuptureSurfaces.add(evenSurface);
-			}
-		}
-		return evenlyGriddedFiniteRuptureSurfaces;
-	}
+//
+//	public List<AbstractEvenlyGriddedSurface> getFiniteRuptureSurfaces() {
+//		return finiteRuptureSurfaces;
+//	}
+//
+//	public void setFiniteRuptureSurfaces(List<AbstractEvenlyGriddedSurface> finiteRuptureSurfaces) {
+//		this.finiteRuptureSurfaces = finiteRuptureSurfaces;
+//		this.evenlyGriddedFiniteRuptureSurfaces = null;
+//	}
+//	
+//	public List<AbstractEvenlyGriddedSurface> getEvenlyGriddedFiniteRuptureSurfaces() {
+//		if (evenlyGriddedFiniteRuptureSurfaces == null && finiteRuptureSurfaces != null) {
+//			evenlyGriddedFiniteRuptureSurfaces = new ArrayList<AbstractEvenlyGriddedSurface>();
+//			for (AbstractEvenlyGriddedSurface surf : finiteRuptureSurfaces) {
+//				FaultTrace top = new FaultTrace(name);
+//				FaultTrace bottom = new FaultTrace(name);
+//				int botRow = surf.getNumRows()-1;
+//				for (int col=0; col<surf.getNumCols(); col++) {
+//					top.add(surf.get(0, col));
+//					bottom.add(surf.get(botRow, col));
+//				}
+//				AbstractEvenlyGriddedSurface evenSurface = new ApproxEvenlyGriddedSurface(top, bottom, 1.0d);
+//				evenlyGriddedFiniteRuptureSurfaces.add(evenSurface);
+//			}
+//		}
+//		return evenlyGriddedFiniteRuptureSurfaces;
+//	}
 
 	public int getId() {
 		return id;
@@ -297,10 +304,6 @@ public class NGAWestEqkRupture {
 		return tTrendDegrees;
 	}
 
-	public Location getHypocenter() {
-		return hypocenter;
-	}
-
 	public CoseismicSurfaceRupture getCoseismicSurfaceRupture() {
 		return coseismicSurfaceRupture;
 	}
@@ -337,14 +340,14 @@ public class NGAWestEqkRupture {
 				+ mechBasedOnRakeAngle + "\tpPlungeDegrees=" + pPlungeDegrees
 				+ "\tpTrendDegrees=" + pTrendDegrees + "\ttPlungeDegrees="
 				+ tPlungeDegrees + "\ttTrendDegrees=" + tTrendDegrees
-				+ "\thypocenter=" + hypocenter + "\tcoseismicSurfaceRupture="
+				+ "\thypocenter=" + hypocenterLocation + "\tcoseismicSurfaceRupture="
 				+ coseismicSurfaceRupture + "\tsurfaceRuptureInferrenceBasis="
 				+ surfaceRuptureInferrenceBasis + "\tfiniteRuptureModel="
 				+ finiteRuptureModel + "\tdepthToTopOfFiniteRupture="
 				+ depthToTopOfFiniteRupture + "\tfiniteFaultRuptureLength="
 				+ finiteFaultRuptureLength + "\tfiniteFaultRuptureWidth="
 				+ finiteFaultRuptureWidth + "\tfiniteRuptureSurfaces="
-				+ finiteRuptureSurfaces + "]";
+				+ ruptureSurface + "]";
 	}
 
 }

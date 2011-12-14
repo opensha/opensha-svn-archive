@@ -17,7 +17,10 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSurfaceImpl;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 import com.google.common.base.Preconditions;
 
@@ -31,8 +34,8 @@ public class NGAWestParser {
 		}
 	};
 	
-	public static HashMap<Integer, ArrayList<AbstractEvenlyGriddedSurface>> loadPolTlls(File dir) throws IOException {
-		HashMap<Integer, ArrayList<AbstractEvenlyGriddedSurface>> map = new HashMap<Integer, ArrayList<AbstractEvenlyGriddedSurface>>();
+	public static HashMap<Integer, RuptureSurface> loadPolTlls(File dir) throws IOException {
+		HashMap<Integer, ArrayList<EvenlyGriddedSurface>> surfs = new HashMap<Integer, ArrayList<EvenlyGriddedSurface>>();
 		
 		for (File polFile : dir.listFiles(polFilter)) {
 			File tllFile = new File(dir, polFile.getName().replace(".POL", ".TLL"));
@@ -143,9 +146,22 @@ public class NGAWestParser {
 				surface.set(1, i+1, locs[i][2]);
 			}
 			
-			if (!map.containsKey(eqID))
-				map.put(eqID, new ArrayList<AbstractEvenlyGriddedSurface>());
-			map.get(eqID).add(surface);
+			if (!surfs.containsKey(eqID))
+				surfs.put(eqID, new ArrayList<EvenlyGriddedSurface>());
+			surfs.get(eqID).add(surface);
+		}
+		
+		HashMap<Integer, RuptureSurface> map = new HashMap<Integer, RuptureSurface>();
+		for (Integer id : surfs.keySet()) {
+			ArrayList<EvenlyGriddedSurface> surfList = surfs.get(id);
+			RuptureSurface surf;
+			if (surfList.size() == 1) {
+				surf = surfList.get(0);
+			} else {
+				surf = new CompoundGriddedSurface(surfList);
+			}
+			
+			map.put(id, surf);
 		}
 		
 		return map;
@@ -161,7 +177,7 @@ public class NGAWestParser {
 		Preconditions.checkArgument(polTllDir.isDirectory(), "Excel directory isn't a directory!");
 		
 		// first load the pol/tll files
-		HashMap<Integer, ArrayList<AbstractEvenlyGriddedSurface>> surfaces = loadPolTlls(polTllDir);
+		HashMap<Integer, RuptureSurface> surfaces = loadPolTlls(polTllDir);
 		
 		ArrayList<NGAWestEqkRupture> rups = new ArrayList<NGAWestEqkRupture>();
 		
@@ -180,12 +196,12 @@ public class NGAWestParser {
 				continue;
 			}
 			
-			NGAWestEqkRupture rup = new NGAWestEqkRupture(row);
+			NGAWestEqkRupture rup = new NGAWestEqkRupture(row, excelFile.getName());
 			int id = rup.getId();
 			if (surfaces.containsKey(id)) {
-				rup.setFiniteRuptureSurfaces(surfaces.get(id));
+				rup.setRuptureSurface(surfaces.get(id));
 			}
-			Preconditions.checkState(rup.isFiniteRuptureModel() == (rup.getFiniteRuptureSurfaces() != null),
+			Preconditions.checkState(rup.isFiniteRuptureModel() == (rup.getRuptureSurface() != null),
 					"Excel sheet & existance of POL/TLL files doesn't match up! EQ: "+id);
 			rups.add(rup);
 		}
