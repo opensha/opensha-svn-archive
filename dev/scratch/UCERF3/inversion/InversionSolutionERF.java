@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -29,6 +30,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
@@ -44,7 +46,7 @@ public class InversionSolutionERF extends AbstractERF {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 
 	public static final String NAME = "Inversion Solution ERF";
 	
@@ -59,7 +61,24 @@ public class InversionSolutionERF extends AbstractERF {
 	
 	private FaultSystemSolution faultSysSolution;
 	
+	private int[] nonZeroRateRupMapping;  // used to keep only inv rups with non-zero rates
 	
+	
+	/**
+	 * This creates the ERF from the given file
+	 * @param fullPathInputFile
+	 */
+	public InversionSolutionERF(String fullPathInputFile) {
+		this();
+		fileParam.setValue(new File(fullPathInputFile));
+		// remove the fileParam from the adjustable parameter list
+		adjustableParams.removeParameter(fileParam);
+	}
+
+	
+	/**
+	 * This creates the ERF with a parameter for choosing the input file
+	 */
 	public InversionSolutionERF() {
 		fileParam = new FileParameter(FILE_PARAM_NAME);
 		fileParam.addParameterChangeListener(this);
@@ -95,8 +114,22 @@ public class InversionSolutionERF extends AbstractERF {
 					throw new RuntimeException(e);
 				}
 			}
-						
-			if (D) System.out.println("Done updating forecast.");
+			
+			// count number of non-zero rate ruptures
+			int num =0;
+			for(int r=0; r< faultSysSolution.getNumRuptures();r++)
+				if(faultSysSolution.getRateForRup(r) > 0.0)
+					num +=1;
+			// make nonZeroRateRupMapping
+			nonZeroRateRupMapping = new int[num];
+			int srcIndex = 0;
+			for(int r=0; r< faultSysSolution.getNumRuptures();r++)
+				if(faultSysSolution.getRateForRup(r) > 0.0) {
+					nonZeroRateRupMapping[srcIndex] = r;
+					srcIndex += 1;
+				}
+
+			if(D) System.out.println("Done updating forecast.");
 		}
 	}
 	
@@ -108,18 +141,28 @@ public class InversionSolutionERF extends AbstractERF {
 
 	@Override
 	public int getNumSources() {
-		return faultSysSolution.getNumRuptures();
+		return nonZeroRateRupMapping.length;
 	}
 
 	@Override
 	public ProbEqkSource getSource(int iSource) {
-		boolean isPoisson = true;
-		double prob = 1-Math.exp(-faultSysSolution.getRateForRup(iSource)*timeSpan.getDuration());
 		
-		FaultRuptureSource src = new FaultRuptureSource(faultSysSolution.getMagForRup(iSource), 
-									  faultSysSolution.getCompoundGriddedSurfaceForRupupture(iSource, faultGridSpacing), 
-									  faultSysSolution.getAveRakeForRup(iSource), prob, isPoisson);
-		src.setName("Inversion Src #"+iSource);
+		int invRupIndex= nonZeroRateRupMapping[iSource];
+
+		//		boolean isPoisson = true;
+//		double prob = 1-Math.exp(-faultSysSolution.getRateForRup(invRupIndex)*timeSpan.getDuration());
+//		FaultRuptureSource src = new FaultRuptureSource(faultSysSolution.getMagForRup(invRupIndex), 
+//									  faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing), 
+//									  faultSysSolution.getAveRakeForRup(invRupIndex), prob, isPoisson);
+		
+		double mag = faultSysSolution.getMagForRup(invRupIndex);
+		double totMoRate = faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
+		GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,0.12,totMoRate,2.0,2);
+		FaultRuptureSource src = new FaultRuptureSource(srcMFD, 
+				faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing),
+				faultSysSolution.getAveRakeForRup(invRupIndex), timeSpan.getDuration());
+		
+		src.setName("Inversion Src #"+invRupIndex);
 		return src;
 	}
 
