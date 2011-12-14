@@ -15,9 +15,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+
+import com.google.common.collect.Lists;
 
 public class ResultPlotter {
 	
@@ -27,32 +30,34 @@ public class ResultPlotter {
 	private static final boolean include_min_max = true;
 	private static final boolean sort_by_size = true;
 	
-	private static final String time_label = "Time (minutes)";
-	private static final String serial_time_label = "Serial Time (minutes)";
-	private static final String parallel_time_label = "Parallel Time (minutes)";
-	private static final String energy_label = "Energy";
-	private static final String iterations_label = "Iterations";
-	private static final String parallel_iterations_label = "Tot. Parallel Iterations";
-	private static final String time_speedup_label = "Time (serial) / Time (parallel)";
-	private static final String energy_speedup_label = "Energy (serial) / Energy (parallel)";
-	private static final String std_dev_label = "Std. Dev. (Energy)";
-	private static final String improvement_label = "% Improvement";
-	private static final String threads_label = "# Threads";
+	private static final boolean thread_speed_csv = true;
 	
-	protected static final String avg_energy_vs_time_title = "Averaged Energy Vs Time (m)";
-	protected static final String improvement_vs_time_title = "% Improvement (over "+pDiffMins+" min invervals)";
-	protected static final String time_speedup_vs_energy_title = "Time Speedup Vs Energy";
-	protected static final String time_speedup_vs_time_title = "Parallel Speedup Vs Time";
-	protected static final String time_comparison_title = "Serial Time Vs Parallel Time";
-	protected static final String energy_speedup_vs_time_title = "Energy Speedup Vs Time";
-	protected static final String avg_energy_vs_iterations_title = "Averaged Energy Vs Iterations";
-	protected static final String energy_vs_iterations_title = "Energy Vs Iterations";
-	protected static final String energy_vs_time_title = "Energy Vs Time (m)";
-	protected static final String std_dev_vs_time_title = "Std. Dev. Vs Time (m)";
-	protected static final String iterations_vs_time_title = "Iterations Vs Time (m)";
-	protected static final String parallel_iterations_vs_time_title = "Parallel Iterations Vs Time (m)";
-	protected static final String energy_vs_parallel_iterations_title = "Energy vs Parallel Iterations";
-	protected static final String speedup_vs_threads_title = "Speedup vs Threads";
+	static final String time_label = "Time (minutes)";
+	static final String serial_time_label = "Serial Time (minutes)";
+	static final String parallel_time_label = "Parallel Time (minutes)";
+	static final String energy_label = "Energy";
+	static final String iterations_label = "Iterations";
+	static final String parallel_iterations_label = "Tot. Parallel Iterations";
+	static final String time_speedup_label = "Time (serial) / Time (parallel)";
+	static final String energy_speedup_label = "Energy (serial) / Energy (parallel)";
+	static final String std_dev_label = "Std. Dev. (Energy)";
+	static final String improvement_label = "% Improvement";
+	static final String threads_label = "# Threads";
+	
+	static final String avg_energy_vs_time_title = "Averaged Energy Vs Time (m)";
+	static final String improvement_vs_time_title = "% Improvement (over "+pDiffMins+" min invervals)";
+	static final String time_speedup_vs_energy_title = "Time Speedup Vs Energy";
+	static final String time_speedup_vs_time_title = "Parallel Speedup Vs Time";
+	static final String time_comparison_title = "Serial Time Vs Parallel Time";
+	static final String energy_speedup_vs_time_title = "Energy Speedup Vs Time";
+	static final String avg_energy_vs_iterations_title = "Averaged Energy Vs Iterations";
+	static final String energy_vs_iterations_title = "Energy Vs Iterations";
+	static final String energy_vs_time_title = "Energy Vs Time (m)";
+	static final String std_dev_vs_time_title = "Std. Dev. Vs Time (m)";
+	static final String iterations_vs_time_title = "Iterations Vs Time (m)";
+	static final String parallel_iterations_vs_time_title = "Parallel Iterations Vs Time (m)";
+	static final String energy_vs_parallel_iterations_title = "Energy vs Parallel Iterations";
+	static final String speedup_vs_threads_title = "Speedup vs Threads";
 	
 	private static ArbitrarilyDiscretizedFunc[] loadCSV (
 			File file, int targetPPM) throws IOException {
@@ -191,7 +196,7 @@ public class ResultPlotter {
 		return ret;
 	}
 	
-	private static GraphiWindowAPI_Impl getGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
+	protected static GraphiWindowAPI_Impl getGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
 			ArrayList<PlotCurveCharacterstics> chars, String xAxisName, String yAxisName, boolean visible) {
 		if (sort_by_size) {
 			ArrayList<DiscretizedFunc> sortedFuncs = new ArrayList<DiscretizedFunc>();
@@ -534,7 +539,7 @@ public class ResultPlotter {
 		return speedups;
 	}
 	
-	private static ArrayList<DiscretizedFunc> generateSpeedupVsThreads(ArrayList<DiscretizedFunc> speedupVsTime) {
+	private static ArrayList<DiscretizedFunc> generateSpeedupVsThreads(File dir, ArrayList<DiscretizedFunc> speedupVsTime) throws IOException {
 		double smallestMaxTime = Double.MAX_VALUE;
 		
 		for (DiscretizedFunc func : speedupVsTime) {
@@ -601,6 +606,19 @@ public class ResultPlotter {
 		
 		spds.add(linearFunc);
 		spds.add(sqrtFunc);
+		
+		// write speedup file
+		if (thread_speed_csv && dir != null) {
+			CSVFile<String> csv = new CSVFile<String>(true);
+			csv.addLine(Lists.newArrayList("Threads", "Speedup"));
+			for (int i=0; i<spd.getNum(); i++) {
+				Integer threads = (int)spd.getX(i);
+				Double speedup = spd.getY(i);
+				
+				csv.addLine(Lists.newArrayList(threads.toString(), speedup.toString()));
+			}
+			csv.writeToFile(new File(dir, "spd_vs_threads.csv"));
+		}
 		
 		return spds;
 	}
@@ -688,13 +706,13 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_10_20-ncal-bench-orig_single");
 //		dsaDir = new File(mainDir, "2011_10_21-ncal-bench-sub200");
 //		dsaDir = new File(mainDir, "2011_10_21-ncal-bench-sub200-orig_single");
-//		dsaDir = new File(mainDir, "2011_10_27-ncal-bench-sub-secs-test");
+		dsaDir = new File(mainDir, "2011_10_27-ncal-bench-sub-secs-test");
 //		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
 		
 //		dsaDir = new File(mainDir, "agu/ncal_constrained");
 //		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
 //		dsaDir = new File(mainDir, "agu/allcal_constrained");
-		dsaDir = new File(mainDir, "agu/allcal_unconstrained");
+//		dsaDir = new File(mainDir, "agu/allcal_unconstrained");
 		
 //		dsaDir = new File(mainDir, "2011_09_07_morgan_NoCS_UCERF2MagDist");
 //		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
@@ -707,7 +725,7 @@ public class ResultPlotter {
 //		plots.add(time_speedup_vs_energy_title);
 //		plots.add(time_comparison_title);
 		plots.add(time_speedup_vs_time_title);
-		plots.add(speedup_vs_threads_title);
+//		plots.add(speedup_vs_threads_title);
 //		plots.add(speedup_vs_time_title);
 //		plots.add(energy_vs_iterations_title);
 //		plots.add(avg_energy_vs_iterations_title);
@@ -726,7 +744,7 @@ public class ResultPlotter {
 		int nodes = -1;
 		boolean includeStartSubZero = false;
 		boolean plotAvg = true;
-		boolean bundleDsaBySubs = false;
+		boolean bundleDsaBySubs = true;
 		boolean bundleTsaBySubs = false;
 		
 		int avgNumX = 400;
@@ -777,6 +795,8 @@ public class ResultPlotter {
 		for (File file : files) {
 			String name = file.getName();
 			if (!name.endsWith(".csv"))
+				continue;
+			if (name.contains("spd_vs_threads"))
 				continue;
 			
 //			if (name.contains("dSub600"))
@@ -1179,13 +1199,13 @@ public class ResultPlotter {
 			} else if (plot.equals(speedup_vs_threads_title)) {
 				if (combinedSpeedups != null) {
 					System.out.println("generating "+speedup_vs_threads_title);
-					ArrayList<DiscretizedFunc> spdThreadFuncs = generateSpeedupVsThreads(combinedSpeedups);
+					ArrayList<DiscretizedFunc> spdThreadFuncs = generateSpeedupVsThreads(dsaDir, combinedSpeedups);
 					System.out.println("displaying "+speedup_vs_threads_title);
 					ArrayList<PlotCurveCharacterstics> spdThreadChars = new ArrayList<PlotCurveCharacterstics>();
-					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
-					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN));
-					windows.put(energy_speedup_vs_time_title,
+					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, PlotSymbol.FILLED_CIRCLE, 8f, Color.BLACK));
+					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLUE));
+					spdThreadChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GREEN));
+					windows.put(speedup_vs_threads_title,
 							getGraphWindow(spdThreadFuncs, speedup_vs_threads_title, spdThreadChars, threads_label, time_speedup_label, visible));
 				}
 			} else if (plot.equals(energy_speedup_vs_time_title)) {

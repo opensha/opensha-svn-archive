@@ -7,14 +7,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.jfree.data.Range;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+
+import com.google.common.collect.Lists;
 
 public class PosterImageGen {
 	
 	private static final int png_thumb_width = 400;
 	private static final int png_thumb_height = 400;
+	
+	private static final int png_med_width = 700;
+	private static final int png_med_height = 700;
 	
 	private static final int width = 1000;
 	private static final int height = 1000;
@@ -26,10 +36,10 @@ public class PosterImageGen {
 	static {
 		wikiTable.add(new ArrayList<String>());
 		wikiTable.get(0).add("!Dataset");
-		wikiTable.get(0).add("!Northern California (Well Constrained)<br>17,777 elements");
-		wikiTable.get(0).add("!Northern California (Poorly Constrained)<br>17,777 elements");
-		wikiTable.get(0).add("!All California (Well Constrained)<br>65,393 elements");
-		wikiTable.get(0).add("!All California (Poorly Constrained)<br>65,393 elements");
+		wikiTable.get(0).add("!Northern California (Well Constrained)<br>39,075 elements");
+		wikiTable.get(0).add("!Northern California (Poorly Constrained)<br>39,075 elements");
+		wikiTable.get(0).add("!All California (Well Constrained)<br>198,260 elements");
+		wikiTable.get(0).add("!All California (Poorly Constrained)<br>198,260 elements");
 		wikiTable.add(new ArrayList<String>());
 		wikiTable.get(1).add("!Energy vs Time");
 		wikiTable.add(new ArrayList<String>());
@@ -42,8 +52,11 @@ public class PosterImageGen {
 		wikiTable.get(5).add("!Std. Dev. vs Time");
 		wikiTable.add(new ArrayList<String>());
 		wikiTable.get(6).add("!Improvement vs Energy");
+		wikiTable.add(new ArrayList<String>());
+		wikiTable.get(7).add("!Time Speedup vs Threads");
 	}
-	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/dsa_poster/";
+//	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/dsa_poster/";
+	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/2011agu/";
 	
 	private static void saveImages(GraphiWindowAPI_Impl gwAPI, File dir, String fName) throws IOException {
 		GraphWindow gw = gwAPI.getGraphWindow();
@@ -60,7 +73,20 @@ public class PosterImageGen {
 		
 		gp.saveAsPDF(new File(dir, fName+".pdf").getAbsolutePath(), width, height);
 		gp.saveAsPNG(new File(dir, fName+".png").getAbsolutePath(), width, height);
+
+		gw.setPlotLabelFontSize(20);
+		gw.setAxisLabelFontSize(18);
+		gw.setTickLabelFontSize(14);
+		gp.setSize(png_med_width, png_med_height);
+		gw.drawGraph();
+		gp.setVisible(true);
+
+		gp.togglePlot(null);
 		
+		gp.validate();
+		gp.repaint();
+		gp.saveAsPNG(new File(dir, fName+".medium.png").getAbsolutePath(), png_med_width, png_med_height);
+
 		gw.setPlotLabelFontSize(16);
 		gw.setAxisLabelFontSize(14);
 		gw.setTickLabelFontSize(10);
@@ -155,6 +181,47 @@ public class PosterImageGen {
 			gw.setY_AxisRange(improvementRange.getLowerBound(), improvementRange.getUpperBound());
 			saveImages(gw, dir, fName);
 		}
+		
+		fName = prefix+"spd_vs_thrd";
+		wikiTable.get(7).add(getImageTableLine(fName));
+		if (!tableOnly) {
+			gw = windows.get(ResultPlotter.speedup_vs_threads_title);
+			ArrayList<DiscretizedFunc> funcs = gw.getCurveFunctionList();
+			DiscretizedFunc spdFunc = funcs.get(0);
+			spd_vs_thds.add(spdFunc);
+			if (spd_vs_thds_comp.isEmpty()) {
+				spd_vs_thds_comp.add(funcs.get(1));
+				spd_vs_thds_comp.add(funcs.get(2));
+			}
+			saveImages(gw, dir, fName);
+		}
+	}
+	
+	private static ArrayList<DiscretizedFunc> spd_vs_thds = new ArrayList<DiscretizedFunc>();
+	private static ArrayList<DiscretizedFunc> spd_vs_thds_comp = new ArrayList<DiscretizedFunc>();
+	
+	private static void handleSpdCompares(File dir) throws IOException {
+		if (spd_vs_thds.size() != 4)
+			return;
+		
+		spd_vs_thds.addAll(spd_vs_thds_comp);
+		
+		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, PlotSymbol.FILLED_CIRCLE, 8f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 0f, PlotSymbol.FILLED_CIRCLE, 0f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 0f, PlotSymbol.FILLED_CIRCLE, 0f, Color.GREEN));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 0f, PlotSymbol.FILLED_CIRCLE, 0f, Color.RED));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GREEN));
+		
+		GraphiWindowAPI_Impl gw = ResultPlotter.getGraphWindow(spd_vs_thds,
+				ResultPlotter.speedup_vs_threads_title, chars, ResultPlotter.threads_label,
+				ResultPlotter.time_speedup_label, false);
+		
+		saveImages(gw, dir, "spd_vs_threads_comp");
+		gw.setX_AxisRange(0d, 80d);
+		gw.setY_AxisRange(0d, 80d);
+		saveImages(gw, dir, "spd_vs_threads_evencomp");
 	}
 	
 	private static String coolType = null;
@@ -177,6 +244,7 @@ public class PosterImageGen {
 		plots.add(ResultPlotter.improvement_vs_time_title);
 		plots.add(ResultPlotter.time_comparison_title);
 		plots.add(ResultPlotter.time_speedup_vs_time_title);
+		plots.add(ResultPlotter.speedup_vs_threads_title);
 	}
 	
 	private static void printTable() {
@@ -192,6 +260,11 @@ public class PosterImageGen {
 		}
 		
 		System.out.println("|}");
+		
+		System.out.println();
+		System.out.println("Speedup Vs Threads Comparisons");
+		System.out.println(getImageTableLine("spd_vs_threads_comp").substring(1));
+		System.out.println(getImageTableLine("spd_vs_threads_evencomp").substring(1));
 	}
 	
 	public static void main(String args[]) throws IOException {
@@ -251,9 +324,34 @@ public class PosterImageGen {
 				// % improvement range
 				new Range(0, 10));
 		
+		handleSpdCompares(main);
+		writeSubIGraphs(main);
+		
 		printTable();
 		
 		System.exit(0);
+	}
+	
+	private static void writeSubIGraphs(File dir) throws IOException {
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		
+		func.set(100d, 18.869238);
+		func.set(500d, 7.675522);
+		func.set(50d, 18.955439);
+		func.set(200d, 13.790538);
+		func.set(25d, 18.423607);
+		
+		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		funcs.add(func);
+		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		chars.add(new PlotCurveCharacterstics(
+				PlotLineType.SOLID, 4f, PlotSymbol.FILLED_CIRCLE, 8f, Color.BLACK));
+		
+		GraphiWindowAPI_Impl gw = ResultPlotter.getGraphWindow(funcs,
+				"Speedup vs nSubIterations (40 Threads)", chars, "nSubIterations",
+				"Speedup", false);
+		
+		saveImages(gw, dir, "spd_vs_subs_comp");
 	}
 
 }
