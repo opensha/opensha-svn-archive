@@ -15,14 +15,14 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
-public class testInversionSolutionERF {
+public class TestFaultSysSolPoissonERF {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
+		/*
 		long test = Long.MAX_VALUE;
 		long test2 = test+1;
 		System.out.println(test+"\t"+test2);
@@ -73,8 +73,10 @@ public class testInversionSolutionERF {
 		System.out.println("diff="+(time2-time1));
 		System.exit(0);
 		//
+		 * 
+		 */
 		
-		InversionSolutionERF invERF = new InversionSolutionERF("/Users/field/ALLCAL_UCERF2.zip");
+		FaultSystemSolutionPoissonERF invERF = new FaultSystemSolutionPoissonERF("/Users/field/ALLCAL_UCERF2.zip");
 		invERF.updateForecast();
 		System.out.println("done with invERF");
 

@@ -39,7 +39,7 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 /**
  *
  */
-public class InversionSolutionERF extends AbstractERF {
+public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	/**
 	 * 
@@ -48,7 +48,7 @@ public class InversionSolutionERF extends AbstractERF {
 	
 	private static final boolean D = true;
 
-	public static final String NAME = "Inversion Solution ERF";
+	public static final String NAME = "Fault System Solution Poisson ERF";
 	
 	private static final String FILE_PARAM_NAME = "Solution Input File";
 	private FileParameter fileParam;
@@ -68,7 +68,7 @@ public class InversionSolutionERF extends AbstractERF {
 	 * This creates the ERF from the given file
 	 * @param fullPathInputFile
 	 */
-	public InversionSolutionERF(String fullPathInputFile) {
+	public FaultSystemSolutionPoissonERF(String fullPathInputFile) {
 		this();
 		fileParam.setValue(new File(fullPathInputFile));
 		// remove the fileParam from the adjustable parameter list
@@ -79,7 +79,7 @@ public class InversionSolutionERF extends AbstractERF {
 	/**
 	 * This creates the ERF with a parameter for choosing the input file
 	 */
-	public InversionSolutionERF() {
+	public FaultSystemSolutionPoissonERF() {
 		fileParam = new FileParameter(FILE_PARAM_NAME);
 		fileParam.addParameterChangeListener(this);
 		adjustableParams.addParameter(fileParam);
