@@ -90,16 +90,17 @@ public class ObsEqkRupture extends EqkRupture implements java.io.Serializable{
 	}
 
 	/**
-	 * This returns the origin time of this event
-	 * @return - the origin time in UTC milliseconds from the epoch
+	 * This returns the origin time of this event in UTC milliseconds from the epoch
+	 * (see GregorianCalendar.setTimeInMillis() for details)
+	 * @return 
 	 */
 	public long getOriginTime() {
 		return this.originTimeInMillis;
 	}
 	
 	/**
-	 * This sets the origin time of this event
-	 * @return - the origin time in UTC milliseconds from the epoch
+	 * This sets the origin time of this event in UTC milliseconds from the epoch
+	 * (see GregorianCalendar.setTimeInMillis() for details)
 	 */
 	public void setOriginTime(long originTimeInMillis) {
 		this.originTimeInMillis=originTimeInMillis;

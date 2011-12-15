@@ -51,6 +51,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	private float dipDirection;
 	private String parentSectionName;
 	private int parentSectionId=-1;
+	private long dateOfLastEventMillis = Long.MIN_VALUE;
+	private double slipInLastEvent = Double.NaN;
 	
 	// for the stirling surface:
 	double lastGridSpacing = Double.NaN; 
@@ -75,6 +77,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		couplingCoeff= faultSectionPrefData.getCouplingCoeff();
 		faultTrace= faultSectionPrefData.getFaultTrace();
 		dipDirection= faultSectionPrefData.getDipDirection();
+		dateOfLastEventMillis = faultSectionPrefData.getDateOfLastEvent();
+		slipInLastEvent = faultSectionPrefData.getSlipInLastEvent();
 	}
 
 	public String toString() {
@@ -91,6 +95,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		str += "aseismicSlipFactor = "+this.getAseismicSlipFactor()+"\n";
 		str += "couplingCoeff = "+this.getCouplingCoeff()+"\n";
 		str += "dipDirection = "+this.getDipDirection()+"\n";
+		str += "dateOfLastEventMillis = "+this.getDateOfLastEvent()+"\n";
+		str += "slipInLastEvent = "+this.getSlipInLastEvent()+"\n";
 		str += "faultTrace:\n";
 		for(int i=0; i <this.getFaultTrace().size();i++) {
 			Location loc = this.getFaultTrace().get(i);
@@ -98,6 +104,48 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		}
 		return str;
 	}
+	
+	/**
+	 * This sets the date of last event in UTC milliseconds from the epoch
+	 * (see GregorianCalendar.setTimeInMillis() for details).
+	 * @param dateOfLastEventMillis
+	 */
+	public void setDateOfLastEvent(long dateOfLastEventMillis) {
+		this.dateOfLastEventMillis=dateOfLastEventMillis;
+	}
+
+	/**
+	 * This returns the date of last event in UTC milliseconds from the epoch
+	 * (see GregorianCalendar.setTimeInMillis() for details).  A value of
+	 * Long.MIN_VALUE means it's not available (this is the default).
+	 * @param dateOfLastEventMillis
+	 */
+	public long getDateOfLastEvent() {
+		return dateOfLastEventMillis;
+	}
+
+	/**
+	 * Amount of slip (m) on this section in the last event
+	 * @param slipInLastEvent - in meters
+	 */
+	public void setSlipInLastEvent(double slipInLastEvent) {
+		this.slipInLastEvent=slipInLastEvent;
+	}
+	
+	
+	/**
+	 * Amount of slip (m) on this section in the last event.  A value of 
+	 * Double.NaN means it is not available (the default).
+	 * @return slip in meters
+	 */
+	public double getSlipInLastEvent() {
+		return slipInLastEvent;
+	}
+
+	
+//	private long dateOfLastEventMillis;
+//	private double slipInLastEvent;
+
 
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
