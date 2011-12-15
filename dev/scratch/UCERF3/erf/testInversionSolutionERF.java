@@ -1,4 +1,4 @@
-package scratch.UCERF3.inversion;
+package scratch.UCERF3.erf;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,9 +38,9 @@ public class testInversionSolutionERF {
 		System.out.println("calendarTest0 time : "+calendarTest0.getTime());
 		
 		GregorianCalendar calendarTest1 = new GregorianCalendar();
+		calendarTest1.setTimeZone(TimeZone.getTimeZone("UTC"));
 		calendarTest1.set(1,1,1);
 //		calendarTest1.setTimeInMillis(0);
-		calendarTest1.setTimeZone(TimeZone.getTimeZone("UTC"));
 		System.out.println("calendarTest1 Time Zone: "+calendarTest1.getTimeZone());
 		System.out.println("calendarTest1 time : "+calendarTest1.getTime());
 		

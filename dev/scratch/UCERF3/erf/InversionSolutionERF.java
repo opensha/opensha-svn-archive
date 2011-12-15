@@ -1,4 +1,4 @@
-package scratch.UCERF3.inversion;
+package scratch.UCERF3.erf;
 
 import java.io.File;
 import java.util.ArrayList;
