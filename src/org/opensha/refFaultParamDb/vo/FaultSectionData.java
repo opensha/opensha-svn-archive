@@ -30,7 +30,8 @@ import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: FaultSectionVer2.java </p>
- * <p>Description: Fault Section information saved in the database</p>
+ * <p>Description: Fault Section information saved in the database.  
+ * See the class FaultSectionPrefData for info on units</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
