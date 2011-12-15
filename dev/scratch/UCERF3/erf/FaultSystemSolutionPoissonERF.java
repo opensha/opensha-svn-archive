@@ -50,19 +50,31 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	public static final String NAME = "Fault System Solution Poisson ERF";
 	
-	private static final String FILE_PARAM_NAME = "Solution Input File";
-	private FileParameter fileParam;
+	protected static final String FILE_PARAM_NAME = "Solution Input File";
+	protected FileParameter fileParam;
 	
 	// these help keep track of what's changed
-	private File prevFile = null;
-	private double faultGridSpacing = -1;
+	protected File prevFile = null;
+	protected double faultGridSpacing = -1;
 	
-	private FaultGridSpacingParam faultGridSpacingParam;
+	protected FaultGridSpacingParam faultGridSpacingParam;
 	
-	private FaultSystemSolution faultSysSolution;
+	protected FaultSystemSolution faultSysSolution;
 	
-	private int[] nonZeroRateRupMapping;  // used to keep only inv rups with non-zero rates
+	protected int[] nonZeroRateRupMapping;  // used to keep only inv rups with non-zero rates
 	
+	
+	/**
+	 * This creates the ERF from the given file
+	 * @param fullPathInputFile
+	 */
+	public FaultSystemSolutionPoissonERF(FaultSystemSolution faultSysSolution) {
+		this();
+		this.faultSysSolution=faultSysSolution;
+		// remove the fileParam from the adjustable parameter list
+		adjustableParams.removeParameter(fileParam);
+	}
+
 	
 	/**
 	 * This creates the ERF from the given file
@@ -98,22 +110,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		if (parameterChangeFlag) {
 			if (D) System.out.println("Updating forecast");
 			
+			if(fileParam.getValue() != null) // will be null if constructor was given FaultSysSolutionFrom
+				readFaultSysSolutionFromFile();
+			
 			// set grid spacing
 			faultGridSpacing = faultGridSpacingParam.getValue();
-			
-			// set input file
-			File file = fileParam.getValue();
-			if (file == null) throw new RuntimeException("No solution file specified");
-
-			if (file != prevFile) {
-				if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
-				try {
-					faultSysSolution = SimpleFaultSystemSolution.fromFile(file);
-					prevFile = file;
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
 			
 			// count number of non-zero rate ruptures
 			int num =0;
@@ -130,6 +131,22 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				}
 
 			if(D) System.out.println("Done updating forecast.");
+		}
+	}
+	
+	private void readFaultSysSolutionFromFile() {
+		// set input file
+		File file = fileParam.getValue();
+		if (file == null) throw new RuntimeException("No solution file specified");
+
+		if (file != prevFile) {
+			if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
+			try {
+				faultSysSolution = SimpleFaultSystemSolution.fromFile(file);
+				prevFile = file;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
