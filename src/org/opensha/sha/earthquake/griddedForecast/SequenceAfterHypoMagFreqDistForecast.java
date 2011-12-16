@@ -91,7 +91,7 @@ public class SequenceAfterHypoMagFreqDistForecast
    */
   public void set_SequenceRJParms() {
         ObsEqkRupList aftershockListComplete =
-        this.afterShocks.getObsEqkRupsAboveMag(seqNodeCompletenessMag);
+        this.afterShocks.getRupsAboveMag(seqNodeCompletenessMag);
     MaxLikeGR_Calc.setMags(aftershockListComplete);
     aVal_Sequence = MaxLikeGR_Calc.get_aValueMaxLike();
     bVal_Sequence = MaxLikeGR_Calc.get_bValueMaxLike();
@@ -103,7 +103,7 @@ public class SequenceAfterHypoMagFreqDistForecast
   public void set_SequenceOmoriParms() {
 
     ObsEqkRupList aftershockListComplete =
-        this.afterShocks.getObsEqkRupsAboveMag(seqNodeCompletenessMag);
+        this.afterShocks.getRupsAboveMag(seqNodeCompletenessMag);
     if (this.useFixed_cValue) {
       omoriCalc.set_AfterShockListFixed_c(aftershockListComplete);
     }

@@ -150,7 +150,7 @@ public class ReasenbergJonesGriddedParms_Calc {
     CompletenessMagCalc.setMcBest(eventList);
     allEventsMc = CompletenessMagCalc.getMcBest() + constantAddToMc;
     // # of events in total sequence > Mc
-    int totalCompleteEvents = eventList.getObsEqkRupsAboveMag(allEventsMc).size();
+    int totalCompleteEvents = eventList.getRupsAboveMag(allEventsMc).size();
     // set the appropriate radius to use for collecting events for the node
     if (totalCompleteEvents < 1000) this.searchRadius = 15;
     else if (totalCompleteEvents < 1500) this.searchRadius = 12;
@@ -161,7 +161,7 @@ public class ReasenbergJonesGriddedParms_Calc {
     while (gridIt.hasNext()) {
       Region gridRegion =
           new Region(gridIt.next(),this.searchRadius);
-      ObsEqkRupList regionList = eventList.getObsEqkRupsInside(gridRegion);
+      ObsEqkRupList regionList = eventList.getRupsInside(gridRegion);
 
       // Calculate the completeness of the events selected for the node and remove
       // events below this mag.
@@ -169,7 +169,7 @@ public class ReasenbergJonesGriddedParms_Calc {
       completenessMag = CompletenessMagCalc.getMcBest();
       grid_Mc[ind] = completenessMag + constantAddToMc;
       ObsEqkRupList completeRegionList =
-          regionList.getObsEqkRupsAboveMag(completenessMag + constantAddToMc);
+          regionList.getRupsAboveMag(completenessMag + constantAddToMc);
 
       // Calculate the Gutenberg-Richter parms
       MaxLikeGR_Calc.setMags(completeRegionList);

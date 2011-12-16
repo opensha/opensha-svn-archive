@@ -46,7 +46,7 @@ public class ObsEqkRupListCalc {
     int size = obsEqkEvents.size();
     double mag =0;
     for(int i=0;i<size;++i)
-      mag += obsEqkEvents.getObsEqkRuptureAt(i).getMag();
+      mag += obsEqkEvents.get(i).getMag();
     return (mag/size);
   }
 
@@ -56,7 +56,7 @@ public class ObsEqkRupListCalc {
    * @return double min-mag
    */
   public static double getMinMag(ObsEqkRupList obsEqkEvents) {
-    Double minMag = Collections.min(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator()).getMag();
+    Double minMag = Collections.min(obsEqkEvents,new EqkRuptureMagComparator()).getMag();
     return minMag;
   }
 
@@ -67,7 +67,7 @@ public class ObsEqkRupListCalc {
    * @return double max-mag
    */
   public static double getMaxMag(ObsEqkRupList obsEqkEvents) {
-    Double maxMag = Collections.max(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator()).getMag();
+    Double maxMag = Collections.max(obsEqkEvents,new EqkRuptureMagComparator()).getMag();
     return maxMag;
   }
 
@@ -83,13 +83,13 @@ public class ObsEqkRupListCalc {
    */
   public static long[] getInterEventTimes(ObsEqkRupList obsEqkEvents) {
 
-    obsEqkEvents.sortObsEqkRupListByOriginTime();
+    obsEqkEvents.sortByOriginTime();
     int size = obsEqkEvents.size();
     long[] interEventTimes = new long[size-1];
 
     for(int i=0;i<size -1;++i){
-      long time = obsEqkEvents.getObsEqkRuptureAt(i+1).getOriginTime() -
-          obsEqkEvents.getObsEqkRuptureAt(i).getOriginTime();
+      long time = obsEqkEvents.get(i+1).getOriginTime() -
+          obsEqkEvents.get(i).getOriginTime();
       interEventTimes[i] = time;
     }
 

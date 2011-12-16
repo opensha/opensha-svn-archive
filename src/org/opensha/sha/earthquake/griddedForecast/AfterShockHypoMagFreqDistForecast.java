@@ -88,7 +88,7 @@ public abstract class AfterShockHypoMagFreqDistForecast
    * addToAftershockList
    */
   public void addToAftershockList(ObsEqkRupture newAftershock) {
-    afterShocks.addObsEqkEvent(newAftershock);
+    afterShocks.add(newAftershock);
   }
 
 

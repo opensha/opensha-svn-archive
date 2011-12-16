@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.observedEarthquake.ngaWest;
+package org.opensha.sha.earthquake.observedEarthquake.parsers.ngaWest;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;

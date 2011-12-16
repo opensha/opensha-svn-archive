@@ -69,7 +69,7 @@ public class CubeToObsEqkRupture {
       String obsEqkRupString = (String)fileLines.get(i);
       ObsEqkRupture obsEqkEvent = readFile(obsEqkRupString);
       if(obsEqkEvent !=null)
-        eqkRupList.addObsEqkEvent(obsEqkEvent);
+        eqkRupList.add(obsEqkEvent);
     }
     fileLines = null;
   }
@@ -191,7 +191,7 @@ public class CubeToObsEqkRupture {
     * @return ObsEqkRupture
     */
    public ObsEqkRupture getObsEqkRupture(int index){
-     return (ObsEqkRupture)eqkRupList.getObsEqkRuptureAt(index);
+     return (ObsEqkRupture)eqkRupList.get(index);
    }
 
    /**
@@ -210,12 +210,12 @@ public class CubeToObsEqkRupture {
       ex.printStackTrace();
     }
      ObsEqkRupList rupList = cubeToRup.getAllObsEqkRupEvents();
-     rupList.sortObsEqkRupListByOriginTime();
+     rupList.sortByOriginTime();
      int size = rupList.size();
      try{
        FileWriter fw = new FileWriter("ObsEqkRup.txt");
        for (int i = 0; i < size; ++i) {
-         ObsEqkRupture eqkRup = (ObsEqkRupture) rupList.getObsEqkRuptureAt(i);
+         ObsEqkRupture eqkRup = rupList.get(i);
          fw.write("Obs EqkRupture: "+i+"\n");
          fw.write(eqkRup.getInfo()+"\n\n");
        }

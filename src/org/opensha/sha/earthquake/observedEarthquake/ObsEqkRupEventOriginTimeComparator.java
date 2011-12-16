@@ -41,12 +41,13 @@ implements Comparator<ObsEqkRupture>, java.io.Serializable {
 	 * equal to, or greater than the second, respectively.
 	 */
 	public int compare(ObsEqkRupture rupEvent1, ObsEqkRupture rupEvent2) {
-		if(rupEvent1.getOriginTime() < rupEvent2.getOriginTime())
-			return -1;
-		else if(rupEvent1.getOriginTime() == rupEvent2.getOriginTime())
-			return 0;
-		else
-			return 1;
+		return new Long(rupEvent1.getOriginTime()).compareTo(rupEvent2.getOriginTime());
+//		if(rupEvent1.getOriginTime() < rupEvent2.getOriginTime())
+//			return -1;
+//		else if(rupEvent1.getOriginTime() == rupEvent2.getOriginTime())
+//			return 0;
+//		else
+//			return 1;
 	}
 
 }

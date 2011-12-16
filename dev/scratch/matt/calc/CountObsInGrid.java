@@ -104,7 +104,7 @@ public class CountObsInGrid {
 			Region gridRegion = new Region(cellLoc, BorderType.MERCATOR_LINEAR);
 			
 		    // find ObsEqkRupList of events w/in this grid cell
-			cellEvents = obsEvents.getObsEqkRupsInside(gridRegion);
+			cellEvents = obsEvents.getRupsInside(gridRegion);
 			this.numObsInGrid[gLoop++] = cellEvents.size();	
 			
 		}

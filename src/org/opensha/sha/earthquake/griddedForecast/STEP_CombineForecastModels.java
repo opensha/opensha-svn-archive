@@ -214,7 +214,7 @@ public class STEP_CombineForecastModels
 			  double radius = this.spaElement.getGridSearchRadius();
 			  ObsEqkRupList gridEvents;
 			  Region nodeRegion = new Region(getRegion().locationForIndex(gLoop),radius);
-			  gridEvents = this.afterShocks.getObsEqkRupsInside(nodeRegion);
+			  gridEvents = this.afterShocks.getRupsInside(nodeRegion);
 			  
 			  // get the smoothed generic k val for the grid node
 		 	  genOmoriVals[0] = this.genElement.get_k_valueGenericAtLoc(gLoop);
@@ -558,7 +558,7 @@ public class STEP_CombineForecastModels
 	else{
 		CompletenessMagCalc.setMcBest(this.afterShocks);
 		double mComplete = CompletenessMagCalc.getMcBest();
-		ObsEqkRupList compList = this.afterShocks.getObsEqkRupsAboveMag(mComplete);
+		ObsEqkRupList compList = this.afterShocks.getRupsAboveMag(mComplete);
 		if (compList.size() > 100)
 			this.useSeqAndSpatial = true;
 		else

@@ -63,12 +63,7 @@ implements Comparator<EqkRupture>, java.io.Serializable {
 	 * @todo Implement this java.util.Comparator method
 	 */
 	public int compare(EqkRupture eqkRup1, EqkRupture eqkRup2) {
-		if(eqkRup1.getMag() < eqkRup2.getMag())
-			return -1;
-		else if(eqkRup1.getMag() == eqkRup2.getMag())
-			return 0;
-		else
-			return 1;
+		return Double.compare(eqkRup1.getMag(), eqkRup2.getMag());
 	}
 
 }

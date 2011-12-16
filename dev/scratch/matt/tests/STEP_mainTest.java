@@ -165,10 +165,10 @@ public class STEP_mainTest extends TestCase {
 	public void testIsObsEqkRupEventEqual() {
 		ObsEqkRupList   newObsEqkRuptureList = stepmain.loadNewEvents();
 		
-		assertTrue("event 1 & 2 equal",  stepmain.isObsEqkRupEventEqual(newObsEqkRuptureList.getObsEqkRuptureAt(0), newObsEqkRuptureList.getObsEqkRuptureAt(1)));
+		assertTrue("event 1 & 2 equal",  stepmain.isObsEqkRupEventEqual(newObsEqkRuptureList.get(0), newObsEqkRuptureList.get(1)));
 		
 		assertFalse("event 1 & 3 not equal", 
-				stepmain.isObsEqkRupEventEqual(newObsEqkRuptureList.getObsEqkRuptureAt(0), newObsEqkRuptureList.getObsEqkRuptureAt(2)));
+				stepmain.isObsEqkRupEventEqual(newObsEqkRuptureList.get(0), newObsEqkRuptureList.get(2)));
 		
 		
 	}
