@@ -1085,7 +1085,7 @@ public class General_EQSIM_Tools {
 	 * @param normRI_List
 	 * @param plotTitle
 	 */
-	private GraphiWindowAPI_Impl plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
+	public static GraphiWindowAPI_Impl plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
 		// find max value
 		double max=0;
 		for(Double val:normRI_List)
@@ -1111,7 +1111,7 @@ public class General_EQSIM_Tools {
 		
 		// add best-fit Lognormal dist function
 		LognormalDistCalc logNorm_calc = new LognormalDistCalc();
-		logNorm_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 151);
+		logNorm_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 141);
 		EvenlyDiscretizedFunc fitLogNorm_func = logNorm_calc.getPDF();
 		fitLogNorm_func.setName("Best Fit Lognormal Dist");
 		fitLogNorm_func.setInfo("(mean="+(float)bpt_calc.getMean()+", aper="+(float)bpt_calc.getAperiodicity()+")");

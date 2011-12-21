@@ -384,6 +384,48 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 			throw new RuntimeException("drawRandomEqkRuptures(): Non poissonsources are not yet supported");
 		return rupList;
 	}
+	
+	
+	
+	/**
+	 * This draws a random list of rupture indices.  Non-poisson sources are not yet implemented
+	 * @return
+	 */
+	public ArrayList<Integer> drawRandomEqkRuptureIndices() {
+		ArrayList<Integer> rupIndexList = new ArrayList<Integer>();
+		//	  System.out.println("New Rupture")
+		if(isPoissonian) {
+			for(int r=0; r<getNumRuptures();r++) {
+				ProbEqkRupture rup = getRupture(r);
+				//			  if(rup.getProbability() > 0.99) System.out.println("Problem!");
+				double expected = -Math.log(1-rup.getProbability());
+				//			  double rand = 0.99;
+				double rand = Math.random();
+				double sum =0;
+				double factoral = 1;
+				int maxNum = (int) Math.round(10*expected)+2;
+				int num;
+				for(num=0; num <maxNum; num++) {
+					if(num != 0) factoral *= num;
+					double prob = Math.pow(expected, num)*Math.exp(-expected)/factoral;
+					sum += prob;
+					if(rand <= sum) break;
+				}
+				for(int i=0;i<num;i++) rupIndexList.add(r);
+				/*			  if(num >0)
+				  System.out.println("expected="+expected+"\t"+
+					  "rand="+rand+"\t"+
+					  "num="+num+"\t"+
+					  "mag="+rup.getMag());
+				 */			  
+			}
+		}
+		else
+			throw new RuntimeException("drawRandomEqkRuptures(): Non poissonsources are not yet supported");
+		return rupIndexList;
+	}
+	
+	
 
 	/**
 	 * This gets the TectonicRegionType for this source

@@ -78,13 +78,13 @@ public interface FaultSystemRupSet {
 	public double getAveSlipForRup(int rupIndex);
 	
 	/**
-	 * This gives the average slip on each section for all ruptures
+	 * This gives the average slip (SI untis: m) on each section for all ruptures
 	 * @return
 	 */
 	public List<double[]> getSlipOnSectionsForAllRups();
 	
 	/**
-	 * This gives the average slip on each section for the rth rupture
+	 * This gives the average slip (SI untis: m) on each section for the rth rupture
 	 * @return
 	 */
 	public double[] getSlipOnSectionsForRup(int rthRup);

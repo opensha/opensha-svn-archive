@@ -22,35 +22,35 @@ package org.opensha.sha.earthquake.param;
 import org.opensha.commons.param.impl.DoubleParameter;
 
 /**
- * This FaultGridSpacingParameter is for setting fault discretization in
- * in gridded surfaces.
+ * This AleatoryMagVariabilityParam is used for setting the variability 
+ * in magnitude for given fault area.
  */
-public class FaultGridSpacingParam extends DoubleParameter {
+public class AleatoryMagAreaStdDevParam extends DoubleParameter {
 	
 	private static final long serialVersionUID = 1L;
 	
-	public final static String NAME = "Fault Grid Spacing";
-	public final static String INFO = "For discretization of faults";
-	private static final String UNITS = "km";
-	protected final static Double MIN = new Double(0.1d);
-	protected final static Double MAX = new Double(10d);
+	public final static String NAME = "Aleatory Mag-Area StdDev";
+	public final static String INFO = "For variability of magnitude for given area";
+	private static final String UNITS = null;
+	protected final static Double MIN = new Double(0d);
+	protected final static Double MAX = new Double(1.0d);
 	
 
 	/**
 	 * This sets the default value as given.
 	 */
-	public FaultGridSpacingParam(double defaultMag) {
+	public AleatoryMagAreaStdDevParam(double defaultStdDev) {
 		super(NAME, MIN, MAX, UNITS);
 		getConstraint().setNonEditable();
 	    setInfo(INFO);
-	    setDefaultValue(defaultMag);
-	    this.setValueAsDefault();
+	    setDefaultValue(defaultStdDev);
+	    setValueAsDefault();
 	}
 
 	/**
-	 * This sets the default value as 1.0 km.
+	 * This sets the default value as 0.
 	 */
-	public FaultGridSpacingParam() { this(1.0);}
+	public AleatoryMagAreaStdDevParam() { this(0.0);}
 	
 	
 }

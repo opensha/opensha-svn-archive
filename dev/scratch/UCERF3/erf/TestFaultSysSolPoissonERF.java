@@ -77,8 +77,26 @@ public class TestFaultSysSolPoissonERF {
 		 */
 		
 		FaultSystemSolutionPoissonERF invERF = new FaultSystemSolutionPoissonERF("/Users/field/ALLCAL_UCERF2.zip");
+		invERF.aleatoryMagAreaStdDevParam.setValue(0.12);
 		invERF.updateForecast();
 		System.out.println("done with invERF");
+		invERF.writeSourceNamesToFile("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/erf/tempSrcNames.txt");
+		invERF.testNthRupIndicesForSource();
+		
+		System.out.println("s=4753 name: "+invERF.getSource(4753).getName()+"; nth rups:\n");
+		int[] rupIndices = invERF.get_nthRupIndicesForSource(4753);
+		for(int i=0; i<rupIndices.length;i++)
+			System.out.println("\t"+rupIndices[i]);
+		System.out.println("\n");
+		
+		System.out.println("getNumSources() = "+invERF.getNumSources());
+		System.out.println("getTotNumRups() = "+invERF.getTotNumRups());
+		System.out.println(invERF.getIndexN_ForSrcAndRupIndices(0, 0));
+		System.out.println(invERF.getIndexN_ForSrcAndRupIndices(1, 0));
+		int lastSrcIndex = invERF.getNumSources()-1;
+		int lastRupIndex = invERF.getNumRuptures(lastSrcIndex)-1;
+		System.out.println(invERF.getIndexN_ForSrcAndRupIndices(lastSrcIndex, lastRupIndex));
+//		System.exit(0);
 
 		
 		ModMeanUCERF2 modMeanUCERF2 = FindEquivUCERF2_FM2pt1_Ruptures.getMeanUCERF2_Instance();

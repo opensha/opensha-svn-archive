@@ -11,6 +11,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.oldStuff.OldInversionSolutionERF;
 
 public class MultiFaultProbStats {
