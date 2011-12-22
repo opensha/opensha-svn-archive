@@ -370,7 +370,9 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 	 * @param supportedPeriods
 	 */
 	public void setSupportedPeriods(List<Double> supportedPeriods) {
-		this.currentSupportedPeriods = supportedPeriods;
+		// this list might be immutable, so create a new one
+		currentSupportedPeriods = new ArrayList<Double>(supportedPeriods.size());
+		currentSupportedPeriods.addAll(supportedPeriods);
 		Collections.sort(currentSupportedPeriods);
 		updateGUI();
 	}
