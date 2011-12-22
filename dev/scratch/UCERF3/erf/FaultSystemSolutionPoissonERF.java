@@ -291,19 +291,22 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 		if(aleatoryMagAreaStdDev == 0) {
 			boolean isPoisson = true;
-			double prob = 1-Math.exp(-faultSysSolution.getRateForRup(invRupIndex)*probGain*timeSpan.getDuration());
+			double prob = 1-Math.exp(-faultSysSolution.getRateForRup(invRupIndex)*timeSpan.getDuration());
 			src = new FaultRuptureSource(faultSysSolution.getMagForRup(invRupIndex), 
 										  faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing), 
 										  faultSysSolution.getAveRakeForRup(invRupIndex), prob, isPoisson);
 		}
 		else {
 			double mag = faultSysSolution.getMagForRup(invRupIndex);
-			double totMoRate = faultSysSolution.getRateForRup(invRupIndex)*probGain*MagUtils.magToMoment(mag);
+			double totMoRate = faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
 			src = new FaultRuptureSource(srcMFD, 
 					faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing),
 					faultSysSolution.getAveRakeForRup(invRupIndex), timeSpan.getDuration());			
 		}
+		
+		// apply probability gain
+		src.scaleRupRates(probGain);
 		
 //		if(D && (iSource==0 || iSource==1000)) 
 //			System.out.println(iSource+"; aleatoryMagAreaStdDev = "+aleatoryMagAreaStdDev+"; numRups="+src.getNumRuptures());

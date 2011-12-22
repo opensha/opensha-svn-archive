@@ -266,6 +266,12 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 	public void set(int index, double y) {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public void scale(double val) {
+		for(int i=0; i<getNum();i++) super.set(i, val*getY(i));
+	}
+
 
    /**
     * removes this distribution from the list

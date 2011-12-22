@@ -3,8 +3,11 @@ package scratch.UCERF3.erf;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
+import org.apache.commons.math.random.RandomDataImpl;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.param.impl.FileParameter;
@@ -81,9 +84,15 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	}
 	
 	protected void initiateTimeSpan() {
-		timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
-		timeSpan.setDuration(30.);
-		timeSpan.addParameterChangeListener(this);
+		if(SIMULATION_MODE) {
+			timeSpan = new TimeSpan(TimeSpan.MILLISECONDS, TimeSpan.YEARS);
+			timeSpan.setDuration(1.);	
+		}
+		else {
+			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+			timeSpan.setDuration(30.);
+		}
+		timeSpan.addParameterChangeListener(this);			
 	}
 	
 	
@@ -117,8 +126,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			int nthRup=0;
 			for(ProbEqkSource src:this) {
 				for(ProbEqkRupture rup:src) {
-					totalRate = rup.getMeanAnnualRate(timeSpan.getDuration());
-					ruptureSampler.add(nthRup, getNthRupture(nthRup).getProbability());
+					totalRate += rup.getMeanAnnualRate(timeSpan.getDuration());
+					ruptureSampler.add(nthRup, rup.getProbability());
 					nthRup+=1;
 				}
 			}
@@ -343,65 +352,120 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	}
 
 	
+	/**
+	 * This assumes the rate of each rupture is constant up until the next event is sampled.
+	 * 
+	 * @param durationInYears
+	 */
 	public void testSimulations(int durationInYears) {
 		normalizedRecurIntervals = new ArrayList<Double>();
-		int startYear = 1700;
+		int startYear = 1970;
+		long startTimeMillis = (long)((startYear-1970)*MILLISEC_PER_YEAR);
+
 		timeSpan.setDuration(1.0);
+		GregorianCalendar startTimeCal = new GregorianCalendar();
+		startTimeCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+		startTimeCal.setTimeInMillis(startTimeMillis);
+		System.out.println(startTimeCal.getTimeInMillis());
+		timeSpan.setStartTime(startTimeCal);
+		long diff = startTimeMillis-timeSpan.getStartTimeCalendar().getTimeInMillis();
+		System.out.println(timeSpan.getStartTimeCalendar().getTimeInMillis()/(3600000));
 		int numRups=0;
 		
+		RandomDataImpl randomDataSampler = new RandomDataImpl();
+		
+		System.out.println("Updating forecast");
+		updateForecast();
+		System.out.println("Making target MFD");
+		SummedMagFreqDist targetMFD = ERF_Calculator.getTotalMFD_ForERF(this, 5.05, 8.95, 40, true);
+		targetMFD.setName("Target MFD");
+		targetMFD.setInfo("");
+
+	
 		SummedMagFreqDist obsMFD = new SummedMagFreqDist(5.05,8.95,40);
 		
-		int counter=0;
+		double counter=0;
 		int percDone=0;
 		System.out.println(percDone+"% done");
-		for(int yr=startYear; yr<startYear+durationInYears;yr++) {
-			counter +=1;
+		double yr=startYear;
+		long startRunTime = System.currentTimeMillis();
+		long runTimeForUpdateForecast = 0;
+		while (yr<durationInYears+startYear) {
 			if(counter > durationInYears/20) {
 				counter =0;
 				percDone += 5;
-				System.out.println(percDone+"% done");	
+				double timeInMin = ((double)(System.currentTimeMillis()-startRunTime)/(1000.0*60.0));
+				System.out.println("\n"+percDone+"% done in "+(float)timeInMin+" minutes\n");	
 			}
-//			System.out.print("working on yr "+yr);
-			timeSpan.setStartTime(yr);
-//			System.out.println("\tStarting updateForecast()");
+			startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
+//			System.out.println("Start time: "+startTimeMillis+"\t"+yr+"\t"+(1970+(double)startTimeMillis/MILLISEC_PER_YEAR));
+			
+			long time = System.currentTimeMillis();
 			updateForecast();
-//			System.out.println("\tDone with updateForecast()");
-			for(int s=0; s<getNumSources();s++) {
-				ProbEqkSource src = getSource(s);
-				ArrayList<Integer> rupIndices = src.drawRandomEqkRuptureIndices();
-				if(rupIndices.size()>1)
-					System.out.println("\t"+rupIndices.size()+" in year "+yr+"; only using one!");
-				numRups+=rupIndices.size();
-				if(rupIndices.size()>0) {
-					int rupIndex = rupIndices.get(0); // only keep the first
-					int nthRup = nthRupForSrcAndRupIndices.get(s+","+rupIndex);
-					setRuptureOccurrence(nthRup, timeSpan.getStartTimeCalendar().getTimeInMillis());
-					obsMFD.addResampledMagRate(src.getRupture(rupIndex).getMag(), 1.0, true);
-				}
-			}			
+			runTimeForUpdateForecast += System.currentTimeMillis()-time;
+			double timeOfNextInYrs = randomDataSampler.nextExponential(1.0/totalRate);
+			long eventTimeMillis = startTimeMillis + (long)(timeOfNextInYrs*MILLISEC_PER_YEAR);
+//			System.out.println("Event time: "+eventTimeMillis);
+			int nthRup = ruptureSampler.getRandomInt();
+			setRuptureOccurrence(nthRup, eventTimeMillis);
+//			System.out.print((float)timeOfNextInYrs+" ("+(float)totalRate+"); ");	
+//			System.out.print(numRups+"\t"+nthRup+"\t"+(float)timeOfNextInYrs+" ("+(float)totalRate+"); \n");	
+
+			numRups+=1;
+			obsMFD.addResampledMagRate(getNthRupture(nthRup).getMag(), 1.0, true);
+			yr+=timeOfNextInYrs;
+			counter +=timeOfNextInYrs;
+			startTimeCal.setTimeInMillis(eventTimeMillis);
+//			System.out.println("Next Start time: "+startTimeCal.getTimeInMillis());
+			timeSpan.setStartTime(startTimeCal);
+
+			
+//
+//			
+////			System.out.println("\tDone with updateForecast()");
+//			for(int s=0; s<getNumSources();s++) {
+//				ProbEqkSource src = getSource(s);
+//				ArrayList<Integer> rupIndices = src.drawRandomEqkRuptureIndices();
+//				if(rupIndices.size()>1)
+//					System.out.println("\t"+rupIndices.size()+" in year "+yr+"; only using one!");
+//				numRups+=rupIndices.size();
+//				if(rupIndices.size()>0) {
+//					int rupIndex = rupIndices.get(0); // only keep the first
+//					int nthRup = nthRupForSrcAndRupIndices.get(s+","+rupIndex);
+//					setRuptureOccurrence(nthRup, timeSpan.getStartTimeCalendar().getTimeInMillis());
+//					obsMFD.addResampledMagRate(src.getRupture(rupIndex).getMag(), 1.0, true);
+//				}
+//			}			
 		}
-		System.out.println("normalizedRecurIntervals.size()="+normalizedRecurIntervals.size());
-		for(Double nRI:normalizedRecurIntervals)
-			System.out.println(nRI);
+		System.out.println("numRups="+numRups);
 		
+		double percentUpdate = 100.0* (double)runTimeForUpdateForecast / (double)(System.currentTimeMillis()-startRunTime);
+		
+		System.out.println("Percent time updating forecast: "+percentUpdate);
+
+		System.out.println("normalizedRecurIntervals.size()="+normalizedRecurIntervals.size());
+//		for(Double nRI:normalizedRecurIntervals)
+//			System.out.println(nRI);
+		
+		//THIS NEEDED ANYMORE?
 		// filter out any negative numbers
-		for(int i=0;i<normalizedRecurIntervals.size();i++) {
-			if(normalizedRecurIntervals.get(i) < 0) {
-				System.out.println("Changing "+normalizedRecurIntervals.get(i)+" to 0.0");
-				normalizedRecurIntervals.set(i, 0.0);
-			}
-		}
+//		for(int i=0;i<normalizedRecurIntervals.size();i++) {
+//			if(normalizedRecurIntervals.get(i) < 0) {
+//				System.out.println("Changing "+normalizedRecurIntervals.get(i)+" to 0.0");
+//				normalizedRecurIntervals.set(i, 0.0);
+//			}
+//		}
 		
 		GraphiWindowAPI_Impl plot = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRecurIntervals, 
 				"Normalized RIs");
 		
+//		System.out.println(obsMFD);
+
 		// plot MFDs
-		SummedMagFreqDist targetMFD = ERF_Calculator.getTotalMFD_ForERF(this, 5.05, 8.95, 40, true);
-		targetMFD.setName("Target MFD");
 		obsMFD.scale(1.0/durationInYears);
 		obsMFD.setName("Simulated MFD");
+		obsMFD.setInfo("");
 
-		
 		ArrayList funcs = new ArrayList();
 		funcs.add(targetMFD);
 		funcs.add(obsMFD);
@@ -410,9 +474,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
-		graph.setYLog(true);
+//		graph.setYLog(true);
 		graph.setY_AxisRange(1e-6, 1.0);
-
 
 	}
 }

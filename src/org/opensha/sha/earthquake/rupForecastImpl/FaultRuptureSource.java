@@ -71,7 +71,7 @@ public class FaultRuptureSource
 
   protected double duration;
 
-  private ArrayList ruptureList; // keep this in case we add more mags later
+  private ArrayList<ProbEqkRupture> ruptureList; // keep this in case we add more mags later
   private ArrayList<Location> faultCornerLocations = new ArrayList<Location>(); // used for the getMinDistance(Site) method
   
  
@@ -114,7 +114,7 @@ public class FaultRuptureSource
     makeFaultCornerLocs(ruptureSurface);
 
     // make the rupture list
-    ruptureList = new ArrayList();
+    ruptureList = new ArrayList<ProbEqkRupture>();
 
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
@@ -175,7 +175,7 @@ public class FaultRuptureSource
     makeFaultCornerLocs(ruptureSurface);
 
     // make the rupture list
-    ruptureList = new ArrayList();
+    ruptureList = new ArrayList<ProbEqkRupture>();
     double mag;
     double prob;
 
@@ -217,7 +217,7 @@ public class FaultRuptureSource
     makeFaultCornerLocs(ruptureSurface);
 
     // make the rupture list
-    ruptureList = new ArrayList();
+    ruptureList = new ArrayList<ProbEqkRupture>();
     double mag;
     
     // compute total rate of magDist
@@ -359,4 +359,28 @@ public class FaultRuptureSource
   public String getName() {
     return NAME;
   }
+  
+  /**
+   * This method scales (multiplies) the rate of each rupture by the given value.
+   */
+  public void scaleRupRates(double value) {
+	  for(ProbEqkRupture rup: ruptureList) {
+		  double newMinusRT = value*Math.log(1.0-rup.getProbability());
+		  rup.setProbability(1.0-Math.exp(newMinusRT));
+	  }
+  }
+  
+  /**
+   * This method scales (multiplies) the probability of each rupture by the given value.
+   */
+  public void scaleRupProbs(double value) {
+	  for(ProbEqkRupture rup: ruptureList) {
+		  double newRupProb = value*rup.getProbability();
+		  if(newRupProb<=1.0)
+			  rup.setProbability(newRupProb);
+		  else
+			  throw new RuntimeException("Problem: value causes probability to exceed 1.0");
+	  }
+  }
+
 }
