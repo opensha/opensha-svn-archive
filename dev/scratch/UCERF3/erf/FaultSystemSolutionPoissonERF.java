@@ -4,18 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.eq.MagUtils;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.geo.LocationVector;
-import org.opensha.commons.param.impl.BooleanParameter;
-import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -24,22 +16,22 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.RuptureSurface;
-import org.opensha.sha.faultSurface.SimpleFaultData;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 
 /**
- * TODO:  Add grid sources, and update getNumSources();  grid sources should come after the fault system sources
+ * This class creates a Poisson ERF from a given FaultSystemSolution.  Each "rupture" in the FaultSystemSolution
+ * is treated as a separate source (each of which will have more than on rupture only if the 
+ * AleatoryMagAreaStdDevParam has a non-zero value.
+ * 
+ * To make accessing ruptures less confusing, this class keeps track of nth ruptures by...
+ * 
+ * Subclasses can add other (non-fault system sources) by simply overriding and implementing the private 
+ * getOtherSource(iSource) method, plus setting numOtherSources accordingly in the subclass constructor).
+ * 
+ * 
  */
 public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
@@ -64,29 +56,26 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	
 	protected FaultSystemSolution faultSysSolution;
-	int numFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a souce here)
-	int totNumRupsFromFaultSystem;	// the sum of all ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
+	int numFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
+	int totNumRupsFromFaultSystem;	// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	
+	int numOtherSources=0; // the non fault system sources
 	protected int[] fltSysRupIndexForSource;  		// used to keep only inv rups with non-zero rates
 	protected int[] srcIndexForFltSysRup;			// this stores the src index for the fault system source (-1 if there is no mapping?)
 	protected int[] fltSysRupIndexForNthRup;		// the fault system rupture index for the nth rup
 	protected ArrayList<int[]> nthRupIndicesForSource;	// this gives the nth indices for a given source
 	
-	// THESE COULD BE ADDED TO ABSRACT ERF
+	// THESE COULD BE ADDED TO ABSRACT ERF:
 	protected int totNumRups;
 	protected int[] srcIndexForNthRup;
 	protected int[] rupIndexForNthRup;
 	protected HashMap<String,Integer> nthRupForSrcAndRupIndices;
 	
-	// this is stored here for time-dependent subclasses (all values are Double.NaN here)
-	double[] probGainForFaultSystemSource;	// initialized to NaN???
-
-
-	
 	
 	/**
-	 * This creates the ERF from the given file
-	 * @param fullPathInputFile
+	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
+	 * from the adjustable parameter list (to prevent changes after instantiation).
+	 * @param faultSysSolution
 	 */
 	public FaultSystemSolutionPoissonERF(FaultSystemSolution faultSysSolution) {
 		this();
@@ -98,7 +87,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	
 	/**
-	 * This creates the ERF from the given file
+	 * This creates the ERF from the given file.  FileParameter is removed from the adjustable
+	 * parameter list (to prevent changes after instantiation).
 	 * @param fullPathInputFile
 	 */
 	public FaultSystemSolutionPoissonERF(String fullPathInputFile) {
@@ -110,7 +100,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	
 	/**
-	 * This creates the ERF with a parameter for choosing the input file
+	 * This creates the ERF with a parameter for setting the input file
+	 * (e.g., from a GUI).
 	 */
 	public FaultSystemSolutionPoissonERF() {
 		fileParam = new FileParameter(FILE_PARAM_NAME);
@@ -141,7 +132,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		faultGridSpacing = faultGridSpacingParam.getValue();
 		aleatoryMagAreaStdDev = aleatoryMagAreaStdDevParam.getValue();
 
-		if(fileParam.getValue() != null) // will be null if constructor was given FaultSysSolutionFrom
+		if(fileParam.getValue() != null) // will be null if constructor was given FaultSysSolution or file.
 			readFaultSysSolutionFromFile();	// this will not re-read the file if the name has not changed
 				
 		runTime = (System.currentTimeMillis()-runTime)/1000;
@@ -154,6 +145,10 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 	}
 	
+	
+	/**
+	 * This method sets a bunch of fields, arrays, and ArrayLists.
+	 */
 	private void setupArraysAndLists() {
 		
 		// count number of non-zero rate inversion ruptures (each will be a source)
@@ -161,10 +156,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		for(int r=0; r< faultSysSolution.getNumRuptures();r++)
 			if(faultSysSolution.getRateForRup(r) > 0.0)
 				numFaultSystemSources +=1;
-		
-		probGainForFaultSystemSource = new double[numFaultSystemSources] ;	// initialized to NaN???
-		for(int s=0;s<probGainForFaultSystemSource.length;s++)
-			probGainForFaultSystemSource[s] = Double.NaN;
 		
 		if(D) System.out.println(numFaultSystemSources+" of "+faultSysSolution.getNumRuptures()+ " fault system sources had non-zero rates");
 		
@@ -199,7 +190,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		ArrayList<Integer> tempFltSysRupIndexForNthRup = new ArrayList<Integer>();
 		int n=0;
 		for(int s=0; s<getNumSources(); s++) {
-			int numRups = getNumRuptures(s);
+			int numRups = getNumRuptures(s);	// prob at 7773
 			totNumRups += numRups;
 			if(s<numFaultSystemSources) {
 				totNumRupsFromFaultSystem += numRups;
@@ -262,7 +253,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	@Override
 	public int getNumSources() {
-		return fltSysRupIndexForSource.length;
+		return fltSysRupIndexForSource.length + numOtherSources;
 	}
 	
 	
@@ -270,21 +261,17 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		if(iSource == lastSrcRequested)
 			return currentSrc;
 		else if (iSource <numFaultSystemSources) {
-			ProbEqkSource src;
-			double probGain = probGainForFaultSystemSource[iSource];
-			if(Double.isNaN(probGain))
-				probGain = 1.0;
-			src = makeFaultSystemSource(iSource, probGain);
+			ProbEqkSource src = makeFaultSystemSource(iSource);
 			currentSrc = src;
 			lastSrcRequested = iSource;		
 			return src;
 		}
-		else	// this is where grid based sources can go
-			return null;
+		else	// this is where non-fault system sources can can go
+			return getOtherSource(iSource);
 	}
 
 
-	protected ProbEqkSource makeFaultSystemSource(int iSource, double probGain) {
+	protected ProbEqkSource makeFaultSystemSource(int iSource) {
 		
 		int invRupIndex= fltSysRupIndexForSource[iSource];
 		FaultRuptureSource src;
@@ -304,9 +291,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 					faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing),
 					faultSysSolution.getAveRakeForRup(invRupIndex), timeSpan.getDuration());			
 		}
-		
-		// apply probability gain
-		src.scaleRupRates(probGain);
 		
 //		if(D && (iSource==0 || iSource==1000)) 
 //			System.out.println(iSource+"; aleatoryMagAreaStdDev = "+aleatoryMagAreaStdDev+"; numRups="+src.getNumRuptures());
@@ -335,6 +319,17 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	
 	/**
+	 * This provides a mechanism for adding other sources in subclasses
+	 * (and make sure iSource>=fltSysRupIndexForSource.length )
+	 * @param iSource
+	 * @return
+	 */
+	protected ProbEqkSource getOtherSource(int iSource) {
+		return null;
+	}
+	
+	
+	/**
 	 * This checks whether what's returned from get_nthRupIndicesForSource(s) gives
 	 *  successive integer values when looped over all sources.
 	 */
@@ -352,27 +347,53 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		System.out.println("testNthRupIndicesForSource() was successful");
 	}
 	
+	/**
+	 * This returns the nth rup indices for the given source
+	 */
 	public int[] get_nthRupIndicesForSource(int iSource) {
 		return nthRupIndicesForSource.get(iSource);
 	}
 	
+	/**
+	 * This returns the total number of ruptures (the sum of all ruptures in all sources)
+	 */
 	public int getTotNumRups() {
 		return totNumRups;
 	}
 	
+	/**
+	 * This returns the nth rupture index for the given source and rupture index
+	 * (where the latter is the rupture index within the source)
+	 */	
 	public int getIndexN_ForSrcAndRupIndices(int s, int r) {
 		String str = s+","+r;
 		return nthRupForSrcAndRupIndices.get(str);
 	}
 	
+	/**
+	 * This returns the source index for the nth rupture
+	 * @param nthRup
+	 * @return
+	 */
 	public int getSrcIndexForNthRup(int nthRup) {
 		return srcIndexForNthRup[nthRup];
 	}
 
+	/**
+	 * This returns the rupture index (with its source) for the
+	 * given nth rupture.
+	 * @param nthRup
+	 * @return
+	 */
 	public int getRupIndexInSourceForNthRup(int nthRup) {
 		return rupIndexForNthRup[nthRup];
 	}
 	
+	/**
+	 * This returns the nth rupture in the ERF
+	 * @param n
+	 * @return
+	 */
 	public ProbEqkRupture getNthRupture(int n) {
 		return getRupture(getSrcIndexForNthRup(n), getRupIndexInSourceForNthRup(n));
 	}
