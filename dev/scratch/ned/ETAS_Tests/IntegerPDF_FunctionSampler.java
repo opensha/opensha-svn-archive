@@ -26,6 +26,7 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	
 	boolean dataChange = true;
 	double[] cumDistVals;
+	double sumOfYvals;
 	
 	/**
 	 * 
@@ -41,13 +42,21 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	 * This makes the cumulative dist function
 	 */
 	private void updateCumDistVals() {
-		double sum=0;
+		sumOfYvals=0;
 		for(int i=0;i<getNum();i++) {
-			sum += getY(i);
-			cumDistVals[i]=sum;
+			sumOfYvals += getY(i);
+			cumDistVals[i]=sumOfYvals;
 		}
-		for(int i=0;i<getNum();i++) cumDistVals[i] /= sum;
+		for(int i=0;i<getNum();i++) cumDistVals[i] /= sumOfYvals;
 //		for(int i=0;i<getNum();i++) System.out.println(i+"\t"+cumDistVals[i]);
+	}
+	
+	public double getSumOfY_vals() {
+		if(dataChange) {
+			updateCumDistVals();
+			dataChange=false;
+		}
+		return sumOfYvals;
 	}
 	
 	
