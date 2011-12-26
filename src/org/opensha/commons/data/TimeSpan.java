@@ -45,7 +45,7 @@ import org.opensha.commons.param.impl.StringParameter;
 /**
  *  <b>Title:</b> TimeSpan<p>
  *
- *  <b>Description:</b> This object represents a start time and a duration.<p>
+ *  <b>Description:</b> This object represents a start time and a duration in the UTC time zone.<p>
  *
  * The start-time is represented with a Year, Month, Day, Hour, Minute, Second,
  * and Millisecond, all of which are stored internally with IntegerParameter objects.
@@ -882,7 +882,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 	 * Start-Time Precision equal to defaults (usually the lowest allowed value).
 	 * This throws an exception if the Day is incompatable with the chosen Month
 	 * (and perhaps if any other problems are encountered, although I can't think
-	 * of any give our constraints on each parameter).
+	 * of any give our constraints on each parameter). TimeZone is set as "UTC".
 	 * @throws Exception
 	 */
 	private void buildStartTimeCalendar() throws RuntimeException {
@@ -938,7 +938,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 
 		// now make the calendar
 		startTimeCal = new GregorianCalendar();//
-		startTimeCal.setTimeZone(TimeZone.getTimeZone("GMT"));//TODO pls check, set to use same time zone
+		startTimeCal.setTimeZone(TimeZone.getTimeZone("UTC"));//TODO pls check, set to use same time zone
 		// make this throw exceptions for bogus values (rather than fixing them  )
 		startTimeCal.setLenient(false);
 		startTimeCal.set(Calendar.ERA, GregorianCalendar.AD);
@@ -960,14 +960,17 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 
 	/**
 	 * This sets the start-time fields (year, month, day, hour, minute, second,
-	 * and millisecond) from the inpute GregorianCalendar.  Fields above
-	 * the start-time precision are igored.  For example, if the start-
+	 * and millisecond) from the input GregorianCalendar.  Fields above
+	 * the start-time precision are ignored.  For example, if the start-
 	 * time precision equals "Hour", then the year, month, day, and hour are
 	 * set, but the minute, second, and millisecond fields are not.  If start-
 	 * time precision equals "None", then none of the fields are filled in.
+	 * An exception is throw if the calendar is not in the UTC time zone.
 	 * @param cal
 	 */
 	public void setStartTime( GregorianCalendar cal ) {
+		if(!cal.getTimeZone().equals(TimeZone.getTimeZone("UTC")))
+			throw new RuntimeException("calendar must be given in UTC time zone");
 		int year = cal.get(Calendar.YEAR);
 		int month = cal.get(Calendar.MONTH) + 1; // our indexing starts from 1
 		int day = cal.get(Calendar.DATE);
@@ -1010,6 +1013,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 			Double durMsec = new Double(getDuration(MILLISECONDS));
 			long endTime_mSec =  startTimeCal.getTime().getTime() + durMsec.longValue();
 			GregorianCalendar cal = new GregorianCalendar();
+			cal.setTimeZone(TimeZone.getTimeZone("UTC"));
 			cal.setTime( new Date( endTime_mSec ) );
 			return cal;
 		}
@@ -1054,8 +1058,8 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 
 
 	/**
-	 * This returns a GregorianCalendar representation of the start-time fields.
-	 * Those fields above the start-time precision are set to their defaults
+	 * This returns a GregorianCalendar representation of the start-time fields in the "UTC"
+	 * time zone. Those fields above the start-time precision are set to their defaults
 	 * (generally the lowest possible value).  For example, if start-time precision
 	 * equals "Day", then the HOUR_OF_DAY, MINUTE, SECOND, and MILLISECOND fields
 	 * of the returned GregorianCalendar are all set to 0.  Note also the indexing
@@ -1076,8 +1080,29 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 		buildStartTimeCalendar();
 		return startTimeCal;
 	}
+	
 
+	/**
+	 * This returns the start time in milliseconds in the "UTC" time zone.
+	 * @return
+	 */
+	public long getStartTimeInMillis() {
+		return getStartTimeCalendar().getTimeInMillis();
+	}
+	
 
+	/**
+	 * This sets the start time from milliseconds (which should be 
+	 * given in the "UTC" time zone).
+	 * @return
+	 */
+	public void setStartTimeInMillis(long millis) {
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+		cal.setTimeInMillis(millis);
+		setStartTime(cal);
+	}
+	
 
 	/**
 	 * This method will be used by ERFs to listen for changes in Timespan object

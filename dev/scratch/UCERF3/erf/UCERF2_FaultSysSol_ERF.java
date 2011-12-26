@@ -42,9 +42,11 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF();
 		erf.aleatoryMagAreaStdDevParam.setValue(0.0);
 		erf.bpt_AperiodicityParam.setValue(0.2);
+		erf.getTimeSpan().setStartTimeInMillis(0);
+		erf.getTimeSpan().setDuration(10000);
 		long runtime = System.currentTimeMillis();
 //		erf.updateForecast();
-		erf.testSimulations(1000);
+		erf.testER_Simulations();
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 

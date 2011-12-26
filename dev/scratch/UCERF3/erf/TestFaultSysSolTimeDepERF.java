@@ -23,9 +23,11 @@ public class TestFaultSysSolTimeDepERF {
 		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.12);
 		invERF.bpt_AperiodicityParam.setValue(0.2);
+		invERF.getTimeSpan().setStartTimeInMillis(0);
+		invERF.getTimeSpan().setDuration(10000);
 		
 		long runtime = System.currentTimeMillis();
-		invERF.testSimulations(10000);
+		invERF.testER_Simulations();
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 //		System.exit(0);

@@ -47,6 +47,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
+import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
 import scratch.ned.ETAS_Tests.ETAS_Utils;
 
 public class ETAS_Simulator {
@@ -182,7 +184,8 @@ public class ETAS_Simulator {
 					}
 				}
 				float fracUnassigned = (float)numUnAssigned/(float)locsOnRupSurf.size();
-				if(numUnAssigned>0) System.out.println(fracUnassigned+" of rup "+r+" were unassigned for source "+s+" ("+erf.getSource(s).getName()+")");
+				if(numUnAssigned>0) 
+					System.out.println(fracUnassigned+" of rup "+r+" were unassigned for source "+s+" ("+erf.getSource(s).getName()+")");
 				rateUnAssigned += rate*fracUnassigned;
 			}
 		}
@@ -221,7 +224,7 @@ public class ETAS_Simulator {
 		String rootDir = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_Tests/computedData/";
 		
 		// make the gridded region
-		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 		
 		// write the expected number of primary aftershocks for different mags
 		ETAS_Utils utils = new ETAS_Utils();
@@ -232,7 +235,8 @@ public class ETAS_Simulator {
 		
 		// for keeping track of runtime:
 		long startRunTime=System.currentTimeMillis();
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF("/Users/field/ALLCAL_UCERF2.zip");
+//		FaultSystemSolutionTimeDepERF erf = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
+		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF();
 		erf.getAdjustableParameterList().getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.12);
 		erf.updateForecast();
 		double runtime = (System.currentTimeMillis()-startRunTime)/1000;

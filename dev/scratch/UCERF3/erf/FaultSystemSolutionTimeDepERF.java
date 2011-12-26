@@ -32,6 +32,8 @@ import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
  * 0) try tuning aper correction to match target
  * 
  * 1) try src.scaleRupProbs(probGain);
+ * 
+ * 2) make sure timeSpan deals with UTC correctly
  */
 public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF {
 	
@@ -421,25 +423,23 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * 
 	 * TODO:
 	 * 
-	 * use timeSpan better (e.g. don't take durationInYears); make sure timeSpan deals with UTC correctly
+	 * Have this ignore non-fault=system ruptures (others take way too long this way).
 	 * 
 	 * add progress bar
 	 * 
 	 * @param durationInYears
 	 */
-	public void testSimulations(int durationInYears) {
+	public void testER_Simulations() {
+		long origStartTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
+		double origDuration = timeSpan.getDuration();
 		SIMULATION_MODE=true;
 		normalizedRecurIntervals = new ArrayList<Double>();
-		int startYear = 1970;
-		long startTimeMillis = (long)((startYear-1970)*MILLISEC_PER_YEAR);
+		double startYear = ((double)origStartTime)*MILLISEC_PER_YEAR+1970.0;
+		long startTimeMillis = origStartTime;
 
 		timeSpan.setDuration(1.0);
-		GregorianCalendar startTimeCal = new GregorianCalendar();
-		startTimeCal.setTimeZone(TimeZone.getTimeZone("UTC"));
-		startTimeCal.setTimeInMillis(startTimeMillis);
-		System.out.println(startTimeCal.getTimeInMillis());
-		timeSpan.setStartTime(startTimeCal);
-		System.out.println(timeSpan.getStartTimeCalendar().getTimeInMillis()/(3600000));
+		System.out.println("start time: "+origStartTime+ " millis ("+startYear+" yrs)");
+		System.out.println("originalDuration: "+origDuration+" ("+timeSpan.getDurationUnits()+")");
 		int numRups=0;
 		
 		// apache tool for sampling from exponential distribution here
@@ -452,7 +452,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		SummedMagFreqDist targetMFD = ERF_Calculator.getTotalMFD_ForERF(this, 2.05, 8.95, 70, true);
 		targetMFD.setName("Target MFD");
 		targetMFD.setInfo(" ");
-		System.out.println(targetMFD);
+//		System.out.println(targetMFD);
 
 		// MFD for simulation
 		SummedMagFreqDist obsMFD = new SummedMagFreqDist(5.05,8.95,40);
@@ -462,16 +462,16 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println(percDone+"% done");
 		double yr=startYear;
 		long startRunTime = System.currentTimeMillis();
-		while (yr<durationInYears+startYear) {
+		while (yr<origDuration+startYear) {
 			// write progress
-			if(counter > durationInYears/100) {
+			if(counter > origDuration/50) {
 				counter =0;
-				percDone += 1;
+				percDone += 2;
 				double timeInMin = ((double)(System.currentTimeMillis()-startRunTime)/(1000.0*60.0));
 				System.out.println("\n"+percDone+"% done in "+(float)timeInMin+" minutes\n");	
 			}
 			
-			System.out.println(numRups+"\t"+yr);
+//			System.out.println(numRups+"\t"+yr);
 			
 			startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
 //			System.out.println("Start time: "+startTimeMillis+"\t"+yr+"\t"+(1970+(double)startTimeMillis/MILLISEC_PER_YEAR));
@@ -492,9 +492,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			obsMFD.addResampledMagRate(magOfNthRups[nthRup], 1.0, true);
 			yr+=timeOfNextInYrs;
 			counter +=timeOfNextInYrs;
-			startTimeCal.setTimeInMillis(eventTimeMillis);
-//			System.out.println("Next Start time: "+startTimeCal.getTimeInMillis());
-			timeSpan.setStartTime(startTimeCal);
+			timeSpan.setStartTimeInMillis(eventTimeMillis); // this is needed for the elastic rebound probs
 
 			// update gains for next loop
 			for(int s=0;s<numFaultSystemSources;s++) {
@@ -525,7 +523,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 //		System.out.println(obsMFD);
 
 		// plot MFDs
-		obsMFD.scale(1.0/durationInYears);
+		obsMFD.scale(1.0/origDuration);
 		obsMFD.setName("Simulated MFD");
 		obsMFD.setInfo(" ");
 
