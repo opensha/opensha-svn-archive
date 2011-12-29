@@ -24,6 +24,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 
 
@@ -36,18 +37,35 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
  * @version 1.0
  */
 
-public class PrimaryAftershock extends EqkRupture {
+public class ETAS_EqkRupture extends ObsEqkRupture {
 	
-	private int id, parentID, srcIndex, rupIndex, generation;
-	private double originTime, distToParent=Double.NaN;
+	private int id=-1, parentID=-1, nthERF_Index=-1, generation=0;
+	private double distToParent=Double.NaN;
 	
-	public PrimaryAftershock() {};
+	public ETAS_EqkRupture() {};
 	
-	public PrimaryAftershock(ProbEqkRupture probRup) {
+	public ETAS_EqkRupture(ProbEqkRupture probRup) {
 		this.setMag(probRup.getMag());
 		this.setRuptureSurface(probRup.getRuptureSurface());
 		this.setAveRake(probRup.getAveRake());
 	}
+	
+	
+	public ETAS_EqkRupture(ObsEqkRupture probRup) {
+		this.setMag(probRup.getMag());
+		this.setRuptureSurface(probRup.getRuptureSurface());
+		this.setAveRake(probRup.getAveRake());
+		this.setOriginTime(probRup.getOriginTime());
+		this.setEventId(probRup.getEventId());
+	}
+	
+	public ETAS_EqkRupture(int parentID, int id, long originTimeInMillis) {
+		this.parentID=parentID;
+		this.id=id;
+		this.originTimeInMillis=originTimeInMillis;
+		
+	}
+
 	
 	/**
 	 * The ID of the parent that spawned this primary aftershock
@@ -106,7 +124,6 @@ public class PrimaryAftershock extends EqkRupture {
 		return generation;
 	}
 
-	
 	/**
 	 * Sets the ID of this event
 	 * @return
@@ -116,36 +133,12 @@ public class PrimaryAftershock extends EqkRupture {
 	}
 
 
-	
-	/**
-	 * The origin time of this event (units are unspecified)
-	 * @return
-	 */
-	public double getOriginTime(){
-		return originTime;
-	}
-	
-	/**
-	 * Sets the origin time of this event (units are unspecified)
-	 * @return
-	 */
-	public void setOriginTime(double originTime){
-		this.originTime = originTime;
+	public void setNthERF_Index(int nthERF_Index){
+		this.nthERF_Index = nthERF_Index;
 	}
 
-	public void setERF_SourceIndex(int srcIndex){
-		this.srcIndex = srcIndex;
-	}
-
-	public int getERF_SourceIndex(){
-		return srcIndex;
+	public int getNthERF_Index(){
+		return nthERF_Index;
 	}
 	
-	public void setERF_RupIndex(int rupIndex){
-		this.rupIndex = rupIndex;
-	}
-
-	public int getERF_RupIndex(){
-		return rupIndex;
-	}
 }

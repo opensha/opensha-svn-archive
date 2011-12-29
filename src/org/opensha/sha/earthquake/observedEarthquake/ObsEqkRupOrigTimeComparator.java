@@ -32,7 +32,7 @@ import java.util.Comparator;
  * @author Nitin Gupta, rewritten by Ned Field
  * @version 1.0
  */
-public class ObsEqkRupEventOriginTimeComparator
+public class ObsEqkRupOrigTimeComparator
 implements Comparator<ObsEqkRupture>, java.io.Serializable {
 
 	/**
@@ -42,12 +42,6 @@ implements Comparator<ObsEqkRupture>, java.io.Serializable {
 	 */
 	public int compare(ObsEqkRupture rupEvent1, ObsEqkRupture rupEvent2) {
 		return new Long(rupEvent1.getOriginTime()).compareTo(rupEvent2.getOriginTime());
-//		if(rupEvent1.getOriginTime() < rupEvent2.getOriginTime())
-//			return -1;
-//		else if(rupEvent1.getOriginTime() == rupEvent2.getOriginTime())
-//			return 0;
-//		else
-//			return 1;
 	}
 
 }

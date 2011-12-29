@@ -42,7 +42,7 @@ public class ETAS_PrimaryEventSampler {
 	
 	protected final static boolean D = false;  // for debugging
 	
-	ArrayList<EqksInGeoBlock> origBlockList;	// the original list of blocks given
+	ArrayList<EqksInGeoBlock> origBlockList;				// the original list of blocks given
 	ArrayList<ArrayList<EqksInGeoBlock>> origSubBlockList1;	// the master sub-block list #1
 	ArrayList<ArrayList<EqksInGeoBlock>> origSubBlockList2;	// the master sub-block list #2 (highest resolution)
 	ArrayList<EqksInGeoBlock> revisedBlockList;	// a revised list (those used here)
@@ -58,6 +58,7 @@ public class ETAS_PrimaryEventSampler {
 	double minBlockDist=Double.MAX_VALUE;
 	int minDistIndex=-1;
 	boolean includeBlockRates;
+	int numToProcess;
 	
 	
 	
@@ -120,14 +121,16 @@ public class ETAS_PrimaryEventSampler {
 					subBlocks = origSubBlockList1.get(b);
 					if(subBlocks == null) {
 						subBlocks = origBlock.getSubBlocks(3, 3, erf);
-						origSubBlockList1.set(b,subBlocks);
+						if(parentRup.getMag()>5)
+							origSubBlockList1.set(b,subBlocks);
 					}
 				}
 				else {
 					subBlocks = origSubBlockList2.get(b);
 					if(subBlocks == null) {
 						subBlocks = origBlock.getSubBlocks(6, 6, erf);
-						origSubBlockList2.set(b,subBlocks);
+						if(parentRup.getMag()>5)
+							origSubBlockList2.set(b,subBlocks);
 					}
 				}
 				for(EqksInGeoBlock subBlock:subBlocks) {
@@ -339,27 +342,35 @@ public class ETAS_PrimaryEventSampler {
 	 * This samples a random primary aftershock
 	 * @return
 	 */
-	public PrimaryAftershock samplePrimaryAftershock(double originTime) {
+	public ETAS_EqkRupture samplePrimaryAftershock(long originTime) {
 		int blockIndex = sampleRandomBlockIndex();
 		EqksInGeoBlock block = revisedBlockList.get(blockIndex);
 		int nthRup = block.getRandomRuptureIndexN();  // this returns the nth index of the randomly chosen rupture
-		int srcIndex = erf.getSrcIndexForNthRup(nthRup);
-		int rupIndex = erf.getSrcIndexForNthRup(nthRup);
-		ProbEqkRupture rup = (ProbEqkRupture)erf.getRupture(srcIndex, rupIndex);
+		ProbEqkRupture rup = (ProbEqkRupture)erf.getNthRupture(nthRup);
 /*
 		if(rup.getMag()>7.8) {
 			System.out.println("BIG MAG:\t"+rup.getMag()+"\t"+blockIndex+"\tiSrc="+indices[0]+"\tiRup="+indices[1]);
 			block.writeResults();			
 		}
 */		
-		PrimaryAftershock aftershock = new PrimaryAftershock(rup);
-		aftershock.setERF_SourceIndex(srcIndex);
-		aftershock.setERF_RupIndex(rupIndex);
+		ETAS_EqkRupture aftershock = new ETAS_EqkRupture(rup);
+		aftershock.setNthERF_Index(nthRup);
 		// assign a hypocenter
 		block.setRandomHypocenterLoc(aftershock);
 		aftershock.setOriginTime(originTime);
 		return aftershock;
 	}
+	
+	
+	/**
+	 * This samples a random block
+	 * @return
+	 */
+	public EqksInGeoBlock sampleRandomBlock() {
+		int blockIndex = sampleRandomBlockIndex();
+		return revisedBlockList.get(blockIndex);
+	}
+
 	
 	/**
 	 * This returns the revised block list
@@ -555,9 +566,6 @@ public class ETAS_PrimaryEventSampler {
 		double oneMinus = 1-distDecay;
 		return -(Math.pow(distance+minDist,oneMinus) - Math.pow(minDist,oneMinus))/Math.pow(minDist,oneMinus);
 	}
-
-	
-	
 
 	/**
 	 * @param args

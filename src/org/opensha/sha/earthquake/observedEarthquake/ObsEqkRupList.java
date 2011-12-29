@@ -207,7 +207,7 @@ public class ObsEqkRupList extends ArrayList<ObsEqkRupture> implements java.io.S
 	 *
 	 */
 	public void sortByOriginTime() {
-		Collections.sort(this, new ObsEqkRupEventOriginTimeComparator());
+		Collections.sort(this, new ObsEqkRupOrigTimeComparator());
 	}
 
 }

@@ -39,8 +39,8 @@ import org.opensha.sha.faultSurface.PointSurface;
  */
 public class ObsEqkRupture extends EqkRupture implements java.io.Serializable{
 
-	private String eventId;
-	private long originTimeInMillis;	
+	protected String eventId;
+	protected long originTimeInMillis;	
 
 	public ObsEqkRupture(){}
 

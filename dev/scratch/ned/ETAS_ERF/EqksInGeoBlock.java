@@ -238,11 +238,13 @@ public class EqksInGeoBlock {
 	 */
 	public void changeRate(double totRupRate, int nthRupIndex) {
 		int localIndex = findLocalIndex(nthRupIndex);
+		if(localIndex < 0)	// return if index not found (finite rupture not hitting sub-block)
+			return;
 		double oldRate = rateInsideList.get(localIndex);
 		double newRate = totRupRate*fractInsideList.get(localIndex);
 		// update totalRate
 		if(totalRateInside != -1)
-			totalRateInside += newRate=oldRate;
+			totalRateInside += newRate-oldRate;
 		// update sampler
 		if(randomEqkRupSampler != null)
 				randomEqkRupSampler.set(localIndex,newRate);
@@ -253,6 +255,8 @@ public class EqksInGeoBlock {
 	 * This returns the local index of the given nthRupIndex.
 	 * 
 	 * A negative value is returned if it's not found
+	 * 
+	 * Use a hashmap instead?  Presume ordering to speed up.
 	 * @param nthRupIndex
 	 * @return
 	 */
@@ -392,9 +396,7 @@ public class EqksInGeoBlock {
 		}
 		else {
 			ArrayList<Location> locsInside = new ArrayList<Location>();
-			ListIterator<Location> locs = rupSurface.getLocationsIterator();
-			while(locs.hasNext()) {
-				Location loc = locs.next();
+			for(Location loc:rupSurface.getEvenlyDiscritizedListOfLocsOnSurface()) {
 				if(isLocInside(loc)) 
 					locsInside.add(loc);
 			}

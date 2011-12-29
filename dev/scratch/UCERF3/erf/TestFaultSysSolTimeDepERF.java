@@ -27,7 +27,7 @@ public class TestFaultSysSolTimeDepERF {
 		invERF.getTimeSpan().setDuration(10000);
 		
 		long runtime = System.currentTimeMillis();
-		invERF.testER_Simulations();
+		invERF.testER_Simulation();
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 //		System.exit(0);

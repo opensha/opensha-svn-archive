@@ -23,13 +23,19 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 
 /**
  * This class creates a Poisson ERF from a given FaultSystemSolution.  Each "rupture" in the FaultSystemSolution
- * is treated as a separate source (each of which will have more than on rupture only if the 
+ * is treated as a separate source (each of which will have more than one rupture only if the 
  * AleatoryMagAreaStdDevParam has a non-zero value.
  * 
- * To make accessing ruptures less confusing, this class keeps track of nth ruptures by...
+ * The fault system solution can be provided in the constructor (as an object or file name) or the file 
+ * can be set in the file parameter.
  * 
- * Subclasses can add other (non-fault system sources) by simply overriding and implementing the private 
- * getOtherSource(iSource) method, plus setting numOtherSources accordingly in the subclass constructor).
+ * This filters out fault system ruptures that have zero rates.
+ * 
+ * To make accessing ruptures less confusing, this class keeps track of "nth" ruptures within the ERF 
+ * (see the last 7 methods here); these methods could be added to AbstractERF.
+ * 
+ * Subclasses can add other (non-fault system) sources by simply overriding and implementing the private 
+ * getOtherSource(iSource) method and setting numOtherSources accordingly in the subclass constructor.
  * 
  * 
  */
@@ -291,9 +297,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 					faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing),
 					faultSysSolution.getAveRakeForRup(invRupIndex), timeSpan.getDuration());			
 		}
-		
-//		if(D && (iSource==0 || iSource==1000)) 
-//			System.out.println(iSource+"; aleatoryMagAreaStdDev = "+aleatoryMagAreaStdDev+"; numRups="+src.getNumRuptures());
 
 		List<FaultSectionPrefData> data = faultSysSolution.getFaultSectionDataForRupture(invRupIndex);
 		String name = data.size()+" SECTIONS BETWEEN "+data.get(0).getName()+" AND "+data.get(data.size()-1).getName();
