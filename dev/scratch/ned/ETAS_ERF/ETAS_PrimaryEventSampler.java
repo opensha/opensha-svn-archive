@@ -43,8 +43,6 @@ public class ETAS_PrimaryEventSampler {
 	protected final static boolean D = false;  // for debugging
 	
 	ArrayList<EqksInGeoBlock> origBlockList;				// the original list of blocks given
-	ArrayList<ArrayList<EqksInGeoBlock>> origSubBlockList1;	// the master sub-block list #1
-	ArrayList<ArrayList<EqksInGeoBlock>> origSubBlockList2;	// the master sub-block list #2 (highest resolution)
 	ArrayList<EqksInGeoBlock> revisedBlockList;	// a revised list (those used here)
 	ArrayList<Double> revisedBlockDistances;	// distances to parentRup for the revised blocks
 	EqkRupture parentRup;						// the main shock
@@ -72,15 +70,13 @@ public class ETAS_PrimaryEventSampler {
 	 * @param useAdaptiveBlocks - indicate whether blocks close to parentRup should be sub-sampled
 	 * @param includeBlockRates - whether or not to use rates inside of blocks to modify spatial probabilities
 	 */
-	public ETAS_PrimaryEventSampler(EqkRupture parentRup,ArrayList<EqksInGeoBlock> blockList, 
+	public ETAS_PrimaryEventSampler(EqkRupture parentRup, ArrayList<EqksInGeoBlock> blockList, 
 			ArrayList<ArrayList<EqksInGeoBlock>> subBlockList1, ArrayList<ArrayList<EqksInGeoBlock>> subBlockList2,
 			FaultSystemSolutionPoissonERF erf, double distDecay, double minDist, 
 			boolean useAdaptiveBlocks, boolean includeBlockRates) {
 		
 		this.parentRup=parentRup;
 		origBlockList = blockList;
-		origSubBlockList1 = subBlockList1;
-		origSubBlockList2 = subBlockList2;
 		this.erf = erf;
 		this.distDecay = distDecay;
 		this.minDist = minDist;
@@ -89,7 +85,7 @@ public class ETAS_PrimaryEventSampler {
 		RuptureSurface rupSurf = parentRup.getRuptureSurface();
 		
 		revisedBlockList = new ArrayList<EqksInGeoBlock>();  // revised is for replacing blocks with sub-blocks close in
-		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
+		ArrayList<EqksInGeoBlock> subBlocks = null;
 		revisedBlockDistances = new ArrayList<Double>();
 
 		if(D) System.out.print("computing block distances");
@@ -97,7 +93,6 @@ public class ETAS_PrimaryEventSampler {
 		minBlockDist=Double.MAX_VALUE;
 		minDistIndex=-1;
 		// compute distance from rupture to center of each block (and subdivide close blocks if specified)
-//		for(EqksInGeoBlock origBlock : origBlockList) {
 		for(int b=0; b<origBlockList.size(); b++) {
 			EqksInGeoBlock origBlock = origBlockList.get(b);
 			counter++;
@@ -118,22 +113,24 @@ public class ETAS_PrimaryEventSampler {
 			}
 			else {  // apply adaptive block sizes
 				if (dist > ADAPT_BLOCK_DIST1) {
-					subBlocks = origSubBlockList1.get(b);
+					subBlocks = subBlockList1.get(b);
 					if(subBlocks == null) {
 						subBlocks = origBlock.getSubBlocks(3, 3, erf);
 						if(parentRup.getMag()>5)
-							origSubBlockList1.set(b,subBlocks);
+							subBlockList1.set(b,subBlocks);
 					}
 				}
 				else {
-					subBlocks = origSubBlockList2.get(b);
+					subBlocks = subBlockList2.get(b);
 					if(subBlocks == null) {
 						subBlocks = origBlock.getSubBlocks(6, 6, erf);
 						if(parentRup.getMag()>5)
-							origSubBlockList2.set(b,subBlocks);
+							subBlockList2.set(b,subBlocks);
 					}
 				}
+				double testRate1=0;
 				for(EqksInGeoBlock subBlock:subBlocks) {
+					testRate1 += subBlock.getTotalRateInside();
 					double dist2 = LocationUtils.distanceToSurfFast(subBlock.getBlockCenterLoc(), rupSurf);
 					revisedBlockDistances.add(dist2);
 					revisedBlockList.add(subBlock);
@@ -141,6 +138,14 @@ public class ETAS_PrimaryEventSampler {
 						minBlockDist=dist2;
 						minDistIndex = revisedBlockDistances.size()-1;
 					}
+				}
+				// Test that block rates are the same
+				double testRate2=origBlock.getTotalRateInside();
+				double ratio = testRate1/testRate2;
+				if(Math.abs(testRate1) < 1e-15 && Math.abs(testRate2) < 1e-15 )
+					ratio =1;
+				if(ratio<0.9999 || ratio>1.0001) {
+					throw new RuntimeException("PROBLEM: ratio="+ratio+";\ttestRate1="+testRate1+"\ttestRate2="+testRate2);
 				}
 			}
 		}

@@ -3,6 +3,7 @@ package scratch.UCERF3.erf;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -28,6 +29,7 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		super("/Users/field/ALLCAL_UCERF2.zip");
 		nshmp_gridSrcGen = new NSHMP_GridSourceGeneratorMod2();
 		numOtherSources = nshmp_gridSrcGen.getNumSources();
+//		numOtherSources=0;
 		// treat as point sources
 		nshmp_gridSrcGen.setAsPointSources(true);
 		System.out.println("numOtherSources="+numOtherSources);
@@ -56,6 +58,14 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		// make the gridded region
 //		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		
+//		System.out.println("Location(37.00000, -119.30000, 0.00000):\t"+griddedRegion.indexForLocation(new Location(37.00000, -119.30000, 0.00000)));
+//		System.out.println("Location(37.10000, -119.30000, 0.00000):\t"+griddedRegion.indexForLocation(new Location(37.10000, -119.30000, 0.00000)));
+//		System.out.println("Location(37.00000, -119.40000, 0.00000):\t"+griddedRegion.indexForLocation(new Location(37.00000, -119.4000, 0.00000)));
+//		System.out.println("Location(37.10000, -119.40000, 0.00000):\t"+griddedRegion.indexForLocation(new Location(37.10000, -119.4000, 0.00000)));
+//		System.out.println("Location(37.05000, -119.35000, 0.00000):\t"+griddedRegion.indexForLocation(new Location(37.10000, -119.4000, 0.00000)));
+//		System.exit(0);
+		
 		// update forecast to we can get a main shock
 		erf.updateForecast();
 		
@@ -67,7 +77,8 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		landersObs.setRuptureSurface(landers.getRuptureSurface());
 		landersObs.setOriginTime(0);	// occurs at 1970
 //		landersObs.setMag(7);
-		System.out.println("main shock: s=4755, r=0, nthRup="+nthRup+"mag="+landersObs.getMag()+"; src name: " +erf.getSource(4755).getName());
+		System.out.println("main shock: s=4755, r=0, nthRup="+nthRup+"mag="+landersObs.getMag()+
+				"; src name: " +erf.getSource(4755).getName());
 		
 		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
 		obsEqkRuptureList.add(landersObs);

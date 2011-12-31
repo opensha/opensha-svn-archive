@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ListIterator;
 
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -118,8 +119,9 @@ public class EqksInGeoBlock {
 	public void writeResults() {
 		// do the following to make sure randomEqkRupSampler has been created
 		getRandomSampler();
+		System.out.println("TotalRateInside="+getTotalRateInside());
 		for(int i=0; i<rupIndexN_List.size();i++) {
-			System.out.print(i+"\t"+rupIndexN_List.get(i)+"\t"+
+			System.out.print("\t"+i+"\t"+rupIndexN_List.get(i)+"\t"+
 					rateInsideList.get(i)+"\t"+fractInsideList.get(i)+"\t"+
 					magList.get(i)+"\t"+randomEqkRupSampler.getY(i));
 			if(erf != null)
@@ -197,21 +199,53 @@ public class EqksInGeoBlock {
 	 * @param rupIndex
 	 * @param forecastDuration
 	 */
-	public void processRupture(ProbEqkRupture rup, int nthRup, double forecastDuration) {
+	public double processRupture(ProbEqkRupture rup, int nthRup, double forecastDuration) {
 		double rate = rup.getMeanAnnualRate(forecastDuration);
-		if(rate > 0) {
-			LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
-			int numLoc = locList.size();
-			int numLocInside = 0;
-			for(Location loc : locList)
-				if(isLocInside(loc)) numLocInside+=1;
-			if(numLocInside>0) {
-				fractInsideList.add((double)numLocInside/(double)numLoc);
-				rateInsideList.add((double)rate*(double)numLocInside/(double)numLoc);
-				rupIndexN_List.add(nthRup);
-				magList.add(rup.getMag());
-			}			
+		double fractInside = 0;
+		LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		int numLoc = locList.size();
+		int numLocInside = 0;
+		for(Location loc : locList)
+			if(isLocInside(loc)) numLocInside+=1;
+		fractInside = (double)numLocInside/(double)numLoc;	// return this regardless of rate
+		if(numLocInside>0 && rate > 0) {	// only fill these in if it's a non-zero rate
+			fractInsideList.add(fractInside);
+			rateInsideList.add(rate*fractInside);
+			rupIndexN_List.add(nthRup);
+			magList.add(rup.getMag());
+		}			
+		return fractInside;
+	}
+	
+	
+	public void testThisBlock(FaultSystemSolutionPoissonERF erf) {
+		
+		EqksInGeoBlock testBlock = new EqksInGeoBlock(minLat, maxLat, minLon, maxLon, minDepth, maxDepth);
+		double duration = erf.getTimeSpan().getDuration();
+		for(int n=0; n<erf.getTotNumRups();n++) {
+			testBlock.processRupture(erf.getNthRupture(n), n, duration);
 		}
+		
+		ArrayList<Double> thisRates = this.getRateInsideList();
+		ArrayList<Double> testRates = testBlock.getRateInsideList();
+		ArrayList<Double> thisFracts = this.getFractInsideList();
+		ArrayList<Double> testFracts = testBlock.getFractInsideList();
+		if(thisRates.size() != testRates.size())
+			throw new RuntimeException("Error\tthisRates.size()="+thisRates.size()+"\ttestRates.size()="+testRates.size());
+		for(int i=0;i<thisRates.size();i++) {
+			double ratioRates = testRates.get(i)/thisRates.get(i);
+			double ratioFracts = testFracts.get(i)/thisFracts.get(i);
+			if(ratioRates <0.999 || ratioRates > 1.001) {
+				System.out.println("PROBLEM: "+rupIndexN_List.get(i)+"\t"+ratioRates+"\t"+testRates.get(i)+"\t"+thisRates.get(i)+"\t"+ratioFracts+"\t"+testFracts.get(i)+"\t"+thisFracts.get(i)+"\t");
+
+				
+				//				testBlock.writeResults();
+//				this.writeResults();
+//				System.exit(0);
+			}
+
+		}
+		
 	}
 	
 	
@@ -251,6 +285,16 @@ public class EqksInGeoBlock {
 		rateInsideList.set(localIndex, newRate);
 	}
 	
+	
+	public double tempGetRandomEqkRupSamplerY_Val(int nthRupIndex) {
+		getRandomSampler();
+		int localIndex = findLocalIndex(nthRupIndex);
+		if(localIndex >= 0)
+			return randomEqkRupSampler.getY(localIndex);
+		else
+			return -1;
+	}
+	
 	/**
 	 * This returns the local index of the given nthRupIndex.
 	 * 
@@ -275,7 +319,7 @@ public class EqksInGeoBlock {
 		}
 		return Arrays.binarySearch(rupIndexN_Array, nthRupIndex);
 	}
-
+	
 	
 	/**
 	 * This divides the block into equal-sized sub-blocks, where the original block is sliced in all three
@@ -288,6 +332,137 @@ public class EqksInGeoBlock {
 	 * @return
 	 */
 	public ArrayList<EqksInGeoBlock> getSubBlocks(int numAlongLatLon, int numAlongDepth, FaultSystemSolutionPoissonERF erf) {
+		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
+		double forecastDuration = erf.getTimeSpan().getDuration();
+		int numSubBlocks = numAlongLatLon*numAlongLatLon*numAlongDepth;
+		
+		// make the sub-block boundaries
+		double[] latBoundaries = new double[numAlongLatLon+1];
+		double[] lonBoundaries = new double[numAlongLatLon+1];
+		double[] depthBoundaries = new double[numAlongDepth+1];
+		for(int i=0; i< numAlongLatLon+1; i++) {
+			latBoundaries[i] = minLat+(double)i*(maxLat-minLat)/(double)numAlongLatLon;
+			lonBoundaries[i] = minLon+(double)i*(maxLon-minLon)/(double)numAlongLatLon;
+		}
+		for(int i=0; i< numAlongLatLon+1; i++) {
+			depthBoundaries[i] = minDepth+(double)i*(maxDepth-minDepth)/(double)numAlongDepth;
+		}
+		
+		// Make the sub blocks
+		for(int latSlice=0; latSlice<numAlongLatLon; latSlice++) {
+			for(int lonSlice=0; lonSlice<numAlongLatLon; lonSlice++) {
+				for(int depSlice=0; depSlice<numAlongDepth; depSlice++) {
+					double subMinLat = latBoundaries[latSlice];
+					double subMaxLat = latBoundaries[latSlice+1];
+					double subMinLon = lonBoundaries[lonSlice];
+					double subMaxLon = lonBoundaries[lonSlice+1];
+					double subMinDepth = depthBoundaries[depSlice];
+					double subMaxDepth = depthBoundaries[depSlice+1];
+					EqksInGeoBlock subBlock = new EqksInGeoBlock(subMinLat, subMaxLat, subMinLon, subMaxLon, subMinDepth, subMaxDepth);
+					subBlocks.add(subBlock);
+				}
+			}
+		}
+		
+		// put the rupture rates here into the sub-blocks
+		for(int r=0; r<getNumRupsInside();r++) {
+			int nthRup = rupIndexN_List.get(r);
+			ProbEqkRupture rup = erf.getNthRupture(nthRup);
+			if(!rup.getRuptureSurface().isPointSurface()) {	// if not point surface
+				double testFraction=0;
+				for(EqksInGeoBlock subBlock:subBlocks) {
+					testFraction += subBlock.processRupture(rup, nthRup, forecastDuration);	
+				}
+				
+				// test
+				double ratio = testFraction/fractInsideList.get(r);
+				if(ratio<0.999 || ratio > 1.001) {
+					System.out.println("\tfracton diff:\ttestFraction="+testFraction+"\tfractInsideList.get(r)="+fractInsideList.get(r));
+					System.out.println("\trup rate="+rup.getMeanAnnualRate(forecastDuration));
+					LocationList list=rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+					for(Location loc: list) {
+						if(this.isLocInside(loc)) {	// first make sure the point is in this block
+							boolean gotOne=false;
+							for(EqksInGeoBlock subBlock:subBlocks) {
+								if(subBlock.isLocInside(loc))
+									gotOne=true;
+							}
+							if(gotOne==false) {	// this loc was not found
+								System.out.println("\tLoc not found: "+loc);
+								System.out.println("\t"+nthRup+"\t"+isLocInside(loc)+"\t"+minLat+"\t"+maxLat+"\t"+minLon+"\t"+maxLon+"\t"+minDepth+"\t"+maxDepth);
+								for(EqksInGeoBlock subBlock:subBlocks) {
+									System.out.println("\t\t"+"\t"+subBlock.minLat+"\t"+subBlock.maxLat+"\t"+
+											subBlock.minLon+"\t"+subBlock.maxLon+"\t"+subBlock.minDepth+"\t"+subBlock.maxDepth);
+								}
+								System.out.println("\n");
+								testThisBlock(erf);
+								System.exit(0);
+							}							
+						}
+					}
+					System.exit(0);
+				}
+			}
+			else { // assume point sources equally divided
+				for(EqksInGeoBlock subBlock:subBlocks) {
+					double rate = rup.getMeanAnnualRate(forecastDuration)/(double)numSubBlocks;
+					double fracInside = 1.0/(double)numSubBlocks;
+					subBlock.processRate(rate, fracInside, nthRup, rup.getMag());
+				}
+			}
+		}
+
+		// check total rates
+		double totRate=0;
+		for(EqksInGeoBlock block : subBlocks)
+			totRate += block.getTotalRateInside();
+		double testRate2 = getTotalRateInside();
+		double ratio = totRate/testRate2;
+		if(Math.abs(totRate) < 1e-15 && Math.abs(testRate2) < 1e-15)
+			ratio = 1;
+		if(ratio<0.999 || ratio>1.001) {
+			System.out.println("PROBLEM: ratio="+ratio+";\ttotRate="+totRate+"\ttestRate2="+testRate2+"\n");
+			// TEST
+			for(int r=0; r<rupIndexN_List.size();r++) {
+				double targetRate = rateInsideList.get(r);
+				double summedRate=0;
+				for(int b=0; b<subBlocks.size();b++) {
+					EqksInGeoBlock blk = subBlocks.get(b);
+					if(blk.getRateInsideList().size()>0) {
+						double rate = blk.tempGetRandomEqkRupSamplerY_Val(rupIndexN_List.get(r));
+						if(rate >= 0)
+							summedRate+=rate;					
+					}
+				}
+				String srcName= erf.getSource(erf.getSrcIndexForNthRup(rupIndexN_List.get(r))).getName();
+				System.out.println("\t"+r+"\t"+rupIndexN_List.get(r)+"\t"+(summedRate/targetRate)+
+						"\t"+summedRate+"\t"+targetRate+"\t"+srcName);
+			}
+			
+			System.out.println("\ntestThisBlock:\n");
+			testThisBlock(erf);
+			System.exit(0);
+
+		}
+
+//		System.out.println("/nRate Check: "+totRate+" vs "+this.getTotalRateInside());
+		
+		return subBlocks;
+	}
+
+
+	
+	/**
+	 * This divides the block into equal-sized sub-blocks, where the original block is sliced in all three
+	 * dimensions, making the final number of blocks = numAlongLatLon*numAlongLatLon*numAlongDepth 
+	 * 
+	 * Important: this assumes that any point sources within the block should be equally divided among
+	 * the sub blocks.
+	 * @param numAlongLatLon
+	 * @param numAlongDepth
+	 * @return
+	 */
+	public ArrayList<EqksInGeoBlock> getSubBlocksOld(int numAlongLatLon, int numAlongDepth, FaultSystemSolutionPoissonERF erf) {
 		ArrayList<EqksInGeoBlock> subBlocks = new ArrayList<EqksInGeoBlock>();
 		double forecastDuration = erf.getTimeSpan().getDuration();
 		int numSubBlocks = numAlongLatLon*numAlongLatLon*numAlongDepth;
@@ -307,8 +482,8 @@ public class EqksInGeoBlock {
 						if(!rup.getRuptureSurface().isPointSurface())
 							subBlock.processRupture(rup, nthRup, forecastDuration);	
 						else { // assume point sources equally divided
-							double rate = rup.getMeanAnnualRate(forecastDuration)/numSubBlocks;
-							double fracInside = 1/numSubBlocks;
+							double rate = rup.getMeanAnnualRate(forecastDuration)/(double)numSubBlocks;
+							double fracInside = 1.0/(double)numSubBlocks;
 							subBlock.processRate(rate, fracInside, nthRup, rup.getMag());
 						}
 							
@@ -324,6 +499,27 @@ public class EqksInGeoBlock {
 			totRate += rate;
 //			System.out.println("/nBlock "+b+" rate = "+rate);
 		}
+		double testRate2 = getTotalRateInside();
+		double ratio = totRate/testRate2;
+		if(ratio<0.999 || ratio>1.001) {
+			System.out.println("PROBLEM: ratio="+ratio+";\ttotRate="+totRate+"\ttestRate2="+testRate2+"\n");
+			// TEST
+			for(int r=0; r<rupIndexN_List.size();r++) {
+				double targetRate = rateInsideList.get(r);
+				double summedRate=0;
+				for(int b=0; b<subBlocks.size();b++) {
+					EqksInGeoBlock blk = subBlocks.get(b);
+					if(blk.getRateInsideList().size()>0) {
+						double rate = blk.tempGetRandomEqkRupSamplerY_Val(rupIndexN_List.get(r));
+						if(rate >= 0)
+							summedRate+=rate;					
+					}
+				}
+				System.out.println("\t"+r+"\t"+rupIndexN_List.get(r)+"\t"+(summedRate/targetRate));
+			}
+
+		}
+
 //		System.out.println("/nRate Check: "+totRate+" vs "+this.getTotalRateInside());
 		
 		return subBlocks;
@@ -412,7 +608,7 @@ public class EqksInGeoBlock {
 	 * @param loc
 	 * @return
 	 */
-	private boolean isLocInside(Location loc) {
+	public boolean isLocInside(Location loc) {
 		if(     loc.getLatitude()>=minLat && loc.getLatitude()< maxLat && 
 				loc.getLongitude()>=minLon && loc.getLongitude()< maxLon &&
 				loc.getDepth()>=minDepth && loc.getDepth()<maxDepth)
@@ -481,6 +677,8 @@ public class EqksInGeoBlock {
 	
 	
 	public ArrayList<Double> getRateInsideList() {return rateInsideList; }
+	
+	public ArrayList<Double> getFractInsideList() {return fractInsideList; }
 	
 	public ArrayList<Integer> getRupIndexN_List() {return rupIndexN_List; }
 	

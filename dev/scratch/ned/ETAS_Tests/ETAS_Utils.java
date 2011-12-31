@@ -49,10 +49,10 @@ public class ETAS_Utils {
 	 * @param tMax - end of forecast time window (since origin time), in days
 	 * @return
 	 */
-	public static double getExpectedNumEvents(double k, double p, double magMain, double magMin, double c, double tMin, double tMax) {
+	public static double getExpectedNumEvents(double k, double p, double magMain, double magMin, double c, double tMinDays, double tMaxDays) {
 		double oneMinusP= 1-p;
 		double lambda = k*Math.pow(10,magMain-magMin)/oneMinusP;
-		lambda *= Math.pow(c+tMax,oneMinusP) - Math.pow(c+tMin,oneMinusP);
+		lambda *= Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP);
 		return lambda;
 	}
 	
@@ -65,8 +65,8 @@ public class ETAS_Utils {
 	 * @param t2
 	 * @return
 	 */
-	public static double getDefaultExpectedNumEvents(double magMain, double tMin, double tMax) {
-		return getExpectedNumEvents(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMin, tMax);
+	public static double getDefaultExpectedNumEvents(double magMain, double tMinDays, double tMaxDays) {
+		return getExpectedNumEvents(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMinDays, tMaxDays);
 	}
 	
 	
@@ -130,6 +130,38 @@ public class ETAS_Utils {
 	public double getDefaultRandomTimeOfEvent(double tMin, double tMax) {
 		return getRandomTimeOfEvent(c_DEFAULT, p_DEFAULT, tMin, tMax);
 	}
+	
+	/**
+	 * This returns a random set of primary aftershock event times for the given parameters
+	 * @param magMain - main shock magnitude
+	 * @param tMinDays
+	 * @param tMaxDays
+	 * @return - event times in days since the main shock
+	 */
+	public double[] getDefaultRandomEventTimes(double magMain, double tMinDays, double tMaxDays) {
+		return getRandomEventTimes(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMinDays, tMaxDays);
+	}
+	
+	
+	/**
+	 * This gives a random set of primary aftershock event times for the given parameters
+	 * @param k
+	 * @param p
+	 * @param magMain
+	 * @param magMin
+	 * @param c
+	 * @param tMinDays
+	 * @param tMaxDays
+	 * @return - event times in days since the main shock
+	 */
+	public double[] getRandomEventTimes(double k, double p, double magMain, double magMin, double c, double tMinDays, double tMaxDays) {
+		int numAft = getPoissonRandomNumber(getExpectedNumEvents(k, p, magMain, magMin, c, tMinDays, tMaxDays));
+		double[] eventTimes = new double[numAft];
+		for(int i=0;i<numAft;i++)
+			eventTimes[i] = this.getRandomTimeOfEvent(c, p, tMinDays, tMaxDays);
+		return eventTimes;
+	}
+
 	
 	
 	/**
