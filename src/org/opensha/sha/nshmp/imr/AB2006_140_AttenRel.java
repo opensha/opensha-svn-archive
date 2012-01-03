@@ -122,7 +122,7 @@ public class AB2006_140_AttenRel extends AttenuationRelationship implements
 	private BooleanParameter clampMeanParam;
 	private BooleanParameter clampStdParam;
 	private SiteTypeParam siteTypeParam;
-	private EnumParameter<StressDrop> stressDropParam;
+	protected EnumParameter<StressDrop> stressDropParam;
 
 	// lowered to 4 from5 for CEUS mblg conversions
 	private final static Double MAG_WARN_MIN = new Double(4);
