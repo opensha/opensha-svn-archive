@@ -71,6 +71,8 @@ public class EnumParameter<E extends Enum<E>> extends AbstractParameter<E> {
 		ep.nullOption = nullOption;
 		ep.constraint = (ParameterConstraint<E>) constraint.clone();
 		ep.defaultValue = defaultValue;
+		ep.value = value;
+		ep.name = name;
 		return ep;
 	}
 
