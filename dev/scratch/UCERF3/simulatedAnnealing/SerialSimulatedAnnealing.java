@@ -31,20 +31,21 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 	protected static final String XML_METADATA_NAME = "SimulatedAnnealing";
 
-	protected final static boolean D = false;  // for debugging
+	protected final static boolean D = true;  // for debugging
 
 	private static CoolingScheduleType COOLING_FUNC_DEFAULT = CoolingScheduleType.FAST_SA;
 	private CoolingScheduleType coolingFunc = COOLING_FUNC_DEFAULT;
 	
 	private static NonnegativityConstraintType NONNEGATIVITY_CONST_DEFAULT =
-		NonnegativityConstraintType.TRY_ZERO_RATES_OFTEN;
-	private NonnegativityConstraintType nonnegativeityConstraintAlgorithm = NONNEGATIVITY_CONST_DEFAULT;
+		NonnegativityConstraintType.LIMIT_ZERO_RATES;
+	private NonnegativityConstraintType nonnegativityConstraintAlgorithm = NonnegativityConstraintType.PREVENT_ZERO_RATES;
 	
 	private static GenerationFunctionType PERTURB_FUNC_DEFAULT = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
 	private GenerationFunctionType perturbationFunc = PERTURB_FUNC_DEFAULT;
 	
 	private DoubleMatrix2D A;
 	private double[] d;
+	private double relativeSmoothnessWt;
 	
 	private int nCol;
 	private int nRow;
@@ -59,7 +60,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	
 	private Random r = new Random();
 
-	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState) {
+	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt) {
+		this.relativeSmoothnessWt=relativeSmoothnessWt;
 		setup(A, d, initialState);
 	}
 	
@@ -78,6 +80,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		
 		this.A = A;
 		this.d = d;
+		
 
 		x = Arrays.copyOf(initialState, nCol); // current model
 		xbest = Arrays.copyOf(initialState, nCol);  // best model seen so far
@@ -93,7 +96,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			NonnegativityConstraintType nonnegativeityConstraintAlgorithm,
 			GenerationFunctionType perturbationFunc) {
 		this.coolingFunc = coolingFunc;
-		this.nonnegativeityConstraintAlgorithm = nonnegativeityConstraintAlgorithm;
+		this.nonnegativityConstraintAlgorithm = nonnegativeityConstraintAlgorithm;
 		this.perturbationFunc = perturbationFunc;
 	}
 	
@@ -109,13 +112,13 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 	@Override
 	public NonnegativityConstraintType getNonnegativeityConstraintAlgorithm() {
-		return nonnegativeityConstraintAlgorithm;
+		return nonnegativityConstraintAlgorithm;
 	}
 
 	@Override
 	public void setNonnegativeityConstraintAlgorithm(
 			NonnegativityConstraintType nonnegativeityConstraintAlgorithm) {
-		this.nonnegativeityConstraintAlgorithm = nonnegativeityConstraintAlgorithm;
+		this.nonnegativityConstraintAlgorithm = nonnegativeityConstraintAlgorithm;
 	}
 
 	@Override
@@ -159,6 +162,25 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			misfit[i] = syn.get(i) - d[i];  // misfit between synthetics and data
 			Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 		}
+		
+		// Add smoothness constraint misfit (nonlinear) to energy (this is the entropy-maximization constraint)
+		if (relativeSmoothnessWt > 0) { 
+			double totalEntropy=0;
+			double entropyConstant=500;
+			for (int rup=0; rup<nCol; rup++) {
+				if (solution[rup]>0)
+					totalEntropy -= entropyConstant*solution[rup]*Math.log(entropyConstant*solution[rup]);
+			}
+			if (totalEntropy==0) {
+				System.out.println("ZERO ENTROPY!");
+				totalEntropy=0.0001;
+			}
+			if (totalEntropy<0) {
+				throw new IllegalStateException("NEGATIVE ENTROPY!");
+			}
+			Enew += relativeSmoothnessWt * (1 / totalEntropy); // High entropy => low misfit
+		}
+		
 		return Enew;
 	}
 	
@@ -180,7 +202,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		if(D) System.out.println("Solving inverse problem with simulated annealing ... \n");
 		if(D) System.out.println("Cooling Function: " + coolingFunc.name());
 		if(D) System.out.println("Perturbation Function: " + perturbationFunc.name());
-		if(D) System.out.println("Nonnegativity Constraint: " + nonnegativeityConstraintAlgorithm.name());
+		if(D) System.out.println("Nonnegativity Constraint: " + nonnegativityConstraintAlgorithm.name());
 		if(D) System.out.println("Completion Criteria: " + criteria);
 		
 		double[] xnew;
@@ -205,18 +227,23 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			case VERYFAST_SA:
 				T = Math.exp(-( (double) iter - 1)); // very fast SA cooling schedule (Ingber, 1989)  (= 0 to machine precision for high iteration #)
 				break;
+			case LINEAR:
+//				T = 1 - (iter / numIterations);
+				T = 1 - (iter / 100000);  // need to fix this -- for now just putting in numIterations by hand
+				break;
 			default:
 				throw new IllegalStateException("It's impossible to get here, as long as all cooling schedule enum cases are stated above!");
 			}
 
 			if (D) {  // print out convergence info every so often
-				if (iter % 1000 == 0) { 
+				if ((iter-1) % 1000 == 0) { 
 					System.out.println("Iteration # " + iter);
 					System.out.println("Lowest energy found = " + Ebest);
+//					System.out.println("Current energy = " + E);
 				}
 			}
 
-
+			
 			// Pick neighbor of current model
 			xnew = Arrays.copyOf(x, nCol);  // This does xnew=x for an array
 
@@ -228,7 +255,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			perturb[index] = getPerturbation(perturbationFunc, T);  
 
 			// Apply then nonnegativity constraint -- make sure perturbation doesn't make the rate negative
-			switch (nonnegativeityConstraintAlgorithm) {
+			switch (nonnegativityConstraintAlgorithm) {
 			case TRY_ZERO_RATES_OFTEN: // sets rate to zero if they are perturbed to negative values 
 				// This way will result in many zeros in the solution, 
 				// which may be desirable since global minimum is likely near a boundary
@@ -243,15 +270,27 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			case LIMIT_ZERO_RATES:    // re-perturb rates if they are perturbed to negative values 
 				// This way will result in not a lot of zero rates (none if numIterations >> length(x)),
 				// which may be desirable if we don't want a lot of zero rates
-				while (x[index] + perturb[index] < 0) 
+				while (x[index] + perturb[index] < 0) {
 					perturb[index] = getPerturbation(perturbationFunc,T);	
+				}
 				break;
+			case PREVENT_ZERO_RATES:    // Only perturb rates to positive values; any perturbations of zero rates MUST be accepted.
+				// Final model will only have zero rates if rate was never selected to be perturbed AND starting model contains zero rates.
+				if (x[index]!=0) {
+					perturb[index] = (r.nextDouble() -0.5) * 2 * x[index]; 	
+					}
+				else {
+					perturb[index] = (r.nextDouble()) * 0.00000001;
+				}
+				break;
+			default:
+				throw new IllegalStateException("You missed a Nonnegativity Constraint Algorithm type.");
 			}
 			xnew[index] += perturb[index]; 
 
 			// Calculate "energy" of new model (high misfit -> high energy)
 			Enew = calculateMisfit(xnew);
-
+		
 			// Is this a new best?
 			if (Enew < Ebest) {
 				xbest = Arrays.copyOf(xnew, nCol);
@@ -259,19 +298,30 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			}
 
 			// Change state? Calculate transition probability P
-			if (Enew < E) {
-				P = 1; // Always keep new model if better
-			} else {
-				// Sometimes keep new model if worse (depends on T)
-				P = Math.exp((E - Enew) / (double) T); 
+			switch (nonnegativityConstraintAlgorithm) {
+			case PREVENT_ZERO_RATES:  
+				if (Enew < E || x[index]==0) {
+					P = 1; // Always keep new model if better OR if element was originally zero
+				} else {
+					// Sometimes keep new model if worse (depends on T)
+					P = Math.exp((E - Enew) / (double) T); 
+				}
+			break;
+			default:
+				if (Enew < E) {
+					P = 1; // Always keep new model if better
+				} else {
+					// Sometimes keep new model if worse (depends on T)
+					P = Math.exp((E - Enew) / (double) T); 
+				}
 			}
-
+			
+			
 			// Use transition probability to determine (via random number draw) if solution is kept
 			if (P > r.nextDouble()) {
 				x = Arrays.copyOf(xnew, nCol);
 				E = Enew;				
 			}
-			
 			iter++;
 		}
 		
@@ -295,17 +345,21 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 		switch (perturbationFunc) {
 		case UNIFORM_NO_TEMP_DEPENDENCE:
-			perturbation = (r.nextDouble()-0.5) * 0.001; // (recommended)
+			perturbation = (r.nextDouble()-0.5)* 0.001;
 			break;
 		case GAUSSIAN:
 			perturbation =  (1/Math.sqrt(T)) * r.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 
 			break;
 		case TANGENT:
-			perturbation = T * 0.001 * Math.tan(Math.PI*r.nextDouble() - Math.PI/2);	
+			perturbation = T * 0.001 * Math.tan(Math.PI * r.nextDouble() - Math.PI/2);	
 			break;
 		case POWER_LAW:
 			r2 = r.nextDouble();  
 			perturbation = Math.signum(r2-0.5) * T * 0.001 * (Math.pow(1+1/T,Math.abs(2*r2-1))-1);
+			break;
+		case EXPONENTIAL:
+			r2 = r.nextDouble();  
+			perturbation = Math.pow(10, r2) * T * 0.001;
 			break;
 		default:
 			throw new IllegalStateException("Oh dear.  You missed a Generation Function type.");
@@ -363,7 +417,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		}
 		
 		if (cmd.hasOption("nonneg")) {
-			nonnegativeityConstraintAlgorithm = NonnegativityConstraintType.valueOf(cmd.getOptionValue("nonneg"));
+			nonnegativityConstraintAlgorithm = NonnegativityConstraintType.valueOf(cmd.getOptionValue("nonneg"));
 		}
 	}
 

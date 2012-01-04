@@ -452,6 +452,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		ArbitrarilyDiscretizedFunc func;
 		ArrayList obs_er_funcs = new ArrayList();
 		SegRateConstraint constraint;
+		double totalError=0;
 		for (int c = 0; c < num; c++) {
 			func = new ArbitrarilyDiscretizedFunc();
 			constraint = segRateConstraints.get(c);
@@ -461,7 +462,11 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 			func.set((double) seg + 0.0001, constraint.getUpper95Conf());
 			func.setName(constraint.getFaultName());
 			funcs3.add(func);
+			double r=(constraint.getMean()-finalPaleoVisibleEventRateFunc.getClosestY(seg))/(constraint.getUpper95Conf()-constraint.getLower95Conf());
+			// System.out.println("Constraint #"+c+" misfit: "+r);
+			totalError+=Math.pow(r,2);
 		}			
+		System.out.println("Event-rate constraint error = "+totalError);
 		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(

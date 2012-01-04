@@ -7,5 +7,6 @@ public enum GenerationFunctionType { // how rates are perturbed each SA algorith
 	UNIFORM_NO_TEMP_DEPENDENCE,
 	GAUSSIAN,  
 	TANGENT,
-	POWER_LAW;
+	POWER_LAW,
+	EXPONENTIAL;
 }

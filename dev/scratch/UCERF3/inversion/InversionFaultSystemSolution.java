@@ -60,7 +60,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	FaultSystemRupSet faultSystemRupSet;
 	boolean weightSlipRates;
-	double relativeSegRateWt, relativeMagDistWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt;
+	double relativeSegRateWt, relativeMagDistWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt, relativeSmoothnessWt;
 	int numIterations;
 	ArrayList<SegRateConstraint> segRateConstraints;
 	
@@ -87,11 +87,12 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param initialRupModel
 	 * @param mfdConstraints
 	 * @param minimizationConstraint
+	 * @param relativeSmoothnessWt
 	 */
 	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, boolean weightSlipRates, double relativeSegRateWt, 
 			double relativeMagDistWt, double relativeRupRateConstraintWt, double relativeMinimizationConstraintWt, int numIterations,
 			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint,
-			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints, double[] minimizationConstraint) {
+			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints, double[] minimizationConstraint, double relativeSmoothnessWt) {
 		super(faultSystemRupSet, null);
 		this.faultSystemRupSet=faultSystemRupSet;
 		this.weightSlipRates=weightSlipRates;
@@ -105,6 +106,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		this.initialRupModel=initialRupModel;
 		this.mfdConstraints=mfdConstraints;
 		this.minimizationConstraint=minimizationConstraint;
+		this.relativeSmoothnessWt=relativeSmoothnessWt;
 		
 		doInversion();
 	}
@@ -272,16 +274,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 		
 		
-		
-		
 		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)
-		try {
+/*		try {
 			MatrixIO.doubleArrayToFile(d,new File("dev/scratch/UCERF3/preComputedData/d.bin"));
 			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/A.bin"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}	*/
 
 		
 		// Transform A matrix to different type that's fast for multiplication
@@ -296,20 +296,17 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			DoubleArrayList vals = new DoubleArrayList();
 			long startTime1 = System.currentTimeMillis();
 			A.getNonZeros(rows, cols, vals);
-			if (D) System.out.println("Non-zero entries stored after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.\n");
+			if (D) System.out.println("Non-zero entries stored after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.");
 			startTime1 = System.currentTimeMillis();
 			for (int i=0; i<rows.size(); i++)
 				Anew.set(rows.get(i), cols.get(i), vals.get(i));
-			if (D) System.out.println("Anew formed after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.\n");
-			startTime1 = System.currentTimeMillis();
 			A = Anew;
-			if (D) System.out.println("New A matrix formed after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.\n");
 			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.\n");
 		}
 		
 		// SOLVE THE INVERSE PROBLEM
 		// Run Simulated Annealing
-		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel);
+		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt);
 		sa.iterate(numIterations);
 		rupRateSolution = sa.getBestSolution();
 		
