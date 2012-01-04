@@ -305,6 +305,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		subIterationsStartOption.setRequired(false);
 		ops.addOption(subIterationsStartOption);
 		
+		// TODO add entropy constraint
+		
 		return ops;
 	}
 	

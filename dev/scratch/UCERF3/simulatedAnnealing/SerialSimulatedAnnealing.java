@@ -60,6 +60,10 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	
 	private Random r = new Random();
 
+	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState) {
+		this(A, d, initialState, 0);
+	}
+	
 	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt) {
 		this.relativeSmoothnessWt=relativeSmoothnessWt;
 		setup(A, d, initialState);
