@@ -100,7 +100,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
    * @param magLengthRelationship - A relationship for computing length from magnitude
    * @param strike - the strike of the finite SS fault
    * @param duration - the forecast duration
-   * @param magCutOff - below (and eqaul) to this value a PointSurface will be applied
+   * @param magCutOff - below (and equal) to this value a PointSurface will be applied
    * @param fracStrikeSlip - 
    * @param fracNormal - 
    * @param fracReverse - 

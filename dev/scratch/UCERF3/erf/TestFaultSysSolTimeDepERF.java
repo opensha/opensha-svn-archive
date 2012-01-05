@@ -7,6 +7,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -19,6 +20,45 @@ public class TestFaultSysSolTimeDepERF {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		
+		
+		CalcProgressBar progressBar = new CalcProgressBar("label1", "label2");
+
+		progressBar.displayProgressBar();
+//		progressBar.showProgress(true);
+		
+		try {
+			Thread.sleep(2000L);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+		
+		for(int i=0;i<100;i++) {
+			try {
+				Thread.sleep(30L);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			progressBar.updateProgress(i, 100);
+			progressBar.setProgressMessage("message");
+		}
+		
+
+		
+//		progressBar.setProgressMessage("here it is...");
+
+		
+		
+		System.exit(0);
+	
+		
+		
 		
 		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.12);

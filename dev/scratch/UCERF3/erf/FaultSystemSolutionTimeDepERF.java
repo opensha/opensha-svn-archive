@@ -14,6 +14,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -74,6 +75,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	// aperiodicity parameter and primitive
 	BPT_AperiodicityParam bpt_AperiodicityParam;
 	double bpt_Aperiodicity;
+	boolean bpt_AperiodicityChanged;
 	
 	// these fields are for simulation mode (stochastic event sets).
 	public boolean SIMULATION_MODE = true;
@@ -122,6 +124,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		bpt_AperiodicityParam = new BPT_AperiodicityParam();
 		adjustableParams.addParameter(bpt_AperiodicityParam);
 		bpt_AperiodicityParam.addParameterChangeListener(this);
+		// set primitive
+		bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
 	}
 		
 	
@@ -144,20 +148,16 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	@Override
 	public void updateForecast() {
 		
-		bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
-		
 		// first check whether file changed (this info will be erased by parent updataForecast(), and it's needed below)
-		boolean fileChange = true;
-		if(fileParam.getValue() == prevFile)
-			fileChange=false;
+		boolean fileChange = fileParamChanged;
 		
 		// the following is needed here because super.updateForecast() will call the local getSource 
 		// method, which uses this array (values are set as 1.0 when this array is null)
-		if(timeSpanChangeFlag || fileChange)
+		if(timeSpanChangeFlag || fileChange || bpt_AperiodicityChanged)
 			probGainForFaultSystemSource = null;
 
-		// now update forecast using super (in case filename has changed)
-		super.updateForecast();
+		// now update forecast using super (only does something if a param has changed)
+		super.updateForecast();	// inefficient if only bpt_Aperiodicity has changed
 		
 		// rest this to be safe
 		lastSrcRequested=-1;
@@ -165,7 +165,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("time span duration = "+timeSpan.getDuration());
 
 		// fill in totalRate, longTermRateOfNthRups, and magOfNthRups, where the first two do not include time dependence
-		if(SIMULATION_MODE && fileChange) {
+		if(SIMULATION_MODE && (fileChange || aleatoryMagAreaStdDevChanged)) {
 			// note that all gains should be 1.0 at this point
 			totalRate=0;
 			longTermRateOfNthRups = new double[totNumRups];
@@ -182,10 +182,13 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			}
 			System.out.println("totalRate long term = "+totalRate);
 		}
+		
+		System.out.println("totNumRups="+totNumRups);
+		System.out.println("getNumSources()="+getNumSources());
 
 		
 		// now update the the prob gains if needed (must be done after the above)
-		if(timeSpanChangeFlag || fileChange || parameterChangeFlag) {		// last one is for aperiodicity changes
+		if(timeSpanChangeFlag || fileChange || bpt_AperiodicityChanged) {
 			System.out.println("updating all prob gains");
 			probGainForFaultSystemSource = new double[numFaultSystemSources];
 			for(int s=0; s<numFaultSystemSources; s++)
@@ -233,7 +236,15 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 	}
 	
-	
+	public void parameterChange(ParameterChangeEvent event) {
+		super.parameterChange(event);	// sets parent param changes and parameterChangeFlag = true;
+		String paramName = event.getParameterName();
+		if(paramName.equalsIgnoreCase(BPT_AperiodicityParam.NAME)) {
+			bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
+			bpt_AperiodicityChanged=true;
+		}
+	}
+
 	
 
 	@Override
@@ -695,9 +706,11 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("the "+obsEqkRuptureList.size()+" input events produced "+eventsToProcess.size()+" events");
 		
 		// make the list of spontaneous events, filling in only event IDs and origin times for now
-		System.out.println("expected num spontaneous: "+origTotRate*simDuration+"; origTotRate="+origTotRate+"; origDuration="+simDuration);
-		int numSpontEvents = etas_utils.getPoissonRandomNumber(origTotRate*simDuration);
-//		numSpontEvents=0;
+		double fractionNonTriggered=0.5;
+		System.out.println("expected num spontaneous: "+origTotRate*simDuration*fractionNonTriggered+
+				";\tfractionNonTriggered="+fractionNonTriggered+"; origTotRate="+origTotRate+"; origDuration="+simDuration);
+		int numSpontEvents = etas_utils.getPoissonRandomNumber(fractionNonTriggered*origTotRate*simDuration);
+		numSpontEvents=0;
 		System.out.println("Making spontaneous events (times and event IDs only) - "+numSpontEvents+" were sampled");
 
 		for(int r=0;r<numSpontEvents;r++) {
@@ -972,6 +985,7 @@ EqksInGeoBlockUtils.testSubBlockListRates(this, blockList, subBlockList1, subBlo
 			return currentSrc;
 		else {
 			ProbEqkSource src = super.getSource(iSource);
+//System.out.println(src.getNumRuptures());
 			if (iSource <numFaultSystemSources) {
 				// get poisson source from parent
 				double probGain = Double.NaN;

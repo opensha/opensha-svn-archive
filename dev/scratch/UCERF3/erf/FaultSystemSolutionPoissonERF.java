@@ -3,11 +3,13 @@ package scratch.UCERF3.erf;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -16,6 +18,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
@@ -50,9 +53,12 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	// Adjustable parameters
 	protected static final String FILE_PARAM_NAME = "Solution Input File";
 	protected FileParameter fileParam;
+	protected boolean fileParamChanged;
 	protected FaultGridSpacingParam faultGridSpacingParam;
-	protected AleatoryMagAreaStdDevParam aleatoryMagAreaStdDevParam;
+	protected boolean faultGridSpacingChanged;
 	protected double faultGridSpacing = -1;
+	protected AleatoryMagAreaStdDevParam aleatoryMagAreaStdDevParam;
+	protected boolean aleatoryMagAreaStdDevChanged;
 	double aleatoryMagAreaStdDev = Double.NaN;
 	
 	// these help keep track of what's changed
@@ -62,10 +68,10 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	
 	protected FaultSystemSolution faultSysSolution;
-	int numFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
+	protected int numFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
 	int totNumRupsFromFaultSystem;	// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	
-	int numOtherSources=0; // the non fault system sources
+	protected int numOtherSources=0; // the non fault system sources
 	protected int[] fltSysRupIndexForSource;  		// used to keep only inv rups with non-zero rates
 	protected int[] srcIndexForFltSysRup;			// this stores the src index for the fault system source (-1 if there is no mapping?)
 	protected int[] fltSysRupIndexForNthRup;		// the fault system rupture index for the nth rup
@@ -88,7 +94,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		this.faultSysSolution=faultSysSolution;
 		// remove the fileParam from the adjustable parameter list
 		adjustableParams.removeParameter(fileParam);
-		setupArraysAndLists();
+		aleatoryMagAreaStdDevChanged = true;
 	}
 
 	
@@ -110,23 +116,34 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * (e.g., from a GUI).
 	 */
 	public FaultSystemSolutionPoissonERF() {
-		fileParam = new FileParameter(FILE_PARAM_NAME);
-		fileParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(fileParam);
-		
-		faultGridSpacingParam = new FaultGridSpacingParam();
-		faultGridSpacingParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(faultGridSpacingParam);
-		
-		aleatoryMagAreaStdDevParam = new AleatoryMagAreaStdDevParam();
-		aleatoryMagAreaStdDevParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(aleatoryMagAreaStdDevParam);		
-		
+		initParams();
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-		timeSpan.setDuration(30.);	// anything with listeners here?
+		timeSpan.setDuration(30.);
 	}
 	
 	
+	protected void initParams() {
+		fileParam = new FileParameter(FILE_PARAM_NAME);
+		adjustableParams.addParameter(fileParam);
+		
+		faultGridSpacingParam = new FaultGridSpacingParam();
+		adjustableParams.addParameter(faultGridSpacingParam);
+		
+		aleatoryMagAreaStdDevParam = new AleatoryMagAreaStdDevParam();
+		adjustableParams.addParameter(aleatoryMagAreaStdDevParam);
+		
+		// set listeners
+		fileParam.addParameterChangeListener(this);
+		faultGridSpacingParam.addParameterChangeListener(this);
+		aleatoryMagAreaStdDevParam.addParameterChangeListener(this);
+		
+		// set primitives
+		faultGridSpacing = faultGridSpacingParam.getValue();
+		aleatoryMagAreaStdDev = aleatoryMagAreaStdDevParam.getValue();
+
+
+
+	}
 	
 	@Override
 	public void updateForecast() {
@@ -134,12 +151,14 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		if (D) System.out.println("Updating forecast");
 		long runTime = System.currentTimeMillis();
 			
-		// set grid spacing
-		faultGridSpacing = faultGridSpacingParam.getValue();
-		aleatoryMagAreaStdDev = aleatoryMagAreaStdDevParam.getValue();
-
-		if(fileParam.getValue() != null) // will be null if constructor was given FaultSysSolution or file.
+		if(fileParamChanged) {
 			readFaultSysSolutionFromFile();	// this will not re-read the file if the name has not changed
+			setupArraysAndLists();
+		}
+		else if (aleatoryMagAreaStdDevChanged) {	// faultGridSpacingChanged not influential here
+			setupArraysAndLists();
+			aleatoryMagAreaStdDevChanged = false;
+		}
 				
 		runTime = (System.currentTimeMillis()-runTime)/1000;
 		if(D) {
@@ -151,17 +170,40 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 	}
 	
+	public void parameterChange(ParameterChangeEvent event) {
+		super.parameterChange(event);	// sets parameterChangeFlag = true;
+		String paramName = event.getParameterName();
+		if(paramName.equalsIgnoreCase(fileParam.getName())) {
+			fileParamChanged=true;
+		} else if(paramName.equalsIgnoreCase(faultGridSpacingParam.getName())) {
+			faultGridSpacing = faultGridSpacingParam.getValue();
+			faultGridSpacingChanged=true;
+		} else if (paramName.equalsIgnoreCase(aleatoryMagAreaStdDevParam.getName())) {
+			aleatoryMagAreaStdDev = aleatoryMagAreaStdDevParam.getValue();
+			aleatoryMagAreaStdDevChanged = true;
+		} else
+			throw new RuntimeException("parameter name not recognized");
+	}
+
+	
 	
 	/**
 	 * This method sets a bunch of fields, arrays, and ArrayLists.
 	 */
 	private void setupArraysAndLists() {
 		
+		System.out.println("Running setupArraysAndLists(); aleatoryMagAreaStdDev="+aleatoryMagAreaStdDev+
+				"\tfaultGridSpacing="+faultGridSpacing);
+		
+		if(D) System.out.println("faultSysSolution.getNumRuptures()="+faultSysSolution.getNumRuptures());
+		
 		// count number of non-zero rate inversion ruptures (each will be a source)
 		numFaultSystemSources =0;
-		for(int r=0; r< faultSysSolution.getNumRuptures();r++)
+		for(int r=0; r< faultSysSolution.getNumRuptures();r++){
+//			System.out.println("rate="+faultSysSolution.getRateForRup(r));
 			if(faultSysSolution.getRateForRup(r) > 0.0)
-				numFaultSystemSources +=1;
+				numFaultSystemSources +=1;			
+		}
 		
 		if(D) System.out.println(numFaultSystemSources+" of "+faultSysSolution.getNumRuptures()+ " fault system sources had non-zero rates");
 		
@@ -195,7 +237,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		ArrayList<Integer> tempRupIndexForNthRup = new ArrayList<Integer>();
 		ArrayList<Integer> tempFltSysRupIndexForNthRup = new ArrayList<Integer>();
 		int n=0;
+		System.out.println("getNumSources()="+getNumSources()+"\tnumOtherSources="+numOtherSources);
 		for(int s=0; s<getNumSources(); s++) {
+// ProbEqkSource src = getSource(s);
+// System.out.println("src.getName()="+src.getName()+"\tsrc.getNumRuptures()="+src.getNumRuptures());
+
 			int numRups = getNumRuptures(s);	// prob at 7773
 			totNumRups += numRups;
 			if(s<numFaultSystemSources) {
@@ -226,6 +272,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			if(n<tempFltSysRupIndexForNthRup.size())
 				fltSysRupIndexForNthRup[n] = tempFltSysRupIndexForNthRup.get(n);
 		}
+		
+		System.out.println("totNumRups="+totNumRups);
 	}
 	
 	
@@ -247,7 +295,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				runTime = (System.currentTimeMillis()-runTime)/1000;
 				if(D) System.out.println("Loading solution took "+runTime+" seconds.");
 			}
-			setupArraysAndLists();
+			fileParamChanged = false;
 		}
 	}
 	
@@ -290,6 +338,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 										  faultSysSolution.getAveRakeForRup(invRupIndex), prob, isPoisson);
 		}
 		else {
+
 			double mag = faultSysSolution.getMagForRup(invRupIndex);
 			double totMoRate = faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
