@@ -59,9 +59,6 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	public static final String IMR_WEIGHTS_PARAM_NAME = "IMR Weights";
 	private WeightedListParameter<ScalarIMR> weightsParam;
 	
-	public static final String PROP_EFFECT_SPEEDUP_PARAM_NAME = "Prop. Effect. Speedup";
-	public static final Boolean PROP_EFFECT_SPEEDUP_DEFAULT = true;
-	
 	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIMR> imrs) {
 		this(imrs, null);
 	}

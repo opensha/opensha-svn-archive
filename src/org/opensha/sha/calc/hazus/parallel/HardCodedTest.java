@@ -124,7 +124,6 @@ public class HardCodedTest {
 		else
 			imr = new NGA_2008_Averaged_AttenRel_NoAS(null);
 		imr.setParamDefaults();
-		imr.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(propEffectSpeedup);
 		return imr;
 	}
 

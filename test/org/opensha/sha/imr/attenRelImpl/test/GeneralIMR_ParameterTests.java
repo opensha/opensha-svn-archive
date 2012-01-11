@@ -170,9 +170,8 @@ public class GeneralIMR_ParameterTests {
 	private Site createSite(Location loc) {
 		Site site = new Site(loc);
 		
-		Iterator<Parameter<?>> it = imr.getSiteParamsIterator();
-		while (it.hasNext()) {
-			Parameter<?> param = (Parameter)it.next().clone();
+		for (Parameter<?> param : imr.getSiteParams()) {
+			param = (Parameter<?>) param.clone();
 			if (param.getValue() != null && param instanceof DoubleParameter) {
 				DoubleParameter dparam = (DoubleParameter)param;
 				double rVal = Math.random();

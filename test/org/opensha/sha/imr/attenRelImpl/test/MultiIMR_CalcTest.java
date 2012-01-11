@@ -89,10 +89,8 @@ public class MultiIMR_CalcTest {
 		hc = new HazardCurveCalculator();
 	}
 	
-	private static MultiIMR_Averaged_AttenRel buildMulti(ArrayList<ScalarIMR> imrs,
-			Boolean propEffectSpeedup) {
+	private static MultiIMR_Averaged_AttenRel buildMulti(ArrayList<ScalarIMR> imrs) {
 		MultiIMR_Averaged_AttenRel multi = new MultiIMR_Averaged_AttenRel(imrs);
-		multi.getParameter(MultiIMR_Averaged_AttenRel.PROP_EFFECT_SPEEDUP_PARAM_NAME).setValue(propEffectSpeedup);
 		return multi;
 	}
 
@@ -141,7 +139,7 @@ public class MultiIMR_CalcTest {
 	public void testMultiIMRs_SA10() {
 		ArrayList<ScalarIMR> ngas1 = createNGAs(true);
 		ArrayList<ScalarIMR> ngas2 = createNGAs(true);
-		testMultiIMRAverageCurve(buildMulti(ngas1, false), ngas2, SA_Param.NAME, 1.0);
+		testMultiIMRAverageCurve(buildMulti(ngas1), ngas2, SA_Param.NAME, 1.0);
 	}
 
 	@Test
@@ -212,7 +210,7 @@ public class MultiIMR_CalcTest {
 		ArrayList<ScalarIMR> imrs =
 			new ArrayList<ScalarIMR>();
 		imrs.add(imr);
-		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs, false);
+		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs);
 		return multi;
 	}
 
@@ -222,7 +220,7 @@ public class MultiIMR_CalcTest {
 			new ArrayList<ScalarIMR>();
 		imrs.add(imr1);
 		imrs.add(imr2);
-		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs, false);
+		MultiIMR_Averaged_AttenRel multi = buildMulti(imrs);
 		return multi;
 	}
 
@@ -452,7 +450,7 @@ public class MultiIMR_CalcTest {
 		imrs.add(cb08_multi);
 		imrs.add(ba08_multi);
 
-		MultiIMR_Averaged_AttenRel multiIMR = buildMulti(imrs, false);
+		MultiIMR_Averaged_AttenRel multiIMR = buildMulti(imrs);
 
 		setIMT(multiIMR, imt, period);
 		setIMT(cb08_master, imt, period);
