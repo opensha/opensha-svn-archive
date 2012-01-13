@@ -56,11 +56,29 @@ public class LogicTreeInputFileGen {
 	public static void main(String[] args) throws IOException, InvocationTargetException {
 		int batchSize = 20;
 		
-		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/tree_trimming");
-		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming");
+//		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/tree_trimming");
+//		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming");
+//		
+//		File portfolio = new File(remoteDir, "portfolio.csv");
+//		File vulnFile = new File(remoteDir, "2011_11_07_VUL06.txt");
 		
-		File portfolio = new File(remoteDir, "portfolio.csv");
-		File vulnFile = new File(remoteDir, "2011_11_07_VUL06.txt");
+//		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run2");
+//		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming/run2");
+//		
+//		File portfolio = new File(remoteDir, "Porter-01-Jan-2012-CEA-Pof2.txt");
+//		File vulnFile = new File(remoteDir, "2012_01_01_VUL06.txt");
+		
+//		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run3");
+//		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming/run3");
+//		
+//		File portfolio = new File(remoteDir, "Porter-03-Jan-2012-CEA-Pof3.txt");
+//		File vulnFile = new File(remoteDir, "2012_01_02_VUL06.txt");
+		
+		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run4");
+		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming/run4");
+		
+		File portfolio = new File(remoteDir, "portfolio_toposlope.txt");
+		File vulnFile = new File(remoteDir, "2012_01_02_VUL06.txt");
 		
 		ScalarIMR[] imrs = { AttenRelRef.CB_2008.instance(null), AttenRelRef.BA_2008.instance(null),
 				AttenRelRef.CY_2008.instance(null), AttenRelRef.AS_2008.instance(null)};

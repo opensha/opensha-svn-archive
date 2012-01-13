@@ -125,7 +125,10 @@ public class TreeTrimmingAssembler {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/tree_trimming");
+//		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/tree_trimming");
+//		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run2");
+//		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run3");
+		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run4");
 		
 		EpistemicListERF erfList = new UCERF2_TimeDependentEpistemicList();
 		

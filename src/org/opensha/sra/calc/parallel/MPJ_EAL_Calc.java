@@ -82,6 +82,7 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 			File vulnFile = new File(cmd.getOptionValue("vuln-file"));
 			System.out.println("trying to load vulnerabilities from: "+vulnFile.getAbsolutePath());
 			PortfolioEALCalculatorController.getVulnerabilities(vulnFile);
+			System.out.println("DONE loading vulns.");
 		}
 		
 		calc = new ThreadedEALCalc(assets, erf, imrs, this, maxSourceDistance);
