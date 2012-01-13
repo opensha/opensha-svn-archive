@@ -177,11 +177,15 @@ public class Asset implements Cloneable {
 	private Vulnerability getVulnModel() throws ClassNotFoundException,
 	InstantiationException,
 	IllegalAccessException {
-		String vulnName = (String) paramList.getParameter("VulnModel").getValue();
+		String vulnName = getVulnModelName();
 
 //		System.out.println("looking for vuln: '" + vulnName + "'");
 
 		return PortfolioEALCalculatorController.getVulnerabilities().get(vulnName);
+	}
+	
+	private String getVulnModelName() {
+		return paramList.getParameter(String.class, "VulnModel").getValue();
 	}
 
 	/**
@@ -245,6 +249,7 @@ public class Asset implements Cloneable {
 			error = true;
 		}
 
+		Preconditions.checkNotNull(vulnModel, "Vulnerability model '"+getVulnModelName()+"' is null!");
 		String imt = vulnModel.getIMT();
 		double imls[] = vulnModel.getIMLValues();
 
