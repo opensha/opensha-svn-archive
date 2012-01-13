@@ -58,7 +58,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
 	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
 	double distanceJB, distanceSeis, distanceRup, distanceX;
-	AbstractEvenlyGriddedSurface parentSurface;
+	EvenlyGriddedSurface parentSurface;
 
 
     /**
@@ -72,7 +72,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
      * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
      * main GriddedSurface indexes.
      */
-    public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, AbstractEvenlyGriddedSurface data )
+    public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, EvenlyGriddedSurface data )
              throws ArrayIndexOutOfBoundsException {
         super( numRows, numCols, startRow, startCol, data );
         parentSurface = data;
@@ -362,7 +362,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * This returns the parent surface
 	 * @return
 	 */
-	public AbstractEvenlyGriddedSurface getParentSurface() {
+	public EvenlyGriddedSurface getParentSurface() {
 		return parentSurface;
 	}
 	
