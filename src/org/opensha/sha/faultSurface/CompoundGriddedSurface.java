@@ -119,11 +119,17 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		for(int s=0; s<surfaces.size();s++) {
 			EvenlyGriddedSurface surf = surfaces.get(s);
 			double area = surf.getArea();
+			double dip;
+			try {
+				dip = surf.getAveDip();
+			} catch (Exception e) {
+				dip = Double.NaN;
+			}
 			totArea += area;
 			if(reverseSurfTrace[s])
-				aveDip += (180-surf.getAveDip())*area;
+				aveDip += (180-dip)*area;
 			else
-				aveDip += surf.getAveDip()*area;
+				aveDip += dip*area;
 		}
 		aveDip /= totArea;  // wt averaged by area
 		if(aveDip > 90.0) {
