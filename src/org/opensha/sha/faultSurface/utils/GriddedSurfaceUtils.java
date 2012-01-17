@@ -109,13 +109,12 @@ public class GriddedSurfaceUtils {
 				}
 			}
 					
-			if(frankelTypeSurface)
-				if(isDistJB_ReallyZero(surface,distJB))
-					distJB=0;
-			else {
-				Region reg = new Region(surface.getPerimeter(),BorderType.MERCATOR_LINEAR);
-				if(reg.contains(loc)) 
-					distJB=0;
+			if (frankelTypeSurface) {
+				if (isDistJB_ReallyZero(surface, distJB)) distJB = 0;
+			} else {
+				Region reg = new Region(surface.getPerimeter(),
+					BorderType.MERCATOR_LINEAR);
+				if (reg.contains(loc)) distJB = 0;
 			}
 		}
 
