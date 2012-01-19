@@ -145,6 +145,15 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	}
 	
+	/**
+	 * This returns the number of fault system sources
+	 * (that have non-zero rates)
+	 * @return
+	 */
+	public int getNumFaultSystemSources(){
+		return numFaultSystemSources;
+	}
+	
 	@Override
 	public void updateForecast() {
 		

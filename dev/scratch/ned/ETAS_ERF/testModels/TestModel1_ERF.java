@@ -34,7 +34,7 @@ import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
  */
 public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 	
-	final static boolean D=false;
+	final static boolean D=true;
 
 	GriddedRegion griddedRegion;
 	
@@ -51,11 +51,11 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		numOtherSources = griddedRegion.getNumLocations();
 //		numOtherSources=0;
-		// treat as point sources
 		System.out.println("numOtherSources="+numOtherSources);
 		
 		magLengthRel = new WC1994_MagLengthRelationship();
 		
+		// get the point sources that are on the fault
 		LocationList pointLocsOnFault = ((TestModel1_FSS)faultSysSolution).getPointLocsOnFault();
 		locIndicesOnFault = new ArrayList<Integer>();
 		for(Location loc : pointLocsOnFault){
@@ -64,18 +64,24 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 //			Location testLoc = griddedRegion.getLocation(index);
 //			System.out.println(loc+"\t"+testLoc);
 		}
+		
 
+		// the following is the target MFD (down to M 2.5)
 		GutenbergRichterMagFreqDist  targetFaultGR = ((TestModel1_FSS)faultSysSolution).getTargetFaultGR();
+		// the following is the MFD for the fault (seismogenic and larger)
 		ArbIncrementalMagFreqDist faultGR = ((TestModel1_FSS)faultSysSolution).getFaultGR();
 		
+		double offFaultSeisReductionFactor = 1;
+//		double offFaultSeisReductionFactor = 10;
 		int numPtsOnFault = pointLocsOnFault.size();
+		if(D) System.out.println("numPtsOnFault+"+numPtsOnFault);
 		onFaultPointMFD  = new ArbIncrementalMagFreqDist(2.55, 6.05, 36);
 		for(int i=0; i<onFaultPointMFD.getNum();i++)
 			onFaultPointMFD.set(i,targetFaultGR.getY(i)/numPtsOnFault);
 		// make point off fault 1/10th rate of those on the faults
 		offFaultPointMFD = new ArbIncrementalMagFreqDist(2.55, 7.55, 51);
 		for(int i=0; i<offFaultPointMFD.getNum();i++)
-			offFaultPointMFD.set(i,targetFaultGR.getY(i)/(numPtsOnFault*10));
+			offFaultPointMFD.set(i,targetFaultGR.getY(i)/(numPtsOnFault*offFaultSeisReductionFactor));
 		
 		
 		if(D) {
@@ -149,7 +155,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		obsMainShock.setMag(mainshock.getMag());
 		obsMainShock.setRuptureSurface(mainshock.getRuptureSurface());
 		obsMainShock.setOriginTime(0);	// occurs at 1970
-		System.out.println("main shock: nthRup="+nthRup+"mag="+obsMainShock.getMag()+
+		System.out.println("main shock: nthRup="+nthRup+"; mag="+obsMainShock.getMag()+
 				"; src name: " +erf.getSource(nthRup).getName());
 
 		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
@@ -159,7 +165,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList);
 
-		erf.testER_Simulation();
+//		erf.testER_Simulation();
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+(double)runtime/(1000.0*60.0)+" minutes");
 	}

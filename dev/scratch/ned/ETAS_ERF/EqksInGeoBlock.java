@@ -155,7 +155,7 @@ public class EqksInGeoBlock {
 	 * @return
 	 */
 	public double getAveBlockSize() {
-		return Math.pow(getBlockVolume(),1/3);
+		return Math.pow(getBlockVolume(),0.3333333);
 	}
 	
 	
@@ -344,7 +344,7 @@ public class EqksInGeoBlock {
 			latBoundaries[i] = minLat+(double)i*(maxLat-minLat)/(double)numAlongLatLon;
 			lonBoundaries[i] = minLon+(double)i*(maxLon-minLon)/(double)numAlongLatLon;
 		}
-		for(int i=0; i< numAlongLatLon+1; i++) {
+		for(int i=0; i< numAlongDepth+1; i++) {
 			depthBoundaries[i] = minDepth+(double)i*(maxDepth-minDepth)/(double)numAlongDepth;
 		}
 		
@@ -392,7 +392,7 @@ public class EqksInGeoBlock {
 								System.out.println("\t"+nthRup+"\t"+isLocInside(loc)+"\t"+minLat+"\t"+maxLat+"\t"+minLon+"\t"+maxLon+"\t"+minDepth+"\t"+maxDepth);
 								for(EqksInGeoBlock subBlock:subBlocks) {
 									System.out.println("\t\t"+"\t"+subBlock.minLat+"\t"+subBlock.maxLat+"\t"+
-											subBlock.minLon+"\t"+subBlock.maxLon+"\t"+subBlock.minDepth+"\t"+subBlock.maxDepth);
+											subBlock.minLon+"\t"+subBlock.maxLon+"\t"+subBlock.minDepth+"\t"+subBlock.maxDepth+"\t"+subBlock.isLocInside(loc));
 								}
 								System.out.println("\n");
 								testThisBlock(erf);

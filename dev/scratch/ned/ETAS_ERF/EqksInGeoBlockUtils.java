@@ -6,6 +6,7 @@ import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -18,7 +19,32 @@ public class EqksInGeoBlockUtils {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+
+		int numSlice =6;
+		double minLat = 36.0;
+		double maxLat = 36.0 + 0.1/numSlice;
+		double minLon = 241-360;
+		double maxLon = 241-360 + 0.1/numSlice; 
+		double minDepth = 8.0;
+		double maxDepth = 8.0 + 24/(numSlice/2);
+		
+		double distDecay = 2;
+		double minDist = 0.3;
+		int numDiscr = 100;
+		
+//		Location loc = new Location(minLat-0.04,minLon-0.04,minDepth-4);	// at corner
+		Location loc = new Location(minLat-0.03,minLon-0.03,minDepth-3);	// 8.9 km from center
+
+		EqksInGeoBlock block = new EqksInGeoBlock(minLat, maxLat, minLon, maxLon, minDepth, maxDepth);
+		
+		double dist = LocationUtils.linearDistanceFast(loc, block.getBlockCenterLoc());
+		double wt1 = Math.pow(dist+minDist, -distDecay);
+		double dist2 = EqksInGeoBlockUtils.getEquivDistForBlock(block, loc, distDecay, minDist, numDiscr);
+		double wt2 =  Math.pow(dist2+minDist, -distDecay);
+		System.out.println("Bias: "+wt1/wt2);
+		dist2 = EqksInGeoBlockUtils.getEquivDistForBlockFast(block, loc, distDecay, minDist, numDiscr);
+		wt2 =  Math.pow(dist2+minDist, -distDecay);
+		System.out.println("BiasFast: "+wt1/wt2);
 
 	}
 	
@@ -76,7 +102,7 @@ public class EqksInGeoBlockUtils {
 		}
 		
 		if(maxRupDepth > maxDepth) {
-			throw new RuntimeException("ruptures go deepter the the given maxDepth:\tmaxRupDepth="+maxRupDepth);
+			throw new RuntimeException("ruptures go deeper than the the given maxDepth:\tmaxRupDepth="+maxRupDepth);
 		}
 
 		System.out.println("rateUnAssigned = "+rateUnAssigned);
@@ -177,4 +203,63 @@ public class EqksInGeoBlockUtils {
 //				";\tblockList2 was testable = "+blockList2_Tested+
 //				"\ttotalRateOverAllBlocks="+totalRateOverAllBlocks);
 	}
+	
+	
+	
+	public static double getEquivDistForBlock(EqksInGeoBlock block, Location loc, double distDecay, double minDist, int numDiscr) {
+		long startTime = System.currentTimeMillis();
+
+		double totSum = 0;
+		double deltaLat = (block.maxLat-block.minLat)/numDiscr;
+		double deltaLon = (block.maxLon-block.minLon)/numDiscr;
+		double deltaDepth = (block.maxDepth-block.minDepth)/numDiscr;
+		for(int iLat = 0; iLat < numDiscr; iLat++) {
+			double lat = block.minLat + iLat*deltaLat + deltaLat/2;
+			for(int iLon = 0; iLon < numDiscr; iLon++) {
+				double lon = block.minLon + iLon*deltaLon + deltaLon/2;
+				for(int iDep = 0; iDep < numDiscr; iDep++) {
+					double depth = block.minDepth + iDep*deltaDepth + deltaDepth/2;
+					Location loc2 = new Location(lat,lon,depth);
+					double dist = LocationUtils.linearDistanceFast(loc, loc2);
+					totSum += Math.pow(dist+minDist, -distDecay);
+				}
+			}
+		}
+
+		totSum /= (double)(numDiscr*numDiscr*numDiscr);
+		
+		System.out.println("runTime="+ (System.currentTimeMillis()-startTime));
+
+		return Math.pow(totSum,-1.0/distDecay)-minDist;
+	}
+	
+	
+	public static double getEquivDistForBlockFast(EqksInGeoBlock block, Location loc, double distDecay, double minDist, int numDiscr) {
+//		long startTime = System.currentTimeMillis();
+		double totSum = 0;
+		double deltaLat = (block.maxLat-block.minLat)/numDiscr;
+		double deltaLon = (block.maxLon-block.minLon)/numDiscr;
+		double deltaDepth = (block.maxDepth-block.minDepth)/numDiscr;
+		for(int iLat = 0; iLat < numDiscr; iLat++) {
+			double distLat = (loc.getLatitude() - (block.minLat + iLat*deltaLat + deltaLat/2))*111.0;
+			for(int iLon = 0; iLon < numDiscr; iLon++) {
+				double distLon = (loc.getLongitude() - (block.minLon + iLon*deltaLon + deltaLon/2)) * 111.0 * Math.cos(loc.getLatitude()*Math.PI/180);
+				for(int iDep = 0; iDep < numDiscr; iDep++) {
+					double distDepth = loc.getDepth() - (block.minDepth + iDep*deltaDepth + deltaDepth/2);
+					double dist = Math.sqrt(distLat*distLat+distLon*distLon+distDepth*distDepth);
+					totSum += Math.pow(dist+minDist, -distDecay);
+				}
+			}
+		}
+
+		totSum /= (double)(numDiscr*numDiscr*numDiscr);
+
+//		System.out.println("runTime="+ (System.currentTimeMillis()-startTime));
+
+		return Math.pow(totSum,-1.0/distDecay)-minDist;
+
+	}
+
+	
+
 }

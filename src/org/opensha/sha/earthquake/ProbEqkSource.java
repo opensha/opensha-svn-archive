@@ -213,6 +213,19 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 		sourceMetadata += "\""+getName()+"\"";
 		return sourceMetadata;
 	}
+	
+	
+	/**
+	 * This computes the equivalent mean annual rate for this source
+	 * (a sum of the rates of all the ruptures)
+	 * @return
+	 */
+	public double computerTotalEquivMeanAnnualRate(double duration) {
+		double rate = 0;
+		for(ProbEqkRupture rup: this)
+			rate += rup.getMeanAnnualRate(duration);
+		return rate;
+	}
 
 
 

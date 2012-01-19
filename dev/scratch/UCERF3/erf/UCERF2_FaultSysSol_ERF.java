@@ -69,6 +69,7 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		// update forecast to we can get a main shock
 		erf.updateForecast();
 		
+		// get the rupture index of a Landers rupture
 		int nthRup = erf.getIndexN_ForSrcAndRupIndices(4755, 0);
 		ProbEqkRupture landers = erf.getSource(4755).getRupture(0);
 		ObsEqkRupture landersObs = new ObsEqkRupture();

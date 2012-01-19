@@ -23,39 +23,6 @@ public class TestFaultSysSolTimeDepERF {
 		
 		
 		
-		CalcProgressBar progressBar = new CalcProgressBar("label1", "label2");
-
-		progressBar.displayProgressBar();
-//		progressBar.showProgress(true);
-		
-		try {
-			Thread.sleep(2000L);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-		
-		for(int i=0;i<100;i++) {
-			try {
-				Thread.sleep(30L);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			progressBar.updateProgress(i, 100);
-			progressBar.setProgressMessage("message");
-		}
-		
-
-		
-//		progressBar.setProgressMessage("here it is...");
-
-		
-		
-		System.exit(0);
 	
 		
 		
@@ -64,7 +31,7 @@ public class TestFaultSysSolTimeDepERF {
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.12);
 		invERF.bpt_AperiodicityParam.setValue(0.2);
 		invERF.getTimeSpan().setStartTimeInMillis(0);
-		invERF.getTimeSpan().setDuration(10000);
+		invERF.getTimeSpan().setDuration(10000);	// yrs
 		
 		long runtime = System.currentTimeMillis();
 		invERF.testER_Simulation();
@@ -129,6 +96,44 @@ public class TestFaultSysSolTimeDepERF {
 //
 //		
 //		System.out.println("done");
+
+		
+		
+		
+		
+//		CalcProgressBar progressBar = new CalcProgressBar("label1", "label2");
+		//
+//				progressBar.displayProgressBar();
+////				progressBar.showProgress(true);
+//				
+//				try {
+//					Thread.sleep(2000L);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+		//
+		//
+//				
+//				for(int i=0;i<100;i++) {
+//					try {
+//						Thread.sleep(30L);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+		//
+//					progressBar.updateProgress(i, 100);
+//					progressBar.setProgressMessage("message");
+//				}
+//				
+		//
+//				
+////				progressBar.setProgressMessage("here it is...");
+		//
+//				
+//				
+//				System.exit(0);
 
 	}
 

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
@@ -40,7 +41,7 @@ import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
  */
 public class ETAS_PrimaryEventSampler {
 	
-	protected final static boolean D = false;  // for debugging
+	protected final static boolean D = true;  // for debugging
 	
 	ArrayList<EqksInGeoBlock> origBlockList;				// the original list of blocks given
 	ArrayList<EqksInGeoBlock> revisedBlockList;	// a revised list (those used here)
@@ -88,7 +89,7 @@ public class ETAS_PrimaryEventSampler {
 		ArrayList<EqksInGeoBlock> subBlocks = null;
 		revisedBlockDistances = new ArrayList<Double>();
 
-		if(D) System.out.print("computing block distances");
+		if(D) System.out.print("computing block distances & sub-blocks");
 		int counter=0, counterThresh = origBlockList.size()/20, counterIncr=counterThresh;
 		minBlockDist=Double.MAX_VALUE;
 		minDistIndex=-1;
@@ -102,7 +103,12 @@ public class ETAS_PrimaryEventSampler {
 				if(D) System.out.print(", "+(int)perc);
 				counterThresh += counterIncr;
 			}
-			double dist = LocationUtils.distanceToSurfFast(origBlock.getBlockCenterLoc(), rupSurf);
+			double dist;
+			if(rupSurf.isPointSurface())
+				dist = EqksInGeoBlockUtils.getEquivDistForBlockFast(origBlock, parentRup.getRuptureSurface().getFirstLocOnUpperEdge(), distDecay, minDist, 10);	
+			else
+				dist = LocationUtils.distanceToSurfFast(origBlock.getBlockCenterLoc(), rupSurf);
+
 			if(dist>ADAPT_BLOCK_DIST2  || !useAdaptiveBlocks) {
 				revisedBlockDistances.add(dist);
 				revisedBlockList.add(origBlock);
@@ -115,7 +121,7 @@ public class ETAS_PrimaryEventSampler {
 				if (dist > ADAPT_BLOCK_DIST1) {
 					subBlocks = subBlockList1.get(b);
 					if(subBlocks == null) {
-						subBlocks = origBlock.getSubBlocks(3, 3, erf);
+						subBlocks = origBlock.getSubBlocks(3, 6, erf);
 						if(parentRup.getMag()>5)
 							subBlockList1.set(b,subBlocks);
 					}
@@ -123,15 +129,24 @@ public class ETAS_PrimaryEventSampler {
 				else {
 					subBlocks = subBlockList2.get(b);
 					if(subBlocks == null) {
-						subBlocks = origBlock.getSubBlocks(6, 6, erf);
+						subBlocks = origBlock.getSubBlocks(6, 12, erf);
 						if(parentRup.getMag()>5)
 							subBlockList2.set(b,subBlocks);
 					}
+//System.out.println("getAveBlockSize()="+subBlocks.get(0).getAveBlockSize());
+//System.exit(0);
 				}
 				double testRate1=0;
 				for(EqksInGeoBlock subBlock:subBlocks) {
 					testRate1 += subBlock.getTotalRateInside();
-					double dist2 = LocationUtils.distanceToSurfFast(subBlock.getBlockCenterLoc(), rupSurf);
+//					double dist2 = LocationUtils.distanceToSurfFast(subBlock.getBlockCenterLoc(), rupSurf);
+					
+					double dist2;
+					if(rupSurf.isPointSurface())
+						dist2 = EqksInGeoBlockUtils.getEquivDistForBlockFast(subBlock, parentRup.getRuptureSurface().getFirstLocOnUpperEdge(), distDecay, minDist, 10);	
+					else
+						dist2 = LocationUtils.distanceToSurfFast(subBlock.getBlockCenterLoc(), rupSurf);
+
 					revisedBlockDistances.add(dist2);
 					revisedBlockList.add(subBlock);
 					if(dist2<minBlockDist) {
@@ -152,7 +167,17 @@ public class ETAS_PrimaryEventSampler {
 		numBlocks = revisedBlockList.size();
 		if(D) System.out.print(" ");
 		
+//		getSpatialProbDensOfBlocks();
+		
 		upDataRandomBlockSampler();
+	}
+	
+	/**
+	 * This returns the parent rupture (main shocks)
+	 * @return
+	 */
+	public EqkRupture getParentRup() {
+		return parentRup;
 	}
 	
 	
@@ -169,6 +194,14 @@ public class ETAS_PrimaryEventSampler {
 		if(D) {
 			System.out.println("\nnum revised blocks="+numBlocks);
 			System.out.println("minBlockDist ="+minBlockDist+" for block index "+minDistIndex);
+			if(parentRup.getRuptureSurface().isPointSurface()) {
+				Location ptLoc = parentRup.getRuptureSurface().getFirstLocOnUpperEdge();
+				Location blLoc = this.revisedBlockList.get(minDistIndex).getBlockCenterLoc();
+				System.out.println("\tdLat="+(float)(ptLoc.getLatitude()-blLoc.getLatitude())+
+						"\tdLon="+(float)(ptLoc.getLongitude()-blLoc.getLongitude())+
+						"\tdDep="+(float)(ptLoc.getDepth()-blLoc.getDepth()));
+
+			}
 			System.out.println("computing relative block probabilities");
 			System.out.println("rupLength="+rupLength);
 		}
@@ -186,7 +219,9 @@ public class ETAS_PrimaryEventSampler {
 		}
 		else {	// Point-source case
 			double closestBlockVal=0;
-			if(minBlockDist>1) // check whether nucleation point is closer to the center or edge of closest block; value of "1" depends on smallest block size!
+//			double check = 1.0;
+			double check = revisedBlockList.get(minDistIndex).getAveBlockSize()/2;
+			if(minBlockDist>check) // check whether nucleation point is closer to the center or edge of closest block; value of "1" depends on smallest block size!
 				minDistIndex=-1;  // don't do special case below
 			for(int i=0; i<numBlocks;i++) {
 				double vol = revisedBlockList.get(i).getBlockVolume();
@@ -197,10 +232,15 @@ public class ETAS_PrimaryEventSampler {
 					closestBlockVal=getDecayFractionInsideDistance(distDecay, minDist, radius);
 					relBlockProb[i] = closestBlockVal;
 					if(D) System.out.println("Calculated wt of closest block directly; it equals: "+closestBlockVal);
+//					double altWt = getBlockWeight(parentRup.getRuptureSurface().getFirstLocOnUpperEdge(), revisedBlockList.get(minDistIndex), distDecay, minDist, 10);
+//					if(D) System.out.println("Calculated wt from getBlockWeight: "+altWt);
 				}
 				else {
-					blockWt = vol/(2*Math.PI*(dist)+2*rupLength);
-					relBlockProb[i] = Math.pow(revisedBlockDistances.get(i)+0.1, -distDecay)*blockWt; // min-dist of 0.1 was found by trial and error
+//					if(dist <8.0)
+//						blockWt = vol/(4*Math.PI*(dist*dist));
+//					else
+						blockWt = vol/(2*Math.PI*(dist));
+					relBlockProb[i] = Math.pow(dist+minDist, -distDecay)*blockWt; 
 					total += relBlockProb[i];
 				}
 			}
@@ -231,6 +271,43 @@ public class ETAS_PrimaryEventSampler {
 			System.out.println("Done computing relative block probabilities");
 		}
 	}
+	
+	
+	/**
+	 * This updates the randomBlockSampler
+	 */
+	private void getSpatialProbDensOfBlocks() {
+
+		// compute relative probability of each block
+		relBlockProb = new double[numBlocks];
+		
+		ArbDiscrEmpiricalDistFunc distanceDist = new ArbDiscrEmpiricalDistFunc();
+
+		for(int i=0; i<numBlocks;i++) {
+			double aveBlockSize = revisedBlockList.get(i).getAveBlockSize();
+			double dist = revisedBlockDistances.get(i);
+			double blockWt;
+			distanceDist.set(dist, 1.0);
+			distanceDist.set(dist+aveBlockSize/3, 1.0);
+			distanceDist.set(dist-aveBlockSize/3, 1.0);
+		}
+		
+		ArrayList funcs = new ArrayList();
+		funcs.add(distanceDist);
+		funcs.add(distanceDist.getCumDist());
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "test"); 
+		graph.setAxisRange(1, 1200, 1e-6, 1);
+		graph.setYLog(true);
+//		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+//		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+//		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.BLUE));
+//		graph.setPlottingFeatures(plotChars);
+//		graph.setX_AxisLabel("Distance (km)");
+//		graph.setY_AxisLabel("Probability");
+
+			
+	}
+
 	
 	
 	/**
@@ -384,6 +461,11 @@ public class ETAS_PrimaryEventSampler {
 	public ArrayList<EqksInGeoBlock> getRevisedBlockList () { return revisedBlockList; }
 	
 	
+	public double getDistForRevisedBlock(int blockIndex) {
+		return revisedBlockDistances.get(blockIndex);
+	}
+	
+	
 	/**
 	 * This returns the random block sampler (where the relative rate of each block is on the y-axis, 
 	 * and the block index is both the function index and x-axis value)
@@ -417,7 +499,7 @@ public class ETAS_PrimaryEventSampler {
 		for(int i=0;i<numBlocks;i++)  origFunc.set(i,relBlockProb[i]);
 		
 		try{
-			FileWriter fw1 = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_Tests/computedData/relBlockProbs.txt");
+			FileWriter fw1 = new FileWriter("/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/relBlockProbs.txt");
 			fw1.write("index\tlat\tlon\tdepth\trelProb\trandProbs\tvol\tblockDist\n");
 			for(int i=0;i<numBlocks;i++) {
 				Location loc = revisedBlockList.get(i).getBlockCenterLoc();
@@ -536,9 +618,9 @@ public class ETAS_PrimaryEventSampler {
 	 * @param plotTitle
 	 * @param pdfFileNameAndPath - give null is you don't want to save the file
 	 */
-	public void plotDistDecayTestFuncs(String plotTitle, String pdfFileNameAndPath) {
+	public void plotDistDecayTestFuncs(String plotTitle, String pdfFileNameAndPath, double deltaDist) {
 		
-		ArrayList funcs = getDistDecayTestFuncs(10.0);
+		ArrayList funcs = getDistDecayTestFuncs(deltaDist);
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, plotTitle); 
 		graph.setAxisRange(1, 1200, 1e-6, 1);
 		graph.setYLog(true);
@@ -571,6 +653,17 @@ public class ETAS_PrimaryEventSampler {
 		double oneMinus = 1-distDecay;
 		return -(Math.pow(distance+minDist,oneMinus) - Math.pow(minDist,oneMinus))/Math.pow(minDist,oneMinus);
 	}
+	
+			
+	
+	public double getMinDist() {
+		return minDist;
+	}
+	
+	public double getDistDecay() {
+		return  distDecay;
+	}
+
 
 	/**
 	 * @param args
@@ -578,9 +671,9 @@ public class ETAS_PrimaryEventSampler {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		System.out.println(ETAS_PrimaryEventSampler.getDecayFractionInsideDistance(1.4,2.0, 10));
-		double r = Math.pow(25.6*0.75/Math.PI, 0.33333);
-		System.out.println(r);
+		System.out.println(ETAS_PrimaryEventSampler.getDecayFractionInsideDistance(2,0.3, 100));
+//		double r = Math.pow(25.6*0.75/Math.PI, 0.33333);
+//		System.out.println(r);
 	}
 
 }
