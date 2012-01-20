@@ -177,10 +177,10 @@ public class ETAS_LocationWeightCalculator {
 		
 		// solve for the total weight for the associated layers
 		double normWt=0;
-		// at same depth and below	// if at surface (iHypoDepth=0), should include all; if at bottom (iHypoDepth=numDepth-1), should include just 0th
+		// sum those at same depth and below	// if at surface (iHypoDepth=0), should include all; if at bottom (iHypoDepth=numDepth-1), should include just 0th
 		for(int d=0; d<numDepth-iHypoDep;d++)
 			normWt += totWtAtDepth[d];
-		// those above; none if iHypoDepth=0; those above if at bottom (iHypoDepth=numDepth-1)
+		// sum those above; none if iHypoDepth=0; those above if at bottom (iHypoDepth=numDepth-1)
 		if(iHypoDep > 0)
 			for(int d=1; d<=iHypoDep;d++)
 				normWt += totWtAtDepth[d];
@@ -279,7 +279,7 @@ public class ETAS_LocationWeightCalculator {
 
 	}
 	
-	public double getEquivDistFast(int iLat, int iLon, int iDep, int numDiscr) {
+	public double getEquivDistanceFast(int iLat, int iLon, int iDep, int numDiscr) {
 		
 		double midLat = getLat(iLat);
 		double midLon = getLon(iLon);
@@ -326,16 +326,16 @@ public class ETAS_LocationWeightCalculator {
 		double maxDepthKm=24;
 //		double latLonDiscrDeg=0.005;
 //		double depthDiscr=0.5;
-		double latLonDiscrDeg=0.01;
-		double depthDiscr=1.0;
+		double latLonDiscrDeg=0.02;
+		double depthDiscr=2.0;
 		double midLat=38;
 		double distDecay=2;
 		double minDist=0.3;
 		ETAS_LocationWeightCalculator calc = new ETAS_LocationWeightCalculator(maxDistKm, maxDepthKm, latLonDiscrDeg, 
 				depthDiscr, midLat, distDecay, minDist);
 		
-		System.out.println("Testing randome samples...");
-		calc.getEquivDistFast(0, 0, 0, 100);
+		System.out.println("Testing random samples...");
+//		calc.getEquivDistanceFast(0, 0, 0, 100);
 		calc.testRandomSamples(1000000);
 
 	}
