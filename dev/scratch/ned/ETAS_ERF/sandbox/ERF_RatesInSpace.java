@@ -27,6 +27,7 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
+import scratch.ned.ETAS_ERF.IntegerPDF_FunctionSampler;
 
 public class ERF_RatesInSpace {
 	
@@ -207,6 +208,22 @@ public class ERF_RatesInSpace {
 			writeEqksAtPointArrayToFile(oututFileNameWithPath);
 		
 	}
+	
+	/**
+	 * This method
+	 */
+	public IntegerPDF_FunctionSampler getPointSampler() {
+		IntegerPDF_FunctionSampler pointSampler;
+		pointSampler = new IntegerPDF_FunctionSampler(numDepths*numRegLocs);
+		int index=0;
+		for(int j=0;j<numDepths;j++) {
+			for(int i=0;i<numRegLocs;i++) {
+				pointSampler.set(index,eqksAtPointArray[i][j].getTotalRateInside());
+			}
+		}
+		return pointSampler;
+
+	}
 
 	public void testRates(FaultSystemSolutionPoissonERF erf) {
 		
@@ -261,11 +278,21 @@ public class ERF_RatesInSpace {
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
 		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,testFileName);
-		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
-		erf_RatesInSpace.plotOrigERF_RatesMap("oig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
+//		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
+//		erf_RatesInSpace.plotOrigERF_RatesMap("oig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
 //		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1,testFileName);
 
 		System.out.println("... that took "+(System.currentTimeMillis()-startTime)/1000+" sec");
+		
+		System.out.println("Making point sampler");
+		startTime = System.currentTimeMillis();
+		IntegerPDF_FunctionSampler pointSampler = erf_RatesInSpace.getPointSampler();
+		System.out.println("Making point sampler took "+(System.currentTimeMillis()-startTime)/1000+" sec");
+		startTime = System.currentTimeMillis();
+		System.out.println("Sampling 2000 points");
+		for(int i=0;i<2000;i++)
+			pointSampler.getRandomInt();
+		System.out.println("Sampling that took "+(System.currentTimeMillis()-startTime)/1000+" sec");
 
 
 	}
