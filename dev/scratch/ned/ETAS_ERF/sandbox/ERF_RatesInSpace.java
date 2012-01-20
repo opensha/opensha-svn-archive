@@ -219,6 +219,7 @@ public class ERF_RatesInSpace {
 		for(int j=0;j<numDepths;j++) {
 			for(int i=0;i<numRegLocs;i++) {
 				pointSampler.set(index,eqksAtPointArray[i][j].getTotalRateInside());
+				index += 1;
 			}
 		}
 		return pointSampler;
