@@ -56,6 +56,18 @@ public class EqksAtPoint {
 	}	
 	
 	
+	public EqksAtPoint(	int[] rupIndexN_Array, double[] rupRateInsideArray, double[] rupFractInsideArray,
+			int[] srcIndexN_Array, double[] srcRateInsideArray, double[] srcFractInsideArray) {
+
+		this.rupIndexN_Array = rupIndexN_Array;
+		this.rupRateInsideArray = rupRateInsideArray;
+		this.rupFractInsideArray = rupFractInsideArray;
+		this.srcIndexN_Array = srcIndexN_Array;
+		this.srcRateInsideArray = srcRateInsideArray;
+		this.srcFractInsideArray = srcFractInsideArray;
+
+	}
+	
 	/**
 	 * This gives the total rate at which ruptures nucleate inside the block
 	 * @return
@@ -201,7 +213,7 @@ public class EqksAtPoint {
 		for(int i=0;i<num;i++) {
 			srcIndexN_Array[i] = srcIndexN_List.get(i);
 			srcRateInsideArray[i] = srcRateInsideList.get(i);
-			srcFractInsideArray[i] = srcRateInsideArray[i]/erf.getSource(srcIndexN_Array[i]).computerTotalEquivMeanAnnualRate(duration);
+			srcFractInsideArray[i] = srcRateInsideArray[i]/erf.getSource(srcIndexN_Array[i]).computeTotalEquivMeanAnnualRate(duration);
 		}
 				
 		rupIndexN_List = null;
@@ -209,12 +221,31 @@ public class EqksAtPoint {
 		srcIndexN_List = null;
 		srcRateInsideList = null;
 
-
 	}
 	
+	public int[] getRupIndexN_Array() {
+		return rupIndexN_Array;
+	}
 	
-
-
+	public double[] getRupRateInsideArray() {
+		return rupRateInsideArray;
+	}
+	
+	public double[] getRupFractInsideArray() {
+		return rupFractInsideArray;
+	}
+	
+	public int[] getSrcIndexN_Array() {
+		return srcIndexN_Array;
+	}
+	
+	public double[] getSrcRateInsideArray() {
+		return srcRateInsideArray;
+	}
+	
+	public double[] getSrcFractInsideArray() {
+		return srcFractInsideArray;
+	}
 
 
 	/**

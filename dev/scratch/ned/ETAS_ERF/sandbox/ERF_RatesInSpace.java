@@ -10,54 +10,94 @@ import java.util.HashSet;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
+import scratch.ned.ETAS_ERF.EqksInGeoBlock;
 
 public class ERF_RatesInSpace {
 	
-	int numDepths;
+	int numDepths, numRegLocs;
 	double maxDepth, depthDiscr;
 	GriddedRegion region;
 	
+	// this stores the rates of erf ruptures that go unassigned (outside the region here)
+	double rateUnassigned;
+	
 	EqksAtPoint[][] eqksAtPointArray;
-	EqksAtPointTest[][] eqksAtPointArrayTest;
-
+//	EqksAtPointTest[][] eqksAtPointArrayTest;
+	
+	
+	
+	
 	/**
 	 * TO DO
 	 * 
-	 * 1) write out unassigned locations
-	 * 2) option to read and write from file
+	 * 1) option to read and write from file
 	 * 
 	 * 
 	 * @param griddedRegion
 	 * @param erf
 	 * @param maxDepth
 	 * @param depthDiscr
-	 * @param pointSrcDiscr
+	 * @param pointSrcDiscr - the grid spacing of off-fault/background events
 	 */
 	public ERF_RatesInSpace(GriddedRegion griddedRegion, FaultSystemSolutionPoissonERF erf, double maxDepth, double depthDiscr,
-			double pointSrcDiscr) {
+			String oututFileNameWithPath) {
 		
 		this.maxDepth=maxDepth;
 		this.depthDiscr=depthDiscr;
 		numDepths = (int)Math.round(maxDepth/depthDiscr);
 		
 		this.region = griddedRegion;
-		int numRegLocs = griddedRegion.getNumLocations();
+		numRegLocs = griddedRegion.getNumLocations();
+		
+		readEqksAtPointArrayFromFile(oututFileNameWithPath);
+		
+		testRates(erf);
+	}
+	
+	
+	
+
+	/**
+	 * TO DO
+	 * 
+	 * @param griddedRegion
+	 * @param erf
+	 * @param maxDepth
+	 * @param depthDiscr
+	 * @param pointSrcDiscr - the grid spacing of off-fault/background events
+	 */
+	public ERF_RatesInSpace(GriddedRegion griddedRegion, FaultSystemSolutionPoissonERF erf, double maxDepth, double depthDiscr,
+			double pointSrcDiscr, String oututFileNameWithPath) {
+		
+		this.maxDepth=maxDepth;
+		this.depthDiscr=depthDiscr;
+		numDepths = (int)Math.round(maxDepth/depthDiscr);
+		
+		this.region = griddedRegion;
+		numRegLocs = griddedRegion.getNumLocations();
 		double regSpacing = griddedRegion.getLatSpacing();
 		if(griddedRegion.getLonSpacing() != regSpacing)
 			throw new RuntimeException("griddedRegion.getLonSpacing() must equal griddedRegion.getLatSpacing()");
+		
+		
 		int numPtSrcSubPts = (int)Math.round(pointSrcDiscr/regSpacing);
-		double extra;
+		double extra;	// this is needed to get the right intervals withing each point source
 		if (numPtSrcSubPts % 2 == 0) {	// if even
 			extra=0;
 		}
@@ -78,7 +118,7 @@ public class ERF_RatesInSpace {
 
 		double duration = erf.getTimeSpan().getDuration();
 		
-		double rateUnassigned=0;
+		rateUnassigned=0;
 
 		CalcProgressBar progressBar = new CalcProgressBar("Events to process", "junk");
 		progressBar.displayProgressBar();
@@ -89,7 +129,6 @@ public class ERF_RatesInSpace {
 		int numFltSystRups = erf.getNumFaultSystemSources();
 
 		System.out.println("Starting big loop");
-		int n=-1;
 		for(int s=0;s<totNumSrc;s++) {
 			ProbEqkSource src = erf.getSource(s);
 			progressBar.updateProgress(s, totNumSrc);
@@ -97,7 +136,6 @@ public class ERF_RatesInSpace {
 			// If it's not a point sources:
 			if(s<numFltSystRups) {
 				for(int r=0;r<src.getNumRuptures();r++) {
-					n +=1;
 					ProbEqkRupture rup = src.getRupture(r);
 					LocationList locsOnRupSurf = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 					double ptRate = rup.getMeanAnnualRate(duration)/locsOnRupSurf.size();
@@ -105,10 +143,12 @@ public class ERF_RatesInSpace {
 						int regIndex = griddedRegion.indexForLocation(loc);
 						int depIndex = getDepthIndex(loc.getDepth());
 						if(regIndex != -1) {
-							eqksAtPointArray[regIndex][depIndex].addRupRate(ptRate, n);
+							eqksAtPointArray[regIndex][depIndex].addRupRate(ptRate, erf.getIndexN_ForSrcAndRupIndices(s, r));
 						}
-						else
+						else {
 							rateUnassigned += ptRate;
+//							System.out.println("0\t"+loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
+						}
 					}				
 
 				}
@@ -125,7 +165,8 @@ public class ERF_RatesInSpace {
 				//					System.out.println(centerLoc+"\n"+regLoc+"\n"+regLoc2);
 				//					System.exit(0);
 				//				}
-				double ptRate = src.computerTotalEquivMeanAnnualRate(duration)/(numPtSrcSubPts*numPtSrcSubPts*numDepths);
+				double ptRate = src.computeTotalEquivMeanAnnualRate(duration)/(numPtSrcSubPts*numPtSrcSubPts*numDepths);
+				// distribution this among the locations within the space represented by the point source
 				for(int iLat=0; iLat<numPtSrcSubPts;iLat++) {
 					double lat = centerLoc.getLatitude()-pointSrcDiscr/2 + iLat*regSpacing+extra;
 					for(int iLon=0; iLon<numPtSrcSubPts;iLon++) {
@@ -142,41 +183,45 @@ public class ERF_RatesInSpace {
 						}
 						else {
 							rateUnassigned += ptRate*numDepths;
+//							System.out.println("1\t"+centerLoc.getLatitude()+"\t"+centerLoc.getLongitude()+"\t"+centerLoc.getDepth());
 						}
 					}
 				}
-
-
 			}
 		}
 		progressBar.showProgress(false);
 		System.out.println("rateUnassigned="+rateUnassigned);
 		
-		
-//		double aveNum =0;
-//		for(int j=0;j<numDepths;j++) {
-//			for(int i=0;i<numRegLocs;i++) {
-//				aveNum += rupIndexAtElement[i][j].size();
-//			}
-//		}
-//		aveNum /= (numDepths*numRegLocs);
-//		System.out.println("aveNum="+aveNum);
-//		
-//		HashSet test = rupIndexAtElement[500][2];
-//		System.out.println(test);
-
-		
 		System.out.println("Now shrinking sizes");
-		double totRateTest=0;
 		for(int j=0;j<numDepths;j++) {
 			System.out.println("working on depth "+j);
 			for(int i=0;i<numRegLocs;i++) {
 				eqksAtPointArray[i][j].finishAndShrinkSize(erf);
-				totRateTest += eqksAtPointArray[i][j].getTotalRateInside();
 			}
 		}
 		
+		testRates(erf);
+		
+		// write results to file
+		if(oututFileNameWithPath != null)
+			writeEqksAtPointArrayToFile(oututFileNameWithPath);
+		
+	}
+
+	public void testRates(FaultSystemSolutionPoissonERF erf) {
+		
+		System.out.println("Testing total rate");
+		
+		double duration = erf.getTimeSpan().getDuration();
+
+		double totRateTest=0;
+		for(int j=0;j<numDepths;j++) {
+			for(int i=0;i<numRegLocs;i++) {
+				totRateTest += eqksAtPointArray[i][j].getTotalRateInside();
+			}
+		}
 		totRateTest+=rateUnassigned;
+		
 		double testRate2=0;
 		for(int s=0;s<erf.getNumSources();s++) {
 			ProbEqkSource src = erf.getSource(s);
@@ -212,29 +257,66 @@ public class ERF_RatesInSpace {
 		
 		long startTime = System.currentTimeMillis();
 		System.out.println("Instantiating ERF_RatesInSpace");
-		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1);
+		
+		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
+
+		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,testFileName);
+		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
+		erf_RatesInSpace.plotOrigERF_RatesMap("oig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
+//		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1,testFileName);
+
 		System.out.println("... that took "+(System.currentTimeMillis()-startTime)/1000+" sec");
 
 
 	}
 	
 	private void writeEqksAtPointArrayToFile(String fullpathname) {
-		  try {
+		try {
+			
+			System.out.println("Writing results to file: "+fullpathname);
 
-//"/Users/field/workspace/OpenSHA/dev/scratch/ned/rupsInFaultSystem/PreComputedSubSectionDistances/"+name;
-			  File file = new File (fullpathname);
+			File file = new File (fullpathname);
 
-			  // Create an output stream to the file.
-			  FileOutputStream file_output = new FileOutputStream (file);
-			  // Wrap the FileOutputStream with a DataOutputStream
-			  DataOutputStream data_out = new DataOutputStream (file_output);
-			  data_out.writeInt(1);
-			  data_out.writeDouble(1);
-			  file_output.close ();
-		  }
-		  catch (IOException e) {
-			  System.out.println ("IO exception = " + e );
-		  }
+			// Create an output stream to the file.
+			FileOutputStream file_output = new FileOutputStream (file);
+			// Wrap the FileOutputStream with a DataOutputStream
+			DataOutputStream data_out = new DataOutputStream (file_output);
+			
+			// first write the rate of unassigned events
+			data_out.writeDouble(rateUnassigned);
+			
+			for(int j=0;j<numDepths;j++) {
+				System.out.println("writing depth "+j);
+				for(int i=0;i<numRegLocs;i++) {
+					EqksAtPoint eqksAtPt = eqksAtPointArray[i][j];
+
+					int[] rupIndexN_Array = eqksAtPt.getRupIndexN_Array();
+					double[] rupRateInsideArray = eqksAtPt.getRupRateInsideArray();
+					double[] rupFractInsideArray = eqksAtPt.getRupFractInsideArray();
+					int[] srcIndexN_Array = eqksAtPt.getSrcIndexN_Array();
+					double[] srcRateInsideArray = eqksAtPt.getSrcRateInsideArray();
+					double[] srcFractInsideArray = eqksAtPt.getSrcFractInsideArray();
+
+					data_out.writeInt(rupIndexN_Array.length);
+					for(int n=0;n<rupIndexN_Array.length;n++) {
+						data_out.writeInt(rupIndexN_Array[n]);
+						data_out.writeDouble(rupRateInsideArray[n]);
+						data_out.writeDouble(rupFractInsideArray[n]);
+					}
+
+					data_out.writeInt(srcIndexN_Array.length);
+					for(int n=0;n<srcIndexN_Array.length;n++) {
+						data_out.writeInt(srcIndexN_Array[n]);
+						data_out.writeDouble(srcRateInsideArray[n]);
+						data_out.writeDouble(srcFractInsideArray[n]);
+					}
+				}
+			}
+			file_output.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
 	}
 	
 	private void readEqksAtPointArrayFromFile(String fullpathname) {
@@ -247,14 +329,187 @@ public class ERF_RatesInSpace {
 				// Wrap the FileInputStream with a DataInputStream
 				FileInputStream file_input = new FileInputStream (file);
 				DataInputStream data_in    = new DataInputStream (file_input );
-				data_in.readDouble();
+				
+				eqksAtPointArray = new EqksAtPoint[numRegLocs][numDepths];
+
+				// first read the rate of unassigned events
+				rateUnassigned = data_in.readDouble();
+				
+				for(int j=0;j<numDepths;j++) {
+					System.out.println("reading depth "+j);
+					for(int i=0;i<numRegLocs;i++) {
+						
+						int numRup = data_in.readInt();
+						int[] rupIndexN_Array = new int[numRup];
+						double[] rupRateInsideArray = new double[numRup];
+						double[] rupFractInsideArray = new double[numRup];
+						for(int n=0;n<numRup;n++) {
+							rupIndexN_Array[n] = data_in.readInt();
+							rupRateInsideArray[n] = data_in.readDouble();
+							rupFractInsideArray[n] = data_in.readDouble();
+						}
+
+						int numSrc = data_in.readInt();
+						int[] srcIndexN_Array = new int[numSrc];
+						double[] srcRateInsideArray = new double[numSrc];
+						double[] srcFractInsideArray = new double[numSrc];
+						for(int n=0;n<numSrc;n++) {
+							srcIndexN_Array[n] = data_in.readInt();
+							srcRateInsideArray[n] = data_in.readDouble();
+							srcFractInsideArray[n] = data_in.readDouble();
+						}
+						
+						eqksAtPointArray[i][j] = new EqksAtPoint(rupIndexN_Array, rupRateInsideArray, rupFractInsideArray,
+								srcIndexN_Array, srcRateInsideArray, srcFractInsideArray);
+					}
+				}
 				data_in.close ();
+				
 			} catch  (IOException e) {
 				System.out.println ( "IO Exception =: " + e );
 			}
 
 		}
 	}
+	
+	
+	/**
+	 * This plots the rates in space for the RELM region (rates are summed inside each spatial bin).
+	 * 
+	 * Compare this to what produced by the plotOrigERF_RatesMap(*) method (should be same)
+	 * 
+	 * @param label - plot label
+	 * @param local - whether GMT map is made locally or on server
+	 * @param dirName
+	 * @return
+	 */
+	public String plotRatesMap(String label, boolean local, String dirName) {
+		
+		GMT_MapGenerator mapGen = new GMT_MapGenerator();
+		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
+		mapGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
+
+
+		CaliforniaRegions.RELM_GRIDDED mapGriddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(mapGriddedRegion, true);
+		
+		// initialize values to zero
+		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
+		
+		for(int j=0;j<numDepths;j++) {
+			for(int i=0;i<numRegLocs;i++) {
+				double ptRate = eqksAtPointArray[i][j].getTotalRateInside();
+				Location loc = region.getLocation(i);
+				int locIndex = mapGriddedRegion.indexForLocation(loc);
+				if(locIndex>=0) {
+					double oldRate = xyzDataSet.get(locIndex);
+					xyzDataSet.set(locIndex, ptRate+oldRate);					
+				}
+			}
+		}
+//		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
+		String metadata = "no metadata";
+		
+		try {
+			String name;
+			if(local)
+				name = mapGen.makeMapLocally(xyzDataSet, "Prob from "+label, metadata, dirName);
+			else {
+				name = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
+				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+				ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);				
+			}
+
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (GMT_MapException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RuntimeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @param label - plot label
+	 * @param local - whether GMT map is made locally or on server
+	 * @param dirName
+	 * @return
+	 */
+	public String plotOrigERF_RatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf) {
+		
+		GMT_MapGenerator mapGen = new GMT_MapGenerator();
+		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
+		mapGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
+
+
+		CaliforniaRegions.RELM_GRIDDED mapGriddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(mapGriddedRegion, true);
+		
+		// initialize values to zero
+		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
+		
+		double duration = erf.getTimeSpan().getDuration();
+		for(ProbEqkSource src : erf) {
+			for(ProbEqkRupture rup : src) {
+				LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+				double ptRate = rup.getMeanAnnualRate(duration)/locList.size();
+				for(Location loc:locList) {
+					int locIndex = mapGriddedRegion.indexForLocation(loc);
+					if(locIndex>=0) {
+						double oldRate = xyzDataSet.get(locIndex);
+						xyzDataSet.set(locIndex, ptRate+oldRate);					
+					}
+				}
+			}
+		}
+		
+//		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
+		String metadata = "no metadata";
+		
+		try {
+			String name;
+			if(local)
+				name = mapGen.makeMapLocally(xyzDataSet, "Prob from "+label, metadata, dirName);
+			else {
+				name = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
+				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+				ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);				
+			}
+
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (GMT_MapException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RuntimeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+	}
+
 
 
 }

@@ -104,6 +104,7 @@ public class ETAS_BlockWeightCalculator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		// double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscr, double midLat, double distDecay, double minDist
 		ETAS_BlockWeightCalculator calc = new ETAS_BlockWeightCalculator(1000.0, 24.0, 0.01, 1.0, 38.0, 2, 0.3);
 
 	}
