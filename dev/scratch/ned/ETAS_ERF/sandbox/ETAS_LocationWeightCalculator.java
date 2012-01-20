@@ -58,20 +58,24 @@ public class ETAS_LocationWeightCalculator {
 		double max = num*deltaDistForHist-deltaDistForHist/2;
 		EvenlyDiscretizedFunc distHistogram = new EvenlyDiscretizedFunc(min , max, num);
 		distHistogram.setTolerance(deltaDistForHist);
+		EvenlyDiscretizedFunc distBinWt = new EvenlyDiscretizedFunc(min , max, num);
+		distBinWt.setTolerance(deltaDistForHist);
 
 		
 		double[][][] distances = new double[numLatLon][numLatLon][numDepth];
 		nominalWt = new double[numLatLon][numLatLon][numDepth];
-		for(int iLat=0;iLat<numLatLon; iLat++) {
-			for(int iLon=0;iLon<numLatLon; iLon++) {
-				for(int iDep=0;iDep<numDepth; iDep++) {
+		for(int iDep=0;iDep<numDepth; iDep++) {
+			System.out.println("Working on depth "+iDep);
+			for(int iLat=0;iLat<numLatLon; iLat++) {
+				for(int iLon=0;iLon<numLatLon; iLon++) {
 					double dist = getDistance(iLat, iLon, iDep);
-//					if(dist<depthDiscr)	// fix close/biased distances
-						dist = getEquivDistFast(iLat, iLon, iDep, 10);
+//					if(dist<10)	// fix close/biased distances
+//						dist = getEquivDistFast(iLat, iLon, iDep, 10);
 					distances[iLat][iLon][iDep] = dist;
 					if(dist<=maxDistKm) {
 						distHistogram.add(dist, 1.0);
 						nominalWt[iLat][iLon][iDep] = Math.pow(dist+minDist, -distDecay);
+						distBinWt.add(dist, nominalWt[iLat][iLon][iDep]);
 					}
 					else {
 						nominalWt[iLat][iLon][iDep] = 0;
@@ -83,34 +87,60 @@ public class ETAS_LocationWeightCalculator {
 		ArrayList funcs = new ArrayList();
 		funcs.add(distHistogram);
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "test"); 
+		
+		
+		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(min , max, num);
+		targetHist.setTolerance(deltaDistForHist);
 
-		double totWt=0;
+		deltaDistForHist = depthDiscr/100;
+		min = deltaDistForHist/2;
+		num = (int) Math.round(maxDistKm/deltaDistForHist);
+		max = (num)*deltaDistForHist-deltaDistForHist/2;
+		EvenlyDiscretizedFunc target = new EvenlyDiscretizedFunc(min, max, num);
+		
+		for(int i=0; i<target.getNum();i++) target.set(i,Math.pow(target.getX(i)+minDist, -distDecay));
+		double sum2 = target.calcSumOfY_Vals();
+		for(int i=0; i<target.getNum();i++) target.set(i,target.getY(i)/sum2);
+		for(int i=0; i<target.getNum();i++) targetHist.add(target.getX(i), target.getY(i));
+		
 		for(int iLat=0;iLat<numLatLon; iLat++) {
 			for(int iLon=0;iLon<numLatLon; iLon++) {
 				for(int iDep=0;iDep<numDepth; iDep++) {
 					double dist = distances[iLat][iLon][iDep];
 					if(dist<maxDistKm) {
-						nominalWt[iLat][iLon][iDep] /= distHistogram.getY(dist);
+						nominalWt[iLat][iLon][iDep] *= targetHist.getY(dist)/distBinWt.getY(dist);
+					}
+				}
+			}
+		}
+
+		double totWt=0;
+		for(int iLat=0;iLat<numLatLon; iLat++) {
+			for(int iLon=0;iLon<numLatLon; iLon++) {
+				for(int iDep=0;iDep<numDepth; iDep++) {
+//					double dist = distances[iLat][iLon][iDep];
+//					if(dist<maxDistKm) {
+//						nominalWt[iLat][iLon][iDep] /= distHistogram.getY(dist);
 						totWt += nominalWt[iLat][iLon][iDep];
-					}
+//					}
 				}
 			}
 		}
-//		System.out.println("totWt="+totWt);
+		System.out.println("totWt="+totWt);
 		
-		double finalTotWt=0;
-		for(int iDep=0;iDep<numDepth; iDep++) {
-			for(int iLat=0;iLat<numLatLon; iLat++) {
-				for(int iLon=0;iLon<numLatLon; iLon++) {
-					double dist = distances[iLat][iLon][iDep];
-					if(dist<maxDistKm) {
-						nominalWt[iLat][iLon][iDep] /= totWt;
-						finalTotWt += nominalWt[iLat][iLon][iDep];
-					}
-				}
-			}
-		}
-		System.out.println("finalTotWt="+(float)finalTotWt);
+//		double finalTotWt=0;
+//		for(int iDep=0;iDep<numDepth; iDep++) {
+//			for(int iLat=0;iLat<numLatLon; iLat++) {
+//				for(int iLon=0;iLon<numLatLon; iLon++) {
+//					double dist = distances[iLat][iLon][iDep];
+//					if(dist<maxDistKm) {
+//						nominalWt[iLat][iLon][iDep] /= totWt;
+//						finalTotWt += nominalWt[iLat][iLon][iDep];
+//					}
+//				}
+//			}
+//		}
+//		System.out.println("finalTotWt="+(float)finalTotWt);
 		
 		totWtAtDepth = new double[numDepth];
 		double testTot=0;
