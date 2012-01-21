@@ -42,7 +42,7 @@ public class EqksAtPoint {
 
 	double totalRateInside = -1;
 	
-	IntegerPDF_FunctionSampler randomEqkRupSampler;	// this is for random sampling of ruptures
+	IntegerPDF_FunctionSampler randomSampler;	// this is for random sampling of ruptures
 
 
 	/**
@@ -150,37 +150,47 @@ public class EqksAtPoint {
 		if(totalRateInside != -1)
 			totalRateInside += newRate-oldRate;
 		// update sampler
-		if(randomEqkRupSampler != null)
-				randomEqkRupSampler.set(localIndex,newRate);
+		if(randomSampler != null)
+				randomSampler.set(localIndex,newRate);
 		rupRateInsideArray[localIndex] = newRate;
 	}
 	
 	
 	/**
-	 * This returns the index N of a randomly sampled rupture.
-	 * NEED TO ADD POINT SOURCES
+	 * This returns a 2-element array of ints, where the first value indicates
+	 * the index type (0 for rup index, or 1 for src index), and the second element
+	 * is the index (nth rup or ith src).
 	 * @return
 	 */
-	public int getRandomRuptureIndexN() {
+	public int[] getRandomRupOrSrc() {
 		// make random sampler if it doesn't already exist
-		throw new RuntimeException("method not ready");
-//		getRandomSampler();
-//		return rupIndexN_Array[randomEqkRupSampler.getRandomInt()];
+		getRandomSampler();
+		int[] toReturn = new int[2];
+		int localIndex = randomSampler.getRandomInt();
+		if (localIndex < rupIndexN_Array.length) {
+			toReturn[0] = 0;
+			toReturn[1] = rupIndexN_Array[localIndex];
+		}
+		else {
+			toReturn[0] = 1;
+			toReturn[1] = srcIndexN_Array[localIndex-rupIndexN_Array.length];
+		}
+		return toReturn;
 	}
 	
 	/**
-	 * This creates (if not already existant) and returns the randomEqkRupSampler
+	 * This creates (if not already existent) and returns the randomEqkRupSampler
 	 * @return
 	 */
 	public IntegerPDF_FunctionSampler getRandomSampler() {
-		if(randomEqkRupSampler == null) {
-			randomEqkRupSampler = new IntegerPDF_FunctionSampler(rupIndexN_Array.length+srcIndexN_Array.length);
+		if(randomSampler == null) {
+			randomSampler = new IntegerPDF_FunctionSampler(rupIndexN_Array.length+srcIndexN_Array.length);
 			for(int i=0;i<rupIndexN_Array.length;i++) 
-				randomEqkRupSampler.set(i,rupRateInsideArray[i]);
+				randomSampler.set(i,rupRateInsideArray[i]);
 			for(int i=0;i<srcIndexN_Array.length;i++) 
-				randomEqkRupSampler.set(i,srcRateInsideArray[i]);
+				randomSampler.set(i,srcRateInsideArray[i]);
 		}
-		return randomEqkRupSampler;
+		return randomSampler;
 	}
 	
 
@@ -202,9 +212,6 @@ public class EqksAtPoint {
 			rupFractInsideArray[i] = rupRateInsideArray[i]/erf.getNthRupture(rupIndexN_Array[i]).getMeanAnnualRate(duration);
 		}
 				
-		rupIndexN_List = null;
-		rupRateInsideList = null;
-		
 		num = srcIndexN_List.size();
 		srcIndexN_Array = new int[num];
 		srcRateInsideArray = new double[num];

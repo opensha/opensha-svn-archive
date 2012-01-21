@@ -37,9 +37,11 @@ public class ERF_RatesInSpace {
 	
 	// this stores the rates of erf ruptures that go unassigned (outside the region here)
 	double rateUnassigned;
+	double totRate;
 	
 	EqksAtPoint[][] eqksAtPointArray;
-//	EqksAtPointTest[][] eqksAtPointArrayTest;
+	
+	IntegerPDF_FunctionSampler pointSampler;
 	
 	
 	
@@ -213,18 +215,51 @@ public class ERF_RatesInSpace {
 	 * This method
 	 */
 	public IntegerPDF_FunctionSampler getPointSampler() {
-		IntegerPDF_FunctionSampler pointSampler;
-		pointSampler = new IntegerPDF_FunctionSampler(numDepths*numRegLocs);
-		int index=0;
-		for(int j=0;j<numDepths;j++) {
-			for(int i=0;i<numRegLocs;i++) {
-				pointSampler.set(index,eqksAtPointArray[i][j].getTotalRateInside());
-				index += 1;
-			}
+		if(pointSampler == null) {
+			pointSampler = new IntegerPDF_FunctionSampler(numDepths*numRegLocs);
+			int index=0;
+			for(int j=0;j<numDepths;j++) {
+				for(int i=0;i<numRegLocs;i++) {
+					pointSampler.set(index,eqksAtPointArray[i][j].getTotalRateInside());
+					
+					// check
+					int[] indices = getRegAndDepIndicesForSamplerIndex(index);
+					if(indices[1] != j || indices[0] != i)
+						throw new RuntimeException("Error - iDepths "+indices[1]+" vs "+j+"\tiReg: "+indices[0]+" vs "+i);
+					// check 2
+					if(index !=  getSamplerIndexForRegAndDepIndices(indices[0], indices[1]))
+						throw new RuntimeException("Error");
+
+					index += 1;
+				}
+			}			
 		}
 		return pointSampler;
-
 	}
+	
+	/**
+	 * Region index is first element, and depth index is second
+	 * @param index
+	 * @return
+	 */
+	private int[] getRegAndDepIndicesForSamplerIndex(int index) {
+		
+		int[] indices = new int[2];
+		indices[1] = (int)Math.floor((double)index/(double)numRegLocs);	// depth index
+		indices[0] = index - indices[1]*numRegLocs;						// region index
+		return indices;
+	}
+	
+	private EqksAtPoint getEqksAtPointForSamplerIndex(int index) {
+		int[] indices = getRegAndDepIndicesForSamplerIndex(index);
+		return eqksAtPointArray [indices[0]][indices[1]];		// region is first index
+	}
+
+	
+	private int getSamplerIndexForRegAndDepIndices(int iReg,int iDep) {
+		return iDep*numRegLocs+iReg;
+	}
+
 
 	public void testRates(FaultSystemSolutionPoissonERF erf) {
 		
@@ -232,13 +267,13 @@ public class ERF_RatesInSpace {
 		
 		double duration = erf.getTimeSpan().getDuration();
 
-		double totRateTest=0;
+		totRate=0;
 		for(int j=0;j<numDepths;j++) {
 			for(int i=0;i<numRegLocs;i++) {
-				totRateTest += eqksAtPointArray[i][j].getTotalRateInside();
+				totRate += eqksAtPointArray[i][j].getTotalRateInside();
 			}
 		}
-		totRateTest+=rateUnassigned;
+		totRate+=rateUnassigned;
 		
 		double testRate2=0;
 		for(int s=0;s<erf.getNumSources();s++) {
@@ -248,7 +283,7 @@ public class ERF_RatesInSpace {
 				testRate2 += src.getRupture(r).getMeanAnnualRate(duration);
 			}
 		}
-		System.out.println("\ttotRateTest="+(float)totRateTest+" should equal Rate2="+(float)testRate2+";\tratio="+(float)(totRateTest/testRate2));
+		System.out.println("\ttotRateTest="+(float)totRate+" should equal Rate2="+(float)testRate2+";\tratio="+(float)(totRate/testRate2));
 	}
 	
 	private int getDepthIndex(double depth) {
@@ -279,8 +314,9 @@ public class ERF_RatesInSpace {
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
 		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,testFileName);
-//		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
-//		erf_RatesInSpace.plotOrigERF_RatesMap("oig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
+		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
+		erf_RatesInSpace.plotOrigERF_RatesMap("orig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
+		erf_RatesInSpace.plotRandomSampleRatesMap("random test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapRandomTest", erf,10000);
 //		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1,testFileName);
 
 		System.out.println("... that took "+(System.currentTimeMillis()-startTime)/1000+" sec");
@@ -538,6 +574,82 @@ public class ERF_RatesInSpace {
 		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
 
+	/**
+	 * 
+	 * @param label - plot label
+	 * @param local - whether GMT map is made locally or on server
+	 * @param dirName
+	 * @return
+	 */
+	public String plotRandomSampleRatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf, int numYrs) {
+		
+		GMT_MapGenerator mapGen = new GMT_MapGenerator();
+		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
+		mapGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
+
+
+		CaliforniaRegions.RELM_GRIDDED mapGriddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(mapGriddedRegion, true);
+		
+		// initialize values to zero
+		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
+		
+		// get 1000 yrs worth of samples
+		int numSamples = numYrs*(int)totRate;
+		// do this to make sure it exists
+		getPointSampler();
+		
+		for(int i=0;i<numSamples;i++) {
+			int indexFromSampler = pointSampler.getRandomInt();
+			int[] regAndDepIndex = this.getRegAndDepIndicesForSamplerIndex(indexFromSampler);
+			int indexForMap = mapGriddedRegion.indexForLocation(region.locationForIndex(regAndDepIndex[0]));	// ignoring depth
+			xyzDataSet.set(indexForMap, 1.0/(double)numYrs);
+			
+//			EqksAtPoint eqksAtPt = getEqksAtPointForSamplerIndex(indexFromSampler);
+//			int[] rupOrSrc = eqksAtPt.getRandomRupOrSrc();
+//			if(rupOrSrc[0] == 0) { // it's a rup index
+//				int rthRup = rupOrSrc[1];
+//				// sample a hypocenter (sample one of the points on rup surface that's at this point)
+//			}
+//			else {	// it's a source index
+//				int iSrc = rupOrSrc[1];
+//				// sample a hypocenter (the location of the point source)
+//			}
+		}
+		
+		
+//		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
+		String metadata = "no metadata";
+		
+		try {
+			String name;
+			if(local)
+				name = mapGen.makeMapLocally(xyzDataSet, "Prob from "+label, metadata, dirName);
+			else {
+				name = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
+				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+				ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);				
+			}
+
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (GMT_MapException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RuntimeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+	}
 
 
 }
