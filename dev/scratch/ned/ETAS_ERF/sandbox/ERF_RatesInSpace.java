@@ -6,9 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
@@ -19,15 +21,20 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
-import scratch.ned.ETAS_ERF.IntegerPDF_FunctionSampler;
+import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 
 public class ERF_RatesInSpace {
 	
@@ -71,6 +78,9 @@ public class ERF_RatesInSpace {
 		readEqksAtPointArrayFromFile(oututFileNameWithPath);
 		
 		testRates(erf);
+//		testChangeRatesInSpace(erf);
+//		testMagFreqDist(erf);
+
 	}
 	
 	
@@ -131,7 +141,7 @@ public class ERF_RatesInSpace {
 		
 		int numFltSystRups = erf.getNumFaultSystemSources();
 
-		System.out.println("Starting big loop");
+		System.out.println("Starting big loop; numFltSystRups="+numFltSystRups);
 		for(int s=0;s<totNumSrc;s++) {
 			ProbEqkSource src = erf.getSource(s);
 			progressBar.updateProgress(s, totNumSrc);
@@ -141,12 +151,13 @@ public class ERF_RatesInSpace {
 				for(int r=0;r<src.getNumRuptures();r++) {
 					ProbEqkRupture rup = src.getRupture(r);
 					LocationList locsOnRupSurf = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+					double ptFrac = 1.0/(double)locsOnRupSurf.size();
 					double ptRate = rup.getMeanAnnualRate(duration)/locsOnRupSurf.size();
 					for(Location loc: locsOnRupSurf) {
 						int regIndex = griddedRegion.indexForLocation(loc);
 						int depIndex = getDepthIndex(loc.getDepth());
 						if(regIndex != -1) {
-							eqksAtPointArray[regIndex][depIndex].addRupRate(ptRate, erf.getIndexN_ForSrcAndRupIndices(s, r));
+							eqksAtPointArray[regIndex][depIndex].addRupRate(ptRate, erf.getIndexN_ForSrcAndRupIndices(s, r), ptFrac);
 						}
 						else {
 							rateUnassigned += ptRate;
@@ -168,7 +179,9 @@ public class ERF_RatesInSpace {
 				//					System.out.println(centerLoc+"\n"+regLoc+"\n"+regLoc2);
 				//					System.exit(0);
 				//				}
-				double ptRate = src.computeTotalEquivMeanAnnualRate(duration)/(numPtSrcSubPts*numPtSrcSubPts*numDepths);
+				double numPts = numPtSrcSubPts*numPtSrcSubPts*numDepths;
+				double ptRate = src.computeTotalEquivMeanAnnualRate(duration)/numPts;
+				double ptFrac = 1.0/numPts;
 				// distribution this among the locations within the space represented by the point source
 				for(int iLat=0; iLat<numPtSrcSubPts;iLat++) {
 					double lat = centerLoc.getLatitude()-pointSrcDiscr/2 + iLat*regSpacing+extra;
@@ -177,7 +190,8 @@ public class ERF_RatesInSpace {
 						int regIndex = griddedRegion.indexForLocation(new Location(lat,lon));
 						if(regIndex != -1){
 							for(int iDep =0; iDep<numDepths; iDep++) {
-								eqksAtPointArray[regIndex][iDep].addSrcRate(ptRate, s);
+								eqksAtPointArray[regIndex][iDep].addSrcRate(ptRate, s, ptFrac);
+//								System.out.println("s="+s+"\tsrcPtRate="+ptRate);
 								//								if(regIndex == 500 && iDep ==2)
 								//									System.out.println(n+"\t"+erf.getSrcIndexForNthRup(n)+"\t"+
 								//											erf.getRupIndexInSourceForNthRup(n)+"\t"+rup.getMag()+
@@ -199,16 +213,26 @@ public class ERF_RatesInSpace {
 		for(int j=0;j<numDepths;j++) {
 			System.out.println("working on depth "+j);
 			for(int i=0;i<numRegLocs;i++) {
-				eqksAtPointArray[i][j].finishAndShrinkSize(erf);
+				eqksAtPointArray[i][j].finishAndShrinkSize();
 			}
 		}
 		
 		testRates(erf);
+//		testChangeRatesInSpace(erf);
+//		testMagFreqDist(erf);
 		
 		// write results to file
 		if(oututFileNameWithPath != null)
 			writeEqksAtPointArrayToFile(oututFileNameWithPath);
 		
+	}
+	
+	/**
+	 * This is a method for stating that the rate of one or more ruptures changed
+	 * (which then sets pointSampler = null so it will be recomputed next time it is needed)
+	 */
+	public void declareRateChange() {
+		pointSampler = null;
 	}
 	
 	/**
@@ -220,7 +244,11 @@ public class ERF_RatesInSpace {
 			int index=0;
 			for(int j=0;j<numDepths;j++) {
 				for(int i=0;i<numRegLocs;i++) {
-					pointSampler.set(index,eqksAtPointArray[i][j].getTotalRateInside());
+					double rateAtPt = eqksAtPointArray[i][j].getTotalRateInside();
+					pointSampler.set(index,rateAtPt);
+					
+					if(Double.isInfinite(rateAtPt) || Double.isNaN(rateAtPt))
+						throw new RuntimeException("Error: rateAtPt="+rateAtPt+"\tat iReg="+i+"\tiDep="+j);
 					
 					// check
 					int[] indices = getRegAndDepIndicesForSamplerIndex(index);
@@ -237,6 +265,62 @@ public class ERF_RatesInSpace {
 		return pointSampler;
 	}
 	
+	
+	public IntegerPDF_FunctionSampler getPointSamplerWithDistDecay(EqkRupture mainshock, ETAS_LocationWeightCalculator etasLocWtCalc) {
+		getPointSampler();	// this makes sure it updated
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numDepths*numRegLocs);
+		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		// loop over points in space
+		int index=0;
+		for(int j=0;j<numDepths;j++) {
+			double regDep = getDepth(j);
+			for(int i=0;i<numRegLocs;i++) {
+				Location regLoc = region.locationForIndex(i);
+				double ptWt = 0;
+				// loop over locations on rupture surface
+				for(Location loc : locList) {
+					double relLat = Math.abs(loc.getLatitude()-regLoc.getLatitude());
+					double relLon = Math.abs(loc.getLongitude()-regLoc.getLongitude());
+					double relDep = Math.abs(loc.getDepth()-regDep);
+					ptWt += etasLocWtCalc.getProbAtPoint(relLat, relLon, relDep, loc.getDepth());
+				}
+				sampler.set(index,ptWt*pointSampler.getY(index));
+				index +=1;
+			}			
+		}
+		return sampler;
+	}
+
+	/**
+	 * This sampler ignores the long-term rates
+	 * @param mainshock
+	 * @param etasLocWtCalc
+	 * @return
+	 */
+	public IntegerPDF_FunctionSampler getPointSamplerWithOnlyDistDecay(EqkRupture mainshock, ETAS_LocationWeightCalculator etasLocWtCalc) {
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numDepths*numRegLocs);
+		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		// loop over points in space
+		int index=0;
+		for(int j=0;j<numDepths;j++) {
+			double regDep = getDepth(j);
+			for(int i=0;i<numRegLocs;i++) {
+				Location regLoc = region.locationForIndex(i);
+				double ptWt = 0;
+				// loop over locations on rupture surface
+				for(Location loc : locList) {
+					double relLat = Math.abs(loc.getLatitude()-regLoc.getLatitude());
+					double relLon = Math.abs(loc.getLongitude()-regLoc.getLongitude());
+					double relDep = Math.abs(loc.getDepth()-regDep);
+					ptWt += etasLocWtCalc.getProbAtPoint(relLat, relLon, relDep, loc.getDepth());
+				}
+				sampler.set(index,ptWt);
+			}			
+		}
+		return sampler;
+	}
+
+	
 	/**
 	 * Region index is first element, and depth index is second
 	 * @param index
@@ -246,12 +330,31 @@ public class ERF_RatesInSpace {
 		
 		int[] indices = new int[2];
 		indices[1] = (int)Math.floor((double)index/(double)numRegLocs);	// depth index
+		if(indices[1] >= this.numDepths )
+			System.out.println("PROBLEM: "+index+"\t"+numRegLocs+"\t"+indices[1]+"\t"+numDepths);
 		indices[0] = index - indices[1]*numRegLocs;						// region index
 		return indices;
 	}
 	
-	private EqksAtPoint getEqksAtPointForSamplerIndex(int index) {
+	public EqksAtPoint getEqksAtPointForSamplerIndex(int index) {
 		int[] indices = getRegAndDepIndicesForSamplerIndex(index);
+		return eqksAtPointArray [indices[0]][indices[1]];		// region is first index
+	}
+	
+	public Location getLocationForSamplerIndex(int index) {
+		int[] regAndDepIndex = getRegAndDepIndicesForSamplerIndex(index);
+		Location regLoc = region.getLocation(regAndDepIndex[0]);
+		return new Location(regLoc.getLatitude(),regLoc.getLongitude(),getDepth(regAndDepIndex[1]));
+	}
+	
+	public int getSamplerIndexForLocation(Location loc) {
+		int iReg = region.indexForLocation(loc);
+		int iDep = getDepthIndex(loc.getDepth());
+		return getSamplerIndexForRegAndDepIndices(iReg,iDep);
+	}
+
+	public EqksAtPoint getEqksAtPointForLoc(Location loc) {
+		int[] indices = getRegAndDepIndicesForSamplerIndex(getSamplerIndexForLocation(loc));
 		return eqksAtPointArray [indices[0]][indices[1]];		// region is first index
 	}
 
@@ -265,8 +368,6 @@ public class ERF_RatesInSpace {
 		
 		System.out.println("Testing total rate");
 		
-		double duration = erf.getTimeSpan().getDuration();
-
 		totRate=0;
 		for(int j=0;j<numDepths;j++) {
 			for(int i=0;i<numRegLocs;i++) {
@@ -276,6 +377,7 @@ public class ERF_RatesInSpace {
 		totRate+=rateUnassigned;
 		
 		double testRate2=0;
+		double duration = erf.getTimeSpan().getDuration();
 		for(int s=0;s<erf.getNumSources();s++) {
 			ProbEqkSource src = erf.getSource(s);
 			int numRups = src.getNumRuptures();
@@ -285,6 +387,60 @@ public class ERF_RatesInSpace {
 		}
 		System.out.println("\ttotRateTest="+(float)totRate+" should equal Rate2="+(float)testRate2+";\tratio="+(float)(totRate/testRate2));
 	}
+	
+	
+	public void testMagFreqDist(FaultSystemSolutionPoissonERF erf) {
+		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
+		getPointSampler();	// make sure it exisits
+		for(int i=0; i<pointSampler.getNum();i++) {
+			magDist.addIncrementalMagFreqDist(getEqksAtPointForSamplerIndex(i).getMagFreqDist(erf));
+		}
+		magDist.setName("MFD from EqksAtPoint list");
+		ArrayList<EvenlyDiscretizedFunc> magDistList = new ArrayList<EvenlyDiscretizedFunc>();
+		magDistList.add(magDist);
+		magDistList.add(magDist.getCumRateDistWithOffset());
+		
+		SummedMagFreqDist erfMFD = ERF_Calculator.getTotalMFD_ForERF(erf, 2.05, 8.95, 70, true);
+		erfMFD.setName("MFD from ERF");
+		magDistList.add(erfMFD);
+		magDistList.add(erfMFD.getCumRateDistWithOffset());
+
+		// Plot these MFDs
+		GraphiWindowAPI_Impl magDistsGraph = new GraphiWindowAPI_Impl(magDistList, "Mag-Freq Distributions"); 
+		magDistsGraph.setX_AxisLabel("Mag");
+		magDistsGraph.setY_AxisLabel("Rate");
+		magDistsGraph.setY_AxisRange(1e-6, magDistsGraph.getY_AxisMax());
+		magDistsGraph.setYLog(true);
+
+	}
+	
+	
+	
+	public void testChangeRatesInSpace(FaultSystemSolutionPoissonERF erf){
+		System.out.println("Testing changing rates in space");
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			ProbEqkSource src = erf.getSource(s);
+			// now assuming all rups in source have same rupture surface
+			LocationList locsOnSurface = src.getRupture(0).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+			HashSet<EqksAtPoint> eqksAtPointForSourceHashSet = new HashSet<EqksAtPoint>();	// this avoids duplicates
+			for(Location loc: locsOnSurface)
+				eqksAtPointForSourceHashSet.add(getEqksAtPointForLoc(loc));
+			for(int r=0; r<src.getNumRuptures();r++) {
+				ProbEqkRupture erf_rup = src.getRupture(r);
+				double newRate = erf_rup.getMeanAnnualRate(erf.getTimeSpan().getDuration());
+				int nthRupIndex = erf.getIndexN_ForSrcAndRupIndices(s, r);
+//				if(nthRupIndex == 4750) {
+//					System.out.println("eqksAtPointForSourceHashSet.size()="+eqksAtPointForSourceHashSet.size());
+//					System.out.println("src.getName()="+src.getName());
+//				}
+				for(EqksAtPoint qksAtPt : eqksAtPointForSourceHashSet) {
+					qksAtPt.changeRupRate(newRate, nthRupIndex);
+				}
+			}
+		}
+		
+	}
+
 	
 	private int getDepthIndex(double depth) {
 		return (int)Math.round((depth-depthDiscr/2.0)/depthDiscr);
@@ -313,11 +469,11 @@ public class ERF_RatesInSpace {
 		
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
-		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,testFileName);
-		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
-		erf_RatesInSpace.plotOrigERF_RatesMap("orig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
-		erf_RatesInSpace.plotRandomSampleRatesMap("random test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapRandomTest", erf,10000);
-//		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1,testFileName);
+//		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,testFileName);
+		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1,testFileName);
+//		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
+//		erf_RatesInSpace.plotOrigERF_RatesMap("orig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
+//		erf_RatesInSpace.plotRandomSampleRatesMap("random test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapRandomTest", erf,10000);
 
 		System.out.println("... that took "+(System.currentTimeMillis()-startTime)/1000+" sec");
 		
@@ -602,16 +758,18 @@ public class ERF_RatesInSpace {
 		// initialize values to zero
 		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
 		
-		// get 1000 yrs worth of samples
+		// get numYrs yrs worth of samples
 		int numSamples = numYrs*(int)totRate;
+		System.out.println("num random samples for map test = "+numSamples);
 		// do this to make sure it exists
 		getPointSampler();
 		
 		for(int i=0;i<numSamples;i++) {
 			int indexFromSampler = pointSampler.getRandomInt();
-			int[] regAndDepIndex = this.getRegAndDepIndicesForSamplerIndex(indexFromSampler);
+			int[] regAndDepIndex = getRegAndDepIndicesForSamplerIndex(indexFromSampler);
 			int indexForMap = mapGriddedRegion.indexForLocation(region.locationForIndex(regAndDepIndex[0]));	// ignoring depth
-			xyzDataSet.set(indexForMap, 1.0/(double)numYrs);
+			double oldNum = xyzDataSet.get(indexForMap)*numYrs;
+			xyzDataSet.set(indexForMap, (1.0+oldNum)/(double)numYrs);
 			
 //			EqksAtPoint eqksAtPt = getEqksAtPointForSamplerIndex(indexFromSampler);
 //			int[] rupOrSrc = eqksAtPt.getRandomRupOrSrc();

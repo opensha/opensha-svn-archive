@@ -19,7 +19,7 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.ned.ETAS_ERF.IntegerPDF_FunctionSampler;
+import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 
 /**
  * This class store information about all ruptures that nucleate inside this geographic block.
@@ -28,17 +28,19 @@ import scratch.ned.ETAS_ERF.IntegerPDF_FunctionSampler;
  */
 public class EqksAtPoint {
 	
-	ArrayList<Integer> rupIndexN_List;	// this stores the Nth index of the rupture inside the ERF
-	ArrayList<Double> rupRateInsideList;	// this holds the nucleation rate for each rupture inside the block
-	ArrayList<Integer> srcIndexN_List;	// this stores the Nth index of the rupture inside the ERF
-	ArrayList<Double> srcRateInsideList;	// this holds the nucleation rate for each rupture inside the block
+	ArrayList<Integer> rupIndexN_List;	// this stores the Nth index of ERF ruptures that nucleate at this point 
+	ArrayList<Double> rupRateList;	// this holds the nucleation rate for each rupture at this point
+	ArrayList<Double> rupFractList;	// this holds the fraction of the rupture surface at this point
+	ArrayList<Integer> srcIndexList;	// this stores the index of each point source that nucleate at this point
+	ArrayList<Double> srcRateList;	// this holds the nucleation rate for each rupture inside the block
+	ArrayList<Double> srcFractList;	// this holds the fraction of the source that necleates at this point
 
 	int[] rupIndexN_Array;
-	double[] rupRateInsideArray;
-	double[] rupFractInsideArray;
-	int[] srcIndexN_Array;
-	double[] srcRateInsideArray;
-	double[] srcFractInsideArray;
+	double[] rupRateArray;
+	double[] rupFractArray;
+	int[] srcIndexArray;
+	double[] srcRateArray;
+	double[] srcFractArray;
 
 	double totalRateInside = -1;
 	
@@ -50,9 +52,12 @@ public class EqksAtPoint {
 	 */
 	public EqksAtPoint() {
 		rupIndexN_List = new ArrayList<Integer>();
-		rupRateInsideList = new ArrayList<Double>();
-		srcIndexN_List = new ArrayList<Integer>();
-		srcRateInsideList = new ArrayList<Double>();
+		rupRateList = new ArrayList<Double>();
+		rupFractList = new ArrayList<Double>();
+		srcIndexList = new ArrayList<Integer>();
+		srcRateList = new ArrayList<Double>();
+		srcFractList = new ArrayList<Double>();
+
 	}	
 	
 	
@@ -60,11 +65,11 @@ public class EqksAtPoint {
 			int[] srcIndexN_Array, double[] srcRateInsideArray, double[] srcFractInsideArray) {
 
 		this.rupIndexN_Array = rupIndexN_Array;
-		this.rupRateInsideArray = rupRateInsideArray;
-		this.rupFractInsideArray = rupFractInsideArray;
-		this.srcIndexN_Array = srcIndexN_Array;
-		this.srcRateInsideArray = srcRateInsideArray;
-		this.srcFractInsideArray = srcFractInsideArray;
+		this.rupRateArray = rupRateInsideArray;
+		this.rupFractArray = rupFractInsideArray;
+		this.srcIndexArray = srcIndexN_Array;
+		this.srcRateArray = srcRateInsideArray;
+		this.srcFractArray = srcFractInsideArray;
 
 	}
 	
@@ -74,14 +79,19 @@ public class EqksAtPoint {
 	 */
 	public double getTotalRateInside() {
 		// check to see whether it's already been calculated
-		if(totalRateInside == -1) {
-			totalRateInside=0;
-			for(double rate:rupRateInsideArray) 
-				totalRateInside += rate;
-			for(double rate:srcRateInsideArray) 
-				totalRateInside += rate;
-		}
-		return totalRateInside;
+		this.getRandomSampler();
+		if(randomSampler != null)
+			return randomSampler.calcSumOfY_Vals();
+		else
+			return 0;
+//		if(totalRateInside == -1) {
+//			totalRateInside=0;
+//			for(double rate:rupRateInsideArray) 
+//				totalRateInside += rate;
+//			for(double rate:srcRateInsideArray) 
+//				totalRateInside += rate;
+//		}
+//		return totalRateInside;
 	}
 	
 		
@@ -90,23 +100,24 @@ public class EqksAtPoint {
 	 * This adds the rate for the given nthRupIndex
 	 * @param rate
 	 * @param nthRupIndex
+	 * @param fract - the fraction of the rupture this given rate represents
 	 */
-	public void addRupRate(double rate, int nthRupIndex) {
-		int localIndex = rupRateInsideList.indexOf(nthRupIndex);		// faster with hashmap?
+	public void addRupRate(double rate, int nthRupIndex, double fract) {
+		int localIndex = rupRateList.indexOf(nthRupIndex);		// faster with hashmap?
 		if(localIndex<0) {	// index does not exist
 			int size = rupIndexN_List.size();
 			if(size>0) 
 				if(nthRupIndex < rupIndexN_List.get(size-1))
 					throw new RuntimeException("Ruptures must be entered in order");
-			if(rate>0) {
-				rupRateInsideList.add(rate);
-				rupIndexN_List.add(nthRupIndex);
-			}			
+			rupRateList.add(rate);
+			rupIndexN_List.add(nthRupIndex);
+			rupFractList.add(fract);
 		}
 		else {	// index exists; add the rate
-			double newRate = rupRateInsideList.get(localIndex)+rate;
-			rupRateInsideList.set(localIndex, newRate);
-
+			double newRate = rupRateList.get(localIndex)+rate;
+			rupRateList.set(localIndex, newRate);
+			double newFract = rupFractList.get(localIndex)+fract;
+			rupFractList.set(localIndex, newFract);
 		}
 	}
 
@@ -116,22 +127,24 @@ public class EqksAtPoint {
 	 * @param rate
 	 * @param nthRupIndex
 	 */
-	public void addSrcRate(double rate, int srcIndex) {
-		int localIndex = srcRateInsideList.indexOf(srcIndex);		// faster with hashmap?
+	public void addSrcRate(double rate, int srcIndex, double fract) {
+		int localIndex = srcRateList.indexOf(srcIndex);		// faster with hashmap?
 		if(localIndex<0) {	// index does not exist
-			int size = srcIndexN_List.size();
+			int size = srcIndexList.size();
 			if(size>0) 
-				if(srcIndex < srcIndexN_List.get(size-1))
+				if(srcIndex < srcIndexList.get(size-1))
 					throw new RuntimeException("Sources must be entered in order");
 			if(rate>0) {
-				srcRateInsideList.add(rate);
-				srcIndexN_List.add(srcIndex);
+				srcRateList.add(rate);
+				srcIndexList.add(srcIndex);
+				srcFractList.add(fract);
 			}			
 		}
 		else {	// index exists; add the rate
-			double newRate = srcRateInsideList.get(localIndex)+rate;
-			srcRateInsideList.set(localIndex, newRate);
-
+			double newRate = srcRateList.get(localIndex)+rate;
+			srcRateList.set(localIndex, newRate);
+			double newFract = srcFractList.get(localIndex)+fract;
+			srcFractList.set(localIndex, newFract);
 		}
 	}
 
@@ -142,17 +155,18 @@ public class EqksAtPoint {
 	 */
 	public void changeRupRate(double totRupRate, int nthRupIndex) {
 		int localIndex = Arrays.binarySearch(rupIndexN_Array, nthRupIndex);;
-		if(localIndex < 0)	
-			throw new RuntimeException("Index not found (was rate previously zero?)");;
-		double oldRate = rupRateInsideArray[localIndex];
-		double newRate = totRupRate*rupFractInsideArray[localIndex];
+		if(localIndex < 0)	{
+			throw new RuntimeException("nthRupIndex="+nthRupIndex+" not found (was rate zero when this object was created?)");
+		}
+		double oldRate = rupRateArray[localIndex];
+		double newRate = totRupRate*rupFractArray[localIndex];
 		// update totalRate
 		if(totalRateInside != -1)
 			totalRateInside += newRate-oldRate;
 		// update sampler
 		if(randomSampler != null)
 				randomSampler.set(localIndex,newRate);
-		rupRateInsideArray[localIndex] = newRate;
+		rupRateArray[localIndex] = newRate;
 	}
 	
 	
@@ -165,6 +179,8 @@ public class EqksAtPoint {
 	public int[] getRandomRupOrSrc() {
 		// make random sampler if it doesn't already exist
 		getRandomSampler();
+		if(randomSampler == null)
+			throw new RuntimeException("No ruptures at this point");
 		int[] toReturn = new int[2];
 		int localIndex = randomSampler.getRandomInt();
 		if (localIndex < rupIndexN_Array.length) {
@@ -173,7 +189,7 @@ public class EqksAtPoint {
 		}
 		else {
 			toReturn[0] = 1;
-			toReturn[1] = srcIndexN_Array[localIndex-rupIndexN_Array.length];
+			toReturn[1] = srcIndexArray[localIndex-rupIndexN_Array.length];
 		}
 		return toReturn;
 	}
@@ -184,11 +200,16 @@ public class EqksAtPoint {
 	 */
 	public IntegerPDF_FunctionSampler getRandomSampler() {
 		if(randomSampler == null) {
-			randomSampler = new IntegerPDF_FunctionSampler(rupIndexN_Array.length+srcIndexN_Array.length);
-			for(int i=0;i<rupIndexN_Array.length;i++) 
-				randomSampler.set(i,rupRateInsideArray[i]);
-			for(int i=0;i<srcIndexN_Array.length;i++) 
-				randomSampler.set(i,srcRateInsideArray[i]);
+			int numPts = rupIndexN_Array.length+srcIndexArray.length;
+			if(numPts>0) {
+				randomSampler = new IntegerPDF_FunctionSampler(numPts);
+				for(int i=0;i<rupIndexN_Array.length;i++) 
+					randomSampler.set(i,rupRateArray[i]);
+				for(int i=0;i<srcIndexArray.length;i++) 
+					randomSampler.set(i+rupIndexN_Array.length,srcRateArray[i]);				
+			}
+			else
+				randomSampler = null;
 		}
 		return randomSampler;
 	}
@@ -197,36 +218,34 @@ public class EqksAtPoint {
 	/**
 	 * This converts the array lists to arrays (to reduce memory usage)
 	 */
-	public void finishAndShrinkSize(FaultSystemSolutionPoissonERF erf) {
-		
-		double duration = erf.getTimeSpan().getDuration();
+	public void finishAndShrinkSize() {
 		
 		int num = rupIndexN_List.size();
 		rupIndexN_Array = new int[num];
-		rupRateInsideArray = new double[num];
-		rupFractInsideArray = new double[num];
+		rupRateArray = new double[num];
+		rupFractArray = new double[num];
 		
 		for(int i=0;i<num;i++) {
 			rupIndexN_Array[i] = rupIndexN_List.get(i);
-			rupRateInsideArray[i] = rupRateInsideList.get(i);
-			rupFractInsideArray[i] = rupRateInsideArray[i]/erf.getNthRupture(rupIndexN_Array[i]).getMeanAnnualRate(duration);
+			rupRateArray[i] = rupRateList.get(i);
+			rupFractArray[i] = rupFractList.get(i);
 		}
 				
-		num = srcIndexN_List.size();
-		srcIndexN_Array = new int[num];
-		srcRateInsideArray = new double[num];
-		srcFractInsideArray = new double[num];
+		num = srcIndexList.size();
+		srcIndexArray = new int[num];
+		srcRateArray = new double[num];
+		srcFractArray = new double[num];
 		
 		for(int i=0;i<num;i++) {
-			srcIndexN_Array[i] = srcIndexN_List.get(i);
-			srcRateInsideArray[i] = srcRateInsideList.get(i);
-			srcFractInsideArray[i] = srcRateInsideArray[i]/erf.getSource(srcIndexN_Array[i]).computeTotalEquivMeanAnnualRate(duration);
+			srcIndexArray[i] = srcIndexList.get(i);
+			srcRateArray[i] = srcRateList.get(i);
+			srcFractArray[i] = srcFractList.get(i);
 		}
 				
 		rupIndexN_List = null;
-		rupRateInsideList = null;
-		srcIndexN_List = null;
-		srcRateInsideList = null;
+		rupRateList = null;
+		srcIndexList = null;
+		srcRateList = null;
 
 	}
 	
@@ -235,23 +254,23 @@ public class EqksAtPoint {
 	}
 	
 	public double[] getRupRateInsideArray() {
-		return rupRateInsideArray;
+		return rupRateArray;
 	}
 	
 	public double[] getRupFractInsideArray() {
-		return rupFractInsideArray;
+		return rupFractArray;
 	}
 	
 	public int[] getSrcIndexN_Array() {
-		return srcIndexN_Array;
+		return srcIndexArray;
 	}
 	
 	public double[] getSrcRateInsideArray() {
-		return srcRateInsideArray;
+		return srcRateArray;
 	}
 	
 	public double[] getSrcFractInsideArray() {
-		return srcFractInsideArray;
+		return srcFractArray;
 	}
 
 
@@ -264,17 +283,43 @@ public class EqksAtPoint {
 
 	}
 	
+	
+	/** This computes the mag-freq dist for this point
+	 * 
+	 * @return
+	 */
+	public ArbIncrementalMagFreqDist getMagFreqDist(FaultSystemSolutionPoissonERF erf) {
+		getRandomSampler(); // do this to make sure it exists
+		ArbIncrementalMagFreqDist magDist = new ArbIncrementalMagFreqDist(2.05, 8.95, 70);
+		for(int j=0; j<rupIndexN_Array.length; j++) {
+			double mag = erf.getNthRupture(rupIndexN_Array[j]).getMag();
+			magDist.addResampledMagRate(mag, randomSampler.getY(j), true);
+		}
+		double duration = erf.getTimeSpan().getDuration();
+		for(int j=rupIndexN_Array.length; j<rupIndexN_Array.length+srcIndexArray.length; j++) {
+			ProbEqkSource src = erf.getSource(srcIndexArray[j-rupIndexN_Array.length]);
+			double totSrcRate = src.computeTotalEquivMeanAnnualRate(duration);
+			double srcRateAtPt = randomSampler.getY(j);
+			for(ProbEqkRupture rup : src) {
+				magDist.addResampledMagRate(rup.getMag(), rup.getMeanAnnualRate(duration)*srcRateAtPt/totSrcRate, true);
+			}
+		}
+		return magDist;
+	}
+
+	
 	/** This computes the expected, normalized mag-freq dist for the block (total rate is 1.0)
 	 * 
 	 * @return
 	 */
 	public ArbIncrementalMagFreqDist getMagProbDist(FaultSystemSolutionPoissonERF erf) {
-		ArbIncrementalMagFreqDist magDist = new ArbIncrementalMagFreqDist(2.05, 8.95, 70);
-		for(int j=0; j<rupIndexN_Array.length; j++) {
-			double mag = erf.getNthRupture(rupIndexN_Array[j]).getMag();
-			magDist.addResampledMagRate(mag, rupRateInsideArray[j], true);
-		}
-		magDist.scaleToCumRate(2.05, 1);
-		return magDist;
+		throw new RuntimeException("Method needs work");
+//		ArbIncrementalMagFreqDist magDist = new ArbIncrementalMagFreqDist(2.05, 8.95, 70);
+//		for(int j=0; j<rupIndexN_Array.length; j++) {
+//			double mag = erf.getNthRupture(rupIndexN_Array[j]).getMag();
+//			magDist.addResampledMagRate(mag, rupRateInsideArray[j], true);
+//		}
+//		magDist.scaleToCumRate(2.05, 1);
+//		return magDist;
 	}
 }

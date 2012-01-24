@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -81,6 +82,18 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		this(funcs, plotTitle, generateDefaultChars(funcs));
 		this.funcs = funcs;
 	}
+	
+	public GraphiWindowAPI_Impl(XY_DataSet func, String plotTitle) {
+		ArrayList funcs = new ArrayList();
+		funcs.add(func);
+		this.funcs = funcs;
+		this.plotChars = generateDefaultChars(funcs);
+		graphWindow= new GraphWindow(this);
+		graphWindow.setPlotLabel(plotTitle);
+		graphWindow.plotGraphUsingPlotPreferences();
+		graphWindow.setVisible(true);
+	}
+
 
 	
 	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle, ArrayList<PlotCurveCharacterstics> plotChars) {

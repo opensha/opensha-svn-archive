@@ -12,7 +12,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
-import scratch.ned.ETAS_ERF.IntegerPDF_FunctionSampler;
+import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 
 public class ETAS_LocationWeightCalculator {
 	
@@ -65,7 +65,7 @@ public class ETAS_LocationWeightCalculator {
 		double[][][] distances = new double[numLatLon][numLatLon][numDepth];
 		nominalWt = new double[numLatLon][numLatLon][numDepth];
 		for(int iDep=0;iDep<numDepth; iDep++) {
-			System.out.println("Working on depth "+iDep);
+//			System.out.println("Working on depth "+iDep);
 			for(int iLat=0;iLat<numLatLon; iLat++) {
 				for(int iLon=0;iLon<numLatLon; iLon++) {
 					double dist = getDistance(iLat, iLon, iDep);
@@ -84,9 +84,9 @@ public class ETAS_LocationWeightCalculator {
 			}
 		}
 		
-		ArrayList funcs = new ArrayList();
-		funcs.add(distHistogram);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "test"); 
+//		ArrayList funcs = new ArrayList();
+//		funcs.add(distHistogram);
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "test"); 
 		
 		
 		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(min , max, num);
@@ -172,8 +172,8 @@ public class ETAS_LocationWeightCalculator {
 	public double getProbAtPoint(double relLat, double relLon, double relDep, double hypoDep) {
 		int iLat = getLatIndex(relLat);
 		int iLon = getLatIndex(relLon);
-		int iDep = getLatIndex(relDep);
-		int iHypoDep = getLatIndex(hypoDep);
+		int iDep = getDepthIndex(relDep);
+		int iHypoDep = getDepthIndex(hypoDep);
 		
 		// solve for the total weight for the associated layers
 		double normWt=0;
@@ -185,6 +185,14 @@ public class ETAS_LocationWeightCalculator {
 			for(int d=1; d<=iHypoDep;d++)
 				normWt += totWtAtDepth[d];
 		
+		if(iLat >= numLatLon)
+			System.out.println("relLat="+relLat+"\tiLat="+iLat);
+		if(iLon >= numLatLon)
+			System.out.println("relLon="+relLon+"\tiLon="+iLon);
+		if(iDep >= numDepth)
+			System.out.println("relDep="+relDep+"\tiDep="+iDep);
+
+
 		// factor of four below is to account for the other 3 quadrants
 		return nominalWt[iLat][iLon][iDep]/(normWt*4);
 	}

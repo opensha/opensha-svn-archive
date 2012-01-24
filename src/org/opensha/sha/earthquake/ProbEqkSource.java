@@ -29,6 +29,8 @@ import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.util.TectonicRegionType;
+
+import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 /**
  * <p>Title: ProbEqkSource</p>
  * <p>Description: Class for Probabilistic earthquake source.
@@ -437,6 +439,19 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 			throw new RuntimeException("drawRandomEqkRuptures(): Non poissonsources are not yet supported");
 		return rupIndexList;
 	}
+	
+	/**
+	 * This draws a single rupture index based on the relative probabilities.
+	 * @return
+	 */
+	public int drawSingleRandomEqkRuptureIndex() {
+		int numRup = getNumRuptures();
+		IntegerPDF_FunctionSampler rupSampler = new IntegerPDF_FunctionSampler(numRup);
+		for (int r=0; r< this.getNumRuptures(); r++)
+			rupSampler.add((double)r, getRupture(r).getProbability());
+		return rupSampler.getRandomInt();
+	}
+
 	
 	
 

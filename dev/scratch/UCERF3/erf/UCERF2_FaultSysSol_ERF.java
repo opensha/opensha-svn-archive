@@ -87,6 +87,7 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		erf.setRuptureOccurrence(nthRup, 0);
 		
 		erf.testETAS_Simulation(griddedRegion, obsEqkRuptureList);
+//		erf.testETAS_SimulationOld(griddedRegion, obsEqkRuptureList);
 
 //		erf.testER_Simulation();
 		runtime -= System.currentTimeMillis();
