@@ -32,6 +32,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 
 /**
  * This class allows one to randomly sample which block a primary aftershock nucleates in 
