@@ -1062,7 +1062,7 @@ numSpontEvents=0;
 		System.out.println("expected num spontaneous: "+expectedNum+
 				";\tfractionNonTriggered="+fractionNonTriggered+"; origTotRate="+origTotRate+"; origDuration="+simDuration);
 		int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
-numSpontEvents=0;
+//numSpontEvents=0;
 		System.out.println("Making spontaneous events (times and event IDs only) - "+numSpontEvents+" were sampled");
 
 		for(int r=0;r<numSpontEvents;r++) {
@@ -1158,8 +1158,8 @@ numSpontEvents=0;
 					// FOLLOWING ASSUMES A GRID SPACING OF 0.1 FOR BACKGROUND SEIS, AND UNIFORM DIST OF DEPTHS UP TO maxDepthKm
 					// "0.99" is to keep it in cell
 					hypoLoc = new Location(ptLoc.getLatitude()+(Math.random()-0.5)*0.1*0.99,
-							ptLoc.getLatitude()+(Math.random()-0.5)*0.1*0.99,
-							Math.random()*maxDepthKm);
+							ptLoc.getLongitude()+(Math.random()-0.5)*0.1*0.99,
+							Math.random()*maxDepthKm*0.999);
 				}
 				else {
 					int hypIndex = (int)(Math.random()*(double)surfPts.size());	// choose random loc; randomize more if point source!

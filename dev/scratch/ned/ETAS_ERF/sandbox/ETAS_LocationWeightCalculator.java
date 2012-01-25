@@ -185,13 +185,12 @@ public class ETAS_LocationWeightCalculator {
 			for(int d=1; d<=iHypoDep;d++)
 				normWt += totWtAtDepth[d];
 		
-		if(iLat >= numLatLon)
-			System.out.println("relLat="+relLat+"\tiLat="+iLat);
-		if(iLon >= numLatLon)
-			System.out.println("relLon="+relLon+"\tiLon="+iLon);
-		if(iDep >= numDepth)
-			System.out.println("relDep="+relDep+"\tiDep="+iDep);
-
+		if(iLat >= numLatLon || iLon >= numLatLon || iDep >= numDepth) {
+//			System.out.println("relLat="+relLat+"\tiLat="+iLat);
+//			System.out.println("relLon="+relLon+"\tiLon="+iLon);
+//			System.out.println("relDep="+relDep+"\tiDep="+iDep);
+			return 0;
+		}
 
 		// factor of four below is to account for the other 3 quadrants
 		return nominalWt[iLat][iLon][iDep]/(normWt*4);
