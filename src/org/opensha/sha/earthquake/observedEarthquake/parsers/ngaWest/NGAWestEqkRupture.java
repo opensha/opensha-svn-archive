@@ -80,7 +80,7 @@ public class NGAWestEqkRupture extends ObsEqkRupture {
 			throw new RuntimeException("invalid hour/min string: "+hourMinStr);
 		}
 		
-		GregorianCalendar cal = new  GregorianCalendar(year, month, day, hour, min);
+		GregorianCalendar cal = new  GregorianCalendar(year, month-1, day, hour, min);
 		cal.setTimeZone(TimeZone.getTimeZone("UTC"));
 		return cal;
 	}

@@ -55,6 +55,8 @@ public class LogicTreeInputFileGen {
 	 */
 	public static void main(String[] args) throws IOException, InvocationTargetException {
 		int batchSize = 20;
+		int normalJobMins = 300;
+		int backgroundJobMins = 500;
 		
 //		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/tree_trimming");
 //		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming");
@@ -74,10 +76,16 @@ public class LogicTreeInputFileGen {
 //		File portfolio = new File(remoteDir, "Porter-03-Jan-2012-CEA-Pof3.txt");
 //		File vulnFile = new File(remoteDir, "2012_01_02_VUL06.txt");
 		
-		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run4");
-		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming/run4");
+//		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run4");
+//		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming/run4");
+//		
+//		File portfolio = new File(remoteDir, "portfolio_toposlope.txt");
+//		File vulnFile = new File(remoteDir, "2012_01_02_VUL06.txt");
 		
-		File portfolio = new File(remoteDir, "portfolio_toposlope.txt");
+		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run5_CA99ptc");
+		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming/run5_CA99ptc");
+		
+		File portfolio = new File(remoteDir, "Porter-23-Jan-2012-CA99ptcPof.txt");
 		File vulnFile = new File(remoteDir, "2012_01_02_VUL06.txt");
 		
 		ScalarIMR[] imrs = { AttenRelRef.CB_2008.instance(null), AttenRelRef.BA_2008.instance(null),
@@ -119,7 +127,7 @@ public class LogicTreeInputFileGen {
 			XMLUtils.writeDocumentToFile(new File(imrLocalDir, name+".xml"), doc);
 			File outputFile = new File(imrRemoteDir, name+".txt");
 			writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
-					name, outputFile, 300, 10, "nbns");
+					name, outputFile, normalJobMins, 10, "nbns");
 			
 			erfList.getAdjustableParameterList().getParameter(String.class,
 					UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
@@ -154,7 +162,7 @@ public class LogicTreeInputFileGen {
 				
 				XMLUtils.writeDocumentToFile(new File(imrLocalDir, name+".xml"), doc);
 				writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
-						name, null, 300, 5, "nbns");
+						name, null, backgroundJobMins, 5, "nbns");
 			}
 		}
 	}

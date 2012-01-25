@@ -205,7 +205,11 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 	}
 
 	public Element toXMLMetadata(Element root) {
-		Element locs = root.addElement(LocationList.XML_METADATA_NAME);
+		return toXMLMetadata(root, LocationList.XML_METADATA_NAME);
+	}
+
+	public Element toXMLMetadata(Element root, String elemName) {
+		Element locs = root.addElement(elemName);
 		for (int i = 0; i < this.size(); i++) {
 			Location loc = this.get(i);
 			locs = loc.toXMLMetadata(locs);

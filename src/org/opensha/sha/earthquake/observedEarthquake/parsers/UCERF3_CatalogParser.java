@@ -52,7 +52,7 @@ public class UCERF3_CatalogParser {
 			int eventID			= (int)Double.parseDouble(split[14]);
 			
 			GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT-0:00"));
-			cal.set(year, month, date, hourOfDay, minute, second);
+			cal.set(year, month-1, date, hourOfDay, minute, second);
 			
 			Location hypoLoc = new Location(latitude, longitude, depth);
 			

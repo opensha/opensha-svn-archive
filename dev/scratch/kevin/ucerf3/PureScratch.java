@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
@@ -29,6 +32,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.nshmp.imr.AB2006_140_AttenRel;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
@@ -41,6 +47,22 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+		CB_2008_AttenRel imr = new CB_2008_AttenRel(null);
+		imr.setParamDefaults();
+		MeanUCERF2 ucerf = new MeanUCERF2();
+		ucerf.updateForecast();
+		ProbEqkSource src = ucerf.getSource(3337);
+		System.out.println(src.getName());
+		ProbEqkRupture theRup = src.getRupture(77);
+		System.out.println("Rup 77 pts: "+theRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
+		imr.setEqkRupture(theRup);
+		imr.setIntensityMeasure(PGA_Param.NAME);
+		Site site = new Site(new Location(34.10688, -118.22060));
+		site.addParameterList(imr.getSiteParams());
+		imr.setAll(theRup, site, imr.getIntensityMeasure());
+		imr.getMean();
+		System.exit(0);
+		
 		UCERF2_TimeIndependentEpistemicList ti_ep = new UCERF2_TimeIndependentEpistemicList();
 		UCERF2_TimeDependentEpistemicList td_ep = new UCERF2_TimeDependentEpistemicList();
 //		ep.updateForecast();

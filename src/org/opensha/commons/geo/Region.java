@@ -482,7 +482,11 @@ public class Region implements Serializable, XMLSaveable, Named {
 	
 	@Override
 	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(Region.XML_METADATA_NAME);
+		return toXMLMetadata(root, Region.XML_METADATA_NAME);
+	}
+	
+	public Element toXMLMetadata(Element root, String elemName) {
+		Element xml = root.addElement(elemName);
 		xml = border.toXMLMetadata(xml);
 		String name = this.name;
 		if (name == null)
