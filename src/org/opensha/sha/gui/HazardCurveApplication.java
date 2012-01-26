@@ -364,8 +364,8 @@ ScalarIMRChangeListener {
 	public void init() {
 		try {
 
-			startAppProgressClass = new CalcProgressBar("Starting Application",
-			"Initializing Application .. Please Wait");
+			startAppProgressClass = new CalcProgressBar(null,
+			"Initializing application\u2026");
 
 			// initialize the various GUI beans
 			initIMR_GuiBean();
@@ -1005,7 +1005,7 @@ ScalarIMRChangeListener {
 							boolean totCurCalculated = true;
 							if (currRupture == -1) {
 								progressClass
-								.setProgressMessage("Please wait, calculating total rutures ....");
+								.setProgressMessage("Calculating total ruptures\u2026");
 								totCurCalculated = false;
 							}
 							if (!isHazardCalcDone && totCurCalculated)
@@ -1263,8 +1263,8 @@ ScalarIMRChangeListener {
 			return;
 		}
 		if (this.progressCheckBox.isSelected()) {
-			progressClass = new CalcProgressBar("Hazard-Curve Calc Status",
-			"Beginning Calculation ");
+			progressClass = new CalcProgressBar(this, "Calculation Status",
+				"Starting\u2026");
 			progressClass.displayProgressBar();
 			timer.start();
 		}
@@ -1390,9 +1390,9 @@ ScalarIMRChangeListener {
 		// checking the disAggregation flag and probability curve is being plotted
 		if (disaggregationFlag && isProbabilisticCurve) {
 			if (this.progressCheckBox.isSelected()) {
-				disaggProgressClass = new CalcProgressBar(
-						"Disaggregation Calc Status",
-				"Beginning Disaggregation ");
+				disaggProgressClass = new CalcProgressBar(this,
+						"Disaggregation Status",
+				"Beginning disaggregation\u2026");
 				disaggProgressClass.displayProgressBar();
 				disaggTimer.start();
 			}

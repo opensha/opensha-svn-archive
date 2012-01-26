@@ -352,7 +352,7 @@ ParameterChangeListener{
 		getSelectedERF_Instance();
 		if(this.showProgressBar) {
 			// also show the progress bar while the forecast is being updated
-			progress = new CalcProgressBar("Forecast","Updating Forecast ...");
+			progress = new CalcProgressBar(this, null,"Updating forecast\u2026");
 			//progress.displayProgressBar();
 		}
 		// update the forecast
