@@ -26,6 +26,7 @@ import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
@@ -55,6 +56,8 @@ public class FaultSectionData implements Cloneable, Named, Serializable {
 	private FaultTrace faultTrace;
 	private float dipDirection = Float.NaN;
 	private String qFaultId;
+	private boolean connector;
+	private Region zonePolygon;
 
 	public FaultSectionData() {
 	}
@@ -158,6 +161,22 @@ public class FaultSectionData implements Cloneable, Named, Serializable {
 		this.source = source;
 	}
 
+	public boolean isConnector() {
+		return connector;
+	}
+
+	public void setConnector(boolean connector) {
+		this.connector = connector;
+	}
+
+	public Region getZonePolygon() {
+		return zonePolygon;
+	}
+
+	public void setZonePolygon(Region zonePolygon) {
+		this.zonePolygon = zonePolygon;
+	}
+
 	/**
 	 * Convert the estimates nt o a single preffered value and return the FaultSectionPrefData object
 	 * @return
@@ -176,6 +195,7 @@ public class FaultSectionData implements Cloneable, Named, Serializable {
 		 faultSectionPrefData.setSectionName(sectionName);
 		 faultSectionPrefData.setShortName(this.shortName);
 		 faultSectionPrefData.setFaultTrace(this.faultTrace);
+		 // TODO end points, connector, polygon
 		 return faultSectionPrefData;
 	 }
 
@@ -225,6 +245,8 @@ public class FaultSectionData implements Cloneable, Named, Serializable {
 		data.setFaultTrace(getFaultTrace());
 		data.setDipDirection(getDipDirection());
 		data.setQFaultId(getQFaultId());
+		data.setConnector(isConnector());
+		data.setZonePolygon(getZonePolygon());
 		
 		return data;
 	}

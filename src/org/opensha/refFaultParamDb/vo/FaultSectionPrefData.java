@@ -10,6 +10,7 @@ import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -39,6 +40,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	private double aveRake;
 	private double aveUpperDepth;
 	private double aveLowerDepth;
+	private boolean connector;
+	private Region zonePolygon;
 	/**
 	 * aseismicSlipFactor is defined as the reduction of area between the upper and lower seismogenic depths
 	 */
@@ -79,6 +82,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		dipDirection= faultSectionPrefData.getDipDirection();
 		dateOfLastEventMillis = faultSectionPrefData.getDateOfLastEvent();
 		slipInLastEvent = faultSectionPrefData.getSlipInLastEvent();
+		connector = faultSectionPrefData.isConnector();
+		zonePolygon = faultSectionPrefData.getZonePolygon();
 	}
 
 	public String toString() {
@@ -469,6 +474,22 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		this.slipRateStdDev = slipRateStdDev;
 	}
 
+	public boolean isConnector() {
+		return connector;
+	}
+
+	public void setConnector(boolean connector) {
+		this.connector = connector;
+	}
+
+	public Region getZonePolygon() {
+		return zonePolygon;
+	}
+
+	public void setZonePolygon(Region zonePolygon) {
+		this.zonePolygon = zonePolygon;
+	}
+
 	/**
 	 * This returns a simple fault data object.  This is the old version that reduces down-dip width from non zero
 	 * aseismicity factor by modifying both the upper and lower seismogenic depths equally
@@ -582,6 +603,9 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		if (parentSectionName != null)
 			el.addAttribute("parentSectionName", parentSectionName);
 		el.addAttribute("parentSectionId", getParentSectionId()+"");
+		el.addAttribute("connector", isConnector()+"");
+		if (getZonePolygon() != null)
+			zonePolygon.toXMLMetadata(el, "ZonePolygon");
 
 		FaultTrace trace = this.getFaultTrace();
 
@@ -637,6 +661,17 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 
 			trace.add(Location.fromXMLMetadata(locEl));
 		}
+		
+		boolean connector = false;
+		Attribute connectorAtt = el.attribute("connector");
+		if (connectorAtt != null)
+			connector = Boolean.parseBoolean(connectorAtt.getStringValue());
+		
+		Region zonePolygon = null;
+		Element zonePolygonEl = el.element("ZonePolygon");
+		if (zonePolygonEl != null) {
+			zonePolygon = Region.fromXMLMetadata(zonePolygonEl);
+		}
 
 		FaultSectionPrefData data = new FaultSectionPrefData();
 		data.setSectionId(sectionId);
@@ -655,6 +690,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		data.setFaultTrace(trace);
 		data.setParentSectionName(parentSectionName);
 		data.setParentSectionId(parentSectionId);
+		data.setConnector(connector);
+		data.setZonePolygon(zonePolygon);
 
 		return data;
 	}

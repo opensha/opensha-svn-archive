@@ -12,6 +12,9 @@ import java.util.HashMap;
 
 import oracle.spatial.geometry.JGeometry;
 
+import org.opensha.commons.geo.BorderType;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.PrintAndExitUncaughtExceptionHandler;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
@@ -107,7 +110,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	private void addFaultSectionPrefData(FaultSectionPrefData faultSectionPrefData) {
 
 		// get JGeomtery object from fault trace
-		JGeometry faultSectionTraceGeom =  FaultSectionVer2_DB_DAO.getGeomtery(faultSectionPrefData.getFaultTrace()); 
+		JGeometry faultSectionTraceGeom =  SpatialUtils.getMultiPointGeomtery(faultSectionPrefData.getFaultTrace()); 
 		String columnNames="";
 		String columnVals = "";
 
@@ -137,8 +140,19 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 			columnNames+=SHORT_NAME+",";
 			columnVals+="'"+shortName+"',";
 		}
-		// insert the fault section into the database
+		
 		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
+		if (faultSectionPrefData.getZonePolygon() != null) {
+			columnNames+=FaultSectionVer2_DB_DAO.FAULT_ZONE_POLYGON+",";
+			columnVals+="?,";
+			geomteryObjectList.add(SpatialUtils.getMultiPointGeomtery(faultSectionPrefData.getZonePolygon().getBorder()));
+		}
+		String connectorStr = faultSectionPrefData.isConnector() ?
+				FaultSectionVer2_DB_DAO.CONNECTOR_FLAG_YES : FaultSectionVer2_DB_DAO.CONNECTOR_FLAG_NO;
+		columnNames+=FaultSectionVer2_DB_DAO.CONNECTOR_FLAG+",";
+		columnVals += "'"+connectorStr+"',";
+		
+		// insert the fault section into the database
 		geomteryObjectList.add(faultSectionTraceGeom);
 		String sql = "insert into "+TABLE_NAME+"("+ SECTION_ID+","+
 		columnNames+PREF_DIP+","+PREF_UPPER_DEPTH+","+PREF_LOWER_DEPTH+","+SECTION_NAME+","+
@@ -222,6 +236,7 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		","+SECTION_NAME+","+FAULT_TRACE+","+SHORT_NAME+
 		",("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+
 		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+
+		","+FaultSectionVer2_DB_DAO.CONNECTOR_FLAG+","+FaultSectionVer2_DB_DAO.FAULT_ZONE_POLYGON+
 		" from "+TABLE_NAME+condition+ " order by "+SECTION_NAME;
 
 		String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+
@@ -232,12 +247,15 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 		", ("+PREF_LOWER_DEPTH+"+0) "+PREF_LOWER_DEPTH+
 		","+SECTION_NAME+","+SHORT_NAME+
 		",("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+
-		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+" from "+TABLE_NAME+condition+" order by "+SECTION_NAME;
+		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+
+		","+FaultSectionVer2_DB_DAO.CONNECTOR_FLAG+
+		" from "+TABLE_NAME+condition+" order by "+SECTION_NAME;
 
 		//System.out.println(sqlWithSpatialColumnNames+"\n\n"+sqlWithNoSpatialColumnNames);
 
 		ArrayList<String> spatialColumnNames = new ArrayList<String>();
 		spatialColumnNames.add(FAULT_TRACE);
+		spatialColumnNames.add(FaultSectionVer2_DB_DAO.FAULT_ZONE_POLYGON);
 		try {
 			SpatialQueryResult spatialQueryResult  = dbAccess.queryData(sqlWithSpatialColumnNames, sqlWithNoSpatialColumnNames, spatialColumnNames);
 			ResultSet rs = spatialQueryResult.getCachedRowSet();
@@ -274,7 +292,26 @@ public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 				if(!rs.wasNull()) faultSectionPrefData.setShortName(shortName);
 
 				ArrayList<JGeometry> geometries = spatialQueryResult.getGeometryObjectsList(i++);
-				FaultTrace faultTrace = FaultSectionVer2_DB_DAO.getFaultTrace(sectionName, faultSectionPrefData.getOrigAveUpperDepth(), geometries);	
+				FaultTrace faultTrace = FaultSectionVer2_DB_DAO.getFaultTrace(sectionName, faultSectionPrefData.getOrigAveUpperDepth(), geometries);
+				
+				// connector
+				String connStr = rs.getString(FaultSectionVer2_DB_DAO.CONNECTOR_FLAG);
+				boolean connector = connStr.equals(FaultSectionVer2_DB_DAO.CONNECTOR_FLAG_YES);
+				faultSectionPrefData.setConnector(connector);
+				
+				// zone polygon
+				Region zone;
+				if (geometries.size() < 2 || geometries.get(1) == null) {
+					zone = null;
+				} else {
+					JGeometry geom = geometries.get(1);
+					
+					LocationList zoneLocs = SpatialUtils.loadMultiPointGeometries(geom, 0d);
+					
+					zone = new Region(zoneLocs, BorderType.MERCATOR_LINEAR); // TODO Mercator Linear OK?
+				}
+				faultSectionPrefData.setZonePolygon(zone);
+				
 				faultSectionPrefData.setFaultTrace(faultTrace);
 				faultSectionsList.add(faultSectionPrefData);
 				cachedSections.put(new Integer(faultSectionPrefData.getSectionId()), faultSectionPrefData);

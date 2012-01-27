@@ -28,9 +28,9 @@ import javax.swing.JPanel;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+import org.opensha.refFaultParamDb.gui.params.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 

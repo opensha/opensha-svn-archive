@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.refFaultParamDb.gui;
+package org.opensha.refFaultParamDb.gui.params;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;

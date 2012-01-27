@@ -27,7 +27,9 @@ import java.util.HashMap;
 import oracle.spatial.geometry.JGeometry;
 
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
-import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.BorderType;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
@@ -66,13 +68,18 @@ public class FaultSectionVer2_DB_DAO {
 	public final static String DIP_DIRECTION = "Dip_Direction";
 	public final static String SECTION_SOURCE_ID = "Section_Source_Id";
 	public final static String QFAULT_ID = "QFault_Id";
+	public final static String CONNECTOR_FLAG = "CONNECTOR_FLAG";
+	public final static String CONNECTOR_FLAG_YES = "Y";
+	public final static String CONNECTOR_FLAG_NO = "N";
+	public final static String CONNECTOR_FLAG_DEFAULT = CONNECTOR_FLAG_NO;
+	public final static String FAULT_ZONE_POLYGON = "FAULT_ZONE_POLYGON";
+	
 	private DB_AccessAPI dbAccess;
 	// estimate instance DAO
 	private EstimateInstancesDB_DAO estimateInstancesDAO;
 	//section source DAO
 	private SectionSourceDB_DAO sectionSourceDAO;
-	// SRID
-	private final static int SRID=8307;
+	
 
 	public FaultSectionVer2_DB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
@@ -106,7 +113,7 @@ public class FaultSectionVer2_DB_DAO {
 		}
 
 		// get JGeomtery object from fault trace
-		JGeometry faultSectionTraceGeom =  getGeomtery(faultSection.getFaultTrace());
+		JGeometry faultSectionTraceGeom =  SpatialUtils.getMultiPointGeomtery(faultSection.getFaultTrace());
 
 		// various estimate ids
 
@@ -153,20 +160,29 @@ public class FaultSectionVer2_DB_DAO {
 			columnNames+=SHORT_NAME+",";
 			columnVals+="'"+shortName+"',";
 		}
+		
+		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
+		
+		if (faultSection.getZonePolygon() != null) {
+			columnNames+=FAULT_ZONE_POLYGON+",";
+			columnVals+="?,";
+			geomteryObjectList.add(SpatialUtils.getMultiPointGeomtery(faultSection.getZonePolygon().getBorder()));
+		}
+		
+		String connectorStr = faultSection.isConnector() ? CONNECTOR_FLAG_YES : CONNECTOR_FLAG_NO;
 
 		// insert the fault section into the database
-		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
 		geomteryObjectList.add(faultSectionTraceGeom);
 		String sql = "insert into "+TABLE_NAME+"("+ SECTION_ID+","+
 		columnNames+AVE_DIP_EST+","+AVE_UPPER_DEPTH_EST+","+AVE_LOWER_DEPTH_EST+","+
 		CONTRIBUTOR_ID+","+SECTION_NAME+","+ENTRY_DATE+","+COMMENTS+","+
 		FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+","+
-		SECTION_SOURCE_ID+") values ("+
+		SECTION_SOURCE_ID+","+CONNECTOR_FLAG+") values ("+
 		faultSectionId+","+columnVals+
 		aveDipEst+","+aveUpperDepthEst+","+aveLowerDepthEst+","+
 		SessionInfo.getContributor().getId()+",'"+faultSection.getSectionName()+"','"+
 		systemDate+"','"+faultSection.getComments()+"',?,"+
-		aseismicSlipFactorEst+","+ sectionSourceId+")";
+		aseismicSlipFactorEst+","+ sectionSourceId+",'"+connectorStr+"')";
 		try {
 			//System.out.println(sql);
 			//System.exit(0);
@@ -192,7 +208,7 @@ public class FaultSectionVer2_DB_DAO {
 			throw new InsertException(e.getMessage());
 		}
 		// get JGeomtery object from fault trace
-		JGeometry faultSectionTraceGeom =  getGeomtery(faultSection.getFaultTrace());
+		JGeometry faultSectionTraceGeom =  SpatialUtils.getMultiPointGeomtery(faultSection.getFaultTrace());
 
 		// various estimate ids
 
@@ -229,23 +245,31 @@ public class FaultSectionVer2_DB_DAO {
 		if(qfaultId!=null) {
 			columnNames+=QFAULT_ID+"="+"'"+qfaultId+"',";
 		} else columnNames+=QFAULT_ID+"=NULL,";
+		
+		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
 
 		// check if short name is available
 		String shortName = faultSection.getShortName();
 		if(shortName!=null) {
 			columnNames+=SHORT_NAME+"="+"'"+shortName+"',";
 		} else columnNames+=SHORT_NAME+"=NULL,";
+		
+		if (faultSection.getZonePolygon() != null) {
+			columnNames+=FAULT_ZONE_POLYGON+"=?,";
+			geomteryObjectList.add(SpatialUtils.getMultiPointGeomtery(faultSection.getZonePolygon().getBorder()));
+		} else columnNames+=FAULT_ZONE_POLYGON+"=NULL,";
+		
+		String connectorStr = faultSection.isConnector() ? CONNECTOR_FLAG_YES : CONNECTOR_FLAG_NO;
 
 		// insert the fault section into the database
-		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
 		geomteryObjectList.add(faultSectionTraceGeom);
 		String sql = "update "+TABLE_NAME+" set "+ 
 		columnNames+AVE_DIP_EST+"="+aveDipEst+","+AVE_UPPER_DEPTH_EST+"="+aveUpperDepthEst+","+
 		AVE_LOWER_DEPTH_EST+"="+aveLowerDepthEst+","+CONTRIBUTOR_ID+"="+SessionInfo.getContributor().getId()+","+
 		SECTION_NAME+"='"+faultSection.getSectionName()+"',"+ENTRY_DATE+"='"+systemDate+"',"+
 		COMMENTS+"='"+faultSection.getComments()+"',"+FAULT_TRACE+"=?,"+
-		ASEISMIC_SLIP_FACTOR_EST+"="+aseismicSlipFactorEst+","+SECTION_SOURCE_ID+"="+sectionSourceId+
-		" where "+SECTION_ID+"="+faultSection.getSectionId();
+		ASEISMIC_SLIP_FACTOR_EST+"="+aseismicSlipFactorEst+","+SECTION_SOURCE_ID+"="+sectionSourceId+","+
+		CONNECTOR_FLAG+"='"+connectorStr+"'"+" where "+SECTION_ID+"="+faultSection.getSectionId();
 		try {
 			//System.out.println(sql);
 			//System.exit(0);
@@ -367,15 +391,18 @@ public class FaultSectionVer2_DB_DAO {
 		String sqlWithSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
 		","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
 		AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+
-		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+","+SHORT_NAME+" from "+TABLE_NAME+condition;
+		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+","+SHORT_NAME+
+		","+CONNECTOR_FLAG+","+FAULT_ZONE_POLYGON+" from "+TABLE_NAME+condition;
 
 		String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
 		","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
 		AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+ASEISMIC_SLIP_FACTOR_EST+
-		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+","+SHORT_NAME+" from "+TABLE_NAME+condition;
+		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+","+SHORT_NAME+
+		","+CONNECTOR_FLAG+" from "+TABLE_NAME+condition;
 
 		ArrayList<String> spatialColumnNames = new ArrayList<String>();
 		spatialColumnNames.add(FAULT_TRACE);
+		spatialColumnNames.add(FAULT_ZONE_POLYGON);
 		try {
 			SpatialQueryResult spatialQueryResult  = dbAccess.queryData(sqlWithSpatialColumnNames, sqlWithNoSpatialColumnNames, spatialColumnNames);
 			ResultSet rs = spatialQueryResult.getCachedRowSet();
@@ -425,6 +452,24 @@ public class FaultSectionVer2_DB_DAO {
 				// short name
 				String shortName = rs.getString(SHORT_NAME);
 				if(!rs.wasNull()) faultSection.setShortName(shortName);
+				
+				// connector
+				String connStr = rs.getString(CONNECTOR_FLAG);
+				boolean connector = connStr.equals(CONNECTOR_FLAG_YES);
+				faultSection.setConnector(connector);
+				
+				// zone polygon
+				Region zone;
+				if (geometries.size() < 2 || geometries.get(1) == null) {
+					zone = null;
+				} else {
+					JGeometry geom = geometries.get(1);
+					
+					LocationList zoneLocs = SpatialUtils.loadMultiPointGeometries(geom, 0d);
+					
+					zone = new Region(zoneLocs, BorderType.MERCATOR_LINEAR); // TODO Mercator Linear OK?
+				}
+				faultSection.setZonePolygon(zone);
 
 				faultSectionsList.add(faultSection);
 			}
@@ -436,30 +481,14 @@ public class FaultSectionVer2_DB_DAO {
 	public static FaultTrace getFaultTrace(String sectionName, double upperDepth, ArrayList<JGeometry> geometries) {
 		JGeometry faultSectionGeom =(JGeometry) geometries.get(0);
 		FaultTrace faultTrace = new FaultTrace(sectionName);
-		int numPoints = faultSectionGeom.getNumPoints();
-		double[] ordinatesArray = faultSectionGeom.getOrdinatesArray();
-		for(int j=0; j<numPoints; ++j) {
-			faultTrace.add(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], upperDepth));
-		}
+		faultTrace.addAll(SpatialUtils.loadMultiPointGeometries(faultSectionGeom, upperDepth));
+//		System.out.println("Number of trace pts: "+faultTrace.size());
+//		System.out.println("Number of geoms: "+geometries.size());
+//		if (geometries.size() == 2)
+//			System.out.println("Num in 2nd geom: "+geometries.get(1).getNumPoints());
 		return faultTrace;
 	}
-
-	/**
-	 * Create JGeomtery object from FaultTrace
-	 * @param faultTrace
-	 * @return
-	 */
-	public static JGeometry getGeomtery(FaultTrace faultTrace) {
-		int numLocations = faultTrace.getNumLocations();
-		Object[] coords = new Object[numLocations];
-		for(int j=0; j<numLocations; ++j) {
-			Location loc= faultTrace.get(j);
-			double d[] = { loc.getLongitude(), loc.getLatitude()} ;
-			coords[j] = d;
-		}
-		return JGeometry.createMultiPoint(coords, 2, SRID);
-	}
-
+	
 	/**
 	 * Remove the fault section from th database
 	 * 
@@ -479,7 +508,17 @@ public class FaultSectionVer2_DB_DAO {
 	public static void main(String args[]) {
 		DB_AccessAPI db = DB_ConnectionPool.getLatestReadOnlyConn();
 		FaultSectionVer2_DB_DAO fs2db = new FaultSectionVer2_DB_DAO(db);
-		fs2db.getAllFaultSections();
+		for (FaultSectionData fs : fs2db.getAllFaultSections()) {
+			System.out.println("Connector? "+fs.isConnector());
+			System.out.println("Zone? "+fs.getZonePolygon());
+		}
+		try {
+			db.destroy();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.exit(0);
 	}
 
 }

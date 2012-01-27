@@ -30,8 +30,8 @@ import javax.swing.JSplitPane;
 
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.data.TimeAPI;
-import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.TimeGuiBean;
+import org.opensha.refFaultParamDb.gui.params.CommentsParameterEditor;
 
 /**
  * <p>Title: AddNewTimeSpan</p>

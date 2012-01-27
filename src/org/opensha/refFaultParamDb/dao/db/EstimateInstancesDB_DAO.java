@@ -187,5 +187,12 @@ public class EstimateInstancesDB_DAO {
 		} catch(SQLException e) { throw new QueryException(e.getMessage()); }
 		return estimateInstancesList;
 	}
+	
+	public static void main(String[] args) {
+		System.out.println("start");
+		new EstimateInstancesDB_DAO(DB_ConnectionPool.getLatestReadOnlyConn()).getAllEstimateInstances();
+		System.out.println("done");
+		System.exit(0);
+	}
 
 }

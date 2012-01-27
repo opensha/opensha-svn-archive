@@ -15,6 +15,7 @@ import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.ServerDB_Access;
+import org.opensha.refFaultParamDb.gui.addEdit.connections.ConnectionsEditor;
 import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.EditDeformationModel;
 import org.opensha.refFaultParamDb.gui.addEdit.faultModel.AddEditFaultModel;
 import org.opensha.refFaultParamDb.gui.view.FaultSectionsDistanceCalcGUI;
@@ -59,6 +60,7 @@ public class FaultSectionsAndModelsApp extends JFrame {
 	private final static String FAULT_MODEL = "Fault Model";
 	private final static String DEFORMATION_MODEL = "Deformation Model";
 	private final static String FAULT_SECTIONS_DIST_CALC = "Fault Sections Distance Calc";
+	private final static String CONNECTIONS = "Fault Sections Connections";
 	
 	private final static DB_AccessAPI dbConnection = DB_ConnectionPool.getLatestReadWriteConn();
 //	private final static DB_AccessAPI dbConnection = DB_ConnectionPool.getDirectLatestReadWriteConnection();
@@ -72,6 +74,7 @@ public class FaultSectionsAndModelsApp extends JFrame {
 		tabbedPane.addTab(FAULT_MODEL, new JScrollPane(new AddEditFaultModel(dbConnection)));
 		tabbedPane.addTab(DEFORMATION_MODEL, new JScrollPane(new EditDeformationModel(dbConnection)));
 		tabbedPane.addTab(FAULT_SECTIONS_DIST_CALC, new JScrollPane(new FaultSectionsDistanceCalcGUI(dbConnection)));
+		tabbedPane.addTab(CONNECTIONS, new JScrollPane(new ConnectionsEditor(dbConnection)));
 		setTitle(APP_NAME + " ("+getAppVersion()+")");
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
