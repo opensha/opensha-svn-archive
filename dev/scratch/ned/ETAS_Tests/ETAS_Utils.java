@@ -35,6 +35,17 @@ public class ETAS_Utils {
 		return strings;
 	}
 	
+	/**
+	 * This computes the fraction of events inside a distance from the hypocenter analytically
+	 * @param distDecay
+	 * @param minDist
+	 * @param distance
+	 * @return
+	 */
+	public static double getDecayFractionInsideDistance(double distDecay, double minDist, double distance) {
+		double oneMinus = 1-distDecay;
+		return -(Math.pow(distance+minDist,oneMinus) - Math.pow(minDist,oneMinus))/Math.pow(minDist,oneMinus);
+	}
 
 	
 	/**

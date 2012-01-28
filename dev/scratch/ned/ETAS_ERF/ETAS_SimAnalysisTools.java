@@ -423,10 +423,13 @@ public class ETAS_SimAnalysisTools {
 	public static void writeDataToFile(String fileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
 		try{
 			FileWriter fw1 = new FileWriter(fileName);
-			fw1.write("ID\tparID\tGen\tOrigTime\tdistToPar\n");
+//			fw1.write("ID\tparID\tGen\tOrigTime\tdistToPar\n");
+			fw1.write("ID\tparID\tGen\tOrigTime\tLat\tLon\tDep\n");
 			for(ETAS_EqkRupture rup:simulatedRupsQueue) {
+				Location hypoLoc = rup.getHypocenterLocation();
 				fw1.write(rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
-						rup.getOriginTime()+"\t"+rup.getDistanceToParent()+"\n");
+						rup.getOriginTime()//+"\t"+rup.getDistanceToParent()
+						+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
 			}
 			fw1.close();
 		}catch(Exception e) {

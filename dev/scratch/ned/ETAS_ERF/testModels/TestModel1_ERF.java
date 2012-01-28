@@ -163,7 +163,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		erf.setRuptureOccurrence(nthRup, 0);
 		
-		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList);
+		erf.testETAS_SimulationOld(erf.getGriddedRegion(), obsEqkRuptureList);
 
 //		erf.testER_Simulation();
 		runtime -= System.currentTimeMillis();

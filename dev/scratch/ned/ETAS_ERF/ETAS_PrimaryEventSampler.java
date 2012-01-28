@@ -32,6 +32,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.ned.ETAS_Tests.ETAS_Utils;
 import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 
 /**
@@ -230,7 +231,7 @@ public class ETAS_PrimaryEventSampler {
 				double blockWt;
 				if(i == minDistIndex) {  // this will calculate the fraction directly
 					double radius = Math.pow(vol/(4*Math.PI),0.33333);	// 4*PI*r^3;
-					closestBlockVal=getDecayFractionInsideDistance(distDecay, minDist, radius);
+					closestBlockVal=ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, radius);
 					relBlockProb[i] = closestBlockVal;
 					if(D) System.out.println("Calculated wt of closest block directly; it equals: "+closestBlockVal);
 //					double altWt = getBlockWeight(parentRup.getRuptureSurface().getFirstLocOnUpperEdge(), revisedBlockList.get(minDistIndex), distDecay, minDist, 10);
@@ -643,17 +644,6 @@ public class ETAS_PrimaryEventSampler {
 		
 	}
 	
-	/**
-	 * This computes the fraction of events inside a distance from the hypocenter analytically
-	 * @param distDecay
-	 * @param minDist
-	 * @param distance
-	 * @return
-	 */
-	private static double getDecayFractionInsideDistance(double distDecay, double minDist, double distance) {
-		double oneMinus = 1-distDecay;
-		return -(Math.pow(distance+minDist,oneMinus) - Math.pow(minDist,oneMinus))/Math.pow(minDist,oneMinus);
-	}
 	
 			
 	
@@ -672,7 +662,7 @@ public class ETAS_PrimaryEventSampler {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		System.out.println(ETAS_PrimaryEventSampler.getDecayFractionInsideDistance(2,0.3, 100));
+		System.out.println(ETAS_Utils.getDecayFractionInsideDistance(2,0.3, 100));
 //		double r = Math.pow(25.6*0.75/Math.PI, 0.33333);
 //		System.out.println(r);
 	}

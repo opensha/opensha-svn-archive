@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -25,6 +26,12 @@ public class ETAS_LocationWeightCalculator {
 	
 	double[] totWtAtDepth;	
 	double[][][] nominalWt;
+	
+	LocationList[][][] subLocsArray;
+	IntegerPDF_FunctionSampler[][][] subLocSamplerArray;
+	int maxNumPtsWithSubLocs = 3;
+	int[] numSubLocDivisions = {12,8,4};
+	
 	
 	public ETAS_LocationWeightCalculator(double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscr, 
 			double midLat, double distDecay, double minDist) {
@@ -155,10 +162,84 @@ public class ETAS_LocationWeightCalculator {
 //			System.out.println("totWtAtDepth\t"+iDep+"\t"+wtAtDep);
 			testTot += wtAtDep;
 		}
+		
+		
+		subLocsArray = new LocationList[maxNumPtsWithSubLocs][maxNumPtsWithSubLocs][maxNumPtsWithSubLocs];
+		subLocSamplerArray = new IntegerPDF_FunctionSampler[maxNumPtsWithSubLocs][maxNumPtsWithSubLocs][maxNumPtsWithSubLocs];
+
 		System.out.println("TotWt over all depths="+(float)testTot);
 		
 		System.out.println("Constructor runtime = "+ (System.currentTimeMillis()-startTime)/1000 +" sec");
 
+	}
+	
+	/**
+	 * This returns a location containing delta lat, lon, and depth based on distance decay
+	 * RIGHT HERE IS WHAT I NEED TO WORK ON
+	 * @param relLat
+	 * @param relLon
+	 * @param relDep
+	 * @return
+	 */
+	public Location getRandomDeltaLoc(double relLat, double relLon, double relDep) {
+		int iLat = getLatIndex(relLat);
+		int iLon = getLatIndex(relLon);
+		int iDep = getDepthIndex(relDep);
+		Location loc;
+		double deltaLatLon;
+		double deltaDepth;
+
+		if(iLat<maxNumPtsWithSubLocs && iLon<maxNumPtsWithSubLocs && iDep<maxNumPtsWithSubLocs) {
+//			LocationList[][][] subLocsArray;
+//			IntegerPDF_FunctionSampler[][][] subLocSamplerArray;
+//			int maxNumPtsWithSubLocs = 3;
+//			int[] numSubLocDivisions = {12,8,4};
+			int temp = Math.max(iLat, iLon);
+			int max = Math.max(temp, iDep);
+			int numSubLoc = numSubLocDivisions[max];
+			deltaLatLon = latLonDiscrDeg/numSubLoc;
+			deltaDepth = depthDiscr/numSubLoc;
+
+			if(subLocsArray[iLat][iLon][iDep] == null) {
+				double midLat = getLat(iLat);
+				double midLon = getLon(iLon);
+				double midDepth = getDepth(iDep);
+				LocationList locList = new LocationList();
+				IntegerPDF_FunctionSampler newSampler = new IntegerPDF_FunctionSampler(numSubLoc*numSubLoc*numSubLoc);
+				int index = 0;
+				for(int latIndex = 0; latIndex < numSubLoc; latIndex++) {
+					double lat = midLat - latLonDiscrDeg/2 + latIndex*deltaLatLon + deltaLatLon/2;
+					double distLat = (lat)*111.0;
+					for(int lonIndex = 0; lonIndex < numSubLoc; lonIndex++) {
+						double lon = midLon-latLonDiscrDeg/2 + lonIndex*deltaLatLon + deltaLatLon/2;
+						double distLon = (lon) * 111.0 * cosMidLat;
+						for(int depIndex = 0; depIndex < numSubLoc; depIndex++) {
+							double dep = (midDepth - depthDiscr/2 + depIndex*deltaDepth + deltaDepth/2);
+							locList.add(new Location(lat,lon, dep));
+							double dist = Math.sqrt(distLat*distLat+distLon*distLon+dep*dep);
+							newSampler.add(index, Math.pow(dist+minDist, distDecay));
+							index ++;
+						}
+					}
+				}
+				subLocsArray[iLat][iLon][iDep] = locList;
+				subLocSamplerArray[iLat][iLon][iDep] = newSampler;
+			}
+			
+			int locIndex = subLocSamplerArray[iLat][iLon][iDep].getRandomInt();
+			loc = subLocsArray[iLat][iLon][iDep].get(locIndex);			
+		}
+		else {	// no sublocations
+			deltaLatLon = latLonDiscrDeg;
+			deltaDepth = depthDiscr;
+			loc = new Location(getLat(iLat), getLon(iLon), getDepth(iDep));
+		}
+		// ADD A RANDOM ELEMENT
+		
+		return new Location(loc.getLatitude()+deltaLatLon*(Math.random()-0.5),
+							loc.getLongitude()+deltaLatLon*(Math.random()-0.5),
+							loc.getDepth()+deltaDepth*(Math.random()-0.5));
+		
 	}
 	
 	private double getDistance(int iLat, int iLon, int iDep) {

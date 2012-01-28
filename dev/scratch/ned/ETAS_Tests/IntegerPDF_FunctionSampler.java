@@ -94,6 +94,9 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 			else
 				indexLow=testIndex;
 		}
+		if(indexHigh == this.getNum()) 
+			throw new RuntimeException("Problem: chosen int above x-axis bounds; could Y'axis contain NaNs?");
+
 		/*
 		if(indexHigh == this.getNum()) {
 			System.out.println("Error: "+prob+"\n");

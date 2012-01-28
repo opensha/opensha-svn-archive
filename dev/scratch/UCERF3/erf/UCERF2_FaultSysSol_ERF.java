@@ -75,7 +75,10 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		ObsEqkRupture landersObs = new ObsEqkRupture();
 		landersObs.setAveRake(landers.getAveRake());
 		landersObs.setMag(landers.getMag());
-		landersObs.setRuptureSurface(landers.getRuptureSurface());
+		Location surfLoc = landers.getRuptureSurface().getFirstLocOnUpperEdge().clone();
+		Location ptSurf = new Location(surfLoc.getLatitude(),surfLoc.getLongitude(),0.0);
+		landersObs.setPointSurface(ptSurf);
+//		landersObs.setRuptureSurface(landers.getRuptureSurface());
 		landersObs.setOriginTime(0);	// occurs at 1970
 //		landersObs.setMag(7);
 		System.out.println("main shock: s=4755, r=0, nthRup="+nthRup+"mag="+landersObs.getMag()+
