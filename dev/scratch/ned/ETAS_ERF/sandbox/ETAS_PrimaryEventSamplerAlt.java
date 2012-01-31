@@ -306,9 +306,9 @@ public class ETAS_PrimaryEventSamplerAlt {
 
 		}
 		
-		int samplerIndex = sampler.getRandomInt();
+		int aftShPointIndex = sampler.getRandomInt();
 		
-		int randSrcIndex = getRandomSourceIndexAtPoint(samplerIndex);
+		int randSrcIndex = getRandomSourceIndexAtPoint(aftShPointIndex);
 		ProbEqkSource src = erf.getSource(randSrcIndex);
 		int r=0;
 		if(src.getNumRuptures() > 1) {
@@ -323,10 +323,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 			LocationList locsOnRupSurf = erf_rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			LocationList locsToSampleFrom = new LocationList();
 			for(Location loc: locsOnRupSurf) {
-				int regIndex = region.indexForLocation(loc);
-				int depIndex = getDepthIndex(loc.getDepth());
-				// see if this surface location is where event was sampler from
-				if(samplerIndex == getSamplerIndexForRegAndDepIndices(regIndex,depIndex)) {
+				if(aftShPointIndex == getSamplerIndexForLocation(loc)) {
 					locsToSampleFrom.add(loc);
 				}
 			}	
@@ -342,25 +339,28 @@ public class ETAS_PrimaryEventSamplerAlt {
 //			double relLon = Math.abs(srcLoc.getLongitude()-sampledLoc.getLongitude());
 //			double relDep = Math.abs(srcLoc.getDepth()-sampledLoc.getDepth());
 			
-			double relLat = latForPoint[samplerIndex]-parentLoc.getLatitude();
-			double relLon = lonForPoint[samplerIndex]-parentLoc.getLongitude();
-			double relDep = depthForPoint[samplerIndex]-parentLoc.getDepth();
-			
+//			double relLat = latForPoint[aftShPointIndex]-parentLoc.getLatitude();
+//			double relLon = lonForPoint[aftShPointIndex]-parentLoc.getLongitude();
+//			double relDep = depthForPoint[aftShPointIndex]-parentLoc.getDepth();
+			double relLat = latForPoint[aftShPointIndex]-latForPoint[parLocIndex];
+			double relLon = lonForPoint[aftShPointIndex]-lonForPoint[parLocIndex];
+			double relDep = depthForPoint[aftShPointIndex]-depthForPoint[parLocIndex];
+						
 			Location deltaLoc = etasLocWtCalclist[getDepthIndex(parentLoc.getDepth())].getRandomDeltaLoc(Math.abs(relLat), Math.abs(relLon), Math.abs(relDep));
 			
 			double newLat, newLon, newDep;
-			if(deltaLoc.getLatitude()>=0.0)	// positive value
-				newLat = latForPoint[samplerIndex]-deltaLoc.getLatitude();
+			if(relLat<0.0)	// positive value
+				newLat = latForPoint[aftShPointIndex]-deltaLoc.getLatitude();
 			else 
-				newLat = latForPoint[samplerIndex]+deltaLoc.getLatitude();
-			if(deltaLoc.getLongitude()>=0.0)	// positive value
-				newLon = lonForPoint[samplerIndex]-deltaLoc.getLongitude();
+				newLat = latForPoint[aftShPointIndex]+deltaLoc.getLatitude();
+			if(relLon<0.0)	// positive value
+				newLon = lonForPoint[aftShPointIndex]-deltaLoc.getLongitude();
 			else 
-				newLon = lonForPoint[samplerIndex]+deltaLoc.getLongitude();
-			if(deltaLoc.getDepth()>=0.0)	// positive value
-				newDep = depthForPoint[samplerIndex]-deltaLoc.getDepth();
+				newLon = lonForPoint[aftShPointIndex]+deltaLoc.getLongitude();
+			if(relDep<0.0)	// positive value
+				newDep = depthForPoint[aftShPointIndex]-deltaLoc.getDepth();
 			else 
-				newDep = depthForPoint[samplerIndex]+deltaLoc.getDepth();
+				newDep = depthForPoint[aftShPointIndex]+deltaLoc.getDepth();
 
 			Location randLoc = new Location(newLat,newLon,newDep);
 			// get a location vector pointing from the the nearest point here to the srcLoc
@@ -443,7 +443,7 @@ hypLoc = randLoc;
 		getPointSamplerWithERF_RatesOnly();	// this makes sure it is updated
 		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numDepths*numRegLocs);
 		ETAS_LocationWeightCalculatorHypDepDep etasLocWtCalc = etasLocWtCalclist[getDepthIndex(srcLoc.getDepth())];
-		for(int index=0; index<this.numPoints; index++) {
+		for(int index=0; index<numPoints; index++) {
 			double relLat = Math.abs(srcLoc.getLatitude()-latForPoint[index]);
 			double relLon = Math.abs(srcLoc.getLongitude()-lonForPoint[index]);
 			double relDep = Math.abs(srcLoc.getDepth()-depthForPoint[index]);
