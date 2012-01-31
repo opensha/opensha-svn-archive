@@ -46,6 +46,18 @@ public class ETAS_Utils {
 		double oneMinus = 1-distDecay;
 		return -(Math.pow(distance+minDist,oneMinus) - Math.pow(minDist,oneMinus))/Math.pow(minDist,oneMinus);
 	}
+	
+	
+	/**
+	 * This returns Math.pow(dist+minDist, -distDecay)
+	 * @param dist - distance in km
+	 * @param minDist - minimum distance in km
+	 * @param distDecay	- positive value (negative sign is added within this method)
+	 * @return
+	 */
+	public static double getDistDecayValue(double dist, double minDist, double distDecay) {
+		return Math.pow(dist+minDist, -distDecay);
+	}
 
 	
 	/**

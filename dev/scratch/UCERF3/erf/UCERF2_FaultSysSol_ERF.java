@@ -77,6 +77,7 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		landersObs.setMag(landers.getMag());
 		Location surfLoc = landers.getRuptureSurface().getFirstLocOnUpperEdge().clone();
 		Location ptSurf = new Location(surfLoc.getLatitude(),surfLoc.getLongitude(),0.0);
+		System.out.println("Landers pt src loc: "+ptSurf);
 		landersObs.setPointSurface(ptSurf);
 //		landersObs.setRuptureSurface(landers.getRuptureSurface());
 		landersObs.setOriginTime(0);	// occurs at 1970
