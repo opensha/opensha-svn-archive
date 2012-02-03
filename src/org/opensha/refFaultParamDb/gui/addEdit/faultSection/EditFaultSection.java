@@ -38,7 +38,11 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
 import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.LabeledBorderPanel;
 import org.opensha.commons.param.constraint.impl.EstimateConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedEstimateParameterEditor;
@@ -152,6 +156,8 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 
 	// Fault Trace
 	private JTextArea faultTraceArea;
+	// Fault Polygon
+	private JTextArea faultPolygonArea;
 
 	// Qfault Id
 	private final static String QFAULT_ID = "QFault_Id";
@@ -177,6 +183,9 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 
 	private DB_AccessAPI dbConnection;
 	private SectionSourceDB_DAO sectionSourceDB_DAO;
+	
+	private static final int DEAFULT_WIDTH = 1200;
+	private static final int DEAFULT_HEIGHT = 800;
 
 	public EditFaultSection(DB_AccessAPI dbConnection, FaultSectionData faultSection, ViewFaultSection viewFaultSection) {
 		this.dbConnection = dbConnection;
@@ -201,8 +210,10 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 			okButton.addActionListener(this);
 			cancelButton.addActionListener(this);
 			setTitle(TITLE);
-			this.setSize(600, 800);
-			this.show();
+			this.setSize(DEAFULT_WIDTH, DEAFULT_HEIGHT);
+			topSplitPane.setDividerLocation((int)(DEAFULT_WIDTH*0.7));
+			innerSplitPane.setDividerLocation((int)(DEAFULT_WIDTH*0.33));
+			this.setVisible(true);
 		}
 		catch (Exception exception) {
 			exception.printStackTrace();
@@ -234,9 +245,6 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
 				new Insets(0, 0, 0, 0), 0, 0));
 		this.getContentPane().add(mainPanel, java.awt.BorderLayout.CENTER);
-		topSplitPane.setDividerLocation(400);
-		innerSplitPane.setDividerLocation(200);
-
 	}
 
 
@@ -322,10 +330,23 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 
 		// make fault trace param
 		makeFaultTraceParamAndEditor();
-		leftPanel.add(new JScrollPane(this.faultTraceArea), new GridBagConstraints(0, 6, 1, 1, 1.0, 1.0
+		LabeledBorderPanel traceBorder = new LabeledBorderPanel(new BorderLayout());
+		traceBorder.initParameterLookAndFeel();
+		traceBorder.add(faultTraceArea, BorderLayout.CENTER);
+		traceBorder.setTitle("Fault Trace");
+		leftPanel.add(new JScrollPane(traceBorder), new GridBagConstraints(0, 6, 1, 1, 1.0, 1.0
 				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 0), 0, 0));
 
+		// make fault zone polygon
+		makeFaultPolygonParamAndEditor();
+		LabeledBorderPanel polygonBorder = new LabeledBorderPanel(new BorderLayout());
+		polygonBorder.initParameterLookAndFeel();
+		polygonBorder.add(faultPolygonArea, BorderLayout.CENTER);
+		polygonBorder.setTitle("Fault Zone Polygon");
+		leftPanel.add(new JScrollPane(polygonBorder), new GridBagConstraints(0, 7, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
 
 
 		ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
@@ -460,6 +481,8 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		selectedFaultSection.setDipDirection(dipDirection);
 		//fault trace
 		selectedFaultSection.setFaultTrace(getFaultTrace());
+		// fault zone
+		selectedFaultSection.setZonePolygon(getFaultZonePolygon());
 	}
 
 	/**
@@ -468,9 +491,26 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	 */
 	private  FaultTrace getFaultTrace() {
 		FaultTrace faultTrace = new FaultTrace(this.selectedFaultSection.getSectionName());
-		String traceString = this.faultTraceArea.getText();
+		faultTrace.addAll(parseLocs(faultTraceArea));
+		return faultTrace;
+	}
+
+	/**
+	 * Obtain fault trace from text area
+	 * @return
+	 */
+	private  Region getFaultZonePolygon() {
+		LocationList border = parseLocs(faultPolygonArea);
+		if (border.isEmpty())
+			return null;
+		return new Region(border, FaultSectionVer2_DB_DAO.POLYGON_BORDER_TYPE);
+	}
+	
+	private LocationList parseLocs(JTextArea area) {
+		LocationList locs = new LocationList();
+		String text = area.getText();
 		try {	
-			StringTokenizer tokenizer = new StringTokenizer(traceString,"\n");
+			StringTokenizer tokenizer = new StringTokenizer(text,"\n");
 			double lon, lat;
 			while(tokenizer.hasMoreTokens()) {
 				String line = tokenizer.nextToken();
@@ -478,12 +518,12 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 				StringTokenizer lineTokenizer = new StringTokenizer(line,",");
 				lon = Double.parseDouble(lineTokenizer.nextToken().trim());
 				lat = Double.parseDouble(lineTokenizer.nextToken().trim());
-				faultTrace.add(new Location(lat,lon));
+				locs.add(new Location(lat,lon));
 			}
 		}catch(Exception e) {
 			throw new RuntimeException(MSG_FAULT_TRACE_FORMAT);
 		}
-		return faultTrace;
+		return locs;
 	}
 
 	/**
@@ -620,9 +660,23 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	private void makeFaultTraceParamAndEditor() {
 		faultTraceArea = new JTextArea();
 		FaultTrace faultTrace = this.selectedFaultSection.getFaultTrace();
-		for(int i=0; faultTrace!=null && i<faultTrace.getNumLocations(); ++i) {
-			Location loc = faultTrace.get(i);
-			faultTraceArea.append(loc.getLongitude()+","+loc.getLatitude()+"\n");
+		populateTextArea(faultTraceArea, faultTrace);
+	}
+
+	private void makeFaultPolygonParamAndEditor() {
+		faultPolygonArea = new JTextArea();
+		Region zone = this.selectedFaultSection.getZonePolygon();
+		if (zone == null)
+			populateTextArea(faultPolygonArea, null);
+		else
+			populateTextArea(faultPolygonArea, zone.getBorder());
+	}
+	
+	private void populateTextArea(JTextArea area, LocationList locs) {
+		area.setText("");
+		if (locs != null) {
+			for (Location loc : locs)
+				area.append(loc.getLongitude()+","+loc.getLatitude()+"\n");
 		}
 	}
 

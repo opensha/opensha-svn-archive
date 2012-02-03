@@ -129,8 +129,8 @@ implements ItemListener
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		// TODO Auto-generated method stub
-
+		if (widget != null)
+			widget.setEnabled(enabled);
 	}
 
 	@Override

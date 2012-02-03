@@ -42,6 +42,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	public static final boolean D = false;
 	
 	public static final String XML_METADATA_NAME = "SimpleFaultSystemRupSet";
+	public static final String DEF_MODEL_XML_NAME = FaultSectionPrefData.XML_METADATA_NAME+"List";
 	
 	private List<FaultSectionPrefData> faultSectionData;
 	private double[] mags;
@@ -495,7 +496,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		return lists;
 	}
 	
-	private static void fsDataToXML(Element parent, List<FaultSectionPrefData> list,
+	public static void fsDataToXML(Element parent, List<FaultSectionPrefData> list,
 			String elName, DefModName defModName) {
 		Element el = parent.addElement(elName);
 		if (defModName != null)
@@ -546,7 +547,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		if (closeSections != null)
 			intListArrayToXML(el, closeSections, "closeSections");
 		
-		fsDataToXML(el, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List", defModName);
+		fsDataToXML(el, faultSectionData, DEF_MODEL_XML_NAME, defModName);
 		
 		if (isClusterBased()) {
 			el.addAttribute("numClusters", getNumClusters()+"");

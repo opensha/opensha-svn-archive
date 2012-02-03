@@ -34,8 +34,8 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 	protected final static Border FOCUS_BORDER = BorderFactory.createLineBorder( Color.orange, 1 );
 	protected final static Border ETCHED = BorderFactory.createEtchedBorder();
 
-	public static Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 12 );
-	public static Color FORE_COLOR = new Color( 80, 80, 140 );
+//	public static Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 12 );
+//	public static Color FORE_COLOR = new Color( 80, 80, 140 );
 
 	/**
 	 * Default Constructor. Sets parameter to null.
@@ -51,11 +51,13 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 	 */
 	public AbstractParameterEditor(Parameter<E> param) {
 		super(new BorderLayout(), true, false);
-		this.setBackground(null);
-		editorPanel.setBackground(null);
-		mainPanel.setBackground(null);
-		setBorderColor(FORE_COLOR);
-		setTitleFont(DEFAULT_LABEL_FONT);
+		
+//		this.setBackground(null);
+//		editorPanel.setBackground(null);
+//		mainPanel.setBackground(null);
+//		setBorderColor(FORE_COLOR);
+//		setTitleFont(DEFAULT_LABEL_FONT);
+		super.initParameterLookAndFeel();
 
 		setParameter(param);
 	}

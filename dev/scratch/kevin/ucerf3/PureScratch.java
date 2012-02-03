@@ -47,6 +47,23 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+		double a1 = 8.62552e32;
+		double a2 = 1.67242e34;
+		double a3 = 1.77448e20;
+		double a4 = 9.05759e20;
+		double c = 8.0021909e37;
+		double me = 5.9742e24;
+		double re = 6371000;
+		
+		double p1 = (c - a1*me/a3) / (a2-a1*a4/a3);
+		double p2 = (me - a4*p1)/a3;
+		
+		System.out.println("p1: "+p1);
+		System.out.println("p2: "+p2);
+		
+		System.exit(0);
+		
+		
 		CB_2008_AttenRel imr = new CB_2008_AttenRel(null);
 		imr.setParamDefaults();
 		MeanUCERF2 ucerf = new MeanUCERF2();

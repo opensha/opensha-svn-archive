@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -70,6 +71,18 @@ public class XMLUtils {
 		writer = new XMLWriter(new FileWriter(file), format);
 		writer.write(document);
 		writer.close();
+	}
+	
+	public static String getDocumentAsString(Document document) throws IOException {
+		StringWriter swrite = new StringWriter();
+		
+		XMLWriter writer;
+		
+		writer = new XMLWriter(swrite, format);
+		writer.write(document);
+		writer.close();
+		
+		return swrite.getBuffer().toString();
 	}
 	
 	/**

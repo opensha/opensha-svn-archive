@@ -17,13 +17,16 @@ public class TestFaultZonePolygonInsert {
 	public static void main(String[] args) {
 		try {
 			DB_AccessAPI db = DB_ConnectionPool.getDB3ReadWriteConn();
-			DB_ConnectionPool.authenticateDBConnection(true, false);
+			DB_ConnectionPool.authenticateDBConnection(false, false);
 			
 			FaultSectionVer2_DB_DAO fs2db = new FaultSectionVer2_DB_DAO(db);
 			
-			PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
+			FaultSectionData fault = fs2db.getFaultSection(861);
+			System.out.println(fault.getZonePolygon());
 			
-			pref2db.getAllFaultSectionPrefData();
+//			PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
+//			
+//			pref2db.getAllFaultSectionPrefData();
 			
 //			FaultSectionData orig = fs2db.getFaultSection(114);
 //			FaultSectionData newData = orig.clone();

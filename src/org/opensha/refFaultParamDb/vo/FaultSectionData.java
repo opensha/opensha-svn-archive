@@ -195,7 +195,9 @@ public class FaultSectionData implements Cloneable, Named, Serializable {
 		 faultSectionPrefData.setSectionName(sectionName);
 		 faultSectionPrefData.setShortName(this.shortName);
 		 faultSectionPrefData.setFaultTrace(this.faultTrace);
-		 // TODO end points, connector, polygon
+		 // TODO end points?
+		 faultSectionPrefData.setZonePolygon(getZonePolygon());
+		 faultSectionPrefData.setConnector(isConnector());
 		 return faultSectionPrefData;
 	 }
 

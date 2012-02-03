@@ -74,6 +74,9 @@ public class FaultSectionVer2_DB_DAO {
 	public final static String CONNECTOR_FLAG_DEFAULT = CONNECTOR_FLAG_NO;
 	public final static String FAULT_ZONE_POLYGON = "FAULT_ZONE_POLYGON";
 	
+	// TODO Mercator Linear OK?
+	public static final BorderType POLYGON_BORDER_TYPE = BorderType.MERCATOR_LINEAR;
+	
 	private DB_AccessAPI dbAccess;
 	// estimate instance DAO
 	private EstimateInstancesDB_DAO estimateInstancesDAO;
@@ -467,7 +470,7 @@ public class FaultSectionVer2_DB_DAO {
 					
 					LocationList zoneLocs = SpatialUtils.loadMultiPointGeometries(geom, 0d);
 					
-					zone = new Region(zoneLocs, BorderType.MERCATOR_LINEAR); // TODO Mercator Linear OK?
+					zone = new Region(zoneLocs, POLYGON_BORDER_TYPE);
 				}
 				faultSection.setZonePolygon(zone);
 

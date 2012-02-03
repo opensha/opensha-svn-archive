@@ -74,6 +74,8 @@ public class LabeledBorderPanel extends JPanel{
 
 	private boolean useScrollPane;
 
+	public static Font PARAMETER_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 12 );
+	public static Color PARAMTER_FORE_COLOR = new Color( 80, 80, 140 );
 
 	/**
 	 * Creates a new JPanel with the specified layout manager and buffering
@@ -144,6 +146,14 @@ public class LabeledBorderPanel extends JPanel{
 	public void setTitle( String newTitle ) {
 		title = newTitle;
 		if( titledBorder1 != null ) titledBorder1.setTitle( title );
+	}
+	
+	public void initParameterLookAndFeel() {
+		this.setBackground(null);
+		editorPanel.setBackground(null);
+		mainPanel.setBackground(null);
+		setBorderColor(PARAMTER_FORE_COLOR);
+		setTitleFont(PARAMETER_LABEL_FONT);
 	}
 
 	/**
