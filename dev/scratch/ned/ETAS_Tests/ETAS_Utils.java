@@ -58,6 +58,43 @@ public class ETAS_Utils {
 	public static double getDistDecayValue(double dist, double minDist, double distDecay) {
 		return Math.pow(dist+minDist, -distDecay);
 	}
+	
+	/**
+	 * This returns a distance decay function, where x-axis is log10-distance values, and the averaging over
+	 * each x-axis bin is done accurately.  The values don't sum to one unless a very large distance is specified.
+	 * @param minLogDist - minimum  x-axis log10-distance (km) value
+	 * @param maxLogDist - maximum x-axis log10-distance (km) value
+	 * @param num - number of points
+	 * @param minDist - minimum distance in km
+	 * @param distDecay	- positive value (negative sign is added within this method)
+	 * @return
+	 */
+	public static EvenlyDiscretizedFunc getTargetDistDecayFunc(double minLogDist, double maxLogDist, int num, double distDecay, double minDist) {
+		// make target distances decay histogram (this is what we will match_
+		EvenlyDiscretizedFunc logTargetDecay = new EvenlyDiscretizedFunc(minLogDist,maxLogDist,num);
+		logTargetDecay.setTolerance(logTargetDecay.getDelta());
+		double logBinHalfWidth = logTargetDecay.getDelta()/2;
+		double upperBinEdge = Math.pow(10,logTargetDecay.getX(0)+logBinHalfWidth);
+		double lowerBinEdge;
+		double binWt = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);	// everything within the upper edge of first bin
+		logTargetDecay.set(0,binWt);
+		for(int i=1;i<logTargetDecay.getNum();i++) {
+			double logLowerEdge = logTargetDecay.getX(i)-logBinHalfWidth;
+			lowerBinEdge = Math.pow(10,logLowerEdge);
+			double logUpperEdge = logTargetDecay.getX(i)+logBinHalfWidth;
+			upperBinEdge = Math.pow(10,logUpperEdge);
+			double wtLower = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, lowerBinEdge);
+			double wtUpper = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);
+			binWt = wtUpper-wtLower;
+			logTargetDecay.set(i,binWt);
+		}
+		return logTargetDecay; 
+	}
+
+
+
+
+
 
 	
 	/**

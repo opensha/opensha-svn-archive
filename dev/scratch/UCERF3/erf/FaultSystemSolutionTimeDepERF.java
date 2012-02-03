@@ -967,15 +967,18 @@ numSpontEvents=0;
 
 		String fileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/hypoTest.pdf";
 		
-		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
+//		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue);
-			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, obsEqkRuptureList.get(0));
+//			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
 		}
 		else {
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue);
-			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, null);
+//			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, null);
+			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
+
 		}
 		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
 		
@@ -1444,12 +1447,15 @@ numSpontEvents=0;
 		double latLonDiscrDeg=0.02;
 		double distDecay = 2;
 		double minDist = 0.3;
-		boolean includeEqkRates = true;	// whether or not to include the long-term rate of events in sampling aftershocks
+		boolean includeEqkRates = false;	// whether or not to include the long-term rate of events in sampling aftershocks
 		boolean includeDistDecat = true;
 
 		GriddedRegion gridRegForRatesInSpace = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, GriddedRegion.ANCHOR_0_0);
+		GriddedRegion gridRegForParentLocs = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, new Location(0.01,0.01));
 
-//		System.out.println("/nMaking ETAS_LocationWeightCalculator");
+		System.out.println("First Location in gridRegForRatesInSpace: "+gridRegForRatesInSpace.getLocation(0));
+		System.out.println("First Location in gridRegForParentLocs: "+gridRegForParentLocs.getLocation(0));
+//		System.exit(0);
 //		ETAS_LocationWeightCalculator etasLocWtCalc = new ETAS_LocationWeightCalculator(maxDistKm, maxDepthKm, latLonDiscrDeg, 
 //				depthDiscr, midLat, distDecay, minDist);
 //		
@@ -1463,7 +1469,7 @@ numSpontEvents=0;
 
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
-		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(gridRegForRatesInSpace, this, 
+		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(gridRegForRatesInSpace, gridRegForParentLocs, this, 
 				sourceRates, maxDepthKm,depthDiscr,0.1,null, distDecay, minDist, includeEqkRates, includeDistDecat);
 
 
@@ -1486,10 +1492,12 @@ numSpontEvents=0;
 		System.out.println("Looping over eventsToProcess (initial num = "+eventsToProcess.size()+")\n");
 		long runTime = System.currentTimeMillis();
 		
-
+//		int counter =0;
 		while(eventsToProcess.size()>0) {
 			
 			progressBar.updateProgress(simulatedRupsQueue.size(), eventsToProcess.size()+simulatedRupsQueue.size());
+			
+//			System.out.print(counter+", ");
 			
 			ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
 			
@@ -1535,7 +1543,6 @@ numSpontEvents=0;
 
 			// add the rupture to the list
 			simulatedRupsQueue.add(rup);
-			
 				
 			// this isn't working:
 			progressBar.setProgressMessage((float)rup.getMag()+"\t");
@@ -1640,11 +1647,11 @@ numSpontEvents=0;
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue);
-//			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
 		}
 		else {
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue);
-//			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, null);
+			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 		}
 		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
 		

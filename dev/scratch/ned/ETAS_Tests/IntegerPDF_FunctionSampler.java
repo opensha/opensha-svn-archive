@@ -1,11 +1,17 @@
 package scratch.ned.ETAS_Tests;
 
 import java.awt.geom.Point2D;
+import java.io.FileWriter;
 import java.util.ArrayList;
+
+import net.sf.wraplog.SystemLogger;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.Point2DException;
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+
+import scratch.ned.ETAS_ERF.ETAS_EqkRupture;
 
 
 /**
@@ -80,6 +86,7 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 			updateCumDistVals();
 			dataChange=false;
 		}
+//		System.out.println("prob="+prob);
 		
 		// this is needed because the first one is never accessed in the algorithm below
 		if(prob<cumDistVals[0]) return 0;
@@ -87,12 +94,31 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 		// search for the index
 		int indexLow=0;
 		int indexHigh=getNum();
+		long st = System.currentTimeMillis();
 		while(indexHigh-indexLow > 1) {
 			int testIndex = (int)Math.floor((indexHigh+indexLow)/2);
-			if(prob<cumDistVals[testIndex])
+			if(prob<cumDistVals[testIndex]) {
 				indexHigh=testIndex;
-			else
+			}
+			else {
 				indexLow=testIndex;
+			}
+//			if(System.currentTimeMillis()-st > 10000) {	// 100 sec
+//				System.out.println("prob="+prob+"\tindexLow="+indexLow+"\tindexHigh="+indexHigh+"\ttestIndex="+testIndex);
+//				try{
+//					FileWriter fw1 = new FileWriter("tempIntPDF_Data");
+//					fw1.write("prob="+prob+"\tindexLow="+indexLow+"\tindexHigh="+indexHigh+"\ttestIndex="+testIndex+"\n");
+//					for(int i=0;i<this.getNum();i++) {
+//						fw1.write(i+"\t"+(float)getX(i)+"\t"+getY(i)+"\t"+cumDistVals[i]+"\n");
+//					}
+//					fw1.close();
+//				}catch(Exception e) {
+//					e.printStackTrace();
+//
+//				}
+//				System.exit(0);
+//
+//			}
 		}
 		if(indexHigh == this.getNum()) 
 			throw new RuntimeException("Problem: chosen int above x-axis bounds; could Y'axis contain NaNs?");

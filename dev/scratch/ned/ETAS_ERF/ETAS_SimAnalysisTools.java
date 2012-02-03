@@ -298,7 +298,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param sampler - one of the samplers for getting the expected distance decay
 	 * @param mainShock - distances of all aftershocks  will be computed to this event if it's not null
 	 */
-	public static void plotDistDecayForAshocks(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+	public static void plotDistDecayForAshocksOLD(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			ETAS_PrimaryEventSampler sampler, EqkRupture mainShock) {
 		
 		double delta = 10;
@@ -364,6 +364,108 @@ public class ETAS_SimAnalysisTools {
 			}
 
 	}
+	
+	
+	
+	
+	/**
+	 * This plots the number of aftershocks versus log10-distance from the parent, 
+	 * and if a "mainShock" is provided, also from this event.  Also plotted is the expected distance decay.
+	 * @param info - string describing the given mainShock (below); set null if mainShock is also null
+	 * @param pdf_FileName - full path name of PDF files to save to (leave null if not wanted)
+	 * @param simulatedRupsQueue - list of sampled events
+	 * @param mainShock - distances of all aftershocks  will be computed to this event if it's not null
+	 */
+	public static void plotDistDecayHistForAshocks(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+			EqkRupture mainShock, double distDecay, double minDist) {
+		
+		double histLogMin=-2.0;;
+		double histLogMax = 4.0;
+		int histNum = 31;
+		EvenlyDiscretizedFunc expectedLogDistDecay = ETAS_Utils.getTargetDistDecayFunc(histLogMin, histLogMax, histNum, distDecay, minDist);
+		expectedLogDistDecay.setName("Expected Log-Dist Decay");
+		expectedLogDistDecay.setInfo("(distDecay="+distDecay+" and minDist="+minDist+")");
+
+		EvenlyDiscretizedFunc obsLogDistDecayHist = new EvenlyDiscretizedFunc(histLogMin, histLogMax, histNum);
+		obsLogDistDecayHist.setTolerance(obsLogDistDecayHist.getDelta());
+		obsLogDistDecayHist.setName("Observed Log_Dist Decay Histogram");
+		
+		// this is for distances from the specified main shock
+		EvenlyDiscretizedFunc obsLogDistDecayFromMainShockHist = new EvenlyDiscretizedFunc(histLogMin, histLogMax, histNum);
+		obsLogDistDecayFromMainShockHist.setName("Observed Log_Dist Decay From Specified Minshock Histogram");
+		obsLogDistDecayFromMainShockHist.setTolerance(obsLogDistDecayHist.getDelta());
+
+
+		double numFromMainShock = 0, numFromPrimary = 0;
+		for (ETAS_EqkRupture event : simulatedRupsQueue) {
+			if(event.getGeneration()>0) {	// skip spontaneous events
+				double logDist = Math.log10(event.getDistanceToParent());
+				if(logDist<histLogMin) {
+					obsLogDistDecayHist.add(0, 1.0);
+				}
+				else if(logDist<histLogMax) {
+					obsLogDistDecayHist.add(logDist, 1.0);
+				}
+				numFromPrimary += 1;	
+//}
+				if(mainShock != null) {	// might want to try leaving spontaneous events in this?
+					logDist = Math.log10(LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), mainShock.getRuptureSurface()));
+					if(logDist<histLogMin) {
+						obsLogDistDecayFromMainShockHist.add(0, 1.0);
+					}
+					else if(logDist<histLogMax) {
+						obsLogDistDecayFromMainShockHist.add(logDist, 1.0);
+					}
+					numFromMainShock += 1;
+				}
+			}
+		}
+				
+		
+		// normalize to PDF
+		obsLogDistDecayHist.scale(1.0/(double)numFromPrimary);
+		if(mainShock != null) {
+			obsLogDistDecayFromMainShockHist.scale(1.0/(double)numFromMainShock);
+			if(mainShock.getRuptureSurface().isPointSurface())
+				System.out.println("mainShock Loc: "+mainShock.getRuptureSurface().getFirstLocOnUpperEdge());
+		}
+		
+		// convert to PDF
+		
+		// Set num in info fields
+		obsLogDistDecayHist.setInfo("(based on "+numFromPrimary+" aftershocks)");
+
+
+		ArrayList distDecayFuncs = new ArrayList();
+		distDecayFuncs.add(expectedLogDistDecay);
+		distDecayFuncs.add(obsLogDistDecayHist);
+		if(mainShock != null) {
+			obsLogDistDecayFromMainShockHist.setInfo("(based on "+numFromMainShock+" aftershocks)");
+			distDecayFuncs.add(obsLogDistDecayFromMainShockHist);			
+		}
+
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(distDecayFuncs, "Distance Decay for Aftershocks; "+info); 
+		graph.setX_AxisLabel("Log10-Distance (km)");
+		graph.setY_AxisLabel("Fraction of Aftershocks");
+		graph.setX_AxisRange(histLogMin, histLogMax);
+		graph.setY_AxisRange(1e-6, 1);
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
+		if(mainShock != null)
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
+		graph.setPlottingFeatures(plotChars);
+		graph.setYLog(true);
+		if(pdf_FileName != null)
+			try {
+				graph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+
 
 	public void plotNumVsTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			EqkRupture mainShock) {

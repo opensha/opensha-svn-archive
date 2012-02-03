@@ -75,13 +75,49 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		ObsEqkRupture landersObs = new ObsEqkRupture();
 		landersObs.setAveRake(landers.getAveRake());
 		landersObs.setMag(landers.getMag());
-		Location surfLoc = landers.getRuptureSurface().getFirstLocOnUpperEdge().clone();
-		Location ptSurf = new Location(surfLoc.getLatitude(),surfLoc.getLongitude(),0.0);
+		
+//		Location ptSurf = new Location(41.0,-121.45,2.0);	// this is Not good beyond logDist = 0.6.
+		
+		// treat as point source
+//		Location ptSurf = new Location(34.30,-116.44,0.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,1.0);	//
+//		Location ptSurf = new Location(34.30,-116.44,2.0);	// 
+//		Location ptSurf = new Location(34.31,-116.45,2.0);	//
+//		Location ptSurf = new Location(34.30,-116.44,3.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,4.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,5.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,6.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,7.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,8.0);	//
+//		Location ptSurf = new Location(34.30,-116.44,9.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,10.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,11.0);	//
+//		Location ptSurf = new Location(34.30,-116.44,12.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,13.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,14.0);	//
+//		Location ptSurf = new Location(34.30,-116.44,15.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,16.0);	//
+//		Location ptSurf = new Location(34.30,-116.44,17.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,18.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,19.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,20.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,21.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,22.0);	// 
+//		Location ptSurf = new Location(34.30,-116.44,23.0);	// 
+		Location ptSurf = new Location(34.30,-116.44,24.0);	// 
+
+//		Location ptSurf = new Location(34.31,-116.45,0.0);	// 
+		
+
+		System.out.println("Min dist to edge of RELM region: "+griddedRegion.getBorder().minDistToLocation(ptSurf));
 		System.out.println("Landers pt src loc: "+ptSurf);
 		landersObs.setPointSurface(ptSurf);
+		
+		
 //		landersObs.setRuptureSurface(landers.getRuptureSurface());
 		landersObs.setOriginTime(0);	// occurs at 1970
-//		landersObs.setMag(7);
+		
+		landersObs.setMag(8.5);	// set higher to spawn more aftershocks for testing
 		System.out.println("main shock: s=4755, r=0, nthRup="+nthRup+"mag="+landersObs.getMag()+
 				"; src name: " +erf.getSource(4755).getName());
 		
