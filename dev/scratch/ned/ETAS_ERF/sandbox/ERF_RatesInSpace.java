@@ -33,8 +33,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
-import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 
 public class ERF_RatesInSpace {
 	

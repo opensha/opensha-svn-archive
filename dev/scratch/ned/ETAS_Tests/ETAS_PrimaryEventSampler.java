@@ -30,6 +30,8 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
+
 /**
  * This class allows one to randomly sample which block a primary aftershock nucleates in 
  * based on the original block rates and distance decay.

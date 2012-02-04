@@ -17,6 +17,8 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
+
 /**
  * This class store information about all ruptures that nucleate inside this geographic block.
  * @author field

@@ -7,8 +7,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
-import scratch.ned.ETAS_Tests.ETAS_Utils;
-import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 
 public class ETAS_LocationWeightCalculatorAlt {
 	

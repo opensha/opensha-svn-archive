@@ -12,8 +12,8 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
-import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
 
 public class ETAS_LocationWeightCalculator {
 	
