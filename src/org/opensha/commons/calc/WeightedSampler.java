@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 
 import static com.google.common.base.Preconditions.*;
 

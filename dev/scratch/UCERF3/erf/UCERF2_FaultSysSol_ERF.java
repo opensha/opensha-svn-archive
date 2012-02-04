@@ -104,20 +104,18 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 //		Location ptSurf = new Location(34.30,-116.44,21.0);	// 
 //		Location ptSurf = new Location(34.30,-116.44,22.0);	// 
 //		Location ptSurf = new Location(34.30,-116.44,23.0);	// 
-		Location ptSurf = new Location(34.30,-116.44,24.0);	// 
-
+//		Location ptSurf = new Location(34.30,-116.44,24.0);	// 
 //		Location ptSurf = new Location(34.31,-116.45,0.0);	// 
 		
-
-		System.out.println("Min dist to edge of RELM region: "+griddedRegion.getBorder().minDistToLocation(ptSurf));
-		System.out.println("Landers pt src loc: "+ptSurf);
-		landersObs.setPointSurface(ptSurf);
+//		System.out.println("Min dist to edge of RELM region: "+griddedRegion.getBorder().minDistToLocation(ptSurf));
+//		System.out.println("Landers pt src loc: "+ptSurf);
+//		landersObs.setPointSurface(ptSurf);
 		
 		
-//		landersObs.setRuptureSurface(landers.getRuptureSurface());
+		landersObs.setRuptureSurface(landers.getRuptureSurface());
 		landersObs.setOriginTime(0);	// occurs at 1970
 		
-		landersObs.setMag(8.5);	// set higher to spawn more aftershocks for testing
+//		landersObs.setMag(8.5);	// set higher to spawn more aftershocks for testing
 		System.out.println("main shock: s=4755, r=0, nthRup="+nthRup+"mag="+landersObs.getMag()+
 				"; src name: " +erf.getSource(4755).getName());
 		

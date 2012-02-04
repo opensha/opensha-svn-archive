@@ -30,7 +30,7 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.ned.ETAS_Tests.IntegerPDF_FunctionSampler;
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 /**
  * <p>Title: ProbEqkSource</p>
  * <p>Description: Class for Probabilistic earthquake source.
