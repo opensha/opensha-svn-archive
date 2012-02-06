@@ -12,6 +12,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -40,7 +41,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param allAftershocks
 	 */
 	public static void plotEpicenterMap(String info, String pdf_FileNameFullPath, ObsEqkRupture mainShock, 
-			Collection<ETAS_EqkRupture> allAftershocks) {
+			Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder) {
 		
 		ArrayList<AbstractXY_DataSet> funcs = new ArrayList<AbstractXY_DataSet>();
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
@@ -192,7 +193,7 @@ public class ETAS_SimAnalysisTools {
 		
 		if(mainShock != null) {
 			FaultTrace trace = mainShock.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
-			ArbitrarilyDiscretizedFunc traceFunc = new ArbitrarilyDiscretizedFunc();
+			DefaultXY_DataSet traceFunc = new DefaultXY_DataSet();
 			traceFunc.setName("Main Shock Trace");
 			for(Location loc:trace)
 				traceFunc.set(loc.getLongitude(), loc.getLatitude());
@@ -205,7 +206,7 @@ public class ETAS_SimAnalysisTools {
 		for(ETAS_EqkRupture rup : allAftershocks) {
 			if(!rup.getRuptureSurface().isPointSurface()) {
 				FaultTrace trace = rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
-				ArbitrarilyDiscretizedFunc traceFunc = new ArbitrarilyDiscretizedFunc();
+				DefaultXY_DataSet traceFunc = new DefaultXY_DataSet();
 				traceFunc.setName("Large aftershock "+lai);
 				for(Location loc:trace)
 					traceFunc.set(loc.getLongitude(), loc.getLatitude());
@@ -213,6 +214,17 @@ public class ETAS_SimAnalysisTools {
 				plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 				lai+=1;
 			}
+		}
+		
+		// now plot the region border if not null
+		if(regionBorder != null) {
+			DefaultXY_DataSet regBorderFunc = new DefaultXY_DataSet();
+			regBorderFunc.setName("Region Border");
+			for(Location loc: regionBorder) {
+				regBorderFunc.set(loc.getLongitude(), loc.getLatitude());
+			}
+			funcs.add(regBorderFunc);
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		}
 		
 		

@@ -112,8 +112,15 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 //		landersObs.setPointSurface(ptSurf);
 		
 		
-		landersObs.setRuptureSurface(landers.getRuptureSurface());
-		landersObs.setOriginTime(0);	// occurs at 1970
+//		landersObs.setRuptureSurface(landers.getRuptureSurface());
+//		landersObs.setOriginTime(0);	// occurs at 1970
+		
+		// Test edge of RELM region triggering
+//		Location ptSurf = new Location(34.30,-116.44,13.0);	//
+		Location ptSurf = new Location(34.40,-113.19,13.0);	//
+		landersObs.setMag(7);
+		landersObs.setPointSurface(ptSurf);
+
 		
 //		landersObs.setMag(8.5);	// set higher to spawn more aftershocks for testing
 		System.out.println("main shock: s=4755, r=0, nthRup="+nthRup+"mag="+landersObs.getMag()+
@@ -124,7 +131,10 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		erf.setRuptureOccurrence(nthRup, 0);
 		
-		erf.testETAS_Simulation(griddedRegion, obsEqkRuptureList);
+		boolean includeSpontEvents=false;
+		boolean includeIndirectTriggering=false;
+		boolean includeEqkRates = false;
+		erf.testETAS_Simulation(griddedRegion, obsEqkRuptureList, includeSpontEvents, includeIndirectTriggering,includeEqkRates);
 //		erf.testETAS_SimulationOld(griddedRegion, obsEqkRuptureList);
 
 //		erf.testER_Simulation();

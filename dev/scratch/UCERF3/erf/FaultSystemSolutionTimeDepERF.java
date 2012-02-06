@@ -970,12 +970,12 @@ numSpontEvents=0;
 //		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, obsEqkRuptureList.get(0));
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
 		}
 		else {
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, null);
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 
@@ -1333,11 +1333,11 @@ numSpontEvents=0;
 		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, obsEqkRuptureList.get(0));
 		}
 		else {
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, null);
 		}
 		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
@@ -1356,8 +1356,13 @@ numSpontEvents=0;
 	 * less).
 	 * @param griddedRegion
 	 * @param obsEqkRuptureList
+	 * @param includeSpontEvents
+	 * @param includeIndirectTriggering - include secondary, tertiary, etc events
+	 * @param includeEqkRates - whether or not to include the long-term rate of events in sampling aftershocks
+
 	 */
-	public void testETAS_Simulation(GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList) {
+	public void testETAS_Simulation(GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList, 
+			boolean includeSpontEvents, boolean includeIndirectTriggering, boolean includeEqkRates) {
 		
 		// this will store the aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
@@ -1419,23 +1424,24 @@ numSpontEvents=0;
 		
 		
 		// make the list of spontaneous events, filling in only event IDs and origin times for now
-		double fractionNonTriggered=0.5;	// really need to solve for this value
-		double expectedNum = origTotRate*simDuration*fractionNonTriggered;
-		System.out.println("expected num spontaneous: "+expectedNum+
-				";\tfractionNonTriggered="+fractionNonTriggered+"; origTotRate="+origTotRate+"; origDuration="+simDuration);
-		int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
-//numSpontEvents=0;
-		System.out.println("Making spontaneous events (times and event IDs only) - "+numSpontEvents+" were sampled");
+		if(includeSpontEvents) {
+			double fractionNonTriggered=0.5;	// really need to solve for this value
+			double expectedNum = origTotRate*simDuration*fractionNonTriggered;
+			System.out.println("expected num spontaneous: "+expectedNum+
+					";\tfractionNonTriggered="+fractionNonTriggered+"; origTotRate="+origTotRate+"; origDuration="+simDuration);
+			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
+			System.out.println("Making spontaneous events (times and event IDs only) - "+numSpontEvents+" were sampled");
 
-		for(int r=0;r<numSpontEvents;r++) {
-			ETAS_EqkRupture rup = new ETAS_EqkRupture();
-			double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
-			rup.setOriginTime((long)ot);
-			rup.setID(eventID);
-			rup.setParentID(-1);		// parent is long-term model
-			rup.setGeneration(0);
-			eventsToProcess.add(rup);
-			eventID += 1;
+			for(int r=0;r<numSpontEvents;r++) {
+				ETAS_EqkRupture rup = new ETAS_EqkRupture();
+				double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
+				rup.setOriginTime((long)ot);
+				rup.setID(eventID);
+				rup.setParentID(-1);		// parent is long-term model
+				rup.setGeneration(0);
+				eventsToProcess.add(rup);
+				eventID += 1;
+			}
 		}
 		
 		
@@ -1446,7 +1452,6 @@ numSpontEvents=0;
 		double latLonDiscrDeg=0.02;
 		double distDecay = 2;
 		double minDist = 0.3;
-		boolean includeEqkRates = true;	// whether or not to include the long-term rate of events in sampling aftershocks
 		boolean includeDistDecat = true;
 
 		GriddedRegion gridRegForRatesInSpace = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, GriddedRegion.ANCHOR_0_0);
@@ -1550,7 +1555,7 @@ numSpontEvents=0;
 			simulatedRupsQueue.add(rup);
 				
 			// this isn't working:
-//			progressBar.setProgressMessage((float)rup.getMag()+"\t");
+// 			progressBar.setProgressMessage((float)rup.getMag()+"\t");
 			
 			// update num to process or remove mainshock if this is zero
 			if(parID != -1) {	// if not spontaneous
@@ -1563,23 +1568,26 @@ numSpontEvents=0;
 				}	
 			}
 			
-			// now sample primary aftershock times for this event
 			long rupOT = rup.getOriginTime();
-			parID = rup.getID();	// rupture is now the parent
-			int gen = rup.getGeneration()+1;
-			double startDay = 0;	// starting at origin time since we're within the timespan
-			double endDay = (double)(simEndTime-rupOT) / (double)MILLISEC_PER_DAY;
-			double[] eventTimes = etas_utils.getDefaultRandomEventTimes(rup.getMag(), startDay, endDay);
-			if(eventTimes.length>0) {
-				for(int i=0; i<eventTimes.length;i++) {
-					long ot = rupOT +  (long)(eventTimes[i]*(double)MILLISEC_PER_DAY);
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID, ot);
-					newRup.setGeneration(gen);
-					eventsToProcess.add(newRup);
-					eventID +=1;
-				}
-				mainshockHashMap.put(parID, rup);
-				mainshockNumToProcess.put(parID,eventTimes.length);				
+			
+			// now sample primary aftershock times for this event
+			if(includeIndirectTriggering) {
+				parID = rup.getID();	// rupture is now the parent
+				int gen = rup.getGeneration()+1;
+				double startDay = 0;	// starting at origin time since we're within the timespan
+				double endDay = (double)(simEndTime-rupOT) / (double)MILLISEC_PER_DAY;
+				double[] eventTimes = etas_utils.getDefaultRandomEventTimes(rup.getMag(), startDay, endDay);
+				if(eventTimes.length>0) {
+					for(int i=0; i<eventTimes.length;i++) {
+						long ot = rupOT +  (long)(eventTimes[i]*(double)MILLISEC_PER_DAY);
+						ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID, ot);
+						newRup.setGeneration(gen);
+						eventsToProcess.add(newRup);
+						eventID +=1;
+					}
+					mainshockHashMap.put(parID, rup);
+					mainshockNumToProcess.put(parID,eventTimes.length);				
+				}		
 			}
 			
 			
@@ -1652,11 +1660,11 @@ numSpontEvents=0;
 //		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
 		}
 		else {
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 		}
 		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
@@ -2047,11 +2055,11 @@ numSpontEvents=0;
 		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, obsEqkRuptureList.get(0));
 		}
 		else {
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, null);
 		}
 		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
