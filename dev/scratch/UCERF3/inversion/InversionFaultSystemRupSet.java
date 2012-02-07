@@ -138,8 +138,8 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 //		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir); // this assumes NCAL, which is set in Run Inversion!  fix below:
 		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(defModName,precomputedDataDir);
 		faultSectionData = deformationModelFetcher.getSubSectionList();
-		double[][] subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMatrix();
 		double[][] subSectionDistances = deformationModelFetcher.getSubSectionDistanceMatrix();
+		double[][] subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMatrix();
 
 		
 		// check that indices are same as sectionIDs (this is assumed here)
