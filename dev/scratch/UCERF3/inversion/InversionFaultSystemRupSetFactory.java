@@ -83,7 +83,10 @@ public enum InversionFaultSystemRupSetFactory {
 				45, SlipModelType.TAPERED_SLIP_MODEL),
 	
 	ALLCAL("ALLCAL.zip", DefModName.UCERF2_ALL,
-				90, SlipModelType.TAPERED_SLIP_MODEL);
+				90, SlipModelType.TAPERED_SLIP_MODEL),
+				
+	UCERF3_ALLCAL_3_1_KLUDGE("ALLCAL_3_1_KLUDGE.zip", DefModName.UCERF3_FM_3_1_KLUDGE,
+							90, SlipModelType.TAPERED_SLIP_MODEL);
 	
 	private static final boolean D = true;
 	
@@ -185,11 +188,12 @@ public enum InversionFaultSystemRupSetFactory {
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
-		NCAL_SMALL.getRupSet();
-		NCAL_SMALL_UNIFORM.getRupSet();
-		NCAL.getRupSet();
-		ALLCAL_SMALL.getRupSet();
-		ALLCAL.getRupSet();
+//		NCAL_SMALL.getRupSet();
+//		NCAL_SMALL_UNIFORM.getRupSet();
+//		NCAL.getRupSet();
+//		ALLCAL_SMALL.getRupSet();
+//		ALLCAL.getRupSet();
+		UCERF3_ALLCAL_3_1_KLUDGE.getRupSet();
 	}
 
 }

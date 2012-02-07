@@ -15,6 +15,10 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
+import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
@@ -50,7 +54,8 @@ public class DeformationModelFetcher {
 	public enum DefModName {
 		UCERF2_NCAL,
 		UCERF2_BAYAREA,
-		UCERF2_ALL;
+		UCERF2_ALL,
+		UCERF3_FM_3_1_KLUDGE;
 	}
 	
 	String fileNamePrefix;
@@ -87,9 +92,12 @@ public class DeformationModelFetcher {
 			faultSubSectPrefDataList = createAll_UCERF2_SubSections(false, 0.5);
 			fileNamePrefix = "all_0_82_"+faultSubSectPrefDataList.size();			
 		}
-		else {
+		else if (name == DefModName.UCERF2_BAYAREA) {
 			faultSubSectPrefDataList = this.createBayAreaSubSections(0.5);
 			fileNamePrefix = "bayArea_0_82_"+faultSubSectPrefDataList.size();						
+		} else if (name == DefModName.UCERF3_FM_3_1_KLUDGE) {
+			faultSubSectPrefDataList = this.createUCERF3_KludgeSections(0.5);
+			fileNamePrefix = "ucerf3_kludge_3_1_"+faultSubSectPrefDataList.size();		
 		}
 	}
 	
@@ -305,6 +313,34 @@ public class DeformationModelFetcher {
 			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB.getFaultSectionPrefData(ucerf2_DefModelId, faultSectionIds.get(i));
 			double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectIndex);
+			subSectIndex += subSectData.size();
+			subSectionPrefDataList.addAll(subSectData);
+		}
+		
+		return subSectionPrefDataList;
+	}
+	
+	
+	/**
+	 * KLUDGE! FM 3.1, fake slips
+	 * 
+	 * @param maxSubSectionLength - in units of seismogenic thickness
+	 */
+	private ArrayList<FaultSectionPrefData> createUCERF3_KludgeSections(double maxSubSectionLength) {
+		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
+		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
+		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
+		FaultModelDB_DAO fm2db = new FaultModelDB_DAO(db);
+		ArrayList<Integer> faultSectionIds = fm2db.getFaultSectionIdList(101);
+		
+		ArrayList<FaultSectionPrefData> subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
+		int subSectIndex = 0;
+//		for (int i = 0; i < faultSectionIds.size(); ++i) {
+		for (FaultSectionPrefData data : datas) {
+			if (!faultSectionIds.contains(data.getSectionId()))
+				continue;
+			double maxSectLength = data.getOrigDownDipWidth()*maxSubSectionLength;
+			ArrayList<FaultSectionPrefData> subSectData = data.getSubSectionsList(maxSectLength, subSectIndex);
 			subSectIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
 		}
