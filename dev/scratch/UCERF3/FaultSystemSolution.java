@@ -584,7 +584,6 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			totalError+=Math.pow(r,2);
 		}			
 		System.out.println("Event-rate constraint error = "+totalError);
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 2f, Color.BLACK));
@@ -593,7 +592,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(
 					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
-		graph3.setPlottingFeatures(plotChars);
+		GraphiWindowAPI_Impl graph3 =
+				new GraphiWindowAPI_Impl(funcs3,
+						"Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)",
+						plotChars);
 		graph3.setX_AxisLabel("Fault Section Index");
 		graph3.setY_AxisLabel("Event Rate (per year)");
 
