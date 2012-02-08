@@ -184,7 +184,7 @@ public class Asset implements Cloneable {
 		return PortfolioEALCalculatorController.getVulnerabilities().get(vulnName);
 	}
 	
-	private String getVulnModelName() {
+	public String getVulnModelName() {
 		return paramList.getParameter(String.class, "VulnModel").getValue();
 	}
 
