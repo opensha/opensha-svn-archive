@@ -86,7 +86,7 @@ public enum InversionFaultSystemRupSetFactory {
 				90, SlipModelType.TAPERED_SLIP_MODEL),
 				
 	UCERF3_ALLCAL_3_1_KLUDGE("ALLCAL_3_1_KLUDGE.zip", DefModName.UCERF3_FM_3_1_KLUDGE,
-							90, SlipModelType.TAPERED_SLIP_MODEL);
+							45, SlipModelType.TAPERED_SLIP_MODEL);
 	
 	private static final boolean D = true;
 	
@@ -183,6 +183,7 @@ public enum InversionFaultSystemRupSetFactory {
 		
 		if (D) System.out.println("Saving new InversionFaultSystemRupSet to "+file.getAbsolutePath());
 		new SimpleFaultSystemRupSet(rupSet).toZipFile(file);
+		if (D) System.out.println("Done writing.");
 		
 		return rupSet;
 	}
@@ -190,10 +191,11 @@ public enum InversionFaultSystemRupSetFactory {
 	public static void main(String[] args) throws IOException, DocumentException {
 //		NCAL_SMALL.getRupSet();
 //		NCAL_SMALL_UNIFORM.getRupSet();
-//		NCAL.getRupSet();
+//		NCAL.getRupSet(true);
 //		ALLCAL_SMALL.getRupSet();
 //		ALLCAL.getRupSet();
 		UCERF3_ALLCAL_3_1_KLUDGE.getRupSet();
+		System.exit(0);
 	}
 
 }

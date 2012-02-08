@@ -1001,7 +1001,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			if(!parentSectionNames.contains(sectionData.getParentSectionName()))
 				continue;
 
-			FaultTrace sectionTrace = sectionData.getStirlingGriddedSurface(1.0, false).getRowAsTrace(0);
+			// TODO: should aseis be false instead of true?
+			FaultTrace sectionTrace = sectionData.getStirlingGriddedSurface(1.0, false, true).getRowAsTrace(0);
 			dist = sectionTrace.minDistToLocation(rupEndLoc);
 			if(dist<closestDist) {
 				secondClosestDist=closestDist;
@@ -1020,7 +1021,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 			return targetSection;
 			
 		// now see if both ends of closest section are within half the section length
-		FaultTrace sectionTrace = faultSectionData.get(clostestSect).getStirlingGriddedSurface(1.0, false).getRowAsTrace(0);
+		// TODO: should aseis be false instead of true?
+		FaultTrace sectionTrace = faultSectionData.get(clostestSect).getStirlingGriddedSurface(1.0, false, true).getRowAsTrace(0);
 		double sectHalfLength = 0.5*sectionTrace.getTraceLength()+0.5; 
 		Location sectEnd1 = sectionTrace.get(0);
 		Location sectEnd2 = sectionTrace.get(sectionTrace.size()-1);
@@ -1033,7 +1035,8 @@ public class FindEquivUCERF2_FM2pt1_Ruptures {
 		// check the second closest if the above failed
 		double maxDistSecondClosest=Double.NaN;
 		if(targetSection == -1) {	// check the second closest if the above failed
-			sectionTrace = faultSectionData.get(secondClosestSect).getStirlingGriddedSurface(1.0, false).getRowAsTrace(0);
+			// TODO: should aseis be false instead of true?
+			sectionTrace = faultSectionData.get(secondClosestSect).getStirlingGriddedSurface(1.0, false, true).getRowAsTrace(0);
 			sectHalfLength = 0.5*sectionTrace.getTraceLength()+0.5; 
 			sectEnd1 = sectionTrace.get(0);
 			sectEnd2 = sectionTrace.get(sectionTrace.size()-1);

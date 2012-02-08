@@ -60,6 +60,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	// for the stirling surface:
 	double lastGridSpacing = Double.NaN; 
 	boolean lastPreserveGridSpacingExactly;
+	boolean lastAseisReducesArea;
 	StirlingGriddedSurface stirlingGriddedSurface=null;
 
 	public String getShortName() {
@@ -550,18 +551,22 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * and ddw exactly (otherwise trimming occurs)
 	 * @return
 	 */
-	public StirlingGriddedSurface getStirlingGriddedSurface(double gridSpacing, boolean preserveGridSpacingExactly) {
+	public StirlingGriddedSurface getStirlingGriddedSurface(double gridSpacing, boolean preserveGridSpacingExactly,
+			boolean aseisReducesArea) {
 		// return cached surface?
-		if( (gridSpacing==lastGridSpacing) && (preserveGridSpacingExactly== lastPreserveGridSpacingExactly)) {
+		if( (gridSpacing==lastGridSpacing)
+				&& (preserveGridSpacingExactly== lastPreserveGridSpacingExactly)
+				&& (aseisReducesArea == lastAseisReducesArea)) {
 			return stirlingGriddedSurface;
 		}
 		else {		// make the surface
 			if(preserveGridSpacingExactly)
-				stirlingGriddedSurface = new StirlingGriddedSurface(getSimpleFaultData(true), gridSpacing);
+				stirlingGriddedSurface = new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing);
 			else
-				stirlingGriddedSurface = new StirlingGriddedSurface(getSimpleFaultData(true), gridSpacing, gridSpacing);
+				stirlingGriddedSurface = new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing, gridSpacing);
 			// set the last values used
 			lastPreserveGridSpacingExactly = preserveGridSpacingExactly;
+			lastAseisReducesArea = aseisReducesArea;
 			lastGridSpacing = gridSpacing;
 		}
 		return stirlingGriddedSurface;
@@ -576,7 +581,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * @return
 	 */
 	public StirlingGriddedSurface getStirlingGriddedSurface(double gridSpacing) {
-		return getStirlingGriddedSurface(gridSpacing, true);
+		return getStirlingGriddedSurface(gridSpacing, true, true);
 	}
 
 	

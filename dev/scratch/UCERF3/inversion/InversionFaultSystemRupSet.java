@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
@@ -22,6 +24,7 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
+import scratch.UCERF3.utils.IDPairing;
 
 /**
  * This class represents a FaultSystemRupSet for the Grand Inversion.
@@ -138,8 +141,11 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 //		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir); // this assumes NCAL, which is set in Run Inversion!  fix below:
 		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(defModName,precomputedDataDir);
 		faultSectionData = deformationModelFetcher.getSubSectionList();
-		double[][] subSectionDistances = deformationModelFetcher.getSubSectionDistanceMatrix();
-		double[][] subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMatrix();
+		Map<IDPairing, Double> subSectionDistances = deformationModelFetcher.getSubSectionDistanceMap(maxJumpDist);
+		Map<IDPairing, Double> subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMap(subSectionDistances.keySet());
+		Map<Integer, Double> rakesMap = new HashMap<Integer, Double>();
+		for (FaultSectionPrefData data : faultSectionData)
+			rakesMap.put(data.getSectionId(), data.getAveRake());
 
 		
 		// check that indices are same as sectionIDs (this is assumed here)
@@ -160,7 +166,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		// make the list of SectionCluster objects 
 		// (each represents a set of nearby sections and computes the possible
 		//  "ruptures", each defined as a list of sections in that rupture)
-		makeClusterList(subSectionAzimuths,subSectionDistances);
+		makeClusterList(subSectionAzimuths,subSectionDistances, rakesMap);
 		
 		// calculate rupture magnitude and other attributes
 		calcRuptureAttributes();
@@ -186,7 +192,6 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		graph.setY_AxisLabel("Num");
 	}
 	
-	
 	/**
 	 * For each section, create a list of sections that are within maxJumpDist.  
 	 * This generates an ArrayList of ArrayLists (named sectionConnectionsList).  
@@ -195,7 +200,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	 * have one connection to another parent section (whichever subsections are closest).  This prevents parallel 
 	 * and closely space faults from having connections back and forth all the way down the section.
 	 */
-	private List<List<Integer>> computeCloseSubSectionsListList(double[][] sectionDistances) {
+	private List<List<Integer>> computeCloseSubSectionsListList(Map<IDPairing, Double> subSectionDistances) {
 
 		ArrayList<List<Integer>> sectionConnectionsListList = new ArrayList<List<Integer>>();
 		for(int i=0;i<numSections;i++)
@@ -245,14 +250,17 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 				// find the closest pair
 				for(int k=0;k<sect1_List.size();k++) {
 					for(int l=0;l<sect2_List.size();l++) {
-						int index1 = sect1_List.get(k).getSectionId();
-						int index2 = sect2_List.get(l).getSectionId();;
-						double dist = sectionDistances[index1][index2];
-						if(dist < minDist) {
-							minDist = dist;
-							subSectIndex1 = index1;
-							subSectIndex2 = index2;
-						}					  
+						FaultSectionPrefData data1 = sect1_List.get(k);
+						FaultSectionPrefData data2 = sect2_List.get(l);
+						IDPairing ind = new IDPairing(data1.getSectionId(), data2.getSectionId());
+						if (subSectionDistances.containsKey(ind)) {
+							double dist = subSectionDistances.get(ind);
+							if(dist < minDist) {
+								minDist = dist;
+								subSectIndex1 = data1.getSectionId();
+								subSectIndex2 = data2.getSectionId();
+							}	
+						}		  
 					}
 				}
 				// add to lists for each subsection
@@ -266,7 +274,10 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	}
 	
 	
-	private void makeClusterList(double[][] sectionAzimuths, double[][] subSectionDistances) {
+	private void makeClusterList(
+			Map<IDPairing, Double> subSectionAzimuths,
+			Map<IDPairing, Double> subSectionDistances,
+			Map<Integer, Double> rakesMap) {
 		
 		// make the list of nearby sections for each section (branches)
 		if(D) System.out.println("Making sectionConnectionsListList");
@@ -282,7 +293,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
 			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
+					subSectionAzimuths, rakesMap, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addClusterLinks(firstSubSection, newCluster, sectionConnectionsListList);
@@ -363,6 +374,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
 			}
 		}
+		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");
 	}
 	
 	  /**

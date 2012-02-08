@@ -9,9 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
+import scratch.UCERF3.utils.IDPairing;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -109,8 +111,9 @@ public class TestInversion {
 		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir);
 		subSectionPrefDataList = deformationModelFetcher.getSubSectionList();
 		numSubSections = subSectionPrefDataList.size();
-		subSectionAzimuths=deformationModelFetcher.getSubSectionAzimuthMatrix();
-		subSectionDistances=deformationModelFetcher.getSubSectionDistanceMatrix();
+		Map<IDPairing, Double> dists = deformationModelFetcher.getSubSectionDistanceMap(maxJumpDist);
+		subSectionDistances=mapToArrays(dists);
+		subSectionAzimuths=mapToArrays(deformationModelFetcher.getSubSectionAzimuthMap(dists.keySet()));
 		
 		
 		
@@ -124,6 +127,22 @@ public class TestInversion {
 		
 //		rupsInFaultSysInv.writeCloseSubSections(precomputedDataDir.getAbsolutePath()+File.separator+"closeSubSections.txt");
 		
+	}
+	
+	private double[][] mapToArrays(Map<IDPairing, Double> map) {
+		int num = subSectionPrefDataList.size();
+		double[][] array = new double[num][num];
+		for (int i=0; i<num; i++)
+			for (int j=0; j<num; j++)
+				array[i][j] = Double.MAX_VALUE;
+		for (IDPairing ind : map.keySet()) {
+			int i = ind.getID1();
+			int j = ind.getID2();
+			double val = map.get(ind);
+			array[i][j] = val;
+			array[j][i] = val;
+		}
+		return array;
 	}
 	
 	/**

@@ -448,7 +448,8 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	public CompoundGriddedSurface getCompoundGriddedSurfaceForRupupture(int rupIndex, double gridSpacing) {
 		ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
 		for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
-			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, true));
+			// TODO: should aseis be false instead of true?
+			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, true, true));
 		}
 		return new CompoundGriddedSurface(surfaces);
 		

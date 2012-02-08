@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -28,9 +30,11 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
+import scratch.UCERF3.utils.IDPairing;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
@@ -392,8 +396,16 @@ public class RupsInFaultSystemInversion {
 		while(availableSections.size()>0) {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
+			Map<IDPairing, Double> azimuths = new HashMap<IDPairing, Double>();
+			for (int i=0; i<sectionAzimuths.length; i++) {
+				for (int j=0; j<sectionAzimuths[i].length; j++) {
+					IDPairing ind = new IDPairing(i, j);
+					if (!azimuths.containsKey(ind))
+						azimuths.put(ind, sectionAzimuths[i][j]);
+				}
+			}
 			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					sectionAzimuths, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
+					azimuths, null, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addClusterLinks(firstSubSection, newCluster);
