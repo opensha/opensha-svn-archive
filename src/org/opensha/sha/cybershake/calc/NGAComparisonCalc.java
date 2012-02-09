@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.CSVFile;
@@ -23,6 +24,7 @@ import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
@@ -32,6 +34,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.SiteTranslator;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class NGAComparisonCalc {
 
@@ -40,6 +43,24 @@ public class NGAComparisonCalc {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) {
+		// first look for a --site argument
+		ArrayList<String> newArgs = new ArrayList<String>();
+		String siteName = null;
+		for (int i=0; i<args.length; i++) {
+			if (args[i].equals("--site")) {
+				Preconditions.checkArgument(siteName == null,
+						"multiple --site arguments are not allowed!");
+				Preconditions.checkArgument(i+1<args.length,
+						"--site specified but no argument following!");
+				// increment i and set the siteName
+				siteName = args[++i];
+			} else {
+				newArgs.add(args[i]);
+			}
+		}
+		
+		args = newArgs.toArray(new String[newArgs.size()]);
+		
 		// prepare user inputs (either from command line or a file
 		ArrayList<String[]> inputs = new ArrayList<String[]>();
 		if (args.length == 1) {
@@ -81,15 +102,17 @@ public class NGAComparisonCalc {
 				inputs.add(input);
 		} else {
 			String cName = ClassUtils.getClassNameWithoutPackage(NGAComparisonCalc.class);
+			String commonOps = cName+" [--site <site short name>]";
 			System.err.println("USAGE: ");
-			System.err.println("\t"+cName+" <input file>");
+			System.err.println("\t"+commonOps+" <input file>");
 			System.err.println("\t--- OR ---");
-			System.err.println("\t"+cName+" <source id> <rup id> <SA period>");
+			System.err.println("\t"+commonOps+" <source id> <rup id> <SA period>");
 			System.exit(2);
 		}
 		
 		// create the CyberShake modified UCERF2 ERF (ERF 35 in the database)
 		System.out.println("Instantiating UCERF2");
+		int erfID = 35;
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		erf.updateForecast();
 		
@@ -107,13 +130,23 @@ public class NGAComparisonCalc {
 		}
 		
 		// this is needed to get the CyberShake site list from the database
-		System.out.println("Fetching site list");
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		PeakAmplitudesFromDB amps2db = new PeakAmplitudesFromDB(db);
 		
-		ArrayList<CybershakeSite> allCSSites = sites2db.getAllSitesFromDB();
-		ArrayList<CybershakeRun> ampRuns = amps2db.getPeakAmpRuns();
+		ArrayList<CybershakeSite> allCSSites;
+		ArrayList<CybershakeRun> ampRuns;
+		
+		if (siteName == null) {
+			// we're doing it for all sites
+			allCSSites = sites2db.getAllSitesFromDB();
+			ampRuns = amps2db.getPeakAmpRuns();
+		} else {
+			// just for the given site
+			CybershakeSite site = sites2db.getSiteFromDB(siteName);
+			allCSSites = Lists.newArrayList(site);
+			ampRuns = amps2db.getPeakAmpRuns(site.id, erfID, -1, -1, -1);
+		}
 		
 		ArrayList<CybershakeSite> csSites = new ArrayList<CybershakeSite>();
 		ArrayList<ArrayList<Integer>> csSiteRunIDs = new ArrayList<ArrayList<Integer>>();
@@ -129,7 +162,6 @@ public class NGAComparisonCalc {
 				csSiteRunIDs.add(runIDs);
 			}
 		}
-		
 		
 		ArrayList<Site> sites = new ArrayList<Site>();
 		
@@ -184,6 +216,33 @@ public class NGAComparisonCalc {
 			}
 		}
 		
+		ArrayList<String> siteSpecificHeader = Lists.newArrayList("ID", "Short Name", "Run IDs");
+		
+		Preconditions.checkState(!csSites.isEmpty(), "no sites found!");
+		
+		for (Iterator<Parameter<?>> it = sites.get(0).getParametersIterator(); it.hasNext(); )
+			siteSpecificHeader.add(it.next().getName());
+		
+		ArrayList<String> rupSpecificHeader = Lists.newArrayList("Source ID", "Rup ID",
+				"DistanceJB", "DistanceRup", "DistanceSeis", "DistanceX");
+		for (ScalarIMR imr : imrs) {
+			rupSpecificHeader.add("mean ("+imr.getShortName()+")");
+			rupSpecificHeader.add("std. dev. ("+imr.getShortName()+")");
+		}
+		
+		boolean siteSpecific = siteName != null;
+		
+		CSVFile<String> csv = null;
+		File outputFile = null;
+		if (siteSpecific) {
+			csv = new CSVFile<String>(false);
+			outputFile = new File("ERF"+erfID+"_"+siteName+".csv");
+			
+			csv.addLine(siteSpecificHeader);
+			csv.addLine(getSiteSpecificVals(csSites.get(0), csSiteRunIDs.get(0), sites.get(0)));
+			csv.addLine(rupSpecificHeader);
+		}
+		
 		for (String[] input : inputs) {
 			int sourceID = Integer.parseInt(input[0]);
 			int rupID = Integer.parseInt(input[1]);
@@ -193,32 +252,19 @@ public class NGAComparisonCalc {
 			for (ScalarIMR imr : imrs)
 				SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
 			
-			File outputFile = new File("ERF35_src"+sourceID+"_rup"+rupID+"_SA"+(float)period+".csv");
-			
-			// get the rupture for the specified source/rup ID
-			EqkRupture rup = erf.getRupture(sourceID, rupID);
-			
-			CSVFile<String> csv = new CSVFile<String>(true);
-			
-			ArrayList<String> header = new ArrayList<String>();
-			header.add("ID");
-			header.add("Short Name");
-			header.add("Run IDs");
-			
-			for (Iterator<Parameter<?>> it = sites.get(0).getParametersIterator(); it.hasNext(); )
-				header.add(it.next().getName());
-			
-			header.add("DistanceJB");
-			header.add("DistanceRup");
-			header.add("DistanceSeis");
-			header.add("DistanceX");
-			
-			for (ScalarIMR imr : imrs) {
-				header.add("mean ("+imr.getShortName()+")");
-				header.add("std. dev. ("+imr.getShortName()+")");
+			if (!siteSpecific) {
+				outputFile = new File("ERF"+erfID+"_src"+sourceID+"_rup"+rupID+"_SA"+(float)period+".csv");
+				csv = new CSVFile<String>(true);
+				ArrayList<String> header = new ArrayList<String>();
+				
+				header.addAll(siteSpecificHeader);
+				header.addAll(rupSpecificHeader);
+				
+				csv.addLine(header);
 			}
 			
-			csv.addLine(header);
+			// get the rupture for the specified source/rup ID
+			ProbEqkRupture rup = erf.getRupture(sourceID, rupID);
 			
 			// get mean/std dev of ground motion
 			System.out.println("Calculating Ground Motions");
@@ -229,46 +275,33 @@ public class NGAComparisonCalc {
 				
 				ArrayList<String> line = new ArrayList<String>();
 				
-				line.add(csSite.id+"");
-				line.add(csSite.short_name);
+				if (!siteSpecific)
+					line.addAll(getSiteSpecificVals(csSite, runIDs, site));
 				
-				String ids = null;
-				for (int runID : runIDs) {
-					if (ids == null)
-						ids = "";
-					else
-						ids += ",";
-					ids += runID;
-				}
-				
-				line.add(ids);
-				
-				for (Iterator<Parameter<?>> it = site.getParametersIterator(); it.hasNext(); )
-					line.add(it.next().getValue()+"");
-				
-				line.add(rup.getRuptureSurface().getDistanceJB(site.getLocation())+"");
-				line.add(rup.getRuptureSurface().getDistanceRup(site.getLocation())+"");
-				line.add(rup.getRuptureSurface().getDistanceSeis(site.getLocation())+"");
-				line.add(rup.getRuptureSurface().getDistanceX(site.getLocation())+"");
-				
-				for (ScalarIMR imr : imrs) {
-					imr.setEqkRupture(rup);
-					imr.setSite(site);
-					
-					// natural log of SA at given period, in G's
-					double mean = imr.getMean();
-					double stdDev = imr.getStdDev();
-					
-					line.add(mean+"");
-					line.add(stdDev+"");
-				}
+				line.add(sourceID+"");
+				line.add(rupID+"");
+				line.addAll(getNGAData(site, rup, imrs));
 				
 				csv.addLine(line);
 				
 //				System.out.println("site: "+site.getName()+"\tmean: "+mean+"\t std dev: "+stdDev);
 			}
 			
-			System.out.println("Writing: "+outputFile.getName());
+			if (!siteSpecific) {
+				System.out.println("Writing: "+outputFile.getName()+"...");
+				try {
+					csv.writeToFile(outputFile);
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("Error writing output file!");
+					System.exit(1);
+				}
+				System.out.print("Done!");
+			}
+		}
+		
+		if (siteSpecific) {
+			System.out.println("Writing: "+outputFile.getName()+"...");
 			try {
 				csv.writeToFile(outputFile);
 			} catch (IOException e) {
@@ -276,11 +309,59 @@ public class NGAComparisonCalc {
 				System.out.println("Error writing output file!");
 				System.exit(1);
 			}
-			
-			System.out.println("Done!");
+			System.out.print("Done!");
 		}
 		
 		System.exit(0);
+	}
+	
+	private static List<String> getNGAData(Site site, ProbEqkRupture rup, List<ScalarIMR> imrs) {
+		ArrayList<String> line = new ArrayList<String>();
+		
+		line.add(rup.getRuptureSurface().getDistanceJB(site.getLocation())+"");
+		line.add(rup.getRuptureSurface().getDistanceRup(site.getLocation())+"");
+		line.add(rup.getRuptureSurface().getDistanceSeis(site.getLocation())+"");
+		line.add(rup.getRuptureSurface().getDistanceX(site.getLocation())+"");
+		
+		for (ScalarIMR imr : imrs) {
+			imr.setEqkRupture(rup);
+			imr.setSite(site);
+			
+			// natural log of SA at given period, in G's
+			double mean = imr.getMean();
+			double stdDev = imr.getStdDev();
+			
+			line.add(mean+"");
+			line.add(stdDev+"");
+		}
+		
+		return line;
+	}
+	
+	private static String getRunIDString(List<Integer> runIDs) {
+		String ids = null;
+		for (int runID : runIDs) {
+			if (ids == null)
+				ids = "";
+			else
+				ids += ",";
+			ids += runID;
+		}
+		return ids;
+	}
+	
+	private static List<String> getSiteSpecificVals(CybershakeSite csSite, List<Integer> runIDs, Site site) {
+		ArrayList<String> line = new ArrayList<String>();
+		line.add(csSite.id+"");
+		line.add(csSite.short_name);
+		
+		String ids = getRunIDString(runIDs);
+		
+		line.add(ids);
+		
+		for (Iterator<Parameter<?>> it = site.getParametersIterator(); it.hasNext(); )
+			line.add(it.next().getValue()+"");
+		return line;
 	}
 
 }
