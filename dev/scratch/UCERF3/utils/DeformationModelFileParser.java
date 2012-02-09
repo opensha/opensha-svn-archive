@@ -85,6 +85,10 @@ public class DeformationModelFileParser {
 		public int getId() {
 			return id;
 		}
+		
+		protected void setID(int id) {
+			this.id = id;
+		}
 
 		public List<Location> getLocs1() {
 			return locs1;
@@ -137,16 +141,25 @@ public class DeformationModelFileParser {
 			fileLocs.addAll(locs1);
 			fileLocs.add(locs2.get(locs2.size()-1));
 			
-//			for (Location loc : fileLocs) {
-//				if (mismatch)
-//					System.out.println(loc.getLatitude()+"\t"+loc.getLongitude()+"\t0");
-//			}
-			
 			for (int i=0; i<fileLocs.size()&&i<trace.size(); i++) {
 				double dist = LocationUtils.horzDistance(fileLocs.get(i), trace.get(i));
 				if (dist > 1) {
-//					System.out.println(nameID+": trace location mismatch at index "+i+"/"+(fileLocs.size()-1));
+					System.out.println(nameID+": trace location mismatch at index "+i+"/"+(fileLocs.size()-1));
 					mismatch = true;
+				}
+			}
+			
+			if (mismatch) {
+				for (int i=0; i<fileLocs.size(); i++) {
+					Location loc = fileLocs.get(i);
+					System.out.print("["+(float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t0]");
+					
+					if (trace.size() > i) {
+						Location traceLoc = trace.get(i);
+						System.out.print("\t["+(float)traceLoc.getLatitude()+"\t"+(float)traceLoc.getLongitude()+"\t0]");
+						System.out.print("\tdist: "+(float)LocationUtils.linearDistanceFast(loc, traceLoc));
+					}
+					System.out.println();
 				}
 			}
 			
@@ -188,27 +201,29 @@ public class DeformationModelFileParser {
 		
 		int faultModelId = 101;
 		
+		File dir = new File("D:\\Documents\\SCEC\\def_models");
+		
 		try {
 			System.out.println("Fetching fault data");
 			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
 			System.out.println("Fetching fault model");
 			ArrayList<Integer> fm = fm2db.getFaultSectionIdList(faultModelId);
-			defFile = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial/neokinema_slip_rake_feb06.txt");
+			defFile = new File(dir, "neokinema_slip_rake_feb06.txt");
 			System.out.println("Doing comparison: "+defFile.getName());
 			HashMap<Integer, DeformationSection>  defs = load(defFile);
 			compareAgainst(defs, datas, fm);
 			System.out.println("");
-			defFile = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial/ABM_slip_rake_feb06.txt");
+			defFile = new File(dir, "ABM_slip_rake_feb06.txt");
 			System.out.println("Doing comparison: "+defFile.getName());
 			defs = load(defFile);
 			compareAgainst(defs, datas, fm);
 			System.out.println("");
-			defFile = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial/geobound_slip_rake_feb06.txt");
+			defFile = new File(dir, "geobound_slip_rake_feb06.txt");
 			System.out.println("Doing comparison: "+defFile.getName());
 			defs = load(defFile);
 			compareAgainst(defs, datas, fm);
 			System.out.println("");
-			defFile = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial/zeng_slip_rake_feb06.txt");
+			defFile = new File(dir, "zeng_slip_rake_feb06.txt");
 			System.out.println("Doing comparison: "+defFile.getName());
 			defs = load(defFile);
 			compareAgainst(defs, datas, fm);

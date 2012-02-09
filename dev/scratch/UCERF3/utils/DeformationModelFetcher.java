@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,8 +31,10 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 
 /**
@@ -344,25 +347,183 @@ public class DeformationModelFetcher {
 	 * @param maxSubSectionLength - in units of seismogenic thickness
 	 */
 	private ArrayList<FaultSectionPrefData> createUCERF3_KludgeSections(double maxSubSectionLength) {
+		int faultModelID = 101;
+		
+		ArrayList<FaultSectionPrefData> fm = loadUCERF3FaultModel(faultModelID);
+		
+		ArrayList<FaultSectionPrefData> subSections = new ArrayList<FaultSectionPrefData>();
+		int subSectIndex = 0;
+		for (FaultSectionPrefData section : fm) {
+			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
+					section, maxSubSectionLength, subSectIndex);
+			subSections.addAll(subSectData);
+			subSectIndex += subSectData.size();
+		}
+		
+		return subSections;
+	}
+	
+	private static ArrayList<FaultSectionPrefData> buildSubSections(
+			FaultSectionPrefData section, double maxSubSectionLength, int subSectIndex) {
+		double maxSectLength = section.getOrigDownDipWidth()*maxSubSectionLength;
+		return section.getSubSectionsList(maxSectLength, subSectIndex);
+	}
+	
+	private ArrayList<FaultSectionPrefData> loadUCERF3FaultModel(int faultModelID) {
 		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
 		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
 		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
 		FaultModelDB_DAO fm2db = new FaultModelDB_DAO(db);
-		ArrayList<Integer> faultSectionIds = fm2db.getFaultSectionIdList(101);
+		ArrayList<Integer> faultSectionIds = fm2db.getFaultSectionIdList(faultModelID);
 
-		ArrayList<FaultSectionPrefData> subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
+		ArrayList<FaultSectionPrefData> faultModel = new ArrayList<FaultSectionPrefData>();
 		int subSectIndex = 0;
 		//		for (int i = 0; i < faultSectionIds.size(); ++i) {
 		for (FaultSectionPrefData data : datas) {
 			if (!faultSectionIds.contains(data.getSectionId()))
 				continue;
-			double maxSectLength = data.getOrigDownDipWidth()*maxSubSectionLength;
-			ArrayList<FaultSectionPrefData> subSectData = data.getSubSectionsList(maxSectLength, subSectIndex);
-			subSectIndex += subSectData.size();
-			subSectionPrefDataList.addAll(subSectData);
+			faultModel.add(data);
 		}
 
-		return subSectionPrefDataList;
+		return faultModel;
+	}
+	
+	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
+			ArrayList<FaultSectionPrefData> sections, File defModelFile, double maxSubSectionLength)
+			throws IOException {
+		HashMap<Integer,DeformationSection> model = DeformationModelFileParser.load(defModelFile);
+		
+		ArrayList<FaultSectionPrefData> subSections = new ArrayList<FaultSectionPrefData>();
+		int subSectIndex = 0;
+		for (FaultSectionPrefData section : sections) {
+			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
+					section, maxSubSectionLength, subSectIndex);
+			
+			// replace the slip rates with the def model rates
+			DeformationSection def = model.get(section.getSectionId());
+			
+			List<Double> slips = def.getSlips();
+			FaultTrace trace = section.getFaultTrace();
+			
+			if (def == null || !def.validateAgainst(section)) {
+				/* TODO remove special cases when files are updated
+				 * these are special cases where the files were generated for an older fault model
+				 * unfortunate be necessary, temporarily */
+				if (section.getSectionId() == 82) {
+					/* 
+					 * special case for North Frontal  (West)
+					 * 
+					 * The problem here is that the 5th trace point (index 4) was accidentally
+					 * present in the fault section. it has since been deleted, but the deformation
+					 * models still have this incorrect location. To fix this, we simply remove the
+					 * offending point from the deformation model's fault trace and average the two
+					 * original slip rates (scaled by their lengths). 
+					 */
+					
+					List<Location> locs1 = def.getLocs1();
+					List<Location> locs2 = def.getLocs2();
+					
+					// we need to average slips 3 & 4, with respects to locs 3, 4, & 5
+					// this will contains pts 3, 4, 5 (sublist is exclusive)
+					List<Location> locs = locs1.subList(3, 6);
+					// this will contain slips 3 & 4
+					List<Double> slipsPart = slips.subList(3, 5);
+					
+					double avgSlip = getAverageSlip(locs, slipsPart);
+					
+					// now fix the lists
+					slips.remove(3);
+					slips.remove(4);
+					slips.add(3, avgSlip);
+					
+					locs1.remove(4);
+					locs2.remove(3);
+				} else if (section.getSectionId() == 666) {
+					/* 
+					 * this is Point Reyes 2011 CFM. an error was corrected in this fault trace the
+					 * point with index 2. We can fix this by setting the longitude of pt 2 to 
+					 * that from the trace
+					 */
+					
+					List<Location> locs1 = def.getLocs1();
+					List<Location> locs2 = def.getLocs2();
+					
+					Location correctPt = trace.get(2);
+					locs1.set(2, correctPt);
+					locs2.set(1, correctPt);
+				}
+				
+				// make sure we fixed it
+				Preconditions.checkState(def.validateAgainst(section), "fix didn't work for section: "
+						+section.getSectionId());
+			}
+			
+			subSections.addAll(subSectData);
+			subSectIndex += subSectData.size();
+		}
+		
+		return subSections;
+	}
+	
+	/**
+	 * This averages two slip rates based on the length of each corresponding span.
+	 * 
+	 * @param loc1
+	 * @param loc2
+	 * @param loc3
+	 * @param slip12
+	 * @param slip23
+	 */
+	private static double getAverageSlip(List<Location> locs, List<Double> slips) {
+		Preconditions.checkArgument(locs.size() == slips.size()+1,
+				"there must be exactly one less slip than location!");
+		Preconditions.checkArgument(!slips.isEmpty(), "there must be at least 2 locations and 1 slip rate");
+		
+		if (slips.size() == 1)
+			return slips.get(0);
+		boolean equal = true;
+		for (int i=1; i<slips.size(); i++) {
+			if (slips.get(i) != slips.get(0)) {
+				equal = false;
+				break;
+			}
+		}
+		if (equal)
+			return slips.get(0);
+		
+		double totDist = 0;
+		ArrayList<Double> dists = new ArrayList<Double>();
+		
+		for (int i=1; i<locs.size(); i++) {
+			double dist = LocationUtils.linearDistanceFast(locs.get(i-1), locs.get(i));
+			dists.add(dist);
+			totDist += dist;
+		}
+		
+		double avgSlip = 0;
+		for (int i=0; i<dists.size(); i++) {
+			double relative = dists.get(i) / totDist;
+			avgSlip += relative * slips.get(i);
+		}
+		
+		return avgSlip;
+	}
+	
+	/**
+	 * Determines if the given point, pt, is between start and end. It is determined
+	 * to be in between only if pt is closer to both start and end than start is to end.
+	 * 
+	 * @param start
+	 * @param end
+	 * @param pt
+	 * @return
+	 */
+	private static boolean isBetween(Location start, Location end, Location pt) {
+		double start_end_dist = LocationUtils.linearDistanceFast(start, end);
+		double pt_start_dist = LocationUtils.linearDistanceFast(pt, start);
+		double pt_end_dist = LocationUtils.linearDistanceFast(pt, end);
+		
+		return pt_start_dist < start_end_dist && pt_end_dist < start_end_dist;
 	}
 
 	private StirlingGriddedSurface getSurfaceForSubSect(FaultSectionPrefData data) {
