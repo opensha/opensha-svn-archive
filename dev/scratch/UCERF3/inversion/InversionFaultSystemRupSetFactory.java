@@ -85,7 +85,7 @@ public enum InversionFaultSystemRupSetFactory {
 	ALLCAL("ALLCAL.zip", DefModName.UCERF2_ALL,
 				90, SlipModelType.TAPERED_SLIP_MODEL),
 				
-	UCERF3_ALLCAL_3_1_KLUDGE("ALLCAL_3_1_KLUDGE.zip", DefModName.UCERF3_FM_3_1_KLUDGE,
+	UCERF3_GEOLOGIC("UCERF3_GEOLOGIC.zip", DefModName.UCERF3_GEOLOGIC,
 							45, SlipModelType.TAPERED_SLIP_MODEL);
 	
 	private static final boolean D = true;
@@ -194,7 +194,8 @@ public enum InversionFaultSystemRupSetFactory {
 //		NCAL.getRupSet(true);
 //		ALLCAL_SMALL.getRupSet();
 //		ALLCAL.getRupSet();
-		UCERF3_ALLCAL_3_1_KLUDGE.getRupSet();
+//		UCERF3_ALLCAL_3_1_KLUDGE.getRupSet(true);
+		UCERF3_GEOLOGIC.getRupSet(true);
 		System.exit(0);
 	}
 

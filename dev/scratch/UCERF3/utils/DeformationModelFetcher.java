@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +68,27 @@ public class DeformationModelFetcher {
 		UCERF2_NCAL,
 		UCERF2_BAYAREA,
 		UCERF2_ALL,
-		UCERF3_FM_3_1_KLUDGE;
+		UCERF3_ABM("ABM_slip_rake_feb06.txt"),
+		UCERF3_GEOBOUND("geobound_slip_rake_feb06.txt"),
+		UCERF3_NEOKINEMA("neokinema_slip_rake_feb06.txt"),
+		UCERF3_ZENG("zeng_slip_rake_feb06.txt"),
+		UCERF3_GEOLOGIC("geologic_2012_02_09.csv");
+		
+		private DefModName() {
+			this(null);
+		}
+		
+		private String fileName;
+		
+		private DefModName(String fileName) {
+			this.fileName = fileName;
+		}
+		
+		public URL getDataFileURL() {
+			if (fileName == null)
+				return null;
+			return this.getClass().getResource("/scratch/UCERF3/preComputedData/DeformationModels/"+fileName);
+		}
 	}
 
 	String fileNamePrefix;
@@ -94,22 +116,35 @@ public class DeformationModelFetcher {
 	 * @param precomputedDataDir - the dir where pre-computed data can be found (for faster instantiation)
 	 */
 	public DeformationModelFetcher(DefModName name, File precomputedDataDir) {
+		double maxSubSectionLength = 0.5; // in units of DDW
 		this.precomputedDataDir = precomputedDataDir;
 		chosenDefModName = name;
 		if(name == DefModName.UCERF2_NCAL) {
-			faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, 0.5);
+			faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, maxSubSectionLength);
 			fileNamePrefix = "nCal_0_82_"+faultSubSectPrefDataList.size();	// now hard coded as no NaN slip rates (the 0), defModID=82, & number of sections
 		}
 		else if(name == DefModName.UCERF2_ALL) {
-			faultSubSectPrefDataList = createAll_UCERF2_SubSections(false, 0.5);
+			faultSubSectPrefDataList = createAll_UCERF2_SubSections(false, maxSubSectionLength);
 			fileNamePrefix = "all_0_82_"+faultSubSectPrefDataList.size();			
 		}
 		else if (name == DefModName.UCERF2_BAYAREA) {
-			faultSubSectPrefDataList = this.createBayAreaSubSections(0.5);
+			faultSubSectPrefDataList = this.createBayAreaSubSections(maxSubSectionLength);
 			fileNamePrefix = "bayArea_0_82_"+faultSubSectPrefDataList.size();						
-		} else if (name == DefModName.UCERF3_FM_3_1_KLUDGE) {
-			faultSubSectPrefDataList = this.createUCERF3_KludgeSections(0.5);
-			fileNamePrefix = "ucerf3_kludge_3_1_"+faultSubSectPrefDataList.size();		
+		} else if (name.getDataFileURL() != null) {
+			int fmID = 101;
+			URL url = name.getDataFileURL();
+			try {
+				System.out.println("Loading def model from: "+url);
+				HashMap<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
+				System.out.println("Loading fault model wtih ID: "+fmID);
+				ArrayList<FaultSectionPrefData> sections = loadUCERF3FaultModel(fmID);
+				System.out.println("Combining model with sections...");
+				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength);
+				fileNamePrefix = name.name()+"_"+faultSubSectPrefDataList.size();
+				System.out.println("DONE.");
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
 		}
 
 		faultSubSectPrefDataIDMap = new HashMap<Integer, FaultSectionPrefData>();
@@ -389,9 +424,39 @@ public class DeformationModelFetcher {
 	}
 	
 	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
-			ArrayList<FaultSectionPrefData> sections, File defModelFile, double maxSubSectionLength)
+			ArrayList<FaultSectionPrefData> sections, HashMap<Integer,DeformationSection> model, double maxSubSectionLength)
 			throws IOException {
-		HashMap<Integer,DeformationSection> model = DeformationModelFileParser.load(defModelFile);
+		final boolean DD = D && false;
+		// TODO remove special cases
+		if (model.containsKey(297) && model.containsKey(298) && model.containsKey(402)) {
+			/*
+			 * We need to fix the Elsinore problem. Here, the connector, and both overlapping alternates
+			 * were incorrectly included in the deformation model. we need to combine them...we simply average
+			 * each section from the models and add them together (some models distributed the slip across all 3,
+			 * others only gave it to the middle.)
+			 */
+			DeformationSection def297 = model.get(297);
+			DeformationSection def298 = model.get(298);
+			DeformationSection def402 = model.get(402);
+			System.out.println("Fixing Elsinore Special Case!");
+			double slips297 = getAverageSlip(def297.getLocsAsTrace(), def297.getSlips());
+			double slips298 = getAverageSlip(def298.getLocsAsTrace(), def298.getSlips());
+			double slips402 = getAverageSlip(def402.getLocsAsTrace(), def402.getSlips());
+			
+			double combinedSlip = 0;
+			if (!Double.isNaN(slips297))
+				combinedSlip += slips297;
+			if (!Double.isNaN(slips298))
+				combinedSlip += slips298;
+			if (!Double.isNaN(slips402))
+				combinedSlip += slips402;
+			
+			model.remove(297);
+			model.remove(298);
+			List<Double> slipsList = def402.getSlips();
+			for (int i=0; i<slipsList.size(); i++)
+				slipsList.set(i, combinedSlip);
+		}
 		
 		ArrayList<FaultSectionPrefData> subSections = new ArrayList<FaultSectionPrefData>();
 		int subSectIndex = 0;
@@ -402,8 +467,14 @@ public class DeformationModelFetcher {
 			// replace the slip rates with the def model rates
 			DeformationSection def = model.get(section.getSectionId());
 			
-			List<Double> slips = def.getSlips();
 			FaultTrace trace = section.getFaultTrace();
+			
+			if (DD) {
+				System.out.println("Section: "+section.getSectionName()+" ("+section.getSectionId()+")");
+				System.out.println("Trace:");
+				for (int i=0; i<trace.size(); i++)
+					System.out.println("\t"+i+":\t"+trace.get(i).getLatitude()+"\t"+trace.get(i).getLongitude());
+			}
 			
 			if (def == null || !def.validateAgainst(section)) {
 				/* TODO remove special cases when files are updated
@@ -419,9 +490,11 @@ public class DeformationModelFetcher {
 					 * offending point from the deformation model's fault trace and average the two
 					 * original slip rates (scaled by their lengths). 
 					 */
+					System.out.println("Fixing North Frontal Special Case!");
 					
 					List<Location> locs1 = def.getLocs1();
 					List<Location> locs2 = def.getLocs2();
+					List<Double> slips = def.getSlips();
 					
 					// we need to average slips 3 & 4, with respects to locs 3, 4, & 5
 					// this will contains pts 3, 4, 5 (sublist is exclusive)
@@ -438,12 +511,26 @@ public class DeformationModelFetcher {
 					
 					locs1.remove(4);
 					locs2.remove(3);
+				} else if (section.getSectionId() == 664) {
+					/* 
+					 * this is Silver Creek 2011 CFM. an error was corrected in this fault trace the
+					 * point with index 5. We can fix this by setting the value of pt 5 to 
+					 * that from the trace
+					 */
+					System.out.println("Fixing Silver Creek Special Case!");
+					
+					List<Location> locs2 = def.getLocs2();
+					
+					Location correctPt = trace.get(5);
+					locs2.set(4, correctPt);
+					// don't need to set anything on locs1 because this is the last point
 				} else if (section.getSectionId() == 666) {
 					/* 
 					 * this is Point Reyes 2011 CFM. an error was corrected in this fault trace the
 					 * point with index 2. We can fix this by setting the longitude of pt 2 to 
 					 * that from the trace
 					 */
+					System.out.println("Fixing Point Reyes Special Case!");
 					
 					List<Location> locs1 = def.getLocs1();
 					List<Location> locs2 = def.getLocs2();
@@ -451,11 +538,101 @@ public class DeformationModelFetcher {
 					Location correctPt = trace.get(2);
 					locs1.set(2, correctPt);
 					locs2.set(1, correctPt);
+				} else if (section.getSectionId() == 401) {
+					/* 
+					 * this is on the San Jicento where the connector should have been included, but wasn't. Instead
+					 * two overlapping planes were included (290 & 291). We combine them by averaging each one, and
+					 * adding the slips.
+					 */
+					DeformationSection def290 = model.get(290);
+					DeformationSection def291 = model.get(291);
+					System.out.println("Fixing San Jacinto Special Case!");
+					double slips290 = getAverageSlip(def290.getLocsAsTrace(), def290.getSlips());
+					double slips291 = getAverageSlip(def291.getLocsAsTrace(), def291.getSlips());
+					
+					double combinedSlip = 0;
+					if (!Double.isNaN(slips290))
+						combinedSlip += slips290;
+					if (!Double.isNaN(slips291))
+						combinedSlip += slips291;
+					
+					model.remove(290);
+					model.remove(291);
+					
+					DeformationSection def401 = new DeformationSection(401);
+					for (int i=0; i<trace.size()-1; i++) {
+						def401.add(trace.get(i), trace.get(i+1), combinedSlip, section.getAveRake());
+					}
+					model.put(401, def401);
+					def = def401;
 				}
 				
 				// make sure we fixed it
 				Preconditions.checkState(def.validateAgainst(section), "fix didn't work for section: "
 						+section.getSectionId());
+			}
+			
+			List<Double> slips = def.getSlips();
+			
+			// now set the subsection rates from the def model
+			for (int s=0; s<subSectData.size(); s++) {
+				FaultSectionPrefData subSect = subSectData.get(s);
+				FaultTrace subTrace = subSect.getFaultTrace();
+				Preconditions.checkState(subTrace.size()>1, "sub section trace only has one point!!!!");
+				Location subStart = subTrace.get(0);
+				Location subEnd = subTrace.get(subTrace.size()-1);
+				
+				if (DD) {
+					System.out.println("Sbusection "+s);
+					System.out.println("Start: "+subStart.getLatitude()+"\t"+subStart.getLongitude());
+					System.out.println("End: "+subEnd.getLatitude()+"\t"+subEnd.getLongitude());
+				}
+				
+				// this is the index of the trace point that is either before or equal to the start of the
+				// sub section
+				int traceIndexBefore = -1;
+				// this is the index of the trace point that is either after or exactly at the end of the
+				// sub section
+				int traceIndexAfter = -1;
+				
+				// now see if there are any trace points in between the start and end of the sub section
+				for (int i=0; i<trace.size(); i++) {
+					// loop over section trace. we leave out the first and last point because those are
+					// by definition end points and are already equal to sub section start/end points
+					Location tracePt = trace.get(i);
+					
+					if (isBefore(subStart, subEnd, tracePt)) {
+						if (DD) System.out.println("Trace "+i+" is BEFORE");
+						traceIndexBefore = i;
+					} else if (isAfter(subStart, subEnd, tracePt)) {
+						// we want just the first index after, so we break
+						if (DD) System.out.println("Trace "+i+" is AFTER");
+						traceIndexAfter = i;
+						break;
+					} else {
+						if (DD) System.out.println("Trace "+i+" must be BETWEEN");
+					}
+				}
+				Preconditions.checkState(traceIndexBefore >=0, "trace index before not found!");
+				Preconditions.checkState(traceIndexAfter > traceIndexBefore, "trace index after not found!");
+				
+				// this is the list of locations on the sub section, including any trace points inbetween
+				ArrayList<Location> subLocs = new ArrayList<Location>();
+				// this is the slip of all spans of the locations above
+				ArrayList<Double> subSlips = new ArrayList<Double>();
+				
+				subLocs.add(subStart);
+				
+				for (int i=traceIndexBefore; i<traceIndexAfter; i++) {
+					subSlips.add(slips.get(i));
+					if (i > traceIndexBefore && i < traceIndexAfter)
+						subLocs.add(trace.get(i));
+				}
+				subLocs.add(subEnd);
+				
+				double avgSlip = getAverageSlip(subLocs, subSlips);
+				
+				subSect.setAveSlipRate(avgSlip);
 			}
 			
 			subSections.addAll(subSectData);
@@ -510,22 +687,49 @@ public class DeformationModelFetcher {
 	}
 	
 	/**
-	 * Determines if the given point, pt, is between start and end. It is determined
-	 * to be in between only if pt is closer to both start and end than start is to end.
+	 * Determines if the given point, pt, is before or equal to the start point. This is
+	 * done by determining that pt is closer to start than end, and is further from end
+	 * than start is.
 	 * 
 	 * @param start
 	 * @param end
 	 * @param pt
 	 * @return
 	 */
-	private static boolean isBetween(Location start, Location end, Location pt) {
-		double start_end_dist = LocationUtils.linearDistanceFast(start, end);
+	private static boolean isBefore(Location start, Location end, Location pt) {
+		if (start.equals(pt) || LocationUtils.areSimilar(start, pt))
+			return true;
 		double pt_start_dist = LocationUtils.linearDistanceFast(pt, start);
+		if (pt_start_dist == 0)
+			return true;
 		double pt_end_dist = LocationUtils.linearDistanceFast(pt, end);
+		double start_end_dist = LocationUtils.linearDistanceFast(start, end);
 		
-		return pt_start_dist < start_end_dist && pt_end_dist < start_end_dist;
+		return pt_start_dist < pt_end_dist && pt_end_dist > start_end_dist;
 	}
-
+	
+	/**
+	 * Determines if the given point, pt, is after or equal to the end point. This is
+	 * done by determining that pt is closer to end than start, and is further from start
+	 * than end is.
+	 * 
+	 * @param start
+	 * @param end
+	 * @param pt
+	 * @return
+	 */
+	private static boolean isAfter(Location start, Location end, Location pt) {
+		if (end.equals(pt) || LocationUtils.areSimilar(end, pt))
+			return true;
+		double pt_end_dist = LocationUtils.linearDistanceFast(pt, end);
+		if (pt_end_dist == 0)
+			return true;
+		double pt_start_dist = LocationUtils.linearDistanceFast(pt, start);
+		double start_end_dist = LocationUtils.linearDistanceFast(start, end);
+		
+		return pt_end_dist < pt_start_dist && pt_start_dist > start_end_dist;
+	}
+	
 	private StirlingGriddedSurface getSurfaceForSubSect(FaultSectionPrefData data) {
 		return data.getStirlingGriddedSurface(1.0, false, false);
 	}
@@ -714,5 +918,16 @@ public class DeformationModelFetcher {
 		System.out.print("\tDONE.\n");
 
 		return azimuths;
+	}
+	
+	public static void main(String[] args) {
+		try {
+			File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData");
+			new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		System.exit(0);
 	}
 }

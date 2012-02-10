@@ -2,6 +2,7 @@ package scratch.UCERF3.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
@@ -25,7 +27,11 @@ import com.google.common.base.Preconditions;
 public class DeformationModelFileParser {
 	
 	public static HashMap<Integer, DeformationSection> load(File file) throws IOException {
-		CSVFile<String> csv = CSVFile.readFile(file, true);
+		return load(file.toURI().toURL());
+	}
+	
+	public static HashMap<Integer, DeformationSection> load(URL url) throws IOException {
+		CSVFile<String> csv = CSVFile.readURL(url, true);
 		
 		HashMap<Integer, DeformationSection>  defs = new HashMap<Integer, DeformationModelFileParser.DeformationSection>();
 		
@@ -41,8 +47,20 @@ public class DeformationModelFileParser {
 			double lat2 = Double.parseDouble(row.get(4));
 			Location loc1 = new Location(lat1, lon1);
 			Location loc2 = new Location(lat2, lon2);
-			double slip = Double.parseDouble(row.get(5));
-			double rake = Double.parseDouble(row.get(6));
+			
+			double slip;
+			try {
+				slip = Double.parseDouble(row.get(5));
+			} catch (NumberFormatException e) {
+				slip = Double.NaN;
+			}
+			
+			double rake;
+			try {
+				rake = Double.parseDouble(row.get(6));
+			} catch (NumberFormatException e) {
+				rake = Double.NaN;
+			}
 			
 			defs.get(id).add(loc1, loc2, slip, rake);
 		}
@@ -127,6 +145,13 @@ public class DeformationModelFileParser {
 			rakes.add(rake);
 		}
 		
+		public LocationList getLocsAsTrace() {
+			LocationList trace = new LocationList();
+			trace.addAll(locs1);
+			trace.add(locs2.get(locs2.size()-1));
+			return trace;
+		}
+		
 		public boolean validateAgainst(FaultSectionPrefData data) {
 			String nameID = id+". "+data.getName();
 			
@@ -137,9 +162,7 @@ public class DeformationModelFileParser {
 				mismatch = true;
 			}
 			
-			ArrayList<Location> fileLocs = new ArrayList<Location>();
-			fileLocs.addAll(locs1);
-			fileLocs.add(locs2.get(locs2.size()-1));
+			ArrayList<Location> fileLocs = getLocsAsTrace();
 			
 			for (int i=0; i<fileLocs.size()&&i<trace.size(); i++) {
 				double dist = LocationUtils.horzDistance(fileLocs.get(i), trace.get(i));
@@ -201,7 +224,8 @@ public class DeformationModelFileParser {
 		
 		int faultModelId = 101;
 		
-		File dir = new File("D:\\Documents\\SCEC\\def_models");
+//		File dir = new File("D:\\Documents\\SCEC\\def_models");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial");
 		
 		try {
 			System.out.println("Fetching fault data");
