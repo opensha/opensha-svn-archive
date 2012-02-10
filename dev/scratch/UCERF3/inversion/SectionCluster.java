@@ -137,11 +137,15 @@ public class SectionCluster extends ArrayList<Integer> {
 			// avoid looping back on self or to previous section
 			if(list.contains(newIndex))
 				continue;
+			
+			boolean lastParID_NotSameAsSecToLast = sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(secToLastIndex).getParentSectionId();
+			boolean newParID_NotSameAsLast = sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(newIndex).getParentSectionId();
+			if(lastParID_NotSameAsSecToLast && newParID_NotSameAsLast) {
+				continue;
+			}
 
 			// check the azimuth change, first checking whether diff parent sections were crossed (need two sections before and after crossing)   
-			if(list.size()>3
-					&& sectionDataList.get(lastIndex).getParentSectionId()
-					!= sectionDataList.get(secToLastIndex).getParentSectionId()) {
+			if(list.size()>3 && lastParID_NotSameAsSecToLast) {
 				// make sure there are enough points to compute an azimuth change
 				double newAzimuth = sectionAzimuths.get(new IDPairing(lastIndex, newIndex));
 				int thirdToLastIndex = list.get(list.size()-3);
@@ -164,7 +168,8 @@ public class SectionCluster extends ArrayList<Integer> {
 
 			ArrayList<Integer> newList = (ArrayList<Integer>)list.clone();
 			newList.add(newIndex);
-			if(newList.size() >= minNumSectInRup)  {// it's a rupture
+			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
+			if(newList.size() >= minNumSectInRup && sameParID)  {// it's a rupture
 				rupListIndices.add(newList);
 				numRupsAdded += 1;
 				// show progress
