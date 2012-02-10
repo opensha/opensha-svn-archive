@@ -640,12 +640,14 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		Element fsEl = rupSetEl.element(FaultSectionPrefData.XML_METADATA_NAME+"List");
 		ArrayList<FaultSectionPrefData> faultSectionData =
 			fsDataFromXML(fsEl);
-		DefModName defModName;
+		DefModName defModName = null;
 		Attribute defModAtt = fsEl.attribute("defModName");
-		if (defModAtt != null && !defModAtt.getValue().isEmpty())
-			defModName = DefModName.valueOf(defModAtt.getValue());
-		else
-			defModName = null;
+		try {
+			if (defModAtt != null && !defModAtt.getValue().isEmpty())
+				defModName = DefModName.valueOf(defModAtt.getValue());
+		} catch (Exception e) {
+			System.err.println("Warning: unknown DefModeName: "+defModAtt.getValue());
+		}
 		
 		List<List<Integer>> clusterRups = null;
 		List<List<Integer>> clusterSects = null;
