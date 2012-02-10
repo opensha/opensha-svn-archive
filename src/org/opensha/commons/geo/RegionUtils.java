@@ -145,7 +145,9 @@ public class RegionUtils {
 		Element e_open = e_folder.addElement("open");
 		e_open.addText("1");
 		
-		addLocationPoly(e_folder, locs);
+//		addLocationPoly(e_folder, locs);
+		addLocationLine(e_folder, locs);
+		addPoints(e_folder, "Border Nodes", locs, Style.BORDER_VERTEX);
 
 		// TODO absolutely need to create seom platform specific output directory
 		// that is not in project space (e.g. desktop, Decs and Settings);
@@ -205,7 +207,7 @@ public class RegionUtils {
 		return e;
 	}
 
-	// create lat-lon data string
+	// create a closed polygon Element from a LocationList
 	private static Element addPoly(
 			Element e,
 			String polyName, 
@@ -227,6 +229,26 @@ public class RegionUtils {
 		return e;
 	}
 	
+	// standalone location list
+	private static Element addLocationLine(Element e, LocationList locs) {
+		Element e_placemark = e.addElement("Placemark");
+		Element e_name = e_placemark.addElement("name");
+		e_name.addText("Trace");
+		Element e_style = e_placemark.addElement("styleUrl");
+		e_style.addText("#" + Style.BORDER.toString());
+		Element e_line = e_placemark.addElement("LineString");
+		Element e_tessellate = e_line.addElement("tessellate");
+		e_tessellate.addText("1");
+		Element e_coord = e_line.addElement("coordinates");
+		StringBuffer sb = new StringBuffer(NL);
+		for (Location loc: locs) {
+			sb.append(loc.toKML() + NL);
+		}
+		e_coord.addText(sb.toString());
+		return e;
+	}
+
+
 //	// create lat-lon data string
 //	private static String parseBorderCoords(Region region) {
 //		LocationList ll = region.getBorder();
