@@ -1,5 +1,8 @@
 package org.opensha.sha.faultSurface.utils;
 
+import java.awt.Color;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -9,6 +12,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
@@ -110,11 +114,9 @@ public class GriddedSurfaceUtils {
 			}
 					
 			if (frankelTypeSurface) {
-				if (isDistJB_ReallyZero(surface, distJB)) distJB = 0;
+				if (isDjbZeroFrankel(surface, distJB)) distJB = 0;
 			} else {
-				Region reg = new Region(surface.getPerimeter(),
-					BorderType.MERCATOR_LINEAR);
-				if (reg.contains(loc)) distJB = 0;
+				if (isDjbZero(surface.getPerimeter(), loc)) distJB = 0;
 			}
 		}
 
@@ -200,7 +202,12 @@ public class GriddedSurfaceUtils {
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					System.out.println("==== trace  ====");
+					System.out.println(trace);
+//					RegionUtils.locListToKML(trace, "distX_trace", Color.ORANGE);
+					System.out.println("==== region ====");
 					System.out.println(locsForRegion);
+//					RegionUtils.locListToKML(locsForRegion, "distX_region", Color.RED);
 					System.exit(0);
 				}
 				boolean isInside = polygon.contains(siteLoc);
@@ -260,30 +267,6 @@ public class GriddedSurfaceUtils {
 		return locList;
 	}
 	
-	/**
-	 * This is used to check whether a small value of DistJB should really be zero
-	 * because of surface discretization.  This is used where a contains call on 
-	 * the surface perimeter wont work (e.g., because of loops and gaps at the bottom 
-	 * of a FrankelGriddedSurface).  Surfaces that only have one row or column always
-	 * return false (which means non-zero distJB along the trace of a straight line source).
-	 * Note that this will return true for locations that are slightly off the surface projection
-	 * (essentially expanding the edge of the fault by about have the discretization level. 
-	 * 
-	 */
-	public static boolean isDistJB_ReallyZero(EvenlyGriddedSurface surface, double distJB) {
-			if(surface.getNumCols() > 1 && surface.getNumRows() > 1) {
-				double d1, d2,min_dist;
-				d1 = LocationUtils.horzDistanceFast(surface.getLocation(0, 0),surface.getLocation(1, 1));
-				d2 = LocationUtils.horzDistanceFast(surface.getLocation(0, 1),surface.getLocation(1, 0));
-				min_dist = 1.1*Math.min(d1, d2)/2;	// the 1.1 is to prevent a precisely centered point to  return false
-				if(distJB<=min_dist) 
-					return true;
-				else
-					return false;
-			}
-			else
-				return false;
-	}
 	
 	
 	/**
@@ -312,6 +295,64 @@ public class GriddedSurfaceUtils {
 		return min3dDist;
 	}
 
-
+	/*
+	 * This method is used to check small distJB values for continuous, smooth
+	 * surfaces; e.g. non-Frankel type surfaces. This was implemented to replace
+	 * using a Region.contains() which can fail when dipping faults have
+	 * jagged traces. This method borrows from Region using a java.awt.geom.Area
+	 * to perform a contains test, however no checking is done of the area's
+	 * singularity.
+	 * 
+	 * The Elsinore fault was the culprit leading to this implementation. For
+	 * a near-vertical (85˚) strike-slip fault, it is has an unrealistic ≥90 jog
+	 * in it. Even this method does not technically give a 100% correct answer.
+	 * Drawing out a steeply dipping fault with a jog will show that the
+	 * resultant perimeter polygon has eliminated small areas for which distJB
+	 * should be zero. The areas are so small though that the hazard is not
+	 * likely affected.
+	 */
+	private static boolean isDjbZero(LocationList border, Location pt) {
+		Path2D path = new Path2D.Double(Path2D.WIND_EVEN_ODD, border.size());
+		boolean starting = true;
+		for (Location loc : border) {
+			double lat = loc.getLatitude();
+			double lon = loc.getLongitude();
+			// if just starting, then moveTo
+			if (starting) {
+				path.moveTo(lon, lat);
+				starting = false;
+				continue;
+			}
+			path.lineTo(lon, lat);
+		}
+		path.closePath();
+		Area area = new Area(path);
+		return area.contains(pt.getLongitude(), pt.getLatitude());
+	}
+	
+	/*
+	 * This is used to check whether a small value of DistJB should really be
+	 * zero because of surface discretization. This is used where a contains
+	 * call on the surface perimeter wont work (e.g., because of loops and gaps
+	 * at the bottom of a FrankelGriddedSurface). Surfaces that only have one
+	 * row or column always return false (which means non-zero distJB along the
+	 * trace of a straight line source). Note that this will return true for
+	 * locations that are slightly off the surface projection (essentially
+	 * expanding the edge of the fault by about have the discretization level.
+	 */
+	private static boolean isDjbZeroFrankel(EvenlyGriddedSurface surface,
+			double distJB) {
+		if (surface.getNumCols() > 1 && surface.getNumRows() > 1) {
+			double d1, d2, min_dist;
+			d1 = LocationUtils.horzDistanceFast(surface.getLocation(0, 0),
+				surface.getLocation(1, 1));
+			d2 = LocationUtils.horzDistanceFast(surface.getLocation(0, 1),
+				surface.getLocation(1, 0));
+			// the 1.1 is to prevent a precisely centered point to return false
+			min_dist = 1.1 * Math.min(d1, d2) / 2;
+			return distJB <= min_dist;
+		}
+		return false;
+	}
 
 }
