@@ -113,90 +113,54 @@ public class SectionCluster extends ArrayList<Integer> {
 	int rupCounterProgressIncrement = 100000;
 
 
+	/**
+	 * This iteratively adds sections to the list (if the new section passes azimuth 
+	 * and other checks), and saves each rupture to the rupture list.
+	 * 
+	 * This algorithm includes ruptures with one dangling sub-section (from a new section)
+	 * that projects off at a non-allowed azimuth (because we can't currently distinguish
+	 * these from from those projecting in an allowed direction).  One way to remove these
+	 * would be to remove all ruptures that end with a single sub-section on a new section
+	 * (even if it's headed in an allowed direction).
+	 * @param list
+	 */
 	private void addRuptures(ArrayList<Integer> list) {
-		int sectIndex = list.get(list.size()-1);
-		int lastSect;
+		int lastIndex = list.get(list.size()-1);
+		int secToLastIndex = -1;	// bogus index in case the next if fails
 		if(list.size()>1)
-			lastSect = list.get(list.size()-2);
-		else
-			lastSect = -1;   // bogus index because ectIndex is first in list
+			secToLastIndex = list.get(list.size()-2);
 
 		// loop over branches at the present section
-		List<Integer> branches = sectionConnectionsListList.get(sectIndex);
-		for(int i=0; i<branches.size(); i++) { 
-			Integer newSect = branches.get(i);
+		List<Integer> branches = sectionConnectionsListList.get(lastIndex);
+		for(int newIndex : branches) {
 
 			// avoid looping back on self or to previous section
-			if(list.contains(newSect) || newSect == lastSect) continue;
+			if(list.contains(newIndex) || newIndex == secToLastIndex) continue;
 
-			// debugging stuff:
-			/*			if(list.size()>1)
-				System.out.println("lastSect=\t"+lastSect+"\t"+this.sectionDataList.get(lastSect).getName());
-			System.out.println("sectIndex=\t"+sectIndex+"\t"+this.sectionDataList.get(sectIndex).getName());
-			System.out.println("newSect=\t"+newSect+"\t"+this.sectionDataList.get(newSect).getName());
-			 */	
-
-			// check the azimuth change   
-			if(list.size()>2) { // make sure there are enough points to compute an azimuth change (change 2 to 3 to get previousAzimuth below)
-				double newAzimuth;
-				try {
-					newAzimuth = sectionAzimuths.get(new IDPairing(sectIndex, newSect));
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-//					FaultSectionPrefData data1 = sectionDataList.get(sectIndex);
-//					FaultSectionPrefData data2 = sectionDataList.get(newSect);
-//					double dist = data1.getStirlingGriddedSurface(1.0, false, false)
-//							.getMinDistance(data2.getStirlingGriddedSurface(1.0, false, false));
-//					System.out.println("Dist from "+sectIndex+" to "+newSect+": "+dist);
-//					System.out.println("Az size: "+sectionAzimuths.size());
-//					for (int[] ind : sectionAzimuths.keySet()) {
-//						if (ind[0] == sectIndex && ind[1] == newSect) {
-//							System.out.println("WTF? It's here: "+sectionAzimuths.get(ind));
-//							System.out.println("contains? "+sectionAzimuths.containsKey(ind1));
-//							System.out.println("mine: "+ind1[0]+" "+ind1[1]);
-//							System.out.println("theirs: "+ind[0]+" "+ind[1]);
-//							System.out.println("Arrays.equals? " +Arrays.equals(ind1, ind));
-//							System.out.println("hash mine: " +Arrays.hashCode(ind1));
-//							System.out.println("hash theirs: " +Arrays.hashCode(ind));
-//							System.out.println("ind1.equals(ind)? " +ind1.equals(ind));
-//							System.out.println("ind.equals(ind1)? " +ind.equals(ind1));
-//							break;
-//						}
-//					}
-					System.exit(0);
-					throw new RuntimeException();
-				}
-//				double lastAzimuth = sectionAzimuths[lastSect][sectIndex];
-				double lastAzimuth = sectionAzimuths.get(new IDPairing(lastSect, sectIndex));
-//				double firstAzimuth = sectionAzimuths[list.get(0)][list.get(1)];
-				double firstAzimuth = sectionAzimuths.get(new IDPairing(list.get(0), list.get(1)));
-				double TotAzimuthChange = Math.abs(getAzimuthDifference(firstAzimuth,newAzimuth));
-				//				double previousAzimuth = sectionAzimuths[list.get(list.size()-3)][lastSect];
-				double newLastAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,lastAzimuth));
-				//				double newPreviousAzimuthDiff = Math.abs(getAzimuthDifference(newAzimuth,previousAzimuth));
-
-
-				//				if(newLastAzimuthDiff<maxAzimuthChange && newPreviousAzimuthDiff>=maxAzimuthChange) {
-				if(newLastAzimuthDiff>maxAzimuthChange) {
-					//		ArrayList<Integer> lastRup = rupListIndices.get(rupListIndices.size()-1);
-					continue;
-					//		if(lastRup.get(lastRup.size()-1) == lastSubSect) {
-					//			//stop it from going down bad branch, and remove previous rupture since it headed this way
-					//			System.out.println("removing: "+rupListIndices.get(rupListIndices.size()-1));
-					//			rupListIndices.remove(rupListIndices.size()-1);
-					//			numRupsAdded -= 1;
-					//			continue;						
-					//		}
+			// check the azimuth change, first checking whether diff parent sections were crossed (need two sections before and after crossing)   
+			boolean crossedParSections = (sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(secToLastIndex).getParentSectionId());
+			if(list.size()>3 && crossedParSections) { // make sure there are enough points to compute an azimuth change
+				double newAzimuth = sectionAzimuths.get(new IDPairing(lastIndex, newIndex));
+				int thirdToLastIndex = list.get(list.size()-3);
+				double prevAzimuth = sectionAzimuths.get(new IDPairing(thirdToLastIndex, secToLastIndex));
+				
+				// check change
+				double azimuthChange = Math.abs(getAzimuthDifference(prevAzimuth,newAzimuth));
+				if(azimuthChange>maxAzimuthChange) {
+					continue;	// don't add rupture
 				} 
-				if(TotAzimuthChange>maxTotAzimuthChange) {
-					continue;
+
+				// check total change
+				double firstAzimuth = sectionAzimuths.get(new IDPairing(list.get(0), list.get(1)));
+				double totAzimuthChange = Math.abs(getAzimuthDifference(firstAzimuth,newAzimuth));
+				if(totAzimuthChange>maxTotAzimuthChange) {
+					continue;	// don't add rupture
 				}
 
 			}
 
 			ArrayList<Integer> newList = (ArrayList<Integer>)list.clone();
-			newList.add(newSect);
+			newList.add(newIndex);
 			if(newList.size() >= minNumSectInRup)  {// it's a rupture
 				rupListIndices.add(newList);
 				numRupsAdded += 1;
@@ -205,13 +169,7 @@ public class SectionCluster extends ArrayList<Integer> {
 					System.out.println(numRupsAdded);
 					rupCounterProgress += rupCounterProgressIncrement;
 				}
-				//				System.out.println("adding: "+newList);
-				// Debugging exit after 100 ruptures
-				//				if(numRupsAdded>100) return;
 			}
-
-			// Iterate
-			// if(numRupsAdded<100)	// FOR DEBUGGING!
 			addRuptures(newList);
 		}
 	}
