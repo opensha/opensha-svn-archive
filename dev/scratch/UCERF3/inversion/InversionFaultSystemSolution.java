@@ -29,7 +29,9 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 import cern.colt.list.tdouble.DoubleArrayList;
 import cern.colt.list.tint.IntArrayList;
+import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
@@ -59,54 +61,67 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	protected final static boolean D = true;  // for debugging
 	
 	FaultSystemRupSet faultSystemRupSet;
-	boolean weightSlipRates;
-	double relativeSegRateWt, relativeMagDistWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt, relativeSmoothnessWt;
+	boolean weightSlipRates, addMinimumRuptureRateConstraint;
+	double relativeSegRateWt, relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt, relativeSmoothnessWt;
 	int numIterations;
 	ArrayList<SegRateConstraint> segRateConstraints;
 	
 	double[] aPrioriRupConstraint;
 	double[] minimizationConstraint;
 	double[] initialRupModel;
+	double[] minimumRuptureRates;
 		
-	ArrayList<MFD_InversionConstraint> mfdConstraints;
+	ArrayList<MFD_InversionConstraint> mfdEqualityConstraints, mfdInequalityConstraints;
 	
 	DoubleMatrix2D A; // A matrix for inversion
 	double[] d;	// data vector d for inversion
+	
+	DoubleMatrix2D A_MFD; // "A matrix" for MFD Inequality constraint
+	double[] d_MFD;	// "data vector" for MFD Inequality constraint
 
 	/**
 	 * Constructor.
 	 * 
 	 * @param faultSystemRupSet
 	 * @param relativeSegRateWt
-	 * @param relativeMagDistWt
+	 * @param relativeMagnitudeEqualityConstraintWt
+	 * @param relativeMagnitudeInequalityConstraintWt
 	 * @param relativeRupRateConstraintWt
 	 * @param relativeMinimizationConstraintWt
 	 * @param numIterations
 	 * @param segRateConstraints
 	 * @param aPrioriRupConstraint
 	 * @param initialRupModel
-	 * @param mfdConstraints
+	 * @param mfdEqualityConstraints
+	 * @param mfdInequalityConstraints
 	 * @param minimizationConstraint
 	 * @param relativeSmoothnessWt
 	 */
 	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, boolean weightSlipRates, double relativeSegRateWt, 
-			double relativeMagDistWt, double relativeRupRateConstraintWt, double relativeMinimizationConstraintWt, int numIterations,
-			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint,
-			double[] initialRupModel, ArrayList<MFD_InversionConstraint> mfdConstraints, double[] minimizationConstraint, double relativeSmoothnessWt) {
+			double relativeMagnitudeEqualityConstraintWt, double relativeMagnitudeInequalityConstraintWt, double relativeRupRateConstraintWt, 
+			double relativeMinimizationConstraintWt, int numIterations,
+			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint, double[] initialRupModel, 
+			ArrayList<MFD_InversionConstraint> mfdEqualityConstraints, ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, 
+			double[] minimizationConstraint, double relativeSmoothnessWt, 
+			boolean addMinimumRuptureRateConstraint, double[] minimumRuptureRates) {
 		super(faultSystemRupSet, null);
 		this.faultSystemRupSet=faultSystemRupSet;
 		this.weightSlipRates=weightSlipRates;
 		this.relativeSegRateWt=relativeSegRateWt;
-		this.relativeMagDistWt=relativeMagDistWt;
+		this.relativeMagnitudeEqualityConstraintWt=relativeMagnitudeEqualityConstraintWt;
+		this.relativeMagnitudeInequalityConstraintWt=relativeMagnitudeInequalityConstraintWt;
 		this.relativeRupRateConstraintWt=relativeRupRateConstraintWt;
 		this.relativeMinimizationConstraintWt=relativeMinimizationConstraintWt;
 		this.numIterations=numIterations;
 		this.segRateConstraints=segRateConstraints;
 		this.aPrioriRupConstraint=aPrioriRupConstraint;
 		this.initialRupModel=initialRupModel;
-		this.mfdConstraints=mfdConstraints;
+		this.mfdEqualityConstraints=mfdEqualityConstraints;
+		this.mfdInequalityConstraints=mfdInequalityConstraints;
 		this.minimizationConstraint=minimizationConstraint;
 		this.relativeSmoothnessWt=relativeSmoothnessWt;
+		this.addMinimumRuptureRateConstraint=addMinimumRuptureRateConstraint;
+		this.minimumRuptureRates=minimumRuptureRates;
 		
 		doInversion();
 	}
@@ -136,23 +151,38 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		int numRows = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + 
 				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures + (int)Math.signum(relativeMinimizationConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
 		IncrementalMagFreqDist targetMagFreqDist=null;
-		if (relativeMagDistWt > 0.0) {
+		if (relativeMagnitudeEqualityConstraintWt > 0.0) {
 			// RIGHT NOW THIS ASSUMES THE MAGNITUDE CONSTRAINT WEIGHT MUST BE THE SAME FOR ALL MAG-DIST CONSTRAINTS
 			int totalNumMagFreqConstraints = 0;
-			for (int i=0; i < mfdConstraints.size(); i++) {
-				targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();
+			for (int i=0; i < mfdEqualityConstraints.size(); i++) {
+				targetMagFreqDist=mfdEqualityConstraints.get(i).getMagFreqDist();
 				totalNumMagFreqConstraints += targetMagFreqDist.getNum();
 				numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
 			}
-			if(D) System.out.println("Number of magnitude-distribution constraints: " + totalNumMagFreqConstraints);
+			if(D) System.out.println("Number of magnitude-distribution equality constraints: " + totalNumMagFreqConstraints);
 		}
 		
 		
 		// Components of matrix equation to invert (Ax=d)
 		A = new SparseDoubleMatrix2D(numRows,numRuptures); // A matrix
-//		A = new SparseRCDoubleMatrix2D(numRows,numRuptures);
 		d = new double[numRows];	// data vector d
 		rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
+		
+		// MFD inequality constraint matrix and data vector (A_MFD * x <= d_MFD)
+		// to be passed to SA algorithm
+		int numMFDRows=0;
+		if (relativeMagnitudeInequalityConstraintWt > 0.0) {
+			int totalNumMagFreqConstraints = 0;
+			for (int i=0; i < mfdInequalityConstraints.size(); i++) {
+				targetMagFreqDist=mfdInequalityConstraints.get(i).getMagFreqDist();
+				numMFDRows=numMFDRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
+			}
+		}
+		System.out.println("numMFDrows = "+numMFDRows);
+		A_MFD = new SparseDoubleMatrix2D(numMFDRows,numRuptures); // (A_MFD * x <= d_MFD)
+		d_MFD = new double[numMFDRows];							
+		if(D) System.out.println("Number of magnitude-distribution inequality constraints: " + mfdInequalityConstraints.size());
+		
 		
 		if(D) System.out.println("Total number of constraints (rows): " + numRows);
 		if(D) System.out.println("\nNumber of fault sections: " + numSections + ". Number of ruptures (columns): " + numRuptures + ".");
@@ -211,34 +241,64 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 
 			
 		// Constrain Solution MFD to equal the Target MFD 
-		// CHANGE THIS TO AN INEQUALITY CONSTRAINT? *****************************
+		// This is for equality constraints only -- inequality constraints must be passed to SA algorithm since they are nonlinear
 		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
-		if (relativeMagDistWt > 0.0) {	
+		if (relativeMagnitudeEqualityConstraintWt > 0.0) {	
 			startTime = System.currentTimeMillis();
 			numNonZeroElements = 0;
-			if(D) System.out.println("\nAdding " + mfdConstraints.size()+ " magnitude constraints to A matrix ...");	
+			if(D) System.out.println("\nAdding " + mfdEqualityConstraints.size()+ " magnitude distribution equality constraints to A matrix ...");	
 			
 			// make the matrix of the fraction of each rupture inside each region: fractRupsInsideMFD_Regions
-			computeFractRupsInsideMFD_Regions(mfdConstraints);
+			computeFractRupsInsideMFD_Regions(mfdEqualityConstraints);
 			
-			for (int i=0; i < mfdConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
-				targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();	
+			for (int i=0; i < mfdEqualityConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
+				targetMagFreqDist=mfdEqualityConstraints.get(i).getMagFreqDist();	
 				for(int rup=0; rup<numRuptures; rup++) {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
 					if (fractRupInside > 0) {
-						A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagDistWt * fractRupInside);
+						A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
 						numNonZeroElements++;
 					}
 				}		
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
-					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagDistWt;
+					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeEqualityConstraintWt;
 					rowIndex++; 
 				}	
 			}
 			runTime = System.currentTimeMillis()-startTime;
-			if(D) System.out.println("Adding MFD Constraints took " + (runTime/1000.) + " seconds.");
+			if(D) System.out.println("Adding MFD Equality Constraints took " + (runTime/1000.) + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
+		}
+		
+		
+		// Prepare MFD Inequality Constraint (not added to A matrix directly since it's nonlinear)
+		if (relativeMagnitudeInequalityConstraintWt > 0.0) {	
+			startTime = System.currentTimeMillis();
+			rowIndex = 0;
+			if(D) System.out.println("\nPreparing " + mfdInequalityConstraints.size()+ " magnitude inequality constraints ...");	
+			
+			// make the matrix of the fraction of each rupture inside each region: fractRupsInsideMFD_Regions
+			computeFractRupsInsideMFD_Regions(mfdInequalityConstraints);
+			
+			for (int i=0; i < mfdInequalityConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
+				targetMagFreqDist=mfdInequalityConstraints.get(i).getMagFreqDist();	
+				for(int rup=0; rup<numRuptures; rup++) {
+					double mag = rupMeanMag[rup];
+					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
+					if (fractRupInside > 0) {
+	//					A_MFD.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
+						A_MFD.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+					}
+				}		
+				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
+	//				d_MFD[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
+					d_MFD[rowIndex]=relativeMagnitudeInequalityConstraintWt;
+					rowIndex++; 
+				}	
+			}	
+			runTime = System.currentTimeMillis()-startTime;
+			if(D) System.out.println("Preparing MFD Inequality Constraints took " + (runTime/1000.) + " seconds.");
 		}
 		
 		
@@ -284,6 +344,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}	*/
 
 		
+		
 		// Transform A matrix to different type that's fast for multiplication
 		if (numIterations > 0 && A instanceof SparseDoubleMatrix2D) {
 			// if we're annealing, and A is in the SparseDoubleMatrix2D format then
@@ -301,14 +362,57 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			for (int i=0; i<rows.size(); i++)
 				Anew.set(rows.get(i), cols.get(i), vals.get(i));
 			A = Anew;
+			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.");
+		}
+		
+		// Transform A_MFD matrix to different type that's fast for multiplication
+		if (numIterations > 0 && A_MFD instanceof SparseDoubleMatrix2D && relativeMagnitudeInequalityConstraintWt > 0.0) {
+			// if we're annealing, and A is in the SparseDoubleMatrix2D format then
+			// we should convert it for faster matrix multiplications
+			if (D) System.out.println("\nConverting A_MFD matrix to SparseRCDoubleMatrix2D ...");
+			startTime = System.currentTimeMillis();
+			SparseRCDoubleMatrix2D A_MFDnew = new SparseRCDoubleMatrix2D(A_MFD.rows(), A_MFD.columns());
+			IntArrayList rows = new IntArrayList();
+			IntArrayList cols = new IntArrayList();
+			DoubleArrayList vals = new DoubleArrayList();
+			long startTime1 = System.currentTimeMillis();
+			A_MFD.getNonZeros(rows, cols, vals);
+			if (D) System.out.println("Non-zero entries stored after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.");
+			startTime1 = System.currentTimeMillis();
+			for (int i=0; i<rows.size(); i++)
+				A_MFDnew.set(rows.get(i), cols.get(i), vals.get(i));
+			A_MFD = A_MFDnew;
 			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.\n");
 		}
 		
+		
 		// SOLVE THE INVERSE PROBLEM
-		// Run Simulated Annealing
-		SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt);
-		sa.iterate(numIterations);
-		rupRateSolution = sa.getBestSolution();
+		// Run Simulated Annealing - with or without waterlevel
+		if (addMinimumRuptureRateConstraint == false) {
+			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt, A_MFD, d_MFD);
+			sa.iterate(numIterations);
+			rupRateSolution = sa.getBestSolution();
+		} else {
+			double[] d_offset = new double[d.length];  // This is the offset data vector: d_offset = d-A*minimumRuptureRates
+			double[] d_MFD_offset = new double[d_MFD.length];  // This is the offset data vector for MFD inequality constraint: d_MFD_offset = d_MFD-A*minimumRuptureRates
+			for (int i=0; i<A.rows(); i++) {
+				d_offset[i] = d[i];
+				for (int j=0; j<A.columns(); j++){
+					d_offset[i] -= A.get(i, j) * minimumRuptureRates[j];
+				}
+			}
+			for (int i=0; i<d_MFD.length ; i++) {
+				d_MFD_offset[i] = d_MFD[i];
+				for (int j=0; j<A_MFD.columns(); j++){
+					d_MFD_offset[i] -= A_MFD.get(i, j) * minimumRuptureRates[j];
+				}
+			}
+			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d_offset, initialRupModel, relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt, A_MFD, d_MFD_offset);
+			sa.iterate(numIterations);
+			rupRateSolution = sa.getBestSolution();
+			for (int i=0; i<rupRateSolution.length; i++) 
+				rupRateSolution[i] = rupRateSolution[i] + minimumRuptureRates[i];
+		}
 		
 		
 //		ThreadedSimulatedAnnealing tsa = new ThreadedSimulatedAnnealing(A, d, initialRupModel, 4);

@@ -1,5 +1,6 @@
 package scratch.UCERF3.simulatedAnnealing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -13,6 +14,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.GenerationFunctionType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
+import scratch.UCERF3.utils.MFD_InversionConstraint;
 
 import com.google.common.base.Preconditions;
 
@@ -43,9 +45,9 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private static GenerationFunctionType PERTURB_FUNC_DEFAULT = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
 	private GenerationFunctionType perturbationFunc = PERTURB_FUNC_DEFAULT;
 	
-	private DoubleMatrix2D A;
-	private double[] d;
-	private double relativeSmoothnessWt;
+	private DoubleMatrix2D A, A_MFD;
+	private double[] d, d_MFD;
+	private double relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt;
 	
 	private int nCol;
 	private int nRow;
@@ -53,19 +55,24 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private double[] x; // current model
 	private double[] xbest;  // best model seen so far
 	private double[] perturb; // perturbation to current model
-	private DoubleMatrix1D syn;  // data synthetics
-	private double[] misfit; // misfit between data and synthetics
+	private DoubleMatrix1D syn, syn_MFD;  // data synthetics
+	private double[] misfit, misfit_MFD; // misfit between data and synthetics
 	
 	private double Ebest;
 	
 	private Random r = new Random();
 
 	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState) {
-		this(A, d, initialState, 0);
+		this(A, d, initialState, 0, 0, null, null);
 	}
 	
-	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt) {
+	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt, 
+			double relativeMagnitudeInequalityConstraintWt, DoubleMatrix2D A_MFD,  double[] d_MFD) {
 		this.relativeSmoothnessWt=relativeSmoothnessWt;
+		this.relativeMagnitudeInequalityConstraintWt=relativeMagnitudeInequalityConstraintWt;
+		this.A_MFD=A_MFD;
+		this.d_MFD=d_MFD;
+		
 		setup(A, d, initialState);
 	}
 	
@@ -90,7 +97,9 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		xbest = Arrays.copyOf(initialState, nCol);  // best model seen so far
 		perturb = new double[nCol]; // perturbation to current model
 		syn = new DenseDoubleMatrix1D(nRow);  // data synthetics
+		syn_MFD = new DenseDoubleMatrix1D(nRow);  // data synthetics for MFD inequality constraint
 		misfit = new double[nRow]; // misfit between data and synthetics
+		misfit_MFD = new double[nRow]; // misfit between data and synthetics for MFD inequality constraint
 		
 		Ebest = calculateMisfit(x);
 	}
@@ -153,6 +162,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	protected synchronized double calculateMisfit(double[] solution) {
+		
 		// Do forward problem for new perturbed model (calculate synthetics)
 		
 		// needs to be converted to a DoubleMatrix1D
@@ -161,14 +171,15 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		// Sparse Matrix Multiplication: syn=A*sol
 		A.zMult(sol_clone, syn);
 		
-		double Enew = 0;
+		double Enew = 0;  
 		for (int i = 0; i < nRow; i++) {
 			misfit[i] = syn.get(i) - d[i];  // misfit between synthetics and data
 			Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 		}
+
 		
 		// Add smoothness constraint misfit (nonlinear) to energy (this is the entropy-maximization constraint)
-		if (relativeSmoothnessWt > 0) { 
+		if (relativeSmoothnessWt > 0.0) { 
 			double totalEntropy=0;
 			double entropyConstant=500;
 			for (int rup=0; rup<nCol; rup++) {
@@ -184,6 +195,20 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			}
 			Enew += relativeSmoothnessWt * (1 / totalEntropy); // High entropy => low misfit
 		}
+		
+		
+		// Add MFD inequality constraint misfit (nonlinear) to energy 
+		if (relativeMagnitudeInequalityConstraintWt > 0.0) { 	
+			// Sparse Matrix Multiplication: syn_MFD=A*sol
+			A_MFD.zMult(sol_clone, syn_MFD);
+			for (int i = 0; i < d_MFD.length; i++) {
+				misfit_MFD[i] = d_MFD[i] - syn_MFD.get(i);  // misfit between synthetics and data
+				if (misfit_MFD[i] > 0.0) 
+					misfit_MFD[i] = 0.0;  // This makes it an INEQUALITY constraint (Target MFD is an UPPER bound)
+				Enew += Math.pow(misfit_MFD[i], 2);  // L2 norm of misfit vector
+			}
+		}
+		
 		
 		return Enew;
 	}
@@ -202,7 +227,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	public synchronized long iterate(long startIter, CompletionCriteria criteria) {
 		StopWatch watch = new StopWatch();
 		watch.start();
-
+		
 		if(D) System.out.println("Solving inverse problem with simulated annealing ... \n");
 		if(D) System.out.println("Cooling Function: " + coolingFunc.name());
 		if(D) System.out.println("Perturbation Function: " + perturbationFunc.name());

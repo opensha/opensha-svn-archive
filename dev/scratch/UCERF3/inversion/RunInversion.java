@@ -78,16 +78,16 @@ public class RunInversion {
 		
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
-/*		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
+		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
 				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
-				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	*/
-		FaultSystemRupSet invFaultSystemRupSet;
+				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	
+/*		FaultSystemRupSet invFaultSystemRupSet;
 		try {	
 			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
 //			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.ALLCAL.getRupSet();
 		} catch (Exception e) {
 			throw ExceptionUtils.asRuntimeException(e);
-		}	
+		}	*/
 		long runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");
 		
@@ -123,12 +123,14 @@ public class RunInversion {
 	public RunInversion(FaultSystemRupSet faultSystemRupSet, File precomputedDataDir) {
 		// Parameters for InversionFaultSystemSolution
 		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
+		boolean addMinimumRuptureRateConstraint = true;  // If true, add waterlevel (defined in minimumRuptureRates) to solution (otherwise, minimum rupture rates are 0)
 		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativeMagDistWt = 1000;  // weight of UCERF2 magnitude-distribution constraint relative to slip-rate constraint (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
+		double relativeMagnitudeEqualityConstraintWt = 0;  // weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended:  1000.0 if weightSlipRates=true, 10.0 otherwise)
+		double relativeMagnitudeInequalityConstraintWt = 1000;  // weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint 
 		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
 		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
-		double relativeSmoothnessWt = 0;//1000; // weight of entropy-maximization constraint (should smooth rupture rates)
-		int numIterations = 1000000;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
+		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
+		int numIterations = 1;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 		long startTime, runTime;
@@ -143,9 +145,9 @@ public class RunInversion {
 		// a priori constraint
 		double[] aPrioriRupConstraint = null;
 		// Use UCERF2 Solution 
-//		aPrioriRupConstraint = UCERF2Solution;
+		aPrioriRupConstraint = UCERF2Solution;
 		// Or use smooth starting solution with target MFD:
-		Region region = new CaliforniaRegions.RELM_GRIDDED(); UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region); aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet, UCERF2Constraints.getTargetMinusBackgroundMFD());  
+		Region region = new CaliforniaRegions.RELM_NOCAL(); UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region); aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet, UCERF2Constraints.getTargetMinusBackgroundMFD());  
 //		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
 		
 		// Minimization constraint for troublesome Multi-fault ruptures
@@ -161,12 +163,12 @@ public class RunInversion {
 		// Or start with zeros:
 //		for (int r=0; r<faultSystemRupSet.getNumRuptures(); r++) initialRupModel[r]=0;
 
-		// Create the MFD constraints (ArrayList so we can apply this to multiple subregions)
-		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
+		// Create the MFD Equality constraints (ArrayList so we can apply this to multiple subregions)
+		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 //		Region region = new CaliforniaRegions.RELM_GRIDDED();
 //		Region region = new CaliforniaRegions.RELM_NOCAL();
 //		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region);
-		mfdConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());	// add MFD constraint for whole region
+//		mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());	// add MFD constraint for whole region
 		// UCERF2 MFD constraints for subregions - 1-degree boxes
 /*		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
 		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
@@ -180,25 +182,45 @@ public class RunInversion {
 					if (region.contains(border.get(i)) == false) currentSubRegionInRegion = false; 
 				if (currentSubRegionInRegion == true) {
 					UCERF2Constraints.setRegion(currentSubRegion);
-					mfdConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
+					mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
 				}
 			}
 		}	*/
 		
 		
+		// Create the MFD inequality constraints (ArrayList so we can apply this to multiple subregions)
+		ArrayList<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
+//		Region california = new CaliforniaRegions.RELM_GRIDDED();
+		Region noCal = new CaliforniaRegions.RELM_NOCAL();
+//		Region soCal = new CaliforniaRegions.RELM_SOCAL();
+//		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(california);
+//		UCERF2Constraints.setRegion(california);
+//		mfdInequalityConstraints.add(UCERF2Constraints.getTargetMFDConstraint());	// add MFD constraint for all CA
+		UCERF2Constraints.setRegion(noCal);
+		mfdInequalityConstraints.add(UCERF2Constraints.getTargetMFDConstraint());	// add MFD constraint for Northern CA
+//		UCERF2Constraints.setRegion(soCal);
+//		mfdInequalityConstraints.add(UCERF2Constraints.getTargetMFDConstraint());	// add MFD constraint for Southern CA
+		
+		
+		// Minimum Rupture-Rate Constraint (waterlevel)
+		double[] minimumRuptureRates = new double[faultSystemRupSet.getNumRuptures()];
+		if (addMinimumRuptureRateConstraint == true)
+			for (int i=0; i < minimumRuptureRates.length; i++)
+				minimumRuptureRates[i] = initialRupModel[i]*0.1; // 10% of a-priori rates waterlevel
+		
 		
 		if(D) System.out.println("\nStarting inversion . . .");
 		startTime = System.currentTimeMillis();
 		inversion = new InversionFaultSystemSolution(faultSystemRupSet, weightSlipRates, relativeSegRateWt, 
-				relativeMagDistWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt, numIterations, segRateConstraints, 
-				aPrioriRupConstraint, initialRupModel, mfdConstraints, minimizationConstraint, relativeSmoothnessWt);
+				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt, numIterations, segRateConstraints, 
+				aPrioriRupConstraint, initialRupModel, mfdEqualityConstraints, mfdInequalityConstraints, minimizationConstraint, relativeSmoothnessWt, addMinimumRuptureRateConstraint, minimumRuptureRates);
 		runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds.");	
 
 		
-/*		// Alternatively, load solution from zip file instead of running inversion
-		if (D) System.out.print("\nLoading Solution from zip file . . . ");
-		File zipFile = new File(precomputedDataDir.getAbsolutePath()+"/InversionSolutions/ALLCAL_Model2.zip");
+		// Alternatively, load solution from zip file instead of running inversion
+/*		if (D) System.out.print("\nLoading Solution from zip file . . . ");
+		File zipFile = new File(precomputedDataDir.getAbsolutePath()+"/NCAL_MFD3.zip");
 		SimpleFaultSystemSolution inversion = null;
 		try {
 			startTime = System.currentTimeMillis();
@@ -215,8 +237,8 @@ public class RunInversion {
 			
 		
 		
-/*		if (D) System.out.print("Saving Solution to zip file . . . \n");
-		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_Small_Model1.zip");
+		if (D) System.out.print("Saving Solution to zip file . . . \n");
+		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_MFD910zip");
 		try {
 			startTime = System.currentTimeMillis();
 			new SimpleFaultSystemSolution(inversion).toZipFile(zipOut);
@@ -225,7 +247,7 @@ public class RunInversion {
 		} catch (IOException e) {
 			System.out.println("IOException saving Rup Set to zip file!");
 			e.printStackTrace();
-		}	*/
+		}	
 		
 		
 		// Make plots
@@ -234,7 +256,8 @@ public class RunInversion {
 		inversion.plotRuptureRates();
 		inversion.plotSlipRates();
 		inversion.plotPaleoObsAndPredPaleoEventRates(segRateConstraints);
-		inversion.plotMFDs(mfdConstraints);
+		inversion.plotMFDs(mfdEqualityConstraints);
+		inversion.plotMFDs(mfdInequalityConstraints);
 		runTime = System.currentTimeMillis()-startTime;
 		if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");
 		
