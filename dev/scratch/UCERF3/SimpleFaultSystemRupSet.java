@@ -685,8 +685,11 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	}
 	
 	protected void toZipFile(File file, File tempDir, ArrayList<String> zipFileNames) throws IOException {
+		final boolean D = true;
+		if (D) System.out.println("Saving rup set to: "+file.getAbsolutePath());
 		
 		// first save fault section data as XML
+		if (D) System.out.println("Saving fault section xml");
 		File fsdFile = new File(tempDir, "fault_sections.xml");
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
@@ -695,12 +698,14 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		zipFileNames.add(fsdFile.getName());
 		
 		// write mags
+		if (D) System.out.println("Saving mags");
 		File magFile = new File(tempDir, "mags.bin");
 		MatrixIO.doubleArrayToFile(mags, magFile);
 		zipFileNames.add(magFile.getName());
 		
 		// write rup slips
 		if (rupAveSlips != null) {
+			if (D) System.out.println("Saving rup avg slips");
 			File rupSlipsFile = new File(tempDir, "rup_avg_slips.bin");
 			MatrixIO.doubleArrayToFile(rupAveSlips, rupSlipsFile);
 			zipFileNames.add(rupSlipsFile.getName());
@@ -708,6 +713,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		// write rup section slips
 		if (rupSectionSlips != null) {
+			if (D) System.out.println("Saving rup sec slips");
 			File rupSectionSlipsFile = new File(tempDir, "rup_sec_slips.bin");
 			MatrixIO.doubleArraysListToFile(rupSectionSlips, rupSectionSlipsFile);
 			zipFileNames.add(rupSectionSlipsFile.getName());
@@ -715,6 +721,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		// write sect slips
 		if (sectSlipRates != null) {
+			if (D) System.out.println("Saving section slips");
 			File sectSlipsFile = new File(tempDir, "sect_slips.bin");
 			MatrixIO.doubleArrayToFile(sectSlipRates, sectSlipsFile);
 			zipFileNames.add(sectSlipsFile.getName());
@@ -722,33 +729,39 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		if (sectSlipRateStdDevs != null) {
 			// write sec slip std devs
+			if (D) System.out.println("Saving slip std devs");
 			File sectSlipStdDevsFile = new File(tempDir, "sect_slips_std_dev.bin");
 			MatrixIO.doubleArrayToFile(sectSlipRateStdDevs, sectSlipStdDevsFile);
 			zipFileNames.add(sectSlipStdDevsFile.getName());
 		}
 		
 		// write rakes
+		if (D) System.out.println("Saving rakes");
 		File rakesFile = new File(tempDir, "rakes.bin");
 		MatrixIO.doubleArrayToFile(rakes, rakesFile);
 		zipFileNames.add(rakesFile.getName());
 		
 		// write rup areas
+		if (D) System.out.println("Saving rup areas");
 		File rupAreasFile = new File(tempDir, "rup_areas.bin");
 		MatrixIO.doubleArrayToFile(rupAreas, rupAreasFile);
 		zipFileNames.add(rupAreasFile.getName());
 		
 		// write sect areas
+		if (D) System.out.println("Saving sect areas");
 		File sectAreasFile = new File(tempDir, "sect_areas.bin");
 		MatrixIO.doubleArrayToFile(sectAreas, sectAreasFile);
 		zipFileNames.add(sectAreasFile.getName());
 		
 		// write sections for rups
+		if (D) System.out.println("Saving rup sections");
 		File sectionsForRupsFile = new File(tempDir, "rup_sections.bin");
 		MatrixIO.intListListToFile(sectionForRups, sectionsForRupsFile);
 		zipFileNames.add(sectionsForRupsFile.getName());
 		
 		if (closeSections != null) {
 			// write close sections
+			if (D) System.out.println("Saving close sections");
 			File closeSectionsFile = new File(tempDir, "close_sections.bin");
 			MatrixIO.intListListToFile(closeSections, closeSectionsFile);
 			zipFileNames.add(closeSectionsFile.getName());
@@ -756,6 +769,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		if (clusterRups != null) {
 			// write close sections
+			if (D) System.out.println("Saving cluster rups");
 			File clusterRupsFile = new File(tempDir, "cluster_rups.bin");
 			MatrixIO.intListListToFile(clusterRups, clusterRupsFile);
 			zipFileNames.add(clusterRupsFile.getName());
@@ -763,6 +777,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		if (clusterSects != null) {
 			// write close sections
+			if (D) System.out.println("Saving cluster sects");
 			File clusterSectsFile = new File(tempDir, "cluster_sects.bin");
 			MatrixIO.intListListToFile(clusterSects, clusterSectsFile);
 			zipFileNames.add(clusterSectsFile.getName());
@@ -770,6 +785,7 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 		
 		String info = getInfoString();
 		if (info != null && !info.isEmpty()) {
+			if (D) System.out.println("Saving info");
 			File infoFile = new File(tempDir, "info.txt");
 			FileWriter fw = new FileWriter(infoFile);
 			fw.write(info+"\n");
@@ -777,9 +793,13 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 			zipFileNames.add(infoFile.getName());
 		}
 		
+		if (D) System.out.println("Making zip file: "+file.getName());
 		FileUtils.createZipFile(file.getAbsolutePath(), tempDir.getAbsolutePath(), zipFileNames);
 		
+		if (D) System.out.println("Deleting temp files");
 		FileUtils.deleteRecursive(tempDir);
+		
+		if (D) System.out.println("Done saving!");
 	}
 	
 	public static SimpleFaultSystemRupSet fromZipFile(File file) throws ZipException, IOException, DocumentException {

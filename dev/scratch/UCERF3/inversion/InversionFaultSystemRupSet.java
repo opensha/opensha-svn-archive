@@ -496,8 +496,10 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	
 	public ArrayList<double[]> getSlipOnSectionsForAllRups() {
 		ArrayList<double[]> rupSlipOnSect = new ArrayList<double[]>();
+		System.out.print("Getting all slip on sections...");
 		for(int r=0;r<this.numRuptures;r++)
 			rupSlipOnSect.add(getSlipOnSectionsForRup(r));
+		System.out.println("Done.");
 		return rupSlipOnSect;
 	}
 	

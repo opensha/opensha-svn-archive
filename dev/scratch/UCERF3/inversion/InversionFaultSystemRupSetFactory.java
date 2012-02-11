@@ -86,7 +86,7 @@ public enum InversionFaultSystemRupSetFactory {
 				90, SlipModelType.TAPERED_SLIP_MODEL),
 				
 	UCERF3_GEOLOGIC("UCERF3_GEOLOGIC.zip", DefModName.UCERF3_GEOLOGIC,
-							45, SlipModelType.TAPERED_SLIP_MODEL);
+							45, SlipModelType.UNIFORM_SLIP_MODEL);
 	
 	private static final boolean D = true;
 	
@@ -189,13 +189,17 @@ public enum InversionFaultSystemRupSetFactory {
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
-//		NCAL_SMALL.getRupSet();
-//		NCAL_SMALL_UNIFORM.getRupSet();
-//		NCAL.getRupSet(true);
-//		ALLCAL_SMALL.getRupSet();
-//		ALLCAL.getRupSet();
-//		UCERF3_ALLCAL_3_1_KLUDGE.getRupSet(true);
-		UCERF3_GEOLOGIC.getRupSet(true);
+		try {
+//			NCAL_SMALL.getRupSet();
+//			NCAL_SMALL_UNIFORM.getRupSet();
+//			NCAL.getRupSet(true);
+//			ALLCAL_SMALL.getRupSet(true);
+//			ALLCAL.getRupSet(true);
+//			UCERF3_ALLCAL_3_1_KLUDGE.getRupSet(true);
+			UCERF3_GEOLOGIC.getRupSet(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		System.exit(0);
 	}
 

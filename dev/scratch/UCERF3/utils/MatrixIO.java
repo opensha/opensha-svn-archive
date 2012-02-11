@@ -274,7 +274,7 @@ public class MatrixIO {
 		
 		for (List<Integer> ints : list) {
 			Preconditions.checkNotNull(ints, "list cannot be null!");
-			Preconditions.checkState(!ints.isEmpty(), "list cannot be empty!");
+//			Preconditions.checkState(!ints.isEmpty(), "list cannot be empty!");
 			out.writeInt(ints.size());
 			for (int val : ints)
 				out.writeInt(val);

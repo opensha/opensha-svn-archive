@@ -172,13 +172,38 @@ public class SectionCluster extends ArrayList<Integer> {
 
 			ArrayList<Integer> newList = (ArrayList<Integer>)list.clone();
 			newList.add(newIndex);
+			
+			// filter out if the rake is bad
+			double[] rakes, anglediffs2;
+			rakes = new double[newList.size()];
+			if (rakesMap == null)
+				for (int i=0; i<newList.size(); i++)
+					rakes[i] = sectionDataList.get(newList.get(i)).getAveRake();
+			else
+				for (int i=0; i<newList.size(); i++)
+					rakes[i] = rakesMap.get(newList.get(i));
+			Arrays.sort(rakes);
+			anglediffs2 = new double[newList.size()];
+			for (int i=0; i<newList.size()-1; i++) {
+				anglediffs2[i] = rakes[i+1]-rakes[i];
+			}
+			anglediffs2[anglediffs2.length-1] = rakes[0]+360-rakes[newList.size()-1];
+			double rakeDiff = 360-StatUtils.max(anglediffs2);
+			if (rakeDiff>maxRakeDiff) {
+				continue;
+			}
+			
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
 			if(newList.size() >= minNumSectInRup && sameParID)  {// it's a rupture
-				rupListIndices.add(newList);
+				// uncomment these lines to only save a very small amount of ruptures
+//				if (Math.random()<0.0005)
+//					rupListIndices.add(newList);
+//				if (numRupsAdded > 100000000)
+//					return;
 				numRupsAdded += 1;
 				// show progress
 				if(numRupsAdded >= rupCounterProgress) {
-					System.out.println(numRupsAdded);
+					System.out.println(numRupsAdded+" ["+rupListIndices.size()+"]");
 					rupCounterProgress += rupCounterProgressIncrement;
 				}
 			}
@@ -286,27 +311,7 @@ public class SectionCluster extends ArrayList<Integer> {
 		// Remove ruptures where subsection rakes have too big a spread
 		// System.out.println("maxRakeDiff = "+maxRakeDiff); //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
 		if (D) System.out.print("Filtering via rake...");
-		double[] rakes, anglediffs2;
-		for(int r=rupListIndices.size()-1; r>=0;r--) {
-			ArrayList<Integer> rup = rupListIndices.get(r);
-			rakes = new double[rup.size()];
-			if (rakesMap == null)
-				for (int i=0; i<rup.size(); i++)
-					rakes[i] = sectionDataList.get(rup.get(i)).getAveRake();
-			else
-				for (int i=0; i<rup.size(); i++)
-					rakes[i] = rakesMap.get(rup.get(i));
-			Arrays.sort(rakes);
-			anglediffs2 = new double[rup.size()];
-			for (int i=0; i<rup.size()-1; i++) {
-				anglediffs2[i] = rakes[i+1]-rakes[i];
-			}
-			anglediffs2[anglediffs2.length-1] = rakes[0]+360-rakes[rup.size()-1];
-			double rakeDiff = 360-StatUtils.max(anglediffs2);
-			if (rakeDiff>maxRakeDiff) {
-				rupListIndices.remove(r);
-			}
-		}
+
 		if (D) System.out.println("DONE.");
 
 		rupListIndices = newRupList;
