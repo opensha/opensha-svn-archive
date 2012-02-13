@@ -903,8 +903,6 @@ public class DeformationModelFetcher {
 			StirlingGriddedSurface surf2 =  getSurfaceForSubSect(data2);
 			Location loc2 = surf2.getLocation((int)(surf2.getNumRows()/2), (int)(surf2.getNumCols()/2));
 			azimuths.put(ind, LocationUtils.azimuth(loc1, loc2));
-			IDPairing ind_bak = ind.getReversed();
-			azimuths.put(ind_bak, LocationUtils.azimuth(loc2, loc1));
 			//			}
 			//			// Now save to a binary file
 			//			try {
