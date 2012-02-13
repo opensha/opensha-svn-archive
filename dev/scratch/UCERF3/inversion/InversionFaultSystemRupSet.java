@@ -57,7 +57,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	
 	// following are defined in constructor
 	DeformationModelFetcher.DefModName defModName;
-	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, moRateReduction;
+	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, moRateReduction, maxCumJumpDist;
 	int minNumSectInRup;
 	ArrayList<MagAreaRelationship> magAreaRelList;
 	String deformationModelString;
@@ -107,13 +107,14 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	 * @param slipModelType
 	 * @param precomputedDataDir
 	 */
-	public InversionFaultSystemRupSet(DeformationModelFetcher.DefModName defModName,double maxJumpDist, 
+	public InversionFaultSystemRupSet(DeformationModelFetcher.DefModName defModName,double maxJumpDist, double maxCumJumpDist,
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, 
 			int minNumSectInRup, ArrayList<MagAreaRelationship> magAreaRelList, 
 			double moRateReduction, SlipModelType slipModelType, File precomputedDataDir) {
 
 		this.defModName=defModName;
 		this.maxJumpDist=maxJumpDist;
+		this.maxCumJumpDist = maxCumJumpDist;
 		this.maxAzimuthChange=maxAzimuthChange; 
 		this.maxTotAzimuthChange=maxTotAzimuthChange; 
 		this.maxRakeDiff=maxRakeDiff;
@@ -293,7 +294,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
 			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					subSectionAzimuths, rakesMap, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
+					subSectionAzimuths, rakesMap, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, subSectionDistances, maxCumJumpDist);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addClusterLinks(firstSubSection, newCluster, sectionConnectionsListList);

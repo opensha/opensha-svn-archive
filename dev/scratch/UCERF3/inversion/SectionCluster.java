@@ -31,9 +31,10 @@ public class SectionCluster extends ArrayList<Integer> {
 	ArrayList<ArrayList<Integer>> rupListIndices;			// elements here are section IDs (same as indices in sectonDataList)
 	int minNumSectInRup;
 	int numRupsAdded;
-	double maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff;
+	double maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff,maxCumJumpDist;
 	Map<IDPairing, Double> sectionAzimuths;
 	Map<Integer, Double> rakesMap;
+	Map<IDPairing, Double> subSectionDistances;
 
 
 	/**
@@ -48,7 +49,8 @@ public class SectionCluster extends ArrayList<Integer> {
 	 */
 	public SectionCluster(ArrayList<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
 			List<List<Integer>> sectionConnectionsListList, Map<IDPairing, Double> subSectionAzimuths,
-			Map<Integer, Double> rakesMap, double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff) {
+			Map<Integer, Double> rakesMap, double maxAzimuthChange, double maxTotAzimuthChange, 
+			double maxRakeDiff, Map<IDPairing, Double> subSectionDistances, double maxCumJumpDist) {
 		this.sectionDataList = sectionDataList;
 		this.minNumSectInRup = minNumSectInRup;
 		this.sectionConnectionsListList = sectionConnectionsListList;
@@ -57,6 +59,8 @@ public class SectionCluster extends ArrayList<Integer> {
 		this.maxTotAzimuthChange = maxTotAzimuthChange;
 		this.maxAzimuthChange = maxAzimuthChange;
 		this.maxRakeDiff = maxRakeDiff;
+		this.subSectionDistances = subSectionDistances;
+		this.maxCumJumpDist = maxCumJumpDist;
 	}
 
 
@@ -173,6 +177,24 @@ public class SectionCluster extends ArrayList<Integer> {
 			ArrayList<Integer> newList = (ArrayList<Integer>)list.clone();
 			newList.add(newIndex);
 			
+			
+			// check the cumulative jumping distance
+			if(newList.size()>2) {
+				double cumDist=0;
+				for(int s=0; s<newList.size()-2;s++) {
+					try {
+						cumDist = subSectionDistances.get(new IDPairing(newList.get(s), newList.get(s+1)));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						System.out.println("s="+s+"; newList.get(s)="+newList.get(s)+"; newList.get(s+1)="+newList.get(s+1)+"; newList="+newList);
+						e.printStackTrace();
+						System.exit(0);
+					}
+				}
+				if(cumDist > maxCumJumpDist)
+					continue;				
+			}
+			
 			// filter out if the rake is bad
 			double[] rakes, anglediffs2;
 			rakes = new double[newList.size()];
@@ -196,8 +218,8 @@ public class SectionCluster extends ArrayList<Integer> {
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
 			if(newList.size() >= minNumSectInRup && sameParID)  {// it's a rupture
 				// uncomment these lines to only save a very small amount of ruptures
-//				if (Math.random()<0.0005)
-//					rupListIndices.add(newList);
+				if (Math.random()<0.0005)
+					rupListIndices.add(newList);
 //				if (numRupsAdded > 100000000)
 //					return;
 				numRupsAdded += 1;

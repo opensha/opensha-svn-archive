@@ -97,6 +97,7 @@ public enum InversionFaultSystemRupSetFactory {
 	private SlipModelType slipModelType;
 	
 	private double maxJumpDist; 
+	private double maxCumJumpDist; 
 	private double maxTotAzimuthChange;
 	private double maxRakeDiff; 
 	private int minNumSectInRup;
@@ -123,6 +124,7 @@ public enum InversionFaultSystemRupSetFactory {
 		this.slipModelType = slipModelType;
 		
 		this.maxJumpDist = 5d;
+		this.maxCumJumpDist = 10d;
 		this.maxTotAzimuthChange = 90d;
 		this.maxRakeDiff = 90d;
 		this.minNumSectInRup = 2;
@@ -177,7 +179,7 @@ public enum InversionFaultSystemRupSetFactory {
 		
 		if (D) System.out.println("Couldn't download or find locally, instantiating new InversionFaultSystemRupSet.");
 		// if we made it this far the the file did not already exist, and can't be downloaded
-		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(defModName, maxJumpDist, maxAzimuthChange,
+		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(defModName, maxJumpDist, maxCumJumpDist, maxAzimuthChange,
 				maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList,
 				moRateReduction, slipModelType, dir);
 		

@@ -404,8 +404,9 @@ public class RupsInFaultSystemInversion {
 						azimuths.put(ind, sectionAzimuths[i][j]);
 				}
 			}
+			// Hacked the following by adding "new HashMap<IDPairing, Double>(), 10.0", so it no longer works until this is filled in properly
 			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					azimuths, null, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff);
+					azimuths, null, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, new HashMap<IDPairing, Double>(), 10.0);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addClusterLinks(firstSubSection, newCluster);

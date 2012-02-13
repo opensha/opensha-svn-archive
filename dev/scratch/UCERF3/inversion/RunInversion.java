@@ -66,6 +66,7 @@ public class RunInversion {
 	private static FaultSystemRupSet buildRupSet(File precomputedDataDir) {
 		// the InversionFaultSystemRupSet parameters
 		double maxJumpDist = 5.0;
+		double maxCumJumpDist = 10.0;
 		double maxAzimuthChange = 90;
 		double maxTotAzimuthChange = 90;
 		double maxRakeDiff = 90;
@@ -79,7 +80,7 @@ public class RunInversion {
 		// Instantiate the FaultSystemRupSet
 		long startTime = System.currentTimeMillis();
 		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
-				maxJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
+				maxJumpDist,maxCumJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
 				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	
 /*		FaultSystemRupSet invFaultSystemRupSet;
 		try {	
