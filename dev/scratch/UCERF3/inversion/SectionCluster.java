@@ -218,7 +218,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
 			if(newList.size() >= minNumSectInRup && sameParID)  {// it's a rupture
 				// uncomment these lines to only save a very small amount of ruptures
-				if (Math.random()<0.0005)
+//				if (Math.random()<0.0005)
 					rupListIndices.add(newList);
 //				if (numRupsAdded > 100000000)
 //					return;
