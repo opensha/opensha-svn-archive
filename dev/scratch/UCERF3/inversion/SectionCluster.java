@@ -181,7 +181,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			// check the cumulative jumping distance
 			if(newList.size()>2) {
 				double cumDist=0;
-				for(int s=0; s<newList.size()-2;s++) {
+				for(int s=0; s<newList.size()-1;s++) { 
 					try {
 						cumDist = subSectionDistances.get(new IDPairing(newList.get(s), newList.get(s+1)));
 					} catch (Exception e) {
@@ -194,6 +194,26 @@ public class SectionCluster extends ArrayList<Integer> {
 				if(cumDist > maxCumJumpDist)
 					continue;				
 			}
+			
+			// check the cumulative rake change 
+			// This is squirrelly-ness filter #1 of 2 -- #2 will be cumulative azimuth change (coming soon to a rupList near you)
+//			double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // HARD CODE THIS FOR NOW
+			double maxCmlRakeChange = 90;						 // HARD CODE THIS FOR NOW
+			if(newList.size()>2) {
+				double cmlRakeChange=0; double rakeDiff = Double.NaN;
+				for(int s=0; s<newList.size()-1;s++) {
+					if (rakesMap == null) 
+						rakeDiff = Math.abs(sectionDataList.get(newList.get(s)).getAveRake() - sectionDataList.get(newList.get(s+1)).getAveRake());
+					else 
+						rakeDiff = Math.abs(rakesMap.get(newList.get(s)) - rakesMap.get(newList.get(s+1)));
+					if (rakeDiff > 180)
+							rakeDiff = 360-rakeDiff; // Deal with branch cut (180deg = -180deg)
+					cmlRakeChange += Math.abs(rakeDiff);
+				}
+				if(cmlRakeChange > maxCmlRakeChange)
+					continue;				
+			} 
+			
 			
 			// filter out if the rake is bad
 			double[] rakes, anglediffs2;
