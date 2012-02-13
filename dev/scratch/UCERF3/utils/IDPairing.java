@@ -2,8 +2,7 @@ package scratch.UCERF3.utils;
 
 /**
  * This class represents a pairing between two ID numbers, mostly useful with hashmaps.
- * The order of the numbers doesn't matter when doing hashCode or equals calls, so (1,0)
- * is in effect equal to (0,1).
+ * The order of the numbers does matter here, so (0,1) is different than (1,0)
  * 
  * @author Kevin
  *
@@ -19,12 +18,6 @@ public class IDPairing {
 
 	@Override
 	public int hashCode() {
-		int id1 = this.id1;
-		int id2 = this.id2;
-		if (id1 > id2) {
-			id2 = this.id1;
-			id1 = this.id2;
-		}
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + id1;
@@ -41,12 +34,6 @@ public class IDPairing {
 		if (getClass() != obj.getClass())
 			return false;
 		IDPairing other = (IDPairing) obj;
-		int id1 = this.id1;
-		int id2 = this.id2;
-		if (id1 > id2) {
-			id2 = this.id1;
-			id1 = this.id2;
-		}
 		if (id1 != other.id1)
 			return false;
 		if (id2 != other.id2)
@@ -60,6 +47,10 @@ public class IDPairing {
 
 	public int getID2() {
 		return id2;
+	}
+	
+	public IDPairing getReversed() {
+		return new IDPairing(id2, id1);
 	}
 
 }

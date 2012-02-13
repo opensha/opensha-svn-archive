@@ -852,6 +852,15 @@ public class DeformationModelFetcher {
 			}
 		}
 		System.out.print("\tDONE.\n");
+		
+		HashMap<IDPairing, Double> reversed = new HashMap<IDPairing, Double>();
+		
+		// now add the reverse distance
+		for (IDPairing pair : distances.keySet()) {
+			IDPairing reverse = pair.getReversed();
+			reversed.put(reverse, distances.get(pair));
+		}
+		distances.putAll(reversed);
 
 		return distances;
 	}
