@@ -223,7 +223,7 @@ public class SectionCluster extends ArrayList<Integer> {
 				double cmlAzimuthChange=0; 
 				double prevAzimuth = sectionAzimuths.get(new IDPairing(newList.get(0), newList.get(1)));
 				for(int s=1; s<newList.size()-1; s++) {
-					if (sectionDataList.get(newList.get(s)).getParentSectionId() == sectionDataList.get(newList.get(s)).getParentSectionId()) {  // Only compute azimuth if subsections are from same parent section
+					if (sectionDataList.get(newList.get(s)).getParentSectionId() == sectionDataList.get(newList.get(s+1)).getParentSectionId()) {  // Only compute azimuth if subsections are from same parent section
 						double nextAzimuth = sectionAzimuths.get(new IDPairing(newList.get(s), newList.get(s+1)));
 						cmlAzimuthChange += Math.abs(nextAzimuth - prevAzimuth);
 						prevAzimuth = nextAzimuth;
