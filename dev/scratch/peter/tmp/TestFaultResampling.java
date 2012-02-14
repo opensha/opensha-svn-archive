@@ -1,7 +1,7 @@
 package scratch.peter.tmp;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.util.FaultTraceUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 public class TestFaultResampling {
@@ -21,7 +21,7 @@ public class TestFaultResampling {
 		trace.add(new Location(8.00,-77.00,37));
 		
     	// get resampled traces
-		FaultTrace resampTrace = FaultTraceUtils.resampleTrace(trace, 10);
+		FaultTrace resampTrace = FaultUtils.resampleTrace(trace, 10);
 		
 		  // write out each to check
 		  System.out.println("RESAMPLED");

@@ -14,7 +14,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.commons.util.FaultTraceUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
 /**
@@ -410,7 +410,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * @return
 	 */
 	public ArrayList<FaultSectionPrefData> getSubSectionsList(double maxSubSectionLen) {
-		ArrayList<FaultTrace> equalLengthSubsTrace = FaultTraceUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
+		ArrayList<FaultTrace> equalLengthSubsTrace = FaultUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
 		ArrayList<FaultSectionPrefData> subSectionList = new ArrayList<FaultSectionPrefData>();
 		for(int i=0; i<equalLengthSubsTrace.size(); ++i) {
 			FaultSectionPrefData subSection = new FaultSectionPrefData();
@@ -434,7 +434,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * @return
 	 */
 	public ArrayList<FaultSectionPrefData> getSubSectionsList(double maxSubSectionLen, int startId) {
-		ArrayList<FaultTrace> equalLengthSubsTrace = FaultTraceUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
+		ArrayList<FaultTrace> equalLengthSubsTrace = FaultUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
 		ArrayList<FaultSectionPrefData> subSectionList = new ArrayList<FaultSectionPrefData>();
 		for(int i=0; i<equalLengthSubsTrace.size(); ++i) {
 			FaultSectionPrefData subSection = new FaultSectionPrefData();

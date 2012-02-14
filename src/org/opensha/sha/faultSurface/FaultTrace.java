@@ -19,6 +19,7 @@
 
 package org.opensha.sha.faultSurface;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
@@ -26,7 +27,7 @@ import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.util.FaultTraceUtils;
+import org.opensha.commons.util.FaultUtils;
 
 // Fix - Needs more comments
 
@@ -95,38 +96,12 @@ public class FaultTrace extends LocationList implements Named {
 	 * @return
 	 */
 	public double getAveStrike() {
-		double length=0;
-		Iterator<Location> it = iterator();
-		Location lastLoc = it.next();
-		Location loc = null;
-
-		//    Old Method
-		//double aveStrike=0;
-		//while( it.hasNext() ){
-		//  loc = it.next();
-		//  length = LocationUtils.horzDistance(lastLoc, loc);
-		//  aveStrike += LocationUtils.azimuth(lastLoc, loc) * length;
-		//  totLength += length;
-		//  lastLoc = loc; 
-		//}
-		//throw new RuntimeException("This needs to be fixed for case where azimuths that cross the north direction (e.g., values of 10 & 350 average to 180");
-		//return aveStrike/totLength;
-
-		double xdir=0; double ydir=0;
-		while( it.hasNext() ){
-			loc = it.next();
-			length = LocationUtils.horzDistance(lastLoc, loc);
-			//System.out.println("azimuth = " + LocationUtils.azimuth(lastLoc, loc));
-			xdir+=length*Math.cos(Math.PI*LocationUtils.azimuth(lastLoc,loc)/180);
-			ydir+=length*Math.sin(Math.PI*LocationUtils.azimuth(lastLoc,loc)/180);
-			lastLoc = loc;
+		ArrayList<Double> azimuths = new ArrayList<Double>();
+		for (int i=1; i<size(); i++) {
+			azimuths.add(LocationUtils.azimuth(get(i-1),get(i)));
 		}
-		if (xdir>0 & ydir>=0) { return 180*Math.atan(ydir/xdir)/Math.PI; }
-		if (xdir>0 & ydir<0) { return 180*Math.atan(ydir/xdir)/Math.PI+360; } 
-		if (xdir<0) { return 180*Math.atan(ydir/xdir)/Math.PI+180; }   
-		if (xdir==0 & ydir>0) { return 90; }  
-		if (xdir==0 & ydir<0) { return 270; }   
-		else { return 0; } // if both xdir==0 & ydir=0
+		
+		return FaultUtils.getLengthBasedAngleAverage(this, azimuths);
 
 	}
 
@@ -190,7 +165,7 @@ public class FaultTrace extends LocationList implements Named {
 		double minFaultTraceDist = Double.POSITIVE_INFINITY;
 		double dist;
 		int num = (int)(faultTrace.getTraceLength()/discrInterval) + 1;
-		FaultTrace discrFaultTrace = FaultTraceUtils.resampleTrace(faultTrace, num);
+		FaultTrace discrFaultTrace = FaultUtils.resampleTrace(faultTrace, num);
 		for(int i=0; i<discrFaultTrace.getNumLocations(); ++i) {
 			dist = minDistToLine(discrFaultTrace.get(i));
 			if(dist<minFaultTraceDist) minFaultTraceDist = dist;

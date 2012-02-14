@@ -15,12 +15,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.GMT_GrdFile;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.commons.util.FaultTraceUtils;
 
 import ucar.ma2.InvalidRangeException;
 
@@ -67,8 +67,8 @@ public class SlabSurfaceGenerator {
 		int num = (int) Math.round(aveTraceLength/aveGridSpacing);
 
 		// get resampled traces
-		FaultTrace resampTopTrace = FaultTraceUtils.resampleTrace(origTopTrace, num);
-		FaultTrace resampBottomTrace = FaultTraceUtils.resampleTrace(origBottomTrace, num);
+		FaultTrace resampTopTrace = FaultUtils.resampleTrace(origTopTrace, num);
+		FaultTrace resampBottomTrace = FaultUtils.resampleTrace(origBottomTrace, num);
 
 		/*  The following doesn't work
 		  ArrayList<FaultTrace> tracesToPlot = new ArrayList<FaultTrace>();

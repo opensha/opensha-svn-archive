@@ -124,7 +124,7 @@ public enum InversionFaultSystemRupSetFactory {
 		this.slipModelType = slipModelType;
 		
 		this.maxJumpDist = 5d;
-		this.maxCumJumpDist = 10d;
+		this.maxCumJumpDist = 5d;
 		this.maxTotAzimuthChange = 90d;
 		this.maxRakeDiff = 90d;
 		this.minNumSectInRup = 2;

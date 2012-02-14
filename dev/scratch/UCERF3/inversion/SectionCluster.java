@@ -218,7 +218,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			// Check the cumulative azimuth change (this adds together absolute vales of azimuth changes, so they don't cancel)
 			// This is squirrelly-ness filter #2 of 2 
 //			double maxCmlAzimuthChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
-			double maxCmlAzimuthChange = 90;						// HARD CODE THIS FOR NOW
+			double maxCmlAzimuthChange = 360;						// HARD CODE THIS FOR NOW
 			if(newList.size()>2 & maxCmlAzimuthChange<Double.POSITIVE_INFINITY) {
 				double cmlAzimuthChange=0; 
 				double prevAzimuth = sectionAzimuths.get(new IDPairing(newList.get(0), newList.get(1)));

@@ -22,6 +22,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
@@ -439,9 +440,9 @@ public class DeformationModelFetcher {
 			DeformationSection def298 = model.get(298);
 			DeformationSection def402 = model.get(402);
 			System.out.println("Fixing Elsinore Special Case!");
-			double slips297 = getAverageSlip(def297.getLocsAsTrace(), def297.getSlips());
-			double slips298 = getAverageSlip(def298.getLocsAsTrace(), def298.getSlips());
-			double slips402 = getAverageSlip(def402.getLocsAsTrace(), def402.getSlips());
+			double slips297 = getLengthBasedAverage(def297.getLocsAsTrace(), def297.getSlips());
+			double slips298 = getLengthBasedAverage(def298.getLocsAsTrace(), def298.getSlips());
+			double slips402 = getLengthBasedAverage(def402.getLocsAsTrace(), def402.getSlips());
 			
 			double combinedSlip = 0;
 			if (!Double.isNaN(slips297))
@@ -461,6 +462,9 @@ public class DeformationModelFetcher {
 		ArrayList<FaultSectionPrefData> subSections = new ArrayList<FaultSectionPrefData>();
 		int subSectIndex = 0;
 		for (FaultSectionPrefData section : sections) {
+			
+			if (DD) System.out.println("Working on section "+section.getSectionId()+". "+section.getSectionName());
+			if (DD) System.out.println("Building sub sections.");
 			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
 					section, maxSubSectionLength, subSectIndex);
 			
@@ -470,11 +474,12 @@ public class DeformationModelFetcher {
 			FaultTrace trace = section.getFaultTrace();
 			
 			if (DD) {
-				System.out.println("Section: "+section.getSectionName()+" ("+section.getSectionId()+")");
 				System.out.println("Trace:");
 				for (int i=0; i<trace.size(); i++)
 					System.out.println("\t"+i+":\t"+trace.get(i).getLatitude()+"\t"+trace.get(i).getLongitude());
 			}
+			
+			if (DD) System.out.println("Applying any special cases...");
 			
 			if (def == null || !def.validateAgainst(section)) {
 				/* TODO remove special cases when files are updated
@@ -495,19 +500,25 @@ public class DeformationModelFetcher {
 					List<Location> locs1 = def.getLocs1();
 					List<Location> locs2 = def.getLocs2();
 					List<Double> slips = def.getSlips();
+					List<Double> rakes = def.getRakes();
 					
 					// we need to average slips 3 & 4, with respects to locs 3, 4, & 5
 					// this will contains pts 3, 4, 5 (sublist is exclusive)
 					List<Location> locs = locs1.subList(3, 6);
 					// this will contain slips 3 & 4
 					List<Double> slipsPart = slips.subList(3, 5);
+					List<Double> rakesPart = rakes.subList(3, 5);
 					
-					double avgSlip = getAverageSlip(locs, slipsPart);
+					double avgSlip = getLengthBasedAverage(locs, slipsPart);
+					double avgRake = getLengthBasedRakeAverage(locs, rakesPart);
 					
 					// now fix the lists
 					slips.remove(3);
 					slips.remove(4);
 					slips.add(3, avgSlip);
+					rakes.remove(3);
+					rakes.remove(4);
+					rakes.add(3, avgRake);
 					
 					locs1.remove(4);
 					locs2.remove(3);
@@ -547,24 +558,36 @@ public class DeformationModelFetcher {
 					DeformationSection def290 = model.get(290);
 					DeformationSection def291 = model.get(291);
 					System.out.println("Fixing San Jacinto Special Case!");
-					double slips290 = getAverageSlip(def290.getLocsAsTrace(), def290.getSlips());
-					double slips291 = getAverageSlip(def291.getLocsAsTrace(), def291.getSlips());
+					double slips290 = getLengthBasedAverage(def290.getLocsAsTrace(), def290.getSlips());
+					double slips291 = getLengthBasedAverage(def291.getLocsAsTrace(), def291.getSlips());
+					double slips401 = 0;
+					if (def != null) {
+						slips401 = getLengthBasedAverage(def.getLocsAsTrace(), def.getSlips());
+					}
 					
 					double combinedSlip = 0;
 					if (!Double.isNaN(slips290))
 						combinedSlip += slips290;
 					if (!Double.isNaN(slips291))
 						combinedSlip += slips291;
+					if (!Double.isNaN(slips401))
+						combinedSlip += slips401;
 					
 					model.remove(290);
 					model.remove(291);
 					
-					DeformationSection def401 = new DeformationSection(401);
-					for (int i=0; i<trace.size()-1; i++) {
-						def401.add(trace.get(i), trace.get(i+1), combinedSlip, section.getAveRake());
+					if (def == null) {
+						DeformationSection def401 = new DeformationSection(401);
+						for (int i=0; i<trace.size()-1; i++) {
+							def401.add(trace.get(i), trace.get(i+1), combinedSlip, section.getAveRake());
+						}
+						model.put(401, def401);
+						def = def401;
+					} else {
+						for (int i=0; i<def.getSlips().size(); i++) {
+							def.getSlips().set(i, combinedSlip);
+						}
 					}
-					model.put(401, def401);
-					def = def401;
 				}
 				
 				// make sure we fixed it
@@ -572,7 +595,11 @@ public class DeformationModelFetcher {
 						+section.getSectionId());
 			}
 			
+			if (DD) System.out.println("Done with special cases");
+			
 			List<Double> slips = def.getSlips();
+			List<Double> rakes = def.getRakes();
+			Preconditions.checkState(slips.size() == rakes.size());
 			
 			// now set the subsection rates from the def model
 			for (int s=0; s<subSectData.size(); s++) {
@@ -583,7 +610,7 @@ public class DeformationModelFetcher {
 				Location subEnd = subTrace.get(subTrace.size()-1);
 				
 				if (DD) {
-					System.out.println("Sbusection "+s);
+					System.out.println("Sbusection "+s+"/"+subSectData.size());
 					System.out.println("Start: "+subStart.getLatitude()+"\t"+subStart.getLongitude());
 					System.out.println("End: "+subEnd.getLatitude()+"\t"+subEnd.getLongitude());
 				}
@@ -620,53 +647,73 @@ public class DeformationModelFetcher {
 				ArrayList<Location> subLocs = new ArrayList<Location>();
 				// this is the slip of all spans of the locations above
 				ArrayList<Double> subSlips = new ArrayList<Double>();
+				// this is the rake of all spans of the locations above
+				ArrayList<Double> subRakes = new ArrayList<Double>();
 				
 				subLocs.add(subStart);
 				
 				for (int i=traceIndexBefore; i<traceIndexAfter; i++) {
 					subSlips.add(slips.get(i));
+					subRakes.add(rakes.get(i));
 					if (i > traceIndexBefore && i < traceIndexAfter)
 						subLocs.add(trace.get(i));
 				}
 				subLocs.add(subEnd);
 				
-				double avgSlip = getAverageSlip(subLocs, subSlips);
+				double avgSlip = getLengthBasedAverage(subLocs, subSlips);
+				double avgRake = getLengthBasedRakeAverage(subLocs, subRakes);
 				
 				subSect.setAveSlipRate(avgSlip);
+				subSect.setAveRake(avgRake);
 			}
+			
+			if (DD) System.out.println("Done with subsection assignment.");
+			if (DD) System.out.flush();
 			
 			subSections.addAll(subSectData);
 			subSectIndex += subSectData.size();
 		}
 		
+		if (DD) System.out.println("Done with sections!");
+		if (DD) System.out.flush();
+		
 		return subSections;
 	}
 	
+	private static double getLengthBasedRakeAverage(List<Location> locs, List<Double> rakes) {
+		double avg = FaultUtils.getLengthBasedAngleAverage(locs, rakes);
+		if (avg > 180)
+			avg -= 360;
+		return avg;
+	}
+	
 	/**
-	 * This averages two slip rates based on the length of each corresponding span.
+	 * This averages multiple scalars based on the length of each corresponding span.
 	 * 
-	 * @param loc1
-	 * @param loc2
-	 * @param loc3
-	 * @param slip12
-	 * @param slip23
+	 * @param locs a list of locations
+	 * @param scalars a list of scalar values to be averaged based on the distance between
+	 * each location in the location list
 	 */
-	private static double getAverageSlip(List<Location> locs, List<Double> slips) {
-		Preconditions.checkArgument(locs.size() == slips.size()+1,
+	private static double getLengthBasedAverage(List<Location> locs, List<Double> scalars) {
+		Preconditions.checkArgument(locs.size() == scalars.size()+1,
 				"there must be exactly one less slip than location!");
-		Preconditions.checkArgument(!slips.isEmpty(), "there must be at least 2 locations and 1 slip rate");
+		Preconditions.checkArgument(!scalars.isEmpty(), "there must be at least 2 locations and 1 slip rate");
 		
-		if (slips.size() == 1)
-			return slips.get(0);
+		if (scalars.size() == 1)
+			return scalars.get(0);
+		if (Double.isNaN(scalars.get(0)))
+			return Double.NaN;
 		boolean equal = true;
-		for (int i=1; i<slips.size(); i++) {
-			if (slips.get(i) != slips.get(0)) {
+		for (int i=1; i<scalars.size(); i++) {
+			if (Double.isNaN(scalars.get(i)))
+				return Double.NaN;
+			if (scalars.get(i) != scalars.get(0)) {
 				equal = false;
 				break;
 			}
 		}
 		if (equal)
-			return slips.get(0);
+			return scalars.get(0);
 		
 		double totDist = 0;
 		ArrayList<Double> dists = new ArrayList<Double>();
@@ -677,13 +724,13 @@ public class DeformationModelFetcher {
 			totDist += dist;
 		}
 		
-		double avgSlip = 0;
+		double scaledAvg = 0;
 		for (int i=0; i<dists.size(); i++) {
 			double relative = dists.get(i) / totDist;
-			avgSlip += relative * slips.get(i);
+			scaledAvg += relative * scalars.get(i);
 		}
 		
-		return avgSlip;
+		return scaledAvg;
 	}
 	
 	/**
@@ -931,6 +978,10 @@ public class DeformationModelFetcher {
 		try {
 			File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData");
 			new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
+//			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
+//			new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
+//			new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
+//			new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

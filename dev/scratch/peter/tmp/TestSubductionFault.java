@@ -3,7 +3,7 @@ package scratch.peter.tmp;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.util.FaultTraceUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 
@@ -63,8 +63,8 @@ public class TestSubductionFault {
     	// get resampled traces
 		// it's an arbitrary chosen number, not derived by the average subfoult grid spacing
 		int num = 10;
-		FaultTrace resampTopTrace = FaultTraceUtils.resampleTrace(topTrace, num);
-		FaultTrace resampBottomTrace = FaultTraceUtils.resampleTrace(bottomTrace, num);
+		FaultTrace resampTopTrace = FaultUtils.resampleTrace(topTrace, num);
+		FaultTrace resampBottomTrace = FaultUtils.resampleTrace(bottomTrace, num);
 
 
 		

@@ -10,7 +10,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
-import org.opensha.commons.util.FaultTraceUtils;
+import org.opensha.commons.util.FaultUtils;
 
 /**
  * This classe represents and approximately evenly gridded surface, where the gridSpacing represents some average value.
@@ -91,8 +91,8 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWith
 		if(D) System.out.println("gridSpacing="+gridSpacingAlong+", aveTraceLength="+aveTraceLength+", numCol="+num);
 
 		// get resampled traces (note that number of locs in trace will be num+1)
-		FaultTrace resampUpperTrace = FaultTraceUtils.resampleTrace(upperFaultTrace, num);
-		FaultTrace resampLowerTrace = FaultTraceUtils.resampleTrace(lowerFaultTrace, num);
+		FaultTrace resampUpperTrace = FaultUtils.resampleTrace(upperFaultTrace, num);
+		FaultTrace resampLowerTrace = FaultUtils.resampleTrace(lowerFaultTrace, num);
 
 		if(D) System.out.println("resample trace lengths: "+resampUpperTrace.size()+" & "+resampLowerTrace.size());
 		// compute ave num columns
