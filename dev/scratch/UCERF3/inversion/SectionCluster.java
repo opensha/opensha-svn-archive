@@ -195,11 +195,11 @@ public class SectionCluster extends ArrayList<Integer> {
 					continue;				
 			}
 			
-			// Check the cumulative rake change 
+			// Check the cumulative rake change (this adds together absolute vales of rake changes, so they don't cancel)
 			// This is squirrelly-ness filter #1 of 2 
 //			double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
 			double maxCmlRakeChange = 90;						 // HARD CODE THIS FOR NOW
-			if(newList.size()>2) {
+			if(newList.size()>2 & maxCmlRakeChange<Double.POSITIVE_INFINITY) {
 				double cmlRakeChange=0; double rakeDiff = Double.NaN;
 				for(int s=0; s<newList.size()-1; s++) {
 					if (rakesMap == null) 
@@ -215,11 +215,11 @@ public class SectionCluster extends ArrayList<Integer> {
 			} 
 			
 			
-			// Check the cumulative azimuth change 
+			// Check the cumulative azimuth change (this adds together absolute vales of azimuth changes, so they don't cancel)
 			// This is squirrelly-ness filter #2 of 2 
 //			double maxCmlAzimuthChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
 			double maxCmlAzimuthChange = 90;						// HARD CODE THIS FOR NOW
-			if(newList.size()>2) {
+			if(newList.size()>2 & maxCmlAzimuthChange<Double.POSITIVE_INFINITY) {
 				double cmlAzimuthChange=0; 
 				double prevAzimuth = sectionAzimuths.get(new IDPairing(newList.get(0), newList.get(1)));
 				for(int s=1; s<newList.size()-1; s++) {
