@@ -181,7 +181,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			// check the cumulative jumping distance
 			if(newList.size()>2) {
 				double cumDist=0;
-				for(int s=0; s<newList.size()-1;s++) { 
+				for(int s=0; s<newList.size()-1; s++) { 
 					try {
 						cumDist = subSectionDistances.get(new IDPairing(newList.get(s), newList.get(s+1)));
 					} catch (Exception e) {
@@ -195,13 +195,13 @@ public class SectionCluster extends ArrayList<Integer> {
 					continue;				
 			}
 			
-			// check the cumulative rake change 
-			// This is squirrelly-ness filter #1 of 2 -- #2 will be cumulative azimuth change (coming soon to a rupList near you)
-//			double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // HARD CODE THIS FOR NOW
+			// Check the cumulative rake change 
+			// This is squirrelly-ness filter #1 of 2 
+//			double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
 			double maxCmlRakeChange = 90;						 // HARD CODE THIS FOR NOW
 			if(newList.size()>2) {
 				double cmlRakeChange=0; double rakeDiff = Double.NaN;
-				for(int s=0; s<newList.size()-1;s++) {
+				for(int s=0; s<newList.size()-1; s++) {
 					if (rakesMap == null) 
 						rakeDiff = Math.abs(sectionDataList.get(newList.get(s)).getAveRake() - sectionDataList.get(newList.get(s+1)).getAveRake());
 					else 
@@ -215,7 +215,26 @@ public class SectionCluster extends ArrayList<Integer> {
 			} 
 			
 			
-			// filter out if the rake is bad
+			// Check the cumulative azimuth change 
+			// This is squirrelly-ness filter #2 of 2 
+//			double maxCmlAzimuthChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
+			double maxCmlAzimuthChange = 90;						// HARD CODE THIS FOR NOW
+			if(newList.size()>2) {
+				double cmlAzimuthChange=0; 
+				double prevAzimuth = sectionAzimuths.get(new IDPairing(newList.get(0), newList.get(1)));
+				for(int s=1; s<newList.size()-1; s++) {
+					if (sectionDataList.get(newList.get(s)).getParentSectionId() == sectionDataList.get(newList.get(s)).getParentSectionId()) {  // Only compute azimuth if subsections are from same parent section
+						double nextAzimuth = sectionAzimuths.get(new IDPairing(newList.get(s), newList.get(s+1)));
+						cmlAzimuthChange += Math.abs(nextAzimuth - prevAzimuth);
+						prevAzimuth = nextAzimuth;
+					}
+				}			
+				if(cmlAzimuthChange > maxCmlAzimuthChange)
+					continue;				
+			} 
+			
+			
+			// Filter out rupture if the set of rakes over entire rupture has too large a spread
 			double[] rakes, anglediffs2;
 			rakes = new double[newList.size()];
 			if (rakesMap == null)
