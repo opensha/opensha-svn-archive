@@ -124,9 +124,10 @@ public enum InversionFaultSystemRupSetFactory {
 		this.slipModelType = slipModelType;
 		
 		this.maxJumpDist = 5d;
-		this.maxCumJumpDist = 5d;
+		this.maxCumJumpDist = 10d;
 		this.maxTotAzimuthChange = 90d;
-		this.maxRakeDiff = 90d;
+//		this.maxRakeDiff = 90d;
+		this.maxRakeDiff = Double.POSITIVE_INFINITY;
 		this.minNumSectInRup = 2;
 		this.magAreaRelList = new ArrayList<MagAreaRelationship>();
 		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
