@@ -29,6 +29,8 @@ import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
+import com.google.common.base.Preconditions;
+
 
 /**
  * <b>Title:</b> EvenlyDiscretizedFunc<p>
@@ -486,27 +488,53 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * This function interpolates the y-axis value corresponding to the given value of x
 	 * @param x(value for which interpolated first y value has to be found
 	 * @return y(this  is the interpolated y based on the given x value)
+	 * @author Morgan and Kevin
 	 */
 	public double getInterpolatedY(double x){
-		double x1=Double.NaN;
-		double x2=Double.NaN;
 		//if passed parameter(x value) is not within range then throw exception
-		if(x>getX(num-1) || x<getX(0))
+		if(x>maxX || x<minX)
 			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-		//finds the X values within which the the given x value lies
-		for(int i=0;i<num-1;++i) {
-			x1=getX(i);
-			x2=getX(i+1);
-			if(x>=x1 && x<=x2)
-				break;
-		}
+		if (x == maxX)
+			return getY(getNum()-1);
+		
+		int x1Ind = getIndexBefore(x);
+		double x1 = getX(x1Ind);
+		double x2 = getX(x1Ind+1);
+		
 		//finding the y values for the coressponding x values
 		double y1=getY(x1);
 		double y2=getY(x2);
 		//using the linear interpolation equation finding the value of y for given x
 		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
+		
 		return y;
 	}
+	
+	private int getIndexBefore(double x) {
+		return (int)Math.floor((x-minX)/delta);
+	}
+	
+	// old slow method
+//	public double getInterpolatedY_old(double x){
+//		double x1=Double.NaN;
+//		double x2=Double.NaN;
+//		//if passed parameter(x value) is not within range then throw exception
+//		if(x>getX(num-1) || x<getX(0))
+//			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
+//		//finds the X values within which the the given x value lies
+//		for(int i=0;i<num-1;++i) {
+//			x1=getX(i);
+//			x2=getX(i+1);
+//			if(x>=x1 && x<=x2)
+//				break;
+//		}
+//		//finding the y values for the coressponding x values
+//		double y1=getY(x1);
+//		double y2=getY(x2);
+//		//using the linear interpolation equation finding the value of y for given x
+//		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
+//		return y;
+//	}
 
 
 	/**
@@ -518,18 +546,16 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * @return y(this  is the interpolated y in linear space based on the given x value)
 	 */
 	public double getInterpolatedY_inLogXLogYDomain(double x){
-		double x1=Double.NaN;
-		double x2=Double.NaN;
 		//if passed parameter(x value) is not within range then throw exception
-		if(x>getX(num-1) || x<getX(0))
-			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(num-1));
-		//finds the X values within which the the given x value lies
-		for(int i=0;i<num-1;++i) {
-			x1=getX(i);
-			x2=getX(i+1);
-			if(x>=x1 && x<=x2)
-				break;
-		}
+		if(x>maxX || x<minX)
+			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
+		if (x == maxX)
+			return getY(getNum()-1);
+		
+		int x1Ind = getIndexBefore(x);
+		double x1 = getX(x1Ind);
+		double x2 = getX(x1Ind+1);
+		
 		//finding the y values for the coressponding x values
 		double y1=Math.log(getY(x1));
 		double y2=Math.log(getY(x2));
@@ -551,18 +577,16 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * @return y(this  is the interpolated y in linear space based on the given x value)
 	 */
 	public double getInterpolatedY_inLogYDomain(double x){
-		double x1=Double.NaN;
-		double x2=Double.NaN;
 		//if passed parameter(x value) is not within range then throw exception
-		if(x>getX(num-1) || x<getX(0))
-			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(num-1));
-		//finds the X values within which the the given x value lies
-		for(int i=0;i<num-1;++i) {
-			x1=getX(i);
-			x2=getX(i+1);
-			if(x>=x1 && x<=x2)
-				break;
-		}
+		if(x>maxX || x<minX)
+			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
+		if (x == maxX)
+			return getY(getNum()-1);
+		
+		int x1Ind = getIndexBefore(x);
+		double x1 = getX(x1Ind);
+		double x2 = getX(x1Ind+1);
+		
 		//finding the y values for the coressponding x values
 		double y1=Math.log(getY(x1));
 		double y2=Math.log(getY(x2));
@@ -749,10 +773,15 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		}
 	}
 
-	public static void main(String args[]) {
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(5.0,9.0, 41);
-		func.setTolerance(func.getDelta()/2);
-		System.out.println(func.getXIndex(8.899999999999999));
-	}
+//	public static void main(String args[]) {
+//		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(4.324,9.55323, 90000);
+//		for (int i=0; i<func.getNum(); i++)
+//			func.set(i, Math.random());
+//		for (double x=5; x<=9; x+=0.001) {
+//			double ynew = func.getInterpolatedY(x);
+//			double yold = func.getInterpolatedY_old(x);
+//			Preconditions.checkState(ynew == yold);
+//		}
+//	}
 
 }
