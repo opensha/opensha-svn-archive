@@ -232,22 +232,6 @@ public class SectionCluster extends ArrayList<Integer> {
 					continue;				
 			}
 			
-			// Check the cumulative rake change (this adds together absolute vales of rake changes, so they don't cancel)
-            // This is squirrelly-ness filter #1 of 2 
-//            double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
-//            double maxCmlRakeChange = 90;                                                 // HARD CODE THIS FOR NOW
-//            if(newList.size()>2 & maxCmlRakeChange<Double.POSITIVE_INFINITY) {
-//                    double tempcmlRakeChange=0; double rakeDiff = Double.NaN;
-//                    for(int s=0; s<newList.size()-1; s++) {
-//                    		rakeDiff = Math.abs(getRake(newList.get(s)) - getRake(newList.get(s+1)));
-//                            if (rakeDiff > 180)
-//                                            rakeDiff = 360-rakeDiff; // Deal with branch cut (180deg = -180deg)
-//                            tempcmlRakeChange += Math.abs(rakeDiff);
-//                    }
-//                    if(tempcmlRakeChange > maxCmlRakeChange)
-//                            continue;                                
-//            }
-			
 			
 			// Check the cumulative azimuth change (this adds together absolute vales of azimuth changes, so they don't cancel)
 			// This is squirrelly-ness filter #2 of 2 
