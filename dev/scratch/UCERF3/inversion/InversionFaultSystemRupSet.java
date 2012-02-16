@@ -386,10 +386,10 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 				rupTotMoRateAvail[rupIndex]=totMoRate;
 				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
 				if(aveSlipForRupModel == AveSlipForRupModel.SHAW12_SQRT_LENGTH || aveSlipForRupModel == AveSlipForRupModel.SHAW_12_CONST_STRESS_DROP) {
-					rupMeanSlip[rupIndex] = aveSlipForRupModel.getSlip(totLength);
+					rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totLength);
 				}
 				else {
-					rupMeanSlip[rupIndex] = aveSlipForRupModel.getSlip(totArea);
+					rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totArea);
 				}
 			}
 		}
