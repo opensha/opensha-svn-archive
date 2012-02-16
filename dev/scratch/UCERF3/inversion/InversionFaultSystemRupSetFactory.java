@@ -14,6 +14,7 @@ import org.opensha.commons.util.FileUtils;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet.SlipModelType;
+import scratch.UCERF3.utils.AveSlipForRupModel;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 
@@ -182,7 +183,7 @@ public enum InversionFaultSystemRupSetFactory {
 		// if we made it this far the the file did not already exist, and can't be downloaded
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(defModName, maxJumpDist, maxCumJumpDist, maxAzimuthChange,
 				maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList,
-				moRateReduction, slipModelType, dir);
+				moRateReduction, slipModelType, dir, AveSlipForRupModel.AVE_UCERF2);
 		
 		if (D) System.out.println("Saving new InversionFaultSystemRupSet to "+file.getAbsolutePath());
 		new SimpleFaultSystemRupSet(rupSet).toZipFile(file);

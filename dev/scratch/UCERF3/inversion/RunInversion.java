@@ -29,6 +29,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.utils.AveSlipForRupModel;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
@@ -81,7 +82,7 @@ public class RunInversion {
 		long startTime = System.currentTimeMillis();
 		InversionFaultSystemRupSet invFaultSystemRupSet = new InversionFaultSystemRupSet(DeformationModelFetcher.DefModName.UCERF2_NCAL,
 				maxJumpDist,maxCumJumpDist,maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList, 
-				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir);	
+				moRateReduction,  InversionFaultSystemRupSet.SlipModelType.TAPERED_SLIP_MODEL , precomputedDataDir, AveSlipForRupModel.AVE_UCERF2);	
 /*		FaultSystemRupSet invFaultSystemRupSet;
 		try {	
 			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();

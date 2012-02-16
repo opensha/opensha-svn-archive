@@ -384,7 +384,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 				// (mean moment != moment of mean mag if aleatory uncertainty included)
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
 				rupTotMoRateAvail[rupIndex]=totMoRate;
-				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
+//				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
 				if(aveSlipForRupModel == AveSlipForRupModel.SHAW12_SQRT_LENGTH || aveSlipForRupModel == AveSlipForRupModel.SHAW_12_CONST_STRESS_DROP) {
 					rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totLength);
 				}
