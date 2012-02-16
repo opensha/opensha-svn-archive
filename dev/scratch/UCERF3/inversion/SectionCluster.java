@@ -163,20 +163,23 @@ public class SectionCluster extends ArrayList<Integer> {
 			if(list.contains(newIndex))
 				continue;
 			
+			// now make sure the first subsection doesn't differ from the second
+			boolean newParID_NotSameAsLast = sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(newIndex).getParentSectionId();
+			if(list.size() == 1 && newParID_NotSameAsLast) {
+				continue;
+			}
+			
 			// make sure at least two sub-sections of a section have been used
 			boolean lastParID_NotSameAsSecToLast=false;
 			if(list.size()>1) {
 				lastParID_NotSameAsSecToLast = sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(secToLastIndex).getParentSectionId();
-				boolean newParID_NotSameAsLast = sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(newIndex).getParentSectionId();
 				// this checks for a single subsection in between two sections
 				if(lastParID_NotSameAsSecToLast && newParID_NotSameAsLast) {
 					continue;
 				}
-				// now make sure the first subsection doesn't differ from the second
-				if(list.size() == 1 && newParID_NotSameAsLast) {
-					continue;
-				}
 			}
+			
+
 
 			// check the azimuth change, first checking whether diff parent sections were crossed (need two sections before and after crossing)   
 			if(list.size()>3 && lastParID_NotSameAsSecToLast) {
