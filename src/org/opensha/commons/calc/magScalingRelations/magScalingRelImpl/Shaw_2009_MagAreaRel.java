@@ -36,9 +36,9 @@ public class Shaw_2009_MagAreaRel extends MagAreaRelationship {
     final static String C = "Shaw_2007_MagAreaRel";
     public final static String NAME = "Shaw (2009)";
     ArbitrarilyDiscretizedFunc magAreaFunc = null;
-	double beta=5;
-	double h=19;
-	double cZero = 3.98;
+	public final static double beta=5;
+	public final static double h=19;
+	public final static double cZero = 3.98;
 
 
     /**
