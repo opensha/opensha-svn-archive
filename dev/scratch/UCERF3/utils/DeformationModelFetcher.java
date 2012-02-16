@@ -5,11 +5,14 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -820,6 +823,20 @@ public class DeformationModelFetcher {
 		// Close file
 		file_output.close ();
 	}
+	
+	private static void writePairingsTextFile(File file, Set<IDPairing> pairings) throws IOException {
+		ArrayList<IDPairing> list = new ArrayList<IDPairing>();
+		list.addAll(pairings);
+		Collections.sort(list);
+		FileWriter fw = new FileWriter(file);
+		
+		fw.write("ID1\tID2\n");
+		for (IDPairing pair : list) {
+			fw.write(pair.getID1()+"\t"+pair.getID2()+"\n");
+		}
+		
+		fw.close();
+	}
 
 	/**
 	 * This computes the distances between subsection if it hasn't already been done.
@@ -843,6 +860,8 @@ public class DeformationModelFetcher {
 		name += "_"+(float)maxDistance+"km";
 		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
 		File file = new File (fullpathname);
+		
+		File pairingsTextFile = new File(fullpathname+"_pairings.txt");
 
 		//		 Read data if already computed and saved
 		if(file.exists()) {
@@ -856,7 +875,7 @@ public class DeformationModelFetcher {
 
 		}
 		else {// Calculate new distance matrix & save to a file
-			System.out.println("Calculating data and will save to file: "+name);
+			System.out.println("Calculating data and will save to file: "+file.getAbsolutePath());
 
 			distances = new HashMap<IDPairing, Double>();
 
@@ -899,6 +918,14 @@ public class DeformationModelFetcher {
 			}
 		}
 		System.out.print("\tDONE.\n");
+		
+		if (!pairingsTextFile.exists()) {
+			try {
+				writePairingsTextFile(pairingsTextFile, distances.keySet());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		HashMap<IDPairing, Double> reversed = new HashMap<IDPairing, Double>();
 		
@@ -976,8 +1003,13 @@ public class DeformationModelFetcher {
 	
 	public static void main(String[] args) {
 		try {
-			File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData");
-			new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
+			File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
+			DeformationModelFetcher dm = new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
+			dm.getSubSectionDistanceMap(5d);
+			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, FM 3.1 Subsections",
+					new SimpleDateFormat().format(new Date()));
+			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
+					new File(precomputedDataDir, "fault_sections.txt").getAbsolutePath());
 //			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
 //			new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
 //			new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);

@@ -108,6 +108,12 @@ public class SectionCluster extends ArrayList<Integer> {
 			computeRupList();
 		return rupListIndices.get(rthRup);
 	}
+	
+	private double getRake(int index) {
+		if (rakesMap == null)
+			return sectionDataList.get(index).getAveRake();
+		return rakesMap.get(index);
+	}
 
 
 
@@ -197,7 +203,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			
 			double newCMLJumpDist = cmlJumpDist;
 			// check the cumulative jumping distance
-			if(newList.size()>2) {
+			if(newList.size()>=2) {
 				newCMLJumpDist += subSectionDistances.get(new IDPairing(newList.get(newPrevIndex), newList.get(newLastIndex)));
 				if(newCMLJumpDist > maxCumJumpDist)
 					continue;
@@ -208,19 +214,31 @@ public class SectionCluster extends ArrayList<Integer> {
 //			double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
 			double maxCmlRakeChange = 360;						 // HARD CODE THIS FOR NOW
 			double newCMLRakeChange = cmlRakeChange;
-			if(newList.size()>2 && maxCmlRakeChange<Double.POSITIVE_INFINITY) {
+			if(newList.size()>=2 && !isNaNInfinite(maxCmlRakeChange)) {
 				double rakeDiff;
-				if (rakesMap == null)
-					rakeDiff = Math.abs(sectionDataList.get(newList.get(newPrevIndex)).getAveRake()
-							- sectionDataList.get(newList.get(newLastIndex)).getAveRake());
-				else
-					rakeDiff = Math.abs(rakesMap.get(newList.get(newPrevIndex)) - rakesMap.get(newList.get(newLastIndex)));
+				rakeDiff = Math.abs(getRake(newList.get(newPrevIndex)) - getRake(newList.get(newLastIndex)));
 				if (rakeDiff > 180)
 					rakeDiff = 360-rakeDiff; // Deal with branch cut (180deg = -180deg)
-				newCMLRakeChange += rakeDiff;
+				newCMLRakeChange += Math.abs(rakeDiff);
 				if(newCMLRakeChange > maxCmlRakeChange)
 					continue;				
-			} 
+			}
+			
+			// Check the cumulative rake change (this adds together absolute vales of rake changes, so they don't cancel)
+            // This is squirrelly-ness filter #1 of 2 
+//            double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
+//            double maxCmlRakeChange = 90;                                                 // HARD CODE THIS FOR NOW
+//            if(newList.size()>2 & maxCmlRakeChange<Double.POSITIVE_INFINITY) {
+//                    double tempcmlRakeChange=0; double rakeDiff = Double.NaN;
+//                    for(int s=0; s<newList.size()-1; s++) {
+//                    		rakeDiff = Math.abs(getRake(newList.get(s)) - getRake(newList.get(s+1)));
+//                            if (rakeDiff > 180)
+//                                            rakeDiff = 360-rakeDiff; // Deal with branch cut (180deg = -180deg)
+//                            tempcmlRakeChange += Math.abs(rakeDiff);
+//                    }
+//                    if(tempcmlRakeChange > maxCmlRakeChange)
+//                            continue;                                
+//            }
 			
 			
 			// Check the cumulative azimuth change (this adds together absolute vales of azimuth changes, so they don't cancel)
@@ -228,7 +246,7 @@ public class SectionCluster extends ArrayList<Integer> {
 //			double maxCmlAzimuthChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
 			double maxCmlAzimuthChange = 360;						// HARD CODE THIS FOR NOW
 			double newCMLAzimuthChange = cmlAzimuthChange;
-			if(newList.size()>2 && maxCmlAzimuthChange<Double.POSITIVE_INFINITY) {
+			if(newList.size()>2 && !isNaNInfinite(maxCmlAzimuthChange)) {
 				double prevAzimuth = sectionAzimuths.get(new IDPairing(newList.get(newPrevIndex-1), newList.get(newPrevIndex)));
 				double newAzimuth = sectionAzimuths.get(new IDPairing(newList.get(newPrevIndex), newList.get(newLastIndex)));
 				newCMLAzimuthChange += Math.abs(newAzimuth - prevAzimuth);
@@ -238,15 +256,11 @@ public class SectionCluster extends ArrayList<Integer> {
 			
 			
 			// Filter out rupture if the set of rakes over entire rupture has too large a spread
-			if (!Double.isInfinite(maxRakeDiff) && maxRakeDiff < Double.MAX_VALUE) {
+			if (!isNaNInfinite(maxRakeDiff)) {
 				double[] rakes, anglediffs2;
 				rakes = new double[newList.size()];
-				if (rakesMap == null)
-					for (int i=0; i<newList.size(); i++)
-						rakes[i] = sectionDataList.get(newList.get(i)).getAveRake();
-				else
-					for (int i=0; i<newList.size(); i++)
-						rakes[i] = rakesMap.get(newList.get(i));
+				for (int i=0; i<newList.size(); i++)
+					rakes[i] = getRake(newList.get(i));
 				Arrays.sort(rakes);
 				anglediffs2 = new double[newList.size()];
 				for (int i=0; i<newList.size()-1; i++) {
@@ -275,6 +289,16 @@ public class SectionCluster extends ArrayList<Integer> {
 			}
 			addRuptures(newList, newCMLRakeChange, newCMLAzimuthChange, newCMLJumpDist);
 		}
+	}
+	
+	private static boolean isNaNInfinite(double val) {
+		if (Double.isNaN(val))
+			return true;
+		if (Double.isInfinite(val))
+			return true;
+		if (val == Double.MAX_VALUE)
+			return true;
+		return false;
 	}
 
 	private void computeRupList() {

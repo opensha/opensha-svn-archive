@@ -288,8 +288,11 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	
 	private double doCalcSlipRateForSect(int sectIndex) {
 		double slipRate=0;
-		for (int r : getRupturesForSection(sectIndex))
-			slipRate += getRateForRup(r)*getAveSlipForRup(r);
+		for (int r : getRupturesForSection(sectIndex)) {
+			int ind = getSectionsIndicesForRup(r).indexOf(sectIndex);
+//			slipRate += getRateForRup(r)*getAveSlipForRup(r);
+			slipRate += getRateForRup(r)*getSlipOnSectionsForRup(r)[ind];
+		}
 		return slipRate;
 	}
 	

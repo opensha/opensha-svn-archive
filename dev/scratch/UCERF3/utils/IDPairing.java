@@ -7,7 +7,7 @@ package scratch.UCERF3.utils;
  * @author Kevin
  *
  */
-public class IDPairing {
+public class IDPairing implements Comparable<IDPairing> {
 	
 	private int id1, id2;
 	
@@ -51,6 +51,25 @@ public class IDPairing {
 	
 	public IDPairing getReversed() {
 		return new IDPairing(id2, id1);
+	}
+
+	@Override
+	public int compareTo(IDPairing o) {
+		int o1 = o.getID1();
+		int o2 = o.getID2();
+		if (id1 < o1) {
+			return -1;
+		} else if (id1 > o1) {
+			return 1;
+		} else {
+			if (id2 < o2) {
+				return -1;
+			} else if (id2 > o2) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
 	}
 
 }

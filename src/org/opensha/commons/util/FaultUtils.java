@@ -44,97 +44,97 @@ import com.google.common.base.Preconditions;
 
 public final class FaultUtils {
 
-    /** Class name used for debug strings */
-    protected final static String C = "FaultUtils";
-    /** boolean that indicates if print out debug statements */
-    protected final static boolean D = false;
+	/** Class name used for debug strings */
+	protected final static String C = "FaultUtils";
+	/** boolean that indicates if print out debug statements */
+	protected final static boolean D = false;
 
-    /** debugging string */
-    private static final String S1 = C + ": assertValidStrike(): ";
-    /** debugging string */
-    private static final String S2 = C + ": assertValidDip(): ";
-    /** debugging string */
-    private static final String S3 = C + ": assertValidRake(): ";
-    
-
-
-    /**
-     * Checks that the strike angle fits within the definition<p>
-     * <code>0 <= strike <= 360</code><p>
-     * @param strike                    Angle to validate
-     * @throws InvalidRangeException    Thrown if not valid angle
-     */
-    public static void assertValidStrike( double strike)
-        throws InvalidRangeException
-    {
-
-        if( strike < 0 ) throw new InvalidRangeException( S1 +
-            "Strike angle cannot be less than zero (value = "+ strike+")");
-        if( strike > 360 ) throw new InvalidRangeException( S1 +
-            "Strike angle cannot be greater than 360 (value = "+ strike+")");
-    }
+	/** debugging string */
+	private static final String S1 = C + ": assertValidStrike(): ";
+	/** debugging string */
+	private static final String S2 = C + ": assertValidDip(): ";
+	/** debugging string */
+	private static final String S3 = C + ": assertValidRake(): ";
 
 
-    /**
-     * Checks that the dip angle fits within the definition<p>
-     * <code>0 <= dip <= 90</code><p>
-     * @param dip                       Angle to validate
-     * @throws InvalidRangeException    Thrown if not valid angle
-     */
-    public static void assertValidDip( double dip)
-        throws InvalidRangeException
-    {
-   
-        if( dip < 0 ) throw new InvalidRangeException( S2 +
-            "Dip angle cannot be less than zero; the value is "+dip);
-        if( dip > 90 ) throw new InvalidRangeException( S2 +
-            "Dip angle cannot be greater than 90; the value is "+dip);
-    }
+
+	/**
+	 * Checks that the strike angle fits within the definition<p>
+	 * <code>0 <= strike <= 360</code><p>
+	 * @param strike                    Angle to validate
+	 * @throws InvalidRangeException    Thrown if not valid angle
+	 */
+	public static void assertValidStrike( double strike)
+			throws InvalidRangeException
+			{
+
+		if( strike < 0 ) throw new InvalidRangeException( S1 +
+				"Strike angle cannot be less than zero (value = "+ strike+")");
+		if( strike > 360 ) throw new InvalidRangeException( S1 +
+				"Strike angle cannot be greater than 360 (value = "+ strike+")");
+			}
 
 
-     /**
-     * This makes sure that a depth on the fault is a positive number<p>
-     * @param depth
-     * @throws InvalidRangeException
-     */
-    public static void assertValidDepth( double depth)
-        throws InvalidRangeException
-    {
-        if( !(depth >= 0) ) throw new InvalidRangeException( S2 +
-            "Depth on fault must be positive" );
-    }
+	/**
+	 * Checks that the dip angle fits within the definition<p>
+	 * <code>0 <= dip <= 90</code><p>
+	 * @param dip                       Angle to validate
+	 * @throws InvalidRangeException    Thrown if not valid angle
+	 */
+	public static void assertValidDip( double dip)
+			throws InvalidRangeException
+			{
+
+		if( dip < 0 ) throw new InvalidRangeException( S2 +
+				"Dip angle cannot be less than zero; the value is "+dip);
+		if( dip > 90 ) throw new InvalidRangeException( S2 +
+				"Dip angle cannot be greater than 90; the value is "+dip);
+			}
 
 
-    /**
-     * This makes sure that a depth on the fault is a positive number<p>
-     * @param depth
-     * @throws InvalidRangeException
-     */
-    public static void assertValidSeisUpperAndLower(double upperSeis, double lowerSeis)
-        throws InvalidRangeException {
+	/**
+	 * This makes sure that a depth on the fault is a positive number<p>
+	 * @param depth
+	 * @throws InvalidRangeException
+	 */
+	public static void assertValidDepth( double depth)
+			throws InvalidRangeException
+			{
+		if( !(depth >= 0) ) throw new InvalidRangeException( S2 +
+				"Depth on fault must be positive" );
+			}
 
-        assertValidDepth(upperSeis);
-        assertValidDepth(lowerSeis);
-        if( upperSeis > lowerSeis ) throw new InvalidRangeException( S2 +
-            "upperSeisDepth must be < lowerSeisDepth" );
-    }
-    /**
-     * Checks that the rake angle fits within the definition<p>
-     * <code>-180 <= rake <= 180</code><p>
-     * @param rake                      Angle to validate
-     * @throws InvalidRangeException    Thrown if not valid angle
-     */
-    public static void assertValidRake( double rake)
-        throws InvalidRangeException
-    {
-   
-        if( rake < -180 ) throw new InvalidRangeException( S3 +
-            "Rake angle cannot be less than -180"
-        );
-        if( rake > 180 ) throw new InvalidRangeException( S3 +
-            "Rake angle cannot be greater than 180"
-        );
-    }
+
+	/**
+	 * This makes sure that a depth on the fault is a positive number<p>
+	 * @param depth
+	 * @throws InvalidRangeException
+	 */
+	public static void assertValidSeisUpperAndLower(double upperSeis, double lowerSeis)
+			throws InvalidRangeException {
+
+		assertValidDepth(upperSeis);
+		assertValidDepth(lowerSeis);
+		if( upperSeis > lowerSeis ) throw new InvalidRangeException( S2 +
+				"upperSeisDepth must be < lowerSeisDepth" );
+	}
+	/**
+	 * Checks that the rake angle fits within the definition<p>
+	 * <code>-180 <= rake <= 180</code><p>
+	 * @param rake                      Angle to validate
+	 * @throws InvalidRangeException    Thrown if not valid angle
+	 */
+	public static void assertValidRake( double rake)
+			throws InvalidRangeException
+			{
+
+		if( rake < -180 ) throw new InvalidRangeException( S3 +
+				"Rake angle cannot be less than -180"
+				);
+		if( rake > 180 ) throw new InvalidRangeException( S3 +
+				"Rake angle cannot be greater than 180"
+				);
+			}
 
 
 	/**
@@ -144,10 +144,10 @@ public final class FaultUtils {
 	 * @param maxSubSectionLen Maximum length of each subsection
 	 */
 	public static ArrayList<FaultTrace> getEqualLengthSubsectionTraces(FaultTrace faultTrace, double maxSubSectionLen) {
-	
+
 		int numSubSections;
 		ArrayList<FaultTrace> subSectionTraceList;
-	
+
 		// find the number of sub sections
 		double numSubSec= faultTrace.getTraceLength()/maxSubSectionLen;
 		if(Math.floor(numSubSec)!=numSubSec) numSubSections=(int)Math.floor(numSubSec)+1;
@@ -223,11 +223,11 @@ public final class FaultUtils {
 				remainingLength -= length;
 			}
 		}
-	
+
 		// make sure we got the last one (might be missed because of numerical precision issues?)
 		double dist = LocationUtils.linearDistanceFast(trace.get(trace.size()-1), resampTrace.get(resampTrace.size()-1));
 		if (dist> resampInt/2) resampTrace.add(trace.get(trace.size()-1));
-	
+
 		/* Debugging Stuff *****************/
 		/*
 		  // write out each to check
@@ -236,13 +236,13 @@ public final class FaultUtils {
 			  Location l = resampTrace.getLocationAt(i);
 			  System.out.println(l.getLatitude()+"\t"+l.getLongitude()+"\t"+l.getDepth());
 		  }
-	
+
 		  System.out.println("ORIGINAL");
 		  for(int i=0; i<trace.size(); i++) {
 			  Location l = trace.getLocationAt(i);
 			  System.out.println(l.getLatitude()+"\t"+l.getLongitude()+"\t"+l.getDepth());
 		  }
-	
+
 		  // write out each to check
 		  System.out.println("target resampInt="+resampInt+"\tnum sect="+num);
 		  System.out.println("RESAMPLED");
@@ -255,8 +255,8 @@ public final class FaultUtils {
 		  }
 		  ave /= resampTrace.size()-1;
 		  System.out.println("ave="+ave+"\tmin="+min+"\tmax="+max+"\tnum pts="+resampTrace.size());
-	
-	
+
+
 		  System.out.println("ORIGINAL");
 		  ave=0; min=Double.MAX_VALUE; max=Double.MIN_VALUE;
 		  for(int i=1; i<trace.size(); i++) {
@@ -267,20 +267,21 @@ public final class FaultUtils {
 		  }
 		  ave /= trace.size()-1;
 		  System.out.println("ave="+ave+"\tmin="+min+"\tmax="+max+"\tnum pts="+trace.size());
-	
+
 		  /* End of debugging stuff ********************/
-	
+
 		return resampTrace;
 	}
 
 
 	/**
-		 * This is a quick plot of the traces
-		 * @param traces
-		 */
-		public static void plotTraces(ArrayList<FaultTrace> traces) {
-			throw new RuntimeException("This doesn't work because our functions will reorder x-axis values to monotonically increase (and remove duplicates - someone should fix this)");
-			/*ArrayList funcs = new ArrayList();
+	 * This is a quick plot of the traces
+	 * @param traces
+	 */
+	public static void plotTraces(ArrayList<FaultTrace> traces) {
+		throw new RuntimeException("This doesn't work because our functions will reorder x-axis values" +
+				"to monotonically increase (and remove duplicates - someone should fix this)");
+		/*ArrayList funcs = new ArrayList();
 				for(int t=0; t<traces.size();t++) {
 					FaultTrace trace = traces.get(t);
 					ArbitrarilyDiscretizedFunc traceFunc = new ArbitrarilyDiscretizedFunc();
@@ -314,9 +315,9 @@ public final class FaultUtils {
 						e.printStackTrace();
 					}
 				}
-			 */
-	
-		}
+		 */
+
+	}
 
 
 	/**
@@ -330,15 +331,15 @@ public final class FaultUtils {
 	public static double getLengthBasedAngleAverage(List<Location> locs, List<Double> angles) {
 		Preconditions.checkArgument(locs.size() >= 2, "must have at least 2 locations!");
 		Preconditions.checkArgument(angles.size() == locs.size()-1, "must have exactly one fewer angles than location");
-		
+
 		ArrayList<Double> lengths = new ArrayList<Double>();
-		
+
 		for (int i=1; i<locs.size(); i++)
 			lengths.add(LocationUtils.linearDistanceFast(locs.get(i), locs.get(i-1)));
-		
+
 		return getScaledAngleAverage(lengths, angles);
 	}
-	
+
 	/**
 	 * Returns an average of the given angles scaled by the distances between the corresponding
 	 * locations. Note that expects angles in degrees, and will return angles from 0 to 360 degrees.
@@ -350,7 +351,7 @@ public final class FaultUtils {
 	public static double getScaledAngleAverage(List<Double> lengths, List<Double> angles) {
 		Preconditions.checkArgument(lengths.size() >= 1, "must have at least 1 lengths!");
 		Preconditions.checkArgument(angles.size() == lengths.size(), "must have exactly the same amount of lengths as angles");
-		
+
 		// see if we have an easy case, or a NaN
 		if (angles.size() == 1)
 			return angles.get(0);
@@ -367,7 +368,7 @@ public final class FaultUtils {
 		}
 		if (equal)
 			return angles.get(0);
-		
+
 		double xdir=0; double ydir=0;
 		for (int i=0; i<lengths.size(); i++) {
 			double dist = lengths.get(i);
@@ -375,9 +376,9 @@ public final class FaultUtils {
 			xdir+=dist*Math.cos(Math.toRadians(angle));
 			ydir+=dist*Math.sin(Math.toRadians(angle));
 		}
-		
+
 		double avg;
-		
+
 		if (xdir>0 & ydir>=0)
 			avg = Math.toDegrees(Math.atan(ydir/xdir));
 		else if (xdir>0 & ydir<0)
@@ -390,24 +391,24 @@ public final class FaultUtils {
 			avg = 270;
 		else
 			avg = 0; // if both xdir==0 & ydir=0
-		
+
 		while (avg > 360)
 			avg -= 360;
 		while (avg < 0)
 			avg += 360;
-		
+
 		return avg;
 	}
-	
-	
-	/* <b>x</b>-axis unit normal vector [1,0,0]*/ 
-    private static final double[] VX_UNIT_NORMAL = { 1.0, 0.0, 0.0 };
-	/* <b>y</b>-axis unit normal vector [0,1,0]*/ 
-    private static final double[] VY_UNIT_NORMAL = { 0.0, 1.0, 0.0 };
-	/* <b>z</b>-axis unit normal vector [0,0,1]*/ 
-    private static final double[] VZ_UNIT_NORMAL = { 0.0, 0.0, 1.0 };
 
-	
+
+	/* <b>x</b>-axis unit normal vector [1,0,0]*/ 
+	private static final double[] VX_UNIT_NORMAL = { 1.0, 0.0, 0.0 };
+	/* <b>y</b>-axis unit normal vector [0,1,0]*/ 
+	private static final double[] VY_UNIT_NORMAL = { 0.0, 1.0, 0.0 };
+	/* <b>z</b>-axis unit normal vector [0,0,1]*/ 
+	private static final double[] VZ_UNIT_NORMAL = { 0.0, 0.0, 1.0 };
+
+
 	/**
 	 * Calculates a slip vector from strike, dip, and rake information provided.
 	 * @param strike
@@ -416,16 +417,16 @@ public final class FaultUtils {
 	 * @return double[x,y,z] array for slip vector.
 	 */
 	public static double[] getSlipVector(double[] strikeDipRake) {
-    	// start with y-axis unit normal on a horizontal plane
-    	double[] startVector = VY_UNIT_NORMAL;
-    	// rotate rake amount about z-axis (negative axial rotation)
-    	double[] rakeRotVector = vectorMatrixMultiply(zAxisRotMatrix(-strikeDipRake[2]),startVector);
-    	// rotate dip amount about y-axis (negative axial rotation)
+		// start with y-axis unit normal on a horizontal plane
+		double[] startVector = VY_UNIT_NORMAL;
+		// rotate rake amount about z-axis (negative axial rotation)
+		double[] rakeRotVector = vectorMatrixMultiply(zAxisRotMatrix(-strikeDipRake[2]),startVector);
+		// rotate dip amount about y-axis (negative axial rotation)
 		double[] dipRotVector = vectorMatrixMultiply(yAxisRotMatrix(-strikeDipRake[1]),rakeRotVector);
 		// rotate strike amount about z-axis (positive axial rotation)
 		double[] strikeRotVector = vectorMatrixMultiply(zAxisRotMatrix(strikeDipRake[0]),dipRotVector);
-    	return strikeRotVector;
-    }
+		return strikeRotVector;
+	}
 
 	/*
 	 * Multiplies the vector provided with a matrix. Useful for rotations.
@@ -437,10 +438,10 @@ public final class FaultUtils {
 		double[] rotatedVector = new double[3];
 		for (int i = 0; i < 3; i++) {
 			rotatedVector[i] = vector[0] * matrix[i][0] + vector[1] *
-				matrix[i][1] + vector[2] * matrix[i][2];
+					matrix[i][1] + vector[2] * matrix[i][2];
 		}
 		return rotatedVector;
-    }
+	}
 
 
 	/*
@@ -455,12 +456,12 @@ public final class FaultUtils {
 		// @formatter:off
 		double thetaRad = Math.toRadians(theta);
 		double[][] rotMatrix= {{ 1.0 ,                 0.0 ,                0.0 },
-							   { 0.0 ,  Math.cos(thetaRad) , Math.sin(thetaRad) },
-							   { 0.0 , -Math.sin(thetaRad) , Math.cos(thetaRad) }};
+				{ 0.0 ,  Math.cos(thetaRad) , Math.sin(thetaRad) },
+				{ 0.0 , -Math.sin(thetaRad) , Math.cos(thetaRad) }};
 		return rotMatrix;
 		// @formatter:on
 	}
- 
+
 	/*
 	 * Returns a rotation matrix about the y axis in a right-handed coordinate
 	 * system for a given theta. Note that these are coordinate transformations
@@ -473,12 +474,12 @@ public final class FaultUtils {
 		// @formatter:off
 		double thetaRad = Math.toRadians(theta);
 		double[][] rotMatrix= {{ Math.cos(thetaRad) , 0.0 , -Math.sin(thetaRad) },
-							   {                0.0 , 1.0 ,                 0.0 },
-							   { Math.sin(thetaRad) , 0.0 ,  Math.cos(thetaRad) }};
+				{                0.0 , 1.0 ,                 0.0 },
+				{ Math.sin(thetaRad) , 0.0 ,  Math.cos(thetaRad) }};
 		return rotMatrix;
 		// @formatter:on
 	}
- 
+
 	/*
 	 * Returns a rotation matrix about the z axis in a right-handed coordinate
 	 * system for a given theta. Note that these are coordinate transformations
@@ -491,8 +492,8 @@ public final class FaultUtils {
 		// @formatter:off
 		double thetaRad = Math.toRadians(theta);
 		double[][] rotMatrix= {{  Math.cos(thetaRad) , Math.sin(thetaRad) , 0.0 },
-							   { -Math.sin(thetaRad) , Math.cos(thetaRad) , 0.0 },
-		      			       {                 0.0 ,                0.0 , 1.0 }};
+				{ -Math.sin(thetaRad) , Math.cos(thetaRad) , 0.0 },
+				{                 0.0 ,                0.0 , 1.0 }};
 		return rotMatrix;
 		// @formatter:on
 	}

@@ -11,10 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math.geometry.Vector3D;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -147,7 +149,6 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		Map<Integer, Double> rakesMap = new HashMap<Integer, Double>();
 		for (FaultSectionPrefData data : faultSectionData)
 			rakesMap.put(data.getSectionId(), data.getAveRake());
-
 		
 		// check that indices are same as sectionIDs (this is assumed here)
 		for(int i=0; i<faultSectionData.size();i++)
@@ -172,6 +173,13 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		// calculate rupture magnitude and other attributes
 		calcRuptureAttributes();
 		
+	}
+	
+	public static Vector3D getSlipVector(FaultSectionPrefData section) {
+		double[] strikeDipRake = { section.getFaultTrace().getAveStrike(), section.getAveDip(), section.getAveRake() };
+		double[] vect = FaultUtils.getSlipVector(strikeDipRake);
+		
+		return new Vector3D(vect[0], vect[1], vect[2]);
 	}
 	
 	
