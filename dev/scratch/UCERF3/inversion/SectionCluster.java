@@ -168,7 +168,12 @@ public class SectionCluster extends ArrayList<Integer> {
 			if(list.size()>1) {
 				lastParID_NotSameAsSecToLast = sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(secToLastIndex).getParentSectionId();
 				boolean newParID_NotSameAsLast = sectionDataList.get(lastIndex).getParentSectionId() != sectionDataList.get(newIndex).getParentSectionId();
+				// this checks for a single subsection in between two sections
 				if(lastParID_NotSameAsSecToLast && newParID_NotSameAsLast) {
+					continue;
+				}
+				// now make sure the first subsection doesn't differ from the second
+				if(list.size() == 1 && newParID_NotSameAsLast) {
 					continue;
 				}
 			}
