@@ -25,6 +25,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.utils.AveSlipForRupModel;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 import scratch.UCERF3.utils.IDPairing;
 
@@ -71,6 +72,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	}
 	SlipModelType slipModelType;
 	File precomputedDataDir;
+	AveSlipForRupModel aveSlipForRupModel;
 	
 	ArrayList<FaultSectionPrefData> faultSectionData;
 	int numSections;
@@ -112,7 +114,8 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 	public InversionFaultSystemRupSet(DeformationModelFetcher.DefModName defModName,double maxJumpDist, double maxCumJumpDist,
 			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, 
 			int minNumSectInRup, ArrayList<MagAreaRelationship> magAreaRelList, 
-			double moRateReduction, SlipModelType slipModelType, File precomputedDataDir) {
+			double moRateReduction, SlipModelType slipModelType, File precomputedDataDir, 
+			AveSlipForRupModel aveSlipForRupModel) {
 
 		this.defModName=defModName;
 		this.maxJumpDist=maxJumpDist;
@@ -125,6 +128,7 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 		this.moRateReduction=moRateReduction;
 		this.slipModelType=slipModelType;
 		this.precomputedDataDir = precomputedDataDir;
+		this.aveSlipForRupModel = aveSlipForRupModel;
 		
 		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
 		infoString += "\tdefModName = " +defModName+ "\n";
@@ -381,6 +385,12 @@ public class InversionFaultSystemRupSet implements FaultSystemRupSet {
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
 				rupTotMoRateAvail[rupIndex]=totMoRate;
 				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
+				if(aveSlipForRupModel == AveSlipForRupModel.SHAW12_SQRT_LENGTH || aveSlipForRupModel == AveSlipForRupModel.SHAW_12_CONST_STRESS_DROP) {
+					rupMeanSlip[rupIndex] = aveSlipForRupModel.getSlip(totLength);
+				}
+				else {
+					rupMeanSlip[rupIndex] = aveSlipForRupModel.getSlip(totArea);
+				}
 			}
 		}
 		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");

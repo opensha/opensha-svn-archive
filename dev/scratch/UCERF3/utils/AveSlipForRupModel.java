@@ -25,7 +25,7 @@ public enum AveSlipForRupModel {
 		
 	
 	AVE_UCERF2 {
-		double getAveSlip(double area) {
+		public double getAveSlip(double area) {
 			double areaKm = area/1e6;
 			double mag = (ellB_magArea.getMedianMag(areaKm) + hb_magArea.getMedianMag(areaKm))/2;
 			double moment = MagUtils.magToMoment(mag);
@@ -34,7 +34,7 @@ public enum AveSlipForRupModel {
 	},
 	
 	SHAW_2009_MOD {
-		double getAveSlip(double area) {
+		public double getAveSlip(double area) {
 			// the term "- Shaw_2009_MagAreaRel.cZero + 4.2" is the modification described in the sliphazned.pdf file sent on Feb. 15, 2012.
 			double mag = sh09_magArea.getMedianMag(area/1e6) - Shaw_2009_MagAreaRel.cZero + 4.02;
 			double moment = MagUtils.magToMoment(mag);
@@ -42,7 +42,7 @@ public enum AveSlipForRupModel {
 	},
 	
 	ELLSWORTH_B {
-		double getAveSlip(double area) {
+		public double getAveSlip(double area) {
 			double mag = ellB_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
@@ -50,7 +50,7 @@ public enum AveSlipForRupModel {
 	},
 		
 	SHAW12_SQRT_LENGTH {
-		double getAveSlip(double length) {
+		public double getAveSlip(double length) {
 			// c4 = 5.69e-5
 			// W = 15 km = 15e3 m
 			return 5.69e-5*Math.sqrt(length*15e3);
@@ -58,7 +58,7 @@ public enum AveSlipForRupModel {
 	},
 
 	SHAW_12_CONST_STRESS_DROP {
-		double getAveSlip(double length) {
+		public double getAveSlip(double length) {
 			// stressDrop = 4.54 MPa
 			// W = 15 km = 15e3 m
 			double temp = 1.0/(7.0/(3.0*length) + 1.0/(2.0*15e3))*1e6;
@@ -137,7 +137,7 @@ public enum AveSlipForRupModel {
 	 * @param areaOrLength
 	 * @return
 	 */
-	abstract double getAveSlip(double areaOrLength);
+	 public abstract double getAveSlip(double areaOrLength);
 
 
 }
