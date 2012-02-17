@@ -351,16 +351,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			// we should convert it for faster matrix multiplications
 			if (D) System.out.println("\nConverting A matrix to SparseRCDoubleMatrix2D ...");
 			startTime = System.currentTimeMillis();
-			SparseRCDoubleMatrix2D Anew = new SparseRCDoubleMatrix2D(A.rows(), A.columns());
-			IntArrayList rows = new IntArrayList();
-			IntArrayList cols = new IntArrayList();
-			DoubleArrayList vals = new DoubleArrayList();
-			long startTime1 = System.currentTimeMillis();
-			A.getNonZeros(rows, cols, vals);
-			if (D) System.out.println("Non-zero entries stored after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.");
-			startTime1 = System.currentTimeMillis();
-			for (int i=0; i<rows.size(); i++)
-				Anew.set(rows.get(i), cols.get(i), vals.get(i));
+			SparseRCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getRowCompressed(true);
 			A = Anew;
 			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.");
 		}
@@ -371,16 +362,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			// we should convert it for faster matrix multiplications
 			if (D) System.out.println("\nConverting A_MFD matrix to SparseRCDoubleMatrix2D ...");
 			startTime = System.currentTimeMillis();
-			SparseRCDoubleMatrix2D A_MFDnew = new SparseRCDoubleMatrix2D(A_MFD.rows(), A_MFD.columns());
-			IntArrayList rows = new IntArrayList();
-			IntArrayList cols = new IntArrayList();
-			DoubleArrayList vals = new DoubleArrayList();
-			long startTime1 = System.currentTimeMillis();
-			A_MFD.getNonZeros(rows, cols, vals);
-			if (D) System.out.println("Non-zero entries stored after " + ((System.currentTimeMillis()-startTime1)/1000.) + " seconds.");
-			startTime1 = System.currentTimeMillis();
-			for (int i=0; i<rows.size(); i++)
-				A_MFDnew.set(rows.get(i), cols.get(i), vals.get(i));
+			SparseRCDoubleMatrix2D A_MFDnew = ((SparseDoubleMatrix2D)A_MFD).getRowCompressed(true);
+			startTime = System.currentTimeMillis();
 			A_MFD = A_MFDnew;
 			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.\n");
 		}
