@@ -467,10 +467,7 @@ public class DeformationModelFetcher {
 		int subSectIndex = 0;
 		for (FaultSectionPrefData section : sections) {
 			
-			if (DD) System.out.println("Working on section "+section.getSectionId()+". "+section.getSectionName());
-			if (DD) System.out.println("Building sub sections.");
-			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
-					section, maxSubSectionLength, subSectIndex);
+			if (D) System.out.println("Working on section "+section.getSectionId()+". "+section.getSectionName());
 			
 			// replace the slip rates with the def model rates
 			DeformationSection def = model.get(section.getSectionId());
@@ -491,6 +488,10 @@ public class DeformationModelFetcher {
 						+section.getSectionId()+". "+section.getName());
 				section.setAseismicSlipFactor(0.9);
 			}
+			
+			if (D) System.out.println("Building sub sections.");
+			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
+					section, maxSubSectionLength, subSectIndex);
 			
 			if (def == null || !def.validateAgainst(section)) {
 				/* TODO remove special cases when files are updated
