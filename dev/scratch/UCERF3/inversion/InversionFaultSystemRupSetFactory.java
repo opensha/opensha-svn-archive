@@ -87,7 +87,7 @@ public enum InversionFaultSystemRupSetFactory {
 				90, SlipModelType.TAPERED_SLIP_MODEL),
 				
 	UCERF3_GEOLOGIC("UCERF3_GEOLOGIC.zip", DefModName.UCERF3_GEOLOGIC,
-							45, SlipModelType.TAPERED_SLIP_MODEL);
+							90, SlipModelType.TAPERED_SLIP_MODEL);
 	
 	private static final boolean D = true;
 	

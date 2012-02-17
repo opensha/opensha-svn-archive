@@ -136,7 +136,6 @@ public final class FaultUtils {
 				);
 			}
 
-
 	/**
 	 * This subdivides the given fault trace into sub-traces that have the length as given (or less).
 	 * This assumes all fault trace points are at the same depth.
@@ -144,6 +143,18 @@ public final class FaultUtils {
 	 * @param maxSubSectionLen Maximum length of each subsection
 	 */
 	public static ArrayList<FaultTrace> getEqualLengthSubsectionTraces(FaultTrace faultTrace, double maxSubSectionLen) {
+		return getEqualLengthSubsectionTraces(faultTrace, maxSubSectionLen, 1);
+	}
+
+	/**
+	 * This subdivides the given fault trace into sub-traces that have the length as given (or less).
+	 * This assumes all fault trace points are at the same depth.
+	 * @param faultTrace 
+	 * @param maxSubSectionLen Maximum length of each subsection
+	 * @param minSubSections minimum number of sub sections to generate
+	 */
+	public static ArrayList<FaultTrace> getEqualLengthSubsectionTraces(
+			FaultTrace faultTrace, double maxSubSectionLen, int minSubSections) {
 
 		int numSubSections;
 		ArrayList<FaultTrace> subSectionTraceList;
@@ -152,6 +163,8 @@ public final class FaultUtils {
 		double numSubSec= faultTrace.getTraceLength()/maxSubSectionLen;
 		if(Math.floor(numSubSec)!=numSubSec) numSubSections=(int)Math.floor(numSubSec)+1;
 		else numSubSections=(int)numSubSec;
+		if (numSubSections < minSubSections)
+			numSubSections = minSubSections;
 		// find the length of each sub section
 		double subSecLength = faultTrace.getTraceLength()/numSubSections;
 		double distance = 0, distLocs=0;;

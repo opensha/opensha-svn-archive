@@ -434,7 +434,21 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * @return
 	 */
 	public ArrayList<FaultSectionPrefData> getSubSectionsList(double maxSubSectionLen, int startId) {
-		ArrayList<FaultTrace> equalLengthSubsTrace = FaultUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen);
+		return getSubSectionsList(maxSubSectionLen, startId, 1);
+	}
+	
+	/**
+	 * Get a list of all sub sections.  This version makes the subsection names the same as the parent plus " Subsection: #+1" and
+	 * subsection IDs = startId+#, where # is the ith subsection
+	 * 
+	 * @param maxSubSectionLen
+	 * @param startId - the index of the first subsection
+	 * @param minSubSections minimum number of sub sections to generate
+	 * @return
+	 */
+	public ArrayList<FaultSectionPrefData> getSubSectionsList(double maxSubSectionLen, int startId, int minSubSections) {
+		ArrayList<FaultTrace> equalLengthSubsTrace =
+			FaultUtils.getEqualLengthSubsectionTraces(this.faultTrace, maxSubSectionLen, minSubSections);
 		ArrayList<FaultSectionPrefData> subSectionList = new ArrayList<FaultSectionPrefData>();
 		for(int i=0; i<equalLengthSubsTrace.size(); ++i) {
 			FaultSectionPrefData subSection = new FaultSectionPrefData();

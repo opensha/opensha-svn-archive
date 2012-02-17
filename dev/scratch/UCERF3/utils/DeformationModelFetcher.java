@@ -405,7 +405,8 @@ public class DeformationModelFetcher {
 	private static ArrayList<FaultSectionPrefData> buildSubSections(
 			FaultSectionPrefData section, double maxSubSectionLength, int subSectIndex) {
 		double maxSectLength = section.getOrigDownDipWidth()*maxSubSectionLength;
-		return section.getSubSectionsList(maxSectLength, subSectIndex);
+		// the "2" here sets a minimum number of sub sections
+		return section.getSubSectionsList(maxSectLength, subSectIndex, 2);
 	}
 	
 	private ArrayList<FaultSectionPrefData> loadUCERF3FaultModel(int faultModelID) {
