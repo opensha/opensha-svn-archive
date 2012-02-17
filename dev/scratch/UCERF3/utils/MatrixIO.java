@@ -34,7 +34,7 @@ public class MatrixIO {
 	 */
 	public static void saveSparse(DoubleMatrix2D mat, File file) throws IOException {
 		Preconditions.checkNotNull(mat, "array cannot be null!");
-		Preconditions.checkArgument(mat.size() > 0, "matrix can't be empty!");
+		Preconditions.checkArgument(mat.rows() > 0 && mat.columns() > 0, "matrix can't be empty!");
 		
 		IntArrayList rowList = new IntArrayList();
 		IntArrayList colList = new IntArrayList();
