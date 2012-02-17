@@ -99,6 +99,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		private long startIter;
 		private long endIter;
 		
+		private boolean fatal = false;
+		private Throwable t;
+		
 		public SAThread(SimulatedAnnealing sa, long startIter, CompletionCriteria subComp) {
 			this.sa = sa;
 			this.subComp = subComp;
@@ -107,7 +110,14 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		@Override
 		public void run() {
-			endIter = sa.iterate(startIter, getForStartIter(startIter, subComp));
+			try {
+				endIter = sa.iterate(startIter, getForStartIter(startIter, subComp));
+			} catch (Throwable t) {
+				System.err.println("FATAL ERROR in thread!");
+				t.printStackTrace();
+				fatal = true;
+				this.t = t;
+			}
 		}
 	}
 
@@ -220,6 +230,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			}
 			
 			for (int i=0; i<numThreads; i++) {
+				if (threads.get(i).fatal)
+					throw new RuntimeException(threads.get(i).t);
 				SimulatedAnnealing sa = sas.get(i);
 				double E = sa.getBestEnergy();
 				if (E < Ebest) {
@@ -474,19 +486,19 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			ZipEntry a_entry = zip.getEntry("a.bin");
 			A = MatrixIO.loadSparse(new BufferedInputStream(zip.getInputStream(a_entry)), SparseCCDoubleMatrix2D.class);
 			ZipEntry d_entry = zip.getEntry("d.bin");
-			d = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_entry)), A.rows());
+			d = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_entry)), A.rows()*8);
 			
 			if (relativeMagnitudeInequalityConstraintWt > 0) {
 				ZipEntry a_ineq_entry = zip.getEntry("a_ineq.bin");
 				A_ineq = MatrixIO.loadSparse(new BufferedInputStream(zip.getInputStream(a_ineq_entry)), SparseCCDoubleMatrix2D.class);
 				ZipEntry d_ineq_entry = zip.getEntry("d_ineq.bin");
-				d_ineq = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_ineq_entry)), A_ineq.rows());
+				d_ineq = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_ineq_entry)), A_ineq.rows()*8);
 			}
 			
 			ZipEntry initial_entry = zip.getEntry("initial.bin");
 			if (initial_entry != null) {
 				initialState = MatrixIO.doubleArrayFromInputStream(
-						new BufferedInputStream(zip.getInputStream(initial_entry)), A.columns());
+						new BufferedInputStream(zip.getInputStream(initial_entry)), A.columns()*8);
 			}
 		} else {
 			File aFile = new File(cmd.getOptionValue("a"));

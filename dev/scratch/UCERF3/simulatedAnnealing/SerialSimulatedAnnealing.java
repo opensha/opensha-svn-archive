@@ -174,6 +174,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		double Enew = 0;  
 		for (int i = 0; i < nRow; i++) {
 			misfit[i] = syn.get(i) - d[i];  // misfit between synthetics and data
+			Preconditions.checkState(!Double.isNaN(misfit[i]), "misfit["+i+"] is nan!");
 			Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 		}
 
@@ -209,6 +210,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			}
 		}
 		
+		Preconditions.checkState(!Double.isNaN(Enew), "Enew is NaN!");
 		
 		return Enew;
 	}
