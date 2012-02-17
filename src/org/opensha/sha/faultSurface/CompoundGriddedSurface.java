@@ -39,7 +39,11 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
 	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
 	double distanceJB, distanceSeis, distanceRup, distanceX;
-
+	
+	// index of the surface with the smallest rRup distance to the site
+	// supplied in getDistanceX()
+	int distXidx;
+	
 	
 	
 	public CompoundGriddedSurface(ArrayList<EvenlyGriddedSurface> surfaces) {
@@ -241,13 +245,17 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		distanceSeis = Double.MAX_VALUE;
 		distanceRup = Double.MAX_VALUE;
 		double dist;
-		for(EvenlyGriddedSurface surf: surfaces) {
+		for (int i=0; i<surfaces.size(); i++) {
+			EvenlyGriddedSurface surf = surfaces.get(i);
 			dist = surf.getDistanceJB(siteLocForDistCalcs);
-			if(dist<distanceJB) distanceJB=dist;
+			if (dist<distanceJB) distanceJB=dist;
 			dist = surf.getDistanceRup(siteLocForDistCalcs);
-			if(dist<distanceRup) distanceRup=dist;
+			if (dist<distanceRup) {
+				distanceRup=dist;
+				distXidx = i;
+			}
 			dist = surf.getDistanceSeis(siteLocForDistCalcs);
-			if(dist<distanceSeis) distanceSeis=dist;
+			if (dist<distanceSeis) distanceSeis=dist;
 		}
 	}
 
@@ -280,9 +288,22 @@ public class CompoundGriddedSurface implements RuptureSurface {
 
 	@Override
 	public double getDistanceX(Location siteLoc) {
+		// new implementation relies on knowing the index of the surface of the
+		// smallest rRup; first ensure that rRup calc has been done for
+		// supplied Location; in all likelihood another distance metric will
+		// have already been queried with the supplied site and this call will
+		// be skipped.
+		if(!siteLocForDistCalcs.equals(siteLoc)) {
+			siteLocForDistCalcs = siteLoc;
+			computeDistances();
+		}
+		// update distX for closest sub-surface to Location
 		if(!siteLocForDistXCalc.equals(siteLoc)) {
 			siteLocForDistXCalc = siteLoc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistCalcs);
+			FaultTrace trace = surfaces.get(distXidx)
+				.getEvenlyDiscritizedUpperEdge();
+			distanceX = GriddedSurfaceUtils.getDistanceX(trace,
+				siteLocForDistCalcs);
 		}
 		return distanceX;
 	}
@@ -534,6 +555,8 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		    System.out.println(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
     
 	    System.out.println("done");
+	    
+	    
 
 	}
 
