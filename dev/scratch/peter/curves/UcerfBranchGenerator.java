@@ -3,12 +3,16 @@ package scratch.peter.curves;
 import static org.opensha.sha.imr.AttenRelRef.*;
 
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.swing.SwingWorker;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
@@ -34,20 +38,26 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-class UcerfBranchGenerator {
+class UcerfBranchGenerator implements PropertyChangeListener {
 
 	private static final String OUT_DIR = "tmp/curve_gen/";
 	private static AttenRelRef[] imrRefs = { CB_2008, BA_2008, CY_2008, AS_2008 };
 	private static Period period = Period.GM0P00;
 
 	public static void main(String[] args) {
+		UcerfBranchGenerator gen = new UcerfBranchGenerator();
+		gen.run();
+	}
+	
+	private void run() {
+		//Processor.initDataCollectors();
 		for (AttenRelRef imrRef : imrRefs) {
 			for (TestLoc loc : TestLoc.values()) {
 				ScalarIMR imr = newIMR(imrRef);
 				EpistemicListERF erfs = newERF();
-				Site site = loc.getSite();
-				Processor proc = new Processor(imr, erfs, site, period);
-				proc.doCalc();
+				Processor proc = new Processor(imr, erfs, loc, period);
+				proc.addPropertyChangeListener(this);
+				proc.execute();
 			}
 		}
 	}
@@ -57,7 +67,7 @@ class UcerfBranchGenerator {
 		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		ts.setDuration(1);
 		erf.setTimeSpan(ts);
-		erf.updateForecast();
+		//erf.updateForecast();
 		return erf;
 	}
 
@@ -73,38 +83,54 @@ class UcerfBranchGenerator {
 		return imr;
 	}
 
-	static class Processor {
+	@Override
+	public void propertyChange(PropertyChangeEvent pce) {
+		System.out.println(pce.getPropertyName());
+		Object obj = pce.getNewValue();
+		if ("state".equals(pce.getPropertyName())) {
+			Processor p = (Processor) pce.getSource();
+			System.out.println(pce.getNewValue() + ": " + p.imr.getShortName() + " " + p.loc);
+		}
+		
+	}
+
+
+	static class Processor extends SwingWorker<Object, Void> {
 
 		private ScalarIMR imr;
 		private EpistemicListERF erfs;
-		private Site site;
+		private TestLoc loc;
 		private Period per;
+		private Site site;
 		
-		private int paramCount;
-		private HashMap<String, Integer> paramMap;
+		private static int paramCount;
+		private static HashMap<String, Integer> paramMap;
+		private static List<String> paramHeader;
+		
 		private List<List<String>> paramData;
 		private List<List<String>> curveData;
 
-		Processor(ScalarIMR imr, EpistemicListERF erfs, Site site, Period per) {
+		Processor(ScalarIMR imr, EpistemicListERF erfs, TestLoc loc, Period per) {
 			this.imr = imr;
 			this.erfs = erfs;
-			this.site = site;
+			this.loc = loc;
 			this.per = per;
+			site = loc.getSite();
 		}
 
-		public void doCalc() {
+		@Override
+		public Object doInBackground() throws Exception {
+			System.out.println("HELLO");
 			init();
 			HazardCurveCalculator calc = new HazardCurveCalculator();
-			XY_DataSetList hazardFuncList = new XY_DataSetList();
-			System.out.println("Doing calcs ....");
 			for (int i = 0; i < erfs.getNumERFs(); ++i) {
 				DiscretizedFunc f = per.getFunction();
 				ERF erf = erfs.getERF(i);
 				f = calc.getHazardCurve(f, site, imr, erf);
-				hazardFuncList.add(f);
-				System.out.println("ERF#: " + i);
 				addResults(i, erf, f);
 			}
+			writeFiles();
+			return null;
 		}
 		
 		private void addResults(int idx, ERF erf, DiscretizedFunc f) {
@@ -113,32 +139,28 @@ class UcerfBranchGenerator {
 			paramDat.add(Integer.toString(idx));
 			for (int i=0; i<paramCount; i++) paramDat.add(null);
 			for (Parameter<?> param : erf.getAdjustableParameterList()) {
-				System.out.println(paramMap);
-				System.out.println(paramMap.get(param.getName()));
-				System.out.println(param.getName());
 				int index = paramMap.get(param.getName())+1;
 				paramDat.set(index, param.getValue().toString());
 			}
+			paramData.add(paramDat);
 			// curve data
 			List<String> curveDat = Lists.newArrayList();
 			curveDat.add(Integer.toString(idx));
 			for (Point2D p : f) {
 				curveDat.add(Double.toString(p.getY()));
 			}
+			curveData.add(curveDat);
 		}
 		
-		/*
-		 * Initialize output lists, one for param values and another for curves
-		 */
-		private void init() {
-			System.out.println("Initializing....");
+		private static void initDataCollectors() {
+			System.out.println("Initializing processor....");
+			EpistemicListERF erfs = newERF();
 			paramMap = Maps.newHashMap();
-			paramData = Lists.newArrayList();
-			List<String> paramHeader = Lists.newArrayList();
+			paramHeader = Lists.newArrayList();
 			paramHeader.add("ERF#");
 			for (int i = 0; i < erfs.getNumERFs(); i++) {
 				ERF erf = erfs.getERF(i);
-				System.out.println("huh: " + i);
+				System.out.print(i + " ");
 				for (Parameter<?> param : erf.getAdjustableParameterList()) {
 					if (!paramMap.containsKey(param.getName())) {
 						paramMap.put(param.getName(), paramMap.size());
@@ -147,6 +169,13 @@ class UcerfBranchGenerator {
 				}
 			}
 			paramCount = paramHeader.size() - 1;
+		}
+		
+		/*
+		 * Initialize output lists, one for param values and another for curves
+		 */
+		private void init() {
+			paramData = Lists.newArrayList();
 			paramData.add(paramHeader);
 			curveData = Lists.newArrayList();
 			List<String> curveHeader = Lists.newArrayList();
@@ -157,18 +186,18 @@ class UcerfBranchGenerator {
 			curveData.add(curveHeader);
 		}
 		
-		private void writeFiles(String city, String imr, List<List<String>> content) {
-			String outDirName = OUT_DIR + city + "/";
+		private void writeFiles() {
+			String outDirName = OUT_DIR + loc.name() + "/";
 			File outDir = new File(outDirName);
 			outDir.mkdirs();
-			String paramFile = outDirName +  imr + "_params.csv";
-			String curveFile = outDirName +  imr + "_curves.csv";
+			String paramFile = outDirName +  imr.getShortName() + "_params.csv";
+			String curveFile = outDirName +  imr.getShortName() + "_curves.csv";
 			toCSV(paramFile, paramData);
 			toCSV(curveFile, curveData);
 		}
 		
 		private static void toCSV(String file, List<List<String>> content) {
-			Joiner joiner = Joiner.on(',');
+			Joiner joiner = Joiner.on(',').useForNull(" ");
 			try {
 				PrintWriter pw = new PrintWriter(new FileWriter(file, true));
 				for (List<String> lineDat : content) {
@@ -222,6 +251,5 @@ class UcerfBranchGenerator {
 			return s;
 		}
 	}
-	
 
 }
