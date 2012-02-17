@@ -485,6 +485,13 @@ public class DeformationModelFetcher {
 			
 			if (DD) System.out.println("Applying any special cases...");
 			
+			// TODO remove this ugly aseismicity hack
+			if (section.getAseismicSlipFactor() == 1) {
+				System.out.println("Hack! Setting aseismic slip factor to 0.9 for: "
+						+section.getSectionId()+". "+section.getName());
+				section.setAseismicSlipFactor(0.9);
+			}
+			
 			if (def == null || !def.validateAgainst(section)) {
 				/* TODO remove special cases when files are updated
 				 * these are special cases where the files were generated for an older fault model
