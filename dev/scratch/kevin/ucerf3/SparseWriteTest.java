@@ -22,7 +22,7 @@ public class SparseWriteTest {
 		File dir = new File("D:\\Documents\\temp\\UCERF3_Geologic_Model1");
 		File input = new File(dir, "A.bin");
 		File output = new File(dir, "output.bin");
-		input = output;
+//		input = output;
 		System.out.println("Loading...");
 		Stopwatch watch = new Stopwatch();
 		watch.start();

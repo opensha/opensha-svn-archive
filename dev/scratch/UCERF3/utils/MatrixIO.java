@@ -1,5 +1,7 @@
 package scratch.UCERF3.utils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -17,8 +19,10 @@ import cern.colt.list.tint.IntArrayList;
 import cern.colt.map.tdouble.AbstractLongDoubleMap;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseCCMDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseRCMDoubleMatrix2D;
 
 public class MatrixIO {
 
@@ -62,7 +66,7 @@ public class MatrixIO {
 		Preconditions.checkState(rowList.size() == colList.size() && colList.size() == valList.size(),
 		"array sizes incorrect!");
 
-		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
 		// write header: rows, cols, values
 		out.writeInt(mat.rows());
@@ -106,6 +110,8 @@ public class MatrixIO {
 
 	public static DoubleMatrix2D loadSparse(InputStream input, Class<? extends DoubleMatrix2D> clazz) throws IOException {
 		Preconditions.checkNotNull(input, "Input stream cannot be null!");
+		if (!(input instanceof BufferedInputStream))
+			input = new BufferedInputStream(input);
 		DataInputStream in = new DataInputStream(input);
 
 		int nRows = in.readInt();
@@ -138,7 +144,15 @@ public class MatrixIO {
 			mat = new SparseCCDoubleMatrix2D(nRows, nCols, rows, cols, vals, false, false, false);
 		else if (clazz.equals(SparseDoubleMatrix2D.class))
 			mat = new SparseDoubleMatrix2D(nRows, nCols, rows, cols, vals);
-		else
+		else if (clazz.equals(SparseCCMDoubleMatrix2D.class)) {
+			mat = new SparseCCMDoubleMatrix2D(nRows, nCols);
+			for (int i=0; i<nVals; i++)
+				mat.set(rows[i], cols[i], vals[i]);
+		} else if (clazz.equals(SparseRCMDoubleMatrix2D.class)) {
+			mat = new SparseRCMDoubleMatrix2D(nRows, nCols);
+			for (int i=0; i<nVals; i++)
+				mat.set(rows[i], cols[i], vals[i]);
+		} else
 			throw new IllegalArgumentException("Unknown matrix type: "+clazz);
 
 		return mat;
@@ -154,7 +168,7 @@ public class MatrixIO {
 		Preconditions.checkNotNull(array, "array cannot be null!");
 		Preconditions.checkArgument(array.length > 0, "array cannot be empty!");
 
-		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
 		for (double val : array) {
 			out.writeDouble(val);
@@ -191,6 +205,8 @@ public class MatrixIO {
 		"thus not a sequence of double values.");
 
 		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
 		DataInputStream in = new DataInputStream(is);
 
 		int size = (int)(length / 8);
@@ -217,7 +233,7 @@ public class MatrixIO {
 		Preconditions.checkNotNull(list, "list cannot be null!");
 		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
 
-		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
 		out.writeInt(list.size());
 
@@ -258,6 +274,8 @@ public class MatrixIO {
 	 */
 	public static List<double[]> doubleArraysListFromInputStream(InputStream is) throws IOException {
 		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
 
 		DataInputStream in = new DataInputStream(is);
 
@@ -294,7 +312,7 @@ public class MatrixIO {
 		Preconditions.checkNotNull(list, "list cannot be null!");
 		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
 
-		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
 		out.writeInt(list.size());
 
@@ -336,6 +354,8 @@ public class MatrixIO {
 	public static List<List<Integer>> intListListFromInputStream(
 			InputStream is) throws IOException {
 		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
 
 		DataInputStream in = new DataInputStream(is);
 

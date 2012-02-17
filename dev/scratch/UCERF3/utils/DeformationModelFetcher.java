@@ -483,7 +483,7 @@ public class DeformationModelFetcher {
 					System.out.println("\t"+i+":\t"+trace.get(i).getLatitude()+"\t"+trace.get(i).getLongitude());
 			}
 			
-			if (DD) System.out.println("Applying any special cases...");
+			if (D) System.out.println("Applying any special cases...");
 			
 			// TODO remove this ugly aseismicity hack
 			if (section.getAseismicSlipFactor() == 1) {

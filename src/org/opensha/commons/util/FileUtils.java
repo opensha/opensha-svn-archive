@@ -231,7 +231,7 @@ public class FileUtils {
 
 		byte[] buffer = new byte[18024];
 
-		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
+		ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
 
 		if (dir.length() > 0 && !dir.endsWith(File.separator))
 			dir += File.separator;
