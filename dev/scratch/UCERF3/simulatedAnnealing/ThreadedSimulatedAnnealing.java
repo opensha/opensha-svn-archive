@@ -1,8 +1,11 @@
 package scratch.UCERF3.simulatedAnnealing;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -49,6 +52,13 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
+		this(A, d, initialState, 0d, 0d, null, null, numThreads, subCompetionCriteria);
+	}
+	
+	public ThreadedSimulatedAnnealing(
+			DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt, 
+			double relativeMagnitudeInequalityConstraintWt, DoubleMatrix2D A_ineq,  double[] d_ineq,
+			int numThreads, CompletionCriteria subCompetionCriteria) {
 		// SA inputs are checked in SA constructor, no need to dupliate checks
 		
 		Preconditions.checkArgument(numThreads > 0, "numThreads must be > 0");
@@ -59,7 +69,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		sas = new ArrayList<SerialSimulatedAnnealing>();
 		for (int i=0; i<numThreads; i++)
-			sas.add(new SerialSimulatedAnnealing(A, d, initialState));
+			sas.add(new SerialSimulatedAnnealing(A, d, initialState, relativeSmoothnessWt,
+					relativeMagnitudeInequalityConstraintWt, A_ineq, d_ineq));
 	}
 	
 	public CompletionCriteria getSubCompetionCriteria() {
@@ -250,17 +261,35 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		return iter;
 	}
 	
+	public int getNumThreads() {
+		return numThreads;
+	}
+	
 	protected static Options createOptions() {
 		Options ops = SerialSimulatedAnnealing.createOptions();
 		
 		// REQUIRED
+		// inputs can now be supplied in a single zip file if needed, thus individual ones not requred
 		Option aMatrix = new Option("a", "a-matrix-file", true, "A matrix file");
-		aMatrix.setRequired(true);
+		aMatrix.setRequired(false);
 		ops.addOption(aMatrix);
 		
 		Option dMatrix = new Option("d", "d-matrix-file", true, "D matrix file");
-		dMatrix.setRequired(true);
+		dMatrix.setRequired(false);
 		ops.addOption(dMatrix);
+		
+		Option a_MFDMatrix = new Option("aineq", "a-ineq-matrix-file", true, "A inequality matrix file");
+		a_MFDMatrix.setRequired(false);
+		ops.addOption(a_MFDMatrix);
+		
+		Option d_MFDMatrix = new Option("dineq", "d-ineq-matrix-file", true, "D inequality matrix file");
+		d_MFDMatrix.setRequired(false);
+		ops.addOption(d_MFDMatrix);
+		
+		Option zipInputs = new Option("zip", "zip-file", true, "Zip file containing all inputs. " +
+				"File names must be a.bin, d.bin, and optionally: initial.bin, a_ineq.bin, d_ineq.bin, metadata.txt");
+		zipInputs.setRequired(false);
+		ops.addOption(zipInputs);
 		
 		Option subOption = new Option("s", "sub-completion", true, "number of sub iterations. Optionally, append 's'" +
 		" to specify in seconds or 'm' to specify in minutes instead of iterations.");
@@ -290,6 +319,15 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		energyOption.setRequired(false);
 		ops.addOption(energyOption);
 		
+		// constraint weights
+		Option smoothnessWeightOption = new Option("smoothness", "smoothness-weight", true, "weight for the entropy constraint");
+		smoothnessWeightOption.setRequired(false);
+		ops.addOption(smoothnessWeightOption);
+		
+		Option inequalityWeightOption = new Option("inequality", "inequality-weight", true, "weight for the inequality constraint");
+		inequalityWeightOption.setRequired(false);
+		ops.addOption(inequalityWeightOption);
+		
 		// other
 		Option initial = new Option("i", "initial-state-file", true, "initial state file" +
 				" (optional...default is all zeros)");
@@ -304,8 +342,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				"flag to start all sub iterations at zero instead of the true iteration count");
 		subIterationsStartOption.setRequired(false);
 		ops.addOption(subIterationsStartOption);
-		
-		// TODO add entropy constraint
 		
 		return ops;
 	}
@@ -412,29 +448,84 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	public static ThreadedSimulatedAnnealing parseOptions(CommandLine cmd) throws IOException {
-		File aFile = new File(cmd.getOptionValue("a"));
-		if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
-		DoubleMatrix2D A = MatrixIO.loadSparse(aFile, SparseCCDoubleMatrix2D.class);
+		DoubleMatrix2D A = null; // can't stay null
+		double[] d = null; // can't stay null
+		double[] initialState = null; // can be null, for now
+		DoubleMatrix2D A_ineq = null; // can be null
+		double[] d_ineq = null; // can be null
 		
-		File dFile = new File(cmd.getOptionValue("d"));
-		if (D) System.out.println("Loading d matrix from: "+dFile.getAbsolutePath());
-		double[] d = MatrixIO.doubleArrayFromFile(dFile);
+		// load other weights
+		double relativeSmoothnessWt;
+		if (cmd.hasOption("smoothness"))
+			relativeSmoothnessWt = Double.parseDouble(cmd.getOptionValue("smoothness"));
+		else
+			relativeSmoothnessWt = 0;
+		double relativeMagnitudeInequalityConstraintWt;
+		if (cmd.hasOption("inequality"))
+			relativeMagnitudeInequalityConstraintWt = Double.parseDouble(cmd.getOptionValue("inequality"));
+		else
+			relativeMagnitudeInequalityConstraintWt = 0;
 		
-		double[] initialState;
-		if (cmd.hasOption("i")) {
-			File initialFile = new File(cmd.getOptionValue("i"));
-			if (D) System.out.println("Loading initialState from: "+initialFile.getAbsolutePath());
-			initialState = MatrixIO.doubleArrayFromFile(initialFile);
+		if (cmd.hasOption("zip")) {
+			File zipFile = new File(cmd.getOptionValue("zip"));
+			if (D) System.out.println("Opening zip file: "+zipFile.getAbsolutePath());
+			ZipFile zip = new ZipFile(zipFile);
+			
+			ZipEntry a_entry = zip.getEntry("a.bin");
+			A = MatrixIO.loadSparse(new BufferedInputStream(zip.getInputStream(a_entry)), SparseCCDoubleMatrix2D.class);
+			ZipEntry d_entry = zip.getEntry("d.bin");
+			d = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_entry)), A.rows());
+			
+			if (relativeMagnitudeInequalityConstraintWt > 0) {
+				ZipEntry a_ineq_entry = zip.getEntry("a_ineq.bin");
+				A_ineq = MatrixIO.loadSparse(new BufferedInputStream(zip.getInputStream(a_ineq_entry)), SparseCCDoubleMatrix2D.class);
+				ZipEntry d_ineq_entry = zip.getEntry("d_ineq.bin");
+				d_ineq = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_ineq_entry)), A_ineq.rows());
+			}
+			
+			ZipEntry initial_entry = zip.getEntry("initial.bin");
+			if (initial_entry != null) {
+				initialState = MatrixIO.doubleArrayFromInputStream(
+						new BufferedInputStream(zip.getInputStream(initial_entry)), A.columns());
+			}
 		} else {
-			initialState = new double[A.columns()]; // use default initial state of all zeros
+			File aFile = new File(cmd.getOptionValue("a"));
+			if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
+			A = MatrixIO.loadSparse(aFile, SparseCCDoubleMatrix2D.class);
+			
+			File dFile = new File(cmd.getOptionValue("d"));
+			if (D) System.out.println("Loading d matrix from: "+dFile.getAbsolutePath());
+			d = MatrixIO.doubleArrayFromFile(dFile);
+			
+			if (relativeMagnitudeInequalityConstraintWt > 0) {
+				File a_ineqFile = new File(cmd.getOptionValue("aineq"));
+				if (D) System.out.println("Loading A_ineq matrix from: "+a_ineqFile.getAbsolutePath());
+				A_ineq = MatrixIO.loadSparse(a_ineqFile, SparseCCDoubleMatrix2D.class);
+				
+				File d_ineqFile = new File(cmd.getOptionValue("dineq"));
+				if (D) System.out.println("Loading d_ineq matrix from: "+d_ineqFile.getAbsolutePath());
+				d_ineq = MatrixIO.doubleArrayFromFile(d_ineqFile);
+			}
+			
+			if (cmd.hasOption("i")) {
+				File initialFile = new File(cmd.getOptionValue("i"));
+				if (D) System.out.println("Loading initialState from: "+initialFile.getAbsolutePath());
+				initialState = MatrixIO.doubleArrayFromFile(initialFile);
+			}
 		}
+		
+		if (initialState ==  null)
+			// if we still don't have an initial state, use all zeros
+			initialState = new double[A.columns()];
 		
 		CompletionCriteria subCompletionCriteria = parseSubCompletionCriteria(cmd.getOptionValue("s"));
 		
 		int numThreads = parseNumThreads(cmd.getOptionValue("t"));
 		
 		ThreadedSimulatedAnnealing tsa =
-			new ThreadedSimulatedAnnealing(A, d, initialState, numThreads, subCompletionCriteria);
+			new ThreadedSimulatedAnnealing(A, d, initialState,
+					relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt,
+					A_ineq, d_ineq, numThreads, subCompletionCriteria);
 		
 		for (SerialSimulatedAnnealing sa : tsa.sas)
 			sa.setCalculationParamsFromOptions(cmd);

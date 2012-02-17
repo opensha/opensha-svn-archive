@@ -133,10 +133,14 @@ public class MultiSABenchmarkPBSWriter {
 		MPJShellScriptWriter mpjWriter = new MPJShellScriptWriter(javaBin, heapSizeMB, jars, mpjHome, useMxdev);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, heapSizeMB, jars);
 
-		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, aMat, dMat,
-				initialMat, null, null, dsaCriteria, subCompletion, mpjHome, false);
-		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, aMat, dMat,
-				initialMat, null, null, tsaCriteria, subCompletion);
+		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, null, null, dsaCriteria, subCompletion, mpjHome, false);
+		dsa_create.setaMat(aMat);
+		dsa_create.setdMat(dMat);
+		dsa_create.setInitial(initialMat);
+		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, null, null, tsaCriteria, subCompletion);
+		tsa_create.setaMat(aMat);
+		tsa_create.setdMat(dMat);
+		tsa_create.setInitial(initialMat);
 		
 		/* OFFICIAL AGU 2011 BENCHMARKS */
 //		int[] dsa_threads = { 4 };

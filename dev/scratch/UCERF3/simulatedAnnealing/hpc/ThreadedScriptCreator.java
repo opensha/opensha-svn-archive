@@ -24,7 +24,10 @@ public class ThreadedScriptCreator {
 	// required -- args
 	private File aMat;
 	private File dMat;
+	private File a_ineqMat;
+	private File d_ineqMat;
 	private File initial;
+	private File zipFile;
 	private String numThreads;
 	private File solFile;
 	private CompletionCriteria criteria;
@@ -38,13 +41,8 @@ public class ThreadedScriptCreator {
 	private boolean setSubIterationsZero = false;
 	
 	public ThreadedScriptCreator(JavaShellScriptWriter writer,
-			File aMat, File dMat, File initial, String numThreads,
-			File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion) {
+			String numThreads, File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion) {
 		this.writer = writer;
-		
-		this.aMat = aMat;
-		this.dMat = dMat;
-		this.initial = initial;
 		this.numThreads = numThreads;
 		this.solFile = solFile;
 		this.criteria = criteria;
@@ -52,15 +50,24 @@ public class ThreadedScriptCreator {
 	}
 	
 	String getArgs() {
-		Preconditions.checkNotNull(aMat, "A matrix file is required!");
-		Preconditions.checkNotNull(dMat, "d matrix file is required!");
 //		Preconditions.checkNotNull(initial, "initial file is required!"); // no longer required
 		Preconditions.checkNotNull(subCompletion, "subCompletion cannot be null");
 		Preconditions.checkNotNull(numThreads, "numThreads cannot be null");
 		Preconditions.checkState(!numThreads.isEmpty(), "numThreads cannot be blank");
 		Preconditions.checkNotNull(solFile, "solution file is required!");
-		String args =	  "--a-matrix-file "+aMat.getAbsolutePath()
-						+" --d-matrix-file "+dMat.getAbsolutePath();
+		String args;
+		if (zipFile == null) {
+			Preconditions.checkNotNull(aMat, "A matrix file is required!");
+			Preconditions.checkNotNull(dMat, "d matrix file is required!");
+			args =	  "--a-matrix-file "+aMat.getAbsolutePath()
+					+" --d-matrix-file "+dMat.getAbsolutePath();
+			if (a_ineqMat != null)
+				args += "--a-ineq-matrix-file "+a_ineqMat.getAbsolutePath()
+				+" --d-ineq-matrix-file "+d_ineqMat.getAbsolutePath();
+		} else {
+			args = "--zip-file "+zipFile.getAbsolutePath();
+		}
+		
 		if (initial != null)
 			args	+=	 " --initial-state-file "+initial.getAbsolutePath();
 		args		+=	 " --num-threads "+numThreads
@@ -124,6 +131,18 @@ public class ThreadedScriptCreator {
 
 	public void setInitial(File initial) {
 		this.initial = initial;
+	}
+
+	public void setA_ineqMat(File a_ineqMat) {
+		this.a_ineqMat = a_ineqMat;
+	}
+
+	public void setD_ineqMat(File d_ineqMat) {
+		this.d_ineqMat = d_ineqMat;
+	}
+
+	public void setZipFile(File zipFile) {
+		this.zipFile = zipFile;
 	}
 
 	public void setSubCompletion(CompletionCriteria subCompletion) {

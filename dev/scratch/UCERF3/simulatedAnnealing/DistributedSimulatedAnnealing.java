@@ -1,6 +1,7 @@
 package scratch.UCERF3.simulatedAnnealing;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +29,7 @@ public class DistributedSimulatedAnnealing {
 	private int rank;
 	private int size;
 
-	private SimulatedAnnealing annealer;
+	private ThreadedSimulatedAnnealing annealer;
 
 	private CompletionCriteria criteria;
 	
@@ -50,7 +51,7 @@ public class DistributedSimulatedAnnealing {
 
 	public DistributedSimulatedAnnealing(CompletionCriteria criteria, CompletionCriteria subCompletion,
 			boolean startSubIterationsAtZero,
-			SimulatedAnnealing annealer) {
+			ThreadedSimulatedAnnealing annealer) {
 		rank = MPI.COMM_WORLD.Rank();
 		size = MPI.COMM_WORLD.Size();
 		
@@ -373,6 +374,28 @@ public class DistributedSimulatedAnnealing {
 				annealer.isStartSubIterationsAtZero(), annealer);
 	}
 	
+	private void writeMetadata(File file, String[] args) throws IOException {
+		FileWriter fw = new FileWriter(file);
+		
+		fw.write("Distributed Simulated Annealing run completed on "+new SimpleDateFormat().format(new Date())+"\n");
+		fw.write(""+"\n");
+		String argsStr = "";
+		for (String arg : args)
+			argsStr += " "+arg;
+		fw.write("Arguments:"+argsStr+"\n");
+		fw.write("Completion Criteria: "+criteria+"\n");
+		fw.write("Number of nodes: "+size+"\n");
+		fw.write("Threads per node: "+annealer.getNumThreads()+"\n");
+		fw.write(""+"\n");
+		fw.write("Solution size: "+annealer.getBestSolution().length+"\n");
+		fw.write("Best energy: "+annealer.getBestEnergy()+"\n");
+		long totTime = totWatch.getTime();
+		double totMins = totTime / 1000d / 60d;
+		fw.write("Total time: "+totMins+" mins\n");
+		
+		fw.close();
+	}
+	
 	public static void main(String[] args) {
 		args = MPI.Init(args);
 		
@@ -394,6 +417,8 @@ public class DistributedSimulatedAnnealing {
 				
 				System.out.println("Writing solution to: "+outputFile.getAbsolutePath());
 				MatrixIO.doubleArrayToFile(solution, outputFile);
+				File metadataFile = new File(outputFile.getAbsolutePath()+"_metadata.txt");
+				dsa.writeMetadata(metadataFile, args);
 			}
 			
 			System.out.println("DONE...exiting.");

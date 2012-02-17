@@ -17,11 +17,10 @@ public class DistributedScriptCreator extends ThreadedScriptCreator {
 	
 	private CompletionCriteria distSubCompletion = null;
 
-	public DistributedScriptCreator(MPJShellScriptWriter mpj, File aMat, File dMat, File initial,
-			String numThreads, File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion,
+	public DistributedScriptCreator(MPJShellScriptWriter mpj, String numThreads, File solFile,
+			CompletionCriteria criteria, CompletionCriteria subCompletion,
 			File mpjHome, boolean useMxdev) {
-		super(mpj, aMat, dMat, initial,
-				numThreads, solFile, criteria, subCompletion);
+		super(mpj, numThreads, solFile, criteria, subCompletion);
 		Preconditions.checkNotNull(mpjHome, "MPJ_HOME cannot be null!");
 	}
 

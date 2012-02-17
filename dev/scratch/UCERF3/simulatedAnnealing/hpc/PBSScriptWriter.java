@@ -19,7 +19,8 @@ public class PBSScriptWriter {
 	public static void main(String[] args) {
 		if (args.length < 8 || args.length > 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(PBSScriptWriter.class)
-					+" <nodes> <minutes> <sub-completion> <PPN> <threads> <dir> <A mat file> <d file> [<intial>]");
+					+" <nodes> <minutes> <sub-completion> <PPN> <threads> <dir>"
+					+"[<A mat file> <d file> OR --zip <zip file>] [<intial>]");
 			System.exit(2);
 		}
 		try {
@@ -30,8 +31,16 @@ public class PBSScriptWriter {
 			int ppn = Integer.parseInt(args[cnt++]);
 			String numThreads = args[cnt++];
 			File dir = new File(args[cnt++]).getCanonicalFile();
-			File aFile = new File(args[cnt++]).getCanonicalFile();
-			File dFile = new File(args[cnt++]).getCanonicalFile();
+			File aFile = null;
+			File dFile = null;
+			File zipFile = null;
+			if (args[cnt+1].equals("--zip")) {
+				cnt++;
+				zipFile = new File(args[cnt++]).getCanonicalFile();
+			} else {
+				aFile = new File(args[cnt++]).getCanonicalFile();
+				dFile = new File(args[cnt++]).getCanonicalFile();
+			}
 			File initial = null;
 			if (cnt < args.length)
 				initial = new File(args[cnt++]).getAbsoluteFile();
@@ -54,8 +63,12 @@ public class PBSScriptWriter {
 
 			MPJShellScriptWriter mpjWriter = new MPJShellScriptWriter(javaBin, heapSizeMB, classpath, mpjHome, useMXDev);
 
-			DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, aFile, dFile,
-					initial, numThreads, null, dsaCriteria, subCompletion, mpjHome, false);
+			DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter,numThreads, null, dsaCriteria,
+					subCompletion, mpjHome, false);
+			dsa_create.setaMat(aFile);
+			dsa_create.setdMat(dFile);
+			dsa_create.setInitial(initial);
+			dsa_create.setZipFile(zipFile);
 
 			dsa_create.setProgFile(new File(dir, name+".csv"));
 			dsa_create.setSolFile(new File(dir, name+".bin"));

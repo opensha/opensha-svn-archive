@@ -80,7 +80,16 @@ public class MatrixIO {
 	public static DoubleMatrix2D loadSparse(File file, Class<? extends DoubleMatrix2D> clazz) throws IOException {
 		Preconditions.checkNotNull(file, "File cannot be null!");
 		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
-		DataInputStream in = new DataInputStream(new FileInputStream(file));
+		return loadSparse(new FileInputStream(file), clazz);
+	}
+	
+	public static DoubleMatrix2D loadSparse(InputStream input) throws IOException {
+		return loadSparse(input, null);
+	}
+	
+	public static DoubleMatrix2D loadSparse(InputStream input, Class<? extends DoubleMatrix2D> clazz) throws IOException {
+		Preconditions.checkNotNull(input, "Input stream cannot be null!");
+		DataInputStream in = new DataInputStream(input);
 		
 		int nRows = in.readInt();
 		int nCols = in.readInt();
