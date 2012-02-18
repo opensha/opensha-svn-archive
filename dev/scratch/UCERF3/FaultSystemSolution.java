@@ -605,6 +605,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	
+	
 	/**
 	 * This compares the MFDs in the given MFD constraints with the MFDs 
 	 * implied by the Fault System Solution
@@ -635,6 +636,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		}
 	}
 	
+	private ArrayList<MFD_InversionConstraint> prev_mfdConstraints;
 	
 	/**
 	 * This computes the fraction of each rupture inside each region in the given mfdConstraints, where results
@@ -642,7 +644,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * @param mfdConstraints
 	 */
 	protected void computeFractRupsInsideMFD_Regions(ArrayList<MFD_InversionConstraint> mfdConstraints) {
-		if(fractRupsInsideMFD_Regions == null) {	// do only if not already done
+		if(fractRupsInsideMFD_Regions == null && mfdConstraints != prev_mfdConstraints) {
+			// do only if not already done
+			prev_mfdConstraints = mfdConstraints;
+			
 			int numRuptures = getNumRuptures();
 			fractRupsInsideMFD_Regions = new double[mfdConstraints.size()][numRuptures];
 			double[][] fractSectionInsideMFD_Regions = new double[mfdConstraints.size()][getNumSections()];
