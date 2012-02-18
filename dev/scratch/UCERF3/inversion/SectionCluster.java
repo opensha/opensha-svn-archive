@@ -182,7 +182,7 @@ public class SectionCluster extends ArrayList<Integer> {
 
 
 			// check the azimuth change, first checking whether diff parent sections were crossed (need two sections before and after crossing)   
-			if(list.size()>3 && lastParID_NotSameAsSecToLast) {
+			if(list.size()>=3 && lastParID_NotSameAsSecToLast) {
 				// make sure there are enough points to compute an azimuth change
 				double newAzimuth = sectionAzimuths.get(new IDPairing(lastIndex, newIndex));
 				int thirdToLastIndex = list.get(list.size()-3);
