@@ -62,7 +62,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	FaultSystemRupSet faultSystemRupSet;
 	boolean weightSlipRates, addMinimumRuptureRateConstraint;
-	double relativeSegRateWt, relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeMinimizationConstraintWt, relativeSmoothnessWt;
+	double relativeSegRateWt, relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt, participationConstraintMagBinSize, relativeMinimizationConstraintWt, relativeSmoothnessWt;
 	int numIterations;
 	ArrayList<SegRateConstraint> segRateConstraints;
 	
@@ -87,6 +87,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param relativeMagnitudeEqualityConstraintWt
 	 * @param relativeMagnitudeInequalityConstraintWt
 	 * @param relativeRupRateConstraintWt
+	 * @param relativeParticipationSmoothnessConstraintWt
+	 * @param participationConstraintMagBinSize
 	 * @param relativeMinimizationConstraintWt
 	 * @param numIterations
 	 * @param segRateConstraints
@@ -99,7 +101,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 */
 	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, boolean weightSlipRates, double relativeSegRateWt, 
 			double relativeMagnitudeEqualityConstraintWt, double relativeMagnitudeInequalityConstraintWt, double relativeRupRateConstraintWt, 
-			double relativeMinimizationConstraintWt, int numIterations,
+			double relativeParticipationSmoothnessConstraintWt, double participationConstraintMagBinSize, double relativeMinimizationConstraintWt, int numIterations,
 			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint, double[] initialRupModel, 
 			ArrayList<MFD_InversionConstraint> mfdEqualityConstraints, ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, 
 			double[] minimizationConstraint, double relativeSmoothnessWt, 
@@ -111,6 +113,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		this.relativeMagnitudeEqualityConstraintWt=relativeMagnitudeEqualityConstraintWt;
 		this.relativeMagnitudeInequalityConstraintWt=relativeMagnitudeInequalityConstraintWt;
 		this.relativeRupRateConstraintWt=relativeRupRateConstraintWt;
+		this.relativeParticipationSmoothnessConstraintWt=relativeParticipationSmoothnessConstraintWt;
+		this.participationConstraintMagBinSize=participationConstraintMagBinSize;
 		this.relativeMinimizationConstraintWt=relativeMinimizationConstraintWt;
 		this.numIterations=numIterations;
 		this.segRateConstraints=segRateConstraints;
@@ -134,14 +138,16 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		int numSections = getNumSections();
 		int numRuptures = getNumRuptures();
 		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
-		double[] sectSlipRateStdDevReduced = faultSystemRupSet.getSlipRateStdDevForAllSections();
+		double[] sectSlipRateStdDevReduced = faultSystemRupSet.getSlipRateStdDevForAllSections();  // CURRENTLY NOT USED
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		
+		
 		// Compute number of slip-rate constraints
-		int numSlipRateConstraints = 0;
+		/* int numSlipRateConstraints = 0;
 		for(int i=0; i<sectSlipRateReduced.length;i++)
 			if(!Double.isNaN(sectSlipRateReduced[i]))
-				numSlipRateConstraints+=1;
+				numSlipRateConstraints+=1; */
+		int numSlipRateConstraints = numSections; // We have decided to treat NaN slip rates the same as 0 slip rates: Minimize the model slip rates on these sections
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
 		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
@@ -161,6 +167,31 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			}
 			if(D) System.out.println("Number of magnitude-distribution equality constraints: " + totalNumMagFreqConstraints);
 		}
+		if (relativeParticipationSmoothnessConstraintWt > 0.0) {
+			int totalNumMagParticipationConstraints = 0;
+			for (int sect=0; sect<numSections; sect++) { 
+				List<Integer> rupturesForSection = faultSystemRupSet.getRupturesForSection(sect);
+				// Find minimum and maximum rupture-magnitudes for that subsection
+				double minMag = 10.0; double maxMag = 0.0;
+				for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
+					if (rupMeanMag[rupturesForSection.get(rupIndex)] < minMag)
+							minMag = rupMeanMag[rupturesForSection.get(rupIndex)];
+					if (rupMeanMag[rupturesForSection.get(rupIndex)] > maxMag)
+						maxMag = rupMeanMag[rupturesForSection.get(rupIndex)];
+				}
+				// Find total number of section magnitude-bins
+				for (double m=minMag; m<maxMag; m=m+participationConstraintMagBinSize) { 
+					for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
+						if (rupMeanMag[rupturesForSection.get(rupIndex)]>=m && rupMeanMag[rupturesForSection.get(rupIndex)]<m+participationConstraintMagBinSize) {
+							totalNumMagParticipationConstraints++; 
+							numRows++;
+							break;
+						}				
+					}		
+				}
+			}
+			if(D) System.out.println("Number of MFD participation constraints: " + totalNumMagParticipationConstraints);
+		}
 		
 		
 		// Components of matrix equation to invert (Ax=d)
@@ -172,45 +203,62 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		// to be passed to SA algorithm
 		int numMFDRows=0;
 		if (relativeMagnitudeInequalityConstraintWt > 0.0) {
-			int totalNumMagFreqConstraints = 0;
 			for (int i=0; i < mfdInequalityConstraints.size(); i++) {
 				targetMagFreqDist=mfdInequalityConstraints.get(i).getMagFreqDist();
-				numMFDRows=numMFDRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
+				numMFDRows+=targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
 			}
 		}
-		System.out.println("numMFDrows = "+numMFDRows);
 		A_MFD = new SparseDoubleMatrix2D(numMFDRows,numRuptures); // (A_MFD * x <= d_MFD)
 		d_MFD = new double[numMFDRows];							
-		if(D) System.out.println("Number of magnitude-distribution inequality constraints: " + mfdInequalityConstraints.size());
+		if(D) System.out.println("Number of magnitude-distribution inequality constraints (not in A matrix): " + mfdInequalityConstraints.size());
 		
 		
 		if(D) System.out.println("Total number of constraints (rows): " + numRows);
 		if(D) System.out.println("\nNumber of fault sections: " + numSections + ". Number of ruptures (columns): " + numRuptures + ".");
 		
 		
-		// Put together "A" Matrix and data vector
+		// Put together "A" Matrix and data vector "d"
 		
-		// NEED TO REVISE NEXT SECTION TO HANDLE CASE WHERE SOME SLIP RATES ARE NaN *******************
+		
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
 		long startTime = System.currentTimeMillis();
+		// A matrix component of slip-rate constraint (excludes sections with NaN slip rates from constraint)
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = getSlipOnSectionsForRup(rup);
 			List<Integer> sects = getSectionsIndicesForRup(rup);
 			for (int i=0; i < slips.length; i++) {
 				int row = sects.get(i);
 				int col = rup;
-				if (weightSlipRates == false) {
-					A.set(row, col, slips[i]);
-				} else A.set(row, col, slips[i]/sectSlipRateReduced[row]); // Normalize by slip rate
-				if(D) numNonZeroElements++;
+				if (weightSlipRates == false) 
+					A.set(row, col, slips[i]); 
+				else {  // Normalize by slip rate
+					if (sectSlipRateReduced[row] == 0 || Double.isNaN(sectSlipRateReduced[row]))  // Treat NaN slip rates as 0 (minimize)
+						A.set(row, col, slips[i]/0.001);  
+					else {
+						A.set(row, col, slips[i]/sectSlipRateReduced[sects.get(i)]); 
+					/*		if (Double.isNaN(A.get(row,col))) {
+								System.out.println("\nrup # = "+rup+", mean mag = "+rupMeanMag[rup]);
+								System.out.println("sects = "+sects);
+								System.out.println("slips = "+slips);
+								System.out.println("Slip["+i+"] = "+slips[i]); 
+							}  */			// Creeping section slips are coming back NaN because aseismicity is 100% !
+						}
+				}
+			if(D) numNonZeroElements++;
 			}
 		}
-		for (int sect=0; sect<numSlipRateConstraints; sect++) {
-			if (weightSlipRates == false) {
-				d[sect] = sectSlipRateReduced[sect];	
-			} else d[sect] = 1; // Normalize by slip rate
+		// d vector component of slip-rate constraint
+		for (int sect=0; sect<numSections; sect++) {
+			
+			if (weightSlipRates == false || sectSlipRateReduced[sect]==0) 
+				d[sect] = sectSlipRateReduced[sect];			
+			else {
+				if (Double.isNaN(sectSlipRateReduced[sect])) d[sect] = 0;  // Treat NaN slip rates as 0 (minimize)
+				else d[sect] = 1; // Normalize by slip rate
+			}
+			
 		}
 		long runTime = System.currentTimeMillis()-startTime;
 		if(D) System.out.println("Adding Slip-Rate Constraints took " + (runTime/1000.) + " seconds.");
@@ -275,7 +323,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		// Prepare MFD Inequality Constraint (not added to A matrix directly since it's nonlinear)
 		if (relativeMagnitudeInequalityConstraintWt > 0.0) {	
 			startTime = System.currentTimeMillis();
-			rowIndex = 0;
+			int rowIndex_MFD = 0; 
 			if(D) System.out.println("\nPreparing " + mfdInequalityConstraints.size()+ " magnitude inequality constraints ...");	
 			
 			// make the matrix of the fraction of each rupture inside each region: fractRupsInsideMFD_Regions
@@ -287,18 +335,77 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
 					if (fractRupInside > 0) {
-	//					A_MFD.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
-						A_MFD.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+	//					A_MFD.set(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
+						A_MFD.set(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 					}
 				}		
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
-	//				d_MFD[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
-					d_MFD[rowIndex]=relativeMagnitudeInequalityConstraintWt;
-					rowIndex++; 
+	//				d_MFD[rowIndex_MFD]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
+					d_MFD[rowIndex_MFD]=relativeMagnitudeInequalityConstraintWt;
+					rowIndex_MFD++; 
 				}	
 			}	
 			runTime = System.currentTimeMillis()-startTime;
 			if(D) System.out.println("Preparing MFD Inequality Constraints took " + (runTime/1000.) + " seconds.");
+		}
+		
+		
+		// MFD Smoothness Constraint - Constrain participation MFD to be uniform for each fault subsection
+		if (relativeParticipationSmoothnessConstraintWt > 0.0) {	
+			if(D) System.out.println("\nAdding MFD participation smoothness constraints to A matrix ...");
+			startTime = System.currentTimeMillis();
+			numNonZeroElements = 0;
+			ArrayList<Integer> numRupsForMagBin = new ArrayList<Integer>();
+			for (int sect=0; sect<numSections; sect++) {
+				List<Integer> rupturesForSection = faultSystemRupSet.getRupturesForSection(sect);
+				
+				// Find minimum and maximum rupture-magnitudes for that subsection
+				double minMag = 10.0; double maxMag = 0.0;
+				for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
+					if (rupMeanMag[rupturesForSection.get(rupIndex)] < minMag)
+						minMag = rupMeanMag[rupturesForSection.get(rupIndex)];
+					if (rupMeanMag[rupturesForSection.get(rupIndex)] > maxMag)
+						maxMag = rupMeanMag[rupturesForSection.get(rupIndex)];
+				}
+				if (minMag == 10.0 || minMag == 0.0) 
+					throw new IllegalStateException("No ruptures for section #"+sect);
+				
+				// Find number of ruptures for this section for each magnitude bin & total number of magnitude-bins with ruptures
+				numRupsForMagBin.clear();
+				int numNonzeroMagBins = 0;
+				for (double m=minMag; m<maxMag; m=m+participationConstraintMagBinSize) {
+					numRupsForMagBin.add(0);
+					for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
+						if (rupMeanMag[rupturesForSection.get(rupIndex)]>=m && rupMeanMag[rupturesForSection.get(rupIndex)]<m+participationConstraintMagBinSize) 
+							numRupsForMagBin.set(numRupsForMagBin.size()-1, numRupsForMagBin.get(numRupsForMagBin.size()-1)+1); // numRupsForMagBin(end)++
+					}
+					if (numRupsForMagBin.get(numRupsForMagBin.size()-1)>0)
+						numNonzeroMagBins++;
+				}
+				
+				// Put together A matrix elements: A_avg_rate_per_mag_bin * x - A_rate_for_particular_mag_bin * x = 0
+				// Each mag bin (that contains ruptures) for each subsection adds one row to A & d
+				int magBinIndex=0;
+				for (double m=minMag; m<maxMag; m=m+participationConstraintMagBinSize) {
+					if (numRupsForMagBin.get(magBinIndex) > 0) {
+						for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
+							// Average rate per magnitude bin for this section
+							A.set(rowIndex,rupturesForSection.get(rupIndex),relativeParticipationSmoothnessConstraintWt/numNonzeroMagBins);	
+							numNonZeroElements++;
+							if (rupMeanMag[rupturesForSection.get(rupIndex)]>=m && rupMeanMag[rupturesForSection.get(rupIndex)]<m+participationConstraintMagBinSize) {
+								// Subtract off rate for this mag bin (difference between average rate per mag bin & rate for this mag bin is set to 0)
+								A.set(rowIndex,rupturesForSection.get(rupIndex),A.get(rowIndex,rupturesForSection.get(rupIndex)) - relativeParticipationSmoothnessConstraintWt);
+							}						
+						}
+						d[rowIndex] = 0;
+						rowIndex++;
+					}	
+					magBinIndex++;				
+				}		
+			}
+			runTime = System.currentTimeMillis()-startTime;
+			if(D) System.out.println("Adding Participation MFD Constraints took " + (runTime/1000.) + " seconds.");
+			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);			
 		}
 		
 		
@@ -333,11 +440,15 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
-		
-		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)
-/*		try {
+	
+/*		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)
+		try {
 			MatrixIO.doubleArrayToFile(d,new File("dev/scratch/UCERF3/preComputedData/d.bin"));
-			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/A.bin"));
+			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/a.bin"));
+			MatrixIO.doubleArrayToFile(initialRupModel,new File("dev/scratch/UCERF3/preComputedData/initial.bin"));
+			MatrixIO.doubleArrayToFile(d_MFD,new File("dev/scratch/UCERF3/preComputedData/d_ineq.bin"));
+			MatrixIO.saveSparse(A_MFD,new File("dev/scratch/UCERF3/preComputedData/a_ineq.bin"));
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
