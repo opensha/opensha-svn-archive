@@ -237,7 +237,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 					if (sectSlipRateReduced[row] == 0 || Double.isNaN(sectSlipRateReduced[row]))  // Treat NaN slip rates as 0 (minimize)
 						A.set(row, col, slips[i]/0.001);  
 					else {
-						A.set(row, col, slips[i]/sectSlipRateReduced[sects.get(i)]); 
+						A.set(row, col, slips[i]/sectSlipRateReduced[row]); 
 					/*		if (Double.isNaN(A.get(row,col))) {
 								System.out.println("\nrup # = "+rup+", mean mag = "+rupMeanMag[rup]);
 								System.out.println("sects = "+sects);
@@ -246,7 +246,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 							}  */			// Creeping section slips are coming back NaN because aseismicity is 100% !
 						}
 				}
-			if(D) numNonZeroElements++;
+				if (Double.isNaN(A.get(row, col))) throw new IllegalStateException("A["+row+"]["+col+"] is NaN! sectSlipRateReduced["+row+"] = "+sectSlipRateReduced[row]+" and slips["+i+"] = "+slips[i]);
+				if(D) numNonZeroElements++;
 			}
 		}
 		// d vector component of slip-rate constraint
@@ -258,7 +259,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				if (Double.isNaN(sectSlipRateReduced[sect])) d[sect] = 0;  // Treat NaN slip rates as 0 (minimize)
 				else d[sect] = 1; // Normalize by slip rate
 			}
-			
+			if (Double.isNaN(d[sect])) throw new IllegalStateException("d["+sect+"] is NaN!  sectSlipRateReduced["+sect+"] = "+sectSlipRateReduced[sect]);
 		}
 		long runTime = System.currentTimeMillis()-startTime;
 		if(D) System.out.println("Adding Slip-Rate Constraints took " + (runTime/1000.) + " seconds.");
@@ -441,8 +442,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 		
 	
-/*		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)
-		try {
+		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)
+/*		try {
 			MatrixIO.doubleArrayToFile(d,new File("dev/scratch/UCERF3/preComputedData/d.bin"));
 			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/a.bin"));
 			MatrixIO.doubleArrayToFile(initialRupModel,new File("dev/scratch/UCERF3/preComputedData/initial.bin"));

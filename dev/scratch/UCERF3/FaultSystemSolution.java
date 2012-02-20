@@ -628,7 +628,8 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			IncrementalMagFreqDist targetMagFreqDist = mfdConstraints.get(i).getMagFreqDist();; 
 			targetMagFreqDist.setTolerance(0.1); 
 			targetMagFreqDist.setName("Target Magnitude Distribution");
-			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
+			targetMagFreqDist.setInfo(mfdConstraints.get(i).getRegion().getName());
+//			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
 			funcs4.add(targetMagFreqDist);
 			GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
 			graph4.setX_AxisLabel("Magnitude");
@@ -648,6 +649,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			// do only if not already done
 			prev_mfdConstraints = mfdConstraints;
 			
+			System.out.println("Computing fraction rups in MDS regions ...");
 			int numRuptures = getNumRuptures();
 			fractRupsInsideMFD_Regions = new double[mfdConstraints.size()][numRuptures];
 			double[][] fractSectionInsideMFD_Regions = new double[mfdConstraints.size()][getNumSections()];
@@ -677,6 +679,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 					}
 					fractRupsInsideMFD_Regions[i][rup] /= totNumPts;
 				}
+				System.out.println("Done with MFD constraint #"+i);
 			}
 		}
 	}

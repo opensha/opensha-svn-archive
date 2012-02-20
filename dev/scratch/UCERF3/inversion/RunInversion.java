@@ -100,7 +100,7 @@ public class RunInversion {
 	public RunInversion(FaultSystemRupSet faultSystemRupSet, File precomputedDataDir) {
 		// Parameters for InversionFaultSystemSolution
 		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
-		boolean addMinimumRuptureRateConstraint = true;  // If true, add waterlevel (defined in minimumRuptureRates) to solution (otherwise, minimum rupture rates are 0)
+		boolean addMinimumRuptureRateConstraint = false;  // If true, add waterlevel (defined in minimumRuptureRates) to solution (otherwise, minimum rupture rates are 0)
 		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double relativeMagnitudeEqualityConstraintWt = 0;  // weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weightSlipRates=true, 10 otherwise)
 		double relativeMagnitudeInequalityConstraintWt = 1000;  // weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weighted per bin -- this is hard-coded in)
@@ -109,15 +109,15 @@ public class RunInversion {
 		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
 		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
 		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
-		int numIterations = 0;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
+		int numIterations = 1;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 		long startTime, runTime;
 		
 		// create class the gives UCERF2-related constraints
 		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
-		FindEquivUCERF2_FM2pt1_Ruptures findUCERF2_Rups = new FindEquivUCERF2_FM2pt1_Ruptures(faultSystemRupSet, precomputedDataDir);
-		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);
+//		FindEquivUCERF2_FM2pt1_Ruptures findUCERF2_Rups = new FindEquivUCERF2_FM2pt1_Ruptures(faultSystemRupSet, precomputedDataDir);
+//		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);
 		
 		if(D) System.out.println("\nDefining inversion constraints . . .");
 		
@@ -173,9 +173,9 @@ public class RunInversion {
 		// Create the MFD inequality constraints (ArrayList so we can apply this to multiple subregions)
 		if(D) System.out.println("MFD Inequality constraints. . .");
 		ArrayList<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
-		Region california = new CaliforniaRegions.RELM_GRIDDED();
-		Region noCal = new CaliforniaRegions.RELM_NOCAL();
-		Region soCal = new CaliforniaRegions.RELM_SOCAL();
+		Region california = new CaliforniaRegions.RELM_GRIDDED(); california.setName("All California");
+		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
+		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
 		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(california);
 //		UCERF2Constraints.setRegion(california);
 //		mfdInequalityConstraints.add(UCERF2Constraints.getTargetMFDConstraint());	// add MFD constraint for all CA
@@ -222,7 +222,7 @@ public class RunInversion {
 		
 		
 /*		if (D) System.out.print("Saving Solution to zip file . . . \n");
-		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_SMALL_MFDSmoothing7.zip");
+		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_SMALL_MFDSmoothing10.zip");
 		try {
 			startTime = System.currentTimeMillis();
 			new SimpleFaultSystemSolution(inversion).toZipFile(zipOut);
@@ -315,12 +315,13 @@ public class RunInversion {
 		}
 			
 		// Find total moment/year implied my slip rates
-		// REWRITE FOR CASE WHERE NAN SLIP RATES ARE INCLUDED?
+		// Treats NaN slip rates as zero
 		double targetTotalMoment = 0;  // total moment per year implied by slip rates
 		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
 		double[] sectArea = faultSystemRupSet.getAreaForAllSections();
 		for (int sect=0; sect<faultSystemRupSet.getNumSections(); sect++) 
-			targetTotalMoment += sectSlipRateReduced[sect]* sectArea[sect] * FaultMomentCalc.SHEAR_MODULUS;  // in N*m/yr
+			if (!Double.isNaN(sectSlipRateReduced[sect]))
+				targetTotalMoment += sectSlipRateReduced[sect]* sectArea[sect] * FaultMomentCalc.SHEAR_MODULUS;  // in N*m/yr
 		
 		// Scale magnitude distribution (set a-value) to match the total moment implied by slip rates
 		for (int i=0; i<magDist.getNum(); i++) 
@@ -411,8 +412,6 @@ public class RunInversion {
 			// (since later we weight the ruptures by the mean slip rate, which would otherwise result in 
 			// starting solution that did not match target MFD if the mean slip rates per rupture 
 			// differed between magnitude bins)
-			if (Double.isNaN(rupMeanMag[rup]) || Double.isNaN(meanSlipRate[rup]) || Double.isInfinite(rupMeanMag[rup]) || Double.isInfinite(meanSlipRate[rup]))
-				throw new IllegalStateException("rupMeanMag["+rup+"] = "+rupMeanMag[rup]+" &  meanSlipRate["+rup+"] = "+ meanSlipRate[rup]);
 			magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
 		}
 		
@@ -448,9 +447,11 @@ public class RunInversion {
 		}
 		double normalization = targetMagFreqDist.getClosestY(7.0)/totalEventRate;	
 		// Adjust rates to match target MFD total event rates
-		for (int rup=0; rup<numRup; rup++) 
+		for (int rup=0; rup<numRup; rup++) {
 			initial_state[rup]=initial_state[rup]*normalization;
-		
+			if (Double.isNaN(initial_state[rup]) || Double.isInfinite(initial_state[rup]))
+				throw new IllegalStateException("initial_state["+rup+"] = "+initial_state[rup]);
+		}
 		
 		// plot magnitude histogram for the inversion starting model
 		IncrementalMagFreqDist magHist2 = new IncrementalMagFreqDist(5.05,40,0.1);
