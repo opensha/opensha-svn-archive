@@ -1,0 +1,18 @@
+These are some files used in developing FM3_SectionsForUCERF2_Sources.txt.
+
+UCERF3_FaultSectAddAndRev_v3_2011_11_15.xlsx (renamed from "UCERF3 2011 Fault Section Additions and Revisions_ver 3_2011_11_15.xlsx") came from Tim via email on 2-17-12.
+
+AllFM3_sectNames.txt came from writing out unique names from:
+
+	faultMod3_1_sects =  DeformationModelFetcher.loadUCERF3FaultModel(101);
+	faultMod3_2_sects =  DeformationModelFetcher.loadUCERF3FaultModel(102);
+
+I then checked whether each UCERF2 fault section listed in (preComputedData/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt, which I obtained using the method FindEquivUCERF2_FM2pt1_Ruptures.getAllSectionNames()) still exist in AllFM3_sectNames.txt, and wrote those that didn't to the first column of the file:
+
+	FM2to3_sectionNameChanges.txt
+
+I then added the second column to this file by hand (using obvious names and Tim's xlsx file above).
+
+Finally, I created the file FM3_SectionsForUCERF2_Sources.txt by making the substitutions listed in FM2to3_sectionNameChanges.txt to the previous FM2_SectionsForUCERF2_Sources.txt using the following code:
+
+	??????????????????
