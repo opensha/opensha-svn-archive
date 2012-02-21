@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.opensha.commons.data.Site;
@@ -40,16 +42,25 @@ import com.google.common.collect.Maps;
 
 class UcerfBranchGenerator implements PropertyChangeListener {
 
-	private static final String OUT_DIR = "tmp/curve_gen/";
-	private static AttenRelRef[] imrRefs = { CB_2008, BA_2008, CY_2008, AS_2008 };
+	static final String OUT_DIR = "tmp/curve_gen/";
+//	private static AttenRelRef[] imrRefs = { CB_2008, BA_2008, CY_2008, AS_2008 };
+	private static AttenRelRef[] imrRefs = { CB_2008};
 	private static Period period = Period.GM0P00;
 
 	public static void main(String[] args) {
-		UcerfBranchGenerator gen = new UcerfBranchGenerator();
-		gen.run();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				Runtime.getRuntime().availableProcessors();
+				
+				JFrame f = new JFrame("test");
+				f.setVisible(true);
+				UcerfBranchGenerator gen = new UcerfBranchGenerator();
+				gen.go();
+			}
+		});
 	}
 	
-	private void run() {
+	private void go() {
 		//Processor.initDataCollectors();
 		for (AttenRelRef imrRef : imrRefs) {
 			for (TestLoc loc : TestLoc.values()) {
@@ -58,11 +69,12 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 				Processor proc = new Processor(imr, erfs, loc, period);
 				proc.addPropertyChangeListener(this);
 				proc.execute();
+				System.out.println("yo");
 			}
 		}
 	}
 
-	private static EpistemicListERF newERF() {
+	static EpistemicListERF newERF() {
 		AbstractEpistemicListERF erf = new UCERF2_TimeDependentEpistemicList();
 		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		ts.setDuration(1);
@@ -85,139 +97,23 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent pce) {
-		System.out.println(pce.getPropertyName());
+		System.out.println(pce.getPropertyName() + ": " + pce.getNewValue());
 		Object obj = pce.getNewValue();
-		if ("state".equals(pce.getPropertyName())) {
-			Processor p = (Processor) pce.getSource();
-			System.out.println(pce.getNewValue() + ": " + p.imr.getShortName() + " " + p.loc);
-		}
-		
+//		if ("state".equals(pce.getPropertyName())) {
+//			Processor p = (Processor) pce.getSource();
+//			System.out.println(pce.getNewValue() + ": " + p.imr.getShortName() + " " + p.loc);
+//		}
 	}
 
 
-	static class Processor extends SwingWorker<Object, Void> {
-
-		private ScalarIMR imr;
-		private EpistemicListERF erfs;
-		private TestLoc loc;
-		private Period per;
-		private Site site;
-		
-		private static int paramCount;
-		private static HashMap<String, Integer> paramMap;
-		private static List<String> paramHeader;
-		
-		private List<List<String>> paramData;
-		private List<List<String>> curveData;
-
-		Processor(ScalarIMR imr, EpistemicListERF erfs, TestLoc loc, Period per) {
-			this.imr = imr;
-			this.erfs = erfs;
-			this.loc = loc;
-			this.per = per;
-			site = loc.getSite();
-		}
-
-		@Override
-		public Object doInBackground() throws Exception {
-			System.out.println("HELLO");
-			init();
-			HazardCurveCalculator calc = new HazardCurveCalculator();
-			for (int i = 0; i < erfs.getNumERFs(); ++i) {
-				DiscretizedFunc f = per.getFunction();
-				ERF erf = erfs.getERF(i);
-				f = calc.getHazardCurve(f, site, imr, erf);
-				addResults(i, erf, f);
-			}
-			writeFiles();
-			return null;
-		}
-		
-		private void addResults(int idx, ERF erf, DiscretizedFunc f) {
-			// param data
-			List<String> paramDat = Lists.newArrayList();
-			paramDat.add(Integer.toString(idx));
-			for (int i=0; i<paramCount; i++) paramDat.add(null);
-			for (Parameter<?> param : erf.getAdjustableParameterList()) {
-				int index = paramMap.get(param.getName())+1;
-				paramDat.set(index, param.getValue().toString());
-			}
-			paramData.add(paramDat);
-			// curve data
-			List<String> curveDat = Lists.newArrayList();
-			curveDat.add(Integer.toString(idx));
-			for (Point2D p : f) {
-				curveDat.add(Double.toString(p.getY()));
-			}
-			curveData.add(curveDat);
-		}
-		
-		private static void initDataCollectors() {
-			System.out.println("Initializing processor....");
-			EpistemicListERF erfs = newERF();
-			paramMap = Maps.newHashMap();
-			paramHeader = Lists.newArrayList();
-			paramHeader.add("ERF#");
-			for (int i = 0; i < erfs.getNumERFs(); i++) {
-				ERF erf = erfs.getERF(i);
-				System.out.print(i + " ");
-				for (Parameter<?> param : erf.getAdjustableParameterList()) {
-					if (!paramMap.containsKey(param.getName())) {
-						paramMap.put(param.getName(), paramMap.size());
-						paramHeader.add(param.getName());
-					}
-				}
-			}
-			paramCount = paramHeader.size() - 1;
-		}
-		
-		/*
-		 * Initialize output lists, one for param values and another for curves
-		 */
-		private void init() {
-			paramData = Lists.newArrayList();
-			paramData.add(paramHeader);
-			curveData = Lists.newArrayList();
-			List<String> curveHeader = Lists.newArrayList();
-			curveHeader.add("ERF#");
-			for (Double d : per.getIMLs()) {
-				curveHeader.add(d.toString());
-			}
-			curveData.add(curveHeader);
-		}
-		
-		private void writeFiles() {
-			String outDirName = OUT_DIR + loc.name() + "/";
-			File outDir = new File(outDirName);
-			outDir.mkdirs();
-			String paramFile = outDirName +  imr.getShortName() + "_params.csv";
-			String curveFile = outDirName +  imr.getShortName() + "_curves.csv";
-			toCSV(paramFile, paramData);
-			toCSV(curveFile, curveData);
-		}
-		
-		private static void toCSV(String file, List<List<String>> content) {
-			Joiner joiner = Joiner.on(',').useForNull(" ");
-			try {
-				PrintWriter pw = new PrintWriter(new FileWriter(file, true));
-				for (List<String> lineDat : content) {
-					String line = joiner.join(lineDat);
-					pw.println(line);
-				}
-				pw.close();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		}
-	}
 	
 	enum TestLoc {
-		HOLLISTER_CITY_HALL(-121.402, 36.851),
-		INDIO_RV_SHOWCASE(-116.215, 33.747),
-		CALEXICO_FIRE_STATION(-115.493, 32.6695),
-		SAN_LUIS_OBISPO_REC(-120.661, 35.285),
-		ANDERSON_SPRINGS(-122.706, 38.7742),
-		COBB(-122.753, 38.8387);
+		HOLLISTER_CITY_HALL(-121.402, 36.851);
+//		INDIO_RV_SHOWCASE(-116.215, 33.747),
+//		CALEXICO_FIRE_STATION(-115.493, 32.6695),
+//		SAN_LUIS_OBISPO_REC(-120.661, 35.285),
+//		ANDERSON_SPRINGS(-122.706, 38.7742),
+//		COBB(-122.753, 38.8387);
 
 		private Location loc;
 
