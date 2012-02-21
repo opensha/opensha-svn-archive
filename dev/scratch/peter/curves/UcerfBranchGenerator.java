@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -43,37 +47,43 @@ import com.google.common.collect.Maps;
 class UcerfBranchGenerator implements PropertyChangeListener {
 
 	static final String OUT_DIR = "tmp/curve_gen/";
-//	private static AttenRelRef[] imrRefs = { CB_2008, BA_2008, CY_2008, AS_2008 };
-	private static AttenRelRef[] imrRefs = { CB_2008};
+	private static AttenRelRef[] imrRefs = { CB_2008, BA_2008, CY_2008, AS_2008 };
+//	private static AttenRelRef[] imrRefs = { CB_2008};
 	private static Period period = Period.GM0P00;
+	private List<Future<?>> futures;
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				Runtime.getRuntime().availableProcessors();
-				
-				JFrame f = new JFrame("test");
-				f.setVisible(true);
-				UcerfBranchGenerator gen = new UcerfBranchGenerator();
-				gen.go();
-			}
-		});
+		UcerfBranchGenerator gen = new UcerfBranchGenerator();
+//		SwingUtilities.invokeLater(new Runnable() {
+//			public void run() {
+//				
+//			}
+//		});
 	}
 	
-	private void go() {
-		//Processor.initDataCollectors();
+	private UcerfBranchGenerator() {
+		try {
+		int numProc = Runtime.getRuntime().availableProcessors();
+		ExecutorService ex = Executors.newFixedThreadPool(numProc);
+		futures = Lists.newArrayList();
+		
 		for (AttenRelRef imrRef : imrRefs) {
 			for (TestLoc loc : TestLoc.values()) {
 				ScalarIMR imr = newIMR(imrRef);
 				EpistemicListERF erfs = newERF();
 				Processor proc = new Processor(imr, erfs, loc, period);
-				proc.addPropertyChangeListener(this);
-				proc.execute();
-				System.out.println("yo");
+				futures.add(ex.submit(proc));
+//				proc.addPropertyChangeListener(this);
+//				proc.execute();
 			}
 		}
+		ex.shutdown();
+		ex.awaitTermination(12, TimeUnit.HOURS);
+		} catch (InterruptedException ie) {
+			ie.printStackTrace();
+		}
 	}
-
+	
 	static EpistemicListERF newERF() {
 		AbstractEpistemicListERF erf = new UCERF2_TimeDependentEpistemicList();
 		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
@@ -83,7 +93,7 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 		return erf;
 	}
 
-	private static ScalarIMR newIMR(AttenRelRef imrRef) {
+	static ScalarIMR newIMR(AttenRelRef imrRef) {
 		ScalarIMR imr = imrRef.instance(null);
 		imr.setParamDefaults();
 		if (period == Period.GM0P00) {
@@ -108,12 +118,12 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 
 	
 	enum TestLoc {
-		HOLLISTER_CITY_HALL(-121.402, 36.851);
-//		INDIO_RV_SHOWCASE(-116.215, 33.747),
-//		CALEXICO_FIRE_STATION(-115.493, 32.6695),
-//		SAN_LUIS_OBISPO_REC(-120.661, 35.285),
-//		ANDERSON_SPRINGS(-122.706, 38.7742),
-//		COBB(-122.753, 38.8387);
+		HOLLISTER_CITY_HALL(-121.402, 36.851),
+		INDIO_RV_SHOWCASE(-116.215, 33.747),
+		CALEXICO_FIRE_STATION(-115.493, 32.6695),
+		SAN_LUIS_OBISPO_REC(-120.661, 35.285),
+		ANDERSON_SPRINGS(-122.706, 38.7742),
+		COBB(-122.753, 38.8387);
 
 		private Location loc;
 

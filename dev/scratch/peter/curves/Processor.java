@@ -5,10 +5,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.swing.SwingWorker;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +17,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.nshmp.Period;
 
@@ -27,7 +27,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-class Processor extends SwingWorker<Void, Void> {
+class Processor implements Runnable {
 
 	private ScalarIMR imr;
 	private EpistemicListERF erfs;
@@ -35,9 +35,7 @@ class Processor extends SwingWorker<Void, Void> {
 	private Period per;
 	private Site site;
 	
-	private static int paramCount;
-	private static HashMap<String, Integer> paramMap;
-	private static List<String> paramHeader;
+	private HashMap<String, Integer> paramMap;
 	
 	private List<List<String>> paramData;
 	private List<List<String>> curveData;
@@ -51,33 +49,29 @@ class Processor extends SwingWorker<Void, Void> {
 	}
 
 	@Override
-	public Void doInBackground() throws Exception {
-		try {
-		System.out.println("HELLO");
+	public void run() {
+		System.out.println("Starting:");
+		System.out.println(toString());
 		init();
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		for (int i = 0; i < erfs.getNumERFs(); ++i) {
 			DiscretizedFunc f = per.getFunction();
 			ERF erf = erfs.getERF(i);
 			f = calc.getHazardCurve(f, site, imr, erf);
-			System.out.println("f: " + f);
 			addResults(i, erf, f);
 		}
 		writeFiles();
-		return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		System.out.println("Finished:");
+		System.out.println(toString());
 	}
 	
 	private void addResults(int idx, ERF erf, DiscretizedFunc f) {
 		// param data
 		List<String> paramDat = Lists.newArrayList();
 		paramDat.add(Integer.toString(idx));
-		for (int i=0; i<paramCount; i++) paramDat.add(null);
+		for (int i=0; i<paramMap.size(); i++) paramDat.add(null);
 		for (Parameter<?> param : erf.getAdjustableParameterList()) {
-			int index = paramMap.get(param.getName())+1;
+			int index = paramMap.get(param.getName());
 			paramDat.set(index, param.getValue().toString());
 		}
 		paramData.add(paramDat);
@@ -88,23 +82,11 @@ class Processor extends SwingWorker<Void, Void> {
 			curveDat.add(Double.toString(p.getY()));
 		}
 		curveData.add(curveDat);
+		
+//		System.out.println(paramData);
+//		System.out.println(curveData);
 	}
-	
-	/*
-	 * Initialize output lists, one for param values and another for curves
-	 */
-	private void init() {
-		paramData = Lists.newArrayList();
-		paramData.add(paramHeader);
-		curveData = Lists.newArrayList();
-		List<String> curveHeader = Lists.newArrayList();
-		curveHeader.add("ERF#");
-		for (Double d : per.getIMLs()) {
-			curveHeader.add(d.toString());
-		}
-		curveData.add(curveHeader);
-	}
-	
+		
 	private void writeFiles() {
 		String outDirName = UcerfBranchGenerator.OUT_DIR + loc.name() + "/";
 		File outDir = new File(outDirName);
@@ -129,17 +111,62 @@ class Processor extends SwingWorker<Void, Void> {
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return "  " + imr.getShortName() + R + "  " + loc.name();
+	}
 	
 	
+	private static final String MAP = "Min Fraction for Unlikely Ruptures=11, Mag-Area Relationship=12, Truncation Level=14, % Char vs GR=16, Probability Model=25, Fract MoRate to Background=1, Seg Dependent Aperiodicity=26, Coupling Coefficient=2, A-Fault Slip Model=6, Fraction Smaller Events & Aftershocks=3, B-Faults b-value=18, A-Faults b-value=28, Min Fraction for Unknown Ruptures=10, Deformation Model=0, Mag Sigma=13, Mean Mag Correction=15, C-Zone Weight=23, Segmented A-Fault Solution Types=5, Aperiodicity=27, Connect More B Faults?=20, Wt On A-Priori Rates=7, Background Seismicity=21, MFD for Background=24, Floater Type=17, Relative Wt On Segment Rates=8, A-Fault Solution Type=4, B-Faults Min Mag=19, Treat Background Seismicity As=22, Weighted Inversion?=9";
+	private static final String HEADER = "Deformation Model, Fract MoRate to Background, Coupling Coefficient, Fraction Smaller Events & Aftershocks, A-Fault Solution Type, Segmented A-Fault Solution Types, A-Fault Slip Model, Wt On A-Priori Rates, Relative Wt On Segment Rates, Weighted Inversion?, Min Fraction for Unknown Ruptures, Min Fraction for Unlikely Ruptures, Mag-Area Relationship, Mag Sigma, Truncation Level, Mean Mag Correction, % Char vs GR, Floater Type, B-Faults b-value, B-Faults Min Mag, Connect More B Faults?, Background Seismicity, Treat Background Seismicity As, C-Zone Weight, MFD for Background, Probability Model, Seg Dependent Aperiodicity, Aperiodicity, A-Faults b-value";
+	private static final String SEP = ", ";
+	private static final String R = IOUtils.LINE_SEPARATOR;
+	/*
+	 * Initialize output lists, one for param values and another for curves
+	 */
+	private void init() {
+		
+		paramMap = Maps.newHashMap();
+		String[] entries = StringUtils.splitByWholeSeparator(MAP, SEP);
+		for (String entry : entries) {
+			String[] nameVal = StringUtils.split(entry, "=");
+			paramMap.put(nameVal[0], Integer.valueOf(nameVal[1])+1);
+		}
+		
+		paramData = Lists.newArrayList();
+		String[] paramNames = StringUtils.splitByWholeSeparator(HEADER, SEP);
+		List<String> paramNameList = Arrays.asList(paramNames);
+		List<String> paramDataHeader = Lists.newArrayList();
+		paramDataHeader.add("ERF#");
+		paramDataHeader.addAll(paramNameList);
+		paramData.add(paramDataHeader);
+		
+		curveData = Lists.newArrayList();
+		List<String> curveHeader = Lists.newArrayList();
+		curveHeader.add("ERF#");
+		for (Double d : per.getIMLs()) {
+			curveHeader.add(d.toString());
+		}
+		curveData.add(curveHeader);
+		
+//		System.out.println(paramMap);
+//		System.out.println(paramData.get(0));
+//		System.out.println(curveData.get(0));
+	}
 	
-	
+
 	//////////////////////////////////////
 	//////////////////////////////////////
 	//////////////////////////////////////
 
 	
 	public static void main(String[] args) {
-		buildParamHeaders();
+//		buildParamHeaders();
+		
+		Processor p = new Processor(AttenRelRef.BA_2008.instance(null), null, 
+			TestLoc.HOLLISTER_CITY_HALL, Period.GM0P00);
+		p.init();
+		p.writeFiles();
 	}
 		
 	private static void buildParamHeaders() {
@@ -157,8 +184,8 @@ class Processor extends SwingWorker<Void, Void> {
 				}
 			}
 		}
-		System.out.println("MAP: " + IOUtils.LINE_SEPARATOR + map);
-		System.out.println("HEADER: " + IOUtils.LINE_SEPARATOR + header);
+		System.out.println("MAP: " + R + map);
+		System.out.println("HEADER: " + R + header);
 	}
 	
 
