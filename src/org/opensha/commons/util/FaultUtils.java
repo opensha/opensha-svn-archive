@@ -335,7 +335,7 @@ public final class FaultUtils {
 
 	/**
 	 * Returns an average of the given angles scaled by the distances between the corresponding
-	 * locations. Note that expects angles in degrees, and will return angles from 0 to 360 degrees.
+	 * locations. Note that this expects angles in degrees, and will return angles from 0 to 360 degrees.
 	 * 
 	 * @param locs locations for distance scaling
 	 * @param angles angles in degrees corresponding to each pair of locations
@@ -354,16 +354,16 @@ public final class FaultUtils {
 	}
 
 	/**
-	 * Returns an average of the given angles scaled by the distances between the corresponding
-	 * locations. Note that expects angles in degrees, and will return angles from 0 to 360 degrees.
+	 * Returns an average of the given angles scaled by the given scalars. Note that this
+	 * expects angles in degrees, and will return angles from 0 to 360 degrees.
 	 * 
-	 * @param locs locations for distance scaling
+	 * @param scalars scalar weights for each angle (does not need to be normalized)
 	 * @param angles angles in degrees corresponding to each pair of locations
 	 * @return
 	 */
-	public static double getScaledAngleAverage(List<Double> lengths, List<Double> angles) {
-		Preconditions.checkArgument(lengths.size() >= 1, "must have at least 1 lengths!");
-		Preconditions.checkArgument(angles.size() == lengths.size(), "must have exactly the same amount of lengths as angles");
+	public static double getScaledAngleAverage(List<Double> scalars, List<Double> angles) {
+		Preconditions.checkArgument(scalars.size() >= 1, "must have at least 1 lengths!");
+		Preconditions.checkArgument(angles.size() == scalars.size(), "must have exactly the same amount of lengths as angles");
 
 		// see if we have an easy case, or a NaN
 		if (angles.size() == 1)
@@ -383,11 +383,11 @@ public final class FaultUtils {
 			return angles.get(0);
 
 		double xdir=0; double ydir=0;
-		for (int i=0; i<lengths.size(); i++) {
-			double dist = lengths.get(i);
+		for (int i=0; i<scalars.size(); i++) {
+			double scalar = scalars.get(i);
 			double angle = angles.get(i);
-			xdir+=dist*Math.cos(Math.toRadians(angle));
-			ydir+=dist*Math.sin(Math.toRadians(angle));
+			xdir+=scalar*Math.cos(Math.toRadians(angle));
+			ydir+=scalar*Math.sin(Math.toRadians(angle));
 		}
 
 		double avg;
@@ -412,7 +412,20 @@ public final class FaultUtils {
 
 		return avg;
 	}
-
+	
+	/**
+	 * Averages angles dealing with any -180/180 or 0/360 cut issues. Note that this
+	 * expects angles in degrees, and will return angles from 0 to 360 degrees.
+	 * 
+	 * @param angles
+	 * @return
+	 */
+	public static double getAngleAverage(List<Double> angles) {
+		ArrayList<Double> scalars = new ArrayList<Double>();
+		for (int i=0; i<angles.size(); i++)
+			scalars.add(1d);
+		return getScaledAngleAverage(scalars, angles);
+	}
 
 	/* <b>x</b>-axis unit normal vector [1,0,0]*/ 
 	private static final double[] VX_UNIT_NORMAL = { 1.0, 0.0, 0.0 };
