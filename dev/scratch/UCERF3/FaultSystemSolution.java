@@ -516,7 +516,9 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	/**
-	 * This creates a CompoundGriddedSurface for the specified rupture
+	 * This creates a CompoundGriddedSurface for the specified rupture.  This applies aseismicity as
+	 * a reduction of area and sets preserveGridSpacingExactly=false so there are no cut-off ends
+	 * (but variable grid spacing)
 	 * @param rupIndex
 	 * @param gridSpacing
 	 * @return
@@ -525,11 +527,14 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
 		for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
 			// TODO: should aseis be false instead of true?
-			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, true, true));
+			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
 		}
 		return new CompoundGriddedSurface(surfaces);
 		
-	}/**
+	}
+	
+	
+	/**
 	 * This plots the rupture rates (rate versus rupture index)
 	 */
 	public void plotRuptureRates() {
@@ -728,10 +733,9 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			double[][] fractSectionInsideMFD_Regions = new double[mfdConstraints.size()][getNumSections()];
 			int[] numPtsInSection = new int[getNumSections()];
 			double gridSpacing=1; // km; this will be faster if this is increased, or if we used the section trace rather than the whole surface
-			boolean aseisReducesArea = true;
 			// first fill in fraction of section in each region (do each only once)
 			for(int s=0;s<getNumSections(); s++) {
-				StirlingGriddedSurface surf = new StirlingGriddedSurface(getFaultSectionData(s).getSimpleFaultData(aseisReducesArea), gridSpacing);
+				StirlingGriddedSurface surf = getFaultSectionData(s).getStirlingGriddedSurface(gridSpacing, false, true);
 				numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
 				for(int i=0;i<mfdConstraints.size(); i++) {
 					Region region = mfdConstraints.get(i).getRegion();
