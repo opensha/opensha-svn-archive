@@ -20,7 +20,7 @@ public class PBSScriptWriter {
 		if (args.length < 8 || args.length > 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(PBSScriptWriter.class)
 					+" <nodes> <minutes> <sub-completion> <PPN> <threads> <dir>"
-					+"[<A mat file> <d file> OR --zip <zip file>] [<intial>]");
+					+" [<A mat file> <d file> [<intial>] OR --zip <zip file> [jobName]]");
 			System.exit(2);
 		}
 		try {
@@ -31,23 +31,25 @@ public class PBSScriptWriter {
 			int ppn = Integer.parseInt(args[cnt++]);
 			String numThreads = args[cnt++];
 			File dir = new File(args[cnt++]).getCanonicalFile();
+			String name = dir.getName();
+			
 			File aFile = null;
 			File dFile = null;
 			File zipFile = null;
-			if (args[cnt+1].equals("--zip")) {
+			File initial = null;
+			if (args[cnt].equals("--zip")) {
 				cnt++;
 				zipFile = new File(args[cnt++]).getCanonicalFile();
+				if (cnt < args.length)
+					name = args[cnt++];
 			} else {
 				aFile = new File(args[cnt++]).getCanonicalFile();
 				dFile = new File(args[cnt++]).getCanonicalFile();
+				if (cnt < args.length)
+					initial = new File(args[cnt++]).getAbsoluteFile();
 			}
-			File initial = null;
-			if (cnt < args.length)
-				initial = new File(args[cnt++]).getAbsoluteFile();
-
+			
 			int wallMins = annealMins+60;
-
-			String name = dir.getName();
 
 			BatchScriptWriter batch = new USC_HPCC_ScriptWriter();
 			File mpjHome = USC_HPCC_ScriptWriter.MPJ_HOME;
@@ -56,7 +58,8 @@ public class PBSScriptWriter {
 			CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
 			CompletionCriteria dsaCriteria = TimeCompletionCriteria.getInMinutes(annealMins);
 			boolean useMXDev = false;
-			int heapSizeMB = 2048;
+//			int heapSizeMB = 2048;
+			int heapSizeMB = 8000;
 			String queue = null;
 
 			ArrayList<File> classpath = MultiSABenchmarkPBSWriter.getClasspath();
