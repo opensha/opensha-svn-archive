@@ -1,6 +1,7 @@
 package scratch.UCERF3.utils;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
@@ -21,6 +23,8 @@ import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
+
+import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 
 import com.google.common.base.Preconditions;
 
@@ -97,6 +101,32 @@ public class DeformationModelFileParser {
 			if (!dones.contains(def))
 				System.out.println("No fault exists for def model section of id: "+def.id);
 		}
+	}
+	
+	public static void write(Map<Integer, DeformationSection> model, File file) throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		for (DeformationSection def : model.values()) {
+			List<Location> locs1 = def.getLocs1();
+			List<Location> locs2 = def.getLocs2();
+			List<Double> slips = def.getSlips();
+			List<Double> rakes = def.getRakes();
+			for (int i=0; i<slips.size(); i++) {
+				String id = def.getId()+".";
+				if (i < 10)
+					id += "0";
+				id += i;
+				ArrayList<String> line = new ArrayList<String>();
+				line.add(id);
+				line.add(""+(float)locs1.get(i).getLongitude());
+				line.add(""+(float)locs1.get(i).getLatitude());
+				line.add(""+(float)locs2.get(i).getLongitude());
+				line.add(""+(float)locs2.get(i).getLatitude());
+				line.add(""+slips.get(i).floatValue());
+				line.add(""+rakes.get(i).floatValue());
+				csv.addLine(line);
+			}
+		}
+		csv.writeToFile(file);
 	}
 	
 	public static class DeformationSection {
@@ -225,34 +255,48 @@ public class DeformationModelFileParser {
 		int faultModelId = 101;
 		
 //		File dir = new File("D:\\Documents\\SCEC\\def_models");
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial");
+		
+		File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
 		
 		try {
-			System.out.println("Fetching fault data");
-			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
-			System.out.println("Fetching fault model");
-			ArrayList<Integer> fm = fm2db.getFaultSectionIdList(faultModelId);
-			defFile = new File(dir, "neokinema_slip_rake_feb06.txt");
-			System.out.println("Doing comparison: "+defFile.getName());
-			HashMap<Integer, DeformationSection>  defs = load(defFile);
-			compareAgainst(defs, datas, fm);
-			System.out.println("");
-			defFile = new File(dir, "ABM_slip_rake_feb06.txt");
-			System.out.println("Doing comparison: "+defFile.getName());
-			defs = load(defFile);
-			compareAgainst(defs, datas, fm);
-			System.out.println("");
-			defFile = new File(dir, "geobound_slip_rake_feb06.txt");
-			System.out.println("Doing comparison: "+defFile.getName());
-			defs = load(defFile);
-			compareAgainst(defs, datas, fm);
-			System.out.println("");
-			defFile = new File(dir, "zeng_slip_rake_feb06.txt");
-			System.out.println("Doing comparison: "+defFile.getName());
-			defs = load(defFile);
-			compareAgainst(defs, datas, fm);
-			System.out.println("");
-			System.out.println("DONE");
+//			System.out.println("Fetching fault data");
+//			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
+//			System.out.println("Fetching fault model");
+//			ArrayList<Integer> fm = fm2db.getFaultSectionIdList(faultModelId);
+//			defFile = new File(dir, "neokinema_slip_rake_feb06.txt");
+//			System.out.println("Doing comparison: "+defFile.getName());
+//			HashMap<Integer, DeformationSection>  defs = load(defFile);
+//			compareAgainst(defs, datas, fm);
+//			System.out.println("");
+//			defFile = new File(dir, "ABM_slip_rake_feb06.txt");
+//			System.out.println("Doing comparison: "+defFile.getName());
+//			defs = load(defFile);
+//			compareAgainst(defs, datas, fm);
+//			System.out.println("");
+//			defFile = new File(dir, "geobound_slip_rake_feb06.txt");
+//			System.out.println("Doing comparison: "+defFile.getName());
+//			defs = load(defFile);
+//			compareAgainst(defs, datas, fm);
+//			System.out.println("");
+//			defFile = new File(dir, "zeng_slip_rake_feb06.txt");
+//			System.out.println("Doing comparison: "+defFile.getName());
+//			defs = load(defFile);
+//			compareAgainst(defs, datas, fm);
+//			System.out.println("");
+//			System.out.println("DONE");
+			ArrayList<FaultSectionPrefData> datas = DeformationModelFetcher.loadUCERF3FaultModel(faultModelId);
+			
+			for (DefModName dm : DefModName.values()) {
+				if (dm.getDataFileURL() == null)
+					continue;
+				HashMap<Integer, DeformationSection> model = load(dm.getDataFileURL());
+				HashMap<Integer, DeformationSection> fixed = DeformationModelFetcher.getFixedModel(datas, model, dm);
+				File outFile = new File(dm.getDataFileURL().toURI());
+				outFile = new File(outFile.getParentFile(), outFile.getName()+".fixed");
+				System.out.println("Writing: "+outFile.getAbsolutePath());
+				write(fixed, outFile);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
