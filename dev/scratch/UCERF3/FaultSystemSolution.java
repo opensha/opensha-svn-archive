@@ -12,6 +12,7 @@ import java.util.List;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -405,6 +406,78 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		 * return -0.0608*mag*mag + 1.1366*mag + -4.1314; else return 1.0;
 		 */
 	}
+	
+	
+	/**
+	 * This returns the (NEW for UCERF3) probability that the given magnitude event will be
+	 * observed at the ground surface. This takes into account where along the rupture you are (near the center of the "rainbow" you have a higher probability of detection.
+	 * Developed by Ray and Glenn.
+	 * @return
+	 */
+	public double getProbPaleoVisible(double averageSlip, double distanceAlongRup, EvenlyDiscrXYZ_DataSet probabilityModel) {
+		
+		double prob;
+		
+		if (distanceAlongRup < 0 || distanceAlongRup > 0.5 || Double.isNaN(distanceAlongRup) || Double.isInfinite(distanceAlongRup))
+				throw new IllegalStateException("distanceAlongRup = "+distanceAlongRup+", it should be between 0 and 0.5");
+		
+		// Deal with displacements bigger or smaller than max/min average displacements in Glenn's table
+		if (averageSlip<probabilityModel.getMinY())
+			return 0.0;
+		if (averageSlip>probabilityModel.getMaxY())
+			return 1.0;
+		
+		prob = probabilityModel.bilinearInterpolation(distanceAlongRup, averageSlip);
+		
+		return prob;
+		
+	}
+	
+	
+	
+	/**
+	 * This returns the normalized distance along a rupture that a paleoseismic trench is located (Glenn's x/D).  It is between 0 and 0.5.
+	 * We need this for the UCERF3 probability of detecting a rupture in a trench.
+	 * @return
+	 */
+	public static double getDistanceAlongRupture(List<Integer> sectsInRup, ArrayList<FaultSectionPrefData> sectionDataList, SegRateConstraint constraint) {
+		double distanceAlongRup = 0;
+		
+		int constraintIndex = constraint.getSegIndex();
+		double totalLength = 0;
+		double lengthToRup = 0;
+		boolean reachConstraintLoc = false;
+		
+		// Find total length (km) of fault trace and length (km) from one end to the paleo trench location
+		for (int i=0; i<sectsInRup.size(); i++) {
+			int sectIndex = sectsInRup.get(i);
+			double sectLength = sectionDataList.get(i).getFaultTrace().getTraceLength();
+			totalLength+=sectLength;
+			if (sectIndex == constraintIndex) {
+				reachConstraintLoc = true;
+				lengthToRup+=sectLength/2;  // We're putting the trench in the middle of the subsection for now
+			}
+			if (reachConstraintLoc == false) // We haven't yet gotten to the trench subsection so keep adding to lengthToRup
+				lengthToRup+=sectLength;
+		}
+		
+		if (!reachConstraintLoc) // check to make sure we came across the trench subsection in the rupture
+			throw new IllegalStateException("Paleo site subsection was not included in rupture subsections");
+		
+		// Normalized distance along the rainbow (Glenn's x/D) - between 0 and 1
+		distanceAlongRup = lengthToRup/totalLength;
+		// Adjust to be between 0 and 0.5 (since rainbow is symmetric about 0.5)
+		if (distanceAlongRup>0.5)
+			distanceAlongRup=1-distanceAlongRup;
+		
+		return distanceAlongRup;
+		
+		
+	}
+	
+	
+	
+	
 	
 	@Override
 	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex) {
