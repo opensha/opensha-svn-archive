@@ -890,10 +890,6 @@ public class DeformationModelFetcher {
 		return pt_end_dist < pt_start_dist && pt_start_dist > start_end_dist;
 	}
 
-	private StirlingGriddedSurface getSurfaceForSubSect(FaultSectionPrefData data) {
-		return data.getStirlingGriddedSurface(1.0, false, false);
-	}
-
 	public static Map<IDPairing, Double> readMapFile(File file) throws IOException {
 		HashMap<IDPairing, Double> map = new HashMap<IDPairing, Double>();
 
@@ -998,14 +994,14 @@ public class DeformationModelFetcher {
 				}
 				//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
 				FaultSectionPrefData data1 = faultSubSectPrefDataList.get(a);
-				StirlingGriddedSurface surf1 = getSurfaceForSubSect(data1);
+				StirlingGriddedSurface surf1 = data1.getStirlingGriddedSurface(1.0, false, true);;
 				//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(data1.getSimpleFaultData(false), 1.0, 1.0);
 
 				for(int b=a+1;b<numSubSections;b++) { // a+1 because array is initialized to zero
 					//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
 					FaultSectionPrefData data2 = faultSubSectPrefDataList.get(b);
 					//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(data2.getSimpleFaultData(false), 1.0, 1.0);
-					StirlingGriddedSurface surf2 = getSurfaceForSubSect(data2);
+					StirlingGriddedSurface surf2 = data2.getStirlingGriddedSurface(1.0, false, true);;
 					//					double minDist = surf1.getMinDistance(surf2);
 					//					subSectionDistances[a][b] = minDist;
 					//					subSectionDistances[b][a] = minDist;
@@ -1090,10 +1086,10 @@ public class DeformationModelFetcher {
 			}
 			cnt++;
 			FaultSectionPrefData data1 = faultSubSectPrefDataIDMap.get(ind.getID1());
-			StirlingGriddedSurface surf1 =  getSurfaceForSubSect(data1);
+			StirlingGriddedSurface surf1 =  data1.getStirlingGriddedSurface(1.0, false, true);
 			Location loc1 = surf1.getLocation(surf1.getNumRows()/2, surf1.getNumCols()/2);
 			FaultSectionPrefData data2 = faultSubSectPrefDataIDMap.get(ind.getID2());
-			StirlingGriddedSurface surf2 =  getSurfaceForSubSect(data2);
+			StirlingGriddedSurface surf2 =  data2.getStirlingGriddedSurface(1.0, false, true);
 			Location loc2 = surf2.getLocation((int)(surf2.getNumRows()/2), (int)(surf2.getNumCols()/2));
 			azimuths.put(ind, LocationUtils.azimuth(loc1, loc2));
 			//			}
