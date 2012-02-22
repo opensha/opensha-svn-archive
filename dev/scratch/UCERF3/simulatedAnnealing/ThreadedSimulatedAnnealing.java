@@ -36,7 +36,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
@@ -48,6 +48,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
 	private double Ebest = Double.MAX_VALUE;
 	private double[] xbest = null;
+	private double[] misfit = null;
+	private double[] misfit_ineq = null;
 	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
@@ -172,14 +174,31 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	public double getBestEnergy() {
 		return Ebest;
 	}
+	
+	@Override
+	public double[] getBestMisfit() {
+		return misfit;
+	}
 
 	@Override
+	public double[] getBestInequalityMisfit() {
+		return misfit_ineq;
+	}
+	
+	@Override
 	public void setResults(double Ebest, double[] xbest) {
+		setResults(Ebest, xbest, null, null);
+	}
+
+	@Override
+	public void setResults(double Ebest, double[] xbest, double[] misfit, double[] misfit_ineq) {
 		// TODO revisit
 		this.Ebest = Ebest;
 		this.xbest = xbest;
+		this.misfit = misfit;
+		this.misfit_ineq = misfit_ineq;
 		for (SerialSimulatedAnnealing sa : sas)
-			sa.setResults(Ebest, xbest);
+			sa.setResults(Ebest, xbest, misfit, misfit_ineq);
 	}
 
 	@Override
@@ -237,6 +256,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				if (E < Ebest) {
 					Ebest = E;
 					xbest = sa.getBestSolution();
+					misfit = sa.getBestMisfit();
+					misfit_ineq = sa.getBestInequalityMisfit();
 				}
 				
 				// now set the current iteration count to the max iteration acheived
@@ -256,7 +277,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			}
 			
 			for (SimulatedAnnealing sa : sas)
-				sa.setResults(Ebest, xbest);
+				sa.setResults(Ebest, xbest, misfit, misfit_ineq);
 		}
 		
 		watch.stop();

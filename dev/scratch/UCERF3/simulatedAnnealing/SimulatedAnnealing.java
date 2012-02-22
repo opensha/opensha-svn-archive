@@ -27,8 +27,14 @@ public interface SimulatedAnnealing {
 	public double[] getBestSolution();
 
 	public double getBestEnergy();
+	
+	public double[] getBestMisfit();
+	
+	public double[] getBestInequalityMisfit();
 
 	public void setResults(double Ebest, double[] xbest);
+	
+	public void setResults(double Ebest, double[] xbest, double[] misfit, double[] misfit_ineq);
 
 	public long iterate(long numIterations);
 
