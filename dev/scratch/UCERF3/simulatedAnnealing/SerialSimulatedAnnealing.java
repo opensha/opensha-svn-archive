@@ -181,7 +181,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		setResults(Ebest, xbest, null, null);
 	}
 	
-	private static double[] calculateMisfit(DoubleMatrix2D mat, double[] data, double[] prev_misfit,
+	private static synchronized double[] calculateMisfit(DoubleMatrix2D mat, double[] data, double[] prev_misfit,
 			double[] solution, int perturbCol, double perturbation) {
 		double[] misfit;
 		if (mat instanceof SparseCCDoubleMatrix2D && perturbCol >= 0 && prev_misfit != null) {
@@ -274,7 +274,6 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		if(D) System.out.println("Nonnegativity Constraint: " + nonnegativityConstraintAlgorithm.name());
 		if(D) System.out.println("Completion Criteria: " + criteria);
 		
-		double[] xnew;
 		double Enew;
 		double P;
 		long iter=startIter+1;
@@ -316,10 +315,6 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				}
 			}
 
-			
-			// Pick neighbor of current model
-			xnew = Arrays.copyOf(x, nCol);  // This does xnew=x for an array
-
 			// Index of model to randomly perturb
 			index = (int)(r.nextDouble() * (double)nCol); // casting as int takes the floor
 
@@ -332,12 +327,12 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			case TRY_ZERO_RATES_OFTEN: // sets rate to zero if they are perturbed to negative values 
 				// This way will result in many zeros in the solution, 
 				// which may be desirable since global minimum is likely near a boundary
-				if (xnew[index] == 0) { // if that rate was already zero do not keep it at zero
+				if (x[index] == 0) { // if that rate was already zero do not keep it at zero
 					while (x[index] + perturb[index] < 0) 
 						perturb[index] = getPerturbation(perturbationFunc,T);
 				} else { // if that rate was not already zero, and it goes negative, set it equal to zero
-					if (xnew[index] + perturb[index] < 0) 
-						perturb[index] = -xnew[index];
+					if (x[index] + perturb[index] < 0) 
+						perturb[index] = -x[index];
 				}
 				break;
 			case LIMIT_ZERO_RATES:    // re-perturb rates if they are perturbed to negative values 
@@ -359,34 +354,34 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			default:
 				throw new IllegalStateException("You missed a Nonnegativity Constraint Algorithm type.");
 			}
-			xnew[index] += perturb[index];
+			x[index] += perturb[index];
 			
 			// calculate new misfit vectors
-			double[] misfit_new = calculateMisfit(A, d, misfit, xnew, index, perturb[index]);
+			double[] misfit_new = calculateMisfit(A, d, misfit, x, index, perturb[index]);
 			double[] misfit_ineq_new = null;
 			if (relativeMagnitudeInequalityConstraintWt > 0)
-				misfit_ineq_new = calculateMisfit(A_MFD, d_MFD, misfit_ineq, xnew, index, perturb[index]);
+				misfit_ineq_new = calculateMisfit(A_MFD, d_MFD, misfit_ineq, x, index, perturb[index]);
 
 			// Calculate "energy" of new model (high misfit -> high energy)
 //			Enew = calculateMisfit(xnew);
-			Enew = calculateEnergy(xnew, misfit_new, misfit_ineq_new);
+			Enew = calculateEnergy(x, misfit_new, misfit_ineq_new);
 			
 			if (D && COLUMN_MULT_SPEEDUP_DEBUG && (iter-1) % 100 == 0) {
 				// lets make sure that the energy calculation was correct with the column speedup
 				// only do this if debug is enabled, and do it every 100 iterations
 				
 				// calculate it the "slow" way
-				misfit_new = calculateMisfit(A, d, null, xnew, -1, Double.NaN);
+				misfit_new = calculateMisfit(A, d, null, x, -1, Double.NaN);
 				if (relativeMagnitudeInequalityConstraintWt > 0)
-					misfit_ineq_new = calculateMisfit(A_MFD, d_MFD, null, xnew, -1, Double.NaN);
-				double Enew_temp = calculateEnergy(xnew, misfit_new, misfit_ineq_new);
+					misfit_ineq_new = calculateMisfit(A_MFD, d_MFD, null, x, -1, Double.NaN);
+				double Enew_temp = calculateEnergy(x, misfit_new, misfit_ineq_new);
 				Preconditions.checkState(DataUtils.getPercentDiff(Enew, Enew_temp) < 0.01,
 						"they don't match within 0.01%! "+Enew+" != "+Enew_temp);
 			}
 		
 			// Is this a new best?
 			if (Enew < Ebest) {
-				xbest = Arrays.copyOf(xnew, nCol);
+				xbest = Arrays.copyOf(x, nCol);
 				misfit_best = Arrays.copyOf(misfit_new, misfit_new.length);
 				misfit_ineq_best = Arrays.copyOf(misfit_ineq_new, misfit_ineq_new.length);
 				Ebest = Enew;
@@ -414,12 +409,14 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			
 			// Use transition probability to determine (via random number draw) if solution is kept
 			if (P > r.nextDouble()) {
-				x = Arrays.copyOf(xnew, nCol);
 				E = Enew;
 				// no arrays.copyOf needed as we don't ever edit these
 				// (they're created by calculateMisfit() new each time)
 				misfit = misfit_new;
 				misfit_ineq = misfit_ineq_new;
+			} else {
+				// undo the perturbation
+				x[index] -= perturb[index];
 			}
 			iter++;
 		}
