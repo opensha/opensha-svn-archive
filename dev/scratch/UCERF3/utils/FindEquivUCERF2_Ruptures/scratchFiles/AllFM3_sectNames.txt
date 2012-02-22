@@ -95,8 +95,7 @@ Great Valley 03 Mysterious Ridge
 Great Valley 03a Dunnigan Hills
 Great Valley 04a Trout Creek
 Great Valley 04b Gordon Valley
-Great Valley 05 Pittsburg - Kirby Hills Lower alt1
-Great Valley 05 Pittsburg - Kirby Hills Upper alt1
+Great Valley 05 Pittsburg - Kirby Hills alt1
 Great Valley 06 (Midland) 2011 CFM alt1
 Great Valley 07 (Orestimba)
 Great Valley 08 (Quinto)
@@ -173,10 +172,8 @@ Monte Vista - Shannon 2011 CFM
 Monterey Bay-Tularcitos
 Morales (East)
 Morales (West)
-Mount Diablo Thrust North Lower CFM
-Mount Diablo Thrust North Upper CFM
-Mount Diablo Thrust South Lower
-Mount Diablo Thrust South Upper
+Mount Diablo Thrust North CFM
+Mount Diablo Thrust South
 Nelson Lake
 Newport-Inglewood (Offshore)
 Newport-Inglewood alt 1
@@ -315,8 +312,7 @@ White Wolf (Extension)
 Whittier alt 1
 Wight Way 2011 CFM
 Yorba Linda
-Zayante-Vergeles Lower 2011 CFM
-Zayante-Vergeles Upper 2011 CFM
+Zayante-Vergeles 2011 CFM
 Anacapa-Dume alt 2
 Brawley (Seismic Zone) alt 2
 Chino alt 2
