@@ -76,7 +76,8 @@ public class FileMakingStuff {
 				for(int i=3;i<st.length;i++) {
 					String sectName = st[i];
 					if(namesMap.containsKey(sectName)) {	// name has changed
-						newLine += "\t"+namesMap.get(sectName);
+						if(!namesMap.get(sectName).equals("COMBINED"))	// skip if section name is "REMOVED"
+							newLine += "\t"+namesMap.get(sectName);
 					}
 					else {	// no name change
 						newLine += "\t"+sectName;
@@ -144,7 +145,8 @@ public class FileMakingStuff {
 				for(int i=3;i<st.length;i++) {
 					String sectName = st[i];
 					if(namesMap.containsKey(sectName)) {	// name has changed
-						newLine += "\t"+namesMap.get(sectName);
+						if(!namesMap.get(sectName).equals("REMOVED"))	// skip if section name is "REMOVED"
+							newLine += "\t"+namesMap.get(sectName);
 					}
 					else {	// no name change
 						newLine += "\t"+sectName;

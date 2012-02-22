@@ -176,7 +176,7 @@
 175	Great Valley 7	0	Great Valley 07 (Orestimba)
 176	Great Valley 8	0	Great Valley 08 (Quinto)
 177	Great Valley 9	0	Great Valley 09 (Laguna Seca)
-178	Green Valley Connected	0	Concord 2011 CFM	Greenville (So) 2011 CFM	Greenville (No) 2011 CFM
+178	Green Valley Connected	0	Concord 2011 CFM	Green Valley 2011 CFM
 179	Greenville Connected	0	Greenville (No) 2011 CFM	Greenville (So) 2011 CFM
 180	Hartley Springs	0	Hartley Springs 2011 CFM
 181	Hat Creek-McArthur-Mayfield	0	Hat Creek-McArthur-Mayfield

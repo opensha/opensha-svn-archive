@@ -36,8 +36,8 @@ Great Valley 7	Great Valley 07 (Orestimba)
 Great Valley 8	Great Valley 08 (Quinto)
 Great Valley 9	Great Valley 09 (Laguna Seca)
 Concord	Concord 2011 CFM
-Green Valley (So)	Greenville (So) 2011 CFM
-Green Valley (No)	Greenville (No) 2011 CFM
+Green Valley (So)	Green Valley 2011 CFM
+Green Valley (No)	COMBINED
 Greenville (No)	Greenville (No) 2011 CFM
 Greenville (So)	Greenville (So) 2011 CFM
 Hartley Springs	Hartley Springs 2011 CFM

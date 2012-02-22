@@ -445,7 +445,9 @@ public class FindEquivUCERF2_FM3_Ruptures {
 //					problemSource = true;
 					String errorString = rupIndex+":\t"+"Sub-Seismogenic Rupture:  rup & src ddw="+(float)ddw+
 										"\trupLen="+(float)len+"\tlength/ddw="+(float)(len/ddw)+"\tmag="+(float)mag+
-					                     "\tiRup="+r+"\tiSrc="+s+"\t("+src.getName()+")\n";
+					                     "\tiRup="+r+"\tiSrc="+s+"\t("+src.getName()+")"+
+					                     "\tfirstEndIndex="+firstEndIndex+"\tsecondEndIndex="+secondEndIndex+
+					                     "\t("+faultSectionData.get(secondEndIndex).getSectionName()+")\n";
 					if(D) System.out.print(errorString);
 					resultsString.add(errorString);
 					partMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
@@ -1264,15 +1266,15 @@ public class FindEquivUCERF2_FM3_Ruptures {
 		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
 
 		if(D) System.out.println("Getting rup set");
-//   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
+   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
 
 		if(D) System.out.println("Done getting rup set");
 		
-		FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_2);
+//		FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_2);
 		
-//		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModelBranches.FM3_1);
+		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModelBranches.FM3_1);
 		
-//		test.plotMFD_Test();
+		test.plotMFD_Test();
 
 		
 	}
