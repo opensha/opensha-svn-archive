@@ -1,36 +1,26 @@
 package scratch.UCERF3.inversion;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipException;
 
-import org.dom4j.DocumentException;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.Region;
-import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.Region;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.utils.AveSlipForRupModel;
-import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF2_PaleoSegRateData;
@@ -374,15 +364,13 @@ public class RunInversion {
 	 * @return
 	 */
 	private double[] getSmoothStartingSolution(FaultSystemRupSet faultSystemRupSet, IncrementalMagFreqDist targetMagFreqDist) {
-		
 		List<List<Integer>> rupList = faultSystemRupSet.getSectionIndicesForAllRups();
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections(); 
 		
 		int numRup = rupMeanMag.length;
-		double[] meanSlipRate = new double[numRup]; // mean slip rate per section for each rupture
+		double[] meanSlipRate = faultSystemRupSet.getAveSlipForAllRups(); // mean slip rate per section for each rupture
 		double[] initial_state = new double[numRup]; // starting model
-		
 		
 		// Get list of ruptures for each section
 		ArrayList<ArrayList<Integer>> rupsPerSect = new ArrayList<ArrayList<Integer>>();
@@ -390,17 +378,6 @@ public class RunInversion {
 		for (int rup=0; rup<numRup; rup++) {	
 			List<Integer> sects = rupList.get(rup);
 			for (int sect: sects) rupsPerSect.get(sect).add(rup);
-		}
-		
-		// Find mean slip rate per section for each rupture
-		for (int rup=0; rup<numRup; rup++) {			
-			List<Integer> sects = rupList.get(rup);
-			meanSlipRate[rup]=0;
-			for (int i=0; i<sects.size(); i++) {
-				if (!Double.isNaN(sectSlipRateReduced[sects.get(i)]))
-					meanSlipRate[rup] += sectSlipRateReduced[sects.get(i)];
-			}
-			meanSlipRate[rup] = meanSlipRate[rup]/sects.size();
 		}
 	
 		// Find magnitude distribution of ruptures (as discretized)
@@ -415,26 +392,26 @@ public class RunInversion {
 			magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
 		}
 		
-		
 		// Set up initial (non-normalized) target MFD rates for each rupture, normalized by meanSlipRate
 		for (int rup=0; rup<numRup; rup++) {
 			// Find number of ruptures that go through same sections as rupture and have the same magnitude
-			List<Integer> sects = rupList.get(rup);
-			double totalOverlap = 0; // total amount of overlap of rupture with rups of same mag (when rounded), in units of original rupture's length
-			for (int sect: sects) {
-				ArrayList<Integer> rups = rupsPerSect.get(sect);
-				for (int r: rups) {
-					if (Math.round(10*rupMeanMag[r])==Math.round(rupMeanMag[rup]))
-						totalOverlap+=1;
-					
-				}
-			}
-			totalOverlap = totalOverlap/sects.size() + 1;  // add percentages of total overlap with each rupture + 1 for original rupture itself
+//			List<Integer> sects = rupList.get(rup);
+//			double totalOverlap = 0; // total amount of overlap of rupture with rups of same mag (when rounded), in units of original rupture's length
+//			for (int sect: sects) {
+//				ArrayList<Integer> rups = rupsPerSect.get(sect);
+//				for (int r: rups) {
+//					if (Math.round(10*rupMeanMag[r])==Math.round(10*rupMeanMag[rup]))
+//						totalOverlap+=1;
+//				}
+//			}
+//			totalOverlap = totalOverlap/sects.size() + 1;  // add percentages of total overlap with each rupture + 1 for original rupture itself
+			double totalOverlap = 1d;
 
 			// Divide rate by total number of similar ruptures (same magnitude, has section overlap)  - normalize overlapping ruptures by percentage overlap
-			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);  
+			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);
+//			if (D && rup % 100 == 0)
+//				System.out.println("Done with rup: "+rup);
 		}
-		
 		
 		// Find normalization for all ruptures (so that MFD matches target MFD normalization)
 		// Can't just add up all the mag bins to normalize because some bins don't have ruptures.
@@ -465,7 +442,6 @@ public class RunInversion {
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Frequency (per bin)");
-	
 		
 		return initial_state;
 		

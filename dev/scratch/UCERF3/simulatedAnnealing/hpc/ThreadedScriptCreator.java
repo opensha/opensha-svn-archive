@@ -39,6 +39,7 @@ public class ThreadedScriptCreator {
 	private GenerationFunctionType perturb;
 	private NonnegativityConstraintType nonNeg;
 	private boolean setSubIterationsZero = false;
+	private double inequalityWeight;
 	
 	public ThreadedScriptCreator(JavaShellScriptWriter writer,
 			String numThreads, File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion) {
@@ -88,6 +89,8 @@ public class ThreadedScriptCreator {
 			args +=		 " --perturb "+perturb.name();
 		if (nonNeg != null)
 			args +=		 " --nonneg "+nonNeg.name();
+		if (inequalityWeight > 0)
+			args +=		 " --inequality-weight "+(float)inequalityWeight;
 		
 		return args;
 	}
@@ -179,6 +182,10 @@ public class ThreadedScriptCreator {
 	
 	public void setSubIterationsZero(boolean setSubIterationsZero) {
 		this.setSubIterationsZero = setSubIterationsZero;
+	}
+
+	public void setInequalityWeight(double inequalityWeight) {
+		this.inequalityWeight = inequalityWeight;
 	}
 
 }

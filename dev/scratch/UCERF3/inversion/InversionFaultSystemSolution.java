@@ -1,38 +1,21 @@
 package scratch.UCERF3.inversion;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.geo.Region;
-import org.opensha.commons.geo.RegionUtils;
-import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
-import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
-import cern.colt.list.tdouble.DoubleArrayList;
-import cern.colt.list.tint.IntArrayList;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
 
@@ -59,6 +42,9 @@ import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
 public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	protected final static boolean D = true;  // for debugging
+	// if true, getQuick and setQuick will be used on the matrices for increased speed
+	// but will disable range checks. set to false for debugging.
+	private final static boolean QUICK_GETS_SETS = true;
 	
 	FaultSystemRupSet faultSystemRupSet;
 	boolean weightSlipRates, addMinimumRuptureRateConstraint;
@@ -138,7 +124,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		int numSections = getNumSections();
 		int numRuptures = getNumRuptures();
 		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
-		double[] sectSlipRateStdDevReduced = faultSystemRupSet.getSlipRateStdDevForAllSections();  // CURRENTLY NOT USED
+//		double[] sectSlipRateStdDevReduced = faultSystemRupSet.getSlipRateStdDevForAllSections();  // CURRENTLY NOT USED
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		
 		
@@ -170,7 +156,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		if (relativeParticipationSmoothnessConstraintWt > 0.0) {
 			int totalNumMagParticipationConstraints = 0;
 			for (int sect=0; sect<numSections; sect++) { 
-				List<Integer> rupturesForSection = faultSystemRupSet.getRupturesForSection(sect);
+				List<Integer> rupturesForSection = getRupturesForSection(sect);
 				// Find minimum and maximum rupture-magnitudes for that subsection
 				double minMag = 10.0; double maxMag = 0.0;
 				for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
@@ -187,7 +173,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 							numRows++;
 							break;
 						}				
-					}		
+					}
 				}
 			}
 			if(D) System.out.println("Number of MFD participation constraints: " + totalNumMagParticipationConstraints);
@@ -195,7 +181,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		
 		// Components of matrix equation to invert (Ax=d)
+		// this one is faster but uses more memory
 		A = new SparseDoubleMatrix2D(numRows,numRuptures); // A matrix
+		// this one is slower, but might use less memory
+//		A = new SparseRCDoubleMatrix2D(numRows,numRuptures); // A matrix
 		d = new double[numRows];	// data vector d
 		rupRateSolution = new double[numRuptures]; // final solution (x of Ax=d)
 		
@@ -231,14 +220,15 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			for (int i=0; i < slips.length; i++) {
 				int row = sects.get(i);
 				int col = rup;
+				double val;
 				if (weightSlipRates == false) 
-					A.set(row, col, slips[i]); 
+					val = slips[i];
 				else {  // Normalize by slip rate
 					if (sectSlipRateReduced[row] == 0 || Double.isNaN(sectSlipRateReduced[row]))  // Treat NaN slip rates as 0 (minimize)
-						A.set(row, col, slips[i]/0.001);  
+						val = slips[i]/0.001;  
 					else {
-						A.set(row, col, slips[i]/sectSlipRateReduced[row]); 
-					/*		if (Double.isNaN(A.get(row,col))) {
+						val = slips[i]/sectSlipRateReduced[row]; 
+					/*		if (Double.isNaN(A.getQuick(row,col))) {
 								System.out.println("\nrup # = "+rup+", mean mag = "+rupMeanMag[rup]);
 								System.out.println("sects = "+sects);
 								System.out.println("slips = "+slips);
@@ -246,7 +236,13 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 							}  */			// Creeping section slips are coming back NaN because aseismicity is 100% !
 						}
 				}
-				if (Double.isNaN(A.get(row, col))) throw new IllegalStateException("A["+row+"]["+col+"] is NaN! sectSlipRateReduced["+row+"] = "+sectSlipRateReduced[row]+" and slips["+i+"] = "+slips[i]);
+				if (Double.isNaN(val))
+					throw new IllegalStateException("A["+row+"]["+col+"] is NaN! sectSlipRateReduced["+row
+							+"] = "+sectSlipRateReduced[row]+" and slips["+i+"] = "+slips[i]);
+				if (QUICK_GETS_SETS)
+					A.setQuick(row, col, val);
+				else
+					A.set(row, col, val);
 				if(D) numNonZeroElements++;
 			}
 		}
@@ -259,7 +255,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				if (Double.isNaN(sectSlipRateReduced[sect])) d[sect] = 0;  // Treat NaN slip rates as 0 (minimize)
 				else d[sect] = 1; // Normalize by slip rate
 			}
-			if (Double.isNaN(d[sect])) throw new IllegalStateException("d["+sect+"] is NaN!  sectSlipRateReduced["+sect+"] = "+sectSlipRateReduced[sect]);
+			if (Double.isNaN(d[sect]))
+				throw new IllegalStateException("d["+sect+"] is NaN!  sectSlipRateReduced["+sect+"] = "+sectSlipRateReduced[sect]);
 		}
 		long runTime = System.currentTimeMillis()-startTime;
 		if(D) System.out.println("Adding Slip-Rate Constraints took " + (runTime/1000.) + " seconds.");
@@ -275,10 +272,17 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				SegRateConstraint constraint = segRateConstraints.get(i-numSlipRateConstraints);
 				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
 				for (int rup=0; rup<numRuptures; rup++) {
-					double getVal = A.get(constraint.getSegIndex(), rup);
+					double getVal;
+					if (QUICK_GETS_SETS)
+						getVal = A.getQuick(constraint.getSegIndex(), rup);
+					else
+						getVal = A.get(constraint.getSegIndex(), rup);
 					if (getVal>0) {
 						double setVal = (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());
-						A.set(i, rup, setVal);
+						if (QUICK_GETS_SETS)
+							A.setQuick(i, rup, setVal);
+						else
+							A.set(i, rup, setVal);
 						if(D) numNonZeroElements++;			
 					}
 				}
@@ -306,7 +310,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
 					if (fractRupInside > 0) {
-						A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
+						if (QUICK_GETS_SETS)
+							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
+						else
+							A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
 						numNonZeroElements++;
 					}
 				}		
@@ -336,8 +343,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
 					if (fractRupInside > 0) {
-	//					A_MFD.set(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
-						A_MFD.set(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+	//					A_MFD.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
+						if (QUICK_GETS_SETS)
+							A_MFD.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+						else
+							A_MFD.set(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 					}
 				}		
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
@@ -358,7 +368,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			numNonZeroElements = 0;
 			ArrayList<Integer> numRupsForMagBin = new ArrayList<Integer>();
 			for (int sect=0; sect<numSections; sect++) {
-				List<Integer> rupturesForSection = faultSystemRupSet.getRupturesForSection(sect);
+				List<Integer> rupturesForSection = getRupturesForSection(sect);
 				
 				// Find minimum and maximum rupture-magnitudes for that subsection
 				double minMag = 10.0; double maxMag = 0.0;
@@ -391,12 +401,19 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 					if (numRupsForMagBin.get(magBinIndex) > 0) {
 						for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
 							// Average rate per magnitude bin for this section
-							A.set(rowIndex,rupturesForSection.get(rupIndex),relativeParticipationSmoothnessConstraintWt/numNonzeroMagBins);	
+							int col = rupturesForSection.get(rupIndex);
+							double val = relativeParticipationSmoothnessConstraintWt/numNonzeroMagBins;
+//							A.setQuick(rowIndex,rupturesForSection.get(rupIndex),relativeParticipationSmoothnessConstraintWt/numNonzeroMagBins);	
 							numNonZeroElements++;
 							if (rupMeanMag[rupturesForSection.get(rupIndex)]>=m && rupMeanMag[rupturesForSection.get(rupIndex)]<m+participationConstraintMagBinSize) {
 								// Subtract off rate for this mag bin (difference between average rate per mag bin & rate for this mag bin is set to 0)
-								A.set(rowIndex,rupturesForSection.get(rupIndex),A.get(rowIndex,rupturesForSection.get(rupIndex)) - relativeParticipationSmoothnessConstraintWt);
-							}						
+								val -= relativeParticipationSmoothnessConstraintWt;
+//								A.setQuick(rowIndex,rupturesForSection.get(rupIndex),A.getQuick(rowIndex,rupturesForSection.get(rupIndex)) - relativeParticipationSmoothnessConstraintWt);
+							}
+							if (QUICK_GETS_SETS)
+								A.setQuick(rowIndex, col, val);
+							else
+								A.set(rowIndex, col, val);
 						}
 						d[rowIndex] = 0;
 						rowIndex++;
@@ -416,7 +433,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			if(D) System.out.println("\nAdding rupture-rate constraint to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
-				A.set(rowIndex,rup,relativeRupRateConstraintWt);
+				if (QUICK_GETS_SETS)
+					A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
+				else
+					A.set(rowIndex,rup,relativeRupRateConstraintWt);
 				d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
 				numNonZeroElements++; rowIndex++;
 			}
@@ -432,7 +452,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
-				A.set(rowIndex,rup,relativeMinimizationConstraintWt*minimizationConstraint[rup]);
+				if (QUICK_GETS_SETS)
+					A.setQuick(rowIndex,rup,relativeMinimizationConstraintWt*minimizationConstraint[rup]);
+				else
+					A.set(rowIndex,rup,relativeMinimizationConstraintWt*minimizationConstraint[rup]);
 				d[rowIndex]=0;
 				numNonZeroElements++; rowIndex++;
 			}
@@ -448,12 +471,34 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/a.bin"));
 			MatrixIO.doubleArrayToFile(initialRupModel,new File("dev/scratch/UCERF3/preComputedData/initial.bin"));
 			MatrixIO.doubleArrayToFile(d_MFD,new File("dev/scratch/UCERF3/preComputedData/d_ineq.bin"));
-			MatrixIO.saveSparse(A_MFD,new File("dev/scratch/UCERF3/preComputedData/a_ineq.bin"));
+			MatrixIO.saveSparse(A_MFD,new File(tempDir, "a_ineq.bin"));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	*/
+		
+		// OPTIONAL: write everything to a zip file for Kevin!
+//		try {
+//			File dir = new File("dev/scratch/UCERF3/preComputedData/");
+//			File zipFile = new File(dir, "inputs.zip");
+//			
+//			ArrayList<String> fileNames = new ArrayList<String>();
+//			fileNames.add("d.bin");
+//			MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));
+//			fileNames.add("a.bin");
+//			MatrixIO.saveSparse(A, new File(dir, "a.bin"));
+//			fileNames.add("initial.bin");
+//			MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));
+//			fileNames.add("d_ineq.bin");
+//			MatrixIO.doubleArrayToFile(d_MFD, new File(dir, "d_ineq.bin"));
+//			fileNames.add("a_ineq.bin");
+//			MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));
+//			FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		
 		
@@ -493,13 +538,19 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			for (int i=0; i<A.rows(); i++) {
 				d_offset[i] = d[i];
 				for (int j=0; j<A.columns(); j++){
-					d_offset[i] -= A.get(i, j) * minimumRuptureRates[j];
+					if (QUICK_GETS_SETS)
+						d_offset[i] -= A.getQuick(i, j) * minimumRuptureRates[j];
+					else
+						d_offset[i] -= A.get(i, j) * minimumRuptureRates[j];
 				}
 			}
 			for (int i=0; i<d_MFD.length ; i++) {
 				d_MFD_offset[i] = d_MFD[i];
 				for (int j=0; j<A_MFD.columns(); j++){
-					d_MFD_offset[i] -= A_MFD.get(i, j) * minimumRuptureRates[j];
+					if (QUICK_GETS_SETS)
+						d_MFD_offset[i] -= A_MFD.getQuick(i, j) * minimumRuptureRates[j];
+					else
+						d_MFD_offset[i] -= A_MFD.get(i, j) * minimumRuptureRates[j];
 				}
 			}
 			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d_offset, initialRupModel, relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt, A_MFD, d_MFD_offset);
