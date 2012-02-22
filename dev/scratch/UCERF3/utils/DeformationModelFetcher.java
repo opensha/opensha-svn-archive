@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
@@ -36,7 +37,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.final
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
 import com.google.common.base.Preconditions;
@@ -1109,9 +1112,33 @@ public class DeformationModelFetcher {
 	}
 
 	public static void main(String[] args) {
-		try {
+//		try {
+			
 			File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
 			DeformationModelFetcher dm = new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
+			ArrayList<FaultSectionPrefData> dataList = dm.getSubSectionList();
+			for(FaultSectionPrefData data:dataList)
+				if(data.getAseismicSlipFactor()>=0.9)
+					System.out.println(data.getName()+"\tAseismicSlipFactor="+data.getAseismicSlipFactor());
+			System.out.println("Done with first section list");
+			
+	   		FaultSystemRupSet faultSysRupSet;
+			try {
+				faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
+		   		List<FaultSectionPrefData> faultSectionData = faultSysRupSet.getFaultSectionDataList();
+		   		for(FaultSectionPrefData data:faultSectionData)
+		   				if(data.getAseismicSlipFactor()>0.9)
+		   					System.out.println(data.getName()+"\t"+data.getAseismicSlipFactor());
+				System.out.println("Done with second section list");
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				e.printStackTrace();
+			}
+
+
+			
 //			dm.getSubSectionDistanceMap(5d);
 //			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, FM 3.1 Subsections",
 //					new SimpleDateFormat().format(new Date()));
@@ -1121,10 +1148,10 @@ public class DeformationModelFetcher {
 			//			new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
 			//			new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
 			//			new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		System.exit(0);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+//		System.exit(0);
 	}
 }
