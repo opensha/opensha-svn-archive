@@ -704,7 +704,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		data.setAseismicSlipFactor(aseismicSlipFactor);
 		Attribute couplingAtt = el.attribute("couplingCoeff");
 		if (couplingAtt != null)
-			data.setAseismicSlipFactor(Double.parseDouble(couplingAtt.getStringValue()));
+			data.setCouplingCoeff(Double.parseDouble(couplingAtt.getStringValue()));
 		data.setDipDirection(dipDirection);
 		data.setFaultTrace(trace);
 		data.setParentSectionName(parentSectionName);
