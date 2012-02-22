@@ -1142,13 +1142,21 @@ public class FindEquivUCERF2_FM3_Ruptures {
 
 		int targetSection=-1;
 		double dist;
+	
+		boolean debug = false;
+		if(parentSectionNames.size()>0 && parentSectionNames.get(0).equals("Burnt Mtn")){
+//			debug = true;
+			System.out.println("DEBUG STUFF:");
+			System.out.println("rupEndLoc: "+rupEndLoc);
+			System.out.println("\nrupTrace:\n"+rupTrace);
+		}
 
 		double closestDist=Double.MAX_VALUE, secondClosestDist=Double.MAX_VALUE;
 		int clostestSect=-1, secondClosestSect=-1;
 		for(int i=0; i<faultSectionData.size(); i++) {
 
 			FaultSectionPrefData sectionData = faultSectionData.get(i);
-
+			
 			if(!parentSectionNames.contains(sectionData.getParentSectionName()))
 				continue;
 
@@ -1167,6 +1175,17 @@ public class FindEquivUCERF2_FM3_Ruptures {
 			}
 		}	
 		
+		if(debug) {
+			System.out.println("closestDist="+(float)closestDist+"\tclostestSect="+clostestSect+
+					"\tclostestSectName="+faultSectionData.get(clostestSect).getName());
+			System.out.println("secondClosestDist="+(float)secondClosestDist+"\tsecondClosestSect="+secondClosestSect+
+					"\tsecondClosestSectName="+faultSectionData.get(secondClosestSect).getName());
+			FaultSectionPrefData closestData = faultSectionData.get(clostestSect);
+			System.out.println("Closest section trace:\n"+closestData.getStirlingGriddedSurface(1.0, false, true).getRowAsTrace(0));
+			System.out.println("Closest section trace:\n"+closestData.getStirlingGriddedSurface(1.0, false, true).toString());
+			System.out.println(closestData.toString());
+		}
+		
 		// return -1 if nothing found
 		if(clostestSect == -1)
 			return targetSection;
@@ -1183,6 +1202,13 @@ public class FindEquivUCERF2_FM3_Ruptures {
 		if(dist1 <sectHalfLength && dist2 <sectHalfLength)
 			targetSection = clostestSect;
 		
+		if(debug) {
+			System.out.println("dist of clostestSect end 1 to rup trace: dist1="+(float)dist1);
+			System.out.println("dist of clostestSect end 2 to rup trace: dist2="+(float)dist2);
+			System.out.println("clostestSect sectHalfLength="+(float)sectHalfLength+"\ttargetSection="+targetSection);
+		}
+		
+		
 		// check the second closest if the above failed
 		double maxDistSecondClosest=Double.NaN;
 		if(targetSection == -1) {	// check the second closest if the above failed
@@ -1198,12 +1224,29 @@ public class FindEquivUCERF2_FM3_Ruptures {
 				targetSection = secondClosestSect;
 		}
 		
+		if(debug) {
+			System.out.println("dist of secondClosestSect end 1 to rup trace: dist1="+(float)dist1);
+			System.out.println("dist of secondClosestSect end 2 to rup trace: dist2="+(float)dist2);
+			System.out.println("secondClosestSect sectHalfLength="+(float)sectHalfLength+"\ttargetSection="+targetSection);
+		}
+
+		
 		if(targetSection == -1) {
 			if(maxDistClosest<maxDistSecondClosest)
 				targetSection = clostestSect;
 			else
 				targetSection = secondClosestSect;
 		}
+		
+		if(debug) {
+			System.out.println("maxDistClosest="+(float)maxDistClosest);
+			System.out.println("maxDistSecondClosest="+(float)maxDistSecondClosest);
+			System.out.println("\ttargetSection="+targetSection);
+		}
+
+		
+if(debug) System.exit(0);
+
 
 		// Can't get here?
 		if(targetSection == -1) {
@@ -1267,6 +1310,13 @@ public class FindEquivUCERF2_FM3_Ruptures {
 
 		if(D) System.out.println("Getting rup set");
    		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
+   		
+//   		List<FaultSectionPrefData> faultSectionData = faultSysRupSet.getFaultSectionDataList();
+//   		for(FaultSectionPrefData data:faultSectionData)
+//   				if(data.getAseismicSlipFactor()>0.9)
+//   					System.out.println(data.getName()+"\t"+data.getAseismicSlipFactor());
+//
+//System.exit(0);
 
 		if(D) System.out.println("Done getting rup set");
 		
