@@ -409,7 +409,7 @@ public class DeformationModelFetcher {
 		return section.getSubSectionsList(maxSectLength, subSectIndex, 2);
 	}
 
-	protected static ArrayList<FaultSectionPrefData> loadUCERF3FaultModel(int faultModelID) {
+	public static ArrayList<FaultSectionPrefData> loadUCERF3FaultModel(int faultModelID) {
 		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
 		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
 		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
