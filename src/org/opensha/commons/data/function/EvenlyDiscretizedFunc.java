@@ -537,6 +537,24 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 //	}
 
 
+	@Override
+	public double getClosestY(double x) {
+		// TODO unit test
+		if (x >= maxX)
+			return getY(getNum()-1);
+		if (x <= minX)
+			return getY(0);
+		int ind = getIndexBefore(x);
+		double x1 = getX(ind);
+		double x2 = getX(ind+1);
+		double d1 = x-x1;
+		double d2 = x2 - x;
+		if (d1 < d2)
+			return getY(ind);
+		return getY(ind+1);
+	}
+
+
 	/**
 	 * This function interpolates the y-axis value corresponding to the given value of x.
 	 * the interpolation of the Y value is done in the log space for x and y values.

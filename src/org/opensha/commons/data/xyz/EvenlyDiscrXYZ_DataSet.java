@@ -13,6 +13,8 @@ import java.util.StringTokenizer;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.FileUtils;
 
+import com.google.common.base.Preconditions;
+
 /**
  * This class represents an evenly discretized XYZ dataset. Data is stored as an array, and set/get
  * operations will use the closest point in the data if it's not exact.
@@ -148,11 +150,11 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		return data;
 	}
 	
-	private double getX(int xIndex) {
+	public double getX(int xIndex) {
 		return minX + (double)xIndex * gridSpacing;
 	}
 	
-	private double getY(int yIndex) {
+	public double getY(int yIndex) {
 		return minY + (double)yIndex * gridSpacing;
 	}
 	
@@ -200,6 +202,50 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	@Override
 	public double get(double x, double y) {
 		return get(getXIndex(x), getYIndex(y));
+	}
+	
+	/**
+	 * Bilinear interpolation. Algorithm taken from:<br>
+	 * http://docs.oracle.com/cd/E17802_01/products/products/java-media/jai/forDevelopers/jai-apidocs/javax/media/jai/InterpolationBilinear.html
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 * @throws IllegalArgumentException if x or y is outside of the allowable range
+	 */
+	public double bilinearInterpolation(double x, double y) {
+		Preconditions.checkArgument(x >= minX && x <= maxX, "x value outside valid range!");
+		Preconditions.checkArgument(y >= minY && y <= maxY, "y value outside valid range!");
+			
+		int x0 = getIndexBefore(x, minX);
+		int x1 = x0 + 1;
+		// handle edges
+		if (x1 >= getNumX())
+			x1 = x0;
+		int y0 = getIndexBefore(y, minY);
+		int y1 = y0 + 1;
+		// handle edges
+		if (y1 >= getNumY())
+			y1 = y0;
+		
+		// "central"
+		double s00 = get(x0, y0);
+		// to the right
+		double s01 = get(x1, y0);
+		// below
+		double s10 = get(x0, y1);
+		// below and to the right
+		double s11 = get(x1, y1);
+		
+		double xfrac = (x - getX(x0))/gridSpacing;
+		double yfrac = (y - getY(y0))/gridSpacing;
+		
+		return (1 - yfrac) * ((1 - xfrac)*s00 + xfrac*s01) + 
+			    yfrac * ((1 - xfrac)*s10 + xfrac*s11);
+	}
+	
+	private int getIndexBefore(double val, double min) {
+		return (int)Math.floor((val-min)/gridSpacing);
 	}
 
 	@Override

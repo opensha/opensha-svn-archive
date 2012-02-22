@@ -208,5 +208,50 @@ public class TestEvenlyDiscretizedXYZ_DataSet {
 			assertEquals("value from list doesn't equal value at index", data.get(i), valList.get(i), 0d);
 		}
 	}
+	
+	@Test
+	public void testInterpolation() {
+		EvenlyDiscrXYZ_DataSet data = buildTestData();
+		
+		// test each node point
+		for (int x=0; x<ncols; x++) {
+			for (int y=0; y<nrows; y++) {
+				assertEquals("interpolation doesn't work at data points",
+						data.get(x, y), data.bilinearInterpolation(data.getX(x), data.getY(y)), 0.00001);
+			}
+		}
+		
+		// text values along each row
+		for (int xInd=1; xInd<ncols; xInd++) {
+			for (int yInd=0; yInd<nrows; yInd++) {
+				double x0 = data.getX(xInd-1);
+				double x1 = data.getX(xInd);
+				double x = x0 + 0.5*(x1 - x0);
+				double y = data.getY(yInd);
+				
+				double x0Val = data.get(xInd-1, yInd);
+				double x1Val = data.get(xInd, yInd);
+				double midXVal = 0.5*(x0Val + x1Val);
+				assertEquals("interpolation doesn't work at data mid points points along rows",
+						midXVal, data.bilinearInterpolation(x, y), 0.00001);
+			}
+		}
+		
+		// text values along each row
+		for (int xInd=0; xInd<ncols; xInd++) {
+			for (int yInd=1; yInd<nrows; yInd++) {
+				double y0 = data.getY(yInd-1);
+				double y1 = data.getY(yInd);
+				double y = y0 + 0.5*(y1 - y0);
+				double x = data.getX(xInd);
+				
+				double y0Val = data.get(xInd, yInd-1);
+				double y1Val = data.get(xInd, yInd);
+				double midYVal = 0.5*(y0Val + y1Val);
+				assertEquals("interpolation doesn't work at data mid points points along columns",
+						midYVal, data.bilinearInterpolation(x, y), 0.00001);
+			}
+		}
+	}
 
 }
