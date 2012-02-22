@@ -72,10 +72,10 @@ public class DeformationModelFetcher {
 		UCERF2_NCAL,
 		UCERF2_BAYAREA,
 		UCERF2_ALL,
-		UCERF3_ABM("ABM_slip_rake_feb06.txt"),
-		UCERF3_GEOBOUND("geobound_slip_rake_feb06.txt"),
-		UCERF3_NEOKINEMA("neokinema_slip_rake_feb06.txt"),
-		UCERF3_ZENG("zeng_slip_rake_feb06.txt"),
+		UCERF3_ABM("ABM_slip_rake_feb06.csv"),
+		UCERF3_GEOBOUND("geobound_slip_rake_feb06.csv"),
+		UCERF3_NEOKINEMA("neokinema_slip_rake_feb06.csv"),
+		UCERF3_ZENG("zeng_slip_rake_feb06.csv"),
 		UCERF3_GEOLOGIC("geologic_2012_02_09.csv");
 
 		private DefModName() {
