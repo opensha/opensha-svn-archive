@@ -539,20 +539,12 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * @return
 	 */
 	public SimpleFaultData getSimpleFaultData(boolean aseisReducesArea) {
-		if(!aseisReducesArea) {
-			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerDepth(), 
-					getOrigAveUpperDepth(), getFaultTrace(), getDipDirection());
-			return simpleFaultData;
-		}
-		else {
-			//adjust the upper & lower seis depth according the aseis factor
+		double upperDepth = getOrigAveUpperDepth();
+		if (aseisReducesArea) {
 			double depthToReduce = aseismicSlipFactor*(getAveLowerDepth() - getOrigAveUpperDepth());
-			double upperDepth = getOrigAveUpperDepth() + depthToReduce;
-			//System.out.println(depthToReduce+","+lowerDepth+","+upperDepth);
-			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerDepth(), upperDepth, getFaultTrace());
-			return simpleFaultData;
-
+			upperDepth = getOrigAveUpperDepth() + depthToReduce;
 		}
+		return new SimpleFaultData(getAveDip(), getAveLowerDepth(), upperDepth, getFaultTrace(), getDipDirection());
 	}
 
 	
