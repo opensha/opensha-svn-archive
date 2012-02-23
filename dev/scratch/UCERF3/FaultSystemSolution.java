@@ -410,7 +410,8 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the normalized distance along a rupture that a paleoseismic trench is located (Glenn's x/D).  It is between 0 and 0.5.
+	 * This returns the normalized distance along a rupture that a paleoseismic trench is located (Glenn's x/L).  It is between 0 and 0.5.
+	 * This currently puts the trench in the middle of the subsection.
 	 * We need this for the UCERF3 probability of detecting a rupture in a trench.
 	 * @return
 	 */
@@ -438,7 +439,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		if (!reachConstraintLoc) // check to make sure we came across the trench subsection in the rupture
 			throw new IllegalStateException("Paleo site subsection was not included in rupture subsections");
 		
-		// Normalized distance along the rainbow (Glenn's x/D) - between 0 and 1
+		// Normalized distance along the rainbow (Glenn's x/L) - between 0 and 1
 		distanceAlongRup = lengthToRup/totalLength;
 		// Adjust to be between 0 and 0.5 (since rainbow is symmetric about 0.5)
 		if (distanceAlongRup>0.5)

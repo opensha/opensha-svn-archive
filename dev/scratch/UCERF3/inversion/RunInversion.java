@@ -21,6 +21,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF2_PaleoSegRateData;
@@ -90,16 +91,16 @@ public class RunInversion {
 	public RunInversion(FaultSystemRupSet faultSystemRupSet, File precomputedDataDir) {
 		// Parameters for InversionFaultSystemSolution
 		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
-		boolean addMinimumRuptureRateConstraint = false;  // If true, add waterlevel (defined in minimumRuptureRates) to solution (otherwise, minimum rupture rates are 0)
+		boolean addMinimumRuptureRateConstraint = true;  // If true, add waterlevel (defined in minimumRuptureRates) to solution (otherwise, minimum rupture rates are 0)
 		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double relativeMagnitudeEqualityConstraintWt = 0;  // weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weightSlipRates=true, 10 otherwise)
 		double relativeMagnitudeInequalityConstraintWt = 1000;  // weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weighted per bin -- this is hard-coded in)
 		double relativeParticipationSmoothnessConstraintWt = 1000; // weight of participation MFD smoothness weight - applied on subsection basis (recommended:  1000)
-		double participationConstraintMagBinSize = 0.25; // magnitude-bin size for above constraint
+		double participationConstraintMagBinSize = 0.1; // magnitude-bin size for above constraint
 		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
 		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
 		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
-		int numIterations = 1;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
+		int numIterations = 1000000;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 		long startTime, runTime;
@@ -180,9 +181,9 @@ public class RunInversion {
 		double[] minimumRuptureRates = new double[faultSystemRupSet.getNumRuptures()];
 		if (addMinimumRuptureRateConstraint == true)
 			for (int i=0; i < minimumRuptureRates.length; i++)
-				minimumRuptureRates[i] = initialRupModel[i]*0.1; // 10% of a-priori rates waterlevel
+				minimumRuptureRates[i] = initialRupModel[i]*0.01; // 1% of a-priori rates waterlevel
 		
-		
+
 		if(D) System.out.println("\nStarting inversion . . .");
 		startTime = System.currentTimeMillis();
 		inversion = new InversionFaultSystemSolution(faultSystemRupSet, weightSlipRates, relativeSegRateWt, 
@@ -212,7 +213,7 @@ public class RunInversion {
 		
 		
 /*		if (D) System.out.print("Saving Solution to zip file . . . \n");
-		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_SMALL_MFDSmoothing10.zip");
+		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_SMALL_MFDSmoothing11.zip");
 		try {
 			startTime = System.currentTimeMillis();
 			new SimpleFaultSystemSolution(inversion).toZipFile(zipOut);
@@ -395,6 +396,7 @@ public class RunInversion {
 		// Set up initial (non-normalized) target MFD rates for each rupture, normalized by meanSlipRate
 		for (int rup=0; rup<numRup; rup++) {
 			// Find number of ruptures that go through same sections as rupture and have the same magnitude
+			// COMMENT THIS OUT FOR NOW - STARTING SOLUTION IS BETTER WITHOUT RUPTURE OVERLAP CORRECTION
 //			List<Integer> sects = rupList.get(rup);
 //			double totalOverlap = 0; // total amount of overlap of rupture with rups of same mag (when rounded), in units of original rupture's length
 //			for (int sect: sects) {
@@ -406,6 +408,7 @@ public class RunInversion {
 //			}
 //			totalOverlap = totalOverlap/sects.size() + 1;  // add percentages of total overlap with each rupture + 1 for original rupture itself
 			double totalOverlap = 1d;
+
 
 			// Divide rate by total number of similar ruptures (same magnitude, has section overlap)  - normalize overlapping ruptures by percentage overlap
 			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);

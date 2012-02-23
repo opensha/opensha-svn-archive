@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opensha.commons.util.FileUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -13,28 +14,17 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.PaleoProbabilityModel;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
 
 /**
  * This class represents the UCERF3 "Grand Inversion".
- * 
- * To Do:
- * 
- * a) Add the following methods from the old version (RupsInFaultSystemInversion), which Morgan
- *    used with Matlab (these needed??):
- * 
- * 		writeInfoToFiles(ArrayList<ArrayList<Integer>> rupList) - Morgan used in Matlab
- * 		loadMatLabInversionSolution()
- * 		writeInversionIngredientsToFiles(DoubleMatrix2D, double[], double[])
- *
- * b) Make the MFD constraints an inequality constraint?
- * 
- * c) Implement the multiple mfdConstraints and apply them to the associated regions
- * 
  * 
  * @author Field, Page, Milner, & Powers
  *
@@ -265,6 +255,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (relativeSegRateWt > 0.0) {
+			PaleoProbabilityModel UCERF3PaleoProbModel = null;
+			try {  UCERF3PaleoProbModel = PaleoProbabilityModel.fromFile(new File("dev/scratch/UCERF3/preComputedData/pdetection2.txt"));
+			} catch (IOException e1) {	e1.printStackTrace();  }	
+			double[] rupMeanSlip = faultSystemRupSet.getAveSlipForAllRups();
 			numNonZeroElements = 0;
 			startTime = System.currentTimeMillis();
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
@@ -278,7 +272,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 					else
 						getVal = A.get(constraint.getSegIndex(), rup);
 					if (getVal>0) {
-						double setVal = (relativeSegRateWt * getProbPaleoVisible(rupMeanMag[rup]) / constraint.getStdDevOfMean());
+						double distAlongRup = getDistanceAlongRupture(getSectionsIndicesForRup(rup), (ArrayList<FaultSectionPrefData>) faultSystemRupSet.getFaultSectionDataList(), constraint); // Glenn's x/L
+//						double probPaleoVisible = getProbPaleoVisible(rupMeanMag[rup]); // OLD UCERF2 version!
+						double probPaleoVisible = UCERF3PaleoProbModel.getForSlip(rupMeanSlip[rup], distAlongRup); // UCERF3 version!	
+						double setVal = (relativeSegRateWt * probPaleoVisible / constraint.getStdDevOfMean());
 						if (QUICK_GETS_SETS)
 							A.setQuick(i, rup, setVal);
 						else
@@ -478,31 +475,37 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			e.printStackTrace();
 		}	*/
 		
-		// OPTIONAL: write everything to a zip file for Kevin!
+//		// OPTIONAL: write everything to a zip file for Kevin!
 //		try {
+//			if(D) System.out.println("Saving to files...");
 //			File dir = new File("dev/scratch/UCERF3/preComputedData/");
 //			File zipFile = new File(dir, "inputs.zip");
-//			
 //			ArrayList<String> fileNames = new ArrayList<String>();
-//			fileNames.add("d.bin");
-//			MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));
-//			fileNames.add("a.bin");
-//			MatrixIO.saveSparse(A, new File(dir, "a.bin"));
-//			fileNames.add("initial.bin");
-//			MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));
-//			fileNames.add("d_ineq.bin");
-//			MatrixIO.doubleArrayToFile(d_MFD, new File(dir, "d_ineq.bin"));
-//			fileNames.add("a_ineq.bin");
-//			MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));
+//			fileNames.add("d.bin");			
+//			MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));						if(D) System.out.println("d.bin saved");
+//			fileNames.add("a.bin");			
+//			MatrixIO.saveSparse(A, new File(dir, "a.bin"));								if(D) System.out.println("a.bin saved");
+//			fileNames.add("initial.bin");	
+//			MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));  if(D) System.out.println("initial.bin saved");
+//			fileNames.add("d_ineq.bin");	
+//			MatrixIO.doubleArrayToFile(d_MFD, new File(dir, "d_ineq.bin"));				if(D) System.out.println("d_ineq.bin saved");
+//			fileNames.add("a_ineq.bin");	
+//			MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));						if(D) System.out.println("a_ineq.bin saved");
 //			FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
+//			if(D) System.out.println("Zip file saved");
 //		} catch (IOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 
+		// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
+		SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
+		A = Anew;
+		SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
+		A_MFD = A_MFD_new;
 		
 		
-		// Transform A matrix to different type that's fast for multiplication
+/*		// Transform A matrix to different type that's fast for multiplication
 		if (numIterations > 0 && A instanceof SparseDoubleMatrix2D) {
 			// if we're annealing, and A is in the SparseDoubleMatrix2D format then
 			// we should convert it for faster matrix multiplications
@@ -523,7 +526,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			startTime = System.currentTimeMillis();
 			A_MFD = A_MFDnew;
 			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.\n");
-		}
+		}		*/
 		
 		
 		// SOLVE THE INVERSE PROBLEM

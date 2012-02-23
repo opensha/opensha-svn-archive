@@ -97,7 +97,7 @@ public class PaleoProbabilityModel {
 				xyz.set(xVals[xInd], yVals.get(yInd), vals.get(yInd)[xInd]);
 		
 		for (int i=0; i<xyz.size(); i++)
-			Preconditions.checkState(xyz.get(i) > 0, "something didn't get set right!");
+			Preconditions.checkState(xyz.get(i) >= 0, "something didn't get set right!");
 		Preconditions.checkState((float)xyz.getMaxX() == (float)StatUtils.max(xVals),
 				"maxX is incorrect! "+(float)xyz.getMaxX()+" != "+(float)StatUtils.max(xVals));
 		Preconditions.checkState((float)xyz.getMaxY() == Collections.max(yVals).floatValue(),
@@ -107,7 +107,7 @@ public class PaleoProbabilityModel {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		PaleoProbabilityModel model = fromFile(new File("D:\\Documents\\temp\\pdetection2.txt"));
+		PaleoProbabilityModel model = fromFile(new File("pdetection2.txt"));
 		for (int yInd=0; yInd<model.xyz.getNumY(); yInd++) {
 			String line = null;
 			for (int xInd=0; xInd<model.xyz.getNumX(); xInd++) {
