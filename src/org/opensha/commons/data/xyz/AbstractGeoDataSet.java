@@ -22,6 +22,10 @@ public abstract class AbstractGeoDataSet extends AbstractXYZ_DataSet implements 
 	
 	private boolean latitudeX;
 	
+	/**
+	 * 
+	 * @param latitudeX - specifies whether X is Latitude or X is Longitude (supports either one)
+	 */
 	protected AbstractGeoDataSet(boolean latitudeX) {
 		this.latitudeX = latitudeX;
 	}
