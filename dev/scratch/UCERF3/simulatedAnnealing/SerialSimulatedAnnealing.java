@@ -487,7 +487,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 					// this one is being kept randomly even though it's not the best. make sure to
 					// save the best as we may now purtub what was previously set to misfit_best
 					misfit_best = Arrays.copyOf(misfit_best, misfit_best.length);
-					misfit_ineq_best = Arrays.copyOf(misfit_ineq_best, misfit_ineq_best.length);
+					if (hasInequalityConstraint)
+						misfit_ineq_best = Arrays.copyOf(misfit_ineq_best, misfit_ineq_best.length);
 				}
 			} else {
 				// undo the perturbation
