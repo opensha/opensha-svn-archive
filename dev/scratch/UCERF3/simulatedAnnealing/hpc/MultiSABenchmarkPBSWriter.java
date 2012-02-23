@@ -82,7 +82,6 @@ public class MultiSABenchmarkPBSWriter {
 		
 		int dsaAnnealMins, tsaAnnealMins, tsaSingleMins;
 		CompletionCriteria subCompletion;
-		double inequalityWt;
 		
 		if (runName.contains("agu")) {
 			if (runName.contains("ncal")) {
@@ -95,7 +94,6 @@ public class MultiSABenchmarkPBSWriter {
 				throw new IllegalStateException("how'd we get here???");
 			tsaAnnealMins = dsaAnnealMins;
 			tsaSingleMins = 60*72;
-			inequalityWt = 0;
 		} else {
 			subCompletion = TimeCompletionCriteria.getInSeconds(1);
 			subCompletion = null;
@@ -103,8 +101,6 @@ public class MultiSABenchmarkPBSWriter {
 			dsaAnnealMins = 60*2;
 			tsaAnnealMins = dsaAnnealMins;
 			tsaSingleMins = 60*8;
-			
-			inequalityWt = 1000;
 		}
 
 		int dsaWallMins = dsaAnnealMins + 60;
@@ -138,10 +134,8 @@ public class MultiSABenchmarkPBSWriter {
 
 		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, null, null, dsaCriteria, subCompletion, mpjHome, false);
 		dsa_create.setZipFile(zipFile);
-		dsa_create.setInequalityWeight(inequalityWt);
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, null, null, tsaCriteria, subCompletion);
 		tsa_create.setZipFile(zipFile);
-		tsa_create.setInequalityWeight(inequalityWt);
 		
 		/* OFFICIAL AGU 2011 BENCHMARKS */
 //		int[] dsa_threads = { 4 };
@@ -159,12 +153,15 @@ public class MultiSABenchmarkPBSWriter {
 //		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
 //		int numRuns = 5;
 		
-		int[] dsa_threads = { 4,6,8 };
-		int[] tsa_threads = { 1,2,4,8 };
-		int[] nodes = { 5 };
+		int[] dsa_threads = { 8 };
+//		int[] tsa_threads = { 1,2,4,8 };
+		int[] tsa_threads = new int[0];
+		int[] nodes = { 20, 50 };
 		CompletionCriteria[] dSubComps = {
-				TimeCompletionCriteria.getInSeconds(1), new TimeCompletionCriteria(2500),
-				TimeCompletionCriteria.getInSeconds(5), TimeCompletionCriteria.getInSeconds(10) };
+				TimeCompletionCriteria.getInSeconds(1) };
+//		CompletionCriteria[] dSubComps = {
+//				TimeCompletionCriteria.getInSeconds(1), new TimeCompletionCriteria(2500),
+//				TimeCompletionCriteria.getInSeconds(5), TimeCompletionCriteria.getInSeconds(10) };
 		
 		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
 		int numRuns = 3;

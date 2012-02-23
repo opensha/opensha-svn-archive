@@ -54,12 +54,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
-		this(A, d, initialState, 0d, 0d, null, null, numThreads, subCompetionCriteria);
+		this(A, d, initialState, 0d, null, null, numThreads, subCompetionCriteria);
 	}
 	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt, 
-			double relativeMagnitudeInequalityConstraintWt, DoubleMatrix2D A_ineq,  double[] d_ineq,
+			DoubleMatrix2D A_ineq,  double[] d_ineq,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
 		// SA inputs are checked in SA constructor, no need to dupliate checks
 		
@@ -71,8 +71,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		sas = new ArrayList<SerialSimulatedAnnealing>();
 		for (int i=0; i<numThreads; i++)
-			sas.add(new SerialSimulatedAnnealing(A, d, initialState, relativeSmoothnessWt,
-					relativeMagnitudeInequalityConstraintWt, A_ineq, d_ineq));
+			sas.add(new SerialSimulatedAnnealing(A, d, initialState, relativeSmoothnessWt, A_ineq, d_ineq));
 	}
 	
 	public CompletionCriteria getSubCompetionCriteria() {
@@ -357,10 +356,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		smoothnessWeightOption.setRequired(false);
 		ops.addOption(smoothnessWeightOption);
 		
-		Option inequalityWeightOption = new Option("inequality", "inequality-weight", true, "weight for the inequality constraint");
-		inequalityWeightOption.setRequired(false);
-		ops.addOption(inequalityWeightOption);
-		
 		// other
 		Option initial = new Option("i", "initial-state-file", true, "initial state file" +
 				" (optional...default is all zeros)");
@@ -493,11 +488,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			relativeSmoothnessWt = Double.parseDouble(cmd.getOptionValue("smoothness"));
 		else
 			relativeSmoothnessWt = 0;
-		double relativeMagnitudeInequalityConstraintWt;
-		if (cmd.hasOption("inequality"))
-			relativeMagnitudeInequalityConstraintWt = Double.parseDouble(cmd.getOptionValue("inequality"));
-		else
-			relativeMagnitudeInequalityConstraintWt = 0;
 		
 		if (cmd.hasOption("zip")) {
 			File zipFile = new File(cmd.getOptionValue("zip"));
@@ -509,12 +499,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			ZipEntry d_entry = zip.getEntry("d.bin");
 			d = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_entry)), A.rows()*8);
 			
-			if (relativeMagnitudeInequalityConstraintWt > 0) {
-				ZipEntry a_ineq_entry = zip.getEntry("a_ineq.bin");
+			ZipEntry a_ineq_entry = zip.getEntry("a_ineq.bin");
+			if (a_ineq_entry != null)
 				A_ineq = MatrixIO.loadSparse(new BufferedInputStream(zip.getInputStream(a_ineq_entry)), SparseCCDoubleMatrix2D.class);
-				ZipEntry d_ineq_entry = zip.getEntry("d_ineq.bin");
+			ZipEntry d_ineq_entry = zip.getEntry("d_ineq.bin");
+			if (d_ineq_entry != null && A_ineq != null)
 				d_ineq = MatrixIO.doubleArrayFromInputStream(new BufferedInputStream(zip.getInputStream(d_ineq_entry)), A_ineq.rows()*8);
-			}
 			
 			ZipEntry initial_entry = zip.getEntry("initial.bin");
 			if (initial_entry != null) {
@@ -530,11 +520,13 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			if (D) System.out.println("Loading d matrix from: "+dFile.getAbsolutePath());
 			d = MatrixIO.doubleArrayFromFile(dFile);
 			
-			if (relativeMagnitudeInequalityConstraintWt > 0) {
+			if (cmd.hasOption("aineq")) {
 				File a_ineqFile = new File(cmd.getOptionValue("aineq"));
 				if (D) System.out.println("Loading A_ineq matrix from: "+a_ineqFile.getAbsolutePath());
 				A_ineq = MatrixIO.loadSparse(a_ineqFile, SparseCCDoubleMatrix2D.class);
-				
+			}
+			
+			if (cmd.hasOption("dineq")) {
 				File d_ineqFile = new File(cmd.getOptionValue("dineq"));
 				if (D) System.out.println("Loading d_ineq matrix from: "+d_ineqFile.getAbsolutePath());
 				d_ineq = MatrixIO.doubleArrayFromFile(d_ineqFile);
@@ -557,8 +549,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		ThreadedSimulatedAnnealing tsa =
 			new ThreadedSimulatedAnnealing(A, d, initialState,
-					relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt,
-					A_ineq, d_ineq, numThreads, subCompletionCriteria);
+					relativeSmoothnessWt, A_ineq, d_ineq, numThreads, subCompletionCriteria);
 		
 		for (SerialSimulatedAnnealing sa : tsa.sas)
 			sa.setCalculationParamsFromOptions(cmd);

@@ -17,10 +17,10 @@ import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 public class PBSScriptWriter {
 
 	public static void main(String[] args) {
-		if (args.length < 8 || args.length > 10) {
+		if (args.length < 8 || args.length > 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(PBSScriptWriter.class)
 					+" <nodes> <minutes> <sub-completion> <PPN> <threads> <dir>"
-					+" [<A mat file> <d file> [<intial>] OR --zip <zip file> <inequality weight> [jobName]]");
+					+" [<A mat file> <d file> [<intial>] OR --zip <zip file> [jobName]]");
 			System.exit(2);
 		}
 		try {
@@ -33,7 +33,6 @@ public class PBSScriptWriter {
 			File dir = new File(args[cnt++]).getCanonicalFile();
 			String name = dir.getName();
 			
-			double inequalityWeight = 0;
 			
 			File aFile = null;
 			File dFile = null;
@@ -42,7 +41,6 @@ public class PBSScriptWriter {
 			if (args[cnt].equals("--zip")) {
 				cnt++;
 				zipFile = new File(args[cnt++]).getCanonicalFile();
-				inequalityWeight = Double.parseDouble(args[cnt++]);
 				if (cnt < args.length)
 					name = args[cnt++];
 			} else {
@@ -75,7 +73,6 @@ public class PBSScriptWriter {
 			dsa_create.setdMat(dFile);
 			dsa_create.setInitial(initial);
 			dsa_create.setZipFile(zipFile);
-			dsa_create.setInequalityWeight(inequalityWeight);
 
 			dsa_create.setProgFile(new File(dir, name+".csv"));
 			dsa_create.setSolFile(new File(dir, name+".bin"));

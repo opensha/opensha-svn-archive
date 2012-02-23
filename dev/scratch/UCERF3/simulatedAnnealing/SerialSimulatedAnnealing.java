@@ -53,7 +53,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	
 	private DoubleMatrix2D A, A_MFD;
 	private double[] d, d_MFD;
-	private double relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt;
+	private double relativeSmoothnessWt;
 	private boolean hasInequalityConstraint;
 	
 	private int nCol;
@@ -68,23 +68,17 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private Random r = new Random();
 
 	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState) {
-		this(A, d, initialState, 0, 0, null, null);
+		this(A, d, initialState, 0, null, null);
 	}
 	
 	public SerialSimulatedAnnealing(DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt, 
-			double relativeMagnitudeInequalityConstraintWt, DoubleMatrix2D A_MFD,  double[] d_MFD) {
+			DoubleMatrix2D A_MFD,  double[] d_MFD) {
 		this.relativeSmoothnessWt=relativeSmoothnessWt;
-		this.relativeMagnitudeInequalityConstraintWt=relativeMagnitudeInequalityConstraintWt;
-		this.hasInequalityConstraint = relativeMagnitudeInequalityConstraintWt > 0;
-		if (hasInequalityConstraint) {
-			Preconditions.checkArgument(A_MFD != null, "we have an inequality constraint weight but no A_MFD matrix!");
-			Preconditions.checkArgument(d_MFD != null, "we have an inequality constraint weight but no d_MFD matrix!");
-		} else {
-			if (A_MFD != null)
-				System.out.println("WARNING: A_MFD supplied but given no weight!");
-			if (d_MFD != null)
-				System.out.println("WARNING: d_MFD supplied but given no weight!");
-		}
+		this.hasInequalityConstraint = A_MFD != null;
+		if (hasInequalityConstraint)
+			Preconditions.checkArgument(d_MFD != null, "we have an A_MFD matrix but no d_MFD vector!");
+		else
+			Preconditions.checkArgument(d_MFD == null, "we have a d_MFD vector but no A_MFD matrix!");
 		this.A_MFD=A_MFD;
 		this.d_MFD=d_MFD;
 		
@@ -368,7 +362,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 
 			// How much to perturb index (some perturbation functions are a function of T)	
-			perturb[index] = getPerturbation(perturbationFunc, T);  
+			perturb[index] = getPerturbation(perturbationFunc, T);
 
 			// Apply then nonnegativity constraint -- make sure perturbation doesn't make the rate negative
 			switch (nonnegativityConstraintAlgorithm) {

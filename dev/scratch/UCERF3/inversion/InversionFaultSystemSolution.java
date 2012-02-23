@@ -186,10 +186,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				targetMagFreqDist=mfdInequalityConstraints.get(i).getMagFreqDist();
 				numMFDRows+=targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
 			}
+			A_MFD = new SparseDoubleMatrix2D(numMFDRows,numRuptures); // (A_MFD * x <= d_MFD)
+			d_MFD = new double[numMFDRows];							
+			if(D) System.out.println("Number of magnitude-distribution inequality constraints (not in A matrix): " + mfdInequalityConstraints.size());
 		}
-		A_MFD = new SparseDoubleMatrix2D(numMFDRows,numRuptures); // (A_MFD * x <= d_MFD)
-		d_MFD = new double[numMFDRows];							
-		if(D) System.out.println("Number of magnitude-distribution inequality constraints (not in A matrix): " + mfdInequalityConstraints.size());
 		
 		
 		if(D) System.out.println("Total number of constraints (rows): " + numRows);
@@ -466,8 +466,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
 		SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
 		A = Anew;
-		SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
-		A_MFD = A_MFD_new;
+		if (A_MFD != null) {
+			SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
+			A_MFD = A_MFD_new;
+		}
 		
 		
 		// SOLVE THE INVERSE PROBLEM
@@ -476,34 +478,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			
 			// OPTIONAL: write everything to a zip file for Kevin!
 			try {
-				if(D) System.out.println("Saving to files...");
-				File dir = new File("dev/scratch/UCERF3/preComputedData/");
-				File zipFile = new File(dir, "inputs.zip");
-				ArrayList<String> fileNames = new ArrayList<String>();
-				fileNames.add("d.bin");			
-				MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));						if(D) System.out.println("d.bin saved");
-				fileNames.add("a.bin");			
-				MatrixIO.saveSparse(A, new File(dir, "a.bin"));								if(D) System.out.println("a.bin saved");
-				fileNames.add("initial.bin");	
-				MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));  if(D) System.out.println("initial.bin saved");
-				fileNames.add("d_ineq.bin");	
-				MatrixIO.doubleArrayToFile(d_MFD, new File(dir, "d_ineq.bin"));				if(D) System.out.println("d_ineq.bin saved");
-				fileNames.add("a_ineq.bin");	
-				MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));						if(D) System.out.println("a_ineq.bin saved");
-				FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
-				if(D) System.out.println("Zip file saved");
+				writeZipFile(A, d, initialRupModel, A_MFD, d_MFD);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 			
-			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt, A_MFD, d_MFD);
+			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt, A_MFD, d_MFD);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
 		} else {
 			double[] d_offset = new double[d.length];  // This is the offset data vector: d_offset = d-A*minimumRuptureRates
-			double[] d_MFD_offset = new double[d_MFD.length];  // This is the offset data vector for MFD inequality constraint: d_MFD_offset = d_MFD-A*minimumRuptureRates
 			for (int i=0; i<A.rows(); i++) {
 				d_offset[i] = d[i];
 				for (int j=0; j<A.columns(); j++){
@@ -513,43 +499,31 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 						d_offset[i] -= A.get(i, j) * minimumRuptureRates[j];
 				}
 			}
-			for (int i=0; i<d_MFD.length ; i++) {
-				d_MFD_offset[i] = d_MFD[i];
-				for (int j=0; j<A_MFD.columns(); j++){
-					if (QUICK_GETS_SETS)
-						d_MFD_offset[i] -= A_MFD.getQuick(i, j) * minimumRuptureRates[j];
-					else
-						d_MFD_offset[i] -= A_MFD.get(i, j) * minimumRuptureRates[j];
+			double[] d_MFD_offset = null;
+			if (d_MFD != null) {
+				// This is the offset data vector for MFD inequality constraint: d_MFD_offset = d_MFD-A*minimumRuptureRates
+				d_MFD_offset = new double[d_MFD.length];
+				for (int i=0; i<d_MFD.length ; i++) {
+					d_MFD_offset[i] = d_MFD[i];
+					for (int j=0; j<A_MFD.columns(); j++){
+						if (QUICK_GETS_SETS)
+							d_MFD_offset[i] -= A_MFD.getQuick(i, j) * minimumRuptureRates[j];
+						else
+							d_MFD_offset[i] -= A_MFD.get(i, j) * minimumRuptureRates[j];
+					}
 				}
 			}
 			
 			// OPTIONAL: write everything to a zip file for Kevin!
 			try {
-				if(D) System.out.println("Saving to files...");
-				File dir = new File("dev/scratch/UCERF3/preComputedData/");
-				File zipFile = new File(dir, "inputs.zip");
-				ArrayList<String> fileNames = new ArrayList<String>();
-				fileNames.add("d.bin");			
-				MatrixIO.doubleArrayToFile(d_offset, new File(dir, "d.bin"));						if(D) System.out.println("d.bin saved");
-				fileNames.add("a.bin");			
-				MatrixIO.saveSparse(A, new File(dir, "a.bin"));										if(D) System.out.println("a.bin saved");
-				fileNames.add("initial.bin");	
-				MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));  		if(D) System.out.println("initial.bin saved");
-				fileNames.add("d_ineq.bin");	
-				MatrixIO.doubleArrayToFile(d_MFD_offset, new File(dir, "d_ineq.bin"));				if(D) System.out.println("d_ineq.bin saved");
-				fileNames.add("a_ineq.bin");	
-				MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));								if(D) System.out.println("a_ineq.bin saved");
-				fileNames.add("minimumRuptureRates.bin");	
-				MatrixIO.doubleArrayToFile(minimumRuptureRates,new File(dir, "minimumRuptureRates.bin"));	if(D) System.out.println("minimumRuptureRates.bin saved");
-				FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
-				if(D) System.out.println("Zip file saved");
+				writeZipFile(A, d_offset, initialRupModel, A_MFD, d_MFD_offset, minimumRuptureRates);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 			
-			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d_offset, initialRupModel, relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt, A_MFD, d_MFD_offset);
+			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d_offset, initialRupModel, relativeSmoothnessWt, A_MFD, d_MFD_offset);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
 			for (int i=0; i<rupRateSolution.length; i++) 
@@ -566,6 +540,56 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //		
 //		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initialRupModel, numIterations);    		
 		
+	}
+	
+	private static void writeZipFile(
+			DoubleMatrix2D A, double[] d, double[] initial,
+			DoubleMatrix2D A_ineq, double[] d_ineq)
+					throws IOException {
+		writeZipFile(A, d, initial, A_ineq, d_ineq, null);
+	}
+	
+	private static void writeZipFile(
+			DoubleMatrix2D A, double[] d, double[] initial,
+			DoubleMatrix2D A_ineq, double[] d_ineq, double[] minimumRuptureRates)
+					throws IOException {
+		if(D) System.out.println("Saving to files...");
+		File dir = new File("dev/scratch/UCERF3/preComputedData/");
+		File zipFile = new File(dir, "inputs.zip");
+		ArrayList<String> fileNames = new ArrayList<String>();
+		
+		fileNames.add("d.bin");			
+		MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));
+		if(D) System.out.println("d.bin saved");
+		
+		fileNames.add("a.bin");			
+		MatrixIO.saveSparse(A, new File(dir, "a.bin"));
+		if(D) System.out.println("a.bin saved");
+		
+		fileNames.add("initial.bin");	
+		MatrixIO.doubleArrayToFile(initial, new File(dir, "initial.bin"));
+		if(D) System.out.println("initial.bin saved");
+		
+		if (d_ineq != null) {
+			fileNames.add("d_ineq.bin");	
+			MatrixIO.doubleArrayToFile(d_ineq, new File(dir, "d_ineq.bin"));
+			if(D) System.out.println("d_ineq.bin saved");
+		}
+		
+		if (A_ineq != null) {
+			fileNames.add("a_ineq.bin");	
+			MatrixIO.saveSparse(A_ineq,new File(dir, "a_ineq.bin"));
+			if(D) System.out.println("a_ineq.bin saved");
+		}
+		
+		if (minimumRuptureRates != null) {
+			fileNames.add("minimumRuptureRates.bin");	
+			MatrixIO.doubleArrayToFile(minimumRuptureRates,new File(dir, "minimumRuptureRates.bin"));
+			if(D) System.out.println("minimumRuptureRates.bin saved");
+		}
+		
+		FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
+		if(D) System.out.println("Zip file saved");
 	}
 	
 //	public void plotStuff(ArrayList<ArrayList<Integer>> rupList, DoubleMatrix2D A, double[] d, double[] rupRateSolution, double relativeMagDistWt, FindEquivUCERF2_Ruptures findUCERF2_Rups) {
