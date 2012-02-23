@@ -52,11 +52,12 @@ public class MultiSABenchmarkPBSWriter {
 //		String runName = "2011_10_31-allcal-bench-sub-secs-test";
 		
 		
-		String runName = "agu/";
-		
-		runName += "ncal_constrained";
-		
-		runName += "/"+df.format(new Date());
+//		String runName = "agu/";
+//		
+//		runName += "ncal_constrained";
+//		
+//		runName += "/"+df.format(new Date());
+		String runName = df.format(new Date())+"-model2-bench";
 		
 		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/"+runName);
 		if (!writeDir.exists())
@@ -81,6 +82,7 @@ public class MultiSABenchmarkPBSWriter {
 		
 		int dsaAnnealMins, tsaAnnealMins, tsaSingleMins;
 		CompletionCriteria subCompletion;
+		double inequalityWt;
 		
 		if (runName.contains("agu")) {
 			if (runName.contains("ncal")) {
@@ -93,12 +95,16 @@ public class MultiSABenchmarkPBSWriter {
 				throw new IllegalStateException("how'd we get here???");
 			tsaAnnealMins = dsaAnnealMins;
 			tsaSingleMins = 60*72;
+			inequalityWt = 0;
 		} else {
 			subCompletion = TimeCompletionCriteria.getInSeconds(1);
+			subCompletion = null;
 			
 			dsaAnnealMins = 60*2;
 			tsaAnnealMins = dsaAnnealMins;
 			tsaSingleMins = 60*8;
+			
+			inequalityWt = 1000;
 		}
 
 		int dsaWallMins = dsaAnnealMins + 60;
@@ -107,15 +113,12 @@ public class MultiSABenchmarkPBSWriter {
 
 		ArrayList<File> jars = getClasspath();
 
-		int heapSizeMB = 2048;
+		int heapSizeMB = 8000;
 		
 		boolean useMxdev = false;
 
-		File aMat, dMat, initialMat;
+		File zipFile = new File(runSubDir, "inputs.zip");
 
-		aMat = new File(runSubDir, "A.bin");
-		dMat = new File(runSubDir, "d.bin");
-		initialMat = null;
 //		initialMat = new File(runSubDir, "initial.mat");
 		
 //		initialMat = new File(runDir, "initial.mat");
@@ -134,13 +137,11 @@ public class MultiSABenchmarkPBSWriter {
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, heapSizeMB, jars);
 
 		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, null, null, dsaCriteria, subCompletion, mpjHome, false);
-		dsa_create.setaMat(aMat);
-		dsa_create.setdMat(dMat);
-		dsa_create.setInitial(initialMat);
+		dsa_create.setZipFile(zipFile);
+		dsa_create.setInequalityWeight(inequalityWt);
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, null, null, tsaCriteria, subCompletion);
-		tsa_create.setaMat(aMat);
-		tsa_create.setdMat(dMat);
-		tsa_create.setInitial(initialMat);
+		tsa_create.setZipFile(zipFile);
+		tsa_create.setInequalityWeight(inequalityWt);
 		
 		/* OFFICIAL AGU 2011 BENCHMARKS */
 //		int[] dsa_threads = { 4 };
@@ -151,12 +152,22 @@ public class MultiSABenchmarkPBSWriter {
 //		int numRuns = 5;
 		
 		/* OFFICIAL HUGE SUPLEMENT */
-		int[] dsa_threads = { 4 };
-		int[] tsa_threads = new int[0];
-		int[] nodes = { 50, 100, 200 };
-		CompletionCriteria[] dSubComps = { subCompletion };
+//		int[] dsa_threads = { 4 };
+//		int[] tsa_threads = new int[0];
+//		int[] nodes = { 50, 100, 200 };
+//		CompletionCriteria[] dSubComps = { subCompletion };
+//		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
+//		int numRuns = 5;
+		
+		int[] dsa_threads = { 4,6,8 };
+		int[] tsa_threads = { 1,2,4,8 };
+		int[] nodes = { 5 };
+		CompletionCriteria[] dSubComps = {
+				TimeCompletionCriteria.getInSeconds(1), new TimeCompletionCriteria(2500),
+				TimeCompletionCriteria.getInSeconds(5), TimeCompletionCriteria.getInSeconds(10) };
+		
 		CoolingScheduleType[] cools = { CoolingScheduleType.FAST_SA };
-		int numRuns = 5;
+		int numRuns = 3;
 
 //		int[] dsa_threads = { 4 };
 //		int[] dsa_threads = { 8 };
@@ -256,6 +267,17 @@ public class MultiSABenchmarkPBSWriter {
 		}
 
 		System.out.println("Node hours: "+(float)nodeHours + " (/60: "+((float)nodeHours/60f)+")");
+		
+		// now write a test job
+		String name = "test_job";
+
+		dsa_create.setProgFile(new File(runSubDir, name+".csv"));
+		dsa_create.setSolFile(new File(runSubDir, name+".mat"));
+		dsa_create.setCriteria(TimeCompletionCriteria.getInMinutes(3));
+		
+		File pbs = new File(writeDir, name+".pbs");
+		System.out.println("Writing: "+pbs.getName());
+		batch.writeScript(pbs, dsa_create.buildScript(), 10, 3, ppn, queue);
 	}
 
 }

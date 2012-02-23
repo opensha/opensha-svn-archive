@@ -276,7 +276,7 @@ public class DistributedSimulatedAnnealing {
 		// find out if we should send result
 		ddebug("checking if i should send my result");
 		if (D) commWatch.resume();
-		MPI.COMM_WORLD.Scatter(null, 0, 1, MPI.INT, single_int_buf, 0, 1, MPI.INT, 0);
+		MPI.COMM_WORLD.Bcast(single_int_buf, 0, 1, MPI.INT, 0);
 		if (D) commWatch.suspend();
 //		MPI.COMM_WORLD.Recv(single_boolean_buf, 0, 1, MPI.BOOLEAN, 0,
 //				TAG_SHOULD_SEND_RESULT);
