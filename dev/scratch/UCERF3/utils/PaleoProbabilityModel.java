@@ -94,7 +94,7 @@ public class PaleoProbabilityModel {
 		
 		for (int yInd=0; yInd<yVals.size(); yInd++)
 			for (int xInd=0; xInd<xVals.length; xInd++)
-				xyz.set(xInd, yInd, vals.get(yInd)[xInd]);
+				xyz.set(xVals[xInd], yVals.get(yInd), vals.get(yInd)[xInd]);
 		
 		for (int i=0; i<xyz.size(); i++)
 			Preconditions.checkState(xyz.get(i) > 0, "something didn't get set right!");

@@ -188,7 +188,7 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	@Override
 	public void set(double x, double y, double z) {
 		if (!contains(x, y))
-			throw new InvalidRangeException("point must be within range");
+			throw new InvalidRangeException("point ("+x+", "+y+") is out of range: ("+minX+"=>"+maxX+", "+minY+"=>"+maxY+")");
 		this.set(getXIndex(x), getYIndex(y), z);
 	}
 
@@ -286,7 +286,7 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	}
 	
 	public boolean contains(double x, double y) {
-		return x >= minX && x <= maxX && y >= minY && y <= maxY;
+		return (float)x >= (float)minX && (float)x <= (float)maxX && (float)y >= (float)minY && (float)y <= (float)maxY;
 	}
 
 	@Override
