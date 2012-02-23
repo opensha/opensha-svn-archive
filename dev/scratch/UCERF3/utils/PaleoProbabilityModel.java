@@ -33,16 +33,22 @@ public class PaleoProbabilityModel {
 	}
 	
 	public double getForSlip(double slip, double distAlongRup) {
-		Preconditions.checkArgument(slip >= dispMagFunc.getMinX() && slip <= dispMagFunc.getMaxX(),
-				"slip must be between "+dispMagFunc.getMinX()+" and "+dispMagFunc.getMaxX());
+		Preconditions.checkArgument(!Double.isNaN(slip), "slip cannot be NaN!");
+		if (slip < dispMagFunc.getMinX())
+			return 0;
+		if (slip > dispMagFunc.getMaxX())
+			return 1;
 		return getForMag(dispMagFunc.getInterpolatedY(slip), distAlongRup);
 	}
 	
 	public double getForMag(double mag, double distAlongRup) {
 		Preconditions.checkArgument(distAlongRup >= xyz.getMinX() && distAlongRup <= xyz.getMaxX(),
 				"distance along rup must be between "+xyz.getMinX()+" and "+xyz.getMaxX());
-		Preconditions.checkArgument(mag >= xyz.getMinY() && mag <= xyz.getMaxY(),
-				"magnitude must be between "+xyz.getMinY()+" and "+xyz.getMaxY());
+		Preconditions.checkArgument(!Double.isNaN(mag), "magnitude cannot be NaN!");
+		if (mag < xyz.getMinY())
+			return 0;
+		if (mag > xyz.getMaxY())
+			return 1;
 		return xyz.bilinearInterpolation(distAlongRup, mag);
 	}
 	
