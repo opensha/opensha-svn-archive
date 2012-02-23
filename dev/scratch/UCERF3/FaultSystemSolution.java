@@ -5,6 +5,7 @@ package scratch.UCERF3;
 
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.faultSurface.CompoundGriddedSurface;
@@ -406,34 +408,6 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		 * return -0.0608*mag*mag + 1.1366*mag + -4.1314; else return 1.0;
 		 */
 	}
-	
-	
-	/**
-	 * This returns the (NEW for UCERF3) probability that the given magnitude event will be
-	 * observed at the ground surface. This takes into account where along the rupture you are (near the center of the "rainbow" you have a higher probability of detection.
-	 * Developed by Ray and Glenn.
-	 * @return
-	 */
-	public double getProbPaleoVisible(double averageSlip, double distanceAlongRup, EvenlyDiscrXYZ_DataSet probabilityModel) {
-		
-		double prob;
-		
-		if (distanceAlongRup < 0 || distanceAlongRup > 0.5 || Double.isNaN(distanceAlongRup) || Double.isInfinite(distanceAlongRup))
-				throw new IllegalStateException("distanceAlongRup = "+distanceAlongRup+", it should be between 0 and 0.5");
-		
-		// Deal with displacements bigger or smaller than max/min average displacements in Glenn's table
-		if (averageSlip<probabilityModel.getMinY())
-			return 0.0;
-		if (averageSlip>probabilityModel.getMaxY())
-			return 1.0;
-		
-		prob = probabilityModel.bilinearInterpolation(distanceAlongRup, averageSlip);
-		
-		return prob;
-		
-	}
-	
-	
 	
 	/**
 	 * This returns the normalized distance along a rupture that a paleoseismic trench is located (Glenn's x/D).  It is between 0 and 0.5.
