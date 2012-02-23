@@ -43,7 +43,7 @@ public class DistributedSimulatedAnnealing {
 
 	private double[] single_double_buf = new double[1];
 	private long[] single_long_buf = new long[1];
-	private boolean[] single_boolean_buf = new boolean[1];
+	private int[] single_int_buf = new int[1];
 	
 	private StopWatch workWatch;
 	private StopWatch totWatch;
@@ -137,7 +137,6 @@ public class DistributedSimulatedAnnealing {
 		
 		double[] pool_double_buf = new double[size];
 		long[] pool_long_buf = new long[size];
-		boolean[] pool_boolean_buf = new boolean[size];
 		
 		double Ebest = Double.MAX_VALUE;
 		
@@ -195,43 +194,13 @@ public class DistributedSimulatedAnnealing {
 			else
 				debug("Process "+bestRank+" has best solution with energy: "+Ebest);
 			
-			for (int i=0; i<size; i++)
-				pool_boolean_buf[i] = i == bestRank;
-			
-			ddebug("sending report booleans");
+			ddebug("broadcasting best solution rank");
+			single_int_buf[0] = bestRank;
 			if (D) commWatch.resume();
-			MPI.COMM_WORLD.Scatter(pool_boolean_buf, 0, 1, MPI.BOOLEAN, single_boolean_buf, 0, 1, MPI.BOOLEAN, 0);
+			MPI.COMM_WORLD.Bcast(single_int_buf, 0, 1, MPI.INT, 0);
 			if (D) commWatch.suspend();
 			
-			// sent requests for results
-			double[] solution;
-			if (bestRank == 0) {
-				ddebug("I already have the best solution!");
-				solution = annealer.getBestSolution();
-			} else {
-				ddebug("gathering solution from "+bestRank);
-				solution = new double[annealer.getBestSolution().length];
-				if (D) commWatch.resume();
-				MPI.COMM_WORLD.Recv(solution, 0, solution.length, MPI.DOUBLE, bestRank, TAG_BEST_RESULT);
-				if (D) commWatch.suspend();
-			}
-			
-			// distribute best energy
-			single_double_buf[0] = Ebest;
-			ddebug("distributing best energy");
-			if (D) commWatch.resume();
-			MPI.COMM_WORLD.Bcast(single_double_buf, 0, 1, MPI.DOUBLE, 0);
-			if (D) commWatch.suspend();
-			
-			// distribute best solution
-			ddebug("distributing best solution");
-			if (D) commWatch.resume();
-			MPI.COMM_WORLD.Bcast(solution, 0, solution.length, MPI.DOUBLE, 0);
-			if (D) commWatch.suspend();
-			
-			// now set it myself
-			ddebug("setting my own results");
-			annealer.setResults(Ebest, solution);
+			fetchSolution(bestRank);
 			
 			cnt++;
 			// this is now done above
@@ -279,16 +248,16 @@ public class DistributedSimulatedAnnealing {
 		while (startIter != WORK_DONE) {
 			long iter = doWork(startIter, subCompletion);
 
-			reportResults(iter);
+			int bestRank = reportResults(iter);
 			
-			fetchSolution();
+			fetchSolution(bestRank);
 
 			ddebug("getting num iterations");
 			startIter = getBcastLong();
 		}
 	}
 
-	private void reportResults(long iter) {
+	private int reportResults(long iter) {
 		// send energy
 		single_double_buf[0] = annealer.getBestEnergy();
 		ddebug("sending my best energy ("+single_double_buf[0]+")");
@@ -307,35 +276,49 @@ public class DistributedSimulatedAnnealing {
 		// find out if we should send result
 		ddebug("checking if i should send my result");
 		if (D) commWatch.resume();
-		MPI.COMM_WORLD.Scatter(null, 0, 1, MPI.BOOLEAN, single_boolean_buf, 0, 1, MPI.BOOLEAN, 0);
+		MPI.COMM_WORLD.Scatter(null, 0, 1, MPI.INT, single_int_buf, 0, 1, MPI.INT, 0);
 		if (D) commWatch.suspend();
 //		MPI.COMM_WORLD.Recv(single_boolean_buf, 0, 1, MPI.BOOLEAN, 0,
 //				TAG_SHOULD_SEND_RESULT);
-		if (single_boolean_buf[0]) {
-			// this means the master wants our result, lets report it
-			double[] sol = annealer.getBestSolution();
-			ddebug("sending my best solution");
-			if (D) commWatch.resume();
-			MPI.COMM_WORLD.Send(sol, 0, sol.length, MPI.DOUBLE, 0, TAG_BEST_RESULT);
-			if (D) commWatch.suspend();
-		}
+		return single_int_buf[0];
+//		if (single_int_buf[0] == rank) {
+//			// this means the master wants our result, lets report it
+//			double[] sol = annealer.getBestSolution();
+//			ddebug("sending my best solution");
+//			if (D) commWatch.resume();
+//			MPI.COMM_WORLD.Send(sol, 0, sol.length, MPI.DOUBLE, 0, TAG_BEST_RESULT);
+//			if (D) commWatch.suspend();
+//			
+//			// distribute best solution
+//			ddebug("distributing best solution");
+//			if (D) commWatch.resume();
+//			MPI.COMM_WORLD.Bcast(sol, 0, sol.length, MPI.DOUBLE, 0);
+//			if (D) commWatch.suspend();
+//		}
 	}
 	
-	private void fetchSolution() {
+	private void fetchSolution(int bestRank) {
+		String actionWord;
+		if (bestRank == rank)
+			actionWord = "sending";
+		else
+			actionWord = "receiving";
 		// receive energy
-		ddebug("receiving best energy");
+		ddebug(actionWord+" best energy");
 //		MPI.COMM_WORLD.Recv(single_double_buf, 0, 1, MPI.DOUBLE, 0, TAG_BEST_ENGERGY);
+		single_double_buf[0] = annealer.getBestEnergy();
 		if (D) commWatch.resume();
-		MPI.COMM_WORLD.Bcast(single_double_buf, 0, 1, MPI.DOUBLE, 0);
+		MPI.COMM_WORLD.Bcast(single_double_buf, 0, 1, MPI.DOUBLE, bestRank);
 		if (D) commWatch.suspend();
 		double Ebest = single_double_buf[0];
 		
-		double[] sol = new double[annealer.getBestSolution().length];
-		ddebug("receiving best solution");
+		double[] sol = annealer.getBestSolution();
+		ddebug(actionWord+" best solution");
 //		MPI.COMM_WORLD.Recv(sol, 0, sol.length, MPI.DOUBLE, 0, TAG_BEST_RESULT);
 		if (D) commWatch.resume();
-		MPI.COMM_WORLD.Bcast(sol, 0, sol.length, MPI.DOUBLE, 0);
+		MPI.COMM_WORLD.Bcast(sol, 0, sol.length, MPI.DOUBLE, bestRank);
 		if (D) commWatch.suspend();
+		
 		if (DD) {
 			int numZero = 0;
 			for (int i=0; i<sol.length; i++)
@@ -344,8 +327,22 @@ public class DistributedSimulatedAnnealing {
 			ddebug("num zero: "+numZero);
 		}
 		
+		ddebug(actionWord+" misfits");
+		double[] misfit = annealer.getBestMisfit();
+		if (D) commWatch.resume();
+		MPI.COMM_WORLD.Bcast(misfit, 0, misfit.length, MPI.DOUBLE, bestRank);
+		if (D) commWatch.suspend();
+		
+		double[] misfit_ineq = annealer.getBestInequalityMisfit();
+		if (misfit_ineq != null) {
+			ddebug(actionWord+" inequality misfits");
+			if (D) commWatch.resume();
+			MPI.COMM_WORLD.Bcast(misfit_ineq, 0, misfit_ineq.length, MPI.DOUBLE, bestRank);
+			if (D) commWatch.suspend();
+		}
+		
 		ddebug("setting my own results");
-		annealer.setResults(Ebest, sol);
+		annealer.setResults(Ebest, sol, misfit, misfit_ineq);
 	}
 	
 	public static Options createOptions() {
