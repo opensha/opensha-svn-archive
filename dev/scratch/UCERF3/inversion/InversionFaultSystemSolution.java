@@ -461,42 +461,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
-	
-		// OPTIONAL: Write out A and d to binary files (to give to Kevin to run on cluster)
-/*		try {
-			MatrixIO.doubleArrayToFile(d,new File("dev/scratch/UCERF3/preComputedData/d.bin"));
-			MatrixIO.saveSparse(A,new File("dev/scratch/UCERF3/preComputedData/a.bin"));
-			MatrixIO.doubleArrayToFile(initialRupModel,new File("dev/scratch/UCERF3/preComputedData/initial.bin"));
-			MatrixIO.doubleArrayToFile(d_MFD,new File("dev/scratch/UCERF3/preComputedData/d_ineq.bin"));
-			MatrixIO.saveSparse(A_MFD,new File(tempDir, "a_ineq.bin"));
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	*/
 		
-//		// OPTIONAL: write everything to a zip file for Kevin!
-//		try {
-//			if(D) System.out.println("Saving to files...");
-//			File dir = new File("dev/scratch/UCERF3/preComputedData/");
-//			File zipFile = new File(dir, "inputs.zip");
-//			ArrayList<String> fileNames = new ArrayList<String>();
-//			fileNames.add("d.bin");			
-//			MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));						if(D) System.out.println("d.bin saved");
-//			fileNames.add("a.bin");			
-//			MatrixIO.saveSparse(A, new File(dir, "a.bin"));								if(D) System.out.println("a.bin saved");
-//			fileNames.add("initial.bin");	
-//			MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));  if(D) System.out.println("initial.bin saved");
-//			fileNames.add("d_ineq.bin");	
-//			MatrixIO.doubleArrayToFile(d_MFD, new File(dir, "d_ineq.bin"));				if(D) System.out.println("d_ineq.bin saved");
-//			fileNames.add("a_ineq.bin");	
-//			MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));						if(D) System.out.println("a_ineq.bin saved");
-//			FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
-//			if(D) System.out.println("Zip file saved");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 
 		// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
 		SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
@@ -505,33 +470,34 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		A_MFD = A_MFD_new;
 		
 		
-/*		// Transform A matrix to different type that's fast for multiplication
-		if (numIterations > 0 && A instanceof SparseDoubleMatrix2D) {
-			// if we're annealing, and A is in the SparseDoubleMatrix2D format then
-			// we should convert it for faster matrix multiplications
-			if (D) System.out.println("\nConverting A matrix to SparseRCDoubleMatrix2D ...");
-			startTime = System.currentTimeMillis();
-			SparseRCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getRowCompressed(true);
-			A = Anew;
-			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.");
-		}
-		
-		// Transform A_MFD matrix to different type that's fast for multiplication
-		if (numIterations > 0 && A_MFD instanceof SparseDoubleMatrix2D && relativeMagnitudeInequalityConstraintWt > 0.0) {
-			// if we're annealing, and A is in the SparseDoubleMatrix2D format then
-			// we should convert it for faster matrix multiplications
-			if (D) System.out.println("\nConverting A_MFD matrix to SparseRCDoubleMatrix2D ...");
-			startTime = System.currentTimeMillis();
-			SparseRCDoubleMatrix2D A_MFDnew = ((SparseDoubleMatrix2D)A_MFD).getRowCompressed(true);
-			startTime = System.currentTimeMillis();
-			A_MFD = A_MFDnew;
-			if (D) System.out.println("Done after " + ((System.currentTimeMillis()-startTime)/1000.) + " seconds.\n");
-		}		*/
-		
-		
 		// SOLVE THE INVERSE PROBLEM
 		// Run Simulated Annealing - with or without waterlevel
 		if (addMinimumRuptureRateConstraint == false) {
+			
+			// OPTIONAL: write everything to a zip file for Kevin!
+			try {
+				if(D) System.out.println("Saving to files...");
+				File dir = new File("dev/scratch/UCERF3/preComputedData/");
+				File zipFile = new File(dir, "inputs.zip");
+				ArrayList<String> fileNames = new ArrayList<String>();
+				fileNames.add("d.bin");			
+				MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));						if(D) System.out.println("d.bin saved");
+				fileNames.add("a.bin");			
+				MatrixIO.saveSparse(A, new File(dir, "a.bin"));								if(D) System.out.println("a.bin saved");
+				fileNames.add("initial.bin");	
+				MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));  if(D) System.out.println("initial.bin saved");
+				fileNames.add("d_ineq.bin");	
+				MatrixIO.doubleArrayToFile(d_MFD, new File(dir, "d_ineq.bin"));				if(D) System.out.println("d_ineq.bin saved");
+				fileNames.add("a_ineq.bin");	
+				MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));						if(D) System.out.println("a_ineq.bin saved");
+				FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
+				if(D) System.out.println("Zip file saved");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
 			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt, A_MFD, d_MFD);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
@@ -556,6 +522,33 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 						d_MFD_offset[i] -= A_MFD.get(i, j) * minimumRuptureRates[j];
 				}
 			}
+			
+			// OPTIONAL: write everything to a zip file for Kevin!
+			try {
+				if(D) System.out.println("Saving to files...");
+				File dir = new File("dev/scratch/UCERF3/preComputedData/");
+				File zipFile = new File(dir, "inputs.zip");
+				ArrayList<String> fileNames = new ArrayList<String>();
+				fileNames.add("d.bin");			
+				MatrixIO.doubleArrayToFile(d_offset, new File(dir, "d.bin"));						if(D) System.out.println("d.bin saved");
+				fileNames.add("a.bin");			
+				MatrixIO.saveSparse(A, new File(dir, "a.bin"));										if(D) System.out.println("a.bin saved");
+				fileNames.add("initial.bin");	
+				MatrixIO.doubleArrayToFile(initialRupModel, new File(dir, "initial.bin"));  		if(D) System.out.println("initial.bin saved");
+				fileNames.add("d_ineq.bin");	
+				MatrixIO.doubleArrayToFile(d_MFD_offset, new File(dir, "d_ineq.bin"));				if(D) System.out.println("d_ineq.bin saved");
+				fileNames.add("a_ineq.bin");	
+				MatrixIO.saveSparse(A_MFD,new File(dir, "a_ineq.bin"));								if(D) System.out.println("a_ineq.bin saved");
+				fileNames.add("minimumRuptureRates.bin");	
+				MatrixIO.doubleArrayToFile(minimumRuptureRates,new File(dir, "minimumRuptureRates.bin"));	if(D) System.out.println("minimumRuptureRates.bin saved");
+				FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
+				if(D) System.out.println("Zip file saved");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
 			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d_offset, initialRupModel, relativeSmoothnessWt, relativeMagnitudeInequalityConstraintWt, A_MFD, d_MFD_offset);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
