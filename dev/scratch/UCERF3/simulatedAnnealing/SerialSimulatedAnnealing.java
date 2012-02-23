@@ -121,6 +121,14 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		Ebest = calculateEnergy(xbest, misfit_best, misfit_ineq_best);
 	}
 	
+	/**
+	 * Sets the random number generator used - helpful for reproducing results for testing purposes
+	 * @param r
+	 */
+	public void setRandom(Random r) {
+		this.r = r;
+	}
+	
 	@Override
 	public void setCalculationParams(CoolingScheduleType coolingFunc,
 			NonnegativityConstraintType nonnegativeityConstraintAlgorithm,
@@ -185,7 +193,10 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	public void setResults(double Ebest, double[] xbest, double[] misfit_best, double[] misfit_ineq_best) {
 		this.Ebest = Ebest;
 		this.xbest = Arrays.copyOf(xbest, xbest.length);
-		this.misfit_best = Arrays.copyOf(misfit_best, misfit_best.length);
+		if (misfit_best == null)
+			this.misfit_best = null;
+		else
+			this.misfit_best = Arrays.copyOf(misfit_best, misfit_best.length);
 		if (misfit_ineq_best == null)
 			this.misfit_ineq_best = null;
 		else
@@ -300,19 +311,25 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		double E = Ebest;
 		double T;
 		// this is where we store previous misfits
-		double[] misfit = Arrays.copyOf(misfit_best, misfit_best.length);
+		double[] misfit;
+		if (misfit_best == null)
+			misfit = null;
+		else
+			misfit = Arrays.copyOf(misfit_best, misfit_best.length);
 		// this is where we store new candidate misfits
-		double[] misfit_new1 = new double[misfit_best.length];
-		double[] misfit_new2 = new double[misfit_best.length];
+		double[] misfit_new1 = new double[nRow];
+		double[] misfit_new2 = new double[nRow];
 		double[] misfit_cur_purtub = misfit_new1;
 		double[] misfit_ineq = null;
 		double[] misfit_ineq_new1 = null;
 		double[] misfit_ineq_new2 = null;
 		double[] misfit_ineq_cur_purtub = null;
 		if (hasInequalityConstraint) {
-			misfit_ineq = Arrays.copyOf(misfit_ineq_best, misfit_ineq_best.length);
-			misfit_ineq_new1 = new double[misfit_ineq_best.length];
-			misfit_ineq_new2 = new double[misfit_ineq_best.length];
+			if (misfit_ineq_best != null) {
+				misfit_ineq = Arrays.copyOf(misfit_ineq_best, misfit_ineq_best.length);
+			}
+			misfit_ineq_new1 = new double[A_MFD.rows()];
+			misfit_ineq_new2 = new double[A_MFD.rows()];
 			misfit_ineq_cur_purtub = misfit_ineq_new1;
 		}
 
