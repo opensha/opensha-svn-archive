@@ -30,6 +30,7 @@ import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -225,6 +226,49 @@ public class ERF_Calculator {
 	  }
 	  System.out.println(unassignedMFD.getCumRateDistWithOffset());
 	  return magFreqDists;
+  }
+  
+
+  /**
+   * The gives the effective participation rates for events greater than or equal to minMag
+   * and less than maxMag for each point in the supplied GriddedRegion.
+   * @param erf - it's assumed that erf.updateForecast() has already been called
+   * @param griddedRegion
+   * @param minMag
+   * @param maxMag
+   * @return GriddedGeoDataSet - X-axis is set as Latitude
+   */
+  public static GriddedGeoDataSet getNucleationRatesInRegion(ERF erf, GriddedRegion griddedRegion,
+		  double minMag, double maxMag) {
+	  
+	  GriddedGeoDataSet xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+	  double[] zVals = new double[griddedRegion.getNodeCount()];
+	  
+	  double duration = erf.getTimeSpan().getDuration();
+	  for (int s = 0; s < erf.getNumSources(); ++s) {
+		  ProbEqkSource source = erf.getSource(s);
+		  for (int r = 0; r < source.getNumRuptures(); ++r) {
+			  ProbEqkRupture rupture = source.getRupture(r);
+			  double mag = rupture.getMag();
+			  if(mag>=minMag && mag<maxMag) {
+				  LocationList surfLocs = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+				  double ptRate = rupture.getMeanAnnualRate(duration)/surfLocs.size();
+				  for(Location loc: surfLocs) {
+					  int index = griddedRegion.indexForLocation(loc);
+//					  int index = xyzData.indexOf(loc);	// this is slow and should be changed; revise this later when it has been
+					  if(index >= 0) {
+//						  xyzData.set(index, xyzData.get(index)+ptRate);
+						  zVals[index] += ptRate;
+					  }			  
+				  }
+			  }
+		  }
+	  }
+	  
+	  for(int i=0;i<griddedRegion.getNodeCount();i++)
+		  xyzData.set(i, zVals[i]);
+	  
+	  return xyzData;
   }
   
   
