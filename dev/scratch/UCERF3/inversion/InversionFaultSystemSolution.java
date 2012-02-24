@@ -127,8 +127,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
 		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
-		if(D) System.out.println("Number of paleo-rate constraints: " + (int)Math.signum(relativePaleoRateWt)*paleoRateConstraints.size());
-		if(D) System.out.println("Number of paleo-rate constraints: " + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures);
+		if(D) System.out.println("Number of paleo section-rate constraints: " + (int)Math.signum(relativePaleoRateWt)*paleoRateConstraints.size());
+		if(D) System.out.println("Number of rupture-rate constraints: " + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures);
 		if(D) System.out.println("Number of minimization constraints: " + (int)Math.signum(relativeMinimizationConstraintWt)*numRuptures);
 		int numRows = numSlipRateConstraints + (int)Math.signum(relativePaleoRateWt)*paleoRateConstraints.size() + 
 				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures + (int)Math.signum(relativeMinimizationConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
@@ -265,23 +265,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+paleoRateConstraints.size(); i++) {
 				PaleoRateConstraint constraint = paleoRateConstraints.get(i-numSlipRateConstraints);
 				d[i]=relativePaleoRateWt * constraint.getMeanRate() / constraint.getStdDevOfMeanRate();
-				for (int rup=0; rup<numRuptures; rup++) {
-					double getVal;
+				List<Integer> rupsForSect = getRupturesForSection(constraint.getSectionIndex());
+				for (int rupIndex=0; rupIndex<rupsForSect.size(); rupIndex++) {
+					int rup = rupsForSect.get(rupIndex);
+					double distAlongRup = getDistanceAlongRupture(getSectionsIndicesForRup(rup), (ArrayList<FaultSectionPrefData>) getFaultSectionDataList(), constraint); // Glenn's x/L
+//					double probPaleoVisible = getProbPaleoVisible(rupMeanMag[rup]); // OLD UCERF2 version!
+					double probPaleoVisible = UCERF3PaleoProbModel.getForSlip(rupMeanSlip[rup], distAlongRup); // UCERF3 version!	
+					double setVal = (relativePaleoRateWt * probPaleoVisible / constraint.getStdDevOfMeanRate());
 					if (QUICK_GETS_SETS)
-						getVal = A.getQuick(constraint.getSectionIndex(), rup);
+						A.setQuick(i, rup, setVal);
 					else
-						getVal = A.get(constraint.getSectionIndex(), rup);
-					if (getVal>0) {
-						double distAlongRup = getDistanceAlongRupture(getSectionsIndicesForRup(rup), (ArrayList<FaultSectionPrefData>) faultSystemRupSet.getFaultSectionDataList(), constraint); // Glenn's x/L
-//						double probPaleoVisible = getProbPaleoVisible(rupMeanMag[rup]); // OLD UCERF2 version!
-						double probPaleoVisible = UCERF3PaleoProbModel.getForSlip(rupMeanSlip[rup], distAlongRup); // UCERF3 version!	
-						double setVal = (relativePaleoRateWt * probPaleoVisible / constraint.getStdDevOfMeanRate());
-						if (QUICK_GETS_SETS)
-							A.setQuick(i, rup, setVal);
-						else
-							A.set(i, rup, setVal);
-						if(D) numNonZeroElements++;			
-					}
+						A.set(i, rup, setVal);
+					if(D) numNonZeroElements++;			
 				}
 			}
 			runTime = System.currentTimeMillis()-startTime;
