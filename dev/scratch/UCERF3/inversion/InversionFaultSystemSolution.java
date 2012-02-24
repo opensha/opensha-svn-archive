@@ -113,9 +113,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		int numSections = getNumSections();
 		int numRuptures = getNumRuptures();
-		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
-//		double[] sectSlipRateStdDevReduced = faultSystemRupSet.getSlipRateStdDevForAllSections();  // CURRENTLY NOT USED
-		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
+		double[] sectSlipRateReduced = getSlipRateForAllSections();
+//		double[] sectSlipRateStdDevReduced = getSlipRateStdDevForAllSections();  // CURRENTLY NOT USED
+		double[] rupMeanMag = getMagForAllRups();
 		
 		
 		// Compute number of slip-rate constraints
@@ -258,7 +258,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			PaleoProbabilityModel UCERF3PaleoProbModel = null;
 			try {  UCERF3PaleoProbModel = PaleoProbabilityModel.fromFile(new File("dev/scratch/UCERF3/preComputedData/pdetection2.txt"));
 			} catch (IOException e1) {	e1.printStackTrace();  }	
-			double[] rupMeanSlip = faultSystemRupSet.getAveSlipForAllRups();
+			double[] rupMeanSlip = getAveSlipForAllRups();
 			numNonZeroElements = 0;
 			startTime = System.currentTimeMillis();
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
