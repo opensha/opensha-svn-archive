@@ -20,20 +20,26 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.FaultModelBranches;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -935,6 +941,50 @@ public class FindEquivUCERF2_FM3_Ruptures {
 		
 
 	}
+	
+	public void plotGMT_MapRatio_Test() {
+
+//		GMT_CA_Maps.plotParticipationRateMap(modMeanUCERF2_FM1or2, 0, 10, "Test Ratio", "FindEquivUCERF2_FM3_Ruptures Test Ratio", "ucerf2to3_MapingTest");
+
+		GriddedRegion griddedRegion = GMT_CA_Maps.getDefaultGriddedRegion();
+
+		GriddedGeoDataSet erfNucleationRates = ERF_Calculator.getNucleationRatesInRegion(modMeanUCERF2_FM1or2, griddedRegion, 0, 10);
+
+		GriddedGeoDataSet mappingNucleationRates = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		double[] zVals = new double[mappingNucleationRates.size()];
+
+		// loop over ucerf2 ruptures
+		for(int ur=0; ur<rateOfUCERF2_Rup.length;ur++) {
+			int ir = invRupIndexForUCERF2_Rup[ur];	// get inversion rupture index of the ucerf2 rup
+			if(ir>=0) {
+				ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
+				for(FaultSectionPrefData fltData: faultSysRupSet.getFaultSectionDataForRupture(ir)) {
+					surfaces.add(fltData.getStirlingGriddedSurface(1.0, false, true));
+				}
+				CompoundGriddedSurface compSurf = new CompoundGriddedSurface(surfaces);
+				LocationList surfLocs = compSurf.getEvenlyDiscritizedListOfLocsOnSurface();
+				double ptRate = rateOfUCERF2_Rup[ur]/surfLocs.size();
+				for(Location loc: surfLocs) {
+					int index = griddedRegion.indexForLocation(loc);
+					//int index = xyzData.indexOf(loc);	// was too slow
+					if(index >= 0) {
+						//							  xyzData.set(index, xyzData.get(index)+ptRate);	// was too slow
+						zVals[index] += ptRate;
+					}			  
+				}
+			}
+		}
+
+		for(int i=0;i<griddedRegion.getNodeCount();i++)
+			mappingNucleationRates.set(i, zVals[i]);
+		
+		GMT_CA_Maps.plotRatioOfRateMaps(mappingNucleationRates, erfNucleationRates, 
+				"Test Ratio", "FindEquivUCERF2_FM3_Ruptures Test Ratio", "ucerf2to3_MapingTest");
+
+	}
+	
+		
+
 
 
 	
@@ -1325,6 +1375,8 @@ if(debug) System.exit(0);
 		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModelBranches.FM3_1);
 		
 		test.plotMFD_Test();
+		
+		test.plotGMT_MapRatio_Test();
 
 		
 	}

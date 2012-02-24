@@ -17,7 +17,6 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ExceptionUtils;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -26,8 +25,9 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF2_PaleoSegRateData;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 
 
 /**
@@ -94,7 +94,7 @@ public class RunInversion {
 		// Parameters for InversionFaultSystemSolution
 		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
 		boolean addMinimumRuptureRateConstraint = true;  // If true, add waterlevel (defined in minimumRuptureRates) to solution (otherwise, minimum rupture rates are 0)
-		double relativeSegRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
+		double relativePaleoRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double relativeMagnitudeEqualityConstraintWt = 0;  // weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weightSlipRates=true, 10 otherwise)
 		double relativeMagnitudeInequalityConstraintWt = 1000;  // weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weighted per bin -- this is hard-coded in)
 		double relativeParticipationSmoothnessConstraintWt = 1000; // weight of participation MFD smoothness weight - applied on subsection basis (recommended:  1000)
@@ -104,7 +104,7 @@ public class RunInversion {
 		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
 		int numIterations = 0;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
 		
-		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
+		ArrayList<PaleoRateConstraint> paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 		long startTime, runTime;
 		
 		// create class the gives UCERF2-related constraints
@@ -188,8 +188,8 @@ public class RunInversion {
 
 		if(D) System.out.println("\nStarting inversion . . .");
 		startTime = System.currentTimeMillis();
-		inversion = new InversionFaultSystemSolution(faultSystemRupSet, weightSlipRates, relativeSegRateWt, 
-				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt, participationConstraintMagBinSize, relativeMinimizationConstraintWt, numIterations, segRateConstraints, 
+		inversion = new InversionFaultSystemSolution(faultSystemRupSet, weightSlipRates, relativePaleoRateWt, 
+				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt, participationConstraintMagBinSize, relativeMinimizationConstraintWt, numIterations, paleoRateConstraints, 
 				aPrioriRupConstraint, initialRupModel, mfdEqualityConstraints, mfdInequalityConstraints, minimizationConstraint, relativeSmoothnessWt, addMinimumRuptureRateConstraint, minimumRuptureRates);
 		runTime = System.currentTimeMillis()-startTime;
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds.");	
@@ -233,7 +233,7 @@ public class RunInversion {
 		startTime = System.currentTimeMillis();
 		inversion.plotRuptureRates();
 		inversion.plotSlipRates();
-		inversion.plotPaleoObsAndPredPaleoEventRates(segRateConstraints);
+		inversion.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
 		inversion.plotMFDs(mfdEqualityConstraints);
 		inversion.plotMFDs(mfdInequalityConstraints);
 		runTime = System.currentTimeMillis()-startTime;

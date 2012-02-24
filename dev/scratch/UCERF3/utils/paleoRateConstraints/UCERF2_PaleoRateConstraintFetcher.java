@@ -1,4 +1,4 @@
-package scratch.UCERF3.utils;
+package scratch.UCERF3.utils.paleoRateConstraints;
 
 import java.awt.Color;
 import java.io.File;
@@ -21,7 +21,6 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -31,16 +30,16 @@ import com.google.common.base.Preconditions;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 
-public class UCERF2_PaleoSegRateData {
+public class UCERF2_PaleoRateConstraintFetcher {
 	
-	final static String PALEO_DATA_FILE_NAME = "Appendix_C_Table7_091807.xls";
+	final static String PALEO_DATA_FILE_NAME = "paleoRateData/Appendix_C_Table7_091807.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	
-	public static ArrayList<SegRateConstraint> getConstraints(File precomputedDataDir, List<FaultSectionPrefData> faultSectionData) {
+	public static ArrayList<PaleoRateConstraint> getConstraints(File precomputedDataDir, List<FaultSectionPrefData> faultSectionData) {
 		
 		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+PALEO_DATA_FILE_NAME;
-		ArrayList<SegRateConstraint> segRateConstraints   = new ArrayList<SegRateConstraint>();
+		ArrayList<PaleoRateConstraint> paleoRateConstraints   = new ArrayList<PaleoRateConstraint>();
 		try {				
 			if(D) System.out.println("Reading Paleo Seg Rate Data from "+fullpathname);
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(fullpathname));
@@ -77,23 +76,23 @@ public class UCERF2_PaleoSegRateData {
 				
 				// add to Seg Rate Constraint list
 				String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
-				SegRateConstraint segRateConstraint = new SegRateConstraint(name);
-				segRateConstraint.setSegRate(closestFaultSectionIndex, rate, sigma, lower95Conf, upper95Conf);
+				PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, closestFaultSectionIndex, 
+						rate, sigma, lower95Conf, upper95Conf);
 				if(D) System.out.println("\t"+siteName+" (lat="+lat+", lon="+lon+") associated with "+name+
 						" (section index = "+closestFaultSectionIndex+")\tdist="+(float)minDist+"\trate="+(float)rate+
 						"\tsigma="+(float)sigma+"\tlower95="+(float)lower95Conf+"\tupper95="+(float)upper95Conf);
-				segRateConstraints.add(segRateConstraint);
+				paleoRateConstraints.add(paleoRateConstraint);
 			}
 		}catch(Exception e) {
 			System.out.println("UNABLE TO READ PALEO DATA");
 		}
-		return segRateConstraints;
+		return paleoRateConstraints;
 	}
 	
-	public static void showSegRateComparison(ArrayList<SegRateConstraint> segRateConstraints,
+	public static void showSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
 			ArrayList<FaultSystemSolution> solutions) {
 		
-		Preconditions.checkState(segRateConstraints.size() > 0, "Must have at least seg rate constraint");
+		Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
 		Preconditions.checkState(solutions.size() > 0, "Must have at least one solution");
 		
 		int numSolSects = -1;
@@ -109,17 +108,17 @@ public class UCERF2_PaleoSegRateData {
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		
-		ArbitrarilyDiscretizedFunc segRateMean = new ArbitrarilyDiscretizedFunc();
-		segRateMean.setName("Segment Rate Constraint: Mean");
-		funcs.add(segRateMean);
+		ArbitrarilyDiscretizedFunc paleoRateMean = new ArbitrarilyDiscretizedFunc();
+		paleoRateMean.setName("Paleo Rate Constraint: Mean");
+		funcs.add(paleoRateMean);
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, Color.BLACK));
-		ArbitrarilyDiscretizedFunc segRateUpper = new ArbitrarilyDiscretizedFunc();
-		segRateUpper.setName("Segment Rate Constraint: Upper 95% Confidence");
-		funcs.add(segRateUpper);
+		ArbitrarilyDiscretizedFunc paleoRateUpper = new ArbitrarilyDiscretizedFunc();
+		paleoRateUpper.setName("Paleo Rate Constraint: Upper 95% Confidence");
+		funcs.add(paleoRateUpper);
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, Color.BLACK));
-		ArbitrarilyDiscretizedFunc segRateLower = new ArbitrarilyDiscretizedFunc();
-		segRateLower.setName("Segment Rate Constraint: Upper 95% Confidence");
-		funcs.add(segRateLower);
+		ArbitrarilyDiscretizedFunc paleoRateLower = new ArbitrarilyDiscretizedFunc();
+		paleoRateLower.setName("Paleo Rate Constraint: Upper 95% Confidence");
+		funcs.add(paleoRateLower);
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, Color.BLACK));
 		
 		final int xGap = 5;
@@ -128,8 +127,8 @@ public class UCERF2_PaleoSegRateData {
 		
 		HashMap<Integer, Integer> xIndForParentMap = new HashMap<Integer, Integer>();
 		
-		for (SegRateConstraint constr : segRateConstraints) {
-			int sectID = constr.getSegIndex();
+		for (PaleoRateConstraint constr : paleoRateConstraint) {
+			int sectID = constr.getSectionIndex();
 			int parentID = -1;
 			String name = null;
 			for (FaultSectionPrefData data : datas) {
@@ -142,7 +141,7 @@ public class UCERF2_PaleoSegRateData {
 				}
 			}
 			if (parentID < 0) {
-				System.err.println("No match for seg rate constraint for section "+sectID);
+				System.err.println("No match for rate constraint for section "+sectID);
 				continue;
 			}
 			
@@ -163,14 +162,14 @@ public class UCERF2_PaleoSegRateData {
 			
 			int relConstSect = sectID - minSect;
 			
-			double segRateX;
+			double paleoRateX;
 			
 			if (xIndForParentMap.containsKey(parentID)) {
-				// we already have this parent section, just add the new seg rate constraint
+				// we already have this parent section, just add the new rate constraint
 				
-				segRateX = xIndForParentMap.get(parentID) + relConstSect;
+				paleoRateX = xIndForParentMap.get(parentID) + relConstSect;
 			} else {
-				segRateX = x + relConstSect;
+				paleoRateX = x + relConstSect;
 				
 				for (int i=0; i<solutions.size(); i++) {
 					FaultSystemSolution sol = solutions.get(i);
@@ -196,9 +195,9 @@ public class UCERF2_PaleoSegRateData {
 				x += xGap;
 			}
 			
-			segRateMean.set(segRateX, constr.getMean());
-			segRateUpper.set(segRateX, constr.getUpper95Conf());
-			segRateLower.set(segRateX, constr.getLower95Conf());
+			paleoRateMean.set(paleoRateX, constr.getMeanRate());
+			paleoRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
+			paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 		}
 		
 		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(funcs, "Paleosiesmic Constraint Fit", plotChars, true);

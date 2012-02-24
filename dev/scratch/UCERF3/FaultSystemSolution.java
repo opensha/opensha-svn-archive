@@ -20,7 +20,6 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.faultSurface.CompoundGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -31,6 +30,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
 /**
  * This abstract class is intended to represent an Earthquake Rate Model solution 
@@ -415,10 +415,10 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * We need this for the UCERF3 probability of detecting a rupture in a trench.
 	 * @return
 	 */
-	public static double getDistanceAlongRupture(List<Integer> sectsInRup, ArrayList<FaultSectionPrefData> sectionDataList, SegRateConstraint constraint) {
+	public static double getDistanceAlongRupture(List<Integer> sectsInRup, ArrayList<FaultSectionPrefData> sectionDataList, PaleoRateConstraint constraint) {
 		double distanceAlongRup = 0;
 		
-		int constraintIndex = constraint.getSegIndex();
+		int constraintIndex = constraint.getSectionIndex();
 		double totalLength = 0;
 		double lengthToRup = 0;
 		boolean reachConstraintLoc = false;
@@ -604,7 +604,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * Fault System Solution.
 	 * 
 	 */
-	public void plotPaleoObsAndPredPaleoEventRates(ArrayList<SegRateConstraint> segRateConstraints) {
+	public void plotPaleoObsAndPredPaleoEventRates(ArrayList<PaleoRateConstraint> paleoRateConstraints) {
 		int numSections = this.getNumSections();
 		int numRuptures = this.getNumRuptures();
 		ArrayList funcs3 = new ArrayList();		
@@ -621,21 +621,21 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		finalPaleoVisibleEventRateFunc.setName("Paleo Visible Event Rates oer Section");
 		funcs3.add(finalEventRateFunc);
 		funcs3.add(finalPaleoVisibleEventRateFunc);	
-		int num = segRateConstraints.size();
+		int num = paleoRateConstraints.size();
 		ArbitrarilyDiscretizedFunc func;
 		ArrayList obs_er_funcs = new ArrayList();
-		SegRateConstraint constraint;
+		PaleoRateConstraint constraint;
 		double totalError=0;
 		for (int c = 0; c < num; c++) {
 			func = new ArbitrarilyDiscretizedFunc();
-			constraint = segRateConstraints.get(c);
-			int seg = constraint.getSegIndex();
-			func.set((double) seg - 0.0001, constraint.getLower95Conf());
-			func.set((double) seg, constraint.getMean());
-			func.set((double) seg + 0.0001, constraint.getUpper95Conf());
-			func.setName(constraint.getFaultName());
+			constraint = paleoRateConstraints.get(c);
+			int sectIndex = constraint.getSectionIndex();
+			func.set((double) sectIndex - 0.0001, constraint.getLower95ConfOfRate());
+			func.set((double) sectIndex, constraint.getMeanRate());
+			func.set((double) sectIndex + 0.0001, constraint.getUpper95ConfOfRate());
+			func.setName(constraint.getFaultSectionName());
 			funcs3.add(func);
-			double r=(constraint.getMean()-finalPaleoVisibleEventRateFunc.getClosestY(seg))/(constraint.getUpper95Conf()-constraint.getLower95Conf());
+			double r=(constraint.getMeanRate()-finalPaleoVisibleEventRateFunc.getClosestY(sectIndex))/(constraint.getUpper95ConfOfRate()-constraint.getLower95ConfOfRate());
 			// System.out.println("Constraint #"+c+" misfit: "+r);
 			totalError+=Math.pow(r,2);
 		}			

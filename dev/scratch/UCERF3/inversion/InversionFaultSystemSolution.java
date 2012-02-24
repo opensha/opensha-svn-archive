@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -18,6 +17,7 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
@@ -38,9 +38,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	FaultSystemRupSet faultSystemRupSet;
 	boolean weightSlipRates, addMinimumRuptureRateConstraint;
-	double relativeSegRateWt, relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt, participationConstraintMagBinSize, relativeMinimizationConstraintWt, relativeSmoothnessWt;
+	double relativePaleoRateWt, relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt, participationConstraintMagBinSize, relativeMinimizationConstraintWt, relativeSmoothnessWt;
 	int numIterations;
-	ArrayList<SegRateConstraint> segRateConstraints;
+	ArrayList<PaleoRateConstraint> paleoRateConstraints;
 	
 	double[] aPrioriRupConstraint;
 	double[] minimizationConstraint;
@@ -59,7 +59,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * Constructor.
 	 * 
 	 * @param faultSystemRupSet
-	 * @param relativeSegRateWt
+	 * @param relativePaleoRateWt
 	 * @param relativeMagnitudeEqualityConstraintWt
 	 * @param relativeMagnitudeInequalityConstraintWt
 	 * @param relativeRupRateConstraintWt
@@ -67,7 +67,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param participationConstraintMagBinSize
 	 * @param relativeMinimizationConstraintWt
 	 * @param numIterations
-	 * @param segRateConstraints
+	 * @param paleoRateConstraints
 	 * @param aPrioriRupConstraint
 	 * @param initialRupModel
 	 * @param mfdEqualityConstraints
@@ -75,17 +75,17 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param minimizationConstraint
 	 * @param relativeSmoothnessWt
 	 */
-	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, boolean weightSlipRates, double relativeSegRateWt, 
+	public InversionFaultSystemSolution(FaultSystemRupSet faultSystemRupSet, boolean weightSlipRates, double relativePaleoRateWt, 
 			double relativeMagnitudeEqualityConstraintWt, double relativeMagnitudeInequalityConstraintWt, double relativeRupRateConstraintWt, 
 			double relativeParticipationSmoothnessConstraintWt, double participationConstraintMagBinSize, double relativeMinimizationConstraintWt, int numIterations,
-			ArrayList<SegRateConstraint> segRateConstraints, double[] aPrioriRupConstraint, double[] initialRupModel, 
+			ArrayList<PaleoRateConstraint> paleoRateConstraints, double[] aPrioriRupConstraint, double[] initialRupModel, 
 			ArrayList<MFD_InversionConstraint> mfdEqualityConstraints, ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, 
 			double[] minimizationConstraint, double relativeSmoothnessWt, 
 			boolean addMinimumRuptureRateConstraint, double[] minimumRuptureRates) {
 		super(faultSystemRupSet, null);
 		this.faultSystemRupSet=faultSystemRupSet;
 		this.weightSlipRates=weightSlipRates;
-		this.relativeSegRateWt=relativeSegRateWt;
+		this.relativePaleoRateWt=relativePaleoRateWt;
 		this.relativeMagnitudeEqualityConstraintWt=relativeMagnitudeEqualityConstraintWt;
 		this.relativeMagnitudeInequalityConstraintWt=relativeMagnitudeInequalityConstraintWt;
 		this.relativeRupRateConstraintWt=relativeRupRateConstraintWt;
@@ -93,7 +93,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		this.participationConstraintMagBinSize=participationConstraintMagBinSize;
 		this.relativeMinimizationConstraintWt=relativeMinimizationConstraintWt;
 		this.numIterations=numIterations;
-		this.segRateConstraints=segRateConstraints;
+		this.paleoRateConstraints=paleoRateConstraints;
 		this.aPrioriRupConstraint=aPrioriRupConstraint;
 		this.initialRupModel=initialRupModel;
 		this.mfdEqualityConstraints=mfdEqualityConstraints;
@@ -127,10 +127,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
 		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
-		if(D) System.out.println("Number of segment-rate constraints: " + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size());
-		if(D) System.out.println("Number of rupture-rate constraints: " + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures);
+		if(D) System.out.println("Number of paleo-rate constraints: " + (int)Math.signum(relativePaleoRateWt)*paleoRateConstraints.size());
+		if(D) System.out.println("Number of paleo-rate constraints: " + (int)Math.signum(relativeRupRateConstraintWt)*numRuptures);
 		if(D) System.out.println("Number of minimization constraints: " + (int)Math.signum(relativeMinimizationConstraintWt)*numRuptures);
-		int numRows = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size() + 
+		int numRows = numSlipRateConstraints + (int)Math.signum(relativePaleoRateWt)*paleoRateConstraints.size() + 
 				(int)Math.signum(relativeRupRateConstraintWt)*numRuptures + (int)Math.signum(relativeMinimizationConstraintWt)*numRuptures;  // number of rows used for slip-rate and paleo-rate constraints
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (relativeMagnitudeEqualityConstraintWt > 0.0) {
@@ -254,7 +254,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
-		if (relativeSegRateWt > 0.0) {
+		if (relativePaleoRateWt > 0.0) {
 			PaleoProbabilityModel UCERF3PaleoProbModel = null;
 			try {  UCERF3PaleoProbModel = PaleoProbabilityModel.fromFile(new File("dev/scratch/UCERF3/preComputedData/pdetection2.txt"));
 			} catch (IOException e1) {	e1.printStackTrace();  }	
@@ -262,20 +262,20 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			numNonZeroElements = 0;
 			startTime = System.currentTimeMillis();
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
-			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+segRateConstraints.size(); i++) {
-				SegRateConstraint constraint = segRateConstraints.get(i-numSlipRateConstraints);
-				d[i]=relativeSegRateWt * constraint.getMean() / constraint.getStdDevOfMean();
+			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+paleoRateConstraints.size(); i++) {
+				PaleoRateConstraint constraint = paleoRateConstraints.get(i-numSlipRateConstraints);
+				d[i]=relativePaleoRateWt * constraint.getMeanRate() / constraint.getStdDevOfMeanRate();
 				for (int rup=0; rup<numRuptures; rup++) {
 					double getVal;
 					if (QUICK_GETS_SETS)
-						getVal = A.getQuick(constraint.getSegIndex(), rup);
+						getVal = A.getQuick(constraint.getSectionIndex(), rup);
 					else
-						getVal = A.get(constraint.getSegIndex(), rup);
+						getVal = A.get(constraint.getSectionIndex(), rup);
 					if (getVal>0) {
 						double distAlongRup = getDistanceAlongRupture(getSectionsIndicesForRup(rup), (ArrayList<FaultSectionPrefData>) faultSystemRupSet.getFaultSectionDataList(), constraint); // Glenn's x/L
 //						double probPaleoVisible = getProbPaleoVisible(rupMeanMag[rup]); // OLD UCERF2 version!
 						double probPaleoVisible = UCERF3PaleoProbModel.getForSlip(rupMeanSlip[rup], distAlongRup); // UCERF3 version!	
-						double setVal = (relativeSegRateWt * probPaleoVisible / constraint.getStdDevOfMean());
+						double setVal = (relativePaleoRateWt * probPaleoVisible / constraint.getStdDevOfMeanRate());
 						if (QUICK_GETS_SETS)
 							A.setQuick(i, rup, setVal);
 						else
@@ -285,14 +285,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				}
 			}
 			runTime = System.currentTimeMillis()-startTime;
-			if(D) System.out.println("Adding Segment-Rate Constraints took " + (runTime/1000.) + " seconds.");
+			if(D) System.out.println("Adding Paleo-Rate Constraints took " + (runTime/1000.) + " seconds.");
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 
 			
 		// Constrain Solution MFD to equal the Target MFD 
 		// This is for equality constraints only -- inequality constraints must be passed to SA algorithm since they are nonlinear
-		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativeSegRateWt)*segRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
+		int rowIndex = numSlipRateConstraints + (int)Math.signum(relativePaleoRateWt)*paleoRateConstraints.size(); // number of rows used for slip-rate and paleo-rate constraints
 		if (relativeMagnitudeEqualityConstraintWt > 0.0) {	
 			startTime = System.currentTimeMillis();
 			numNonZeroElements = 0;
