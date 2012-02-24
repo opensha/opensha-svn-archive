@@ -51,13 +51,28 @@ public class MatrixSpeedTest {
 		System.out.println(ClassUtils.getClassNameWithoutPackage(A.getClass())
 				+" set time: "+(milis/1000d));
 	}
+	
+	private static void saveSparse(DoubleMatrix2D A) throws IOException {
+		File file = File.createTempFile("openSHA", "a_matrix.bin");
+		
+		Stopwatch watch = new Stopwatch();
+		watch.start();
+		MatrixIO.saveSparse(A, file);
+		watch.stop();
+		double milis = watch.elapsedMillis();
+		System.out.println(ClassUtils.getClassNameWithoutPackage(A.getClass())
+				+" save time: "+(milis/1000d));
+		
+		file.delete();
+	}
 
 	/**
 	 * @param args
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File dir = new File("D:\\Documents\\temp");
+//		File dir = new File("D:\\Documents\\temp");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_02_22-UCERF3_Geologic_Model2");
 //		DataInputStream in = new DataInputStream(new FileInputStream(new File(dir, "A.bin")));
 //		
 //		int nRows = in.readInt();
@@ -79,7 +94,7 @@ public class MatrixSpeedTest {
 //			cols[i] = in.readInt();
 //			vals[i] = in.readDouble();
 //		}
-		double[] x = MatrixIO.doubleArrayFromFile(new File(dir, "run1.mat"));
+		double[] x = MatrixIO.doubleArrayFromFile(new File(dir, "initial.bin"));
 		
 		ArrayList<DoubleMatrix2D> As = new ArrayList<DoubleMatrix2D>();
 //		As.add(new SparseDoubleMatrix2D(nRows, nCols));
@@ -89,14 +104,17 @@ public class MatrixSpeedTest {
 //			setSparse(rows, cols, vals, mat);
 		
 		// now add CCD...it takes wayyyyy too long to set here and this loads as CCD anyway
-		As.add(MatrixIO.loadSparse(new File(dir, "A.bin"), SparseRCDoubleMatrix2D.class));
-		As.add(MatrixIO.loadSparse(new File(dir, "A.bin"), SparseCCDoubleMatrix2D.class));
-		As.add(MatrixIO.loadSparse(new File(dir, "A.bin"), SparseDoubleMatrix2D.class));
+//		As.add(MatrixIO.loadSparse(new File(dir, "a.bin"), SparseRCDoubleMatrix2D.class));
+		As.add(MatrixIO.loadSparse(new File(dir, "a.bin"), SparseCCDoubleMatrix2D.class));
+//		As.add(MatrixIO.loadSparse(new File(dir, "a.bin"), SparseDoubleMatrix2D.class));
 		
 		DenseDoubleMatrix1D xMat = new DenseDoubleMatrix1D(x);
 		
+//		for (DoubleMatrix2D mat : As)
+//			doMults(mat, xMat, 2000);
+		
 		for (DoubleMatrix2D mat : As)
-			doMults(mat, xMat, 2000);
+			saveSparse(mat);
 	}
 
 }

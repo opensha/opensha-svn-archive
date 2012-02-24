@@ -40,47 +40,51 @@ public class MatrixIO {
 	public static void saveSparse(DoubleMatrix2D mat, File file) throws IOException {
 		Preconditions.checkNotNull(mat, "array cannot be null!");
 		Preconditions.checkArgument(mat.rows() > 0 && mat.columns() > 0, "matrix can't be empty!");
+		
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		out.writeInt(mat.rows());
+		out.writeInt(mat.columns());
 
-		IntArrayList rowList = new IntArrayList();
-		IntArrayList colList = new IntArrayList();
-		DoubleArrayList valList = new DoubleArrayList();
 		if (mat instanceof SparseDoubleMatrix2D) {
 			AbstractLongDoubleMap map = ((SparseDoubleMatrix2D)mat).elements();
 			int nnz = mat.cardinality();
 			long[] keys = map.keys().elements();
 			double[] values = map.values().elements();
+			
+			out.writeInt(values.length);
+			
 			int columns = mat.columns();
 			for (int i = 0; i < nnz; i++) {
 				int row = (int) (keys[i] / columns);
 				int column = (int) (keys[i] % columns);
 				//				A.setQuick(row, column, values[i]);
-				rowList.add(row);
-				colList.add(column);
-				valList.add(values[i]);
+				out.writeInt(row);
+				out.writeInt(column);
+				out.writeDouble(values[i]);
 			}
 		} else {
+			IntArrayList rowList = new IntArrayList();
+			IntArrayList colList = new IntArrayList();
+			DoubleArrayList valList = new DoubleArrayList();
+			
 			mat.getNonZeros(rowList, colList, valList);
-		}
+			
+			Preconditions.checkState(rowList.size()>0, "rowList is empty!");
+			Preconditions.checkState(rowList.size() == colList.size() && colList.size() == valList.size(),
+			"array sizes incorrect!");
+			
+			// write header: rows, cols, values
+			out.writeInt(valList.size());
 
-		Preconditions.checkState(rowList.size()>0, "rowList is empty!");
-		Preconditions.checkState(rowList.size() == colList.size() && colList.size() == valList.size(),
-		"array sizes incorrect!");
+			for (int i=0; i<valList.size(); i++) {
+				int row = rowList.get(i);
+				int col = colList.get(i);
+				double val = valList.get(i);
 
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-
-		// write header: rows, cols, values
-		out.writeInt(mat.rows());
-		out.writeInt(mat.columns());
-		out.writeInt(valList.size());
-
-		for (int i=0; i<valList.size(); i++) {
-			int row = rowList.get(i);
-			int col = colList.get(i);
-			double val = valList.get(i);
-
-			out.writeInt(row);
-			out.writeInt(col);
-			out.writeDouble(val);
+				out.writeInt(row);
+				out.writeInt(col);
+				out.writeDouble(val);
+			}
 		}
 
 		out.close();

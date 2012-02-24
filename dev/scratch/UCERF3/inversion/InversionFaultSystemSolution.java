@@ -461,17 +461,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			if(D) System.out.println("Number of new nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
-		
-
-		// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
-		SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
-		A = Anew;
-		if (A_MFD != null) {
-			SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
-			A_MFD = A_MFD_new;
-		}
-		
-		
 		// SOLVE THE INVERSE PROBLEM
 		// Run Simulated Annealing - with or without waterlevel
 		if (addMinimumRuptureRateConstraint == false) {
@@ -484,7 +473,13 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				e.printStackTrace();
 			}
 			
-			
+			// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
+			SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
+			A = Anew;
+			if (A_MFD != null) {
+				SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
+				A_MFD = A_MFD_new;
+			}
 			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt, A_MFD, d_MFD);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
@@ -522,7 +517,13 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				e.printStackTrace();
 			}
 			
-			
+			// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
+			SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
+			A = Anew;
+			if (A_MFD != null) {
+				SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
+				A_MFD = A_MFD_new;
+			}
 			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d_offset, initialRupModel, relativeSmoothnessWt, A_MFD, d_MFD_offset);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
