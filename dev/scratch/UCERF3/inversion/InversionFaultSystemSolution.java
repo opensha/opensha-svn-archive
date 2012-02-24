@@ -509,7 +509,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				}
 			}
 			
-			// OPTIONAL: write everything to a zip file for Kevin!
+			// OPTIONAL: write everything to a zip file for Kevin!  
 			try {
 				writeZipFile(A, d_offset, initialRupModel, A_MFD, d_MFD_offset, minimumRuptureRates);
 			} catch (IOException e) {

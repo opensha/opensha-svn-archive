@@ -7,7 +7,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipException;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -63,7 +65,7 @@ public class RunInversion {
 		double maxTotAzimuthChange = 90;
 		double maxRakeDiff = 90;
 		int minNumSectInRup = 2;
-		double moRateReduction = 0.1;
+		double moRateReduction = 0.1;  // CURRENTLY NOT USED - UCERF2 relic
 		ArrayList<MagAreaRelationship> magAreaRelList = new ArrayList<MagAreaRelationship>();
 		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
@@ -73,7 +75,7 @@ public class RunInversion {
 		FaultSystemRupSet invFaultSystemRupSet;
 		try {	
 //			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.NCAL_SMALL.getRupSet();
-			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();  // put "true" as an argument to overwrite existing file
+			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet(true);  // put "true" as an argument to overwrite existing file
 //			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.ALLCAL.getRupSet();
 		} catch (Exception e) {
 			throw ExceptionUtils.asRuntimeException(e);
@@ -100,7 +102,7 @@ public class RunInversion {
 		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
 		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
 		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
-		int numIterations = 1000000;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
+		int numIterations = 0;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
 		
 		ArrayList<SegRateConstraint> segRateConstraints = UCERF2_PaleoSegRateData.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
 		long startTime, runTime;
@@ -193,9 +195,10 @@ public class RunInversion {
 		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds.");	
 
 		
-		// Alternatively, load solution from zip file instead of running inversion
-/*		if (D) System.out.print("\nLoading Solution from zip file . . . ");
-		File zipFile = new File(precomputedDataDir.getAbsolutePath()+"/NCAL_MFD3.zip");
+/*		// Alternatively, load solution from zip file instead of running inversion
+		if (D) System.out.print("\nLoading Solution from zip file . . . ");
+		System.out.print(precomputedDataDir.getAbsolutePath()+"/InversionSolutions/2012_02_22-model2-bench_sol1.zip");
+		File zipFile = new File(precomputedDataDir.getAbsolutePath()+"/InversionSolutions/2012_02_22-model2-bench_sol1.zip");
 		SimpleFaultSystemSolution inversion = null;
 		try {
 			startTime = System.currentTimeMillis();
