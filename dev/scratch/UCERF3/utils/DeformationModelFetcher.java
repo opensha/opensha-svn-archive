@@ -75,11 +75,11 @@ public class DeformationModelFetcher {
 		UCERF2_NCAL,
 		UCERF2_BAYAREA,
 		UCERF2_ALL,
-		UCERF3_ABM("ABM_slip_rake_feb06.csv"),
-		UCERF3_GEOBOUND("geobound_slip_rake_feb06.csv"),
-		UCERF3_NEOKINEMA("neokinema_slip_rake_feb06.csv"),
-		UCERF3_ZENG("zeng_slip_rake_feb06.csv"),
-		UCERF3_GEOLOGIC("geologic_2012_02_09.csv");
+		UCERF3_ABM("ABM_slip_rake_2012_02_21.csv"),
+		UCERF3_GEOBOUND("geobound_slip_rake_2012_02_21.csv"),
+		UCERF3_NEOKINEMA("neokinema_slip_rake_2012_02_21.csv"),
+		UCERF3_ZENG("zeng_slip_rake_2012_02_21.csv"),
+		UCERF3_GEOLOGIC("geologic_slip_rake_2012_02_21.csv");
 
 		private DefModName() {
 			this(null);
@@ -1108,46 +1108,45 @@ public class DeformationModelFetcher {
 	}
 
 	public static void main(String[] args) {
-//		try {
-			
 			File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
 			DeformationModelFetcher dm = new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
-			ArrayList<FaultSectionPrefData> dataList = dm.getSubSectionList();
-			for(FaultSectionPrefData data:dataList)
-				if(data.getAseismicSlipFactor()>=0.9)
-					System.out.println(data.getName()+"\tAseismicSlipFactor="+data.getAseismicSlipFactor());
-			System.out.println("Done with first section list");
 			
-	   		FaultSystemRupSet faultSysRupSet;
-			try {
-				faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
-		   		List<FaultSectionPrefData> faultSectionData = faultSysRupSet.getFaultSectionDataList();
-		   		for(FaultSectionPrefData data:faultSectionData)
-		   				if(data.getAseismicSlipFactor()>0.9)
-		   					System.out.println(data.getName()+"\t"+data.getAseismicSlipFactor());
-				System.out.println("Done with second section list");
+//			ArrayList<FaultSectionPrefData> dataList = dm.getSubSectionList();
+//			for(FaultSectionPrefData data:dataList)
+//				if(data.getAseismicSlipFactor()>=0.9)
+//					System.out.println(data.getName()+"\tAseismicSlipFactor="+data.getAseismicSlipFactor());
+//			System.out.println("Done with first section list");
+//			
+//	   		FaultSystemRupSet faultSysRupSet;
+//			try {
+//				faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
+//		   		List<FaultSectionPrefData> faultSectionData = faultSysRupSet.getFaultSectionDataList();
+//		   		for(FaultSectionPrefData data:faultSectionData)
+//		   				if(data.getAseismicSlipFactor()>0.9)
+//		   					System.out.println(data.getName()+"\t"+data.getAseismicSlipFactor());
+//				System.out.println("Done with second section list");
+//
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (DocumentException e) {
+//				e.printStackTrace();
+//			}
 
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (DocumentException e) {
-				e.printStackTrace();
-			}
 
-
-			
-//			dm.getSubSectionDistanceMap(5d);
-//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, FM 3.1 Subsections",
-//					new SimpleDateFormat().format(new Date()));
-//			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
-//					new File(precomputedDataDir, "fault_sections.txt").getAbsolutePath());
-			//			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
-			//			new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
-			//			new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
-			//			new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
-//		System.exit(0);
+		try {
+			dm.getSubSectionDistanceMap(5d);
+			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, FM 3.1 Subsections",
+					new SimpleDateFormat().format(new Date()));
+			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
+					new File(precomputedDataDir, "fault_sections.txt").getAbsolutePath());
+						new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
+						new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
+						new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
+						new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		System.exit(0);
 	}
 }
