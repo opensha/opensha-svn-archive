@@ -30,6 +30,23 @@ import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
+
+/**
+ * This is for making GMT maps of nucleation rates, participation rates, or ratios of these.
+ * 
+ * To Do: 
+ * 
+ * 1) add option for non-black background in plots
+ * 
+ * 2) fix CPT parameter problem (can't set one, but can only use default)
+ * 
+ * 3) add participation rate plotting
+ * 
+ * 
+ * @author field
+ *
+ *
+ */
 public class GMT_CA_Maps {
 	
 	final static boolean makeMapOnServer = false;

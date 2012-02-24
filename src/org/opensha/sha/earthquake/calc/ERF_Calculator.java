@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
@@ -230,13 +231,13 @@ public class ERF_Calculator {
   
 
   /**
-   * The gives the effective participation rates for events greater than or equal to minMag
+   * The gives the effective nucleation rates for events greater than or equal to minMag
    * and less than maxMag for each point in the supplied GriddedRegion.
    * @param erf - it's assumed that erf.updateForecast() has already been called
    * @param griddedRegion
    * @param minMag
    * @param maxMag
-   * @return GriddedGeoDataSet - X-axis is set as Latitude
+   * @return GriddedGeoDataSet - X-axis is set as Latitude, and Y-axis is Longitude
    */
   public static GriddedGeoDataSet getNucleationRatesInRegion(ERF erf, GriddedRegion griddedRegion,
 		  double minMag, double maxMag) {
@@ -245,10 +246,8 @@ public class ERF_Calculator {
 	  double[] zVals = new double[griddedRegion.getNodeCount()];
 	  
 	  double duration = erf.getTimeSpan().getDuration();
-	  for (int s = 0; s < erf.getNumSources(); ++s) {
-		  ProbEqkSource source = erf.getSource(s);
-		  for (int r = 0; r < source.getNumRuptures(); ++r) {
-			  ProbEqkRupture rupture = source.getRupture(r);
+	  for (ProbEqkSource source : erf) {
+		  for (ProbEqkRupture rupture : source) {
 			  double mag = rupture.getMag();
 			  if(mag>=minMag && mag<maxMag) {
 				  LocationList surfLocs = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
@@ -270,6 +269,47 @@ public class ERF_Calculator {
 	  
 	  return xyzData;
   }
+  
+  
+  
+  /**
+   * The gives the effective participation rates for events greater than or equal to minMag
+   * and less than maxMag for each point in the supplied GriddedRegion.
+   * @param erf - it's assumed that erf.updateForecast() has already been called
+   * @param griddedRegion
+   * @param minMag
+   * @param maxMag
+   * @return GriddedGeoDataSet - X-axis is set as Latitude, and Y-axis is Longitude
+   */
+  public static GriddedGeoDataSet getParticipationRatesInRegion(ERF erf, GriddedRegion griddedRegion,
+		  double minMag, double maxMag) {
+	  
+	  GriddedGeoDataSet xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+	  double[] zVals = new double[griddedRegion.getNodeCount()];
+	  
+	  double duration = erf.getTimeSpan().getDuration();
+	  for (ProbEqkSource source : erf) {
+		  for (ProbEqkRupture rupture : source) {
+			  double mag = rupture.getMag();
+			  if(mag>=minMag && mag<maxMag) {
+				  HashSet<Integer> locIndices = new HashSet<Integer>();	// this will prevent duplicate entries
+				  for(Location loc: rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+					  locIndices.add(griddedRegion.indexForLocation(loc));
+				  }
+				  double qkRate = rupture.getMeanAnnualRate(duration);
+				  for(Integer locIndex : locIndices) {
+					  zVals[locIndex] += qkRate;
+				  }
+			  }
+		  }
+	  }
+	  
+	  for(int i=0;i<griddedRegion.getNodeCount();i++)
+		  xyzData.set(i, zVals[i]);
+	  
+	  return xyzData;
+  }
+
   
   
   /**
