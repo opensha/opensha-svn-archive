@@ -3,6 +3,7 @@ package scratch.UCERF3.inversion;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.opensha.commons.util.FileUtils;
@@ -13,11 +14,11 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
-import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import cern.colt.function.tdouble.IntIntDoubleFunction;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
@@ -469,39 +470,36 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			}
 			
 			// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
-			SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
-			A = Anew;
-			if (A_MFD != null) {
-				SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
-				A_MFD = A_MFD_new;
-			}
+			columnCompress();
 			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d, initialRupModel, relativeSmoothnessWt, A_MFD, d_MFD);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
 		} else {
-			double[] d_offset = new double[d.length];  // This is the offset data vector: d_offset = d-A*minimumRuptureRates
-			for (int i=0; i<A.rows(); i++) {
-				d_offset[i] = d[i];
-				for (int j=0; j<A.columns(); j++){
-					if (QUICK_GETS_SETS)
-						d_offset[i] -= A.getQuick(i, j) * minimumRuptureRates[j];
-					else
-						d_offset[i] -= A.get(i, j) * minimumRuptureRates[j];
+			// This is the offset data vector: d_offset = d-A*minimumRuptureRates
+			final double[] d_offset = Arrays.copyOf(d, d.length);
+			A.forEachNonZero(new IntIntDoubleFunction() {
+				
+				@Override
+				public synchronized double apply(int row, int col, double val) {
+					d_offset[row] -= val * minimumRuptureRates[col];
+					return val;
 				}
-			}
+			});
 			double[] d_MFD_offset = null;
 			if (d_MFD != null) {
-				// This is the offset data vector for MFD inequality constraint: d_MFD_offset = d_MFD-A*minimumRuptureRates
-				d_MFD_offset = new double[d_MFD.length];
-				for (int i=0; i<d_MFD.length ; i++) {
-					d_MFD_offset[i] = d_MFD[i];
-					for (int j=0; j<A_MFD.columns(); j++){
-						if (QUICK_GETS_SETS)
-							d_MFD_offset[i] -= A_MFD.getQuick(i, j) * minimumRuptureRates[j];
-						else
-							d_MFD_offset[i] -= A_MFD.get(i, j) * minimumRuptureRates[j];
+				// This is the offset data vector for MFD inequality constraint:
+				// d_MFD_offset = d_MFD-A*minimumRuptureRates
+				
+				final double[] d_MFD_offset_temp = Arrays.copyOf(d_MFD, d_MFD.length);
+				A_MFD.forEachNonZero(new IntIntDoubleFunction() {
+					
+					@Override
+					public synchronized double apply(int row, int col, double val) {
+						d_MFD_offset_temp[row] -= val * minimumRuptureRates[col];
+						return val;
 					}
-				}
+				});
+				d_MFD_offset = d_MFD_offset_temp;
 			}
 			
 			// OPTIONAL: write everything to a zip file for Kevin!  
@@ -513,12 +511,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			}
 			
 			// Transform A matrix & A_MFD to different type that's SUPER FAST for multiplication !!!
-			SparseCCDoubleMatrix2D Anew = ((SparseDoubleMatrix2D)A).getColumnCompressed(true);
-			A = Anew;
-			if (A_MFD != null) {
-				SparseCCDoubleMatrix2D A_MFD_new = ((SparseDoubleMatrix2D)A_MFD).getColumnCompressed(true);
-				A_MFD = A_MFD_new;
-			}
+			columnCompress();
 			SimulatedAnnealing sa = new SerialSimulatedAnnealing(A, d_offset, initialRupModel, relativeSmoothnessWt, A_MFD, d_MFD_offset);
 			sa.iterate(numIterations);
 			rupRateSolution = sa.getBestSolution();
@@ -536,6 +529,22 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //		
 //		rupRateSolution = SimulatedAnnealing.getSolution(A,d,initialRupModel, numIterations);    		
 		
+	}
+	
+	private void columnCompress() {
+		A = getColumnCompressed(A);
+		if (A_MFD != null)
+			A_MFD = getColumnCompressed(A_MFD);
+	}
+	
+	private static SparseCCDoubleMatrix2D getColumnCompressed(DoubleMatrix2D mat) {
+		if (mat instanceof SparseCCDoubleMatrix2D)
+			return (SparseCCDoubleMatrix2D)mat;
+		if (mat instanceof SparseRCDoubleMatrix2D)
+			return ((SparseRCDoubleMatrix2D)mat).getColumnCompressed();
+		if (mat instanceof SparseDoubleMatrix2D)
+			return ((SparseDoubleMatrix2D)mat).getColumnCompressed(true);
+		throw new RuntimeException("Can't column compress matrix: "+mat);
 	}
 	
 	private static void writeZipFile(
