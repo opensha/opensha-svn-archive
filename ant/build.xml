@@ -270,8 +270,7 @@
 		</copy>
 		<copy todir="${build}/scratch/UCERF3/data" overwrite="true">
 			<fileset dir="${dev}/scratch/UCERF3/data">
-				<include name="**/*.txt" />
-				<exclude name="**/data/scratch/**" />
+				<exclude name="scratch/**" />
 			</fileset>
 		</copy>
 
