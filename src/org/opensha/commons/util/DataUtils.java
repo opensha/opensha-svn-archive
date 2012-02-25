@@ -252,11 +252,13 @@ public class DataUtils {
 //	}
 	
 	public static double getPercentDiff(double testVal, double targetVal) {
-		double result = 0;
-		if (targetVal != 0)
-			result = (Math.abs(testVal - targetVal) / targetVal) * 100d;
-
-		return result;
+		if (targetVal == 0){
+			if (testVal == 0)
+				return 0;
+			else
+				return Double.POSITIVE_INFINITY;
+		}
+		return (Math.abs(testVal - targetVal) / targetVal) * 100d;
 	}
 // TODO clean
 	public static void main(String[] args) {
