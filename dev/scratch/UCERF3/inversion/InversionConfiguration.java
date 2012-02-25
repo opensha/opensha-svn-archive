@@ -17,7 +17,7 @@ import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
 
 /**
  * This represents all of the inversion configuration parameters specific to an individual model
@@ -289,8 +289,8 @@ public class InversionConfiguration {
 	 */
 	public static double[] getUCERF2Solution(
 			FaultModelBranches fm, FaultSystemRupSet faultSystemRupSet) {
-		FindEquivUCERF2_FM3_Ruptures findUCERF2_Rups =
-			new FindEquivUCERF2_FM3_Ruptures(faultSystemRupSet,
+		FindEquivUCERF2_Ruptures findUCERF2_Rups =
+			new FindEquivUCERF2_Ruptures(faultSystemRupSet,
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, fm);
 		// TODO!
 		int numRuptures=faultSystemRupSet.getNumRuptures();

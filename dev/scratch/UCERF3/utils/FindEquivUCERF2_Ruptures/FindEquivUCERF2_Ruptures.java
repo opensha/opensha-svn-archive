@@ -118,7 +118,7 @@ import com.google.common.base.Preconditions;
  * 
  * @author field
  */
-public class FindEquivUCERF2_FM3_Ruptures {
+public class FindEquivUCERF2_Ruptures {
 	
 	protected final static boolean D = false;  // for debugging
 	
@@ -193,7 +193,7 @@ public class FindEquivUCERF2_FM3_Ruptures {
 	 * @param precomputedDataDir
 	 * @param faultModel - this could alternatively should be obtained from the faultSysRupSet
 	 */
-	public FindEquivUCERF2_FM3_Ruptures(FaultSystemRupSet faultSysRupSet, File scratchDir, FaultModelBranches faultModel) {
+	public FindEquivUCERF2_Ruptures(FaultSystemRupSet faultSysRupSet, File scratchDir, FaultModelBranches faultModel) {
 		scratchDir = new File(scratchDir, SUB_DIR_NAME);
 		this.scratchDir = scratchDir;
 		if (!scratchDir.exists())
@@ -1411,7 +1411,7 @@ if(debug) System.exit(0);
 		
 //		FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_2);
 		
-		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, ucerf3_fm);
+		FindEquivUCERF2_Ruptures test = new FindEquivUCERF2_Ruptures(faultSysRupSet, precompDataDir, ucerf3_fm);
 		test.writePreComputedDataFile();
 		
 		test.plotMFD_Test();

@@ -27,7 +27,7 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModelBranches;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 
@@ -235,7 +235,7 @@ public class GMT_CA_Maps {
 	 */
 	public static void main(String[] args) {
 		System.out.println("Getting ERF");
-		ERF modMeanUCERF2 = FindEquivUCERF2_FM3_Ruptures.buildERF(FaultModelBranches.FM3_1);
+		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(FaultModelBranches.FM3_1);
 		System.out.println("Making xyzData");
 //		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(modMeanUCERF2, defaultGridRegion, 0, 10);
 

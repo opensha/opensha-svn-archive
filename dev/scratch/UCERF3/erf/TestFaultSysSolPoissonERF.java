@@ -13,8 +13,8 @@ import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures.UCERF2_FaultModel;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures.UCERF2_FaultModel;
 
 public class TestFaultSysSolPoissonERF {
 
@@ -100,7 +100,7 @@ public class TestFaultSysSolPoissonERF {
 //		System.exit(0);
 
 		
-		ERF modMeanUCERF2 = FindEquivUCERF2_FM3_Ruptures.buildERF(UCERF2_FaultModel.FM2_1);
+		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(UCERF2_FaultModel.FM2_1);
 		modMeanUCERF2.updateForecast();
 		System.out.println("done with modMeanUCERF2");
 		
