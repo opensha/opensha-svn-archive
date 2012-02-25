@@ -23,9 +23,9 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  * 
  * To Do:
  * 
- * 1) test everything.
- * 2) convert cum MFDs to incremental versions.
+ * 1) convert cum MFDs to incremental versions.
  * 2) add getters and setters for the various MFDs.
+ * 3) more tests (beyond those in the main method here)?
  * 
  * @author field
  *
@@ -282,9 +282,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1984);
 		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
 		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
-
-
-		
+	
 //		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
 //		test.plotCumMFDs();
 	}
