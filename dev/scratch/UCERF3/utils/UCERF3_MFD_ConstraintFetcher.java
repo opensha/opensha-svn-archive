@@ -18,6 +18,14 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
 /**
+ * The reads Karen's MFD files for All Ca, No. Ca., and So. Ca., and provides 
+ * target MFD_InversionConstraints for the specified time span (1850-2011 and 1984-2011) and region.
+ * 
+ * To Do:
+ * 
+ * 1) test everything.
+ * 2) convert cum MFDs to incremental versions.
+ * 2) add getters and setters for the various MFDs.
  * 
  * @author field
  *
@@ -101,40 +109,39 @@ public class UCERF3_MFD_ConstraintFetcher {
 		switch(timeAndRegion) {
 		case ALL_CA_1850: 
 			mfds = readMFD_DataFromFile("WholeRegion1850_2011_v1.txt");
-			region = null;
+			region = new CaliforniaRegions.RELM_TESTING();
 			break;
 		case ALL_CA_1984:
 			mfds = readMFD_DataFromFile("WholeRegion1984_2011_v1.txt");
-			region = null;			
+			region = new CaliforniaRegions.RELM_TESTING();			
 			break;
 		case NO_CA_1850: 
 			mfds = readMFD_DataFromFile("NoCal1850_2011_v1.txt");
-			region = null;
+			region = new CaliforniaRegions.RELM_NOCAL();
+;
 			break;
 		case NO_CA_1984:
 			mfds = readMFD_DataFromFile("NoCal1984_2011_v1.txt");
-			region = null;	
+			region = new CaliforniaRegions.RELM_NOCAL();	
 			break;
 		case SO_CA_1850: 
 			mfds = readMFD_DataFromFile("SoCal1850_2011_v1.txt");
-			region = null;
+			region = new CaliforniaRegions.RELM_SOCAL();
 			break;
 		case SO_CA_1984:
 			mfds = readMFD_DataFromFile("SoCal1984_2011_v1.txt");
-			region = null;
+			region = new CaliforniaRegions.RELM_SOCAL();
 			break;
 		}
 		
-		System.out.println("mfds.get(0):\n"+mfds.get(0));
-
 		double totalTargetRate = mfds.get(0).getY(TARGET_MIN_MAG-TARGET_DELTA_MAG/2.0);
 		
 		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,totalTargetRate,
 				TARGET_MIN_MAG,TARGET_MAX_MAG,TARGET_NUM_MAG);
 		
         if(D) {
-        	System.out.println("minTargetMagTest="+(TARGET_MIN_MAG-TARGET_DELTA_MAG/2.0));
-        	System.out.println("totalTargetRate="+totalTargetRate+"\t"+targetMFD.getTotCumRate());
+ //       	System.out.println("minTargetMagTest="+(TARGET_MIN_MAG-TARGET_DELTA_MAG/2.0));
+        	System.out.println(timeAndRegion+" totalTargetRate="+totalTargetRate+"\t"+(float)targetMFD.getTotCumRate());
 //        	System.out.println("targetMFD=\n"+targetMFD);
         }
 		
@@ -269,7 +276,14 @@ public class UCERF3_MFD_ConstraintFetcher {
 	 */
 	public static void main(String[] args) {
 		
-		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
+		MFD_InversionConstraint invConstr = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
+		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1984);
+		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850);
+		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1984);
+		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
+		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
+
+
 		
 //		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
 //		test.plotCumMFDs();

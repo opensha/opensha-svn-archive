@@ -80,6 +80,7 @@ public class CaliforniaRegions {
 		public RELM_TESTING() {
 			super(readCoords("RELM_testing.coords"), 
 					BorderType.MERCATOR_LINEAR);
+			this.setName("RELM_TESTING Region");
 		}
 	}
 			
@@ -133,6 +134,7 @@ public class CaliforniaRegions {
 		public RELM_NOCAL() {
 			super(readCoords("RELM_NoCal.coords"), 
 					BorderType.MERCATOR_LINEAR);
+			this.setName("RELM_NOCAL Region");
 		}
 	}
 
@@ -156,6 +158,7 @@ public class CaliforniaRegions {
 		public RELM_SOCAL() {
 			super(readCoords("RELM_SoCal.coords"), 
 					BorderType.MERCATOR_LINEAR);
+			this.setName("RELM_SOCAL Region");
 		}
 	}
 

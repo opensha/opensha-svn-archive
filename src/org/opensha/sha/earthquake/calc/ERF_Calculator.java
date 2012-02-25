@@ -294,7 +294,9 @@ public class ERF_Calculator {
 			  if(mag>=minMag && mag<maxMag) {
 				  HashSet<Integer> locIndices = new HashSet<Integer>();	// this will prevent duplicate entries
 				  for(Location loc: rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
-					  locIndices.add(griddedRegion.indexForLocation(loc));
+					  int index = griddedRegion.indexForLocation(loc);
+					  if(index >= 0)
+						  locIndices.add(index);
 				  }
 				  double qkRate = rupture.getMeanAnnualRate(duration);
 				  for(Integer locIndex : locIndices) {
