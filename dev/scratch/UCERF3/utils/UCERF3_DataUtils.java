@@ -16,7 +16,7 @@ public class UCERF3_DataUtils {
 	 * This is the location for scratch data that is computed locally and will never
 	 * be committed to the repository
 	 */
-	public static File DEFAULT_SCRATCH_DATA_DIR = new File("dev/scrach/UCERF3/data/scratch");
+	public static File DEFAULT_SCRATCH_DATA_DIR = new File("dev/scratch/UCERF3/data/scratch");
 	
 	/**
 	 * This is the URL prefix for loading file from the persistant data directory
@@ -104,6 +104,30 @@ public class UCERF3_DataUtils {
 	public static Reader getReader(URL url) throws IOException {
 		URLConnection uc = url.openConnection();
 		return new InputStreamReader((InputStream) uc.getContent());
+	}
+	
+	/**
+	 * This loads the given resource as a reader
+	 * 
+	 * @param fileName
+	 * @return
+	 * @throws IOException 
+	 */
+	public static Reader getReader(String fileName) throws IOException {
+		return getReader(null, fileName);
+	}
+	
+	/**
+	 * This loads the given resource as a reader
+	 * 
+	 * @param subDirName
+	 * @param fileName
+	 * @return
+	 * @throws IOException 
+	 */
+	public static Reader getReader(String subDirName, String fileName) throws IOException {
+		InputStream stream = locateResourceAsStream(subDirName, fileName);
+		return getReader(stream);
 	}
 
 }

@@ -74,7 +74,7 @@ public class RunInversion {
 		FileReader inputFile;
 		try {
 			BufferedReader in = new BufferedReader(
-					UCERF3_DataUtils.getReader(UCERF3_DataUtils.locateResourceAsStream("coulomb", fileName)));
+					UCERF3_DataUtils.getReader("coulomb", fileName));
 			String s = in.readLine();
 			int i = 0;
 			while(s!=null)
