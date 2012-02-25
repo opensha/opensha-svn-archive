@@ -268,10 +268,10 @@
 				<include name="**/*.grd" />
 			</fileset>
 		</copy>
-		<copy todir="${build}/scratch/UCERF3/preComputedData/DeformationModels" overwrite="true">
-			<fileset dir="${dev}/scratch/UCERF3/preComputedData/DeformationModels/">
+		<copy todir="${build}/scratch/UCERF3/data" overwrite="true">
+			<fileset dir="${dev}/scratch/UCERF3/data">
 				<include name="**/*.txt" />
-				<include name="**/*.csv" />
+				<exclude name="**/data/scratch/**" />
 			</fileset>
 		</copy>
 
