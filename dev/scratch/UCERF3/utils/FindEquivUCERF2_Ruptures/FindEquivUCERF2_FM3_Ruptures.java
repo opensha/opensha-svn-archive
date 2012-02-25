@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -179,6 +180,7 @@ public class FindEquivUCERF2_FM3_Ruptures {
 	 * 
 	 * @param faultSysRupSet
 	 * @param precomputedDataDir
+	 * @param faultModel - this could alternatively should be obtained from the faultSysRupSet
 	 */
 	public FindEquivUCERF2_FM3_Ruptures(FaultSystemRupSet faultSysRupSet, File precomputedDataDir, FaultModelBranches faultModel) {
 		this.precomputedDataDir = precomputedDataDir;
@@ -942,17 +944,16 @@ public class FindEquivUCERF2_FM3_Ruptures {
 
 	}
 	
-	public void plotGMT_MapRatio_Test() {
+	public void plotGMT_MapRatio_Tests() {
 
 //		GMT_CA_Maps.plotParticipationRateMap(modMeanUCERF2_FM1or2, 0, 10, "Test Ratio", "FindEquivUCERF2_FM3_Ruptures Test Ratio", "ucerf2to3_MapingTest");
 
 		GriddedRegion griddedRegion = GMT_CA_Maps.getDefaultGriddedRegion();
 
+		// First do nucleation rates
 		GriddedGeoDataSet erfNucleationRates = ERF_Calculator.getNucleationRatesInRegion(modMeanUCERF2_FM1or2, griddedRegion, 0, 10);
-
 		GriddedGeoDataSet mappingNucleationRates = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		double[] zVals = new double[mappingNucleationRates.size()];
-
 		// loop over ucerf2 ruptures
 		for(int ur=0; ur<rateOfUCERF2_Rup.length;ur++) {
 			int ir = invRupIndexForUCERF2_Rup[ur];	// get inversion rupture index of the ucerf2 rup
@@ -968,18 +969,49 @@ public class FindEquivUCERF2_FM3_Ruptures {
 					int index = griddedRegion.indexForLocation(loc);
 					//int index = xyzData.indexOf(loc);	// was too slow
 					if(index >= 0) {
-						//							  xyzData.set(index, xyzData.get(index)+ptRate);	// was too slow
+						//	xyzData.set(index, xyzData.get(index)+ptRate);	// was too slow
 						zVals[index] += ptRate;
 					}			  
 				}
 			}
 		}
-
 		for(int i=0;i<griddedRegion.getNodeCount();i++)
 			mappingNucleationRates.set(i, zVals[i]);
-		
 		GMT_CA_Maps.plotRatioOfRateMaps(mappingNucleationRates, erfNucleationRates, 
-				"Test Ratio", "FindEquivUCERF2_FM3_Ruptures Test Ratio", "ucerf2to3_MapingTest");
+				"Nucleation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Nucleation Rate Ratio Test", "ucerf2to3_MapingNuclRatioTest");
+
+		
+		// Now do participation rates
+		GriddedGeoDataSet erfParticipationRates = ERF_Calculator.getParticipationRatesInRegion(modMeanUCERF2_FM1or2, griddedRegion, 0, 10);
+		GriddedGeoDataSet mappingParticipationRates = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		zVals = new double[mappingParticipationRates.size()];
+		// loop over ucerf2 ruptures
+		for(int ur=0; ur<rateOfUCERF2_Rup.length;ur++) {
+			int ir = invRupIndexForUCERF2_Rup[ur];	// get inversion rupture index of the ucerf2 rup
+			if(ir>=0) {
+				ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
+				for(FaultSectionPrefData fltData: faultSysRupSet.getFaultSectionDataForRupture(ir)) {
+					surfaces.add(fltData.getStirlingGriddedSurface(1.0, false, true));
+				}
+				CompoundGriddedSurface compSurf = new CompoundGriddedSurface(surfaces);
+				LocationList surfLocs = compSurf.getEvenlyDiscritizedListOfLocsOnSurface();
+				HashSet<Integer> locIndices = new HashSet<Integer>();	// this will prevent duplicate entries
+				for(Location loc: surfLocs) {
+					int index = griddedRegion.indexForLocation(loc);
+					if(index >= 0)
+						locIndices.add(griddedRegion.indexForLocation(loc));
+				}
+				double qkRate = rateOfUCERF2_Rup[ur];
+				for(Integer locIndex : locIndices) {
+						  zVals[locIndex] += qkRate;
+				}
+			}
+		}
+
+		for(int i=0;i<griddedRegion.getNodeCount();i++)
+			mappingParticipationRates.set(i, zVals[i]);
+		GMT_CA_Maps.plotRatioOfRateMaps(mappingParticipationRates, erfParticipationRates, 
+				"Participation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Participation Rate Ratio Test", "ucerf2to3_MapingPartRatioTest");
 
 	}
 	
@@ -1194,12 +1226,12 @@ public class FindEquivUCERF2_FM3_Ruptures {
 		double dist;
 	
 		boolean debug = false;
-		if(parentSectionNames.size()>0 && parentSectionNames.get(0).equals("Burnt Mtn")){
+//		if(parentSectionNames.size()>0 && parentSectionNames.get(0).equals("Burnt Mtn")){
 //			debug = true;
-			System.out.println("DEBUG STUFF:");
-			System.out.println("rupEndLoc: "+rupEndLoc);
-			System.out.println("\nrupTrace:\n"+rupTrace);
-		}
+//			System.out.println("DEBUG STUFF:");
+//			System.out.println("rupEndLoc: "+rupEndLoc);
+//			System.out.println("\nrupTrace:\n"+rupTrace);
+//		}
 
 		double closestDist=Double.MAX_VALUE, secondClosestDist=Double.MAX_VALUE;
 		int clostestSect=-1, secondClosestSect=-1;
@@ -1359,15 +1391,7 @@ if(debug) System.exit(0);
 		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
 
 		if(D) System.out.println("Getting rup set");
-   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
-   		
-//   		List<FaultSectionPrefData> faultSectionData = faultSysRupSet.getFaultSectionDataList();
-//   		for(FaultSectionPrefData data:faultSectionData)
-//   				if(data.getAseismicSlipFactor()>0.9)
-//   					System.out.println(data.getName()+"\t"+data.getAseismicSlipFactor());
-//
-//System.exit(0);
-
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
 		if(D) System.out.println("Done getting rup set");
 		
 //		FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_2);
@@ -1376,7 +1400,7 @@ if(debug) System.exit(0);
 		
 		test.plotMFD_Test();
 		
-		test.plotGMT_MapRatio_Test();
+		test.plotGMT_MapRatio_Tests();
 
 		
 	}
