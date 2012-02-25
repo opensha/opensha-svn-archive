@@ -50,10 +50,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
  * @author Field, Milner, Page, and Powers
  *
  */
-public abstract class FaultSystemSolution implements FaultSystemRupSet {
-	
-	private boolean showProgress = false;
-	protected double[][] fractRupsInsideMFD_Regions = null;
+public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	
 	/**
 	 * These gives the long-term rate (events/yr) of the rth rupture
@@ -79,12 +76,12 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	}
 	
 	public void clearCache() {
+		super.clearCache();
 		slipPDFMap.clear();
 		particRatesCache.clear();
 		totParticRatesCache = null;
 		paleoVisibleRatesCache = null;
 		slipRatesCache = null;
-		rupturesForSectionCache.clear();
 	}
 	
 	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPDFMap =
@@ -177,7 +174,6 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			CalcProgressBar p = null;
 			if (showProgress) {
 				p = new CalcProgressBar("Calculating Participation Rates", "Calculating Participation Rates");
-				p.displayProgressBar();
 			}
 			for (int i=0; i<particRates.length; i++) {
 				if (p != null) p.updateProgress(i, particRates.length);
@@ -220,7 +216,6 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			CalcProgressBar p = null;
 			if (showProgress) {
 				p = new CalcProgressBar("Calculating Total Participation Rates", "Calculating Total Participation Rates");
-				p.displayProgressBar();
 			}
 			for (int i=0; i<totParticRatesCache.length; i++) {
 				if (p != null) p.updateProgress(i, totParticRatesCache.length);
@@ -266,7 +261,6 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			CalcProgressBar p = null;
 			if (showProgress) {
 				p = new CalcProgressBar("Calculating Paleo Visible Rates", "Calculating Paleo Visible Rates");
-				p.displayProgressBar();
 			}
 			for (int i=0; i<paleoVisibleRatesCache.length; i++) {
 				if (p != null) p.updateProgress(i, paleoVisibleRatesCache.length);
@@ -310,7 +304,6 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			CalcProgressBar p = null;
 			if (showProgress) {
 				p = new CalcProgressBar("Calculating Slip Rates", "Calculating Slip Rates");
-				p.displayProgressBar();
 			}
 			for (int i=0; i<slipRatesCache.length; i++) {
 				if (p != null) p.updateProgress(i, slipRatesCache.length);
@@ -463,33 +456,6 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 		return datas;
 	}
 	
-	private ArrayList<ArrayList<Integer>> rupturesForSectionCache = null;
-	
-	@Override
-	public List<Integer> getRupturesForSection(int secIndex) {
-		if (rupturesForSectionCache == null) {
-			CalcProgressBar p = null;
-			if (showProgress) {
-				p = new CalcProgressBar("Calculating Ruptures for each Section", "Calculating Ruptures for each Section");
-				p.displayProgressBar();
-			}
-			rupturesForSectionCache = new ArrayList<ArrayList<Integer>>();
-			for (int secID=0; secID<getNumSections(); secID++)
-				rupturesForSectionCache.add(new ArrayList<Integer>());
-			
-			int numRups = getNumRuptures();
-			for (int rupID=0; rupID<numRups; rupID++) {
-				if (p != null) p.updateProgress(rupID, numRups);
-				for (int secID : getSectionsIndicesForRup(rupID)) {
-					rupturesForSectionCache.get(secID).add(rupID);
-				}
-			}
-			if (p != null) p.dispose();
-		}
-		
-		return rupturesForSectionCache.get(secIndex);
-	}
-	
 	/**
 	 * This creates a CompoundGriddedSurface for the specified rupture.  This applies aseismicity as
 	 * a reduction of area and sets preserveGridSpacingExactly=false so there are no cut-off ends
@@ -604,7 +570,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * Fault System Solution.
 	 * 
 	 */
-	public void plotPaleoObsAndPredPaleoEventRates(ArrayList<PaleoRateConstraint> paleoRateConstraints) {
+	public void plotPaleoObsAndPredPaleoEventRates(List<PaleoRateConstraint> paleoRateConstraints) {
 		int numSections = this.getNumSections();
 		int numRuptures = this.getNumRuptures();
 		ArrayList funcs3 = new ArrayList();		
@@ -664,7 +630,7 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 	 * implied by the Fault System Solution
 	 * @param mfdConstraints
 	 */
-	public void plotMFDs(ArrayList<MFD_InversionConstraint> mfdConstraints) {
+	public void plotMFDs(List<MFD_InversionConstraint> mfdConstraints) {
 		
 		for (int i=0; i<mfdConstraints.size(); i++) {  // Loop over each MFD constraint 	
 			IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
@@ -689,52 +655,5 @@ public abstract class FaultSystemSolution implements FaultSystemRupSet {
 			graph4.setY_AxisLabel("Frequency (per bin)");
 		}
 	}
-	
-	private ArrayList<MFD_InversionConstraint> prev_mfdConstraints;
-	
-	/**
-	 * This computes the fraction of each rupture inside each region in the given mfdConstraints, where results
-	 * are stored in the fractRupsInsideMFD_Regions[iRegion][iRup] double array
-	 * @param mfdConstraints
-	 */
-	protected void computeFractRupsInsideMFD_Regions(ArrayList<MFD_InversionConstraint> mfdConstraints) {
-		if(fractRupsInsideMFD_Regions == null && mfdConstraints != prev_mfdConstraints) {
-			// do only if not already done
-			prev_mfdConstraints = mfdConstraints;
-			
-			System.out.println("Computing fraction rups in MDS regions ...");
-			int numRuptures = getNumRuptures();
-			fractRupsInsideMFD_Regions = new double[mfdConstraints.size()][numRuptures];
-			double[][] fractSectionInsideMFD_Regions = new double[mfdConstraints.size()][getNumSections()];
-			int[] numPtsInSection = new int[getNumSections()];
-			double gridSpacing=1; // km; this will be faster if this is increased, or if we used the section trace rather than the whole surface
-			// first fill in fraction of section in each region (do each only once)
-			for(int s=0;s<getNumSections(); s++) {
-				StirlingGriddedSurface surf = getFaultSectionData(s).getStirlingGriddedSurface(gridSpacing, false, true);
-				numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
-				for(int i=0;i<mfdConstraints.size(); i++) {
-					Region region = mfdConstraints.get(i).getRegion();
-					fractSectionInsideMFD_Regions[i][s] = RegionUtils.getFractionInside(region, surf.getEvenlyDiscritizedListOfLocsOnSurface());
-				}
-			}
-			// now fill in fraction of rupture in each region
-			for (int i=0; i < mfdConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
-				IncrementalMagFreqDist targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();	
-				for(int rup=0; rup<numRuptures; rup++) {
-					double mag = getMagForRup(rup);
-					List<Integer> sectionsIndicesForRup = getSectionsIndicesForRup(rup);
-					double fractionRupInRegion=0;
-					int totNumPts = 0;
-					for(Integer s:sectionsIndicesForRup) {
-						fractRupsInsideMFD_Regions[i][rup] += fractSectionInsideMFD_Regions[i][s]*numPtsInSection[s];
-						totNumPts += numPtsInSection[s];
-					}
-					fractRupsInsideMFD_Regions[i][rup] /= totNumPts;
-				}
-				System.out.println("Done with MFD constraint #"+i);
-			}
-		}
-	}
-	
 
 }

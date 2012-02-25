@@ -47,10 +47,11 @@ public class UCERF2_MFD_ConstraintFetcher {
 	final static double B_VALUE = 1.0;	// b-value for total target distribution
 	final static int LAST_FLT_SRC_INDEX = 408; // found by hand!
 	
+	public UCERF2_MFD_ConstraintFetcher() {
+		this(null);
+	}
 	
 	public UCERF2_MFD_ConstraintFetcher(Region region) {
-		
-		this.region=region;
 
 		long startRunTime=System.currentTimeMillis();
 
@@ -68,13 +69,16 @@ public class UCERF2_MFD_ConstraintFetcher {
 		double runtime = (System.currentTimeMillis()-startRunTime)/1000;
 		System.out.println("MeanUCERF2_ETAS instantiation took "+runtime+" seconds");
 		
-		startRunTime=System.currentTimeMillis();
-		System.out.println("Starting computeMFDs()");
-		computeMFDs();
-		runtime = (System.currentTimeMillis()-startRunTime)/1000;
-		System.out.println("Computing MFDs took "+runtime+" seconds");
+		// this shouldn't be called by default, only if we actually have a region!
+//		startRunTime=System.currentTimeMillis();
+//		System.out.println("Starting computeMFDs()");
+//		computeMFDs();
+//		runtime = (System.currentTimeMillis()-startRunTime)/1000;
+//		System.out.println("Computing MFDs took "+runtime+" seconds");
 
-
+		if (region != null)
+			// this also computes MFDs
+			setRegion(region);
 	}
 	
 	/**

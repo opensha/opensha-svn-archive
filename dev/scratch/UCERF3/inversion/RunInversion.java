@@ -7,27 +7,27 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipException;
 
-import org.dom4j.DocumentException;
-import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.InversionModelBranches;
+import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
+import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
+import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
 
 /**
@@ -50,199 +50,9 @@ public class RunInversion {
 		WEAKEST_LINK;
 	}
 	
-	FaultSystemRupSet faultSystemRupSet;
-	private InversionFaultSystemSolution inversion;
-
-	public RunInversion() {
-		this(new File("dev/scratch/UCERF3/preComputedData/"));
-	}
-	
-	private static FaultSystemRupSet buildRupSet(File precomputedDataDir) {
-		// the InversionFaultSystemRupSet parameters
-		double maxJumpDist = 5.0;
-		double maxCumJumpDist = 10.0;
-		double maxAzimuthChange = 90;
-		double maxTotAzimuthChange = 90;
-		double maxRakeDiff = 90;
-		int minNumSectInRup = 2;
-		double moRateReduction = 0.1;  // CURRENTLY NOT USED - UCERF2 relic
-		ArrayList<MagAreaRelationship> magAreaRelList = new ArrayList<MagAreaRelationship>();
-		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
-		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
-		
-		// Instantiate the FaultSystemRupSet
-		long startTime = System.currentTimeMillis();
-		FaultSystemRupSet invFaultSystemRupSet;
-		try {	
-//			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.NCAL_SMALL.getRupSet();
-			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet(true);  // put "true" as an argument to overwrite existing file
-//			invFaultSystemRupSet = InversionFaultSystemRupSetFactory.ALLCAL.getRupSet();
-		} catch (Exception e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}	
-		long runTime = System.currentTimeMillis()-startTime;
-		System.out.println("\nFaultSystemRupSet instantiation took " + (runTime/1000) + " seconds");	
-		
-		return invFaultSystemRupSet;
-	}
-	
-	public RunInversion(File precomputedDataDir) {
-		this(buildRupSet(precomputedDataDir), precomputedDataDir);
-	}
-	
-	public RunInversion(FaultSystemRupSet faultSystemRupSet, File precomputedDataDir) {
-		// Parameters for InversionFaultSystemSolution
-		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
-		boolean addMinimumRuptureRateConstraint = true;  // If true, add waterlevel (defined in minimumRuptureRates) to solution (otherwise, minimum rupture rates are 0)
-		double relativePaleoRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativeMagnitudeEqualityConstraintWt = 0;  // weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weightSlipRates=true, 10 otherwise)
-		double relativeMagnitudeInequalityConstraintWt = 1000;  // weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weighted per bin -- this is hard-coded in)
-		double relativeParticipationSmoothnessConstraintWt = 1000; // weight of participation MFD smoothness weight - applied on subsection basis (recommended:  1000)
-		double participationConstraintMagBinSize = 0.1; // magnitude-bin size for above constraint
-		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
-		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
-		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
-		int numIterations = 0;  // number of simulated annealing iterations (increase this to decrease misfit) - For NORCAL_SMALL inversion, 100,000 iterations is ~5 min.
-		
-		ArrayList<PaleoRateConstraint> paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(precomputedDataDir, faultSystemRupSet.getFaultSectionDataList());
-		long startTime, runTime;
-		
-		// create class the gives UCERF2-related constraints
-		if(D) System.out.println("\nFinding equivalent UCERF2 ruptures . . .");
-//		FindEquivUCERF2_FM2pt1_Ruptures findUCERF2_Rups = new FindEquivUCERF2_FM2pt1_Ruptures(faultSystemRupSet, precomputedDataDir);
-//		double[] UCERF2Solution = getUCERF2Solution(findUCERF2_Rups, faultSystemRupSet);
-		
-		if(D) System.out.println("\nDefining inversion constraints . . .");
-		
-		// a priori constraint
-		if(D) System.out.println("A priori constraint. . .");
-		double[] aPrioriRupConstraint = null;
-		// Use UCERF2 Solution 
-//		aPrioriRupConstraint = UCERF2Solution;
-		// Or use smooth starting solution with target MFD:
-//		Region region = new CaliforniaRegions.RELM_NOCAL(); UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region); aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet, UCERF2Constraints.getTargetMinusBackgroundMFD());  
-		aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet,getGR_Dist(faultSystemRupSet, 1.0, 8.3));  
-		
-		// Minimization constraint for troublesome Multi-fault ruptures
-		if(D) System.out.println("Minimization constraint. . .");
-		// Use Tom Parsons' Coulomb weights to penalize ruptures  (These are computed for NCAL_SMALL rupture set only!) -- can use mean sigma weights or "weakest link" weights
-		double[] minimizationConstraint = null;
-//		minimizationConstraint = getCoulombWeights(faultSystemRupSet.getNumRuptures(), CoulombWeightType.MEAN_SIGMA, precomputedDataDir);
-		
-		// Initial model
-		if(D) System.out.println("Initial rupture model. . .");
-		double[] initialRupModel = new double[faultSystemRupSet.getNumRuptures()];  // initial guess at solution x
-		// Use a Priori rupture rate constraint (if used) as starting solution
-		initialRupModel = aPrioriRupConstraint;
-		// Or start with zeros:
-//		for (int r=0; r<faultSystemRupSet.getNumRuptures(); r++) initialRupModel[r]=0;
-
-		// Create the MFD Equality constraints (ArrayList so we can apply this to multiple subregions)
-		if(D) System.out.println("MFD Equality constraints. . .");
-		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
-//		Region region = new CaliforniaRegions.RELM_GRIDDED();
-//		Region region = new CaliforniaRegions.RELM_NOCAL();
-//		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region);
-//		mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());	// add MFD constraint for whole region
-		// UCERF2 MFD constraints for subregions - 1-degree boxes
-/*		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
-		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
-		double latBoxSize = 1; double lonBoxSize = 1; // width of MFD subregion boxes, in degrees
-		for (double lat=minLat; lat<maxLat; lat+=latBoxSize){
-			for (double lon=minLon; lon<maxLon; lon+=lonBoxSize){
-				Region currentSubRegion = new Region(new Location(lat,lon),new Location(lat+latBoxSize,lon+lonBoxSize));
-				LocationList border = currentSubRegion.getBorder();
-				boolean currentSubRegionInRegion = true;  
-				for (int i=0; i<border.size(); i++)   // SubRegion is in the region if all 4 border points are in the region (should work for now -- change later!)
-					if (region.contains(border.get(i)) == false) currentSubRegionInRegion = false; 
-				if (currentSubRegionInRegion == true) {
-					UCERF2Constraints.setRegion(currentSubRegion);
-					mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
-				}
-			}
-		}	*/
-		
-		
-		// Create the MFD inequality constraints (ArrayList so we can apply this to multiple subregions)
-		if(D) System.out.println("MFD Inequality constraints. . .");
-		ArrayList<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
-		Region california = new CaliforniaRegions.RELM_GRIDDED(); california.setName("All California");
-		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
-		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
-		UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(california);
-//		UCERF2Constraints.setRegion(california);
-//		mfdInequalityConstraints.add(UCERF2Constraints.getTargetMFDConstraint());	// add MFD constraint for all CA
-		UCERF2Constraints.setRegion(noCal);
-		mfdInequalityConstraints.add(UCERF2Constraints.getTargetMFDConstraint());	// add MFD constraint for Northern CA
-		UCERF2Constraints.setRegion(soCal);
-		mfdInequalityConstraints.add(UCERF2Constraints.getTargetMFDConstraint());	// add MFD constraint for Southern CA
-		
-		
-		// Minimum Rupture-Rate Constraint (waterlevel)
-		if(D) System.out.println("Waterlevel. . .");
-		double[] minimumRuptureRates = new double[faultSystemRupSet.getNumRuptures()];
-		if (addMinimumRuptureRateConstraint == true)
-			for (int i=0; i < minimumRuptureRates.length; i++)
-				minimumRuptureRates[i] = initialRupModel[i]*0.01; // 1% of a-priori rates waterlevel
-		
-
-		if(D) System.out.println("\nStarting inversion . . .");
-		startTime = System.currentTimeMillis();
-		inversion = new InversionFaultSystemSolution(faultSystemRupSet, weightSlipRates, relativePaleoRateWt, 
-				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt, relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt, participationConstraintMagBinSize, relativeMinimizationConstraintWt, numIterations, paleoRateConstraints, 
-				aPrioriRupConstraint, initialRupModel, mfdEqualityConstraints, mfdInequalityConstraints, minimizationConstraint, relativeSmoothnessWt, addMinimumRuptureRateConstraint, minimumRuptureRates);
-		runTime = System.currentTimeMillis()-startTime;
-		System.out.println("\nInversionFaultSystemSolution took " + (runTime/1000) + " seconds.");	
-
-		
-/*		// Alternatively, load solution from zip file instead of running inversion
-		if (D) System.out.print("\nLoading Solution from zip file . . . ");
-		System.out.print(precomputedDataDir.getAbsolutePath()+"/InversionSolutions/2012_02_22-model2-bench_sol1.zip");
-		File zipFile = new File(precomputedDataDir.getAbsolutePath()+"/InversionSolutions/2012_02_22-model2-bench_sol1.zip");
-		SimpleFaultSystemSolution inversion = null;
-		try {
-			startTime = System.currentTimeMillis();
-			inversion = SimpleFaultSystemSolution.fromZipFile(zipFile);
-			runTime = System.currentTimeMillis()-startTime;
-			if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");
-		} catch (ZipException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (DocumentException e1) {
-			e1.printStackTrace();
-		}			*/
-			
-		
-		
-/*		if (D) System.out.print("Saving Solution to zip file . . . \n");
-		File zipOut = new File(precomputedDataDir.getAbsolutePath()+File.separator+"NCAL_SMALL_MFDSmoothing11.zip");
-		try {
-			startTime = System.currentTimeMillis();
-			new SimpleFaultSystemSolution(inversion).toZipFile(zipOut);
-			runTime = System.currentTimeMillis()-startTime;
-			if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");
-		} catch (IOException e) {
-			System.out.println("IOException saving Rup Set to zip file!");
-			e.printStackTrace();
-		}	*/
-		
-		
-		// Make plots
-		if (D) System.out.print("\nMaking plots . . . ");
-		startTime = System.currentTimeMillis();
-		inversion.plotRuptureRates();
-		inversion.plotSlipRates();
-		inversion.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
-		inversion.plotMFDs(mfdEqualityConstraints);
-		inversion.plotMFDs(mfdInequalityConstraints);
-		runTime = System.currentTimeMillis()-startTime;
-		if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");
-		
-	}	
-	
-	
 	private double[] getCoulombWeights(int numRups, CoulombWeightType coulombWeight, File precomputedDataDir) {
+		
+		// TODO if we ever use this, we'll want to move it. don't leave it here!!!
 		
 		double[] weights = new double[numRups];
 		String fullpathname = null;
@@ -289,158 +99,71 @@ public class RunInversion {
 	
 		
 	}
-
-	private IncrementalMagFreqDist getGR_Dist(FaultSystemRupSet faultSystemRupSet, double bValue, double Mmax) {
-		// This method returns a G-R magnitude distribution with specified b-value. The a-value is set
-		// to match the target moment rate implied by the slip rates FOR THE WHOLE REGION.
-		// Mmax is a strict upper-magnitude cut-off (set to nearest 0.1 magnitude unit) 
-		
-		// Set up (unnormalized) G-R magnitude distribution
-		IncrementalMagFreqDist magDist = new IncrementalMagFreqDist(5.05,35,0.1);
-		double totalMoment = 0;  // total moment per year implied by magDist 
-		for(double m=5.05; m<=8.45; m=m+0.1) {
-			if (m<Mmax) {
-			magDist.set(m, Math.pow(10, -bValue*m));
-			// Note: the current moment calculation will be a bit off because we are adding up at the bin centers rather than integrating over each bin.
-			// It would be better to analytically integrate with a precise Mmax
-			totalMoment += magDist.getClosestY(m) * Math.pow(10,1.5*(m + 10.7))*(Math.pow(10,-7)); // in N*m/yr
-			} 
-			else magDist.set(m, 0);
-		}
-			
-		// Find total moment/year implied my slip rates
-		// Treats NaN slip rates as zero
-		double targetTotalMoment = 0;  // total moment per year implied by slip rates
-		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections();
-		double[] sectArea = faultSystemRupSet.getAreaForAllSections();
-		for (int sect=0; sect<faultSystemRupSet.getNumSections(); sect++) 
-			if (!Double.isNaN(sectSlipRateReduced[sect]))
-				targetTotalMoment += sectSlipRateReduced[sect]* sectArea[sect] * FaultMomentCalc.SHEAR_MODULUS;  // in N*m/yr
-		
-		// Scale magnitude distribution (set a-value) to match the total moment implied by slip rates
-		for (int i=0; i<magDist.getNum(); i++) 
-			magDist.set(i, magDist.getY(i)*targetTotalMoment/totalMoment);
-
-		/*
-		GutenbergRichterMagFreqDist altDist = new GutenbergRichterMagFreqDist(5.05,35,0.1,5.05,35,0.1, bValue);
-		*/
-		
-/*		// Plot magnitude distribution constraint
-		ArrayList funcs = new ArrayList();
-		funcs.add(magDist);
-		magDist.setName("Magnitude Distribution Constraint");
-		magDist.setInfo("(number in each mag bin)");
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "G-R Target Magnitude Distribution"); 
-		graph.setX_AxisLabel("Magnitude");
-		graph.setY_AxisLabel("Frequency (per bin)");
-*/
-		
-		return magDist;
-		
-	}
-
-	public void saveRupSet(File file) throws IOException {
-		SimpleFaultSystemRupSet simple = SimpleFaultSystemRupSet.toSimple(faultSystemRupSet);
-		simple.toXMLFile(file);
-	}
 	
-	
-	private double[] getUCERF2Solution(FindEquivUCERF2_FM2pt1_Ruptures findUCERF2_Rups, FaultSystemRupSet faultSystemRupSet) {
-		int numRuptures=faultSystemRupSet.getNumRuptures();
-		double[] initial_state = new double[numRuptures];
-		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures();
-		for (int r=0; r<numRuptures; r++) {
-			double[] magAndRate = ucerf2_magsAndRates.get(r);
-			if(magAndRate != null) 
-				initial_state[r] = magAndRate[1];
-			else
-				initial_state[r] = 0;
-		}
-		return initial_state;
+	private static InversionConfiguration buildCustomConfiguration(FaultSystemRupSet rupSet) {
+		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
+		double relativePaleoRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
+		double relativeMagnitudeEqualityConstraintWt = 0;  // weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weightSlipRates=true, 10 otherwise)
+		double relativeMagnitudeInequalityConstraintWt = 1000;  // weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weighted per bin -- this is hard-coded in)
+		double relativeParticipationSmoothnessConstraintWt = 0; // weight of participation MFD smoothness weight - applied on subsection basis (recommended:  1000)
+		double participationConstraintMagBinSize = 0.1; // magnitude-bin size for above constraint
+		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
+		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
+		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
 		
-	}
-	
-	
-	/**
-	 * GET MORGAN TO EXPLAIN WHAT THIS DOES (I HAVEN"T LOOKED AT IT IN DETAIL)
-	 * 
-	 * @param targetMagFreqDist
-	 * @return
-	 */
-	private double[] getSmoothStartingSolution(FaultSystemRupSet faultSystemRupSet, IncrementalMagFreqDist targetMagFreqDist) {
-		List<List<Integer>> rupList = faultSystemRupSet.getSectionIndicesForAllRups();
-		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
-		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections(); 
+		double[] aPrioriRupConstraint;
+		// Use UCERF2 Solution 
+//		aPrioriRupConstraint = UCERF2Solution;
+		// Or use smooth starting solution with target MFD:
+//		Region region = new CaliforniaRegions.RELM_NOCAL(); UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region); aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet, UCERF2Constraints.getTargetMinusBackgroundMFD());
+		aPrioriRupConstraint = InversionConfiguration.getSmoothStartingSolution(
+				rupSet, InversionConfiguration.getGR_Dist(rupSet, 1.0, 8.3));
+		double[] initialRupModel = aPrioriRupConstraint;
+		// or all zeros
+//		for (int r=0; r<faultSystemRupSet.getNumRuptures(); r++) initialRupModel[r]=0;
 		
-		int numRup = rupMeanMag.length;
-		double[] meanSlipRate = faultSystemRupSet.getAveSlipForAllRups(); // mean slip rate per section for each rupture
-		double[] initial_state = new double[numRup]; // starting model
+		double minimumRuptureRateFraction = 0.01;
+		double[] waterlevelRateBasis = initialRupModel;
 		
-		// Get list of ruptures for each section
-		ArrayList<ArrayList<Integer>> rupsPerSect = new ArrayList<ArrayList<Integer>>();
-		for (int sect=0; sect<sectSlipRateReduced.length; sect++) rupsPerSect.add(new ArrayList<Integer>(0));
-		for (int rup=0; rup<numRup; rup++) {	
-			List<Integer> sects = rupList.get(rup);
-			for (int sect: sects) rupsPerSect.get(sect).add(rup);
-		}
-	
-		// Find magnitude distribution of ruptures (as discretized)
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
-		magHist.setTolerance(0.1);	// this makes it a histogram
-		for(int rup=0; rup<numRup;rup++) {
-			// magHist.add(rupMeanMag[rup], 1.0);
-			// Each bin in the magnitude histogram should be weighted by the mean slip rates of those ruptures 
-			// (since later we weight the ruptures by the mean slip rate, which would otherwise result in 
-			// starting solution that did not match target MFD if the mean slip rates per rupture 
-			// differed between magnitude bins)
-			magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
+		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
+		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
+		Region entire_region;
+		if (rupSet.getDeformationModelName() == DefModName.UCERF2_NCAL
+				|| rupSet.getDeformationModelName() == DefModName.UCERF2_BAYAREA) {
+			entire_region = noCal;
+		} else {
+			// TODO should this be Testing or Collection? currently using TESTING because it's what
+			// Ned uses lots of places
+			entire_region = new CaliforniaRegions.RELM_TESTING();
 		}
 		
-		// Set up initial (non-normalized) target MFD rates for each rupture, normalized by meanSlipRate
-		for (int rup=0; rup<numRup; rup++) {
-			// Find number of ruptures that go through same sections as rupture and have the same magnitude
-			// COMMENT THIS OUT FOR NOW - STARTING SOLUTION IS BETTER WITHOUT RUPTURE OVERLAP CORRECTION
-//			List<Integer> sects = rupList.get(rup);
-//			double totalOverlap = 0; // total amount of overlap of rupture with rups of same mag (when rounded), in units of original rupture's length
-//			for (int sect: sects) {
-//				ArrayList<Integer> rups = rupsPerSect.get(sect);
-//				for (int r: rups) {
-//					if (Math.round(10*rupMeanMag[r])==Math.round(10*rupMeanMag[rup]))
-//						totalOverlap+=1;
-//				}
-//			}
-//			totalOverlap = totalOverlap/sects.size() + 1;  // add percentages of total overlap with each rupture + 1 for original rupture itself
-			double totalOverlap = 1d;
-
-
-			// Divide rate by total number of similar ruptures (same magnitude, has section overlap)  - normalize overlapping ruptures by percentage overlap
-			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);
-//			if (D && rup % 100 == 0)
-//				System.out.println("Done with rup: "+rup);
-		}
+		// MFD constraints
+		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
+		// add MFD constraint for whole region
+//		ucerf2Constraints.setRegion(region);
+//		mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
+		// UCERF2 MFD constraints for subregions - 1-degree boxes
+//		mfdEqualityConstraints.addAll(getGriddedConstraints(ucerf2Constraints, entire_region, 1d, 1d));
 		
-		// Find normalization for all ruptures (so that MFD matches target MFD normalization)
-		// Can't just add up all the mag bins to normalize because some bins don't have ruptures.
-		// Instead let's choose one mag bin (that we know has rups) that has rups and normalize all bins by the amount it's off:
-		double totalEventRate=0;
-		for (int rup=0; rup<numRup; rup++) {
-			//if ((double) Math.round(10*rupMeanMag[rup])/10==7.0)
-			if (rupMeanMag[rup]>7.0 && rupMeanMag[rup]<=7.1)
-				totalEventRate += initial_state[rup];
-		}
-		double normalization = targetMagFreqDist.getClosestY(7.0)/totalEventRate;	
-		// Adjust rates to match target MFD total event rates
-		for (int rup=0; rup<numRup; rup++) {
-			initial_state[rup]=initial_state[rup]*normalization;
-			if (Double.isNaN(initial_state[rup]) || Double.isInfinite(initial_state[rup]))
-				throw new IllegalStateException("initial_state["+rup+"] = "+initial_state[rup]);
+		ArrayList<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
+//		// add MFD constraint for the entire region
+//		ucerf2Constraints.setRegion(entire_region);
+		// add MFD constraint for Northern CA
+		ucerf2Constraints.setRegion(noCal);
+		mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+		// add MFD constraint for Southern CA
+		if (entire_region != noCal) {
+			// don't add so cal if we're just doing a no cal inversion
+			ucerf2Constraints.setRegion(soCal);
+			mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
 		}
 		
 		// plot magnitude histogram for the inversion starting model
 		IncrementalMagFreqDist magHist2 = new IncrementalMagFreqDist(5.05,40,0.1);
 		magHist2.setTolerance(0.2);	// this makes it a histogram
-		for(int r=0; r<numRup;r++)
-			magHist2.add(rupMeanMag[r], initial_state[r]);
+		for(int r=0; r<rupSet.getNumRuptures();r++)
+			magHist2.add(rupSet.getMagForRup(r), initialRupModel[r]);
 		ArrayList funcs = new ArrayList();
 		funcs.add(magHist2);
 		magHist2.setName("Magnitude Distribution of Starting Model (before Annealing)");
@@ -449,17 +172,146 @@ public class RunInversion {
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Frequency (per bin)");
 		
-		return initial_state;
-		
+		return new InversionConfiguration(weightSlipRates, relativePaleoRateWt,
+				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt,
+				relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt,
+				participationConstraintMagBinSize, relativeMinimizationConstraintWt,
+				aPrioriRupConstraint, initialRupModel, waterlevelRateBasis, relativeSmoothnessWt,
+				mfdEqualityConstraints, mfdInequalityConstraints, minimumRuptureRateFraction);
 	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		// flags!
+		String fileName = "my_run";
+		boolean writeMatrixZipFiles = true;
+		boolean writeSolutionZipFile = true;
 		
-		RunInversion test = new RunInversion();
-// no longer here:		test.inversion.plotStuff();
+		
+		// fetch the rupture set
+		FaultSystemRupSet rupSet = null;
+		try {
+//			rupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet(true);
+			rupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			System.exit(1);
+		}
+		
+		// get the inversion configuration
+		InversionConfiguration config;
+		// this will get it for the GR branch
+//		config = InversionConfiguration.forModel(InversionModelBranches.GR, rupSet);
+		// this can be used for testing other inversions
+		config = buildCustomConfiguration(rupSet);
+		
+		File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/");
+		
+		// get the paleo rate constraints
+		List<PaleoRateConstraint> paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(
+				precomputedDataDir, rupSet.getFaultSectionDataList());
+		
+		// get the improbability constraints
+		double[] improbabilityConstraint = null; // null for now
+//		improbabilityConstraint = getCoulombWeights(faultSystemRupSet.getNumRuptures(), CoulombWeightType.MEAN_SIGMA, precomputedDataDir);
+		
+		// paleo probability model
+		PaleoProbabilityModel paleoProbabilityModel = null;
+		try {
+			paleoProbabilityModel = InversionInputGenerator.loadDefaultPaleoProbabilityModel();
+		} catch (IOException e) {
+			e.printStackTrace();
+			// exit
+			System.exit(1);
+		}
+		
+		// create the input generator
+		InversionInputGenerator gen = new InversionInputGenerator(rupSet, config, paleoRateConstraints,
+				improbabilityConstraint, paleoProbabilityModel);
+		
+		// generate the inputs
+		gen.generateInputs();
+		// optionally we can specify the class we want to use for the A matrix:
+//		gen.generateInputs(SparseDoubleMatrix2D.class);
+		
+		// write solution to disk (optional)
+		if (writeMatrixZipFiles) {
+			try {
+				gen.writeZipFile(new File(precomputedDataDir, fileName+"_inputs.zip"), precomputedDataDir, false);
+			} catch (IOException e) {
+				// a failure here is actually not the end of the world. just print the trace and move on
+				e.printStackTrace();
+			}
+		}
+		
+		// column compress it for fast annealing!
+		gen.columnCompress();
+		
+		// fetch matrices
+		DoubleMatrix2D A = gen.getA();
+		double[] d = gen.getD();
+		DoubleMatrix2D A_ineq = gen.getA_ineq();
+		double[] d_ineq = gen.getD_ineq();
+		double[] initial = gen.getInitial();
+		
+		// now lets the run the inversion!
+		CompletionCriteria criteria;
+		// use one of these to run it for a set amount of time:
+//		criteria = TimeCompletionCriteria.getInHours(2); // 2 hours
+//		criteria = TimeCompletionCriteria.getInMinutes(30); // 30 minutes
+		criteria = TimeCompletionCriteria.getInSeconds(60); // 15 seconds
+		// or use this to run until a set amount of iterations have been completed
+//		criteria = new IterationCompletionCriteria(1000000); // 1 million iterations
+		
+		SimulatedAnnealing sa;
+		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
+		boolean threading = true;
+		
+		if (threading) {
+			// this will use all available processors
+			int numThreads = Runtime.getRuntime().availableProcessors();
+			
+			// this is the "sub completion criteria" - the amount of time (or iterations) between synchronization
+			CompletionCriteria subCompetionCriteria = TimeCompletionCriteria.getInSeconds(1); // 1 second;
+			
+			sa = new ThreadedSimulatedAnnealing(A, d, initial, relativeSmoothnessWt,
+					A_ineq, d_ineq, numThreads, subCompetionCriteria);
+		} else {
+			// serial simulated annealing
+			sa = new SerialSimulatedAnnealing(A_ineq, d_ineq, initial, relativeSmoothnessWt, A_ineq, d_ineq);
+		}
+		// actually do the annealing
+		sa.iterate(criteria);
+		
+		// now assemble the solution
+		double[] solution_raw = sa.getBestSolution();
+		
+		// adjust for minimum rates if applicable
+		double[] solution_adjusted = gen.adjustSolutionForMinimumRates(solution_raw);
+		SimpleFaultSystemSolution solution = new SimpleFaultSystemSolution(rupSet, solution_adjusted);
+		
+		// lets save this solution...we just worked so hard for it, after all! (optional)
+		if (writeSolutionZipFile) {
+			try {
+				solution.toZipFile(new File(precomputedDataDir, fileName+"_solution.zip"));
+			} catch (IOException e) {
+				// a failure here is OK. who needs a solution anyway?
+				e.printStackTrace();
+			}
+		}
+		
+		// finally assemble a solution and make plots
+		if (D) System.out.print("\nMaking plots . . . ");
+		long startTime = System.currentTimeMillis();
+		solution.plotRuptureRates();
+		solution.plotSlipRates();
+		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
+		solution.plotMFDs(config.getMfdEqualityConstraints());
+		solution.plotMFDs(config.getMfdInequalityConstraints());
+		long runTime = System.currentTimeMillis()-startTime;
+		if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");
 	}
 
 

@@ -37,7 +37,7 @@ import com.google.common.base.Preconditions;
  * @author Kevin Milner
  *
  */
-public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
+public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSaveable {
 	
 	public static final boolean D = false;
 	
@@ -249,16 +249,6 @@ public class SimpleFaultSystemRupSet implements FaultSystemRupSet, XMLSaveable {
 	@Override
 	public List<Integer> getSectionsIndicesForRup(int rupIndex) {
 		return sectionForRups.get(rupIndex);
-	}
-	
-	@Override
-	public List<Integer> getRupturesForSection(int secIndex) {
-		ArrayList<Integer> rups = new ArrayList<Integer>();
-		for (int rupID=0; rupID<getNumRuptures(); rupID++) {
-			if (getSectionsIndicesForRup(rupID).contains(secIndex))
-				rups.add(rupID);
-		}
-		return rups;
 	}
 
 	@Override
