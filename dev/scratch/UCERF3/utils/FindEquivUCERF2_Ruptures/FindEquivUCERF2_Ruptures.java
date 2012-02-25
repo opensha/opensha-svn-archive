@@ -330,8 +330,7 @@ public class FindEquivUCERF2_Ruptures {
 	}
 	
 	private Reader getSectionNamesFileReader() throws IOException {
-		return UCERF3_DataUtils.getReader(
-				UCERF3_DataUtils.locateResourceAsStream(SUB_DIR_NAME, sectsFileName));
+		return UCERF3_DataUtils.getReader(SUB_DIR_NAME, sectsFileName);
 	}
 	
 	private static UCERF2_FaultModel getUCERF2_FM(FaultModelBranches fm) {

@@ -268,8 +268,8 @@ public class RunInversion {
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
 //		criteria = TimeCompletionCriteria.getInHours(2); // 2 hours
-//		criteria = TimeCompletionCriteria.getInMinutes(30); // 30 minutes
-		criteria = TimeCompletionCriteria.getInSeconds(60); // 15 seconds
+		criteria = TimeCompletionCriteria.getInMinutes(3); // 3 minutes
+//		criteria = TimeCompletionCriteria.getInSeconds(60); // 15 seconds
 		// or use this to run until a set amount of iterations have been completed
 //		criteria = new IterationCompletionCriteria(1000000); // 1 million iterations
 		

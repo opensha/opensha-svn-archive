@@ -160,7 +160,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 		
 		try {
 			BufferedReader reader = new BufferedReader(
-					UCERF3_DataUtils.getReader(UCERF3_DataUtils.locateResourceAsStream(SUB_DIR_NAME, fileName)));
+					UCERF3_DataUtils.getReader(SUB_DIR_NAME, fileName));
 			int l=0;
 			String line;
 			while ((line = reader.readLine()) != null) {
