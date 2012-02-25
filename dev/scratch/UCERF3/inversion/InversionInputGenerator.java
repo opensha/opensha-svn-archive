@@ -80,8 +80,7 @@ public class InversionInputGenerator {
 	 * @throws IOException 
 	 */
 	public static PaleoProbabilityModel loadDefaultPaleoProbabilityModel() throws IOException {
-		return PaleoProbabilityModel.fromURL(
-				InversionInputGenerator.class.getResource("/scratch/UCERF3/preComputedData/pdetection2.txt"));
+		return PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
 	}
 	
 	public void generateInputs() {
@@ -689,7 +688,9 @@ public class InversionInputGenerator {
 	}
 	
 	public void writeZipFile(File file) throws IOException {
+		File tempDir = FileUtils.createTempDir();
 		writeZipFile(file, FileUtils.createTempDir(), true);
+		tempDir.delete();
 	}
 	
 	/**
@@ -702,57 +703,62 @@ public class InversionInputGenerator {
 	 * @param cleanup
 	 */
 	public void writeZipFile(File file, File storeDir, boolean cleanup) throws IOException {
-		writeZipFile(A, d, initial, A_ineq, d_ineq, minimumRuptureRates);
+		writeZipFile(file, storeDir, cleanup, A, d, initial, A_ineq, d_ineq, minimumRuptureRates);
 	}
 	
-	public static void writeZipFile(
+	public static void writeZipFile(File file, File storeDir, boolean cleanup,
 			DoubleMatrix2D A, double[] d, double[] initial,
 			DoubleMatrix2D A_ineq, double[] d_ineq)
 					throws IOException {
-		writeZipFile(A, d, initial, A_ineq, d_ineq, null);
+		writeZipFile(file, storeDir, cleanup, A, d, initial, A_ineq, d_ineq, null);
 	}
 	
 	public static void writeZipFile(
+			File zipFile, File storeDir, boolean cleanup,
 			DoubleMatrix2D A, double[] d, double[] initial,
 			DoubleMatrix2D A_ineq, double[] d_ineq, double[] minimumRuptureRates)
 					throws IOException {
 		if(D) System.out.println("Saving to files...");
-		File dir = new File("dev/scratch/UCERF3/preComputedData/");
-		File zipFile = new File(dir, "inputs.zip");
 		ArrayList<String> fileNames = new ArrayList<String>();
 		
 		fileNames.add("d.bin");			
-		MatrixIO.doubleArrayToFile(d, new File(dir, "d.bin"));
+		MatrixIO.doubleArrayToFile(d, new File(storeDir, "d.bin"));
 		if(D) System.out.println("d.bin saved");
 		
 		fileNames.add("a.bin");			
-		MatrixIO.saveSparse(A, new File(dir, "a.bin"));
+		MatrixIO.saveSparse(A, new File(storeDir, "a.bin"));
 		if(D) System.out.println("a.bin saved");
 		
 		fileNames.add("initial.bin");	
-		MatrixIO.doubleArrayToFile(initial, new File(dir, "initial.bin"));
+		MatrixIO.doubleArrayToFile(initial, new File(storeDir, "initial.bin"));
 		if(D) System.out.println("initial.bin saved");
 		
 		if (d_ineq != null) {
 			fileNames.add("d_ineq.bin");	
-			MatrixIO.doubleArrayToFile(d_ineq, new File(dir, "d_ineq.bin"));
+			MatrixIO.doubleArrayToFile(d_ineq, new File(storeDir, "d_ineq.bin"));
 			if(D) System.out.println("d_ineq.bin saved");
 		}
 		
 		if (A_ineq != null) {
 			fileNames.add("a_ineq.bin");	
-			MatrixIO.saveSparse(A_ineq,new File(dir, "a_ineq.bin"));
+			MatrixIO.saveSparse(A_ineq,new File(storeDir, "a_ineq.bin"));
 			if(D) System.out.println("a_ineq.bin saved");
 		}
 		
 		if (minimumRuptureRates != null) {
 			fileNames.add("minimumRuptureRates.bin");	
-			MatrixIO.doubleArrayToFile(minimumRuptureRates,new File(dir, "minimumRuptureRates.bin"));
+			MatrixIO.doubleArrayToFile(minimumRuptureRates,new File(storeDir, "minimumRuptureRates.bin"));
 			if(D) System.out.println("minimumRuptureRates.bin saved");
 		}
 		
-		FileUtils.createZipFile(zipFile.getAbsolutePath(), dir.getAbsolutePath(), fileNames);
+		FileUtils.createZipFile(zipFile.getAbsolutePath(), storeDir.getAbsolutePath(), fileNames);
 		if(D) System.out.println("Zip file saved");
+		if (cleanup) {
+			if(D) System.out.println("Cleaning up");
+			for (String fileName : fileNames) {
+				new File(storeDir, fileName).delete();
+			}
+		}
 	}
 
 	public FaultSystemRupSet getRupSet() {

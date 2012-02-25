@@ -11,7 +11,6 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 public class TestFaultSysSolTimeDepERF {

@@ -20,7 +20,8 @@ public class WriteRELM_GriddedRegion {
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 		try {
-			FileWriter fileWriter = new FileWriter(new File("dev/scratch/UCERF3/preComputedData/", "RELM_GriddedRegion.txt"));
+			FileWriter fileWriter = new FileWriter(
+					new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "RELM_GriddedRegion.txt"));
 			fileWriter.write("lat\tlon\n");
 			for(int i=0; i<griddedRegion.getNumLocations(); i++) {
 				Location loc = griddedRegion.getLocation(i);

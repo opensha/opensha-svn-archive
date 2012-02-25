@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,63 +32,62 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class UCERF3_PaleoRateConstraintFetcher {
 	
-	final static String PALEO_DATA_FILE_NAME = "paleoRateData/UCERF3_PaleoRateData_v01.xls";
+	private final static String PALEO_DATA_SUB_DIR = "paleoRateData";
+	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v01.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	
-	public static ArrayList<PaleoRateConstraint> getConstraints(File precomputedDataDir, List<FaultSectionPrefData> faultSectionData) {
+	public static ArrayList<PaleoRateConstraint> getConstraints(
+			List<FaultSectionPrefData> faultSectionData) throws IOException {
 		
-		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+PALEO_DATA_FILE_NAME;
 		ArrayList<PaleoRateConstraint> paleoRateConstraints   = new ArrayList<PaleoRateConstraint>();
-		try {				
-			if(D) System.out.println("Reading Paleo Seg Rate Data from "+fullpathname);
-			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(fullpathname));
-			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			HSSFSheet sheet = wb.getSheetAt(0);
-			int lastRowIndex = sheet.getLastRowNum();
-			double lat, lon, meanRate, lower68Conf, upper68Conf;
-			String siteName;
-			for(int r=1; r<=lastRowIndex; ++r) {	
-				HSSFRow row = sheet.getRow(r);
-				if(row==null) continue;
-				HSSFCell cell = row.getCell(1);
-				if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
-				lat = cell.getNumericCellValue();
-				siteName = row.getCell(0).getStringCellValue().trim();
-				lon = row.getCell(2).getNumericCellValue();
-				// skipping MRI cells
-				meanRate = row.getCell(6).getNumericCellValue();
-				lower68Conf = row.getCell(8).getNumericCellValue();	// note the labels are swapped in the *_v1 file
-				upper68Conf =  row.getCell(7).getNumericCellValue();
-
+		if(D) System.out.println("Reading Paleo Seg Rate Data from "+PALEO_DATA_FILE_NAME);
+		InputStream is =
+			UCERF3_DataUtils.locateResourceAsStream(PALEO_DATA_SUB_DIR, PALEO_DATA_FILE_NAME);
+		POIFSFileSystem fs = new POIFSFileSystem(is);
+		HSSFWorkbook wb = new HSSFWorkbook(fs);
+		HSSFSheet sheet = wb.getSheetAt(0);
+		int lastRowIndex = sheet.getLastRowNum();
+		double lat, lon, meanRate, lower68Conf, upper68Conf;
+		String siteName;
+		for(int r=1; r<=lastRowIndex; ++r) {	
+			HSSFRow row = sheet.getRow(r);
+			if(row==null) continue;
+			HSSFCell cell = row.getCell(1);
+			if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
+			lat = cell.getNumericCellValue();
+			siteName = row.getCell(0).getStringCellValue().trim();
+			lon = row.getCell(2).getNumericCellValue();
+			// skipping MRI cells
+			meanRate = row.getCell(6).getNumericCellValue();
+			lower68Conf = row.getCell(8).getNumericCellValue();	// note the labels are swapped in the *_v1 file
+			upper68Conf =  row.getCell(7).getNumericCellValue();
 				
-				// get Closest section
-				double minDist = Double.MAX_VALUE, dist;
-				int closestFaultSectionIndex=-1;
-				Location loc = new Location(lat,lon);
-				for(int sectionIndex=0; sectionIndex<faultSectionData.size(); ++sectionIndex) {
-					dist  = faultSectionData.get(sectionIndex).getFaultTrace().minDistToLine(loc);
-					if(dist<minDist) {
-						minDist = dist;
-						closestFaultSectionIndex = sectionIndex;
-					}
+			// get Closest section
+			double minDist = Double.MAX_VALUE, dist;
+			int closestFaultSectionIndex=-1;
+			Location loc = new Location(lat,lon);
+			for(int sectionIndex=0; sectionIndex<faultSectionData.size(); ++sectionIndex) {
+				dist  = faultSectionData.get(sectionIndex).getFaultTrace().minDistToLine(loc);
+				if(dist<minDist) {
+					minDist = dist;
+					closestFaultSectionIndex = sectionIndex;
 				}
-				if(minDist>2) continue; // closest fault section is at a distance of more than 2 km
-				
-				// add to Seg Rate Constraint list
-				String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
-				PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
-						meanRate, lower68Conf, upper68Conf);
-				if(D) System.out.println("\t"+siteName+" (lat="+lat+", lon="+lon+") associated with "+name+
-						" (section index = "+closestFaultSectionIndex+")\tdist="+(float)minDist+"\tmeanRate="+(float)meanRate+
-						"\tlower68="+(float)lower68Conf+"\tupper68="+(float)upper68Conf);
-				paleoRateConstraints.add(paleoRateConstraint);
 			}
-		}catch(Exception e) {
-			System.out.println("UNABLE TO READ PALEO DATA");
+			if(minDist>2) continue; // closest fault section is at a distance of more than 2 km
+			
+			// add to Seg Rate Constraint list
+			String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
+			PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
+					meanRate, lower68Conf, upper68Conf);
+			if(D) System.out.println("\t"+siteName+" (lat="+lat+", lon="+lon+") associated with "+name+
+					" (section index = "+closestFaultSectionIndex+")\tdist="+(float)minDist+"\tmeanRate="+(float)meanRate+
+					"\tlower68="+(float)lower68Conf+"\tupper68="+(float)upper68Conf);
+			paleoRateConstraints.add(paleoRateConstraint);
 		}
 		return paleoRateConstraints;
 	}
@@ -209,10 +209,9 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {
-		File precomp = new File("dev/scratch/UCERF3/preComputedData/");
 		
    		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
-   		UCERF3_PaleoRateConstraintFetcher.getConstraints(precomp, faultSysRupSet.getFaultSectionDataList());
+   		UCERF3_PaleoRateConstraintFetcher.getConstraints(faultSysRupSet.getFaultSectionDataList());
 
 //		File rupSetsDir = new File(precomp, "FaultSystemRupSets");
 //		ArrayList<FaultSystemSolution> sols = new ArrayList<FaultSystemSolution>();

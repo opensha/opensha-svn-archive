@@ -24,9 +24,11 @@ import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
 
@@ -50,19 +52,19 @@ public class RunInversion {
 		WEAKEST_LINK;
 	}
 	
-	private double[] getCoulombWeights(int numRups, CoulombWeightType coulombWeight, File precomputedDataDir) {
+	private double[] getCoulombWeights(int numRups, CoulombWeightType coulombWeight) {
 		
 		// TODO if we ever use this, we'll want to move it. don't leave it here!!!
 		
 		double[] weights = new double[numRups];
-		String fullpathname = null;
+		String fileName;
 		
 		switch (coulombWeight) {
 		case MEAN_SIGMA: // Use mean stress of all rupture connections
-			fullpathname = precomputedDataDir.getAbsolutePath()+"/MeanSigma.txt";
+			fileName = "MeanSigma.txt";
 			break;
 		case WEAKEST_LINK: // Use stress of "weakest link" connection
-			fullpathname = precomputedDataDir.getAbsolutePath()+"/WeakestLink.txt";
+			fileName = "WeakestLink.txt";
 			break;
 		default:
 			throw new IllegalStateException("Unspecified Coulomb Weight Type");
@@ -71,8 +73,8 @@ public class RunInversion {
 	
 		FileReader inputFile;
 		try {
-			inputFile = new FileReader(fullpathname);
-			BufferedReader in = new BufferedReader(inputFile);
+			BufferedReader in = new BufferedReader(
+					UCERF3_DataUtils.getReader(UCERF3_DataUtils.locateResourceAsStream("coulomb", fileName)));
 			String s = in.readLine();
 			int i = 0;
 			while(s!=null)
@@ -207,11 +209,17 @@ public class RunInversion {
 		// this can be used for testing other inversions
 		config = buildCustomConfiguration(rupSet);
 		
-		File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/");
+		File precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 		
 		// get the paleo rate constraints
-		List<PaleoRateConstraint> paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(
-				precomputedDataDir, rupSet.getFaultSectionDataList());
+		List<PaleoRateConstraint> paleoRateConstraints = null;
+		try {
+			paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			// this is a critical error, need to exit
+			System.exit(1);
+		}
 		
 		// get the improbability constraints
 		double[] improbabilityConstraint = null; // null for now

@@ -235,7 +235,7 @@ public class GMT_CA_Maps {
 	 */
 	public static void main(String[] args) {
 		System.out.println("Getting ERF");
-		ModMeanUCERF2 modMeanUCERF2 = FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_1);
+		ERF modMeanUCERF2 = FindEquivUCERF2_FM3_Ruptures.buildERF(FaultModelBranches.FM3_1);
 		System.out.println("Making xyzData");
 //		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(modMeanUCERF2, defaultGridRegion, 0, 10);
 

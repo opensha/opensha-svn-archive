@@ -2,7 +2,6 @@ package scratch.UCERF3.utils;
 
 import java.awt.Color;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +33,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 	
 	final static boolean D=true;
 	
-	final static String pathName = "dev/scratch/UCERF3/preComputedData/mfdData/";
+	private final static String SUB_DIR_NAME = "mfdData";
 	
 	// discretization params for Karen's MFD files:
 	final static double MIN_MAG=4.0;
@@ -160,7 +159,8 @@ public class UCERF3_MFD_ConstraintFetcher {
 		EvenlyDiscretizedFunc mfdUpper95Conf = new EvenlyDiscretizedFunc(MIN_MAG,MAX_MAG,NUM_MAG);
 		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(pathName+fileName));
+			BufferedReader reader = new BufferedReader(
+					UCERF3_DataUtils.getReader(UCERF3_DataUtils.locateResourceAsStream(SUB_DIR_NAME, fileName)));
 			int l=0;
 			String line;
 			while ((line = reader.readLine()) != null) {

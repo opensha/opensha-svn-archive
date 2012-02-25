@@ -94,7 +94,7 @@ public class DeformationModelFetcher {
 		public URL getDataFileURL() {
 			if (fileName == null)
 				return null;
-			return this.getClass().getResource("/scratch/UCERF3/preComputedData/DeformationModels/"+fileName);
+			return UCERF3_DataUtils.locateResource("DeformationModels", fileName);
 		}
 	}
 
@@ -1108,7 +1108,7 @@ public class DeformationModelFetcher {
 	}
 
 	public static void main(String[] args) {
-			File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
+			File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 			DeformationModelFetcher dm = new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
 			
 //			ArrayList<FaultSectionPrefData> dataList = dm.getSubSectionList();
@@ -1134,15 +1134,15 @@ public class DeformationModelFetcher {
 
 
 		try {
-			dm.getSubSectionDistanceMap(5d);
-			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, FM 3.1 Subsections",
-					new SimpleDateFormat().format(new Date()));
-			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
-					new File(precomputedDataDir, "fault_sections.txt").getAbsolutePath());
-						new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
-						new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
-						new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
-						new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
+//			dm.getSubSectionDistanceMap(5d);
+//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, FM 3.1 Subsections",
+//					new SimpleDateFormat().format(new Date()));
+//			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
+//					new File(precomputedDataDir, "fault_sections.txt").getAbsolutePath());
+			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
+			new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
+			new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
+			new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

@@ -52,6 +52,10 @@ public class PaleoProbabilityModel {
 		return xyz.bilinearInterpolation(distAlongRup, mag);
 	}
 	
+	public static PaleoProbabilityModel loadUCERF3PaleoProbabilityModel() throws IOException {
+		return fromURL(UCERF3_DataUtils.locateResource("paleoRateData", "pdetection2.txt"));
+	}
+	
 	public static PaleoProbabilityModel fromFile(File file) throws IOException {
 		try {
 			return fromURL(file.toURI().toURL());
@@ -107,7 +111,7 @@ public class PaleoProbabilityModel {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		PaleoProbabilityModel model = fromFile(new File("pdetection2.txt"));
+		PaleoProbabilityModel model = loadUCERF3PaleoProbabilityModel();
 		for (int yInd=0; yInd<model.xyz.getNumY(); yInd++) {
 			String line = null;
 			for (int xInd=0; xInd<model.xyz.getNumX(); xInd++) {

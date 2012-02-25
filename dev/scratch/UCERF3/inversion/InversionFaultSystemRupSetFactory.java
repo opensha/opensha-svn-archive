@@ -17,6 +17,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSet.SlipModelType;
 import scratch.UCERF3.utils.AveSlipForRupModel;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
  * This class serves as a factory for loading/building FaultSystemRupSet's as defined via e-mail
@@ -105,7 +106,7 @@ public enum InversionFaultSystemRupSetFactory {
 	private ArrayList<MagAreaRelationship> magAreaRelList; 
 	private double moRateReduction;
 	
-	private File dir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
+	private File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 	
 	private String dataURL = "http://opensha.usc.edu/ftp/ucerf3/rup_sets/";
 	
@@ -161,6 +162,8 @@ public enum InversionFaultSystemRupSetFactory {
 	 * @throws DocumentException
 	 */
 	public FaultSystemRupSet getRupSet(boolean forceRebuild) throws IOException, DocumentException {
+		if (!dir.exists())
+			dir.mkdir();
 		File file = new File(dir, fileName);
 		
 		if (!forceRebuild && !file.exists()) {
@@ -186,7 +189,12 @@ public enum InversionFaultSystemRupSetFactory {
 				moRateReduction, slipModelType, dir, AveSlipForRupModel.AVE_UCERF2);
 		
 		if (D) System.out.println("Saving new InversionFaultSystemRupSet to "+file.getAbsolutePath());
-		new SimpleFaultSystemRupSet(rupSet).toZipFile(file);
+		try {
+			new SimpleFaultSystemRupSet(rupSet).toZipFile(file);
+		} catch (Exception e) {
+			System.err.println("Error saving file!");
+			e.printStackTrace();
+		}
 		if (D) System.out.println("Done writing.");
 		
 		return rupSet;

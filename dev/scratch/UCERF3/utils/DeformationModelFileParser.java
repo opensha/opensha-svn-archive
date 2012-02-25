@@ -257,7 +257,7 @@ public class DeformationModelFileParser {
 //		File dir = new File("D:\\Documents\\SCEC\\def_models");
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial");
 		
-		File precomputedDataDir = new File("dev/scratch/UCERF3/preComputedData/FaultSystemRupSets");
+		File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		
 		try {
 //			System.out.println("Fetching fault data");
