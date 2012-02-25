@@ -705,14 +705,14 @@ public class InversionInputGenerator {
 		writeZipFile(A, d, initial, A_ineq, d_ineq, minimumRuptureRates);
 	}
 	
-	private static void writeZipFile(
+	public static void writeZipFile(
 			DoubleMatrix2D A, double[] d, double[] initial,
 			DoubleMatrix2D A_ineq, double[] d_ineq)
 					throws IOException {
 		writeZipFile(A, d, initial, A_ineq, d_ineq, null);
 	}
 	
-	private static void writeZipFile(
+	public static void writeZipFile(
 			DoubleMatrix2D A, double[] d, double[] initial,
 			DoubleMatrix2D A_ineq, double[] d_ineq, double[] minimumRuptureRates)
 					throws IOException {
