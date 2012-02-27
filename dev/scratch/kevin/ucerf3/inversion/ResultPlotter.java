@@ -706,8 +706,9 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_10_20-ncal-bench-orig_single");
 //		dsaDir = new File(mainDir, "2011_10_21-ncal-bench-sub200");
 //		dsaDir = new File(mainDir, "2011_10_21-ncal-bench-sub200-orig_single");
-		dsaDir = new File(mainDir, "2011_10_27-ncal-bench-sub-secs-test");
+//		dsaDir = new File(mainDir, "2011_10_27-ncal-bench-sub-secs-test");
 //		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
+		dsaDir = new File(mainDir, "2012_02_22-model2-bench/8threads");
 		
 //		dsaDir = new File(mainDir, "agu/ncal_constrained");
 //		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
@@ -725,7 +726,7 @@ public class ResultPlotter {
 //		plots.add(time_speedup_vs_energy_title);
 //		plots.add(time_comparison_title);
 		plots.add(time_speedup_vs_time_title);
-//		plots.add(speedup_vs_threads_title);
+		plots.add(speedup_vs_threads_title);
 //		plots.add(speedup_vs_time_title);
 //		plots.add(energy_vs_iterations_title);
 //		plots.add(avg_energy_vs_iterations_title);
@@ -744,7 +745,7 @@ public class ResultPlotter {
 		int nodes = -1;
 		boolean includeStartSubZero = false;
 		boolean plotAvg = true;
-		boolean bundleDsaBySubs = true;
+		boolean bundleDsaBySubs = false;
 		boolean bundleTsaBySubs = false;
 		
 		int avgNumX = 400;

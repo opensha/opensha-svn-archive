@@ -7,10 +7,13 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.FileUtils;
 
+import com.google.common.base.Preconditions;
+
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.MatrixIO;
 
 public class SolutionAssembler {
@@ -19,9 +22,9 @@ public class SolutionAssembler {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (args.length != 3) {
+		if (args.length <3 || args.length > 4) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(SolutionAssembler.class)
-					+" <rates file> <rup set file/name> <output file>");
+					+" <rates file> <rup set file/name> <output file> [minimum rupture rates]");
 			System.exit(2);
 		}
 		
@@ -29,18 +32,30 @@ public class SolutionAssembler {
 			double[] rupRateSolution = MatrixIO.doubleArrayFromFile(new File(args[0]));
 			
 			FaultSystemRupSet rupSet = null;
+			try {
+				File rupSetFile = new File(args[1]);
+				if (rupSetFile.exists())
+					rupSet = SimpleFaultSystemRupSet.fromFile(rupSetFile);
+			} catch (Exception e) {};
 			String rupSetStr = args[1];
-			for (InversionFaultSystemRupSetFactory f : InversionFaultSystemRupSetFactory.values()) {
-				if (f.name().equals(rupSetStr)) {
-					File tempDir = FileUtils.createTempDir();
-					f.setStoreDir(tempDir);
-					rupSet = f.getRupSet();
-					FileUtils.deleteRecursive(tempDir);
-					break;
+			if (rupSet == null) {
+				for (InversionFaultSystemRupSetFactory f : InversionFaultSystemRupSetFactory.values()) {
+					if (f.name().equals(rupSetStr)) {
+						File tempDir = FileUtils.createTempDir();
+						f.setStoreDir(tempDir);
+						rupSet = f.getRupSet();
+						FileUtils.deleteRecursive(tempDir);
+						break;
+					}
 				}
 			}
-			if (rupSet == null) {
-				rupSet = SimpleFaultSystemRupSet.fromFile(new File(args[1]));
+			Preconditions.checkNotNull(rupSet, "Rupture set couldn't be loaded: "+args[1]);
+			
+			if (args.length == 4) {
+				// we have a minimum rates file
+				double[] minimumRates = MatrixIO.doubleArrayFromFile(new File(args[3]));
+				System.out.println("Adjusting solution for minimum weights...");
+				rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(rupRateSolution, minimumRates);
 			}
 			
 			SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rupRateSolution);

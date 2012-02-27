@@ -559,6 +559,7 @@ public class InversionInputGenerator {
 		
 		if (minimumRuptureRates != null) {
 			// apply the minimum rupture rates
+			if (D) System.out.println("Applying minimum rupture rates.");
 			
 			// This is the offset data vector: d = d-A*minimumRuptureRates
 			A.forEachNonZero(new IntIntDoubleFunction() {
@@ -591,6 +592,17 @@ public class InversionInputGenerator {
 					adjustedVal = 0;
 				initial[i] = adjustedVal;
 			}
+			
+			if (D) {
+				System.out.println("Applying minimum rupture rates took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+			}
+		}
+		if (D) {
+			watch.stop();
+			watch_total.stop();
+			System.out.println("Generationg inputs took "+getTimeStr(watch_total)+".");
 		}
 	}
 	

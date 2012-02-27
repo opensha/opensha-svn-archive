@@ -62,8 +62,8 @@ public class ThreadedScriptCreator {
 			args =	  "--a-matrix-file "+aMat.getAbsolutePath()
 					+" --d-matrix-file "+dMat.getAbsolutePath();
 			if (a_ineqMat != null)
-				args += "--a-ineq-matrix-file "+a_ineqMat.getAbsolutePath()
-				+" --d-ineq-matrix-file "+d_ineqMat.getAbsolutePath();
+				args += " --a-ineq-matrix-file "+a_ineqMat.getAbsolutePath()
+					   +" --d-ineq-matrix-file "+d_ineqMat.getAbsolutePath();
 		} else {
 			args = "--zip-file "+zipFile.getAbsolutePath();
 		}
