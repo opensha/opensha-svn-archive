@@ -17,6 +17,8 @@ import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
 
 /**
@@ -173,8 +175,8 @@ public class InversionConfiguration {
 		switch (model) {
 		case CHAR:
 			relativeParticipationSmoothnessConstraintWt = 0;
-			relativeRupRateConstraintWt = 5000;
-			aPrioriRupConstraint = getUCERF2Solution(null, rupSet); // TODO!
+			relativeRupRateConstraintWt = 0.01;
+			aPrioriRupConstraint = getUCERF2Solution(FaultModelBranches.FM3_1, rupSet); // TODO!
 			initialRupModel = aPrioriRupConstraint;
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
@@ -289,9 +291,14 @@ public class InversionConfiguration {
 	 */
 	public static double[] getUCERF2Solution(
 			FaultModelBranches fm, FaultSystemRupSet faultSystemRupSet) {
-		FindEquivUCERF2_Ruptures findUCERF2_Rups =
-			new FindEquivUCERF2_Ruptures(faultSystemRupSet,
+		FindEquivUCERF2_Ruptures findUCERF2_Rups;
+		// TODO add better fault model detection
+		if (fm == null)
+			findUCERF2_Rups = new FindEquivUCERF2_FM3_Ruptures(faultSystemRupSet,
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, fm);
+		else 
+			findUCERF2_Rups = new FindEquivUCERF2_FM2pt1_Ruptures(faultSystemRupSet,
+					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 		// TODO!
 		int numRuptures=faultSystemRupSet.getNumRuptures();
 		double[] initial_state = new double[numRuptures];
