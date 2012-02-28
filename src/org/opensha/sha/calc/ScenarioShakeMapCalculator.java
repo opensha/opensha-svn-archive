@@ -97,11 +97,11 @@ public class ScenarioShakeMapCalculator {
 	 */
 	public GeoDataSet getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
 			ArrayList<Double> attenRelWts,
-			SitesInGriddedRegion sites,
+			Iterable<Site> sites,
 			EqkRupture rupture,
 			boolean isProbAtIML,double value) throws ParameterException {
 
-		numSites = sites.getRegion().getNodeCount();
+		//numSites = sites.getRegion().getNodeCount();
 		
 		// set point-source distance correction type & mag if it's a pointSurface
 		if(rupture.getRuptureSurface() instanceof PointSurface)
@@ -182,13 +182,14 @@ public class ScenarioShakeMapCalculator {
 		double attenRelsAvgValForSite = 0.0;
 		//iterating over all the sites and averaging the values for all AttenRels
 		xyzDataSet = new ArbDiscrGeoDataSet(true);
-		for(int k=0;k<numSites;++k){
+		currentSiteBeingProcessed = 0;
+		for (Site site : sites) {
 			//saves the number of the current site being processed
-			currentSiteBeingProcessed = k+1;
+			currentSiteBeingProcessed++;
 			//for each site initializing it to 0.0
 			attenRelsAvgValForSite = 0.0;
 			//getting one site at a time
-			Site site = sites.getSite(k);
+			//Site site = sites.getSite(k);
 
 			/*
       // write out useful info
