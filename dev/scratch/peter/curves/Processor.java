@@ -84,7 +84,7 @@ class Processor implements Runnable {
 		curveData.add(curveDat);
 		
 //		System.out.println(paramData);
-//		System.out.println(curveData);
+//		System.out.println(idx);
 	}
 		
 	private void writeFiles() {
@@ -164,7 +164,7 @@ class Processor implements Runnable {
 //		buildParamHeaders();
 		
 		Processor p = new Processor(AttenRelRef.BA_2008.instance(null), null, 
-			TestLoc.HOLLISTER_CITY_HALL, Period.GM0P00);
+			TestLoc.ANDERSON_SPRINGS, Period.GM0P00);
 		p.init();
 		p.writeFiles();
 	}
