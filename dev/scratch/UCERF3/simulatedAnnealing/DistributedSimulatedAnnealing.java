@@ -410,10 +410,8 @@ public class DistributedSimulatedAnnealing {
 			dsa.run();
 			
 			if (dsa.isMaster()) {
-				double[] solution = dsa.annealer.getBestSolution();
+				dsa.annealer.writeBestSolution(outputFile);
 				
-				System.out.println("Writing solution to: "+outputFile.getAbsolutePath());
-				MatrixIO.doubleArrayToFile(solution, outputFile);
 				File metadataFile = new File(outputFile.getAbsolutePath()+"_metadata.txt");
 				dsa.writeMetadata(metadataFile, args);
 			}

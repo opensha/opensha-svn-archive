@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 
 /**
@@ -172,8 +173,8 @@ public class FileMakingStuff {
 		File dataFile = new File("dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/scratchFiles/AllFM3_sectNames.txt");
 		ArrayList<String> names = new ArrayList<String>();
 		
-		ArrayList<FaultSectionPrefData> faultMod3_1_sects =  DeformationModelFetcher.loadUCERF3FaultModel(101);
-		ArrayList<FaultSectionPrefData> faultMod3_2_sects =  DeformationModelFetcher.loadUCERF3FaultModel(102);
+		ArrayList<FaultSectionPrefData> faultMod3_1_sects =  FaultModels.FM3_1.fetchFaultSections();
+		ArrayList<FaultSectionPrefData> faultMod3_2_sects =  FaultModels.FM3_2.fetchFaultSections();
 		
 		for(FaultSectionPrefData data: faultMod3_1_sects)
 			if(!names.contains(data.getSectionName()))

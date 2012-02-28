@@ -79,6 +79,11 @@ AbstractPortfolioLECCalculator {
 					for (int j=0; j<portfolio.size(); j++) {
 						Asset asset = portfolio.get(j);
 						Vulnerability vuln = asset.getVulnerability();
+						
+						double dist = src.getMinDistance(asset.getSite());
+						if (dist > getMaxSiteSourceDistance()) {
+							continue;
+						}
 
 						// TODO: deal with setting period for SA in a better way
 						String imt = vuln.getIMT();

@@ -15,7 +15,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.enumTreeBranches.InversionModelBranches;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -25,7 +26,6 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -131,8 +131,8 @@ public class RunInversion {
 		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
 		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
 		Region entire_region;
-		if (rupSet.getDeformationModelName() == DefModName.UCERF2_NCAL
-				|| rupSet.getDeformationModelName() == DefModName.UCERF2_BAYAREA) {
+		if (rupSet.getDeformationModel() == DeformationModels.UCERF2_NCAL
+				|| rupSet.getDeformationModel() == DeformationModels.UCERF2_BAYAREA) {
 			entire_region = noCal;
 		} else {
 			// TODO should this be Testing or Collection? currently using TESTING because it's what
@@ -196,7 +196,8 @@ public class RunInversion {
 		FaultSystemRupSet rupSet = null;
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet(true);
-			rupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
+//			rupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
+			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			System.exit(1);
@@ -263,6 +264,7 @@ public class RunInversion {
 		DoubleMatrix2D A_ineq = gen.getA_ineq();
 		double[] d_ineq = gen.getD_ineq();
 		double[] initial = gen.getInitial();
+		double[] minimumRuptureRates = gen.getMinimumRuptureRates();
 		
 		// now lets the run the inversion!
 		CompletionCriteria criteria;
@@ -285,7 +287,7 @@ public class RunInversion {
 			CompletionCriteria subCompetionCriteria = TimeCompletionCriteria.getInSeconds(1); // 1 second;
 			
 			sa = new ThreadedSimulatedAnnealing(A, d, initial, relativeSmoothnessWt,
-					A_ineq, d_ineq, numThreads, subCompetionCriteria);
+					A_ineq, d_ineq, minimumRuptureRates, numThreads, subCompetionCriteria);
 		} else {
 			// serial simulated annealing
 			sa = new SerialSimulatedAnnealing(A_ineq, d_ineq, initial, relativeSmoothnessWt, A_ineq, d_ineq);

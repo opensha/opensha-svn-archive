@@ -42,7 +42,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
-import scratch.UCERF3.enumTreeBranches.FaultModelBranches;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -131,7 +132,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	FileWriter info_fw;
 	File dataFile;
 	
-	FaultModelBranches faultModel;
+	FaultModels faultModel;
 	
 	Hashtable<String,ArrayList<String>> subsectsForSect;
 	
@@ -139,8 +140,6 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	int[] firstSectOfUCERF2_Rup, lastSectOfUCERF2_Rup, srcIndexOfUCERF2_Rup, rupIndexOfUCERF2_Rup, invRupIndexForUCERF2_Rup;
 	double[] magOfUCERF2_Rup, lengthOfUCERF2_Rup, rateOfUCERF2_Rup;
 	boolean[] subSeismoUCERF2_Rup, problemUCERF2_Source;
-	
-	FaultSystemRupSet faultSysRupSet;
 	
 	// the following lists the indices of all  UCERF2 ruptures associated with each inversion rupture
 	ArrayList<ArrayList<Integer>> rupAssociationList;
@@ -163,7 +162,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	 * @param precomputedDataDir
 	 * @param faultModel - this could alternatively should be obtained from the faultSysRupSet
 	 */
-	public FindEquivUCERF2_FM3_Ruptures(FaultSystemRupSet faultSysRupSet, File precomputedDataDir, FaultModelBranches faultModel) {
+	public FindEquivUCERF2_FM3_Ruptures(FaultSystemRupSet faultSysRupSet, File precomputedDataDir, FaultModels faultModel) {
 		super(faultSysRupSet, precomputedDataDir, getUCERF2_FM(faultModel));
 		
 		this.faultModel = faultModel;
@@ -186,7 +185,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		
 		problemUCERF2_Source = new boolean[ucerf2_fm.sourcesToUse];
 
-		if(faultModel == FaultModelBranches.FM3_1)
+		if(faultModel == FaultModels.FM3_1)
 			dataFile = new File(scratchDir, DATA_FILE_PREFIX+"_1_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES);
 		else
 			dataFile = new File(scratchDir, DATA_FILE_PREFIX+"_2_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES);
@@ -249,7 +248,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 
 			// do the following methods (which write to the info file)
 			try {
-				if(faultModel == FaultModelBranches.FM3_1)
+				if(faultModel == FaultModels.FM3_1)
 					info_fw = new FileWriter(new File(scratchDir, INFO_FILE_PATH_PREFIX+"_1_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES+".txt"));
 				else
 					info_fw = new FileWriter(new File(scratchDir, INFO_FILE_PATH_PREFIX+"_2_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES+".txt"));
@@ -965,7 +964,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		parentSectionNamesForUCERF2_Sources = new ArrayList<ArrayList<String>>();
 		int faultModelToIgnore;
 		String sectsFileName;
-		if(faultModel == FaultModelBranches.FM3_1) {
+		if(faultModel == FaultModels.FM3_1) {
 			sectsFileName = SECT_FOR_UCERF2_SRC_FILE_PATH_NAME_1;
 			faultModelToIgnore=2;
 		}
@@ -1057,11 +1056,11 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	 * This reads the SECT_FOR_UCERF2_SRC_FILE_PATH_NAME file and compiles a list of sections names used
 	 * in the mapping here, including those for both fault models (3.1 and 3.2).
 	 */
-	public static ArrayList<String> getAllSectionNames(File precomputedDataSubDir, FaultModelBranches faultModel) {
+	public static ArrayList<String> getAllSectionNames(File precomputedDataSubDir, FaultModels faultModel) {
 		
 		ArrayList<String> sectNames = new ArrayList<String>();
 		File sectsFile;
-		if(faultModel == FaultModelBranches.FM3_1)
+		if(faultModel == FaultModels.FM3_1)
 			sectsFile = new File(precomputedDataSubDir, SECT_FOR_UCERF2_SRC_FILE_PATH_NAME_1);
 		else
 			sectsFile = new File(precomputedDataSubDir, SECT_FOR_UCERF2_SRC_FILE_PATH_NAME_2);
@@ -1260,12 +1259,12 @@ if(debug) System.exit(0);
 		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
 
 		if(D) System.out.println("Getting rup set");
-   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet(true);
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC);
 		if(D) System.out.println("Done getting rup set");
 		
 //		FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_2);
 		
-		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModelBranches.FM3_1);
+		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
 		
 		test.plotMFD_Test();
 		

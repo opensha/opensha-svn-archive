@@ -23,9 +23,11 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
-import scratch.UCERF3.utils.AveSlipForRupModel;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 import scratch.UCERF3.utils.IDPairing;
 
@@ -59,20 +61,15 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	protected final static boolean D = true;  // for debugging
 	
 	// following are defined in constructor
-	DeformationModelFetcher.DefModName defModName;
-	double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, moRateReduction, maxCumJumpDist;
-	int minNumSectInRup;
-	ArrayList<MagAreaRelationship> magAreaRelList;
+	DeformationModels defModName;
+	FaultModels faultModel;
+	double moRateReduction;
+	LaughTestFilter laughTestFilter;
+	List<MagAreaRelationship> magAreaRelList;
 	String deformationModelString;
-	public enum SlipModelType {
-		CHAR_SLIP_MODEL,	// "Characteristic (Dsr=Ds)"
-		UNIFORM_SLIP_MODEL,	// "Uniform/Boxcar (Dsr=Dr)"
-		WG02_SLIP_MODEL,	// "WGCEP-2002 model (Dsr prop to Vs)"
-		TAPERED_SLIP_MODEL;	// "Tapered Ends ([Sin(x)]^0.5)"
-	}
-	SlipModelType slipModelType;
+	SlipAlongRuptureModels slipModelType;
 	File precomputedDataDir;
-	AveSlipForRupModel aveSlipForRupModel;
+	AveSlipForRupModels aveSlipForRupModel;
 	
 	ArrayList<FaultSectionPrefData> faultSectionData;
 	int numSections;
@@ -111,32 +108,23 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param slipModelType
 	 * @param precomputedDataDir
 	 */
-	public InversionFaultSystemRupSet(DeformationModelFetcher.DefModName defModName,double maxJumpDist, double maxCumJumpDist,
-			double maxAzimuthChange, double maxTotAzimuthChange, double maxRakeDiff, 
-			int minNumSectInRup, ArrayList<MagAreaRelationship> magAreaRelList, 
-			double moRateReduction, SlipModelType slipModelType, File precomputedDataDir, 
-			AveSlipForRupModel aveSlipForRupModel) {
+	public InversionFaultSystemRupSet(FaultModels faultModel, DeformationModels defModName,
+			List<MagAreaRelationship> magAreaRelList, double moRateReduction, SlipAlongRuptureModels slipModelType,
+			File precomputedDataDir, AveSlipForRupModels aveSlipForRupModel, LaughTestFilter laughTestFilter) {
 
+		this.faultModel = faultModel;
 		this.defModName=defModName;
-		this.maxJumpDist=maxJumpDist;
-		this.maxCumJumpDist = maxCumJumpDist;
-		this.maxAzimuthChange=maxAzimuthChange; 
-		this.maxTotAzimuthChange=maxTotAzimuthChange; 
-		this.maxRakeDiff=maxRakeDiff;
-		this.minNumSectInRup=minNumSectInRup;
+		this.laughTestFilter = laughTestFilter;
 		this.magAreaRelList=magAreaRelList;
-		this.moRateReduction=moRateReduction;
 		this.slipModelType=slipModelType;
 		this.precomputedDataDir = precomputedDataDir;
 		this.aveSlipForRupModel = aveSlipForRupModel;
+		this.moRateReduction = moRateReduction;
 		
 		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
 		infoString += "\tdefModName = " +defModName+ "\n";
-		infoString += "\tmaxJumpDist = " +maxJumpDist+ "\n";
-		infoString += "\tmaxAzimuthChange = " +maxAzimuthChange+ "\n";
-		infoString += "\tmaxTotAzimuthChange = " +maxTotAzimuthChange+ "\n";
-		infoString += "\tmaxRakeDiff = " +maxRakeDiff+ "\n";
-		infoString += "\tminNumSectInRup = " +minNumSectInRup+ "\n";
+		infoString += "\tmaxJumpDist = " +laughTestFilter+ "\n";
+		infoString += "\t" +laughTestFilter+ "\n";
 		infoString += "\tmagAreaRelList = " +magAreaRelList+ "\n";
 		infoString += "\tmoRateReduction = " +moRateReduction+ "\n";
 		infoString += "\tslipModelType = " +slipModelType+ "\n";
@@ -146,9 +134,9 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 		// Get stuff from the DeformationModelFetcher
 //		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir); // this assumes NCAL, which is set in Run Inversion!  fix below:
-		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(defModName,precomputedDataDir);
+		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(faultModel, defModName,precomputedDataDir);
 		faultSectionData = deformationModelFetcher.getSubSectionList();
-		Map<IDPairing, Double> subSectionDistances = deformationModelFetcher.getSubSectionDistanceMap(maxJumpDist);
+		Map<IDPairing, Double> subSectionDistances = deformationModelFetcher.getSubSectionDistanceMap(laughTestFilter.getMaxJumpDist());
 		Map<IDPairing, Double> subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMap(subSectionDistances.keySet());
 		Map<Integer, Double> rakesMap = new HashMap<Integer, Double>();
 		for (FaultSectionPrefData data : faultSectionData)
@@ -277,7 +265,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 					}
 				}
 				// add to lists for each subsection
-				if (minDist<maxJumpDist) {
+				if (minDist<laughTestFilter.getMaxJumpDist()) {
 					sectionConnectionsListList.get(subSectIndex1).add(subSectIndex2);
 					sectionConnectionsListList.get(subSectIndex2).add(subSectIndex1);  // reciprocal of the above
 				}
@@ -305,8 +293,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		while(availableSections.size()>0) {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(sectionClusterList.size()+1));
 			int firstSubSection = availableSections.get(0);
-			SectionCluster newCluster = new SectionCluster(faultSectionData, minNumSectInRup,sectionConnectionsListList,
-					subSectionAzimuths, rakesMap, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, subSectionDistances, maxCumJumpDist);
+			SectionCluster newCluster = new SectionCluster(laughTestFilter, faultSectionData,sectionConnectionsListList,
+					subSectionAzimuths, rakesMap, subSectionDistances);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addClusterLinks(firstSubSection, newCluster, sectionConnectionsListList);
@@ -385,7 +373,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
 				rupTotMoRateAvail[rupIndex]=totMoRate;
 //				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
-				if(aveSlipForRupModel == AveSlipForRupModel.SHAW12_SQRT_LENGTH || aveSlipForRupModel == AveSlipForRupModel.SHAW_12_CONST_STRESS_DROP) {
+				if(aveSlipForRupModel == AveSlipForRupModels.SHAW12_SQRT_LENGTH || aveSlipForRupModel == AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP) {
 					rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totLength);
 				}
 				else {
@@ -544,22 +532,22 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		double aveSlip = rupMeanSlip[rthRup];  // in meters
 		
 		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
-		if(slipModelType == SlipModelType.CHAR_SLIP_MODEL) {
+		if(slipModelType == SlipAlongRuptureModels.CHAR_SLIP_MODEL) {
 			throw new RuntimeException("SlipModelType.CHAR_SLIP_MODEL not yet supported");
 		}
 		// for case where ave slip computed from mag & area, and is same on all segments 
-		else if (slipModelType == SlipModelType.UNIFORM_SLIP_MODEL) {
+		else if (slipModelType == SlipAlongRuptureModels.UNIFORM_SLIP_MODEL) {
 			for(int s=0; s<slipsForRup.length; s++)
 				slipsForRup[s] = aveSlip;
 		}
 		// this is the model where section slip is proportional to section slip rate 
 		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
-		else if (slipModelType == SlipModelType.WG02_SLIP_MODEL) {
+		else if (slipModelType == SlipAlongRuptureModels.WG02_SLIP_MODEL) {
 			for(int s=0; s<slipsForRup.length; s++) {
 				slipsForRup[s] = aveSlip*sectMoRate[s]*rupArea[rthRup]/(rupTotMoRateAvail[rthRup]*sectArea[s]);
 			}
 		}
-		else if (slipModelType == SlipModelType.TAPERED_SLIP_MODEL) {
+		else if (slipModelType == SlipAlongRuptureModels.TAPERED_SLIP_MODEL) {
 			// note that the ave slip is partitioned by area, not length; this is so the final model is moment balanced.
 
 			// make the taper function if hasn't been done yet
@@ -738,7 +726,12 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 
 	@Override
-	public DefModName getDeformationModelName() {
+	public DeformationModels getDeformationModel() {
 		return defModName;
+	}
+	
+	@Override
+	public FaultModels getFaultModel() {
+		return faultModel;
 	}
 }

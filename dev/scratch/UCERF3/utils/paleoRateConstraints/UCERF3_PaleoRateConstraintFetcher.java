@@ -31,6 +31,7 @@ import com.google.common.base.Preconditions;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
@@ -210,7 +211,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	
 	public static void main(String args[]) throws IOException, DocumentException {
 		
-   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
    		UCERF3_PaleoRateConstraintFetcher.getConstraints(faultSysRupSet.getFaultSectionDataList());
 
 //		File rupSetsDir = new File(precomp, "FaultSystemRupSets");

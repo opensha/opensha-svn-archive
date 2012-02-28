@@ -10,10 +10,12 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
+import com.google.common.base.Preconditions;
+
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.FaultModelBranches;
-import scratch.UCERF3.enumTreeBranches.InversionModelBranches;
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -90,7 +92,7 @@ public class InversionConfiguration {
 	 * @param rupSet
 	 * @return
 	 */
-	public static InversionConfiguration forModel(InversionModelBranches model, FaultSystemRupSet rupSet) {
+	public static InversionConfiguration forModel(InversionModels model, FaultSystemRupSet rupSet) {
 		/* *******************************************
 		 * COMMON TO ALL MODELS
 		 * ******************************************* */
@@ -123,8 +125,8 @@ public class InversionConfiguration {
 		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
 		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
 		Region entire_region;
-		if (rupSet.getDeformationModelName() == DefModName.UCERF2_NCAL
-				|| rupSet.getDeformationModelName() == DefModName.UCERF2_BAYAREA) {
+		if (rupSet.getDeformationModel() == DeformationModels.UCERF2_NCAL
+				|| rupSet.getDeformationModel() == DeformationModels.UCERF2_BAYAREA) {
 			entire_region = noCal;
 		} else {
 			// TODO should this be Testing or Collection? currently using TESTING because it's what
@@ -176,7 +178,7 @@ public class InversionConfiguration {
 		case CHAR:
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 0.01;
-			aPrioriRupConstraint = getUCERF2Solution(FaultModelBranches.FM3_1, rupSet); // TODO!
+			aPrioriRupConstraint = getUCERF2Solution(rupSet); // TODO!
 			initialRupModel = aPrioriRupConstraint;
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
@@ -289,16 +291,19 @@ public class InversionConfiguration {
 	 * @param faultSystemRupSet
 	 * @return
 	 */
-	public static double[] getUCERF2Solution(
-			FaultModelBranches fm, FaultSystemRupSet faultSystemRupSet) {
+	public static double[] getUCERF2Solution(FaultSystemRupSet faultSystemRupSet) {
+		Preconditions.checkNotNull(faultSystemRupSet, "No rupture set supplied!");
+		FaultModels fm = faultSystemRupSet.getFaultModel();
+		Preconditions.checkNotNull(fm, "A fault model must be specified by the rupture set in order" +
+				" to get a UCERF2 solution. It's possible that you're using an old rupture set that doesn't have this data" +
+				" embedded. In that case, regenerate your rupture set (or beg Kevin to modify it for you)");
 		FindEquivUCERF2_Ruptures findUCERF2_Rups;
-		// TODO add better fault model detection
-		if (fm == null)
-			findUCERF2_Rups = new FindEquivUCERF2_FM3_Ruptures(faultSystemRupSet,
-					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, fm);
-		else 
+		if (fm == FaultModels.FM2_1) 
 			findUCERF2_Rups = new FindEquivUCERF2_FM2pt1_Ruptures(faultSystemRupSet,
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		else
+			findUCERF2_Rups = new FindEquivUCERF2_FM3_Ruptures(faultSystemRupSet,
+					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, fm);
 		// TODO!
 		int numRuptures=faultSystemRupSet.getNumRuptures();
 		double[] initial_state = new double[numRuptures];

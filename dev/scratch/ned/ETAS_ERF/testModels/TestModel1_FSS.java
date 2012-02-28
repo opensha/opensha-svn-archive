@@ -21,7 +21,8 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 /**
  * @author field
@@ -316,7 +317,16 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	 * @see scratch.UCERF3.FaultSystemRupSet#getDeformationModelName()
 	 */
 	@Override
-	public DefModName getDeformationModelName() {
+	public DeformationModels getDeformationModel() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see scratch.UCERF3.FaultSystemRupSet#getDeformationModelName()
+	 */
+	@Override
+	public FaultModels getFaultModel() {
 		// TODO Auto-generated method stub
 		return null;
 	}

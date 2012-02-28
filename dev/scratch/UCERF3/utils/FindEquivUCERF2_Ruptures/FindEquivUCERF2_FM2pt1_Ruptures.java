@@ -33,6 +33,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -907,7 +909,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 	private void writePrelimSectionsForUCERF2_Sources() {
 
 		DeformationModelFetcher deformationModelFetcher =
-			new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_ALL,scratchDir);
+			new DeformationModelFetcher(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,scratchDir);
 		ArrayList<FaultSectionPrefData> faultSectionData = deformationModelFetcher.getSubSectionList();
 		ArrayList<String> parentSectionNames = new ArrayList<String>();
 		for(int i=0; i<faultSectionData.size();i++) {
@@ -1073,7 +1075,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 /*	*/	
    		// read XML rup set file
 		if(D) System.out.println("Reading rup set file");
-   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.NCAL_SMALL.getRupSet();
+   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.forBranch(DeformationModels.UCERF2_NCAL);
  //  		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.ALLCAL.getRupSet();
 //   		try {
 ////			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml"));

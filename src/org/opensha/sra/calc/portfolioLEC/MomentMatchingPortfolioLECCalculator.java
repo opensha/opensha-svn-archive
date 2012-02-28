@@ -58,8 +58,6 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 			ERF erf,
 			Portfolio portfolio,
 			DiscretizedFunc function) {
-		// TODO actually use the function that's passed in
-		
 		// data arrays
 		int n = portfolio.size();
 		// mean value
@@ -109,8 +107,6 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 			
 			ProbEqkSource src = erf.getSource(sourceID);
 			
-			// TODO skip sources not within cutoff distance of any asset?
-			
 			rupResults[sourceID] = new PortfolioRuptureResults[src.getNumRuptures()];
 			
 			for (int rupID=0; rupID<src.getNumRuptures(); rupID++) {
@@ -128,7 +124,7 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 					
 					if (sourceIncludes[k] == null) {
 						double dist = src.getMinDistance(asset.getSite());
-						sourceIncludes[k] = dist < 200d;
+						sourceIncludes[k] = dist < getMaxSiteSourceDistance();
 					}
 					if (!sourceIncludes[k]) {
 						assetRupResults.add(null);

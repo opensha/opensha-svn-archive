@@ -29,12 +29,31 @@ public class SectionCluster extends ArrayList<Integer> {
 	ArrayList<Integer> allSectionsIdList = null;
 	List<List<Integer>> sectionConnectionsListList;
 	ArrayList<ArrayList<Integer>> rupListIndices;			// elements here are section IDs (same as indices in sectonDataList)
-	int minNumSectInRup;
 	int numRupsAdded;
-	double maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff,maxCumJumpDist;
+	LaughTestFilter laughTestFilter;
 	Map<IDPairing, Double> sectionAzimuths;
 	Map<Integer, Double> rakesMap;
 	Map<IDPairing, Double> subSectionDistances;
+
+	/**
+	 * 
+	 * @param sectionDataList - this assumes that index in this list is equal to the Id of the contained FaultSectionPrefData (i = sectionDataList.get(i).getSectionId())
+	 * @param minNumSectInRup
+	 * @param sectionConnectionsListList
+	 * @param subSectionAzimuths
+	 * @param maxAzimuthChange
+	 * @param maxTotAzimuthChange
+	 * @param maxRakeDiff
+	 */
+	@Deprecated
+	public SectionCluster(ArrayList<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
+			List<List<Integer>> sectionConnectionsListList, Map<IDPairing, Double> subSectionAzimuths,
+			Map<Integer, Double> rakesMap, double maxAzimuthChange, double maxTotAzimuthChange, 
+			double maxRakeDiff, Map<IDPairing, Double> subSectionDistances, double maxCumJumpDist) {
+		this(new LaughTestFilter(5d, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff,
+				maxCumJumpDist, 360, 540, minNumSectInRup),
+				sectionDataList, sectionConnectionsListList, subSectionAzimuths, rakesMap, subSectionDistances);
+	}
 
 
 	/**
@@ -47,20 +66,15 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param maxTotAzimuthChange
 	 * @param maxRakeDiff
 	 */
-	public SectionCluster(ArrayList<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
+	public SectionCluster(LaughTestFilter laughTestFilter, ArrayList<FaultSectionPrefData> sectionDataList,
 			List<List<Integer>> sectionConnectionsListList, Map<IDPairing, Double> subSectionAzimuths,
-			Map<Integer, Double> rakesMap, double maxAzimuthChange, double maxTotAzimuthChange, 
-			double maxRakeDiff, Map<IDPairing, Double> subSectionDistances, double maxCumJumpDist) {
+			Map<Integer, Double> rakesMap, Map<IDPairing, Double> subSectionDistances) {
 		this.sectionDataList = sectionDataList;
-		this.minNumSectInRup = minNumSectInRup;
+		this.laughTestFilter = laughTestFilter;
 		this.sectionConnectionsListList = sectionConnectionsListList;
 		this.sectionAzimuths = subSectionAzimuths;
 		this.rakesMap = rakesMap;
-		this.maxTotAzimuthChange = maxTotAzimuthChange;
-		this.maxAzimuthChange = maxAzimuthChange;
-		this.maxRakeDiff = maxRakeDiff;
 		this.subSectionDistances = subSectionDistances;
-		this.maxCumJumpDist = maxCumJumpDist;
 	}
 
 
@@ -190,14 +204,14 @@ public class SectionCluster extends ArrayList<Integer> {
 				
 				// check change
 				double azimuthChange = Math.abs(getAzimuthDifference(prevAzimuth,newAzimuth));
-				if(azimuthChange>maxAzimuthChange) {
+				if(azimuthChange>laughTestFilter.getMaxAzimuthChange()) {
 					continue;	// don't add rupture
 				} 
 
 				// check total change
 				double firstAzimuth = sectionAzimuths.get(new IDPairing(list.get(0), list.get(1)));
 				double totAzimuthChange = Math.abs(getAzimuthDifference(firstAzimuth,newAzimuth));
-				if(totAzimuthChange>maxTotAzimuthChange) {
+				if(totAzimuthChange>laughTestFilter.getMaxTotAzimuthChange()) {
 					continue;	// don't add rupture
 				}
 
@@ -213,42 +227,38 @@ public class SectionCluster extends ArrayList<Integer> {
 			// check the cumulative jumping distance
 			if(newList.size()>=2) {
 				newCMLJumpDist += subSectionDistances.get(new IDPairing(newList.get(newPrevIndex), newList.get(newLastIndex)));
-				if(newCMLJumpDist > maxCumJumpDist)
+				if(newCMLJumpDist > laughTestFilter.getMaxCmlJumpDist())
 					continue;
 			}
 			
 			// Check the cumulative rake change (this adds together absolute vales of rake changes, so they don't cancel)
 			// This is squirrelly-ness filter #1 of 2 
-//			double maxCmlRakeChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
-			double maxCmlRakeChange = 360;						 // HARD CODE THIS FOR NOW
 			double newCMLRakeChange = cmlRakeChange;
-			if(newList.size()>=2 && !isNaNInfinite(maxCmlRakeChange)) {
+			if(newList.size()>=2 && !isNaNInfinite(laughTestFilter.getMaxCmlRakeChange())) {
 				double rakeDiff;
 				rakeDiff = Math.abs(getRake(newList.get(newPrevIndex)) - getRake(newList.get(newLastIndex)));
 				if (rakeDiff > 180)
 					rakeDiff = 360-rakeDiff; // Deal with branch cut (180deg = -180deg)
 				newCMLRakeChange += Math.abs(rakeDiff);
-				if(newCMLRakeChange > maxCmlRakeChange)
+				if(newCMLRakeChange > laughTestFilter.getMaxCmlRakeChange())
 					continue;				
 			}
 			
 			
 			// Check the cumulative azimuth change (this adds together absolute vales of azimuth changes, so they don't cancel)
 			// This is squirrelly-ness filter #2 of 2 
-//			double maxCmlAzimuthChange = Double.POSITIVE_INFINITY;  // This will turn off the filter -- HARD CODE THIS FOR NOW
-			double maxCmlAzimuthChange = 540;						// HARD CODE THIS FOR NOW
 			double newCMLAzimuthChange = cmlAzimuthChange;
-			if(newList.size()>2 && !isNaNInfinite(maxCmlAzimuthChange)) {
+			if(newList.size()>2 && !isNaNInfinite(laughTestFilter.getMaxCmlAzimuthChange())) {
 				double prevAzimuth = sectionAzimuths.get(new IDPairing(newList.get(newPrevIndex-1), newList.get(newPrevIndex)));
 				double newAzimuth = sectionAzimuths.get(new IDPairing(newList.get(newPrevIndex), newList.get(newLastIndex)));
 				newCMLAzimuthChange += Math.abs(newAzimuth - prevAzimuth);
-				if(newCMLAzimuthChange > maxCmlAzimuthChange)
+				if(newCMLAzimuthChange > laughTestFilter.getMaxCmlAzimuthChange())
 					continue;				
 			} 
 			
 			
 			// Filter out rupture if the set of rakes over entire rupture has too large a spread
-			if (!isNaNInfinite(maxRakeDiff)) {
+			if (!isNaNInfinite(laughTestFilter.getMaxRakeDiff())) {
 				double[] rakes, anglediffs2;
 				rakes = new double[newList.size()];
 				for (int i=0; i<newList.size(); i++)
@@ -260,13 +270,13 @@ public class SectionCluster extends ArrayList<Integer> {
 				}
 				anglediffs2[anglediffs2.length-1] = rakes[0]+360-rakes[newList.size()-1];
 				double rakeDiff = 360-StatUtils.max(anglediffs2);
-				if (rakeDiff>maxRakeDiff) {
+				if (rakeDiff>laughTestFilter.getMaxRakeDiff()) {
 					continue;
 				}
 			}
 			
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
-			if(newList.size() >= minNumSectInRup && sameParID)  {// it's a rupture
+			if(newList.size() >= laughTestFilter.getMinNumSectInRup() && sameParID)  {// it's a rupture
 				// uncomment these lines to only save a very small amount of ruptures
 //				if (Math.random()<0.0005)
 					rupListIndices.add(newList);
@@ -392,16 +402,9 @@ public class SectionCluster extends ArrayList<Integer> {
 
 		// Remove ruptures where subsection rakes have too big a spread
 		// System.out.println("maxRakeDiff = "+maxRakeDiff); //maximum allowed difference in strikes between any two subsections in the same rupture, in degrees
-		if (D) System.out.print("Filtering via rake...");
-
-		if (D) System.out.println("DONE.");
 
 		rupListIndices = newRupList;
 		numRupsAdded = rupListIndices.size();
-
-		if (D) System.out.println(numRupsAdded + " ruptures that pass subsection rakes test");
-
-
 	}
 
 

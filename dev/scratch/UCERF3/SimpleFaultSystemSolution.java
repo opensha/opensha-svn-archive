@@ -30,7 +30,8 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 
@@ -329,7 +330,12 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	}
 
 	@Override
-	public DefModName getDeformationModelName() {
-		return rupSet.getDeformationModelName();
+	public DeformationModels getDeformationModel() {
+		return rupSet.getDeformationModel();
+	}
+	
+	@Override
+	public FaultModels getFaultModel() {
+		return rupSet.getFaultModel();
 	}
 }

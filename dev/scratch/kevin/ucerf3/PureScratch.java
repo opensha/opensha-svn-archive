@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math.geometry.Vector3D;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
@@ -47,6 +48,12 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+		Vector3D v1 = new Vector3D(1, 0, 0);
+		Vector3D v2 = new Vector3D(-1, -1, 0);
+		
+		System.out.println(Vector3D.angle(v1, v2));
+		System.exit(0);
+		
 		double a1 = 8.62552e32;
 		double a2 = 1.67242e34;
 		double a3 = 1.77448e20;

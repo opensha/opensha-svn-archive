@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +25,8 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
 
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+
 
 import com.google.common.base.Preconditions;
 
@@ -104,8 +106,12 @@ public class DeformationModelFileParser {
 	}
 	
 	public static void write(Map<Integer, DeformationSection> model, File file) throws IOException {
+		
+	}
+	
+	public static void write(Collection<DeformationSection> model, File file) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
-		for (DeformationSection def : model.values()) {
+		for (DeformationSection def : model) {
 			List<Location> locs1 = def.getLocs1();
 			List<Location> locs2 = def.getLocs2();
 			List<Double> slips = def.getSlips();
@@ -285,18 +291,20 @@ public class DeformationModelFileParser {
 //			compareAgainst(defs, datas, fm);
 //			System.out.println("");
 //			System.out.println("DONE");
-			ArrayList<FaultSectionPrefData> datas = DeformationModelFetcher.loadUCERF3FaultModel(faultModelId);
 			
-			for (DefModName dm : DefModName.values()) {
-				if (dm.getDataFileURL() == null)
-					continue;
-				HashMap<Integer, DeformationSection> model = load(dm.getDataFileURL());
-				HashMap<Integer, DeformationSection> fixed = DeformationModelFetcher.getFixedModel(datas, model, dm);
-				File outFile = new File(dm.getDataFileURL().toURI());
-				outFile = new File(outFile.getParentFile(), outFile.getName()+".fixed");
-				System.out.println("Writing: "+outFile.getAbsolutePath());
-				write(fixed, outFile);
-			}
+			
+//			ArrayList<FaultSectionPrefData> datas = DeformationModelFetcher.loadUCERF3FaultModel(faultModelId);
+//			
+//			for (DeformationModels dm : DeformationModels.values()) {
+//				if (dm.getDataFileURL() == null)
+//					continue;
+//				HashMap<Integer, DeformationSection> model = load(dm.getDataFileURL());
+//				HashMap<Integer, DeformationSection> fixed = DeformationModelFetcher.getFixedModel(datas, model, dm);
+//				File outFile = new File(dm.getDataFileURL().toURI());
+//				outFile = new File(outFile.getParentFile(), outFile.getName()+".fixed");
+//				System.out.println("Writing: "+outFile.getAbsolutePath());
+//				write(fixed, outFile);
+//			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

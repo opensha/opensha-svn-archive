@@ -23,7 +23,8 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
@@ -61,8 +62,8 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	private List<List<Integer>> clusterRups;
 	private List<List<Integer>> clusterSects;
 	
-	private DefModName defModName;
-	
+	private DeformationModels defModName;
+	private FaultModels faultModel;
 	/**
 	 * This converts any FaultSytemRupSet into a SimpleFaultSystemRupSet, which allows it
 	 * to be saved to a file. If the given rupSet is already a SimpleFaultSystemRupSet, 
@@ -88,7 +89,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 				rupSet.getSlipRateStdDevForAllSections(),
 				rupSet.getAveRakeForAllRups(), rupSet.getAreaForAllRups(), rupSet.getAreaForAllSections(),
 				rupSet.getSectionIndicesForAllRups(), rupSet.getInfoString(),
-				rupSet.getCloseSectionsListList(), rupSet.getDeformationModelName());
+				rupSet.getCloseSectionsListList(), rupSet.getFaultModel(), rupSet.getDeformationModel());
 		if (rupSet.isClusterBased()) {
 			clusterRups = new ArrayList<List<Integer>>();
 			clusterSects = new ArrayList<List<Integer>>();
@@ -128,9 +129,10 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			List<List<Integer>> sectionForRups,
 			String info,
 			List<List<Integer>> closeSections,
-			DefModName defModName) {
+			FaultModels faultModel,
+			DeformationModels defModName) {
 		this(faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
-				rupAreas, sectAreas, sectionForRups, info, closeSections, defModName, null, null);
+				rupAreas, sectAreas, sectionForRups, info, closeSections, faultModel, defModName, null, null);
 	}
 	
 	/**
@@ -164,7 +166,8 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			List<List<Integer>> sectionForRups,
 			String info,
 			List<List<Integer>> closeSections,
-			DefModName defModName,
+			FaultModels faultModel,
+			DeformationModels defModName,
 			List<List<Integer>> clusterRups,
 			List<List<Integer>> clusterSects) {
 		int numRups = mags.length;
@@ -224,6 +227,9 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		
 		// can be null
 		this.defModName = defModName;
+		
+		// can be null
+		this.faultModel = faultModel;
 		
 		// can be null
 		this.clusterRups = clusterRups;
@@ -394,12 +400,14 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		return clusterSects.get(index);
 	}
 	
-	/**
-	* This returns the deformation model name
-	* @return
-	*/
-	public DefModName getDeformationModelName() {
+	@Override
+	public DeformationModels getDeformationModel() {
 		return defModName;
+	}
+	
+	@Override
+	public FaultModels getFaultModel() {
+		return faultModel;
 	}
 	
 	private static void listDoubleArrayToXML(Element root, List<double[]> list, String elName) {
@@ -487,10 +495,12 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	}
 	
 	public static void fsDataToXML(Element parent, List<FaultSectionPrefData> list,
-			String elName, DefModName defModName) {
+			String elName, FaultModels faultModel, DeformationModels defModName) {
 		Element el = parent.addElement(elName);
 		if (defModName != null)
 			el.addAttribute("defModName", defModName.name());
+		if (faultModel != null)
+			el.addAttribute("faultModName", faultModel.name());
 		
 		for (int i=0; i<list.size(); i++) {
 			FaultSectionPrefData data = list.get(i);
@@ -537,7 +547,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		if (closeSections != null)
 			intListArrayToXML(el, closeSections, "closeSections");
 		
-		fsDataToXML(el, faultSectionData, DEF_MODEL_XML_NAME, defModName);
+		fsDataToXML(el, faultSectionData, DEF_MODEL_XML_NAME, faultModel, defModName);
 		
 		if (isClusterBased()) {
 			el.addAttribute("numClusters", getNumClusters()+"");
@@ -630,13 +640,21 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		Element fsEl = rupSetEl.element(FaultSectionPrefData.XML_METADATA_NAME+"List");
 		ArrayList<FaultSectionPrefData> faultSectionData =
 			fsDataFromXML(fsEl);
-		DefModName defModName = null;
+		DeformationModels defModName = null;
 		Attribute defModAtt = fsEl.attribute("defModName");
 		try {
 			if (defModAtt != null && !defModAtt.getValue().isEmpty())
-				defModName = DefModName.valueOf(defModAtt.getValue());
+				defModName = DeformationModels.valueOf(defModAtt.getValue());
 		} catch (Exception e) {
 			System.err.println("Warning: unknown DefModeName: "+defModAtt.getValue());
+		}
+		FaultModels faultModel = null;
+		Attribute faultModAtt = fsEl.attribute("faultModName");
+		try {
+			if (faultModAtt != null && !faultModAtt.getValue().isEmpty())
+				faultModel = FaultModels.valueOf(faultModAtt.getValue());
+		} catch (Exception e) {
+			System.err.println("Warning: unknown FaultModels: "+faultModAtt.getValue());
 		}
 		
 		List<List<Integer>> clusterRups = null;
@@ -651,7 +669,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		
 		SimpleFaultSystemRupSet simple = new SimpleFaultSystemRupSet(
 				faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
-				rupAreas, sectAreas, sectionForRups, info, closeSections, defModName, clusterRups, clusterSects);
+				rupAreas, sectAreas, sectionForRups, info, closeSections, faultModel, defModName, clusterRups, clusterSects);
 		return simple;
 	}
 	
@@ -683,7 +701,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		File fsdFile = new File(tempDir, "fault_sections.xml");
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
-		fsDataToXML(root, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List", defModName);
+		fsDataToXML(root, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List", faultModel, defModName);
 		XMLUtils.writeDocumentToFile(fsdFile, doc);
 		zipFileNames.add(fsdFile.getName());
 		
@@ -894,12 +912,22 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		Element fsEl = doc.getRootElement().element(FaultSectionPrefData.XML_METADATA_NAME+"List");
 		ArrayList<FaultSectionPrefData> faultSectionData =
 			fsDataFromXML(fsEl);
-		DefModName defModName;
+		DeformationModels defModName = null;
 		Attribute defModAtt = fsEl.attribute("defModName");
-		if (defModAtt != null && !defModAtt.getValue().isEmpty())
-			defModName = DefModName.valueOf(defModAtt.getValue());
-		else
-			defModName = null;
+		try {
+			if (defModAtt != null && !defModAtt.getValue().isEmpty())
+				defModName = DeformationModels.valueOf(defModAtt.getValue());
+		} catch (Exception e) {
+			System.err.println("Warning: unknown DefModeName: "+defModAtt.getValue());
+		}
+		FaultModels faultModel = null;
+		Attribute faultModAtt = fsEl.attribute("faultModName");
+		try {
+			if (faultModAtt != null && !faultModAtt.getValue().isEmpty())
+				faultModel = FaultModels.valueOf(faultModAtt.getValue());
+		} catch (Exception e) {
+			System.err.println("Warning: unknown FaultModels: "+faultModAtt.getValue());
+		}
 		
 		ZipEntry infoEntry = zip.getEntry("info.txt");
 		String info;
@@ -923,7 +951,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		
 		return new SimpleFaultSystemRupSet(faultSectionData, mags, rupAveSlips, rupSectionSlips,
 				sectSlipRates, sectSlipRateStdDevs, rakes, rupAreas, sectAreas, sectionForRups, info,
-				closeSections, defModName, clusterRups, clusterSects);
+				closeSections, faultModel, defModName, clusterRups, clusterSects);
 	}
 	
 	public static boolean isXMLFile(File file) {

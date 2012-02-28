@@ -13,10 +13,11 @@ import org.opensha.commons.util.FileUtils;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSet.SlipModelType;
-import scratch.UCERF3.utils.AveSlipForRupModel;
-import scratch.UCERF3.utils.DeformationModelFetcher;
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
@@ -70,134 +71,167 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  * @author Kevin
  *
  */
-public enum InversionFaultSystemRupSetFactory {
+public class InversionFaultSystemRupSetFactory {
 	
-	NCAL_SMALL("NCAL_SMALL.zip", DefModName.UCERF2_NCAL,
-				45, SlipModelType.TAPERED_SLIP_MODEL),
-	
-	NCAL_SMALL_UNIFORM("NCAL_SMALL_UNIFORM.zip", DefModName.UCERF2_NCAL,
-				45, SlipModelType.UNIFORM_SLIP_MODEL),
-	
-	NCAL("NCAL.zip", DefModName.UCERF2_NCAL,
-				90, SlipModelType.TAPERED_SLIP_MODEL),
-	
-	ALLCAL_SMALL("ALLCAL_SMALL.zip", DefModName.UCERF2_ALL,
-				45, SlipModelType.TAPERED_SLIP_MODEL),
-	
-	ALLCAL("ALLCAL.zip", DefModName.UCERF2_ALL,
-				90, SlipModelType.TAPERED_SLIP_MODEL),
-				
-	UCERF3_GEOLOGIC("UCERF3_GEOLOGIC.zip", DefModName.UCERF3_GEOLOGIC,
-							90, SlipModelType.TAPERED_SLIP_MODEL);
-	
-	private static final boolean D = true;
-	
-	private String fileName;
-	
-	private DeformationModelFetcher.DefModName defModName;
-	private double maxAzimuthChange;
-	private SlipModelType slipModelType;
-	
-	private double maxJumpDist; 
-	private double maxCumJumpDist; 
-	private double maxTotAzimuthChange;
-	private double maxRakeDiff; 
-	private int minNumSectInRup;
-	private ArrayList<MagAreaRelationship> magAreaRelList; 
-	private double moRateReduction;
-	
-	private File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
-	
-	private String dataURL = "http://opensha.usc.edu/ftp/ucerf3/rup_sets/";
-	
-	private static ArrayList<MagAreaRelationship> getDefaultMagAreaRelationships() {
-		ArrayList<MagAreaRelationship> magAreaRelList = new ArrayList<MagAreaRelationship>();
-		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
-		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
-		return magAreaRelList;
-	}
-	
-	private InversionFaultSystemRupSetFactory(String fileName, DefModName defModName,
-			double maxAzimuthChange, SlipModelType slipModelType) {
-		this.fileName = fileName;
+	/**
+	 * This returns the current default laugh test filter
+	 * 
+	 * @return
+	 */
+	public static LaughTestFilter getDefaultLaughTestFilter() {
+		double maxAzimuthChange = 90;
+		double maxJumpDist = 5d;
+		double maxCumJumpDist = 10d;
+		double maxTotAzimuthChange = 90d;
+		double maxRakeDiff = Double.POSITIVE_INFINITY;
+		int minNumSectInRup = 2;
+		double maxCmlRakeChange = 360;
+		double maxCmlAzimuthChange = 540;
 		
-		this.defModName = defModName;
-		this.maxAzimuthChange = maxAzimuthChange;
-		this.slipModelType = slipModelType;
-		
-		this.maxJumpDist = 5d;
-		this.maxCumJumpDist = 10d;
-		this.maxTotAzimuthChange = 90d;
-//		this.maxRakeDiff = 90d;
-		this.maxRakeDiff = Double.POSITIVE_INFINITY;
-		this.minNumSectInRup = 2;
-		this.magAreaRelList = new ArrayList<MagAreaRelationship>();
-		magAreaRelList.add(new Ellsworth_B_WG02_MagAreaRel());
-		magAreaRelList.add(new HanksBakun2002_MagAreaRel());
-		this.moRateReduction = 0.1;
+		return new LaughTestFilter(maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, maxCumJumpDist,
+				maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup);
 	}
 	
 	/**
-	 * This will load the given rup set. It will first try to load it locally, then it will
-	 * attempt to download it, then if all else fails it will recreate it.
+	 * This loads a rupture set for the specified deformation model (and it's first applicable fault model) using all
+	 * other default branch choices and the default laugh test filter.<br>
+	 * <br>
+	 * It will first attempt to see if a file exists in the precomputed data directory with the same name as
+	 * the deformation model. If so, that file will be simply loaded. Otherwise it will be created and the file
+	 * will be written to disk for future caching.
 	 * 
+	 * @param deformationModel
 	 * @return
-	 * @throws IOException
-	 * @throws DocumentException
+	 * @throws IOException 
 	 */
-	public FaultSystemRupSet getRupSet() throws IOException, DocumentException {
-		return getRupSet(false);
+	public static FaultSystemRupSet cachedForBranch(DeformationModels deformationModel) throws IOException {
+		return cachedForBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel);
 	}
-	
-	public void setStoreDir(File dir) {
-		this.dir = dir;
-	}
+
 	
 	/**
-	 * This will load the given rup set. It will first try to load it locally, then it will
-	 * attempt to download it, then if all else fails it will recreate it.
+	 * This loads a rupture set for the specified fault/deformation model using all other default branch
+	 * choices and the default laugh test filter.<br>
+	 * <br>
+	 * It will first attempt to see if a file exists in the precomputed data directory with the same name as
+	 * the deformation model. If so, that file will be simply loaded. Otherwise it will be created and the file
+	 * will be written to disk for future caching.
 	 * 
+	 * @param deformationModel
 	 * @return
-	 * @throws IOException
-	 * @throws DocumentException
+	 * @throws IOException 
 	 */
-	public FaultSystemRupSet getRupSet(boolean forceRebuild) throws IOException, DocumentException {
-		if (!dir.exists())
-			dir.mkdir();
-		File file = new File(dir, fileName);
-		
-		if (!forceRebuild && !file.exists()) {
-			// try downloading it from the internet
-			URL url = new URL(dataURL+fileName);
+	public static FaultSystemRupSet cachedForBranch(FaultModels faultModel, DeformationModels deformationModel) throws IOException {
+		return cachedForBranch(faultModel, deformationModel,
+				new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets"));
+	}
+
+	
+	/**
+	 * This loads a rupture set for the specified fault/deformation model using all other default branch
+	 * choices and the default laugh test filter.<br>
+	 * <br>
+	 * It will first attempt to see if a file exists in the precomputed data directory with the same name as
+	 * the deformation model. If so, that file will be simply loaded. Otherwise it will be created and the file
+	 * will be written to disk for future caching.
+	 * 
+	 * @param deformationModel
+	 * @return
+	 * @throws IOException 
+	 */
+	public static FaultSystemRupSet cachedForBranch(FaultModels faultModel, DeformationModels deformationModel, File directory)
+			throws IOException {
+		String fileName = deformationModel.name()+"_"+faultModel.name()+".zip";
+		File file = new File(directory, fileName);
+		if (file.exists()) {
+			System.out.println("Loading cached rup set from file: "+file.getAbsolutePath());
+			
 			try {
-				FileUtils.downloadURL(url, file);
+				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(file);
+				
+				return rupSet;
 			} catch (Exception e) {
-				if (D) System.out.println("Couldn't download rup set from: "+url+" ("+e.toString()+")");
-//				e.printStackTrace();
+				System.err.println("Error loading rupset from file: "+file.getAbsolutePath());
+				e.printStackTrace();
 			}
 		}
-		
-		if (!forceRebuild && file.exists()) {
-			if (D) System.out.println("Loading rup set from "+file.getAbsolutePath());
-			return SimpleFaultSystemRupSet.fromFile(file);
-		}
-		
-		if (D) System.out.println("Couldn't download or find locally, instantiating new InversionFaultSystemRupSet.");
-		// if we made it this far the the file did not already exist, and can't be downloaded
-		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(defModName, maxJumpDist, maxCumJumpDist, maxAzimuthChange,
-				maxTotAzimuthChange, maxRakeDiff, minNumSectInRup, magAreaRelList,
-				moRateReduction, slipModelType, dir, AveSlipForRupModel.AVE_UCERF2);
-		
-		if (D) System.out.println("Saving new InversionFaultSystemRupSet to "+file.getAbsolutePath());
-		try {
-			new SimpleFaultSystemRupSet(rupSet).toZipFile(file);
-		} catch (Exception e) {
-			System.err.println("Error saving file!");
-			e.printStackTrace();
-		}
-		if (D) System.out.println("Done writing.");
-		
+		// this means the file didn't exist or we had an error loading it
+		InversionFaultSystemRupSet rupSet = forBranch(faultModel, deformationModel);
+		System.out.println("Caching rup set to file: "+file.getAbsolutePath());
+		if (!directory.exists())
+			directory.mkdir();
+		new SimpleFaultSystemRupSet(rupSet).toZipFile(file);
 		return rupSet;
+	}
+	/**
+	 * Creates a rupture set for the specified deformation model (and it's first applicable fault model) using all
+	 * other default branch choices and the default laugh test filter
+	 * 
+	 * @param deformationModel
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(DeformationModels deformationModel) {
+		return forBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel, MagAreaRelationships.AVE_UCERF2,
+				AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.TAPERED_SLIP_MODEL);
+	}
+	
+	/**
+	 * Creates a rupture set for the specified fault model/deformation model using all other default branch
+	 * choices and the default laugh test filter
+	 * 
+	 * @param faultModel
+	 * @param deformationModel
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(
+			FaultModels faultModel,
+			DeformationModels deformationModel) {
+		return forBranch(faultModel, deformationModel, MagAreaRelationships.AVE_UCERF2,
+				AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.TAPERED_SLIP_MODEL);
+	}
+	
+	/**
+	 * Creates a rupture set for the specified branch on the logic tree and the default laugh test filter
+	 * 
+	 * @param faultModel
+	 * @param deformationModel
+	 * @param magAreaRelationships
+	 * @param aveSlipForRupModel
+	 * @param slipAlongModel
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(
+			FaultModels faultModel,
+			DeformationModels deformationModel,
+			MagAreaRelationships magAreaRelationships,
+			AveSlipForRupModels aveSlipForRupModel,
+			SlipAlongRuptureModels slipAlongModel) {
+		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel, slipAlongModel, getDefaultLaughTestFilter());
+	}
+	
+	/**
+	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter
+	 * 
+	 * @param faultModel
+	 * @param deformationModel
+	 * @param magAreaRelationships
+	 * @param aveSlipForRupModel
+	 * @param slipAlongModel
+	 * @param laughTest
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(
+			FaultModels faultModel,
+			DeformationModels deformationModel,
+			MagAreaRelationships magAreaRelationships,
+			AveSlipForRupModels aveSlipForRupModel,
+			SlipAlongRuptureModels slipAlongModel,
+			LaughTestFilter laughTest) {
+		
+		double moRateReduction = 0.1; // TODO don't hardcode this here
+		
+		return new InversionFaultSystemRupSet(faultModel, deformationModel, magAreaRelationships.getMagAreaRelationships(),
+						moRateReduction, slipAlongModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, aveSlipForRupModel, laughTest);
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
@@ -208,7 +242,8 @@ public enum InversionFaultSystemRupSetFactory {
 //			ALLCAL_SMALL.getRupSet(true);
 //			ALLCAL.getRupSet(true);
 //			UCERF3_ALLCAL_3_1_KLUDGE.getRupSet(true);
-			UCERF3_GEOLOGIC.getRupSet(true);
+//			UCERF3_GEOLOGIC.getRupSet(true);
+			cachedForBranch(DeformationModels.GEOLOGIC);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -39,6 +39,10 @@ public abstract class AbstractPortfolioLECCalculator {
 					
 					DiscretizedFunc normCumDist = funcs[sourceID][rupID];
 					
+					if (normCumDist == null)
+						// skipping this rupture
+						continue;
+					
 					double rupProb = rup.getProbability();
 					
 					if (D) System.out.println("src: " + sourceID + " rup: " + rupID + " prob: " + rupProb);
@@ -70,6 +74,10 @@ public abstract class AbstractPortfolioLECCalculator {
 			ERF erf, Portfolio portfolio, DiscretizedFunc function) {
 		// TODO implement
 		throw new UnsupportedOperationException("not yet implemented");
+	}
+	
+	protected final double getMaxSiteSourceDistance() {
+		return 200d;
 	}
 
 	protected static double valueCoefficientOfVariation = 0.15;

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
 import scratch.UCERF3.utils.IDPairing;
@@ -108,7 +110,8 @@ public class TestInversion {
 		// create (or read) subSectionAzimuths[i][j]
 //		calcSubSectionAzimuths();
 		
-		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(DeformationModelFetcher.DefModName.UCERF2_NCAL,precomputedDataDir);
+		DeformationModelFetcher deformationModelFetcher =
+				new DeformationModelFetcher(FaultModels.FM2_1, DeformationModels.UCERF2_NCAL,precomputedDataDir);
 		subSectionPrefDataList = deformationModelFetcher.getSubSectionList();
 		numSubSections = subSectionPrefDataList.size();
 		Map<IDPairing, Double> dists = deformationModelFetcher.getSubSectionDistanceMap(maxJumpDist);

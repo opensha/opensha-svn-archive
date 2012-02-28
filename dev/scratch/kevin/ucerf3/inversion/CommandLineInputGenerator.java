@@ -10,7 +10,7 @@ import org.opensha.commons.util.ClassUtils;
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.InversionModelBranches;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
@@ -30,7 +30,7 @@ public class CommandLineInputGenerator {
 			File rupSetFile = new File(args[0]);
 			SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(rupSetFile);
 			
-			InversionModelBranches model = InversionModelBranches.getTypeForName(args[1]);
+			InversionModels model = InversionModels.getTypeForName(args[1]);
 			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet);
 			
 			File dir = new File(args[2]);

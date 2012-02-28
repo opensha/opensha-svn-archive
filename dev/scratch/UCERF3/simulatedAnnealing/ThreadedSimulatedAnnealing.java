@@ -20,6 +20,7 @@ import org.opensha.commons.util.ClassUtils;
 
 import com.google.common.base.Preconditions;
 
+import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.CompoundCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.EnergyCompletionCriteria;
@@ -36,7 +37,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
@@ -50,16 +51,17 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	private double[] xbest = null;
 	private double[] misfit = null;
 	private double[] misfit_ineq = null;
+	private double[] minimumRuptureRates = null;
 	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
-		this(A, d, initialState, 0d, null, null, numThreads, subCompetionCriteria);
+		this(A, d, initialState, 0d, null, null, null, numThreads, subCompetionCriteria);
 	}
 	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt, 
-			DoubleMatrix2D A_ineq,  double[] d_ineq,
+			DoubleMatrix2D A_ineq,  double[] d_ineq, double[] minimumRuptureRates,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
 		// SA inputs are checked in SA constructor, no need to dupliate checks
 		
@@ -68,6 +70,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		this.numThreads = numThreads;
 		this.subCompetionCriteria = subCompetionCriteria;
+		this.minimumRuptureRates = minimumRuptureRates;
 		
 		sas = new ArrayList<SerialSimulatedAnnealing>();
 		for (int i=0; i<numThreads; i++)
@@ -318,8 +321,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		d_MFDMatrix.setRequired(false);
 		ops.addOption(d_MFDMatrix);
 		
+		Option minimumRates = new Option("minrates", "minimum-rates-file", true, "minimum rates files to apply solution after annealing");
+		minimumRates.setRequired(false);
+		ops.addOption(minimumRates);
+		
 		Option zipInputs = new Option("zip", "zip-file", true, "Zip file containing all inputs. " +
-				"File names must be a.bin, d.bin, and optionally: initial.bin, a_ineq.bin, d_ineq.bin, metadata.txt");
+				"File names must be a.bin, d.bin, and optionally: initial.bin, a_ineq.bin, d_ineq.bin, minimumRuptureRates.bin, metadata.txt");
 		zipInputs.setRequired(false);
 		ops.addOption(zipInputs);
 		
@@ -481,6 +488,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		double[] initialState = null; // can be null, for now
 		DoubleMatrix2D A_ineq = null; // can be null
 		double[] d_ineq = null; // can be null
+		double[] minimumRuptureRates = null; // can be null
 		
 		// load other weights
 		double relativeSmoothnessWt;
@@ -511,6 +519,10 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				initialState = MatrixIO.doubleArrayFromInputStream(
 						new BufferedInputStream(zip.getInputStream(initial_entry)), A.columns()*8);
 			}
+			
+			ZipEntry minimumRuptureRates_entry = zip.getEntry("minimumRuptureRates.bin");
+			if (minimumRuptureRates_entry != null)
+				minimumRuptureRates = MatrixIO.doubleArrayFromInputStream(zip.getInputStream(minimumRuptureRates_entry), A.columns()*8);
 		} else {
 			File aFile = new File(cmd.getOptionValue("a"));
 			if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
@@ -537,6 +549,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				if (D) System.out.println("Loading initialState from: "+initialFile.getAbsolutePath());
 				initialState = MatrixIO.doubleArrayFromFile(initialFile);
 			}
+			
+			if (cmd.hasOption("minrates")); {
+				File minimumRuptureRatesFile = new File(cmd.getOptionValue("minrates"));
+				if (D) System.out.println("Loading minimumRuptureRates from: "+minimumRuptureRatesFile.getAbsolutePath());
+				minimumRuptureRates = MatrixIO.doubleArrayFromFile(minimumRuptureRatesFile);
+			}
 		}
 		
 		if (initialState ==  null)
@@ -549,7 +567,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		ThreadedSimulatedAnnealing tsa =
 			new ThreadedSimulatedAnnealing(A, d, initialState,
-					relativeSmoothnessWt, A_ineq, d_ineq, numThreads, subCompletionCriteria);
+					relativeSmoothnessWt, A_ineq, d_ineq, minimumRuptureRates, numThreads, subCompletionCriteria);
 		
 		for (SerialSimulatedAnnealing sa : tsa.sas)
 			sa.setCalculationParamsFromOptions(cmd);
@@ -568,6 +586,24 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		System.exit(2);
 	}
 	
+	protected void writeBestSolution(File outputFile) throws IOException {
+		double[] solution = getBestSolution();
+		if (minimumRuptureRates != null) {
+			String outputFilePath = outputFile.getAbsolutePath();
+			if (outputFilePath.endsWith(".bin"))
+				outputFilePath = outputFilePath.substring(0, outputFilePath.length()-4);
+			File outputOrigFile = new File(outputFilePath+"_noMinRates.bin");
+			System.out.println("Writing original solution to: "+outputOrigFile.getAbsolutePath());
+			MatrixIO.doubleArrayToFile(solution, outputOrigFile);
+			
+			System.out.println("Applying minimum rupture rates");
+			solution = InversionInputGenerator.adjustSolutionForMinimumRates(solution, minimumRuptureRates);
+		}
+		
+		System.out.println("Writing solution to: "+outputFile.getAbsolutePath());
+		MatrixIO.doubleArrayToFile(solution, outputFile);
+	}
+	
 	public static void main(String[] args) {
 		Options options = createOptions();
 		
@@ -584,10 +620,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			
 			tsa.iterate(criteria);
 			
-			double[] solution = tsa.getBestSolution();
-			
-			System.out.println("Writing solution to: "+outputFile.getAbsolutePath());
-			MatrixIO.doubleArrayToFile(solution, outputFile);
+			tsa.writeBestSolution(outputFile);
 			
 			System.out.println("DONE...exiting.");
 			System.exit(0);

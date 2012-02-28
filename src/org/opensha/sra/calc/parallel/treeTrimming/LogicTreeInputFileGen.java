@@ -55,8 +55,8 @@ public class LogicTreeInputFileGen {
 	 */
 	public static void main(String[] args) throws IOException, InvocationTargetException {
 		int batchSize = 20;
-		int normalJobMins = 300;
-		int backgroundJobMins = 500;
+		int normalJobMins = 600;
+		int backgroundJobMins = 1500;
 		
 //		File localDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/tree_trimming");
 //		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming");
@@ -127,7 +127,7 @@ public class LogicTreeInputFileGen {
 			XMLUtils.writeDocumentToFile(new File(imrLocalDir, name+".xml"), doc);
 			File outputFile = new File(imrRemoteDir, name+".txt");
 			writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
-					name, outputFile, normalJobMins, 10, "nbns");
+					name, outputFile, backgroundJobMins, 10, "nbns");
 			
 			erfList.getAdjustableParameterList().getParameter(String.class,
 					UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
@@ -162,7 +162,7 @@ public class LogicTreeInputFileGen {
 				
 				XMLUtils.writeDocumentToFile(new File(imrLocalDir, name+".xml"), doc);
 				writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
-						name, null, backgroundJobMins, 5, "nbns");
+						name, null, normalJobMins, 5, "nbns");
 			}
 		}
 	}

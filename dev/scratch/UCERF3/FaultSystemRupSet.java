@@ -13,7 +13,8 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
-import scratch.UCERF3.utils.DeformationModelFetcher.DefModName;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 
 
@@ -244,10 +245,16 @@ public abstract class FaultSystemRupSet {
 	public abstract List<Integer> getRupturesForCluster(int index) throws IndexOutOfBoundsException;
 	
 	/**
-	* This returns the deformation model name
+	* This returns the deformation model
 	* @return
 	*/
-	public abstract DefModName getDeformationModelName();
+	public abstract DeformationModels getDeformationModel();
+	
+	/**
+	* This returns the fault model
+	* @return
+	*/
+	public abstract FaultModels getFaultModel();
 	
 	private List<MFD_InversionConstraint> prev_mfdConstraints;
 	protected double[][] fractRupsInsideMFD_Regions = null;

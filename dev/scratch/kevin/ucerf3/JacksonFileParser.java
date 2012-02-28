@@ -153,8 +153,8 @@ public class JacksonFileParser {
 	}
 	
 	public static void main(String[] args) throws IOException {
-//		parseJacksonFile(new File("/tmp/cal_extended.dat"));
-		parseFourCornersFile(new File("/tmp/Finite_Faults.txt"));
+		parseJacksonFile(new File("/home/kevin/OpenSHA/UCERF3/cal_extended.dat"));
+//		parseFourCornersFile(new File("/tmp/Finite_Faults.txt"));
 	}
 
 }

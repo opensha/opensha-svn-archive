@@ -13,7 +13,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.FaultModelBranches;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt2;
 
@@ -70,13 +70,13 @@ public abstract class FindEquivUCERF2_Ruptures {
 		modifiedUCERF2 = buildERF(ucerf2_fm);
 	}
 	
-	protected static UCERF2_FaultModel getUCERF2_FM(FaultModelBranches fm) {
-		if (fm == null)
+	protected static UCERF2_FaultModel getUCERF2_FM(FaultModels fm) {
+		if (fm == null || fm == FaultModels.FM2_1)
 			// UCERF2 fault model
 			// only 2.1 used
 			return UCERF2_FaultModel.FM2_1;
 		else
-			if (fm == FaultModelBranches.FM3_1)
+			if (fm == FaultModels.FM3_1)
 				return UCERF2_FaultModel.FM2_1;
 			else
 				return UCERF2_FaultModel.FM2_2;
@@ -86,7 +86,7 @@ public abstract class FindEquivUCERF2_Ruptures {
 	 * This generates the UCERF2 instance used here (for a specific set of adjustable params).
 	 * @return
 	 */
-	public static ERF buildERF(FaultModelBranches fm) {
+	public static ERF buildERF(FaultModels fm) {
 		return buildERF(getUCERF2_FM(fm));
 	}
 	

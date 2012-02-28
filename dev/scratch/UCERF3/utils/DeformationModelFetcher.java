@@ -38,6 +38,8 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
@@ -68,35 +70,8 @@ public class DeformationModelFetcher {
 	private final static int SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
 	private final static int SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401;
 
-	DefModName chosenDefModName;
+	DeformationModels chosenDefModName;
 
-
-	public enum DefModName {
-		UCERF2_NCAL,
-		UCERF2_BAYAREA,
-		UCERF2_ALL,
-		UCERF3_ABM("ABM_slip_rake_2012_02_21.csv"),
-		UCERF3_GEOBOUND("geobound_slip_rake_2012_02_21.csv"),
-		UCERF3_NEOKINEMA("neokinema_slip_rake_2012_02_21.csv"),
-		UCERF3_ZENG("zeng_slip_rake_2012_02_21.csv"),
-		UCERF3_GEOLOGIC("geologic_slip_rake_2012_02_21.csv");
-
-		private DefModName() {
-			this(null);
-		}
-
-		private String fileName;
-
-		private DefModName(String fileName) {
-			this.fileName = fileName;
-		}
-
-		public URL getDataFileURL() {
-			if (fileName == null)
-				return null;
-			return UCERF3_DataUtils.locateResource("DeformationModels", fileName);
-		}
-	}
 
 	String fileNamePrefix;
 	File precomputedDataDir;
@@ -119,39 +94,42 @@ public class DeformationModelFetcher {
 	/**
 	 * Constructor
 	 * 
-	 * @param name - then name of the desire deformation model (from the DefModName enum here).
+	 * @param deformationModel - then name of the desire deformation model (from the DefModName enum here).
 	 * @param precomputedDataDir - the dir where pre-computed data can be found (for faster instantiation)
 	 */
-	public DeformationModelFetcher(DefModName name, File precomputedDataDir) {
+	public DeformationModelFetcher(FaultModels faultModel, DeformationModels deformationModel, File precomputedDataDir) {
 		double maxSubSectionLength = 0.5; // in units of DDW
 		this.precomputedDataDir = precomputedDataDir;
-		chosenDefModName = name;
-		if(name == DefModName.UCERF2_NCAL) {
+		Preconditions.checkArgument(deformationModel.isApplicableTo(faultModel), "Deformation model and fault model aren't compatible!");
+		chosenDefModName = deformationModel;
+		if(deformationModel == DeformationModels.UCERF2_NCAL) {
 			faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, maxSubSectionLength);
 			fileNamePrefix = "nCal_0_82_"+faultSubSectPrefDataList.size();	// now hard coded as no NaN slip rates (the 0), defModID=82, & number of sections
 		}
-		else if(name == DefModName.UCERF2_ALL) {
+		else if(deformationModel == DeformationModels.UCERF2_ALL) {
 			faultSubSectPrefDataList = createAll_UCERF2_SubSections(false, maxSubSectionLength);
 			fileNamePrefix = "all_0_82_"+faultSubSectPrefDataList.size();			
 		}
-		else if (name == DefModName.UCERF2_BAYAREA) {
+		else if (deformationModel == DeformationModels.UCERF2_BAYAREA) {
 			faultSubSectPrefDataList = this.createBayAreaSubSections(maxSubSectionLength);
 			fileNamePrefix = "bayArea_0_82_"+faultSubSectPrefDataList.size();						
-		} else if (name.getDataFileURL() != null) {
+		} else if (deformationModel.getDataFileURL(faultModel) != null) {
 			int fmID = 101;
-			URL url = name.getDataFileURL();
+			URL url = deformationModel.getDataFileURL(faultModel);
 			try {
 				System.out.println("Loading def model from: "+url);
 				HashMap<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
 				System.out.println("Loading fault model wtih ID: "+fmID);
-				ArrayList<FaultSectionPrefData> sections = loadUCERF3FaultModel(fmID);
+				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				System.out.println("Combining model with sections...");
 				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength);
-				fileNamePrefix = name.name()+"_"+faultSubSectPrefDataList.size();
+				fileNamePrefix = deformationModel.name()+"_"+faultSubSectPrefDataList.size();
 				System.out.println("DONE.");
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
+		} else {
+			throw new IllegalStateException("Deformation model couldn't be loaded: "+deformationModel);
 		}
 
 		faultSubSectPrefDataIDMap = new HashMap<Integer, FaultSectionPrefData>();
@@ -163,7 +141,7 @@ public class DeformationModelFetcher {
 		}
 	}
 
-	public DefModName getDefModName() {
+	public DeformationModels getDefModName() {
 		return chosenDefModName;
 	}
 
@@ -382,29 +360,6 @@ public class DeformationModelFetcher {
 		return subSectionPrefDataList;
 	}
 
-
-	/**
-	 * KLUDGE! FM 3.1, fake slips
-	 * 
-	 * @param maxSubSectionLength - in units of seismogenic thickness
-	 */
-	private ArrayList<FaultSectionPrefData> createUCERF3_KludgeSections(double maxSubSectionLength) {
-		int faultModelID = 101;
-
-		ArrayList<FaultSectionPrefData> fm = loadUCERF3FaultModel(faultModelID);
-
-		ArrayList<FaultSectionPrefData> subSections = new ArrayList<FaultSectionPrefData>();
-		int subSectIndex = 0;
-		for (FaultSectionPrefData section : fm) {
-			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
-					section, maxSubSectionLength, subSectIndex);
-			subSections.addAll(subSectData);
-			subSectIndex += subSectData.size();
-		}
-
-		return subSections;
-	}
-
 	private static ArrayList<FaultSectionPrefData> buildSubSections(
 			FaultSectionPrefData section, double maxSubSectionLength, int subSectIndex) {
 		double maxSectLength = section.getOrigDownDipWidth()*maxSubSectionLength;
@@ -412,27 +367,8 @@ public class DeformationModelFetcher {
 		return section.getSubSectionsList(maxSectLength, subSectIndex, 2);
 	}
 
-	public static ArrayList<FaultSectionPrefData> loadUCERF3FaultModel(int faultModelID) {
-		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
-		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
-		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
-		FaultModelDB_DAO fm2db = new FaultModelDB_DAO(db);
-		ArrayList<Integer> faultSectionIds = fm2db.getFaultSectionIdList(faultModelID);
-
-		ArrayList<FaultSectionPrefData> faultModel = new ArrayList<FaultSectionPrefData>();
-		int subSectIndex = 0;
-		//		for (int i = 0; i < faultSectionIds.size(); ++i) {
-		for (FaultSectionPrefData data : datas) {
-			if (!faultSectionIds.contains(data.getSectionId()))
-				continue;
-			faultModel.add(data);
-		}
-
-		return faultModel;
-	}
-
 	protected static HashMap<Integer,DeformationSection> getFixedModel(ArrayList<FaultSectionPrefData> sections,
-			HashMap<Integer,DeformationSection> model, DefModName dm) {
+			HashMap<Integer,DeformationSection> model, DeformationModels dm) {
 		HashMap<Integer,DeformationSection> fixed = new HashMap<Integer, DeformationModelFileParser.DeformationSection>();
 
 		for (FaultSectionPrefData section : sections) {
@@ -472,14 +408,14 @@ public class DeformationModelFetcher {
 			
 			if (sectID == 294) {
 				// special cases for SAF
-				if (dm == DefModName.UCERF3_ABM || dm == DefModName.UCERF3_GEOBOUND || dm == DefModName.UCERF3_ZENG) {
+				if (dm == DeformationModels.ABM || dm == DeformationModels.GEOBOUND || dm == DeformationModels.ZENG) {
 					System.out.println("Setting rate on San Andreas (North Branch Mill Creek) to 2mm for "+dm);
 					List<Double> slips = def.getSlips();
 					for (int i=0; i<slips.size(); i++)
 						slips.set(i, 2d);
 				}
 			} else if (sectID == 284) {
-				if (dm == DefModName.UCERF3_ABM) {
+				if (dm == DeformationModels.ABM) {
 					System.out.println("Setting rate on San Andreas (San Gorgonio Pass-Garnet HIll) for "+dm);
 					List<Double> slips = def.getSlips();
 					slips.set(0, 18.56823);
@@ -490,7 +426,7 @@ public class DeformationModelFetcher {
 					slips.set(5, 17.534);
 					slips.set(6, 4.3732);
 					slips.set(7, 6.44856);
-				} else if (dm == DefModName.UCERF3_GEOBOUND) {
+				} else if (dm == DeformationModels.GEOBOUND) {
 					System.out.println("Setting rate on San Andreas (San Gorgonio Pass-Garnet HIll) for "+dm);
 					List<Double> slips = def.getSlips();
 					slips.set(0, 26.15245);
@@ -501,28 +437,28 @@ public class DeformationModelFetcher {
 					slips.set(5, 26.6797);
 					slips.set(6, 16.48237);
 					slips.set(7, 18.79608);
-				} else if (dm == DefModName.UCERF3_ZENG) {
+				} else if (dm == DeformationModels.ZENG) {
 					System.out.println("Setting rate on San Andreas (San Gorgonio Pass-Garnet HIll) for "+dm);
 					List<Double> slips = def.getSlips();
 					for (int i=0; i<slips.size(); i++)
 						slips.set(i, 7.71);
 				}
 			} else if (sectID == 282) {
-				if (dm == DefModName.UCERF3_ABM) {
+				if (dm == DeformationModels.ABM) {
 					System.out.println("Setting rate on San Andreas (San Bernardino N) for "+dm);
 					List<Double> slips = def.getSlips();
 					slips.set(3, 17.132);
-				} else if (dm == DefModName.UCERF3_GEOBOUND) {
+				} else if (dm == DeformationModels.GEOBOUND) {
 					System.out.println("Setting rate on San Andreas (San Bernardino N) for "+dm);
 					List<Double> slips = def.getSlips();
 					slips.set(3, 20.0);
-				} else if (dm == DefModName.UCERF3_ZENG) {
+				} else if (dm == DeformationModels.ZENG) {
 					System.out.println("Setting rate on San Andreas (San Bernardino N) for "+dm);
 					List<Double> slips = def.getSlips();
 					slips.set(3, 16.12);
 				}
 			} else if (sectID == 283) {
-				if (dm == DefModName.UCERF3_ABM) {
+				if (dm == DeformationModels.ABM) {
 					System.out.println("Setting rate on San Andreas (San Bernardino S) for "+dm);
 					List<Double> slips = def.getSlips();
 					slips.set(0, 7.1185);
@@ -530,7 +466,7 @@ public class DeformationModelFetcher {
 					slips.set(2, 6.97722);
 					slips.set(3, 6.175124);
 					slips.set(4, 6.48748);
-				} else if (dm == DefModName.UCERF3_GEOBOUND) {
+				} else if (dm == DeformationModels.GEOBOUND) {
 					System.out.println("Setting rate on San Andreas (San Bernardino S) for "+dm);
 					List<Double> slips = def.getSlips();
 					slips.set(0, 15.97851);
@@ -538,7 +474,7 @@ public class DeformationModelFetcher {
 					slips.set(2, 16.21834);
 					slips.set(3, 16.44794);
 					slips.set(4, 16.70018);
-				} else if (dm == DefModName.UCERF3_ZENG) {
+				} else if (dm == DeformationModels.ZENG) {
 					System.out.println("Setting rate on San Andreas (San Bernardino S) for "+dm);
 					List<Double> slips = def.getSlips();
 					for (int i=0; i<slips.size(); i++)
@@ -1020,7 +956,8 @@ public class DeformationModelFetcher {
 			}
 			catch (IOException e) {
 				System.out.println ("IO exception = " + e );
-				ExceptionUtils.throwAsRuntimeException(e);
+				// an IO exception is actually OK here, it just means we'll have to recreate it next time.
+//				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		}
 		System.out.print("\tDONE.\n");
@@ -1109,7 +1046,7 @@ public class DeformationModelFetcher {
 
 	public static void main(String[] args) {
 			File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
-			DeformationModelFetcher dm = new DeformationModelFetcher(DefModName.UCERF3_GEOLOGIC, precomputedDataDir);
+			DeformationModelFetcher dm = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, precomputedDataDir);
 			
 //			ArrayList<FaultSectionPrefData> dataList = dm.getSubSectionList();
 //			for(FaultSectionPrefData data:dataList)
@@ -1139,10 +1076,17 @@ public class DeformationModelFetcher {
 //					new SimpleDateFormat().format(new Date()));
 //			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
 //					new File(precomputedDataDir, "fault_sections.txt").getAbsolutePath());
-			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
-			new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
-			new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
-			new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
+			
+			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 3.1 Sections",
+					new SimpleDateFormat().format(new Date()));
+			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_1.fetchFaultSections(), metaData,
+					new File(precomputedDataDir, "fault_model_sections.txt").getAbsolutePath());
+			
+			
+//			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
+//			new DeformationModelFetcher(DefModName.UCERF3_NEOKINEMA, precomputedDataDir);
+//			new DeformationModelFetcher(DefModName.UCERF3_GEOBOUND, precomputedDataDir);
+//			new DeformationModelFetcher(DefModName.UCERF3_ABM, precomputedDataDir);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
