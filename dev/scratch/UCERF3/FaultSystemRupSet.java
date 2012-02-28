@@ -265,7 +265,7 @@ public abstract class FaultSystemRupSet {
 	 * @param mfdConstraints
 	 */
 	public double[][] computeFractRupsInsideMFD_Regions(List<MFD_InversionConstraint> mfdConstraints) {
-		if(fractRupsInsideMFD_Regions == null && mfdConstraints != prev_mfdConstraints) {
+		if(fractRupsInsideMFD_Regions == null || mfdConstraints != prev_mfdConstraints) {
 			// do only if not already done
 			prev_mfdConstraints = mfdConstraints;
 			
