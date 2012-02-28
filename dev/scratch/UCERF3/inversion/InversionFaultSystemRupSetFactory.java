@@ -28,6 +28,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  */
 public class InversionFaultSystemRupSetFactory {
 	
+	private static File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
+	
 	/**
 	 * This loads a rupture set for the specified deformation model (and it's first applicable fault model) using all
 	 * other default branch choices and the default laugh test filter.<br>
@@ -76,7 +78,7 @@ public class InversionFaultSystemRupSetFactory {
 	public static FaultSystemRupSet cachedForBranch(FaultModels faultModel, DeformationModels deformationModel,
 			boolean forceRebuild) throws IOException {
 		return cachedForBranch(faultModel, deformationModel,
-				new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets"), forceRebuild);
+				default_scratch_dir, forceRebuild);
 	}
 
 	
@@ -185,7 +187,7 @@ public class InversionFaultSystemRupSetFactory {
 		double moRateReduction = 0.1; // TODO don't hardcode this here
 		
 		return new InversionFaultSystemRupSet(faultModel, deformationModel, magAreaRelationships.getMagAreaRelationships(),
-						moRateReduction, slipAlongModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, aveSlipForRupModel, laughTest);
+						moRateReduction, slipAlongModel, default_scratch_dir, aveSlipForRupModel, laughTest);
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
