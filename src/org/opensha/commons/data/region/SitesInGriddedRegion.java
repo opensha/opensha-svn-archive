@@ -35,6 +35,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.Parameter;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.util.SiteTranslator;
 
 /**
@@ -52,7 +53,7 @@ import org.opensha.sha.util.SiteTranslator;
  */
 // implements SitesInGriddedRegionAPI
 // extends GriddedRegion
-public class SitesInGriddedRegion implements Serializable {
+public class SitesInGriddedRegion implements Iterable<Site>, Serializable {
 
 	//Debug parameter
 	public static final boolean D= false;
@@ -322,6 +323,23 @@ public class SitesInGriddedRegion implements Serializable {
 		for (Parameter param : (ArrayList<Parameter>)defaultSiteParams) {
 			this.defaultSiteParams.add((Parameter)param.clone());
 		}
+	}
+
+	@Override
+	public Iterator<Site> iterator() {
+		return new Iterator<Site>() {
+			int size = getRegion().getNodeCount();
+			int caret = 0;
+			@Override public boolean hasNext() {
+				return caret < size;
+			}
+			@Override public Site next() {
+				return getSite(caret++);
+			}
+			@Override public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 
 }
