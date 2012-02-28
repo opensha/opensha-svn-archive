@@ -172,7 +172,7 @@ public class InversionFaultSystemRupSetFactory {
 	 */
 	public static InversionFaultSystemRupSet forBranch(DeformationModels deformationModel) {
 		return forBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel, MagAreaRelationships.AVE_UCERF2,
-				AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.TAPERED_SLIP_MODEL);
+				AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.TAPERED);
 	}
 	
 	/**
@@ -187,7 +187,7 @@ public class InversionFaultSystemRupSetFactory {
 			FaultModels faultModel,
 			DeformationModels deformationModel) {
 		return forBranch(faultModel, deformationModel, MagAreaRelationships.AVE_UCERF2,
-				AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.TAPERED_SLIP_MODEL);
+				AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.TAPERED);
 	}
 	
 	/**

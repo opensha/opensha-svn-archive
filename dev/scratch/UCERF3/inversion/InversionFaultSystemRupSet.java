@@ -532,22 +532,22 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		double aveSlip = rupMeanSlip[rthRup];  // in meters
 		
 		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
-		if(slipModelType == SlipAlongRuptureModels.CHAR_SLIP_MODEL) {
+		if(slipModelType == SlipAlongRuptureModels.CHAR) {
 			throw new RuntimeException("SlipModelType.CHAR_SLIP_MODEL not yet supported");
 		}
 		// for case where ave slip computed from mag & area, and is same on all segments 
-		else if (slipModelType == SlipAlongRuptureModels.UNIFORM_SLIP_MODEL) {
+		else if (slipModelType == SlipAlongRuptureModels.UNIFORM) {
 			for(int s=0; s<slipsForRup.length; s++)
 				slipsForRup[s] = aveSlip;
 		}
 		// this is the model where section slip is proportional to section slip rate 
 		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
-		else if (slipModelType == SlipAlongRuptureModels.WG02_SLIP_MODEL) {
+		else if (slipModelType == SlipAlongRuptureModels.WG02) {
 			for(int s=0; s<slipsForRup.length; s++) {
 				slipsForRup[s] = aveSlip*sectMoRate[s]*rupArea[rthRup]/(rupTotMoRateAvail[rthRup]*sectArea[s]);
 			}
 		}
-		else if (slipModelType == SlipAlongRuptureModels.TAPERED_SLIP_MODEL) {
+		else if (slipModelType == SlipAlongRuptureModels.TAPERED) {
 			// note that the ave slip is partitioned by area, not length; this is so the final model is moment balanced.
 
 			// make the taper function if hasn't been done yet
