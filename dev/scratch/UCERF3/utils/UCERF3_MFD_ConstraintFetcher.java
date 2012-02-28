@@ -53,7 +53,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 	EvenlyDiscretizedFunc allCal1850_lower95_cumMFD, allCal1984_lower95_cumMFD, noCal1850_lower95_cumMFD, noCal1984_lower95_cumMFD, soCal1850_lower95_cumMFD, soCal1984_lower95_cumMFD;
 	
 	
-	enum TimeAndRegion {
+	public enum TimeAndRegion {
 
 		ALL_CA_1850,
 		ALL_CA_1984,
