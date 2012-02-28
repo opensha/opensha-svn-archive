@@ -14,6 +14,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -21,6 +22,7 @@ import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
@@ -197,7 +199,9 @@ public class RunInversion {
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet(true);
 //			rupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
-			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
+			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC, true);
+			// or you can load one for yourself!
+//			rupSet = SimpleFaultSystemRupSet.fromFile(new File("/path/to/your/rupture/file!"));
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			System.exit(1);
@@ -206,9 +210,9 @@ public class RunInversion {
 		// get the inversion configuration
 		InversionConfiguration config;
 		// this will get it for the GR branch
-//		config = InversionConfiguration.forModel(InversionModelBranches.GR, rupSet);
+		config = InversionConfiguration.forModel(InversionModels.CHAR, rupSet);
 		// this can be used for testing other inversions
-		config = buildCustomConfiguration(rupSet);
+//		config = buildCustomConfiguration(rupSet);
 		
 		File precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 		
@@ -270,10 +274,10 @@ public class RunInversion {
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
 //		criteria = TimeCompletionCriteria.getInHours(2); // 2 hours
-		criteria = TimeCompletionCriteria.getInMinutes(3); // 3 minutes
+//		criteria = TimeCompletionCriteria.getInMinutes(3); // 3 minutes
 //		criteria = TimeCompletionCriteria.getInSeconds(60); // 15 seconds
 		// or use this to run until a set amount of iterations have been completed
-//		criteria = new IterationCompletionCriteria(1000000); // 1 million iterations
+		criteria = new IterationCompletionCriteria(100000000); // 1 million iterations
 		
 		SimulatedAnnealing sa;
 		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
@@ -290,7 +294,7 @@ public class RunInversion {
 					A_ineq, d_ineq, minimumRuptureRates, numThreads, subCompetionCriteria);
 		} else {
 			// serial simulated annealing
-			sa = new SerialSimulatedAnnealing(A_ineq, d_ineq, initial, relativeSmoothnessWt, A_ineq, d_ineq);
+			sa = new SerialSimulatedAnnealing(A, d, initial, relativeSmoothnessWt, A_ineq, d_ineq);
 		}
 		// actually do the annealing
 		sa.iterate(criteria);

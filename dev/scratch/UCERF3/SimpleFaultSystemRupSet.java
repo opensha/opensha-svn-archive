@@ -928,6 +928,23 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		} catch (Exception e) {
 			System.err.println("Warning: unknown FaultModels: "+faultModAtt.getValue());
 		}
+		if (faultModel == null && defModAtt != null) {
+			if (defModName == null) {
+				// hacks for loading in old files
+				String defModText = defModAtt.getValue();
+				if (defModText.contains("GEOLOGIC") && !defModText.contains("ABM"))
+					defModName = DeformationModels.GEOLOGIC;
+				else if (defModText.contains("NCAL"))
+					defModName = DeformationModels.UCERF2_NCAL;
+				else if (defModText.contains("ALLCAL"))
+					defModName = DeformationModels.UCERF2_ALL;
+				else if (defModText.contains("BAYAREA"))
+					defModName = DeformationModels.UCERF2_BAYAREA;
+			}
+			
+			if (defModName != null)
+				faultModel = defModName.getApplicableFaultModels().get(0);
+		}
 		
 		ZipEntry infoEntry = zip.getEntry("info.txt");
 		String info;

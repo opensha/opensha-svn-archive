@@ -37,7 +37,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	

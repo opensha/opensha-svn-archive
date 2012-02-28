@@ -177,8 +177,8 @@ public class InversionConfiguration {
 		switch (model) {
 		case CHAR:
 			relativeParticipationSmoothnessConstraintWt = 0;
-			relativeRupRateConstraintWt = 0.01;
-			aPrioriRupConstraint = getUCERF2Solution(rupSet); // TODO!
+			relativeRupRateConstraintWt = 1;
+			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = aPrioriRupConstraint;
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
@@ -304,7 +304,7 @@ public class InversionConfiguration {
 		else
 			findUCERF2_Rups = new FindEquivUCERF2_FM3_Ruptures(faultSystemRupSet,
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, fm);
-		// TODO!
+		
 		int numRuptures=faultSystemRupSet.getNumRuptures();
 		double[] initial_state = new double[numRuptures];
 		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures();
