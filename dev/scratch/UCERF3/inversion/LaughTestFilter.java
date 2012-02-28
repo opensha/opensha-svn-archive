@@ -6,6 +6,24 @@ public class LaughTestFilter {
 	maxCmlJumpDist, maxCmlRakeChange, maxCmlAzimuthChange;
 	private int minNumSectInRup;
 	
+	/**
+	 * This returns the current default laugh test filter
+	 * 
+	 * @return
+	 */
+	public static LaughTestFilter getDefault() {
+		double maxAzimuthChange = 90;
+		double maxJumpDist = 5d;
+		double maxCumJumpDist = 10d;
+		double maxTotAzimuthChange = 90d;
+		double maxRakeDiff = Double.POSITIVE_INFINITY;
+		int minNumSectInRup = 2;
+		double maxCmlRakeChange = 360;
+		double maxCmlAzimuthChange = 540;
+		
+		return new LaughTestFilter(maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, maxCumJumpDist,
+				maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup);
+	}
 	
 	public LaughTestFilter(double maxJumpDist, double maxAzimuthChange,
 			double maxTotAzimuthChange, double maxRakeDiff,
