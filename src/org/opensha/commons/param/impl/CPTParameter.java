@@ -1,6 +1,7 @@
 package org.opensha.commons.param.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.dom4j.Element;
@@ -28,7 +29,7 @@ public class CPTParameter extends AbstractParameter<CPT> {
 		super(name, null, null, value);
 	}
 	
-	public CPTParameter(String name, Collection<CPT> allowed, CPT value) {
+	public CPTParameter(String name, List<CPT> allowed, CPT value) {
 		this(name, new ListBasedConstraint<CPT>(allowed), value);
 	}
 	

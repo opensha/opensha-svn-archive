@@ -1,6 +1,7 @@
 package org.opensha.commons.param.constraint.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
@@ -12,17 +13,17 @@ public class ListBasedConstraint<E> extends AbstractParameterConstraint<E> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Collection<E> allowed;
+	private List<E> allowed;
 	
-	public ListBasedConstraint(Collection<E> allowed) {
+	public ListBasedConstraint(List<E> allowed) {
 		this.allowed = allowed;
 	}
 	
-	public void setAllowed(Collection<E> allowed) {
+	public void setAllowed(List<E> allowed) {
 		this.allowed = allowed;
 	}
 	
-	public Collection<E> getAllowed() {
+	public List<E> getAllowed() {
 		return allowed;
 	}
 
