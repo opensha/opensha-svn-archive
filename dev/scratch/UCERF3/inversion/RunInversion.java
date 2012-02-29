@@ -164,19 +164,6 @@ public class RunInversion {
 			mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
 		}
 		
-		// plot magnitude histogram for the inversion starting model
-		IncrementalMagFreqDist magHist2 = new IncrementalMagFreqDist(5.05,40,0.1);
-		magHist2.setTolerance(0.2);	// this makes it a histogram
-		for(int r=0; r<rupSet.getNumRuptures();r++)
-			magHist2.add(rupSet.getMagForRup(r), initialRupModel[r]);
-		ArrayList funcs = new ArrayList();
-		funcs.add(magHist2);
-		magHist2.setName("Magnitude Distribution of Starting Model (before Annealing)");
-		magHist2.setInfo("(number in each mag bin)");
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
-		graph.setX_AxisLabel("Magnitude");
-		graph.setY_AxisLabel("Frequency (per bin)");
-		
 		return new InversionConfiguration(weightSlipRates, relativePaleoRateWt,
 				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt,
 				relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt,
