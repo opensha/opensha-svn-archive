@@ -151,7 +151,7 @@ public class InversionConfiguration {
 //		ucerf2Constraints.setRegion(entire_region);
 		// add MFD constraint for Northern CA
 		if (ucerf3MFDs) {
-			mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
+			mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
 		} else {
 			ucerf2Constraints.setRegion(noCal);
 			mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
@@ -160,7 +160,7 @@ public class InversionConfiguration {
 		if (entire_region != noCal) {
 			// don't add so cal if we're just doing a no cal inversion
 			if (ucerf3MFDs) {
-				mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
+				mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
 			} else {
 				ucerf2Constraints.setRegion(soCal);
 				mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
