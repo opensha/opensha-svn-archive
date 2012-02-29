@@ -2,14 +2,11 @@ package scratch.UCERF3.inversion;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.commons.util.FileUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
@@ -18,10 +15,14 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
- * This class serves as a factory for loading/building FaultSystemRupSet's for each branch of the UCERF3 logic tree.
+ * This class serves as a factory for loading/building FaultSystemRupSet's for each branch of the UCERF3 logic tree.<br>
+ * <br>
+ * It's worth noting that this class uses each Fault Model's filter basis to determine which deformation model to filter by.
+ * This means that when, for example, a FM 3.1 ABM rupture set is generated, it is filtered as if it were FM 3.1 Geologic.
  * 
  * @author Kevin
  *
@@ -186,8 +187,26 @@ public class InversionFaultSystemRupSetFactory {
 		
 		double moRateReduction = 0.1; // TODO don't hardcode this here
 		
-		return new InversionFaultSystemRupSet(faultModel, deformationModel, magAreaRelationships.getMagAreaRelationships(),
-						moRateReduction, slipAlongModel, default_scratch_dir, aveSlipForRupModel, laughTest);
+		List<MagAreaRelationship> magAreaRelList = magAreaRelationships.getMagAreaRelationships();
+		
+		DeformationModels filterBasis = faultModel.getFilterBasis();
+		if (filterBasis == null) {
+//			System.out.println("No filter basis specified!");
+			filterBasis = deformationModel;
+		}
+//		System.out.println("Creating clusters with filter basis: "+filterBasis+", Fault Model: "+faultModel);
+		SectionClusterList clusters = new SectionClusterList(faultModel, filterBasis, default_scratch_dir, laughTest);
+		
+		List<FaultSectionPrefData> faultSectionData;
+		if (filterBasis == deformationModel) {
+			faultSectionData = clusters.getFaultSectionData();
+		} else {
+			// we need to get it outselves
+			faultSectionData = new DeformationModelFetcher(faultModel, deformationModel, default_scratch_dir).getSubSectionList();
+		}
+		
+		return new InversionFaultSystemRupSet(clusters, deformationModel, faultSectionData, magAreaRelList,
+				moRateReduction, slipAlongModel, aveSlipForRupModel);
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
@@ -199,7 +218,8 @@ public class InversionFaultSystemRupSetFactory {
 //			ALLCAL.getRupSet(true);
 //			UCERF3_ALLCAL_3_1_KLUDGE.getRupSet(true);
 //			UCERF3_GEOLOGIC.getRupSet(true);
-			cachedForBranch(DeformationModels.GEOLOGIC, true);
+//			cachedForBranch(DeformationModels.GEOLOGIC, true);
+			forBranch(DeformationModels.ABM);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -6,6 +6,7 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -71,11 +72,21 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		list.add(PLOT_CHAR10);
 		list.add(PLOT_CHAR11);
 		
+		if (funcs == null)
+			return list;
+		
 		int numChars = list.size();
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		for(int i=0; i<funcs.size(); ++i)
 			plotChars.add(list.get(i%numChars));
 		return plotChars;
+	}
+	
+	public static List<Color> generateDefaultColors() {
+		ArrayList<Color> colors = new ArrayList<Color>();
+		for (PlotCurveCharacterstics pchar : generateDefaultChars(null))
+			colors.add(pchar.getColor());
+		return colors;
 	}
 
 	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle) {

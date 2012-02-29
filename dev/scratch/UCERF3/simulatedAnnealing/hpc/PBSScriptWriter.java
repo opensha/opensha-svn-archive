@@ -14,6 +14,7 @@ import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
+import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 
 public class PBSScriptWriter {
 
@@ -21,7 +22,7 @@ public class PBSScriptWriter {
 		if (args.length < 8 || args.length > 12) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(PBSScriptWriter.class)
 					+" <nodes> <minutes> <sub-completion> <PPN> <threads> <dir>"
-					+" [<A mat file> <d file> [<intial> [<a_ineq> <d_ineq>]] OR --zip <zip file> [jobName]]");
+					+" [<A mat file> <d file> [<intial> [<a_ineq> <d_ineq>]] OR --zip <zip file> [<jobName> [<nonnegativity>]]]");
 			System.exit(2);
 		}
 		try {
@@ -34,6 +35,7 @@ public class PBSScriptWriter {
 			File dir = new File(args[cnt++]).getCanonicalFile();
 			String name = dir.getName();
 			
+			NonnegativityConstraintType nonneg = null;
 			
 			File aFile = null;
 			File dFile = null;
@@ -46,6 +48,8 @@ public class PBSScriptWriter {
 				zipFile = new File(args[cnt++]).getCanonicalFile();
 				if (cnt < args.length)
 					name = args[cnt++];
+				if (cnt < args.length)
+					nonneg = NonnegativityConstraintType.valueOf(args[cnt++]);
 			} else {
 				aFile = new File(args[cnt++]).getCanonicalFile();
 				dFile = new File(args[cnt++]).getCanonicalFile();
@@ -96,6 +100,7 @@ public class PBSScriptWriter {
 			creator.setD_ineqMat(d_ineqFile);
 			creator.setInitial(initial);
 			creator.setZipFile(zipFile);
+			creator.setNonNeg(nonneg);
 
 			creator.setProgFile(new File(dir, name+".csv"));
 			creator.setSolFile(new File(dir, name+".bin"));

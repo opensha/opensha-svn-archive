@@ -25,7 +25,7 @@ public class SectionCluster extends ArrayList<Integer> {
 
 	protected final static boolean D = true;  // for debugging
 
-	ArrayList<FaultSectionPrefData> sectionDataList;
+	List<FaultSectionPrefData> sectionDataList;
 	ArrayList<Integer> allSectionsIdList = null;
 	List<List<Integer>> sectionConnectionsListList;
 	ArrayList<ArrayList<Integer>> rupListIndices;			// elements here are section IDs (same as indices in sectonDataList)
@@ -46,7 +46,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param maxRakeDiff
 	 */
 	@Deprecated
-	public SectionCluster(ArrayList<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
+	public SectionCluster(List<FaultSectionPrefData> sectionDataList, int minNumSectInRup, 
 			List<List<Integer>> sectionConnectionsListList, Map<IDPairing, Double> subSectionAzimuths,
 			Map<Integer, Double> rakesMap, double maxAzimuthChange, double maxTotAzimuthChange, 
 			double maxRakeDiff, Map<IDPairing, Double> subSectionDistances, double maxCumJumpDist) {
@@ -66,7 +66,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param maxTotAzimuthChange
 	 * @param maxRakeDiff
 	 */
-	public SectionCluster(LaughTestFilter laughTestFilter, ArrayList<FaultSectionPrefData> sectionDataList,
+	public SectionCluster(LaughTestFilter laughTestFilter, List<FaultSectionPrefData> sectionDataList,
 			List<List<Integer>> sectionConnectionsListList, Map<IDPairing, Double> subSectionAzimuths,
 			Map<Integer, Double> rakesMap, Map<IDPairing, Double> subSectionDistances) {
 		this.sectionDataList = sectionDataList;

@@ -19,6 +19,8 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
@@ -121,7 +123,10 @@ public class InversionConfiguration {
 		// weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
 		double relativeSmoothnessWt = 0;
 		
-		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+		boolean ucerf3MFDs = true;
+		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = null;
+		if (ucerf3MFDs)
+			ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
 		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
 		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
 		Region entire_region;
@@ -145,13 +150,21 @@ public class InversionConfiguration {
 //		// add MFD constraint for the entire region
 //		ucerf2Constraints.setRegion(entire_region);
 		// add MFD constraint for Northern CA
-		ucerf2Constraints.setRegion(noCal);
-		mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+		if (ucerf3MFDs) {
+			mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
+		} else {
+			ucerf2Constraints.setRegion(noCal);
+			mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+		}
 		// add MFD constraint for Southern CA
 		if (entire_region != noCal) {
 			// don't add so cal if we're just doing a no cal inversion
-			ucerf2Constraints.setRegion(soCal);
-			mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+			if (ucerf3MFDs) {
+				mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
+			} else {
+				ucerf2Constraints.setRegion(soCal);
+				mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+			}
 		}
 		
 		/* *******************************************

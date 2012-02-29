@@ -708,7 +708,8 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_10_21-ncal-bench-sub200-orig_single");
 //		dsaDir = new File(mainDir, "2011_10_27-ncal-bench-sub-secs-test");
 //		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
-		dsaDir = new File(mainDir, "2012_02_22-model2-bench/8threads");
+//		dsaDir = new File(mainDir, "2012_02_22-model2-bench/8threads");
+		dsaDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_02_27-unconstrained");
 		
 //		dsaDir = new File(mainDir, "agu/ncal_constrained");
 //		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
@@ -720,13 +721,13 @@ public class ResultPlotter {
 		
 		ArrayList<String> plots = new ArrayList<String>();
 		plots.add(energy_vs_time_title);
-		plots.add(avg_energy_vs_time_title);
+//		plots.add(avg_energy_vs_time_title);
 //		plots.add(std_dev_vs_time_title);
 //		plots.add(improvement_vs_time_title);
 //		plots.add(time_speedup_vs_energy_title);
 //		plots.add(time_comparison_title);
-		plots.add(time_speedup_vs_time_title);
-		plots.add(speedup_vs_threads_title);
+//		plots.add(time_speedup_vs_time_title);
+//		plots.add(speedup_vs_threads_title);
 //		plots.add(speedup_vs_time_title);
 //		plots.add(energy_vs_iterations_title);
 //		plots.add(avg_energy_vs_iterations_title);

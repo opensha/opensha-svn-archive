@@ -26,7 +26,7 @@ public class FaultSectionDataWriter {
 	 * @param metaData - each String in this list will have a "# " and "\n" added to the beginning and ending, respectively
 	 * @param filePathAndName
 	 */
-	public final static void writeSectionsToFile(ArrayList<FaultSectionPrefData> subSectionPrefDataList, 
+	public final static void writeSectionsToFile(List<FaultSectionPrefData> subSectionPrefDataList, 
 			ArrayList<String> metaData, String filePathAndName) {
 		try {
 			FileWriter fw = new FileWriter(filePathAndName);

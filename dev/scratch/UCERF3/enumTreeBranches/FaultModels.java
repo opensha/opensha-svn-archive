@@ -30,6 +30,27 @@ public enum FaultModels {
 		return id;
 	}
 	
+	/**
+	 * This returns the Deformation Model that should be used for construction of rupture sets, or null
+	 * if any can be used.
+	 * 
+	 * @return
+	 */
+	public DeformationModels getFilterBasis() {
+		// this has to be hard coded here because DeformationModels can't be instantiated before
+		// fault models because they depend on fault models. Complicated enum order of operations
+		// junk - just trust me.
+		switch (this) {
+		case FM3_1:
+			return DeformationModels.GEOLOGIC;
+		case FM3_2:
+			return DeformationModels.GEOLOGIC;
+
+		default:
+			return null;
+		}
+	}
+	
 	public DB_AccessAPI getDBAccess() {
 		switch (this) {
 		case FM2_1:
