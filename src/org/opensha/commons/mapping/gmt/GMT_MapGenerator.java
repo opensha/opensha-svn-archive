@@ -225,20 +225,27 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 	// Apply GMT smoothing
 	public final static String GMT_SMOOTHING_PARAM_NAME = "Apply GMT Smoothing?";
-	private final static String GMT_SMOOTHING_PARAM_INFO = "Apply GMT Smoothing?";
+	private final static String GMT_SMOOTHING_PARAM_INFO = "Apply GMT Smoothing (if false, Topo Resolution is set to none)?";
 	protected final static boolean GMT_SMOOTHING_DEFAULT = true;
 	private BooleanParameter gmtSmoothingParam; 
+
+
+	// Apply GMT smoothing
+	public final static String BLACK_BACKGROUND_PARAM_NAME = "Apply Black Background?";
+	private final static String BLACK_BACKGROUND_PARAM_INFO = "Otherwise background will be white";
+	protected final static boolean BLACK_BACKGROUND_PARAM_DEFAULT = true;
+	private BooleanParameter blackBackgroundParam; 
 
 
 	// shaded relief resolution
 	public final static String TOPO_RESOLUTION_PARAM_NAME = "Topo Resolution";
 	private final static String TOPO_RESOLUTION_PARAM_UNITS = "arc-sec";
 	private final static String TOPO_RESOLUTION_PARAM_INFO = "Resolution of the shaded relief";
-	private final static String TOPO_RESOLUTION_03_CA = "03 sec California";
-	private final static String TOPO_RESOLUTION_06_CA = "06 sec California";
-	private final static String TOPO_RESOLUTION_18_CA = "18 sec California";
-	private final static String TOPO_RESOLUTION_30_CA = "30 sec California";
-	private final static String TOPO_RESOLUTION_30_GLOBAL = "30 sec Global";
+	public final static String TOPO_RESOLUTION_03_CA = "03 sec California";
+	public final static String TOPO_RESOLUTION_06_CA = "06 sec California";
+	public final static String TOPO_RESOLUTION_18_CA = "18 sec California";
+	public final static String TOPO_RESOLUTION_30_CA = "30 sec California";
+	public final static String TOPO_RESOLUTION_30_GLOBAL = "30 sec Global";
 	protected final static String TOPO_RESOLUTION_PARAM_DEFAULT = TOPO_RESOLUTION_30_GLOBAL;
 	public final static String TOPO_RESOLUTION_NONE = "No Topo";
 	StringParameter topoResolutionParam;
@@ -368,6 +375,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		this.gmtSmoothingParam = new BooleanParameter(GMT_SMOOTHING_PARAM_NAME, GMT_SMOOTHING_DEFAULT);
 		gmtSmoothingParam.setInfo(GMT_SMOOTHING_PARAM_INFO);
 
+		// whether to apply GMT smoothing
+		this.blackBackgroundParam = new BooleanParameter(BLACK_BACKGROUND_PARAM_NAME, BLACK_BACKGROUND_PARAM_DEFAULT);
+		blackBackgroundParam.setInfo(BLACK_BACKGROUND_PARAM_INFO);
+
 
 		// create adjustable parameter list
 		adjustableParams = new ParameterList();
@@ -388,6 +399,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		adjustableParams.addParameter(customScaleLabelCheckParam);
 		adjustableParams.addParameter(scaleLabelParam);
 		adjustableParams.addParameter(gmtSmoothingParam);
+		adjustableParams.addParameter(blackBackgroundParam);
 		adjustableParams.addParameter(dpiParam);
 		adjustableParams.addParameter(gmtFromServer);
 		adjustableParams.addParameter(logPlotParam);
@@ -532,7 +544,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		}
 		
 		map.setUseGMTSmoothing(gmtSmoothingParam.getValue());
-		
+
+		map.setBlackBackground(blackBackgroundParam.getValue());
+
 		return map;
 	}
 
@@ -806,71 +820,6 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 
 
-	/**
-	 * This function is used to make the map from XYZ file.
-	 * This function is called from CME framework (on usc.gravity.edu). This function was needed because
-	 * in CME, there is need that we should be able to specify the name of ps file name
-	 * and jpeg filename.
-	 *
-	 * @param xyzDataSet
-	 * @param scaleLabel - a string for the label (with no spaces!)
-	 * @return - the name of the jpg file
-	 */
-	public void makeMapForCME(String xyzFileName, String pdfFileName,
-			String psFileName, String jpgFileName, String scaleLabel) throws
-			GMT_MapException{
-
-		XYZ_FILE_NAME = xyzFileName;
-		PS_FILE_NAME = psFileName;
-		JPG_FILE_NAME = jpgFileName;
-		PDF_FILE_NAME = pdfFileName;
-
-		// THESE SHOULD BE SET DYNAMICALLY
-		// CURRENTLY HARD CODED FOR gravity AT SCEC (for Vipin)
-		// IF THIS CAN BE DONE WE CAN GENERALIZE THIS METHOD NAME
-		GMT_PATH="/opt/install/gmt/bin/";
-		GS_PATH="/usr/local/bin/gs";
-		PS2PDF_PATH = "/usr/local/bin/ps2pdf";
-		CONVERT_PATH="/usr/bin/convert";
-
-		// The color scale label
-		SCALE_LABEL = scaleLabel;
-
-		try {
-			this.xyzDataSet = ArbDiscrGeoDataSet.loadXYZFile(XYZ_FILE_NAME, true);
-		} catch (IOException e) {
-			throw new GMT_MapException(e);
-		}
-
-		// take the log(z) values if necessary (and change label)
-		checkForLogPlot();
-
-		// save file locally if log-plot is desired
-		boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
-		if(logPlotCheck){
-			XYZ_FILE_NAME = "Log_"+XYZ_FILE_NAME;
-			try {
-				ArbDiscrGeoDataSet.writeXYZFile(xyzDataSet, XYZ_FILE_NAME);
-			} catch (IOException e) {
-				throw new GMT_MapException(e);
-			}
-		}
-
-		// get the GMT script lines
-		ArrayList gmtLines = getGMT_ScriptLines();
-
-		// make the script
-		makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
-
-		// now run the GMT script file
-		String[] command ={"sh","-c","sh "+GMT_SCRIPT_NAME};
-		RunScript.runScript(command);
-
-		// set XYZ filename back to the default
-		XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
-		PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
-		JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
-	}
 
 
 	/**
@@ -999,10 +948,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// hard-code check that lat & lon bounds are in the region where we have topography:
 		// this is only temporary until we have worldwide topo data
-		if( !resolution.equals(TOPO_RESOLUTION_NONE) &&
-				( maxLat > 43 || minLat < 32 || minLon < -126 || maxLon > -115 ))
-			throw new GMT_MapException("Topography not available for the chosen region; please select \"" +
-					TOPO_RESOLUTION_NONE + "\" for the " + TOPO_RESOLUTION_PARAM_NAME + " parameter");
+//		if( !resolution.equals(TOPO_RESOLUTION_NONE) &&
+//				( maxLat > 43 || minLat < 32 || minLon < -126 || maxLon > -115 ))
+//			throw new GMT_MapException("Topography not available for the chosen region; please select \"" +
+//					TOPO_RESOLUTION_NONE + "\" for the " + TOPO_RESOLUTION_PARAM_NAME + " parameter");
 
 		// Set highways String
 		String showHiwys = (String) showHiwysParam.getValue();
@@ -1049,17 +998,28 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		float inc = (float) ((colorScaleMax-colorScaleMin)/20);
 		commandLine="${GMT_PATH}makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
 		gmtCommandLines.add(commandLine+"\n");
+		
+		gmtCommandLines.add("${COMMAND_PATH}rm gmtdefaults4"+"\n");
 
 		// set some defaults
-		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+		if(blackBackgroundParam.getValue()) {
+			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+			commandLine+=" BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i";
+		}
+		else {
+			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+			commandLine+=" BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i";
+		}
 		gmtCommandLines.add(commandLine+"\n");
 
 		int dpi = (Integer)this.dpiParam.getValue();
-		String gmtSmoothOption="";
-		if(!(Boolean)this.gmtSmoothingParam.getValue()) gmtSmoothOption=" -T ";
-		// generate the image depending on whether topo relief is desired
-		if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
+		if(!(Boolean)gmtSmoothingParam.getValue()) {	// note that this forces topo resolution to none (TOPO_RESOLUTION_NONE)
+			commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt "+"-Ts -K"+dpi+ region + " > " + PS_FILE_NAME;
+			gmtCommandLines.add(commandLine+"\n");
+		}
+		// else generate the image depending on whether topo relief is desired
+		else if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
+			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt "+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else {
@@ -1083,7 +1043,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			rmFiles.add(intenFile);
 			gmtCommandLines.add(commandLine+"\n");
 			commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
-			" -I"+fileName+"Inten.grd -C"+fileName+".cpt "+ gmtSmoothOption +"-K -E"+dpi+ region + " > " + PS_FILE_NAME;
+			" -I"+fileName+"Inten.grd -C"+fileName+".cpt "+ "-K -E"+dpi+ region + " > " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 
@@ -1092,24 +1052,28 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
+		
+//		if(blackBackgroundParam.getValue())
+//			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+//		else
+//			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+//
+//		gmtCommandLines.add(commandLine+"\n");
 
 		// add coast and fill if desired
 		if(coast.equals(COAST_FILL)) {
-			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W1/17/73/71 -P -S17/73/71 -Dh -N2 >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W1/17/73/71 -P -S17/73/71 -Dh -Na >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else if(coast.equals(COAST_DRAW)) {
-			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W4/0/0/0 -P -Dh -N2>> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W4 -P -Dh -Na>> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 
 
 		// This adds intermediate commands
 		addIntermediateGMT_ScriptLines(gmtCommandLines);
-
 		// set some defaults
-		commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
-		gmtCommandLines.add(commandLine+"\n");
 
 		// add the color scale
 		DecimalFormat df2 = new DecimalFormat("0.E0");
@@ -1171,14 +1135,19 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			rmFiles.add(gEarth_psFileName);
 			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
 			String gEarth_kmz_name = "./map.kmz";
-			if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
+			if(!(Boolean)gmtSmoothingParam.getValue()) {	// note that this forces topo resolution to none (TOPO_RESOLUTION_NONE)
+				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + gEarth_proj +
+				" -C"+fileName+".cpt "+"-Ts -K"+dpi+ region + " > " + gEarth_psFileName;
+				gmtCommandLines.add(commandLine+"\n");
+			}
+			else if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
 				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
-				" -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + gEarth_psFileName;
+				" -C"+fileName+".cpt "+" -K -E"+dpi+ region + " > " + gEarth_psFileName;
 				gmtCommandLines.add(commandLine+"\n");
 			}
 			else {
 				commandLine="${GMT_PATH}grdimage "+fileName+"HiResData.grd " + xOff + yOff + gEarth_proj +
-				" -I"+fileName+"Inten.grd -C"+fileName+".cpt "+ gmtSmoothOption +"-K -E"+
+				" -I"+fileName+"Inten.grd -C"+fileName+".cpt "+ "-K -E"+
 				dpi+ region + " > " + gEarth_psFileName;
 				gmtCommandLines.add(commandLine+"\n");
 			}
@@ -1393,16 +1362,21 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// set some defaults
 		gmtCommandLines.add("# Set GMT paper/font defaults");
-		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+		if(map.isBlackBackground())
+			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+		else
+			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
 		gmtCommandLines.add(commandLine+"\n");
 
 		int dpi = map.getDpi();
-		String gmtSmoothOption="";
-		if (!map.isUseGMTSmoothing()) gmtSmoothOption=" -T ";
+		if (!map.isUseGMTSmoothing()) {
+			commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+"-Ts -K"+dpi+ region + " > " + psFileName;
+			gmtCommandLines.add(commandLine+"\n");
+		}
 		// generate the image depending on whether topo relief is desired
-		if (map.getTopoResolution() == null) {
+		else if (map.getTopoResolution() == null) {
 			gmtCommandLines.add("# Plot the gridded data");
-			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + psFileName;
+			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+" -K -E"+dpi+ region + " > " + psFileName;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else {
@@ -1430,7 +1404,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add(commandLine);
 			gmtCommandLines.add("# Plot the gridded data with topographic shading");
 			commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
-			" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ gmtSmoothOption +"-K -E"+dpi+ region + " > " + psFileName;
+			" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ "-K -E"+dpi+ region + " > " + psFileName;
 			gmtCommandLines.add(commandLine);
 		}
 		
@@ -1444,7 +1418,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		
 		// set some defaults
 		gmtCommandLines.add("# Set GMT map property defaults");
-		commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+		if(map.isBlackBackground())
+			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+		else
+			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine);
 
 		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, tempFilePrefix+".cpt", psFileName);
@@ -1507,14 +1484,19 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
 			String gEarth_kmz_name = "./map.kmz";
 			gmtCommandLines.add("# Make PS file for google earth");
-			if (map.getTopoResolution() == null) {
+			if (!map.isUseGMTSmoothing()) {
+				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + gEarth_proj +
+				" -C"+tempFilePrefix+".cpt "+"-Ts"+dpi+ region + " > " + gEarth_psFileName;
+				gmtCommandLines.add(commandLine);
+			}
+			else if (map.getTopoResolution() == null) {
 				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
-				" -C"+tempFilePrefix+".cpt "+gmtSmoothOption+" -E"+dpi+ region + " > " + gEarth_psFileName;
+				" -C"+tempFilePrefix+".cpt "+" -E"+dpi+ region + " > " + gEarth_psFileName;
 				gmtCommandLines.add(commandLine);
 			}
 			else {
 				commandLine="${GMT_PATH}grdimage "+tempFilePrefix+"HiResData.grd " + xOff + yOff + gEarth_proj +
-				" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ gmtSmoothOption +"-E"+
+				" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ "-E"+
 				dpi+ region + " > " + gEarth_psFileName;
 				gmtCommandLines.add(commandLine);
 			}

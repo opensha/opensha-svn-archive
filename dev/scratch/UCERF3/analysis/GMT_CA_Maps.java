@@ -49,7 +49,7 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
  */
 public class GMT_CA_Maps {
 	
-	final static boolean makeMapOnServer = false;
+	final static boolean makeMapOnServer = true;
 		
 	final static double defaultMinLat = 31.5;
 	final static double defaultMaxLat = 43.0;
@@ -65,6 +65,7 @@ public class GMT_CA_Maps {
 	final static String defaultCoast = GMT_MapGenerator.COAST_DRAW;
 	final static double defaultImageWidth = 6.5; 
 	final static boolean defaultApplyGMT_Smoothing = false;
+	final static boolean defaultBlackBackground = false;
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED defaultGridRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
 	
@@ -97,6 +98,7 @@ public class GMT_CA_Maps {
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.COAST_PARAM_NAME, defaultCoast);
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.IMAGE_WIDTH_NAME, defaultImageWidth);
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, defaultApplyGMT_Smoothing);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.BLACK_BACKGROUND_PARAM_NAME, defaultBlackBackground);
 		
 		return gmt_MapGenerator;
 
@@ -239,7 +241,7 @@ public class GMT_CA_Maps {
 		System.out.println("Making xyzData");
 //		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(modMeanUCERF2, defaultGridRegion, 0, 10);
 
-		GMT_CA_Maps.plotNucleationRateMap(modMeanUCERF2, 0, 10, "TEST", "test meta data", "test_GMT_Maps");
+		GMT_CA_Maps.plotNucleationRateMap(modMeanUCERF2, 0, 10, "TEST", "test meta data", "junk_GMT_Maps");
 //		GMT_CA_Maps.plotNucleationRateMap(geoDataSet, "TEST", "test meta data", "test_GMT_Maps");
 
 //		System.out.println("Plotting ratio");

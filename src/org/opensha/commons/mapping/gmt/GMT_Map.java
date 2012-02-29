@@ -89,6 +89,8 @@ public class GMT_Map implements Serializable {
 	
 	private boolean useGMTSmoothing = true;
 	
+	private boolean blackBackground = true;
+	
 	private boolean logPlot = false;
 	
 	private String xyzFileName = GMT_MapGenerator.DEFAULT_XYZ_FILE_NAME;
@@ -270,6 +272,14 @@ public class GMT_Map implements Serializable {
 
 	public void setUseGMTSmoothing(boolean useGMTSmoothing) {
 		this.useGMTSmoothing = useGMTSmoothing;
+	}
+	
+	public boolean isBlackBackground() {
+		return blackBackground;
+	}
+
+	public void setBlackBackground(boolean blackBackground) {
+		this.blackBackground = blackBackground;
 	}
 
 	public boolean isLogPlot() {
