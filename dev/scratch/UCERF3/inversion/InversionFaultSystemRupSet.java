@@ -91,13 +91,20 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	
 	private List<List<Integer>> sectionConnectionsListList;
-
-	public static List<SectionCluster> generateClusters() {
-		
-		
-		return null; //TODO
-	}
 	
+	/**
+	 * This generates a new InversionFaultSystemRupSet for the given fault/deformation mode and all other branch
+	 * parameters.
+	 * 
+	 * @param faultModel
+	 * @param defModel
+	 * @param magAreaRelList
+	 * @param moRateReduction
+	 * @param slipModelType
+	 * @param aveSlipForRupModel
+	 * @param precomputedDataDir
+	 * @param filter
+	 */
 	public InversionFaultSystemRupSet(FaultModels faultModel, DeformationModels defModel,
 			List<MagAreaRelationship> magAreaRelList, double moRateReduction, SlipAlongRuptureModels slipModelType,
 			AveSlipForRupModels aveSlipForRupModel, File precomputedDataDir, LaughTestFilter filter) {
@@ -105,6 +112,18 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				defModel, null, magAreaRelList, moRateReduction, slipModelType, aveSlipForRupModel);
 	}
 
+	/**
+	 * This creates a new InversionFaultSystemRupSet for the given cluster list, which may or may have been
+	 * generated with this deformation model (but needs to be generated with this fault model!).
+	 * 
+	 * @param clusters
+	 * @param defModel
+	 * @param faultSectionData
+	 * @param magAreaRelList
+	 * @param moRateReduction
+	 * @param slipModelType
+	 * @param aveSlipForRupModel
+	 */
 	public InversionFaultSystemRupSet(SectionClusterList clusters, DeformationModels defModel, List<FaultSectionPrefData> faultSectionData,
 			List<MagAreaRelationship> magAreaRelList, double moRateReduction, SlipAlongRuptureModels slipModelType,
 			AveSlipForRupModels aveSlipForRupModel) {
