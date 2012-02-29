@@ -38,7 +38,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class UCERF3_PaleoRateConstraintFetcher {
 	
 	private final static String PALEO_DATA_SUB_DIR = "paleoRateData";
-	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v01.xls";
+	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v02.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	
