@@ -169,7 +169,7 @@ public class FaultSystemRupSetCalc {
 	
 	
 	public static HistogramFunction getMomentRateReductionHistogram(FaultSystemRupSet faultSystemRupSet, boolean wtByMoRate, boolean plotResult) {
-		HistogramFunction hist = new HistogramFunction(0.005, 100, 0.01);
+		HistogramFunction hist = new HistogramFunction(0.05, 10, 0.1);
 		double wt=1;
 		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
 			if(wtByMoRate)
