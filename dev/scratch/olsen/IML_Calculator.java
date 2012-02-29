@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
@@ -46,7 +48,7 @@ public class IML_Calculator {
 	private static final Joiner J = Joiner.on(", ").useForNull("");
 	
 	// this can also be BA_2008, AS_2008, or CY_2008
-	private static final AttenRelRef IMR_REF = CB_2008;
+	private static final AttenRelRef IMR_REF = CY_2008;
 	private static final Period PERIOD = GM1P00;
 	private static final int NUM_EVENT_SETS = 2;
 	
@@ -75,6 +77,7 @@ public class IML_Calculator {
 			String outDir = OUT_DIR + "ES_" + (i+1) + "/";
 			processEventSet(rups, imr, sites, outDir);
 		}
+		
 	}
 	
 	/*
@@ -156,6 +159,12 @@ public class IML_Calculator {
 //		default is 30 years
 //		erf.getTimeSpan().setDuration(500);
 		erf.updateForecast();
+		
+		// alternative erf 
+//		UCERF2_TimeDependentEpistemicList erf = new UCERF2_TimeDependentEpistemicList();
+//		erf.getERF(0);
+//		erf.updateForecast();
+		
 		return erf;
 	}
 	
