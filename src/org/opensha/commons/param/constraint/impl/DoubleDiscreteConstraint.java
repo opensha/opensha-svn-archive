@@ -29,6 +29,7 @@ import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * <b>Title:</b> DoubleDiscreteConstraint<p>
@@ -111,8 +112,9 @@ public class DoubleDiscreteConstraint
      * @return    The allowed doubles in a Vectoru
      */
     public List<Double> getAllowedDoubles() {
-    	return ImmutableList.copyOf(doubles);
-//        return ( ArrayList<Double> ) doubles.clone();
+    	return Lists.newArrayList(doubles);
+//    	return ImmutableList.copyOf(doubles);
+//      return ( ArrayList<Double> ) doubles.clone();
     }
 
     /**
