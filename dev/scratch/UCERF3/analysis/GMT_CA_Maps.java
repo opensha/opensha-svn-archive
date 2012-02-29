@@ -76,12 +76,14 @@ public class GMT_CA_Maps {
 		GMT_MapGenerator gmt_MapGenerator = new GMT_MapGenerator();
 		
 		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
-		Collection<CPT> cpts = ((ListBasedConstraint<CPT>) cptParam.getConstraint()).getAllowed();
-		for(CPT cpt:cpts)
-			System.out.println(cpt.getName());
+		cptParam.setValue(defaultCPT);
 		
-		CPT cpt = getCPT_instance(defaultCPT);
-		System.out.println("\ncpt.getName()="+cpt.getName());
+//		Collection<CPT> cpts = ((ListBasedConstraint<CPT>) cptParam.getConstraint()).getAllowed();
+//		for(CPT cpt:cpts)
+//			System.out.println(cpt.getName());
+		
+//		CPT cpt = getCPT_instance(defaultCPT);
+//		System.out.println("\ncpt.getName()="+cpt.getName());
 //		System.out.println("cpt.toString()="+cpt.toString());
 
 		
@@ -90,7 +92,7 @@ public class GMT_CA_Maps {
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME, defaultMaxLat);
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, defaultMaxLon);
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, defaultGridSpacing);
-		gmt_MapGenerator.setParameter(GMT_MapGenerator.CPT_PARAM_NAME, cpt);
+//		gmt_MapGenerator.setParameter(GMT_MapGenerator.CPT_PARAM_NAME, cpt);
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, defaultColorScaleLimits);
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, defaultColorScaleMin);
 		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, defaultColorScaleMax);

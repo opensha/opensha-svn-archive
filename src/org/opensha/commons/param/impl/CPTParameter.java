@@ -83,6 +83,15 @@ public class CPTParameter extends AbstractParameter<CPT> {
 		}
 		throw new UnsupportedOperationException("Can't set by name without a constraint");
 	}
+	
+	/**
+	 * This is a convenience method for setting the value by name rather than passing in an object
+	 * (and that object has to be the same instance, not an object of the same name)
+	 * @param name
+	 */
+	public void setValue(String name) {
+		setByName(name);
+	}
 
 	@Override
 	public Object clone() {
