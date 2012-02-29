@@ -848,7 +848,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 
 	}
 	
-	public void plotGMT_MapRatio_Tests() {
+	public void plotGMT_MapRatio_Tests() throws IOException {
 
 //		GMT_CA_Maps.plotParticipationRateMap(modifiedUCERF2, 0, 10, "Test Ratio", "FindEquivUCERF2_FM3_Ruptures Test Ratio", "ucerf2to3_MapingTest");
 

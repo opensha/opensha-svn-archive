@@ -1,5 +1,6 @@
 package scratch.UCERF3.analysis;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.constraint.impl.ListBasedConstraint;
 import org.opensha.commons.param.impl.CPTParameter;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -27,6 +29,7 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
@@ -69,7 +72,7 @@ public class GMT_CA_Maps {
 	final static boolean defaultBlackBackground = true;
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED defaultGridRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
-	
+	final static File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
 	
 	private static GMT_MapGenerator getDefaultGMT_MapGenerator() {
 		
@@ -108,17 +111,27 @@ public class GMT_CA_Maps {
 	}
 	
 	private static void makeMap(GeoDataSet geoDataSet, String scaleLabel, String metadata, 
-			String dirName, GMT_MapGenerator gmt_MapGenerator) {
+			String dirName, GMT_MapGenerator gmt_MapGenerator) throws IOException {
 		
 		try {
-			String name;
 			if(makeMapOnServer) {
-				name = gmt_MapGenerator.makeMapUsingServlet(geoDataSet, scaleLabel, metadata, dirName);
+				if (!GMT_DIR.exists())
+					GMT_DIR.mkdir();
+				String url = gmt_MapGenerator.makeMapUsingServlet(geoDataSet, scaleLabel, metadata, null);
 				metadata += GMT_MapGuiBean.getClickHereHTML(gmt_MapGenerator.getGMTFilesWebAddress());
-				ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);				
+				File downloadDir = new File(GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
+				
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);
 			}
 			else {
-				name = gmt_MapGenerator.makeMapLocally(geoDataSet, scaleLabel, metadata, dirName);
+				gmt_MapGenerator.makeMapLocally(geoDataSet, scaleLabel, metadata, dirName);
 			}
 		} catch (GMT_MapException e) {
 			// TODO Auto-generated catch block
@@ -137,9 +150,10 @@ public class GMT_CA_Maps {
 	 * @param scaleLabel
 	 * @param metadata
 	 * @param dirName
+	 * @throws IOException 
 	 */
 	public static void plotNucleationRateMap(GeoDataSet geoDataSet, String scaleLabel,
-			String metadata, String dirName) {
+			String metadata, String dirName) throws IOException {
 		makeMap(geoDataSet, scaleLabel, metadata, dirName, getDefaultGMT_MapGenerator());
 	}
 	
@@ -160,9 +174,10 @@ public class GMT_CA_Maps {
 	 * @param scaleLabel
 	 * @param metadata
 	 * @param dirName
+	 * @throws IOException 
 	 */
 	public static void plotRatioOfRateMaps(GeoDataSet geoDataSet1, GeoDataSet geoDataSet2, String scaleLabel,
-			String metadata, String dirName) {
+			String metadata, String dirName) throws IOException {
 		
 		GeoDataSet ratioGeoDataSet = GeoDataSetMath.divide(geoDataSet1, geoDataSet2);
 
@@ -190,9 +205,10 @@ public class GMT_CA_Maps {
 	 * @param scaleLabel
 	 * @param metadata
 	 * @param dirName
+	 * @throws IOException 
 	 */
 	public static void plotNucleationRateMap(ERF erf, double minMag, double maxMag, String scaleLabel,
-			String metadata, String dirName) {
+			String metadata, String dirName) throws IOException {
 		
 		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(erf, defaultGridRegion, minMag, maxMag);
 		
@@ -210,9 +226,10 @@ public class GMT_CA_Maps {
 	 * @param scaleLabel
 	 * @param metadata
 	 * @param dirName
+	 * @throws IOException 
 	 */
 	public static void plotNucleationRateMap(FaultSystemSolution faultSysSolution, double minMag, double maxMag, String scaleLabel,
-			String metadata, String dirName) {
+			String metadata, String dirName) throws IOException {
 		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(faultSysSolution);
 		erf.updateForecast();
 		plotNucleationRateMap(erf, minMag, maxMag, scaleLabel, metadata, dirName);
@@ -237,8 +254,9 @@ public class GMT_CA_Maps {
 
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		System.out.println("Getting ERF");
 		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(FaultModels.FM3_1);
 		System.out.println("Making xyzData");

@@ -36,11 +36,14 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -314,6 +317,36 @@ public class FileUtils {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void unzipFile(File zipFile, File directory) throws FileNotFoundException, IOException {
+		ZipFile zip = new ZipFile(zipFile);
+
+		Enumeration<? extends ZipEntry> entries = zip.entries();
+		while(entries.hasMoreElements()) {
+			ZipEntry entry = entries.nextElement();
+			if(entry.isDirectory()) {
+				// Assume directories are stored parents first then children.
+//				System.err.println("Extracting directory: " + entry.getName());
+				// This is not robust, just for demonstration purposes.
+				(new File(directory, entry.getName())).mkdir();
+				continue;
+			}
+//			System.err.println("Extracting file: " + entry.getName());
+			copyInputStream(zip.getInputStream(entry),
+					new BufferedOutputStream(new FileOutputStream(new File(directory, entry.getName()))));
+		}
+		zip.close();
+	}
+	
+	private static final void copyInputStream(InputStream in, OutputStream out)
+			throws IOException {
+		byte[] buffer = new byte[1024];
+		int len;
+		while((len = in.read(buffer)) >= 0)
+			out.write(buffer, 0, len);
+		in.close();
+		out.close();
 	}
 
 	/**
