@@ -154,10 +154,9 @@ public class FaultSystemRupSetCalc {
 	 * @return
 	 */
 	public static double getFractMomentReductionForSmallMags(double magLower, double magUpper, double bValue) {
-		double magLowerRounded = Math.round(magLower*100)/100.0;
-		double magUpperRounded = Math.round(magUpper*100)/100.0;
-		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.0, 900, 0.01,
-				0.0, magUpperRounded, 1.0, bValue);
+		double magLowerRounded = Math.round((magLower-0.05)*10)/10.0+0.05;
+		double magUpperRounded = Math.round((magUpper-0.05)*10)/10.0+0.05;
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.05, 90, 0.1,0.05, magUpperRounded, 1.0, bValue);
 		
 		double moRateSum=0;
 		for(int i=0; i<gr.getXIndex(magLowerRounded);i++)
@@ -169,7 +168,7 @@ public class FaultSystemRupSetCalc {
 	
 	
 	public static HistogramFunction getMomentRateReductionHistogram(FaultSystemRupSet faultSystemRupSet, boolean wtByMoRate, boolean plotResult) {
-		HistogramFunction hist = new HistogramFunction(0.05, 10, 0.1);
+		HistogramFunction hist = new HistogramFunction(0.005, 100, 0.01);
 		double wt=1;
 		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
 			if(wtByMoRate)
