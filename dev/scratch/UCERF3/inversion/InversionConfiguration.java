@@ -195,6 +195,7 @@ public class InversionConfiguration {
 			initialRupModel = aPrioriRupConstraint;
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
+			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, 0.9, 7.6);
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
@@ -235,6 +236,19 @@ public class InversionConfiguration {
 				minimumRuptureRateFraction);
 	}
 	
+	private static ArrayList<MFD_InversionConstraint> makeMFDConstraintsBilinear(
+			// This method changes the input MFD constraints (WHICH IT ASSUMES ARE G-R WITH b=1) by changing the b-Value below a transition magnitude.
+			// The returned MFDs are G-R both below and above the transition magnitude, b=1 above it, and the specified b-value below it.
+			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, double bValueBelowTransition, double transitionMag) {
+		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
+			for (double mag=mfdInequalityConstraints.get(i).getMagFreqDist().getMinX(); mag<transitionMag; mag+=mfdInequalityConstraints.get(i).getMagFreqDist().getDelta()) {
+				double setVal=mfdInequalityConstraints.get(i).getMagFreqDist().getY(mag)*Math.pow(10, (transitionMag-mag)*(bValueBelowTransition-1));
+				mfdInequalityConstraints.get(i).getMagFreqDist().set(mag, setVal);
+			}
+		}
+		return mfdInequalityConstraints;
+	}
+
 	public static List<MFD_InversionConstraint> getGriddedConstraints(
 			UCERF2_MFD_ConstraintFetcher UCERF2Constraints, Region region,
 			double latBoxSize, double lonBoxSize) {

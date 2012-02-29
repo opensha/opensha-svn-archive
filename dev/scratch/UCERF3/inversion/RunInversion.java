@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -189,19 +190,19 @@ public class RunInversion {
 	 */
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "my_run";
-		boolean writeMatrixZipFiles = true;
+		String fileName = "BilinearMFD";
+		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
 		
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
 		try {
-//			rupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet(true);
-//			rupSet = InversionFaultSystemRupSetFactory.NCAL.getRupSet();
-			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC, true);
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC);
+//			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
 			// or you can load one for yourself!
 //			rupSet = SimpleFaultSystemRupSet.fromFile(new File("/path/to/your/rupture/file!"));
+
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			System.exit(1);
@@ -273,11 +274,13 @@ public class RunInversion {
 		// now lets the run the inversion!
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
-//		criteria = TimeCompletionCriteria.getInHours(2); // 2 hours
-//		criteria = TimeCompletionCriteria.getInMinutes(3); // 3 minutes
-//		criteria = TimeCompletionCriteria.getInSeconds(60); // 15 seconds
+//		criteria = TimeCompletionCriteria.getInHours(2); 
+		criteria = TimeCompletionCriteria.getInMinutes(3); 
+//		criteria = TimeCompletionCriteria.getInSeconds(60); 
 		// or use this to run until a set amount of iterations have been completed
-		criteria = new IterationCompletionCriteria(100000000); // 1 million iterations
+//		criteria = new IterationCompletionCriteria(1000000); 
+
+
 		
 		SimulatedAnnealing sa;
 		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
