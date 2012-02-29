@@ -78,9 +78,9 @@ public class GMT_CA_Maps {
 		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
 		cptParam.setValue(defaultCPT);
 		
-//		Collection<CPT> cpts = ((ListBasedConstraint<CPT>) cptParam.getConstraint()).getAllowed();
-//		for(CPT cpt:cpts)
-//			System.out.println(cpt.getName());
+		Collection<CPT> cpts = ((ListBasedConstraint<CPT>) cptParam.getConstraint()).getAllowed();
+		for(CPT cpt:cpts)
+			System.out.println(cpt.getName());
 		
 //		CPT cpt = getCPT_instance(defaultCPT);
 //		System.out.println("\ncpt.getName()="+cpt.getName());
