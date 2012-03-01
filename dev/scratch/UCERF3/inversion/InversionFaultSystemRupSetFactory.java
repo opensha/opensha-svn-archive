@@ -222,7 +222,7 @@ public class InversionFaultSystemRupSetFactory {
 //			UCERF3_GEOLOGIC.getRupSet(true);
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
-			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC);
+			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 			System.out.println("SlipModelType: "+rupSet.getSlipAlongRuptureModel());
 			
 			for (int i=0; i<rupSet.getNumRuptures(); i++) {

@@ -112,6 +112,12 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		for (int i=0; i<classNames.size(); i++) {
 			script.add("");
 			script.add(buildCommand(classNames.get(i), argss.get(i)));
+			if (i < classNames.size()-1) {
+				// not last
+				script.add("if [[ $? -ne 0 ]];then");
+				script.add("\texit $?");
+				script.add("fi");
+			}
 		}
 		script.add("exit $?");
 		

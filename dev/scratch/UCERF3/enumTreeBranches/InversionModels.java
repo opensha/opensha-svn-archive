@@ -2,14 +2,23 @@ package scratch.UCERF3.enumTreeBranches;
 
 public enum InversionModels {
 	
-	CHAR("Characteristic"),
-	GR("Gutenberg-Richter"),
-	UNCONSTRAINED("Unconstrained");
+	CHAR("Characteristic", "Char"),
+	GR("Gutenberg-Richter", "GR"),
+	UNCONSTRAINED("Unconstrained", "Unconst");
 	
-	private String name;
+	private String name, shortName;
 	
-	private InversionModels(String name) {
+	private InversionModels(String name, String shortName) {
 		this.name = name;
+		this.shortName = shortName;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getShortName() {
+		return shortName;
 	}
 
 	@Override

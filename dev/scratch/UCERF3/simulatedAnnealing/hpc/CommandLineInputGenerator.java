@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.inversion;
+package scratch.UCERF3.simulatedAnnealing.hpc;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class CommandLineInputGenerator {
 	public static void main(String[] args) {
 		if (args.length != 3) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CommandLineInputGenerator.class)
-					+ " <rup set file> <inversion model name> <directory>");
+					+ " <rup set file> <inversion model name> <fname/directory>");
 			System.exit(2);
 		}
 		
@@ -32,10 +32,6 @@ public class CommandLineInputGenerator {
 			
 			InversionModels model = InversionModels.getTypeForName(args[1]);
 			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet);
-			
-			File dir = new File(args[2]);
-			if (!dir.exists())
-				Preconditions.checkState(dir.mkdir(), "dir doesn't exist and could not be created!");
 			
 			List<PaleoRateConstraint> paleoRateConstraints =
 					UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
@@ -49,9 +45,14 @@ public class CommandLineInputGenerator {
 			
 			gen.generateInputs();
 			
-			File zipFile = new File(dir, "inputs.zip");
-			
-			gen.writeZipFile(zipFile, dir, false);
+			File f = new File(args[2]);
+			if (f.exists() && f.isDirectory()) {
+				File zipFile = new File(f, "inputs.zip");
+				
+				gen.writeZipFile(zipFile, f, false);
+			} else {
+				gen.writeZipFile(f);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

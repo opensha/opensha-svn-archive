@@ -24,7 +24,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 public enum AveSlipForRupModels {
 		
 	
-	AVE_UCERF2 {
+	AVE_UCERF2("Average UCERF2", "AvU2") {
 		public double getAveSlip(double area) {
 			double areaKm = area/1e6;
 			double mag = (ellB_magArea.getMedianMag(areaKm) + hb_magArea.getMedianMag(areaKm))/2;
@@ -33,7 +33,7 @@ public enum AveSlipForRupModels {
 		}
 	},
 	
-	SHAW_2009_MOD {
+	SHAW_2009_MOD("Shaw (2009)", "Shaw09") {
 		public double getAveSlip(double area) {
 			// the term "- Shaw_2009_MagAreaRel.cZero + 4.2" is the modification described in the sliphazned.pdf file sent on Feb. 15, 2012.
 			double mag = sh09_magArea.getMedianMag(area/1e6) - Shaw_2009_MagAreaRel.cZero + 4.02;
@@ -41,7 +41,7 @@ public enum AveSlipForRupModels {
 			return FaultMomentCalc.getSlip(area, moment);		}
 	},
 	
-	ELLSWORTH_B {
+	ELLSWORTH_B("EllB M(A)", "EllB") {
 		public double getAveSlip(double area) {
 			double mag = ellB_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
@@ -49,7 +49,7 @@ public enum AveSlipForRupModels {
 		}
 	},
 		
-	SHAW12_SQRT_LENGTH {
+	SHAW12_SQRT_LENGTH("Sqrt Length (Shaw 2012)", "SqrtLen") {
 		public double getAveSlip(double length) {
 			// c4 = 5.69e-5
 			// W = 15 km = 15e3 m
@@ -57,7 +57,7 @@ public enum AveSlipForRupModels {
 		}
 	},
 
-	SHAW_12_CONST_STRESS_DROP {
+	SHAW_12_CONST_STRESS_DROP("Constant Stress Drop (Shaw 2012)", "CostStressDrop") {
 		public double getAveSlip(double length) {
 			// stressDrop = 4.54 MPa
 			// W = 15 km = 15e3 m
@@ -70,11 +70,27 @@ public enum AveSlipForRupModels {
 	HanksBakun2002_MagAreaRel hb_magArea;
 	Shaw_2009_MagAreaRel sh09_magArea;
 
+	private String name, shortName;
 	
-	private AveSlipForRupModels() {
+	private AveSlipForRupModels(String name, String shortName) {
 		ellB_magArea = new Ellsworth_B_WG02_MagAreaRel();
 		hb_magArea =new HanksBakun2002_MagAreaRel();
 		sh09_magArea = new Shaw_2009_MagAreaRel();
+		this.name = name;
+		this.shortName = shortName;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getShortName() {
+		return shortName;
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 	
 	public static void makePlot() {

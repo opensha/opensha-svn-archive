@@ -29,7 +29,7 @@ public class DistributedScriptCreator extends ThreadedScriptCreator {
 	}
 
 	@Override
-	String getArgs() {
+	public String getArgs() {
 		String args = super.getArgs();
 		
 		if (distSubCompletion != null) {
@@ -41,7 +41,7 @@ public class DistributedScriptCreator extends ThreadedScriptCreator {
 	}
 
 	@Override
-	String getClassName() {
+	public String getClassName() {
 		return DistributedSimulatedAnnealing.class.getName();
 	}
 

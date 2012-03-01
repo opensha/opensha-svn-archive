@@ -49,7 +49,7 @@ public class ThreadedScriptCreator {
 		this.subCompletion = subCompletion;
 	}
 	
-	String getArgs() {
+	public String getArgs() {
 //		Preconditions.checkNotNull(initial, "initial file is required!"); // no longer required
 		Preconditions.checkNotNull(subCompletion, "subCompletion cannot be null");
 		Preconditions.checkNotNull(numThreads, "numThreads cannot be null");
@@ -109,7 +109,7 @@ public class ThreadedScriptCreator {
 //		return script;
 //	}
 	
-	String getClassName() {
+	public String getClassName() {
 		return ThreadedSimulatedAnnealing.class.getName();
 	}
 	

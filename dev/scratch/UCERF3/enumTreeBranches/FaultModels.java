@@ -26,6 +26,10 @@ public enum FaultModels {
 		return modelName;
 	}
 	
+	public String getShortName() {
+		return name();
+	}
+	
 	public int getID() {
 		return id;
 	}

@@ -1,6 +1,7 @@
 package scratch.UCERF3.enumTreeBranches;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,41 +12,58 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public enum DeformationModels {
 	// UCERF2
-	UCERF2_NCAL(			FaultModels.FM2_1),
-	UCERF2_BAYAREA(			FaultModels.FM2_1),
-	UCERF2_ALL(				FaultModels.FM2_1),
+	UCERF2_NCAL(			"UCERF2 NCal", 			"NCAL", 	FaultModels.FM2_1),
+	UCERF2_BAYAREA(			"UCERF2 Bay Area", 		"BAY",		FaultModels.FM2_1),
+	UCERF2_ALL(				"UCERF2 All",			"UC2ALL",	FaultModels.FM2_1),
 	
 	// UCERF3
-	ABM(					FaultModels.FM3_1, "ABM_slip_rake_2012_02_21.csv"),
-	GEOBOUND(				FaultModels.FM3_1, "geobound_slip_rake_2012_02_21.csv"),
-	NEOKINEMA(				FaultModels.FM3_1, "neokinema_slip_rake_2012_02_21.csv"),
-	ZENG(					FaultModels.FM3_1, "zeng_slip_rake_2012_02_21.csv"),
-	GEOLOGIC(				FaultModels.FM3_1, "geologic_slip_rake_2012_02_21.csv",
-							FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_02_27.csv"),
-	GEOLOGIC_PLUS_ABM(		FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_02_27.csv");
+	ABM(					"Average Block Model",	"ABM",		FaultModels.FM3_1, "ABM_slip_rake_2012_02_21.csv"),
+	GEOBOUND(				"Geobounded",			"GEOB",		FaultModels.FM3_1, "geobound_slip_rake_2012_02_21.csv"),
+	NEOKINEMA(				"Neokinema",			"NEOK",		FaultModels.FM3_1, "neokinema_slip_rake_2012_02_21.csv"),
+	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_2012_02_21.csv"),
+	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_2012_02_21.csv",
+										FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_02_27.csv"),
+	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_02_27.csv");
 	
 	private List<FaultModels> faultModels;
 	private List<String> fileNames;
+	private String name, shortName;
 	
-	private DeformationModels(FaultModels model) {
-		this(Lists.newArrayList(model), null);
+	private DeformationModels(String name, String shortName, FaultModels model) {
+		this(name, shortName, Lists.newArrayList(model), null);
 	}
 
-	private DeformationModels(FaultModels model, String file) {
-		this(Lists.newArrayList(model), Lists.newArrayList(file));
+	private DeformationModels(String name, String shortName, FaultModels model, String file) {
+		this(name, shortName, Lists.newArrayList(model), Lists.newArrayList(file));
 	}
 
-	private DeformationModels(FaultModels model1, String file1, FaultModels model2, String file2) {
-		this(Lists.newArrayList(model1, model2), Lists.newArrayList(file1, file2));
+	private DeformationModels(String name, String shortName, FaultModels model1, String file1,
+			FaultModels model2, String file2) {
+		this(name, shortName, Lists.newArrayList(model1, model2), Lists.newArrayList(file1, file2));
 	}
 	
-	private DeformationModels(List<FaultModels> faultModels, List<String> fileNames) {
+	private DeformationModels(String name, String shortName, List<FaultModels> faultModels, List<String> fileNames) {
 		Preconditions.checkNotNull(faultModels, "fault models cannot be null!");
 		Preconditions.checkArgument(!faultModels.isEmpty(), "fault models cannot be empty!");
 		Preconditions.checkArgument(fileNames == null || fileNames.size() == faultModels.size(),
 				"file names must either be null or the same size as fault models!");
 		this.faultModels = faultModels;
 		this.fileNames = fileNames;
+		this.name = name;
+		this.shortName = shortName;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getShortName() {
+		return shortName;
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 	
 	public boolean isApplicableTo(FaultModels faultModel) {
@@ -63,5 +81,13 @@ public enum DeformationModels {
 			return null;
 		String fileName = fileNames.get(faultModels.indexOf(faultModel));
 		return UCERF3_DataUtils.locateResource("DeformationModels", fileName);
+	}
+	
+	public static List<DeformationModels> forFaultModel(FaultModels fm) {
+		ArrayList<DeformationModels> mods = new ArrayList<DeformationModels>();
+		for (DeformationModels mod : values())
+			if (mod.isApplicableTo(fm))
+				mods.add(mod);
+		return mods;
 	}
 }
