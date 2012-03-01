@@ -456,8 +456,10 @@ public class InversionInputGenerator {
 					if (rupMeanMag[rupturesForSection.get(rupIndex)] > maxMag)
 						maxMag = rupMeanMag[rupturesForSection.get(rupIndex)];
 				}
-				if (minMag == 10.0 || minMag == 0.0) 
-					throw new IllegalStateException("No ruptures for section #"+sect);
+				if (minMag == 10.0 || minMag == 0.0) {
+					System.out.println("NO RUPTURES FOR SECTION #"+sect);  
+					continue;  // Skip this section, go on to next section constraint
+				}
 				
 				// Find number of ruptures for this section for each magnitude bin & total number
 				// of magnitude-bins with ruptures
