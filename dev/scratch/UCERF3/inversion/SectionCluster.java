@@ -11,6 +11,11 @@ import java.util.Map;
 import org.apache.commons.math.stat.StatUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import com.google.common.base.Preconditions;
+
+import scratch.UCERF3.inversion.coulomb.CoulombRates;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesRecord;
 import scratch.UCERF3.utils.IDPairing;
 
 /**
@@ -34,6 +39,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	Map<IDPairing, Double> sectionAzimuths;
 	Map<Integer, Double> rakesMap;
 	Map<IDPairing, Double> subSectionDistances;
+	CoulombRates coulombRates;
 
 	/**
 	 * 
@@ -51,8 +57,8 @@ public class SectionCluster extends ArrayList<Integer> {
 			Map<Integer, Double> rakesMap, double maxAzimuthChange, double maxTotAzimuthChange, 
 			double maxRakeDiff, Map<IDPairing, Double> subSectionDistances, double maxCumJumpDist) {
 		this(new LaughTestFilter(5d, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff,
-				maxCumJumpDist, 360, 540, minNumSectInRup),
-				sectionDataList, sectionConnectionsListList, subSectionAzimuths, rakesMap, subSectionDistances);
+				maxCumJumpDist, 360, 540, minNumSectInRup, null),
+				sectionDataList, sectionConnectionsListList, subSectionAzimuths, rakesMap, subSectionDistances, null);
 	}
 
 
@@ -68,13 +74,14 @@ public class SectionCluster extends ArrayList<Integer> {
 	 */
 	public SectionCluster(LaughTestFilter laughTestFilter, List<FaultSectionPrefData> sectionDataList,
 			List<List<Integer>> sectionConnectionsListList, Map<IDPairing, Double> subSectionAzimuths,
-			Map<Integer, Double> rakesMap, Map<IDPairing, Double> subSectionDistances) {
+			Map<Integer, Double> rakesMap, Map<IDPairing, Double> subSectionDistances, CoulombRates coulombRates) {
 		this.sectionDataList = sectionDataList;
 		this.laughTestFilter = laughTestFilter;
 		this.sectionConnectionsListList = sectionConnectionsListList;
 		this.sectionAzimuths = subSectionAzimuths;
 		this.rakesMap = rakesMap;
 		this.subSectionDistances = subSectionDistances;
+		this.coulombRates = coulombRates;
 	}
 
 
@@ -149,7 +156,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param list
 	 */
 	private void addRuptures(ArrayList<Integer> list) {
-		addRuptures(list, 0d, 0d, 0d);
+		addRuptures(list, 0d, 0d, 0d, null, null);
 	}
 	
 	/**
@@ -163,11 +170,34 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * (even if it's headed in an allowed direction).
 	 * @param list
 	 */
-	private void addRuptures(ArrayList<Integer> list, double cmlRakeChange, double cmlAzimuthChange, double cmlJumpDist) {
+	private void addRuptures(ArrayList<Integer> list, double cmlRakeChange, double cmlAzimuthChange, double cmlJumpDist,
+			ArrayList<CoulombRatesRecord> forwardRates, ArrayList<CoulombRatesRecord> backwardRates) {
 		int lastIndex = list.get(list.size()-1);
 		int secToLastIndex = -1;	// bogus index in case the next if fails
 		if(list.size()>1)
 			secToLastIndex = list.get(list.size()-2);
+		
+		CoulombRatesFilter coulombFilter = laughTestFilter.getCoulombFilter();
+		
+		if (forwardRates == null && coulombFilter != null) {
+			forwardRates = new ArrayList<CoulombRatesRecord>();
+			backwardRates = new ArrayList<CoulombRatesRecord>();
+			
+			// populate the coulomb rates
+			
+			for (int i=1; i<list.size(); i++) {
+				IDPairing pairing = new IDPairing(list.get(i-1), list.get(i));
+				CoulombRatesRecord record = coulombRates.get(pairing);
+				Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
+				
+				forwardRates.add(record);
+				
+				pairing = pairing.getReversed();
+				record = coulombRates.get(pairing);
+				Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
+				backwardRates.add(0, record);
+			}
+		}
 
 		// loop over branches at the present section
 		List<Integer> branches = sectionConnectionsListList.get(lastIndex);
@@ -206,7 +236,7 @@ public class SectionCluster extends ArrayList<Integer> {
 				double azimuthChange = Math.abs(getAzimuthDifference(prevAzimuth,newAzimuth));
 				if(azimuthChange>laughTestFilter.getMaxAzimuthChange()) {
 					continue;	// don't add rupture
-				} 
+				}
 
 				// check total change
 				double firstAzimuth = sectionAzimuths.get(new IDPairing(list.get(0), list.get(1)));
@@ -223,10 +253,12 @@ public class SectionCluster extends ArrayList<Integer> {
 			int newLastIndex = newList.size()-1;
 			int newPrevIndex = newLastIndex-1;
 			
+			IDPairing newLastPairing = new IDPairing(newList.get(newPrevIndex), newList.get(newLastIndex));
+			
 			double newCMLJumpDist = cmlJumpDist;
 			// check the cumulative jumping distance
 			if(newList.size()>=2) {
-				newCMLJumpDist += subSectionDistances.get(new IDPairing(newList.get(newPrevIndex), newList.get(newLastIndex)));
+				newCMLJumpDist += subSectionDistances.get(newLastPairing);
 				if(newCMLJumpDist > laughTestFilter.getMaxCmlJumpDist())
 					continue;
 			}
@@ -250,7 +282,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			double newCMLAzimuthChange = cmlAzimuthChange;
 			if(newList.size()>2 && !isNaNInfinite(laughTestFilter.getMaxCmlAzimuthChange())) {
 				double prevAzimuth = sectionAzimuths.get(new IDPairing(newList.get(newPrevIndex-1), newList.get(newPrevIndex)));
-				double newAzimuth = sectionAzimuths.get(new IDPairing(newList.get(newPrevIndex), newList.get(newLastIndex)));
+				double newAzimuth = sectionAzimuths.get(newLastPairing);
 				newCMLAzimuthChange += Math.abs(newAzimuth - prevAzimuth);
 				if(newCMLAzimuthChange > laughTestFilter.getMaxCmlAzimuthChange())
 					continue;				
@@ -275,21 +307,41 @@ public class SectionCluster extends ArrayList<Integer> {
 				}
 			}
 			
+			// if we've made it this far then we should check coulomb
+			ArrayList<CoulombRatesRecord> myForwardRates = null;
+			ArrayList<CoulombRatesRecord> myBackwardRates = null;
+			if (coulombFilter != null) {
+				CoulombRatesRecord forward = coulombRates.get(newLastPairing);
+				Preconditions.checkNotNull(forward, "No mapping exists for pairing: "+newLastPairing);
+				IDPairing reversedPairing = newLastPairing.getReversed();
+				CoulombRatesRecord backward = coulombRates.get(reversedPairing);
+				Preconditions.checkNotNull(backward, "No mapping exists for pairing: "+reversedPairing);
+				myForwardRates = (ArrayList<CoulombRatesRecord>)forwardRates.clone();
+				myForwardRates.add(forward);
+				myBackwardRates = (ArrayList<CoulombRatesRecord>)backwardRates.clone();
+				myBackwardRates.add(0, backward);
+			}
+			
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
 			if(newList.size() >= laughTestFilter.getMinNumSectInRup() && sameParID)  {// it's a rupture
-				// uncomment these lines to only save a very small amount of ruptures
-//				if (Math.random()<0.0005)
-					rupListIndices.add(newList);
-//				if (numRupsAdded > 100000000)
-//					return;
-				numRupsAdded += 1;
-				// show progress
-				if(numRupsAdded >= rupCounterProgress) {
-					System.out.println(numRupsAdded+" ["+rupListIndices.size()+"]");
-					rupCounterProgress += rupCounterProgressIncrement;
+				// now test coulomb
+				if (coulombFilter == null || coulombFilter.doesRupturePass(myForwardRates, myBackwardRates)) {
+					// uncomment these lines to only save a very small amount of ruptures
+//					if (Math.random()<0.0005)
+						rupListIndices.add(newList);
+//					if (numRupsAdded > 1000000)
+//						return;
+					numRupsAdded += 1;
+					// show progress
+					if(numRupsAdded >= rupCounterProgress) {
+						System.out.println(numRupsAdded+" ["+rupListIndices.size()+"]");
+						rupCounterProgress += rupCounterProgressIncrement;
+					}
+				} else {
+					continue;
 				}
 			}
-			addRuptures(newList, newCMLRakeChange, newCMLAzimuthChange, newCMLJumpDist);
+			addRuptures(newList, newCMLRakeChange, newCMLAzimuthChange, newCMLJumpDist, myForwardRates, myBackwardRates);
 		}
 	}
 	

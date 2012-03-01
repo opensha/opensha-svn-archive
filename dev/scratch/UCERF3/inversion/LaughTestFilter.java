@@ -1,10 +1,14 @@
 package scratch.UCERF3.inversion;
 
+import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter.TestType;
+
 public class LaughTestFilter {
 	
 	private double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff,
 	maxCmlJumpDist, maxCmlRakeChange, maxCmlAzimuthChange;
 	private int minNumSectInRup;
+	private CoulombRatesFilter coulombFilter;
 	
 	/**
 	 * This returns the current default laugh test filter
@@ -21,14 +25,22 @@ public class LaughTestFilter {
 		double maxCmlRakeChange = 360;
 		double maxCmlAzimuthChange = 540;
 		
+		double minAverageProb = 0.1;
+		double minIndividualProb = 0.05;
+		double minimumStressExclusionCeiling = 1d;
+//		double minimumStressExclusionCeiling = Double.POSITIVE_INFINITY;
+		CoulombRatesFilter coulombFilter = new CoulombRatesFilter(
+				TestType.COULOMB_STRESS, minAverageProb, minIndividualProb, minimumStressExclusionCeiling);
+		
 		return new LaughTestFilter(maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, maxCumJumpDist,
-				maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup);
+				maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup, coulombFilter);
 	}
 	
 	public LaughTestFilter(double maxJumpDist, double maxAzimuthChange,
 			double maxTotAzimuthChange, double maxRakeDiff,
 			double maxCumJumpDist, double maxCmlRakeChange,
-			double maxCmlAzimuthChange, int minNumSectInRup) {
+			double maxCmlAzimuthChange, int minNumSectInRup,
+			CoulombRatesFilter coulombFilter) {
 		this.maxJumpDist = maxJumpDist;
 		this.maxAzimuthChange = maxAzimuthChange;
 		this.maxTotAzimuthChange = maxTotAzimuthChange;
@@ -37,6 +49,7 @@ public class LaughTestFilter {
 		this.maxCmlRakeChange = maxCmlRakeChange;
 		this.maxCmlAzimuthChange = maxCmlAzimuthChange;
 		this.minNumSectInRup = minNumSectInRup;
+		this.coulombFilter = coulombFilter;
 	}
 
 	public double getMaxJumpDist() {
@@ -75,7 +88,7 @@ public class LaughTestFilter {
 		return maxCmlJumpDist;
 	}
 
-	public void setMaxCumJumpDist(double maxCumJumpDist) {
+	public void setMaxCmlmJumpDist(double maxCumJumpDist) {
 		this.maxCmlJumpDist = maxCumJumpDist;
 	}
 
@@ -101,6 +114,14 @@ public class LaughTestFilter {
 
 	public void setMinNumSectInRup(int minNumSectInRup) {
 		this.minNumSectInRup = minNumSectInRup;
+	}
+
+	public CoulombRatesFilter getCoulombFilter() {
+		return coulombFilter;
+	}
+
+	public void setCoulombFilter(CoulombRatesFilter coulombFilter) {
+		this.coulombFilter = coulombFilter;
 	}
 
 	@Override

@@ -72,4 +72,9 @@ public class IDPairing implements Comparable<IDPairing> {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "IDPairing [id1=" + id1 + ", id2=" + id2 + "]";
+	}
+
 }

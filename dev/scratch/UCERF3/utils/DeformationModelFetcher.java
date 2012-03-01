@@ -123,7 +123,7 @@ public class DeformationModelFetcher {
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				System.out.println("Combining model with sections...");
 				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength);
-				fileNamePrefix = deformationModel.name()+"_"+faultSubSectPrefDataList.size();
+				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
 				System.out.println("DONE.");
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
@@ -1046,41 +1046,20 @@ public class DeformationModelFetcher {
 
 	public static void main(String[] args) {
 			File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
-			DeformationModelFetcher dm = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, precomputedDataDir);
-			
-//			ArrayList<FaultSectionPrefData> dataList = dm.getSubSectionList();
-//			for(FaultSectionPrefData data:dataList)
-//				if(data.getAseismicSlipFactor()>=0.9)
-//					System.out.println(data.getName()+"\tAseismicSlipFactor="+data.getAseismicSlipFactor());
-//			System.out.println("Done with first section list");
-//			
-//	   		FaultSystemRupSet faultSysRupSet;
-//			try {
-//				faultSysRupSet = InversionFaultSystemRupSetFactory.UCERF3_GEOLOGIC.getRupSet();
-//		   		List<FaultSectionPrefData> faultSectionData = faultSysRupSet.getFaultSectionDataList();
-//		   		for(FaultSectionPrefData data:faultSectionData)
-//		   				if(data.getAseismicSlipFactor()>0.9)
-//		   					System.out.println(data.getName()+"\t"+data.getAseismicSlipFactor());
-//				System.out.println("Done with second section list");
-//
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			} catch (DocumentException e) {
-//				e.printStackTrace();
-//			}
-
-
 		try {
-//			dm.getSubSectionDistanceMap(5d);
-//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, FM 3.1 Subsections",
-//					new SimpleDateFormat().format(new Date()));
-//			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
-//					new File(precomputedDataDir, "fault_sections.txt").getAbsolutePath());
+			FaultModels fm = FaultModels.FM3_2;
+			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, precomputedDataDir);
 			
-			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 3.1 Sections",
+			dm.getSubSectionDistanceMap(5d);
+			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",
 					new SimpleDateFormat().format(new Date()));
-			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_1.fetchFaultSections(), metaData,
-					new File(precomputedDataDir, "fault_model_sections.txt").getAbsolutePath());
+			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
+					new File(precomputedDataDir, "fault_sections_"+fm.name()+".txt").getAbsolutePath());
+			
+//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 3.1 Sections",
+//					new SimpleDateFormat().format(new Date()));
+//			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_1.fetchFaultSections(), metaData,
+//					new File(precomputedDataDir, "fault_model_sections.txt").getAbsolutePath());
 			
 			
 //			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);

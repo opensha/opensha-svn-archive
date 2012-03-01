@@ -219,7 +219,8 @@ public class InversionFaultSystemRupSetFactory {
 //			UCERF3_ALLCAL_3_1_KLUDGE.getRupSet(true);
 //			UCERF3_GEOLOGIC.getRupSet(true);
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
-			forBranch(DeformationModels.ABM);
+//			forBranch(DeformationModels.ABM);
+			cachedForBranch(DeformationModels.GEOLOGIC, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

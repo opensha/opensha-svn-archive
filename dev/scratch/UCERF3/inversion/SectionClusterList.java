@@ -1,17 +1,20 @@
 package scratch.UCERF3.inversion;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.coulomb.CoulombRates;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 
@@ -29,11 +32,21 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	private DeformationModels defModel;
 	private FaultModels faultModel;
 	private List<FaultSectionPrefData> faultSectionData;
+	private CoulombRates coulombRates;
 	
-	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, File precomputedDataDir, LaughTestFilter filter) {
+	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, File precomputedDataDir,
+			LaughTestFilter filter) {
 		this.faultModel = faultModel;
 		this.defModel = defModel;
 		this.filter = filter;
+		
+		if (filter.getCoulombFilter() != null) {
+			try {
+				this.coulombRates = CoulombRates.loadUCERF3CoulombRates(faultModel);
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
 		
 		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(faultModel, defModel, precomputedDataDir);
 		faultSectionData = deformationModelFetcher.getSubSectionList();
@@ -72,7 +85,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(size()+1));
 			int firstSubSection = availableSections.get(0);
 			SectionCluster newCluster = new SectionCluster(filter, faultSectionData,sectionConnectionsListList,
-					subSectionAzimuths, rakesMap, subSectionDistances);
+					subSectionAzimuths, rakesMap, subSectionDistances, coulombRates);
 			newCluster.add(firstSubSection);
 			if (D) System.out.println("\tfirst is "+faultSectionData.get(firstSubSection).getName());
 			addClusterLinks(firstSubSection, newCluster, sectionConnectionsListList);
