@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.io.File;
 import java.io.IOException;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
@@ -22,6 +23,7 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
@@ -576,12 +578,15 @@ public class GMT_CA_Maps {
 	/**
 	 * @param args
 	 * @throws IOException 
+	 * @throws DocumentException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, DocumentException {
 		
 		// ****** TEST FROM A FaultSystemRupSet ******
 
-   		FaultSystemSolution fltSysSol = null;	// NEED ONE HERE
+		File solutionDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaAvU2_DsrTap_DrAvU2_Unconst_sol.zip");
+   		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);	// NEED ONE HERE
 		plotNucleationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Nucl", "test meta data FOR fltSysSol", "testFltSysSolNucl");
 		plotParticipationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Part", "test meta data FOR fltSysSol", "testFltSysSolPart");
 
