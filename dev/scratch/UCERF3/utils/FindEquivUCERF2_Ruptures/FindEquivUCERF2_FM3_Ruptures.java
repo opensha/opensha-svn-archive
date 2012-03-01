@@ -1301,7 +1301,7 @@ if(debug) System.exit(0);
 	public static void main(String[] args) throws IOException, DocumentException {
 		// TODO Auto-generated method stub
 		
-		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
+		File precompDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 
 		if(D) System.out.println("Getting rup set");
    		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
