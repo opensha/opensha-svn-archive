@@ -27,7 +27,7 @@ import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
 
 /**
  * This represents all of the inversion configuration parameters specific to an individual model
- * on the UCERF3 logic tree. Paremeters can be fetched for a given logic tree branch with the 
+ * on the UCERF3 logic tree. Parameters can be fetched for a given logic tree branch with the 
  * <code>forModel(...)</code> method.
  * 
  * @author Kevin
@@ -195,7 +195,8 @@ public class InversionConfiguration {
 			initialRupModel = aPrioriRupConstraint;
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
-			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, 0.9, 7.6);
+			double transitionMag = 7.6;
+			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(rupSet.getDeformationModel(), transitionMag, rupSet), transitionMag);
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
@@ -204,6 +205,7 @@ public class InversionConfiguration {
 			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = initialRupModel;
+			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet.getDeformationModel()));
 			break;
 		case UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
@@ -236,19 +238,165 @@ public class InversionConfiguration {
 				minimumRuptureRateFraction);
 	}
 	
-	private static ArrayList<MFD_InversionConstraint> makeMFDConstraintsBilinear(
-			// This method changes the input MFD constraints (WHICH IT ASSUMES ARE G-R WITH b=1) by changing the b-Value below a transition magnitude.
-			// The returned MFDs are G-R both below and above the transition magnitude, b=1 above it, and the specified b-value below it.
-			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, double bValueBelowTransition, double transitionMag) {
+	
+	
+	
+	/**
+	 * This method multiplies the input MFD constraints by fractionRateReduction.
+	 * For example, if the off-fault rates are 10% of the rates, setting fractionRateReduction to 0.1 will reduce the MFDs to 90% of their previous rates.
+	 */
+	private static ArrayList<MFD_InversionConstraint> reduceMFDConstraint(
+			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints,
+			double fractionRateReduction) {
 		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
-			for (double mag=mfdInequalityConstraints.get(i).getMagFreqDist().getMinX(); mag<transitionMag; mag+=mfdInequalityConstraints.get(i).getMagFreqDist().getDelta()) {
-				double setVal=mfdInequalityConstraints.get(i).getMagFreqDist().getY(mag)*Math.pow(10, (transitionMag-mag)*(bValueBelowTransition-1));
+			for (double mag=mfdInequalityConstraints.get(i).getMagFreqDist().getMinX(); mag<mfdInequalityConstraints.get(i).getMagFreqDist().getMaxX(); mag+=mfdInequalityConstraints.get(i).getMagFreqDist().getDelta()) {
+				double setVal=mfdInequalityConstraints.get(i).getMagFreqDist().getY(mag) * (1-fractionRateReduction);
 				mfdInequalityConstraints.get(i).getMagFreqDist().set(mag, setVal);
 			}
-		}
-		return mfdInequalityConstraints;
+		}		
+		return  mfdInequalityConstraints;
 	}
 
+	
+	/**
+	 * This method returns the bValue that will achieve a reduction in moment that matches the % off-fault deformation for a given deformation model.  
+	 * This is for use with Bilinear MFD Constraint.  The momentRate is the moment, in Nm, desired off the faults.
+	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve this momentRate reduction.
+	 */
+	private static double findBValueForMomentRateReduction(DeformationModels deformationModel, double transitionMag, FaultSystemRupSet rupSet) {
+		boolean D = true; //debugging
+		
+		double momentFractionOffFaults = findMomentFractionOffFaults(deformationModel);
+		double totalMoment = rupSet.getTotalMomentRate();
+		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
+		
+		// Use the mag-dist for the whole region since the deformation model off-fault moment #s from Kaj are also for the whole region
+		IncrementalMagFreqDist magDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
+		
+		// Find total moment below transition magnitude (on-fault + off-fault)
+		double totalMomentBelowTransition = 0;
+		for (double mag=magDist.getMinX(); mag<=transitionMag; mag+=magDist.getDelta()) {
+			totalMomentBelowTransition += magDist.getMomentRate(mag);
+		}
+		if (D) System.out.println("Total Moment below the Transition Magnitude of "+transitionMag+" = "+totalMomentBelowTransition);
+		
+		double momentRateToRemove = momentFractionOffFaults*totalMoment;
+		if (D) System.out.println("The amount of moment to remove from MFD = "+momentRateToRemove);
+		if (momentRateToRemove>=totalMomentBelowTransition)
+			throw new IllegalStateException("This is not going to work. The total moment below your transition magnitude is less than the off-fault moment");
+		
+		double momentReduction = momentRateToRemove/totalMomentBelowTransition;  // fraction of moment that should be off-fault below transition magnitude
+		double bValue = (3.0*momentReduction-1.0)/(2.0*momentReduction);  // b-value below transition magnitude that will achieve desired moment reduction
+		if (D) System.out.println("b-Value below transition magnitude = "+bValue+"\n");
+		
+		return bValue;
+	}
+	
+//	/**
+//	 * This method returns the bValue that will achieve a desired reduction in moment.  
+//	 * This is for use with Bilinear MFD Constraint.  The momentRate is the moment, in Nm, desired off the faults.
+//	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve this momentRate reduction.
+//	 */
+//	private static double findBValueForMomentRateReduction(double momentRate, double transitionMag) {
+//		boolean D = true; //debugging
+//		
+//		// Use the mag-dist for the whole region since the deformation model off-fault moment #s from Kaj are also for the whole region
+//		IncrementalMagFreqDist magDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
+//		
+//		// Find total moment below transition magnitude (on-fault + off-fault)
+//		double totalMomentBelowTransition = 0;
+//		for (double mag=magDist.getMinX(); mag<=transitionMag; mag+=magDist.getDelta()) {
+//			totalMomentBelowTransition += magDist.getMomentRate(mag);
+//		}
+//		if (D) System.out.println("totalMomentBelowTransition = "+totalMomentBelowTransition);
+//		if (D) System.out.println("momentRate to reduce = "+momentRate);
+//		
+//		if (momentRate>=totalMomentBelowTransition)
+//			throw new IllegalStateException("This is not going to work. The total moment below your transition magnitude is less than the off-fault moment");
+//		
+//		double momentReduction = momentRate/totalMomentBelowTransition;  // fraction of moment that should be off-fault below transition magnitude
+//		if (D) System.out.println("momentReduction = "+momentReduction);
+//		double bValue = (3.0*momentReduction-1.0)/(2.0*momentReduction);  // b-value below transition magnitude that will achieve desired moment reduction
+//		if (D) System.out.println("bValue = "+bValue);
+//		
+//		return bValue;
+//	}
+	
+	
+	private static double findMomentFractionOffFaults (DeformationModels deformationModel) {
+		// These values are from an e-mail from Kaj dated 2/29/11
+		double momentFractionOffFaults;
+		switch (deformationModel) {
+		case GEOLOGIC:
+			throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model :(");
+		case ABM:
+			momentFractionOffFaults = 33.6766;
+			break;
+		case GEOBOUND:
+			momentFractionOffFaults = 34.2229;
+			break;
+		case NEOKINEMA:
+			momentFractionOffFaults = 28.0202;
+			break;
+		case GEOLOGIC_PLUS_ABM:
+			throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model :(");
+		case ZENG:
+			momentFractionOffFaults = 51.6904;
+			break;	
+		default:
+			throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model :(");
+		}
+		
+		return momentFractionOffFaults / 100.0;
+	}
+	
+	
+	private static double findMomentOffFaults (DeformationModels deformationModel) {
+		// These values are from an e-mail from Kaj dated 2/29/11
+		// WARNING: These seem too high! Total moment rate for CA around 2E19 Nm/yr = 2E26 dyne-cm/yr
+		double momentOffFaults;
+		switch (deformationModel) {
+		case GEOLOGIC:
+			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
+		case ABM:
+			momentOffFaults = 1.2188e+027;
+			break;
+		case GEOBOUND:
+			momentOffFaults = 1.4238e+027;
+			break;
+		case NEOKINEMA:
+			momentOffFaults = 1.0752e+027;
+			break;
+		case GEOLOGIC_PLUS_ABM:
+			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
+		case ZENG:
+			momentOffFaults = 3.5647e+027;
+			break;	
+		default:
+			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
+		}
+		
+		return momentOffFaults * 10e-7;  // convert to Nm
+	}
+
+	
+	
+	/**
+	 * This method changes the input MFD constraints (WHICH IT ASSUMES ARE G-R WITH b=1) by changing the b-Value below a transition magnitude.
+	 * The returned MFDs are G-R both below and above the transition magnitude, b=1 above it, and the specified b-value below it.
+	 */
+	private static ArrayList<MFD_InversionConstraint> makeMFDConstraintsBilinear(
+			ArrayList<MFD_InversionConstraint> mfdConstraints, double bValueBelowTransition, double transitionMag) {
+		for (int i=0; i<mfdConstraints.size(); i++) {
+			for (double mag=mfdConstraints.get(i).getMagFreqDist().getMinX(); mag<transitionMag; mag+=mfdConstraints.get(i).getMagFreqDist().getDelta()) {
+				double setVal=mfdConstraints.get(i).getMagFreqDist().getY(mag)*Math.pow(10, (transitionMag-mag)*(bValueBelowTransition-1));
+				mfdConstraints.get(i).getMagFreqDist().set(mag, setVal);
+			}
+		}
+		return mfdConstraints;
+	}
+
+	
 	public static List<MFD_InversionConstraint> getGriddedConstraints(
 			UCERF2_MFD_ConstraintFetcher UCERF2Constraints, Region region,
 			double latBoxSize, double lonBoxSize) {
@@ -274,10 +422,13 @@ public class InversionConfiguration {
 		return mfdEqualityConstraints;
 	}
 	
+	
+	/**
+	 * This method returns a G-R magnitude distribution with specified b-value. The a-value is set
+	 * to match the target moment rate implied by the slip rates FOR THE WHOLE REGION.
+	 * Mmax is a strict upper-magnitude cut-off (set to nearest 0.1 magnitude unit) 
+	 */
 	public static IncrementalMagFreqDist getGR_Dist(FaultSystemRupSet faultSystemRupSet, double bValue, double Mmax) {
-		// This method returns a G-R magnitude distribution with specified b-value. The a-value is set
-		// to match the target moment rate implied by the slip rates FOR THE WHOLE REGION.
-		// Mmax is a strict upper-magnitude cut-off (set to nearest 0.1 magnitude unit) 
 		
 		// Set up (unnormalized) G-R magnitude distribution
 		IncrementalMagFreqDist magDist = new IncrementalMagFreqDist(5.05,35,0.1);
@@ -312,7 +463,7 @@ public class InversionConfiguration {
 	}
 	
 	/**
-	 * Probably has to be reviesd for FM 3.1? currently not used
+	 * Probably has to be revised for FM 3.1? currently not used
 	 * 
 	 * @param findUCERF2_Rups
 	 * @param faultSystemRupSet
