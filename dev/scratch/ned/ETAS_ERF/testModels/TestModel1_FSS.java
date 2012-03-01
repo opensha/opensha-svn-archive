@@ -23,6 +23,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 
 /**
  * @author field
@@ -449,17 +450,6 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	}
 
 	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSlipOnSectionsForAllRups()
-	 */
-	@Override
-	public List<double[]> getSlipOnSectionsForAllRups() {
-		ArrayList<double[]> slipsList = new ArrayList<double[]>();
-		for(int r=0; r<this.totNumRups;r++)
-			slipsList.add(getSlipOnSectionsForRup(r));
-		return slipsList;
-	}
-
-	/* (non-Javadoc)
 	 * @see scratch.UCERF3.FaultSystemRupSet#getSlipOnSectionsForRup(int)
 	 */
 	@Override
@@ -521,6 +511,11 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		
 		TestModel1_FSS test = new TestModel1_FSS();
 
+	}
+
+	@Override
+	public SlipAlongRuptureModels getSlipAlongRuptureModel() {
+		return null;
 	}
 
 }

@@ -88,8 +88,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	// general info about this instance
 	String infoString;
 	
-	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
-	
 	private List<List<Integer>> sectionConnectionsListList;
 	
 	/**
@@ -367,13 +365,9 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		return rupMeanSlip[rupIndex];
 	}
 	
-	public ArrayList<double[]> getSlipOnSectionsForAllRups() {
-		ArrayList<double[]> rupSlipOnSect = new ArrayList<double[]>();
-		System.out.print("Getting all slip on sections...");
-		for(int r=0;r<this.numRuptures;r++)
-			rupSlipOnSect.add(getSlipOnSectionsForRup(r));
-		System.out.println("Done.");
-		return rupSlipOnSect;
+	@Override
+	protected double calcTotalMomentRate(int rupIndex) {
+		return rupTotMoRateAvail[rupIndex];
 	}
 	
 	/**
@@ -388,95 +382,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 *
 	 */
 	public double[] getSlipOnSectionsForRup(int rthRup) {
-		
-		ArrayList<Integer> sectionIndices = getSectionsIndicesForRup(rthRup);
-		int numSects = sectionIndices.size();
-
-		double[] slipsForRup = new double[numSects];
-		
-		// compute rupture area
-		double[] sectArea = new double[numSects];
-		double[] sectMoRate = new double[numSects];
-		int index=0;
-		for(Integer sectID: sectionIndices) {	
-			FaultSectionPrefData sectData = faultSectionData.get(sectID);
-			sectArea[index] = sectData.getTraceLength()*sectData.getReducedDownDipWidth()*1e6;	// aseismicity reduces area; 1e6 for sq-km --> sq-m
-			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], sectSlipRateReduced[sectID]);
-			index += 1;
-		}
-			 		
-		double aveSlip = rupMeanSlip[rthRup];  // in meters
-		
-		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
-		if(slipModelType == SlipAlongRuptureModels.CHAR) {
-			throw new RuntimeException("SlipModelType.CHAR_SLIP_MODEL not yet supported");
-		}
-		// for case where ave slip computed from mag & area, and is same on all segments 
-		else if (slipModelType == SlipAlongRuptureModels.UNIFORM) {
-			for(int s=0; s<slipsForRup.length; s++)
-				slipsForRup[s] = aveSlip;
-		}
-		// this is the model where section slip is proportional to section slip rate 
-		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
-		else if (slipModelType == SlipAlongRuptureModels.WG02) {
-			for(int s=0; s<slipsForRup.length; s++) {
-				slipsForRup[s] = aveSlip*sectMoRate[s]*rupArea[rthRup]/(rupTotMoRateAvail[rthRup]*sectArea[s]);
-			}
-		}
-		else if (slipModelType == SlipAlongRuptureModels.TAPERED) {
-			// note that the ave slip is partitioned by area, not length; this is so the final model is moment balanced.
-
-			// make the taper function if hasn't been done yet
-			if(taperedSlipCDF == null) {
-				taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
-				taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
-				double x,y, sum=0;
-				int num = taperedSlipPDF.getNum();
-				for(int i=0; i<num;i++) {
-					x = taperedSlipPDF.getX(i);
-					y = Math.pow(Math.sin(x*Math.PI), 0.5);
-					taperedSlipPDF.set(i,y);
-					sum += y;
-				}
-				// now make final PDF & CDF
-				y=0;
-				for(int i=0; i<num;i++) {
-						y += taperedSlipPDF.getY(i);
-						taperedSlipCDF.set(i,y/sum);
-						taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
-//						System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
-				}
-			}
-			double normBegin=0, normEnd, scaleFactor;
-			for(int s=0; s<slipsForRup.length; s++) {
-				normEnd = normBegin + sectArea[s]/rupArea[rthRup];
-				// fix normEnd values that are just past 1.0
-				if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
-				scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
-				scaleFactor /= (normEnd-normBegin);
-				slipsForRup[s] = aveSlip*scaleFactor;
-				normBegin = normEnd;
-			}
-		}
-/*		*/
-		// check the average
-//		if(D) {
-//			double aveCalcSlip =0;
-//			for(int s=0; s<slipsForRup.length; s++)
-//				aveCalcSlip += slipsForRup[s]*sectArea[s];
-//			aveCalcSlip /= rupArea[rthRup];
-//			System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
-//		}
-
-//		if (D) {
-//			System.out.println("\tsectionSlip\tsectSlipRate\tsectArea");
-//			for(int s=0; s<slipsForRup.length; s++) {
-//				FaultSectionPrefData sectData = faultSectionData.get(sectionIndices.get(s));
-//				System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)sectData.getAveLongTermSlipRate()+"\t"+sectArea[s]);
-//			}
-//					
-//		}
-		return slipsForRup;		
+		return calcSlipOnSectionsForRup(rthRup);
 	}
 	
 	// TODO not yet implemented
@@ -609,5 +515,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	@Override
 	public FaultModels getFaultModel() {
 		return faultModel;
+	}
+
+	@Override
+	public SlipAlongRuptureModels getSlipAlongRuptureModel() {
+		return slipModelType;
 	}
 }

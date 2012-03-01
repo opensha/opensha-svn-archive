@@ -4,15 +4,18 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -25,6 +28,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
@@ -48,7 +52,8 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	private List<FaultSectionPrefData> faultSectionData;
 	private double[] mags;
 	private double[] rupAveSlips;
-	private List<double[]> rupSectionSlips;
+	private SlipAlongRuptureModels slipModelType;
+//	private List<double[]> rupSectionSlips;
 	private double[] sectSlipRates;
 	private double[] sectSlipRateStdDevs;
 	private double[] rakes;
@@ -85,8 +90,8 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	 */
 	public SimpleFaultSystemRupSet(FaultSystemRupSet rupSet) {
 		this(rupSet.getFaultSectionDataList(), rupSet.getMagForAllRups(), rupSet.getAveSlipForAllRups(),
-				rupSet.getSlipOnSectionsForAllRups(), rupSet.getSlipRateForAllSections(),
-				rupSet.getSlipRateStdDevForAllSections(),
+				null, rupSet.getSlipAlongRuptureModel(),
+				rupSet.getSlipRateForAllSections(), rupSet.getSlipRateStdDevForAllSections(),
 				rupSet.getAveRakeForAllRups(), rupSet.getAreaForAllRups(), rupSet.getAreaForAllSections(),
 				rupSet.getSectionIndicesForAllRups(), rupSet.getInfoString(),
 				rupSet.getCloseSectionsListList(), rupSet.getFaultModel(), rupSet.getDeformationModel());
@@ -98,6 +103,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 				clusterSects.add(rupSet.getSectionsForCluster(i));
 			}
 		}
+		rupSectionSlipsCache = rupSet.rupSectionSlipsCache;
 	}
 	
 	/**
@@ -121,6 +127,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			double[] mags,
 			double[] rupAveSlips,
 			List<double[]> rupSectionSlips,
+			SlipAlongRuptureModels slipModel,
 			double[] sectSlipRates,
 			double[] sectSlipRateStdDevs,
 			double[] rakes,
@@ -131,7 +138,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			List<List<Integer>> closeSections,
 			FaultModels faultModel,
 			DeformationModels defModName) {
-		this(faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
+		this(faultSectionData, mags, rupAveSlips, rupSectionSlips, slipModel, sectSlipRates, sectSlipRateStdDevs, rakes,
 				rupAreas, sectAreas, sectionForRups, info, closeSections, faultModel, defModName, null, null);
 	}
 	
@@ -158,6 +165,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			double[] mags,
 			double[] rupAveSlips,
 			List<double[]> rupSectionSlips,
+			SlipAlongRuptureModels slipModelType,
 			double[] sectSlipRates,
 			double[] sectSlipRateStdDevs,
 			double[] rakes,
@@ -187,7 +195,11 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		// can be null
 		Preconditions.checkArgument(rupSectionSlips == null
 				|| rupSectionSlips.size() == numRups, "rupSectionSlips sizes inconsistent!");
-		this.rupSectionSlips = rupSectionSlips;
+		if (rupSectionSlips != null) {
+			for (int rupIndex=0; rupIndex<numRups; rupIndex++)
+				rupSectionSlipsCache.put(rupIndex, rupSectionSlips.get(rupIndex));
+		}
+		this.slipModelType = slipModelType;
 		
 		// can be null
 		Preconditions.checkArgument(sectSlipRates == null
@@ -275,16 +287,6 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	@Override
 	public double getAveSlipForRup(int rupIndex) {
 		return rupAveSlips[rupIndex];
-	}
-
-	@Override
-	public List<double[]> getSlipOnSectionsForAllRups() {
-		return rupSectionSlips;
-	}
-
-	@Override
-	public double[] getSlipOnSectionsForRup(int rthRup) {
-		return rupSectionSlips.get(rthRup);
 	}
 	
 	public double[] getAveRakeForAllRups() {
@@ -528,12 +530,12 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		el.addAttribute("numSects", getNumSections()+"");
 		if (getInfoString() != null)
 			el.addAttribute("info", getInfoString());
+		if (getSlipAlongRuptureModel() != null)
+			el.addAttribute("slipAlongRuptureModel", getSlipAlongRuptureModel().name());
 		
 		XMLUtils.doubleArrayToXML(el, mags, "mags");
 		if (rupAveSlips != null)
 			XMLUtils.doubleArrayToXML(el, rupAveSlips, "rupAveSlips");
-		if (rupSectionSlips != null)
-			listDoubleArrayToXML(el, rupSectionSlips, "rupSectionSlips");
 		if (sectSlipRates != null)
 			XMLUtils.doubleArrayToXML(el, sectSlipRates, "sectSlipRates");
 		if (sectSlipRateStdDevs != null)
@@ -564,6 +566,11 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		int numSects = Integer.parseInt(rupSetEl.attributeValue("numSects"));
 		
 		if (D) System.out.println("Loading from XML for numRups="+numRups+" and numSects="+numSects);
+		
+		SlipAlongRuptureModels slipModelType = null;
+		Attribute slipModelAtt = rupSetEl.attribute("slipAlongRuptureModel");
+		if (slipModelAtt != null)
+			slipModelType = SlipAlongRuptureModels.valueOf(slipModelAtt.getStringValue());
 		
 		Attribute infoAtt = rupSetEl.attribute("info");
 		String info;
@@ -668,7 +675,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		}
 		
 		SimpleFaultSystemRupSet simple = new SimpleFaultSystemRupSet(
-				faultSectionData, mags, rupAveSlips, rupSectionSlips, sectSlipRates, sectSlipRateStdDevs, rakes,
+				faultSectionData, mags, rupAveSlips, rupSectionSlips, slipModelType, sectSlipRates, sectSlipRateStdDevs, rakes,
 				rupAreas, sectAreas, sectionForRups, info, closeSections, faultModel, defModName, clusterRups, clusterSects);
 		return simple;
 	}
@@ -720,10 +727,12 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		}
 		
 		// write rup section slips
-		if (rupSectionSlips != null) {
-			if (D) System.out.println("Saving rup sec slips");
-			File rupSectionSlipsFile = new File(tempDir, "rup_sec_slips.bin");
-			MatrixIO.doubleArraysListToFile(rupSectionSlips, rupSectionSlipsFile);
+		if (getSlipAlongRuptureModel() != null) {
+			if (D) System.out.println("Saving rup sec slips type");
+			File rupSectionSlipsFile = new File(tempDir, "rup_sec_slip_type.txt");
+			FileWriter fw = new FileWriter(rupSectionSlipsFile);
+			fw.write(getSlipAlongRuptureModel().name());
+			fw.close();
 			zipFileNames.add(rupSectionSlipsFile.getName());
 		}
 		
@@ -833,6 +842,19 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 					new BufferedInputStream(zip.getInputStream(rupSectionSlipsEntry)));
 		else
 			rupSectionSlips = null;
+		
+		ZipEntry rupSectionSlipModelEntry = zip.getEntry("rup_sec_slip_type.txt");
+		SlipAlongRuptureModels slipModelType = null;
+		if (rupSectionSlipModelEntry != null) {
+			StringWriter writer = new StringWriter();
+			IOUtils.copy(zip.getInputStream(rupSectionSlipModelEntry), writer);
+			String slipModelName = writer.toString().trim();
+			try {
+				slipModelType = SlipAlongRuptureModels.valueOf(slipModelName);
+			} catch (Exception e) {
+				System.err.println("WARNING: Unknown slip model type: "+slipModelName);
+			}
+		}
 		
 		ZipEntry sectSlipsEntry = zip.getEntry("sect_slips.bin");
 		double[] sectSlipRates;
@@ -966,7 +988,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			info = null;
 		
 		
-		return new SimpleFaultSystemRupSet(faultSectionData, mags, rupAveSlips, rupSectionSlips,
+		return new SimpleFaultSystemRupSet(faultSectionData, mags, rupAveSlips, rupSectionSlips, slipModelType,
 				sectSlipRates, sectSlipRateStdDevs, rakes, rupAreas, sectAreas, sectionForRups, info,
 				closeSections, faultModel, defModName, clusterRups, clusterSects);
 	}
@@ -980,6 +1002,11 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			return fromXMLFile(file);
 		else
 			return fromZipFile(file);
+	}
+
+	@Override
+	public SlipAlongRuptureModels getSlipAlongRuptureModel() {
+		return slipModelType;
 	}
 
 }

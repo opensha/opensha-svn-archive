@@ -32,6 +32,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 
@@ -114,11 +115,6 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	@Override
 	public double getAveSlipForRup(int rupIndex) {
 		return rupSet.getAveSlipForRup(rupIndex);
-	}
-
-	@Override
-	public List<double[]> getSlipOnSectionsForAllRups() {
-		return rupSet.getSlipOnSectionsForAllRups();
 	}
 
 	@Override
@@ -337,5 +333,10 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	@Override
 	public FaultModels getFaultModel() {
 		return rupSet.getFaultModel();
+	}
+
+	@Override
+	public SlipAlongRuptureModels getSlipAlongRuptureModel() {
+		return rupSet.getSlipAlongRuptureModel();
 	}
 }

@@ -8,6 +8,8 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import com.google.common.base.Preconditions;
+
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
@@ -220,7 +222,12 @@ public class InversionFaultSystemRupSetFactory {
 //			UCERF3_GEOLOGIC.getRupSet(true);
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
-			cachedForBranch(DeformationModels.GEOLOGIC, true);
+			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC);
+			System.out.println("SlipModelType: "+rupSet.getSlipAlongRuptureModel());
+			
+			for (int i=0; i<rupSet.getNumRuptures(); i++) {
+				Preconditions.checkNotNull(rupSet.getSlipOnSectionsForRup(i));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
