@@ -23,7 +23,7 @@ public enum DeformationModels {
 	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_2012_02_21.csv"),
 	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_2012_02_21.csv",
 										FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_02_27.csv"),
-	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_02_27.csv");
+	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_03_01.csv");
 	
 	private List<FaultModels> faultModels;
 	private List<String> fileNames;

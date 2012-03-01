@@ -136,6 +136,7 @@ public class MatrixIO {
 			rows[i] = in.readInt();
 			cols[i] = in.readInt();
 			vals[i] = in.readDouble();
+			Preconditions.checkState(!Double.isNaN(vals[i]), "no NaN's allowed!");
 		}
 
 		in.close();

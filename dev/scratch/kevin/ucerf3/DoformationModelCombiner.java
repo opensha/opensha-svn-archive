@@ -34,7 +34,11 @@ public class DoformationModelCombiner {
 				Location loc1 = geologic.getLocs1().get(i);
 				Location loc2 = geologic.getLocs2().get(i);
 				double slip1 = geologic.getSlips().get(i);
+				if (Double.isNaN(slip1))
+					slip1 = 0;
 				double slip2 = abm.getSlips().get(i);
+				if (Double.isNaN(slip2))
+					slip2 = 0;
 				double rake = geologic.getRakes().get(i); // keep rake from geologic
 				
 				double slip = 0.5*(slip1+slip2);
@@ -44,7 +48,7 @@ public class DoformationModelCombiner {
 		}
 		
 		DeformationModelFileParser.write(combined,
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/DeformationModels/geologic_plus_ABM_slip_rake_2012_02_27.csv"));
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/DeformationModels/geologic_plus_ABM_slip_rake_2012_03_01.csv"));
 	}
 
 }
