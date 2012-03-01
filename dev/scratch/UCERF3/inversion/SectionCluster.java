@@ -325,7 +325,10 @@ public class SectionCluster extends ArrayList<Integer> {
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
 			if(newList.size() >= laughTestFilter.getMinNumSectInRup() && sameParID)  {// it's a rupture
 				// now test coulomb
-				if (coulombFilter == null || coulombFilter.doesRupturePass(myForwardRates, myBackwardRates)) {
+				// TODO remove newList.size() <= 2 hack. this is in here to make sure that each section is
+				// involved in at least one rupture
+				if (coulombFilter == null || newList.size() <= 2
+						|| coulombFilter.doesRupturePass(myForwardRates, myBackwardRates)) {
 					// uncomment these lines to only save a very small amount of ruptures
 //					if (Math.random()<0.0005)
 						rupListIndices.add(newList);
