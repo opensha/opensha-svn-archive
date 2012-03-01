@@ -244,7 +244,31 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 			// check that the deformation model is legitimate
 			// DeformationModelFetcher.DefModName defModName = 
 
+			// this fills in parentSectionNamesForUCERF2_Sources
 			readSectionNamesForUCERF2_SourcesFile();
+			
+			
+			// find fault sections that are not used by UCERF2 (the new ones in UCERF3)
+			ArrayList<String> allParentSectionNames = new ArrayList<String>();
+			for(FaultSectionPrefData data :faultSysRupSet.getFaultSectionDataList()){
+				if(!allParentSectionNames.contains(data.getParentSectionName()))
+					allParentSectionNames.add(data.getParentSectionName());
+			}
+			ArrayList<String> usedParentSectionNames = new ArrayList<String>();
+			for(ArrayList<String> names:parentSectionNamesForUCERF2_Sources) {
+				for(String name:names) {
+					if(!usedParentSectionNames.contains(name))
+						usedParentSectionNames.add(name);
+				}
+			}
+			ArrayList<String> unusedParentSectionNames = new ArrayList<String>();
+			for(String name:allParentSectionNames) {
+				if(!usedParentSectionNames.contains(name))
+					unusedParentSectionNames.add(name);
+			}
+
+
+			
 
 			// do the following methods (which write to the info file)
 			try {
@@ -259,8 +283,14 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 			}
 			findSectionEndsForUCERF2_Rups();
 			findAssociations(faultSysRupSet.getSectionIndicesForAllRups());
+			
+			
 			if (info_fw != null)
 				try {
+					// write out the new section and close
+					info_fw.write("\nThese sections are not used by any UCERF2 source (they're new):\n\n");
+					for(String name : unusedParentSectionNames)
+						info_fw.write("\t"+name+"\n");
 					info_fw.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -882,7 +912,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		for(int i=0;i<griddedRegion.getNodeCount();i++)
 			mappingNucleationRates.set(i, zVals[i]);
 		GMT_CA_Maps.plotRatioOfRateMaps(mappingNucleationRates, erfNucleationRates, 
-				"Nucleation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Nucleation Rate Ratio Test", "ucerf2to3_MapingNuclRatioTest");
+				"Nucleation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Nucleation Rate Ratio Test", "ucerf2to3_MapNuclRatioTest");
 
 		
 		// Now do participation rates
@@ -915,7 +945,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		for(int i=0;i<griddedRegion.getNodeCount();i++)
 			mappingParticipationRates.set(i, zVals[i]);
 		GMT_CA_Maps.plotRatioOfRateMaps(mappingParticipationRates, erfParticipationRates, 
-				"Participation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Participation Rate Ratio Test", "ucerf2to3_MapingPartRatioTest");
+				"Participation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Participation Rate Ratio Test", "ucerf2to3_MapPartRatioTest");
 
 	}
 	
@@ -1274,7 +1304,7 @@ if(debug) System.exit(0);
 		File precompDataDir = new File("dev/scratch/UCERF3/preComputedData/");
 
 		if(D) System.out.println("Getting rup set");
-   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC);
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
 		if(D) System.out.println("Done getting rup set");
 		
 //		FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_2);
