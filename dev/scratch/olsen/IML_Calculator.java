@@ -53,10 +53,10 @@ public class IML_Calculator {
 	private static final int NUM_EVENT_SETS = 2;
 	
 	private static List<Location> locs;
-	private static List<Integer> ids;
+	private static List<Long> ids;
 	
 	static {
-		Map<Integer, Location> locsMap = readLocations();
+		Map<Long, Location> locsMap = readLocations();
 		locs = Lists.newArrayList(locsMap.values());
 		ids = Lists.newArrayList(locsMap.keySet());
 	}
@@ -105,7 +105,7 @@ public class IML_Calculator {
 		}
 	}
 	
-	private String buildResult(int id, Location loc, double[] data, double dist) {
+	private String buildResult(long id, Location loc, double[] data, double dist) {
 		return J.join(id, loc.getLongitude(), loc.getLatitude(), data[0],
 			data[1], data[2], dist);
 	}	
@@ -188,8 +188,8 @@ public class IML_Calculator {
 	/*
 	 * Reads locations and object IDs; called on startup
 	 */
-	private static Map<Integer, Location> readLocations() {
-		Map<Integer, Location> locMap = Maps.newTreeMap();
+	private static Map<Long, Location> readLocations() {
+		Map<Long, Location> locMap = Maps.newTreeMap();
 		try {
 			URL url = IML_Calculator.class.getResource("hzTract.csv");
 			File f = new File(url.toURI());
@@ -197,7 +197,8 @@ public class IML_Calculator {
 			lines.remove(0);
 			for (String line : lines) {
 				String[] ss =  StringUtils.splitPreserveAllTokens(line, ',');
-				locMap.put(Integer.valueOf(ss[0]),
+				
+				locMap.put(Long.valueOf(ss[2]),
 					new Location(Double.valueOf(ss[8]), Double.valueOf(ss[9])));
 			}
 		} catch (Exception e) {
@@ -270,6 +271,7 @@ public class IML_Calculator {
 	 */
 	public static void main(String[] args) {		
 		IML_Calculator imc = new IML_Calculator();
+		
 	}
 	
 
