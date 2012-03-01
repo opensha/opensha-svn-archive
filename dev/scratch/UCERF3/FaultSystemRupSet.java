@@ -479,4 +479,18 @@ public abstract class FaultSystemRupSet {
 		return rupturesForSectionCache.get(secIndex);
 	}
 	
+	/**
+	 * This computes the total moment rate for the fault system, taking into account the
+	 * aseismicity factors and coupling coefficients.  
+	 * @return moment in SI units
+	 */
+	public double getTotalMomentRate() {
+		double sum=0;
+		for(FaultSectionPrefData data : getFaultSectionDataList()) {
+			double area = data.getReducedDownDipWidth()*data.getTraceLength()*1e6;
+			sum += FaultMomentCalc.getMoment(area, data.getReducedAveSlipRate()*1e-3);
+		}
+		return sum;
+	}
+	
 }
