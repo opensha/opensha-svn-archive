@@ -336,24 +336,24 @@ public class InversionConfiguration {
 			momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
 			System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);
 		case ABM:
-			momentFractionOffFaults = 33.6766;
+			momentFractionOffFaults = 33.6766 / 100.0;
 			break;
 		case GEOBOUND:
-			momentFractionOffFaults = 34.2229;
+			momentFractionOffFaults = 34.2229 / 100.0;
 			break;
 		case NEOKINEMA:
-			momentFractionOffFaults = 28.0202;
+			momentFractionOffFaults = 28.0202 / 100.0;
 			break;
 		case GEOLOGIC_PLUS_ABM:
 			momentFractionOffFaults = (findMomentFractionOffFaults(deformationModel.GEOLOGIC) + findMomentFractionOffFaults(deformationModel.ABM)) / 2.0;
 		case ZENG:
-			momentFractionOffFaults = 51.6904;
+			momentFractionOffFaults = 51.6904 / 100.0;
 			break;	
 		default:
 			throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model :(");
 		}
 		
-		return momentFractionOffFaults / 100.0;
+		return momentFractionOffFaults;
 	}
 	
 	
