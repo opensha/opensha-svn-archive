@@ -75,12 +75,15 @@ public enum DeformationModels {
 	}
 
 	public URL getDataFileURL(FaultModels faultModel) {
+		return UCERF3_DataUtils.locateResource("DeformationModels", getDataFileName(faultModel));
+	}
+	
+	public String getDataFileName(FaultModels faultModel) {
 		Preconditions.checkState(isApplicableTo(faultModel),
 				"Deformation model "+name()+" isn't applicable to fault model: "+faultModel);
 		if (fileNames == null)
 			return null;
-		String fileName = fileNames.get(faultModels.indexOf(faultModel));
-		return UCERF3_DataUtils.locateResource("DeformationModels", fileName);
+		return fileNames.get(faultModels.indexOf(faultModel));
 	}
 	
 	public static List<DeformationModels> forFaultModel(FaultModels fm) {

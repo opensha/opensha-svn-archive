@@ -1,6 +1,7 @@
 package scratch.UCERF3.utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -33,6 +35,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.final
 import org.opensha.sha.faultSurface.FaultTrace;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 
 import com.google.common.base.Preconditions;
@@ -77,8 +80,8 @@ public class DeformationModelFileParser {
 				rake = Double.NaN;
 			}
 			
-			// make sure that the mini section number is correct
-			Preconditions.checkState(def.slips.size() == id[1]);
+			// make sure that the mini section number is correct (starts at 1)
+			Preconditions.checkState(def.slips.size() == id[1]-1);
 			
 			def.add(loc1, loc2, slip, rake);
 		}
@@ -86,22 +89,27 @@ public class DeformationModelFileParser {
 		return defs;
 	}
 	
-	public static int[] parseMinisectionNumber(String miniSection) {
+	private static int[] parseMinisectionNumber(String miniSection) {
 		String[] split = miniSection.trim().split("\\.");
 		int id = Integer.parseInt(split[0]);
-		int section;
-		if (split.length > 1 && !split[1].isEmpty()) {
-			String str = split[1];
-			// must be at least two digits (some files give it at xx.1 meaning xx.10)
-			if (str.length() == 1)
-				str = str+"0";
-			section = Integer.parseInt(split[1]);
-		} else {
-			section = 0;
-		}
+		Preconditions.checkState(split.length > 1 && !split[1].isEmpty(),
+				"Mini section was left blank for "+id+": "+miniSection);
+		String str = split[1];
+		// must be at least two digits (some files give it at xx.1 meaning xx.10)
+		if (str.length() == 1)
+			str = str+"0";
+		int section = Integer.parseInt(split[1]);
 		
 		int[] ret = {id, section};
 		return ret;
+	}
+	
+	private static String getMinisectionString(int[] miniSection) {
+		String str = miniSection[0]+".";
+		if (miniSection[1] < 10)
+			str += "0";
+		str += miniSection[1];
+		return str;
 	}
 	
 	public static void compareAgainst(Map<Integer, DeformationSection> defs,
@@ -147,10 +155,8 @@ public class DeformationModelFileParser {
 			List<Double> slips = def.getSlips();
 			List<Double> rakes = def.getRakes();
 			for (int i=0; i<slips.size(); i++) {
-				String id = def.getId()+".";
-				if (i < 10)
-					id += "0";
-				id += i;
+				int[] mini = { def.getId(), (i+1) };
+				String id = getMinisectionString(mini);
 				ArrayList<String> line = new ArrayList<String>();
 				line.add(id);
 				line.add(""+(float)locs1.get(i).getLongitude());
@@ -292,7 +298,8 @@ public class DeformationModelFileParser {
 	
 	private synchronized static void loadMomentReductionsData() throws IOException {
 		if (momemtReductionsData == null) {
-			InputStream is = UCERF3_DataUtils.locateResourceAsStream("DeformationModels", "Moment_Reductions_2012_03_01.xls");
+			InputStream is = UCERF3_DataUtils.locateResourceAsStream("DeformationModels",
+					"Moment_Reductions_2012_03_02.xls");
 			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
@@ -322,6 +329,39 @@ public class DeformationModelFileParser {
 			}
 		}
 	}
+	
+//	private synchronized static void fixMomentReductionsData() throws IOException {
+//		InputStream is = UCERF3_DataUtils.locateResourceAsStream("DeformationModels", "Moment_Reductions_2012_03_01.xls");
+//		POIFSFileSystem fs = new POIFSFileSystem(is);
+//		HSSFWorkbook wb = new HSSFWorkbook(fs);
+//		HSSFSheet sheet = wb.getSheetAt(0);
+//		int lastRowIndex = sheet.getLastRowNum();
+//		int numModels = 6;
+//		for(int r=1; r<=lastRowIndex; ++r) {
+//			//				System.out.println("Coulomb row: "+r);
+//			HSSFRow row = sheet.getRow(r);
+//			if(row==null) continue;
+//			HSSFCell miniCell = row.getCell(1);
+//			if (miniCell == null)
+//				continue;
+//			String miniSection;
+//			if (miniCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC)
+//				miniSection = ""+(float)miniCell.getNumericCellValue();
+//			else
+//				miniSection = miniCell.getStringCellValue();
+//			int[] mini = parseMinisectionNumber(miniSection);
+//			mini[1] = mini[1] + 1;
+//			miniCell.setCellValue(getMinisectionString(mini));
+//			double[] reductions = new double[numModels];
+//			for (int i=0; i<numModels; i++) {
+//				HSSFCell dataCell = row.getCell(2+i);
+//				Preconditions.checkState(dataCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC,
+//						"non numeric data cell!");
+//				reductions[i] = dataCell.getNumericCellValue();
+//			}
+//		}
+//		wb.write(new FileOutputStream(new File("/tmp/fixed.xls")));
+//	}
 	
 	public static void applyMomentReductions(Map<Integer, DeformationSection> model, DeformationModels dm) {
 		// first load the data if needed
@@ -370,8 +410,8 @@ public class DeformationModelFileParser {
 				for (int i=0; i<numMinisForSection; i++)
 					def.momentReductions.add(0d);
 			}
-			Preconditions.checkState(sect < numMinisForSection, "Mini sections inconsistant for section: "+id);
-			def.momentReductions.set(sect, reductions[index]);
+			Preconditions.checkState(sect <= numMinisForSection, "Mini sections inconsistant for section: "+id);
+			def.momentReductions.set(sect-1, reductions[index]);
 		}
 	}
 
@@ -393,6 +433,36 @@ public class DeformationModelFileParser {
 		File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		
 		try {
+//			load(DeformationModels.GEOLOGIC.getDataFileURL(FaultModels.FM3_2));
+//			fixMomentReductionsData();
+			
+			// this will fix the mini sction numbering problem
+//			String subDirName = "DeformationModels";
+//			File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParent(), subDirName);
+//			FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
+//			for (FaultModels fm : fms) {
+//				for (DeformationModels dm : DeformationModels.forFaultModel(fm)) {
+//					String fileName = dm.getDataFileName(fm);
+//					File origFile = new File(dir, fileName);
+//					File origBakFile = new File(dir, fileName+".bak");
+//					System.out.println("Fixing: "+origFile.getName());
+//					CSVFile<String> csv = CSVFile.readFile(origFile, true);
+//					for (int i=0; i<csv.getNumRows(); i++) {
+//						String miniStr = csv.get(i, 0);
+//						int[] mini = parseMinisectionNumber(miniStr);
+//						mini[1] = mini[1] + 1;
+//						miniStr = getMinisectionString(mini);
+//						csv.set(i, 0, miniStr);
+//					}
+//					FileUtils.moveFile(origFile, origBakFile);
+//					csv.writeToFile(origFile);
+//				}
+//			}
+			
+			
+//			DeformationModels.GEOLOGIC;
+//			CSVFile<String> csv = CSVFile.readURL(url, true);
+			
 //			System.out.println("Fetching fault data");
 //			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
 //			System.out.println("Fetching fault model");

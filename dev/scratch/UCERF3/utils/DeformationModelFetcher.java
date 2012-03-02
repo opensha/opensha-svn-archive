@@ -973,14 +973,14 @@ public class DeformationModelFetcher {
 				}
 				//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
 				FaultSectionPrefData data1 = faultSubSectPrefDataList.get(a);
-				StirlingGriddedSurface surf1 = data1.getStirlingGriddedSurface(1.0, false, true);;
+				StirlingGriddedSurface surf1 = data1.getStirlingGriddedSurface(1.0, false, false);
 				//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(data1.getSimpleFaultData(false), 1.0, 1.0);
 
 				for(int b=a+1;b<numSubSections;b++) { // a+1 because array is initialized to zero
 					//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
 					FaultSectionPrefData data2 = faultSubSectPrefDataList.get(b);
 					//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(data2.getSimpleFaultData(false), 1.0, 1.0);
-					StirlingGriddedSurface surf2 = data2.getStirlingGriddedSurface(1.0, false, true);;
+					StirlingGriddedSurface surf2 = data2.getStirlingGriddedSurface(1.0, false, false);
 					//					double minDist = surf1.getMinDistance(surf2);
 					//					subSectionDistances[a][b] = minDist;
 					//					subSectionDistances[b][a] = minDist;
@@ -1090,8 +1090,8 @@ public class DeformationModelFetcher {
 	public static void main(String[] args) {
 			File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		try {
-//			FaultModels fm = FaultModels.FM3_2;
-//			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, precomputedDataDir);
+			FaultModels fm = FaultModels.FM3_1;
+			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, precomputedDataDir);
 //			
 //			dm.getSubSectionDistanceMap(5d);
 //			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",
@@ -1103,10 +1103,10 @@ public class DeformationModelFetcher {
 //			for (DeformationModels dm : DeformationModels.forFaultModel(fm))
 //				new DeformationModelFetcher(fm, dm, precomputedDataDir);
 			
-			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 3.2 Sections",
-					new SimpleDateFormat().format(new Date()));
-			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_2.fetchFaultSections(), metaData,
-					new File(precomputedDataDir, "fault_model_sections_"+FaultModels.FM3_2.name()+".txt").getAbsolutePath());
+//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 3.2 Sections",
+//					new SimpleDateFormat().format(new Date()));
+//			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_2.fetchFaultSections(), metaData,
+//					new File(precomputedDataDir, "fault_model_sections_"+FaultModels.FM3_2.name()+".txt").getAbsolutePath());
 			
 			
 //			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);
