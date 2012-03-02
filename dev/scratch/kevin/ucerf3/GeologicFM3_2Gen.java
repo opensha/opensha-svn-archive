@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -22,7 +23,7 @@ public class GeologicFM3_2Gen {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		HashMap<Integer, DeformationSection> fm3_1 =
+		Map<Integer, DeformationSection> fm3_1 =
 				DeformationModelFileParser.load(UCERF3_DataUtils.locateResource(
 						"DeformationModels", "geologic_slip_rake_2012_02_21.csv"));
 		

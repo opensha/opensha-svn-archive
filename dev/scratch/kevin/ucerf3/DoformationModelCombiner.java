@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.opensha.commons.geo.Location;
 
@@ -17,9 +18,9 @@ public class DoformationModelCombiner {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		HashMap<Integer, DeformationSection> geologicModel = DeformationModelFileParser.load(
+		Map<Integer, DeformationSection> geologicModel = DeformationModelFileParser.load(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/DeformationModels/geologic_slip_rake_2012_02_21.csv"));
-		HashMap<Integer, DeformationSection> abmModel = DeformationModelFileParser.load(
+		Map<Integer, DeformationSection> abmModel = DeformationModelFileParser.load(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/DeformationModels/ABM_slip_rake_2012_02_21.csv"));
 		
 		ArrayList<DeformationSection> combined = new ArrayList<DeformationModelFileParser.DeformationSection>();

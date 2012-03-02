@@ -60,6 +60,8 @@ import com.google.common.collect.Lists;
 public class DeformationModelFetcher {
 
 	protected final static boolean D = true;  // for debugging
+	
+	private final static double MOMENT_REDUCTION_THRESHOLD = 0.5;
 
 	//	 Stepover fix for Elsinor
 	private final static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
@@ -118,11 +120,13 @@ public class DeformationModelFetcher {
 			URL url = deformationModel.getDataFileURL(faultModel);
 			try {
 				System.out.println("Loading def model from: "+url);
-				HashMap<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
+				Map<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
+				System.out.println("Applying moment reductions to: "+deformationModel);
+				DeformationModelFileParser.applyMomentReductions(model, deformationModel);
 				System.out.println("Loading fault model wtih ID: "+fmID);
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				System.out.println("Combining model with sections...");
-				HashMap<Integer,DeformationSection> rakesModel = null;
+				Map<Integer,DeformationSection> rakesModel = null;
 				if (faultModel.getFilterBasis() != null) {
 					// use the rakes from this one
 					System.out.println("Using rakes from: "+faultModel.getFilterBasis());
@@ -489,7 +493,7 @@ public class DeformationModelFetcher {
 			}
 			
 			if (def == null || !def.validateAgainst(section)) {
-				/* TODO remove special cases when files are updated
+				/* TODO remove special cases when files are updated (although this has now been applied the files themselves)
 				 * these are special cases where the files were generated for an older fault model
 				 * unfortunate be necessary, temporarily */
 				if (section.getSectionId() == 82) {
@@ -616,14 +620,8 @@ public class DeformationModelFetcher {
 	}
 
 	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
-			ArrayList<FaultSectionPrefData> sections, HashMap<Integer,DeformationSection> model, double maxSubSectionLength)
-					throws IOException {
-		return loadUCERF3DefModel(sections, model, maxSubSectionLength, null);
-	}
-
-	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
-			ArrayList<FaultSectionPrefData> sections, HashMap<Integer,DeformationSection> model, double maxSubSectionLength,
-			HashMap<Integer,DeformationSection> rakesModel)
+			List<FaultSectionPrefData> sections, Map<Integer,DeformationSection> model, double maxSubSectionLength,
+			Map<Integer,DeformationSection> rakesModel)
 					throws IOException {
 		final boolean DD = D && false;
 
@@ -644,15 +642,6 @@ public class DeformationModelFetcher {
 					System.out.println("\t"+i+":\t"+trace.get(i).getLatitude()+"\t"+trace.get(i).getLongitude());
 			}
 
-			if (DD) System.out.println("Applying any special cases...");
-
-			// TODO remove this ugly aseismicity hack
-			if (section.getAseismicSlipFactor() == 1) {
-				System.out.println("Hack! Setting aseismic slip factor to 0.9 for: "
-						+section.getSectionId()+". "+section.getName());
-				section.setAseismicSlipFactor(0.9);
-			}
-
 			if (DD) System.out.println("Building sub sections.");
 			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
 					section, maxSubSectionLength, subSectIndex);
@@ -665,6 +654,7 @@ public class DeformationModelFetcher {
 				rakes = def.getRakes();
 			else
 				rakes = rakesModel.get(section.getSectionId()).getRakes();
+			List<Double> momentReductions = def.getMomentReductions();
 			Preconditions.checkState(slips.size() == rakes.size());
 
 			// now set the subsection rates from the def model
@@ -715,12 +705,21 @@ public class DeformationModelFetcher {
 				ArrayList<Double> subSlips = new ArrayList<Double>();
 				// this is the rake of all spans of the locations above
 				ArrayList<Double> subRakes = new ArrayList<Double>();
+				// this is the moment reductions on all spans of the locations above,
+				// or null if no moment reductions for this section.
+				ArrayList<Double> subMomentReductions;
+				if (momentReductions == null)
+					subMomentReductions = null;
+				else
+					subMomentReductions = new ArrayList<Double>();
 
 				subLocs.add(subStart);
 
 				for (int i=traceIndexBefore; i<traceIndexAfter; i++) {
 					subSlips.add(slips.get(i));
 					subRakes.add(rakes.get(i));
+					if (subMomentReductions != null)
+						subMomentReductions.add(momentReductions.get(i));
 					if (i > traceIndexBefore && i < traceIndexAfter)
 						subLocs.add(trace.get(i));
 				}
@@ -731,6 +730,33 @@ public class DeformationModelFetcher {
 
 				subSect.setAveSlipRate(avgSlip);
 				subSect.setAveRake(avgRake);
+				
+				if (subMomentReductions != null) {
+					// apply moment reduction
+					double momentReductionFactor = getLengthBasedAverage(subLocs, subMomentReductions);
+					
+					double aseismicityFactor, couplingCoeff;
+					
+					if (momentReductionFactor<=MOMENT_REDUCTION_THRESHOLD) {
+						aseismicityFactor = momentReductionFactor;
+						couplingCoeff = 1.0;
+					} else {
+						aseismicityFactor = MOMENT_REDUCTION_THRESHOLD;
+						double slipRateReduction = (momentReductionFactor-MOMENT_REDUCTION_THRESHOLD)/(1-aseismicityFactor);
+						couplingCoeff = 1.0 - slipRateReduction;
+					}
+					
+					subSect.setAseismicSlipFactor(aseismicityFactor);
+					subSect.setCouplingCoeff(couplingCoeff);
+//					System.out.println("New Aseis: "+ aseismicityFactor);
+//					System.out.println("New Coupling: "+ couplingCoeff);
+				} else {
+					// TODO what to do here if aseismicity or coupling coeff is not 0/1 and we didn't have a value for it?
+					if (subSect.getAseismicSlipFactor() != 0)
+						subSect.setAseismicSlipFactor(0d);
+					if (subSect.getCouplingCoeff() != 1)
+						subSect.setCouplingCoeff(1d);
+				}
 			}
 
 			if (DD) System.out.println("Done with subsection assignment.");
@@ -1064,19 +1090,23 @@ public class DeformationModelFetcher {
 	public static void main(String[] args) {
 			File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		try {
-			FaultModels fm = FaultModels.FM3_2;
-			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, precomputedDataDir);
-			
-			dm.getSubSectionDistanceMap(5d);
-			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",
-					new SimpleDateFormat().format(new Date()));
-			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
-					new File(precomputedDataDir, "fault_sections_"+fm.name()+".txt").getAbsolutePath());
-			
-//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 3.1 Sections",
+//			FaultModels fm = FaultModels.FM3_2;
+//			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, precomputedDataDir);
+//			
+//			dm.getSubSectionDistanceMap(5d);
+//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",
 //					new SimpleDateFormat().format(new Date()));
-//			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_1.fetchFaultSections(), metaData,
-//					new File(precomputedDataDir, "fault_model_sections.txt").getAbsolutePath());
+//			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
+//					new File(precomputedDataDir, "fault_sections_"+fm.name()+".txt").getAbsolutePath());
+			
+//			FaultModels fm = FaultModels.FM3_2;
+//			for (DeformationModels dm : DeformationModels.forFaultModel(fm))
+//				new DeformationModelFetcher(fm, dm, precomputedDataDir);
+			
+			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 3.2 Sections",
+					new SimpleDateFormat().format(new Date()));
+			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_2.fetchFaultSections(), metaData,
+					new File(precomputedDataDir, "fault_model_sections_"+FaultModels.FM3_2.name()+".txt").getAbsolutePath());
 			
 			
 //			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);

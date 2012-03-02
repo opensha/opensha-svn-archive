@@ -223,8 +223,14 @@ public class InversionFaultSystemRupSetFactory {
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
-//			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC, true);
-			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, true);
+			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC, true);
+//			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, true);
+			
+			for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+				List<Integer> rups = rupSet.getRupturesForSection(sectIndex);
+				if (rups.isEmpty())
+					System.out.println("No ruptures for section: "+sectIndex+". "+rupSet.getFaultSectionData(sectIndex).getSectionName());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

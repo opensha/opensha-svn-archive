@@ -3,6 +3,7 @@ package scratch.UCERF3.utils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,10 +13,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
@@ -32,21 +39,23 @@ import com.google.common.base.Preconditions;
 
 public class DeformationModelFileParser {
 	
-	public static HashMap<Integer, DeformationSection> load(File file) throws IOException {
+	public static Map<Integer, DeformationSection> load(File file) throws IOException {
 		return load(file.toURI().toURL());
 	}
 	
-	public static HashMap<Integer, DeformationSection> load(URL url) throws IOException {
+	public static Map<Integer, DeformationSection> load(URL url) throws IOException {
 		CSVFile<String> csv = CSVFile.readURL(url, true);
 		
 		HashMap<Integer, DeformationSection>  defs = new HashMap<Integer, DeformationModelFileParser.DeformationSection>();
 		
 		for (List<String> row : csv) {
 //			System.out.println("ID: "+row.get(0));
-			String[] idStr = row.get(0).split("\\.");
-			int id = Integer.parseInt(idStr[0]);
-			if (!defs.containsKey(id))
-				defs.put(id, new DeformationSection(id));
+			int id[] = parseMinisectionNumber(row.get(0));
+			DeformationSection def = defs.get(id[0]);
+			if (def == null) {
+				def = new DeformationSection(id[0]);
+				defs.put(id[0], def);
+			}
 			double lon1 = Double.parseDouble(row.get(1));
 			double lat1 = Double.parseDouble(row.get(2));
 			double lon2 = Double.parseDouble(row.get(3));
@@ -68,14 +77,35 @@ public class DeformationModelFileParser {
 				rake = Double.NaN;
 			}
 			
-			defs.get(id).add(loc1, loc2, slip, rake);
+			// make sure that the mini section number is correct
+			Preconditions.checkState(def.slips.size() == id[1]);
+			
+			def.add(loc1, loc2, slip, rake);
 		}
 		
 		return defs;
 	}
 	
-	public static void compareAgainst(HashMap<Integer, DeformationSection> defs,
-			ArrayList<FaultSectionPrefData> datas, ArrayList<Integer> fm) throws IOException {
+	public static int[] parseMinisectionNumber(String miniSection) {
+		String[] split = miniSection.trim().split("\\.");
+		int id = Integer.parseInt(split[0]);
+		int section;
+		if (split.length > 1 && !split[1].isEmpty()) {
+			String str = split[1];
+			// must be at least two digits (some files give it at xx.1 meaning xx.10)
+			if (str.length() == 1)
+				str = str+"0";
+			section = Integer.parseInt(split[1]);
+		} else {
+			section = 0;
+		}
+		
+		int[] ret = {id, section};
+		return ret;
+	}
+	
+	public static void compareAgainst(Map<Integer, DeformationSection> defs,
+			List<FaultSectionPrefData> datas, List<Integer> fm) throws IOException {
 		HashSet<DeformationSection> dones = new HashSet<DeformationModelFileParser.DeformationSection>();
 		int noneCnt = 0;
 		for (int id : fm) {
@@ -165,6 +195,7 @@ public class DeformationModelFileParser {
 		private List<Location> locs2;
 		private List<Double> slips;
 		private List<Double> rakes;
+		private List<Double> momentReductions; // defaults to null
 		
 		public DeformationSection(int id) {
 			this.id = id;
@@ -179,6 +210,15 @@ public class DeformationModelFileParser {
 			locs2.add(loc2);
 			slips.add(slip);
 			rakes.add(rake);
+		}
+		
+		public void setMomentReductions(List<Double> momentReductions) {
+			Preconditions.checkState(momentReductions.size() == slips.size(),
+					"Size of moment reductions must match that of the slips");
+		}
+		
+		public List<Double> getMomentReductions() {
+			return momentReductions;
 		}
 		
 		public LocationList getLocsAsTrace() {
@@ -245,6 +285,93 @@ public class DeformationModelFileParser {
 			}
 			
 			return true;
+		}
+	}
+	
+	private static Map<String, double[]> momemtReductionsData = null;
+	
+	private synchronized static void loadMomentReductionsData() throws IOException {
+		if (momemtReductionsData == null) {
+			InputStream is = UCERF3_DataUtils.locateResourceAsStream("DeformationModels", "Moment_Reductions_2012_03_01.xls");
+			POIFSFileSystem fs = new POIFSFileSystem(is);
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int lastRowIndex = sheet.getLastRowNum();
+			int numModels = 6;
+			momemtReductionsData = new HashMap<String, double[]>();
+			for(int r=1; r<=lastRowIndex; ++r) {
+//				System.out.println("Coulomb row: "+r);
+				HSSFRow row = sheet.getRow(r);
+				if(row==null) continue;
+				HSSFCell miniCell = row.getCell(1);
+				if (miniCell == null)
+					continue;
+				String miniSection;
+				if (miniCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC)
+					miniSection = ""+(float)miniCell.getNumericCellValue();
+				else
+					miniSection = miniCell.getStringCellValue();
+				double[] reductions = new double[numModels];
+				for (int i=0; i<numModels; i++) {
+					HSSFCell dataCell = row.getCell(2+i);
+					Preconditions.checkState(dataCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC,
+							"non numeric data cell!");
+					reductions[i] = dataCell.getNumericCellValue();
+				}
+				momemtReductionsData.put(miniSection, reductions);
+			}
+		}
+	}
+	
+	public static void applyMomentReductions(Map<Integer, DeformationSection> model, DeformationModels dm) {
+		// first load the data if needed
+		try {
+			loadMomentReductionsData();
+		} catch (IOException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
+		int index; // this is the index in the array, and thus the file for this def model
+		switch (dm) {
+		case GEOBOUND:
+			index = 0;
+			break;
+		case ZENG:
+			index = 1;
+			break;
+		case NEOKINEMA:
+			index = 2;
+			break;
+		case ABM:
+			index = 3;
+			break;
+		case GEOLOGIC:
+			index = 4;
+			break;
+		case GEOLOGIC_PLUS_ABM:
+			index = 5;
+			break;
+
+		default:
+			throw new IllegalStateException("No data file index is known for DM: "+dm);
+		}
+		
+		for (String miniSectionStr : momemtReductionsData.keySet()) {
+			double[] reductions = momemtReductionsData.get(miniSectionStr);
+			int[] miniSection = parseMinisectionNumber(miniSectionStr);
+			int id = miniSection[0];
+			int sect = miniSection[1];
+			
+			DeformationSection def = model.get(id);
+			Preconditions.checkNotNull(def, "The given deformation model doesn't have a mapping for section "+id);
+			int numMinisForSection = def.getSlips().size();
+			if (def.momentReductions == null) {
+				def.momentReductions = new ArrayList<Double>(numMinisForSection);
+				for (int i=0; i<numMinisForSection; i++)
+					def.momentReductions.add(0d);
+			}
+			Preconditions.checkState(sect < numMinisForSection, "Mini sections inconsistant for section: "+id);
+			def.momentReductions.set(sect, reductions[index]);
 		}
 	}
 
