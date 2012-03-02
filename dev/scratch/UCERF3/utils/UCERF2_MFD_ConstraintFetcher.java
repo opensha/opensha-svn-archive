@@ -69,6 +69,8 @@ public class UCERF2_MFD_ConstraintFetcher {
 		double runtime = (System.currentTimeMillis()-startRunTime)/1000;
 		System.out.println("MeanUCERF2_ETAS instantiation took "+runtime+" seconds");
 		
+		
+		
 		// this shouldn't be called by default, only if we actually have a region!
 //		startRunTime=System.currentTimeMillis();
 //		System.out.println("Starting computeMFDs()");
@@ -182,6 +184,27 @@ public class UCERF2_MFD_ConstraintFetcher {
 	}
 	
 	
+	private void computeMomentRates() {
+		int lastIndexOfFltSources = 288;
+		int lastIndexOfNonCA_FltSources = 408;
+		int lastIndexOfC_zones = 1919;
+		double moRate=0, moRateOnFaults=0;
+		double duration = meanUCERF2_ETAS.getTimeSpan().getDuration();
+		int i=0;
+		for(ProbEqkSource source : meanUCERF2_ETAS) {
+			moRate += source.computeEquivTotalMomentRate(duration);
+			if(i == lastIndexOfFltSources)
+				moRateOnFaults =moRate;
+			if(i<lastIndexOfNonCA_FltSources+2)
+				System.out.println(source.getName());
+			i+=1;
+		}
+		System.out.println("moRate="+(float)moRate+"\tmoRateOnFaults="+(float)moRateOnFaults+"\tmoRateOnFaults/moRate"+(float)(moRateOnFaults/moRate));
+
+
+	}
+	
+	
 
 	/**
 	 * @param args
@@ -195,6 +218,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 
 		
 		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
-		fetcher.plotMFDs();
+		fetcher.computeMomentRates();
+//		fetcher.plotMFDs();
 	}
 }

@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
@@ -268,6 +269,38 @@ public class UCERF3_MFD_ConstraintFetcher {
 		graph.setYLog(true);
 
 	}
+	
+	
+	/**
+	 * This returns the fraction of aftershocks as a function of magnitude 
+	 * implied by Table 21 of UCERF2 Appendix I (where cumulative distributions were
+	 * first converted to incremental).
+	 * @return
+	 */
+	private static EvenlyDiscretizedFunc getGarderKnoppoffFractAftershocksMDF() {
+		EvenlyDiscretizedFunc withAftCum = UCERF2.getObsCumMFD(true).get(0);
+		EvenlyDiscretizedFunc noAftCum = UCERF2.getObsCumMFD(false).get(0);
+		double min = noAftCum.getX(0)+noAftCum.getDelta()/2.0;
+		double max = noAftCum.getX(noAftCum.getNum()-1)-noAftCum.getDelta()/2.0;
+		EvenlyDiscretizedFunc fractFunc = new EvenlyDiscretizedFunc(min, max, noAftCum.getNum()-1);
+		for(int i=0;i<withAftCum.getNum()-1;i++) {
+			double mag = (withAftCum.getX(i)+withAftCum.getX(i+1))/2;
+			double with = withAftCum.getY(i)-withAftCum.getY(i+1);
+			double wOut = noAftCum.getY(i)-noAftCum.getY(i+1);
+			double frac = (with-wOut)/with;
+			if(frac<0) frac=0;
+//			System.out.println(mag+"\t"+frac);
+			fractFunc.set(i,frac);
+		}
+
+//		System.out.println(fractFunc);
+		
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(fractFunc, "Fract aftershocks"); 
+		
+		return fractFunc;
+
+		
+	}
 
 	
 	
@@ -276,12 +309,14 @@ public class UCERF3_MFD_ConstraintFetcher {
 	 */
 	public static void main(String[] args) {
 		
-		MFD_InversionConstraint invConstr = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
-		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1984);
-		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850);
-		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1984);
-		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
-		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
+		System.out.println(getGarderKnoppoffFractAftershocksMDF());
+		
+//		MFD_InversionConstraint invConstr = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
+//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1984);
+//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850);
+//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1984);
+//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
+//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
 	
 //		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
 //		test.plotCumMFDs();
