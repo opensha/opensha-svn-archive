@@ -13,6 +13,7 @@ import java.util.List;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
@@ -28,8 +29,10 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
 /**
@@ -651,6 +654,16 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			targetMagFreqDist.setInfo(mfdConstraints.get(i).getRegion().getName());
 //			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
 			funcs4.add(targetMagFreqDist);
+			
+			// OPTIONAL: Add line for UCERF2 (Target minus off-fault component with aftershocks added back in)
+			UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+			ucerf2Constraints.setRegion(mfdConstraints.get(i).getRegion());
+			IncrementalMagFreqDist ucerf2_OnFaultTargetMFD = ucerf2Constraints.getTargetMinusBackgroundMFD();
+			ucerf2_OnFaultTargetMFD.setTolerance(0.1); 
+			ucerf2_OnFaultTargetMFD.setName("UCERF2 Target minus background+aftershocks");
+			ucerf2_OnFaultTargetMFD.setInfo(mfdConstraints.get(i).getRegion().getName());
+			funcs4.add(ucerf2_OnFaultTargetMFD);
+			
 			GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
 			graph4.setX_AxisLabel("Magnitude");
 			graph4.setY_AxisLabel("Frequency (per bin)");
