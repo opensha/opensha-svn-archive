@@ -586,9 +586,9 @@ public class GMT_CA_Maps {
 
 		File solutionDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaAvU2_DsrTap_DrAvU2_Unconst_sol.zip");
-   		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);	// NEED ONE HERE
+   		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);
 		plotNucleationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Nucl", "test meta data FOR fltSysSol", "testFltSysSolNucl");
-		plotParticipationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Part", "test meta data FOR fltSysSol", "testFltSysSolPart");
+//		plotParticipationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Part", "test meta data FOR fltSysSol", "testFltSysSolPart");
 
 		
 		// ************* TEST FROM AN ERF ****************
