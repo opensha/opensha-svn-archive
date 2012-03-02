@@ -17,13 +17,13 @@ public enum DeformationModels {
 	UCERF2_ALL(				"UCERF2 All",			"UC2ALL",	FaultModels.FM2_1),
 	
 	// UCERF3
-	ABM(					"Average Block Model",	"ABM",		FaultModels.FM3_1, "ABM_slip_rake_2012_02_21.csv"),
-	GEOBOUND(				"Geobounded",			"GEOB",		FaultModels.FM3_1, "geobound_slip_rake_2012_02_21.csv"),
-	NEOKINEMA(				"Neokinema",			"NEOK",		FaultModels.FM3_1, "neokinema_slip_rake_2012_02_21.csv"),
-	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_2012_02_21.csv"),
-	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_2012_02_21.csv",
-										FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_02_27.csv"),
-	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_03_01.csv");
+	ABM(					"Average Block Model",	"ABM",		FaultModels.FM3_1, "ABM_slip_rake_2012_03_02.csv"),
+	GEOBOUND(				"Geobounded",			"GEOB",		FaultModels.FM3_1, "geobound_slip_rake_2012_03_02.csv"),
+	NEOKINEMA(				"Neokinema",			"NEOK",		FaultModels.FM3_1, "neokinema_slip_rake_2012_03_02.csv"),
+	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_2012_03_02.csv"),
+	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_2012_03_02.csv",
+																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_03_02.csv"),
+	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_03_02.csv");
 	
 	private List<FaultModels> faultModels;
 	private List<String> fileNames;
