@@ -28,16 +28,18 @@ public class CoastAttributes implements Serializable {
 	 */
 	private static final long serialVersionUID = 1l;
 	
-	private Color fillColor = new Color(17, 73, 71);
+	private Color fillColor;
 	
-	private Color lineColor = fillColor;
-	private double lineSize = 1d;
+	private Color lineColor;
+	private double lineSize;
 	
 	/**
 	 * Default constructor, for filled ocean
 	 */
 	public CoastAttributes() {
-		
+		fillColor = new Color(17, 73, 71);
+		lineColor = fillColor;
+		lineSize = 5d;
 	}
 	
 	/**
@@ -46,7 +48,7 @@ public class CoastAttributes implements Serializable {
 	 * @param lineSize
 	 */
 	public CoastAttributes(double lineSize) {
-		this(Color.BLACK, lineSize);
+		this(Color.GRAY, lineSize);
 	}
 	
 	/**
