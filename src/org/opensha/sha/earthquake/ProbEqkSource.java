@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
@@ -477,6 +478,20 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 	@Override
 	public Iterator<ProbEqkRupture> iterator() {
 		return getRupturesIterator();
+	}
+	
+	
+	/**
+	 * this computes the Poisson equivalent total moment rate of the source 
+	 * @param duration
+	 * @return moRate in Newton-meters/year
+	 */
+	public double computeEquivTotalMomentRate(double duration) {
+		double moRate=0;
+		for(ProbEqkRupture rup : this) {
+			moRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(duration);
+		}
+		return moRate;
 	}
 
 
