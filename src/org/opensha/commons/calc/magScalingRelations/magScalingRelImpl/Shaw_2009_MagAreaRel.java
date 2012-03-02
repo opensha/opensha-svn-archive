@@ -33,7 +33,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 public class Shaw_2009_MagAreaRel extends MagAreaRelationship {
 
-    final static String C = "Shaw_2007_MagAreaRel";
+    final static String C = "Shaw_2009_MagAreaRel";
     public final static String NAME = "Shaw (2009)";
     ArbitrarilyDiscretizedFunc magAreaFunc = null;
 	public final static double beta=5;
