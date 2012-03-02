@@ -1301,15 +1301,17 @@ if(debug) System.exit(0);
 	public static void main(String[] args) throws IOException, DocumentException {
 		// TODO Auto-generated method stub
 		
+		System.out.println("STARTING");
+
 		File precompDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 
-		if(D) System.out.println("Getting rup set");
-   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
-		if(D) System.out.println("Done getting rup set");
+		System.out.println("Getting rup set");
+ //  	FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(FaultModels.FM3_2,DeformationModels.GEOLOGIC, true);
+		System.out.println("Done getting rup set");
 		
-//		FindEquivUCERF2_FM3_Ruptures.getMeanUCERF2_Instance(FaultModelBranches.FM3_2);
-		
-		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
+		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_2);
+//		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
 		
 		test.plotMFD_Test();
 		
