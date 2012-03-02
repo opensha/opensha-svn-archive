@@ -328,7 +328,13 @@ public class InversionConfiguration {
 		double momentFractionOffFaults;
 		switch (deformationModel) {
 		case GEOLOGIC:
-			throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model :(");
+			UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+			Region entire_region = new CaliforniaRegions.RELM_TESTING();
+			ucerf2Constraints.setRegion(entire_region);
+			double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
+			double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
+			momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
+			System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);
 		case ABM:
 			momentFractionOffFaults = 33.6766;
 			break;
@@ -339,7 +345,7 @@ public class InversionConfiguration {
 			momentFractionOffFaults = 28.0202;
 			break;
 		case GEOLOGIC_PLUS_ABM:
-			throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model :(");
+			momentFractionOffFaults = (findMomentFractionOffFaults(deformationModel.GEOLOGIC) + findMomentFractionOffFaults(deformationModel.ABM)) / 2.0;
 		case ZENG:
 			momentFractionOffFaults = 51.6904;
 			break;	
@@ -351,33 +357,33 @@ public class InversionConfiguration {
 	}
 	
 	
-	private static double findMomentOffFaults (DeformationModels deformationModel) {
-		// These values are from an e-mail from Kaj dated 2/29/11
-		// WARNING: These seem too high! Total moment rate for CA around 2E19 Nm/yr = 2E26 dyne-cm/yr
-		double momentOffFaults;
-		switch (deformationModel) {
-		case GEOLOGIC:
-			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
-		case ABM:
-			momentOffFaults = 1.2188e+027;
-			break;
-		case GEOBOUND:
-			momentOffFaults = 1.4238e+027;
-			break;
-		case NEOKINEMA:
-			momentOffFaults = 1.0752e+027;
-			break;
-		case GEOLOGIC_PLUS_ABM:
-			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
-		case ZENG:
-			momentOffFaults = 3.5647e+027;
-			break;	
-		default:
-			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
-		}
-		
-		return momentOffFaults * 10e-7;  // convert to Nm
-	}
+//	private static double findMomentOffFaults (DeformationModels deformationModel) {
+//		// These values are from an e-mail from Kaj dated 2/29/11
+//		// WARNING: These seem too high! Total moment rate for CA around 2E19 Nm/yr = 2E26 dyne-cm/yr
+//		double momentOffFaults;
+//		switch (deformationModel) {
+//		case GEOLOGIC:
+//			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
+//		case ABM:
+//			momentOffFaults = 1.2188e+027;
+//			break;
+//		case GEOBOUND:
+//			momentOffFaults = 1.4238e+027;
+//			break;
+//		case NEOKINEMA:
+//			momentOffFaults = 1.0752e+027;
+//			break;
+//		case GEOLOGIC_PLUS_ABM:
+//			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
+//		case ZENG:
+//			momentOffFaults = 3.5647e+027;
+//			break;	
+//		default:
+//			throw new IllegalStateException("Moment off faults is not defined for this deformation model :(");
+//		}
+//		
+//		return momentOffFaults * 10e-7;  // convert to Nm
+//	}
 
 	
 	
