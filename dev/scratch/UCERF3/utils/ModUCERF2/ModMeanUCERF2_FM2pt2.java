@@ -29,7 +29,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  */
 public class ModMeanUCERF2_FM2pt2 extends ModMeanUCERF2 {
 	//for Debug purposes
-	protected static String  C = new String("MeanUCERF2 Modified, FM 2.1");
+	protected static String  C = new String("MeanUCERF2 Modified, FM 2.2");
 	// name of this ERF
 	public final static String NAME = new String("WGCEP (2007) UCERF2 - Single Branch, Modified, Fault Model 2.1 only");
 
