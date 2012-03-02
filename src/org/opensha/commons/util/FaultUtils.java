@@ -389,7 +389,6 @@ public final class FaultUtils {
 				return Double.NaN;
 			if (angles.get(i) != angles.get(0)) {
 				equal = false;
-				break;
 			}
 		}
 		if (equal)
