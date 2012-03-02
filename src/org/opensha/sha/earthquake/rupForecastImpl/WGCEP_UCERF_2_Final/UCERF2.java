@@ -1430,7 +1430,7 @@ public class UCERF2 extends AbstractERF {
 	/**
 	 * @return
 	 */
-	public ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(boolean includeAftershocks) {
+	public static ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(boolean includeAftershocks) {
 		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = getObsCumMFD(includeAftershocks);
 		return getIncrFromCumMFD(obsCumMFD);
 	}
@@ -1458,7 +1458,7 @@ public class UCERF2 extends AbstractERF {
 	 * @param obsCumMFD
 	 * @return
 	 */
-	private ArrayList<ArbitrarilyDiscretizedFunc> getIncrFromCumMFD(ArrayList<EvenlyDiscretizedFunc> obsCumMFD) {
+	private static ArrayList<ArbitrarilyDiscretizedFunc> getIncrFromCumMFD(ArrayList<EvenlyDiscretizedFunc> obsCumMFD) {
 		ArrayList<ArbitrarilyDiscretizedFunc> obsIncrMFDList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		// Only get the best estimate because 95% conf bounds may not be legit 
 		for(int i=0; i<1; ++i) {
