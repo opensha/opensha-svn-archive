@@ -419,6 +419,13 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	 */
 	public String makeMapLocally(GeoDataSet xyzDataSet, String scaleLabel,
 			String metadata, String dirName) throws GMT_MapException{
+		
+		// TODO - this method is broken; it should be rewritten to call getGMT_ScriptLines(GMT_Map map, String dir)
+		//        rather than getGMT_ScriptLines(), by first getting a GMT_Map from getGMTMapSpecification(GeoDataSet)
+		//        the work is getting the local paths set correctly.
+		boolean needswork = true;
+		if(needswork)
+			throw new RuntimeException("This method needs work");
 
 	    File file = new File(dirName);
 	    file.mkdirs();
