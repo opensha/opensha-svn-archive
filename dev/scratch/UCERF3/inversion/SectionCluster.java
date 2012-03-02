@@ -156,7 +156,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param list
 	 */
 	private void addRuptures(ArrayList<Integer> list) {
-		addRuptures(list, 0d, 0d, 0d, null, null);
+		addRuptures(list, 0d, 0d, 0d, null, null, false);
 	}
 	
 	/**
@@ -171,7 +171,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * @param list
 	 */
 	private void addRuptures(ArrayList<Integer> list, double cmlRakeChange, double cmlAzimuthChange, double cmlJumpDist,
-			ArrayList<CoulombRatesRecord> forwardRates, ArrayList<CoulombRatesRecord> backwardRates) {
+			ArrayList<CoulombRatesRecord> forwardRates, ArrayList<CoulombRatesRecord> backwardRates, boolean multiFault) {
 		int lastIndex = list.get(list.size()-1);
 		int secToLastIndex = -1;	// bogus index in case the next if fails
 		if(list.size()>1)
@@ -212,6 +212,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			if(list.size() == 1 && newParID_NotSameAsLast) {
 				continue;
 			}
+			boolean newIsMultiFault = multiFault || newParID_NotSameAsLast;
 			
 			// make sure at least two sub-sections of a section have been used
 			boolean lastParID_NotSameAsSecToLast=false;
@@ -327,7 +328,7 @@ public class SectionCluster extends ArrayList<Integer> {
 				// now test coulomb
 				// TODO remove newList.size() <= 2 hack. this is in here to make sure that each section is
 				// involved in at least one rupture
-				if (coulombFilter == null || newList.size() <= 2
+				if (coulombFilter == null || !newIsMultiFault
 						|| coulombFilter.doesRupturePass(myForwardRates, myBackwardRates)) {
 					// uncomment these lines to only save a very small amount of ruptures
 //					if (Math.random()<0.0005)
@@ -344,7 +345,7 @@ public class SectionCluster extends ArrayList<Integer> {
 					continue;
 				}
 			}
-			addRuptures(newList, newCMLRakeChange, newCMLAzimuthChange, newCMLJumpDist, myForwardRates, myBackwardRates);
+			addRuptures(newList, newCMLRakeChange, newCMLAzimuthChange, newCMLJumpDist, myForwardRates, myBackwardRates, newIsMultiFault);
 		}
 	}
 	
