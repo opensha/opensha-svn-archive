@@ -122,7 +122,13 @@ public class DeformationModelFetcher {
 				System.out.println("Loading fault model wtih ID: "+fmID);
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				System.out.println("Combining model with sections...");
-				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength);
+				HashMap<Integer,DeformationSection> rakesModel = null;
+				if (faultModel.getFilterBasis() != null) {
+					// use the rakes from this one
+					System.out.println("Using rakes from: "+faultModel.getFilterBasis());
+					rakesModel = DeformationModelFileParser.load(faultModel.getFilterBasis().getDataFileURL(faultModel));
+				}
+				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength, rakesModel);
 				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
 				System.out.println("DONE.");
 			} catch (IOException e) {
@@ -612,6 +618,13 @@ public class DeformationModelFetcher {
 	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
 			ArrayList<FaultSectionPrefData> sections, HashMap<Integer,DeformationSection> model, double maxSubSectionLength)
 					throws IOException {
+		return loadUCERF3DefModel(sections, model, maxSubSectionLength, null);
+	}
+
+	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
+			ArrayList<FaultSectionPrefData> sections, HashMap<Integer,DeformationSection> model, double maxSubSectionLength,
+			HashMap<Integer,DeformationSection> rakesModel)
+					throws IOException {
 		final boolean DD = D && false;
 
 		ArrayList<FaultSectionPrefData> subSections = new ArrayList<FaultSectionPrefData>();
@@ -647,7 +660,11 @@ public class DeformationModelFetcher {
 			if (DD) System.out.println("Done with special cases");
 
 			List<Double> slips = def.getSlips();
-			List<Double> rakes = def.getRakes();
+			List<Double> rakes;
+			if (rakesModel == null)
+				rakes = def.getRakes();
+			else
+				rakes = rakesModel.get(section.getSectionId()).getRakes();
 			Preconditions.checkState(slips.size() == rakes.size());
 
 			// now set the subsection rates from the def model

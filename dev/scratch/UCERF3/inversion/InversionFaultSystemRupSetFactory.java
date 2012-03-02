@@ -223,7 +223,8 @@ public class InversionFaultSystemRupSetFactory {
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
-			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC, true);
+//			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC, true);
+			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

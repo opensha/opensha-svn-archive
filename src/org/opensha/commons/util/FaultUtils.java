@@ -135,6 +135,19 @@ public final class FaultUtils {
 				"Rake angle cannot be greater than 180"
 				);
 			}
+	
+	/**
+	 * Returns the given angle in the range <code>-180 <= rake <= 180</code>
+	 * 
+	 * @param angle
+	 */
+	public static double getInRakeRange(double angle) {
+		while (angle > 180)
+			angle -= 360;
+		while (angle < -180)
+			angle += 180;
+		return angle;
+	}
 
 	/**
 	 * This subdivides the given fault trace into sub-traces that have the length as given (or less).

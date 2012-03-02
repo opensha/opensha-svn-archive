@@ -80,7 +80,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	double[] sectSlipRateStdDevReduced;	// this gets reduced by moRateReduction (if non zero)
 	
 	// rupture attributes (all in SI units)
-	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupMeanSlip;
+	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupMeanSlip, rupRake;
 	int[] clusterIndexForRup, rupIndexInClusterForRup;
 	ArrayList<ArrayList<Integer>> clusterRupIndexList;
 	int numRuptures=0;
@@ -207,6 +207,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		rupTotMoRateAvail = new double[numRuptures];
 		rupArea = new double[numRuptures];
 		rupLength = new double[numRuptures];
+		rupRake = new double[numRuptures];
 		clusterIndexForRup = new int[numRuptures];
 		rupIndexInClusterForRup = new int[numRuptures];
 		clusterRupIndexList = new ArrayList<ArrayList<Integer>>(sectionClusterList.size());
@@ -226,15 +227,20 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				double totLength=0;
 				double totMoRate=0;
 				ArrayList<Integer> sectsInRup = clusterRups.get(r);
+				ArrayList<Double> areas = new ArrayList<Double>();
+				ArrayList<Double> rakes = new ArrayList<Double>();
 				for(Integer sectID:sectsInRup) {
 					double length = faultSectionData.get(sectID).getTraceLength()*1e3;	// km --> m
 					totLength += length;
 					double area = getAreaForSection(sectID);
 					totArea += area;
 					totMoRate += FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
+					areas.add(area);
+					rakes.add(faultSectionData.get(sectID).getAveRake());
 				}
 				rupArea[rupIndex] = totArea;
 				rupLength[rupIndex] = totLength;
+				rupRake[rupIndex] = FaultUtils.getInRakeRange(FaultUtils.getScaledAngleAverage(areas, rakes));
 				double mag=0;
 				for(MagAreaRelationship magArea: magAreaRelList) {
 					mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
