@@ -499,7 +499,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		
 		CoastAttributes coast = null;
 		if (coastParam.getValue().equals(COAST_DRAW)) {
-			coast = new CoastAttributes(4.0);
+			coast = new CoastAttributes(Color.GRAY, 4.0);
 		} else if (coastParam.getValue().equals(COAST_FILL)) {
 			coast = new CoastAttributes();
 		}
@@ -1582,7 +1582,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			
 			gmtCommandLines.add("# Draw coastline");
 			gmtCommandLines.add("${GMT_PATH}pscoast "+region + proj + " -K -O " + lineColor + 
-						" -P " + fillColor + " -Dh -N2 >> " + psFile+"\n");
+						" -P " + fillColor + " -Dh -Na"+coastAt.getLineSize()+"/"
+						+getGMTColorString(coastAt.getLineColor())+" >> " + psFile+"\n");
 		}
 	}
 	
