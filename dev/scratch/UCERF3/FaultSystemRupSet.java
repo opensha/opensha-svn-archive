@@ -488,7 +488,8 @@ public abstract class FaultSystemRupSet {
 		double sum=0;
 		for(FaultSectionPrefData data : getFaultSectionDataList()) {
 			double area = data.getReducedDownDipWidth()*data.getTraceLength()*1e6;
-			sum += FaultMomentCalc.getMoment(area, data.getReducedAveSlipRate()*1e-3);
+			if (!Double.isNaN(data.getReducedAveSlipRate()))  // Treat NaN slip rates as 0
+				sum += FaultMomentCalc.getMoment(area, data.getReducedAveSlipRate()*1e-3);
 		}
 		return sum;
 	}
