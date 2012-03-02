@@ -47,7 +47,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	private int numThreads;
 	private ArrayList<SerialSimulatedAnnealing> sas;
 	
-	private double Ebest = Double.MAX_VALUE;
+	private double Ebest = Double.POSITIVE_INFINITY;
 	private double[] xbest = null;
 	private double[] misfit = null;
 	private double[] misfit_ineq = null;
@@ -63,7 +63,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt, 
 			DoubleMatrix2D A_ineq,  double[] d_ineq, double[] minimumRuptureRates,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
-		// SA inputs are checked in SA constructor, no need to dupliate checks
+		// SA inputs are checked in SA constructor, no need to duplicate checks
 		
 		Preconditions.checkArgument(numThreads > 0, "numThreads must be > 0");
 		Preconditions.checkNotNull(subCompetionCriteria, "subCompetionCriteria cannot be null");
@@ -262,7 +262,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 					misfit_ineq = sa.getBestInequalityMisfit();
 				}
 				
-				// now set the current iteration count to the max iteration acheived
+				// now set the current iteration count to the max iteration achieved
 				long endIter = threads.get(i).endIter;
 				if (endIter > iter)
 					iter = endIter;
@@ -304,7 +304,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		Options ops = SerialSimulatedAnnealing.createOptions();
 		
 		// REQUIRED
-		// inputs can now be supplied in a single zip file if needed, thus individual ones not requred
+		// inputs can now be supplied in a single zip file if needed, thus individual ones not required
 		Option aMatrix = new Option("a", "a-matrix-file", true, "A matrix file");
 		aMatrix.setRequired(false);
 		ops.addOption(aMatrix);

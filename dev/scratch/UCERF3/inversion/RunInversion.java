@@ -177,7 +177,7 @@ public class RunInversion {
 	 */
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "BilinearMFD";
+		String fileName = "Model1_GEOBOUND";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
@@ -185,8 +185,8 @@ public class RunInversion {
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
 		try {
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC);
-//			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
+//			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOBOUND);
+			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOBOUND);
 			// or you can load one for yourself!
 //			rupSet = SimpleFaultSystemRupSet.fromFile(new File("/path/to/your/rupture/file!"));
 
@@ -194,6 +194,8 @@ public class RunInversion {
 			e1.printStackTrace();
 			System.exit(1);
 		}
+		
+		if (D) System.out.println("Total Moment Rate = "+rupSet.getTotalMomentRate());
 		
 		// get the inversion configuration
 		InversionConfiguration config;

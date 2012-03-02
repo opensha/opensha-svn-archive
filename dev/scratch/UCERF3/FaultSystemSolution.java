@@ -640,6 +640,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 				double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
 				magHist.add(getMagForRup(rup), fractRupInside*getRateForRup(rup));
 			}
+			System.out.println("Total solution moment/yr for "+mfdConstraints.get(i).getRegion().getName()+" region = "+magHist.getTotalMomentRate());
 			ArrayList funcs4 = new ArrayList();
 			magHist.setName("Magnitude Distribution of SA Solution");
 			magHist.setInfo("(number in each mag bin)");

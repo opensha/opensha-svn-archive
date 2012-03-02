@@ -249,7 +249,7 @@ public class InversionInputGenerator {
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
-		// A matrix component of slip-rate constraint (excludes sections with NaN slip rates from constraint)
+		// A matrix component of slip-rate constraint 
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = rupSet.getSlipOnSectionsForRup(rup);
 			List<Integer> sects = rupSet.getSectionsIndicesForRup(rup);
@@ -260,17 +260,12 @@ public class InversionInputGenerator {
 				if (!config.isWeightSlipRates()) 
 					val = slips[i];
 				else {  // Normalize by slip rate
-					if (sectSlipRateReduced[row] == 0 || Double.isNaN(sectSlipRateReduced[row]))
+					// Note that anything less than 0.001 is treated as 0 -- otherwise misfit will be huge (GEOBOUND model has 10e-10 slip rates that will dominate misfit otherwise)
+					if (sectSlipRateReduced[row] < 0.001 || Double.isNaN(sectSlipRateReduced[row]))  
 						// Treat NaN slip rates as 0 (minimize)
 						val = slips[i]/0.001;  
 					else {
 						val = slips[i]/sectSlipRateReduced[row]; 
-					/*		if (Double.isNaN(A.getQuick(row,col))) {
-								System.out.println("\nrup # = "+rup+", mean mag = "+rupMeanMag[rup]);
-								System.out.println("sects = "+sects);
-								System.out.println("slips = "+slips);
-								System.out.println("Slip["+i+"] = "+slips[i]); 
-							}  */// Creeping section slips are coming back NaN because aseismicity is 100% !
 						}
 				}
 				if (Double.isNaN(val))
@@ -289,7 +284,7 @@ public class InversionInputGenerator {
 			if (!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) 
 				d[sect] = sectSlipRateReduced[sect];			
 			else {
-				if (Double.isNaN(sectSlipRateReduced[sect]))
+				if (Double.isNaN(sectSlipRateReduced[sect]) || sectSlipRateReduced[sect]<0.001)
 					// Treat NaN slip rates as 0 (minimize)
 					d[sect] = 0;
 				else

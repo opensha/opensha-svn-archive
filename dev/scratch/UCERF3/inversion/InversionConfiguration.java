@@ -507,21 +507,34 @@ public class InversionConfiguration {
 	public static double[] getSmoothStartingSolution(
 			FaultSystemRupSet faultSystemRupSet, IncrementalMagFreqDist targetMagFreqDist) {
 		List<List<Integer>> rupList = faultSystemRupSet.getSectionIndicesForAllRups();
+		
 		double[] rupMeanMag = faultSystemRupSet.getMagForAllRups();
 		double[] sectSlipRateReduced = faultSystemRupSet.getSlipRateForAllSections(); 
-		
 		int numRup = rupMeanMag.length;
-		// mean slip rate per section for each rupture
-		double[] meanSlipRate = faultSystemRupSet.getAveSlipForAllRups();
-		// starting model
-		double[] initial_state = new double[numRup];
+		double[] initial_state = new double[numRup];  // starting model
+		double[] meanSlipRate = new double[numRup];  // mean slip rate per section for each rupture
+		boolean[] flagRup = new boolean[numRup]; // flag rup if it has ny NaN or zero slip-rate sections
+		
+		// Calculate mean slip rates for ruptures
+		// If there are NaN slip rates, treat them as 0
+		for (int rup=0; rup<meanSlipRate.length; rup++) {
+			List<Integer> sects = faultSystemRupSet.getSectionsIndicesForRup(rup);
+			double totalOfSlipRates = 0;
+			for (int i=0; i<sects.size(); i++) {
+				int sect = sects.get(i);
+				if (Double.isNaN(sectSlipRateReduced[sect])  || sectSlipRateReduced[sect] == 0)  { // if rupture has any NaN or zero slip-rate sections, flag it!
+					flagRup[rup] = true;
+				} else 	totalOfSlipRates+=sectSlipRateReduced[sect];
+			}
+			meanSlipRate[rup] = totalOfSlipRates/sects.size(); // average mean slip rate for sections in rupture
+		}
+			
 		
 		// Get list of ruptures for each section
-		ArrayList<ArrayList<Integer>> rupsPerSect = new ArrayList<ArrayList<Integer>>();
-		for (int sect=0; sect<sectSlipRateReduced.length; sect++) rupsPerSect.add(new ArrayList<Integer>(0));
-		for (int rup=0; rup<numRup; rup++) {	
-			List<Integer> sects = rupList.get(rup);
-			for (int sect: sects) rupsPerSect.get(sect).add(rup);
+		ArrayList<List<Integer>> rupsPerSect = new ArrayList<List<Integer>>();
+		for (int sect=0; sect<sectSlipRateReduced.length; sect++) {
+			List<Integer> rups = faultSystemRupSet.getRupturesForSection(sect);
+			rupsPerSect.add(sect, rups);
 		}
 	
 		// Find magnitude distribution of ruptures (as discretized)
@@ -535,6 +548,7 @@ public class InversionConfiguration {
 			// differed between magnitude bins)
 			magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
 		}
+		
 		
 		// Set up initial (non-normalized) target MFD rates for each rupture, normalized by meanSlipRate
 		for (int rup=0; rup<numRup; rup++) {
@@ -554,8 +568,7 @@ public class InversionConfiguration {
 //			// add percentages of total overlap with each rupture + 1 for original rupture itself
 //			totalOverlap = totalOverlap/sects.size() + 1; 
 			double totalOverlap = 1d;
-
-
+		
 			// Divide rate by total number of similar ruptures (same magnitude, has section overlap)
 			// - normalize overlapping ruptures by percentage overlap
 			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup])
@@ -580,6 +593,12 @@ public class InversionConfiguration {
 			initial_state[rup]=initial_state[rup]*normalization;
 			if (Double.isNaN(initial_state[rup]) || Double.isInfinite(initial_state[rup]))
 				throw new IllegalStateException("initial_state["+rup+"] = "+initial_state[rup]);
+		}
+		
+		
+		// set initial_state to 0 for flagged rups (these have 0 or NaN slip-rate sections)
+		for (int i=0; i<numRup; i++) {
+			if (flagRup[i]) initial_state[i] = 0;
 		}
 		
 		// NO PLOTTING CODE ALLOWED HERE!!!!! do it somewhere else please!

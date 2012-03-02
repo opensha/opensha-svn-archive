@@ -350,7 +350,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			}
 
 			if (D) {  // print out convergence info every so often
-				if ((iter-1) % 1000 == 0) { 
+				if ((iter-1) % 10000 == 0) { 
 					System.out.println("Iteration # " + iter);
 					System.out.println("Lowest energy found = " + Ebest);
 //					System.out.println("Current energy = " + E);
