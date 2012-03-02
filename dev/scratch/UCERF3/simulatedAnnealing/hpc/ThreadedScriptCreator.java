@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.GenerationFunctionType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
@@ -32,6 +33,7 @@ public class ThreadedScriptCreator {
 	private File solFile;
 	private CompletionCriteria criteria;
 	private CompletionCriteria subCompletion;
+	private TimeCompletionCriteria checkPointCriteria;
 	
 	// optional -- args
 	private File progFile;
@@ -88,6 +90,8 @@ public class ThreadedScriptCreator {
 			args +=		 " --perturb "+perturb.name();
 		if (nonNeg != null)
 			args +=		 " --nonneg "+nonNeg.name();
+		if (checkPointCriteria != null)
+			args +=		 " --checkpoint "+checkPointCriteria.getTimeStr();
 		
 		return args;
 	}
@@ -179,6 +183,14 @@ public class ThreadedScriptCreator {
 	
 	public void setSubIterationsZero(boolean setSubIterationsZero) {
 		this.setSubIterationsZero = setSubIterationsZero;
+	}
+
+	public TimeCompletionCriteria getCheckPointCriteria() {
+		return checkPointCriteria;
+	}
+
+	public void setCheckPointCriteria(TimeCompletionCriteria checkPointCriteria) {
+		this.checkPointCriteria = checkPointCriteria;
 	}
 
 }

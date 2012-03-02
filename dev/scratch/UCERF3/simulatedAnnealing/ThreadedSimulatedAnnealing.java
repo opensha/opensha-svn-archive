@@ -43,6 +43,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
 	private CompletionCriteria subCompetionCriteria;
 	private boolean startSubIterationsAtZero;
+	private TimeCompletionCriteria checkPointCriteria;
+	private File checkPointFileBase;
 	
 	private int numThreads;
 	private ArrayList<SerialSimulatedAnnealing> sas;
@@ -87,6 +89,11 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
 	public void setStartSubIterationsAtZero(boolean startSubIterationsAtZero) {
 		this.startSubIterationsAtZero = startSubIterationsAtZero;
+	}
+	
+	public void setCheckPointCriteria(TimeCompletionCriteria checkPointCriteria, File checkPointFilePrefix) {
+		this.checkPointCriteria = checkPointCriteria;
+		this.checkPointFileBase = checkPointFilePrefix;
 	}
 	
 	protected static CompletionCriteria getForStartIter(long startIter, CompletionCriteria subComp) {
@@ -220,10 +227,33 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		StopWatch watch = new StopWatch();
 		watch.start();
+		StopWatch checkPointWatch = null;
+		long numCheckPoints = 0;
+		if (checkPointCriteria != null) {
+			checkPointWatch = new StopWatch();
+			checkPointWatch.start();
+		}
 		
 		int rounds = 0;
 		long iter = startIter;
 		while (!criteria.isSatisfied(watch, iter, Ebest)) {
+			if (checkPointCriteria != null && checkPointCriteria.isSatisfied(checkPointWatch, iter, Ebest)) {
+				numCheckPoints++;
+				System.out.println("Writing checkpoint after "+iter+" iterations. Ebest: "+Ebest);
+				long millis = checkPointCriteria.getMillis();
+				millis *= numCheckPoints;
+				File checkPointFile = new File(checkPointFileBase.getParent(), checkPointFileBase.getName()
+						+"_checkpoint_"+TimeCompletionCriteria.getTimeStr(millis)+".bin");
+				try {
+					writeBestSolution(checkPointFile);
+				} catch (IOException e) {
+					// don't fail on a checkpoint, just continue
+					e.printStackTrace();
+				}
+				checkPointWatch.reset();
+				checkPointWatch.start();
+			}
+			
 			ArrayList<SAThread> threads = new ArrayList<ThreadedSimulatedAnnealing.SAThread>();
 			
 			// create the threads
@@ -346,7 +376,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		// Completion Criteria
 		Option timeOption = new Option("time", "completion-time", true, "time to anneal. append 's' for secionds," +
-				"'m' for minutes, 'h' for hours. default is millis.");
+				" 'm' for minutes, 'h' for hours. default is millis.");
 		timeOption.setRequired(false);
 		ops.addOption(timeOption);
 		
@@ -377,6 +407,11 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				"flag to start all sub iterations at zero instead of the true iteration count");
 		subIterationsStartOption.setRequired(false);
 		ops.addOption(subIterationsStartOption);
+		
+		Option checkPointOption = new Option("chk", "checkpoint", true, "will write out solutions on the given time " +
+				"interval. append 's' for secionds, 'm' for minutes, 'h' for hours. default is millis.");
+		checkPointOption.setRequired(false);
+		ops.addOption(checkPointOption);
 		
 		return ops;
 	}
@@ -574,6 +609,16 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		if (cmd.hasOption("zero"))
 			tsa.setStartSubIterationsAtZero(true);
+		
+		if (cmd.hasOption("checkpoint")) {
+			String time = cmd.getOptionValue("checkpoint");
+			TimeCompletionCriteria checkPointCriteria = TimeCompletionCriteria.fromTimeString(time);
+			String outputStr = cmd.getOptionValue("solution-file");
+			if (outputStr.endsWith(".bin"))
+				outputStr = outputStr.substring(0, outputStr.lastIndexOf(".bin"));
+			File checkPointFilePrefix = new File(outputStr);
+			tsa.setCheckPointCriteria(checkPointCriteria, checkPointFilePrefix);
+		}
 		
 		return tsa;
 	}

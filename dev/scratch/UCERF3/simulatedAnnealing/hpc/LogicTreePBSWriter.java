@@ -52,28 +52,30 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "branch-test";
+		String runName = "timing-branch-test";
 		boolean buildRupSets = true;
 
 		int numRuns = 1;
 
-		FaultModels[] faultModels = { FaultModels.FM3_1 };
+		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
 
 		// if null, all that are applicable to each fault model will be used
 		DeformationModels[] defModels = null;
 
 		InversionModels[] inversionModels = InversionModels.values();
 
-		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
-		//		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
+//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
+		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
 		//		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
 		//				SlipAlongRuptureModels.UNIFORM, SlipAlongRuptureModels.WG02 };
-		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
+		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
 
 		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
 		//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
+		
+		TimeCompletionCriteria checkPointCritera = TimeCompletionCriteria.getInHours(1);
 
 		if (args.length > 1)
 			runName = args[1];
@@ -99,6 +101,7 @@ public class LogicTreePBSWriter {
 		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(1);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath());
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, threads, null, null, subCompletion);
+		tsa_create.setCheckPointCriteria(checkPointCritera);
 		tsa_create.setCool(cool);
 
 		double nodeHours = 0;
@@ -107,9 +110,12 @@ public class LogicTreePBSWriter {
 		PaleoProbabilityModel paleoProbabilityModel = PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
 
 		for (FaultModels fm : faultModels) {
+			DeformationModels[] defModelsForFM;
 			if (defModels == null)
-				defModels = DeformationModels.forFaultModel(fm).toArray(new DeformationModels[0]);
-			for (DeformationModels dm : defModels) {
+				defModelsForFM = DeformationModels.forFaultModel(fm).toArray(new DeformationModels[0]);
+			else
+				defModelsForFM = defModels;
+			for (DeformationModels dm : defModelsForFM) {
 				for (MagAreaRelationships ma : magAreas) {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
 						for (AveSlipForRupModels as : aveSlipModels) {
@@ -203,6 +209,7 @@ public class LogicTreePBSWriter {
 		System.out.println("Wrote "+cnt+" jobs");
 		System.out.println("Node hours: "+(float)nodeHours + " (/60: "+((float)nodeHours/60f)+")");
 		//		DeformationModels.forFaultModel(null).toArray(new DeformationModels[0])
+		System.exit(0);
 	}
 
 }

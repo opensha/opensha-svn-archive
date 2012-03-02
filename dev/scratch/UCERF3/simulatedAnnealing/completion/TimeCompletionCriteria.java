@@ -42,6 +42,10 @@ public class TimeCompletionCriteria implements CompletionCriteria {
 	}
 	
 	public String getTimeStr() {
+		return getTimeStr(millis);
+	}
+	
+	public static String getTimeStr(long millis) {
 		if (millis % 1000 != 0)
 			return millis+"mi";
 		long secs = millis / 1000;
