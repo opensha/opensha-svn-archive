@@ -599,7 +599,7 @@ public class InversionInputGenerator {
 		if (D) {
 			watch.stop();
 			watch_total.stop();
-			System.out.println("Generationg inputs took "+getTimeStr(watch_total)+".");
+			System.out.println("Generating inputs took "+getTimeStr(watch_total)+".");
 		}
 	}
 	
