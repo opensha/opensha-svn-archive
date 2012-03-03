@@ -58,7 +58,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	private GraphWindow graphWindow;
 	private boolean isCustomAxis = false;
 	
-	private static ArrayList<PlotCurveCharacterstics> generateDefaultChars(ArrayList funcs) {
+	protected static ArrayList<PlotCurveCharacterstics> generateDefaultChars(List funcs) {
 		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
 		list.add(PLOT_CHAR1);
 		list.add(PLOT_CHAR2);

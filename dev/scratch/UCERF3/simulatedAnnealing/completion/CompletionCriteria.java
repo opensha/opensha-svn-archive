@@ -10,8 +10,9 @@ public interface CompletionCriteria {
 	 * @param watch stop watch for keeping track of time
 	 * @param iter number of iterations completed
 	 * @param energy energy of the best solution
+	 * @param numPerturbsKept the total number of perturbations kept
 	 * @return true if completions criteria is satisfied
 	 */
-	public boolean isSatisfied(StopWatch watch, long iter, double energy);
+	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept);
 
 }

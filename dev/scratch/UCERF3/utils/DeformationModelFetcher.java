@@ -116,14 +116,13 @@ public class DeformationModelFetcher {
 			faultSubSectPrefDataList = this.createBayAreaSubSections(maxSubSectionLength);
 			fileNamePrefix = "bayArea_0_82_"+faultSubSectPrefDataList.size();						
 		} else if (deformationModel.getDataFileURL(faultModel) != null) {
-			int fmID = 101;
 			URL url = deformationModel.getDataFileURL(faultModel);
 			try {
 				System.out.println("Loading def model from: "+url);
 				Map<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
 				System.out.println("Applying moment reductions to: "+deformationModel);
 				DeformationModelFileParser.applyMomentReductions(model, deformationModel);
-				System.out.println("Loading fault model wtih ID: "+fmID);
+				System.out.println("Loading fault model: "+faultModel);
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				System.out.println("Combining model with sections...");
 				Map<Integer,DeformationSection> rakesModel = null;

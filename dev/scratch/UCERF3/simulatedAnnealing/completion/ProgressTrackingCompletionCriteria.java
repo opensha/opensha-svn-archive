@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.CSVFile;
 
+import com.google.common.collect.Lists;
+
 public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	
 	private ArrayList<Long> times;
 	private ArrayList<Long> iterations;
-	private ArrayList<Double> energies;
+	private ArrayList<Long> perturbs;
+	private ArrayList<double[]> energies;
 	
 	private CompletionCriteria criteria;
 	
@@ -24,40 +27,38 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	public ProgressTrackingCompletionCriteria(CompletionCriteria criteria, File automaticFile) {
 		times = new ArrayList<Long>();
 		iterations = new ArrayList<Long>();
-		energies = new ArrayList<Double>();
+		energies = new ArrayList<double[]>();
+		perturbs = new ArrayList<Long>();
 		
 		this.criteria = criteria;
 		this.automaticFile = automaticFile;
 	}
 	
-	private static ArrayList<String> toLine(String val1, String val2, String val3) {
-		ArrayList<String> ret = new ArrayList<String>(3);
-		ret.add(val1);
-		ret.add(val2);
-		ret.add(val3);
-		return ret;
-	}
-	
 	public void writeFile(File file) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
-		csv.addLine(toLine("Iterations", "Time (millis)", "Energy"));
+		csv.addLine(Lists.newArrayList("Iterations", "Time (millis)", "Energy (total)",
+				"Energy (equality)", "Energy (entropy)", "Energy (inequality)",
+				"Total Perterbations Kept"));
 		
 		for (int i=0; i<times.size(); i++) {
-			csv.addLine(toLine(iterations.get(i)+"", times.get(i)+"", energies.get(i)+""));
+			double[] energy = energies.get(i);
+			csv.addLine(Lists.newArrayList(iterations.get(i)+"", times.get(i)+"",
+					energy[0]+"", energy[1]+"", energy[2]+"", energy[3]+"", perturbs.get(i)+""));
 		}
 		
 		csv.writeToFile(file);
 	}
 
 	@Override
-	public boolean isSatisfied(StopWatch watch, long iter, double energy) {
-		if (energy < Double.MAX_VALUE) {
+	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept) {
+		if (energy[0] < Double.MAX_VALUE) {
 			times.add(watch.getTime());
 			iterations.add(iter);
 			energies.add(energy);
+			perturbs.add(numPerturbsKept);
 		}
-		if (criteria.isSatisfied(watch, iter, energy)) {
+		if (criteria.isSatisfied(watch, iter, energy, numPerturbsKept)) {
 			if (automaticFile != null) {
 				System.out.println("Writing progress to file: "+automaticFile.getAbsolutePath());
 				// write out results first
@@ -76,6 +77,22 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	@Override
 	public String toString() {
 		return criteria.toString();
+	}
+
+	public ArrayList<Long> getTimes() {
+		return times;
+	}
+
+	public ArrayList<Long> getIterations() {
+		return iterations;
+	}
+
+	public ArrayList<Long> getPerturbs() {
+		return perturbs;
+	}
+
+	public ArrayList<double[]> getEnergies() {
+		return energies;
 	}
 
 }

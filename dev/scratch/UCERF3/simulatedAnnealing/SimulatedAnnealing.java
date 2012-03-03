@@ -26,20 +26,24 @@ public interface SimulatedAnnealing {
 
 	public double[] getBestSolution();
 
-	public double getBestEnergy();
+	/**
+	 * 
+	 * @return an array of energies containing: [ total, equality, entropy, inequality ]
+	 */
+	public double[] getBestEnergy();
 	
 	public double[] getBestMisfit();
 	
 	public double[] getBestInequalityMisfit();
 
-	public void setResults(double Ebest, double[] xbest);
+	public void setResults(double[] Ebest, double[] xbest);
 	
-	public void setResults(double Ebest, double[] xbest, double[] misfit, double[] misfit_ineq);
+	public void setResults(double[] Ebest, double[] xbest, double[] misfit, double[] misfit_ineq);
 
 	public long iterate(long numIterations);
 
 	public long iterate(CompletionCriteria completion);
 
-	public long iterate(long startIter, CompletionCriteria criteria);
+	public long[] iterate(long startIter, long startPerturbs, CompletionCriteria criteria);
 
 }

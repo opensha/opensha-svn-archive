@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
@@ -42,6 +43,7 @@ public class DistributedSimulatedAnnealing {
 	private static final long WORK_DONE = -1;
 
 	private double[] single_double_buf = new double[1];
+	private double[] quad_double_buf = new double[4];
 	private long[] single_long_buf = new long[1];
 	private int[] single_int_buf = new int[1];
 	
@@ -138,11 +140,12 @@ public class DistributedSimulatedAnnealing {
 		double[] pool_double_buf = new double[size];
 		long[] pool_long_buf = new long[size];
 		
-		double Ebest = Double.MAX_VALUE;
+		double[] Ebest = { Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+				Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY };
 		
 		int cnt = 0;
 		long iter = 0;
-		while (!criteria.isSatisfied(watch, iter, Ebest)) {
+		while (!criteria.isSatisfied(watch, iter, Ebest, 0l)) { // TODO add perturbation tracking
 			boolean dd = cnt % 1000 == 0;
 			if (dd)
 				ddebug("starting loop "+cnt+", iter: "+iter);
@@ -163,7 +166,7 @@ public class DistributedSimulatedAnnealing {
 			// do work yourself
 			iter = doWork(startIter, subCompletion);
 			
-			single_double_buf[0] = annealer.getBestEnergy();
+			single_double_buf[0] = annealer.getBestEnergy()[0];
 			ddebug("my best energy: "+single_double_buf[0]);
 			ddebug("gathering best energy");
 			if (D) commWatch.resume();
@@ -178,11 +181,13 @@ public class DistributedSimulatedAnnealing {
 			
 			int bestRank = 0;
 			
+			double bestEnergy = Double.POSITIVE_INFINITY;
+			
 			for (int i=0; i<size; i++) {
 				double energy = pool_double_buf[i];
 				
-				if (energy < Ebest) {
-					Ebest = energy;
+				if (energy < bestEnergy) {
+					bestEnergy = energy;
 					bestRank = i;
 				}
 				if (pool_long_buf[i] > iter)
@@ -226,7 +231,7 @@ public class DistributedSimulatedAnnealing {
 		} else {
 			workWatch.resume();
 		}
-		long iter = annealer.iterate(startIter, criteria);
+		long iter = annealer.iterate(startIter, 0l, criteria)[0];
 		workWatch.suspend();
 		ddebug("done with my annealing. Ebest: "+annealer.getBestEnergy());
 		return iter;
@@ -259,7 +264,7 @@ public class DistributedSimulatedAnnealing {
 
 	private int reportResults(long iter) {
 		// send energy
-		single_double_buf[0] = annealer.getBestEnergy();
+		single_double_buf[0] = annealer.getBestEnergy()[0];
 		ddebug("sending my best energy ("+single_double_buf[0]+")");
 		if (D) commWatch.resume();
 		MPI.COMM_WORLD.Gather(single_double_buf, 0, 1, MPI.DOUBLE, null, 0, 1, MPI.DOUBLE, 0);
@@ -306,11 +311,11 @@ public class DistributedSimulatedAnnealing {
 		// receive energy
 		ddebug(actionWord+" best energy");
 //		MPI.COMM_WORLD.Recv(single_double_buf, 0, 1, MPI.DOUBLE, 0, TAG_BEST_ENGERGY);
-		single_double_buf[0] = annealer.getBestEnergy();
+		quad_double_buf = annealer.getBestEnergy();
 		if (D) commWatch.resume();
-		MPI.COMM_WORLD.Bcast(single_double_buf, 0, 1, MPI.DOUBLE, bestRank);
+		MPI.COMM_WORLD.Bcast(quad_double_buf, 0, quad_double_buf.length, MPI.DOUBLE, bestRank);
 		if (D) commWatch.suspend();
-		double Ebest = single_double_buf[0];
+		double[] Ebest = Arrays.copyOf(quad_double_buf, quad_double_buf.length);
 		
 		double[] sol = annealer.getBestSolution();
 		ddebug(actionWord+" best solution");

@@ -16,8 +16,8 @@ public class EnergyCompletionCriteria implements CompletionCriteria {
 	}
 
 	@Override
-	public boolean isSatisfied(StopWatch watch, long iter, double energy) {
-		return energy <= maxEnergy;
+	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept) {
+		return energy[0] <= maxEnergy;
 	}
 	
 	@Override

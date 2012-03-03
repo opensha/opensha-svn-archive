@@ -100,7 +100,7 @@ public class TestSerialSimulatedAnnealing {
 	}
 	
 	private void verifySolutionsAndEnergy() {
-		assertEquals("energy doesn't match!", sa_reg.getBestEnergy(), sa_cc.getBestEnergy(), precision);
+		assertEquals("energy doesn't match!", sa_reg.getBestEnergy()[0], sa_cc.getBestEnergy()[0], precision);
 		
 		double[] sol_reg = sa_reg.getBestSolution();
 		double[] sol_cc = sa_cc.getBestSolution();
@@ -117,7 +117,7 @@ public class TestSerialSimulatedAnnealing {
 		
 		for (int i=0; i<10000; i++) {
 //			System.out.println("loop: "+i+" (energy: "+sa_cc.getBestEnergy()+")");
-			sa_cc.iterate(iter, new IterationCompletionCriteria(iter+numIterations));
+			sa_cc.iterate(iter, 0l, new IterationCompletionCriteria(iter+numIterations));
 			iter += numIterations;
 			
 			double[] sol = sa_cc.getBestSolution();
@@ -132,10 +132,12 @@ public class TestSerialSimulatedAnnealing {
 			// iterate each one for a single iteration
 			// set energy to max value because one could keep it while the other doesn't due to double precision issues
 			// in the energy compare step
-			sa_reg.setResults(Double.MAX_VALUE, sol);
-			sa_cc.setResults(Double.MAX_VALUE, sol);
-			sa_reg.iterate(iter, criteria);
-			sa_cc.iterate(iter, criteria);
+			double[] initial = { Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+					Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY };
+			sa_reg.setResults(initial, sol);
+			sa_cc.setResults(initial, sol);
+			sa_reg.iterate(iter, 0l, criteria);
+			sa_cc.iterate(iter, 0l, criteria);
 			
 			iter++;
 			
@@ -152,7 +154,7 @@ public class TestSerialSimulatedAnnealing {
 		
 		long iter = 0;
 		for (int i=0; i<10; i++) {
-			iter = tsa.iterate(iter, criteria);
+			iter = tsa.iterate(iter, 0l, criteria)[0];
 			// check that energy was computed correctly for the current solution
 			
 			double[] tsa_misfit = tsa.getBestMisfit();
@@ -160,7 +162,7 @@ public class TestSerialSimulatedAnnealing {
 			
 			SerialSimulatedAnnealing sa_test = new SerialSimulatedAnnealing(a_reg, d, tsa.getBestSolution(), 0d, a_ineq_reg, d_ineq);
 			
-			assertEquals("energy doesn't match!", sa_test.getBestEnergy(), tsa.getBestEnergy(), precision);
+			assertEquals("energy doesn't match!", sa_test.getBestEnergy()[0], tsa.getBestEnergy()[0], precision);
 			
 			double[] sa_misfit = sa_test.getBestMisfit();
 			double[] sa_ineq_misfit = sa_test.getBestInequalityMisfit();

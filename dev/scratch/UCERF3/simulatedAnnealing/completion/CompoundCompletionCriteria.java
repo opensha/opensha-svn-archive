@@ -13,9 +13,9 @@ public class CompoundCompletionCriteria implements CompletionCriteria {
 	}
 
 	@Override
-	public boolean isSatisfied(StopWatch watch, long iter, double energy) {
+	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept) {
 		for (CompletionCriteria criteria : criterias) {
-			if (criteria.isSatisfied(watch, iter, energy))
+			if (criteria.isSatisfied(watch, iter, energy, numPerturbsKept))
 				return true;
 		}
 		return false;

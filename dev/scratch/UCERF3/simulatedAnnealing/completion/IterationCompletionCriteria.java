@@ -17,7 +17,7 @@ public class IterationCompletionCriteria implements CompletionCriteria {
 	}
 
 	@Override
-	public boolean isSatisfied(StopWatch watch, long iter, double energy) {
+	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept) {
 		return iter >= minIterations;
 	}
 	

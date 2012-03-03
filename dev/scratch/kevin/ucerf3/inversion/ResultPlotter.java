@@ -25,7 +25,8 @@ import com.google.common.collect.Lists;
 public class ResultPlotter {
 	
 	private static final int max_curve_pts = 800;
-	private static final double pDiffMins = 5;
+	private static final double pDiffMins = 30;
+	private static final double pDiffIters = 180000*10;
 	private static final boolean do_extrap = true;
 	private static final boolean include_min_max = true;
 	private static final boolean sort_by_size = true;
@@ -46,6 +47,7 @@ public class ResultPlotter {
 	
 	static final String avg_energy_vs_time_title = "Averaged Energy Vs Time (m)";
 	static final String improvement_vs_time_title = "% Improvement (over "+pDiffMins+" min invervals)";
+	static final String improvement_vs_iterations = "% Improvement (over previous "+pDiffIters+" iterations)";
 	static final String time_speedup_vs_energy_title = "Time Speedup Vs Energy";
 	static final String time_speedup_vs_time_title = "Parallel Speedup Vs Time";
 	static final String time_comparison_title = "Serial Time Vs Parallel Time";
@@ -633,17 +635,13 @@ public class ResultPlotter {
 			
 			DiscretizedFunc retFunc = new ArbitrarilyDiscretizedFunc();
 			
-			double prevEnergy = -1;
-			for (double time=0; time<func.getMaxX(); time += mins) {
-				if (time < func.getMinX())
-					continue;
-				
+			double start = func.getMinX()+mins + 0.000001;
+			double delta = (func.getMaxX() - start) / 1000d;
+			
+			for (double time=start; time<func.getMaxX(); time += delta) {
 				double energy = func.getInterpolatedY(time);
 				
-				if (prevEnergy < 0) {
-					prevEnergy = energy;
-					continue;
-				}
+				double prevEnergy = func.getInterpolatedY(time - mins);
 				double deltaE = prevEnergy - energy;
 				double improvement = deltaE / prevEnergy;
 				double percent = improvement * 100d;
@@ -651,6 +649,38 @@ public class ResultPlotter {
 				prevEnergy = energy;
 				
 				retFunc.set(time, percent);
+			}
+			
+			ret.add(retFunc);
+		}
+		
+		return ret;
+	}
+	
+	private static ArrayList<DiscretizedFunc> generatePercentImprovementVsIterations(
+			List<DiscretizedFunc> funcs, double iterations) {
+		ArrayList<DiscretizedFunc> ret = new ArrayList<DiscretizedFunc>();
+		
+		for (DiscretizedFunc func : funcs) {
+			// x is time in m
+			// y is energy
+			
+			DiscretizedFunc retFunc = new ArbitrarilyDiscretizedFunc();
+			
+			double start = func.getMinX()+iterations;
+			double delta = (func.getMaxX() - start) / 1000d;
+			
+			for (double iter=start; iter<func.getMaxX(); iter += delta) {
+				double energy = func.getInterpolatedY(iter);
+				
+				double prevEnergy = func.getInterpolatedY(iter - iterations);
+				double deltaE = prevEnergy - energy;
+				double improvement = deltaE / prevEnergy;
+				double percent = improvement * 100d;
+				
+				prevEnergy = energy;
+				
+				retFunc.set(iter, percent);
 			}
 			
 			ret.add(retFunc);
@@ -709,7 +739,8 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_10_27-ncal-bench-sub-secs-test");
 //		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
 //		dsaDir = new File(mainDir, "2012_02_22-model2-bench/8threads");
-		dsaDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_02_27-unconstrained");
+//		dsaDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_02_27-unconstrained");
+		dsaDir = new File("D:\\Documents\\temp\\csvs");
 		
 //		dsaDir = new File(mainDir, "agu/ncal_constrained");
 //		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
@@ -720,7 +751,8 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
 		
 		ArrayList<String> plots = new ArrayList<String>();
-		plots.add(energy_vs_time_title);
+//		plots.add(energy_vs_time_title);
+		plots.add(improvement_vs_iterations);
 //		plots.add(avg_energy_vs_time_title);
 //		plots.add(std_dev_vs_time_title);
 //		plots.add(improvement_vs_time_title);
@@ -735,7 +767,7 @@ public class ResultPlotter {
 //		plots.add(parallel_iterations_vs_time_title);
 //		plots.add(iterations_vs_time_title);
 		
-		String highlight = null;
+		String highlight = "Unconst";
 		
 //		highlight = "dsa_8threads_10nodes_FAST_SA_dSub200_sub100";
 		
@@ -799,6 +831,8 @@ public class ResultPlotter {
 			if (!name.endsWith(".csv"))
 				continue;
 			if (name.contains("spd_vs_threads"))
+				continue;
+			if (highlight != null && !name.contains(highlight))
 				continue;
 			
 //			if (name.contains("dSub600"))
@@ -989,7 +1023,6 @@ public class ResultPlotter {
 		ArrayList<PlotCurveCharacterstics> avgChars = new ArrayList<PlotCurveCharacterstics>();
 		if (plots.contains(avg_energy_vs_time_title)
 				|| plots.contains(std_dev_vs_time_title)
-				|| plots.contains(improvement_vs_time_title)
 				|| plots.contains(time_speedup_vs_energy_title)
 				|| plots.contains(time_comparison_title)
 				|| plots.contains(time_speedup_vs_time_title)
@@ -1168,14 +1201,19 @@ public class ResultPlotter {
 							getGraphWindow(stdDevs, std_dev_vs_time_title, avgChars, time_label, std_dev_label, visible));
 				}
 			} else if (plot.equals(improvement_vs_time_title)) {
-				if (averages.size() > 0) {
-					System.out.println("generating percent improvements over "+pDiffMins+" mins");
-					ArrayList<DiscretizedFunc> pImpFuncs = generatePercentImprovementOverTime(averages, pDiffMins);
-					System.out.println("displaying "+improvement_vs_time_title);
-					windows.put(improvement_vs_time_title,
-							getGraphWindow(pImpFuncs, improvement_vs_time_title, avgChars,
-							time_label, improvement_label, visible));
-				}
+				System.out.println("generating percent improvements over "+pDiffMins+" mins");
+				ArrayList<DiscretizedFunc> pImpFuncs = generatePercentImprovementOverTime(energyVsTime, pDiffMins);
+				System.out.println("displaying "+improvement_vs_time_title);
+				windows.put(improvement_vs_time_title,
+						getGraphWindow(pImpFuncs, improvement_vs_time_title, chars,
+						time_label, improvement_label, visible));
+			} else if (plot.equals(improvement_vs_iterations)) {
+				System.out.println("generating percent improvements over "+pDiffIters+" iters");
+				ArrayList<DiscretizedFunc> pImpFuncs = generatePercentImprovementVsIterations(energyVsIter, pDiffIters);
+				System.out.println("displaying "+improvement_vs_iterations);
+				windows.put(improvement_vs_time_title,
+						getGraphWindow(pImpFuncs, improvement_vs_iterations, chars,
+						iterations_label, improvement_label, visible));
 			} else if (plot.equals(time_speedup_vs_energy_title)) {
 				if (refFunc != null) {
 					System.out.println("generating energy speedup");

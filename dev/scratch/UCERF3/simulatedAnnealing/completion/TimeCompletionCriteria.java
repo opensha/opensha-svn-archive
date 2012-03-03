@@ -16,7 +16,7 @@ public class TimeCompletionCriteria implements CompletionCriteria {
 	}
 
 	@Override
-	public boolean isSatisfied(StopWatch watch, long iter, double energy) {
+	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept) {
 		return watch.getTime() >= millis;
 	}
 	

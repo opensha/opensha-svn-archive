@@ -1,6 +1,5 @@
 package scratch.UCERF3.simulatedAnnealing;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -15,14 +14,14 @@ import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.GenerationFunctionType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
-import scratch.UCERF3.utils.MFD_InversionConstraint;
-
-import com.google.common.base.Preconditions;
-
 import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
+
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.Doubles;
+
 import edu.emory.mathcs.csparsej.tdouble.Dcs_common.Dcs;
 
 /**
@@ -63,7 +62,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private double[] perturb; // perturbation to current model
 	private double[] misfit_best, misfit_ineq_best; // misfit between data and synthetics
 	
-	private double Ebest;
+	private double[] Ebest; // [total, from A, from entropy, from A_ineq]
 	
 	private Random r = new Random();
 
@@ -169,7 +168,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	@Override
-	public double getBestEnergy() {
+	public double[] getBestEnergy() {
 		return Ebest;
 	}
 	
@@ -184,8 +183,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	@Override
-	public void setResults(double Ebest, double[] xbest, double[] misfit_best, double[] misfit_ineq_best) {
-		this.Ebest = Ebest;
+	public void setResults(double[] Ebest, double[] xbest, double[] misfit_best, double[] misfit_ineq_best) {
+		this.Ebest = Arrays.copyOf(Ebest, Ebest.length);
 		this.xbest = Arrays.copyOf(xbest, xbest.length);
 		if (misfit_best == null)
 			this.misfit_best = null;
@@ -198,7 +197,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	@Override
-	public void setResults(double Ebest, double[] xbest) {
+	public void setResults(double[] Ebest, double[] xbest) {
 		setResults(Ebest, xbest, null, null);
 	}
 	
@@ -230,19 +229,20 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		}
 	}
 	
-	protected synchronized double calculateEnergy(double[] solution, double[] misfit, double[] misfit_ineq) {
+	protected double[] calculateEnergy(double[] solution, double[] misfit, double[] misfit_ineq) {
 		
 		// Do forward problem for new perturbed model (calculate synthetics)
 		
-		double Enew = 0;
+		double Eequality = 0;
 		for (int i = 0; i < nRow; i++) {
 			// NOTE: it is important that we loop over nRow and not the actual misfit array
 			// as it may be larger than nRow (for efficiency and less array copies)
-			Enew += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
+			Eequality += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
 		}
-		Preconditions.checkState(!Double.isNaN(Enew), "energy is NaN!");
+		Preconditions.checkState(!Double.isNaN(Eequality), "energy from equality constraints is NaN!");
 		
 		// Add smoothness constraint misfit (nonlinear) to energy (this is the entropy-maximization constraint)
+		double Eentropy = 0;
 		if (relativeSmoothnessWt > 0.0) { 
 			double totalEntropy=0;
 			double entropyConstant=500;
@@ -257,23 +257,28 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			if (totalEntropy<0) {
 				throw new IllegalStateException("NEGATIVE ENTROPY!");
 			}
-			Enew += relativeSmoothnessWt * (1 / totalEntropy); // High entropy => low misfit
+			Eentropy += relativeSmoothnessWt * (1 / totalEntropy); // High entropy => low misfit
+			Preconditions.checkState(!Double.isNaN(Eentropy), "energy from entropy constraint is NaN!");
 		}
 		
 		
 		// Add MFD inequality constraint misfit (nonlinear) to energy 
+		double Einequality = 0;
 		if (hasInequalityConstraint) {
 			for (int i = 0; i < d_MFD.length; i++) {
 				// NOTE: it is important that we loop over d_MFD.length and not the actual misfit array
 				// as it may be larger than nRow (for efficiency and less array copies)
 				if (misfit_ineq[i] > 0.0) // This makes it an INEQUALITY constraint (Target MFD is an UPPER bound)
-					Enew += Math.pow(misfit_ineq[i], 2);  // L2 norm of misfit vector
+					Einequality += Math.pow(misfit_ineq[i], 2);  // L2 norm of misfit vector
 			}
+			Preconditions.checkState(!Double.isNaN(Einequality), "energy from inequality constraints is NaN!");
 		}
 		
+		double Enew = Eequality + Eentropy + Einequality;
 		Preconditions.checkState(!Double.isNaN(Enew), "Enew is NaN!");
 		
-		return Enew;
+		double[] ret = { Enew, Eequality, Eentropy, Einequality };
+		return ret;
 	}
 	
 	@Override
@@ -283,11 +288,11 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	
 	@Override
 	public synchronized long iterate(CompletionCriteria completion) {
-		return iterate(0, completion);
+		return iterate(0, 0, completion)[0];
 	}
 
 	@Override
-	public synchronized long iterate(long startIter, CompletionCriteria criteria) {
+	public synchronized long[] iterate(long startIter, long startPerturbs, CompletionCriteria criteria) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 		
@@ -297,12 +302,13 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		if(D) System.out.println("Nonnegativity Constraint: " + nonnegativityConstraintAlgorithm.name());
 		if(D) System.out.println("Completion Criteria: " + criteria);
 		
-		double Enew;
+		double[] Enew;
 		double P;
 		long iter=startIter+1;
+		long perturbs = startPerturbs;
 		int index;
 		double[] x = Arrays.copyOf(xbest, xbest.length);
-		double E = Ebest;
+		double[] E = Ebest;
 		double T;
 		// this is where we store previous misfits
 		double[] misfit;
@@ -328,7 +334,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		}
 
 		// we do iter-1 because iter here is 1-based, not 0-based
-		while (!criteria.isSatisfied(watch, iter-1, Ebest)) {
+		while (!criteria.isSatisfied(watch, iter-1, Ebest, perturbs)) {
 
 			// Find current simulated annealing "temperature" based on chosen cooling schedule
 			switch (coolingFunc) {
@@ -352,7 +358,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			if (D) {  // print out convergence info every so often
 				if ((iter-1) % 10000 == 0) { 
 					System.out.println("Iteration # " + iter);
-					System.out.println("Lowest energy found = " + Ebest);
+					System.out.println("Lowest energy found = "
+							+Doubles.join(", ", Ebest));
 //					System.out.println("Current energy = " + E);
 				}
 			}
@@ -420,8 +427,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 						comp_misfit_ineq_new = new double[misfit_ineq.length];
 						calculateMisfit(A_MFD, d_MFD, null, x, -1, Double.NaN, comp_misfit_ineq_new);
 					}
-					double Enew_temp = calculateEnergy(x, comp_misfit_new, comp_misfit_ineq_new);
-					double pDiff = DataUtils.getPercentDiff(Enew, Enew_temp);
+					double[] Enew_temp = calculateEnergy(x, comp_misfit_new, comp_misfit_ineq_new);
+					double pDiff = DataUtils.getPercentDiff(Enew[0], Enew_temp[0]);
 					System.out.println("Pdiff: "+(float)pDiff+" %");
 					double pDiffThreshold = 0.0001;
 					Preconditions.checkState(pDiff < pDiffThreshold,
@@ -433,19 +440,19 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			// Change state? Calculate transition probability P
 			switch (nonnegativityConstraintAlgorithm) {
 			case PREVENT_ZERO_RATES:  
-				if (Enew < E || x[index]==0) {
+				if (Enew[0] < E[0] || x[index]==0) {
 					P = 1; // Always keep new model if better OR if element was originally zero
 				} else {
 					// Sometimes keep new model if worse (depends on T)
-					P = Math.exp((E - Enew) / (double) T); 
+					P = Math.exp((E[0] - Enew[0]) / (double) T); 
 				}
 			break;
 			default:
-				if (Enew < E) {
+				if (Enew[0] < E[0]) {
 					P = 1; // Always keep new model if better
 				} else {
 					// Sometimes keep new model if worse (depends on T)
-					P = Math.exp((E - Enew) / (double) T); 
+					P = Math.exp((E[0] - Enew[0]) / (double) T); 
 				}
 			}
 			
@@ -464,9 +471,10 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				E = Enew;
 				misfit = misfit_cur_purtub;
 				misfit_ineq = misfit_ineq_cur_purtub;
+				perturbs++;
 				
 				// Is this a new best?
-				if (Enew < Ebest) {
+				if (Enew[0] < Ebest[0]) {
 					// we don't want to array copy as it's slow. instead we fix special cases only when
 					// needed with an array copy (see below)
 					xbest = x;
@@ -530,8 +538,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 						comp_misfit_ineq_new = new double[misfit_ineq.length];
 						calculateMisfit(A_MFD, d_MFD, null, xbest, -1, Double.NaN, comp_misfit_ineq_new);
 					}
-					double Ebest_temp = calculateEnergy(xbest, comp_misfit_new, comp_misfit_ineq_new);
-					double pDiff = DataUtils.getPercentDiff(Ebest, Ebest_temp);
+					double[] Ebest_temp = calculateEnergy(xbest, comp_misfit_new, comp_misfit_ineq_new);
+					double pDiff = DataUtils.getPercentDiff(Ebest[0], Ebest_temp[0]);
 					System.out.println("Ebest Pdiff: "+(float)pDiff+" %");
 					
 					Preconditions.checkState(pDiff < pDiffThreshold,
@@ -553,7 +561,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		}
 		
 		// we added one to it before, remove it to make it zero-based
-		return iter-1;
+		long[] ret = { iter-1, perturbs };
+		return ret;
 	}
 
 	private double getPerturbation(GenerationFunctionType perturbationFunc, double T) {
