@@ -134,7 +134,7 @@
 133	Bartlett Springs	0	Bartlett Springs 2011 CFM
 134	Battle Creek	0	Battle Creek 2011 CFM
 135	Big Lagoon-Bald Mtn	0	Big Lagoon - Bald Mtn 2011 CFM
-136	Birch Creek	0
+136	Birch Creek	0	REMOVED
 137	Blackwater	0	Blackwater
 138	Burnt Mtn	0	Burnt Mtn
 139	Calico-Hidalgo	0	Calico-Hidalgo
@@ -158,7 +158,7 @@
 157	Elmore Ranch	0	Elmore Ranch
 158	Elysian Park (Upper)	0	Elysian Park (Upper)
 159	Eureka Peak	0	Eureka Peak
-160	Fickle Hill	0	Fickle Hill (alt1)
+160	Fickle Hill	0	REMOVED
 161	Fish Slough	0	Fish Slough 2011 CFM
 162	Gillem-Big Crack	0	Gillem - Big Crack 2011 CFM
 163	Gravel Hills-Harper Lk	0	Gravel Hills-Harper Lk
@@ -176,7 +176,7 @@
 175	Great Valley 7	0	Great Valley 07 (Orestimba)
 176	Great Valley 8	0	Great Valley 08 (Quinto)
 177	Great Valley 9	0	Great Valley 09 (Laguna Seca)
-178	Green Valley Connected	0	Concord 2011 CFM	Green Valley 2011 CFM	COMBINED
+178	Green Valley Connected	0	Concord 2011 CFM	Green Valley 2011 CFM
 179	Greenville Connected	0	Greenville (No) 2011 CFM	Greenville (So) 2011 CFM
 180	Hartley Springs	0	Hartley Springs 2011 CFM
 181	Hat Creek-McArthur-Mayfield	0	Hat Creek-McArthur-Mayfield
@@ -204,10 +204,10 @@
 203	Los Alamos-West Baseline	0	Los Alamos 2011 CFM
 204	Los Osos	0	Los Osos 2011
 205	Maacama-Garberville	0	Maacama 2011 CFM
-206	Mad River	0	Mad River (alt1)
+206	Mad River	0	Mad River - Trinidad fault zone (alt2)
 207	Malibu Coast, alt 1	1	Malibu Coast alt 1
 208	Malibu Coast, alt 2	2	Malibu Coast alt 2
-209	McKinleyville	0	McKinleyville (alt1)
+209	McKinleyville	0	REMOVED
 210	Mission Ridge-Arroyo Parida-Santa Ana	0	Mission Ridge-Arroyo Parida-Santa Ana
 211	Mono Lake	0	Mono Lake 2011 CFM
 212	Monterey Bay-Tularcitos	0	Monterey Bay-Tularcitos
@@ -279,7 +279,7 @@
 278	Surprise Valley	0	Surprise Valley 2011 CFM
 279	Table Bluff	0	Table Bluff
 280	Tank Canyon	0	Tank Canyon
-281	Trinidad	0	Trinidad (alt1)
+281	Trinidad	0	REMOVED
 282	Ventura-Pitas Point	0	Ventura-Pitas Point
 283	Verdugo	0	Verdugo
 284	West Napa	0	West Napa 2011 CFM

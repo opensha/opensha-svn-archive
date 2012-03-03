@@ -22,7 +22,7 @@ Chino, alt 2	Chino alt 2
 Collayomi	Collayami 2011 CFM	
 Coronado Bank	Coronado Bank alt2
 Death Valley (No of Cucamongo)	Death Valley (Fish Lake Valley)
-Fickle Hill	Fickle Hill (alt1)
+Fickle Hill	REMOVED
 Fish Slough	Fish Slough 2011 CFM
 Gillem-Big Crack	Gillem - Big Crack 2011 CFM
 Great Valley 1	Great Valley 01
@@ -53,10 +53,10 @@ Lions Head	Lions Head 2011 CFM
 Los Alamos-West Baseline	Los Alamos 2011 CFM
 Los Osos	Los Osos 2011
 Maacama-Garberville	Maacama 2011 CFM
-Mad River	Mad River (alt1)
+Mad River	Mad River - Trinidad fault zone (alt2)
 Malibu Coast, alt 1	Malibu Coast alt 1
 Malibu Coast, alt 2	Malibu Coast alt 2
-McKinleyville	McKinleyville (alt1)
+McKinleyville	REMOVED
 Mono Lake	Mono Lake 2011 CFM
 Monte Vista-Shannon	Monte Vista - Shannon 2011 CFM
 Mount Diablo Thrust	Mount Diablo Thrust
@@ -78,6 +78,6 @@ Santa Monica, alt 2	Santa Monica alt 2
 Santa Susana, alt 1	Santa Susana alt 1
 So Emerson-Copper Mtn	Emerson-Copper Mtn 2011
 Surprise Valley	Surprise Valley 2011 CFM
-Trinidad	Trinidad (alt1)
+Trinidad	REMOVED
 West Napa	West Napa 2011 CFM
 Zayante-Vergeles	Zayante-Vergeles

@@ -55,8 +55,8 @@ public class FileMakingStuff {
 		}
 		
 		// now create the old and new files
-		File prevFile = new File("dev/scratch/UCERF3/preComputedData/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt");
-		File newFile = new File("dev/scratch/UCERF3/preComputedData/FindEquivUCERF2_Ruptures/FM3_1_SectionsForUCERF2_Sources.txt");
+		File prevFile = new File("dev/scratch/UCERF3/data/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt");
+		File newFile = new File("dev/scratch/UCERF3/data/FindEquivUCERF2_Ruptures/FM3_1_SectionsForUCERF2_Sources.txt");
 
 		System.out.println("Reading file: "+prevFile.getPath());
 		try {
@@ -77,7 +77,7 @@ public class FileMakingStuff {
 				for(int i=3;i<st.length;i++) {
 					String sectName = st[i];
 					if(namesMap.containsKey(sectName)) {	// name has changed
-						if(!namesMap.get(sectName).equals("COMBINED"))	// skip if section name is "REMOVED"
+						if(!namesMap.get(sectName).equals("COMBINED"))	// skip if section name is "COMBINED"
 							newLine += "\t"+namesMap.get(sectName);
 					}
 					else {	// no name change
@@ -124,8 +124,8 @@ public class FileMakingStuff {
 		}
 		
 		// now create the old and new files
-		prevFile = new File("dev/scratch/UCERF3/preComputedData/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt");
-		newFile = new File("dev/scratch/UCERF3/preComputedData/FindEquivUCERF2_Ruptures/FM3_2_SectionsForUCERF2_Sources.txt");
+		prevFile = new File("dev/scratch/UCERF3/data/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt");
+		newFile = new File("dev/scratch/UCERF3/data/FindEquivUCERF2_Ruptures/FM3_2_SectionsForUCERF2_Sources.txt");
 
 		System.out.println("Reading file: "+prevFile.getPath());
 		try {
@@ -146,7 +146,7 @@ public class FileMakingStuff {
 				for(int i=3;i<st.length;i++) {
 					String sectName = st[i];
 					if(namesMap.containsKey(sectName)) {	// name has changed
-						if(!namesMap.get(sectName).equals("REMOVED"))	// skip if section name is "REMOVED"
+						if(!namesMap.get(sectName).equals("COMBINED"))	// skip if section name is "COMBINED"
 							newLine += "\t"+namesMap.get(sectName);
 					}
 					else {	// no name change

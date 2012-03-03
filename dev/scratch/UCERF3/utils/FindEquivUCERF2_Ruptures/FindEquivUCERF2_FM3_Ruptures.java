@@ -1058,7 +1058,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	        			test += "\t"+name;
 	        	//				System.out.println(test);
 	        	if(!test.equals(line))
-	        		throw new RuntimeException("problem with recreating file line");
+	        		throw new RuntimeException("problem with recreating file line:\n"+test+"\n"+line);
 
 	        }
        } catch (Exception e) {
@@ -1306,12 +1306,15 @@ if(debug) System.exit(0);
 		File precompDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 
 		System.out.println("Getting rup set");
- //  	FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
-   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(FaultModels.FM3_2,DeformationModels.GEOLOGIC, true);
+		
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(FaultModels.FM3_2,DeformationModels.GEOLOGIC, false);
+		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_2);
+		
+//		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
+//		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
+
 		System.out.println("Done getting rup set");
 		
-		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_2);
-//		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
 		
 		test.plotMFD_Test();
 		

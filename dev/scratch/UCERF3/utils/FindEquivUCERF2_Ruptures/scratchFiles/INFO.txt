@@ -6,13 +6,16 @@ AllFM3_sectNames.txt came from writing out unique names from:
 
 	FileMakingStuff.writeAllFM3_sectNames();
 
-I then checked whether each UCERF2 fault section listed in (preComputedData/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt, which I obtained using the method FindEquivUCERF2_FM2pt1_Ruptures.getAllSectionNames()) still exist in AllFM3_sectNames.txt, and wrote those that didn't to the first column of the file:
+I then checked whether each UCERF2 fault section listed in (preComputedData/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt, 
+which I obtained using the method FindEquivUCERF2_FM2pt1_Ruptures.getAllSectionNames()) still exist in AllFM3_sectNames.txt, and wrote 
+those that didn't to the first column of the file:
 
 	FM2to3_sectionNameChanges.txt
 
 I then added the second column to this file by hand (using obvious names and Tim's xlsx file above).
 
-After doing the step below I discovered that some sections/sources that were the same between FM 2.1 and 2.2 are now different between FM3.1 and 3.2.  The associated UCERF2 sources are:
+After doing the step below I discovered that some sections/sources that were the same between FM 2.1 and 2.2 are now different between 
+FM3.1 and 3.2.  The associated UCERF2 sources are:
 
 	sourceName 	(userf2_sect for both; fm3.1_sect; and fm 3.2_sect)
 	----------
@@ -22,6 +25,10 @@ After doing the step below I discovered that some sections/sources that were the
 	Mount Diablo Thrust	(Mount Diablo Thrust; Mount Diablo Thrust North CFM PLUS Mount Diablo Thrust South; Mount Diablo Thrust)
 	San Luis Range (So Margin)	(San Luis Range (So Margin); San Luis Range 2011 CFM; San Luis Range (So Margin))
 	Zayante-Vergeles	(Zayante-Vergeles; Zayante-Vergeles 2011 CFM; Zayante-Vergeles)
+	Fickle Hill	(Fickle Hill; Fickle Hill (alt1); REMOVED)
+	Mad River	(Mad River; Mad River (alt1); Mad River - Trinidad fault zone (alt2))
+	McKinleyville	(McKinleyville ; McKinleyville (alt1); REMOVED)
+	Trinidad	(Trinidad ; Trinidad (alt1); REMOVED)
 
 I therefore copied FM2to3_sectionNameChanges.txt into two files 
 
@@ -31,30 +38,23 @@ I therefore copied FM2to3_sectionNameChanges.txt into two files
 changed the previous file to old_FM2to3_sectionNameChanges.txt, and made hand edits to these two new files to reflect the above differences.
 
 
-Finally, I created the files FM3_1_SectionsForUCERF2_Sources.txt and FM3_2_SectionsForUCERF2_Sources.txt by making the substitutions listed in the above FM2to3_?_sectionNameChanges.txt files to the previous FM2_SectionsForUCERF2_Sources.txt using the following code:
+Finally, I created the files FM3_1_SectionsForUCERF2_Sources.txt and FM3_2_SectionsForUCERF2_Sources.txt by making the substitutions listed 
+in the above FM2to3_?_sectionNameChanges.txt files to the previous FM2_SectionsForUCERF2_Sources.txt using the following code:
 
 	FileMakingStuff.mkNewFilesBySubstitutingNames()
 
 Results for FM3.1:
 ------------------
 
-The only rupture listed under "Problem Sources (can't find associated inv section for one end of at least one rupture):" is
+The only source listed under "Problem Sources (can't find associated inv section for one end of at least one rupture):" is
 
 	Birch Creek
 
-which was removed in going from UCERF2 to UCERF2.
+which was removed in going from UCERF2 to UCERF3 FM 3.1.
 
-Most of the ruptures listed under "Unassociated UCERF2 ruptures (not from other FM nor subseismogenic, so there should be a mapping?)" have an endpoint this is the only subsection used from its parent section (and we require two subsection from every parent).  The exception are:
-
-	These are still mysterious (they use at least two subsections of each section) - but setting cumAz to 540 will solve (Kevin results imply yes):
-
-	6023	152	549	Death Valley Connected	(Death Valley (Fish Lake Valley), Subsection 6	Death Valley (So), Subsection 5);  onlyOneSubsectOfSect = false
-	6024	152	550	Death Valley Connected	(Death Valley (Fish Lake Valley), Subsection 5	Death Valley (So), Subsection 4);  onlyOneSubsectOfSect = false
-	6025	152	551	Death Valley Connected	(Death Valley (Fish Lake Valley), Subsection 4	Death Valley (So), Subsection 3);  onlyOneSubsectOfSect = false
-	6026	152	552	Death Valley Connected	(Death Valley (Fish Lake Valley), Subsection 3	Death Valley (So), Subsection 2);  onlyOneSubsectOfSect = false
-	6027	152	553	Death Valley Connected	(Death Valley (Fish Lake Valley), Subsection 2	Death Valley (So), Subsection 2);  onlyOneSubsectOfSect = false
-	6028	152	554	Death Valley Connected	(Death Valley (Fish Lake Valley), Subsection 2	Death Valley (So), Subsection 1);  onlyOneSubsectOfSect = false
-	6030	152	556	Death Valley Connected	(Death Valley (Fish Lake Valley), Subsection 10	Death Valley (So), Subsection 1);  onlyOneSubsectOfSect = false
+Most of the ruptures listed under "Unassociated UCERF2 ruptures (not from other FM nor subseismogenic, so there should be a mapping?)" 
+have an endpoint this is the only subsection used from its parent section (and we require two subsection from every parent).  
+The exception are:
 
 	These only use one subsection of a parent (in the middle of the parent section due to a Y connection):
 
@@ -76,4 +76,34 @@ Most of the ruptures listed under "Unassociated UCERF2 ruptures (not from other 
 	Plus a bunch of "Palos Verdes Connected" ruptures because, in this fault model, "Coronado Bank alt1" 
 	no longer connects to "Palos Verdes" (but they should connect in FM 3.2)
 
+
+Results for FM3.2:
+------------------
+
+Same as for several above.
+
+The only sources listed under "Problem Sources (can't find associated inv section for one end of at least one rupture):" are
+
+	Birch Creek
+	Fickle Hill
+	McKinleyville
+	Trinidad
+
+which were removed in going from UCERF2 to UCERF3 FM 3.2.
+
+
+The following has too large a gap to connect now(it was hand connected in UCERF2):
+
+	8790	221	63	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 4	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
+	8800	221	73	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
+	8801	221	74	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 3	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
+	8802	221	75	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 4	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
+	8808	221	81	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 1	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
+	8809	221	82	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
+	8810	221	83	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
+	8811	221	84	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 3	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
+	8812	221	85	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 4	Oak Ridge (Onshore), Subsection 3);  onlyOneSubsectOfSect = false
+	8816	221	89	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 1	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
+	8817	221	90	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 3);  onlyOneSubsectOfSect = false
+	8818	221	91	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 3);  onlyOneSubsectOfSect = false
 
