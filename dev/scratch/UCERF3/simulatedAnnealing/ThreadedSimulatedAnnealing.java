@@ -851,7 +851,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			normPerturbs.set(perturbsVsIters.getX(i), normalized);
 		}
 		normalizedFuncs.add(normPerturbs);
-		String title = "Perturbations Vs Iters";
+		String title = "Normalized";
 		if (startPoint > 0) {
 			long startIter = iters.get(startPoint);
 			long endIter = iters.get(iters.size()-1);
