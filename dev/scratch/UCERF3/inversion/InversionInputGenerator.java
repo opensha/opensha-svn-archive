@@ -260,8 +260,8 @@ public class InversionInputGenerator {
 				if (!config.isWeightSlipRates()) 
 					val = slips[i];
 				else {  // Normalize by slip rate
-					// Note that anything less than 0.001 is treated as 0 -- otherwise misfit will be huge (GEOBOUND model has 10e-10 slip rates that will dominate misfit otherwise)
-					if (sectSlipRateReduced[row] < 0.001 || Double.isNaN(sectSlipRateReduced[row]))  
+					// Note that anything less than 10e-5 m/yr is treated as 0 -- otherwise misfit will be huge (GEOBOUND model has 10e-13 slip rates that will dominate misfit otherwise)
+					if (sectSlipRateReduced[row] < 10E-5 || Double.isNaN(sectSlipRateReduced[row]))  
 						// Treat NaN slip rates as 0 (minimize)
 						val = slips[i]/0.001;  
 					else {
@@ -284,7 +284,7 @@ public class InversionInputGenerator {
 			if (!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) 
 				d[sect] = sectSlipRateReduced[sect];			
 			else {
-				if (Double.isNaN(sectSlipRateReduced[sect]) || sectSlipRateReduced[sect]<0.001)
+				if (Double.isNaN(sectSlipRateReduced[sect]) || sectSlipRateReduced[sect]<10E-5)
 					// Treat NaN slip rates as 0 (minimize)
 					d[sect] = 0;
 				else
