@@ -18,6 +18,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
 
+import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
@@ -129,7 +130,13 @@ public abstract class FaultSystemRupSet {
 	
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	
-	protected double calcTotalMomentRate(int rupIndex) {
+	/**
+	 * This represents the total moment rate available to the rupture, assuming it is the only
+	 * event to occur along the sections it uses.
+	 * @param rupIndex
+	 * @return
+	 */
+	protected double calcTotalAvailableMomentRate(int rupIndex) {
 		List<Integer> sectsInRup = getSectionsIndicesForRup(rupIndex);
 		double totMoRate = 0;
 		for(Integer sectID:sectsInRup) {
@@ -187,7 +194,7 @@ public abstract class FaultSystemRupSet {
 		// this is the model where section slip is proportional to section slip rate 
 		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
 		else if (slipModelType == SlipAlongRuptureModels.WG02) {
-			double totMoRateForRup = calcTotalMomentRate(rthRup);
+			double totMoRateForRup = calcTotalAvailableMomentRate(rthRup);
 			for(int s=0; s<slipsForRup.length; s++) {
 				slipsForRup[s] = aveSlip*sectMoRate[s]*getAreaForRup(rthRup)/(totMoRateForRup*sectArea[s]);
 			}
@@ -484,14 +491,8 @@ public abstract class FaultSystemRupSet {
 	 * aseismicity factors and coupling coefficients.  
 	 * @return moment in SI units
 	 */
-	public double getTotalMomentRate() {
-		double sum=0;
-		for(FaultSectionPrefData data : getFaultSectionDataList()) {
-			double area = data.getReducedDownDipWidth()*data.getTraceLength()*1e6;
-			if (!Double.isNaN(data.getReducedAveSlipRate()))  // Treat NaN slip rates as 0
-				sum += FaultMomentCalc.getMoment(area, data.getReducedAveSlipRate()*1e-3);
-		}
-		return sum;
+	public double getTotalMomentRateFrorAllSections() {
+		return DeformationModelsCalc.calculateTotalMomentRate((ArrayList)getFaultSectionDataList(), true);
 	}
 	
 }

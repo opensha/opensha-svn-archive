@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
@@ -706,6 +707,27 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 
 		return data;
 	}
+	
+	
+	/**
+	 * This calculates the moment rate of this fault section
+	 * @param creepReduced - whether or not to apply aseismicity and coupling coefficient
+	 * @return moment rate in SI units (Newton-Meters/year)
+	 */
+	public double calcMomentRate(boolean creepReduced) {
+		double area, slipRate;
+		if(creepReduced) {
+			area = this.getReducedDownDipWidth()*this.getTraceLength()*1e6;
+			slipRate = this.getReducedAveSlipRate();
+		}
+		else {
+			area = this.getOrigDownDipWidth()*this.getTraceLength()*1e6;
+			slipRate = this.getOrigAveSlipRate();
+		}
+			
+		return FaultMomentCalc.getMoment(area, slipRate*1e-3);
+	}
+	
 
 	public FaultSectionPrefData clone() {
 

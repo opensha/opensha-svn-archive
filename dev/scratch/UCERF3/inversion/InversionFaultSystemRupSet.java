@@ -367,7 +367,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	}
 	
 	@Override
-	protected double calcTotalMomentRate(int rupIndex) {
+	protected double calcTotalAvailableMomentRate(int rupIndex) {
 		return rupTotMoRateAvail[rupIndex];
 	}
 	

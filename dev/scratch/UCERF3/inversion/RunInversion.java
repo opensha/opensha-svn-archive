@@ -195,7 +195,7 @@ public class RunInversion {
 			System.exit(1);
 		}
 		
-		if (D) System.out.println("Total Moment Rate = "+rupSet.getTotalMomentRate());
+		if (D) System.out.println("Total Moment Rate = "+rupSet.getTotalMomentRateFrorAllSections());
 		
 		// get the inversion configuration
 		InversionConfiguration config;

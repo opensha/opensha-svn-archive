@@ -211,14 +211,14 @@ public class UCERF2_MFD_ConstraintFetcher {
 	 */
 	public static void main(String[] args) {
 		
-		Region relmOrigNCal = new CaliforniaRegions.RELM_NOCAL();
-		Region region  = new Region(relmOrigNCal.getBorder(), BorderType.GREAT_CIRCLE);
+//		Region relmOrigNCal = new CaliforniaRegions.RELM_NOCAL();
+//		Region region  = new Region(relmOrigNCal.getBorder(), BorderType.GREAT_CIRCLE);
 		
-//		Region region new CaliforniaRegions.RELM_GRIDDED();
+		Region region = new CaliforniaRegions.RELM_GRIDDED();
 
 		
 		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
 		fetcher.computeMomentRates();
-//		fetcher.plotMFDs();
+		fetcher.plotMFDs();
 	}
 }
