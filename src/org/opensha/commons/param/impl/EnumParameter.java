@@ -52,6 +52,15 @@ public class EnumParameter<E extends Enum<E>> extends AbstractParameter<E> {
 		super(name, new EnumConstraint<E>(choices, nullOption != null), null,
 			defaultValue);
 		clazz = (Class<E>) Iterables.getFirst(choices, null).getClass();
+		if (choices.size() > 1) {
+			if (!clazz.isInstance(Iterables.getLast(choices))) {
+				// this checks to see if the enum class is actually a concrete implementation
+				// of an abstract enum (this means that the enum has an abstract method that is
+				// Implemented by each instance - see AveSlipForRupModels for an example). in
+				// this case we need the parent class, which is the actual enum class itself.
+				clazz = (Class<E>) clazz.getEnclosingClass();
+			}
+		}
 		this.nullOption = nullOption;
 		setDefaultValue(defaultValue);
 	}
