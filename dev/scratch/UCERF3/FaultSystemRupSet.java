@@ -491,7 +491,7 @@ public abstract class FaultSystemRupSet {
 	 * aseismicity factors and coupling coefficients.  
 	 * @return moment in SI units
 	 */
-	public double getTotalMomentRateFrorAllSections() {
+	public double getTotalMomentRateForAllSections() {
 		return DeformationModelsCalc.calculateTotalMomentRate((ArrayList)getFaultSectionDataList(), true);
 	}
 	

@@ -17,8 +17,12 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -177,7 +181,7 @@ public class RunInversion {
 	 */
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "Model1_GEOBOUND";
+		String fileName = "Model1_GEOBOUND_UNIFORM_1HR";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
@@ -186,7 +190,9 @@ public class RunInversion {
 		FaultSystemRupSet rupSet = null;
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOBOUND);
-			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOBOUND);
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOBOUND, MagAreaRelationships.AVE_UCERF2,
+																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM);
+//			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOBOUND);
 			// or you can load one for yourself!
 //			rupSet = SimpleFaultSystemRupSet.fromFile(new File("/path/to/your/rupture/file!"));
 
@@ -195,12 +201,12 @@ public class RunInversion {
 			System.exit(1);
 		}
 		
-		if (D) System.out.println("Total Moment Rate = "+rupSet.getTotalMomentRateFrorAllSections());
+		if (D) System.out.println("Total Moment Rate = "+rupSet.getTotalMomentRateForAllSections());
 		
 		// get the inversion configuration
 		InversionConfiguration config;
 		// this will get it for the GR branch
-		config = InversionConfiguration.forModel(InversionModels.GR, rupSet);
+		config = InversionConfiguration.forModel(InversionModels.CHAR, rupSet);
 		// this can be used for testing other inversions
 //		config = buildCustomConfiguration(rupSet);
 		
@@ -263,9 +269,9 @@ public class RunInversion {
 		// now lets the run the inversion!
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
-//		criteria = TimeCompletionCriteria.getInHours(2); 
-		criteria = TimeCompletionCriteria.getInMinutes(3); 
-//		criteria = TimeCompletionCriteria.getInSeconds(60); 
+		criteria = TimeCompletionCriteria.getInHours(1); 
+//		criteria = TimeCompletionCriteria.getInMinutes(10); 
+//		criteria = TimeCompletionCriteria.getInSeconds(30); 
 		// or use this to run until a set amount of iterations have been completed
 //		criteria = new IterationCompletionCriteria(1000000); 
 
@@ -273,7 +279,7 @@ public class RunInversion {
 		
 		SimulatedAnnealing sa;
 		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
-		boolean threading = true;
+		boolean threading = false;
 		
 		if (threading) {
 			// this will use all available processors

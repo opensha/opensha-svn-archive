@@ -268,7 +268,7 @@ public class InversionConfiguration {
 		boolean D = true; //debugging
 		
 		double momentFractionOffFaults = findMomentFractionOffFaults(deformationModel);
-		double totalMoment = rupSet.getTotalMomentRate();
+		double totalMoment = rupSet.getTotalMomentRateForAllSections();
 		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
 		
 		// Use the mag-dist for the whole region since the deformation model off-fault moment #s from Kaj are also for the whole region
