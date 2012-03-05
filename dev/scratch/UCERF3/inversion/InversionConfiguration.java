@@ -35,7 +35,6 @@ import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
  */
 public class InversionConfiguration {
 	
-	private static final String deformationModel = null;
 	private boolean weightSlipRates;
 	private double relativePaleoRateWt; 
 	private double relativeMagnitudeEqualityConstraintWt;
