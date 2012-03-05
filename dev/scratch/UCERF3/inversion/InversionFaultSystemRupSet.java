@@ -253,12 +253,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
 				rupTotMoRateAvail[rupIndex]=totMoRate;
 //				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
-				if(aveSlipForRupModel == AveSlipForRupModels.SHAW12_SQRT_LENGTH || aveSlipForRupModel == AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP) {
-					rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totLength);
-				}
-				else {
-					rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totArea);
-				}
+				rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totArea, totLength);
 			}
 		}
 		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");

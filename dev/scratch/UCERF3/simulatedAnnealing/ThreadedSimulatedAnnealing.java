@@ -308,8 +308,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				}
 			}
 			
-			double[] threadPerturbs = new double[numThreads];
-			
 			for (int i=0; i<numThreads; i++) {
 				SAThread thread = threads.get(i);
 				if (thread.fatal)
@@ -321,16 +319,16 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 					xbest = sa.getBestSolution();
 					misfit = sa.getBestMisfit();
 					misfit_ineq = sa.getBestInequalityMisfit();
+					// set the number of perturbations to the perturbation count
+					// of the solution we're actually keeping
+					perturbs = thread.endPerturbs;
 				}
 				
 				// now set the current iteration count to the max iteration achieved
 				long endIter = thread.endIter;
 				if (endIter > iter)
 					iter = endIter;
-				
-				threadPerturbs[i] = thread.endPerturbs - thread.startPerturbs;
 			}
-			perturbs += (long)(StatUtils.mean(threadPerturbs)+0.5);
 			
 			rounds++;
 			// this is now done in the loop above

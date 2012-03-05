@@ -25,7 +25,7 @@ public enum AveSlipForRupModels {
 		
 	
 	AVE_UCERF2("Average UCERF2 M(A)", "AveU2") {
-		public double getAveSlip(double area) {
+		public double getAveSlip(double area, double length) {
 			double areaKm = area/1e6;
 			double mag = (ellB_magArea.getMedianMag(areaKm) + hb_magArea.getMedianMag(areaKm))/2;
 			double moment = MagUtils.magToMoment(mag);
@@ -34,7 +34,7 @@ public enum AveSlipForRupModels {
 	},
 	
 	SHAW_2009_MOD("Shaw (2009) Modified for D(L)", "Shaw09Mod") {
-		public double getAveSlip(double length) {
+		public double getAveSlip(double area, double length) {
 			// From Table 2b of UCERF2_task2_p2.pdf (& using his equation 7)
 			double c3 = 3.72e-5;
 			double wBeta = 95.0*1e3;
@@ -45,7 +45,7 @@ public enum AveSlipForRupModels {
 	},
 
 	HANKS_BAKUN_08("Hanks & Bakun (2008) M(A)", "HB08") {
-		public double getAveSlip(double area) {
+		public double getAveSlip(double area, double length) {
 			double mag = hb_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
@@ -55,7 +55,7 @@ public enum AveSlipForRupModels {
 	
 
 	ELLSWORTH_B("Ellsworth B M(A)", "EllB") {
-		public double getAveSlip(double area) {
+		public double getAveSlip(double area, double length) {
 			double mag = ellB_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
@@ -65,7 +65,7 @@ public enum AveSlipForRupModels {
 	
 	ELLSWORTH_B_MOD("Ellsworth B  Modified for D(L)", "EllB_Mod") {
 		// From Table 2b of UCERF2_task2_p2.pdf (& using his equation 5)
-		public double getAveSlip(double length) {
+		public double getAveSlip(double area, double length) {
 			// c1 = 7.58e-5
 			// W = 15 km --> 15000 m
 			return 7.58e-5*Math.sqrt(length*15000d);
@@ -74,7 +74,7 @@ public enum AveSlipForRupModels {
 
 		
 	SHAW12_SQRT_LENGTH("Sqrt Length D(L) (Shaw 2012)", "SqrtLen") {
-		public double getAveSlip(double length) {
+		public double getAveSlip(double area, double length) {
 			// c4 = 5.69e-5
 			// W = 15 km = 15e3 m
 			return 5.69e-5*Math.sqrt(length*15e3);
@@ -82,7 +82,7 @@ public enum AveSlipForRupModels {
 	},
 
 	SHAW_12_CONST_STRESS_DROP("Constant Stress Drop D(L) (Shaw 2012)", "CostStressDrop") {
-		public double getAveSlip(double length) {
+		public double getAveSlip(double area, double length) {
 			// stressDrop = 4.54 MPa
 			// W = 15 km = 15e3 m
 			double temp = 1.0/(7.0/(3.0*length) + 1.0/(2.0*15e3))*1e6;
@@ -149,13 +149,13 @@ public enum AveSlipForRupModels {
     		double lengthKm = (double)i;
     		double length = lengthKm*1e3;
     		double area = length*15e3;
-    		u2_func.set(lengthKm,u2.getAveSlip(area));
-    		sh09_func.set(lengthKm,sh09.getAveSlip(length));
-    		ellB_Mod_func.set(lengthKm,ellB_Mod.getAveSlip(length));
-    		ellB_func.set(lengthKm,ellB.getAveSlip(area));
-    		hb_func.set(lengthKm,hb.getAveSlip(area));
-    		sh12_sqrtL_func.set(lengthKm,sh12_sqrtL.getAveSlip(length));
-    		sh12_csd_func.set(lengthKm,sh12_csd.getAveSlip(length));
+    		u2_func.set(lengthKm,u2.getAveSlip(area, length));
+    		sh09_func.set(lengthKm,sh09.getAveSlip(area, length));
+    		ellB_Mod_func.set(lengthKm,ellB_Mod.getAveSlip(area, length));
+    		ellB_func.set(lengthKm,ellB.getAveSlip(area, length));
+    		hb_func.set(lengthKm,hb.getAveSlip(area, length));
+    		sh12_sqrtL_func.set(lengthKm,sh12_sqrtL.getAveSlip(area, length));
+    		sh12_csd_func.set(lengthKm,sh12_csd.getAveSlip(area, length));
     	}
     	
     	ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
@@ -187,7 +187,7 @@ public enum AveSlipForRupModels {
 	 * @param areaOrLength
 	 * @return
 	 */
-	 public abstract double getAveSlip(double areaOrLength);
+	 public abstract double getAveSlip(double area, double length);
 
 
 }
