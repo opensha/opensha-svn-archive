@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.dom4j.DocumentException;
@@ -18,6 +19,7 @@ import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.inversion.InversionConfiguration;
@@ -52,7 +54,11 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "timing-branch-test";
+		String runName = "weekend-converg-test";
+		if (args.length > 1)
+			runName = args[1];
+		runName = df.format(new Date())+"-"+runName;
+		runName = "2012_03_02-weekend-converg-test";
 		boolean buildRupSets = true;
 
 		int numRuns = 1;
@@ -61,25 +67,53 @@ public class LogicTreePBSWriter {
 
 		// if null, all that are applicable to each fault model will be used
 		DeformationModels[] defModels = null;
+//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 
 		InversionModels[] inversionModels = InversionModels.values();
+//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
 
-//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
-		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
+		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
+//		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
-		//		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
-		//				SlipAlongRuptureModels.UNIFORM, SlipAlongRuptureModels.WG02 };
-		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
+				SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
+						SlipAlongRuptureModels.UNIFORM, SlipAlongRuptureModels.WG02 };
+//		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
+//				SlipAlongRuptureModels.UNIFORM };
 
-		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
-		//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
+//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
+		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
 		
-		TimeCompletionCriteria checkPointCritera = TimeCompletionCriteria.getInHours(1);
-
-		if (args.length > 1)
-			runName = args[1];
-		runName = df.format(new Date())+"-"+runName;
+		// do all branch choices relative to these:
+//		Branch defaultBranch = null;
+		int maxAway = 1;
+		LogicTreeBranch[] defaultBranches = { new LogicTreeBranch(null, null, MagAreaRelationships.AVE_UCERF2,
+								AveSlipForRupModels.AVE_UCERF2, null, InversionModels.CHAR),
+							 new LogicTreeBranch(null, null, MagAreaRelationships.AVE_UCERF2,
+								AveSlipForRupModels.AVE_UCERF2, null, InversionModels.UNCONSTRAINED)};
+		if (defaultBranches != null) {
+			// make sure all default branch choices are valid!
+			for (LogicTreeBranch defaultBranch : defaultBranches) {
+				if (defaultBranch.getFaultModel() != null &&
+						!Arrays.asList(faultModels).contains(defaultBranch.getFaultModel()))
+					defaultBranch.setFaultModel(null);
+				if (defaultBranch.getDefModel() != null &&
+						!Arrays.asList(defModels).contains(defaultBranch.getDefModel()))
+					defaultBranch.setDefModel(null);
+				if (defaultBranch.getAveSlip() != null &&
+						!Arrays.asList(aveSlipModels).contains(defaultBranch.getAveSlip()))
+					defaultBranch.setAveSlip(null);
+				if (defaultBranch.getSlipAlong() != null &&
+						!Arrays.asList(slipAlongs).contains(defaultBranch.getSlipAlong()))
+					defaultBranch.setSlipAlong(null);
+				if (defaultBranch.getMagArea() != null &&
+						!Arrays.asList(magAreas).contains(defaultBranch.getMagArea()))
+					defaultBranch.setMagArea(null);
+				if (defaultBranch.getInvModel() != null &&
+						!Arrays.asList(inversionModels).contains(defaultBranch.getInvModel()))
+					defaultBranch.setInvModel(null);
+			}
+		}
 
 		File writeDir;
 		if (args.length > 0)
@@ -100,8 +134,9 @@ public class LogicTreePBSWriter {
 		CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
 		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(1);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath());
+		javaWriter.setHeadless(true);
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, threads, null, null, subCompletion);
-		tsa_create.setCheckPointCriteria(checkPointCritera);
+		tsa_create.setPlots(true);
 		tsa_create.setCool(cool);
 
 		double nodeHours = 0;
@@ -125,42 +160,60 @@ public class LogicTreePBSWriter {
 							File localRupSetFile = new File(writeDir, baseName+"_rupSet.zip");
 							File remoteRupSetFile = new File(runSubDir, baseName+"_rupSet.zip");
 
-							if (buildRupSets && !localRupSetFile.exists()) {
-								SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
-										InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal));
-								rupSet.toZipFile(localRupSetFile);
-								System.gc();
-							}
-
 							for (InversionModels im : inversionModels) {
+								if (defaultBranches != null && defaultBranches.length > 0) {
+									LogicTreeBranch branch = new LogicTreeBranch(fm, dm, ma, as, sal, im);
+									int closest = Integer.MAX_VALUE;
+									for (LogicTreeBranch defaultBranch : defaultBranches) {
+										int away = defaultBranch.getNumAwayFrom(branch);
+										if (away < closest)
+											closest = away;
+									}
+									if (closest > maxAway)
+										continue;
+								}
+								
+								
+								if (buildRupSets && !localRupSetFile.exists()) {
+									SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
+											InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal));
+									rupSet.toZipFile(localRupSetFile);
+									System.gc();
+								}
+								
 								int mins;
 								NonnegativityConstraintType nonNeg;
 								int ppn; // minimum number of cpus
 								int heapSizeMB;
 								BatchScriptWriter batch;
+								TimeCompletionCriteria checkPointCritera;
 								if (im == InversionModels.GR) {
 									mins = 500;
 									nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
 									ppn = 24;
 									heapSizeMB = 40000;
 									batch = new USC_HPCC_ScriptWriter("dodecacore");
+									checkPointCritera = TimeCompletionCriteria.getInHours(2);
 								} else if (im == InversionModels.CHAR) {
 									mins = 500; // TODO ?
 									nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
 									ppn = 8;
 									heapSizeMB = 10000;
 									batch = new USC_HPCC_ScriptWriter("quadcore");
+									checkPointCritera = TimeCompletionCriteria.getInHours(2);
 								} else { // UNCONSTRAINED
 									mins = 60;
 									nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
 									ppn = 8;
 									heapSizeMB = 10000;
 									batch = new USC_HPCC_ScriptWriter("quadcore");
+									checkPointCritera = TimeCompletionCriteria.getInMinutes(15);
 								}
 								CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
 								tsa_create.setCriteria(criteria);
 								javaWriter.setHeapSizeMB(heapSizeMB);
 								tsa_create.setNonNeg(nonNeg);
+								tsa_create.setCheckPointCriteria(checkPointCritera);
 								
 								String name = baseName+"_"+im.getShortName();
 

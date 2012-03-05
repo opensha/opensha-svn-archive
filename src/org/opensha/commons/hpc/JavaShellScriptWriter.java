@@ -21,6 +21,7 @@ public class JavaShellScriptWriter implements XMLSaveable {
 	private File javaBin;
 	private int heapSizeMB;
 	private Collection<File> classpath;
+	private boolean headless;
 	
 	public JavaShellScriptWriter(File javaBin, int heapSizeMB, Collection<File> classpath) {
 		setJavaBin(javaBin);
@@ -43,6 +44,14 @@ public class JavaShellScriptWriter implements XMLSaveable {
 
 	public void setHeapSizeMB(int heapSizeMB) {
 		this.heapSizeMB = heapSizeMB;
+	}
+	
+	public boolean isHeadless() {
+		return headless;
+	}
+	
+	public void setHeadless(boolean headless) {
+		this.headless = headless;
 	}
 
 	public Collection<File> getClasspath() {
@@ -70,8 +79,10 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		}
 		
 		String heap = "";
+		if (headless)
+			heap = " -Djava.awt.headless=true";
 		if (heapSizeMB > 0)
-			heap = " -Xmx"+heapSizeMB+"M";
+			heap += " -Xmx"+heapSizeMB+"M";
 		
 		String args = getFormattedArgs(heap+cp);
 		

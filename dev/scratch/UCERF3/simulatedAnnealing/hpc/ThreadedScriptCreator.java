@@ -41,6 +41,7 @@ public class ThreadedScriptCreator {
 	private GenerationFunctionType perturb;
 	private NonnegativityConstraintType nonNeg;
 	private boolean setSubIterationsZero = false;
+	private boolean plots = false;
 	
 	public ThreadedScriptCreator(JavaShellScriptWriter writer,
 			String numThreads, File solFile, CompletionCriteria criteria, CompletionCriteria subCompletion) {
@@ -92,6 +93,8 @@ public class ThreadedScriptCreator {
 			args +=		 " --nonneg "+nonNeg.name();
 		if (checkPointCriteria != null)
 			args +=		 " --checkpoint "+checkPointCriteria.getTimeStr();
+		if (plots)
+			args +=		 " --plots";
 		
 		return args;
 	}
@@ -191,6 +194,14 @@ public class ThreadedScriptCreator {
 
 	public void setCheckPointCriteria(TimeCompletionCriteria checkPointCriteria) {
 		this.checkPointCriteria = checkPointCriteria;
+	}
+	
+	public void setPlots(boolean plots) {
+		this.plots = plots;
+	}
+	
+	public boolean isPlots() {
+		return plots;
 	}
 
 }
