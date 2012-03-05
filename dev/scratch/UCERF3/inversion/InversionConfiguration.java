@@ -1,6 +1,7 @@
 package scratch.UCERF3.inversion;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.opensha.commons.calc.FaultMomentCalc;
@@ -192,11 +193,12 @@ public class InversionConfiguration {
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 1;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
-			initialRupModel = aPrioriRupConstraint;
+			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
 			double transitionMag = 7.6;
 			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(rupSet.getDeformationModel(), transitionMag, rupSet), transitionMag);
+			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);  // This will keep the starting model below the MFD inequality constraints
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
@@ -206,6 +208,7 @@ public class InversionConfiguration {
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = initialRupModel;
 			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet.getDeformationModel()));
+			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);  // This will keep the starting model below the MFD inequality constraints
 			break;
 		case UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
@@ -240,7 +243,54 @@ public class InversionConfiguration {
 	
 	
 	
-	
+	/**
+	 * This method adjusts the starting model to ensure that for each MFD inequality constraint magnitude-bin, the starting model is below the MFD.
+	 * It will uniformly reduce the rates of ruptures in any bins that are over the MFD.
+	 * @param rupSet 
+	 */
+	private static double[] adjustStartingModel(double[] initialRupModel,
+			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet) {
+		
+		double[][] fractRupsInsideMFD_Regions = rupSet.computeFractRupsInsideMFD_Regions(mfdInequalityConstraints);
+		double[] rupMeanMag = rupSet.getMagForAllRups();
+		
+		
+		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
+			IncrementalMagFreqDist targetMagFreqDist = mfdInequalityConstraints.get(i).getMagFreqDist();
+			IncrementalMagFreqDist startingModelMagFreqDist = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
+			startingModelMagFreqDist.setTolerance(0.1);
+			
+			// Find the starting model MFD
+			for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
+				double mag = rupMeanMag[rup];
+				double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
+				if (fractRupInside > 0) {
+					startingModelMagFreqDist.add(mag, fractRupInside * initialRupModel[rup]);
+				}
+			}
+			
+			System.out.println("starting model MFD: "+startingModelMagFreqDist);
+			System.out.println("target MFD: "+targetMagFreqDist);
+			// Find the amount to adjust starting model MFD to be below or equal to Target MFD
+			IncrementalMagFreqDist adjustmentRatio = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
+			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m+= targetMagFreqDist.getDelta()) {
+				if (startingModelMagFreqDist.getClosestY(m) > targetMagFreqDist.getClosestY(m))
+					adjustmentRatio.set(m, targetMagFreqDist.getClosestY(m) / startingModelMagFreqDist.getClosestY(m));
+				else
+					adjustmentRatio.set(m, 1.0);
+			}
+			System.out.println("adjustment ratio: "+adjustmentRatio);
+			for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
+				double mag = rupMeanMag[rup];
+				initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
+			}
+			
+		}
+		
+		
+		return initialRupModel;
+	}
+
 	/**
 	 * This method multiplies the input MFD constraints by fractionRateReduction.
 	 * For example, if the off-fault rates are 10% of the rates, setting fractionRateReduction to 0.1 will reduce the MFDs to 90% of their previous rates.
@@ -334,7 +384,7 @@ public class InversionConfiguration {
 			double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
 			double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
 			momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
-			System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);
+			System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
 		case ABM:
 			momentFractionOffFaults = 33.6766 / 100.0;
 			break;
