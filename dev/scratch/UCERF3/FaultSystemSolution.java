@@ -33,6 +33,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
 /**
@@ -644,25 +646,51 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 				magHist.add(getMagForRup(rup), fractRupInside*getRateForRup(rup));
 			}
 			System.out.println("Total solution moment/yr for "+mfdConstraints.get(i).getRegion().getName()+" region = "+magHist.getTotalMomentRate());
-			ArrayList funcs4 = new ArrayList();
+			ArrayList<IncrementalMagFreqDist> funcs4 = new ArrayList<IncrementalMagFreqDist>();
 			magHist.setName("Magnitude Distribution of SA Solution");
 			magHist.setInfo("(number in each mag bin)");
 			funcs4.add(magHist);
 			IncrementalMagFreqDist targetMagFreqDist = mfdConstraints.get(i).getMagFreqDist();; 
-			targetMagFreqDist.setTolerance(0.1); 
 			targetMagFreqDist.setName("Target Magnitude Distribution");
 			targetMagFreqDist.setInfo(mfdConstraints.get(i).getRegion().getName());
-//			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
 			funcs4.add(targetMagFreqDist);
 			
-			// OPTIONAL: Add line for UCERF2 (Target minus off-fault component with aftershocks added back in)
+			// OPTIONAL: Add UCERF2 plots for comparison (Target minus off-fault component with aftershocks added back in & Background Seismicity)
 			UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
 			ucerf2Constraints.setRegion(mfdConstraints.get(i).getRegion());
 			IncrementalMagFreqDist ucerf2_OnFaultTargetMFD = ucerf2Constraints.getTargetMinusBackgroundMFD();
 			ucerf2_OnFaultTargetMFD.setTolerance(0.1); 
 			ucerf2_OnFaultTargetMFD.setName("UCERF2 Target minus background+aftershocks");
 			ucerf2_OnFaultTargetMFD.setInfo(mfdConstraints.get(i).getRegion().getName());
-			funcs4.add(ucerf2_OnFaultTargetMFD);
+			IncrementalMagFreqDist ucerf2_OffFaultMFD = ucerf2Constraints.getBackgroundSeisMFD();
+			ucerf2_OffFaultMFD.setName("UCERF2 Background Seismicity MFD"); 
+			funcs4.add(ucerf2_OnFaultTargetMFD); funcs4.add(ucerf2_OffFaultMFD);
+			
+			// OPTIONAL: Plot implied off-fault MFD % Total Target
+			if (mfdConstraints.get(i).getRegion().getName()=="RELM_NOCAL Region") {
+				IncrementalMagFreqDist totalTargetMFD = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850).getMagFreqDist();
+				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
+				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
+					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
+					
+				}
+				offFaultMFD.setName("Implied Off-fault MFD for Solution"); totalTargetMFD.setName("Total Seismicity Rate for Region");
+				offFaultMFD.setInfo("Total Target minus on-fault solution");totalTargetMFD.setInfo("Northern CA 1850-2007");
+				funcs4.add(totalTargetMFD); funcs4.add(offFaultMFD);
+			}
+			if (mfdConstraints.get(i).getRegion().getName()=="RELM_SOCAL Region") {
+				IncrementalMagFreqDist totalTargetMFD = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850).getMagFreqDist();
+				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
+				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
+					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
+					
+				}
+				offFaultMFD.setName("Implied Off-fault MFD for Solution"); totalTargetMFD.setName("Total Seismicity Rate for Region");
+				offFaultMFD.setInfo("Total Target minus on-fault solution");totalTargetMFD.setInfo("Southern CA 1850-2007");
+				funcs4.add(totalTargetMFD); funcs4.add(offFaultMFD);
+			}
+			
+			
 			
 			GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
 			graph4.setX_AxisLabel("Magnitude");
