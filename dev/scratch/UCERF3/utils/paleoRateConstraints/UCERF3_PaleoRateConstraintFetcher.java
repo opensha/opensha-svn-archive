@@ -38,7 +38,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class UCERF3_PaleoRateConstraintFetcher {
 	
 	private final static String PALEO_DATA_SUB_DIR = "paleoRateData";
-	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v02.xls";
+	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v03.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -73,13 +73,20 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			int closestFaultSectionIndex=-1;
 			Location loc = new Location(lat,lon);
 			for(int sectionIndex=0; sectionIndex<faultSectionData.size(); ++sectionIndex) {
-				dist  = faultSectionData.get(sectionIndex).getFaultTrace().minDistToLine(loc);
+				FaultSectionPrefData data = faultSectionData.get(sectionIndex);
+				if (siteName.equals("N. San Andreas -  Filoli") && data.getName().contains("Monte Vista"))
+					continue; // TODO remove hack!
+				dist  = data.getFaultTrace().minDistToLine(loc);
 				if(dist<minDist) {
 					minDist = dist;
 					closestFaultSectionIndex = sectionIndex;
 				}
 			}
-			if(minDist>2) continue; // closest fault section is at a distance of more than 2 km
+			if(minDist>2) {
+				if (D) System.out.println("No match for: "+siteName+" (lat="+lat+", lon="+lon
+						+") closest was "+minDist+" away: "+faultSectionData.get(closestFaultSectionIndex).getSectionName());
+				continue; // closest fault section is at a distance of more than 2 km
+			}
 			
 			// add to Seg Rate Constraint list
 			String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
