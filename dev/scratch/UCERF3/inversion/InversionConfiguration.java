@@ -209,7 +209,7 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
-			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet.getDeformationModel()));
+			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet.getFaultModel(), rupSet.getDeformationModel()));
 			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);
@@ -337,7 +337,7 @@ public class InversionConfiguration {
 	 */
 	private static double findBValueForMomentRateReduction(DeformationModels deformationModel, double transitionMag, FaultSystemRupSet rupSet) {
 		
-		double momentFractionOffFaults = findMomentFractionOffFaults(deformationModel);
+		double momentFractionOffFaults = findMomentFractionOffFaults(rupSet.getFaultModel(), deformationModel);
 		if (D) System.out.println("Moment Fraction Off Faults = "+momentFractionOffFaults +" for deformation model "+deformationModel);
 		double totalMoment = rupSet.getTotalMomentRateForAllSections();
 		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
@@ -398,35 +398,75 @@ public class InversionConfiguration {
 //	}
 	
 	
-	private static double findMomentFractionOffFaults (DeformationModels deformationModel) {
+	private static double findMomentFractionOffFaults(FaultModels faultModel, DeformationModels deformationModel) {
 		// These values are from an e-mail from Kaj dated 2/29/12, for Zeng model see 3/5/12 e-mail
 		double momentFractionOffFaults;
-		switch (deformationModel) {
-		case GEOLOGIC:
-			UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
-			Region entire_region = new CaliforniaRegions.RELM_TESTING();
-			ucerf2Constraints.setRegion(entire_region);
-			double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
-			double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
-			momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
-			System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
+		switch (faultModel) {
+		case FM3_1:
+			switch (deformationModel) {
+			case GEOLOGIC:
+				UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+				Region entire_region = new CaliforniaRegions.RELM_TESTING();
+				ucerf2Constraints.setRegion(entire_region);
+				double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
+				double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
+				momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
+				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
+				break;
+			case ABM:
+				momentFractionOffFaults = 33.6766 / 100.0;
+				break;
+			case GEOBOUND:
+				momentFractionOffFaults = 34.2229 / 100.0;
+				break;
+			case NEOKINEMA:
+				momentFractionOffFaults = 28.0202 / 100.0;
+				break;
+			case GEOLOGIC_PLUS_ABM:
+				momentFractionOffFaults = (findMomentFractionOffFaults(faultModel, DeformationModels.GEOLOGIC)
+						+ findMomentFractionOffFaults(faultModel, DeformationModels.ABM)) / 2.0;
+			case ZENG:
+				momentFractionOffFaults = 37.0728 / 100.0;
+				break;	
+			default:
+				throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model/fault model: "
+						+faultModel+", "+deformationModel);
+			}
 			break;
-		case ABM:
-			momentFractionOffFaults = 33.6766 / 100.0;
+		case FM3_2:
+			switch (deformationModel) {
+			case GEOLOGIC:
+				UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+				Region entire_region = new CaliforniaRegions.RELM_TESTING();
+				ucerf2Constraints.setRegion(entire_region);
+				double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
+				double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
+				momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
+				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
+				break;
+//			case ABM:
+//				momentFractionOffFaults = 33.6766 / 100.0;
+//				break;
+//			case GEOBOUND:
+//				momentFractionOffFaults = 34.2229 / 100.0;
+//				break;
+//			case NEOKINEMA:
+//				momentFractionOffFaults = 28.0202 / 100.0;
+//				break;
+//			case GEOLOGIC_PLUS_ABM:
+//				momentFractionOffFaults = (findMomentFractionOffFaults(faultModel, DeformationModels.GEOLOGIC)
+//						+ findMomentFractionOffFaults(faultModel, DeformationModels.ABM)) / 2.0;
+//			case ZENG:
+//				momentFractionOffFaults = 37.0728 / 100.0;
+//				break;	
+			default:
+				throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model/fault model: "
+							+faultModel+", "+deformationModel);
+			}
 			break;
-		case GEOBOUND:
-			momentFractionOffFaults = 34.2229 / 100.0;
-			break;
-		case NEOKINEMA:
-			momentFractionOffFaults = 28.0202 / 100.0;
-			break;
-		case GEOLOGIC_PLUS_ABM:
-			momentFractionOffFaults = (findMomentFractionOffFaults(DeformationModels.GEOLOGIC) + findMomentFractionOffFaults(DeformationModels.ABM)) / 2.0;
-		case ZENG:
-			momentFractionOffFaults = 37.0728 / 100.0;
-			break;	
+
 		default:
-			throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model :(");
+			throw new RuntimeException("Can't get fraction off fault for FM: "+faultModel);
 		}
 		
 		return momentFractionOffFaults;
