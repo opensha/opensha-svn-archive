@@ -27,6 +27,7 @@ public class DeformationModelsCalc {
 		
 		double meanLSD=0;
 		double meanDDW=0;
+		double meanLowerMinusUpperSeisDepth=0;
 		int num=0;
 		
 		for(FaultSectionPrefData data : subsectData) {
@@ -39,6 +40,7 @@ public class DeformationModelsCalc {
 				if(!largeValuesInfoLSD.contains(info)) largeValuesInfoLSD.add(info);
 			}
 			meanDDW += data.getReducedDownDipWidth();
+			meanLowerMinusUpperSeisDepth += (1.0-data.getAseismicSlipFactor())*(data.getAveLowerDepth()-data.getOrigAveUpperDepth());
 			reducedDDW_Hist.add(data.getReducedDownDipWidth(), 1.0);
 			if(data.getReducedDownDipWidth()>25.0) {
 				String info = data.getParentSectionName()+"\tDownDipWidth = "+Math.round(data.getReducedDownDipWidth());
@@ -48,6 +50,9 @@ public class DeformationModelsCalc {
 		
 		meanLSD /= num;
 		meanDDW /= num;
+		meanLowerMinusUpperSeisDepth /= num;
+		
+		System.out.println("meanLowerMinusUpperSeisDepth="+Math.round(meanLowerMinusUpperSeisDepth));
 		
 		origDepthsHist.normalizeBySumOfY_Vals();
 		origDepthsHist.setName("Distribution of Lower Seis. Depths; mean = "+Math.round(meanLSD));
@@ -108,6 +113,16 @@ public class DeformationModelsCalc {
 				DeformationModels.GEOLOGIC,default_scratch_dir);
 		System.out.println("GEOLOGIC moment Rate (reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),true));
 		System.out.println("GEOLOGIC moment Rate (not reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),false));
+
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_1,
+				DeformationModels.GEOLOGIC_PLUS_ABM,default_scratch_dir);
+		System.out.println("GEOLOGIC_PLUS_ABM moment Rate (reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),true));
+		System.out.println("GEOLOGIC_PLUS_ABM moment Rate (not reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),false));
+
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_1,
+				DeformationModels.ABM,default_scratch_dir);
+		System.out.println("ABM moment Rate (reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),true));
+		System.out.println("ABM moment Rate (not reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),false));
 
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1,
 //				DeformationModels.GEOLOGIC_PLUS_ABM,default_scratch_dir);

@@ -129,8 +129,8 @@ public class FaultSystemRupSetCalc {
 		hists.get(4).setName("Cumulative "+hists.get(1).getName());
 		hists.get(4).setInfo(hists.get(1).getInfo());
 		hists.add(hists.get(2).getCumulativeDistFunction());
-		hists.get(5).setName("Cumulative "+hists.get(1).getName());
-		hists.get(5).setInfo(hists.get(1).getInfo());
+		hists.get(5).setName("Cumulative "+hists.get(2).getName());
+		hists.get(5).setInfo(hists.get(2).getInfo());
 		
 		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
 		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
@@ -213,13 +213,15 @@ public class FaultSystemRupSetCalc {
 //		getFractMomentReductionForSmallMags(6.0, 8.0, 1.0);
 //		getFractMomentReductionForSmallMags(7.0, 8.0, 1.0);
 		
-		
    		try {
    			System.out.println("Getting rup set");
 			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
 			System.out.println("Done getting rup set");
 			getMomentRateReductionHistogram(faultSysRupSet, true, true);
-//			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
+			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
+			
+			System.out.println(getMinMagHistogram(faultSysRupSet, 5.05,40,0.1, true).getCumulativeDistFunction());
+
    		} catch (IOException e) {
 			e.printStackTrace();
 		}

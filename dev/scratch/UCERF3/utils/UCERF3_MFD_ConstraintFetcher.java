@@ -309,7 +309,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 	 */
 	public static void main(String[] args) {
 		
-		System.out.println(getGarderKnoppoffFractAftershocksMDF());
+//		System.out.println(getGarderKnoppoffFractAftershocksMDF());
 		
 //		MFD_InversionConstraint invConstr = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
 //		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1984);
@@ -318,8 +318,8 @@ public class UCERF3_MFD_ConstraintFetcher {
 //		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
 //		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
 	
-//		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
-//		test.plotCumMFDs();
+		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
+		test.plotCumMFDs();
 	}
 
 	

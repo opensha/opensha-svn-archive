@@ -188,18 +188,28 @@ public class UCERF2_MFD_ConstraintFetcher {
 		int lastIndexOfFltSources = 288;
 		int lastIndexOfNonCA_FltSources = 408;
 		int lastIndexOfC_zones = 1919;
-		double moRate=0, moRateOnFaults=0;
+		double faultMoRate=0, nonCA_faultMoRate=0, cZoneMoRate=0, backSrcMoRate=0;
 		double duration = meanUCERF2_ETAS.getTimeSpan().getDuration();
-		int i=0;
-		for(ProbEqkSource source : meanUCERF2_ETAS) {
+		for(int s=0;s<=lastIndexOfFltSources;s++)
+			faultMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+		for(int s=lastIndexOfFltSources+1;s<=lastIndexOfNonCA_FltSources;s++)
+			nonCA_faultMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+		for(int s=lastIndexOfNonCA_FltSources+1;s<=lastIndexOfC_zones;s++)
+			cZoneMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+		for(int s=lastIndexOfC_zones+1;s<meanUCERF2_ETAS.getNumSources();s++)
+			backSrcMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+		
+		double moRate=0;
+		for(ProbEqkSource source : meanUCERF2_ETAS)
 			moRate += source.computeEquivTotalMomentRate(duration);
-			if(i == lastIndexOfFltSources)
-				moRateOnFaults =moRate;
-			if(i<lastIndexOfNonCA_FltSources+2)
-				System.out.println(source.getName());
-			i+=1;
-		}
-		System.out.println("moRate="+(float)moRate+"\tmoRateOnFaults="+(float)moRateOnFaults+"\tmoRateOnFaults/moRate"+(float)(moRateOnFaults/moRate));
+
+		System.out.println("totMoRate = "+(float)moRate+"\ttest="+(float)(faultMoRate+nonCA_faultMoRate+cZoneMoRate+backSrcMoRate)+")\n"+
+				"faultMoRate = "+(float)faultMoRate+"\t("+Math.round(100.0*(faultMoRate/moRate))+"%)\n"+
+				"nonCA_faultMoRate = "+(float)nonCA_faultMoRate+"\t("+Math.round(100.0*(nonCA_faultMoRate/moRate))+"%)\n"+
+				"cZoneMoRate = "+(float)cZoneMoRate+"\t("+Math.round(100.0*(cZoneMoRate/moRate))+"%)\n"+
+				"backSrcMoRate = "+(float)backSrcMoRate+"\t("+Math.round(100.0*(backSrcMoRate/moRate))+"%)\n"+
+				"faultMoRate/(faultMoRate+cZoneMoRate+backSrcMoRate) = "+Math.round(100.0*faultMoRate/(faultMoRate+cZoneMoRate+backSrcMoRate))+" (%)\n"+
+				"faultMoRate/(faultMoRate+2*cZoneMoRate+backSrcMoRate) = "+Math.round(100.0*faultMoRate/(faultMoRate+2*cZoneMoRate+backSrcMoRate))+" (%)");
 
 
 	}
@@ -219,6 +229,6 @@ public class UCERF2_MFD_ConstraintFetcher {
 		
 		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
 		fetcher.computeMomentRates();
-		fetcher.plotMFDs();
+//		fetcher.plotMFDs();
 	}
 }
