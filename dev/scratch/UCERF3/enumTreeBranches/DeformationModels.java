@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.opensha.commons.data.ShortNamed;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
-public enum DeformationModels {
+public enum DeformationModels implements ShortNamed {
 	// UCERF2
 	UCERF2_NCAL(			"UCERF2 NCal", 			"NCAL", 	FaultModels.FM2_1),
 	UCERF2_BAYAREA(			"UCERF2 Bay Area", 		"BAY",		FaultModels.FM2_1),

@@ -2,13 +2,14 @@ package scratch.UCERF3.enumTreeBranches;
 
 import java.util.ArrayList;
 
+import org.opensha.commons.data.ShortNamed;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-public enum FaultModels {
+public enum FaultModels implements ShortNamed {
 
 	FM2_1("Fault Model 2.1", 41),
 	FM3_1("Fault Model 3.1", 101),

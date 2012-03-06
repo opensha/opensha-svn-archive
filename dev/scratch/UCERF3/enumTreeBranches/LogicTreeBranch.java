@@ -1,5 +1,12 @@
 package scratch.UCERF3.enumTreeBranches;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.opensha.commons.data.ShortNamed;
+import org.opensha.commons.param.impl.EnumParameter;
+
 
 public class LogicTreeBranch {
 	FaultModels faultModel;
@@ -20,6 +27,11 @@ public class LogicTreeBranch {
 		this.invModel = im;
 	}
 	
+	/**
+	 * @param branch
+	 * @return the number of logic tree branches that are non null and differ from the given
+	 * branch.
+	 */
 	public int getNumAwayFrom(LogicTreeBranch branch) {
 		int away = 0;
 		if (faultModel != null && faultModel != branch.faultModel)
@@ -36,11 +48,84 @@ public class LogicTreeBranch {
 			away++;
 		return away;
 	}
+	
+	/**
+	 * 
+	 * @param branch
+	 * @return true if every non null value of this branch matches the given branch
+	 */
+	public boolean matchesNonNulls(LogicTreeBranch branch) {
+		return getNumAwayFrom(branch) == 0;
+	}
 
 	@Override
 	public String toString() {
 		return "Branch [fm=" + faultModel + ", dm=" + defModel + ", ma=" + magArea + ", as="
 				+ aveSlip + ", sal=" + slipAlong + ", im=" + invModel + "]";
+	}
+	
+	private static <E extends ShortNamed> List<E> lengthSorted(E[] vals) {
+		ArrayList<E> list = new ArrayList<E>();
+		for (E val : vals) {
+			int ind = 0;
+			for (int i=0; i<list.size(); i++) {
+				E lVal = list.get(i);
+				if (val.getShortName().length() > lVal.getShortName().length())
+					ind = i+1;
+			}
+			list.add(ind, val);
+		}
+		Collections.reverse(list);
+//		System.out.println("************");
+//		for (E val : list)
+//			System.out.println(val.getShortName());
+		return list;
+	}
+	
+	public static LogicTreeBranch parseFileName(String fileName) {
+		FaultModels fm = null;
+		for (FaultModels mod : lengthSorted(FaultModels.values())) {
+			if (fileName.contains(mod.getShortName())) {
+				fm = mod;
+				break;
+			}
+		}
+		DeformationModels dm = null;
+		for (DeformationModels mod : lengthSorted(DeformationModels.values())) {
+			if (fileName.contains(mod.getShortName())) {
+				dm = mod;
+				break;
+			}
+		}
+		MagAreaRelationships ma = null;
+		for (MagAreaRelationships mod : lengthSorted(MagAreaRelationships.values())) {
+			if (fileName.contains("Ma"+mod.getShortName())) {
+				ma = mod;
+				break;
+			}
+		}
+		AveSlipForRupModels as = null;
+		for (AveSlipForRupModels mod : lengthSorted(AveSlipForRupModels.values())) {
+			if (fileName.contains("Dr"+mod.getShortName())) {
+				as = mod;
+				break;
+			}
+		}
+		SlipAlongRuptureModels sal = null;
+		for (SlipAlongRuptureModels mod : lengthSorted(SlipAlongRuptureModels.values())) {
+			if (fileName.contains("Dsr"+mod.getShortName())) {
+				sal = mod;
+				break;
+			}
+		}
+		InversionModels inv = null;
+		for (InversionModels mod : lengthSorted(InversionModels.values())) {
+			if (fileName.contains(mod.getShortName())) {
+				inv = mod;
+				break;
+			}
+		}
+		return new LogicTreeBranch(fm, dm, ma, as, sal, inv);
 	}
 	
 	public String buildFileName() {

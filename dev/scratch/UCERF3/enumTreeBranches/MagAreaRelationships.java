@@ -7,10 +7,11 @@ import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_MagAreaRel;
+import org.opensha.commons.data.ShortNamed;
 
 import com.google.common.collect.Lists;
 
-public enum MagAreaRelationships {
+public enum MagAreaRelationships implements ShortNamed {
 	
 	HB_08("Hanks & Bakun (2002)", "HB08", new HanksBakun2002_MagAreaRel()),
 	ELL_B("Ellsworth B", "EllB", new Ellsworth_B_WG02_MagAreaRel()),

@@ -3,13 +3,12 @@ package org.opensha.commons.data;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.opensha.commons.util.FileUtils;
 
@@ -240,8 +239,16 @@ public class CSVFile<E> implements Iterable<List<E>> {
 	}
 	
 	public static CSVFile<String> readURL(URL url, boolean strictRowSizes, int cols) throws IOException {
+		return readStream((InputStream)url.getContent(), strictRowSizes, cols);
+	}
+	
+	public static CSVFile<String> readStream(InputStream is, boolean strictRowSizes) throws IOException {
+		return readStream(is, strictRowSizes, -1);
+	}
+	
+	public static CSVFile<String> readStream(InputStream is, boolean strictRowSizes, int cols) throws IOException {
 		List<List<String>> values = new ArrayList<List<String>>();
-		for (String line : FileUtils.loadFile(url)) {
+		for (String line : FileUtils.loadStream(is)) {
 			if (strictRowSizes && cols < 0) {
 				cols = loadLine(line, -1).size();
 			}

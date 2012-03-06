@@ -28,6 +28,7 @@ import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
@@ -190,7 +191,7 @@ public class RunInversion {
 		FaultSystemRupSet rupSet = null;
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOBOUND);
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOBOUND, MagAreaRelationships.AVE_UCERF2,
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOBOUND);
 			// or you can load one for yourself!
@@ -206,7 +207,7 @@ public class RunInversion {
 		// get the inversion configuration
 		InversionConfiguration config;
 		// this will get it for the GR branch
-		config = InversionConfiguration.forModel(InversionModels.CHAR, rupSet);
+		config = InversionConfiguration.forModel(InversionModels.UNCONSTRAINED, rupSet);
 		// this can be used for testing other inversions
 //		config = buildCustomConfiguration(rupSet);
 		
@@ -275,7 +276,7 @@ public class RunInversion {
 		// or use this to run until a set amount of iterations have been completed
 //		criteria = new IterationCompletionCriteria(1000000); 
 
-
+		criteria = new ProgressTrackingCompletionCriteria(criteria, 0.25);
 		
 		SimulatedAnnealing sa;
 		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();

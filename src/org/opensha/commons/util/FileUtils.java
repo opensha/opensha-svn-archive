@@ -160,9 +160,20 @@ public class FileUtils {
 	public static ArrayList<String> loadFile(URL url) throws IOException {
 		if(D) System.out.println("url="+url);
 		URLConnection uc = url.openConnection();
+		return loadStream((InputStream)uc.getContent());
+	}
+
+	/**
+	 *
+	 * @param is : input stream of file to be read
+	 * @return : arrayList containing the lines in file
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static ArrayList<String> loadStream(InputStream is) throws IOException {
 		ArrayList<String> list = new ArrayList<String>();
 		BufferedReader tis =
-			new BufferedReader(new InputStreamReader((InputStream) uc.getContent()));
+			new BufferedReader(new InputStreamReader(is));
 		String str = tis.readLine();
 		while(str != null) {
 			list.add(str);

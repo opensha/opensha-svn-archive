@@ -142,7 +142,14 @@ implements Serializable {
 		this(new Point2DToleranceComparator());
 	}
 
-
+	/**
+	 * Creates a default arbitrarily discretized function with the given name
+	 * @param name
+	 */
+	public ArbitrarilyDiscretizedFunc(String name) {
+		this();
+		setName(name);
+	}
 
 	public ArbitrarilyDiscretizedFunc(Point2DToleranceSortedList points) {
 		this.points = points;

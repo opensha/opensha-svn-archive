@@ -1,6 +1,8 @@
 package scratch.UCERF3.enumTreeBranches;
 
-public enum SlipAlongRuptureModels {
+import org.opensha.commons.data.ShortNamed;
+
+public enum SlipAlongRuptureModels implements ShortNamed {
 	// DO NOT RENAME THESE - they are used in rupture set files
 	CHAR("Characteristic", "Char"),	// "Characteristic (Dsr=Ds)"
 	UNIFORM("Uniform", "Uni"),	// "Uniform/Boxcar (Dsr=Dr)"

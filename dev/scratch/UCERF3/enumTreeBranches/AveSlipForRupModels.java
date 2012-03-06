@@ -12,6 +12,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
+import org.opensha.commons.data.ShortNamed;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FileUtils;
@@ -21,7 +22,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
  * @author field
  *
  */
-public enum AveSlipForRupModels {
+public enum AveSlipForRupModels implements ShortNamed {
 		
 	
 	AVE_UCERF2("Average UCERF2 M(A)", "AveU2") {

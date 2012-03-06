@@ -6,6 +6,11 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+
+import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 
 import com.google.common.collect.Lists;
 
@@ -18,13 +23,27 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	
 	private CompletionCriteria criteria;
 	
+	private long autoPlotMillis;
+	private long nextPlotMillis;
+	private GraphiWindowAPI_Impl gw;
+	private ArrayList<ArbitrarilyDiscretizedFunc> funcs;
+	
 	private File automaticFile;
 	
 	public ProgressTrackingCompletionCriteria(CompletionCriteria criteria) {
-		this(criteria, null);
+		this(criteria, null, 0);
+	}
+	
+	public ProgressTrackingCompletionCriteria(CompletionCriteria criteria, double autoPlotMins) {
+		this(criteria, null, autoPlotMins);
 	}
 	
 	public ProgressTrackingCompletionCriteria(CompletionCriteria criteria, File automaticFile) {
+		this(criteria, automaticFile, 0);
+	}
+	
+	public ProgressTrackingCompletionCriteria(
+			CompletionCriteria criteria, File automaticFile, double autoPlotMins) {
 		times = new ArrayList<Long>();
 		iterations = new ArrayList<Long>();
 		energies = new ArrayList<double[]>();
@@ -32,6 +51,13 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 		
 		this.criteria = criteria;
 		this.automaticFile = automaticFile;
+		if (autoPlotMins > 0) {
+			this.autoPlotMillis = (long)(autoPlotMins * 60d * 1000d);
+			this.nextPlotMillis = autoPlotMillis;
+		} else {
+			this.autoPlotMillis = 0;
+			this.nextPlotMillis = -1;
+		}
 	}
 	
 	public void writeFile(File file) throws IOException {
@@ -58,6 +84,10 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			energies.add(energy);
 			perturbs.add(numPerturbsKept);
 		}
+		if (autoPlotMillis > 0 && watch.getTime() > nextPlotMillis) {
+			updatePlot();
+			nextPlotMillis = watch.getTime() + autoPlotMillis;
+		}
 		if (criteria.isSatisfied(watch, iter, energy, numPerturbsKept)) {
 			if (automaticFile != null) {
 				System.out.println("Writing progress to file: "+automaticFile.getAbsolutePath());
@@ -72,6 +102,34 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			return true;
 		}
 		return false;
+	}
+	
+	private void updatePlot() {
+		if (energies.isEmpty())
+			return;
+		if (gw == null) {
+			funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+			funcs.add(new ArbitrarilyDiscretizedFunc("Total Energy"));
+			funcs.add(new ArbitrarilyDiscretizedFunc("Equality Energy"));
+			funcs.add(new ArbitrarilyDiscretizedFunc("Entropy Energy"));
+			funcs.add(new ArbitrarilyDiscretizedFunc("Inequality Energy"));
+			ArrayList<PlotCurveCharacterstics> chars = ThreadedSimulatedAnnealing.getEnergyBreakdownChars();
+			updatePlotFuncs();
+			gw = new GraphiWindowAPI_Impl(funcs, "Energy vs Iterations", chars);
+		} else {
+			updatePlotFuncs();
+			gw.refreshPlot();
+		}
+	}
+	
+	private void updatePlotFuncs() {
+		int start = funcs.get(0).getNum();
+		for (int i=start; i<energies.size(); i++) {
+			long iter = iterations.get(i);
+			double[] energy = energies.get(i);
+			for (int j=0; j<energy.length; j++)
+				funcs.get(j).set((double)iter, energy[j]);
+		}
 	}
 	
 	@Override

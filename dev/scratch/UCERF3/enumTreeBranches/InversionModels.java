@@ -1,6 +1,8 @@
 package scratch.UCERF3.enumTreeBranches;
 
-public enum InversionModels {
+import org.opensha.commons.data.ShortNamed;
+
+public enum InversionModels implements ShortNamed {
 	
 	CHAR("Characteristic", "Char"),
 	GR("Gutenberg-Richter", "GR"),

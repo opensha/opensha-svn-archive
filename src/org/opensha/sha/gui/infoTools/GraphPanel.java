@@ -419,6 +419,8 @@ public class GraphPanel extends JSplitPane {
 
 			//creating the secondary dataset to show it in different color and shapes
 			for(int i=datasetIndex;i<(datasetIndex+numCurves);++i){
+				if (i >= totalProbFuncs.size())
+					break;
 				dataFunctions.add(totalProbFuncs.get(i));
 			}
 			datasetIndex +=numCurves;

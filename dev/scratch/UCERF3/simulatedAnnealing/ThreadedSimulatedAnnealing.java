@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -760,11 +761,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			perturbsVsIters.set((double)iter, (double)perturb);
 		}
 		
-		ArrayList<PlotCurveCharacterstics> energyChars = new ArrayList<PlotCurveCharacterstics>();
-		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
-		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
-		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN));
-		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		ArrayList<PlotCurveCharacterstics> energyChars = getEnergyBreakdownChars();
 		
 		PlotCurveCharacterstics perturbChar =
 			new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.CYAN);
@@ -817,6 +814,15 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		getNormalized(prefix, energyVsIters, perturbsVsIters, energies,
 				perturbs, iters, iterationsLabel, gp, normChars,
 				end, "_normalized_zoomed_75.png");
+	}
+	
+	public static ArrayList<PlotCurveCharacterstics> getEnergyBreakdownChars() {
+		ArrayList<PlotCurveCharacterstics> energyChars = new ArrayList<PlotCurveCharacterstics>();
+		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN));
+		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		return energyChars;
 	}
 
 	private void getNormalized(File prefix,
