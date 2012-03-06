@@ -20,9 +20,9 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 public class CommandLineInputGenerator {
 	
 	public static void main(String[] args) {
-		if (args.length != 3) {
+		if (args.length <= 3 || args.length > 4) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CommandLineInputGenerator.class)
-					+ " <rup set file> <inversion model name> <fname/directory>");
+					+ " <rup set file> <inversion model name> <fname/directory> [<temp dir>]");
 			System.exit(2);
 		}
 		
@@ -51,7 +51,19 @@ public class CommandLineInputGenerator {
 				
 				gen.writeZipFile(zipFile, f, false);
 			} else {
-				gen.writeZipFile(f);
+				if (args.length == 4) {
+					File tempDir = new File(args[3]);
+					Preconditions.checkState(tempDir.exists() && tempDir.isDirectory(),
+							args[3]+" doesn't exist or isn't a directory!");
+					String dirName = f.getName().replaceAll(".zip", "");
+					dirName += "_tempInputs";
+					tempDir = new File(tempDir, dirName);
+					if (!tempDir.exists())
+						tempDir.mkdir();
+					gen.writeZipFile(f, tempDir, true);
+				} else {
+					gen.writeZipFile(f);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
