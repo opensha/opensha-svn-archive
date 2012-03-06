@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -14,6 +15,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -194,21 +196,23 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 1;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
-			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
 			double transitionMag = 7.6;
 			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(rupSet.getDeformationModel(), transitionMag, rupSet), transitionMag);
-			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);  // This will keep the starting model below the MFD inequality constraints
+			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
+			minimumRuptureRateFraction = 0.01;
+			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3)), mfdInequalityConstraints, rupSet);
+			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);  
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
-			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = initialRupModel;
 			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet.getDeformationModel()));
-			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);  // This will keep the starting model below the MFD inequality constraints
+			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
+			minimumRuptureRateFraction = 0.01;
+			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);
+			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet); 
 			break;
 		case UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
@@ -243,10 +247,27 @@ public class InversionConfiguration {
 	
 	
 	
+	
+	/**
+	 * This method lowers an MFD constraint to account for spatially-varying minimum magnitudes on faults.
+	 */
+	private static ArrayList<MFD_InversionConstraint> accountForVaryingMinMag(
+			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet) {
+		
+		HistogramFunction adjustmentRatio = FaultSystemRupSetCalc.getMinMagHistogram(rupSet, 5.05,40,0.1, true).getCumulativeDistFunction();  // CURRENTLY THIS IS NOT REGION SPECIFIC
+		
+		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
+			for (double m = mfdInequalityConstraints.get(i).getMagFreqDist().getMinX(); m <= mfdInequalityConstraints.get(i).getMagFreqDist().getMaxX(); m += mfdInequalityConstraints.get(i).getMagFreqDist().getDelta()) {
+				mfdInequalityConstraints.get(i).getMagFreqDist().set(m, mfdInequalityConstraints.get(i).getMagFreqDist().getClosestY(m) * adjustmentRatio.getClosestY(m));
+			}
+		}
+		return mfdInequalityConstraints;
+	}
+
+	
 	/**
 	 * This method adjusts the starting model to ensure that for each MFD inequality constraint magnitude-bin, the starting model is below the MFD.
 	 * It will uniformly reduce the rates of ruptures in any bins that are over the MFD.
-	 * @param rupSet 
 	 */
 	private static double[] adjustStartingModel(double[] initialRupModel,
 			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet) {
@@ -291,6 +312,7 @@ public class InversionConfiguration {
 		return initialRupModel;
 	}
 
+	
 	/**
 	 * This method multiplies the input MFD constraints by fractionRateReduction.
 	 * For example, if the off-fault rates are 10% of the rates, setting fractionRateReduction to 0.1 will reduce the MFDs to 90% of their previous rates.
