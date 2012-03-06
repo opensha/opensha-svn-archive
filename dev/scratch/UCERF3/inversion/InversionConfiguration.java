@@ -290,8 +290,6 @@ public class InversionConfiguration {
 				}
 			}
 			
-			System.out.println("starting model MFD: "+startingModelMagFreqDist);
-			System.out.println("target MFD: "+targetMagFreqDist);
 			// Find the amount to adjust starting model MFD to be below or equal to Target MFD
 			IncrementalMagFreqDist adjustmentRatio = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
 			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m+= targetMagFreqDist.getDelta()) {
@@ -300,7 +298,8 @@ public class InversionConfiguration {
 				else
 					adjustmentRatio.set(m, 1.0);
 			}
-			System.out.println("adjustment ratio: "+adjustmentRatio);
+			
+			// Adjust initial model rates
 			for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
 				double mag = rupMeanMag[rup];
 				initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
