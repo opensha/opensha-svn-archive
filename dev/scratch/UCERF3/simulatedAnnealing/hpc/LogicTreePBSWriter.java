@@ -54,12 +54,12 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "weekend-converg-test";
+		String runName = "testing";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
-		runName = "2012_03_02-weekend-converg-test";
-		boolean buildRupSets = true;
+//		runName = "2012_03_02-weekend-converg-test";
+		boolean buildRupSets = false;
 
 		int numRuns = 1;
 
@@ -77,7 +77,7 @@ public class LogicTreePBSWriter {
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
 				SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
-						SlipAlongRuptureModels.UNIFORM, SlipAlongRuptureModels.WG02 };
+						SlipAlongRuptureModels.UNIFORM };
 //		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
 //				SlipAlongRuptureModels.UNIFORM };
 

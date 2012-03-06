@@ -111,6 +111,8 @@ public class LogicTreeBranch {
 				break;
 			}
 		}
+		if (fileName.contains("DrCostStressDrop")) // typo from old files!
+			as = AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP;
 		SlipAlongRuptureModels sal = null;
 		for (SlipAlongRuptureModels mod : lengthSorted(SlipAlongRuptureModels.values())) {
 			if (fileName.contains("Dsr"+mod.getShortName())) {

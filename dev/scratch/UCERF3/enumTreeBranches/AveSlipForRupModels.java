@@ -82,7 +82,7 @@ public enum AveSlipForRupModels implements ShortNamed {
 		}
 	},
 
-	SHAW_12_CONST_STRESS_DROP("Constant Stress Drop D(L) (Shaw 2012)", "CostStressDrop") {
+	SHAW_12_CONST_STRESS_DROP("Constant Stress Drop D(L) (Shaw 2012)", "ConstStressDrop") {
 		public double getAveSlip(double area, double length) {
 			// stressDrop = 4.54 MPa
 			// W = 15 km = 15e3 m
