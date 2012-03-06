@@ -67,6 +67,14 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			meanRate = row.getCell(6).getNumericCellValue();
 			lower68Conf = row.getCell(8).getNumericCellValue();	// note the labels are swapped in the *_v1 file
 			upper68Conf =  row.getCell(7).getNumericCellValue();
+			
+			if (lower68Conf == upper68Conf) {
+				// TODO we don't want any of these
+				System.out.println("Skipping value at "+siteName+" because upper and lower " +
+						"values are equal: meanRate="+(float)meanRate+
+					"\tlower68="+(float)lower68Conf+"\tupper68="+(float)upper68Conf);
+				continue;
+			}
 				
 			// get Closest section
 			double minDist = Double.MAX_VALUE, dist;
