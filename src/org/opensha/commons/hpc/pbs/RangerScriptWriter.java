@@ -1,10 +1,13 @@
 package org.opensha.commons.hpc.pbs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class RangerScriptWriter extends BatchScriptWriter {
+	
+	public static final File JAVA_BIN = new File("/share/home/00950/kevinm/java/default/bin/java");
 
 	@Override
 	public List<String> getBatchHeader(int mins, int nodes,

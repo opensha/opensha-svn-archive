@@ -38,7 +38,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class UCERF3_PaleoRateConstraintFetcher {
 	
 	private final static String PALEO_DATA_SUB_DIR = "paleoRateData";
-	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v03.xls";
+	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v05.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -80,17 +80,24 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			double minDist = Double.MAX_VALUE, dist;
 			int closestFaultSectionIndex=-1;
 			Location loc = new Location(lat,lon);
+			
+			// these hacks along with SCEC-VDO images are described in an e-mail from
+			// Kevin on 3/6/12, subject "New MRI table"
+			boolean blindThrustHack = siteName.equals("Compton") || siteName.equals("Puente Hills");
+			boolean safOffshoreHack = siteName.equals("N. San Andreas -Offshore Noyo");
+			
 			for(int sectionIndex=0; sectionIndex<faultSectionData.size(); ++sectionIndex) {
 				FaultSectionPrefData data = faultSectionData.get(sectionIndex);
-				if (siteName.equals("N. San Andreas -  Filoli") && data.getName().contains("Monte Vista"))
-					continue; // TODO remove hack!
+				// TODO this is a hack for blind thrust faults
+				if (blindThrustHack && !data.getSectionName().contains(siteName))
+					continue;
 				dist  = data.getFaultTrace().minDistToLine(loc);
 				if(dist<minDist) {
 					minDist = dist;
 					closestFaultSectionIndex = sectionIndex;
 				}
 			}
-			if(minDist>2) {
+			if(minDist>2 && !blindThrustHack && !safOffshoreHack) {
 				if (D) System.out.println("No match for: "+siteName+" (lat="+lat+", lon="+lon
 						+") closest was "+minDist+" away: "+faultSectionData.get(closestFaultSectionIndex).getSectionName());
 				continue; // closest fault section is at a distance of more than 2 km

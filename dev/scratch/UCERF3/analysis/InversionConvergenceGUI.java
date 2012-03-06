@@ -477,7 +477,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	 */
 	public static void main(String[] args) {
 		InversionConvergenceGUI ic = new InversionConvergenceGUI();
-		File file = new File("D:\\Documents\\temp\\csvs.zip");
+//		File file = new File("D:\\Documents\\temp\\csvs.zip");
+		File file = new File("/tmp/2012_03_05-epicenter-test.zip");
 		if (file.exists())
 			ic.browseParam.setValue(file);
 	}
