@@ -56,6 +56,7 @@ public class InversionConfiguration {
 	private double minimumRuptureRateFraction;
 
 	private double relativeSmoothnessWt;
+	protected final static boolean D = true;  // for debugging
 	
 	public InversionConfiguration(
 			boolean weightSlipRates,
@@ -196,7 +197,7 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 1;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
-			double transitionMag = 7.6;
+			double transitionMag = 8.0;
 			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(rupSet.getDeformationModel(), transitionMag, rupSet), transitionMag);
 			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
@@ -331,13 +332,13 @@ public class InversionConfiguration {
 	
 	/**
 	 * This method returns the bValue that will achieve a reduction in moment that matches the % off-fault deformation for a given deformation model.  
-	 * This is for use with Bilinear MFD Constraint.  The momentRate is the moment, in Nm, desired off the faults.
-	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve this momentRate reduction.
+	 * This is for use with Bilinear MFD Constraint. 
+	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve the desired moment rate reduction.
 	 */
 	private static double findBValueForMomentRateReduction(DeformationModels deformationModel, double transitionMag, FaultSystemRupSet rupSet) {
-		boolean D = true; //debugging
 		
 		double momentFractionOffFaults = findMomentFractionOffFaults(deformationModel);
+		if (D) System.out.println("Moment Fraction Off Faults = "+momentFractionOffFaults +" for deformation model "+deformationModel);
 		double totalMoment = rupSet.getTotalMomentRateForAllSections();
 		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
 		
@@ -356,8 +357,11 @@ public class InversionConfiguration {
 		if (momentRateToRemove>=totalMomentBelowTransition)
 			throw new IllegalStateException("This is not going to work. The total moment below your transition magnitude is less than the off-fault moment");
 		
-		double momentReduction = momentRateToRemove/totalMomentBelowTransition;  // fraction of moment that should be off-fault below transition magnitude
-		double bValue = (3.0*momentReduction-1.0)/(2.0*momentReduction);  // b-value below transition magnitude that will achieve desired moment reduction
+		double momentRatio = 1.0 - momentRateToRemove/totalMomentBelowTransition;  // fraction of moment that should be on-fault below transition magnitude
+		
+		// b-value below transition magnitude that will achieve desired moment reduction
+		// This integrates over all mags up to the transition mag and assumes an initial b-value of 1.0
+		double bValue = (3.0*momentRatio-1.0)/(2.0*momentRatio);  // b-value below transition magnitude that will achieve desired moment reduction
 		if (D) System.out.println("b-Value below transition magnitude = "+bValue+"\n");
 		
 		return bValue;
@@ -406,6 +410,7 @@ public class InversionConfiguration {
 			double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
 			momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
 			System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
+			break;
 		case ABM:
 			momentFractionOffFaults = 33.6766 / 100.0;
 			break;
@@ -434,12 +439,27 @@ public class InversionConfiguration {
 	 */
 	private static ArrayList<MFD_InversionConstraint> makeMFDConstraintsBilinear(
 			ArrayList<MFD_InversionConstraint> mfdConstraints, double bValueBelowTransition, double transitionMag) {
+		
+		if (D) for (int i=0; i<mfdConstraints.size(); i++) {
+			System.out.println("Initial total moment rate = "+mfdConstraints.get(0).getMagFreqDist().getTotalMomentRate()+" for MFD constraint #"+i);
+			}
+		
 		for (int i=0; i<mfdConstraints.size(); i++) {
-			for (double mag=mfdConstraints.get(i).getMagFreqDist().getMinX(); mag<transitionMag; mag+=mfdConstraints.get(i).getMagFreqDist().getDelta()) {
-				double setVal=mfdConstraints.get(i).getMagFreqDist().getY(mag)*Math.pow(10, (transitionMag-mag)*(bValueBelowTransition-1));
+			double totalMomentRate = 0; double totalMomentRate2 = 0;
+			for (double mag=mfdConstraints.get(i).getMagFreqDist().getMinX(); mag<=transitionMag; mag+=mfdConstraints.get(i).getMagFreqDist().getDelta()) {
+				if (mag<=transitionMag)
+					totalMomentRate += mfdConstraints.get(i).getMagFreqDist().getMomentRate(mag);
+				double setVal=mfdConstraints.get(i).getMagFreqDist().getY(mag)*Math.pow(10.0, (transitionMag-mag)*(bValueBelowTransition-1.0));
 				mfdConstraints.get(i).getMagFreqDist().set(mag, setVal);
+				if (mag<=transitionMag)
+					totalMomentRate2 += mfdConstraints.get(i).getMagFreqDist().getMomentRate(mag);
 			}
 		}
+		
+		if (D) for (int i=0; i<mfdConstraints.size(); i++) {
+			System.out.println("New total moment rate = "+mfdConstraints.get(0).getMagFreqDist().getTotalMomentRate()+" for MFD constraint #"+i);
+			}
+		
 		return mfdConstraints;
 	}
 
