@@ -204,19 +204,19 @@ public class InversionConfiguration {
 			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(rupSet.getDeformationModel(), transitionMag, rupSet), transitionMag);
 			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3)), mfdInequalityConstraints, rupSet);
-			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);  
+			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.5)), mfdInequalityConstraints, rupSet, false);
+			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, false);  
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
-			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.3));
+			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.5));
 			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet.getFaultModel(), rupSet.getDeformationModel()));
 			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet);
-			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet); 
+			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, true);
+			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, true); 
 			break;
 		case UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
@@ -271,10 +271,11 @@ public class InversionConfiguration {
 	
 	/**
 	 * This method adjusts the starting model to ensure that for each MFD inequality constraint magnitude-bin, the starting model is below the MFD.
-	 * It will uniformly reduce the rates of ruptures in any bins that are over the MFD.
+	 * If adjustOnlyIfOverMFD = false, it will adjust the starting model so that it's MFD equals the MFD constraint.
+	 * It will uniformly reduce the rates of ruptures in any magnitude bins that need adjusting.
 	 */
 	private static double[] adjustStartingModel(double[] initialRupModel,
-			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet) {
+			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet, boolean adjustOnlyIfOverMFD) {
 		
 		double[][] fractRupsInsideMFD_Regions = rupSet.computeFractRupsInsideMFD_Regions(mfdInequalityConstraints);
 		double[] rupMeanMag = rupSet.getMagForAllRups();
@@ -297,16 +298,21 @@ public class InversionConfiguration {
 			// Find the amount to adjust starting model MFD to be below or equal to Target MFD
 			IncrementalMagFreqDist adjustmentRatio = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
 			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m+= targetMagFreqDist.getDelta()) {
-				if (startingModelMagFreqDist.getClosestY(m) > targetMagFreqDist.getClosestY(m))
+				if (adjustOnlyIfOverMFD == false)
 					adjustmentRatio.set(m, targetMagFreqDist.getClosestY(m) / startingModelMagFreqDist.getClosestY(m));
-				else
-					adjustmentRatio.set(m, 1.0);
+				else {
+					if (startingModelMagFreqDist.getClosestY(m) > targetMagFreqDist.getClosestY(m))
+						adjustmentRatio.set(m, targetMagFreqDist.getClosestY(m) / startingModelMagFreqDist.getClosestY(m));
+					else
+						adjustmentRatio.set(m, 1.0);
+				}
 			}
 			
 			// Adjust initial model rates
 			for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
 				double mag = rupMeanMag[rup];
-				initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
+				if (!Double.isNaN(adjustmentRatio.getClosestY(mag)) && !Double.isInfinite(adjustmentRatio.getClosestY(mag)))
+					initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
 			}
 			
 		}
@@ -634,7 +640,7 @@ public class InversionConfiguration {
 		int numRup = rupMeanMag.length;
 		double[] initial_state = new double[numRup];  // starting model
 		double[] meanSlipRate = new double[numRup];  // mean slip rate per section for each rupture
-		boolean[] flagRup = new boolean[numRup]; // flag rup if it has ny NaN or zero slip-rate sections
+		boolean[] flagRup = new boolean[numRup]; // flag rup if it has any NaN or zero slip-rate sections
 		
 		// Calculate mean slip rates for ruptures
 		// If there are NaN slip rates, treat them as 0
@@ -650,6 +656,11 @@ public class InversionConfiguration {
 			meanSlipRate[rup] = totalOfSlipRates/sects.size(); // average mean slip rate for sections in rupture
 		}
 			
+		if (D) for (int i=0; i<sectSlipRateReduced.length; i++) {
+			if (Double.isNaN(sectSlipRateReduced[i])  || sectSlipRateReduced[i] == 0)  {
+				System.out.println("Sect Slip Rate Reduced ["+i+"] = "+sectSlipRateReduced[i]);
+			}
+		}
 		
 		// Get list of ruptures for each section
 		ArrayList<List<Integer>> rupsPerSect = new ArrayList<List<Integer>>();
@@ -694,8 +705,6 @@ public class InversionConfiguration {
 			// - normalize overlapping ruptures by percentage overlap
 			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup])
 					* meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);
-//			if (D && rup % 100 == 0)
-//				System.out.println("Done with rup: "+rup);
 		}
 		
 		// Find normalization for all ruptures (so that MFD matches target MFD normalization)
@@ -723,7 +732,7 @@ public class InversionConfiguration {
 		}
 		
 		// NO PLOTTING CODE ALLOWED HERE!!!!! do it somewhere else please!
-//		// plot magnitude histogram for the inversion starting model
+		// plot magnitude histogram for the inversion starting model
 //		IncrementalMagFreqDist magHist2 = new IncrementalMagFreqDist(5.05,40,0.1);
 //		magHist2.setTolerance(0.2);	// this makes it a histogram
 //		for(int r=0; r<numRup;r++)
