@@ -85,7 +85,12 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			perturbs.add(numPerturbsKept);
 		}
 		if (autoPlotMillis > 0 && watch.getTime() > nextPlotMillis) {
-			updatePlot();
+			try {
+				updatePlot();
+			} catch (Throwable t) {
+				// you never want a plot error to stop an inversion!
+				t.printStackTrace();
+			}
 			nextPlotMillis = watch.getTime() + autoPlotMillis;
 		}
 		if (criteria.isSatisfied(watch, iter, energy, numPerturbsKept)) {
