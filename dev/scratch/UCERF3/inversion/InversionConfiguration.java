@@ -204,14 +204,14 @@ public class InversionConfiguration {
 			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(rupSet.getDeformationModel(), transitionMag, rupSet), transitionMag);
 			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.5)), mfdInequalityConstraints, rupSet, false);
-			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, false);  
+			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdInequalityConstraints, rupSet, true);
+			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, true);  
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
-			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 8.5));
+			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0));
 			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet.getFaultModel(), rupSet.getDeformationModel()));
 			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
@@ -418,7 +418,8 @@ public class InversionConfiguration {
 		case FM3_1:
 			switch (deformationModel) {
 			case GEOLOGIC:
-				// assume total moment rates is same as for ABM model
+				// ON THE CLUSTER WE CAN'T USED THIS CODE, NEED TO HARD CODE IN NUMBER
+/*				// assume total moment rates is same as for ABM model
 				// get total moment rate for on-fault GEOLOGIC
 				File scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 				DeformationModelFetcher defFetch = new DeformationModelFetcher(faultModel,DeformationModels.GEOLOGIC, scratch_dir);
@@ -428,9 +429,8 @@ public class InversionConfiguration {
 				double moRateFaultABM = DeformationModelsCalc.calculateTotalMomentRate(defFetch.getSubSectionList(),true);
 				double fractOffABM = findMomentFractionOffFaults(faultModel, DeformationModels.ABM);
 				double totalMomentABM = DeformationModelsCalc.calcTotalMomentRate(moRateFaultABM, fractOffABM);
-				momentFractionOffFaults = (totalMomentABM-moRateFaultGEO)/totalMomentABM;
-				
-				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
+				momentFractionOffFaults = (totalMomentABM-moRateFaultGEO)/totalMomentABM;	*/
+				momentFractionOffFaults = 14.3 / 100.0;
 				break;
 			case ABM:
 				momentFractionOffFaults = 33.6766 / 100.0;
@@ -456,13 +456,14 @@ public class InversionConfiguration {
 		case FM3_2:
 			switch (deformationModel) {
 			case GEOLOGIC:
-				UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+/*				UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
 				Region entire_region = new CaliforniaRegions.RELM_TESTING();
 				ucerf2Constraints.setRegion(entire_region);
 				double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
 				double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
 				momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
-				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
+				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults); 				*/		
+				momentFractionOffFaults = 14.3 / 100.0;  // THIS IS THE NUMBER FOR FM 3.1		
 				break;
 //			case ABM:
 //				momentFractionOffFaults = 33.6766 / 100.0;
@@ -488,7 +489,7 @@ public class InversionConfiguration {
 		default:
 			throw new RuntimeException("Can't get fraction off fault for FM: "+faultModel);
 		}
-		
+		if (D) System.out.println("Moment fraction off faults = " + momentFractionOffFaults); 
 		return momentFractionOffFaults;
 	}
 	
