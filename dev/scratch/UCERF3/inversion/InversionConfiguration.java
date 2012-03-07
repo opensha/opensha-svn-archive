@@ -1,5 +1,6 @@
 package scratch.UCERF3.inversion;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +16,12 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -398,19 +401,29 @@ public class InversionConfiguration {
 //	}
 	
 	
-	private static double findMomentFractionOffFaults(FaultModels faultModel, DeformationModels deformationModel) {
+	/**
+	 * For GEOLOGIC deformation model, this assumes that the total moment rate for the ABM model is correct
+	 * (since we have not estimate for off-fault moment rate for this model)
+	 */
+	public static double findMomentFractionOffFaults(FaultModels faultModel, DeformationModels deformationModel) {
 		// These values are from an e-mail from Kaj dated 2/29/12, for Zeng model see 3/5/12 e-mail
 		double momentFractionOffFaults;
 		switch (faultModel) {
 		case FM3_1:
 			switch (deformationModel) {
 			case GEOLOGIC:
-				UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
-				Region entire_region = new CaliforniaRegions.RELM_TESTING();
-				ucerf2Constraints.setRegion(entire_region);
-				double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
-				double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
-				momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
+				// assume total moment rates is same as for ABM model
+				// get total moment rate for on-fault GEOLOGIC
+				File scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
+				DeformationModelFetcher defFetch = new DeformationModelFetcher(faultModel,DeformationModels.GEOLOGIC, scratch_dir);
+				double moRateFaultGEO = DeformationModelsCalc.calculateTotalMomentRate(defFetch.getSubSectionList(),true);
+				// now get moment rate for on-fault ABM
+				defFetch = new DeformationModelFetcher(faultModel,DeformationModels.ABM, scratch_dir);
+				double moRateFaultABM = DeformationModelsCalc.calculateTotalMomentRate(defFetch.getSubSectionList(),true);
+				double fractOffABM = findMomentFractionOffFaults(faultModel, DeformationModels.ABM);
+				double totalMomentABM = DeformationModelsCalc.calcTotalMomentRate(moRateFaultABM, fractOffABM);
+				momentFractionOffFaults = (totalMomentABM-moRateFaultGEO)/totalMomentABM;
+				
 				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults);  // Ned calculates 26%
 				break;
 			case ABM:
@@ -425,6 +438,7 @@ public class InversionConfiguration {
 			case GEOLOGIC_PLUS_ABM:
 				momentFractionOffFaults = (findMomentFractionOffFaults(faultModel, DeformationModels.GEOLOGIC)
 						+ findMomentFractionOffFaults(faultModel, DeformationModels.ABM)) / 2.0;
+				break;
 			case ZENG:
 				momentFractionOffFaults = 37.0728 / 100.0;
 				break;	

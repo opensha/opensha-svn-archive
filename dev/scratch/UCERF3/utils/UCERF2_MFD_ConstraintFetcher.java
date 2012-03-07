@@ -228,7 +228,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 
 		
 		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
-		fetcher.computeMomentRates();
-//		fetcher.plotMFDs();
+//		fetcher.computeMomentRates();
+		fetcher.plotMFDs();
 	}
 }
