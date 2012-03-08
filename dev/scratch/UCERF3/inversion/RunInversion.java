@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -314,6 +315,12 @@ public class RunInversion {
 				e.printStackTrace();
 			}
 		}
+		
+		// Calculate total moment of solution
+		double totalSolutionMoment = 0;
+		for (int rup=0; rup<solution.getNumRuptures(); rup++) 
+			totalSolutionMoment += solution.getRateForRup(rup)*MagUtils.magToMoment(solution.getMagForRup(rup));
+		if (D) System.out.println("Total moment of solution = "+totalSolutionMoment);
 		
 		// finally assemble a solution and make plots
 		if (D) System.out.print("\nMaking plots . . . ");
