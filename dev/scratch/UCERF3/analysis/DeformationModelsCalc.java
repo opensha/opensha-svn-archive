@@ -105,8 +105,7 @@ public class DeformationModelsCalc {
 	
 	
 	private static String getTableLineForMoRateAndMmaxDataForDefModels(FaultModels fm, DeformationModels dm) {
-		File scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm,scratch_dir);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 		double moRate = calculateTotalMomentRate(defFetch.getSubSectionList(),true);
 		System.out.println(fm.getName()+", "+dm.getName()+ " (reduced):\t"+(float)moRate);
 		System.out.println(fm.getName()+", "+dm.getName()+ " (not reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),false));

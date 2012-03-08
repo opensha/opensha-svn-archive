@@ -101,7 +101,7 @@ public class DeformationModelFetcher {
 	 */
 	public DeformationModelFetcher(FaultModels faultModel, DeformationModels deformationModel, File precomputedDataDir) {
 		double maxSubSectionLength = 0.5; // in units of DDW
-		this.precomputedDataDir = precomputedDataDir;
+		this.precomputedDataDir = new File(precomputedDataDir, "FaultSystemRupSets");;
 		Preconditions.checkArgument(deformationModel.isApplicableTo(faultModel), "Deformation model and fault model aren't compatible!");
 		chosenDefModName = deformationModel;
 		if(deformationModel == DeformationModels.UCERF2_NCAL) {
@@ -1087,10 +1087,9 @@ public class DeformationModelFetcher {
 	}
 
 	public static void main(String[] args) {
-			File precomputedDataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		try {
 			FaultModels fm = FaultModels.FM3_1;
-			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, precomputedDataDir);
+			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 //			
 //			dm.getSubSectionDistanceMap(5d);
 //			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",

@@ -31,7 +31,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  */
 public class InversionFaultSystemRupSetFactory {
 	
-	private static File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
+	private static File rup_set_store_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 	
 	/**
 	 * This loads a rupture set for the specified deformation model (and it's first applicable fault model) using all
@@ -81,7 +81,7 @@ public class InversionFaultSystemRupSetFactory {
 	public static FaultSystemRupSet cachedForBranch(FaultModels faultModel, DeformationModels deformationModel,
 			boolean forceRebuild) throws IOException {
 		return cachedForBranch(faultModel, deformationModel,
-				default_scratch_dir, forceRebuild);
+				rup_set_store_dir, forceRebuild);
 	}
 
 	
@@ -186,7 +186,7 @@ public class InversionFaultSystemRupSetFactory {
 			AveSlipForRupModels aveSlipForRupModel,
 			SlipAlongRuptureModels slipAlongModel,
 			LaughTestFilter laughTest) {
-		
+		System.out.println("Building a rupture set for: "+deformationModel+" ("+faultModel+")");
 		double moRateReduction = 0.1; // TODO don't hardcode this here
 		
 		List<MagAreaRelationship> magAreaRelList = magAreaRelationships.getMagAreaRelationships();
@@ -197,18 +197,21 @@ public class InversionFaultSystemRupSetFactory {
 			filterBasis = deformationModel;
 		}
 //		System.out.println("Creating clusters with filter basis: "+filterBasis+", Fault Model: "+faultModel);
-		SectionClusterList clusters = new SectionClusterList(faultModel, filterBasis, default_scratch_dir, laughTest);
+		SectionClusterList clusters = new SectionClusterList(faultModel, filterBasis, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, laughTest);
 		
 		List<FaultSectionPrefData> faultSectionData;
 		if (filterBasis == deformationModel) {
 			faultSectionData = clusters.getFaultSectionData();
 		} else {
 			// we need to get it outselves
-			faultSectionData = new DeformationModelFetcher(faultModel, deformationModel, default_scratch_dir).getSubSectionList();
+			faultSectionData = new DeformationModelFetcher(faultModel, deformationModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR).getSubSectionList();
 		}
 		
-		return new InversionFaultSystemRupSet(clusters, deformationModel, faultSectionData, magAreaRelList,
+		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
+				clusters, deformationModel, faultSectionData, magAreaRelList,
 				moRateReduction, slipAlongModel, aveSlipForRupModel);
+		System.out.println("New rup set has "+rupSet.getNumRuptures()+" ruptures.");
+		return rupSet;
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {

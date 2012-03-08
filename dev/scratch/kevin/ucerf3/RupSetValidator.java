@@ -375,7 +375,7 @@ public class RupSetValidator {
 			FaultModels faultModel = FaultModels.FM3_1;
 			DeformationModels defModel = DeformationModels.GEOLOGIC;
 			DeformationModelFetcher fetch = new DeformationModelFetcher(faultModel,
-					defModel, new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets"));
+					defModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 			Map<IDPairing, Double> subSectionDistances =
 				fetch.getSubSectionDistanceMap(filters.get(0).getMaxJumpDist());
 			Map<IDPairing, Double> subSectionAzimuths =
