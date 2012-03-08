@@ -6,6 +6,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 
 /**
  * This class generates the gridded sources for the UCERF3 background seismicity.
@@ -31,6 +32,8 @@ public class UCERF3_GridSourceGenerator {
 	
 	FaultSystemSolution faultSystemSolution;
 	
+	double totalMgt5_Rate;
+	
 	
 	/**
 	 * Options:
@@ -43,8 +46,8 @@ public class UCERF3_GridSourceGenerator {
 	 * @param totalOffFaultMFD - can this be obtained from the faultSystemSolution?
 	 * @param spatialPDFofSeis - e.g., Karen's file
 	 */
-	public UCERF3_GridSourceGenerator(FaultSystemSolution faultSystemSolution, IncrementalMagFreqDist totalOffFaultMFD,
-			double[] spatialPDFofSeis) {
+	public UCERF3_GridSourceGenerator(SimpleFaultSystemSolution faultSystemSolution, IncrementalMagFreqDist totalOffFaultMFD,
+			double[] spatialPDFofSeis, double totalMgt5_Rate) {
 		
 		this.faultSystemSolution=faultSystemSolution;
 		this.totalOffFaultMFD=totalOffFaultMFD;
@@ -54,6 +57,9 @@ public class UCERF3_GridSourceGenerator {
 		else
 			throw new  RuntimeException("spatialPDFofSeis.length does not equal numLocs");
 		
+		this.totalMgt5_Rate=totalMgt5_Rate;
+		
+		
 		/*
 		 *  1) compute subSeismoFaultSectMFD_Array, the sub-seismo MFD for each fault section.  Do this by
 		 *  duplicating totalOffFaultMFD to faultSectionMFD, setting all rates above Mmin for the fault to zero
@@ -61,7 +67,10 @@ public class UCERF3_GridSourceGenerator {
 		 *  
 		 *  	a) fault-section moment rate reduction (need get method for this) or
 		 *  
-		 *  	b) total smoothed seismicity rate inside polygon (need get method for this)
+		 *  	b) total smoothed seismicity rate inside polygon; need get method for this, and
+		 *         subtract total rate of supra-seismogenic ruptures from:
+		 *         faultSystemSolution.calcNucleationMFD_forSect(sectIndex, minMag, maxMag, numMag)
+
 		 *  
 		 *  2) determine the fraction of each fault-section MFD that goes to each associated node 
 		 *     (need an object that holds a list of node indices and their associated wts)
@@ -79,6 +88,9 @@ public class UCERF3_GridSourceGenerator {
 		 *     fault-section MFD).
 		 *     
 		 *  7) Summing all the MFDs for each node should give back totalOffFaultMFD
+		 *  
+		 *  Issue - if choice (a) in (1) is much higher on average than choice (b), we will have suppressed all truly off-fault
+		 *  rates
 		 */
 		
 		
@@ -96,7 +108,7 @@ public class UCERF3_GridSourceGenerator {
 	 * 
 	 */
 	//TODO - finish
-	private void getNodeFractionsForSection(int sectIndex) {
+	private void getNodeFractionsForFaultSection(int sectIndex) {
 		
 		// Need to get the polygon for the section, and then compute 
 		
