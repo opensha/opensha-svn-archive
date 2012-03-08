@@ -290,9 +290,9 @@ public class InversionConfiguration {
 			for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
 				double mag = rupMeanMag[rup];
 				double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
-				if (fractRupInside > 0) {
-					startingModelMagFreqDist.add(mag, fractRupInside * initialRupModel[rup]);
-				}
+				if (fractRupInside > 0) 
+					if (mag<8.5)  // b/c the mfdInequalityConstraints only go to M8.5!
+						startingModelMagFreqDist.add(mag, fractRupInside * initialRupModel[rup]);
 			}
 			
 			// Find the amount to adjust starting model MFD to be below or equal to Target MFD
@@ -323,7 +323,8 @@ public class InversionConfiguration {
 		startingModelMagFreqDist.setTolerance(0.1);
 		for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
 			double mag = rupMeanMag[rup];
-			startingModelMagFreqDist.add(mag, initialRupModel[rup]);
+			if (mag<8.5)
+				startingModelMagFreqDist.add(mag, initialRupModel[rup]);
 		}	
 		IncrementalMagFreqDist adjustmentRatio = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
 		for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m+= targetMagFreqDist.getDelta()) {
