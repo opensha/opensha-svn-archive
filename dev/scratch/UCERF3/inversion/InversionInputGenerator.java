@@ -159,9 +159,14 @@ public class InversionInputGenerator {
 		if(D) System.out.println("Number of paleo section-rate constraints: "+numPaleoRows);
 		numRows += numPaleoRows;
 		
-		int numRupRateRows = (int)Math.signum(config.getRelativeRupRateConstraintWt())*numRuptures;
-		if(D) System.out.println("Number of rupture-rate constraints: "+numRupRateRows);
-		numRows += numRupRateRows;
+		if (config.getRelativeRupRateConstraintWt() > 0.0) {
+			double[] relativeRupRateConstraintWt = config.getA_PrioriRupConstraint();
+			int numRupRateRows = 0;
+			for (int i=0; i<numRuptures; i++) 
+				if (relativeRupRateConstraintWt[i]>0) 	numRupRateRows++;
+			if(D) System.out.println("Number of rupture-rate constraints: "+numRupRateRows);
+			numRows += numRupRateRows;
+		}
 		
 		int numMinimizationRows = (int)Math.signum(config.getRelativeMinimizationConstraintWt())*numRuptures;
 		if(D) System.out.println("Number of minimization constraints: "+numMinimizationRows);
@@ -301,6 +306,7 @@ public class InversionInputGenerator {
 			watch.start();
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 		}
+		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (config.getRelativePaleoRateWt() > 0.0) {
@@ -517,12 +523,15 @@ public class InversionInputGenerator {
 			double[] aPrioriRupConstraint = config.getA_PrioriRupConstraint();
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
-				if (QUICK_GETS_SETS)
-					A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
-				else
-					A.set(rowIndex,rup,relativeRupRateConstraintWt);
-				d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
-				numNonZeroElements++; rowIndex++;
+				// Only apply if rupture-rate is greater than 0, this will keep ruptures on faults not in UCERF2 from being minimized
+				if (aPrioriRupConstraint[rup]>0) { 
+					if (QUICK_GETS_SETS)
+						A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
+					else
+						A.set(rowIndex,rup,relativeRupRateConstraintWt);
+					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
+					numNonZeroElements++; rowIndex++;
+				}
 			}
 			if (D) {
 				System.out.println("Adding rupture-rate Constraints took "+getTimeStr(watch)+".");

@@ -317,6 +317,24 @@ public class InversionConfiguration {
 			
 		}
 		
+		// OPTIONAL: Adjust rates of largest rups to equal global target MFD
+		IncrementalMagFreqDist targetMagFreqDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
+		IncrementalMagFreqDist startingModelMagFreqDist = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
+		startingModelMagFreqDist.setTolerance(0.1);
+		for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
+			double mag = rupMeanMag[rup];
+			startingModelMagFreqDist.add(mag, initialRupModel[rup]);
+		}	
+		IncrementalMagFreqDist adjustmentRatio = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
+		for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m+= targetMagFreqDist.getDelta()) {
+			if (m>8.0)	adjustmentRatio.set(m, targetMagFreqDist.getClosestY(m) / startingModelMagFreqDist.getClosestY(m));
+			else adjustmentRatio.set(m, 1.0);
+		}
+		for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
+			double mag = rupMeanMag[rup];
+			if (!Double.isNaN(adjustmentRatio.getClosestY(mag)) && !Double.isInfinite(adjustmentRatio.getClosestY(mag)))
+				initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
+		}	
 		
 		return initialRupModel;
 	}
@@ -490,7 +508,7 @@ public class InversionConfiguration {
 			throw new RuntimeException("Can't get fraction off fault for FM: "+faultModel);
 		}
 		if (D) System.out.println("Moment fraction off faults = " + momentFractionOffFaults); 
-		return momentFractionOffFaults;
+		return momentFractionOffFaults;  
 	}
 	
 	
