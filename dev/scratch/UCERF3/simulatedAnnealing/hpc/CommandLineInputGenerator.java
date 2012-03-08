@@ -20,7 +20,25 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 public class CommandLineInputGenerator {
 	
 	public static void main(String[] args) {
-		if (args.length <= 3 || args.length > 4) {
+		if (args.length > 2 && args[0].equals("--var")) {
+			String variation = args[1];
+			
+			if (variation.startsWith("MomRed_")) {
+				String amtStr = variation.substring(variation.indexOf("_")+1);
+				double amt = Double.parseDouble(amtStr) / 100d;
+				InversionConfiguration.FRACTION_MOMENT_OFF_FAULTS_MODIFIER = amt;
+				System.out.println("Setting fraction moment off faults modifier to: "+amt);
+			} else {
+				System.out.println("Unknown variaition: "+variation);
+			}
+			
+			String[] newArgs = new String[args.length - 2];
+			for (int i=0; i<newArgs.length; i++)
+				newArgs[i] = args[i+2];
+			args = newArgs;
+		}
+		
+		if (args.length < 3 || args.length > 4) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CommandLineInputGenerator.class)
 					+ " <rup set file> <inversion model name> <fname/directory> [<temp dir>]");
 			System.exit(2);

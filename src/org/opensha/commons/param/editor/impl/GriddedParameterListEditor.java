@@ -23,6 +23,8 @@ public class GriddedParameterListEditor extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private ParameterList paramList;
 
 	/**
 	 * Creates a new empty gridded parameter editor with 2 columns
@@ -78,6 +80,7 @@ public class GriddedParameterListEditor extends JPanel {
 	
 	public void setParameterList(ParameterList paramList) {
 		this.removeAll();
+		this.paramList = paramList;
 		if (paramList != null) {
 			for (Parameter<?> param : paramList) {
 //				JPanel tempPanel = new JPanel();
@@ -87,5 +90,9 @@ public class GriddedParameterListEditor extends JPanel {
 			}
 		}
 		this.validate();
+	}
+	
+	public ParameterList getParameterList() {
+		return paramList;
 	}
 }

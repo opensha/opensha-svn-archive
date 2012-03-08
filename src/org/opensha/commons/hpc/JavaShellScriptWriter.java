@@ -19,13 +19,14 @@ public class JavaShellScriptWriter implements XMLSaveable {
 	public static final String XML_METADATA_NAME = "JavaShellScriptWriter";
 	
 	private File javaBin;
-	private int heapSizeMB;
+	private int maxHeapSizeMB;
+	private int initialHeapSizeMB = -1;;
 	private Collection<File> classpath;
 	private boolean headless;
 	
-	public JavaShellScriptWriter(File javaBin, int heapSizeMB, Collection<File> classpath) {
+	public JavaShellScriptWriter(File javaBin, int maxHeapSizeMB, Collection<File> classpath) {
 		setJavaBin(javaBin);
-		this.heapSizeMB = heapSizeMB;
+		this.maxHeapSizeMB = maxHeapSizeMB;
 		this.classpath = classpath;
 	}
 	
@@ -38,12 +39,20 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		this.javaBin = javaBin;
 	}
 
-	public int getHeapSizeMB() {
-		return heapSizeMB;
+	public int getMaxHeapSizeMB() {
+		return maxHeapSizeMB;
 	}
 
-	public void setHeapSizeMB(int heapSizeMB) {
-		this.heapSizeMB = heapSizeMB;
+	public void setMaxHeapSizeMB(int maxHeapSizeMB) {
+		this.maxHeapSizeMB = maxHeapSizeMB;
+	}
+	
+	public int getInitialHeapSizeMB() {
+		return initialHeapSizeMB;
+	}
+	
+	public void setInitialHeapSizeMB(int initialHeapSizeMB) {
+		this.initialHeapSizeMB = initialHeapSizeMB;
 	}
 	
 	public boolean isHeadless() {
@@ -81,8 +90,10 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		String heap = "";
 		if (headless)
 			heap = " -Djava.awt.headless=true";
-		if (heapSizeMB > 0)
-			heap += " -Xmx"+heapSizeMB+"M";
+		if (maxHeapSizeMB > 0)
+			heap += " -Xmx"+maxHeapSizeMB+"M";
+		if (initialHeapSizeMB > 0)
+			heap += " -Xms"+initialHeapSizeMB+"M";
 		
 		String args = getFormattedArgs(heap+cp);
 		
@@ -149,7 +160,7 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		Element el = root.addElement(XML_METADATA_NAME);
 		
 		el.addAttribute("javaBin", javaBin.getAbsolutePath());
-		el.addAttribute("heapSizeMB", heapSizeMB+"");
+		el.addAttribute("heapSizeMB", maxHeapSizeMB+"");
 		
 		if (classpath != null && !classpath.isEmpty()) {
 			Element cpEl = el.addElement("Classpath");

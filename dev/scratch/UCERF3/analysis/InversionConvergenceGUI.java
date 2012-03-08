@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,15 +36,22 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.GriddedParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.ButtonParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.param.impl.FileParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
@@ -66,8 +74,11 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	private static final String BROWSE_PARAM_NAME = "CSV Dir/Zip File";
 	private FileParameter browseParam;
 	
-	private static final String ENUM_PARAM_ANY_CHOICE = "(any)";
+	private static final String ANY_CHOICE = "(any)";
 	private ParameterList enumParams;
+	
+	private static final String VARIATION_PARAM_NAME = "Variation";
+	private StringParameter variationParam;
 	
 	private static final String REFRESH_PARAM_NAME = "Plot";
 	private static final String REFRESH_BUTTON_TEXT = "Reload Results";
@@ -76,6 +87,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	private static final String CARD_GRAPH = "Graph";
 	private static final String CARD_BAR = "Bar";
 	private static final String CARD_NONE = "None";
+	private static final String CARD_CONVERG_PLAYGROUND = "Convergence Playground";
 	
 	private enum PlotType {
 		ENERGY_VS_TIME("Energy vs Time", CARD_GRAPH),
@@ -83,7 +95,9 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		FINAL_ENERGY_BREAKDOWN("Final Energy Breakdown", CARD_BAR),
 		FINAL_NORMALIZED_PERTURBATION_BREAKDOWN("Final Norm. Perturb Breakdown", CARD_BAR),
 		PERTURBATIONS_VS_ITERATIONS("Perturbations Vs Iterations", CARD_GRAPH),
-		PERTURBATIONS_FRACTION("Perturbs/Iters Vs Time", CARD_GRAPH);
+		PERTURBATIONS_FRACTION("Perturbs/Iters Vs Time", CARD_GRAPH),
+		CONVERGENCE_PERCENT("Convergence %", CARD_CONVERG_PLAYGROUND),
+		CONVERGENCE_ENERGY("Convergence Energy", CARD_CONVERG_PLAYGROUND);
 		private String name;
 		private String card;
 		private PlotType(String name, String card) {
@@ -110,7 +124,16 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	private JPanel barChartPanel;
 	
-	private Map<LogicTreeBranch, CSVFile<String>> resultFilesMap;
+	// this stuff is for playing with convergence criteria
+	private JPanel convergPlayPanel;
+	private BooleanParameter timeBasedParam = new BooleanParameter("Time Based", false);
+	private static final int LOOK_BACK_DEFAULT_TIME = 30; // 30 minutes
+	private static final int LOOK_BACK_DEFAULT_ITERATIONS = 180000 * 10; // 10x num rups
+	private IntegerParameter lookBackParam = new IntegerParameter("Look Back", LOOK_BACK_DEFAULT_ITERATIONS);
+	private DoubleParameter thresholdParam = new DoubleParameter("Threshold", new Double(0), new Double(100), "%", new Double(1));
+	private GraphPanel convergeGP;
+	
+	private Map<VariableLogicTreeBranch, CSVFile<String>> resultFilesMap;
 	private ArrayList<String> curNames;
 	private ArrayList<LogicTreeBranch> curBranches;
 	private ArrayList<ArbitrarilyDiscretizedFunc[]> curEnergyVsTimes;
@@ -122,32 +145,32 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		Lists.newArrayList("Total", "Equality", "Entropy", "Inequality");
 	
 	public InversionConvergenceGUI() {
-		ParameterList params = new ParameterList();
-		
+		super("Inversion Convergence GUI");
 		browseParam = new FileParameter(BROWSE_PARAM_NAME);
 		browseParam.addParameterChangeListener(this);
-		params.addParameter(browseParam);
 		
 		enumParams = new ParameterList();
 		enumParams.addParameter(buildEnumParam(FaultModels.class, FaultModels.FM3_1));
 		enumParams.addParameter(buildEnumParam(DeformationModels.class, null));
-		enumParams.addParameter(buildEnumParam(MagAreaRelationships.class, MagAreaRelationships.AVE_UCERF2));
+		enumParams.addParameter(buildEnumParam(MagAreaRelationships.class, MagAreaRelationships.ELL_B));
 		enumParams.addParameter(buildEnumParam(SlipAlongRuptureModels.class, SlipAlongRuptureModels.TAPERED));
-		enumParams.addParameter(buildEnumParam(AveSlipForRupModels.class, AveSlipForRupModels.AVE_UCERF2));
+		enumParams.addParameter(buildEnumParam(AveSlipForRupModels.class, AveSlipForRupModels.ELLSWORTH_B));
 		enumParams.addParameter(buildEnumParam(InversionModels.class, InversionModels.CHAR));
-		params.addParameterList(enumParams);
 		
 		refreshButton = new ButtonParameter(REFRESH_PARAM_NAME, REFRESH_BUTTON_TEXT);
 		refreshButton.addParameterChangeListener(this);
-		params.addParameter(refreshButton);
 		
 		plotTypeParam = new EnumParameter<InversionConvergenceGUI.PlotType>(
-				PLOT_TYPE_PARAM_NAME, EnumSet.allOf(PlotType.class), PlotType.ENERGY_VS_ITERATIONS, null);
+				PLOT_TYPE_PARAM_NAME, EnumSet.allOf(PlotType.class), PlotType.ENERGY_VS_TIME, null);
 		plotTypeParam.addParameterChangeListener(this);
-		params.addParameter(plotTypeParam);
+		
+		ArrayList<String> variations = Lists.newArrayList(ANY_CHOICE);
+		variationParam = new StringParameter(VARIATION_PARAM_NAME, variations);
+		variationParam.setValue(ANY_CHOICE);
+		variationParam.addParameterChangeListener(this);
 		
 		contentPane = new JPanel(new BorderLayout());
-		griddedEditor = new GriddedParameterListEditor(params, 1, 0);
+		griddedEditor = new GriddedParameterListEditor(buildTopParamList(), 1, 0);
 		contentPane.add(griddedEditor, BorderLayout.NORTH);
 		
 		cl = new CardLayout();
@@ -159,6 +182,21 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		chartPanel.add(graphPanel, CARD_GRAPH);
 		barChartPanel = new JPanel(new BorderLayout());
 		chartPanel.add(barChartPanel, CARD_BAR);
+		
+		// convergence playground
+		convergPlayPanel = new JPanel(new BorderLayout());
+		convergeGP = new GraphPanel(this);
+		convergPlayPanel.add(convergeGP, BorderLayout.CENTER);
+		ParameterList convergeList = new ParameterList();
+		convergeList.addParameter(timeBasedParam);
+		convergeList.addParameter(lookBackParam);
+		convergeList.addParameter(thresholdParam);
+		for (Parameter<?> p : convergeList)
+			p.addParameterChangeListener(this);
+		GriddedParameterListEditor convergeParamEdit = new GriddedParameterListEditor(convergeList, 1, 3);
+		convergPlayPanel.add(convergeParamEdit, BorderLayout.SOUTH);
+		chartPanel.add(convergPlayPanel, CARD_CONVERG_PLAYGROUND);
+		
 		contentPane.add(chartPanel, BorderLayout.CENTER);
 		
 		this.setContentPane(contentPane);
@@ -167,17 +205,28 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	
+	private ParameterList buildTopParamList() {
+		ParameterList params = new ParameterList();
+		params.addParameter(browseParam);
+		params.addParameterList(enumParams);
+		if (variationParam.getAllowedStrings().size() > 1)
+			params.addParameter(variationParam);
+		params.addParameter(plotTypeParam);
+		params.addParameter(refreshButton);
+		return params;
+	}
+	
 	private <E extends Enum<E>> EnumParameter<?> buildEnumParam(Class<E> e, E defaultValue) {
 		String name = ClassUtils.getClassNameWithoutPackage(e);
 		EnumParameter<E> param = new EnumParameter<E>(name, EnumSet.allOf(e),
-				defaultValue, ENUM_PARAM_ANY_CHOICE);
+				defaultValue, ANY_CHOICE);
 		param.addParameterChangeListener(this);
 		return param;
 	}
 	
-	private static HashMap<LogicTreeBranch, CSVFile<String>> loadZipFile(File zipFile, LogicTreeBranch branch)
+	private static HashMap<VariableLogicTreeBranch, CSVFile<String>> loadZipFile(File zipFile, VariableLogicTreeBranch branch)
 	throws IOException {
-		HashMap<LogicTreeBranch, CSVFile<String>> map = Maps.newHashMap();
+		HashMap<VariableLogicTreeBranch, CSVFile<String>> map = Maps.newHashMap();
 		ZipFile zip = new ZipFile(zipFile);
 		
 		Enumeration<? extends ZipEntry> e = zip.entries();
@@ -187,7 +236,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			String name = entry.getName();
 			if (!name.endsWith(".csv"))
 				continue;
-			LogicTreeBranch candidate = LogicTreeBranch.parseFileName(name);
+			VariableLogicTreeBranch candidate = loadBranchForName(name);
 			if (!branch.matchesNonNulls(candidate)) {
 				continue;
 			}
@@ -199,16 +248,32 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		return map;
 	}
 	
-	private static HashMap<LogicTreeBranch, CSVFile<String>> loadDir(File dir, LogicTreeBranch branch)
+	private static String parseVariation(String name) {
+		if (name.contains("_Var")) {
+			String sub = name.substring(name.indexOf("_Var")+4);
+			sub = sub.substring(0, sub.indexOf(".csv"));
+			if (sub.contains("_Run"))
+				sub = sub.substring(0, sub.indexOf("_Run"));
+			return sub;
+		}
+		return null;
+	}
+	
+	private static VariableLogicTreeBranch loadBranchForName(String name) {
+		String variation = parseVariation(name);
+		return new VariableLogicTreeBranch(LogicTreeBranch.parseFileName(name), variation);
+	}
+	
+	private static HashMap<VariableLogicTreeBranch, CSVFile<String>> loadDir(File dir, VariableLogicTreeBranch branch)
 	throws IOException {
-		HashMap<LogicTreeBranch, CSVFile<String>> map = Maps.newHashMap();
+		HashMap<VariableLogicTreeBranch, CSVFile<String>> map = Maps.newHashMap();
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory())
 				continue;
 			String name = file.getName();
 			if (!name.endsWith(".csv"))
 				continue;
-			LogicTreeBranch candidate = LogicTreeBranch.parseFileName(name);
+			VariableLogicTreeBranch candidate = loadBranchForName(name);
 			if (!branch.matchesNonNulls(candidate)) {
 				continue;
 			}
@@ -218,7 +283,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		return map;
 	}
 	
-	private void loadResultFiles(LogicTreeBranch branch) throws IOException {
+	private void loadResultFiles(VariableLogicTreeBranch branch) throws IOException {
 		File file = browseParam.getValue();
 		
 		if (file == null) {
@@ -228,9 +293,33 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		} else {
 			resultFilesMap = loadDir(file, branch);
 		}
+		if (resultFilesMap != null) {
+			ArrayList<String> variations = Lists.newArrayList();
+			for (VariableLogicTreeBranch b : resultFilesMap.keySet()) {
+				if (b.getVariation() != null) {
+					if (!variations.contains(b.getVariation()))
+						variations.add(b.getVariation());
+				}
+			}
+			Collections.sort(variations);
+			variations.add(0, ANY_CHOICE);
+			variationParam.removeParameterChangeListener(this);
+			variationParam.setValue(ANY_CHOICE);
+			StringConstraint sconst = (StringConstraint) variationParam.getConstraint();
+			sconst.setStrings(variations);
+			variationParam.getEditor().refreshParamEditor();
+			variationParam.addParameterChangeListener(this);
+			boolean alreadyInList = griddedEditor.getParameterList().containsParameter(variationParam);
+			if ((variations.size() > 1 && !alreadyInList) // needs to be added
+					|| (alreadyInList && variations.size() == 1)) { // needs to be removed
+				// we must update the list
+				griddedEditor.setParameterList(buildTopParamList());
+				griddedEditor.validate();
+			}
+		}
 	}
 	
-	private LogicTreeBranch getCurrentBranch() {
+	private VariableLogicTreeBranch getCurrentBranch() {
 		FaultModels fm = enumParams.getParameter(FaultModels.class,
 				ClassUtils.getClassNameWithoutPackage(FaultModels.class)).getValue();
 		DeformationModels dm = enumParams.getParameter(DeformationModels.class,
@@ -243,10 +332,13 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				ClassUtils.getClassNameWithoutPackage(SlipAlongRuptureModels.class)).getValue();
 		InversionModels im = enumParams.getParameter(InversionModels.class,
 				ClassUtils.getClassNameWithoutPackage(InversionModels.class)).getValue();
-		return new LogicTreeBranch(fm, dm, ma, as, sal, im);
+		String variation = null;
+		if (!variationParam.getValue().equals(ANY_CHOICE))
+			variation = variationParam.getValue();
+		return new VariableLogicTreeBranch(fm, dm, ma, as, sal, im, variation);
 	}
 	
-	private void buildFunctions(LogicTreeBranch branch) {
+	private void buildFunctions(VariableLogicTreeBranch branch) {
 		curNames = new ArrayList<String>();
 		curBranches = new ArrayList<LogicTreeBranch>();
 		curEnergyVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc[]>();
@@ -257,7 +349,9 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		if (resultFilesMap == null)
 			return;
 		
-		for (LogicTreeBranch candidate : resultFilesMap.keySet()) {
+		for (VariableLogicTreeBranch candidate : resultFilesMap.keySet()) {
+			if (!branch.matchesVariation(candidate))
+				continue;
 			ArrayList<String> diffNames = new ArrayList<String>();
 			if (branch.getFaultModel() == null)
 				diffNames.add("FM: "+candidate.getFaultModel().getShortName());
@@ -271,6 +365,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				diffNames.add("Dsr: "+candidate.getSlipAlong().getShortName());
 			if (branch.getInvModel() == null)
 				diffNames.add("Inv: "+candidate.getInvModel().getShortName());
+			if (candidate.getVariation() != null)
+				diffNames.add("Variation: "+candidate.getVariation());
 			String name = Joiner.on(", ").join(diffNames);
 			CSVFile<String> csv = resultFilesMap.get(candidate);
 			ArbitrarilyDiscretizedFunc[] energyVsTime = new ArbitrarilyDiscretizedFunc[4];
@@ -323,12 +419,13 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	private void updatePlot() {
-		if (curBranches.isEmpty()) {
+		if (curBranches == null || curBranches.isEmpty()) {
 			cl.show(chartPanel, CARD_NONE);
 			return;
 		}
 		PlotType plot = plotTypeParam.getValue();
-		if (plot.card == CARD_GRAPH) {
+		if (plot.card.equals(CARD_GRAPH)) {
+			System.out.println("Updating a regular graph!");
 			ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
 			String xAxisName;
 			String yAxisName;
@@ -387,7 +484,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			graphPanel.togglePlot(null);
 			graphPanel.validate();
 			graphPanel.repaint();
-		} else {
+		} else if (plot.card.equals(CARD_BAR)) {
+			System.out.println("Updating a bar graph!");
 			// bar graph
 			boolean perturb = plot == PlotType.FINAL_NORMALIZED_PERTURBATION_BREAKDOWN;
 			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -449,8 +547,100 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	        barChartPanel.add(cp, BorderLayout.CENTER);
 	        barChartPanel.validate();
 	        barChartPanel.repaint();
+		} else {
+			// convergence
+			System.out.println("Updating a convergence plot!");
+			updateConvergePlot(plot);
 		}
+		System.out.println("Displaying card: "+plot.card);
 		cl.show(chartPanel, plot.card);
+		chartPanel.validate();
+	}
+	
+	private void updateConvergePlot(PlotType plot) {
+		ArrayList<ArbitrarilyDiscretizedFunc> refFuncs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		String xAxisName, yAxisName, title;
+		double lookBack = lookBackParam.getValue().doubleValue();
+		double threshold = thresholdParam.getValue();
+		boolean energyY = plot == PlotType.CONVERGENCE_ENERGY;
+		if (timeBasedParam.getValue()) {
+			for (ArbitrarilyDiscretizedFunc[] funcs : curEnergyVsTimes)
+				refFuncs.add(funcs[0]);
+			xAxisName = "Time (minutes)";
+			yAxisName = "% Improvement (last "+lookBack+" minutes)";
+			if (energyY)
+				title = "Energy vs Time";
+			else
+				title = "Improvement over Time";
+		} else {
+			for (ArbitrarilyDiscretizedFunc[] funcs : curEnergyVsIters)
+				refFuncs.add(funcs[0]);
+			xAxisName = "Iterations";
+			yAxisName = "% Improvement (last "+(int)(lookBack+0.5)+" iterations)";
+			if (energyY)
+				title = "Energy vs Iterations";
+			else
+				title = "Improvement over Iterations";
+		}
+		if (energyY)
+			yAxisName = "Energy";
+		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		
+		List<Color> colors = GraphiWindowAPI_Impl.generateDefaultColors();
+		int colorCnt = 0;
+		double transitionEnergy = 0;
+		double transitionDelta = 0;
+		double transitionPercent = 0;
+		
+		for (ArbitrarilyDiscretizedFunc func : refFuncs) {
+			ArbitrarilyDiscretizedFunc unconvergedFunc = new ArbitrarilyDiscretizedFunc();
+			ArbitrarilyDiscretizedFunc convergedFunc = null;
+			ArbitrarilyDiscretizedFunc curFunc = unconvergedFunc;
+			for (int i=0; i<func.getNum(); i++) {
+				double x = func.getX(i);
+				if ((x - lookBack - 0.001) < func.getMinX())
+					continue;
+				double curVal = func.getY(i);
+				double prevVal = func.getInterpolatedY(x-lookBack);
+				double pDiff = DataUtils.getPercentDiff(curVal, prevVal);
+				if (convergedFunc == null && pDiff < threshold) {
+					// this is the first time we've crossed the threshold!
+					convergedFunc = new ArbitrarilyDiscretizedFunc();
+					curFunc = convergedFunc;
+					transitionEnergy = curVal;
+					transitionDelta = prevVal - curVal;
+					transitionPercent = pDiff;
+				}
+				if (energyY)
+					curFunc.set(x, curVal);
+				else
+					curFunc.set(x, pDiff);
+			}
+			if (colorCnt == colors.size())
+				colorCnt = 0;
+			Color color = colors.get(colorCnt++);
+			unconvergedFunc.setName(func.getName()+" (unconverged)");
+			funcs.add(unconvergedFunc);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+			if (convergedFunc != null) {
+				convergedFunc.setName(func.getName()+" (converged)");
+				double finalEnergy = func.getY(func.getNum()-1);
+				double postConvergeImp = DataUtils.getPercentDiff(finalEnergy, transitionEnergy);
+				convergedFunc.setInfo("Post converge: "+transitionEnergy+" => "+finalEnergy+" ("
+						+(transitionEnergy-finalEnergy)+" = "+(float)postConvergeImp+" %)"
+						+"\nImprovement at Transition Point: "+(transitionDelta+transitionEnergy)
+						+" => "+transitionEnergy+" ("+transitionDelta+" = "+(float)transitionPercent+" %)");
+				funcs.add(convergedFunc);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, color));
+			}
+		}
+		
+		convergeGP.setCurvePlottingCharacterstic(chars);
+		convergeGP.drawGraphPanel(xAxisName, yAxisName, funcs, false, false, false, title, this);
+		convergeGP.togglePlot(null);
+		convergeGP.validate();
+		convergeGP.repaint();
 	}
 
 	@Override
@@ -460,7 +650,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			updatePlot();
 		} else if (param == refreshButton) {
 			try {
-				LogicTreeBranch branch = getCurrentBranch();
+				VariableLogicTreeBranch branch = getCurrentBranch();
 				loadResultFiles(branch);
 				buildFunctions(branch);
 				updatePlot();
@@ -468,6 +658,23 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		} else if (param == variationParam) {
+			VariableLogicTreeBranch branch = getCurrentBranch();
+			buildFunctions(branch);
+			updatePlot();
+		} else if (param == timeBasedParam) {
+			lookBackParam.removeParameterChangeListener(this);
+			if (timeBasedParam.getValue())
+				lookBackParam.setValue(LOOK_BACK_DEFAULT_TIME);
+			else
+				lookBackParam.setValue(LOOK_BACK_DEFAULT_ITERATIONS);
+			lookBackParam.getEditor().refreshParamEditor();
+			lookBackParam.addParameterChangeListener(this);
+			updatePlot();
+		} else if (param == lookBackParam) {
+			updatePlot();
+		} else if (param == thresholdParam) {
+			updatePlot();
 		}
 	}
 	
@@ -535,6 +742,34 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	public int getPlotLabelFontSize() {
 		// TODO Auto-generated method stub
 		return 16;
+	}
+	
+	private static class VariableLogicTreeBranch extends LogicTreeBranch {
+		
+		private String variation;
+
+		public VariableLogicTreeBranch(LogicTreeBranch branch, String variation) {
+			this(branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
+					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), variation);
+		}
+		
+		public VariableLogicTreeBranch(FaultModels fm, DeformationModels dm,
+				MagAreaRelationships ma, AveSlipForRupModels as,
+				SlipAlongRuptureModels sal, InversionModels im, String variation) {
+			super(fm, dm, ma, as, sal, im);
+			this.variation = variation;
+		}
+		
+		public String getVariation() {
+			return variation;
+		}
+		
+		public boolean matchesVariation(VariableLogicTreeBranch branch) {
+			if (variation != null && !variation.equals(branch.getVariation()))
+				return false;
+			return true;
+		}
+		
 	}
 
 }

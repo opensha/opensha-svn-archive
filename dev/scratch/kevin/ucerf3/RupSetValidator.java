@@ -270,17 +270,17 @@ public class RupSetValidator {
 		double[] maxCmlRakeChanges = { 180 };
 //		double[] maxCmlAzChanges = { 360, 450, 540 };
 //		double[] maxCmlAzChanges = { 630 };
-//		double[] maxCmlAzChanges = { 540, 550, 560, 570, 580, 590, 600, 610 };
+//		double[] maxCmlAzChanges = { 540, 550, 560 };
 		double[] maxCmlAzChanges = { 560 };
 		
 //		double[] minAverageProbs = { 0.05, 0.1, 0.2 };
 //		double[] minAverageProbs = { 0.02, 0.05, 0.075, 0.1, 0.15, 0.2 };
-//		double[] minAverageProbs = { 0.1, 0.15, 0.2, 0.3, 0.4 };
+//		double[] minAverageProbs = { 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275 };
 		double[] minAverageProbs = { 0.1 };
 //		double[] minAverageProbs = { 0.4 };
 //		double[] minIndividualProbs = { 0.02, 0.035, 0.05, 0.075, 0.1 };
 		double[] minIndividualProbs = { 0.1 };
-//		double[] minIndividualProbs = { 0.05, 0.075, 0.1 };
+//		double[] minIndividualProbs = { 0.05, 0.075, 0.1, 0.125, 0.15, 0.175 };
 //		double minimumStressExclusionCeiling = 1d;
 //		double[] minimumStressExclusionCeilings = { 1, 1.25, 1.5, 1.75, 2, 2.15  };
 		double[] minimumStressExclusionCeilings = { 1.5 };
@@ -294,6 +294,8 @@ public class RupSetValidator {
 							for (double minAverageProb : minAverageProbs) {
 								for (double minIndividualProb : minIndividualProbs) {
 									for (double minimumStressExclusionCeiling : minimumStressExclusionCeilings) {
+										if (minIndividualProb > minAverageProb)
+											continue;
 										CoulombRatesFilter coulombFilter =
 											new CoulombRatesFilter(TestType.COULOMB_STRESS, minAverageProb,
 													minIndividualProb, minimumStressExclusionCeiling, applyBranchesOnly);
@@ -322,7 +324,7 @@ public class RupSetValidator {
 		private Map<IDPairing, Double> subSectionDistances;
 		private Map<IDPairing, Double> subSectionAzimuths;
 		private int numRups;
-		private boolean passes = false;
+		private Boolean passes = null;
 		
 		public ValidationTask(FaultModels faultModel, DeformationModels defModel, LaughTestFilter filter,
 				List<FaultSectionPrefData> faultSectionData, Map<IDPairing, Double> subSectionDistances, Map<IDPairing, Double> subSectionAzimuths) {
@@ -372,7 +374,7 @@ public class RupSetValidator {
 			System.out.println("Num filters: "+filters.size());
 			
 			LaughTestFilter best = null;
-			FaultModels faultModel = FaultModels.FM3_1;
+			FaultModels faultModel = FaultModels.FM3_2;
 			DeformationModels defModel = DeformationModels.GEOLOGIC;
 			DeformationModelFetcher fetch = new DeformationModelFetcher(faultModel,
 					defModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
@@ -396,7 +398,8 @@ public class RupSetValidator {
 			for (ValidationTask task : tasks) {
 				System.out.println((cnt++)+". "+task.numRups+" ? "
 						+task.passes+": "+task.filter);
-				if (task.passes && task.numRups < minRups) {
+				// == true here because passes is a Boolean that can be null (if it wasn't checked due to size)
+				if (task.passes != null && task.passes && task.numRups < minRups) {
 					minRups = task.numRups;
 					best = task.filter;
 				}

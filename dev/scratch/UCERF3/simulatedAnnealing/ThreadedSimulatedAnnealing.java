@@ -717,14 +717,14 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		funcs.add(func);
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList(
 //				new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
-				new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
+				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		if (adjustedRates != null) {
 			EvenlyDiscretizedFunc adjFunc = new EvenlyDiscretizedFunc(0d, solutionRates.length, 1d);
 			cnt = 0;
 			for (int i=adjustedRates.length; --i >= 0;)
-				adjFunc.set(cnt++, solutionRates[i]);
+				adjFunc.set(cnt++, adjustedRates[i]);
 			funcs.add(0, adjFunc);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLUE));
 		}
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(true);

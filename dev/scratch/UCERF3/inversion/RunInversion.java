@@ -208,7 +208,7 @@ public class RunInversion {
 		// get the inversion configuration
 		InversionConfiguration config;
 		// this will get it for the GR branch
-		config = InversionConfiguration.forModel(InversionModels.UNCONSTRAINED, rupSet);
+		config = InversionConfiguration.forModel(InversionModels.CHAR, rupSet);
 		// this can be used for testing other inversions
 //		config = buildCustomConfiguration(rupSet);
 		

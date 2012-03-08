@@ -508,9 +508,14 @@ public class InversionConfiguration {
 		default:
 			throw new RuntimeException("Can't get fraction off fault for FM: "+faultModel);
 		}
-		if (D) System.out.println("Moment fraction off faults = " + momentFractionOffFaults); 
-		return momentFractionOffFaults;  
+		// for debugging - this should always be set to 1 otherwise!
+		momentFractionOffFaults *= FRACTION_MOMENT_OFF_FAULTS_MODIFIER;
+		if (D) System.out.println("Moment fraction off faults = " + momentFractionOffFaults);
+		return momentFractionOffFaults;
 	}
+	
+	// this really should never be used, just for debugging or experimenting with moment rates!
+	public static double FRACTION_MOMENT_OFF_FAULTS_MODIFIER = 1;
 	
 	
 	/**

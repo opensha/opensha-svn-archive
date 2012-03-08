@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
@@ -16,6 +17,7 @@ import org.opensha.commons.hpc.pbs.RangerScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
@@ -128,50 +130,60 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ranger-test";
+		String runName = "moment-reduction-variations";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
 //		runName = "2012_03_02-weekend-converg-test";
 		boolean buildRupSets = true;
 		
-		RunSites site = RunSites.RANGER;
+//		RunSites site = RunSites.RANGER;
 //		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
+		RunSites site = RunSites.HPCC;
 
 		int numRuns = 1;
 
 		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
 
 		// if null, all that are applicable to each fault model will be used
-//		DeformationModels[] defModels = null;
-		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+		DeformationModels[] defModels = null;
+//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 
 //		InversionModels[] inversionModels = InversionModels.values();
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
+		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
-		InversionModels[] inversionModels =  { InversionModels.GR };
+//		InversionModels[] inversionModels =  { InversionModels.GR };
 
 //		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
 		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
-				SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
-						SlipAlongRuptureModels.UNIFORM };
-//		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
+//				SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
+//						SlipAlongRuptureModels.UNIFORM };
+		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
 
 		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
 //		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
 		
+		// this is a somewhat kludgy way of passing in a special variation to the input generator
+		String[] variations = { "MomRed_100", "MomRed_090", "MomRed_080", "MomRed_070",
+				"MomRed_060", "MomRed_050", "MomRed_040", "MomRed_030", "MomRed_020", "MomRed_010" };
+		
 		// do all branch choices relative to these:
 //		Branch defaultBranch = null;
-		int maxAway = 0;
+		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
+		maxAway.put(InversionModels.CHAR, 1);
+		maxAway.put(InversionModels.GR, 0);
+		maxAway.put(InversionModels.UNCONSTRAINED, 1);
 		LogicTreeBranch[] defaultBranches = {
 //				new LogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
 //								AveSlipForRupModels.ELLSWORTH_B, null, InversionModels.CHAR),
-				new LogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
-								AveSlipForRupModels.ELLSWORTH_B, null, InversionModels.UNCONSTRAINED)
+				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
+								AveSlipForRupModels.ELLSWORTH_B, null, null),
+				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+								AveSlipForRupModels.ELLSWORTH_B, null, null)
 				};
 		if (defaultBranches != null) {
 			// make sure all default branch choices are valid!
@@ -195,6 +207,11 @@ public class LogicTreePBSWriter {
 						!Arrays.asList(inversionModels).contains(defaultBranch.getInvModel()))
 					defaultBranch.setInvModel(null);
 			}
+		}
+		
+		if (variations == null || variations.length == 0) {
+			variations = new String[1];
+			variations[0] = null;
 		}
 
 		File writeDir;
@@ -242,93 +259,104 @@ public class LogicTreePBSWriter {
 							File localRupSetFile = new File(writeDir, baseName+"_rupSet.zip");
 							File remoteRupSetFile = new File(runSubDir, baseName+"_rupSet.zip");
 
-							for (InversionModels im : inversionModels) {
-								LogicTreeBranch branch = new LogicTreeBranch(fm, dm, ma, as, sal, im);
-								if (defaultBranches != null && defaultBranches.length > 0) {
-									int closest = Integer.MAX_VALUE;
-									for (LogicTreeBranch defaultBranch : defaultBranches) {
-										int away = defaultBranch.getNumAwayFrom(branch);
-										if (away < closest)
-											closest = away;
+							for (String variation : variations) {
+								for (InversionModels im : inversionModels) {
+									LogicTreeBranch branch = new LogicTreeBranch(fm, dm, ma, as, sal, im);
+									if (defaultBranches != null && defaultBranches.length > 0) {
+										int closest = Integer.MAX_VALUE;
+										for (LogicTreeBranch defaultBranch : defaultBranches) {
+											int away = defaultBranch.getNumAwayFrom(branch);
+											if (away < closest)
+												closest = away;
+										}
+										if (closest > maxAway.get(im))
+											continue;
 									}
-									if (closest > maxAway)
-										continue;
-								}
-								
-								
-								if (buildRupSets && !localRupSetFile.exists()) {
-									SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
-											InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal));
-									rupSet.toZipFile(localRupSetFile);
-									System.gc();
-								}
-								
-								int mins;
-								NonnegativityConstraintType nonNeg;
-								
-								BatchScriptWriter batch = site.forBranch(branch);
-								TimeCompletionCriteria checkPointCritera;
-								if (im == InversionModels.GR) {
-									mins = 500;
-									nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
-									batch = site.forBranch(branch);
-//									checkPointCritera = TimeCompletionCriteria.getInHours(2);
-									checkPointCritera = null;
-								} else if (im == InversionModels.CHAR) {
-									mins = 500; // TODO ?
-									nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-//									checkPointCritera = TimeCompletionCriteria.getInHours(2);
-									checkPointCritera = null;
-								} else { // UNCONSTRAINED
-									mins = 60;
-									nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-									checkPointCritera = null;
-								}
-								int ppn = site.getPPN(branch); // minimum number of cpus
-								int heapSizeMB = site.getHeapSizeMB(branch);
-								CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
-								tsa_create.setCriteria(criteria);
-								javaWriter.setHeapSizeMB(heapSizeMB);
-								tsa_create.setNonNeg(nonNeg);
-								tsa_create.setCheckPointCriteria(checkPointCritera);
-								
-								String name = baseName+"_"+im.getShortName();
-
-								for (int r=0; r<numRuns; r++) {
-									String jobName = name;
-									if (numRuns > 1)
-										jobName += "_run"+r;
-
-									tsa_create.setProgFile(new File(runSubDir, jobName+".csv"));
-									tsa_create.setSolFile(new File(runSubDir, jobName+".bin"));
-
-									File pbs = new File(writeDir, jobName+".pbs");
-									System.out.println("Writing: "+pbs.getName());
 									
-									ArrayList<String> classNames = new ArrayList<String>();
-									ArrayList<String> argss = new ArrayList<String>();
 									
-									int jobMins = mins+30;
+									if (buildRupSets && !localRupSetFile.exists()) {
+										SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
+												InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal));
+										rupSet.toZipFile(localRupSetFile);
+										System.gc();
+									}
 									
-									// input gen
-									String inputFileName = jobName+"_inputs.zip";
-									File remoteInputs = new File(runSubDir, inputFileName);
+									int mins;
+									NonnegativityConstraintType nonNeg;
 									
-									classNames.add(CommandLineInputGenerator.class.getName());
-									argss.add(remoteRupSetFile.getAbsolutePath()+" "+im.name()
-											+" "+remoteInputs.getAbsolutePath());
-									jobMins += 30;
-									tsa_create.setZipFile(remoteInputs);
+									BatchScriptWriter batch = site.forBranch(branch);
+									TimeCompletionCriteria checkPointCritera;
+									if (im == InversionModels.GR) {
+										mins = 500;
+										nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
+										batch = site.forBranch(branch);
+//										checkPointCritera = TimeCompletionCriteria.getInHours(2);
+										checkPointCritera = null;
+									} else if (im == InversionModels.CHAR) {
+										mins = 500; // TODO ?
+										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+//										checkPointCritera = TimeCompletionCriteria.getInHours(2);
+										checkPointCritera = null;
+									} else { // UNCONSTRAINED
+										mins = 60;
+										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+										checkPointCritera = null;
+									}
+									int ppn = site.getPPN(branch); // minimum number of cpus
+									int heapSizeMB = site.getHeapSizeMB(branch);
+									CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
+									tsa_create.setCriteria(criteria);
+									javaWriter.setMaxHeapSizeMB(heapSizeMB);
+									tsa_create.setNonNeg(nonNeg);
+									tsa_create.setCheckPointCriteria(checkPointCritera);
 									
-									classNames.add(tsa_create.getClassName());
-									argss.add(tsa_create.getArgs());
+									String name = baseName+"_"+im.getShortName();
+									
+									if (variation != null)
+										name += "_Var"+variation;
 
-									batch.writeScript(pbs, javaWriter.buildScript(classNames, argss),
-											jobMins, 1, ppn, queue);
+									for (int r=0; r<numRuns; r++) {
+										String jobName = name;
+										if (numRuns > 1)
+											jobName += "_run"+r;
 
-									nodeHours += (double)mins / 60d;
+										tsa_create.setProgFile(new File(runSubDir, jobName+".csv"));
+										tsa_create.setSolFile(new File(runSubDir, jobName+".bin"));
 
-									cnt++;
+										File pbs = new File(writeDir, jobName+".pbs");
+										System.out.println("Writing: "+pbs.getName());
+										
+										ArrayList<String> classNames = new ArrayList<String>();
+										ArrayList<String> argss = new ArrayList<String>();
+										
+										int jobMins = mins+30;
+										
+										// input gen
+										String inputFileName = jobName+"_inputs.zip";
+										File remoteInputs = new File(runSubDir, inputFileName);
+										
+										classNames.add(CommandLineInputGenerator.class.getName());
+										String inputGenArgs;
+										if (variation == null)
+											inputGenArgs = "";
+										else
+											inputGenArgs = "--var "+variation+" ";
+										inputGenArgs += remoteRupSetFile.getAbsolutePath()+" "+im.name()
+												+" "+remoteInputs.getAbsolutePath();
+										argss.add(inputGenArgs);
+										jobMins += 30;
+										tsa_create.setZipFile(remoteInputs);
+										
+										classNames.add(tsa_create.getClassName());
+										argss.add(tsa_create.getArgs());
+
+										batch.writeScript(pbs, javaWriter.buildScript(classNames, argss),
+												jobMins, 1, ppn, queue);
+
+										nodeHours += (double)mins / 60d;
+
+										cnt++;
+									}
 								}
 							}
 						}
@@ -337,7 +365,7 @@ public class LogicTreePBSWriter {
 			}
 		}
 		System.out.println("Wrote "+cnt+" jobs");
-		System.out.println("Node hours: "+(float)nodeHours + " (/60: "+((float)nodeHours/60f)+")");
+		System.out.println("Node hours: "+(float)nodeHours + " (/60: "+((float)nodeHours/60f)+") (/14: "+((float)nodeHours/14f)+")");
 		//		DeformationModels.forFaultModel(null).toArray(new DeformationModels[0])
 		System.exit(0);
 	}

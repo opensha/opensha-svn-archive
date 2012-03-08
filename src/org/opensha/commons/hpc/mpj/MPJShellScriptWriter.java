@@ -20,7 +20,7 @@ public class MPJShellScriptWriter extends JavaShellScriptWriter {
 	
 	private MPJShellScriptWriter(JavaShellScriptWriter javaWriter,
 			File mpjHome, boolean useMXDev) {
-		this(javaWriter.getJavaBin(), javaWriter.getHeapSizeMB(), javaWriter.getClasspath(),
+		this(javaWriter.getJavaBin(), javaWriter.getMaxHeapSizeMB(), javaWriter.getClasspath(),
 				mpjHome, useMXDev);
 	}
 	
