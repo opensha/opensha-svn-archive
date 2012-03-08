@@ -751,10 +751,15 @@ public class DeformationModelFetcher {
 //					System.out.println("New Coupling: "+ couplingCoeff);
 				} else {
 					// TODO what to do here if aseismicity or coupling coeff is not 0/1 and we didn't have a value for it?
-					if (subSect.getAseismicSlipFactor() != 0)
-						subSect.setAseismicSlipFactor(0d);
-					if (subSect.getCouplingCoeff() != 1)
-						subSect.setCouplingCoeff(1d);
+					if (subSect.getParentSectionId() == 49) {
+						// override it for Garlock (West), set to 0/1
+						if (subSect.getAseismicSlipFactor() != 0)
+							subSect.setAseismicSlipFactor(0d);
+						if (subSect.getCouplingCoeff() != 1)
+							subSect.setCouplingCoeff(1d);
+					}
+					// otherwise keep UCERF2 aseismicity value as recommended by Tim Dawson
+					// via e-mail 3/2/12 (subject: Moment Rate Reductions)
 				}
 			}
 
