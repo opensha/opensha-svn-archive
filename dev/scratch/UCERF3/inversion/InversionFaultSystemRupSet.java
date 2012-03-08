@@ -60,7 +60,7 @@ import scratch.UCERF3.utils.IDPairing;
  */
 public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	
-	protected final static boolean D = true;  // for debugging
+	protected final static boolean D = false;  // for debugging
 	
 	// following are defined in constructor
 	DeformationModels defModName;

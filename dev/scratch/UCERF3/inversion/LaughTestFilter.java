@@ -16,21 +16,37 @@ public class LaughTestFilter {
 	 * @return
 	 */
 	public static LaughTestFilter getDefault() {
-		double maxAzimuthChange = 90;
+		// original laugh test filter
+//		double maxAzimuthChange = 90;
+//		double maxJumpDist = 5d;
+//		double maxCumJumpDist = 10d;
+//		double maxTotAzimuthChange = 90d;
+//		double maxRakeDiff = Double.POSITIVE_INFINITY;
+//		int minNumSectInRup = 2;
+//		double maxCmlRakeChange = 360;
+//		double maxCmlAzimuthChange = 540;
+//		double minAverageProb = 0.1;
+//		double minIndividualProb = 0.05;
+//		double minimumStressExclusionCeiling = 1d;
+		
+
+		double maxAzimuthChange = 60;
 		double maxJumpDist = 5d;
-		double maxCumJumpDist = 10d;
-		double maxTotAzimuthChange = 90d;
+		double maxCumJumpDist = 5d;
+		double maxTotAzimuthChange = 60d;
 		double maxRakeDiff = Double.POSITIVE_INFINITY;
 		int minNumSectInRup = 2;
-		double maxCmlRakeChange = 360;
-		double maxCmlAzimuthChange = 540;
-		
+		double maxCmlRakeChange = 180;
+		double maxCmlAzimuthChange = 560;
 		double minAverageProb = 0.1;
-		double minIndividualProb = 0.05;
-		double minimumStressExclusionCeiling = 1d;
+		double minIndividualProb = 0.1;
+		double minimumStressExclusionCeiling = 1.5d;
+		boolean applyBranchesOnly = false; // if true the coulomb filter will only be applied at branch points
 //		double minimumStressExclusionCeiling = Double.POSITIVE_INFINITY;
+		
 		CoulombRatesFilter coulombFilter = new CoulombRatesFilter(
-				TestType.COULOMB_STRESS, minAverageProb, minIndividualProb, minimumStressExclusionCeiling);
+				TestType.COULOMB_STRESS, minAverageProb, minIndividualProb,
+				minimumStressExclusionCeiling, applyBranchesOnly);
 		
 		return new LaughTestFilter(maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff, maxCumJumpDist,
 				maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup, coulombFilter);
@@ -132,7 +148,8 @@ public class LaughTestFilter {
 				+ ", maxRakeDiff=" + maxRakeDiff + ", maxCumJumpDist=" + maxCmlJumpDist
 				+ ", maxCmlRakeChange=" + maxCmlRakeChange
 				+ ", maxCmlAzimuthChange=" + maxCmlAzimuthChange
-				+ ", minNumSectInRup=" + minNumSectInRup + "]";
+				+ ", minNumSectInRup=" + minNumSectInRup
+				+ ", coulombFilter=" + coulombFilter+ "]";
 	}
 
 }

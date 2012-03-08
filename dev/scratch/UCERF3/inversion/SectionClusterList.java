@@ -25,7 +25,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final boolean D = true;
+	public static final boolean D = false;
 	
 	private List<List<Integer>> sectionConnectionsListList;
 	private LaughTestFilter filter;
@@ -36,6 +36,25 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	
 	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, File precomputedDataDir,
 			LaughTestFilter filter) {
+		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(faultModel, defModel, precomputedDataDir);
+		faultSectionData = deformationModelFetcher.getSubSectionList();
+		Map<IDPairing, Double> subSectionDistances = deformationModelFetcher.getSubSectionDistanceMap(filter.getMaxJumpDist());
+		Map<IDPairing, Double> subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMap(subSectionDistances.keySet());
+		
+		init(faultModel, defModel, filter, faultSectionData, subSectionDistances, subSectionAzimuths);
+	}
+	
+	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, LaughTestFilter filter,
+			List<FaultSectionPrefData> faultSectionData, Map<IDPairing, Double> subSectionDistances, Map<IDPairing, Double> subSectionAzimuths) {
+		init(faultModel, defModel, filter, faultSectionData,
+				subSectionDistances, subSectionAzimuths);
+	}
+
+	private void init(FaultModels faultModel, DeformationModels defModel,
+			LaughTestFilter filter,
+			List<FaultSectionPrefData> faultSectionData,
+			Map<IDPairing, Double> subSectionDistances,
+			Map<IDPairing, Double> subSectionAzimuths) {
 		this.faultModel = faultModel;
 		this.defModel = defModel;
 		this.filter = filter;
@@ -47,11 +66,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		}
-		
-		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(faultModel, defModel, precomputedDataDir);
-		faultSectionData = deformationModelFetcher.getSubSectionList();
-		Map<IDPairing, Double> subSectionDistances = deformationModelFetcher.getSubSectionDistanceMap(filter.getMaxJumpDist());
-		Map<IDPairing, Double> subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMap(subSectionDistances.keySet());
+		this.faultSectionData = faultSectionData;
 		Map<Integer, Double> rakesMap = new HashMap<Integer, Double>();
 		for (FaultSectionPrefData data : faultSectionData)
 			rakesMap.put(data.getSectionId(), data.getAveRake());

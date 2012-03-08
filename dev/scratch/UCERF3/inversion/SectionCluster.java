@@ -28,7 +28,7 @@ import scratch.UCERF3.utils.IDPairing;
  */
 public class SectionCluster extends ArrayList<Integer> {
 
-	protected final static boolean D = true;  // for debugging
+	protected final static boolean D = false;  // for debugging
 
 	List<FaultSectionPrefData> sectionDataList;
 	ArrayList<Integer> allSectionsIdList = null;
@@ -160,6 +160,25 @@ public class SectionCluster extends ArrayList<Integer> {
 	}
 	
 	/**
+	 * Return true if there are any connections from this index that are not on
+	 * the same parent fault and not already in the rupture
+	 * 
+	 * @param index
+	 */
+	private boolean isBranchPoint(int index, List<Integer> rupture) {
+		List<Integer> branches = sectionConnectionsListList.get(index);
+		int sectParent = sectionDataList.get(index).getParentSectionId();
+		for (int branch : branches) {
+			if (rupture.contains(branch))
+				continue;
+			int branchParent = sectionDataList.get(branch).getParentSectionId();
+			if (branchParent != sectParent)
+				return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * This iteratively adds sections to the list (if the new section passes azimuth 
 	 * and other checks), and saves each rupture to the rupture list.
 	 * 
@@ -184,18 +203,21 @@ public class SectionCluster extends ArrayList<Integer> {
 			backwardRates = new ArrayList<CoulombRatesRecord>();
 			
 			// populate the coulomb rates
-			
+			ArrayList<Integer> rup = new ArrayList<Integer>();
 			for (int i=1; i<list.size(); i++) {
-				IDPairing pairing = new IDPairing(list.get(i-1), list.get(i));
-				CoulombRatesRecord record = coulombRates.get(pairing);
-				Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
-				
-				forwardRates.add(record);
-				
-				pairing = pairing.getReversed();
-				record = coulombRates.get(pairing);
-				Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
-				backwardRates.add(0, record);
+				rup.add(list.get(i-1));
+				if (!coulombFilter.isApplyBranchesOnly() || isBranchPoint(i-1, rup)) {
+					IDPairing pairing = new IDPairing(list.get(i-1), list.get(i));
+					CoulombRatesRecord record = coulombRates.get(pairing);
+					Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
+					
+					forwardRates.add(record);
+					
+					pairing = pairing.getReversed();
+					record = coulombRates.get(pairing);
+					Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
+					backwardRates.add(0, record);
+				}
 			}
 		}
 
@@ -312,15 +334,20 @@ public class SectionCluster extends ArrayList<Integer> {
 			ArrayList<CoulombRatesRecord> myForwardRates = null;
 			ArrayList<CoulombRatesRecord> myBackwardRates = null;
 			if (coulombFilter != null) {
-				CoulombRatesRecord forward = coulombRates.get(newLastPairing);
-				Preconditions.checkNotNull(forward, "No mapping exists for pairing: "+newLastPairing);
-				IDPairing reversedPairing = newLastPairing.getReversed();
-				CoulombRatesRecord backward = coulombRates.get(reversedPairing);
-				Preconditions.checkNotNull(backward, "No mapping exists for pairing: "+reversedPairing);
-				myForwardRates = (ArrayList<CoulombRatesRecord>)forwardRates.clone();
-				myForwardRates.add(forward);
-				myBackwardRates = (ArrayList<CoulombRatesRecord>)backwardRates.clone();
-				myBackwardRates.add(0, backward);
+				if (!coulombFilter.isApplyBranchesOnly() || isBranchPoint(newIndex, newList)) {
+					CoulombRatesRecord forward = coulombRates.get(newLastPairing);
+					Preconditions.checkNotNull(forward, "No mapping exists for pairing: "+newLastPairing);
+					IDPairing reversedPairing = newLastPairing.getReversed();
+					CoulombRatesRecord backward = coulombRates.get(reversedPairing);
+					Preconditions.checkNotNull(backward, "No mapping exists for pairing: "+reversedPairing);
+					myForwardRates = (ArrayList<CoulombRatesRecord>)forwardRates.clone();
+					myForwardRates.add(forward);
+					myBackwardRates = (ArrayList<CoulombRatesRecord>)backwardRates.clone();
+					myBackwardRates.add(0, backward);
+				} else {
+					myForwardRates = forwardRates;
+					myBackwardRates = backwardRates;
+				}
 			}
 			
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
@@ -333,12 +360,14 @@ public class SectionCluster extends ArrayList<Integer> {
 					// uncomment these lines to only save a very small amount of ruptures
 //					if (Math.random()<0.0005)
 						rupListIndices.add(newList);
-//					if (numRupsAdded > 1000000)
-//						return;
+					if (numRupsAdded > 1000000) {
+						System.out.println("WARNING: Bailing on a cluster after 1 million ruptures!");
+						return;
+					}
 					numRupsAdded += 1;
 					// show progress
 					if(numRupsAdded >= rupCounterProgress) {
-						System.out.println(numRupsAdded+" ["+rupListIndices.size()+"]");
+						if (D) System.out.println(numRupsAdded+" ["+rupListIndices.size()+"]");
 						rupCounterProgress += rupCounterProgressIncrement;
 					}
 				} else {
@@ -381,8 +410,7 @@ public class SectionCluster extends ArrayList<Integer> {
 			addRuptures(sectList);
 			//			System.out.println(rupList.size()+" ruptures after section "+s);
 		}
-		System.out.print("\n");
-		if (D) System.out.println("Added "+numRupsAdded+" rups so far!");
+		if (D) System.out.println("\nAdded "+numRupsAdded+" rups so far!");
 
 		if (D) System.out.print("\nFiltering out duplicates...");
 		// now filter out duplicates (which would exist in reverse order)

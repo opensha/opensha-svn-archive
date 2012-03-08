@@ -59,7 +59,7 @@ import com.google.common.collect.Lists;
  */
 public class DeformationModelFetcher {
 
-	protected final static boolean D = true;  // for debugging
+	protected final static boolean D = false;  // for debugging
 	
 	private final static double MOMENT_REDUCTION_THRESHOLD = 0.5;
 
@@ -118,22 +118,22 @@ public class DeformationModelFetcher {
 		} else if (deformationModel.getDataFileURL(faultModel) != null) {
 			URL url = deformationModel.getDataFileURL(faultModel);
 			try {
-				System.out.println("Loading def model from: "+url);
+				if (D) System.out.println("Loading def model from: "+url);
 				Map<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
-				System.out.println("Applying moment reductions to: "+deformationModel);
+				if (D) System.out.println("Applying moment reductions to: "+deformationModel);
 				DeformationModelFileParser.applyMomentReductions(model, deformationModel);
-				System.out.println("Loading fault model: "+faultModel);
+				if (D) System.out.println("Loading fault model: "+faultModel);
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
-				System.out.println("Combining model with sections...");
+				if (D) System.out.println("Combining model with sections...");
 				Map<Integer,DeformationSection> rakesModel = null;
 				if (faultModel.getFilterBasis() != null) {
 					// use the rakes from this one
-					System.out.println("Using rakes from: "+faultModel.getFilterBasis());
+					if (D) System.out.println("Using rakes from: "+faultModel.getFilterBasis());
 					rakesModel = DeformationModelFileParser.load(faultModel.getFilterBasis().getDataFileURL(faultModel));
 				}
 				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength, rakesModel);
 				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
-				System.out.println("DONE.");
+				if (D) System.out.println("DONE.");
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -1002,7 +1002,7 @@ public class DeformationModelFetcher {
 //				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		}
-		System.out.print("\tDONE.\n");
+		if (D) System.out.print("\tDONE.\n");
 
 		if (!pairingsTextFile.exists()) {
 			try {
@@ -1055,12 +1055,12 @@ public class DeformationModelFetcher {
 		azimuths = new HashMap<IDPairing, Double>();
 
 		int progress = 0, progressInterval=10;  // for progress report
-		System.out.print("Azimuth Calc % Done:");
+		if (D) System.out.print("Azimuth Calc % Done:");
 
 		int cnt = 0;
 		for (IDPairing ind : indices) {
 			if (100*(double)cnt/indices.size() > progress) {
-				System.out.print("\t"+progress);
+				if (D) System.out.print("\t"+progress);
 				progress += progressInterval;
 			}
 			cnt++;
@@ -1081,7 +1081,7 @@ public class DeformationModelFetcher {
 			//				throw ExceptionUtils.asRuntimeException(e);
 			//			}
 		}
-		System.out.print("\tDONE.\n");
+		if (D) System.out.print("\tDONE.\n");
 
 		return azimuths;
 	}

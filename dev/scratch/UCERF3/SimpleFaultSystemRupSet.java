@@ -701,7 +701,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	
 	protected void toZipFile(File file, File tempDir, ArrayList<String> zipFileNames) throws IOException {
 		final boolean D = true;
-		if (D) System.out.println("Saving rup set to: "+file.getAbsolutePath());
+		if (D) System.out.println("Saving rup set with "+getNumRuptures()+" rups to: "+file.getAbsolutePath());
 		
 		// first save fault section data as XML
 		if (D) System.out.println("Saving fault section xml");

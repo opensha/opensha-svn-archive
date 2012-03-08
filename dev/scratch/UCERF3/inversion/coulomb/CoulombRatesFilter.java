@@ -36,41 +36,20 @@ public class CoulombRatesFilter {
 	// if the minimum stress value is above this ceiling, it will be included no matter what
 	private double minimumStressExclusionCeiling;
 	private TestType testType;
+	private boolean applyBranchesOnly;
 	
-	public CoulombRatesFilter(TestType testType, double minAverageProb, double minIndividualProb, double minimumStressExclusionCeiling) {
+	public CoulombRatesFilter(TestType testType, double minAverageProb, double minIndividualProb,
+			double minimumStressExclusionCeiling, boolean applyBranchesOnly) {
 		this.minAverageProb = minAverageProb;
 		this.minIndividualProb = minIndividualProb;
 		this.minimumStressExclusionCeiling = minimumStressExclusionCeiling;
 		Preconditions.checkNotNull(testType, "Test type must be specified!");
 		this.testType = testType;
+		this.applyBranchesOnly = applyBranchesOnly;
 	}
 	
-	/**
-	 * Tests the given rupture both directions for the specified criteria. This will return true if 
-	 * the rupture passes in either direction.
-	 * 
-	 * @param rup
-	 * @param rates
-	 * @return
-	 */
-	public boolean doesRupturePass(List<Integer> rup, CoulombRates rates) {
-		ArrayList<CoulombRatesRecord> forwardRates = new ArrayList<CoulombRatesRecord>();
-		ArrayList<CoulombRatesRecord> backwardRates = new ArrayList<CoulombRatesRecord>();
-		
-		for (int i=1; i<rup.size(); i++) {
-			IDPairing pairing = new IDPairing(rup.get(i-1), rup.get(i));
-			CoulombRatesRecord record = rates.get(pairing);
-			Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
-			
-			forwardRates.add(record);
-			
-			pairing = pairing.getReversed();
-			record = rates.get(pairing);
-			Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
-			backwardRates.add(0, record);
-		}
-		
-		return doesRupturePass(forwardRates, backwardRates);
+	public boolean isApplyBranchesOnly() {
+		return applyBranchesOnly;
 	}
 	
 	/**
@@ -82,6 +61,8 @@ public class CoulombRatesFilter {
 	 * @return
 	 */
 	public boolean doesRupturePass(List<CoulombRatesRecord> forwardRates, List<CoulombRatesRecord> backwardRates) {
+		if (forwardRates.isEmpty())
+			return true; // return true if no rates to check
 		// check simple cases first
 		if (testType == TestType.SHEAR_STRESS || testType == TestType.COULOMB_STRESS)
 			return doesRupturePassEitherWay(forwardRates, backwardRates, testType);
@@ -156,6 +137,15 @@ public class CoulombRatesFilter {
 		default:
 			throw new IllegalStateException();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "CoulombRatesFilter [minAverageProb=" + minAverageProb
+				+ ", minIndividualProb=" + minIndividualProb
+				+ ", minimumStressExclusionCeiling="
+				+ minimumStressExclusionCeiling + ", testType=" + testType
+				+ "]";
 	}
 
 }
