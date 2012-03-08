@@ -41,7 +41,7 @@ public class LaughTestFilter {
 		double minAverageProb = 0.1;
 		double minIndividualProb = 0.1;
 		double minimumStressExclusionCeiling = 1.5d;
-		boolean applyBranchesOnly = false; // if true the coulomb filter will only be applied at branch points
+		boolean applyBranchesOnly = true; // if true the coulomb filter will only be applied at branch points
 //		double minimumStressExclusionCeiling = Double.POSITIVE_INFINITY;
 		
 		CoulombRatesFilter coulombFilter = new CoulombRatesFilter(
