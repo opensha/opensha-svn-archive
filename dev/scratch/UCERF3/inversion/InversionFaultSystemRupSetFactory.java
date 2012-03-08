@@ -145,8 +145,8 @@ public class InversionFaultSystemRupSetFactory {
 	public static InversionFaultSystemRupSet forBranch(
 			FaultModels faultModel,
 			DeformationModels deformationModel) {
-		return forBranch(faultModel, deformationModel, MagAreaRelationships.AVE_UCERF2,
-				AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.TAPERED);
+		return forBranch(faultModel, deformationModel, MagAreaRelationships.ELL_B,
+				AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED);
 	}
 	
 	/**
@@ -227,6 +227,15 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, true);
+			
+			// slip for an 8.4
+//			int id = 132520;
+//			double area = rupSet.getAreaForRup(id);
+//			double aveSlip = rupSet.getAveSlipForRup(id);
+//			double[] slips = rupSet.getSlipOnSectionsForRup(id);
+//			int middle = slips.length / 2;
+//			System.out.println("Mag "+rupSet.getMagForRup(id)+": area: "+area+" aveSlip: "+aveSlip+" middle slip: "+slips[middle]);
+			
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, true);
 			
 //			for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
