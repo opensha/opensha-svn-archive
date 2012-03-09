@@ -211,7 +211,7 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 1;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
-			double transitionMag = 8.0;
+			double transitionMag = 7.6;
 			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(transitionMag, rupSet), transitionMag);
 			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
