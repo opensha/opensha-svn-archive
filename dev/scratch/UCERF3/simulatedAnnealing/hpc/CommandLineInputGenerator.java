@@ -9,10 +9,14 @@ import org.opensha.commons.util.ClassUtils;
 
 import com.google.common.base.Preconditions;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.inversion.InversionConfiguration;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
+import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -46,7 +50,20 @@ public class CommandLineInputGenerator {
 		
 		try {
 			File rupSetFile = new File(args[0]);
-			SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(rupSetFile);
+			FaultSystemRupSet rupSet;
+			if (rupSetFile.exists()) {
+				rupSet = SimpleFaultSystemRupSet.fromFile(rupSetFile);
+			} else {
+				// try to create it
+				LogicTreeBranch branch = LogicTreeBranch.parseFileName(rupSetFile.getName());
+				Preconditions.checkState(branch.isFullySpecified(), "Rup set file doesn't exist and can't be created because " +
+						"the logic tree branch could not be fully parsed: "+rupSetFile.getAbsolutePath());
+				LaughTestFilter filter = LaughTestFilter.getDefault();
+				rupSet = InversionFaultSystemRupSetFactory.forBranch(branch.getFaultModel(), branch.getDefModel(),
+						branch.getMagArea(), branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), filter);
+				// write it to a file
+				new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
+			}
 			
 			InversionModels model = InversionModels.getTypeForName(args[1]);
 			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet);

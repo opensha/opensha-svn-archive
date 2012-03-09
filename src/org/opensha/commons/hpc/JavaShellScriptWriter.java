@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class JavaShellScriptWriter implements XMLSaveable {
 	
@@ -23,6 +25,7 @@ public class JavaShellScriptWriter implements XMLSaveable {
 	private int initialHeapSizeMB = -1;;
 	private Collection<File> classpath;
 	private boolean headless;
+	private Map<String, String> properties;
 	
 	public JavaShellScriptWriter(File javaBin, int maxHeapSizeMB, Collection<File> classpath) {
 		setJavaBin(javaBin);
@@ -71,6 +74,21 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		this.classpath = classpath;
 	}
 
+	public Map<String, String> getProperties() {
+		return properties;
+	}
+
+	public void setProperty(String key, String value) {
+		if (properties == null)
+			properties = Maps.newHashMap();
+		properties.put(key, value);
+	}
+	
+	public void clearProperties() {
+		if (properties != null)
+			properties.clear();
+	}
+
 	protected String getJVMArgs(String className) {
 		Preconditions.checkNotNull(className, "class name cannot be null or empty");
 		Preconditions.checkArgument(!className.isEmpty(), "class name cannot be null or empty");
@@ -87,15 +105,22 @@ public class JavaShellScriptWriter implements XMLSaveable {
 			}
 		}
 		
-		String heap = "";
+		String jvmArgs = "";
 		if (headless)
-			heap = " -Djava.awt.headless=true";
+			jvmArgs = " -Djava.awt.headless=true";
+		if (properties != null) {
+			for (String key : properties.keySet()) {
+				String value = properties.get(key);
+				Preconditions.checkState(!key.contains(" ") && !value.contains(" "), "no spaces allowed in properties!");
+				jvmArgs += " -D"+key+"="+value;
+			}
+		}
 		if (maxHeapSizeMB > 0)
-			heap += " -Xmx"+maxHeapSizeMB+"M";
+			jvmArgs += " -Xmx"+maxHeapSizeMB+"M";
 		if (initialHeapSizeMB > 0)
-			heap += " -Xms"+initialHeapSizeMB+"M";
+			jvmArgs += " -Xms"+initialHeapSizeMB+"M";
 		
-		String args = getFormattedArgs(heap+cp);
+		String args = getFormattedArgs(jvmArgs+cp);
 		
 		return args+" "+className;
 	}

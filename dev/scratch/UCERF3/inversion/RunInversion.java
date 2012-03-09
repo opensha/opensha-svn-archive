@@ -187,14 +187,15 @@ public class RunInversion {
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
+		InversionModels inversionModel = InversionModels.CHAR;
 		
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
-//			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
-//																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM);
-			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
+																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
+//			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);
 			// or you can load one for yourself!
 //			rupSet = SimpleFaultSystemRupSet.fromFile(new File(""));
 
@@ -208,7 +209,7 @@ public class RunInversion {
 		// get the inversion configuration
 		InversionConfiguration config;
 		// this will get it for the GR branch
-		config = InversionConfiguration.forModel(InversionModels.CHAR, rupSet);
+		config = InversionConfiguration.forModel(inversionModel, rupSet);
 		// this can be used for testing other inversions
 //		config = buildCustomConfiguration(rupSet);
 		

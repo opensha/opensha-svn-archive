@@ -1,19 +1,30 @@
 package scratch.UCERF3.enumTreeBranches;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.opensha.commons.data.ShortNamed;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.SimpleFaultSystemRupSet;
+
 public enum FaultModels implements ShortNamed {
 
 	FM2_1("Fault Model 2.1", 41),
 	FM3_1("Fault Model 3.1", 101),
 	FM3_2("Fault Model 3.2", 102);
+	
+	public static final String XML_ELEMENT_NAME = "FaultModel";
+	public static final String FAULT_MODEL_STORE_PROPERTY_NAME = "FaultModelStore";
 	
 	private String modelName;
 	private int id;
@@ -56,7 +67,7 @@ public enum FaultModels implements ShortNamed {
 		}
 	}
 	
-	public DB_AccessAPI getDBAccess() {
+	private DB_AccessAPI getDBAccess() {
 		switch (this) {
 		case FM2_1:
 			return DB_ConnectionPool.getDB2ReadOnlyConn();
@@ -70,7 +81,28 @@ public enum FaultModels implements ShortNamed {
 		}
 	}
 	
+	private static ArrayList<FaultSectionPrefData> loadStoredFaultSections(File fmStoreFile)
+			throws MalformedURLException, DocumentException {
+		System.out.println("Loading fault model from: "+fmStoreFile.getAbsolutePath());
+		Document doc = XMLUtils.loadDocument(fmStoreFile);
+		Element root = doc.getRootElement();
+		return SimpleFaultSystemRupSet.fsDataFromXML(root.element("FaultModel"));
+	}
+	
 	public ArrayList<FaultSectionPrefData> fetchFaultSections() {
+		// this lets us load the FM from XML if we're on the cluster
+		String fmStoreProp = System.getProperty("FaultModelStore");
+		if (fmStoreProp != null) {
+			File fmStoreFile = new File(fmStoreProp, getShortName()+".xml");
+			if (fmStoreFile.exists()) {
+				try {
+					return loadStoredFaultSections(fmStoreFile);
+				} catch (Exception e) {
+					// ok to fail here, will try it the other way
+					e.printStackTrace();
+				}
+			}
+		}
 		DB_AccessAPI db = getDBAccess();
 		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
 		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();

@@ -52,8 +52,9 @@ public class LogicTreePBSWriter {
 		return jars;
 	}
 	
-	private enum RunSites {
-		EPICENTER("/home/epicenter/kmilner/inversions", EpicenterScriptWriter.JAVA_BIN) {
+	public enum RunSites {
+		EPICENTER("/home/epicenter/kmilner/inversions", EpicenterScriptWriter.JAVA_BIN,
+				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				InversionModels im = branch.getInvModel();
@@ -72,7 +73,8 @@ public class LogicTreePBSWriter {
 				return 8;
 			}
 		},
-		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN) {
+		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
+				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch.getInvModel() == InversionModels.GR)
@@ -94,7 +96,7 @@ public class LogicTreePBSWriter {
 				return 8;
 			}
 		},
-		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN) {
+		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN, null) { // TODO!!!!
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				return new RangerScriptWriter();
@@ -113,10 +115,12 @@ public class LogicTreePBSWriter {
 		
 		private File RUN_DIR;
 		private File JAVA_BIN;
+		private String FM_STORE;
 		
-		private RunSites(String path, File javaBin) {
+		private RunSites(String path, File javaBin, String fmStore) {
 			RUN_DIR = new File(path);
 			JAVA_BIN = javaBin;
+			FM_STORE = fmStore;
 		}
 		
 		public abstract BatchScriptWriter forBranch(LogicTreeBranch branch);
@@ -130,12 +134,12 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "moment-reduction-variations";
+		String runName = "rup-set-test";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
-//		runName = "2012_03_02-weekend-converg-test";
 		boolean buildRupSets = true;
+//		runName = "2012_03_02-weekend-converg-test";
 		
 //		RunSites site = RunSites.RANGER;
 //		RunSites site = RunSites.EPICENTER;
@@ -149,10 +153,10 @@ public class LogicTreePBSWriter {
 		DeformationModels[] defModels = null;
 //		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 
-//		InversionModels[] inversionModels = InversionModels.values();
+		InversionModels[] inversionModels = InversionModels.values();
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-		InversionModels[] inversionModels =  { InversionModels.CHAR };
+//		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
 
@@ -168,14 +172,15 @@ public class LogicTreePBSWriter {
 //		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
 		
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
-		String[] variations = { "MomRed_100", "MomRed_090", "MomRed_080", "MomRed_070",
-				"MomRed_060", "MomRed_050", "MomRed_040", "MomRed_030", "MomRed_020", "MomRed_010" };
+//		String[] variations = { "MomRed_100", "MomRed_090", "MomRed_080", "MomRed_070",
+//				"MomRed_060", "MomRed_050", "MomRed_040", "MomRed_030", "MomRed_020", "MomRed_010" };
+		String[] variations = null;
 		
 		// do all branch choices relative to these:
 //		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
 		maxAway.put(InversionModels.CHAR, 1);
-		maxAway.put(InversionModels.GR, 0);
+		maxAway.put(InversionModels.GR, 1);
 		maxAway.put(InversionModels.UNCONSTRAINED, 1);
 		LogicTreeBranch[] defaultBranches = {
 //				new LogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
@@ -234,6 +239,10 @@ public class LogicTreePBSWriter {
 		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(1);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath(site));
 		javaWriter.setHeadless(true);
+		if (site.FM_STORE != null) {
+			javaWriter.setProperty(FaultModels.FAULT_MODEL_STORE_PROPERTY_NAME, site.FM_STORE);
+			buildRupSets = false;
+		}
 		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, threads, null, null, subCompletion);
 		tsa_create.setPlots(true);
 		tsa_create.setCool(cool);
@@ -253,11 +262,6 @@ public class LogicTreePBSWriter {
 				for (MagAreaRelationships ma : magAreas) {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
 						for (AveSlipForRupModels as : aveSlipModels) {
-							String baseName = fm.getShortName()+"_"+dm.getShortName()
-									+"_Ma"+ma.getShortName()+"_Dsr"+sal.getShortName()+"_Dr"+as.getShortName();
-
-							File localRupSetFile = new File(writeDir, baseName+"_rupSet.zip");
-							File remoteRupSetFile = new File(runSubDir, baseName+"_rupSet.zip");
 
 							for (String variation : variations) {
 								for (InversionModels im : inversionModels) {
@@ -273,13 +277,12 @@ public class LogicTreePBSWriter {
 											continue;
 									}
 									
+									String name = fm.getShortName()+"_"+dm.getShortName()
+											+"_Ma"+ma.getShortName()+"_Dsr"+sal.getShortName()+"_Dr"+as.getShortName()
+											+"_"+im.getShortName();
 									
-									if (buildRupSets && !localRupSetFile.exists()) {
-										SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
-												InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal));
-										rupSet.toZipFile(localRupSetFile);
-										System.gc();
-									}
+									if (variation != null)
+										name += "_Var"+variation;
 									
 									int mins;
 									NonnegativityConstraintType nonNeg;
@@ -309,16 +312,21 @@ public class LogicTreePBSWriter {
 									javaWriter.setMaxHeapSizeMB(heapSizeMB);
 									tsa_create.setNonNeg(nonNeg);
 									tsa_create.setCheckPointCriteria(checkPointCritera);
-									
-									String name = baseName+"_"+im.getShortName();
-									
-									if (variation != null)
-										name += "_Var"+variation;
 
 									for (int r=0; r<numRuns; r++) {
 										String jobName = name;
 										if (numRuns > 1)
 											jobName += "_run"+r;
+										
+										File localRupSetFile = new File(writeDir, name+"_rupSet.zip");
+										File remoteRupSetFile = new File(runSubDir, name+"_rupSet.zip");
+										
+										if (buildRupSets && !localRupSetFile.exists()) {
+											SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
+													InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal, im));
+											rupSet.toZipFile(localRupSetFile);
+											System.gc();
+										}
 
 										tsa_create.setProgFile(new File(runSubDir, jobName+".csv"));
 										tsa_create.setSolFile(new File(runSubDir, jobName+".bin"));

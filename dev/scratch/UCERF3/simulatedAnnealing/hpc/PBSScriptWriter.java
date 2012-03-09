@@ -13,6 +13,7 @@ import org.opensha.commons.util.ClassUtils;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.hpc.LogicTreePBSWriter.RunSites;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 
@@ -83,7 +84,7 @@ public class PBSScriptWriter {
 			}
 			String queue = null;
 
-			ArrayList<File> classpath = MultiSABenchmarkPBSWriter.getClasspath();
+			ArrayList<File> classpath = LogicTreePBSWriter.getClasspath(RunSites.HPCC);
 
 			ThreadedScriptCreator creator;
 			if (nodes > 1) {

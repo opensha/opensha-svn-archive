@@ -19,7 +19,8 @@ public class SolutionMomentCalc {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_03_07-moment-reduction-variations");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_03_07-moment-reduction-variations");
+		File dir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/");
 		
 		File[] files = dir.listFiles();
 		Arrays.sort(files, new FileNameComparator());

@@ -15,6 +15,7 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -145,8 +146,24 @@ public class InversionFaultSystemRupSetFactory {
 	public static InversionFaultSystemRupSet forBranch(
 			FaultModels faultModel,
 			DeformationModels deformationModel) {
+		return forBranch(faultModel, deformationModel, InversionModels.CHAR);
+	}
+	
+	/**
+	 * Creates a rupture set for the specified fault model/deformation model using all other default branch
+	 * choices and the default laugh test filter
+	 * 
+	 * @param faultModel
+	 * @param deformationModel
+	 * @param inversionModel
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(
+			FaultModels faultModel,
+			DeformationModels deformationModel,
+			InversionModels inversionModel) {
 		return forBranch(faultModel, deformationModel, MagAreaRelationships.ELL_B,
-				AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED);
+				AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, inversionModel);
 	}
 	
 	/**
@@ -157,6 +174,7 @@ public class InversionFaultSystemRupSetFactory {
 	 * @param magAreaRelationships
 	 * @param aveSlipForRupModel
 	 * @param slipAlongModel
+	 * @param inversionModel
 	 * @return
 	 */
 	public static InversionFaultSystemRupSet forBranch(
@@ -164,8 +182,10 @@ public class InversionFaultSystemRupSetFactory {
 			DeformationModels deformationModel,
 			MagAreaRelationships magAreaRelationships,
 			AveSlipForRupModels aveSlipForRupModel,
-			SlipAlongRuptureModels slipAlongModel) {
-		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel, slipAlongModel, LaughTestFilter.getDefault());
+			SlipAlongRuptureModels slipAlongModel,
+			InversionModels inversionModel) {
+		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
+				slipAlongModel, inversionModel, LaughTestFilter.getDefault());
 	}
 	
 	/**
@@ -176,6 +196,7 @@ public class InversionFaultSystemRupSetFactory {
 	 * @param magAreaRelationships
 	 * @param aveSlipForRupModel
 	 * @param slipAlongModel
+	 * @param inversionModel
 	 * @param laughTest
 	 * @return
 	 */
@@ -185,9 +206,9 @@ public class InversionFaultSystemRupSetFactory {
 			MagAreaRelationships magAreaRelationships,
 			AveSlipForRupModels aveSlipForRupModel,
 			SlipAlongRuptureModels slipAlongModel,
+			InversionModels inversionModel,
 			LaughTestFilter laughTest) {
 		System.out.println("Building a rupture set for: "+deformationModel+" ("+faultModel+")");
-		double moRateReduction = 0.1; // TODO don't hardcode this here
 		
 		List<MagAreaRelationship> magAreaRelList = magAreaRelationships.getMagAreaRelationships();
 		
@@ -214,7 +235,7 @@ public class InversionFaultSystemRupSetFactory {
 		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
 				clusters, deformationModel, faultSectionData, magAreaRelList,
-				moRateReduction, slipAlongModel, aveSlipForRupModel);
+				inversionModel, slipAlongModel, aveSlipForRupModel);
 		System.out.println("New rup set has "+rupSet.getNumRuptures()+" ruptures.");
 		return rupSet;
 	}
@@ -232,7 +253,9 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, true);
-			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
+//			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
+			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
+					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault());
 			
 			// slip for an 8.4
 //			int id = 132520;

@@ -85,49 +85,68 @@ public class LogicTreeBranch {
 	public static LogicTreeBranch parseFileName(String fileName) {
 		FaultModels fm = null;
 		for (FaultModels mod : lengthSorted(FaultModels.values())) {
-			if (fileName.contains(mod.getShortName())) {
+			if (fileName.contains(mod.getShortName()+"_")) {
 				fm = mod;
 				break;
 			}
 		}
 		DeformationModels dm = null;
 		for (DeformationModels mod : lengthSorted(DeformationModels.values())) {
-			if (fileName.contains(mod.getShortName())) {
+			if (fileName.contains("_"+mod.getShortName()+"_")) {
 				dm = mod;
 				break;
 			}
 		}
 		MagAreaRelationships ma = null;
 		for (MagAreaRelationships mod : lengthSorted(MagAreaRelationships.values())) {
-			if (fileName.contains("Ma"+mod.getShortName())) {
+			if (fileName.contains("_Ma"+mod.getShortName()+"_")) {
 				ma = mod;
 				break;
 			}
 		}
 		AveSlipForRupModels as = null;
 		for (AveSlipForRupModels mod : lengthSorted(AveSlipForRupModels.values())) {
-			if (fileName.contains("Dr"+mod.getShortName())) {
+			if (fileName.contains("_Dr"+mod.getShortName()+"_")) {
 				as = mod;
 				break;
 			}
 		}
-		if (fileName.contains("DrCostStressDrop")) // typo from old files!
+		if (fileName.contains("_DrCostStressDrop_")) // typo from old files!
 			as = AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP;
 		SlipAlongRuptureModels sal = null;
 		for (SlipAlongRuptureModels mod : lengthSorted(SlipAlongRuptureModels.values())) {
-			if (fileName.contains("Dsr"+mod.getShortName())) {
+			if (fileName.contains("_Dsr"+mod.getShortName()+"_")) {
 				sal = mod;
 				break;
 			}
 		}
 		InversionModels inv = null;
 		for (InversionModels mod : lengthSorted(InversionModels.values())) {
-			if (fileName.contains(mod.getShortName())) {
+			if (fileName.contains("_"+mod.getShortName()+"_")) {
 				inv = mod;
 				break;
 			}
 		}
 		return new LogicTreeBranch(fm, dm, ma, as, sal, inv);
+	}
+	
+	/**
+	 * @return true if every field is non null, false otherwise
+	 */
+	public boolean isFullySpecified() {
+		if (faultModel == null)
+			return false;
+		if (defModel == null)
+			return false;
+		if (magArea == null)
+			return false;
+		if (aveSlip == null)
+			return false;
+		if (slipAlong == null)
+			return false;
+		if (invModel == null)
+			return false;
+		return true;
 	}
 	
 	public String buildFileName() {

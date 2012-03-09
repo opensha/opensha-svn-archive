@@ -76,6 +76,60 @@ public abstract class FaultSystemRupSet {
 	 * @return
 	 */
 	public abstract List<Integer> getSectionsIndicesForRup(int rupIndex);
+	
+	/**
+	 * This returns the magnitude of the smallest rupture involving this section or NaN
+	 * if no ruptures involve this section.
+	 * @param sectIndex
+	 * @return
+	 */
+	public double getMinMagForSection(int sectIndex) {
+		List<Integer> rups = getRupturesForSection(sectIndex);
+		if (rups.isEmpty())
+			return Double.NaN;
+		double minMag = Double.POSITIVE_INFINITY;
+		for (int rupIndex : getRupturesForSection(sectIndex)) {
+			double mag = getMagForRup(rupIndex);
+			if (mag < minMag)
+				minMag = mag;
+		}
+		return minMag;
+	}
+	
+	/**
+	 * This returns the magnitude of the largest rupture involving this section or NaN
+	 * if no ruptures involve this section.
+	 * @param sectIndex
+	 * @return
+	 */
+	public double getMaxMagForSection(int sectIndex) {
+		List<Integer> rups = getRupturesForSection(sectIndex);
+		if (rups.isEmpty())
+			return Double.NaN;
+		double maxMag = 0;
+		for (int rupIndex : getRupturesForSection(sectIndex)) {
+			double mag = getMagForRup(rupIndex);
+			if (mag > maxMag)
+				maxMag = mag;
+		}
+		return maxMag;
+	}
+	
+	
+	/**
+	 * This computes the moment rate reduction, if any, that was applied to the slip rate (as returned by
+	 * getSlipRateForSection).<br>
+	 * <br>
+	 * This is computed as: <code>moRateReduction = 1 - (reducedSlip / origSlip)</code>
+	 * where origSlip is first converted to meters.
+	 * @param sectIndex
+	 * @return
+	 */
+	public double getMomentRateReductionForSection(int sectIndex) {
+		double origSlip = getFaultSectionData(sectIndex).getReducedAveSlipRate() * 1e-3; // convert to meters
+		double moReducedSlip = getSlipRateForSection(sectIndex);
+		return 1d - moReducedSlip/origSlip;
+	}
 
 	/**
 	 * This gives the magnitude for each rth rupture

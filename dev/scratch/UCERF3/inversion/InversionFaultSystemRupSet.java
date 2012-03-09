@@ -28,6 +28,7 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
@@ -69,6 +70,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	String deformationModelString;
 	SlipAlongRuptureModels slipModelType;
 	AveSlipForRupModels aveSlipForRupModel;
+	InversionModels inversionModel;
 	
 	List<FaultSectionPrefData> faultSectionData;
 	int numSections;
@@ -80,7 +82,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	double[] sectSlipRateStdDevReduced;	// this gets reduced by moRateReduction (if non zero)
 	
 	// rupture attributes (all in SI units)
-	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupMeanSlip, rupRake;
+	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupMeanSlip, rupRake, moRateReductions;
 	int[] clusterIndexForRup, rupIndexInClusterForRup;
 	ArrayList<ArrayList<Integer>> clusterRupIndexList;
 	int numRuptures=0;
@@ -104,10 +106,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param filter
 	 */
 	public InversionFaultSystemRupSet(FaultModels faultModel, DeformationModels defModel,
-			List<MagAreaRelationship> magAreaRelList, double moRateReduction, SlipAlongRuptureModels slipModelType,
+			List<MagAreaRelationship> magAreaRelList, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
 			AveSlipForRupModels aveSlipForRupModel, File precomputedDataDir, LaughTestFilter filter) {
 		this(new SectionClusterList(faultModel, defModel, precomputedDataDir, filter),
-				defModel, null, magAreaRelList, moRateReduction, slipModelType, aveSlipForRupModel);
+				defModel, null, magAreaRelList, inversionModel, slipModelType, aveSlipForRupModel);
 	}
 
 	/**
@@ -123,7 +125,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param aveSlipForRupModel
 	 */
 	public InversionFaultSystemRupSet(SectionClusterList clusters, DeformationModels defModel, List<FaultSectionPrefData> faultSectionData,
-			List<MagAreaRelationship> magAreaRelList, double moRateReduction, SlipAlongRuptureModels slipModelType,
+			List<MagAreaRelationship> magAreaRelList, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
 			AveSlipForRupModels aveSlipForRupModel) {
 		
 		if (faultSectionData == null)
@@ -137,6 +139,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		this.aveSlipForRupModel = aveSlipForRupModel;
 		this.sectionClusterList = clusters;
 		this.faultSectionData = faultSectionData;
+		this.inversionModel = inversionModel;
 		
 		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
 		infoString += "\tfaultModel = " +faultModel+ "\n";
@@ -144,7 +147,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		infoString += "\tdefMod filter basis = " +clusters.getDefModel()+ "\n";
 		infoString += "\t" +clusters.getFilter()+ "\n";
 		infoString += "\tmagAreaRelList = " +magAreaRelList+ "\n";
-		infoString += "\tmoRateReduction = " +moRateReduction+ "\n";
+		infoString += "\tinversionModel = " +inversionModel+ "\n";
 		infoString += "\tslipModelType = " +slipModelType+ "\n";
 
 		if(D) System.out.println(infoString);
@@ -155,14 +158,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				"RupsInFaultSystemInversion: Error - indices of faultSectionData don't match IDs");
 
 		numSections = faultSectionData.size();
-
-		// compute sectSlipRateReduced
-		sectSlipRateReduced = new double[numSections];
-		sectSlipRateStdDevReduced = new double[numSections];
-		for(int s=0; s<numSections; s++) {
-			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
-			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*(1-moRateReduction); // mm/yr --> m/yr; includes moRateReduction
-		}
 		
 		// calculate rupture magnitude and other attributes
 		calcRuptureAttributes();
@@ -225,7 +220,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				clusterRupIndexes.add(r);
 				double totArea=0;
 				double totLength=0;
-				double totMoRate=0;
 				ArrayList<Integer> sectsInRup = clusterRups.get(r);
 				ArrayList<Double> areas = new ArrayList<Double>();
 				ArrayList<Double> rakes = new ArrayList<Double>();
@@ -234,7 +228,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 					totLength += length;
 					double area = getAreaForSection(sectID);
 					totArea += area;
-					totMoRate += FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
 					areas.add(area);
 					rakes.add(faultSectionData.get(sectID).getAveRake());
 				}
@@ -251,15 +244,37 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion
 				// (mean moment != moment of mean mag if aleatory uncertainty included)
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
-				rupTotMoRateAvail[rupIndex]=totMoRate;
 //				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
 				rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totArea, totLength);
 			}
 		}
+		// we have to do this afterwards because we may need mMin and mMax for each section
+		// compute sectSlipRateReduced
+		sectSlipRateReduced = new double[numSections];
+		sectSlipRateStdDevReduced = new double[numSections];
+		moRateReductions = InversionConfiguration.getMomentRateReductionsForSections(this, inversionModel);
+		for(int s=0; s<numSections; s++) {
+			System.out.println("Mo Rate Reduction: "+moRateReductions[s]);
+			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*(1-moRateReductions[s]); // mm/yr --> m/yr; includes moRateReduction
+			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*(1-moRateReductions[s]); // mm/yr --> m/yr; includes moRateReduction
+		}
+		for (int r=0; r<numRuptures; r++) {
+			double totMoRate=0;
+			for (int sectID : getSectionsIndicesForRup(r)) {
+				double area = getAreaForSection(sectID);
+				totMoRate += FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
+			}
+			rupTotMoRateAvail[rupIndex]=totMoRate;
+		}
 		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");
 	}
 	
-	  /**
+	  @Override
+	public double getMomentRateReductionForSection(int sectIndex) {
+		return moRateReductions[sectIndex];
+	}
+
+	/**
 	   * This writes the rupture sections to an ASCII file
 	   * @param filePathAndName
 	   */
