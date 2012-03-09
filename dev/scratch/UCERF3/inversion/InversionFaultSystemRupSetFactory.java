@@ -255,7 +255,12 @@ public class InversionFaultSystemRupSetFactory {
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, true);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
-					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault());
+					SlipAlongRuptureModels.TAPERED, InversionModels.CHAR, LaughTestFilter.getDefault());
+			
+			System.out.println("Total Orig Mo Rate: "+rupSet.getTotalOrigMomentRate());
+			System.out.println("Total Reduced Mo Rate: "+rupSet.getTotalSubseismogenicReducedMomentRate());
+			System.out.println("Total Mo Rate Reduction: "+rupSet.getTotalSubseismogenicMomentRateReduction());
+			System.out.println("Total Mo Rate Reduction Fraction: "+rupSet.getTotalSubseismogenicMomentRateReductionFraction());
 			
 			// slip for an 8.4
 //			int id = 132520;

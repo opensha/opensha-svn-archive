@@ -402,7 +402,7 @@ public class InversionConfiguration {
 	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet) {
 		
 		double momentFractionOffFaults = findMomentFractionOffFaults(rupSet);
-		double totalMoment = rupSet.getTotalMomentRateForAllSections();
+		double totalMoment = rupSet.getTotalOrigMomentRate(); // reduced for creep, not for subseismogenic rups
 		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
 		
 		// Use the mag-dist for the whole region since the deformation model off-fault moment #s from Kaj are also for the whole region
@@ -555,7 +555,7 @@ public class InversionConfiguration {
 		// Take into account the momentRateReduction - this is moment that is in subseismogenic ruptures 
 		// & we need to put it into the "background" moment
 		if (rupSet != null) {
-			double subseismogenicRupsMomentFraction = rupSet.getTotalMomentRateReductionFraction();
+			double subseismogenicRupsMomentFraction = rupSet.getTotalSubseismogenicMomentRateReductionFraction();
 			System.out.println("Fraction of on-fault moment that is in subseismogenic ruptures = "+subseismogenicRupsMomentFraction);
 			momentFractionOffFaults = momentFractionOffFaults + (1.0 - momentFractionOffFaults)*subseismogenicRupsMomentFraction;
 		}

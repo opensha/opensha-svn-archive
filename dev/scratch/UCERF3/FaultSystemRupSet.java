@@ -125,37 +125,74 @@ public abstract class FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getMomentRateReductionForSection(int sectIndex) {
+	public double getSubseismogenicMomentRateReductionFraction(int sectIndex) {
 		double origSlip = getFaultSectionData(sectIndex).getReducedAveSlipRate() * 1e-3; // convert to meters
 		double moReducedSlip = getSlipRateForSection(sectIndex);
 		return 1d - moReducedSlip/origSlip;
 	}
-
-	/**
-	 * This returns the moment rate for a fault subsection
-	 */
-	public double getMomentRateForSection(int sectIndex) {
-		FaultSectionPrefData sectData = getFaultSectionData(sectIndex);
-		ArrayList<FaultSectionPrefData> sectDataArray = new ArrayList<FaultSectionPrefData>();
-		sectDataArray.add(sectData);
-		return DeformationModelsCalc.calculateTotalMomentRate(sectDataArray, true);		
-	}
 	
+	/**
+	 * This returns the total reduction in moment rate for subseimogenic ruptures
+	 * 
+	 * @return
+	 */
+	public double getTotalSubseismogenicMomentRateReduction() {
+		return getTotalOrigMomentRate() - getTotalSubseismogenicReducedMomentRate();
+	}
 	
 	/**
 	 * This returns the total fraction of moment that is reduced by the momentRateReduction factor
 	 */
-	public double getTotalMomentRateReductionFraction() {
-		
-		double totalMomentRate = getTotalMomentRateForAllSections();
-		double totalMomentReduction = 0;
-		
-		for (int sect=0; sect<getNumSections(); sect++) {
-			double momentRateReductionFraction = getMomentRateReductionForSection(sect);
-			double momentRate = getMomentRateForSection(sect);
-			totalMomentReduction += momentRate/(1.0 - momentRateReductionFraction) - momentRate;
+	public double getTotalSubseismogenicMomentRateReductionFraction() {
+		return getTotalSubseismogenicMomentRateReduction() / getTotalOrigMomentRate();
+	}
+
+	/**
+	 * This returns the original moment rate (with creep reductions but without subseismogenic
+	 * rupture reductions) for a fault subsection
+	 */
+	public double getOrigMomentRate(int sectIndex) {
+		FaultSectionPrefData sectData = getFaultSectionData(sectIndex);
+		double moRate = sectData.calcMomentRate(true);
+		if (Double.isNaN(moRate))
+			return 0;
+		return moRate;
+	}
+	
+	/**
+	 * This returns the moment rate for the given rupSet without taking into account any
+	 * moment rate reductions for subseismogenic ruptures (note: this includes creep reductions).<br>
+	 * <br>
+	 * This simply calls <code>DeformationModelsCalc.calculateTotalMomentRate(sectData, true)</code> 
+	 * 
+	 * @param rupSet
+	 * @return
+	 */
+	public double getTotalOrigMomentRate() {
+		return DeformationModelsCalc.calculateTotalMomentRate(getFaultSectionDataList(), true);
+	}
+	
+	/**
+	 * This returns the moment rate adjusted for subseimogenic ruptures. This simply returns
+	 * the original moment rate multiplied by <code>(1 -getMomentRateReductionForSection(sectIndex))</code>
+	 * 
+	 * @param sectIndex
+	 * @return
+	 */
+	public double getSubseismogenicReducedMomentRate(int sectIndex) {
+		return getOrigMomentRate(sectIndex) * (1 - getSubseismogenicMomentRateReductionFraction(sectIndex));
+	}
+	
+	/**
+	 * This returns the total moment rate adjusted for subseismogenic ruptures and creep.
+	 * @return
+	 */
+	public double getTotalSubseismogenicReducedMomentRate() {
+		double totMoRate = 0d;
+		for (int sectIndex=0; sectIndex<getNumSections(); sectIndex++) {
+			totMoRate += getSubseismogenicReducedMomentRate(sectIndex);
 		}
-		return totalMomentReduction / totalMomentRate;	
+		return totMoRate;
 	}
 	
 	
@@ -566,15 +603,6 @@ public abstract class FaultSystemRupSet {
 		}
 		
 		return rupturesForSectionCache.get(secIndex);
-	}
-	
-	/**
-	 * This computes the total moment rate for the fault system, taking into account the
-	 * aseismicity factors and coupling coefficients.  
-	 * @return moment in SI units
-	 */
-	public double getTotalMomentRateForAllSections() {
-		return DeformationModelsCalc.calculateTotalMomentRate((ArrayList)getFaultSectionDataList(), true);
 	}
 	
 }

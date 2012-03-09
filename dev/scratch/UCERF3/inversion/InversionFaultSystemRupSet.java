@@ -254,7 +254,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		sectSlipRateStdDevReduced = new double[numSections];
 		moRateReductions = InversionConfiguration.getMomentRateReductionsForSections(this, inversionModel);
 		for(int s=0; s<numSections; s++) {
-			System.out.println("Mo Rate Reduction: "+moRateReductions[s]);
+//			System.out.println("Mo Rate Reduction: "+moRateReductions[s]);
 			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*(1-moRateReductions[s]); // mm/yr --> m/yr; includes moRateReduction
 			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*(1-moRateReductions[s]); // mm/yr --> m/yr; includes moRateReduction
 		}
@@ -270,7 +270,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	}
 	
 	  @Override
-	public double getMomentRateReductionForSection(int sectIndex) {
+	public double getSubseismogenicMomentRateReductionFraction(int sectIndex) {
 		return moRateReductions[sectIndex];
 	}
 

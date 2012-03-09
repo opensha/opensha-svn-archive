@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -20,7 +21,7 @@ import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Rupture
 
 public class DeformationModelsCalc {
 	
-	public static void plotDDW_AndLowerSeisDepthDistributions(ArrayList<FaultSectionPrefData> subsectData, String plotTitle) {
+	public static void plotDDW_AndLowerSeisDepthDistributions(List<FaultSectionPrefData> subsectData, String plotTitle) {
 		
 		HistogramFunction origDepthsHist = new HistogramFunction(0.5, 70, 1.0);
 		HistogramFunction reducedDDW_Hist = new HistogramFunction(0.5, 70, 1.0);
@@ -93,7 +94,7 @@ public class DeformationModelsCalc {
 	 * @param creepReduced
 	 * @return
 	 */
-	public static double calculateTotalMomentRate(ArrayList<FaultSectionPrefData> sectData, boolean creepReduced) {
+	public static double calculateTotalMomentRate(List<FaultSectionPrefData> sectData, boolean creepReduced) {
 		double totMoRate=0;
 		for(FaultSectionPrefData data : sectData) {
 			double moRate = data.calcMomentRate(creepReduced);
