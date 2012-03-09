@@ -64,7 +64,7 @@ public class LogicTreePBSWriter {
 			}
 
 			@Override
-			public int getHeapSizeMB(LogicTreeBranch branch) {
+			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
 				return 7000;
 			}
 
@@ -83,7 +83,7 @@ public class LogicTreePBSWriter {
 			}
 
 			@Override
-			public int getHeapSizeMB(LogicTreeBranch branch) {
+			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
 				if (branch.getInvModel() == InversionModels.GR)
 					return 40000;
 				return 10000;
@@ -103,8 +103,8 @@ public class LogicTreePBSWriter {
 			}
 
 			@Override
-			public int getHeapSizeMB(LogicTreeBranch branch) {
-				return 30000;
+			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
+				return 28000;
 			}
 
 			@Override
@@ -124,7 +124,10 @@ public class LogicTreePBSWriter {
 		}
 		
 		public abstract BatchScriptWriter forBranch(LogicTreeBranch branch);
-		public abstract int getHeapSizeMB(LogicTreeBranch branch);
+		public abstract int getMaxHeapSizeMB(LogicTreeBranch branch);
+		public int getInitialHeapSizeMB(LogicTreeBranch branch) {
+			return getMaxHeapSizeMB(branch);
+		}
 		public abstract int getPPN(LogicTreeBranch branch);
 	}
 
@@ -306,10 +309,10 @@ public class LogicTreePBSWriter {
 										checkPointCritera = null;
 									}
 									int ppn = site.getPPN(branch); // minimum number of cpus
-									int heapSizeMB = site.getHeapSizeMB(branch);
 									CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
 									tsa_create.setCriteria(criteria);
-									javaWriter.setMaxHeapSizeMB(heapSizeMB);
+									javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
+									javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
 									tsa_create.setNonNeg(nonNeg);
 									tsa_create.setCheckPointCriteria(checkPointCritera);
 
