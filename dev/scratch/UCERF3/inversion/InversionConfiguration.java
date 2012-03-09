@@ -504,6 +504,17 @@ public class InversionConfiguration {
 							+faultModel+", "+deformationModel);
 			}
 			break;
+		case FM2_1:
+			switch (deformationModel) {
+			case UCERF2_ALL:
+				momentFractionOffFaults = 22.0 / 100.0;
+				break;
+
+			default:
+				throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model/fault model: "
+						+faultModel+", "+deformationModel);
+			}
+			break;
 
 		default:
 			throw new RuntimeException("Can't get fraction off fault for FM: "+faultModel);
