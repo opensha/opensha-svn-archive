@@ -216,8 +216,11 @@ public class RunInversion {
 		
 		// get the paleo rate constraints
 		List<PaleoRateConstraint> paleoRateConstraints = null;
-		try {
-			paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+		try {	
+			if (rupSet.getFaultModel() == FaultModels.FM2_1) 
+				paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+			else
+				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			// this is a critical error, need to exit
