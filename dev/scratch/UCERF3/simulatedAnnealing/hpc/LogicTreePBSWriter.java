@@ -183,12 +183,12 @@ public class LogicTreePBSWriter {
 		maxAway.put(InversionModels.GR, 1);
 		maxAway.put(InversionModels.UNCONSTRAINED, 1);
 		LogicTreeBranch[] defaultBranches = {
-//				new LogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
-//								AveSlipForRupModels.ELLSWORTH_B, null, InversionModels.CHAR),
-				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
+				new LogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
 								AveSlipForRupModels.ELLSWORTH_B, null, null),
-				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
-								AveSlipForRupModels.ELLSWORTH_B, null, null)
+//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
+//								AveSlipForRupModels.ELLSWORTH_B, null, null),
+//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+//								AveSlipForRupModels.ELLSWORTH_B, null, null)
 				};
 		if (defaultBranches != null) {
 			// make sure all default branch choices are valid!
