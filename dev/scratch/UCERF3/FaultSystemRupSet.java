@@ -132,6 +132,34 @@ public abstract class FaultSystemRupSet {
 	}
 
 	/**
+	 * This returns the moment rate for a fault subsection
+	 */
+	public double getMomentRateForSection(int sectIndex) {
+		FaultSectionPrefData sectData = getFaultSectionData(sectIndex);
+		ArrayList<FaultSectionPrefData> sectDataArray = new ArrayList<FaultSectionPrefData>();
+		sectDataArray.add(sectData);
+		return DeformationModelsCalc.calculateTotalMomentRate(sectDataArray, true);		
+	}
+	
+	
+	/**
+	 * This returns the total fraction of moment that is reduced by the momentRateReduction factor
+	 */
+	public double getTotalMomentRateReductionFraction() {
+		
+		double totalMomentRate = getTotalMomentRateForAllSections();
+		double totalMomentReduction = 0;
+		
+		for (int sect=0; sect<getNumSections(); sect++) {
+			double momentRateReductionFraction = getMomentRateReductionForSection(sect);
+			double momentRate = getMomentRateForSection(sect);
+			totalMomentReduction += momentRate/(1.0 - momentRateReductionFraction) - momentRate;
+		}
+		return totalMomentReduction / totalMomentRate;	
+	}
+	
+	
+	/**
 	 * This gives the magnitude for each rth rupture
 	 * @return
 	 */
