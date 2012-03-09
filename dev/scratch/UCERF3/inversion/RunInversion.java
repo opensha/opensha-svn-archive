@@ -183,7 +183,7 @@ public class RunInversion {
 	 */
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "Model1_GEOBOUND_UNIFORM_1HR";
+		String fileName = "Model2_test";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
@@ -191,12 +191,12 @@ public class RunInversion {
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
 		try {
-//			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOBOUND);
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
-																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM);
-//			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOBOUND);
+//			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
+//			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
+//																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM);
+			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);
 			// or you can load one for yourself!
-//			rupSet = SimpleFaultSystemRupSet.fromFile(new File("/path/to/your/rupture/file!"));
+//			rupSet = SimpleFaultSystemRupSet.fromFile(new File(""));
 
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -275,15 +275,16 @@ public class RunInversion {
 //		criteria = TimeCompletionCriteria.getInMinutes(10); 
 //		criteria = TimeCompletionCriteria.getInSeconds(30); 
 		// or use this to run until a set amount of iterations have been completed
-//		criteria = new IterationCompletionCriteria(1000000); 
+//		criteria = new IterationCompletionCriteria(1); 
 
-		criteria = new ProgressTrackingCompletionCriteria(criteria, 0.25);
-		
 		SimulatedAnnealing sa;
 		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
-		boolean threading = false;
-		
+		boolean threading = true;
+			
 		if (threading) {
+			// Bring up window to track progress
+			criteria = new ProgressTrackingCompletionCriteria(criteria, 0.25);
+			
 			// this will use all available processors
 			int numThreads = Runtime.getRuntime().availableProcessors();
 			

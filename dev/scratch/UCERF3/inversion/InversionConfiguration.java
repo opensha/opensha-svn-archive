@@ -174,6 +174,16 @@ public class InversionConfiguration {
 			}
 		}
 		
+//		TEST:  INCREASE MFD INEQUALITY BY 30%
+//		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
+//			IncrementalMagFreqDist magDist = mfdInequalityConstraints.get(i).getMagFreqDist();
+//			for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
+//				double setVal = 1.3 * magDist.getClosestY(m);
+//				mfdInequalityConstraints.get(i).getMagFreqDist().set(m, setVal);
+//			}
+//		}
+		
+		
 		/* *******************************************
 		 * MODEL SPECIFIC
 		 * ******************************************* */
@@ -484,21 +494,7 @@ public class InversionConfiguration {
 				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults); 				*/		
 				momentFractionOffFaults = 14.3 / 100.0;  // THIS IS THE NUMBER FOR FM 3.1		
 				break;
-//			case ABM:
-//				momentFractionOffFaults = 33.6766 / 100.0;
-//				break;
-//			case GEOBOUND:
-//				momentFractionOffFaults = 34.2229 / 100.0;
-//				break;
-//			case NEOKINEMA:
-//				momentFractionOffFaults = 28.0202 / 100.0;
-//				break;
-//			case GEOLOGIC_PLUS_ABM:
-//				momentFractionOffFaults = (findMomentFractionOffFaults(faultModel, DeformationModels.GEOLOGIC)
-//						+ findMomentFractionOffFaults(faultModel, DeformationModels.ABM)) / 2.0;
-//			case ZENG:
-//				momentFractionOffFaults = 37.0728 / 100.0;
-//				break;	
+			// No other deformation models for FM2.1
 			default:
 				throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model/fault model: "
 							+faultModel+", "+deformationModel);
