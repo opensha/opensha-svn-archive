@@ -121,6 +121,7 @@ public class RunInversion {
 		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
 		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
 		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
+		double relativeMomentConstraintWt = 0;
 		
 		double[] aPrioriRupConstraint;
 		// Use UCERF2 Solution 
@@ -173,7 +174,7 @@ public class RunInversion {
 		return new InversionConfiguration(weightSlipRates, relativePaleoRateWt,
 				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt,
 				relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt,
-				participationConstraintMagBinSize, relativeMinimizationConstraintWt,
+				participationConstraintMagBinSize, relativeMinimizationConstraintWt, relativeMomentConstraintWt,
 				aPrioriRupConstraint, initialRupModel, waterlevelRateBasis, relativeSmoothnessWt,
 				mfdEqualityConstraints, mfdInequalityConstraints, minimumRuptureRateFraction);
 	}
@@ -183,7 +184,7 @@ public class RunInversion {
 	 */
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "Model2_test";
+		String fileName = "GEOLOGICPLUSABM_MFDReduced_FitMoment_30MIN";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
@@ -192,10 +193,10 @@ public class RunInversion {
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
 		try {
-//			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
-																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
-//			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
+//			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
+//																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
+//			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction
 			// or you can load one for yourself!
 //			rupSet = SimpleFaultSystemRupSet.fromFile(new File(""));
 
@@ -205,7 +206,7 @@ public class RunInversion {
 		}
 		
 		if (D) System.out.println("Total Orig (creep reduced) Moment Rate = "+rupSet.getTotalOrigMomentRate());
-		if (D) System.out.println("Total Orig (creep & subseismogenic rup reduced) Moment Rate = "+rupSet.getTotalSubseismogenicReducedMomentRate());
+		if (D) System.out.println("Total Final (creep & subseismogenic rup reduced) Moment Rate = "+rupSet.getTotalSubseismogenicReducedMomentRate());
 		
 		// get the inversion configuration
 		InversionConfiguration config;
@@ -276,8 +277,8 @@ public class RunInversion {
 		// now lets the run the inversion!
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
-		criteria = TimeCompletionCriteria.getInHours(1); 
-//		criteria = TimeCompletionCriteria.getInMinutes(10); 
+//		criteria = TimeCompletionCriteria.getInHours(1); 
+		criteria = TimeCompletionCriteria.getInMinutes(30); 
 //		criteria = TimeCompletionCriteria.getInSeconds(30); 
 		// or use this to run until a set amount of iterations have been completed
 //		criteria = new IterationCompletionCriteria(1); 
