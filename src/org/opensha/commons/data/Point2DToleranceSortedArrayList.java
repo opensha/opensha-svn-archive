@@ -37,7 +37,7 @@ public class Point2DToleranceSortedArrayList implements Point2DToleranceSortedLi
 		comparator.setTolerance(newTolerance);
 	}
 	
-	private int binarySearch(Point2D p) {
+	public int binarySearch(Point2D p) {
 		return Collections.binarySearch(list, p, comparator);
 	}
 

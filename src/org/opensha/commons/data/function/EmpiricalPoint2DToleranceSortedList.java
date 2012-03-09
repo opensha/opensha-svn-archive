@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.data.Point2DToleranceSortedArrayList;
-import org.opensha.commons.data.Point2DToleranceSortedTreeSet;
 
 public class EmpiricalPoint2DToleranceSortedList extends Point2DToleranceSortedArrayList {
 

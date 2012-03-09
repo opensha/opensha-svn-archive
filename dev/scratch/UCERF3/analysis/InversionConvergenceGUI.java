@@ -13,14 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.math.stat.StatUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -55,10 +53,6 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -67,6 +61,10 @@ import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class InversionConvergenceGUI extends JFrame implements
 ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
@@ -96,7 +94,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		FINAL_NORMALIZED_PERTURBATION_BREAKDOWN("Final Norm. Perturb Breakdown", CARD_BAR),
 		PERTURBATIONS_VS_ITERATIONS("Perturbations Vs Iterations", CARD_GRAPH),
 		PERTURBATIONS_FRACTION("Perturbs/Iters Vs Time", CARD_GRAPH),
-		CONVERGENCE_PERCENT("Convergence %", CARD_CONVERG_PLAYGROUND),
+		CONVERGENCE_PERCENT_CHANGE("Convergence % Change", CARD_CONVERG_PLAYGROUND),
+		CONVERGENCE_CHANGE("Convergence Change", CARD_CONVERG_PLAYGROUND),
 		CONVERGENCE_ENERGY("Convergence Energy", CARD_CONVERG_PLAYGROUND);
 		private String name;
 		private String card;
@@ -126,11 +125,14 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	// this stuff is for playing with convergence criteria
 	private JPanel convergPlayPanel;
-	private BooleanParameter timeBasedParam = new BooleanParameter("Time Based", false);
-	private static final int LOOK_BACK_DEFAULT_TIME = 30; // 30 minutes
-	private static final int LOOK_BACK_DEFAULT_ITERATIONS = 180000 * 10; // 10x num rups
-	private IntegerParameter lookBackParam = new IntegerParameter("Look Back", LOOK_BACK_DEFAULT_ITERATIONS);
-	private DoubleParameter thresholdParam = new DoubleParameter("Threshold", new Double(0), new Double(100), "%", new Double(1));
+	private BooleanParameter timeBasedParam = new BooleanParameter("Time Based", true);
+	private static final int LOOK_BACK_DEFAULT_TIME = 60; // 60 minutes
+	private static final int LOOK_BACK_DEFAULT_ITERATIONS = 200000 * 10; // 10x num rups
+	private IntegerParameter lookBackParam = new IntegerParameter("Look Back", LOOK_BACK_DEFAULT_TIME);
+	private DoubleParameter energyPercentChangeThresholdParam = new DoubleParameter("Energy Change % Threshold",
+			new Double(0), new Double(100), "%", new Double(1.5));
+	private DoubleParameter energyChangeThresholdParam = new DoubleParameter("Energy Change Threshold",
+			new Double(0), new Double(1000), new Double(2));
 	private GraphPanel convergeGP;
 	
 	private Map<VariableLogicTreeBranch, CSVFile<String>> resultFilesMap;
@@ -190,7 +192,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		ParameterList convergeList = new ParameterList();
 		convergeList.addParameter(timeBasedParam);
 		convergeList.addParameter(lookBackParam);
-		convergeList.addParameter(thresholdParam);
+		convergeList.addParameter(energyPercentChangeThresholdParam);
+		convergeList.addParameter(energyChangeThresholdParam);
 		for (Parameter<?> p : convergeList)
 			p.addParameterChangeListener(this);
 		GriddedParameterListEditor convergeParamEdit = new GriddedParameterListEditor(convergeList, 1, 3);
@@ -561,42 +564,62 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		ArrayList<ArbitrarilyDiscretizedFunc> refFuncs = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		String xAxisName, yAxisName, title;
 		double lookBack = lookBackParam.getValue().doubleValue();
-		double threshold = thresholdParam.getValue();
-		boolean energyY = plot == PlotType.CONVERGENCE_ENERGY;
+		double percentThreshold = energyPercentChangeThresholdParam.getValue();
+		double changeThreshold = energyChangeThresholdParam.getValue();
+//		boolean energyY = plot == PlotType.CONVERGENCE_ENERGY;
+		
+		String yQuantity, xUnit;
 		if (timeBasedParam.getValue()) {
 			for (ArbitrarilyDiscretizedFunc[] funcs : curEnergyVsTimes)
 				refFuncs.add(funcs[0]);
 			xAxisName = "Time (minutes)";
+			xUnit = "minutes";
 			yAxisName = "% Improvement (last "+lookBack+" minutes)";
-			if (energyY)
-				title = "Energy vs Time";
-			else
-				title = "Improvement over Time";
 		} else {
 			for (ArbitrarilyDiscretizedFunc[] funcs : curEnergyVsIters)
 				refFuncs.add(funcs[0]);
 			xAxisName = "Iterations";
+			xUnit = "iterations";
 			yAxisName = "% Improvement (last "+(int)(lookBack+0.5)+" iterations)";
-			if (energyY)
-				title = "Energy vs Iterations";
-			else
-				title = "Improvement over Iterations";
 		}
-		if (energyY)
+		switch (plot) {
+		case CONVERGENCE_CHANGE:
+			title = "Improvement (last "+(int)(lookBack+0.5)+" "+xUnit+")";
+			yAxisName = "Energy Improvement";
+			break;
+		case CONVERGENCE_PERCENT_CHANGE:
+			title = "% Improvement (last "+(int)(lookBack+0.5)+" "+xUnit+")";
+			yAxisName = "Energy % Improvement";
+			break;
+		case CONVERGENCE_ENERGY:
+			title = "Energy vs "+xAxisName;
 			yAxisName = "Energy";
+			break;
+
+		default:
+			throw new IllegalStateException("Not a convergence plot type: "+plot);
+		}
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		
 		List<Color> colors = GraphiWindowAPI_Impl.generateDefaultColors();
 		int colorCnt = 0;
-		double transitionEnergy = 0;
-		double transitionDelta = 0;
-		double transitionPercent = 0;
+		
+		int setMod = refFuncs.size() / 2;
+		
+		if (setMod > 1)
+			System.out.println("Func Set modulus: "+setMod);
+		
+		double xSaved = 0;
+		double xTot = 0;
 		
 		for (ArbitrarilyDiscretizedFunc func : refFuncs) {
 			ArbitrarilyDiscretizedFunc unconvergedFunc = new ArbitrarilyDiscretizedFunc();
 			ArbitrarilyDiscretizedFunc convergedFunc = null;
 			ArbitrarilyDiscretizedFunc curFunc = unconvergedFunc;
+			double transitionEnergy = 0;
+			double transitionDelta = 0;
+			double transitionPercent = 0;
 			for (int i=0; i<func.getNum(); i++) {
 				double x = func.getX(i);
 				if ((x - lookBack - 0.001) < func.getMinX())
@@ -604,18 +627,30 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				double curVal = func.getY(i);
 				double prevVal = func.getInterpolatedY(x-lookBack);
 				double pDiff = DataUtils.getPercentDiff(curVal, prevVal);
-				if (convergedFunc == null && pDiff < threshold) {
+				double diff = prevVal - curVal;
+				if (convergedFunc == null && pDiff < percentThreshold && diff < changeThreshold) {
 					// this is the first time we've crossed the threshold!
 					convergedFunc = new ArbitrarilyDiscretizedFunc();
 					curFunc = convergedFunc;
 					transitionEnergy = curVal;
-					transitionDelta = prevVal - curVal;
+					transitionDelta = diff;
 					transitionPercent = pDiff;
+					xSaved += func.getMaxX() - x;
+					xTot += func.getMaxX();
 				}
-				if (energyY)
-					curFunc.set(x, curVal);
-				else
-					curFunc.set(x, pDiff);
+				if (setMod <= 1 || i % setMod == 0) {
+					switch (plot) {
+					case CONVERGENCE_CHANGE:
+						curFunc.set(x, diff);
+						break;
+					case CONVERGENCE_PERCENT_CHANGE:
+						curFunc.set(x, pDiff);
+						break;
+					case CONVERGENCE_ENERGY:
+						curFunc.set(x, curVal);
+						break;
+					}
+				}
 			}
 			if (colorCnt == colors.size())
 				colorCnt = 0;
@@ -635,6 +670,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, color));
 			}
 		}
+		
+		System.out.println(xUnit+" saved: "+xSaved+"/"+xTot+" ("+(float)(xSaved/xTot * 100d)+" %)");
 		
 		convergeGP.setCurvePlottingCharacterstic(chars);
 		convergeGP.drawGraphPanel(xAxisName, yAxisName, funcs, false, false, false, title, this);
@@ -671,9 +708,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			lookBackParam.getEditor().refreshParamEditor();
 			lookBackParam.addParameterChangeListener(this);
 			updatePlot();
-		} else if (param == lookBackParam) {
-			updatePlot();
-		} else if (param == thresholdParam) {
+		} else if (param == lookBackParam || param == energyChangeThresholdParam
+				|| param == energyPercentChangeThresholdParam) {
 			updatePlot();
 		}
 	}

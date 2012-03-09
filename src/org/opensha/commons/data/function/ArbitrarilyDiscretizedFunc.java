@@ -32,9 +32,10 @@ import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.data.Point2DToleranceComparator;
 import org.opensha.commons.data.Point2DToleranceSortedArrayList;
 import org.opensha.commons.data.Point2DToleranceSortedList;
-import org.opensha.commons.data.Point2DToleranceSortedTreeSet;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
+
+import com.google.common.base.Preconditions;
 
 /**
  * <b>Title:</b> ArbitrarilyDiscretizedFunc<p>
@@ -397,7 +398,12 @@ implements Serializable {
 		return Math.exp(x);
 	}
 
-
+	private int getXIndexBefore(double x) {
+		int ind = points.binarySearch(new Point2D.Double(x, 0));
+		if (ind < 0)
+			return -ind-2;
+		return ind-1;
+	}
 
 	/**
 	 * Given the imput x value, finds the two sequential
@@ -410,8 +416,6 @@ implements Serializable {
 	public double getInterpolatedY(double x){
 		// finds the size of the point array
 		int max=points.size();
-		double x1=Double.NaN;
-		double x2=Double.NaN;
 		//if passed parameter(x value) is not within range then throw exception
 		if(x>getX(max-1) || x<getX(0))
 			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1)
@@ -420,15 +424,14 @@ implements Serializable {
 		if(x==getX(max-1))
 			return getY(x);
 		//finds the X values within which the the given x value lies
-		for(int i=0;i<max-1;++i) {
-			x1=getX(i);
-			x2=getX(i+1);
-			if(x>=x1 && x<=x2)
-				break;
-		}
-		//finding the y values for the coressponding x values
-		double y1=getY(x1);
-		double y2=getY(x2);
+		int x1Ind = getXIndexBefore(x);
+		int x2Ind = x1Ind+1;
+		Point2D pt1 = get(x1Ind);
+		Point2D pt2 = get(x2Ind);
+		double x1 = pt1.getX();
+		double y1 = pt1.getY();
+		double x2 = pt2.getX();
+		double y2 = pt2.getY();
 		//using the linear interpolation equation finding the value of y for given x
 		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
 		return y;
@@ -448,24 +451,20 @@ implements Serializable {
 	public double getInterpolatedY_inLogXLogYDomain(double x){
 		// finds the size of the point array
 		int max=points.size();
-		double x1=Double.NaN;
-		double x2=Double.NaN;
 		//if passed parameter(x value) is not within range then throw exception
 		if(x>getX(max-1) || x<getX(0))
 			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
 		//if x value is equal to the maximum value of all given X's then return the corresponding Y value
 		if(x==getX(max-1))
 			return getY(x);
-		//finds the X values within which the the given x value lies
-		for(int i=0;i<max-1;++i) {
-			x1=getX(i);
-			x2=getX(i+1);
-			if(x>=x1 && x<=x2)
-				break;
-		}
-		//finding the y values for the coressponding x values
-		double y1 = getY(x1);
-		double y2 = getY(x2);
+		int x1Ind = getXIndexBefore(x);
+		int x2Ind = x1Ind+1;
+		Point2D pt1 = get(x1Ind);
+		Point2D pt2 = get(x2Ind);
+		double x1 = pt1.getX();
+		double y1 = pt1.getY();
+		double x2 = pt2.getX();
+		double y2 = pt2.getY();
 		if(y1==0 && y2==0) return 0;
 		if(y1==0) y1 = Double.MIN_VALUE;
 		if(y2==0) y2 = Double.MIN_VALUE;
@@ -540,8 +539,6 @@ if(debug) {
 	public double getInterpolatedY_inLogYDomain(double x){
 		// finds the size of the point array
 		int max=points.size();
-		double x1=Double.NaN;
-		double x2=Double.NaN;
 		//if passed parameter(x value) is not within range then throw exception
 		if(x>getX(max-1) || x<getX(0))
 			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
@@ -549,15 +546,14 @@ if(debug) {
 		if(x==getX(max-1))
 			return getY(x);
 		//finds the X values within which the the given x value lies
-		for(int i=0;i<max-1;++i) {
-			x1=getX(i);
-			x2=getX(i+1);
-			if(x>=x1 && x<=x2)
-				break;
-		}
-		//finding the y values for the coressponding x values
-		double y1 = getY(x1);
-		double y2 = getY(x2);
+		int x1Ind = getXIndexBefore(x);
+		int x2Ind = x1Ind+1;
+		Point2D pt1 = get(x1Ind);
+		Point2D pt2 = get(x2Ind);
+		double x1 = pt1.getX();
+		double y1 = pt1.getY();
+		double x2 = pt2.getX();
+		double y2 = pt2.getY();
 		if(y1==0 && y2==0) return 0;
 		double logY1=Math.log(y1);
 		double logY2=Math.log(y2);
@@ -724,7 +720,7 @@ if(debug) {
 	private void readObject(ObjectInputStream s){
 		try{
 			Point2DComparator comp = (Point2DComparator)s.readObject();
-			points = new Point2DToleranceSortedTreeSet(comp);
+			points = new Point2DToleranceSortedArrayList(comp);
 			int num = ((Integer)s.readObject()).intValue();
 			for(int i=0;i<num;++i){
 				Point2D data = (Point2D)s.readObject();

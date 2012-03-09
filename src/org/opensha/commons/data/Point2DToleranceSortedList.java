@@ -38,5 +38,7 @@ public interface Point2DToleranceSortedList extends Iterable<Point2D> {
 	public int size();
 	
 	public void clear();
+	
+	public int binarySearch(Point2D p);
 
 }
