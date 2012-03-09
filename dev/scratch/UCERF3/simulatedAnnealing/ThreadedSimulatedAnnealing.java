@@ -772,16 +772,26 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
+		// this chops off any huge energy values in the first 5% of the run so that the plots
+		// are readable at the energy levels that are actually interesting
+		int xInd5percent = (int)(energyVsIters[0].getNum() * 0.05 + 0.5);
+		double energyPlotMax = energyVsIters[0].getY(xInd5percent);
+		double energyPlotMin = 0;
+		double timeMin = 0, itersMin = 0;
+		double timeMax = energyVsTime[0].getMaxX(), iterMax = energyVsIters[0].getMaxX();
+		
 		// energy vs time plot
+		gp.setUserBounds(timeMin, timeMax, energyPlotMin, energyPlotMax);
 		gp.drawGraphPanel(timeLabel, energyLabel, Lists.newArrayList(energyVsTime), energyChars,
-				false, "Energy Vs Time");
+				true, "Energy Vs Time");
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+"_energy_vs_time.png").getAbsolutePath(),
 				plot_width, plot_height);
 		
 		// energy vs iters plot
+		gp.setUserBounds(itersMin, iterMax, energyPlotMin, energyPlotMax);
 		gp.drawGraphPanel(iterationsLabel, energyLabel, Lists.newArrayList(energyVsIters), energyChars,
-				false, "Energy Vs Time");
+				true, "Energy Vs Time");
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+"_energy_vs_iters.png").getAbsolutePath(),
 				plot_width, plot_height);
