@@ -122,7 +122,8 @@ public class LogicTreeBranch {
 		}
 		InversionModels inv = null;
 		for (InversionModels mod : lengthSorted(InversionModels.values())) {
-			if (fileName.contains("_"+mod.getShortName()+"_")) {
+			if (fileName.contains("_"+mod.getShortName()+"_")
+					|| fileName.contains("_"+mod.getShortName()+".")) {
 				inv = mod;
 				break;
 			}
