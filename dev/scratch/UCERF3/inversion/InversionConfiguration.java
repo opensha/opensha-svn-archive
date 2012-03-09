@@ -50,6 +50,7 @@ public class InversionConfiguration {
 	private double relativeParticipationSmoothnessConstraintWt;
 	private double participationConstraintMagBinSize;
 	private double relativeMinimizationConstraintWt;
+	private double relativeMomentConstraintWt;
 	private double[] aPrioriRupConstraint;
 	private double[] initialRupModel;
 	// thses are the rates that should be used for water level computation. this will
@@ -71,6 +72,7 @@ public class InversionConfiguration {
 			double relativeParticipationSmoothnessConstraintWt,
 			double participationConstraintMagBinSize,
 			double relativeMinimizationConstraintWt,
+			double relativeMomentConstraintWt,
 			double[] aPrioriRupConstraint,
 			double[] initialRupModel,
 			double[] minimumRuptureRateBasis, 
@@ -86,6 +88,7 @@ public class InversionConfiguration {
 		this.relativeParticipationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
 		this.participationConstraintMagBinSize = participationConstraintMagBinSize;
 		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
+		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
 		this.aPrioriRupConstraint = aPrioriRupConstraint;
 		this.initialRupModel = initialRupModel;
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
@@ -130,6 +133,9 @@ public class InversionConfiguration {
 		
 		// weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
 		double relativeSmoothnessWt = 0;
+		
+		// weight of Moment Constraint (set solution moment to equal deformation model moment) (recommended: 1e-17)
+		double relativeMomentConstraintWt = 0;
 		
 		boolean ucerf3MFDs = true;
 		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = null;
@@ -251,6 +257,7 @@ public class InversionConfiguration {
 				relativeParticipationSmoothnessConstraintWt,
 				participationConstraintMagBinSize,
 				relativeMinimizationConstraintWt,
+				relativeMomentConstraintWt,
 				aPrioriRupConstraint,
 				initialRupModel,
 				minimumRuptureRateBasis,
@@ -894,6 +901,16 @@ public class InversionConfiguration {
 	public void setRelativeMinimizationConstraintWt(
 			double relativeMinimizationConstraintWt) {
 		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
+	}
+	
+	
+	public double getRelativeMomentConstraintWt() {
+		return relativeMomentConstraintWt;
+	}
+
+	public void setRelativeMomentConstraintWt(
+			double relativeMomentConstraintWt) {
+		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
 	}
 
 	public double[] getA_PrioriRupConstraint() {

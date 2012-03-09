@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -214,6 +215,11 @@ public class InversionInputGenerator {
 			if(D) System.out.println("Number of MFD participation constraints: "
 					+ totalNumMagParticipationConstraints);
 		}
+		if (config.getRelativeMomentConstraintWt() > 0.0) {
+			numRows++;
+			if(D) System.out.println("Number of Moment constraints: 1");
+		}
+		
 		
 		
 		// Components of matrix equation to invert (Ax=d)
@@ -562,6 +568,30 @@ public class InversionInputGenerator {
 				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 			}
 		}
+		
+		
+		// Constraint solution moment to equal deformation-model moment
+		if (config.getRelativeMomentConstraintWt() > 0.0) {
+			double relativeMomentConstraintWt = config.getRelativeMomentConstraintWt();
+			double totalMomentTarget = rupSet.getTotalSubseismogenicReducedMomentRate();
+			numNonZeroElements = 0;
+			for (int rup=0; rup<numRuptures; rup++)  {
+				if (QUICK_GETS_SETS)
+					A.setQuick(rowIndex,rup,relativeMomentConstraintWt * MagUtils.magToMoment(rupMeanMag[rup]));
+				else
+					A.set(rowIndex,rup,relativeMomentConstraintWt * MagUtils.magToMoment(rupMeanMag[rup]));
+				numNonZeroElements++;
+			}
+			d[rowIndex]=relativeMomentConstraintWt * totalMomentTarget;
+			rowIndex++;
+			System.out.println("Adding Moment Constraint took "+getTimeStr(watch)+".");
+			watch.reset();
+			watch.start();
+			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+		}
+		
+		
+		
 		
 		if (minimumRuptureRates != null) {
 			// apply the minimum rupture rates
