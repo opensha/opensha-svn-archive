@@ -191,6 +191,11 @@ public class InversionFaultSystemRupSetFactory {
 		
 		List<MagAreaRelationship> magAreaRelList = magAreaRelationships.getMagAreaRelationships();
 		
+		if (faultModel == FaultModels.FM2_1 && laughTest.getCoulombFilter() != null) {
+			System.out.println("WARNING: removing coulomb filter since this is FM 2.1");
+			laughTest.setCoulombFilter(null);
+		}
+		
 		DeformationModels filterBasis = faultModel.getFilterBasis();
 		if (filterBasis == null) {
 //			System.out.println("No filter basis specified!");
@@ -226,7 +231,8 @@ public class InversionFaultSystemRupSetFactory {
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
-			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, true);
+//			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, true);
+			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 			
 			// slip for an 8.4
 //			int id = 132520;
