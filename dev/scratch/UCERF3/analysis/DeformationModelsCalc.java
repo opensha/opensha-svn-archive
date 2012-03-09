@@ -16,6 +16,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 
 public class DeformationModelsCalc {
 	
@@ -113,10 +114,21 @@ public class DeformationModelsCalc {
 		double totMoRate = calcTotalMomentRate(moRate,fractOff);
 		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(0.0005,9.9995,10000);
 		targetMFD.setAllButMagUpper(0.0005, totMoRate, 854000, 1.0, true);
+		
+		// now get moment rate of new faults only
+		ArrayList<String> getEquivUCERF2_SectionNames = FindEquivUCERF2_FM3_Ruptures.getAllSectionNames(fm);
+		ArrayList<FaultSectionPrefData> newSectionData = new ArrayList<FaultSectionPrefData>();
+		for(FaultSectionPrefData data:defFetch.getSubSectionList())
+			if (!getEquivUCERF2_SectionNames.contains(data.getParentSectionName()))
+				newSectionData.add(data);
+		double newFaultMoRate = calculateTotalMomentRate(newSectionData,true);
+		
+		
 		System.out.println("totMoRate="+(float)totMoRate+"\tgetTotalMomentRate()="+(float)targetMFD.getTotalMomentRate()+"\tMgt4rate="+(float)targetMFD.getCumRate(4.0005)+
 				"\tupperMag="+targetMFD.getMagUpper()+"\tMgt8rate="+(float)targetMFD.getCumRate(8.0005));
 		return dm+"\t"+(float)(moRate/1e19)+"\t"+(float)fractOff+"\t"+(float)((totMoRate-moRate)/1e19)+"\t"+(float)(totMoRate/1e19)+"\t"+
-				(float)targetMFD.getMagUpper()+"\t"+(float)targetMFD.getCumRate(8.0005)+"\t"+(float)(1.0/targetMFD.getCumRate(8.0005));
+				(float)targetMFD.getMagUpper()+"\t"+(float)targetMFD.getCumRate(8.0005)+"\t"+(float)(1.0/targetMFD.getCumRate(8.0005))+
+						"\t"+(float)(newFaultMoRate/1e19);
 	}
 	
 	
@@ -133,10 +145,10 @@ public class DeformationModelsCalc {
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOBOUND));
 
-		System.out.println("\nmodel\tfltMoRate\tfractOff\tmoRateOff\ttotMoRate\tMmax\tRate_gtM8\tMRIgtM8");
+		System.out.println("\nmodel\tfltMoRate\tfractOff\tmoRateOff\ttotMoRate\tMmax\tRate_gtM8\tMRIgtM8\tnewFltMoRate");
 		for(String tableLine : tableData)
 			System.out.println(tableLine);
-		
+				
 	}
 	
 	/**

@@ -371,9 +371,8 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	 * 
 	 * @param fontSize
 	 */
-	public void setAxisAndTickLabelFontSize(int fontSize) {
+	public void setAxisLabelFontSize(int fontSize) {
 		graphWindow.setAxisLabelFontSize(fontSize);
-		graphWindow.setTickLabelFontSize(fontSize);
 	}
 
 	/**

@@ -170,6 +170,7 @@ public class FaultSystemRupSetCalc {
 	public static HistogramFunction getMomentRateReductionHistogram(FaultSystemRupSet faultSystemRupSet, boolean wtByMoRate, boolean plotResult) {
 		HistogramFunction hist = new HistogramFunction(0.005, 100, 0.01);
 		double wt=1;
+		double mean=0, totWt=0;;
 		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
 			if(wtByMoRate)
 				wt = faultSystemRupSet.getAreaForSection(i)*faultSystemRupSet.getSlipRateForSection(i);
@@ -182,14 +183,17 @@ public class FaultSystemRupSetCalc {
 				}
 				double reduction = getFractMomentReductionForSmallMags(min, max, 1.0);
 				hist.add(reduction, wt);
+				mean += reduction*wt;
+				totWt +=wt;
 				if(reduction>0.5)
 					System.out.println(reduction+"\t"+faultSystemRupSet.getFaultSectionData(i).getName()+
 							"\tmagLower="+(float)min+"\tmagUpper="+(float)max);
 			}
 		}
+		mean /= totWt;
 		if (D) System.out.println(hist);
 		hist.setName("Distribution of Moment Rate Reductions for FaultSystemRupSet");
-		hist.setInfo("(among the "+faultSystemRupSet.getNumSections()+" sections)");
+		hist.setInfo("(among the "+faultSystemRupSet.getNumSections()+" sections; mean = "+(float)mean+")");
 		hist.normalizeBySumOfY_Vals();
 		
 		if(plotResult) {
@@ -218,9 +222,9 @@ public class FaultSystemRupSetCalc {
 			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
 			System.out.println("Done getting rup set");
 			getMomentRateReductionHistogram(faultSysRupSet, true, true);
-			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
+//			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
 			
-			System.out.println(getMinMagHistogram(faultSysRupSet, 5.05,40,0.1, true).getCumulativeDistFunction());
+//			System.out.println(getMinMagHistogram(faultSysRupSet, 5.05,40,0.1, true).getCumulativeDistFunction());
 
    		} catch (IOException e) {
 			e.printStackTrace();

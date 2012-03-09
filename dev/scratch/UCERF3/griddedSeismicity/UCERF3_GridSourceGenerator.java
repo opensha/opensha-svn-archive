@@ -70,6 +70,8 @@ public class UCERF3_GridSourceGenerator {
 		 *  	b) total smoothed seismicity rate inside polygon; need get method for this, and
 		 *         subtract total rate of supra-seismogenic ruptures from:
 		 *         faultSystemSolution.calcNucleationMFD_forSect(sectIndex, minMag, maxMag, numMag)
+		 *         
+		 *         Need to figure out what to do if fault section polygons overlap
 
 		 *  
 		 *  2) determine the fraction of each fault-section MFD that goes to each associated node 

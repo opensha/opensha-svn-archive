@@ -199,48 +199,34 @@ public class UCERF3_MFD_ConstraintFetcher {
 		double totCumM4_Rate = readMFD_DataFromFile("WholeRegion1850_2011_v1.txt").get(0).getY(4.0);
 		System.out.println(totCumM4_Rate);
 		
-		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,1.0,0.05,9.95,100);
-		targetMFD.scaleToCumRate(4.05, totCumM4_Rate);
-//		System.out.println(targetMFD.getCumRateDist());
-		
-		GutenbergRichterMagFreqDist targetMmax815 = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,1.0,0.05,8.15,82);
-		targetMmax815.scaleToCumRate(4.05, totCumM4_Rate);
-		targetMmax815.setName("GR with Mmax=8.15");
-//		System.out.println(targetMmax815);
-		
-		GutenbergRichterMagFreqDist targetMmax835 = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,1.0,0.05,8.35,84);
-		targetMmax835.scaleToCumRate(4.05, totCumM4_Rate);
-		targetMmax835.setName("GR with Mmax=8.35");
-		
-		GutenbergRichterMagFreqDist targetMmax855 = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,1.0,0.05,8.55,86);
-		targetMmax855.scaleToCumRate(4.05, totCumM4_Rate);
-		targetMmax855.setName("GR with Mmax=8.55");
-		
-		GutenbergRichterMagFreqDist targetMmax875 = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,1.0,0.05,8.75,88);
-		targetMmax875.scaleToCumRate(4.05, totCumM4_Rate);
-		targetMmax875.setName("GR with Mmax=8.75");
+		double[] mMaxArray = {10.00, 8.21, 8.42, 8.47, 8.52, 8.75};
+		GutenbergRichterMagFreqDist targetMFD;
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+		for(double mMax: mMaxArray) {
+			int numPt = (int) Math.round(mMax*100+1);
+			targetMFD = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,1.0,0.0,mMax,numPt);
+			targetMFD.scaleToCumRate(4.0, totCumM4_Rate);	
+			targetMFD.setName("GR with Mmax = "+mMax);
+			funcs.add(targetMFD.getCumRateDist());
+		}
 		
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();	
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.LIGHT_GRAY));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.ORANGE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
 		
-		// No Cal Plot
-		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs.add(targetMFD.getCumRateDistWithOffset());
-		funcs.add(targetMmax815.getCumRateDistWithOffset());
-		funcs.add(targetMmax835.getCumRateDistWithOffset());
-		funcs.add(targetMmax855.getCumRateDistWithOffset());
-		funcs.add(targetMmax875.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists", plotChars); 
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude-Frequency Distsributions", plotChars); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
+		graph.setTickLabelFontSize(12);
+		graph.setPlotLabelFontSize(16);
+		graph.setAxisLabelFontSize(14);
 		graph.setY_AxisRange(1e-4, 10);
 		graph.setX_AxisRange(5.0, 9.0);
 		graph.setYLog(true);
-
 		
 	}
 	
@@ -358,7 +344,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 	 */
 	public static void main(String[] args) {
 		
-		plotGR_MFDsForVariousMmax();
+//		plotGR_MFDsForVariousMmax();
 		
 //		System.out.println(getGarderKnoppoffFractAftershocksMDF());
 		
@@ -369,8 +355,8 @@ public class UCERF3_MFD_ConstraintFetcher {
 //		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
 //		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
 	
-//		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
-//		test.plotCumMFDs();
+		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
+		test.plotCumMFDs();
 	}
 
 	

@@ -2274,7 +2274,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		sr_graph.setY_AxisLabel("Slip Rate (m/sec)");
 		sr_graph.setY_AxisRange(0.0, 0.04);
 		sr_graph.setTickLabelFontSize(12);
-		sr_graph.setAxisAndTickLabelFontSize(14);
+		sr_graph.setAxisLabelFontSize(14);
 		if (dirName != null) {
 			String filename = ROOT_PATH + dirName + "/slipRates";
 			try {
@@ -2331,7 +2331,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		er_graph.setY_AxisLabel("Event Rate (per yr)");
 		er_graph.setYLog(true);
 		er_graph.setTickLabelFontSize(12);
-		er_graph.setAxisAndTickLabelFontSize(14);
+		er_graph.setAxisLabelFontSize(14);
 		if (dirName != null) {
 			String filename = ROOT_PATH + dirName + "/eventRates";
 			try {
@@ -2414,7 +2414,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		}
 		mfd_graph.setPlottingFeatures(plotMFD_Chars);
 		mfd_graph.setTickLabelFontSize(12);
-		mfd_graph.setAxisAndTickLabelFontSize(14);
+		mfd_graph.setAxisLabelFontSize(14);
 		if (dirName != null) {
 			String filename = ROOT_PATH + dirName + "/MFDs";
 			try {
@@ -2458,7 +2458,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		seg_graph.setY_AxisLabel("Rates");
 		seg_graph.setYLog(true);
 		seg_graph.setTickLabelFontSize(12);
-		seg_graph.setAxisAndTickLabelFontSize(14);
+		seg_graph.setAxisLabelFontSize(14);
 		if (dirName != null) {
 			String filename = ROOT_PATH + dirName + "/endpointRates";
 			try {

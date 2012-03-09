@@ -1101,17 +1101,20 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	 * This reads the SECT_FOR_UCERF2_SRC_FILE_PATH_NAME file and compiles a list of sections names used
 	 * in the mapping here, including those for both fault models (3.1 and 3.2).
 	 */
-	public static ArrayList<String> getAllSectionNames(File precomputedDataSubDir, FaultModels faultModel) {
+	public static ArrayList<String> getAllSectionNames(FaultModels faultModel) {
+		
+		
 		
 		ArrayList<String> sectNames = new ArrayList<String>();
-		File sectsFile;
+		String sectsFile;
 		if(faultModel == FaultModels.FM3_1)
-			sectsFile = new File(precomputedDataSubDir, SECT_FOR_UCERF2_SRC_FILE_PATH_NAME_1);
+			sectsFile = SECT_FOR_UCERF2_SRC_FILE_PATH_NAME_1;
 		else
-			sectsFile = new File(precomputedDataSubDir, SECT_FOR_UCERF2_SRC_FILE_PATH_NAME_2);
-		if(D) System.out.println("Reading file: "+sectsFile.getPath());
+			sectsFile = SECT_FOR_UCERF2_SRC_FILE_PATH_NAME_2;
+//		if(D) System.out.println("Reading file: "+sectsFile.getPath());
 	    try {
-			BufferedReader reader = new BufferedReader(new FileReader(sectsFile.getPath()));
+//			BufferedReader reader = new BufferedReader(new FileReader(sectsFile.getPath()));
+	    	BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUB_DIR_NAME, sectsFile));
 			int l=-1;
 			int s = -1;	// source index for ModMeanUCERF2_FM2pt1
 			String line;

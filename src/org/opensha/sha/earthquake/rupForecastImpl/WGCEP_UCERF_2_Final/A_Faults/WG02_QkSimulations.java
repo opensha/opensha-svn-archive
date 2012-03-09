@@ -336,7 +336,7 @@ public class WG02_QkSimulations {
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
-			graph.setAxisAndTickLabelFontSize(20);
+			graph.setAxisLabelFontSize(20);
 			graph.setAxisRange(0,mri*5,0,(1.1*calc.getPDF().getMaxY()));
 		}
 	}
@@ -360,7 +360,7 @@ public class WG02_QkSimulations {
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
-			graph.setAxisAndTickLabelFontSize(20);
+			graph.setAxisLabelFontSize(20);
 			graph.setAxisRange(0,mri*5,0,(1.1*calc.getPDF().getMaxY()));
 		}
 	}
