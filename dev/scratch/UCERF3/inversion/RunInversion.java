@@ -303,6 +303,7 @@ public class RunInversion {
 			// serial simulated annealing
 			sa = new SerialSimulatedAnnealing(A, d, initial, relativeSmoothnessWt, A_ineq, d_ineq);
 		}
+		sa.setVariablePerturbationBasis(InversionConfiguration.getSmoothStartingSolution(rupSet,InversionConfiguration.getGR_Dist(rupSet, 1.0, 9.0)));
 		// actually do the annealing
 		sa.iterate(criteria);
 		
