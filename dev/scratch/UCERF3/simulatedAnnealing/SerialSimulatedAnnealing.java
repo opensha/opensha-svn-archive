@@ -50,6 +50,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private static GenerationFunctionType PERTURB_FUNC_DEFAULT = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
 	private GenerationFunctionType perturbationFunc = PERTURB_FUNC_DEFAULT;
 	
+	private double[] variablePerturbBasis;
+	
 	private DoubleMatrix2D A, A_MFD;
 	private double[] d, d_MFD;
 	private double relativeSmoothnessWt;
@@ -160,6 +162,15 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	@Override
 	public void setPerturbationFunc(GenerationFunctionType perturbationFunc) {
 		this.perturbationFunc = perturbationFunc;
+	}
+	
+	public void setVariablePerturbationBasis(double[] variablePerturbBasis) {
+		Preconditions.checkArgument(variablePerturbBasis == null
+				|| variablePerturbBasis.length == xbest.length,
+				"variablePerturbBasis must be either null of the same length as xbest");
+		this.variablePerturbBasis = variablePerturbBasis;
+		if (variablePerturbBasis != null)
+			this.perturbationFunc = GenerationFunctionType.VARIABLE_NO_TEMP_DEPENDENCE;
 	}
 
 	@Override
@@ -369,7 +380,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 
 			// How much to perturb index (some perturbation functions are a function of T)	
-			perturb[index] = getPerturbation(perturbationFunc, T);
+			perturb[index] = getPerturbation(perturbationFunc, T, index);
 
 			// Apply then nonnegativity constraint -- make sure perturbation doesn't make the rate negative
 			switch (nonnegativityConstraintAlgorithm) {
@@ -378,7 +389,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				// which may be desirable since global minimum is likely near a boundary
 				if (x[index] == 0) { // if that rate was already zero do not keep it at zero
 					while (x[index] + perturb[index] < 0) 
-						perturb[index] = getPerturbation(perturbationFunc,T);
+						perturb[index] = getPerturbation(perturbationFunc,T, index);
 				} else { // if that rate was not already zero, and it goes negative, set it equal to zero
 					if (x[index] + perturb[index] < 0) 
 						perturb[index] = -x[index];
@@ -388,7 +399,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				// This way will result in not a lot of zero rates (none if numIterations >> length(x)),
 				// which may be desirable if we don't want a lot of zero rates
 				while (x[index] + perturb[index] < 0) {
-					perturb[index] = getPerturbation(perturbationFunc,T);	
+					perturb[index] = getPerturbation(perturbationFunc,T, index);	
 				}
 				break;
 			case PREVENT_ZERO_RATES:    // Only perturb rates to positive values; any perturbations of zero rates MUST be accepted.
@@ -565,7 +576,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		return ret;
 	}
 
-	private double getPerturbation(GenerationFunctionType perturbationFunc, double T) {
+	private double getPerturbation(GenerationFunctionType perturbationFunc, double T, int index) {
 
 		double perturbation;
 		double r2;
@@ -573,6 +584,9 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		switch (perturbationFunc) {
 		case UNIFORM_NO_TEMP_DEPENDENCE:
 			perturbation = (r.nextDouble()-0.5)* 0.001;
+			break;
+		case VARIABLE_NO_TEMP_DEPENDENCE:
+			perturbation = (r.nextDouble()-0.5) * variablePerturbBasis[index] * 1d;
 			break;
 		case GAUSSIAN:
 			perturbation =  (1/Math.sqrt(T)) * r.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 

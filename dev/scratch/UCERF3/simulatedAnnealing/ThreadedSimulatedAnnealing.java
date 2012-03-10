@@ -38,6 +38,7 @@ import com.google.common.primitives.Doubles;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.CompoundCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.EnergyChangeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.EnergyCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
@@ -52,7 +53,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
@@ -425,6 +426,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		energyOption.setRequired(false);
 		ops.addOption(energyOption);
 		
+		Option deltaEnergyOption = new Option("delenergy", "completion-delta-energy", true, "energy change completion" +
+				" criteria. Format: <time>,<%>,<diff>. For example: 60,1.5,2 means a look back period of 60 minutes," +
+				" a minimum percent improvement of 1.5%, and a minimum actual energy change of 2.");
+		deltaEnergyOption.setRequired(false);
+		ops.addOption(deltaEnergyOption);
+		
 		// constraint weights
 		Option smoothnessWeightOption = new Option("smoothness", "smoothness-weight", true, "weight for the entropy constraint");
 		smoothnessWeightOption.setRequired(false);
@@ -519,7 +526,10 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		if (cmd.hasOption("iter"))
 			criterias.add(new IterationCompletionCriteria(Long.parseLong(cmd.getOptionValue("iter"))));
 		if (cmd.hasOption("energy"))
-			criterias.add(new IterationCompletionCriteria(Long.parseLong(cmd.getOptionValue("energy"))));
+			criterias.add(new EnergyCompletionCriteria(Double.parseDouble(cmd.getOptionValue("energy"))));
+		if (cmd.hasOption("delenergy"))
+			criterias.add(EnergyChangeCompletionCriteria.fromCommandLineArgument(
+					cmd.getOptionValue("delenergy")));
 		
 		CompletionCriteria criteria;
 		if (criterias.size() == 0)

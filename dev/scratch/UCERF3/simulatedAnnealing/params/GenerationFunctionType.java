@@ -5,6 +5,7 @@ public enum GenerationFunctionType { // how rates are perturbed each SA algorith
 	 * recommended (box-car distribution of perturbations, no dependence on SA temperature)
 	 */
 	UNIFORM_NO_TEMP_DEPENDENCE,
+	VARIABLE_NO_TEMP_DEPENDENCE,
 	GAUSSIAN,  
 	TANGENT,
 	POWER_LAW,

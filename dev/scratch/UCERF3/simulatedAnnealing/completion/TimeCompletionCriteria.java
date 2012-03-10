@@ -59,20 +59,24 @@ public class TimeCompletionCriteria implements CompletionCriteria {
 	}
 	
 	public static TimeCompletionCriteria fromTimeString(String str) {
+		return new TimeCompletionCriteria(parseTimeString(str));
+	}
+	
+	public static long parseTimeString(String str) {
 		if (str.endsWith("h")) {
 			str = str.substring(0, str.length()-1);
-			return getInHours(Long.parseLong(str));
+			return Long.parseLong(str) * 60l * 60l * 1000l;
 		} else if (str.endsWith("m")) {
 			str = str.substring(0, str.length()-1);
-			return getInMinutes(Long.parseLong(str));
+			return Long.parseLong(str) * 60l * 1000l;
 		} else if (str.endsWith("s")) {
 			str = str.substring(0, str.length()-1);
-			return getInSeconds(Long.parseLong(str));
+			return Long.parseLong(str) * 1000l;
 		}
 		// just do millis
 		if (str.endsWith("mi"))
 			str = str.substring(0, str.length()-2);
-		return new TimeCompletionCriteria(Long.parseLong(str));
+		return Long.parseLong(str);
 	}
 
 }
