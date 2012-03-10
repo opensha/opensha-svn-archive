@@ -23,6 +23,8 @@ public interface SimulatedAnnealing {
 	public GenerationFunctionType getPerturbationFunc();
 
 	public void setPerturbationFunc(GenerationFunctionType perturbationFunc);
+	
+	public void setVariablePerturbationBasis(double[] variablePerturbBasis);
 
 	public double[] getBestSolution();
 

@@ -198,6 +198,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		for (SerialSimulatedAnnealing sa : sas)
 			sa.setPerturbationFunc(perturbationFunc);
 	}
+	
+	@Override
+	public void setVariablePerturbationBasis(double[] variablePerturbBasis) {
+		for (SerialSimulatedAnnealing sa : sas)
+			sa.setVariablePerturbationBasis(variablePerturbBasis);
+	}
 
 	@Override
 	public double[] getBestSolution() {
