@@ -15,6 +15,8 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 
 /**
@@ -45,10 +47,7 @@ public class FaultSystemRupSetCalc {
 				System.out.println(i+" has NaN moRate; "+faultSystemRupSet.getFaultSectionData(i).getName()+
 						"\tarea="+(float)faultSystemRupSet.getAreaForSection(i)+"\tslipRate="+(float)faultSystemRupSet.getSlipRateForSection(i));
 			}
-			double min = Double.MAX_VALUE;
-			for (int r : faultSystemRupSet.getRupturesForSection(i)) {	// find minimum
-				if(faultSystemRupSet.getMagForRup(r) < min) min = faultSystemRupSet.getMagForRup(r);
-			}
+			double min = faultSystemRupSet.getMinMagForSection(i);
 			if(!Double.isNaN(wt)) {
 				hist.add(min, wt);
 			}
@@ -79,10 +78,7 @@ public class FaultSystemRupSetCalc {
 				System.out.println(i+" has NaN moRate; "+faultSystemRupSet.getFaultSectionData(i).getName()+
 						"\tarea="+(float)faultSystemRupSet.getAreaForSection(i)+"\tslipRate="+(float)faultSystemRupSet.getSlipRateForSection(i));
 			}
-			double max = 0;
-			for (int r : faultSystemRupSet.getRupturesForSection(i)) {	// find minimum
-				if(faultSystemRupSet.getMagForRup(r) > max) max = faultSystemRupSet.getMagForRup(r);
-			}
+			double max = faultSystemRupSet.getMaxMagForSection(i);
 			if(!Double.isNaN(wt)) {
 				hist.add(max, wt);
 			}
@@ -174,20 +170,20 @@ public class FaultSystemRupSetCalc {
 		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
 			if(wtByMoRate)
 				wt = faultSystemRupSet.getAreaForSection(i)*faultSystemRupSet.getSlipRateForSection(i);
-			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
 			if(!Double.isNaN(wt)) {
-				for (int r : faultSystemRupSet.getRupturesForSection(i)) {	// find minimum
-					if(faultSystemRupSet.getMagForRup(r) < min) min = faultSystemRupSet.getMagForRup(r);
-					if(faultSystemRupSet.getMagForRup(r) > max) max = faultSystemRupSet.getMagForRup(r);
+				double reduction = faultSystemRupSet.getSubseismogenicMomentRateReductionFraction(i);
+				if (Double.isNaN(reduction)) {
+					System.out.println("NaN reduction for section: "+faultSystemRupSet.getFaultSectionData(i).getName()
+							+" with slip: "+faultSystemRupSet.getSlipRateForSection(i));
+				} else {
+					hist.add(reduction, wt);
+					mean += reduction*wt;
+					totWt +=wt;
+					if(reduction>0.5)
+						System.out.println(reduction+"\t"+faultSystemRupSet.getFaultSectionData(i).getName()+
+								"\tmagLower="+(float)faultSystemRupSet.getMinMagForSection(i)
+								+"\tmagUpper="+(float)faultSystemRupSet.getMaxMagForSection(i));
 				}
-				double reduction = getFractMomentReductionForSmallMags(min, max, 1.0);
-				hist.add(reduction, wt);
-				mean += reduction*wt;
-				totWt +=wt;
-				if(reduction>0.5)
-					System.out.println(reduction+"\t"+faultSystemRupSet.getFaultSectionData(i).getName()+
-							"\tmagLower="+(float)min+"\tmagUpper="+(float)max);
 			}
 		}
 		mean /= totWt;
@@ -219,7 +215,8 @@ public class FaultSystemRupSetCalc {
 		
    		try {
    			System.out.println("Getting rup set");
-			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
+			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(
+					FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.GR, true);
 			System.out.println("Done getting rup set");
 			getMomentRateReductionHistogram(faultSysRupSet, true, true);
 //			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);

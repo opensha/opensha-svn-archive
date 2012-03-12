@@ -47,7 +47,7 @@ public class InversionFaultSystemRupSetFactory {
 	 * @throws IOException 
 	 */
 	public static FaultSystemRupSet cachedForBranch(DeformationModels deformationModel) throws IOException {
-		return cachedForBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel, false);
+		return cachedForBranch(deformationModel, false);
 	}
 	
 	/**
@@ -63,7 +63,8 @@ public class InversionFaultSystemRupSetFactory {
 	 * @throws IOException 
 	 */
 	public static FaultSystemRupSet cachedForBranch(DeformationModels deformationModel, boolean forceRebuild) throws IOException {
-		return cachedForBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel, forceRebuild);
+		return cachedForBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel,
+				InversionModels.CHAR, forceRebuild);
 	}
 
 	
@@ -80,8 +81,8 @@ public class InversionFaultSystemRupSetFactory {
 	 * @throws IOException 
 	 */
 	public static FaultSystemRupSet cachedForBranch(FaultModels faultModel, DeformationModels deformationModel,
-			boolean forceRebuild) throws IOException {
-		return cachedForBranch(faultModel, deformationModel,
+			InversionModels invModel, boolean forceRebuild) throws IOException {
+		return cachedForBranch(faultModel, deformationModel, invModel,
 				rup_set_store_dir, forceRebuild);
 	}
 
@@ -99,7 +100,8 @@ public class InversionFaultSystemRupSetFactory {
 	 * @throws IOException 
 	 */
 	public static FaultSystemRupSet cachedForBranch(
-			FaultModels faultModel, DeformationModels deformationModel, File directory, boolean forceRebuild)
+			FaultModels faultModel, DeformationModels deformationModel, InversionModels invModel,
+			File directory, boolean forceRebuild)
 			throws IOException {
 		String fileName = deformationModel.name()+"_"+faultModel.name()+".zip";
 		File file = new File(directory, fileName);
@@ -116,7 +118,7 @@ public class InversionFaultSystemRupSetFactory {
 			}
 		}
 		// this means the file didn't exist, we had an error loading it, or we're forcing a rebuild
-		InversionFaultSystemRupSet rupSet = forBranch(faultModel, deformationModel);
+		InversionFaultSystemRupSet rupSet = forBranch(faultModel, deformationModel, invModel);
 		System.out.println("Caching rup set to file: "+file.getAbsolutePath());
 		if (!directory.exists())
 			directory.mkdir();
