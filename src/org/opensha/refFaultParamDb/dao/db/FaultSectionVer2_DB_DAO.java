@@ -304,6 +304,26 @@ public class FaultSectionVer2_DB_DAO {
 		}
 
 	}
+	
+	public void updateZonePolygon(int faultSectionId, Region polygon) {
+		ArrayList<JGeometry> geomteryObjectList = new ArrayList<JGeometry>();
+		
+		String sql = "UPDATE "+TABLE_NAME+" SET "+FAULT_ZONE_POLYGON+"=";
+		if (polygon == null) {
+			sql += "NULL";
+		} else {
+			sql += "?";
+			geomteryObjectList.add(SpatialUtils.getMultiPointGeomtery(polygon.getBorder()));
+		}
+		
+		sql += " WHERE "+SECTION_ID+"="+faultSectionId;
+		
+		try {
+			dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
+		} catch (SQLException e) {
+			throw new InsertException(e.getMessage());
+		}
+	}
 
 	/**
 	 * Get the fault section based on fault section Id

@@ -289,6 +289,9 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	private void loadResultFiles(VariableLogicTreeBranch branch) throws IOException {
 		File file = browseParam.getValue();
 		
+		resultFilesMap = null;
+		System.gc();
+		
 		if (file == null) {
 			resultFilesMap = null;
 		} else if (file.getName().toLowerCase().endsWith(".zip")) {

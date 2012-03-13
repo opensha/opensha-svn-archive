@@ -139,7 +139,7 @@ public class DB_AccessServlet extends HttpServlet{
 			} else {
 				valid = contributorDAO.isContributorValid(user, pass);
 				
-				if (valid)
+				if (!valid)
 					System.out.println("DB_AccessServlet: attempting to connect with invalid credentials: "+user);
 			}
 			

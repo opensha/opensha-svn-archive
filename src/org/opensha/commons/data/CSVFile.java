@@ -13,6 +13,7 @@ import java.util.List;
 import org.opensha.commons.util.FileUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class CSVFile<E> implements Iterable<List<E>> {
 	
@@ -69,6 +70,10 @@ public class CSVFile<E> implements Iterable<List<E>> {
 	public void addLine(List<E> line) {
 		checkValidLine(line);
 		values.add(line);
+	}
+	
+	public void addLine(E... line) {
+		addLine(Lists.newArrayList(line));
 	}
 	
 	public void addLine(int index, List<E> line) {
