@@ -111,7 +111,7 @@ public class DeformationModelsCalc {
 		double moRate = calculateTotalMomentRate(defFetch.getSubSectionList(),true);
 		System.out.println(fm.getName()+", "+dm.getName()+ " (reduced):\t"+(float)moRate);
 		System.out.println(fm.getName()+", "+dm.getName()+ " (not reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),false));
-		double fractOff = InversionConfiguration.findMomentFractionOffFaults(fm, dm);
+		double fractOff = InversionConfiguration.findMomentFractionOffFaults(null, fm, dm, 1d);
 		double totMoRate = calcTotalMomentRate(moRate,fractOff);
 		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(0.0005,9.9995,10000);
 		targetMFD.setAllButMagUpper(0.0005, totMoRate, 854000, 1.0, true);

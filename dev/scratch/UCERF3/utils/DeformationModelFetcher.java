@@ -8,17 +8,13 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.dom4j.DocumentException;
 import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
@@ -27,25 +23,17 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
-import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
-import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 
 /**
@@ -59,7 +47,7 @@ import com.google.common.collect.Lists;
  */
 public class DeformationModelFetcher {
 
-	protected final static boolean D = false;  // for debugging
+	protected final static boolean D = true;  // for debugging
 	
 	private final static double MOMENT_REDUCTION_THRESHOLD = 0.5;
 
@@ -72,7 +60,8 @@ public class DeformationModelFetcher {
 	private final static int SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
 	private final static int SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401;
 
-	DeformationModels chosenDefModName;
+	private DeformationModels chosenDefModName;
+	private FaultModels faultModel;
 
 
 	String fileNamePrefix;
@@ -92,18 +81,33 @@ public class DeformationModelFetcher {
 	static int ucerf2_DefModelId = 82;
 	static boolean alphabetize = true;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param faultModel - the fault model
+	 * @param deformationModel - then name of the desire deformation model (from the DefModName enum here).
+	 * @param precomputedDataDir - the dir where pre-computed data can be found (for faster instantiation)
+	 */
+	public DeformationModelFetcher(FaultModels faultModel, DeformationModels deformationModel,
+			File precomputedDataDir) {
+		this(faultModel, deformationModel, precomputedDataDir, 0d);
+	}
 
 	/**
 	 * Constructor
 	 * 
+	 * @param faultModel - the fault model
 	 * @param deformationModel - then name of the desire deformation model (from the DefModName enum here).
 	 * @param precomputedDataDir - the dir where pre-computed data can be found (for faster instantiation)
+	 * @param defaultAseismicityValue - if non zero, then any sub sections with an aseismicity value of zero will be set to this value.
 	 */
-	public DeformationModelFetcher(FaultModels faultModel, DeformationModels deformationModel, File precomputedDataDir) {
+	public DeformationModelFetcher(FaultModels faultModel, DeformationModels deformationModel,
+			File precomputedDataDir, double defaultAseismicityValue) {
 		double maxSubSectionLength = 0.5; // in units of DDW
 		this.precomputedDataDir = new File(precomputedDataDir, "FaultSystemRupSets");;
 		Preconditions.checkArgument(deformationModel.isApplicableTo(faultModel), "Deformation model and fault model aren't compatible!");
 		chosenDefModName = deformationModel;
+		this.faultModel = faultModel;
 		if(deformationModel == DeformationModels.UCERF2_NCAL) {
 			faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, maxSubSectionLength);
 			fileNamePrefix = "nCal_0_82_"+faultSubSectPrefDataList.size();	// now hard coded as no NaN slip rates (the 0), defModID=82, & number of sections
@@ -140,6 +144,15 @@ public class DeformationModelFetcher {
 		} else {
 			throw new IllegalStateException("Deformation model couldn't be loaded: "+deformationModel);
 		}
+		
+		if (defaultAseismicityValue > 0) {
+			Preconditions.checkState(defaultAseismicityValue < 1, "asesimicity values must be in the range (0,1)");
+			if (D) System.out.println("Applying default aseismicity value of: "+defaultAseismicityValue);
+			for (FaultSectionPrefData data : faultSubSectPrefDataList) {
+				if (data.getAseismicSlipFactor() == 0)
+					data.setAseismicSlipFactor(defaultAseismicityValue);
+			}
+		}
 
 		faultSubSectPrefDataIDMap = new HashMap<Integer, FaultSectionPrefData>();
 		for (FaultSectionPrefData data : faultSubSectPrefDataList) {
@@ -150,8 +163,12 @@ public class DeformationModelFetcher {
 		}
 	}
 
-	public DeformationModels getDefModName() {
+	public DeformationModels getDeformationModel() {
 		return chosenDefModName;
+	}
+	
+	public FaultModels getFaultModel() {
+		return faultModel;
 	}
 
 	public ArrayList<FaultSectionPrefData> getSubSectionList() {

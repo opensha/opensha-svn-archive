@@ -36,12 +36,15 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	
 	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, File precomputedDataDir,
 			LaughTestFilter filter) {
-		DeformationModelFetcher deformationModelFetcher = new DeformationModelFetcher(faultModel, defModel, precomputedDataDir);
-		faultSectionData = deformationModelFetcher.getSubSectionList();
-		Map<IDPairing, Double> subSectionDistances = deformationModelFetcher.getSubSectionDistanceMap(filter.getMaxJumpDist());
-		Map<IDPairing, Double> subSectionAzimuths = deformationModelFetcher.getSubSectionAzimuthMap(subSectionDistances.keySet());
-		
-		init(faultModel, defModel, filter, faultSectionData, subSectionDistances, subSectionAzimuths);
+		this(new DeformationModelFetcher(faultModel, defModel, precomputedDataDir), filter);
+	}
+	
+	public SectionClusterList(DeformationModelFetcher defModelFetcher, LaughTestFilter filter) {
+		faultSectionData = defModelFetcher.getSubSectionList();
+		Map<IDPairing, Double> subSectionDistances = defModelFetcher.getSubSectionDistanceMap(filter.getMaxJumpDist());
+		Map<IDPairing, Double> subSectionAzimuths = defModelFetcher.getSubSectionAzimuthMap(subSectionDistances.keySet());
+		init(defModelFetcher.getFaultModel(), defModelFetcher.getDeformationModel(),
+				filter, faultSectionData, subSectionDistances, subSectionAzimuths);
 	}
 	
 	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, LaughTestFilter filter,

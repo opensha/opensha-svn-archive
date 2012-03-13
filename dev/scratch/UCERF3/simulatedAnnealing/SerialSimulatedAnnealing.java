@@ -45,7 +45,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	
 	private static NonnegativityConstraintType NONNEGATIVITY_CONST_DEFAULT =
 		NonnegativityConstraintType.LIMIT_ZERO_RATES;
-	private NonnegativityConstraintType nonnegativityConstraintAlgorithm = NonnegativityConstraintType.PREVENT_ZERO_RATES;
+	private NonnegativityConstraintType nonnegativityConstraintAlgorithm = NONNEGATIVITY_CONST_DEFAULT;
 	
 	private static GenerationFunctionType PERTURB_FUNC_DEFAULT = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
 	private GenerationFunctionType perturbationFunc = PERTURB_FUNC_DEFAULT;
@@ -586,7 +586,10 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			perturbation = (r.nextDouble()-0.5)* 0.001;
 			break;
 		case VARIABLE_NO_TEMP_DEPENDENCE:
-			perturbation = (r.nextDouble()-0.5) * variablePerturbBasis[index] * 1d;
+			double basis = variablePerturbBasis[index];
+			if (basis == 0)
+				basis = 0.00000001;
+			perturbation = (r.nextDouble()-0.5) * basis * 1000d;
 			break;
 		case GAUSSIAN:
 			perturbation =  (1/Math.sqrt(T)) * r.nextGaussian() * 0.0001 * Math.exp(1/(2*T)); 

@@ -210,6 +210,31 @@ public class InversionFaultSystemRupSetFactory {
 			SlipAlongRuptureModels slipAlongModel,
 			InversionModels inversionModel,
 			LaughTestFilter laughTest) {
+		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
+				slipAlongModel, inversionModel, laughTest, 0);
+	}
+	
+	/**
+	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter
+	 * 
+	 * @param faultModel
+	 * @param deformationModel
+	 * @param magAreaRelationships
+	 * @param aveSlipForRupModel
+	 * @param slipAlongModel
+	 * @param inversionModel
+	 * @param laughTest
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(
+			FaultModels faultModel,
+			DeformationModels deformationModel,
+			MagAreaRelationships magAreaRelationships,
+			AveSlipForRupModels aveSlipForRupModel,
+			SlipAlongRuptureModels slipAlongModel,
+			InversionModels inversionModel,
+			LaughTestFilter laughTest,
+			double defaultAseismicityValue) {
 		System.out.println("Building a rupture set for: "+deformationModel+" ("+faultModel+")");
 		
 		List<MagAreaRelationship> magAreaRelList = magAreaRelationships.getMagAreaRelationships();
@@ -224,15 +249,18 @@ public class InversionFaultSystemRupSetFactory {
 //			System.out.println("No filter basis specified!");
 			filterBasis = deformationModel;
 		}
+		DeformationModelFetcher filterBasisFetcher = new DeformationModelFetcher(faultModel, deformationModel,
+				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue);
 //		System.out.println("Creating clusters with filter basis: "+filterBasis+", Fault Model: "+faultModel);
-		SectionClusterList clusters = new SectionClusterList(faultModel, filterBasis, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, laughTest);
+		SectionClusterList clusters = new SectionClusterList(filterBasisFetcher, laughTest);
 		
 		List<FaultSectionPrefData> faultSectionData;
 		if (filterBasis == deformationModel) {
 			faultSectionData = clusters.getFaultSectionData();
 		} else {
 			// we need to get it outselves
-			faultSectionData = new DeformationModelFetcher(faultModel, deformationModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR).getSubSectionList();
+			faultSectionData = new DeformationModelFetcher(faultModel, deformationModel,
+					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue).getSubSectionList();
 		}
 		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(

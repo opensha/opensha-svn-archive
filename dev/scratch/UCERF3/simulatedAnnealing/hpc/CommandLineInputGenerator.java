@@ -24,14 +24,27 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 public class CommandLineInputGenerator {
 	
 	public static void main(String[] args) {
-		if (args.length > 2 && args[0].equals("--var")) {
+		double fractMomentOffFaultModifier = 1;
+		double mfdConstraintModifier = 1;
+		double defaultAsesisValue = 0;
+		while (args.length > 2 && args[0].equals("--var")) {
 			String variation = args[1];
 			
 			if (variation.startsWith("MomRed_")) {
 				String amtStr = variation.substring(variation.indexOf("_")+1);
-				double amt = Double.parseDouble(amtStr) / 100d;
-				InversionConfiguration.FRACTION_MOMENT_OFF_FAULTS_MODIFIER = amt;
-				System.out.println("Setting fraction moment off faults modifier to: "+amt);
+				fractMomentOffFaultModifier = Double.parseDouble(amtStr) / 100d;
+				System.out.println("Setting fraction moment off faults modifier to: "
+						+fractMomentOffFaultModifier);
+			} else if (variation.startsWith("MFDMod_")) {
+				String amtStr = variation.substring(variation.indexOf("_")+1);
+				mfdConstraintModifier = Double.parseDouble(amtStr) / 100d;
+				System.out.println("Setting MFD constraint modifier to: "
+						+mfdConstraintModifier);
+			} else if (variation.startsWith("DefaultAseis_")) {
+				String amtStr = variation.substring(variation.indexOf("_")+1);
+				defaultAsesisValue = Double.parseDouble(amtStr);
+				System.out.println("Setting default aseis value to: "
+						+defaultAsesisValue);
 			} else {
 				System.out.println("Unknown variaition: "+variation);
 			}
@@ -60,13 +73,14 @@ public class CommandLineInputGenerator {
 						"the logic tree branch could not be fully parsed: "+rupSetFile.getAbsolutePath());
 				LaughTestFilter filter = LaughTestFilter.getDefault();
 				rupSet = InversionFaultSystemRupSetFactory.forBranch(branch.getFaultModel(), branch.getDefModel(),
-						branch.getMagArea(), branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), filter);
+						branch.getMagArea(), branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), filter, defaultAsesisValue);
 				// write it to a file
 				new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
 			}
 			
 			InversionModels model = InversionModels.getTypeForName(args[1]);
-			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet);
+			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet,
+					fractMomentOffFaultModifier, mfdConstraintModifier);
 			
 			List<PaleoRateConstraint> paleoRateConstraints =
 					UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());

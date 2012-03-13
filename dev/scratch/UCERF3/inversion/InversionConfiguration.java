@@ -67,6 +67,8 @@ public class InversionConfiguration {
 	private double relativeSmoothnessWt;
 	protected final static boolean D = true;  // for debugging
 	
+	
+	
 	public InversionConfiguration(
 			boolean weightSlipRates,
 			double relativePaleoRateWt, 
@@ -110,6 +112,22 @@ public class InversionConfiguration {
 	 * @return
 	 */
 	public static InversionConfiguration forModel(InversionModels model, FaultSystemRupSet rupSet) {
+		return forModel(model, rupSet, 1d, 1d);
+	}
+	
+	/**
+	 * This generates an inversion configuration for the given inversion model and rupture set
+	 * 
+	 * @param model
+	 * @param rupSet
+	 * @param fractMomentOffFaultModifier 1 for no modification, 0.75 for 25% reduction, 0.5 for 50%
+	 * reduction, etc in fraction moment off fault
+	 * @param mfdConstraintModifier 1 for no modification, 1.3 for a 30 % increase, etc for the MFD
+	 * constraint values.
+	 * @return
+	 */
+	public static InversionConfiguration forModel(InversionModels model, FaultSystemRupSet rupSet,
+			double fractMomentOffFaultModifier, double mfdConstraintModifier) {
 		/* *******************************************
 		 * COMMON TO ALL MODELS
 		 * ******************************************* */
@@ -176,15 +194,16 @@ public class InversionConfiguration {
 			}
 		}
 		
-//		TEST:  INCREASE MFD INEQUALITY BY 30%
-//		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
-//			IncrementalMagFreqDist magDist = mfdInequalityConstraints.get(i).getMagFreqDist();
-//			for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
-//				double setVal = 1.3 * magDist.getClosestY(m);
-//				mfdInequalityConstraints.get(i).getMagFreqDist().set(m, setVal);
-//			}
-//		}
-		
+		if (mfdConstraintModifier != 1) {
+			// this multiples each MFD bin by the mfdConstraintModifier
+			for (int i=0; i<mfdInequalityConstraints.size(); i++) {
+				IncrementalMagFreqDist magDist = mfdInequalityConstraints.get(i).getMagFreqDist();
+				for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
+					double setVal = mfdConstraintModifier * magDist.getClosestY(m);
+					mfdInequalityConstraints.get(i).getMagFreqDist().set(m, setVal);
+				}
+			}
+		}
 		
 		/* *******************************************
 		 * MODEL SPECIFIC
@@ -213,7 +232,7 @@ public class InversionConfiguration {
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
 			double transitionMag = 7.6;
-			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(transitionMag, rupSet), transitionMag);
+			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(transitionMag, rupSet, fractMomentOffFaultModifier), transitionMag);
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0;  //0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
@@ -226,7 +245,7 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0));
-			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet));
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, fractMomentOffFaultModifier));
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
@@ -409,9 +428,9 @@ public class InversionConfiguration {
 	 * This is for use with Bilinear MFD Constraint. 
 	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve the desired moment rate reduction.
 	 */
-	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet) {
+	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet, double fractMomentOffFaultModifier) {
 		
-		double momentFractionOffFaults = findMomentFractionOffFaults(rupSet);
+		double momentFractionOffFaults = findMomentFractionOffFaults(rupSet, fractMomentOffFaultModifier);
 		double totalMoment = rupSet.getTotalOrigMomentRate(); // reduced for creep, not for subseismogenic rups
 		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
 		
@@ -470,20 +489,18 @@ public class InversionConfiguration {
 //		return bValue;
 //	}
 	
-	
-	public static double findMomentFractionOffFaults(FaultModels faultModel, DeformationModels deformationModel) {
-		return findMomentFractionOffFaults(null, faultModel, deformationModel);
-	}
-	
-	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet) {
-		return findMomentFractionOffFaults(rupSet, rupSet.getFaultModel(), rupSet.getDeformationModel());
+	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet,
+			double fractMomentOffFaultModifier) {
+		return findMomentFractionOffFaults(rupSet, rupSet.getFaultModel(),
+				rupSet.getDeformationModel(), fractMomentOffFaultModifier);
 	}
 	
 	/**
 	 * For GEOLOGIC deformation model, this assumes that the total moment rate for the ABM model is correct
 	 * (since we have not estimate for off-fault moment rate for this model)
 	 */
-	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet, FaultModels faultModel, DeformationModels deformationModel) {
+	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet, FaultModels faultModel,
+			DeformationModels deformationModel, double fractMomentOffFaultModifier) {
 		// These values are from an e-mail from Kaj dated 2/29/12, for Zeng model see 3/5/12 e-mail
 		
 		
@@ -517,8 +534,8 @@ public class InversionConfiguration {
 				momentFractionOffFaults = 28.0202 / 100.0;
 				break;
 			case GEOLOGIC_PLUS_ABM:
-				return momentFractionOffFaults = (findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.GEOLOGIC)
-						+ findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.ABM)) / 2.0;
+				return momentFractionOffFaults = (findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.GEOLOGIC, 1d)
+						+ findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.ABM, 1d)) / 2.0;
 			case ZENG:
 				momentFractionOffFaults = 37.0728 / 100.0;
 				break;	
@@ -572,14 +589,10 @@ public class InversionConfiguration {
 		
 		
 		// for debugging - this should always be set to 1 otherwise!
-		momentFractionOffFaults *= FRACTION_MOMENT_OFF_FAULTS_MODIFIER;
+		momentFractionOffFaults *= fractMomentOffFaultModifier;
 		if (D) System.out.println("Moment fraction off faults = " + momentFractionOffFaults);
 		return momentFractionOffFaults;
 	}
-	
-	// this really should never be used, just for debugging or experimenting with moment rates!
-	public static double FRACTION_MOMENT_OFF_FAULTS_MODIFIER = 1;
-	
 	
 	/**
 	 * This method changes the input MFD constraints (WHICH IT ASSUMES ARE G-R WITH b=1) by changing the b-Value below a transition magnitude.

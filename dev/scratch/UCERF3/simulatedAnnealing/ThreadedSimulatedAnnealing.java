@@ -53,7 +53,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
@@ -790,11 +790,10 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		// this chops off any huge energy values in the first 5% of the run so that the plots
 		// are readable at the energy levels that are actually interesting
-		int xInd5percent = (int)(energyVsIters[0].getNum() * 0.05 + 0.5);
-		double energyPlotMax = energyVsIters[0].getY(xInd5percent);
+		double energyPlotMax = energyVsIters[1].getY(0)*1.2;
 		double energyPlotMin = 0;
 		double timeMin = 0, itersMin = 0;
-		double timeMax = energyVsTime[0].getMaxX(), iterMax = energyVsIters[0].getMaxX();
+		double timeMax = energyVsTime[0].getMaxX()*1.1, iterMax = energyVsIters[0].getMaxX();
 		
 		// energy vs time plot
 		gp.setUserBounds(timeMin, timeMax, energyPlotMin, energyPlotMax);
@@ -894,13 +893,13 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				plot_width, plot_height);
 	}
 	
-	private void writePlots(CompletionCriteria criteria, File prefix) throws IOException {
+	public void writePlots(CompletionCriteria criteria, File prefix) throws IOException {
 		writeRateVsRankPlot(prefix);
 		if (criteria instanceof ProgressTrackingCompletionCriteria)
 			writeProgressPlots((ProgressTrackingCompletionCriteria)criteria, prefix);
 	}
 	
-	private void writeMetadata(File file, String[] args, CompletionCriteria criteria) throws IOException {
+	public void writeMetadata(File file, String[] args, CompletionCriteria criteria) throws IOException {
 		FileWriter fw = new FileWriter(file);
 		
 		fw.write("Distributed Simulated Annealing run completed on "

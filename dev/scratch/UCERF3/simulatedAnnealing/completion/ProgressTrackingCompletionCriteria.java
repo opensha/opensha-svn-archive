@@ -27,6 +27,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	private long nextPlotMillis;
 	private GraphiWindowAPI_Impl gw;
 	private ArrayList<ArbitrarilyDiscretizedFunc> funcs;
+	private String plotTitle;
 	
 	private File automaticFile;
 	
@@ -109,6 +110,10 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 		return false;
 	}
 	
+	public void setPlotTitle(String plotTitle) {
+		this.plotTitle = plotTitle;
+	}
+	
 	private void updatePlot() {
 		if (energies.isEmpty())
 			return;
@@ -120,10 +125,22 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			funcs.add(new ArbitrarilyDiscretizedFunc("Inequality Energy"));
 			ArrayList<PlotCurveCharacterstics> chars = ThreadedSimulatedAnnealing.getEnergyBreakdownChars();
 			updatePlotFuncs();
-			gw = new GraphiWindowAPI_Impl(funcs, "Energy vs Iterations", chars);
+			String title = "Energy vs Iterations";
+			if (plotTitle != null)
+				title += " ("+plotTitle+")";
+			gw = new GraphiWindowAPI_Impl(funcs, title, chars);
 		} else {
 			updatePlotFuncs();
 			gw.refreshPlot();
+		}
+		ArbitrarilyDiscretizedFunc equalityFunc = funcs.get(1);
+		double maxEqualityEnergy = equalityFunc.getY(0);
+		if (energies.get(energies.size()-1)[0] < maxEqualityEnergy) {
+			// if we're already under the max equality level, adjust the scale so that
+			// everything interesting is visible
+			gw.setAxisRange(0, equalityFunc.getX(equalityFunc.getNum()-1)*1.1, 0, maxEqualityEnergy*1.2);
+		} else {
+			gw.setAutoRange();
 		}
 	}
 	
