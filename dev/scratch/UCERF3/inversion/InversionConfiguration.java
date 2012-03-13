@@ -1,10 +1,13 @@
 package scratch.UCERF3.inversion;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipException;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -17,6 +20,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -113,19 +117,16 @@ public class InversionConfiguration {
 		// it helps fit slow-moving faults).  If false, misfit is absolute difference.
 		boolean weightSlipRates = true;
 		
-		// weight of paleo-rate constraint relative to slip-rate constraint
-		// (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
+		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double relativePaleoRateWt = 1.0;
 		
-		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint
-		// (recommended:  1000 if weightSlipRates=true, 10 otherwise)
+		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended: 10)
 		double relativeMagnitudeEqualityConstraintWt = 0;
 		
-		// weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint
-		// (recommended:  1000 if weighted per bin -- this is hard-coded in)
+		// weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000)
 		double relativeMagnitudeInequalityConstraintWt = 1000;
 		
-		// magnitude-bin size for mfd participation smoothness constraint
+		// magnitude-bin size for MFD participation smoothness constraint
 		double participationConstraintMagBinSize = 0.1;
 		
 		// weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
@@ -153,31 +154,25 @@ public class InversionConfiguration {
 			entire_region = new CaliforniaRegions.RELM_TESTING();
 		}
 		
-		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
-		// add MFD constraint for whole region
-//		ucerf2Constraints.setRegion(region);
-//		mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
-		// UCERF2 MFD constraints for subregions - 1-degree boxes
-//		mfdEqualityConstraints.addAll(getGriddedConstraints(ucerf2Constraints, entire_region, 1d, 1d));
 		
+		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
 		ArrayList<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
-//		// add MFD constraint for the entire region
-//		ucerf2Constraints.setRegion(entire_region);
+		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		// add MFD constraint for Northern CA
 		if (ucerf3MFDs) {
-			mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
+			mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
 		} else {
 			ucerf2Constraints.setRegion(noCal);
-			mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+			mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
 		}
 		// add MFD constraint for Southern CA
 		if (entire_region != noCal) {
 			// don't add so cal if we're just doing a no cal inversion
 			if (ucerf3MFDs) {
-				mfdInequalityConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
+				mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
 			} else {
 				ucerf2Constraints.setRegion(soCal);
-				mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+				mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
 			}
 		}
 		
@@ -218,22 +213,26 @@ public class InversionConfiguration {
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
 			double transitionMag = 7.6;
-			mfdInequalityConstraints = makeMFDConstraintsBilinear(mfdInequalityConstraints, findBValueForMomentRateReduction(transitionMag, rupSet), transitionMag);
-			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
-			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdInequalityConstraints, rupSet, true);
-			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, true);  
+			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(transitionMag, rupSet), transitionMag);
+			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
+			minimumRuptureRateFraction = 0;  //0.01;
+			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
+			if (relativeMagnitudeInequalityConstraintWt>0.0 || relativeMagnitudeEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);  
+			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
+			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints=mfdConstraints;
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0));
-			mfdInequalityConstraints = reduceMFDConstraint(mfdInequalityConstraints, findMomentFractionOffFaults(rupSet));
-			mfdInequalityConstraints = accountForVaryingMinMag(mfdInequalityConstraints, rupSet);
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet));
+			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, true);
-			if (relativeMagnitudeInequalityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdInequalityConstraints, rupSet, true); 
+			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
+			if (relativeMagnitudeInequalityConstraintWt>0.0 || relativeMagnitudeEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
+			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
+			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints=mfdConstraints;
 			break;
 		case UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
@@ -242,6 +241,8 @@ public class InversionConfiguration {
 			initialRupModel = new double[rupSet.getNumRuptures()];
 			minimumRuptureRateBasis = null;
 			minimumRuptureRateFraction = 0;
+			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
+			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints=mfdConstraints;
 			break;
 
 		default:
@@ -360,6 +361,7 @@ public class InversionConfiguration {
 			
 		}
 		
+		
 		// OPTIONAL: Adjust rates of largest rups to equal global target MFD
 		IncrementalMagFreqDist targetMagFreqDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
 		IncrementalMagFreqDist startingModelMagFreqDist = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
@@ -379,6 +381,7 @@ public class InversionConfiguration {
 			if (!Double.isNaN(adjustmentRatio.getClosestY(mag)) && !Double.isInfinite(adjustmentRatio.getClosestY(mag)))
 				initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
 		}	
+		
 		
 		return initialRupModel;
 	}
@@ -729,17 +732,32 @@ public class InversionConfiguration {
 		
 		// Calculate mean slip rates for ruptures
 		// If there are NaN slip rates, treat them as 0
+//		for (int rup=0; rup<meanSlipRate.length; rup++) {
+//			List<Integer> sects = faultSystemRupSet.getSectionsIndicesForRup(rup);
+//			double totalOfSlipRates = 0;
+//			for (int i=0; i<sects.size(); i++) {
+//				int sect = sects.get(i);
+//				if (Double.isNaN(sectSlipRateReduced[sect])  || sectSlipRateReduced[sect] == 0)  { // if rupture has any NaN or zero slip-rate sections, flag it!
+//					flagRup[rup] = true;
+//				} else 	totalOfSlipRates+=sectSlipRateReduced[sect];
+//			}
+//			meanSlipRate[rup] = totalOfSlipRates/sects.size(); // average mean slip rate for sections in rupture
+//		}
+		
+		// Calculate minimum slip rates for ruptures
+		// If there are NaN slip rates, treat them as 0
 		for (int rup=0; rup<meanSlipRate.length; rup++) {
 			List<Integer> sects = faultSystemRupSet.getSectionsIndicesForRup(rup);
-			double totalOfSlipRates = 0;
+			double minimumSlipRate = Double.POSITIVE_INFINITY;
 			for (int i=0; i<sects.size(); i++) {
 				int sect = sects.get(i);
 				if (Double.isNaN(sectSlipRateReduced[sect])  || sectSlipRateReduced[sect] == 0)  { // if rupture has any NaN or zero slip-rate sections, flag it!
-					flagRup[rup] = true;
-				} else 	totalOfSlipRates+=sectSlipRateReduced[sect];
+					minimumSlipRate = 0;
+				} else 	if (sectSlipRateReduced[sect] < minimumSlipRate) minimumSlipRate = sectSlipRateReduced[sect];
 			}
-			meanSlipRate[rup] = totalOfSlipRates/sects.size(); // average mean slip rate for sections in rupture
+			meanSlipRate[rup] = minimumSlipRate; // use minimum slip rate instead of mean slip rate for histogram below
 		}
+		
 			
 		if (D) for (int i=0; i<sectSlipRateReduced.length; i++) {
 			if (Double.isNaN(sectSlipRateReduced[i])  || sectSlipRateReduced[i] == 0)  {
@@ -747,12 +765,6 @@ public class InversionConfiguration {
 			}
 		}
 		
-		// Get list of ruptures for each section
-		ArrayList<List<Integer>> rupsPerSect = new ArrayList<List<Integer>>();
-		for (int sect=0; sect<sectSlipRateReduced.length; sect++) {
-			List<Integer> rups = faultSystemRupSet.getRupturesForSection(sect);
-			rupsPerSect.add(sect, rups);
-		}
 	
 		// Find magnitude distribution of ruptures (as discretized)
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
@@ -776,7 +788,7 @@ public class InversionConfiguration {
 //			// in units of original rupture's length
 //			double totalOverlap = 0;
 //			for (int sect: sects) {
-//				ArrayList<Integer> rups = rupsPerSect.get(sect);
+//				List<Integer> rups = faultSystemRupSet.getRupturesForSection(sect);
 //				for (int r: rups) {
 //					if (Math.round(10*rupMeanMag[r])==Math.round(10*rupMeanMag[rup]))
 //						totalOverlap+=1;
