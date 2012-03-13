@@ -164,6 +164,64 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	
+	/**
+	 * This plots a historgram of fractional reductions due to creep,
+	 * and also calculates some things.
+	 * @param fm
+	 * @param dm
+	 */
+	public static void plotMoRateReductionHist(FaultModels fm, DeformationModels dm) {
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		HistogramFunction moRateReductionHist = new HistogramFunction(0d, 51, 0.02);
+
+		double totNoReduction=0, totWithReductionNotRedeced=0, totWithReductionRedeced=0;
+		double straightAve=0;
+		ArrayList<String> parantNamesOfReduced = new ArrayList<String>();
+		int numReduced=0, numNotReduced=0;
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			double ratio = data.calcMomentRate(true)/data.calcMomentRate(false);
+			if(!Double.isNaN(ratio)) {
+				moRateReductionHist.add(ratio, 1.0);
+				if(moRateReductionHist.getClosestXIndex(ratio) == moRateReductionHist.getNum()-1) {	// no reduction
+					totNoReduction += data.calcMomentRate(false);
+					numNotReduced += 1;
+				}
+				else if (!data.getParentSectionName().equals("San Andreas (Creeping Section) 2011 CFM")) {
+//				else {
+					totWithReductionNotRedeced += data.calcMomentRate(false);
+					totWithReductionRedeced += data.calcMomentRate(true);
+					straightAve += data.calcMomentRate(true)/data.calcMomentRate(false);
+					numReduced+=1;
+					if(!parantNamesOfReduced.contains(data.getParentSectionName()))
+						parantNamesOfReduced.add(data.getParentSectionName());
+				}
+			}
+		}
+		straightAve /= numReduced;
+		double percReduced = 100d*(double)numReduced/(double)(numNotReduced+numReduced);
+		double aveRatio = totWithReductionRedeced/totWithReductionNotRedeced;
+		System.out.println(numReduced+" out of "+(numReduced+numNotReduced)+" subsections were reduced; ("+(float)percReduced+")");
+		System.out.println("totNoReduction="+(float)totNoReduction);
+		System.out.println("totWithReductionNotRedeced="+(float)totWithReductionNotRedeced);
+		System.out.println("aveRatio="+(float)aveRatio);
+		System.out.println("straightAve="+(float)straightAve);
+		System.out.println("potential further reduction ((1.0-aveRatio)*totNoReduction)"+(float)((1.0-aveRatio)*totNoReduction));
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(moRateReductionHist, "Moment Rate Reduction Histogram"); 
+		graph.setX_AxisLabel("Fractional Reduction (due to creep)");
+		graph.setY_AxisLabel("Number of Fault Sub-Sections");
+		
+		System.out.println("Parent Names of those reduced");
+		for(String name: parantNamesOfReduced)
+			System.out.println("\t"+name);
+
+
+		
+	}
+
+	
+	
 
 	/**
 	 * @param args
@@ -172,9 +230,11 @@ public class DeformationModelsCalc {
 		// TODO Auto-generated method stub
 
 		
-		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
+//		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		
-		calcMoRateAndMmaxDataForDefModels();
+		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
+		
+//		calcMoRateAndMmaxDataForDefModels();
 		
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1,
 //				DeformationModels.GEOLOGIC,default_scratch_dir);

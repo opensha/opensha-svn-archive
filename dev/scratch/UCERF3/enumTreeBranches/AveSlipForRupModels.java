@@ -118,7 +118,7 @@ public enum AveSlipForRupModels implements ShortNamed {
 		return name;
 	}
 	
-	public static void makePlot() {
+	public static void makePlot(double seismoThickness, int maxLength) {
 		
 		ArbitrarilyDiscretizedFunc u2_func = new ArbitrarilyDiscretizedFunc();
 		u2_func.setName("AVE_UCERF2");
@@ -146,10 +146,10 @@ public enum AveSlipForRupModels implements ShortNamed {
 		
 		
 		// log10 area from 1 to 5
-    	for(int i=1; i<=450; i++) {
+    	for(int i=1; i<=maxLength; i++) {
     		double lengthKm = (double)i;
     		double length = lengthKm*1e3;
-    		double area = length*15e3;
+    		double area = length*seismoThickness*1e3;
     		u2_func.set(lengthKm,u2.getAveSlip(area, length));
     		sh09_func.set(lengthKm,sh09.getAveSlip(area, length));
     		ellB_Mod_func.set(lengthKm,ellB_Mod.getAveSlip(area, length));
@@ -168,9 +168,9 @@ public enum AveSlipForRupModels implements ShortNamed {
     	funcs.add(sh12_sqrtL_func);
     	funcs.add(sh12_csd_func);
     	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip-Length Relationships"); 
-		graph.setX_AxisLabel("Length");
-		graph.setY_AxisLabel("Slip");
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip-Length Relationships, seimoThickness="+seismoThickness); 
+		graph.setX_AxisLabel("Length (km)");
+		graph.setY_AxisLabel("Slip (m)");
 //		graph.setXLog(true);
 //		graph.setX_AxisRange(0, 1e5);
 //		graph.setY_AxisRange(4, 9);
@@ -179,7 +179,7 @@ public enum AveSlipForRupModels implements ShortNamed {
 	
 	//public 
 	public static void main(String[] args) throws IOException {
-		AveSlipForRupModels.makePlot();
+		AveSlipForRupModels.makePlot(11.0, 1000);
 	}
 	
 	
