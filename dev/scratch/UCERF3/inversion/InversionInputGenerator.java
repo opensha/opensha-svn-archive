@@ -271,10 +271,9 @@ public class InversionInputGenerator {
 				if (!config.isWeightSlipRates()) 
 					val = slips[i];
 				else {  // Normalize by slip rate
-					// Note that anything less than 10e-5 m/yr is treated as 0 -- otherwise misfit will be huge (GEOBOUND model has 10e-13 slip rates that will dominate misfit otherwise)
-					if (sectSlipRateReduced[row] < 10E-5 || Double.isNaN(sectSlipRateReduced[row]))  
-						// Treat NaN slip rates as 0 (minimize)
-						val = slips[i]/0.001;  
+					// Note that constraints for sections w/ slip rate < 0.1 mm/yr is not normalized by slip rate -- otherwise misfit will be huge (GEOBOUND model has 10e-13 slip rates that will dominate misfit otherwise)
+					if (sectSlipRateReduced[row] < 1E-4 || Double.isNaN(sectSlipRateReduced[row]))  
+						val = slips[i]/0.0001;  
 					else {
 						val = slips[i]/sectSlipRateReduced[row]; 
 						}
@@ -295,9 +294,12 @@ public class InversionInputGenerator {
 			if (!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) 
 				d[sect] = sectSlipRateReduced[sect];			
 			else {
-				if (Double.isNaN(sectSlipRateReduced[sect]) || sectSlipRateReduced[sect]<10E-5)
+				if (Double.isNaN(sectSlipRateReduced[sect]) || sectSlipRateReduced[sect]<1E-4)
 					// Treat NaN slip rates as 0 (minimize)
 					d[sect] = 0;
+				if (sectSlipRateReduced[sect]<1E-4)
+					// For very small slip rates, do not normalize by slip rate (normalize by 0.0001 instead) so they don't dominate misfit
+					d[sect] = sectSlipRateReduced[sect]/0.0001;
 				else
 					// Normalize by slip rate
 					d[sect] = 1;
@@ -373,19 +375,17 @@ public class InversionInputGenerator {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
 					if (fractRupInside > 0) {
+//						A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS)
-							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),
-									rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
+							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 						else
-							A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),
-									rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
+							A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 						numNonZeroElements++;
 					}
 				}		
-				for (double m=targetMagFreqDist.getMinX();
-						m<=targetMagFreqDist.getMaxX();
-						m=m+targetMagFreqDist.getDelta()) {
-					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeEqualityConstraintWt;
+				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
+//					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeEqualityConstraintWt;
+					d[rowIndex]=relativeMagnitudeEqualityConstraintWt;
 					rowIndex++; 
 				}	
 			}
@@ -417,22 +417,15 @@ public class InversionInputGenerator {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
 					if (fractRupInside > 0) {
-//						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),
-//						rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
+//						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS)
-							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),
-									rup,relativeMagnitudeInequalityConstraintWt
-									* fractRupInside / targetMagFreqDist.getClosestY(mag));
+							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 						else
-							A_ineq.set(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,
-									relativeMagnitudeInequalityConstraintWt
-									* fractRupInside / targetMagFreqDist.getClosestY(mag));
+							A_ineq.set(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 					}
 				}		
-				for (double m=targetMagFreqDist.getMinX();
-						m<=targetMagFreqDist.getMaxX();
-						m=m+targetMagFreqDist.getDelta()) {
-	//				d_MFD[rowIndex_MFD]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
+				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
+	//				d_ineq[rowIndex_MFD]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
 					d_ineq[rowIndex_ineq]=relativeMagnitudeInequalityConstraintWt;
 					rowIndex_ineq++; 
 				}	
