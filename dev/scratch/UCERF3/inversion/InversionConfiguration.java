@@ -234,7 +234,7 @@ public class InversionConfiguration {
 			double transitionMag = 7.6;
 			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(transitionMag, rupSet, fractMomentOffFaultModifier), transitionMag);
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
-			minimumRuptureRateFraction = 0;  //0.01;
+			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
 			if (relativeMagnitudeInequalityConstraintWt>0.0 || relativeMagnitudeEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);  
 			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
