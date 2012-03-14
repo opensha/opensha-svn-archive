@@ -249,7 +249,7 @@ public class InversionFaultSystemRupSetFactory {
 //			System.out.println("No filter basis specified!");
 			filterBasis = deformationModel;
 		}
-		DeformationModelFetcher filterBasisFetcher = new DeformationModelFetcher(faultModel, deformationModel,
+		DeformationModelFetcher filterBasisFetcher = new DeformationModelFetcher(faultModel, filterBasis,
 				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue);
 //		System.out.println("Creating clusters with filter basis: "+filterBasis+", Fault Model: "+faultModel);
 		SectionClusterList clusters = new SectionClusterList(filterBasisFetcher, laughTest);
