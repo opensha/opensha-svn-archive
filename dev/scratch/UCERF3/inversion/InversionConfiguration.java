@@ -196,11 +196,11 @@ public class InversionConfiguration {
 		
 		if (mfdConstraintModifier != 1) {
 			// this multiples each MFD bin by the mfdConstraintModifier
-			for (int i=0; i<mfdInequalityConstraints.size(); i++) {
-				IncrementalMagFreqDist magDist = mfdInequalityConstraints.get(i).getMagFreqDist();
+			for (int i=0; i<mfdConstraints.size(); i++) {
+				IncrementalMagFreqDist magDist = mfdConstraints.get(i).getMagFreqDist();
 				for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
 					double setVal = mfdConstraintModifier * magDist.getClosestY(m);
-					mfdInequalityConstraints.get(i).getMagFreqDist().set(m, setVal);
+					mfdConstraints.get(i).getMagFreqDist().set(m, setVal);
 				}
 			}
 		}
@@ -534,8 +534,8 @@ public class InversionConfiguration {
 				momentFractionOffFaults = 28.0202 / 100.0;
 				break;
 			case GEOLOGIC_PLUS_ABM:
-				return momentFractionOffFaults = (findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.GEOLOGIC, 1d)
-						+ findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.ABM, 1d)) / 2.0;
+				return momentFractionOffFaults = (findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.GEOLOGIC, fractMomentOffFaultModifier)
+						+ findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.ABM, fractMomentOffFaultModifier)) / 2.0;
 			case ZENG:
 				momentFractionOffFaults = 37.0728 / 100.0;
 				break;	
