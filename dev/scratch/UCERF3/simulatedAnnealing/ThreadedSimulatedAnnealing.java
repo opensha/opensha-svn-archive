@@ -794,18 +794,20 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	private void writeProgressPlots(ProgressTrackingCompletionCriteria track, File prefix) throws IOException {
-		ArbitrarilyDiscretizedFunc[] energyVsTime = new ArbitrarilyDiscretizedFunc[4];
-		ArbitrarilyDiscretizedFunc[] energyVsIters = new ArbitrarilyDiscretizedFunc[4];
-		for (int i=0; i<4; i++) {
-			energyVsTime[i] = new ArbitrarilyDiscretizedFunc();
-			energyVsIters[i] = new ArbitrarilyDiscretizedFunc();
-		}
 		ArbitrarilyDiscretizedFunc perturbsVsIters = new ArbitrarilyDiscretizedFunc();
 		
 		ArrayList<double[]> energies = track.getEnergies();
 		ArrayList<Long> times = track.getTimes();
 		ArrayList<Long> perturbs = track.getPerturbs();
 		ArrayList<Long> iters = track.getIterations();
+		
+		int num = energies.get(0).length;
+		ArbitrarilyDiscretizedFunc[] energyVsTime = new ArbitrarilyDiscretizedFunc[num];
+		ArbitrarilyDiscretizedFunc[] energyVsIters = new ArbitrarilyDiscretizedFunc[num];
+		for (int i=0; i<num; i++) {
+			energyVsTime[i] = new ArbitrarilyDiscretizedFunc();
+			energyVsIters[i] = new ArbitrarilyDiscretizedFunc();
+		}
 		
 		for (int i=0; i<energies.size(); i++) {
 			double[] energy = energies.get(i);
