@@ -210,7 +210,6 @@ public class RunInversion {
 		
 		// get the inversion configuration
 		InversionConfiguration config;
-		// this will get it for the GR branch
 		config = InversionConfiguration.forModel(inversionModel, rupSet);
 		// this can be used for testing other inversions
 //		config = buildCustomConfiguration(rupSet);
@@ -307,7 +306,7 @@ public class RunInversion {
 			// serial simulated annealing
 			sa = new SerialSimulatedAnnealing(A, d, initial, relativeSmoothnessWt, A_ineq, d_ineq);
 		}
-		sa.setVariablePerturbationBasis(InversionConfiguration.getSmoothStartingSolution(rupSet,InversionConfiguration.getGR_Dist(rupSet, 1.0, 9.0)));
+//		sa.setVariablePerturbationBasis(InversionConfiguration.getSmoothStartingSolution(rupSet,InversionConfiguration.getGR_Dist(rupSet, 1.0, 9.0)));
 		// actually do the annealing
 		sa.iterate(criteria);
 		
@@ -334,16 +333,16 @@ public class RunInversion {
 			totalSolutionMoment += solution.getRateForRup(rup)*MagUtils.magToMoment(solution.getMagForRup(rup));
 		if (D) System.out.println("Total moment of solution = "+totalSolutionMoment);
 		
-		// finally assemble a solution and make plots
+		// Make plots
 		if (D) System.out.print("\nMaking plots . . . ");
 		long startTime = System.currentTimeMillis();
 		solution.plotRuptureRates();
 		solution.plotSlipRates();
 		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
-		solution.plotMFDs(config.getMfdEqualityConstraints());
+//		solution.plotMFDs(config.getMfdEqualityConstraints());
 		solution.plotMFDs(config.getMfdInequalityConstraints());
 		long runTime = System.currentTimeMillis()-startTime;
-		if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");
+		if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");	
 	}
 
 

@@ -236,6 +236,7 @@ public class InversionConfiguration {
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
+			initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
 			if (relativeMagnitudeInequalityConstraintWt>0.0 || relativeMagnitudeEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);  
 			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
 			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints=mfdConstraints;
@@ -287,12 +288,92 @@ public class InversionConfiguration {
 				minimumRuptureRateFraction);
 	}
 	
+	
+	/**
+	 * This method adjusts the starting solution for "wall-to-wall" (section-long) ruptures on any isolated sections (sections
+	 * that only have ruptures on that section).  The starting solution is ONLY adjusted if that rupture currently has a 0 rate.
+	 * The new rupture rate is the average slip rate for that section divided by the average slip of that rupture.
+	 * @param rupSet
+	 * @param initialRupModel
+	 * @return initialRupModel
+	 */
+	public static double[] adjustIsolatedSections(FaultSystemRupSet rupSet, double[] initialRupModel) {
+		
+		List<Integer> isolatedParents = new ArrayList<Integer>();
+		List<String> isolatedParentNames = new ArrayList<String>();
+		List<Integer> nonIsolatedParents = new ArrayList<Integer>();
+		
+		// Find "isolated" parent sections that only have ruptures on that section
+		for (int sect=0; sect<rupSet.getNumSections(); sect++) {
+			int parentId = rupSet.getFaultSectionData(sect).getParentSectionId();
+			List<Integer> rupsOnSect = rupSet.getRupturesForSection(sect);
+			
+			checkForRupsOnDifferentParents:
+			for (int i=0; i<rupsOnSect.size(); i++) {
+				int rup = rupsOnSect.get(i);
+				List<Integer> sects = rupSet.getSectionsIndicesForRup(rup);
+				for (int j=0; j<sects.size(); j++) {
+					int newSect = sects.get(j);
+					if (parentId != rupSet.getFaultSectionData(newSect).getParentSectionId()) {
+						if (!nonIsolatedParents.contains(parentId))
+							nonIsolatedParents.add(parentId);
+						if (isolatedParents.contains(parentId)) {
+							isolatedParents.remove(isolatedParents.indexOf(parentId));
+							isolatedParentNames.remove(rupSet.getFaultSectionDataList().get(newSect).getParentSectionName());
+						}
+						break checkForRupsOnDifferentParents;
+					}
+				}
+			}
+			if (!isolatedParents.contains(parentId) && !nonIsolatedParents.contains(parentId)) {
+				isolatedParents.add(parentId);
+				isolatedParentNames.add(rupSet.getFaultSectionDataList().get(sect).getParentSectionName());
+			}		
+		}
+
+		// Find wall-to-wall rup for each isolated parent section
+		for (int p=0; p<isolatedParents.size(); p++)  {
+			int parentId = isolatedParents.get(p);
+			List<Integer> sectsForParent = new ArrayList<Integer>();			
+			for (int sect=0; sect<rupSet.getNumSections(); sect++) 
+				if (rupSet.getFaultSectionData(sect).getParentSectionId()==parentId)sectsForParent.add(sect);
+					
+			RuptureLoop:
+			for (int rup=0; rup<rupSet.getNumRuptures(); rup++) {
+				List<Integer> sects = rupSet.getSectionsIndicesForRup(rup);
+				if (sects.size()!=sectsForParent.size()) continue;
+				for (int sect:sects) {
+					if (!sectsForParent.contains(sect))
+						continue RuptureLoop;
+				}
+				// We have found the "wall-to-wall" rupture for this isolated parent section.
+				// If initial rup rate is 0, we will adjust the rate.
+				if (initialRupModel[rup]==0) {
+					double avgSlipRate = 0;
+					for(int sect:sects) avgSlipRate+=rupSet.getSlipRateForSection(sect);
+					avgSlipRate/=sects.size();  // average slip rate of sections in rup
+					double[] rupSlip = rupSet.getSlipOnSectionsForRup(rup);
+					double avgSlip = 0;
+					for(int i=0; i<rupSlip.length; i++) avgSlip+=rupSlip[i];
+					avgSlip/=rupSlip.length; // average rupture slip
+					double charRupRate = avgSlipRate/avgSlip; // rate of rup that will, on average, match slip rate
+					System.out.println("Adjusting starting rupture rate for isolated fault "+isolatedParentNames.get(p));
+					initialRupModel[rup] = charRupRate;
+				}	
+				break;	
+			}
+		}
+		
+		return initialRupModel;
+	}
+	
+	
 	/**
 	 * This returns the moment rate reductions for each section in the given rupture set according to the
 	 * given inversion model
 	 * @param rupSet
 	 * @param model
-	 * @return
+	 * @return moRateReductions
 	 */
 	public static double[] getMomentRateReductionsForSections(FaultSystemRupSet rupSet, InversionModels model) {
 		double[] moRateReductions = new double[rupSet.getNumSections()];
@@ -759,14 +840,21 @@ public class InversionConfiguration {
 		
 		// Calculate minimum slip rates for ruptures
 		// If there are NaN slip rates, treat them as 0
+//		double[] numRupturesOnSlowestSection = new double[numRup];
+//		double[] maxNumRupturesOnSectInRup = new double[numRup];
 		for (int rup=0; rup<meanSlipRate.length; rup++) {
 			List<Integer> sects = faultSystemRupSet.getSectionsIndicesForRup(rup);
 			double minimumSlipRate = Double.POSITIVE_INFINITY;
 			for (int i=0; i<sects.size(); i++) {
 				int sect = sects.get(i);
+//				if (faultSystemRupSet.getRupturesForSection(sect).size()>maxNumRupturesOnSectInRup[sect]) maxNumRupturesOnSectInRup[sect] = faultSystemRupSet.getRupturesForSection(sect).size();
 				if (Double.isNaN(sectSlipRateReduced[sect])  || sectSlipRateReduced[sect] == 0)  { // if rupture has any NaN or zero slip-rate sections, flag it!
 					minimumSlipRate = 0;
-				} else 	if (sectSlipRateReduced[sect] < minimumSlipRate) minimumSlipRate = sectSlipRateReduced[sect];
+//					numRupturesOnSlowestSection[rup] = 1;
+				} else 	if (sectSlipRateReduced[sect] < minimumSlipRate) {
+					minimumSlipRate = sectSlipRateReduced[sect];
+//					numRupturesOnSlowestSection[rup] = faultSystemRupSet.getRupturesForSection(sect).size();
+				}
 			}
 			meanSlipRate[rup] = minimumSlipRate; // use minimum slip rate instead of mean slip rate for histogram below
 		}
@@ -795,7 +883,7 @@ public class InversionConfiguration {
 		// Set up initial (non-normalized) target MFD rates for each rupture, normalized by meanSlipRate
 		for (int rup=0; rup<numRup; rup++) {
 			// Find number of ruptures that go through same sections as rupture and have the same magnitude
-			// COMMENT THIS OUT FOR NOW - STARTING SOLUTION IS BETTER WITHOUT RUPTURE OVERLAP CORRECTION
+			// COMMENT THIS OUT FOR NOW - TAKES WAY TOO LONG
 //			List<Integer> sects = rupList.get(rup);
 //			// total amount of overlap of rupture with rups of same mag (when rounded),
 //			// in units of original rupture's length
@@ -809,12 +897,13 @@ public class InversionConfiguration {
 //			}
 //			// add percentages of total overlap with each rupture + 1 for original rupture itself
 //			totalOverlap = totalOverlap/sects.size() + 1; 
-			double totalOverlap = 1d;
-		
+			double totalOverlap = 1d;	// Don't apply overlap
+//			double totalOverlap = numRupturesOnSlowestSection[rup];  // Use number of ruptures on smallest slip-rate section of rup as a proxy for overlap
+//			double totalOverlap = maxNumRupturesOnSectInRup[rup];  // Use max number of ruptures on section in rup as a proxy for overlap
+			
 			// Divide rate by total number of similar ruptures (same magnitude, has section overlap)
 			// - normalize overlapping ruptures by percentage overlap
-			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup])
-					* meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);
+			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * meanSlipRate[rup] / (magHist.getClosestY(rupMeanMag[rup]) * totalOverlap);
 		}
 		
 		// Find normalization for all ruptures (so that MFD matches target MFD normalization)
