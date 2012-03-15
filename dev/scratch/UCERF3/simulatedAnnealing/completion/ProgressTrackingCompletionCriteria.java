@@ -3,6 +3,7 @@ package scratch.UCERF3.simulatedAnnealing.completion;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.CSVFile;
@@ -30,6 +31,8 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	private String plotTitle;
 	
 	private File automaticFile;
+	
+	private List<String> rangeNames;
 	
 	public ProgressTrackingCompletionCriteria(CompletionCriteria criteria) {
 		this(criteria, null, 0);
@@ -64,14 +67,20 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	public void writeFile(File file) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
-		csv.addLine(Lists.newArrayList("Iterations", "Time (millis)", "Energy (total)",
-				"Energy (equality)", "Energy (entropy)", "Energy (inequality)",
-				"Total Perterbations Kept"));
+		ArrayList<String> header = Lists.newArrayList("Iterations", "Time (millis)", "Energy (total)",
+				"Energy (equality)", "Energy (entropy)", "Energy (inequality)");
+		if (rangeNames != null)
+			header.addAll(rangeNames);
+		header.add("Total Perterbations Kept");
+		csv.addLine(header);
 		
 		for (int i=0; i<times.size(); i++) {
 			double[] energy = energies.get(i);
-			csv.addLine(Lists.newArrayList(iterations.get(i)+"", times.get(i)+"",
-					energy[0]+"", energy[1]+"", energy[2]+"", energy[3]+"", perturbs.get(i)+""));
+			ArrayList<String> line = Lists.newArrayList(iterations.get(i)+"", times.get(i)+"");
+			for (double e : energy)
+				line.add(e+"");
+			line.add(perturbs.get(i)+"");
+			csv.addLine(line);
 		}
 		
 		csv.writeToFile(file);
@@ -100,7 +109,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 				// write out results first
 				try {
 					writeFile(automaticFile);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					System.err.println("Error writing results file!");
 					e.printStackTrace();
 				}
@@ -123,6 +132,14 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			funcs.add(new ArbitrarilyDiscretizedFunc("Equality Energy"));
 			funcs.add(new ArbitrarilyDiscretizedFunc("Entropy Energy"));
 			funcs.add(new ArbitrarilyDiscretizedFunc("Inequality Energy"));
+			if (rangeNames != null) {
+				for (String name : rangeNames)
+					funcs.add(new ArbitrarilyDiscretizedFunc(name+" Energy"));
+			} else {
+				for (int i=4; i<energies.get(0).length; i++) {
+					funcs.add(new ArbitrarilyDiscretizedFunc("Unknown Energy "+(i+1)));
+				}
+			}
 			ArrayList<PlotCurveCharacterstics> chars = ThreadedSimulatedAnnealing.getEnergyBreakdownChars();
 			updatePlotFuncs();
 			String title = "Energy vs Iterations";
@@ -152,6 +169,8 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			for (int j=0; j<energy.length; j++)
 				funcs.get(j).set((double)iter, energy[j]);
 		}
+		for (ArbitrarilyDiscretizedFunc func : funcs)
+			func.setInfo("Final Energy: "+func.getY(func.getNum()-1));
 	}
 	
 	@Override
@@ -173,6 +192,10 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 
 	public ArrayList<double[]> getEnergies() {
 		return energies;
+	}
+	
+	public void setRangeNames(List<String> rangeNames) {
+		this.rangeNames = rangeNames;
 	}
 
 }

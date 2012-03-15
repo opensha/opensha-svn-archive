@@ -75,6 +75,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	private double[] misfit_ineq = null;
 	private double[] minimumRuptureRates = null;
 	
+	private List<Integer> rangeEndRows;
+	private List<String> rangeNames;
+	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
@@ -256,6 +259,10 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		if (D) System.out.println("Threaded Simulated Annealing starting with "+numThreads
 				+" threads, "+criteria+", SUB: "+subCompetionCriteria);
 		
+		if (criteria instanceof ProgressTrackingCompletionCriteria
+				&& rangeNames != null && !rangeNames.isEmpty())
+			((ProgressTrackingCompletionCriteria)criteria).setRangeNames(rangeNames);
+		
 		StopWatch watch = new StopWatch();
 		watch.start();
 		StopWatch checkPointWatch = null;
@@ -372,6 +379,26 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
 	public int getNumThreads() {
 		return numThreads;
+	}
+	
+	public void setRanges(List<Integer> rangeEndRows, List<String> rangeNames) {
+		if (rangeEndRows == null) {
+			Preconditions.checkArgument(rangeNames == null);
+		} else {
+			Preconditions.checkNotNull(rangeNames);
+			Preconditions.checkArgument(rangeEndRows.size() == rangeNames.size(),
+					"range sizes inconsistant!");
+			int prev = 0;
+			for (int i=0; i<rangeEndRows.size(); i++) {
+				int cur = rangeEndRows.get(i);
+				Preconditions.checkState(cur >= prev);
+				prev = cur;
+			}
+		}
+		this.rangeEndRows = rangeEndRows;
+		this.rangeNames = rangeNames;
+		for (SerialSimulatedAnnealing sa : sas)
+			sa.setEqualityRangeEnds(rangeEndRows);
 	}
 	
 	protected static Options createOptions() {
@@ -844,9 +871,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	public static ArrayList<PlotCurveCharacterstics> getEnergyBreakdownChars() {
 		ArrayList<PlotCurveCharacterstics> energyChars = new ArrayList<PlotCurveCharacterstics>();
 		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
-		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
-		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN));
-		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
+		energyChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		return energyChars;
 	}
 
@@ -913,7 +940,14 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		fw.write("Threads per node: "+getNumThreads()+"\n");
 		fw.write(""+"\n");
 		fw.write("Solution size: "+getBestSolution().length+"\n");
-		fw.write("Best energy: "+Doubles.join(", ", getBestEnergy())+"\n");
+		double[] e = getBestEnergy();
+		fw.write("Best energy: "+Doubles.join(", ", e)+"\n");
+		if (rangeNames != null) {
+			fw.write("Energy type breakdown\n");
+			for (int i=4; i<e.length && (i-4)<rangeNames.size(); i++) {
+				fw.write("\t"+rangeNames.get(i-4)+" energy: "+e[i]+"\n");
+			}
+		}
 		if (criteria instanceof ProgressTrackingCompletionCriteria) {
 			ProgressTrackingCompletionCriteria track = (ProgressTrackingCompletionCriteria)criteria;
 			int numSteps = track.getTimes().size();

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -60,6 +61,9 @@ public class InversionInputGenerator {
 	private double[] d_ineq;
 	private double[] initial;
 	private double[] minimumRuptureRates;
+	
+	private ArrayList<Integer> rangeEndRows;
+	private ArrayList<String> rangeNames;
 	
 	public InversionInputGenerator(
 			FaultSystemRupSet rupSet,
@@ -142,6 +146,8 @@ public class InversionInputGenerator {
 //		double[] sectSlipRateStdDevReduced = getSlipRateStdDevForAllSections();  // CURRENTLY NOT USED
 		double[] rupMeanMag = rupSet.getMagForAllRups();
 		
+		rangeEndRows = new ArrayList<Integer>();
+		rangeNames = new ArrayList<String>();
 		
 		// Compute number of slip-rate constraints
 		/* int numSlipRateConstraints = 0;
@@ -155,10 +161,14 @@ public class InversionInputGenerator {
 		// Find number of rows in A matrix (equals the total number of constraints)
 		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
 		int numRows = numSlipRateConstraints;
+		rangeEndRows.add(numRows-1);
+		rangeNames.add("Slip Rate");
 		
 		int numPaleoRows = (int)Math.signum(config.getRelativePaleoRateWt())*paleoRateConstraints.size();
 		if(D) System.out.println("Number of paleo section-rate constraints: "+numPaleoRows);
 		numRows += numPaleoRows;
+		rangeEndRows.add(numRows-1);
+		rangeNames.add("Paleo");
 		
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
 			double[] relativeRupRateConstraintWt = config.getA_PrioriRupConstraint();
@@ -167,11 +177,15 @@ public class InversionInputGenerator {
 				if (relativeRupRateConstraintWt[i]>0) 	numRupRateRows++;
 			if(D) System.out.println("Number of rupture-rate constraints: "+numRupRateRows);
 			numRows += numRupRateRows;
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Rupture Rates");
 		}
 		
 		int numMinimizationRows = (int)Math.signum(config.getRelativeMinimizationConstraintWt())*numRuptures;
 		if(D) System.out.println("Number of minimization constraints: "+numMinimizationRows);
 		numRows += numMinimizationRows;
+		rangeEndRows.add(numRows-1);
+		rangeNames.add("Minimization");
 		
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (config.getRelativeMagnitudeEqualityConstraintWt() > 0.0) {
@@ -186,6 +200,8 @@ public class InversionInputGenerator {
 			}
 			if(D) System.out.println("Number of magnitude-distribution equality constraints: "
 					+totalNumMagFreqConstraints);
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("MFD Equality");
 		}
 		if (config.getRelativeParticipationSmoothnessConstraintWt() > 0.0) {
 			int totalNumMagParticipationConstraints = 0;
@@ -214,10 +230,14 @@ public class InversionInputGenerator {
 			}
 			if(D) System.out.println("Number of MFD participation constraints: "
 					+ totalNumMagParticipationConstraints);
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("MFD Participation");
 		}
 		if (config.getRelativeMomentConstraintWt() > 0.0) {
 			numRows++;
 			if(D) System.out.println("Number of Moment constraints: 1");
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Moment");
 		}
 		
 		
@@ -743,22 +763,7 @@ public class InversionInputGenerator {
 	 * @param storeDir
 	 * @param cleanup
 	 */
-	public void writeZipFile(File file, File storeDir, boolean cleanup) throws IOException {
-		writeZipFile(file, storeDir, cleanup, A, d, initial, A_ineq, d_ineq, minimumRuptureRates);
-	}
-	
-	public static void writeZipFile(File file, File storeDir, boolean cleanup,
-			DoubleMatrix2D A, double[] d, double[] initial,
-			DoubleMatrix2D A_ineq, double[] d_ineq)
-					throws IOException {
-		writeZipFile(file, storeDir, cleanup, A, d, initial, A_ineq, d_ineq, null);
-	}
-	
-	public static void writeZipFile(
-			File zipFile, File storeDir, boolean cleanup,
-			DoubleMatrix2D A, double[] d, double[] initial,
-			DoubleMatrix2D A_ineq, double[] d_ineq, double[] minimumRuptureRates)
-					throws IOException {
+	public void writeZipFile(File zipFile, File storeDir, boolean cleanup) throws IOException {
 		if(D) System.out.println("Saving to files...");
 		ArrayList<String> fileNames = new ArrayList<String>();
 		
@@ -791,6 +796,13 @@ public class InversionInputGenerator {
 			MatrixIO.doubleArrayToFile(minimumRuptureRates,new File(storeDir, "minimumRuptureRates.bin"));
 			if(D) System.out.println("minimumRuptureRates.bin saved");
 		}
+		
+		CSVFile<String> rangeCSV = new CSVFile<String>(true);
+		for (int i=0; i<rangeEndRows.size(); i++)
+			rangeCSV.addLine(rangeEndRows.get(i)+"", rangeNames.get(i));
+		fileNames.add("energyRanges.csv");
+		rangeCSV.writeToFile(new File(storeDir, "energyRanges.csv"));
+		if(D) System.out.println("energyRanges.csv saved");
 		
 		FileUtils.createZipFile(zipFile.getAbsolutePath(), storeDir.getAbsolutePath(), fileNames);
 		if(D) System.out.println("Zip file saved");
@@ -844,6 +856,14 @@ public class InversionInputGenerator {
 
 	public double[] getMinimumRuptureRates() {
 		return minimumRuptureRates;
+	}
+
+	public List<Integer> getRangeEndRows() {
+		return rangeEndRows;
+	}
+
+	public List<String> getRangeNames() {
+		return rangeNames;
 	}
 
 }

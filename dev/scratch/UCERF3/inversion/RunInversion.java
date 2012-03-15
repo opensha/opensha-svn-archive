@@ -297,8 +297,12 @@ public class RunInversion {
 			// this is the "sub completion criteria" - the amount of time (or iterations) between synchronization
 			CompletionCriteria subCompetionCriteria = TimeCompletionCriteria.getInSeconds(1); // 1 second;
 			
-			sa = new ThreadedSimulatedAnnealing(A, d, initial, relativeSmoothnessWt,
+			ThreadedSimulatedAnnealing tsa = new ThreadedSimulatedAnnealing(A, d, initial, relativeSmoothnessWt,
 					A_ineq, d_ineq, minimumRuptureRates, numThreads, subCompetionCriteria);
+			
+			tsa.setRanges(gen.getRangeEndRows(), gen.getRangeNames());
+			
+			sa = tsa;
 		} else {
 			// serial simulated annealing
 			sa = new SerialSimulatedAnnealing(A, d, initial, relativeSmoothnessWt, A_ineq, d_ineq);

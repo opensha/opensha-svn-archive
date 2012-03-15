@@ -1,6 +1,7 @@
 package scratch.UCERF3.simulatedAnnealing;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.cli.CommandLine;
@@ -65,6 +66,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private double[] misfit_best, misfit_ineq_best; // misfit between data and synthetics
 	
 	private double[] Ebest; // [total, from A, from entropy, from A_ineq]
+	private List<Integer> equality_range_ends;
 	
 	private Random r = new Random();
 
@@ -212,6 +214,10 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		setResults(Ebest, xbest, null, null);
 	}
 	
+	public void setEqualityRangeEnds(List<Integer> rangeEnds) {
+		this.equality_range_ends = rangeEnds;
+	}
+	
 	private static void calculateMisfit(DoubleMatrix2D mat, double[] data, double[] prev_misfit,
 			double[] solution, int perturbCol, double perturbation, double[] misfit) {
 		if (mat instanceof SparseCCDoubleMatrix2D && perturbCol >= 0 && prev_misfit != null) {
@@ -245,10 +251,33 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		// Do forward problem for new perturbed model (calculate synthetics)
 		
 		double Eequality = 0;
-		for (int i = 0; i < nRow; i++) {
-			// NOTE: it is important that we loop over nRow and not the actual misfit array
-			// as it may be larger than nRow (for efficiency and less array copies)
-			Eequality += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
+		double[] ret;
+		if (equality_range_ends == null) {
+			for (int i = 0; i < nRow; i++) {
+				// NOTE: it is important that we loop over nRow and not the actual misfit array
+				// as it may be larger than nRow (for efficiency and less array copies)
+				Eequality += Math.pow(misfit[i], 2);  // L2 norm of misfit vector
+			}
+			ret = new double[4];
+			ret[1] = Eequality;
+		} else {
+			ret = new double[4+equality_range_ends.size()];
+			int curIndex = 4;
+			int rowEnd = equality_range_ends.get(0);
+			for (int i = 0; i < nRow; i++) {
+				// NOTE: it is important that we loop over nRow and not the actual misfit array
+				// as it may be larger than nRow (for efficiency and less array copies)
+				
+				if (i>rowEnd) {
+					curIndex += 1;
+					rowEnd = equality_range_ends.get(curIndex-4);
+				}
+				
+				double val = Math.pow(misfit[i], 2);  // L2 norm of misfit vector
+				Eequality += val;
+				ret[curIndex] += val;
+			}
+			ret[1] = Eequality;
 		}
 		Preconditions.checkState(!Double.isNaN(Eequality), "energy from equality constraints is NaN!");
 		
@@ -270,6 +299,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 			}
 			Eentropy += relativeSmoothnessWt * (1 / totalEntropy); // High entropy => low misfit
 			Preconditions.checkState(!Double.isNaN(Eentropy), "energy from entropy constraint is NaN!");
+			ret[2] = Eentropy;
 		}
 		
 		
@@ -283,12 +313,13 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 					Einequality += Math.pow(misfit_ineq[i], 2);  // L2 norm of misfit vector
 			}
 			Preconditions.checkState(!Double.isNaN(Einequality), "energy from inequality constraints is NaN!");
+			ret[3] = Einequality;
 		}
 		
 		double Enew = Eequality + Eentropy + Einequality;
 		Preconditions.checkState(!Double.isNaN(Enew), "Enew is NaN!");
 		
-		double[] ret = { Enew, Eequality, Eentropy, Einequality };
+		ret[0] = Enew;
 		return ret;
 	}
 	

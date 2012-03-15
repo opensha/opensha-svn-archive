@@ -76,7 +76,6 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	private ParameterList enumParams;
 	
 	private static final String VARIATION_PARAM_NAME = "Variation";
-	private StringParameter variationParam;
 	
 	private static final String REFRESH_PARAM_NAME = "Plot";
 	private static final String REFRESH_BUTTON_TEXT = "Reload Results";
@@ -166,13 +165,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				PLOT_TYPE_PARAM_NAME, EnumSet.allOf(PlotType.class), PlotType.ENERGY_VS_TIME, null);
 		plotTypeParam.addParameterChangeListener(this);
 		
-		ArrayList<String> variations = Lists.newArrayList(ANY_CHOICE);
-		variationParam = new StringParameter(VARIATION_PARAM_NAME, variations);
-		variationParam.setValue(ANY_CHOICE);
-		variationParam.addParameterChangeListener(this);
-		
 		contentPane = new JPanel(new BorderLayout());
-		griddedEditor = new GriddedParameterListEditor(buildTopParamList(), 1, 0);
+		griddedEditor = new GriddedParameterListEditor(buildTopParamList(null), 1, 0);
 		contentPane.add(griddedEditor, BorderLayout.NORTH);
 		
 		cl = new CardLayout();
@@ -208,12 +202,19 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	
-	private ParameterList buildTopParamList() {
+	private ParameterList buildTopParamList(ArrayList<ArrayList<String>> variations) {
 		ParameterList params = new ParameterList();
 		params.addParameter(browseParam);
 		params.addParameterList(enumParams);
-		if (variationParam.getAllowedStrings().size() > 1)
+		for (int i=0; variations!=null && i<variations.size(); i++) {
+			ArrayList<String> vars = variations.get(i);
+			Collections.sort(vars);
+			vars.add(0, ANY_CHOICE);
+			StringParameter variationParam = new StringParameter(VARIATION_PARAM_NAME+" ("+i+")", vars);
+			variationParam.setValue(ANY_CHOICE);
+			variationParam.addParameterChangeListener(this);
 			params.addParameter(variationParam);
+		}
 		params.addParameter(plotTypeParam);
 		params.addParameter(refreshButton);
 		return params;
@@ -251,20 +252,25 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		return map;
 	}
 	
-	private static String parseVariation(String name) {
-		if (name.contains("_Var")) {
-			String sub = name.substring(name.indexOf("_Var")+4);
-			sub = sub.substring(0, sub.indexOf(".csv"));
+	private static List<String> parseVariations(String name) {
+		ArrayList<String> vars = null;
+		while (name.contains("_Var")) {
+			if (vars == null)
+				vars = new ArrayList<String>();
+			name = name.substring(name.indexOf("_Var")+4);
+			String sub = name.substring(0, name.indexOf(".csv"));
 			if (sub.contains("_Run"))
 				sub = sub.substring(0, sub.indexOf("_Run"));
-			return sub;
+			if (sub.contains("_Var"))
+				sub = sub.substring(0, sub.indexOf("_Var"));
+			vars.add(sub);
 		}
-		return null;
+		return vars;
 	}
 	
 	private static VariableLogicTreeBranch loadBranchForName(String name) {
-		String variation = parseVariation(name);
-		return new VariableLogicTreeBranch(LogicTreeBranch.parseFileName(name), variation);
+		List<String> variations = parseVariations(name);
+		return new VariableLogicTreeBranch(LogicTreeBranch.parseFileName(name), variations);
 	}
 	
 	private static HashMap<VariableLogicTreeBranch, CSVFile<String>> loadDir(File dir, VariableLogicTreeBranch branch)
@@ -300,28 +306,23 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			resultFilesMap = loadDir(file, branch);
 		}
 		if (resultFilesMap != null) {
-			ArrayList<String> variations = Lists.newArrayList();
+			ArrayList<ArrayList<String>> variations = Lists.newArrayList();
 			for (VariableLogicTreeBranch b : resultFilesMap.keySet()) {
-				if (b.getVariation() != null) {
-					if (!variations.contains(b.getVariation()))
-						variations.add(b.getVariation());
+				if (b.getVariations() != null) {
+					for (int i=0; i<b.getVariations().size(); i++) {
+						if (i >= variations.size())
+							variations.add(new ArrayList<String>());
+						List<String> vars = variations.get(i);
+						String var = b.getVariations().get(i);
+						if (var != null && !vars.contains(var))
+							vars.add(var);
+					}
 				}
 			}
-			Collections.sort(variations);
-			variations.add(0, ANY_CHOICE);
-			variationParam.removeParameterChangeListener(this);
-			variationParam.setValue(ANY_CHOICE);
-			StringConstraint sconst = (StringConstraint) variationParam.getConstraint();
-			sconst.setStrings(variations);
-			variationParam.getEditor().refreshParamEditor();
-			variationParam.addParameterChangeListener(this);
-			boolean alreadyInList = griddedEditor.getParameterList().containsParameter(variationParam);
-			if ((variations.size() > 1 && !alreadyInList) // needs to be added
-					|| (alreadyInList && variations.size() == 1)) { // needs to be removed
-				// we must update the list
-				griddedEditor.setParameterList(buildTopParamList());
-				griddedEditor.validate();
-			}
+			
+			// we must update the list
+			griddedEditor.setParameterList(buildTopParamList(variations));
+			griddedEditor.validate();
 		}
 	}
 	
@@ -338,10 +339,19 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				ClassUtils.getClassNameWithoutPackage(SlipAlongRuptureModels.class)).getValue();
 		InversionModels im = enumParams.getParameter(InversionModels.class,
 				ClassUtils.getClassNameWithoutPackage(InversionModels.class)).getValue();
-		String variation = null;
-		if (!variationParam.getValue().equals(ANY_CHOICE))
-			variation = variationParam.getValue();
-		return new VariableLogicTreeBranch(fm, dm, ma, as, sal, im, variation);
+		ArrayList<String> variations = new ArrayList<String>();
+		for (Parameter<?> param : griddedEditor.getParameterList()) {
+			if (param.getName().startsWith(VARIATION_PARAM_NAME)) {
+				StringParameter variationParam = (StringParameter)param;
+				String variation;
+				if (!variationParam.getValue().equals(ANY_CHOICE))
+					variation = variationParam.getValue();
+				else
+					variation = null;
+				variations.add(variation);
+			}
+		}
+		return new VariableLogicTreeBranch(fm, dm, ma, as, sal, im, variations);
 	}
 	
 	private void buildFunctions(VariableLogicTreeBranch branch) {
@@ -371,8 +381,13 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				diffNames.add("Dsr: "+candidate.getSlipAlong().getShortName());
 			if (branch.getInvModel() == null)
 				diffNames.add("Inv: "+candidate.getInvModel().getShortName());
-			if (candidate.getVariation() != null)
-				diffNames.add("Variation: "+candidate.getVariation());
+			if (branch.getVariations() != null && candidate.getVariations() != null) {
+				for (int i=0; i<candidate.getVariations().size(); i++) {
+					String var = candidate.getVariations().get(i);
+					if (i >= branch.getVariations().size() || branch.getVariations().get(i) == null)
+						diffNames.add("Var: "+var);
+				}
+			}
 			String name = Joiner.on(", ").join(diffNames);
 			CSVFile<String> csv = resultFilesMap.get(candidate);
 			ArbitrarilyDiscretizedFunc[] energyVsTime = new ArbitrarilyDiscretizedFunc[4];
@@ -396,7 +411,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				double eqEnergy =  Double.parseDouble(csv.get(row, 3));
 				double entropyEnergy =  Double.parseDouble(csv.get(row, 4));
 				double ineqEnergy =  Double.parseDouble(csv.get(row, 5));
-				double perturbs =  Double.parseDouble(csv.get(row, 6));
+				double perturbs =  Double.parseDouble(csv.get(row, csv.getNumCols()-1));
 				double[] energies = { totEnergy, eqEnergy, entropyEnergy, ineqEnergy };
 				for (int i=0; i<energies.length; i++) {
 					energyVsTime[i].set(mins, energies[i]);
@@ -698,7 +713,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else if (param == variationParam) {
+		} else if (param.getName().startsWith(VARIATION_PARAM_NAME)) {
 			VariableLogicTreeBranch branch = getCurrentBranch();
 			buildFunctions(branch);
 			updatePlot();
@@ -785,27 +800,35 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	private static class VariableLogicTreeBranch extends LogicTreeBranch {
 		
-		private String variation;
+		private List<String> variations;
 
-		public VariableLogicTreeBranch(LogicTreeBranch branch, String variation) {
+		public VariableLogicTreeBranch(LogicTreeBranch branch, List<String> variations) {
 			this(branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
-					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), variation);
+					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), variations);
 		}
 		
 		public VariableLogicTreeBranch(FaultModels fm, DeformationModels dm,
 				MagAreaRelationships ma, AveSlipForRupModels as,
-				SlipAlongRuptureModels sal, InversionModels im, String variation) {
+				SlipAlongRuptureModels sal, InversionModels im, List<String> variations) {
 			super(fm, dm, ma, as, sal, im);
-			this.variation = variation;
+			this.variations = variations;
 		}
 		
-		public String getVariation() {
-			return variation;
+		public List<String> getVariations() {
+			return variations;
 		}
 		
 		public boolean matchesVariation(VariableLogicTreeBranch branch) {
-			if (variation != null && !variation.equals(branch.getVariation()))
-				return false;
+			if (variations != null) {
+				List<String> o = branch.getVariations();
+				if (variations.size()> o.size())
+					return false;
+				for (int i=0; i<variations.size(); i++) {
+					String myVar = variations.get(i);
+					if (myVar != null && !variations.get(i).equals(o.get(i)))
+						return false;
+				}
+			}
 			return true;
 		}
 		
