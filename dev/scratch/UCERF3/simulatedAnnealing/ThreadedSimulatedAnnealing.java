@@ -23,6 +23,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math.stat.StatUtils;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -617,6 +618,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		else
 			relativeSmoothnessWt = 0;
 		
+		List<Integer> rangeEndRows = null;
+		List<String> rangeNames = null;
+		
 		if (cmd.hasOption("zip")) {
 			File zipFile = new File(cmd.getOptionValue("zip"));
 			if (D) System.out.println("Opening zip file: "+zipFile.getAbsolutePath());
@@ -643,6 +647,17 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			ZipEntry minimumRuptureRates_entry = zip.getEntry("minimumRuptureRates.bin");
 			if (minimumRuptureRates_entry != null)
 				minimumRuptureRates = MatrixIO.doubleArrayFromInputStream(zip.getInputStream(minimumRuptureRates_entry), A.columns()*8);
+			
+			ZipEntry rangeEntry = zip.getEntry("energyRanges.csv");
+			if (rangeEntry != null) {
+				CSVFile<String> rangeCSV = CSVFile.readStream(zip.getInputStream(rangeEntry), true);
+				rangeEndRows = Lists.newArrayList();
+				rangeNames = Lists.newArrayList();
+				for (int row=0; row<rangeCSV.getNumRows(); row++) {
+					rangeEndRows.add(Integer.parseInt(rangeCSV.get(row, 0)));
+					rangeNames.add(rangeCSV.get(row, 1));
+				}
+			}
 		} else {
 			File aFile = new File(cmd.getOptionValue("a"));
 			if (D) System.out.println("Loading A matrix from: "+aFile.getAbsolutePath());
@@ -702,6 +717,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			File checkPointFilePrefix = getFileWithoutBinSuffix(outputStr);
 			tsa.setCheckPointCriteria(checkPointCriteria, checkPointFilePrefix);
 		}
+		
+		tsa.setRanges(rangeEndRows, rangeNames);
 		
 		return tsa;
 	}
