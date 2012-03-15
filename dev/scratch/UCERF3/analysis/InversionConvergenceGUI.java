@@ -137,10 +137,13 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	private Map<VariableLogicTreeBranch, CSVFile<String>> resultFilesMap;
 	private ArrayList<String> curNames;
 	private ArrayList<LogicTreeBranch> curBranches;
-	private ArrayList<ArbitrarilyDiscretizedFunc[]> curEnergyVsTimes;
-	private ArrayList<ArbitrarilyDiscretizedFunc[]> curEnergyVsIters;
+	private ArrayList<ArbitrarilyDiscretizedFunc> curEnergyVsTimes;
+	private ArrayList<ArbitrarilyDiscretizedFunc> curEnergyVsIters;
+	private ArrayList<double[]> curFinalEnergies;
+	private ArrayList<String> curEnergyNames;
 	private ArrayList<ArbitrarilyDiscretizedFunc> curPerturbsPerItersVsTimes;
 	private ArrayList<ArbitrarilyDiscretizedFunc> curPerturbsVsIters;
+	private CSVFile<String> lastCSV;
 	
 	private static ArrayList<String> energyComponentNames =
 		Lists.newArrayList("Total", "Equality", "Entropy", "Inequality");
@@ -357,10 +360,12 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	private void buildFunctions(VariableLogicTreeBranch branch) {
 		curNames = new ArrayList<String>();
 		curBranches = new ArrayList<LogicTreeBranch>();
-		curEnergyVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc[]>();
-		curEnergyVsIters = new ArrayList<ArbitrarilyDiscretizedFunc[]>();
+		curEnergyVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		curEnergyVsIters = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		curPerturbsPerItersVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		curPerturbsVsIters = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		curFinalEnergies = new ArrayList<double[]>();
+		curEnergyNames = null;
 		
 		if (resultFilesMap == null)
 			return;
@@ -390,33 +395,34 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			}
 			String name = Joiner.on(", ").join(diffNames);
 			CSVFile<String> csv = resultFilesMap.get(candidate);
-			ArbitrarilyDiscretizedFunc[] energyVsTime = new ArbitrarilyDiscretizedFunc[4];
-			ArbitrarilyDiscretizedFunc[] energyVsIter = new ArbitrarilyDiscretizedFunc[4];
-			for (int i=0; i<energyVsIter.length; i++) {
-				energyVsTime[i] = new ArbitrarilyDiscretizedFunc();
-				energyVsTime[i].setName(name);
-				energyVsTime[i].setInfo(energyComponentNames.get(i)+" energy");
-				energyVsIter[i] = new ArbitrarilyDiscretizedFunc();
-				energyVsIter[i].setName(name);
-				energyVsIter[i].setInfo(energyComponentNames.get(i)+" energy");
-			}
+			ArbitrarilyDiscretizedFunc energyVsTime = new ArbitrarilyDiscretizedFunc(name);
+			energyVsTime.setInfo("Total energy");
+			ArbitrarilyDiscretizedFunc energyVsIter = new ArbitrarilyDiscretizedFunc(name);
+			energyVsIter.setInfo("Total energy");
 			ArbitrarilyDiscretizedFunc perturbsPerItersVsTimes = new ArbitrarilyDiscretizedFunc();
 			perturbsPerItersVsTimes.setName(name);
 			ArbitrarilyDiscretizedFunc perturbsVsIters = new ArbitrarilyDiscretizedFunc();
 			perturbsVsIters.setName(name);
+			int numEnergies = csv.getNumCols()-3;
+			if (curEnergyNames == null) {
+				curEnergyNames = new ArrayList<String>();
+				curEnergyNames.addAll(energyComponentNames);
+				for (int i=curEnergyNames.size(); i<numEnergies; i++)
+					curEnergyNames.add(csv.get(0, 2+i));
+			}
+			double[] finalEnergies = null;
 			for (int row=1; row<csv.getNumRows(); row++) {
 				double iter = Double.parseDouble(csv.get(row, 0));
 				double mins = Double.parseDouble(csv.get(row, 1)) / 1000d / 60d;
-				double totEnergy =  Double.parseDouble(csv.get(row, 2));
-				double eqEnergy =  Double.parseDouble(csv.get(row, 3));
-				double entropyEnergy =  Double.parseDouble(csv.get(row, 4));
-				double ineqEnergy =  Double.parseDouble(csv.get(row, 5));
-				double perturbs =  Double.parseDouble(csv.get(row, csv.getNumCols()-1));
-				double[] energies = { totEnergy, eqEnergy, entropyEnergy, ineqEnergy };
+				double[] energies = new double[numEnergies];
 				for (int i=0; i<energies.length; i++) {
-					energyVsTime[i].set(mins, energies[i]);
-					energyVsIter[i].set(iter, energies[i]);
+					energies[i] = Double.parseDouble(csv.get(row, i+2));
 				}
+				double perturbs =  Double.parseDouble(csv.get(row, csv.getNumCols()-1));
+				if (row == csv.getNumRows()-1)
+					finalEnergies = energies;
+				energyVsTime.set(mins, energies[0]);
+				energyVsIter.set(iter, energies[0]);
 				perturbsPerItersVsTimes.set(mins, perturbs/iter);
 				perturbsVsIters.set(iter, perturbs);
 			}
@@ -435,8 +441,48 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			curEnergyVsIters.add(ind, energyVsIter);
 			curPerturbsPerItersVsTimes.add(ind, perturbsPerItersVsTimes);
 			curPerturbsVsIters.add(ind, perturbsVsIters);
+			curFinalEnergies.add(ind, finalEnergies);
+			
+			lastCSV = csv;
 		}
 		System.out.println("Loaded: "+Joiner.on(", ").join(curNames));
+	}
+	
+	private ArrayList<ArbitrarilyDiscretizedFunc> loadIndividualEnergies(boolean timeBased) {
+		ArrayList<ArbitrarilyDiscretizedFunc> funcs = null;
+		
+		CSVFile<String> csv = lastCSV;
+		int numEnergies = csv.getNumCols()-3;
+		
+		for (int row=1; row<csv.getNumRows(); row++) {
+			double iter = Double.parseDouble(csv.get(row, 0));
+			double mins = Double.parseDouble(csv.get(row, 1)) / 1000d / 60d;
+			double[] energies = new double[numEnergies];
+			for (int i=0; i<energies.length; i++) {
+				energies[i] = Double.parseDouble(csv.get(row, i+2));
+			}
+			if (funcs == null) {
+				funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+				for (int i=0; i<energies.length; i++) {
+					String name = csv.get(0, 2+i);
+					ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc(name);
+					funcs.add(func);
+				}
+			}
+			double x;
+			if (timeBased)
+				x = mins;
+			else
+				x = iter;
+			for (int i=0; i<energies.length; i++)
+				funcs.get(i).set(x, energies[i]);
+			if (row == csv.getNumRows()-1) {
+				for (int i=0; i<energies.length; i++)
+					funcs.get(i).setInfo("Final energy: "+energies[i]);
+			}
+		}
+		
+		return funcs;
 	}
 	
 	private void updatePlot() {
@@ -459,28 +505,24 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				title = "Energy vs Iterations";
 				if (curEnergyVsIters.size() == 1) {
 					// single run case, show all component of energy
-					for (ArbitrarilyDiscretizedFunc f : curEnergyVsIters.get(0))
-						funcs.add(f);
+					funcs.addAll(loadIndividualEnergies(false));
 					title += " (Single Run Components!)";
 					chars = ThreadedSimulatedAnnealing.getEnergyBreakdownChars();
 				} else {
-					for (ArbitrarilyDiscretizedFunc[] f : curEnergyVsIters)
-						funcs.add(f[0]);
+					funcs.addAll(curEnergyVsIters);
 				}
 				break;
 			case ENERGY_VS_TIME:
+				funcs.addAll(loadIndividualEnergies(true));
 				xAxisName = "Time (minutes)";
 				yAxisName = "Energy";
 				title = "Energy vs Time";
 				if (curEnergyVsTimes.size() == 1) {
 					// single run case, show all component of energy
-					for (ArbitrarilyDiscretizedFunc f : curEnergyVsTimes.get(0))
-						funcs.add(f);
 					title += " (Single Run Components!)";
 					chars = ThreadedSimulatedAnnealing.getEnergyBreakdownChars();
 				} else {
-					for (ArbitrarilyDiscretizedFunc[] f : curEnergyVsTimes)
-						funcs.add(f[0]);
+					funcs.addAll(curEnergyVsTimes);
 				}
 				break;
 			case PERTURBATIONS_VS_ITERATIONS:
@@ -516,12 +558,13 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				series = Lists.newArrayList("% Perturbs Kept");
 				rangeLabel = "Perturbations Kept (%)";
 			} else {
-				series = energyComponentNames;
+				series = new ArrayList<String>();
+				series.addAll(curEnergyNames);
 				rangeLabel = "Energy";
 			}
 			
 			for (int i=0; i<curBranches.size(); i++) {
-				ArbitrarilyDiscretizedFunc[] energies = curEnergyVsIters.get(i);
+				double[] energies = curFinalEnergies.get(i);
 				ArbitrarilyDiscretizedFunc perturbs = curPerturbsPerItersVsTimes.get(i);
 				String category = curNames.get(i);
 				
@@ -530,10 +573,15 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 					double norm = perturbs.get(lastInd).getY() * 100d;
 					dataset.addValue(norm, series.get(0), category);
 				} else {
-					dataset.addValue(energies[0].getY(lastInd), series.get(0), category);
-					dataset.addValue(energies[1].getY(lastInd), series.get(1), category);
-					dataset.addValue(energies[2].getY(lastInd), series.get(2), category);
-					dataset.addValue(energies[3].getY(lastInd), series.get(3), category);
+					for (int j=0; j<energies.length; j++) {
+						double e = energies[j];
+						String s = series.get(j);
+						dataset.addValue(e, s, category);
+					}
+//					dataset.addValue(energies[0].getY(lastInd), series.get(0), category);
+//					dataset.addValue(energies[1].getY(lastInd), series.get(1), category);
+//					dataset.addValue(energies[2].getY(lastInd), series.get(2), category);
+//					dataset.addValue(energies[3].getY(lastInd), series.get(3), category);
 				}
 			}
 			JFreeChart chart = ChartFactory.createBarChart(plot.toString(), "Branch", rangeLabel,
@@ -588,14 +636,12 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		
 		String yQuantity, xUnit;
 		if (timeBasedParam.getValue()) {
-			for (ArbitrarilyDiscretizedFunc[] funcs : curEnergyVsTimes)
-				refFuncs.add(funcs[0]);
+			refFuncs.addAll(curEnergyVsTimes);
 			xAxisName = "Time (minutes)";
 			xUnit = "minutes";
 			yAxisName = "% Improvement (last "+lookBack+" minutes)";
 		} else {
-			for (ArbitrarilyDiscretizedFunc[] funcs : curEnergyVsIters)
-				refFuncs.add(funcs[0]);
+			refFuncs.addAll(curEnergyVsIters);
 			xAxisName = "Iterations";
 			xUnit = "iterations";
 			yAxisName = "% Improvement (last "+(int)(lookBack+0.5)+" iterations)";

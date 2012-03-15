@@ -190,7 +190,9 @@ public abstract class FaultSystemRupSet {
 	public double getTotalSubseismogenicReducedMomentRate() {
 		double totMoRate = 0d;
 		for (int sectIndex=0; sectIndex<getNumSections(); sectIndex++) {
-			totMoRate += getSubseismogenicReducedMomentRate(sectIndex);
+			double sectMoment = getSubseismogenicReducedMomentRate(sectIndex);
+			if (!Double.isNaN(sectMoment))
+				totMoRate += sectMoment;
 		}
 		return totMoRate;
 	}
