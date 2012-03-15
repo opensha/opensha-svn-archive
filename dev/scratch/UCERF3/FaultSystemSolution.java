@@ -694,6 +694,8 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
 			graph4.setX_AxisLabel("Magnitude");
 			graph4.setY_AxisLabel("Frequency (per bin)");
+			graph4.setYLog(true);
+			graph4.setY_AxisRange(1e-6, 1.0);
 		}
 	}
 
