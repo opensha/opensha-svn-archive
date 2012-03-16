@@ -369,12 +369,57 @@ public class InversionInputGenerator {
 		}
 
 			
+		// Constrain Rupture Rate Solution to approximately equal aPrioriRupConstraint
+		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previuos 2 constraints)
+		if (config.getRelativeRupRateConstraintWt() > 0.0) {
+			double relativeRupRateConstraintWt = config.getRelativeRupRateConstraintWt();
+			if(D) System.out.println("\nAdding rupture-rate constraint to A matrix ...");
+			double[] aPrioriRupConstraint = config.getA_PrioriRupConstraint();
+			numNonZeroElements = 0;
+			for(int rup=0; rup<numRuptures; rup++) {
+				// Only apply if rupture-rate is greater than 0, this will keep ruptures on faults not in UCERF2 from being minimized
+				if (aPrioriRupConstraint[rup]>0) { 
+					if (QUICK_GETS_SETS)
+						A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
+					else
+						A.set(rowIndex,rup,relativeRupRateConstraintWt);
+					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
+					numNonZeroElements++; rowIndex++;
+				}
+			}
+			if (D) {
+				System.out.println("Adding rupture-rate Constraints took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+			}
+		}
+		
+		// Penalize Ruptures with small Coulomb weights
+		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
+			double relativeMinimizationConstraintWt = config.getRelativeMinimizationConstraintWt();
+			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
+			numNonZeroElements = 0;
+			for(int rup=0; rup<numRuptures; rup++) {
+				if (QUICK_GETS_SETS)
+					A.setQuick(rowIndex,rup,relativeMinimizationConstraintWt*improbabilityConstraint[rup]);
+				else
+					A.set(rowIndex,rup,relativeMinimizationConstraintWt*improbabilityConstraint[rup]);
+				d[rowIndex]=0;
+				numNonZeroElements++; rowIndex++;
+			}
+			if (D) {
+				System.out.println("Adding Minimization Constraints took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+			}
+		}
+		
+		
 		// Constrain Solution MFD to equal the Target MFD 
 		// This is for equality constraints only -- inequality constraints must be
 		// encoded into the A_ineq matrix instead since they are nonlinear
-		
-		// number of rows used for slip-rate and paleo-rate constraints
-		int rowIndex = numSlipRateConstraints + numPaleoRows;
 		if (config.getRelativeMagnitudeEqualityConstraintWt() > 0.0) {
 			double relativeMagnitudeEqualityConstraintWt = config.getRelativeMagnitudeEqualityConstraintWt();
 			List<MFD_InversionConstraint> mfdEqualityConstraints = config.getMfdEqualityConstraints();
@@ -526,54 +571,6 @@ public class InversionInputGenerator {
 			}
 			if (D) {
 				System.out.println("Adding Participation MFD Constraints took "+getTimeStr(watch)+".");
-				watch.reset();
-				watch.start();
-				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
-			}
-		}
-		
-		
-		// Constrain Rupture Rate Solution to approximately equal aPrioriRupConstraint
-		if (config.getRelativeRupRateConstraintWt() > 0.0) {
-			double relativeRupRateConstraintWt = config.getRelativeRupRateConstraintWt();
-			if(D) System.out.println("\nAdding rupture-rate constraint to A matrix ...");
-			double[] aPrioriRupConstraint = config.getA_PrioriRupConstraint();
-			numNonZeroElements = 0;
-			for(int rup=0; rup<numRuptures; rup++) {
-				// Only apply if rupture-rate is greater than 0, this will keep ruptures on faults not in UCERF2 from being minimized
-				if (aPrioriRupConstraint[rup]>0) { 
-					if (QUICK_GETS_SETS)
-						A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
-					else
-						A.set(rowIndex,rup,relativeRupRateConstraintWt);
-					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
-					numNonZeroElements++; rowIndex++;
-				}
-			}
-			if (D) {
-				System.out.println("Adding rupture-rate Constraints took "+getTimeStr(watch)+".");
-				watch.reset();
-				watch.start();
-				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
-			}
-		}
-		
-		
-		// Penalize Ruptures with small Coulomb weights
-		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
-			double relativeMinimizationConstraintWt = config.getRelativeMinimizationConstraintWt();
-			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
-			numNonZeroElements = 0;
-			for(int rup=0; rup<numRuptures; rup++) {
-				if (QUICK_GETS_SETS)
-					A.setQuick(rowIndex,rup,relativeMinimizationConstraintWt*improbabilityConstraint[rup]);
-				else
-					A.set(rowIndex,rup,relativeMinimizationConstraintWt*improbabilityConstraint[rup]);
-				d[rowIndex]=0;
-				numNonZeroElements++; rowIndex++;
-			}
-			if (D) {
-				System.out.println("Adding Minimization Constraints took "+getTimeStr(watch)+".");
 				watch.reset();
 				watch.start();
 				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
