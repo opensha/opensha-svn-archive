@@ -139,7 +139,7 @@ public class InversionConfiguration {
 		double relativePaleoRateWt = 1.0;
 		
 		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended: 10)
-		double relativeMagnitudeEqualityConstraintWt = 0;
+		double relativeMagnitudeEqualityConstraintWt = 10;
 		
 		// weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000)
 		double relativeMagnitudeInequalityConstraintWt = 1000;
@@ -231,15 +231,17 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 1;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
-			double transitionMag = 7.6;
-			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(transitionMag, rupSet, fractMomentOffFaultModifier), transitionMag);
+			double bilinearTransitionMag = 7.6;
+			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(bilinearTransitionMag, rupSet, fractMomentOffFaultModifier), bilinearTransitionMag);
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
 			initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
 			if (relativeMagnitudeInequalityConstraintWt>0.0 || relativeMagnitudeEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);  
-			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
-			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints=mfdConstraints;
+			double MFDTransitionMag = 7.85; // magnitude to switch from MFD equality to MFD inequality
+			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints = restrictMFDConstraintMagRange(mfdConstraints, mfdConstraints.get(0).getMagFreqDist().getMinX(), MFDTransitionMag);
+			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints = restrictMFDConstraintMagRange(mfdConstraints, MFDTransitionMag, mfdConstraints.get(0).getMagFreqDist().getMaxX());
+			
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
@@ -287,6 +289,35 @@ public class InversionConfiguration {
 				mfdInequalityConstraints,
 				minimumRuptureRateFraction);
 	}
+	
+	
+	/**
+	 * This method returns the input MFD constraint array with each constraint now restricted between minMag and maxMag.
+	 * WARNING!  This doesn't interpolate.  For best results, set minMag & maxMag to points along original MFD constraint (i.e. 7.05, 7.15, etc)
+	 * @param mfConstraints
+	 * @param minMag
+	 * @param maxMag
+	 * @return newMFDConstraints
+	 */
+	private static ArrayList<MFD_InversionConstraint> restrictMFDConstraintMagRange(ArrayList<MFD_InversionConstraint> mfdConstraints, double minMag, double maxMag) {
+		
+		ArrayList<MFD_InversionConstraint> newMFDConstraints = new ArrayList<MFD_InversionConstraint>();
+		
+		for (int i=0; i<mfdConstraints.size(); i++) {
+			IncrementalMagFreqDist originalMFD = mfdConstraints.get(i).getMagFreqDist();
+			double delta = originalMFD.getDelta();
+			IncrementalMagFreqDist newMFD = new IncrementalMagFreqDist(minMag, maxMag, (int) Math.round((maxMag-minMag)/delta + 1.0)); 
+			newMFD.setTolerance(delta/2.0);
+			for (double m=minMag; m<=maxMag; m+=delta) {
+				// WARNING!  This doesn't interpolate.  For best results, set minMag & maxMag to points along original MFD constraint (i.e. 7.05, 7.15, etc)
+				newMFD.set(m, originalMFD.getClosestY(m));
+			}
+			newMFDConstraints.add(i,new MFD_InversionConstraint(newMFD, mfdConstraints.get(i).getRegion()));	
+		}
+		
+		return newMFDConstraints;
+	}
+	
 	
 	
 	/**

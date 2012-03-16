@@ -189,8 +189,6 @@ public class InversionInputGenerator {
 		
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (config.getRelativeMagnitudeEqualityConstraintWt() > 0.0) {
-			// TODO: RIGHT NOW THIS ASSUMES THE MAGNITUDE CONSTRAINT WEIGHT MUST
-			// BE THE SAME FOR ALL MAG-DIST CONSTRAINTS
 			int totalNumMagFreqConstraints = 0;
 			for (MFD_InversionConstraint constr : config.getMfdEqualityConstraints()) {
 				targetMagFreqDist=constr.getMagFreqDist();
@@ -394,7 +392,7 @@ public class InversionInputGenerator {
 				for(int rup=0; rup<numRuptures; rup++) {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
-					if (fractRupInside > 0) {
+					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
 //						A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS)
 							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
@@ -436,7 +434,7 @@ public class InversionInputGenerator {
 				for(int rup=0; rup<numRuptures; rup++) {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
-					if (fractRupInside > 0) {
+					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
 //						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS)
 							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
