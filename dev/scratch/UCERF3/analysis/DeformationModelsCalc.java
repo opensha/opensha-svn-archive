@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -105,6 +109,62 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	/**
+	 * These cannot yet be subsections
+	 * @param sectData
+	 */
+	public static void testFaultZonePolygons() {
+		
+		
+		ArrayList<FaultSectionPrefData> sectData =  FaultModels.FM3_1.fetchFaultSections();
+		sectData.addAll(FaultModels.FM3_2.fetchFaultSections());
+						
+		ArrayList<String> nullNames = new ArrayList<String>();
+		ArrayList<String> outsideZoneNames = new ArrayList<String>();
+		ArrayList<String> goodZoneNames = new ArrayList<String>();
+
+		for(FaultSectionPrefData data: sectData){
+			Region zone = data.getZonePolygon();
+			if(zone == null) {
+				if(!nullNames.contains(data.getSectionName()))
+					nullNames.add(data.getSectionName());
+			}
+			else {
+				LocationList surfLocs = data.getStirlingGriddedSurface(1.0).getEvenlyDiscritizedListOfLocsOnSurface();
+				boolean good = true;
+				for(Location loc : surfLocs) {
+					if(!zone.contains(loc)) {
+						double dist = zone.distanceToLocation(loc);
+						if(dist>0.5) {
+							if(!outsideZoneNames.contains(data.getSectionName()))
+								outsideZoneNames.add(data.getSectionName()+"\t\tLoc that's outside:"+(float)loc.getLatitude()+"\t"+(float)loc.getLongitude());
+							good = false;
+							break;							
+						}
+					}
+				}
+				if(good == true) {
+					if(!goodZoneNames.contains(data.getSectionName()))
+						goodZoneNames.add(data.getSectionName());
+
+				}
+			}
+		}
+		
+		System.out.println("\nThese sections have null fault zone polygons\n");
+		for(String name : nullNames)
+			System.out.println("\t"+name);
+		
+		System.out.println("\nThese sections have surface points outside the fault zone polygon\n");
+		for(String name : outsideZoneNames)
+			System.out.println("\t"+name);
+		
+		System.out.println("\nThese sections are good (have all surface points inside the fault zone polygon)\n");
+		for(String name : goodZoneNames)
+			System.out.println("\t"+name);
+	}
+	
+	
 	
 	private static String getTableLineForMoRateAndMmaxDataForDefModels(FaultModels fm, DeformationModels dm) {
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
@@ -163,6 +223,44 @@ public class DeformationModelsCalc {
 
 	}
 	
+	
+	/**
+	 * This writes out the names of sections that are new to UCERF3 (either the section was added or it now
+	 * has a slip rate from the Geologic deformation model, as UCERF2 ignored sections with no slip rate)
+	 */
+	public static void writeListOfNewFaultSections() {
+		
+		// get section name from FM 3.1
+		ArrayList<String> fm3_sectionNamesList = new ArrayList<String>();
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList())
+			if(!fm3_sectionNamesList.contains(data.getParentSectionName()))
+				fm3_sectionNamesList.add(data.getParentSectionName());
+		// add those from FM 3.2
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_2, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList())
+			if(!fm3_sectionNamesList.contains(data.getParentSectionName()))
+				fm3_sectionNamesList.add(data.getParentSectionName());
+		
+		// Get those that existed in UCERF2
+		ArrayList<String> equivUCERF2_SectionNames = FindEquivUCERF2_FM3_Ruptures.getAllSectionNames(FaultModels.FM3_1);
+		ArrayList<String> equivUCERF2_SectionNamesTemp = FindEquivUCERF2_FM3_Ruptures.getAllSectionNames(FaultModels.FM3_2);
+		for(String name: equivUCERF2_SectionNamesTemp)
+			if(!equivUCERF2_SectionNames.contains(name))
+				equivUCERF2_SectionNames.add(name);
+		
+		// now make the list of new names
+		ArrayList<String> newSectionName = new ArrayList<String>();
+		for(String name : fm3_sectionNamesList)
+			if (!equivUCERF2_SectionNames.contains(name))
+				newSectionName.add(name);
+		
+		for(String name: newSectionName)
+			System.out.println(name);
+		System.out.println("There are "+newSectionName.size()+" new sections listed above");
+
+
+	}
 	
 	
 	/**
@@ -229,10 +327,13 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+		testFaultZonePolygons();
+		
+//		writeListOfNewFaultSections();
 		
 //		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		
-		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
+//		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		

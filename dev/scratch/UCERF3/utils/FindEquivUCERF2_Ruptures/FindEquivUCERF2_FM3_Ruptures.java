@@ -1100,7 +1100,8 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	
 	/**
 	 * This reads the SECT_FOR_UCERF2_SRC_FILE_PATH_NAME file and compiles a list of sections names used
-	 * in the mapping here, including those for both fault models (3.1 and 3.2).
+	 * in the mapping here, including those for both fault models (3.1 and 3.2).  Fault sections that are
+	 * new to FM 3.1 and 3.2 will not be in this list
 	 */
 	public static ArrayList<String> getAllSectionNames(FaultModels faultModel) {
 		
