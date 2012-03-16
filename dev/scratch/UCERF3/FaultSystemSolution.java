@@ -637,6 +637,10 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public void plotMFDs(List<MFD_InversionConstraint> mfdConstraints) {
 		
+		
+		// Add ALL_CA to bring up another plot
+//		mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850));
+		
 		for (int i=0; i<mfdConstraints.size(); i++) {  // Loop over each MFD constraint 	
 			IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
 			magHist.setTolerance(0.2);	// this makes it a histogram
@@ -686,6 +690,17 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 				}
 				offFaultMFD.setName("Implied Off-fault MFD for Solution"); totalTargetMFD.setName("Total Seismicity Rate for Region");
 				offFaultMFD.setInfo("Total Target minus on-fault solution");totalTargetMFD.setInfo("Southern CA 1850-2007");
+				funcs4.add(totalTargetMFD); funcs4.add(offFaultMFD);
+			}
+			if (mfdConstraints.get(i).getRegion().getName()=="RELM_TESTING Region") {
+				IncrementalMagFreqDist totalTargetMFD = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
+				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
+				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
+					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
+					
+				}
+				offFaultMFD.setName("Implied Off-fault MFD for Solution"); totalTargetMFD.setName("Total Seismicity Rate for Region");
+				offFaultMFD.setInfo("Total Target minus on-fault solution");totalTargetMFD.setInfo("All CA 1850-2007");
 				funcs4.add(totalTargetMFD); funcs4.add(offFaultMFD);
 			}
 			
