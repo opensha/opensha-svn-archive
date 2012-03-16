@@ -513,12 +513,12 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				}
 				break;
 			case ENERGY_VS_TIME:
-				funcs.addAll(loadIndividualEnergies(true));
 				xAxisName = "Time (minutes)";
 				yAxisName = "Energy";
 				title = "Energy vs Time";
 				if (curEnergyVsTimes.size() == 1) {
 					// single run case, show all component of energy
+					funcs.addAll(loadIndividualEnergies(true));
 					title += " (Single Run Components!)";
 					chars = ThreadedSimulatedAnnealing.getEnergyBreakdownChars();
 				} else {
