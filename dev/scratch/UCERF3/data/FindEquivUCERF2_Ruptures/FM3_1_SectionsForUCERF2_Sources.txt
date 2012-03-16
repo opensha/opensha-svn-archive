@@ -4,21 +4,21 @@
 3	Calaveras;CN+CC	0	Calaveras (No) 2011 CFM	Calaveras (Central) 2011 CFM
 4	Calaveras;CN+CC+CS	0	Calaveras (No) 2011 CFM	Calaveras (Central) 2011 CFM	Calaveras (So) 2011 CFM
 5	Calaveras;CS	0	Calaveras (So) 2011 CFM
-6	Elsinore;CM	0	Elsinore (Coyote Mountain)
+6	Elsinore;CM	0	Elsinore (Coyote Mountains)
 7	Elsinore;GI	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)
 8	Elsinore;GI+T	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev
 9	Elsinore;GI+T+J	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)
-10	Elsinore;GI+T+J+CM	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
+10	Elsinore;GI+T+J+CM	0	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountains)
 11	Elsinore;J	0	Elsinore (Julian)
-12	Elsinore;J+CM	0	Elsinore (Julian)	Elsinore (Coyote Mountain)
+12	Elsinore;J+CM	0	Elsinore (Julian)	Elsinore (Coyote Mountains)
 13	Elsinore;T	0	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev
 14	Elsinore;T+J	0	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)
-15	Elsinore;T+J+CM	0	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
+15	Elsinore;T+J+CM	0	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountains)
 16	Elsinore;W	0	Whittier alt 1
 17	Elsinore;W+GI	0	Whittier alt 1	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)
 18	Elsinore;W+GI+T	0	Whittier alt 1	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev
 19	Elsinore;W+GI+T+J	0	Whittier alt 1	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)
-20	Elsinore;W+GI+T+J+CM	0	Whittier alt 1	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
+20	Elsinore;W+GI+T+J+CM	0	Whittier alt 1	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountains)
 21	Garlock;GC	0	Garlock (Central)
 22	Garlock;GC+GW	0	Garlock (Central)	Garlock (West)
 23	Garlock;GE	0	Garlock (East)
@@ -122,7 +122,7 @@
 121	San Jacinto;SJV+A+CC+B+SM	0	San Jacinto (San Jacinto Valley) rev	San Jacinto (Stepovers Combined)	San Jacinto (Anza) rev	San Jacinto (Coyote Creek)	San Jacinto (Borrego)	San Jacinto (Superstition Mtn)
 122	San Jacinto;SM	0	San Jacinto (Superstition Mtn)
 123	Calaveras	0	Calaveras (No) 2011 CFM	Calaveras (Central) 2011 CFM	Calaveras (So) 2011 CFM
-124	Elsinore	0	Whittier alt 1	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountain)
+124	Elsinore	0	Whittier alt 1	Elsinore (Glen Ivy) rev	Elsinore (Stepovers Combined)	Elsinore (Temecula) rev	Elsinore (Julian)	Elsinore (Coyote Mountains)
 125	Garlock	0	Garlock (East)	Garlock (Central)	Garlock (West)
 126	Hayward-Rodgers Creek	0	Rodgers Creek - Healdsburg 2011 CFM	Hayward (No) 2011 CFM	Hayward (So) 2011 CFM
 127	N. San Andreas	0	San Andreas (Offshore) 2011 CFM	San Andreas (North Coast) 2011 CFM	San Andreas (Peninsula) 2011 CFM	San Andreas (Santa Cruz Mts) 2011 CFM

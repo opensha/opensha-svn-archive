@@ -202,9 +202,9 @@ public class FileMakingStuff {
 	 */
 	public static void main(String[] args) {
 		
-		FileMakingStuff.mkNewFilesBySubstitutingNames();
+//		FileMakingStuff.mkNewFilesBySubstitutingNames();
 		
-//		FileMakingStuff.writeAllFM3_sectNames();
+		FileMakingStuff.writeAllFM3_sectNames();
 
 	}
 
