@@ -7,7 +7,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipException;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.eq.MagUtils;
@@ -55,136 +57,10 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
 public class RunInversion {
 
 	protected final static boolean D = true;  // for debugging
-	
-	public enum CoulombWeightType {
-		MEAN_SIGMA,
-		WEAKEST_LINK;
-	}
-	
-	private double[] getCoulombWeights(int numRups, CoulombWeightType coulombWeight) {
-		
-		// TODO if we ever use this, we'll want to move it. don't leave it here!!!
-		
-		double[] weights = new double[numRups];
-		String fileName;
-		
-		switch (coulombWeight) {
-		case MEAN_SIGMA: // Use mean stress of all rupture connections
-			fileName = "MeanSigma.txt";
-			break;
-		case WEAKEST_LINK: // Use stress of "weakest link" connection
-			fileName = "WeakestLink.txt";
-			break;
-		default:
-			throw new IllegalStateException("Unspecified Coulomb Weight Type");
-		}
-		
-	
-		FileReader inputFile;
-		try {
-			BufferedReader in = new BufferedReader(
-					UCERF3_DataUtils.getReader("coulomb", fileName));
-			String s = in.readLine();
-			int i = 0;
-			while(s!=null)
-			{
-			    weights[i] = 1.0 / Double.parseDouble(s);
-			    s = in.readLine();
-			    i++;
-			}
-			in.close();
-			if (i != numRups) {
-				throw new Exception("Number of ruptures does not match number of Coulomb weights");
-			}
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return weights;
-	
-		
-	}
-	
-	private static InversionConfiguration buildCustomConfiguration(FaultSystemRupSet rupSet) {
-		boolean weightSlipRates = true; // If true, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If false, misfit is absolute difference.
-		double relativePaleoRateWt = 1.0;  // weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativeMagnitudeEqualityConstraintWt = 0;  // weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weightSlipRates=true, 10 otherwise)
-		double relativeMagnitudeInequalityConstraintWt = 1000;  // weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000 if weighted per bin -- this is hard-coded in)
-		double relativeParticipationSmoothnessConstraintWt = 0; // weight of participation MFD smoothness weight - applied on subsection basis (recommended:  1000)
-		double participationConstraintMagBinSize = 0.1; // magnitude-bin size for above constraint
-		double relativeRupRateConstraintWt = 0;  // weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1; 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
-		double relativeMinimizationConstraintWt = 0; // weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
-		double relativeSmoothnessWt = 0; // weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
-		double relativeMomentConstraintWt = 0;
-		
-		double[] aPrioriRupConstraint;
-		// Use UCERF2 Solution 
-//		aPrioriRupConstraint = UCERF2Solution;
-		// Or use smooth starting solution with target MFD:
-//		Region region = new CaliforniaRegions.RELM_NOCAL(); UCERF2_MFD_ConstraintFetcher UCERF2Constraints = new UCERF2_MFD_ConstraintFetcher(region); aPrioriRupConstraint = getSmoothStartingSolution(faultSystemRupSet, UCERF2Constraints.getTargetMinusBackgroundMFD());
-		aPrioriRupConstraint = InversionConfiguration.getSmoothStartingSolution(
-				rupSet, InversionConfiguration.getGR_Dist(rupSet, 1.0, 8.3));
-		double[] initialRupModel = aPrioriRupConstraint;
-		// or all zeros
-//		for (int r=0; r<faultSystemRupSet.getNumRuptures(); r++) initialRupModel[r]=0;
-		
-		double minimumRuptureRateFraction = 0.01;
-		double[] waterlevelRateBasis = initialRupModel;
-		
-		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
-		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
-		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
-		Region entire_region;
-		if (rupSet.getDeformationModel() == DeformationModels.UCERF2_NCAL
-				|| rupSet.getDeformationModel() == DeformationModels.UCERF2_BAYAREA) {
-			entire_region = noCal;
-		} else {
-			// TODO should this be Testing or Collection? currently using TESTING because it's what
-			// Ned uses lots of places
-			entire_region = new CaliforniaRegions.RELM_TESTING();
-		}
-		
-		// MFD constraints
-		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
-		// add MFD constraint for whole region
-//		ucerf2Constraints.setRegion(region);
-//		mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
-		// UCERF2 MFD constraints for subregions - 1-degree boxes
-//		mfdEqualityConstraints.addAll(getGriddedConstraints(ucerf2Constraints, entire_region, 1d, 1d));
-		
-		ArrayList<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
-//		// add MFD constraint for the entire region
-//		ucerf2Constraints.setRegion(entire_region);
-		// add MFD constraint for Northern CA
-		ucerf2Constraints.setRegion(noCal);
-		mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
-		// add MFD constraint for Southern CA
-		if (entire_region != noCal) {
-			// don't add so cal if we're just doing a no cal inversion
-			ucerf2Constraints.setRegion(soCal);
-			mfdInequalityConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
-		}
-		
-		return new InversionConfiguration(weightSlipRates, relativePaleoRateWt,
-				relativeMagnitudeEqualityConstraintWt, relativeMagnitudeInequalityConstraintWt,
-				relativeRupRateConstraintWt, relativeParticipationSmoothnessConstraintWt,
-				participationConstraintMagBinSize, relativeMinimizationConstraintWt, relativeMomentConstraintWt,
-				aPrioriRupConstraint, initialRupModel, waterlevelRateBasis, relativeSmoothnessWt,
-				mfdEqualityConstraints, mfdInequalityConstraints, minimumRuptureRateFraction);
-	}
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "GEOLOGICPLUSABM_MFDReduced_FitMoment_30MIN";
+		String fileName = "GEOLOGICPLUSABM_30MIN";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
@@ -211,8 +87,6 @@ public class RunInversion {
 		// get the inversion configuration
 		InversionConfiguration config;
 		config = InversionConfiguration.forModel(inversionModel, rupSet);
-		// this can be used for testing other inversions
-//		config = buildCustomConfiguration(rupSet);
 		
 		File precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 		
@@ -325,7 +199,10 @@ public class RunInversion {
 				// a failure here is OK. who needs a solution anyway?
 				e.printStackTrace();
 			}
-		}
+		}	
+		
+		//	Load in solution from file
+//		SimpleFaultSystemSolution solution = SimpleFaultSystemSolution.fromZipFile(new File("/Users/pagem/Desktop/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarMomRed_050_VarMFDMod_100_VarDefaultAseis_0.2_sol.zip"));
 		
 		// Calculate total moment of solution
 		double totalSolutionMoment = 0;
@@ -339,7 +216,7 @@ public class RunInversion {
 		solution.plotRuptureRates();
 		solution.plotSlipRates();
 		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
-//		solution.plotMFDs(config.getMfdEqualityConstraints());
+		solution.plotMFDs(config.getMfdEqualityConstraints());
 		solution.plotMFDs(config.getMfdInequalityConstraints());
 		long runTime = System.currentTimeMillis()-startTime;
 		if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");	
