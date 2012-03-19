@@ -17,10 +17,6 @@ import org.opensha.commons.hpc.pbs.EpicenterScriptWriter;
 import org.opensha.commons.hpc.pbs.RangerScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
-import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -29,16 +25,18 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.inversion.InversionConfiguration;
+import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
-import scratch.UCERF3.inversion.InversionInputGenerator;
+import scratch.UCERF3.inversion.CommandLineInversionRunner.InversionOptions;
+import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
-import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
-import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public class LogicTreePBSWriter {
 
@@ -132,19 +130,19 @@ public class LogicTreePBSWriter {
 		public abstract int getPPN(LogicTreeBranch branch);
 	}
 	
-	private static ArrayList<String[]> buildVariationBranches(List<String[]> variations, String[] curVariation) {
+	private static ArrayList<CustomArg[]> buildVariationBranches(List<CustomArg[]> variations, CustomArg[] curVariation) {
 		if (curVariation == null)
-			curVariation = new String[variations.size()];
+			curVariation = new CustomArg[variations.size()];
 		int ind = curVariation.length - variations.size();
-		List<String[]> nextVars;
+		List<CustomArg[]> nextVars;
 		if (variations.size() > 1)
 			nextVars = variations.subList(1, variations.size());
 		else
 			nextVars = null;
-		ArrayList<String[]> retVal = new ArrayList<String[]>();
+		ArrayList<CustomArg[]> retVal = new ArrayList<CustomArg[]>();
 		
-		for (String var : variations.get(0)) {
-			String[] branch = Arrays.copyOf(curVariation, curVariation.length);
+		for (CustomArg var : variations.get(0)) {
+			CustomArg[] branch = Arrays.copyOf(curVariation, curVariation.length);
 			branch[ind] = var;
 			if (nextVars == null)
 				retVal.add(branch);
@@ -154,6 +152,27 @@ public class LogicTreePBSWriter {
 		
 		return retVal;
 	}
+	
+	private static class CustomArg {
+		private InversionOptions op;
+		private String arg;
+		
+		public CustomArg(InversionOptions op, String arg) {
+			this.op = op;
+			if (op.hasOption())
+				Preconditions.checkState(arg != null && !arg.isEmpty());
+			else
+				Preconditions.checkState(arg == null || arg.isEmpty());
+			this.arg = arg;
+		}
+	}
+	
+	private static CustomArg[] forOptions(InversionOptions op, String... args) {
+		CustomArg[] ops = new CustomArg[args.length];
+		for (int i=0; i<args.length; i++)
+			ops[i] = new CustomArg(op, args[i]);
+		return ops;
+	}
 
 	/**
 	 * @param args
@@ -161,7 +180,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "hybrid-mfds";
+		String runName = "new-class-test";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -200,16 +219,12 @@ public class LogicTreePBSWriter {
 		//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
-		List<String[]> variations = new ArrayList<String[]>();
-//		String[] momRedVars = { "MomRed_100", "MomRed_075", "MomRed_050" };
-		String[] momRedVars = { "MomRed_100", "MomRed_075", "MomRed_050" };
-		variations.add(momRedVars);
-		String[] mfdVars = { "MFDMod_100", "MFDMod_125", "MFDMod_130", "MFDMod_135" };
-//		String[] mfdVars = { "MFDMod_100", "MFDMod_130", "MFDMod_135" };
-		variations.add(mfdVars);
-		String[] aseisVars = { "DefaultAseis_0", "DefaultAseis_0.1", "DefaultAseis_0.2" };
-//		String[] aseisVars = { "DefaultAseis_0.1", "DefaultAseis_0.2" };
-		variations.add(aseisVars);
+		List<CustomArg[]> variations = new ArrayList<CustomArg[]>();
+		variations.add(forOptions(InversionOptions.OFF_FUALT_ASEIS, "0", "0.25", "0.5"));
+		variations.add(forOptions(InversionOptions.MFD_MODIFICATION, "1", "1.25", "1.3", "1.35"));
+		variations.add(forOptions(InversionOptions.DEFAULT_ASEISMICITY, "0", "0.1", "0.2"));
+		CustomArg[] relaxOps = { new CustomArg(InversionOptions.MFD_CONSTRAINT_RELAX, null), null };
+		variations.add(relaxOps);
 		
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
@@ -249,10 +264,10 @@ public class LogicTreePBSWriter {
 			}
 		}
 		
-		ArrayList<String[]> variationBranches;
+		ArrayList<CustomArg[]> variationBranches;
 		if (variations == null || variations.size() == 0) {
-			variationBranches = new ArrayList<String[]>();
-			variationBranches.add(new String[0]);
+			variationBranches = new ArrayList<CustomArg[]>();
+			variationBranches.add(new CustomArg[0]);
 		} else {
 			// loop over each variation value building a logic tree
 			variationBranches = buildVariationBranches(variations, null);
@@ -285,7 +300,7 @@ public class LogicTreePBSWriter {
 		//		BatchScriptWriter batch = new USC_HPCC_ScriptWriter("quadcore");
 		File javaBin = site.JAVA_BIN;
 		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
-		CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
+		CoolingScheduleType cool = CoolingScheduleType.FAST_SA; // TODO
 		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(1);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath(site));
 		javaWriter.setHeadless(true);
@@ -293,9 +308,6 @@ public class LogicTreePBSWriter {
 			javaWriter.setProperty(FaultModels.FAULT_MODEL_STORE_PROPERTY_NAME, site.FM_STORE);
 			buildRupSets = false;
 		}
-		ThreadedScriptCreator tsa_create = new ThreadedScriptCreator(javaWriter, threads, null, null, subCompletion);
-		tsa_create.setPlots(true);
-		tsa_create.setCool(cool);
 
 		double nodeHours = 0;
 		int cnt = 0;
@@ -312,7 +324,7 @@ public class LogicTreePBSWriter {
 				for (MagAreaRelationships ma : magAreas) {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
 						for (AveSlipForRupModels as : aveSlipModels) {
-							for (String[] variationBranch : variationBranches) {
+							for (CustomArg[] variationBranch : variationBranches) {
 								for (InversionModels im : inversionModels) {
 									LogicTreeBranch branch = new LogicTreeBranch(fm, dm, ma, as, sal, im);
 									if (defaultBranches != null && defaultBranches.length > 0) {
@@ -326,37 +338,39 @@ public class LogicTreePBSWriter {
 											continue;
 									}
 									String name = branch.buildFileName();
-									for (String variation : variationBranch)
-										name += "_Var"+variation;
+									for (CustomArg variation : variationBranch) {
+										if (variation == null)
+											// this is the "off" state for a flag option
+											name += "_VarNone";
+										else
+											name += "_Var"+variation.op.getFileName(variation.arg);
+									}
 
 									int mins;
 									NonnegativityConstraintType nonNeg;
 
 									BatchScriptWriter batch = site.forBranch(branch);
-									TimeCompletionCriteria checkPointCritera;
+									TimeCompletionCriteria checkPointCriteria;
 									if (im == InversionModels.GR) {
 										mins = 500;
 										nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
 										batch = site.forBranch(branch);
 										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
-										checkPointCritera = null;
+										checkPointCriteria = null;
 									} else if (im == InversionModels.CHAR) {
 										mins = 500; // TODO ?
 										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
 										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
-										checkPointCritera = null;
+										checkPointCriteria = null;
 									} else { // UNCONSTRAINED
 										mins = 60;
 										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-										checkPointCritera = null;
+										checkPointCriteria = null;
 									}
 									int ppn = site.getPPN(branch); // minimum number of cpus
 									CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
-									tsa_create.setCriteria(criteria);
 									javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
 									javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
-									tsa_create.setNonNeg(nonNeg);
-									tsa_create.setCheckPointCriteria(checkPointCritera);
 
 									for (int r=0; r<numRuns; r++) {
 										String jobName = name;
@@ -373,35 +387,23 @@ public class LogicTreePBSWriter {
 											System.gc();
 										}
 
-										tsa_create.setProgFile(new File(runSubDir, jobName+".csv"));
-										tsa_create.setSolFile(new File(runSubDir, jobName+".bin"));
-
 										File pbs = new File(writeDir, jobName+".pbs");
 										System.out.println("Writing: "+pbs.getName());
 
-										ArrayList<String> classNames = new ArrayList<String>();
-										ArrayList<String> argss = new ArrayList<String>();
-
 										int jobMins = mins+30;
+										
+										String className = CommandLineInversionRunner.class.getName();
+										String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
+										classArgs += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
+										classArgs += " --cool "+cool.name();
+										classArgs += " --nonneg "+nonNeg.name();
+										classArgs += " --num-threads "+threads;
+										if (checkPointCriteria != null)
+											classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
+										classArgs += " --branch-prefix "+name;
+										classArgs += " --directory "+runSubDir.getAbsolutePath();
 
-										// input gen
-										String inputFileName = jobName+"_inputs.zip";
-										File remoteInputs = new File(runSubDir, inputFileName);
-
-										classNames.add(CommandLineInputGenerator.class.getName());
-										String inputGenArgs = "";
-										for (String variation : variationBranch)
-											inputGenArgs += "--var "+variation+" ";
-										inputGenArgs += remoteRupSetFile.getAbsolutePath()+" "+im.name()
-										+" "+remoteInputs.getAbsolutePath();
-										argss.add(inputGenArgs);
-										jobMins += 30;
-										tsa_create.setZipFile(remoteInputs);
-
-										classNames.add(tsa_create.getClassName());
-										argss.add(tsa_create.getArgs());
-
-										batch.writeScript(pbs, javaWriter.buildScript(classNames, argss),
+										batch.writeScript(pbs, javaWriter.buildScript(className, classArgs),
 												jobMins, 1, ppn, queue);
 
 										nodeHours += (double)mins / 60d;
