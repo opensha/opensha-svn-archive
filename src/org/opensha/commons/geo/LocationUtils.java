@@ -1,20 +1,19 @@
 /*******************************************************************************
- * Copyright 2009 OpenSHA.org in partnership with
- * the Southern California Earthquake Center (SCEC, http://www.scec.org)
- * at the University of Southern California and the UnitedStates Geological
- * Survey (USGS; http://www.usgs.gov)
+ * Copyright 2009 OpenSHA.org in partnership with the Southern California
+ * Earthquake Center (SCEC, http://www.scec.org) at the University of Southern
+ * California and the UnitedStates Geological Survey (USGS; http://www.usgs.gov)
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  * 
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  ******************************************************************************/
 
 package org.opensha.commons.geo;
@@ -27,7 +26,6 @@ import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 
 import java.awt.geom.Line2D;
 import java.util.Collection;
-import java.util.ListIterator;
 
 import org.apache.commons.math.util.MathUtils;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
@@ -103,8 +101,8 @@ public final class LocationUtils {
 		double sinDlatBy2 = Math.sin((lat2 - lat1) / 2.0);
 		double sinDlonBy2 = Math.sin((p2.getLonRad() - p1.getLonRad()) / 2.0);
 		// half length of chord connecting points
-		double c = (sinDlatBy2 * sinDlatBy2)
-			+ (Math.cos(lat1) * Math.cos(lat2) * sinDlonBy2 * sinDlonBy2);
+		double c = (sinDlatBy2 * sinDlatBy2) +
+			(Math.cos(lat1) * Math.cos(lat2) * sinDlonBy2 * sinDlonBy2);
 		return 2.0 * Math.atan2(Math.sqrt(c), Math.sqrt(1 - c));
 	}
 
@@ -148,8 +146,8 @@ public final class LocationUtils {
 		double lat1 = p1.getLatRad();
 		double lat2 = p2.getLatRad();
 		double dLat = lat1 - lat2;
-		double dLon = (p1.getLonRad() - p2.getLonRad())
-			* Math.cos((lat1 + lat2) * 0.5);
+		double dLon = (p1.getLonRad() - p2.getLonRad()) *
+			Math.cos((lat1 + lat2) * 0.5);
 		return EARTH_RADIUS_MEAN * Math.sqrt((dLat * dLat) + (dLon * dLon));
 	}
 
@@ -292,55 +290,57 @@ public final class LocationUtils {
 		double x3 = (p3.getLonRad() - lon1) * lonScale;
 		double y3 = lat3 - lat1;
 
-		return ((x2) * (-y3) - (-x3) * (y2))
-			/ Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
-	}
-	
-	/**
-	 * Calculates the shortest distance between the <code>Location</code>s and
-	 * the EventlyGridddedSurface by simply looping over all the locations in
-	 * the surface and keeping the smallest one obtained from {@link #horzDistance(Location, Location)}.
-	 * 
-	 * @param loc a <code>Location</code>
-	 * @param rupSurf an EvenlyGriddedSurfaceAPI
-	 * @return
-	 */
-	public static double distanceToSurf(Location loc, AbstractEvenlyGriddedSurface rupSurf) {
-		double minDistance = Double.MAX_VALUE;
-		double horzDist, vertDist, totalDist;
-		for(Location loc2: rupSurf) {
-			horzDist = horzDistance(loc, loc2);
-			vertDist = vertDistance(loc, loc2);
-			totalDist = horzDist * horzDist + vertDist * vertDist;
-			if( totalDist < minDistance ) minDistance = totalDist;
-		}
-		return Math.pow ( minDistance , 0.5 );
+		return ((x2) * (-y3) - (-x3) * (y2)) /
+			Math.sqrt((x2) * (x2) + (y2) * (y2)) * EARTH_RADIUS_MEAN;
 	}
 
 	/**
-	 * Calculates the shortest distance between the <code>Location</code>s and
-	 * the RuptureSurface by simply looping over all the locations in
-	 * the surface and keeping the smallest one obtained from 
+	 * Calculates the distance between the supplied <code>Location</code> and
+	 * the <code>EventlyGridddedSurface</code> by looping over all the locations
+	 * in the surface and returning the smallest one determined by
+	 * {@link #horzDistance(Location, Location)}.
+	 * 
+	 * @param loc a <code>Location</code>
+	 * @param rupSurf an EvenlyGriddedSurfaceAPI
+	 * @return the minimum distance to a surface from the supplied
+	 *         <code>Location</code>
+	 */
+	public static double distanceToSurf(Location loc,
+			AbstractEvenlyGriddedSurface rupSurf) {
+		double minDistance = Double.MAX_VALUE;
+		double horzDist, vertDist, totalDist;
+		for (Location loc2 : rupSurf) {
+			horzDist = horzDistance(loc, loc2);
+			vertDist = vertDistance(loc, loc2);
+			totalDist = horzDist * horzDist + vertDist * vertDist;
+			if (totalDist < minDistance) minDistance = totalDist;
+		}
+		return Math.pow(minDistance, 0.5);
+	}
+
+	/**
+	 * Calculates the distance between the supplied <code>Location</code> and
+	 * the <code>EventlyGridddedSurface</code> by looping over all the locations
+	 * in the surface and returning the smallest one determined by
 	 * {@link #horzDistanceFast(Location, Location)}.
 	 * 
 	 * @param loc a <code>Location</code>
 	 * @param rupSurf an EvenlyGriddedSurfaceAPI
-	 * @return
+	 * @return the minimum distance to a surface from the supplied
+	 *         <code>Location</code>
 	 */
 	public static double distanceToSurfFast(Location loc, RuptureSurface rupSurf) {
 		double minDistance = Double.MAX_VALUE;
 		double horzDist, vertDist, totalDist;
-		
-		for(Location loc2: rupSurf.getEvenlyDiscritizedListOfLocsOnSurface()) {
+
+		for (Location loc2 : rupSurf.getEvenlyDiscritizedListOfLocsOnSurface()) {
 			horzDist = horzDistanceFast(loc, loc2);
 			vertDist = vertDistance(loc, loc2);
 			totalDist = horzDist * horzDist + vertDist * vertDist;
-			if( totalDist < minDistance ) minDistance = totalDist;
+			if (totalDist < minDistance) minDistance = totalDist;
 		}
-		return Math.pow ( minDistance , 0.5 );
+		return Math.pow(minDistance, 0.5);
 	}
-
-	
 
 	/**
 	 * Computes the shortest distance between a point and a line segment (i.e.
@@ -379,14 +379,14 @@ public final class LocationUtils {
 		// cross-track distance (in radians)
 		double xtd = Math.asin(Math.sin(ad13) * Math.sin(Daz13az12));
 		// along-track distance (in km)
-		double atd = Math.acos(Math.cos(ad13) / Math.cos(xtd))
-			* EARTH_RADIUS_MEAN;
+		double atd = Math.acos(Math.cos(ad13) / Math.cos(xtd)) *
+			EARTH_RADIUS_MEAN;
 		// check if beyond p3
 		if (atd > horzDistance(p1, p2)) return horzDistance(p2, p3);
 		// check if before p1
 		if (Math.cos(Daz13az12) < 0) return horzDistance(p1, p3);
-		return (Math.abs(xtd) < TOLERANCE) ? 0.0 : Math.abs(xtd)
-			* EARTH_RADIUS_MEAN;
+		return (Math.abs(xtd) < TOLERANCE) ? 0.0 : Math.abs(xtd) *
+			EARTH_RADIUS_MEAN;
 	}
 
 	/**
@@ -462,8 +462,8 @@ public final class LocationUtils {
 		// for starting points other than the poles:
 		double dLon = p2.getLonRad() - p1.getLonRad();
 		double cosLat2 = Math.cos(lat2);
-		double azRad = Math.atan2(Math.sin(dLon) * cosLat2, Math.cos(lat1)
-			* Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(dLon));
+		double azRad = Math.atan2(Math.sin(dLon) * cosLat2, Math.cos(lat1) *
+			Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(dLon));
 
 		return (azRad + TWOPI) % TWOPI;
 	}
@@ -531,8 +531,8 @@ public final class LocationUtils {
 
 		double lat2 = Math.asin(sinLat1 * cosD + cosLat1 * sinD * Math.cos(az));
 
-		double lon2 = lon
-			+ Math.atan2(Math.sin(az) * sinD * cosLat1,
+		double lon2 = lon +
+			Math.atan2(Math.sin(az) * sinD * cosLat1,
 				cosD - sinLat1 * Math.sin(lat2));
 
 		return new Location(lat2 * TO_DEG, lon2 * TO_DEG, depth + dV);
@@ -556,6 +556,23 @@ public final class LocationUtils {
 			p2), vertDistance(p1, p2));
 
 		return v;
+	}
+
+	/**
+	 * Method returns a unit {@code LocationVector} that bisects the angle
+	 * defined by the line segments <span style="text-decoration: overline">
+	 * {@code p2p1}</span> and <span style="text-decoration: overline">
+	 * {@code p2p3}</span>.
+	 * @param p1 the first <code>Location</code> point
+	 * @param p2 the second <code>Location</code> point
+	 * @param p3 the third <code>Location</code> point
+	 * @return the bisecting <code>LocationVector</code>
+	 */
+	public static LocationVector bisect(Location p1, Location p2, Location p3) {
+		LocationVector v1 = vector(p2, p1);
+		LocationVector v2 = vector(p2, p3);
+		double az = (v2.getAzimuth() + v1.getAzimuth()) / 2;
+		return new LocationVector(az, 1, 0);
 	}
 
 	/**
@@ -601,11 +618,12 @@ public final class LocationUtils {
 	}
 
 	/**
-	 * Calculates the minimum latitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * Calculates the minimum latitude in the supplied <code>Collection</code>
+	 * of <code>Location</code> objects.
 	 * 
 	 * @param locs - collection of locations
-	 * @return the minimum latitude in the supplied locations, or positive infinity if the <code>Collection</code>
-	 * is empty.
+	 * @return the minimum latitude in the supplied locations, or positive
+	 *         infinity if the <code>Collection</code> is empty.
 	 * @throws NullPointerException if <code>locs</code> is null
 	 */
 	public static double calcMinLat(Collection<Location> locs) {
@@ -618,11 +636,12 @@ public final class LocationUtils {
 	}
 
 	/**
-	 * Calculates the minimum longitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * Calculates the minimum longitude in the supplied <code>Collection</code>
+	 * of <code>Location</code> objects.
 	 * 
 	 * @param locs - collection of locations
-	 * @return the minimum longitude in the supplied locations, or positive infinity if the <code>Collection</code>
-	 * is empty.
+	 * @return the minimum longitude in the supplied locations, or positive
+	 *         infinity if the <code>Collection</code> is empty.
 	 * @throws NullPointerException if <code>locs</code> is null
 	 */
 	public static double calcMinLon(Collection<Location> locs) {
@@ -635,11 +654,12 @@ public final class LocationUtils {
 	}
 
 	/**
-	 * Calculates the maximum latitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * Calculates the maximum latitude in the supplied <code>Collection</code>
+	 * of <code>Location</code> objects.
 	 * 
 	 * @param locs - collection of locations
-	 * @return the maximum latitude in the supplied locations, or negative infinity if the <code>Collection</code>
-	 * is empty.
+	 * @return the maximum latitude in the supplied locations, or negative
+	 *         infinity if the <code>Collection</code> is empty.
 	 * @throws NullPointerException if <code>locs</code> is null
 	 */
 	public static double calcMaxLat(Collection<Location> locs) {
@@ -652,11 +672,12 @@ public final class LocationUtils {
 	}
 
 	/**
-	 * Calculates the maximum longitude in the supplied <code>Collection</code> of <code>Location</code> objects.
+	 * Calculates the maximum longitude in the supplied <code>Collection</code>
+	 * of <code>Location</code> objects.
 	 * 
 	 * @param locs - collection of locations
-	 * @return the maximum longitude in the supplied locations, or negative infinity if the <code>Collection</code>
-	 * is empty.
+	 * @return the maximum longitude in the supplied locations, or negative
+	 *         infinity if the <code>Collection</code> is empty.
 	 * @throws NullPointerException if <code>locs</code> is null
 	 */
 	public static double calcMaxLon(Collection<Location> locs) {
