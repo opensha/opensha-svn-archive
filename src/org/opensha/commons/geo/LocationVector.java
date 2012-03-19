@@ -95,6 +95,15 @@ public class LocationVector {
 	}
 
 	/**
+	 * Reverses the azimuth (to 'back-azimuth') and flips the sign of the
+	 * vertical component of this <code>LocationVector</code>.
+	 */
+	public void reverse() {
+		azimuth = (azimuth + 180) % 360;
+		vertical = -vertical;
+	}
+
+	/**
 	 * Returns the azimuth of this <code>LocationVector</code> in decimal
 	 * degrees.
 	 * @return the azimuth value in decimal degrees

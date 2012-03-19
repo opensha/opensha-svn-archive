@@ -369,6 +369,16 @@ public class LocationUtilsTest {
 		assertEquals(  0, vector(L2,L3).getVertDistance(), 0);
 		assertEquals(-10, vector(L4,L2).getVertDistance(), 0);
 		assertEquals(-10, vector(L4,L3).getVertDistance(), 0);
+		
+		// reverse tests
+		Location L1 = new Location(20.0, 20.0, 0);
+		Location L2 = new Location(20.1, 20.1, 2);
+		LocationVector v = vector(L1,L2);
+		double az = v.getAzimuth();
+		double dv = v.getVertDistance();
+		v.reverse();
+		assertEquals((az + 180) % 360, v.getAzimuth(), 0);
+		assertEquals(-dv, v.getVertDistance(), 0);
 	}
 	
 	@Test
