@@ -54,7 +54,7 @@ import cern.colt.matrix.tdouble.impl.SparseCCDoubleMatrix2D;
 
 public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	
 	public static final String XML_METADATA_NAME= "ThreadedSimulatedAnnealing";
 	
@@ -856,7 +856,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		// this chops off any huge energy values in the first 5% of the run so that the plots
 		// are readable at the energy levels that are actually interesting
-		double energyPlotMax = energyVsIters[1].getY(0)*1.2;
+		double energyAter5percent = energyVsIters[1].getY((int)((energyVsIters[1].getNum()-1d)*0.05 + 0.5));
+		double energyPlotMax = energyAter5percent*1.2;
 		double energyPlotMin = 0;
 		double timeMin = 0, itersMin = 0;
 		double timeMax = energyVsTime[0].getMaxX()*1.1, iterMax = energyVsIters[0].getMaxX();
@@ -893,18 +894,18 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		// normalized plot
 		getNormalized(prefix, energyVsIters, perturbsVsIters, energies,
 				perturbs, iters, iterationsLabel, gp, normChars,
-				0, "_normalized.png");
+				0, "_normalized.png", energyAter5percent);
 		
 		// zoomed normalized plots
 		int middle = (iters.size()-1)/2;
 		getNormalized(prefix, energyVsIters, perturbsVsIters, energies,
 				perturbs, iters, iterationsLabel, gp, normChars,
-				middle, "_normalized_zoomed_50.png");
+				middle, "_normalized_zoomed_50.png", energyAter5percent);
 
 		int end = (int)((iters.size()-1) * 0.75d+0.5);
 		getNormalized(prefix, energyVsIters, perturbsVsIters, energies,
 				perturbs, iters, iterationsLabel, gp, normChars,
-				end, "_normalized_zoomed_75.png");
+				end, "_normalized_zoomed_75.png", energyAter5percent);
 	}
 	
 	public static ArrayList<PlotCurveCharacterstics> getEnergyBreakdownChars() {
@@ -922,12 +923,11 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			ArrayList<double[]> energies, ArrayList<Long> perturbs,
 			ArrayList<Long> iters, String iterationsLabel,
 			HeadlessGraphPanel gp,
-			ArrayList<PlotCurveCharacterstics> normChars, int startPoint, String suffix)
+			ArrayList<PlotCurveCharacterstics> normChars, int startPoint, String suffix,
+			double maxEnergy)
 			throws IOException {
-		double maxEnergy;
 		ArbitrarilyDiscretizedFunc normPerturbs;
 		ArrayList<ArbitrarilyDiscretizedFunc> normalizedFuncs = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		maxEnergy = energies.get(startPoint)[0];
 		for (int i=0; i<energyVsIters.length; i++) {
 			ArbitrarilyDiscretizedFunc norm = new ArbitrarilyDiscretizedFunc();
 			ArbitrarilyDiscretizedFunc energyFunc = energyVsIters[i];
@@ -952,7 +952,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			long endIter = iters.get(iters.size()-1);
 			title += " (Iterations "+startIter+" => "+endIter+")";
 		}
-		gp.drawGraphPanel(iterationsLabel, "Normalized", normalizedFuncs, normChars, false,
+		double minX = normalizedFuncs.get(0).getMinX();
+		double maxX = normalizedFuncs.get(0).getMaxX()*1.05;
+		double minY = 0;
+		double maxY = 1.15;
+		gp.setUserBounds(minX, maxX, minY, maxY);
+		gp.drawGraphPanel(iterationsLabel, "Normalized", normalizedFuncs, normChars, true,
 				title);
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+suffix).getAbsolutePath(),

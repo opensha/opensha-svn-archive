@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
@@ -130,6 +131,29 @@ public class LogicTreePBSWriter {
 		}
 		public abstract int getPPN(LogicTreeBranch branch);
 	}
+	
+	private static ArrayList<String[]> buildVariationBranches(List<String[]> variations, String[] curVariation) {
+		if (curVariation == null)
+			curVariation = new String[variations.size()];
+		int ind = curVariation.length - variations.size();
+		List<String[]> nextVars;
+		if (variations.size() > 1)
+			nextVars = variations.subList(1, variations.size());
+		else
+			nextVars = null;
+		ArrayList<String[]> retVal = new ArrayList<String[]>();
+		
+		for (String var : variations.get(0)) {
+			String[] branch = Arrays.copyOf(curVariation, curVariation.length);
+			branch[ind] = var;
+			if (nextVars == null)
+				retVal.add(branch);
+			else
+				retVal.addAll(buildVariationBranches(nextVars, branch));
+		}
+		
+		return retVal;
+	}
 
 	/**
 	 * @param args
@@ -137,7 +161,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "rup-set-test";
+		String runName = "hybrid-mfds";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -150,18 +174,19 @@ public class LogicTreePBSWriter {
 
 		int numRuns = 1;
 
-		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
+		FaultModels[] faultModels = { FaultModels.FM3_1 };
+//		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
 
 		// if null, all that are applicable to each fault model will be used
-		DeformationModels[] defModels = null;
-		//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+//		DeformationModels[] defModels = null;
+		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 
-		InversionModels[] inversionModels = InversionModels.values();
-		//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
-		//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-		//		InversionModels[] inversionModels =  { InversionModels.CHAR };
-		//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
-		//		InversionModels[] inversionModels =  { InversionModels.GR };
+//		InversionModels[] inversionModels = InversionModels.values();
+//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
+//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
+		InversionModels[] inversionModels =  { InversionModels.CHAR };
+//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
+//		InversionModels[] inversionModels =  { InversionModels.GR };
 
 		//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
 		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
@@ -175,10 +200,17 @@ public class LogicTreePBSWriter {
 		//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
-		//		String[] variations = { "MomRed_100", "MomRed_090", "MomRed_080", "MomRed_070",
-		//				"MomRed_060", "MomRed_050", "MomRed_040", "MomRed_030", "MomRed_020", "MomRed_010" };
-		String[] variations = null;
-
+		List<String[]> variations = new ArrayList<String[]>();
+//		String[] momRedVars = { "MomRed_100", "MomRed_075", "MomRed_050" };
+		String[] momRedVars = { "MomRed_100", "MomRed_075", "MomRed_050" };
+		variations.add(momRedVars);
+		String[] mfdVars = { "MFDMod_100", "MFDMod_125", "MFDMod_130", "MFDMod_135" };
+//		String[] mfdVars = { "MFDMod_100", "MFDMod_130", "MFDMod_135" };
+		variations.add(mfdVars);
+		String[] aseisVars = { "DefaultAseis_0", "DefaultAseis_0.1", "DefaultAseis_0.2" };
+//		String[] aseisVars = { "DefaultAseis_0.1", "DefaultAseis_0.2" };
+		variations.add(aseisVars);
+		
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
@@ -216,11 +248,26 @@ public class LogicTreePBSWriter {
 					defaultBranch.setInvModel(null);
 			}
 		}
-
-		if (variations == null || variations.length == 0) {
-			variations = new String[1];
-			variations[0] = null;
+		
+		ArrayList<String[]> variationBranches;
+		if (variations == null || variations.size() == 0) {
+			variationBranches = new ArrayList<String[]>();
+			variationBranches.add(new String[0]);
+		} else {
+			// loop over each variation value building a logic tree
+			variationBranches = buildVariationBranches(variations, null);
 		}
+//		for (int i=variationBranches.size(); --i >= 0 && variationBranches.size() > 1;) {
+//			int numExtremes = 0;
+//			String[] branch = variationBranches.get(i);
+//			for (int j=0; j<branch.length; j++) {
+//				String[] choices = variations.get(j);
+//				if (branch[j].equals(choices[choices.length-1]))
+//					numExtremes++;
+//			}
+//			if (numExtremes >= 2)
+//				variationBranches.remove(i);
+//		}
 
 		File writeDir;
 		if (args.length > 0)
@@ -265,7 +312,7 @@ public class LogicTreePBSWriter {
 				for (MagAreaRelationships ma : magAreas) {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
 						for (AveSlipForRupModels as : aveSlipModels) {
-							for (String variation : variations) {
+							for (String[] variationBranch : variationBranches) {
 								for (InversionModels im : inversionModels) {
 									LogicTreeBranch branch = new LogicTreeBranch(fm, dm, ma, as, sal, im);
 									if (defaultBranches != null && defaultBranches.length > 0) {
@@ -278,10 +325,8 @@ public class LogicTreePBSWriter {
 										if (closest > maxAway.get(im))
 											continue;
 									}
-
 									String name = branch.buildFileName();
-
-									if (variation != null)
+									for (String variation : variationBranch)
 										name += "_Var"+variation;
 
 									int mins;
@@ -344,11 +389,9 @@ public class LogicTreePBSWriter {
 										File remoteInputs = new File(runSubDir, inputFileName);
 
 										classNames.add(CommandLineInputGenerator.class.getName());
-										String inputGenArgs;
-										if (variation == null)
-											inputGenArgs = "";
-										else
-											inputGenArgs = "--var "+variation+" ";
+										String inputGenArgs = "";
+										for (String variation : variationBranch)
+											inputGenArgs += "--var "+variation+" ";
 										inputGenArgs += remoteRupSetFile.getAbsolutePath()+" "+im.name()
 										+" "+remoteInputs.getAbsolutePath();
 										argss.add(inputGenArgs);
