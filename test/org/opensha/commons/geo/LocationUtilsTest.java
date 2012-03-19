@@ -372,6 +372,44 @@ public class LocationUtilsTest {
 	}
 	
 	@Test
+	public final void testBisect() {
+		double tol = 0.000000000001;
+		Location p1, p2, p3;
+		LocationVector p2p1, p2p3, vTest;
+
+		// general case
+		p2 = new Location(20,20);
+		p2p1 = new LocationVector(220, 100, 0);
+		p1 = LocationUtils.location(p2,  p2p1);
+		p2p3 = new LocationVector(90, 100, 0);
+		p3 = LocationUtils.location(p2,  p2p3);
+		vTest = LocationUtils.bisect(p1, p2, p3);
+		assertEquals(155, vTest.getAzimuth(), tol);
+		
+		// 4th quadrant 270-360
+		p2p1 = new LocationVector(320, 100, 0);
+		p1 = LocationUtils.location(p2,  p2p1);
+		p2p3 = new LocationVector(20, 100, 0);
+		p3 = LocationUtils.location(p2,  p2p3);
+		vTest = LocationUtils.bisect(p1, p2, p3);
+		assertEquals(170, vTest.getAzimuth(), tol);
+
+		// p1 & p3 coincident
+		p2p1 = new LocationVector(90, 100, 0);
+		p1 = LocationUtils.location(p2,  p2p1);
+		p2p3 = new LocationVector(90, 100, 0);
+		p3 = LocationUtils.location(p2,  p2p3);
+		vTest = LocationUtils.bisect(p1, p2, p3);
+		assertEquals(90, vTest.getAzimuth(), tol);
+
+		// p1, p2, & p3 coincident
+		p1 = p2.clone();
+		p3 = p2.clone();
+		vTest = LocationUtils.bisect(p1, p2, p3);
+		assertEquals(0, vTest.getAzimuth(), tol);
+	}
+	
+	@Test
 	public final void testIsPole() {
 		Location sp = new Location(-89.999999999999, 0);
 		Location np = new Location( 89.999999999999, 0);
