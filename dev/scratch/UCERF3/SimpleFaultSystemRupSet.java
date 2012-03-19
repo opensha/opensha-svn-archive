@@ -363,6 +363,10 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		return info;
 	}
 	
+	public void setInfoString(String info) {
+		this.info = info;
+	}
+	
 	@Override
 	public List<Integer> getCloseSectionsList(int sectIndex) {
 		if (closeSections == null)

@@ -402,35 +402,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			sa.setEqualityRangeEnds(rangeEndRows);
 	}
 	
-	protected static Options createOptions() {
+	public static Options createOptionsNoInputs() {
 		Options ops = SerialSimulatedAnnealing.createOptions();
-		
-		// REQUIRED
-		// inputs can now be supplied in a single zip file if needed, thus individual ones not required
-		Option aMatrix = new Option("a", "a-matrix-file", true, "A matrix file");
-		aMatrix.setRequired(false);
-		ops.addOption(aMatrix);
-		
-		Option dMatrix = new Option("d", "d-matrix-file", true, "D matrix file");
-		dMatrix.setRequired(false);
-		ops.addOption(dMatrix);
-		
-		Option a_MFDMatrix = new Option("aineq", "a-ineq-matrix-file", true, "A inequality matrix file");
-		a_MFDMatrix.setRequired(false);
-		ops.addOption(a_MFDMatrix);
-		
-		Option d_MFDMatrix = new Option("dineq", "d-ineq-matrix-file", true, "D inequality matrix file");
-		d_MFDMatrix.setRequired(false);
-		ops.addOption(d_MFDMatrix);
-		
-		Option minimumRates = new Option("minrates", "minimum-rates-file", true, "minimum rates files to apply solution after annealing");
-		minimumRates.setRequired(false);
-		ops.addOption(minimumRates);
-		
-		Option zipInputs = new Option("zip", "zip-file", true, "Zip file containing all inputs. " +
-				"File names must be a.bin, d.bin, and optionally: initial.bin, a_ineq.bin, d_ineq.bin, minimumRuptureRates.bin, metadata.txt");
-		zipInputs.setRequired(false);
-		ops.addOption(zipInputs);
 		
 		Option subOption = new Option("s", "sub-completion", true, "number of sub iterations. Optionally, append 's'" +
 		" to specify in seconds or 'm' to specify in minutes instead of iterations.");
@@ -443,7 +416,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		ops.addOption(numThreadsOption);
 		
 		Option solutionFileOption = new Option("sol", "solution-file", true, "file to store solution");
-		solutionFileOption.setRequired(true);
+		solutionFileOption.setRequired(false);
 		ops.addOption(solutionFileOption);
 		
 		// Completion Criteria
@@ -499,6 +472,39 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		return ops;
 	}
 	
+	public static Options createOptions() {
+		Options ops = createOptionsNoInputs();
+		
+		// REQUIRED
+		// inputs can now be supplied in a single zip file if needed, thus individual ones not required
+		Option aMatrix = new Option("a", "a-matrix-file", true, "A matrix file");
+		aMatrix.setRequired(false);
+		ops.addOption(aMatrix);
+		
+		Option dMatrix = new Option("d", "d-matrix-file", true, "D matrix file");
+		dMatrix.setRequired(false);
+		ops.addOption(dMatrix);
+		
+		Option a_MFDMatrix = new Option("aineq", "a-ineq-matrix-file", true, "A inequality matrix file");
+		a_MFDMatrix.setRequired(false);
+		ops.addOption(a_MFDMatrix);
+		
+		Option d_MFDMatrix = new Option("dineq", "d-ineq-matrix-file", true, "D inequality matrix file");
+		d_MFDMatrix.setRequired(false);
+		ops.addOption(d_MFDMatrix);
+		
+		Option minimumRates = new Option("minrates", "minimum-rates-file", true, "minimum rates files to apply solution after annealing");
+		minimumRates.setRequired(false);
+		ops.addOption(minimumRates);
+		
+		Option zipInputs = new Option("zip", "zip-file", true, "Zip file containing all inputs. " +
+				"File names must be a.bin, d.bin, and optionally: initial.bin, a_ineq.bin, d_ineq.bin, minimumRuptureRates.bin, metadata.txt");
+		zipInputs.setRequired(false);
+		ops.addOption(zipInputs);
+		
+		return ops;
+	}
+	
 	public static String subCompletionCriteriaToArgument(CompletionCriteria subCompletion) {
 		return subCompletionCriteriaToArgument("sub-completion", subCompletion);
 	}
@@ -540,7 +546,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			throw new UnsupportedOperationException("Can't create command line argument for: "+criteria);
 	}
 	
-	protected static CompletionCriteria parseCompletionCriteria(CommandLine cmd) {
+	public static CompletionCriteria parseCompletionCriteria(CommandLine cmd) {
 		ArrayList<CompletionCriteria> criterias = new ArrayList<CompletionCriteria>();
 		
 		if (cmd.hasOption("time")) {
@@ -610,13 +616,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		DoubleMatrix2D A_ineq = null; // can be null
 		double[] d_ineq = null; // can be null
 		double[] minimumRuptureRates = null; // can be null
-		
-		// load other weights
-		double relativeSmoothnessWt;
-		if (cmd.hasOption("smoothness"))
-			relativeSmoothnessWt = Double.parseDouble(cmd.getOptionValue("smoothness"));
-		else
-			relativeSmoothnessWt = 0;
 		
 		List<Integer> rangeEndRows = null;
 		List<String> rangeNames = null;
@@ -692,6 +691,27 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			}
 		}
 		
+		return parseOptions(cmd, A, d, initialState, A_ineq, d_ineq, minimumRuptureRates,
+				rangeEndRows, rangeNames);
+	}
+	
+	public static ThreadedSimulatedAnnealing parseOptions(CommandLine cmd,
+			DoubleMatrix2D A,
+			double[] d,
+			double[] initialState,
+			DoubleMatrix2D A_ineq,
+			double[] d_ineq,
+			double[] minimumRuptureRates,
+			List<Integer> rangeEndRows,
+			List<String> rangeNames) throws IOException {
+		
+		// load other weights
+		double relativeSmoothnessWt;
+		if (cmd.hasOption("smoothness"))
+			relativeSmoothnessWt = Double.parseDouble(cmd.getOptionValue("smoothness"));
+		else
+			relativeSmoothnessWt = 0;
+		
 		if (initialState ==  null)
 			// if we still don't have an initial state, use all zeros
 			initialState = new double[A.columns()];
@@ -737,7 +757,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		System.exit(2);
 	}
 	
-	protected void writeBestSolution(File outputFile) throws IOException {
+	public void writeBestSolution(File outputFile) throws IOException {
 		double[] solution = getBestSolution();
 		if (minimumRuptureRates != null) {
 			String outputFilePath = outputFile.getAbsolutePath();
@@ -945,26 +965,25 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			writeProgressPlots((ProgressTrackingCompletionCriteria)criteria, prefix);
 	}
 	
-	public void writeMetadata(File file, String[] args, CompletionCriteria criteria) throws IOException {
-		FileWriter fw = new FileWriter(file);
-		
-		fw.write("Distributed Simulated Annealing run completed on "
+	public String getMetadata(String[] args, CompletionCriteria criteria) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Distributed Simulated Annealing run completed on "
 				+new SimpleDateFormat().format(new Date())+"\n");
-		fw.write(""+"\n");
+		builder.append(""+"\n");
 		String argsStr = "";
 		for (String arg : args)
 			argsStr += " "+arg;
-		fw.write("Arguments:"+argsStr+"\n");
-		fw.write("Completion Criteria: "+criteria+"\n");
-		fw.write("Threads per node: "+getNumThreads()+"\n");
-		fw.write(""+"\n");
-		fw.write("Solution size: "+getBestSolution().length+"\n");
+		builder.append("Arguments:"+argsStr+"\n");
+		builder.append("Completion Criteria: "+criteria+"\n");
+		builder.append("Threads per node: "+getNumThreads()+"\n");
+		builder.append(""+"\n");
+		builder.append("Solution size: "+getBestSolution().length+"\n");
 		double[] e = getBestEnergy();
-		fw.write("Best energy: "+Doubles.join(", ", e)+"\n");
+		builder.append("Best energy: "+Doubles.join(", ", e)+"\n");
 		if (rangeNames != null) {
-			fw.write("Energy type breakdown\n");
+			builder.append("Energy type breakdown\n");
 			for (int i=4; i<e.length && (i-4)<rangeNames.size(); i++) {
-				fw.write("\t"+rangeNames.get(i-4)+" energy: "+e[i]+"\n");
+				builder.append("\t"+rangeNames.get(i-4)+" energy: "+e[i]+"\n");
 			}
 		}
 		if (criteria instanceof ProgressTrackingCompletionCriteria) {
@@ -972,13 +991,21 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			int numSteps = track.getTimes().size();
 			long millis = track.getTimes().get(numSteps-1);
 			double totMins = millis / 1000d / 60d;
-			fw.write("Total time: "+totMins+" mins\n");
+			builder.append("Total time: "+totMins+" mins\n");
 			long iters = track.getIterations().get(numSteps-1);
 			long perturbs = track.getPerturbs().get(numSteps-1);
-			fw.write("Total iterations: "+iters+"\n");
+			builder.append("Total iterations: "+iters+"\n");
 			float pertPercent = (float)(((double)perturbs / (double)iters) * 100d);
-			fw.write("Total perturbations: "+perturbs+" ("+pertPercent+" %)\n");
+			builder.append("Total perturbations: "+perturbs+" ("+pertPercent+" %)\n");
 		}
+		
+		return builder.toString();
+	}
+	
+	public void writeMetadata(File file, String[] args, CompletionCriteria criteria) throws IOException {
+		FileWriter fw = new FileWriter(file);
+		
+		fw.write(getMetadata(args, criteria).toString());
 		
 		fw.close();
 	}

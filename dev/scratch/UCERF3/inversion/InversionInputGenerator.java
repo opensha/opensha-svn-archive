@@ -813,6 +813,10 @@ public class InversionInputGenerator {
 		return rupSet;
 	}
 
+	public void setRupSet(FaultSystemRupSet rupSet) {
+		this.rupSet = rupSet;
+	}
+
 	public InversionConfiguration getConfig() {
 		return config;
 	}

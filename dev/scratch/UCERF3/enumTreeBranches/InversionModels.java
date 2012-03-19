@@ -31,8 +31,8 @@ public enum InversionModels implements ShortNamed {
 	public static InversionModels getTypeForName(String name) {
 		if (name == null) throw new NullPointerException();
 		for (InversionModels inv:InversionModels.values()) {
-			if (inv.name.equals(name) || inv.name().equals(name)) return inv;
+			if (inv.name.equals(name) || inv.name().equals(name) || inv.shortName.equals(name)) return inv;
 		}
-		throw new IllegalArgumentException("InversionModelBranches name does not exist");
+		throw new IllegalArgumentException("InversionModels name does not exist");
 	}
 }

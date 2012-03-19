@@ -24,23 +24,11 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 public class CommandLineInputGenerator {
 	
 	public static void main(String[] args) {
-		double fractMomentOffFaultModifier = 1;
-		double mfdConstraintModifier = 1;
 		double defaultAsesisValue = 0;
 		while (args.length > 2 && args[0].equals("--var")) {
 			String variation = args[1];
 			
-			if (variation.startsWith("MomRed_")) {
-				String amtStr = variation.substring(variation.indexOf("_")+1);
-				fractMomentOffFaultModifier = Double.parseDouble(amtStr) / 100d;
-				System.out.println("Setting fraction moment off faults modifier to: "
-						+fractMomentOffFaultModifier);
-			} else if (variation.startsWith("MFDMod_")) {
-				String amtStr = variation.substring(variation.indexOf("_")+1);
-				mfdConstraintModifier = Double.parseDouble(amtStr) / 100d;
-				System.out.println("Setting MFD constraint modifier to: "
-						+mfdConstraintModifier);
-			} else if (variation.startsWith("DefaultAseis_")) {
+			if (variation.startsWith("DefaultAseis_")) {
 				String amtStr = variation.substring(variation.indexOf("_")+1);
 				defaultAsesisValue = Double.parseDouble(amtStr);
 				System.out.println("Setting default aseis value to: "
@@ -79,8 +67,7 @@ public class CommandLineInputGenerator {
 			}
 			
 			InversionModels model = InversionModels.getTypeForName(args[1]);
-			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet,
-					fractMomentOffFaultModifier, mfdConstraintModifier);
+			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet);
 			
 			List<PaleoRateConstraint> paleoRateConstraints =
 					UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());

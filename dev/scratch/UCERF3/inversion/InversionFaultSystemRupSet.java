@@ -444,6 +444,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		return infoString;
 	}
 	
+	public void setInfoString(String info) {
+		this.infoString = info;
+	}
+	
 	/**
 	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
 	 * because of the moment rate reduction (e.g., for smaller events).

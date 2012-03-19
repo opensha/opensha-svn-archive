@@ -465,6 +465,8 @@ public abstract class FaultSystemRupSet {
 	 */
 	public abstract String getInfoString();
 	
+	public abstract void setInfoString(String info);
+	
 	/**
 	 * This fetches a list of all of the close sections to this section, as defined by the rupture set.
 	 * @param sectIndex index of the section to retrieve

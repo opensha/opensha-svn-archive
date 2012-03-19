@@ -51,15 +51,15 @@ public class LogicTreePBSWriter {
 		jars.add(new File(runSite.RUN_DIR, "csparsej.jar"));
 		return jars;
 	}
-	
+
 	public enum RunSites {
 		EPICENTER("/home/epicenter/kmilner/inversions", EpicenterScriptWriter.JAVA_BIN,
-				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
+		"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				InversionModels im = branch.getInvModel();
 				Preconditions.checkState(im != InversionModels.GR,
-						"are you kidding me? we can't run GR on epicenter!");
+				"are you kidding me? we can't run GR on epicenter!");
 				return new EpicenterScriptWriter();
 			}
 
@@ -74,7 +74,7 @@ public class LogicTreePBSWriter {
 			}
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
-				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
+		"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch.getInvModel() == InversionModels.GR)
@@ -112,17 +112,17 @@ public class LogicTreePBSWriter {
 				return 16;
 			}
 		};
-		
+
 		private File RUN_DIR;
 		private File JAVA_BIN;
 		private String FM_STORE;
-		
+
 		private RunSites(String path, File javaBin, String fmStore) {
 			RUN_DIR = new File(path);
 			JAVA_BIN = javaBin;
 			FM_STORE = fmStore;
 		}
-		
+
 		public abstract BatchScriptWriter forBranch(LogicTreeBranch branch);
 		public abstract int getMaxHeapSizeMB(LogicTreeBranch branch);
 		public int getInitialHeapSizeMB(LogicTreeBranch branch) {
@@ -142,10 +142,10 @@ public class LogicTreePBSWriter {
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
 		boolean buildRupSets = true;
-//		runName = "2012_03_02-weekend-converg-test";
-		
-//		RunSites site = RunSites.RANGER;
-//		RunSites site = RunSites.EPICENTER;
+		//		runName = "2012_03_02-weekend-converg-test";
+
+		//		RunSites site = RunSites.RANGER;
+		//		RunSites site = RunSites.EPICENTER;
 		RunSites site = RunSites.HPCC;
 
 		int numRuns = 1;
@@ -154,45 +154,45 @@ public class LogicTreePBSWriter {
 
 		// if null, all that are applicable to each fault model will be used
 		DeformationModels[] defModels = null;
-//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+		//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 
 		InversionModels[] inversionModels = InversionModels.values();
-//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
-//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-//		InversionModels[] inversionModels =  { InversionModels.CHAR };
-//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
-//		InversionModels[] inversionModels =  { InversionModels.GR };
+		//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
+		//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
+		//		InversionModels[] inversionModels =  { InversionModels.CHAR };
+		//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
+		//		InversionModels[] inversionModels =  { InversionModels.GR };
 
-//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
+		//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
 		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
-//				SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
-//						SlipAlongRuptureModels.UNIFORM };
+		//				SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
+		//						SlipAlongRuptureModels.UNIFORM };
 		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
 
 		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
-//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
-		
+		//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
+
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
-//		String[] variations = { "MomRed_100", "MomRed_090", "MomRed_080", "MomRed_070",
-//				"MomRed_060", "MomRed_050", "MomRed_040", "MomRed_030", "MomRed_020", "MomRed_010" };
+		//		String[] variations = { "MomRed_100", "MomRed_090", "MomRed_080", "MomRed_070",
+		//				"MomRed_060", "MomRed_050", "MomRed_040", "MomRed_030", "MomRed_020", "MomRed_010" };
 		String[] variations = null;
-		
+
 		// do all branch choices relative to these:
-//		Branch defaultBranch = null;
+		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
 		maxAway.put(InversionModels.CHAR, 1);
 		maxAway.put(InversionModels.GR, 1);
 		maxAway.put(InversionModels.UNCONSTRAINED, 1);
 		LogicTreeBranch[] defaultBranches = {
-				new LogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
-								AveSlipForRupModels.ELLSWORTH_B, null, null),
-//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
-//								AveSlipForRupModels.ELLSWORTH_B, null, null),
-//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
-//								AveSlipForRupModels.ELLSWORTH_B, null, null)
-				};
+				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null),
+						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
+						//								AveSlipForRupModels.ELLSWORTH_B, null, null),
+						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+						//								AveSlipForRupModels.ELLSWORTH_B, null, null)
+		};
 		if (defaultBranches != null) {
 			// make sure all default branch choices are valid!
 			for (LogicTreeBranch defaultBranch : defaultBranches) {
@@ -216,7 +216,7 @@ public class LogicTreePBSWriter {
 					defaultBranch.setInvModel(null);
 			}
 		}
-		
+
 		if (variations == null || variations.length == 0) {
 			variations = new String[1];
 			variations[0] = null;
@@ -252,7 +252,7 @@ public class LogicTreePBSWriter {
 
 		double nodeHours = 0;
 		int cnt = 0;
-		
+
 		PaleoProbabilityModel paleoProbabilityModel = PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
 
 		for (FaultModels fm : faultModels) {
@@ -265,7 +265,6 @@ public class LogicTreePBSWriter {
 				for (MagAreaRelationships ma : magAreas) {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
 						for (AveSlipForRupModels as : aveSlipModels) {
-
 							for (String variation : variations) {
 								for (InversionModels im : inversionModels) {
 									LogicTreeBranch branch = new LogicTreeBranch(fm, dm, ma, as, sal, im);
@@ -279,29 +278,27 @@ public class LogicTreePBSWriter {
 										if (closest > maxAway.get(im))
 											continue;
 									}
-									
-									String name = fm.getShortName()+"_"+dm.getShortName()
-											+"_Ma"+ma.getShortName()+"_Dsr"+sal.getShortName()+"_Dr"+as.getShortName()
-											+"_"+im.getShortName();
-									
+
+									String name = branch.buildFileName();
+
 									if (variation != null)
 										name += "_Var"+variation;
-									
+
 									int mins;
 									NonnegativityConstraintType nonNeg;
-									
+
 									BatchScriptWriter batch = site.forBranch(branch);
 									TimeCompletionCriteria checkPointCritera;
 									if (im == InversionModels.GR) {
 										mins = 500;
 										nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
 										batch = site.forBranch(branch);
-//										checkPointCritera = TimeCompletionCriteria.getInHours(2);
+										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
 										checkPointCritera = null;
 									} else if (im == InversionModels.CHAR) {
 										mins = 500; // TODO ?
 										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-//										checkPointCritera = TimeCompletionCriteria.getInHours(2);
+										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
 										checkPointCritera = null;
 									} else { // UNCONSTRAINED
 										mins = 60;
@@ -320,10 +317,10 @@ public class LogicTreePBSWriter {
 										String jobName = name;
 										if (numRuns > 1)
 											jobName += "_run"+r;
-										
+
 										File localRupSetFile = new File(writeDir, name+"_rupSet.zip");
 										File remoteRupSetFile = new File(runSubDir, name+"_rupSet.zip");
-										
+
 										if (buildRupSets && !localRupSetFile.exists()) {
 											SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
 													InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal, im));
@@ -336,16 +333,16 @@ public class LogicTreePBSWriter {
 
 										File pbs = new File(writeDir, jobName+".pbs");
 										System.out.println("Writing: "+pbs.getName());
-										
+
 										ArrayList<String> classNames = new ArrayList<String>();
 										ArrayList<String> argss = new ArrayList<String>();
-										
+
 										int jobMins = mins+30;
-										
+
 										// input gen
 										String inputFileName = jobName+"_inputs.zip";
 										File remoteInputs = new File(runSubDir, inputFileName);
-										
+
 										classNames.add(CommandLineInputGenerator.class.getName());
 										String inputGenArgs;
 										if (variation == null)
@@ -353,11 +350,11 @@ public class LogicTreePBSWriter {
 										else
 											inputGenArgs = "--var "+variation+" ";
 										inputGenArgs += remoteRupSetFile.getAbsolutePath()+" "+im.name()
-												+" "+remoteInputs.getAbsolutePath();
+										+" "+remoteInputs.getAbsolutePath();
 										argss.add(inputGenArgs);
 										jobMins += 30;
 										tsa_create.setZipFile(remoteInputs);
-										
+
 										classNames.add(tsa_create.getClassName());
 										argss.add(tsa_create.getArgs());
 

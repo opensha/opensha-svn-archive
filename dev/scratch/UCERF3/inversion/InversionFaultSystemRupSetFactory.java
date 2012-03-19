@@ -16,6 +16,7 @@ import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -64,7 +65,7 @@ public class InversionFaultSystemRupSetFactory {
 	 */
 	public static FaultSystemRupSet cachedForBranch(DeformationModels deformationModel, boolean forceRebuild) throws IOException {
 		return cachedForBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel,
-				InversionModels.CHAR, forceRebuild);
+				LogicTreeBranch.DEFAULT.getInvModel(), forceRebuild);
 	}
 
 	
@@ -148,7 +149,7 @@ public class InversionFaultSystemRupSetFactory {
 	public static InversionFaultSystemRupSet forBranch(
 			FaultModels faultModel,
 			DeformationModels deformationModel) {
-		return forBranch(faultModel, deformationModel, InversionModels.CHAR);
+		return forBranch(faultModel, deformationModel, LogicTreeBranch.DEFAULT.getInvModel());
 	}
 	
 	/**
@@ -164,8 +165,8 @@ public class InversionFaultSystemRupSetFactory {
 			FaultModels faultModel,
 			DeformationModels deformationModel,
 			InversionModels inversionModel) {
-		return forBranch(faultModel, deformationModel, MagAreaRelationships.ELL_B,
-				AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, inversionModel);
+		return forBranch(faultModel, deformationModel, LogicTreeBranch.DEFAULT.getMagArea(),
+				LogicTreeBranch.DEFAULT.getAveSlip(), LogicTreeBranch.DEFAULT.getSlipAlong(), inversionModel);
 	}
 	
 	/**
@@ -211,7 +212,7 @@ public class InversionFaultSystemRupSetFactory {
 			InversionModels inversionModel,
 			LaughTestFilter laughTest) {
 		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
-				slipAlongModel, inversionModel, laughTest, 0);
+				slipAlongModel, inversionModel, laughTest, 0d);
 	}
 	
 	/**
@@ -267,6 +268,20 @@ public class InversionFaultSystemRupSetFactory {
 				clusters, deformationModel, faultSectionData, magAreaRelList,
 				inversionModel, slipAlongModel, aveSlipForRupModel);
 		System.out.println("New rup set has "+rupSet.getNumRuptures()+" ruptures.");
+		String info = rupSet.getInfoString();
+		if (info == null)
+			info = "";
+		else
+			info += "\n\n";
+		info += "\n****** Logic Tree Branch ******";
+		info += "\nFaultModel: "+faultModel.name();
+		info += "\nDeformationModel: "+deformationModel.name();
+		info += "\nMagAreaRelationship: "+magAreaRelationships.name();
+		info += "\nAveSlipForRupModel: "+aveSlipForRupModel.name();
+		info += "\nSlipAlongRuptureModel: "+slipAlongModel.name();
+		info += "\nInversionModel: "+inversionModel.name();
+		info += "\n*******************************";
+		rupSet.setInfoString(info);
 		return rupSet;
 	}
 	
@@ -282,10 +297,11 @@ public class InversionFaultSystemRupSetFactory {
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
-//			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, true);
+			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC, InversionModels.CHAR, true);
+//			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, InversionModels.CHAR, true);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
-			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
-					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault(), 0.2);
+//			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
+//					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault(), MomentReductions.INCREASE_ASEIS);
 			
 			System.out.println("Total Orig Mo Rate: "+rupSet.getTotalOrigMomentRate());
 			System.out.println("Total Reduced Mo Rate: "+rupSet.getTotalSubseismogenicReducedMomentRate());

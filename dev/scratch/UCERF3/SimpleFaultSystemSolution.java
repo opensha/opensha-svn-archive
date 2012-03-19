@@ -186,6 +186,10 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	public String getInfoString() {
 		return rupSet.getInfoString();
 	}
+	
+	public void setInfoString(String info) {
+		rupSet.setInfoString(info);
+	}
 
 	@Override
 	public double getRateForRup(int rupIndex) {

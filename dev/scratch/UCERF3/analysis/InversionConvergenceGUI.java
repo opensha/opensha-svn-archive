@@ -850,12 +850,14 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 
 		public VariableLogicTreeBranch(LogicTreeBranch branch, List<String> variations) {
 			this(branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
-					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), variations);
+					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(),
+					variations);
 		}
 		
 		public VariableLogicTreeBranch(FaultModels fm, DeformationModels dm,
 				MagAreaRelationships ma, AveSlipForRupModels as,
-				SlipAlongRuptureModels sal, InversionModels im, List<String> variations) {
+				SlipAlongRuptureModels sal, InversionModels im,
+				List<String> variations) {
 			super(fm, dm, ma, as, sal, im);
 			this.variations = variations;
 		}

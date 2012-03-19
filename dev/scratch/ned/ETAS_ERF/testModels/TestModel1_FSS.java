@@ -357,6 +357,10 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void setInfoString(String info) {
+		
+	}
 
 	/* (non-Javadoc)
 	 * @see scratch.UCERF3.FaultSystemRupSet#getMagForAllRups()

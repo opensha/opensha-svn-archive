@@ -591,6 +591,10 @@ public class RupSetValidator {
 			// TODO Auto-generated method stub
 			return null;
 		}
+		
+		public void setInfoString(String info) {
+			
+		}
 
 		@Override
 		public List<Integer> getCloseSectionsList(int sectIndex) {

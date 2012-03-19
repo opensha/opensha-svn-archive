@@ -67,7 +67,7 @@ public class InversionConfiguration {
 	private double relativeSmoothnessWt;
 	protected final static boolean D = true;  // for debugging
 	
-	
+	private String metadata;
 	
 	public InversionConfiguration(
 			boolean weightSlipRates,
@@ -85,16 +85,30 @@ public class InversionConfiguration {
 			double relativeSmoothnessWt,
 			List<MFD_InversionConstraint> mfdEqualityConstraints,
 			List<MFD_InversionConstraint> mfdInequalityConstraints,
-			double minimumRuptureRateFraction) {
+			double minimumRuptureRateFraction,
+			String metadata) {
+		if (metadata == null || metadata.isEmpty())
+			metadata = "";
+		else
+			metadata += "\n";
 		this.weightSlipRates = weightSlipRates;
+		metadata += "weightSlipRates: "+weightSlipRates;
 		this.relativePaleoRateWt = relativePaleoRateWt;
+		metadata += "\nrelativePaleoRateWt: "+relativePaleoRateWt;
 		this.relativeMagnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
+		metadata += "\nrelativeMagnitudeEqualityConstraintWt: "+relativeMagnitudeEqualityConstraintWt;
 		this.relativeMagnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
+		metadata += "\nrelativeMagnitudeInequalityConstraintWt: "+relativeMagnitudeInequalityConstraintWt;
 		this.relativeRupRateConstraintWt = relativeRupRateConstraintWt;
+		metadata += "\nrelativeRupRateConstraintWt: "+relativeRupRateConstraintWt;
 		this.relativeParticipationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
+		metadata += "\nrelativeParticipationSmoothnessConstraintWt: "+relativeParticipationSmoothnessConstraintWt;
 		this.participationConstraintMagBinSize = participationConstraintMagBinSize;
+		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
 		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
+		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
 		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
+		metadata += "\nrelativeMomentConstraintWt: "+relativeMomentConstraintWt;
 		this.aPrioriRupConstraint = aPrioriRupConstraint;
 		this.initialRupModel = initialRupModel;
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
@@ -102,7 +116,13 @@ public class InversionConfiguration {
 		this.mfdEqualityConstraints = mfdEqualityConstraints;
 		this.mfdInequalityConstraints = mfdInequalityConstraints;
 		this.minimumRuptureRateFraction = minimumRuptureRateFraction;
+		metadata += "\nminimumRuptureRateFraction: "+minimumRuptureRateFraction;
+		
+		this.metadata = metadata;
 	}
+	
+	public static final double DEFAULT_MFD_EQUALITY_WT = 10;
+	public static final double DEFAULT_MFD_INEQUALITY_WT = 1000;
 	
 	/**
 	 * This generates an inversion configuration for the given inversion model and rupture set
@@ -112,7 +132,12 @@ public class InversionConfiguration {
 	 * @return
 	 */
 	public static InversionConfiguration forModel(InversionModels model, FaultSystemRupSet rupSet) {
-		return forModel(model, rupSet, 1d, 1d);
+		double offFaultAseisFactor = 0;
+		double mfdConstraintModifier = 1;
+		double mfdEqualityConstraintWt = DEFAULT_MFD_EQUALITY_WT;
+		double mfdInequalityConstraintWt = DEFAULT_MFD_INEQUALITY_WT;
+		
+		return forModel(model, rupSet, offFaultAseisFactor, mfdConstraintModifier, mfdEqualityConstraintWt, mfdInequalityConstraintWt);
 	}
 	
 	/**
@@ -120,14 +145,18 @@ public class InversionConfiguration {
 	 * 
 	 * @param model
 	 * @param rupSet
-	 * @param fractMomentOffFaultModifier 1 for no modification, 0.75 for 25% reduction, 0.5 for 50%
-	 * reduction, etc in fraction moment off fault
-	 * @param mfdConstraintModifier 1 for no modification, 1.3 for a 30 % increase, etc for the MFD
-	 * constraint values.
+	 * @param offFaultAseisFactor aseismicity factor for off fault seismicity (affects off fault moment rate)
+	 * @param mfdConstraintModifier multiplier for the a value of the MFD constraint.
+	 * 1 for no modification, 1.3 for a 30 % increase, etc for the MFD constraint values.
+	 * @param mfdEqualityConstraintWt weight of magnitude-distribution EQUALITY constraint relative to
+	 * slip-rate constraint (recommended: 10)
+	 * @param mfdInequalityConstraintWt weight of magnitude-distribution INEQUALITY constraint relative
+	 * to slip-rate constraint (recommended:  1000)
 	 * @return
 	 */
 	public static InversionConfiguration forModel(InversionModels model, FaultSystemRupSet rupSet,
-			double fractMomentOffFaultModifier, double mfdConstraintModifier) {
+			double offFaultAseisFactor, double mfdConstraintModifier,
+			double mfdEqualityConstraintWt, double mfdInequalityConstraintWt) {
 		/* *******************************************
 		 * COMMON TO ALL MODELS
 		 * ******************************************* */
@@ -139,10 +168,10 @@ public class InversionConfiguration {
 		double relativePaleoRateWt = 1.0;
 		
 		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended: 10)
-		double relativeMagnitudeEqualityConstraintWt = 10;
+//		double mfdEqualityConstraintWt = 10;
 		
 		// weight of magnitude-distribution INEQUALITY constraint relative to slip-rate constraint (recommended:  1000)
-		double relativeMagnitudeInequalityConstraintWt = 1000;
+//		double mfdInequalityConstraintWt = 1000;
 		
 		// magnitude-bin size for MFD participation smoothness constraint
 		double participationConstraintMagBinSize = 0.1;
@@ -156,9 +185,14 @@ public class InversionConfiguration {
 		// weight of Moment Constraint (set solution moment to equal deformation model moment) (recommended: 1e-17)
 		double relativeMomentConstraintWt = 0;
 		
+		String metadata = "";
+		metadata += "offFaultAseisFactor: "+offFaultAseisFactor;
+		metadata += "\nmfdConstraintModifier: "+mfdConstraintModifier;
+		
 		boolean ucerf3MFDs = true;
+		metadata += "\nucerf3MFDs: "+ucerf3MFDs;
 		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = null;
-		if (ucerf3MFDs)
+		if (!ucerf3MFDs)
 			ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
 		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
 		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
@@ -228,33 +262,28 @@ public class InversionConfiguration {
 		switch (model) {
 		case CHAR:
 			relativeParticipationSmoothnessConstraintWt = 0;
-			relativeRupRateConstraintWt = 1;
+			relativeRupRateConstraintWt = 100;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
 			double bilinearTransitionMag = 7.6;
-			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(bilinearTransitionMag, rupSet, fractMomentOffFaultModifier), bilinearTransitionMag);
+			metadata += "\nbilinearTransitionMag: "+bilinearTransitionMag;
+			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(bilinearTransitionMag, rupSet, offFaultAseisFactor), bilinearTransitionMag);
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
 			initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
-			if (relativeMagnitudeInequalityConstraintWt>0.0 || relativeMagnitudeEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);  
-			double MFDTransitionMag = 7.85; // magnitude to switch from MFD equality to MFD inequality
-			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints = restrictMFDConstraintMagRange(mfdConstraints, mfdConstraints.get(0).getMagFreqDist().getMinX(), MFDTransitionMag);
-			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints = restrictMFDConstraintMagRange(mfdConstraints, MFDTransitionMag, mfdConstraints.get(0).getMagFreqDist().getMaxX());
-			
+			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0));
-			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, fractMomentOffFaultModifier));
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
-			if (relativeMagnitudeInequalityConstraintWt>0.0 || relativeMagnitudeEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
-			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
-			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints=mfdConstraints;
+			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
 			break;
 		case UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
@@ -263,19 +292,31 @@ public class InversionConfiguration {
 			initialRupModel = new double[rupSet.getNumRuptures()];
 			minimumRuptureRateBasis = null;
 			minimumRuptureRateFraction = 0;
-			if (relativeMagnitudeInequalityConstraintWt>0.0) mfdInequalityConstraints=mfdConstraints;
-			if (relativeMagnitudeEqualityConstraintWt>0.0) mfdEqualityConstraints=mfdConstraints;
 			break;
 
 		default:
 			throw new IllegalStateException("Unknown inversion model: "+model);
 		}
 		
+		if (mfdEqualityConstraintWt>0.0 && mfdInequalityConstraintWt>0.0) {
+			// we have both MFD constraints, apply a transition mag from equality to inequality
+			double MFDTransitionMag = 7.85; // magnitude to switch from MFD equality to MFD inequality
+			metadata += "\nMFDTransitionMag: "+MFDTransitionMag;
+			mfdEqualityConstraints = restrictMFDConstraintMagRange(mfdConstraints, mfdConstraints.get(0).getMagFreqDist().getMinX(), MFDTransitionMag);
+			mfdInequalityConstraints = restrictMFDConstraintMagRange(mfdConstraints, MFDTransitionMag, mfdConstraints.get(0).getMagFreqDist().getMaxX());
+		} else if (mfdEqualityConstraintWt>0.0) {
+			mfdEqualityConstraints = mfdConstraints;
+		} else if (mfdInequalityConstraintWt>0.0) {
+			mfdInequalityConstraints = mfdConstraints;
+		} else {
+			// no MFD constraints, do nothing
+		}
+		
 		return new InversionConfiguration(
 				weightSlipRates,
 				relativePaleoRateWt,
-				relativeMagnitudeEqualityConstraintWt,
-				relativeMagnitudeInequalityConstraintWt,
+				mfdEqualityConstraintWt,
+				mfdInequalityConstraintWt,
 				relativeRupRateConstraintWt,
 				relativeParticipationSmoothnessConstraintWt,
 				participationConstraintMagBinSize,
@@ -287,7 +328,8 @@ public class InversionConfiguration {
 				relativeSmoothnessWt,
 				mfdEqualityConstraints,
 				mfdInequalityConstraints,
-				minimumRuptureRateFraction);
+				minimumRuptureRateFraction,
+				metadata);
 	}
 	
 	
@@ -540,9 +582,9 @@ public class InversionConfiguration {
 	 * This is for use with Bilinear MFD Constraint. 
 	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve the desired moment rate reduction.
 	 */
-	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet, double fractMomentOffFaultModifier) {
+	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet, double offFaultAseisFactor) {
 		
-		double momentFractionOffFaults = findMomentFractionOffFaults(rupSet, fractMomentOffFaultModifier);
+		double momentFractionOffFaults = findMomentFractionOffFaults(rupSet, offFaultAseisFactor);
 		double totalMoment = rupSet.getTotalOrigMomentRate(); // reduced for creep, not for subseismogenic rups
 		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
 		
@@ -602,9 +644,9 @@ public class InversionConfiguration {
 //	}
 	
 	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet,
-			double fractMomentOffFaultModifier) {
+			double offFaultAseisFactor) {
 		return findMomentFractionOffFaults(rupSet, rupSet.getFaultModel(),
-				rupSet.getDeformationModel(), fractMomentOffFaultModifier);
+				rupSet.getDeformationModel(), offFaultAseisFactor);
 	}
 	
 	/**
@@ -612,7 +654,7 @@ public class InversionConfiguration {
 	 * (since we have not estimate for off-fault moment rate for this model)
 	 */
 	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet, FaultModels faultModel,
-			DeformationModels deformationModel, double fractMomentOffFaultModifier) {
+			DeformationModels deformationModel, double offFaultAseisFactor) {
 		// These values are from an e-mail from Kaj dated 2/29/12, for Zeng model see 3/5/12 e-mail
 		
 		
@@ -646,8 +688,8 @@ public class InversionConfiguration {
 				momentFractionOffFaults = 28.0202 / 100.0;
 				break;
 			case GEOLOGIC_PLUS_ABM:
-				return momentFractionOffFaults = (findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.GEOLOGIC, fractMomentOffFaultModifier)
-						+ findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.ABM, fractMomentOffFaultModifier)) / 2.0;
+				return momentFractionOffFaults = (findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.GEOLOGIC, offFaultAseisFactor)
+						+ findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.ABM, offFaultAseisFactor)) / 2.0;
 			case ZENG:
 				momentFractionOffFaults = 37.0728 / 100.0;
 				break;	
@@ -700,8 +742,8 @@ public class InversionConfiguration {
 		}
 		
 		
-		// for debugging - this should always be set to 1 otherwise!
-		momentFractionOffFaults *= fractMomentOffFaultModifier;
+		// apply off fault aseismicity factor
+		momentFractionOffFaults *= (1d-offFaultAseisFactor);
 		if (D) System.out.println("Moment fraction off faults = " + momentFractionOffFaults);
 		return momentFractionOffFaults;
 	}
@@ -1114,6 +1156,10 @@ public class InversionConfiguration {
 
 	public void setMinimumRuptureRateFraction(double minimumRuptureRateFraction) {
 		this.minimumRuptureRateFraction = minimumRuptureRateFraction;
+	}
+	
+	public String getMetadata() {
+		return metadata;
 	}
 
 }
