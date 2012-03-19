@@ -19,6 +19,7 @@
 
 package org.opensha.commons.geo;
 
+import java.awt.geom.Path2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,6 +92,27 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 		return lists;
 	}
 
+	/**
+	 * Returns a closed, stright-line {@link Path2D} representation of this list
+	 * @return a path representation of {@code this}
+	 */
+	public Path2D toPath() {
+		Path2D path = new Path2D.Double(Path2D.WIND_EVEN_ODD, size());
+		boolean starting = true;
+		for (Location loc : this) {
+			double lat = loc.getLatitude();
+			double lon = loc.getLongitude();
+			// if just starting, then moveTo
+			if (starting) {
+				path.moveTo(lon, lat);
+				starting = false;
+				continue;
+			}
+			path.lineTo(lon, lat);
+		}
+		path.closePath();
+		return path;
+	}
 	/**
 	 * Computes the horizontal surface distance (in km) to the closest point in
 	 * this list from the supplied <code>Location</code>. This method uses

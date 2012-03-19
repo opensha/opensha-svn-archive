@@ -642,23 +642,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 * throw exceptions if the generated Area is empty or not singular
 	 */
 	private static Area createArea(LocationList border) {
-
-		Path2D path = new Path2D.Double(Path2D.WIND_EVEN_ODD, border.size());
-
-		boolean starting = true;
-		for (Location loc : border) {
-			double lat = loc.getLatitude();
-			double lon = loc.getLongitude();
-			// if just starting, then moveTo
-			if (starting) {
-				path.moveTo(lon, lat);
-				starting = false;
-				continue;
-			}
-			path.lineTo(lon, lat);
-		}
-		path.closePath();
-		Area area = new Area(path);
+		Area area = new Area(border.toPath());
 		// final checks on area generated, this is redundant for some
 		// constructors that perform other checks on inputs
 		checkArgument(!area.isEmpty(), "Internally computed Area is empty");
