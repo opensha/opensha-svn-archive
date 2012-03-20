@@ -290,6 +290,8 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = new double[rupSet.getNumRuptures()];
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
+			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateBasis = null;
 			minimumRuptureRateFraction = 0;
 			break;
