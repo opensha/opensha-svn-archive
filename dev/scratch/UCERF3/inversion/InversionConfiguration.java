@@ -942,14 +942,16 @@ public class InversionConfiguration {
 	
 		// Find magnitude distribution of ruptures (as discretized)
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
-		magHist.setTolerance(0.1);	// this makes it a histogram
+		magHist.setTolerance(0.05);	// this makes it a histogram
 		for(int rup=0; rup<numRup;rup++) {
 			// magHist.add(rupMeanMag[rup], 1.0);
 			// Each bin in the magnitude histogram should be weighted by the mean slip rates of those ruptures 
 			// (since later we weight the ruptures by the mean slip rate, which would otherwise result in 
 			// starting solution that did not match target MFD if the mean slip rates per rupture 
 			// differed between magnitude bins)
-			magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
+			if (meanSlipRate[rup]!=0)
+				magHist.add(rupMeanMag[rup], meanSlipRate[rup]);  // each bin
+			else magHist.add(rupMeanMag[rup], 1E-4);
 		}
 		
 		
