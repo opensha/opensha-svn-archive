@@ -363,7 +363,8 @@ public class DeformationModelFileParser {
 //		wb.write(new FileOutputStream(new File("/tmp/fixed.xls")));
 //	}
 	
-	public static void applyMomentReductions(Map<Integer, DeformationSection> model, DeformationModels dm) {
+	public static void applyMomentReductions(Map<Integer, DeformationSection> model, DeformationModels dm,
+			double maxMomentReduction) {
 		// first load the data if needed
 		try {
 			loadMomentReductionsData();

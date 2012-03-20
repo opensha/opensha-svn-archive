@@ -173,6 +173,19 @@ public class LogicTreePBSWriter {
 			ops[i] = new CustomArg(op, args[i]);
 		return ops;
 	}
+	
+	private static <E> E[] toArray(E... vals) {
+		return vals;
+	}
+	
+	private static CustomArg[] buildVariationBranch(InversionOptions[] ops, String[] vals) {
+		Preconditions.checkArgument(ops.length == vals.length);
+		CustomArg[] args = new CustomArg[ops.length];
+		for (int i=0; i<args.length; i++)
+			if (ops[i] != null)
+				args[i] = new CustomArg(ops[i], vals[i]);
+		return args;
+	}
 
 	/**
 	 * @param args
@@ -180,7 +193,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "new-class-test";
+		String runName = "ready-yet";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -193,44 +206,64 @@ public class LogicTreePBSWriter {
 
 		int numRuns = 1;
 
-		FaultModels[] faultModels = { FaultModels.FM3_1 };
-//		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
+//		FaultModels[] faultModels = { FaultModels.FM3_1 };
+		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
 
 		// if null, all that are applicable to each fault model will be used
-//		DeformationModels[] defModels = null;
-		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+		DeformationModels[] defModels = null;
+//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 
-//		InversionModels[] inversionModels = InversionModels.values();
+		InversionModels[] inversionModels = InversionModels.values();
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-		InversionModels[] inversionModels =  { InversionModels.CHAR };
+//		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
 
 		//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
-		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
+//		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
+		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B, MagAreaRelationships.HB_08,
+				MagAreaRelationships.SHAW_09 };
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
-		//				SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
-		//						SlipAlongRuptureModels.UNIFORM };
-		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
+		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
+								SlipAlongRuptureModels.UNIFORM };
+//		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
 
-		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
+//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
+		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B,
+				AveSlipForRupModels.SHAW12_SQRT_LENGTH, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP,
+				AveSlipForRupModels.SHAW_2009_MOD };
 		//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
-		List<CustomArg[]> variations = new ArrayList<CustomArg[]>();
-		variations.add(forOptions(InversionOptions.OFF_FUALT_ASEIS, "0", "0.25", "0.5"));
-		variations.add(forOptions(InversionOptions.MFD_MODIFICATION, "1", "1.25", "1.3", "1.35"));
-		variations.add(forOptions(InversionOptions.DEFAULT_ASEISMICITY, "0", "0.1", "0.2"));
-		CustomArg[] relaxOps = { new CustomArg(InversionOptions.MFD_CONSTRAINT_RELAX, null), null };
-		variations.add(relaxOps);
+		ArrayList<CustomArg[]> variationBranches = null;
+		List<CustomArg[]> variations = null;
+		
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
+				InversionOptions.MFD_MODIFICATION, null };
+		InversionOptions[] ops_relax = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
+				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.2", "0.5", "1", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.3", null)));
+		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.35", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.4", null)));
+//		variationBranches.add(buildVariationBranch(ops_relax, toArray("0", "0", "1", null)));
+		
+//		List<CustomArg[]> variations = new ArrayList<CustomArg[]>();
+//		variations.add(forOptions(InversionOptions.OFF_FUALT_ASEIS, "0", "0.5"));
+//		variations.add(forOptions(InversionOptions.MFD_MODIFICATION, "1", "1.3"));
+//		variations.add(forOptions(InversionOptions.DEFAULT_ASEISMICITY, "0", "0.2"));
+//		CustomArg[] relaxOps = { new CustomArg(InversionOptions.MFD_CONSTRAINT_RELAX, null), null };
+//		variations.add(relaxOps);
 		
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
 		maxAway.put(InversionModels.CHAR, 1);
-		maxAway.put(InversionModels.GR, 1);
+		maxAway.put(InversionModels.GR, 0);
 		maxAway.put(InversionModels.UNCONSTRAINED, 1);
 		LogicTreeBranch[] defaultBranches = {
 				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
@@ -264,11 +297,10 @@ public class LogicTreePBSWriter {
 			}
 		}
 		
-		ArrayList<CustomArg[]> variationBranches;
-		if (variations == null || variations.size() == 0) {
+		if (variationBranches == null && (variations == null || variations.size() == 0)) {
 			variationBranches = new ArrayList<CustomArg[]>();
 			variationBranches.add(new CustomArg[0]);
-		} else {
+		} else if (variationBranches == null) {
 			// loop over each variation value building a logic tree
 			variationBranches = buildVariationBranches(variations, null);
 		}
@@ -400,8 +432,13 @@ public class LogicTreePBSWriter {
 										classArgs += " --num-threads "+threads;
 										if (checkPointCriteria != null)
 											classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
-										classArgs += " --branch-prefix "+name;
+										classArgs += " --branch-prefix "+jobName;
 										classArgs += " --directory "+runSubDir.getAbsolutePath();
+										for (CustomArg variation : variationBranch) {
+											if (variation != null)
+												// this is the "off" state for a flag option
+												classArgs += " "+variation.op.getCommandLineArgs(variation.arg);
+										}
 
 										batch.writeScript(pbs, javaWriter.buildScript(className, classArgs),
 												jobMins, 1, ppn, queue);

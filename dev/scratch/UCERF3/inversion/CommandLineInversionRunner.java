@@ -154,7 +154,6 @@ public class CommandLineInversionRunner {
 			if (cmd.hasOption(aseisArg)) {
 				String aseisVal = cmd.getOptionValue(aseisArg);
 				defaultAseis = Double.parseDouble(aseisVal);
-				prefix += "_Var"+InversionOptions.DEFAULT_ASEISMICITY+aseisVal;
 			}
 			
 			// first build the rupture set
@@ -171,15 +170,14 @@ public class CommandLineInversionRunner {
 			if (cmd.hasOption(mfdModArg)) {
 				String mfdMod = cmd.getOptionValue(mfdModArg);
 				mfdConstraintModifier = Double.parseDouble(mfdMod);
-				prefix += "_"+InversionOptions.MFD_MODIFICATION+mfdMod;
 			}
 			
 			// mfd relax flag
 			double mfdEqualityConstraintWt = InversionConfiguration.DEFAULT_MFD_EQUALITY_WT;
 			double mfdInequalityConstraintWt = InversionConfiguration.DEFAULT_MFD_INEQUALITY_WT;
 			
-			if (cmd.hasOption(InversionOptions.MFD_CONSTRAINT_RELAX.argName)) {
-				prefix += "_"+InversionOptions.MFD_CONSTRAINT_RELAX;
+			String relaxArg = InversionOptions.MFD_CONSTRAINT_RELAX.argName;
+			if (cmd.hasOption(relaxArg)) {
 				mfdEqualityConstraintWt = 1;
 				mfdInequalityConstraintWt = 1;
 			}
@@ -190,7 +188,6 @@ public class CommandLineInversionRunner {
 			if (cmd.hasOption(offFaultArg)) {
 				String offFaultMod = cmd.getOptionValue(offFaultArg);
 				offFaultAseisFactor = Double.parseDouble(offFaultMod);
-				prefix += "_"+InversionOptions.OFF_FUALT_ASEIS+offFaultMod;
 			}
 			
 			System.out.println("Building Inversion Configuration");

@@ -128,7 +128,7 @@ public class DeformationModelFetcher {
 				if (D) System.out.println("Loading def model from: "+url);
 				Map<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
 				if (D) System.out.println("Applying moment reductions to: "+deformationModel);
-				DeformationModelFileParser.applyMomentReductions(model, deformationModel);
+				DeformationModelFileParser.applyMomentReductions(model, deformationModel, 0.9); // TODO hardcoded
 				if (D) System.out.println("Loading fault model: "+faultModel);
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				if (D) System.out.println("Combining model with sections...");
