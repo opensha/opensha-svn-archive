@@ -535,7 +535,7 @@ public class InversionConfiguration {
 		}
 		
 		
-		// OPTIONAL: Adjust rates of largest rups to equal global target MFD
+/*		// OPTIONAL: Adjust rates of largest rups to equal global target MFD
 		IncrementalMagFreqDist targetMagFreqDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
 		IncrementalMagFreqDist startingModelMagFreqDist = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
 		startingModelMagFreqDist.setTolerance(0.1);
@@ -553,7 +553,7 @@ public class InversionConfiguration {
 			double mag = rupMeanMag[rup];
 			if (!Double.isNaN(adjustmentRatio.getClosestY(mag)) && !Double.isInfinite(adjustmentRatio.getClosestY(mag)))
 				initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
-		}	
+		}	*/
 		
 		
 		return initialRupModel;
