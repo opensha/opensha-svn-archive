@@ -412,7 +412,11 @@ public class DeformationModelFileParser {
 					def.momentReductions.add(0d);
 			}
 			Preconditions.checkState(sect <= numMinisForSection, "Mini sections inconsistant for section: "+id);
-			def.momentReductions.set(sect-1, reductions[index]);
+			double reduction = reductions[index];
+			if (reduction <= maxMomentReduction)
+				def.momentReductions.set(sect-1, reductions[index]);
+			else
+				def.momentReductions.set(sect-1, maxMomentReduction);
 		}
 	}
 
