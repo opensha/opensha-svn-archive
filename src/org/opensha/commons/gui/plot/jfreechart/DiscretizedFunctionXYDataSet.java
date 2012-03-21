@@ -150,6 +150,8 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 	{
 		if( series < functions.size() ){
 			String str = ( this.functions.get(series) ).getInfo();
+			if (str == null)
+				str = "";
 			return str;
 		}
 		else return "";

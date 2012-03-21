@@ -6,17 +6,22 @@ package scratch.UCERF3;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
 
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -49,6 +54,7 @@ public abstract class FaultSystemRupSet {
 	public void clearCache() {
 		rupturesForSectionCache.clear();
 		rupSectionSlipsCache.clear();
+		fractRupsInsideRegions.clear();
 	}
 	
 	/**
@@ -528,52 +534,51 @@ public abstract class FaultSystemRupSet {
 	*/
 	public abstract FaultModels getFaultModel();
 	
-	private List<MFD_InversionConstraint> prev_mfdConstraints;
-	protected double[][] fractRupsInsideMFD_Regions = null;
+	private Table<Region, Boolean, double[]> fractRupsInsideRegions = HashBasedTable.create();
 	
 	/**
-	 * This computes the fraction of each rupture inside each region in the given mfdConstraints, where results
-	 * are stored in the fractRupsInsideMFD_Regions[iRegion][iRup] double array
-	 * @param mfdConstraints
+	 * 
+	 * @param region
+	 * @param traceOnly
+	 * @return
 	 */
-	public double[][] computeFractRupsInsideMFD_Regions(List<MFD_InversionConstraint> mfdConstraints) {
-		if(fractRupsInsideMFD_Regions == null || mfdConstraints != prev_mfdConstraints) {
-			// do only if not already done
-			prev_mfdConstraints = mfdConstraints;
-			
-			System.out.println("Computing fraction rups in MDS regions ...");
-			int numRuptures = getNumRuptures();
-			fractRupsInsideMFD_Regions = new double[mfdConstraints.size()][numRuptures];
-			double[][] fractSectionInsideMFD_Regions = new double[mfdConstraints.size()][getNumSections()];
+	public double[] getFractRupsInsideRegion(Region region, boolean traceOnly) {
+		if (!fractRupsInsideRegions.contains(region, traceOnly)) {
+			if (fractRupsInsideRegions.size() > 10) { // max cache size
+				Set<Cell<Region, Boolean, double[]>> cells = fractRupsInsideRegions.cellSet();
+				cells.remove(cells.iterator().next());
+			}
+			double[] fractSectsInside = new double[getNumSections()];
+			double gridSpacing=1;
 			int[] numPtsInSection = new int[getNumSections()];
-			double gridSpacing=1; // km; this will be faster if this is increased, or if we used the section trace rather than the whole surface
-			// first fill in fraction of section in each region (do each only once)
+			int numRuptures = getNumRuptures();
+			
 			for(int s=0;s<getNumSections(); s++) {
 				StirlingGriddedSurface surf = getFaultSectionData(s).getStirlingGriddedSurface(gridSpacing, false, true);
-				numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
-				for(int i=0;i<mfdConstraints.size(); i++) {
-					Region region = mfdConstraints.get(i).getRegion();
-					fractSectionInsideMFD_Regions[i][s] = RegionUtils.getFractionInside(region, surf.getEvenlyDiscritizedListOfLocsOnSurface());
+				if (traceOnly) {
+					FaultTrace trace = surf.getRowAsTrace(0);
+					numPtsInSection[s] = trace.size();
+					fractSectsInside[s] = RegionUtils.getFractionInside(region, trace);
+				} else {
+					numPtsInSection[s] = surf.getNumCols()*surf.getNumRows();
+					fractSectsInside[s] = RegionUtils.getFractionInside(region, surf.getEvenlyDiscritizedListOfLocsOnSurface());
 				}
 			}
-			// now fill in fraction of rupture in each region
-			for (int i=0; i < mfdConstraints.size(); i++) {  // Loop over all MFD constraints in different regions
-				IncrementalMagFreqDist targetMagFreqDist=mfdConstraints.get(i).getMagFreqDist();	
-				for(int rup=0; rup<numRuptures; rup++) {
-					double mag = getMagForRup(rup);
-					List<Integer> sectionsIndicesForRup = getSectionsIndicesForRup(rup);
-					double fractionRupInRegion=0;
-					int totNumPts = 0;
-					for(Integer s:sectionsIndicesForRup) {
-						fractRupsInsideMFD_Regions[i][rup] += fractSectionInsideMFD_Regions[i][s]*numPtsInSection[s];
-						totNumPts += numPtsInSection[s];
-					}
-					fractRupsInsideMFD_Regions[i][rup] /= totNumPts;
+			
+			double[] fractRupsInside = new double[numRuptures];
+			
+			for(int rup=0; rup<numRuptures; rup++) {
+				List<Integer> sectionsIndicesForRup = getSectionsIndicesForRup(rup);
+				int totNumPts = 0;
+				for(Integer s:sectionsIndicesForRup) {
+					fractRupsInside[rup] += fractSectsInside[s]*numPtsInSection[s];
+					totNumPts += numPtsInSection[s];
 				}
-				System.out.println("Done with MFD constraint #"+i);
+				fractRupsInside[rup] /= totNumPts;
 			}
+			fractRupsInsideRegions.put(region, traceOnly, fractRupsInside);
 		}
-		return fractRupsInsideMFD_Regions;
+		return fractRupsInsideRegions.get(region, traceOnly);
 	}
 	
 	/**

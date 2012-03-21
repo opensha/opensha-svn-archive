@@ -208,11 +208,8 @@ public class CommandLineInversionRunner {
 			gen.generateInputs();
 			
 			System.out.println("Writing RupSet");
+			config.updateRupSetInfoString(rupSet);
 			String info = rupSet.getInfoString();
-			info += "\n\n****** Inversion Configuration Metadata ******";
-			info += "\n"+config.getMetadata();
-			info += "\n**********************************************";
-			rupSet.setInfoString(info);
 			
 			File rupSetFile = new File(dir, prefix+"_rupSet.zip");
 			new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
@@ -233,6 +230,10 @@ public class CommandLineInversionRunner {
 			double[] minimumRuptureRates = gen.getMinimumRuptureRates();
 			List<Integer> rangeEndRows = gen.getRangeEndRows();
 			List<String> rangeNames = gen.getRangeNames();
+			
+			for (int i=0; i<rangeEndRows.size(); i++) {
+				System.out.println(i+". "+rangeNames.get(i)+": "+rangeEndRows.get(i));
+			}
 			
 			gen = null;
 			System.gc();

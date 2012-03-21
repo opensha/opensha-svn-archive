@@ -354,31 +354,58 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
 		return mfd;
 	}
-
+	
+	/**
+	 * This gives the total nucleation Mag Freq Dist of this solution.  
+	 * This preserves rates rather than moRates (can't have both).
+	 * @param minMag - lowest mag in MFD
+	 * @param maxMag - highest mag in MFD
+	 * @param delta - width of each mfd bin
+	 * @return IncrementalMagFreqDist
+	 */
+	public IncrementalMagFreqDist calcTotalNucleationMFD(double minMag, double maxMag, double delta) {
+		return calcNucleationMFD_forRegion(null, minMag, maxMag, delta, true);
+	}
 
 	/**
 	 * This gives the total nucleation Mag Freq Dist inside the supplied region.  
-	 * Only the rupture trace is examined in computing the fraction of the rupture 
+	 * If <code>traceOnly == true</code>, only the rupture trace is examined in computing the fraction of the rupture 
+	 * inside the region.  This preserves rates rather than moRates (can't have both).
+	 * @param region - a Region object
+	 * @param minMag - lowest mag in MFD
+	 * @param maxMag - highest mag in MFD
+	 * @param delta - width of each mfd bin
+	 * @param traceOnly - if true only fault traces will be used for fraction inside region calculations, otherwise the
+	 * entire rupture surfaces will be used (slower)
+	 * @return IncrementalMagFreqDist
+	 */
+	public IncrementalMagFreqDist calcNucleationMFD_forRegion(Region region, double minMag, double maxMag, double delta, boolean traceOnly) {
+		int numMag = (int)((maxMag - minMag) / delta+0.5);
+		return calcNucleationMFD_forRegion(region, minMag, maxMag, numMag, traceOnly);
+	}
+
+	/**
+	 * This gives the total nucleation Mag Freq Dist inside the supplied region.  
+	 * If <code>traceOnly == true</code>, only the rupture trace is examined in computing the fraction of the rupture
 	 * inside the region.  This preserves rates rather than moRates (can't have both).
 	 * @param region - a Region object
 	 * @param minMag - lowest mag in MFD
 	 * @param maxMag - highest mag in MFD
 	 * @param numMag - number of mags in MFD
+	 * @param traceOnly - if true only fault traces will be used for fraction inside region calculations, otherwise the
+	 * entire rupture surfaces will be used (slower)
 	 * @return IncrementalMagFreqDist
 	 */
-	public IncrementalMagFreqDist calcNucleationMFD_forRegion(Region region, double minMag, double maxMag, int numMag) {
+	public IncrementalMagFreqDist calcNucleationMFD_forRegion(Region region, double minMag, double maxMag, int numMag, boolean traceOnly) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
+		double[] fractRupsInside = null;
+		if (region != null)
+			fractRupsInside = getFractRupsInsideRegion(region, traceOnly);
 		for(int r=0;r<getNumRuptures();r++) {
-			double numInside=0, totNum=0;
-			for(Integer s:getSectionsIndicesForRup(r)) {
-				StirlingGriddedSurface sectSurf = getFaultSectionData(s).getStirlingGriddedSurface(1.0);
-				for(int col=0; col<sectSurf.getNumCols();col++) {
-					totNum +=1;
-					if(region.contains(sectSurf.get(0, col))) 
-						numInside+=1;
-				}
-			}
-			double rateInside=getRateForRup(r)*numInside/totNum;
+			double fractInside = 1;
+			if (region != null)
+				fractInside = fractRupsInside[r];
+			double rateInside=getRateForRup(r)*fractInside;
 			mfd.addResampledMagRate(getMagForRup(r), rateInside, true);
 		}
 		return mfd;
@@ -628,27 +655,23 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 
 	}
 	
-	
-	
 	/**
 	 * This compares the MFDs in the given MFD constraints with the MFDs 
 	 * implied by the Fault System Solution
 	 * @param mfdConstraints
 	 */
 	public void plotMFDs(List<MFD_InversionConstraint> mfdConstraints) {
-		
-		
 		// Add ALL_CA to bring up another plot
 //		mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850));
 		
 		for (int i=0; i<mfdConstraints.size(); i++) {  // Loop over each MFD constraint 	
-			IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
-			magHist.setTolerance(0.2);	// this makes it a histogram
-			computeFractRupsInsideMFD_Regions(mfdConstraints);
-			for(int rup=0; rup<getNumRuptures(); rup++) {
-				double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
-				magHist.add(getMagForRup(rup), fractRupInside*getRateForRup(rup));
-			}
+			MFD_InversionConstraint mfdConstraint = mfdConstraints.get(i);
+			Region region = mfdConstraint.getRegion();
+			
+//			boolean traceOnly = region.getArea() > (300 * 300);
+			boolean traceOnly = true;
+			IncrementalMagFreqDist magHist = calcNucleationMFD_forRegion(region, 5.05, 9.05, 0.1, traceOnly);
+			
 			System.out.println("Total solution moment/yr for "+mfdConstraints.get(i).getRegion().getName()+" region = "+magHist.getTotalMomentRate());
 			ArrayList<IncrementalMagFreqDist> funcs4 = new ArrayList<IncrementalMagFreqDist>();
 			magHist.setName("Magnitude Distribution of SA Solution");

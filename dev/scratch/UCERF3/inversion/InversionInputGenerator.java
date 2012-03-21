@@ -161,14 +161,18 @@ public class InversionInputGenerator {
 		// Find number of rows in A matrix (equals the total number of constraints)
 		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
 		int numRows = numSlipRateConstraints;
-		rangeEndRows.add(numRows-1);
-		rangeNames.add("Slip Rate");
+		if (numRows > 0) {
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Slip Rate");
+		}
 		
 		int numPaleoRows = (int)Math.signum(config.getRelativePaleoRateWt())*paleoRateConstraints.size();
 		if(D) System.out.println("Number of paleo section-rate constraints: "+numPaleoRows);
-		numRows += numPaleoRows;
-		rangeEndRows.add(numRows-1);
-		rangeNames.add("Paleo");
+		if (numPaleoRows > 0) {
+			numRows += numPaleoRows;
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Paleo");
+		}
 		
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
 			double[] relativeRupRateConstraintWt = config.getA_PrioriRupConstraint();
@@ -183,9 +187,11 @@ public class InversionInputGenerator {
 		
 		int numMinimizationRows = (int)Math.signum(config.getRelativeMinimizationConstraintWt())*numRuptures;
 		if(D) System.out.println("Number of minimization constraints: "+numMinimizationRows);
-		numRows += numMinimizationRows;
-		rangeEndRows.add(numRows-1);
-		rangeNames.add("Minimization");
+		if (numMinimizationRows > 0) {
+			numRows += numMinimizationRows;
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Minimization");
+		}
 		
 		IncrementalMagFreqDist targetMagFreqDist=null;
 		if (config.getRelativeMagnitudeEqualityConstraintWt() > 0.0) {
@@ -427,16 +433,13 @@ public class InversionInputGenerator {
 			if(D) System.out.println("\nAdding " + mfdEqualityConstraints.size()
 					+ " magnitude distribution equality constraints to A matrix ...");	
 			
-			// make the matrix of the fraction of each rupture inside each region: fractRupsInsideMFD_Regions
-			double[][] fractRupsInsideMFD_Regions =
-				rupSet.computeFractRupsInsideMFD_Regions(mfdEqualityConstraints);
-			
 			// Loop over all MFD constraints in different regions
 			for (int i=0; i < mfdEqualityConstraints.size(); i++) {
+				double[] fractRupsInside = rupSet.getFractRupsInsideRegion(mfdEqualityConstraints.get(i).getRegion(), false);
 				targetMagFreqDist=mfdEqualityConstraints.get(i).getMagFreqDist();	
 				for(int rup=0; rup<numRuptures; rup++) {
 					double mag = rupMeanMag[rup];
-					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
+					double fractRupInside = fractRupsInside[rup];
 					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
 //						A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS)
@@ -469,16 +472,13 @@ public class InversionInputGenerator {
 			if(D) System.out.println("\nPreparing " + mfdInequalityConstraints.size()
 					+ " magnitude inequality constraints ...");	
 			
-			// make the matrix of the fraction of each rupture inside each region: fractRupsInsideMFD_Regions
-			double[][] fractRupsInsideMFD_Regions =
-				rupSet.computeFractRupsInsideMFD_Regions(mfdInequalityConstraints);
-			
 			// Loop over all MFD constraints in different regions
 			for (int i=0; i < mfdInequalityConstraints.size(); i++) {
+				double[] fractRupsInside = rupSet.getFractRupsInsideRegion(mfdInequalityConstraints.get(i).getRegion(), false);
 				targetMagFreqDist=mfdInequalityConstraints.get(i).getMagFreqDist();	
 				for(int rup=0; rup<numRuptures; rup++) {
 					double mag = rupMeanMag[rup];
-					double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
+					double fractRupInside = fractRupsInside[rup];
 					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
 //						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS)

@@ -268,7 +268,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				// NOTE: it is important that we loop over nRow and not the actual misfit array
 				// as it may be larger than nRow (for efficiency and less array copies)
 				
-				if (i>rowEnd) {
+				while (i>rowEnd) {
 					curIndex += 1;
 					rowEnd = equality_range_ends.get(curIndex-4);
 				}

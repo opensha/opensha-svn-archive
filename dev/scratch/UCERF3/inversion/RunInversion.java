@@ -68,8 +68,12 @@ public class RunInversion {
 		
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
+		double defaultAseis = 0.2;
 		try {
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
+//			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
+			LaughTestFilter filter = LaughTestFilter.getDefault();
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
+					AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel, filter, defaultAseis);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction
@@ -87,6 +91,7 @@ public class RunInversion {
 		// get the inversion configuration
 		InversionConfiguration config;
 		config = InversionConfiguration.forModel(inversionModel, rupSet);
+		config.updateRupSetInfoString(rupSet);
 		
 		File precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 		
@@ -151,7 +156,7 @@ public class RunInversion {
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
 //		criteria = TimeCompletionCriteria.getInHours(1); 
-		criteria = TimeCompletionCriteria.getInMinutes(30); 
+		criteria = TimeCompletionCriteria.getInMinutes(1); 
 //		criteria = TimeCompletionCriteria.getInSeconds(30); 
 		// or use this to run until a set amount of iterations have been completed
 //		criteria = new IterationCompletionCriteria(1); 
@@ -216,8 +221,10 @@ public class RunInversion {
 		solution.plotRuptureRates();
 		solution.plotSlipRates();
 		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
-		solution.plotMFDs(config.getMfdEqualityConstraints());
-		solution.plotMFDs(config.getMfdInequalityConstraints());
+		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(solution);
+		invSol.plotMFDs();
+//		solution.plotMFDs(config.getMfdEqualityConstraints());
+//		solution.plotMFDs(config.getMfdInequalityConstraints());
 		long runTime = System.currentTimeMillis()-startTime;
 		if (D) System.out.println("Done after "+ (runTime/1000.) +" seconds.");	
 	}

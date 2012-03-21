@@ -104,7 +104,7 @@ public class InversionConfiguration {
 		this.relativeParticipationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
 		metadata += "\nrelativeParticipationSmoothnessConstraintWt: "+relativeParticipationSmoothnessConstraintWt;
 		this.participationConstraintMagBinSize = participationConstraintMagBinSize;
-		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
+		metadata += "\nparticipationConstraintMagBinSize: "+participationConstraintMagBinSize;
 		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
 		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
 		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
@@ -191,53 +191,8 @@ public class InversionConfiguration {
 		
 		boolean ucerf3MFDs = true;
 		metadata += "\nucerf3MFDs: "+ucerf3MFDs;
-		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = null;
-		if (!ucerf3MFDs)
-			ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
-		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
-		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
-		Region entire_region;
-		if (rupSet.getDeformationModel() == DeformationModels.UCERF2_NCAL
-				|| rupSet.getDeformationModel() == DeformationModels.UCERF2_BAYAREA) {
-			entire_region = noCal;
-		} else {
-			// TODO should this be Testing or Collection? currently using TESTING because it's what
-			// Ned uses lots of places
-			entire_region = new CaliforniaRegions.RELM_TESTING();
-		}
 		
-		
-		ArrayList<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
-		ArrayList<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
-		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
-		// add MFD constraint for Northern CA
-		if (ucerf3MFDs) {
-			mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
-		} else {
-			ucerf2Constraints.setRegion(noCal);
-			mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
-		}
-		// add MFD constraint for Southern CA
-		if (entire_region != noCal) {
-			// don't add so cal if we're just doing a no cal inversion
-			if (ucerf3MFDs) {
-				mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
-			} else {
-				ucerf2Constraints.setRegion(soCal);
-				mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
-			}
-		}
-		
-		if (mfdConstraintModifier != 1) {
-			// this multiples each MFD bin by the mfdConstraintModifier
-			for (int i=0; i<mfdConstraints.size(); i++) {
-				IncrementalMagFreqDist magDist = mfdConstraints.get(i).getMagFreqDist();
-				for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
-					double setVal = mfdConstraintModifier * magDist.getClosestY(m);
-					mfdConstraints.get(i).getMagFreqDist().set(m, setVal);
-				}
-			}
-		}
+		List<MFD_InversionConstraint> mfdConstraints = getOriginalConstraints(rupSet, ucerf3MFDs, mfdConstraintModifier);
 		
 		/* *******************************************
 		 * MODEL SPECIFIC
@@ -259,16 +214,17 @@ public class InversionConfiguration {
 		double[] initialRupModel;
 		double[] minimumRuptureRateBasis;
 		
+		double bilinearTransitionMag = 7.6;
+		if (model == InversionModels.CHAR)
+			metadata += "\nbilinearTransitionMag: "+bilinearTransitionMag;
+		mfdConstraints = getTargetMFDConstraints(mfdConstraints, model, rupSet, offFaultAseisFactor, bilinearTransitionMag);
+		
 		switch (model) {
 		case CHAR:
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 100;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
-			double bilinearTransitionMag = 7.6;
-			metadata += "\nbilinearTransitionMag: "+bilinearTransitionMag;
-			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(bilinearTransitionMag, rupSet, offFaultAseisFactor), bilinearTransitionMag);
-			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
 			initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
@@ -279,8 +235,6 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0));
-			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
-			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
@@ -290,8 +244,6 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = new double[rupSet.getNumRuptures()];
-			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
-			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			minimumRuptureRateBasis = null;
 			minimumRuptureRateFraction = 0;
 			break;
@@ -299,6 +251,9 @@ public class InversionConfiguration {
 		default:
 			throw new IllegalStateException("Unknown inversion model: "+model);
 		}
+		
+		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
+		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		
 		if (mfdEqualityConstraintWt>0.0 && mfdInequalityConstraintWt>0.0) {
 			// we have both MFD constraints, apply a transition mag from equality to inequality
@@ -334,6 +289,103 @@ public class InversionConfiguration {
 				metadata);
 	}
 	
+	/**
+	 * This builds the original MFD constraints without making any modifications for minimum magnitudes of off fault moment.
+	 * 
+	 * @param rupSet
+	 * @param ucerf3MFDs
+	 * @param mfdConstraintModifier
+	 * @return
+	 */
+	public static List<MFD_InversionConstraint> getOriginalConstraints(FaultSystemRupSet rupSet, boolean ucerf3MFDs, double mfdConstraintModifier) {
+		UCERF2_MFD_ConstraintFetcher ucerf2Constraints = null;
+		if (!ucerf3MFDs)
+			ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
+		Region noCal = new CaliforniaRegions.RELM_NOCAL(); noCal.setName("Northern CA");
+		Region soCal = new CaliforniaRegions.RELM_SOCAL(); soCal.setName("Southern CA");
+		Region entire_region;
+		if (rupSet.getDeformationModel() == DeformationModels.UCERF2_NCAL
+				|| rupSet.getDeformationModel() == DeformationModels.UCERF2_BAYAREA) {
+			entire_region = noCal;
+		} else {
+			// TODO should this be Testing or Collection? currently using TESTING because it's what
+			// Ned uses lots of places
+			entire_region = new CaliforniaRegions.RELM_TESTING();
+		}
+		
+		
+		List<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
+		// add MFD constraint for Northern CA
+		if (ucerf3MFDs) {
+			mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
+		} else {
+			ucerf2Constraints.setRegion(noCal);
+			mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+		}
+		// add MFD constraint for Southern CA
+		if (entire_region != noCal) {
+			// don't add so cal if we're just doing a no cal inversion
+			if (ucerf3MFDs) {
+				mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
+			} else {
+				ucerf2Constraints.setRegion(soCal);
+				mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
+			}
+		}
+		
+		if (mfdConstraintModifier != 1 && mfdConstraintModifier > 0) {
+			// this multiples each MFD bin by the mfdConstraintModifier
+			for (int i=0; i<mfdConstraints.size(); i++) {
+				IncrementalMagFreqDist magDist = mfdConstraints.get(i).getMagFreqDist();
+				for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
+					double setVal = mfdConstraintModifier * magDist.getClosestY(m);
+					mfdConstraints.get(i).getMagFreqDist().set(m, setVal);
+				}
+			}
+		}
+		
+		return mfdConstraints;
+	}
+	
+	/**
+	 * This modifies the MFD constraints for minimum magnitudes and off fault aseismicity
+	 * 
+	 * @param mfdConstraints
+	 * @param model
+	 * @param rupSet
+	 * @param offFaultAseisFactor
+	 * @param bilinearTransitionMag only applicable to CHAR branch
+	 * @return
+	 */
+	public static List<MFD_InversionConstraint> getTargetMFDConstraints(
+			List<MFD_InversionConstraint> mfdConstraints,
+			InversionModels model,
+			FaultSystemRupSet rupSet,
+			double offFaultAseisFactor,
+			double bilinearTransitionMag) {
+		
+		switch (model) {
+		case CHAR:
+			mfdConstraints = makeMFDConstraintsBilinear(mfdConstraints, findBValueForMomentRateReduction(bilinearTransitionMag,
+					rupSet, offFaultAseisFactor), bilinearTransitionMag);
+			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
+			break;
+		case GR:
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
+			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
+			break;
+		case UNCONSTRAINED:
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
+			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
+			break;
+
+		default:
+			break;
+		}
+		
+		return mfdConstraints;
+	}
+	
 	
 	/**
 	 * This method returns the input MFD constraint array with each constraint now restricted between minMag and maxMag.
@@ -343,9 +395,9 @@ public class InversionConfiguration {
 	 * @param maxMag
 	 * @return newMFDConstraints
 	 */
-	private static ArrayList<MFD_InversionConstraint> restrictMFDConstraintMagRange(ArrayList<MFD_InversionConstraint> mfdConstraints, double minMag, double maxMag) {
+	private static List<MFD_InversionConstraint> restrictMFDConstraintMagRange(List<MFD_InversionConstraint> mfdConstraints, double minMag, double maxMag) {
 		
-		ArrayList<MFD_InversionConstraint> newMFDConstraints = new ArrayList<MFD_InversionConstraint>();
+		List<MFD_InversionConstraint> newMFDConstraints = new ArrayList<MFD_InversionConstraint>();
 		
 		for (int i=0; i<mfdConstraints.size(); i++) {
 			IncrementalMagFreqDist originalMFD = mfdConstraints.get(i).getMagFreqDist();
@@ -474,8 +526,8 @@ public class InversionConfiguration {
 	/**
 	 * This method lowers an MFD constraint to account for spatially-varying minimum magnitudes on faults.
 	 */
-	private static ArrayList<MFD_InversionConstraint> accountForVaryingMinMag(
-			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet) {
+	private static List<MFD_InversionConstraint> accountForVaryingMinMag(
+			List<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet) {
 		
 		HistogramFunction adjustmentRatio = FaultSystemRupSetCalc.getMinMagHistogram(rupSet, 5.05,40,0.1, true).getCumulativeDistFunction();  // CURRENTLY THIS IS NOT REGION SPECIFIC
 		
@@ -494,13 +546,13 @@ public class InversionConfiguration {
 	 * It will uniformly reduce the rates of ruptures in any magnitude bins that need adjusting.
 	 */
 	private static double[] adjustStartingModel(double[] initialRupModel,
-			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet, boolean adjustOnlyIfOverMFD) {
+			List<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet, boolean adjustOnlyIfOverMFD) {
 		
-		double[][] fractRupsInsideMFD_Regions = rupSet.computeFractRupsInsideMFD_Regions(mfdInequalityConstraints);
 		double[] rupMeanMag = rupSet.getMagForAllRups();
 		
 		
 		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
+			double[] fractRupsInside = rupSet.getFractRupsInsideRegion(mfdInequalityConstraints.get(i).getRegion(), false);
 			IncrementalMagFreqDist targetMagFreqDist = mfdInequalityConstraints.get(i).getMagFreqDist();
 			IncrementalMagFreqDist startingModelMagFreqDist = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.getNum(), targetMagFreqDist.getDelta());
 			startingModelMagFreqDist.setTolerance(0.1);
@@ -508,7 +560,7 @@ public class InversionConfiguration {
 			// Find the starting model MFD
 			for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
 				double mag = rupMeanMag[rup];
-				double fractRupInside = fractRupsInsideMFD_Regions[i][rup];
+				double fractRupInside = fractRupsInside[rup];
 				if (fractRupInside > 0) 
 					if (mag<8.5)  // b/c the mfdInequalityConstraints only go to M8.5!
 						startingModelMagFreqDist.add(mag, fractRupInside * initialRupModel[rup]);
@@ -566,8 +618,8 @@ public class InversionConfiguration {
 	 * This method multiplies the input MFD constraints by fractionRateReduction.
 	 * For example, if the off-fault rates are 10% of the rates, setting fractionRateReduction to 0.1 will reduce the MFDs to 90% of their previous rates.
 	 */
-	private static ArrayList<MFD_InversionConstraint> reduceMFDConstraint(
-			ArrayList<MFD_InversionConstraint> mfdInequalityConstraints,
+	private static List<MFD_InversionConstraint> reduceMFDConstraint(
+			List<MFD_InversionConstraint> mfdInequalityConstraints,
 			double fractionRateReduction) {
 		for (int i=0; i<mfdInequalityConstraints.size(); i++) {
 			for (double mag=mfdInequalityConstraints.get(i).getMagFreqDist().getMinX(); mag<mfdInequalityConstraints.get(i).getMagFreqDist().getMaxX(); mag+=mfdInequalityConstraints.get(i).getMagFreqDist().getDelta()) {
@@ -754,8 +806,8 @@ public class InversionConfiguration {
 	 * This method changes the input MFD constraints (WHICH IT ASSUMES ARE G-R WITH b=1) by changing the b-Value below a transition magnitude.
 	 * The returned MFDs are G-R both below and above the transition magnitude, b=1 above it, and the specified b-value below it.
 	 */
-	private static ArrayList<MFD_InversionConstraint> makeMFDConstraintsBilinear(
-			ArrayList<MFD_InversionConstraint> mfdConstraints, double bValueBelowTransition, double transitionMag) {
+	private static List<MFD_InversionConstraint> makeMFDConstraintsBilinear(
+			List<MFD_InversionConstraint> mfdConstraints, double bValueBelowTransition, double transitionMag) {
 		
 		if (D) for (int i=0; i<mfdConstraints.size(); i++) {
 			System.out.println("Initial total moment rate = "+mfdConstraints.get(0).getMagFreqDist().getTotalMomentRate()+" for MFD constraint #"+i);
@@ -784,7 +836,7 @@ public class InversionConfiguration {
 	public static List<MFD_InversionConstraint> getGriddedConstraints(
 			UCERF2_MFD_ConstraintFetcher UCERF2Constraints, Region region,
 			double latBoxSize, double lonBoxSize) {
-		ArrayList<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
+		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		// UCERF2 MFD constraints for subregions - 1-degree boxes
 		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
 		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
@@ -1164,6 +1216,14 @@ public class InversionConfiguration {
 	
 	public String getMetadata() {
 		return metadata;
+	}
+	
+	public void updateRupSetInfoString(FaultSystemRupSet rupSet) {
+		String info = rupSet.getInfoString();
+		info += "\n\n****** Inversion Configuration Metadata ******";
+		info += "\n"+getMetadata();
+		info += "\n**********************************************";
+		rupSet.setInfoString(info);
 	}
 
 }
