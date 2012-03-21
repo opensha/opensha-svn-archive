@@ -15,14 +15,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ArrayTable;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import com.sun.istack.internal.Nullable;
 
 /**
  * Class provides one method, {@code getScale(Location)} that returns the value
