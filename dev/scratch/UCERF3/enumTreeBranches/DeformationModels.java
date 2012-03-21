@@ -77,7 +77,10 @@ public enum DeformationModels implements ShortNamed {
 	}
 
 	public URL getDataFileURL(FaultModels faultModel) {
-		return UCERF3_DataUtils.locateResource("DeformationModels", getDataFileName(faultModel));
+		String fileName = getDataFileName(faultModel);
+		if (fileName == null)
+			return null;
+		return UCERF3_DataUtils.locateResource("DeformationModels", fileName);
 	}
 	
 	public String getDataFileName(FaultModels faultModel) {
