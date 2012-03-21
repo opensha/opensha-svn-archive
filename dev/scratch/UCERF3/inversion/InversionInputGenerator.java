@@ -451,7 +451,10 @@ public class InversionInputGenerator {
 				}		
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
 //					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeEqualityConstraintWt;
-					d[rowIndex]=relativeMagnitudeEqualityConstraintWt;
+					if (targetMagFreqDist.getY(m) == 0)
+						d[rowIndex]=0;
+					else
+						d[rowIndex]=relativeMagnitudeEqualityConstraintWt;
 					rowIndex++; 
 				}	
 			}
@@ -480,7 +483,7 @@ public class InversionInputGenerator {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInside[rup];
 					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
-//						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
+//						A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS)
 							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 						else
@@ -488,9 +491,12 @@ public class InversionInputGenerator {
 					}
 				}		
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
-	//				d_ineq[rowIndex_MFD]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
-					d_ineq[rowIndex_ineq]=relativeMagnitudeInequalityConstraintWt;
-					rowIndex_ineq++; 
+	//				d_ineq[rowIndex_ineq]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
+				if (targetMagFreqDist.getY(m) == 0)
+					d[rowIndex_ineq]=0;
+				else
+					d[rowIndex_ineq]=relativeMagnitudeInequalityConstraintWt;
+				rowIndex_ineq++; 
 				}	
 			}	
 			if (D) {
