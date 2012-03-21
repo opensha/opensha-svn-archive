@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -199,6 +200,21 @@ public class FaultSystemRupSetCalc {
 
 		}
 		return hist;
+	}
+	
+	
+	
+	public static void listAllParentSectionNames(FaultSystemRupSet faultSystemRupSet) {
+		ArrayList<String> parNames = new ArrayList<String>();
+		for(FaultSectionPrefData data : faultSystemRupSet.getFaultSectionDataList()) {
+			if(!parNames.contains(data.getParentSectionName())) {
+				parNames.add(data.getParentSectionName());
+			}
+		}
+		
+		for(String name: parNames)
+			System.out.println(name);
+		
 	}
 
 	

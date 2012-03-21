@@ -74,10 +74,9 @@ The exception are:
 	8702	220	21	Ortigalita	(Ortigalita (North), Subsection 2	Ortigalita (South), Subsection 7);  onlyOneSubsectOfSect = false
 
 	Plus a bunch of "Palos Verdes Connected" ruptures because, in this fault model, "Coronado Bank alt1" 
-	no longer connects to "Palos Verdes" (but they should connect in FM 3.2)
+	no longer connects to "Palos Verdes" (but they should connect in FM 3.2).
 
-
-STILL UNEXPLAINED:
+A bunch of "Newport Inglewood Connected alt 1" ruptures are erroneously getting filtered due to a problem in the Coulomb Calcs:
 
 	8316	214	26	false	-1	Newport Inglewood Connected alt 1	(Newport-Inglewood (Offshore), Subsection 1	Newport-Inglewood alt 1, Subsection 1);  onlyOneSubsectOfSect = false
 	8351	214	61	false	-1	Newport Inglewood Connected alt 1	(Newport-Inglewood (Offshore), Subsection 3	Newport-Inglewood alt 1, Subsection 1);  onlyOneSubsectOfSect = false
@@ -169,7 +168,10 @@ which were removed in going from UCERF2 to UCERF3 FM 3.2.
 
 The following are problems not already identified for FM 3.1 above:
 
-STILL UNEXPLAINED:
+"Oak Ridge Connected" are filtered out because "Oak Ridge (Offshore)" is too far from "Oak Ridge (Onshore)"
+
+A bunch of "Newport Inglewood Connected alt 2" ruptures are erroneously getting filtered due to a problem in the Coulomb Calcs:
+
 
 	8329	213	26	false	-1	Newport Inglewood Connected alt 2	(Newport-Inglewood (Offshore), Subsection 1	Newport-Inglewood alt 2, Subsection 1);  onlyOneSubsectOfSect = false
 	8364	213	61	false	-1	Newport Inglewood Connected alt 2	(Newport-Inglewood (Offshore), Subsection 3	Newport-Inglewood alt 2, Subsection 1);  onlyOneSubsectOfSect = false
@@ -246,16 +248,4 @@ STILL UNEXPLAINED:
 	8562	213	259	false	-1	Newport Inglewood Connected alt 2	(Rose Canyon, Subsection 7	Newport-Inglewood alt 2, Subsection 6);  onlyOneSubsectOfSect = false
 	8563	213	260	false	-1	Newport Inglewood Connected alt 2	(Rose Canyon, Subsection 9	Newport-Inglewood alt 2, Subsection 7);  onlyOneSubsectOfSect = false
 	8564	213	261	false	-1	Newport Inglewood Connected alt 2	(Rose Canyon, Subsection 10	Newport-Inglewood alt 2, Subsection 7);  onlyOneSubsectOfSect = false
-	8790	221	63	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 4	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
-	8800	221	73	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
-	8801	221	74	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 3	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
-	8802	221	75	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 4	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
-	8808	221	81	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 1	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
-	8809	221	82	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 1);  onlyOneSubsectOfSect = false
-	8810	221	83	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
-	8811	221	84	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 3	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
-	8812	221	85	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 4	Oak Ridge (Onshore), Subsection 3);  onlyOneSubsectOfSect = false
-	8816	221	89	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 1	Oak Ridge (Onshore), Subsection 2);  onlyOneSubsectOfSect = false
-	8817	221	90	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 3);  onlyOneSubsectOfSect = false
-	8818	221	91	false	-1	Oak Ridge Connected	(Oak Ridge (Offshore), Subsection 2	Oak Ridge (Onshore), Subsection 3);  onlyOneSubsectOfSect = false
 

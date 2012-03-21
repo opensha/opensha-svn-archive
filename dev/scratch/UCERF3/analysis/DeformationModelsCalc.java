@@ -193,6 +193,33 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	public static void writeMoRateOfParentSections(FaultModels fm, DeformationModels dm) {
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		
+		// get list of sections in UCERF2
+		ArrayList<String> getEquivUCERF2_SectionNames = FindEquivUCERF2_FM3_Ruptures.getAllSectionNames(fm);
+
+		String lastName = "";
+		double moRateReduced=0, moRateNotReduced=0;
+		System.out.println("Sect Name\t"+"moRateReduced\tmoRateNotReduced\tIn UCERF2?");
+
+		for(FaultSectionPrefData data:defFetch.getSubSectionList())
+			if(data.getParentSectionName().equals(lastName)) {
+				moRateReduced += data.calcMomentRate(true);
+				moRateNotReduced += data.calcMomentRate(false);
+			}
+			else {
+				if(!lastName.equals("")) {
+					System.out.println(lastName+"\t"+(float)moRateReduced+"\t"+(float)moRateNotReduced+"\t"+getEquivUCERF2_SectionNames.contains(lastName));
+				}
+				// set first values for new parent section
+				moRateReduced=data.calcMomentRate(true);
+				moRateNotReduced=data.calcMomentRate(false);
+				lastName = data.getParentSectionName();
+			}
+
+	}
+	
 	
 	public static void calcMoRateAndMmaxDataForDefModels() {
 		
@@ -327,9 +354,11 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		testFaultZonePolygons();
+//		testFaultZonePolygons();
 		
 //		writeListOfNewFaultSections();
+		
+		writeMoRateOfParentSections(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
 		
 //		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		

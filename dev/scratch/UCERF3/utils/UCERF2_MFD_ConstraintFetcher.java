@@ -211,8 +211,30 @@ public class UCERF2_MFD_ConstraintFetcher {
 				"faultMoRate/(faultMoRate+cZoneMoRate+backSrcMoRate) = "+Math.round(100.0*faultMoRate/(faultMoRate+cZoneMoRate+backSrcMoRate))+" (%)\n"+
 				"faultMoRate/(faultMoRate+2*cZoneMoRate+backSrcMoRate) = "+Math.round(100.0*faultMoRate/(faultMoRate+2*cZoneMoRate+backSrcMoRate))+" (%)");
 
+		// now compute moment rate of special zones
+		
+		moRate=0;
+		String srcName = "Brawley Point2Vert_FaultPoisSource";
+		for(ProbEqkSource source : meanUCERF2_ETAS)
+			if(source.getName().equals(srcName))
+				moRate += source.computeEquivTotalMomentRate(duration);
+		System.out.println("\ntotMoRate = "+(float)moRate+"\tfor\t"+srcName);
+		moRate=0;
+		srcName = "Mendos Point2Vert_FaultPoisSource";
+		for(ProbEqkSource source : meanUCERF2_ETAS)
+			if(source.getName().equals(srcName))
+				moRate += source.computeEquivTotalMomentRate(duration);
+		System.out.println("\ntotMoRate = "+(float)moRate+"\tfor\t"+srcName);
+		moRate=0;
+		srcName = "Creeps Point2Vert_FaultPoisSource";
+		for(ProbEqkSource source : meanUCERF2_ETAS)
+			if(source.getName().equals(srcName))
+				moRate += source.computeEquivTotalMomentRate(duration);
+		System.out.println("\ntotMoRate = "+(float)moRate+"\tfor\t"+srcName);
+		
 
 	}
+	
 	
 	
 
@@ -228,7 +250,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 
 		
 		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
-//		fetcher.computeMomentRates();
-		fetcher.plotMFDs();
+		fetcher.computeMomentRates();
+//		fetcher.plotMFDs();
 	}
 }
