@@ -181,10 +181,70 @@ public class LogicTreePBSWriter {
 	private static CustomArg[] buildVariationBranch(InversionOptions[] ops, String[] vals) {
 		Preconditions.checkArgument(ops.length == vals.length);
 		CustomArg[] args = new CustomArg[ops.length];
-		for (int i=0; i<args.length; i++)
-			if (ops[i] != null)
+		for (int i=0; i<args.length; i++) {
+			if (!ops[i].hasOption()) {
+				if (vals[i] != null && vals[i].equals(TAG_OPTION_ON))
+					args[i] = new CustomArg(ops[i], null);
+			} else {
 				args[i] = new CustomArg(ops[i], vals[i]);
+			}
+		}
 		return args;
+	}
+	
+	private static final String TAG_OPTION_ON = "Option On";
+	
+	private static class VariableLogicTreeBranch extends LogicTreeBranch {
+		CustomArg[] args;
+		public VariableLogicTreeBranch(FaultModels fm,
+				DeformationModels dm,
+				MagAreaRelationships ma,
+				AveSlipForRupModels as,
+				SlipAlongRuptureModels sal,
+				InversionModels im,
+				CustomArg[] args) {
+			super(fm, dm, ma, as, sal, im);
+			this.args = args;
+		}
+		@Override
+		public int getNumAwayFrom(LogicTreeBranch branch) {
+			int num = super.getNumAwayFrom(branch);
+			
+			if (!(branch instanceof VariableLogicTreeBranch))
+				return num;
+			
+			VariableLogicTreeBranch variableBranch = (VariableLogicTreeBranch)branch;
+			
+			if (args != null) {
+				for (int i=0; i<args.length; i++) {
+					CustomArg myArg = args[i];
+					if (myArg == null)
+						continue;
+					
+					if (variableBranch.args == null || variableBranch.args.length <= i) {
+						num++;
+						break;
+					}
+					CustomArg theirArg = variableBranch.args[i];
+					if (theirArg.op != myArg.op) {
+						num++;
+						break;
+					}
+					
+					if (myArg.arg == null && theirArg.arg != null) {
+						num++;
+						break;
+					}
+					
+					if (!myArg.arg.equals(theirArg.arg)) {
+						num++;
+						break;
+					}
+				}
+			}
+			
+			return num;
+		}
 	}
 
 	/**
@@ -193,7 +253,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ready-yet";
+		String runName = "its-almost-april";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -242,15 +302,13 @@ public class LogicTreePBSWriter {
 		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
-				InversionOptions.MFD_MODIFICATION, null };
-		InversionOptions[] ops_relax = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
 				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
-//		variationBranches.add(buildVariationBranch(ops, toArray("0.2", "0.5", "1", null)));
-//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.3", null)));
 		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
+		variationBranches.add(buildVariationBranch(ops, toArray("0.2", "0.5", "1", null)));
+		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.3", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.35", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.4", null)));
-//		variationBranches.add(buildVariationBranch(ops_relax, toArray("0", "0", "1", null)));
+		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", TAG_OPTION_ON)));
 		
 //		List<CustomArg[]> variations = new ArrayList<CustomArg[]>();
 //		variations.add(forOptions(InversionOptions.OFF_FUALT_ASEIS, "0", "0.5"));
@@ -264,10 +322,11 @@ public class LogicTreePBSWriter {
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
 		maxAway.put(InversionModels.CHAR, 1);
 		maxAway.put(InversionModels.GR, 0);
-		maxAway.put(InversionModels.UNCONSTRAINED, 1);
-		LogicTreeBranch[] defaultBranches = {
-				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
-						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null),
+		maxAway.put(InversionModels.UNCONSTRAINED, 2);
+		VariableLogicTreeBranch[] defaultBranches = {
+				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
+						buildVariationBranch(ops, toArray("0.2", "0.5", "1", null))),
 						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
 						//								AveSlipForRupModels.ELLSWORTH_B, null, null),
 						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
@@ -358,7 +417,7 @@ public class LogicTreePBSWriter {
 						for (AveSlipForRupModels as : aveSlipModels) {
 							for (CustomArg[] variationBranch : variationBranches) {
 								for (InversionModels im : inversionModels) {
-									LogicTreeBranch branch = new LogicTreeBranch(fm, dm, ma, as, sal, im);
+									VariableLogicTreeBranch branch = new VariableLogicTreeBranch(fm, dm, ma, as, sal, im, variationBranch);
 									if (defaultBranches != null && defaultBranches.length > 0) {
 										int closest = Integer.MAX_VALUE;
 										for (LogicTreeBranch defaultBranch : defaultBranches) {

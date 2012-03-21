@@ -334,6 +334,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Implied Off Fault
 		IncrementalMagFreqDist solOffFaultMFD = getInpliedOffFaultMFD(totalTargetMFDConstraint);
+//		IncrementalMagFreqDist solOffFaultMFD = getInpliedOffFaultMFD(totalMFD, solMFD);
 		solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
 		funcs.add(solOffFaultMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
@@ -373,10 +374,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	public IncrementalMagFreqDist getInpliedOffFaultMFD(MFD_InversionConstraint target) {
-		IncrementalMagFreqDist targetMFD = target.getMagFreqDist();
-		IncrementalMagFreqDist magHist = calcNucleationMFD_forRegion(target.getRegion(), targetMFD.getMinX(),
-				targetMFD.getMaxX(), targetMFD.getDelta(), false);
-		return getInpliedOffFaultMFD(targetMFD, magHist);
+		IncrementalMagFreqDist totalMFD = target.getMagFreqDist();
+		IncrementalMagFreqDist magHist = calcNucleationMFD_forRegion(target.getRegion(), totalMFD.getMinX(),
+				totalMFD.getMaxX(), totalMFD.getNum(), false);
+		return getInpliedOffFaultMFD(totalMFD, magHist);
 	}
 	
 	/**
@@ -386,9 +387,13 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	public static IncrementalMagFreqDist getInpliedOffFaultMFD(IncrementalMagFreqDist target, IncrementalMagFreqDist magHist) {
-		IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(target.getMinX(), target.getNum(), target.getDelta());
+		IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(target.getMinX(), target.getMaxX(), target.getNum());
+		offFaultMFD.setTolerance(0.2);
 		for (double m=target.getMinX(); m<=target.getMaxX(); m+=target.getDelta()) {
-			offFaultMFD.set(m, target.getClosestY(m) - magHist.getClosestY(m));		
+			double tVal = target.getClosestY(m);
+			double myVal = magHist.getClosestY(m);
+//			System.out.println("implied off fault: "+m+": "+tVal+" - "+myVal+" = "+(tVal - myVal));
+			offFaultMFD.set(m, tVal - myVal);
 		}
 		return offFaultMFD;
 	}
@@ -396,7 +401,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	public static void main(String args[]) throws IOException, DocumentException {
 		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
-						"FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip"));
+						"FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip"));
 		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
 		inv.plotMFDs();
 	}
