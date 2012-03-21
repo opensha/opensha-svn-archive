@@ -19,7 +19,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class DefModelSpatialPDF_Generator {
 	
-	public static String FILENAME = "DeformationModels/gridded_moment_latlon_3_21.txt";
+	public static final String SUBDIR = "DeformationModels";
+	public static final String FILENAME = "gridded_moment_latlon_3_21.txt";
 	
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	GriddedGeoDataSet neoKin_xyzData, zeng_xyzData, aveBlockMod_xyzData, geoBlockMod_xyzData;
@@ -32,21 +33,19 @@ public class DefModelSpatialPDF_Generator {
 	
 	
 	private void readData() {
-		File dataFile = new File(UCERF3_DataUtils.DATA_URL_PREFIX, FILENAME);
-
-		System.out.println(dataFile);
-		
 		neoKin_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		zeng_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		aveBlockMod_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		geoBlockMod_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(dataFile));
+			BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUBDIR, FILENAME));
 			int l=-1;
 			String line;
 			while ((line = reader.readLine()) != null) {
 				l+=1;
+				if (l == 0)
+					continue;
 				String[] st = StringUtils.split(line,"\t");
 				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
 				int index = griddedRegion.indexForLocation(loc);
