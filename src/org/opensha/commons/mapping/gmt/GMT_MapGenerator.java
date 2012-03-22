@@ -1438,7 +1438,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine);
 
-		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, tempFilePrefix+".cpt", psFileName);
+		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, cptFile, psFileName);
 
 		// add the basemap
 		double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
