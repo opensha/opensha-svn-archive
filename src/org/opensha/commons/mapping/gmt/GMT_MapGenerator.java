@@ -1378,7 +1378,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		gmtCommandLines.add(commandLine+"\n");
 		
 		int dpi = map.getDpi();
-		if (griddedData != null) {
+		if (griddedData == null) {
+			// we have to initialize it ourselves
+			commandLine="${GMT_PATH}psbasemap "+ xOff + yOff + projWdth+" -B -K > " + psFileName;
+		} else {
 			if (!map.isUseGMTSmoothing()) {
 				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+"-Ts -K"+dpi+ region + " > " + psFileName;
 				gmtCommandLines.add(commandLine+"\n");
