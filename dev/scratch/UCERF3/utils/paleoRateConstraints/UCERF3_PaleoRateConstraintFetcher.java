@@ -98,12 +98,12 @@ public class UCERF3_PaleoRateConstraintFetcher {
 					closestFaultSectionIndex = sectionIndex;
 				}
 			}
-			if(minDist>2 && !blindThrustHack && !safOffshoreHack) {
+			if(minDist>2 && !blindThrustHack && !safOffshoreHack || closestFaultSectionIndex < 0) {
 				if (D) System.out.println("No match for: "+siteName+" (lat="+lat+", lon="+lon
 						+") closest was "+minDist+" away: "+faultSectionData.get(closestFaultSectionIndex).getSectionName());
 				continue; // closest fault section is at a distance of more than 2 km
 			}
-			
+			System.out.println("Matching constraint for closest index: "+closestFaultSectionIndex+" site name: "+siteName);
 			// add to Seg Rate Constraint list
 			String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
 			PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
