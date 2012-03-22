@@ -1328,15 +1328,17 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		GeoDataSet griddedData = map.getGriddedData();
 		
-		try {
-			ArbDiscrGeoDataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
-		} catch (IOException e) {
-			throw new GMT_MapException("Could not write XYZ data to a file", e);
+		if (griddedData != null) {
+			try {
+				ArbDiscrGeoDataSet.writeXYZFile(griddedData, dir + map.getXyzFileName());
+			} catch (IOException e) {
+				throw new GMT_MapException("Could not write XYZ data to a file", e);
+			}
+			gmtCommandLines.add("# convert xyz file to grd file");
+			commandLine = "${GMT_PATH}xyz2grd "+ map.getXyzFileName()+" -G"+ grdFileName+ " -I"+gridSpacing+
+							region +" -D/degree/degree/amp/=/=/=  -: -H0";
+			gmtCommandLines.add(commandLine);
 		}
-		gmtCommandLines.add("# convert xyz file to grd file");
-		commandLine = "${GMT_PATH}xyz2grd "+ map.getXyzFileName()+" -G"+ grdFileName+ " -I"+gridSpacing+
-						region +" -D/degree/degree/amp/=/=/=  -: -H0";
-		gmtCommandLines.add(commandLine);
 		
 		// get color scale limits
 		double colorScaleMin, colorScaleMax;
@@ -1374,45 +1376,47 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		else
 			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
 		gmtCommandLines.add(commandLine+"\n");
-
+		
 		int dpi = map.getDpi();
-		if (!map.isUseGMTSmoothing()) {
-			commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+"-Ts -K"+dpi+ region + " > " + psFileName;
-			gmtCommandLines.add(commandLine+"\n");
-		}
-		// generate the image depending on whether topo relief is desired
-		else if (map.getTopoResolution() == null) {
-			gmtCommandLines.add("# Plot the gridded data");
-			commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+" -K -E"+dpi+ region + " > " + psFileName;
-			gmtCommandLines.add(commandLine+"\n");
-		}
-		else {
-			// redefine the region so that maxLat, minLat, and delta fall exactly on the topoIntenFile
-			TopographicSlopeFile topoFile = map.getTopoResolution();
-			gridSpacing = GeoTools.secondsToDeg(map.getTopoResolution().resolution());
-			double tempNum = Math.ceil((minLat-topoFile.region().getMinLat())/gridSpacing);
-			minLat = tempNum*gridSpacing+topoFile.region().getMinLat();
-			tempNum = Math.ceil((minLon-(topoFile.region().getMinLon()))/gridSpacing);
-			minLon = tempNum*gridSpacing+(topoFile.region().getMinLon());
-			maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
-			maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
-			region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat + " ";
+		if (griddedData != null) {
+			if (!map.isUseGMTSmoothing()) {
+				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+"-Ts -K"+dpi+ region + " > " + psFileName;
+				gmtCommandLines.add(commandLine+"\n");
+			}
+			// generate the image depending on whether topo relief is desired
+			else if (map.getTopoResolution() == null) {
+				gmtCommandLines.add("# Plot the gridded data");
+				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+" -K -E"+dpi+ region + " > " + psFileName;
+				gmtCommandLines.add(commandLine+"\n");
+			}
+			else {
+				// redefine the region so that maxLat, minLat, and delta fall exactly on the topoIntenFile
+				TopographicSlopeFile topoFile = map.getTopoResolution();
+				gridSpacing = GeoTools.secondsToDeg(map.getTopoResolution().resolution());
+				double tempNum = Math.ceil((minLat-topoFile.region().getMinLat())/gridSpacing);
+				minLat = tempNum*gridSpacing+topoFile.region().getMinLat();
+				tempNum = Math.ceil((minLon-(topoFile.region().getMinLon()))/gridSpacing);
+				minLon = tempNum*gridSpacing+(topoFile.region().getMinLon());
+				maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
+				maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
+				region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat + " ";
 
-			String hiResFile = tempFilePrefix+"HiResData.grd";
-			rmFiles.add(hiResFile);
-			gmtCommandLines.add("# Resample the map to the topo resolution");
-			commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
-			topoFile.resolution() + "c -Q "+region;
-			gmtCommandLines.add(commandLine);
-			String intenFile = tempFilePrefix+"Inten.grd";
-			gmtCommandLines.add("# Cut the topo file to match the data region");
-			commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
-			rmFiles.add(intenFile);
-			gmtCommandLines.add(commandLine);
-			gmtCommandLines.add("# Plot the gridded data with topographic shading");
-			commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
-			" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ "-K -E"+dpi+ region + " > " + psFileName;
-			gmtCommandLines.add(commandLine);
+				String hiResFile = tempFilePrefix+"HiResData.grd";
+				rmFiles.add(hiResFile);
+				gmtCommandLines.add("# Resample the map to the topo resolution");
+				commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
+				topoFile.resolution() + "c -Q "+region;
+				gmtCommandLines.add(commandLine);
+				String intenFile = tempFilePrefix+"Inten.grd";
+				gmtCommandLines.add("# Cut the topo file to match the data region");
+				commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
+				rmFiles.add(intenFile);
+				gmtCommandLines.add(commandLine);
+				gmtCommandLines.add("# Plot the gridded data with topographic shading");
+				commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
+				" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ "-K -E"+dpi+ region + " > " + psFileName;
+				gmtCommandLines.add(commandLine);
+			}
 		}
 		
 		gmtCommandLines.add("");
@@ -1483,7 +1487,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// Add google earth lines...this doesn't work yet, still need to figure out how to get raste extracter
 		// to be called during execution
-		if (googleearth) {
+		if (googleearth && griddedData != null) {
 			gmtCommandLines.add("## Google earth files ##");
 			System.out.println("Making Google Earth files!");
 			String gEarth_psFileName = "gEarth_" + psFileName;
@@ -1738,7 +1742,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	private void checkForLogPlot(){
 		//checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
 		boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
-		if(logPlotCheck){
+		if(logPlotCheck && xyzDataSet != null){
 			xyzDataSet.log10();
 			SCALE_LABEL = "\"log@-10@-\050"+SCALE_LABEL+"\051\"";
 		}

@@ -509,7 +509,7 @@ public class LogicTreePBSWriter {
 											classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
 										classArgs += " --branch-prefix "+jobName;
 										classArgs += " --directory "+runSubDir.getAbsolutePath();
-										if (lightweight)
+										if (lightweight && r > 0)
 											classArgs += " --lightweight";
 										for (CustomArg variation : variationBranch) {
 											if (variation != null)

@@ -306,17 +306,8 @@ public class CommandLineInversionRunner {
 				}
 			}
 			
-			if (lightweight && prefix.contains("_run")) {
-				String sub = prefix.substring(prefix.indexOf("_run"+4));
-				int runNum = Integer.parseInt(sub);
-				if (runNum > 0) {
-					System.out.println("Deleting RupSet (no longer needed)");
-					rupSetFile.delete();
-				}
-			} else {
-				System.out.println("Deleting RupSet (no longer needed)");
-				rupSetFile.delete();
-			}
+			System.out.println("Deleting RupSet (no longer needed)");
+			rupSetFile.delete();
 		} catch (MissingOptionException e) {
 			System.err.println(e.getMessage());
 			printHelp(options);
