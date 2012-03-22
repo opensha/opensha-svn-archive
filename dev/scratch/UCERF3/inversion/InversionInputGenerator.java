@@ -452,6 +452,7 @@ public class InversionInputGenerator {
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
 //					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeEqualityConstraintWt;
 					d[rowIndex]=relativeMagnitudeEqualityConstraintWt;
+					if (targetMagFreqDist.getY(m)==0) d[rowIndex]=0;
 					rowIndex++; 
 				}	
 			}
@@ -488,8 +489,9 @@ public class InversionInputGenerator {
 					}
 				}		
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
-	//				d_ineq[rowIndex_MFD]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
+	//				d_ineq[rowIndex_ineq]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
 					d_ineq[rowIndex_ineq]=relativeMagnitudeInequalityConstraintWt;
+					if (targetMagFreqDist.getY(m)==0) d_ineq[rowIndex_ineq]=0;
 					rowIndex_ineq++; 
 				}	
 			}	
