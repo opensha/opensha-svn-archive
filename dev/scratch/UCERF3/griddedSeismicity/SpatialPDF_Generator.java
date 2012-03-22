@@ -1,12 +1,7 @@
 package scratch.UCERF3.griddedSeismicity;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Hashtable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -17,7 +12,7 @@ import org.opensha.commons.util.ExceptionUtils;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
-public class DefModelSpatialPDF_Generator {
+public class SpatialPDF_Generator {
 	
 	public static final String SUBDIR = "DeformationModels";
 	public static final String FILENAME = "gridded_moment_latlon_3_21.txt";
@@ -26,7 +21,7 @@ public class DefModelSpatialPDF_Generator {
 	GriddedGeoDataSet neoKin_xyzData, zeng_xyzData, aveBlockMod_xyzData, geoBlockMod_xyzData;
 	
 	
-	public DefModelSpatialPDF_Generator() {
+	public SpatialPDF_Generator() {
 		readData();
 	}
 
@@ -58,6 +53,20 @@ public class DefModelSpatialPDF_Generator {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		
+		double sum;
+		sum=0;
+		for(int i=0;i<neoKin_xyzData.size();i++) sum += neoKin_xyzData.get(i);
+		System.out.println("neoKin_xyzData totMoRate="+sum);
+		sum=0;
+		for(int i=0;i<zeng_xyzData.size();i++) sum += zeng_xyzData.get(i);
+		System.out.println("zeng_xyzData totMoRate="+sum);
+		sum=0;
+		for(int i=0;i<aveBlockMod_xyzData.size();i++) sum += aveBlockMod_xyzData.get(i);
+		System.out.println("aveBlockMod_xyzData totMoRate="+sum);
+		sum=0;
+		for(int i=0;i<geoBlockMod_xyzData.size();i++) sum += geoBlockMod_xyzData.get(i);
+		System.out.println("geoBlockMod_xyzData totMoRate="+sum);
+		
 		normalizeData(neoKin_xyzData);
 		normalizeData(zeng_xyzData);
 		normalizeData(aveBlockMod_xyzData);
@@ -80,7 +89,10 @@ public class DefModelSpatialPDF_Generator {
 	
 	private void testPlotMap() {
 		try {
-			GMT_CA_Maps.plotSpatialPDF_Map(neoKin_xyzData, "test", "test meta data", "testMap");
+			GMT_CA_Maps.plotSpatialPDF_Map(neoKin_xyzData, "NeoKinema PDF", "test meta data", "NeoKinemaPDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(zeng_xyzData, "Zeng PDF", "test meta data", "ZengPDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(aveBlockMod_xyzData, "ABM PDF", "test meta data", "ABM_PDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(geoBlockMod_xyzData, "Geo Block Mod PDF", "test meta data", "GeoBlkModPDF_Map");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,8 +104,8 @@ public class DefModelSpatialPDF_Generator {
 	 */
 	public static void main(String[] args) {
 
-		DefModelSpatialPDF_Generator test = new DefModelSpatialPDF_Generator();
-		test.testPlotMap();
+		SpatialPDF_Generator test = new SpatialPDF_Generator();
+//		test.testPlotMap();
 	}
 
 }
