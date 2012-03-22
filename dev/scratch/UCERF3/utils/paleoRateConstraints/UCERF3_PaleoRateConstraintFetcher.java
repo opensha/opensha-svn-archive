@@ -24,6 +24,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.base.Preconditions;
@@ -115,9 +116,23 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		return paleoRateConstraints;
 	}
 	
-	public static void showSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
-			ArrayList<FaultSystemSolution> solutions) {
+	private static class PlotSpec {
+		private ArrayList<DiscretizedFunc> funcs;
+		private ArrayList<PlotCurveCharacterstics> chars;
+		private String title, xAxisLabel, yAxisLabel;
 		
+		public PlotSpec(ArrayList<DiscretizedFunc> funcs,
+				ArrayList<PlotCurveCharacterstics> chars, String title, String xAxisLabel, String yAxisLabel) {
+			this.funcs = funcs;
+			this.chars = chars;
+			this.title = title;
+			this.xAxisLabel = xAxisLabel;
+			this.yAxisLabel = yAxisLabel;
+		}
+	}
+	
+	private static PlotSpec getSegRateComparisonSpec(ArrayList<PaleoRateConstraint> paleoRateConstraint,
+			ArrayList<FaultSystemSolution> solutions) {
 		Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
 		Preconditions.checkState(solutions.size() > 0, "Must have at least one solution");
 		
@@ -226,9 +241,26 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 		}
 		
-		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(funcs, "Paleosiesmic Constraint Fit", plotChars, true);
-		w.setX_AxisLabel("");
-		w.setY_AxisLabel("Event Rate Per Year");
+		return new PlotSpec(funcs, plotChars, "Paleosiesmic Constraint Fit", "", "Event Rate Per Year");
+	}
+	
+	public static void showSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
+			ArrayList<FaultSystemSolution> solutions) {
+		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, solutions);
+		
+		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(spec.funcs, spec.title, spec.chars, true);
+		w.setX_AxisLabel(spec.xAxisLabel);
+		w.setY_AxisLabel(spec.yAxisLabel);
+	}
+	
+	public static HeadlessGraphPanel getHeadlessSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
+			ArrayList<FaultSystemSolution> solutions) {
+		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, solutions);
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		gp.drawGraphPanel(spec.xAxisLabel, spec.yAxisLabel, spec.funcs, spec.chars, false, spec.title);
+		
+		return gp;
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {

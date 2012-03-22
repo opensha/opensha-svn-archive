@@ -25,6 +25,10 @@ public enum DeformationModels implements ShortNamed {
 	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_2012_03_02.csv"),
 	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_2012_03_02.csv",
 																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_03_02.csv"),
+	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	FaultModels.FM3_1, "geologic_slip_rake_fm3pt1_upperbound_2012_03_19.csv",
+																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_upperbound_2012_03_19.csv"),
+	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	FaultModels.FM3_1, "geologic_slip_rake_fm3pt1_lowerbound_2012_03_19.csv",
+																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_lowerbound_2012_03_19.csv"),
 	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_03_02.csv");
 	
 	private List<FaultModels> faultModels;

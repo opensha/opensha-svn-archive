@@ -14,6 +14,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -36,6 +37,12 @@ import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 
+/**
+ * This is a FaultSystemSolution that also contains parameters used in the UCERF3 Inversion
+ * 
+ * @author kevin
+ *
+ */
 public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	private InversionModels invModel;
@@ -56,6 +63,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	private double relativeMomentConstraintWt = Double.NaN;
 	private double minimumRuptureRateFraction = Double.NaN;
 
+	/**
+	 * Parses the info string for inversion parameters
+	 * 
+	 * @param solution
+	 */
 	public InversionFaultSystemSolution(FaultSystemSolution solution) {
 		super(solution);
 		
@@ -294,7 +306,54 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		return new IncrementalMagFreqDist(other.getMinX(), other.getMaxX(), other.getNum());
 	}
 	
-	private GraphiWindowAPI_Impl getMFDPlotWindow(MFD_InversionConstraint totalTargetMFDConstraint, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
+	private class PlotSpec {
+		private ArrayList<DiscretizedFunc> funcs;
+		private ArrayList<PlotCurveCharacterstics> chars;
+		private String title, xAxisLabel, yAxisLabel;
+		
+		public PlotSpec(ArrayList<DiscretizedFunc> funcs,
+				ArrayList<PlotCurveCharacterstics> chars, String title, String xAxisLabel, String yAxisLabel) {
+			this.funcs = funcs;
+			this.chars = chars;
+			this.title = title;
+			this.xAxisLabel = xAxisLabel;
+			this.yAxisLabel = yAxisLabel;
+		}
+	}
+	
+	public GraphiWindowAPI_Impl getMFDPlotWindow(MFD_InversionConstraint totalTargetMFDConstraint,
+			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
+		
+		PlotSpec spec = getMFDPlots(totalTargetMFDConstraint, ucerf2Fetch);
+		
+		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.funcs, spec.title, spec.chars, true);
+		
+		gw.setX_AxisLabel(spec.xAxisLabel);
+		gw.setY_AxisLabel(spec.yAxisLabel);
+		gw.setYLog(true);
+		gw.setY_AxisRange(1e-6, 1.0);
+		
+		gw.getGraphWindow().setPlottingOrder(DatasetRenderingOrder.FORWARD);
+		
+		return gw;
+	}
+	
+	public HeadlessGraphPanel getHeadlessMFDPlot(MFD_InversionConstraint totalTargetMFDConstraint,
+			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
+		PlotSpec spec = getMFDPlots(totalTargetMFDConstraint, ucerf2Fetch);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setYLog(true);
+		gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
+		gp.setUserBounds(totalTargetMFDConstraint.getMagFreqDist().getMinX(), totalTargetMFDConstraint.getMagFreqDist().getMaxX(),
+				1e-6, 1.0);
+		gp.drawGraphPanel(spec.xAxisLabel, spec.yAxisLabel, spec.funcs, spec.chars, true, spec.title);
+		
+		return gp;
+	}
+	
+	private PlotSpec getMFDPlots(MFD_InversionConstraint totalTargetMFDConstraint,
+			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		Region region = totalTargetMFDConstraint.getRegion();
 		
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
@@ -355,16 +414,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		if (region.getName() != null && !region.getName().isEmpty())
 			plotTitle += " ("+region.getName()+")";
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, plotTitle, chars, false);
-		
-		gw.setX_AxisLabel("Magnitude");
-		gw.setY_AxisLabel("Frequency (per bin)");
-		gw.setYLog(true);
-		gw.setY_AxisRange(1e-6, 1.0);
-		
-		gw.getGraphWindow().setPlottingOrder(DatasetRenderingOrder.FORWARD);
-		
-		return gw;
+		return new PlotSpec(funcs, chars, plotTitle, "Magnitude", "Frequency (per bin)");
 	}
 	
 	/**

@@ -2,6 +2,7 @@ package scratch.UCERF3.inversion;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,22 +14,31 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
+import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
+import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class CommandLineInversionRunner {
 	
@@ -113,6 +123,11 @@ public class CommandLineInversionRunner {
 				"Should be able to parse logic tree branch from this");
 		rupSetOp.setRequired(true);
 		ops.addOption(rupSetOp);
+	
+		Option lightweightOp = new Option("light", "lightweight", false, "Only write out a bin file for the solution." +
+				"Leave the rup set if the prefix indicates run 0");
+		lightweightOp.setRequired(false);
+		ops.addOption(lightweightOp);
 		
 		Option dirOp = new Option("dir", "directory", true, "Directory to store inputs");
 		dirOp.setRequired(true);
@@ -138,6 +153,8 @@ public class CommandLineInversionRunner {
 		try {
 			CommandLineParser parser = new GnuParser();
 			CommandLine cmd = parser.parse(options, args);
+			
+			boolean lightweight = cmd.hasOption("lightweight");
 			
 			// get the directory/logic tree branch
 			File dir = new File(cmd.getOptionValue("directory"));
@@ -253,29 +270,53 @@ public class CommandLineInversionRunner {
 			info += "\n****** Simulated Annealing Metadata ******";
 			info += "\n"+tsa.getMetadata(args, criteria);
 			info += "\n******************************************";
-			
-			System.out.println("Writing solution bin files");
-			tsa.writeBestSolution(new File(dir, prefix+".bin"));
-			
-			System.out.println("Loading RupSet");
-			rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
-			rupSet.setInfoString(info);
-			double[] rupRateSolution = tsa.getBestSolution();
-			rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(
-					rupRateSolution, minimumRuptureRates);
-			SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rupRateSolution);
-			System.out.println("Writing solution");
-			File solutionFile = new File(dir, prefix+"_sol.zip");
-			sol.toZipFile(solutionFile);
-			
-			System.out.println("Writing Plots");
-			tsa.writePlots(criteria, new File(dir, prefix));
 			FileWriter fw = new FileWriter(new File(dir, prefix+"_metadata.txt"));
 			fw.write(info);
 			fw.close();
 			
-			System.out.println("Deleting RupSet (no longer needed)");
-			rupSetFile.delete();
+			System.out.println("Writing solution bin files");
+			tsa.writeBestSolution(new File(dir, prefix+".bin"));
+			
+			if (!lightweight) {
+				System.out.println("Loading RupSet");
+				rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
+				rupSet.setInfoString(info);
+				double[] rupRateSolution = tsa.getBestSolution();
+				rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(
+						rupRateSolution, minimumRuptureRates);
+				SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rupRateSolution);
+				System.out.println("Writing solution");
+				File solutionFile = new File(dir, prefix+"_sol.zip");
+				sol.toZipFile(solutionFile);
+				
+				System.out.println("Writing Plots");
+				tsa.writePlots(criteria, new File(dir, prefix));
+				
+				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
+				// MFD plots
+				try {
+					writeMFDPlots(invSol, dir, prefix);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				try {
+					writePaleoPlots(paleoRateConstraints, invSol, dir, prefix);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if (lightweight && prefix.contains("_run")) {
+				String sub = prefix.substring(prefix.indexOf("_run"+4));
+				int runNum = Integer.parseInt(sub);
+				if (runNum > 0) {
+					System.out.println("Deleting RupSet (no longer needed)");
+					rupSetFile.delete();
+				}
+			} else {
+				System.out.println("Deleting RupSet (no longer needed)");
+				rupSetFile.delete();
+			}
 		} catch (MissingOptionException e) {
 			System.err.println(e.getMessage());
 			printHelp(options);
@@ -288,6 +329,52 @@ public class CommandLineInversionRunner {
 		}
 		System.out.println("DONE");
 		System.exit(0);
+	}
+	
+	private static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
+		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
+		
+		List<MFD_InversionConstraint> origMFDConstraints = invSol.getOrigMFDConstraints();
+		
+		if (origMFDConstraints.size() == 2) {
+			// add all cal
+			MFD_InversionConstraint allConst;
+			if (invSol.isUcerf3MFDs())
+				allConst = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
+			else {
+				Region reg = new CaliforniaRegions.RELM_TESTING();
+				ucerf2Fetch.setRegion(reg);
+				allConst = ucerf2Fetch.getTargetMFDConstraint();
+			}
+			origMFDConstraints.add(0, allConst);
+		}
+		
+		int cnt = 0;
+		for (MFD_InversionConstraint constraint : origMFDConstraints) {
+			cnt++;
+			HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(constraint, ucerf2Fetch);
+			Region reg = constraint.getRegion();
+			String regName = reg.getName();
+			if (regName == null || regName.isEmpty())
+				regName = "Uknown"+cnt;
+			regName = regName.replaceAll(" ", "_");
+			File file = new File(dir, prefix+"_MFD_"+regName);
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+		}
+	}
+	
+	private static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, FaultSystemSolution sol,
+			File dir, String prefix)
+			throws IOException {
+		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(
+				paleoRateConstraints, Lists.newArrayList(sol));
+		
+		File file = new File(dir, prefix+"_paleo_fit");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 
 }

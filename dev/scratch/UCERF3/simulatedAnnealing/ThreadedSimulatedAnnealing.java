@@ -807,6 +807,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLUE));
 		}
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
 		gp.setYLog(true);
 		gp.drawGraphPanel("Rank", "Rate", funcs, chars, false, "Rupture Rate Distribution");
 		File file = new File(prefix.getParentFile(), prefix.getName()+"_rate_dist.png");
@@ -853,6 +854,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		String energyLabel = "Energy";
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
 		
 		// this chops off any huge energy values in the first 5% of the run so that the plots
 		// are readable at the energy levels that are actually interesting

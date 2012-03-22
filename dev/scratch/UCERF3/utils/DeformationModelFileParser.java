@@ -81,7 +81,8 @@ public class DeformationModelFileParser {
 			}
 			
 			// make sure that the mini section number is correct (starts at 1)
-			Preconditions.checkState(def.slips.size() == id[1]-1);
+			Preconditions.checkState(def.slips.size() == id[1]-1, "bad row with minisectin: "
+						+row.get(0)+" (parsed as: "+id[0]+", "+id[1]+")");
 			
 			def.add(loc1, loc2, slip, rake);
 		}
@@ -98,7 +99,7 @@ public class DeformationModelFileParser {
 		// must be at least two digits (some files give it at xx.1 meaning xx.10)
 		if (str.length() == 1)
 			str = str+"0";
-		int section = Integer.parseInt(split[1]);
+		int section = Integer.parseInt(str);
 		
 		int[] ret = {id, section};
 		return ret;
@@ -391,6 +392,12 @@ public class DeformationModelFileParser {
 			break;
 		case GEOLOGIC_PLUS_ABM:
 			index = 5;
+			break;
+		case GEOLOGIC_LOWER:
+			index = 4;
+			break;
+		case GEOLOGIC_UPPER:
+			index = 4;
 			break;
 
 		default:

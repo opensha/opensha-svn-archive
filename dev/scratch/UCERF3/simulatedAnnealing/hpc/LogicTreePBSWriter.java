@@ -253,7 +253,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "its-almost-april";
+		String runName = "unconstrained-run-like-crazy";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -261,21 +261,25 @@ public class LogicTreePBSWriter {
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
-		//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
+		RunSites site = RunSites.EPICENTER;
+//		RunSites site = RunSites.HPCC;
 
-		int numRuns = 1;
+		int numRuns = 1000;
+		
+		boolean lightweight = numRuns > 10;
 
 //		FaultModels[] faultModels = { FaultModels.FM3_1 };
 		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
+//		FaultModels[] faultModels = { FaultModels.FM2_1 };
 
 		// if null, all that are applicable to each fault model will be used
-		DeformationModels[] defModels = null;
-//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+//		DeformationModels[] defModels = null;
+		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+//		DeformationModels[] defModels = { DeformationModels.UCERF2_ALL };
 
-		InversionModels[] inversionModels = InversionModels.values();
+//		InversionModels[] inversionModels = InversionModels.values();
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
-//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
+		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
@@ -303,12 +307,13 @@ public class LogicTreePBSWriter {
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
 				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
-		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
 		variationBranches.add(buildVariationBranch(ops, toArray("0.2", "0.5", "1", null)));
-		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.3", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.3", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", TAG_OPTION_ON)));
+		
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.35", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.4", null)));
-		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", TAG_OPTION_ON)));
 		
 //		List<CustomArg[]> variations = new ArrayList<CustomArg[]>();
 //		variations.add(forOptions(InversionOptions.OFF_FUALT_ASEIS, "0", "0.5"));
@@ -320,13 +325,16 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR, 1);
+		maxAway.put(InversionModels.CHAR, 0);
 		maxAway.put(InversionModels.GR, 0);
-		maxAway.put(InversionModels.UNCONSTRAINED, 2);
+		maxAway.put(InversionModels.UNCONSTRAINED, 0);
 		VariableLogicTreeBranch[] defaultBranches = {
+//				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+//						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
+//						buildVariationBranch(ops, toArray("0.2", "0.5", "1", null))),
 				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
-						buildVariationBranch(ops, toArray("0.2", "0.5", "1", null))),
+						null),
 						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
 						//								AveSlipForRupModels.ELLSWORTH_B, null, null),
 						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
@@ -399,6 +407,8 @@ public class LogicTreePBSWriter {
 			javaWriter.setProperty(FaultModels.FAULT_MODEL_STORE_PROPERTY_NAME, site.FM_STORE);
 			buildRupSets = false;
 		}
+		
+		int runDigits = new String((numRuns-1)+"").length();
 
 		double nodeHours = 0;
 		int cnt = 0;
@@ -412,6 +422,8 @@ public class LogicTreePBSWriter {
 			else
 				defModelsForFM = defModels;
 			for (DeformationModels dm : defModelsForFM) {
+				if (!dm.isApplicableTo(fm))
+					continue;
 				for (MagAreaRelationships ma : magAreas) {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
 						for (AveSlipForRupModels as : aveSlipModels) {
@@ -465,8 +477,12 @@ public class LogicTreePBSWriter {
 
 									for (int r=0; r<numRuns; r++) {
 										String jobName = name;
-										if (numRuns > 1)
-											jobName += "_run"+r;
+										if (numRuns > 1) {
+											String rStr = r+"";
+											while (rStr.length() < runDigits)
+												rStr = "0"+rStr;
+											jobName += "_run"+rStr;
+										}
 
 										File localRupSetFile = new File(writeDir, name+"_rupSet.zip");
 										File remoteRupSetFile = new File(runSubDir, name+"_rupSet.zip");
@@ -493,6 +509,8 @@ public class LogicTreePBSWriter {
 											classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
 										classArgs += " --branch-prefix "+jobName;
 										classArgs += " --directory "+runSubDir.getAbsolutePath();
+										if (lightweight)
+											classArgs += " --lightweight";
 										for (CustomArg variation : variationBranch) {
 											if (variation != null)
 												// this is the "off" state for a flag option
