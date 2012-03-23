@@ -32,6 +32,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -269,6 +270,44 @@ public class ERF_Calculator {
 	  
 	  return xyzData;
   }
+  
+  
+  /**
+   * The computes the nucleation moment rate in each grid point in the supplied GriddedRegion.
+   * @param erf - it's assumed that erf.updateForecast() has already been called
+   * @param griddedRegion
+   * @return GriddedGeoDataSet - X-axis is set as Latitude, and Y-axis is Longitude
+   */
+  public static GriddedGeoDataSet getMomentRatesInRegion(ERF erf, GriddedRegion griddedRegion) {
+
+	  GriddedGeoDataSet xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+	  double[] zVals = new double[griddedRegion.getNodeCount()];
+	  double duration = erf.getTimeSpan().getDuration();
+	  double moRateOutsideRegion = 0;
+	  for (ProbEqkSource source : erf) {
+		  for (ProbEqkRupture rupture : source) {
+			  LocationList surfLocs = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+			  double ptMoRate = MagUtils.magToMoment(rupture.getMag())*rupture.getMeanAnnualRate(duration)/surfLocs.size();
+			  for(Location loc: surfLocs) {
+				  int index = griddedRegion.indexForLocation(loc);
+				  if(index >= 0) {
+					  zVals[index] += ptMoRate;
+				  }		
+				  else{
+					  moRateOutsideRegion+=ptMoRate;
+				  }
+			  }
+		  }
+	  }
+	  
+	  System.out.println("moRateOutsideRegion="+moRateOutsideRegion);
+
+	  for(int i=0;i<griddedRegion.getNodeCount();i++)
+		  xyzData.set(i, zVals[i]);
+
+	  return xyzData;
+  }
+
   
   
   
