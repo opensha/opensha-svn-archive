@@ -732,6 +732,37 @@ public class NSHMP_GridSourceGenerator implements Serializable {
 		}
 	}
 	
+	
+	public void writeMomentRateOfFixedStrikeSources() {
+		
+		double totMoRate = 0;
+		for(ProbEqkSource source : getBrawleyFixedStrikeSources(1.0)) {
+			totMoRate += source.computeEquivTotalMomentRate(1.0);
+		}
+		System.out.println("BrawleyFixedStrikeSources moRate="+(float)totMoRate);
+
+		totMoRate = 0;
+		for(ProbEqkSource source : getMendosFixedStrikeSources(1.0)) {
+			totMoRate += source.computeEquivTotalMomentRate(1.0);
+		}
+		System.out.println("MendosFixedStrikeSources moRate="+(float)totMoRate);
+
+		totMoRate = 0;
+		for(ProbEqkSource source : getCreepsFixedStrikeSources(1.0)) {
+			totMoRate += source.computeEquivTotalMomentRate(1.0);
+		}
+		System.out.println("CreepsFixedStrikeSources moRate="+(float)totMoRate);
+
+		//others
+//		sources.addAll(getArea1FixedStrikeSources(duration));
+//		sources.addAll(getArea2FixedStrikeSources(duration));
+//		sources.addAll(getArea3FixedStrikeSources(duration));
+//		sources.addAll(getArea4FixedStrikeSources(duration));
+//		sources.addAll(getMojaveFixedStrikeSources(duration));
+//		sources.addAll(getSangregFixedStrikeSources(duration));
+
+	}
+	
 
 	public static void main(String args[]) {
 		
@@ -744,29 +775,31 @@ public class NSHMP_GridSourceGenerator implements Serializable {
 		 */
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
 		
-		double duration = 30;
-		srcGen.setAsPointSources(false);
-		ArrayList<ProbEqkSource> allSources = new ArrayList<ProbEqkSource>();
-		allSources.addAll(srcGen.getAllCrosshairGriddedSources(duration));
-		allSources.addAll(srcGen.getAllFixedStrikeSources(duration));
-
-		// Now calculate the total MFD
-		SummedMagFreqDist mfd= new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-
-		double mag, rate;
-		for(int srcIndex=0; srcIndex<allSources.size(); ++srcIndex) {
-			ProbEqkSource source = allSources.get(srcIndex);
-			//System.out.println(source.getName());
-			int numRups = source.getNumRuptures();
-			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
-				ProbEqkRupture rup = source.getRupture(rupIndex);
-				mag = rup.getMag();
-				rate = rup.getMeanAnnualRate(duration);
-				mfd.add(mag, rate);
-			}
-		}
+		srcGen.writeMomentRateOfFixedStrikeSources();
 		
-		System.out.println(mfd.getCumRateDistWithOffset());
+//		double duration = 30;
+//		srcGen.setAsPointSources(false);
+//		ArrayList<ProbEqkSource> allSources = new ArrayList<ProbEqkSource>();
+//		allSources.addAll(srcGen.getAllCrosshairGriddedSources(duration));
+//		allSources.addAll(srcGen.getAllFixedStrikeSources(duration));
+//
+//		// Now calculate the total MFD
+//		SummedMagFreqDist mfd= new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
+//
+//		double mag, rate;
+//		for(int srcIndex=0; srcIndex<allSources.size(); ++srcIndex) {
+//			ProbEqkSource source = allSources.get(srcIndex);
+//			//System.out.println(source.getName());
+//			int numRups = source.getNumRuptures();
+//			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
+//				ProbEqkRupture rup = source.getRupture(rupIndex);
+//				mag = rup.getMag();
+//				rate = rup.getMeanAnnualRate(duration);
+//				mfd.add(mag, rate);
+//			}
+//		}
+//		
+//		System.out.println(mfd.getCumRateDistWithOffset());
 
 		//System.out.println(srcGen.getTotalC_ZoneMFD().getCumRateDist());
 		//System.out.println(srcGen.getTotMFDForRegion(false, true, true));
