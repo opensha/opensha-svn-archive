@@ -187,6 +187,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 	private void computeMomentRates() {
 		int lastIndexOfFltSources = 288;
 		int lastIndexOfNonCA_FltSources = 408;
+		int lastIndexOfFirstBackground = 815;	// this is because Brawley, Mentods, and Creeps are the first fixed rate sources, but they are not C zones
 		int lastIndexOfC_zones = 1919;
 		double faultMoRate=0, nonCA_faultMoRate=0, cZoneMoRate=0, backSrcMoRate=0;
 		double duration = meanUCERF2_ETAS.getTimeSpan().getDuration();
@@ -194,8 +195,12 @@ public class UCERF2_MFD_ConstraintFetcher {
 			faultMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
 		for(int s=lastIndexOfFltSources+1;s<=lastIndexOfNonCA_FltSources;s++)
 			nonCA_faultMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
-		for(int s=lastIndexOfNonCA_FltSources+1;s<=lastIndexOfC_zones;s++)
+		for(int s=lastIndexOfNonCA_FltSources+1;s<=lastIndexOfFirstBackground;s++) {
+			backSrcMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+		}
+		for(int s=lastIndexOfFirstBackground+1;s<=lastIndexOfC_zones;s++) {
 			cZoneMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+		}
 		for(int s=lastIndexOfC_zones+1;s<meanUCERF2_ETAS.getNumSources();s++)
 			backSrcMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
 		
