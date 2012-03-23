@@ -27,7 +27,6 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
-import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 
@@ -53,10 +52,10 @@ public class GMT_CA_Maps {
 	final static double defaultColorScaleMaxPart = 0.0;
 	final static double defaultColorScaleMinRatio = -2.0;
 	final static double defaultColorScaleMaxRatio = 2.0;
-	final static double defaultColorScaleMinPDF = -5.5;
-	final static double defaultColorScaleMaxPDF = -2.5;
-	final static double defaultColorScaleMinMoRate = 12;
-	final static double defaultColorScaleMaxMoRate = 18;
+	final static double defaultColorScaleMinPDF = -8.0;
+	final static double defaultColorScaleMaxPDF = -1.0;
+	final static double defaultColorScaleMinMoRate = 12.0;
+	final static double defaultColorScaleMaxMoRate = 18.0;
 
 	
 	final static boolean makeMapOnServer = true;
@@ -72,8 +71,7 @@ public class GMT_CA_Maps {
 	final static double defaultImageWidth = 6.5; 
 	final static boolean defaultApplyGMT_Smoothing = false;
 	final static boolean defaultBlackBackground = false;
-//	final static CaliforniaRegions.RELM_TESTING_GRIDDED defaultGridRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
-	final static GriddedRegion defaultGridRegion = RELM_RegionUtils.getGriddedRegionInstance();
+	final static CaliforniaRegions.RELM_TESTING_GRIDDED defaultGridRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
 	final static File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
 	
@@ -170,8 +168,6 @@ public class GMT_CA_Maps {
 			String metadata, String dirName) throws IOException {
 		
 		GeoDataSet ratioGeoDataSet = GeoDataSetMath.divide(geoDataSet1, geoDataSet2);
-System.out.println("minRaio="+ratioGeoDataSet.getMinZ());
-System.out.println("minRaio="+ratioGeoDataSet.getMaxZ());
 
 		GMT_MapGenerator gmt_MapGenerator = getDefaultGMT_MapGenerator();
 		
@@ -608,18 +604,7 @@ System.out.println("minRaio="+ratioGeoDataSet.getMaxZ());
 
 		makeMap(geoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
 	}
-
-
 	
-	/**
-	 * This makes a map of the log10 spatial PDF the given GeoDataSet
-	 * 
-	 * @param geoDataSet
-	 * @param scaleLabel
-	 * @param metadata
-	 * @param dirName
-	 * @throws IOException 
-	 */
 	public static void plotSpatialMoRate_Map(GeoDataSet geoDataSet, String scaleLabel,
 			String metadata, String dirName) throws IOException {
 		
@@ -637,6 +622,7 @@ System.out.println("minRaio="+ratioGeoDataSet.getMaxZ());
 
 		makeMap(geoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
 	}
+
 
 	
 
