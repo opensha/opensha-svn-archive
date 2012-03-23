@@ -281,6 +281,15 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	public void plotMFDs() {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 		
+		List<MFD_InversionConstraint> origMFDConstraints = getPlotOriginalMFDConstraints(ucerf2Fetch);
+		
+		for (MFD_InversionConstraint constraint : origMFDConstraints) {
+			GraphiWindowAPI_Impl gw = getMFDPlotWindow(constraint, ucerf2Fetch);
+			gw.getGraphWindow().setVisible(true);
+		}
+	}
+	
+	public List<MFD_InversionConstraint> getPlotOriginalMFDConstraints(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		List<MFD_InversionConstraint> origMFDConstraints = getOrigMFDConstraints();
 		
 		if (origMFDConstraints.size() == 2) {
@@ -293,13 +302,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				ucerf2Fetch.setRegion(reg);
 				allConst = ucerf2Fetch.getTargetMFDConstraint();
 			}
+			
+			if (mfdConstraintModifier != 1 && mfdConstraintModifier > 0) {
+				IncrementalMagFreqDist magDist = allConst.getMagFreqDist();
+				for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
+					double setVal = mfdConstraintModifier * magDist.getClosestY(m);
+					magDist.set(m, setVal);
+				}
+			}
 			origMFDConstraints.add(0, allConst);
 		}
 		
-		for (MFD_InversionConstraint constraint : origMFDConstraints) {
-			GraphiWindowAPI_Impl gw = getMFDPlotWindow(constraint, ucerf2Fetch);
-			gw.getGraphWindow().setVisible(true);
-		}
+		return origMFDConstraints;
 	}
 	
 	private static IncrementalMagFreqDist newSameRange(IncrementalMagFreqDist other) {
@@ -363,8 +377,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Solution
 		IncrementalMagFreqDist solMFD = calcNucleationMFD_forRegion(region,
-				totalMFD.getMinX(), totalMFD.getMaxX(), totalMFD.getNum(), true);
+				totalMFD.getMinX(), 9.05, 0.1, true);
 		solMFD.setName("Solution MFD");
+		solMFD.setInfo("Inversion Solution MFD");
 		funcs.add(solMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLUE));
 		
@@ -399,14 +414,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// UCERF2 comparisons
 		ucerf2Fetch.setRegion(region);
-		IncrementalMagFreqDist ucerf2_OnFaultTargetMFD = ucerf2Fetch.getTargetMinusBackgroundMFD();
-		ucerf2_OnFaultTargetMFD.setTolerance(0.1); 
-		ucerf2_OnFaultTargetMFD.setName("UCERF2 Target minus background+aftershocks");
-		ucerf2_OnFaultTargetMFD.setInfo(region.getName());
+//		IncrementalMagFreqDist ucerf2_OnFaultTargetMFD = ucerf2Fetch.getTargetMinusBackgroundMFD();
+//		ucerf2_OnFaultTargetMFD.setTolerance(0.1); 
+//		ucerf2_OnFaultTargetMFD.setName("UCERF2 Target minus background+aftershocks");
+//		ucerf2_OnFaultTargetMFD.setInfo(region.getName());
 		IncrementalMagFreqDist ucerf2_OffFaultMFD = ucerf2Fetch.getBackgroundSeisMFD();
 		ucerf2_OffFaultMFD.setName("UCERF2 Background Seismicity MFD"); 
-		funcs.add(ucerf2_OnFaultTargetMFD);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
+//		funcs.add(ucerf2_OnFaultTargetMFD);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
 		funcs.add(ucerf2_OffFaultMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
 		
@@ -428,6 +443,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				totalMFD.getMaxX(), totalMFD.getNum(), false);
 		return getInpliedOffFaultMFD(totalMFD, magHist);
 	}
+		
+	/**
+	 * This calculates the MFD for the solution and returns the target minus the solution.
+	 * @param target
+	 * @return
+	 */
+	private IncrementalMagFreqDist getInpliedOffFaultMFD(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist magHist) {
+		double maxOffFaultMag = Double.MAX_VALUE;
+		if (branch.getInvModel() == InversionModels.CHAR && !Double.isNaN(bilinearTransitionMag) && bilinearTransitionMag > 0)
+			maxOffFaultMag = bilinearTransitionMag;
+		return getInpliedOffFaultMFD(totalMFD, magHist, maxOffFaultMag);
+	}
 	
 	/**
 	 * This simply returns the given target MFD minus the given MFD
@@ -435,10 +462,16 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param target
 	 * @return
 	 */
-	public static IncrementalMagFreqDist getInpliedOffFaultMFD(IncrementalMagFreqDist target, IncrementalMagFreqDist magHist) {
-		IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(target.getMinX(), target.getMaxX(), target.getNum());
+	public static IncrementalMagFreqDist getInpliedOffFaultMFD(IncrementalMagFreqDist target,
+			IncrementalMagFreqDist magHist, double maxOffFaultMag) {
+		double min = target.getMinX();
+		double max = target.getMaxX();
+		if (maxOffFaultMag < max)
+			max = maxOffFaultMag;
+		int numMag = (int)(((max - min) / 0.1)+0.5) + 1;
+		IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(min, max, numMag);
 		offFaultMFD.setTolerance(0.2);
-		for (double m=target.getMinX(); m<=target.getMaxX(); m+=target.getDelta()) {
+		for (double m=offFaultMFD.getMinX(); m<=offFaultMFD.getMaxX(); m+=offFaultMFD.getDelta()) {
 			double tVal = target.getClosestY(m);
 			double myVal = magHist.getClosestY(m);
 //			System.out.println("implied off fault: "+m+": "+tVal+" - "+myVal+" = "+(tVal - myVal));
@@ -451,8 +484,12 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
 						"FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip"));
+//		new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
+//				"FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Unconst_VarAseis0_VarOffAseis0_VarMFDMod1.3_VarNone_sol.zip"));
 		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
 		inv.plotMFDs();
+		
+//		CommandLineInversionRunner.writeMFDPlots(inv, new File("/tmp"), "test_plots");
 	}
 
 }

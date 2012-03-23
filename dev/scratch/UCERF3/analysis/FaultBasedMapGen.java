@@ -15,8 +15,11 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
@@ -34,29 +37,94 @@ public class FaultBasedMapGen {
 	
 	private static GMT_MapGenerator gmt;
 	
+	private static CPT slipCPT = null;
 	public static CPT getSlipRateCPT() {
-		CPT cpt = new CPT();
-
-		cpt.setBelowMinColor(Color.GRAY);
-		cpt.setNanColor(Color.GRAY);
-
-//		cpt.add(new CPTVal(0f, Color.GRAY, 0f, Color.GRAY));
-		cpt.add(new CPTVal(Float.MIN_VALUE, Color.BLUE, 10f, Color.MAGENTA));
-		cpt.add(new CPTVal(10f, Color.MAGENTA, 20f, Color.RED));
-		cpt.add(new CPTVal(20f, Color.RED, 30f, Color.ORANGE));
-		cpt.add(new CPTVal(30f, Color.ORANGE, 40f, Color.YELLOW));
-
-		cpt.setAboveMaxColor(Color.YELLOW);
-
-		return cpt;
+		if (slipCPT == null) {
+			slipCPT = new CPT();
+			
+			slipCPT.setBelowMinColor(Color.GRAY);
+			slipCPT.setNanColor(Color.GRAY);
+			
+//			slipCPT.add(new CPTVal(0f, Color.GRAY, 0f, Color.GRAY));
+			slipCPT.add(new CPTVal(Float.MIN_VALUE, Color.BLUE, 10f, Color.MAGENTA));
+			slipCPT.add(new CPTVal(10f, Color.MAGENTA, 20f, Color.RED));
+			slipCPT.add(new CPTVal(20f, Color.RED, 30f, Color.ORANGE));
+			slipCPT.add(new CPTVal(30f, Color.ORANGE, 40f, Color.YELLOW));
+			
+			slipCPT.setAboveMaxColor(Color.YELLOW);
+		}
+		return slipCPT;
 	}
 	
-	public static void plotSolutionSlipRates(FaultSystemSolution sol, Region region, File saveDir, boolean display) throws GMT_MapException, RuntimeException {
+	private static CPT fractDiffCPT = null;
+	public static CPT getFractionalDifferenceCPT() {
+		if (fractDiffCPT == null) {
+			try {
+				fractDiffCPT = GMT_CPT_Files.GMT_POLAR.instance();
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+			fractDiffCPT = fractDiffCPT.rescale(-1, 1);
+		}
+		
+		return fractDiffCPT;
+	}
+	
+	public static void plotOrigNonReducedSlipRates(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+			throws GMT_MapException, RuntimeException, IOException {
+		CPT cpt = getSlipRateCPT();
+		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
+		double[] values = new double[faults.size()];
+		for (int i=0; i<faults.size(); i++)
+			values[i] = faults.get(i).getOrigAveSlipRate();
+		
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix+"_orig_non_reduced_slip", display);
+	}
+	
+	public static void plotOrigCreepReducedSlipRates(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+			throws GMT_MapException, RuntimeException, IOException {
+		CPT cpt = getSlipRateCPT();
+		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
+		double[] values = new double[faults.size()];
+		for (int i=0; i<faults.size(); i++)
+			values[i] = faults.get(i).getReducedAveSlipRate();
+		
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix+"_orig_creep_reduced_slip", display);
+	}
+	
+	public static void plotTargetSlipRates(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+			throws GMT_MapException, RuntimeException, IOException {
+		CPT cpt = getSlipRateCPT();
+		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
+		double[] values = scale(sol.getSlipRateForAllSections(), 1e3); // to mm
+		
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix+"_target_slip", display);
+	}
+	
+	public static void plotSolutionSlipRates(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+			throws GMT_MapException, RuntimeException, IOException {
 		CPT cpt = getSlipRateCPT();
 		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
 		double[] values = scale(sol.calcSlipRateForAllSects(), 1e3); // to mm
 		
-		makeFaultPlot(cpt, faults, values, region, saveDir, display);
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix+"_solution_slip", display);
+	}
+	
+	private static double calcFractionalDifferentce(double target, double comparison) {
+		return (comparison - target) / target;
+	}
+	
+	public static void plotSolutionSlipMisfit(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+			throws GMT_MapException, RuntimeException, IOException {
+		CPT cpt = getFractionalDifferenceCPT();
+		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
+		double[] solSlips = sol.calcSlipRateForAllSects(); // to mm
+		double[] targetSlips = sol.getSlipRateForAllSections(); // to mm
+		double[] values = new double[faults.size()];
+		for (int i=0; i<faults.size(); i++)
+			values[i] = calcFractionalDifferentce(targetSlips[i], solSlips[i]);
+		
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix+"_slip_misfit", display);
 	}
 	
 	public static double[] scale(double[] values, double scalar) {
@@ -67,12 +135,14 @@ public class FaultBasedMapGen {
 	}
 	
 	private synchronized static void makeFaultPlot(CPT cpt, List<FaultSectionPrefData> faults, double[] values, Region region,
-			File saveDir, boolean display) throws GMT_MapException, RuntimeException {
+			File saveDir, String prefix, boolean display) throws GMT_MapException, RuntimeException, IOException {
 		GMT_Map map = new GMT_Map(region, null, 1, cpt);
 		
+		map.setBlackBackground(false);
 		map.setRescaleCPT(false);
 		map.setCustomScaleMin((double)cpt.getMinValue());
 		map.setCustomScaleMax((double)cpt.getMaxValue());
+		map.setCoast(new CoastAttributes(Color.BLACK, 2));
 		
 		Preconditions.checkState(faults.size() == values.length, "faults and values are different lengths!");
 		
@@ -87,7 +157,17 @@ public class FaultBasedMapGen {
 			gmt = new GMT_MapGenerator();
 		
 		String url = gmt.makeMapUsingServlet(map, "metadata", null);
+		System.out.println(url);
 		String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
+		if (saveDir != null) {
+			String baseURL = url.substring(0, url.lastIndexOf('/')+1);
+			
+			File pngFile = new File(saveDir, prefix+".png");
+			FileUtils.downloadURL(baseURL+"map.png", pngFile);
+			
+			File pdfFile = new File(saveDir, prefix+".pdf");
+			FileUtils.downloadURL(baseURL+"map.pdf", pdfFile);
+		}
 //		File zipFile = new File(downloadDir, "allFiles.zip");
 //		// construct zip URL
 //		String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
@@ -123,9 +203,14 @@ public class FaultBasedMapGen {
 		Region region = new CaliforniaRegions.RELM_TESTING();
 		
 		File saveDir = new File("/tmp");
-		boolean display = true;
+		String prefix = solFile.getName().replaceAll(".zip", "");
+		boolean display = false;
 		
-		plotSolutionSlipRates(sol, region, saveDir, display);
+		plotOrigNonReducedSlipRates(sol, region, saveDir, prefix, display);
+		plotOrigCreepReducedSlipRates(sol, region, saveDir, prefix, display);
+		plotTargetSlipRates(sol, region, saveDir, prefix, display);
+		plotSolutionSlipRates(sol, region, saveDir, prefix, display);
+		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display);
 	}
 
 }

@@ -380,7 +380,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * @return IncrementalMagFreqDist
 	 */
 	public IncrementalMagFreqDist calcNucleationMFD_forRegion(Region region, double minMag, double maxMag, double delta, boolean traceOnly) {
-		int numMag = (int)((maxMag - minMag) / delta+0.5);
+		int numMag = (int)((maxMag - minMag) / delta+0.5) + 1;
 		return calcNucleationMFD_forRegion(region, minMag, maxMag, numMag, traceOnly);
 	}
 

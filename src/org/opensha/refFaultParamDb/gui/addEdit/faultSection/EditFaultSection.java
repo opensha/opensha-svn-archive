@@ -91,9 +91,9 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 
 	// units for various paramaters
 	private final static String DIP_UNITS = "degrees";
-	private final static String SLIP_RATE_UNITS = "mm/yr";
+	public final static String SLIP_RATE_UNITS = "mm/yr";
 	private final static String DEPTH_UNITS = "km";
-	private final static String RAKE_UNITS = "degrees";
+	public final static String RAKE_UNITS = "degrees";
 	private final static String ASEISMIC_SLIP_FACTOR_UNITS = "";
 
 	// fault section name

@@ -322,23 +322,10 @@ public class CommandLineInversionRunner {
 		System.exit(0);
 	}
 	
-	private static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
+	static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 		
-		List<MFD_InversionConstraint> origMFDConstraints = invSol.getOrigMFDConstraints();
-		
-		if (origMFDConstraints.size() == 2) {
-			// add all cal
-			MFD_InversionConstraint allConst;
-			if (invSol.isUcerf3MFDs())
-				allConst = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
-			else {
-				Region reg = new CaliforniaRegions.RELM_TESTING();
-				ucerf2Fetch.setRegion(reg);
-				allConst = ucerf2Fetch.getTargetMFDConstraint();
-			}
-			origMFDConstraints.add(0, allConst);
-		}
+		List<MFD_InversionConstraint> origMFDConstraints = invSol.getPlotOriginalMFDConstraints(ucerf2Fetch);
 		
 		int cnt = 0;
 		for (MFD_InversionConstraint constraint : origMFDConstraints) {
