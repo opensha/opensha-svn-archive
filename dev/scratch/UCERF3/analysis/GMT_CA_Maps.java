@@ -50,8 +50,8 @@ public class GMT_CA_Maps {
 	final static double defaultColorScaleMaxNucl = -1.0;
 	final static double defaultColorScaleMinPart = -5.0;
 	final static double defaultColorScaleMaxPart = 0.0;
-	final static double defaultColorScaleMinRatio = -2.0;
-	final static double defaultColorScaleMaxRatio = 2.0;
+	final static double defaultColorScaleMinRatio = -3.0;
+	final static double defaultColorScaleMaxRatio = 3.0;
 	final static double defaultColorScaleMinPDF = -8.0;
 	final static double defaultColorScaleMaxPDF = -1.0;
 	final static double defaultColorScaleMinMoRate = 12.0;
@@ -168,6 +168,9 @@ public class GMT_CA_Maps {
 			String metadata, String dirName) throws IOException {
 		
 		GeoDataSet ratioGeoDataSet = GeoDataSetMath.divide(geoDataSet1, geoDataSet2);
+		
+		System.out.println("MIN RATIO = "+ratioGeoDataSet.getMinZ());
+		System.out.println("MAX RATIO = "+ratioGeoDataSet.getMaxZ());
 
 		GMT_MapGenerator gmt_MapGenerator = getDefaultGMT_MapGenerator();
 		

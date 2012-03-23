@@ -84,7 +84,7 @@ public class DeformationModelOffFaultMoRateData {
 	 * 1) moment rates in his files assume seismo thickness is 15 km, and mu=30GPa 
 	 * (seismo depth is changed to 12 below) 
 	 * 
-	 * 2) the input file has no header (but future ones hopefully will)
+	 * 2) I added a header to the input (hopefully will provide this in the future)
 	 * 
 	 * 3) zero values are replaced by the average of non-zero values
 	 */
