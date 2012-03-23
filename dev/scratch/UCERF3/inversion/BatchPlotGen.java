@@ -40,6 +40,16 @@ public class BatchPlotGen {
 			if (!fileName.endsWith("_sol.zip"))
 				continue;
 			
+			String prefix = fileName.substring(0, fileName.indexOf("_sol.zip"));
+			
+			File testDoneFile = new File(dir, prefix+"_sect_pairs.png");
+			if (testDoneFile.exists()) {
+				// we've already done this one, skip!
+				System.out.println("Skipping (already done): "+prefix);
+				continue;
+			}
+			System.out.println("Processing: "+prefix);
+			
 			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
 			
 			Region region;
@@ -48,8 +58,6 @@ public class BatchPlotGen {
 				region = new CaliforniaRegions.RELM_NOCAL();
 			else
 				region = new CaliforniaRegions.RELM_TESTING();
-			
-			String prefix = fileName.substring(0, fileName.indexOf("_sol.zip"));
 			
 			FaultBasedMapGen.plotOrigNonReducedSlipRates(sol, region, dir, prefix, false);
 			FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
