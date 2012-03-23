@@ -28,15 +28,15 @@ public class UCERF2_GridBuilder {
 	
 	private static void generateUCERF2pdf() {
 		double minLat = 24.6;
-		double maxLat = 50.0;
+		double maxLat = 51.0;
 		double dLat  = 0.1;
-		double minLon = -125.0;
+		double minLon = -126.5;
 		double maxLon = -100.0;
 		double dLon = 0.1;
 		
 		GriddedRegion gridRegion = new GriddedRegion(
-			new Location(minLat, minLon+0.001),
-			new Location(maxLat, maxLon+0.001),
+			new Location(minLat, minLon),
+			new Location(maxLat, maxLon),
 			dLat, GriddedRegion.ANCHOR_0_0);
 		GriddedRegion ucerfRegion = 
 				new CaliforniaRegions.RELM_TESTING_GRIDDED();
@@ -59,8 +59,6 @@ public class UCERF2_GridBuilder {
 		for (String gridName : gridNames) {
 			File gridFile = new File("src/resources/data/nshmp/sources/" + 
 				gridName);
-//			System.out.println(gridFile);
-//			System.out.println(gridFile.exists());
 			double[] aDat = readGrid(gridFile, nRows, nCols);
 			if (gridSum == null) {
 				gridSum = aDat;
@@ -69,6 +67,7 @@ public class UCERF2_GridBuilder {
 			addArray(gridSum, aDat);
 		}
 		
+		// sum over all values included in ucerf region
 		double regionSum = 0.0;
 		for (Location loc : ucerfRegion) {
 			int idx = gridRegion.indexForLocation(loc);
@@ -91,14 +90,7 @@ public class UCERF2_GridBuilder {
 			FileUtils.writeLines(out, records);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-		}
-		
-		
-//		System.out.println(gridSum.length);
-//		System.out.println(region.getNodeCount());
-		
-
-		
+		}		
 	}
 	
 	private static void addArray(double[] a1, double[] a2) {
@@ -107,9 +99,7 @@ public class UCERF2_GridBuilder {
 		}
 	}
 
-	/*
-	 * This method converts an NSHMP index to the correct GriddedRegion index
-	 */
+	/* Converts an NSHMP index to the correct GriddedRegion index */
 	private static int calcIndex(int idx, int nRows, int nCols) {
 		return (nRows - (idx / nCols) - 1) * nCols + (idx % nCols);
 		// compact form of:
@@ -119,7 +109,7 @@ public class UCERF2_GridBuilder {
 		// return targetRow * nCols + col;
 	}
 
-	/**
+	/*
 	 * Method reads a binary file of data into an array. This method is tailored
 	 * to the NSHMP grid files that are stored from top left to bottom right,
 	 * reading across. The nodes in OpenSHA <code>GriddedRegion</code>s are
