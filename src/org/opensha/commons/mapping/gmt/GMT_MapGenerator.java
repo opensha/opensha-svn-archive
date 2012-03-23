@@ -604,7 +604,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		if (!imgWebAddr.endsWith("/"))
 			imgWebAddr += "/";
 
-		return imgWebAddr+JPG_FILE_NAME;
+		return imgWebAddr+PNG_FILE_NAME;
 	}
 
 
