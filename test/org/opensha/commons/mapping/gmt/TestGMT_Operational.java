@@ -73,8 +73,8 @@ public class TestGMT_Operational {
 			e.printStackTrace();
 			fail("IOException opening connection: " + e.getMessage());
 		}
-		assertTrue("Connection to fetch image should give JPEG content type",
-				conn.getContentType().contains("jpeg"));
+		assertTrue("Connection to fetch image should give JPEG or PNG content type",
+				conn.getContentType().contains("jpeg") || conn.getContentType().contains("png"));
 		BufferedImage image = null;
 		try {
 			image =  ImageIO.read(conn.getInputStream());
