@@ -240,11 +240,18 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 				info_fw = new FileWriter(
 						new File(scratchDir,
 								INFO_FILE_PATH_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES+".txt"));
-				findSectionEndsForUCERF2_Rups();
-				findAssociations(faultSysRupSet.getSectionIndicesForAllRups());
-				info_fw.close();
 			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
+				e.printStackTrace(); // an exception here isn't worth killing everything!
+			}
+			
+			findSectionEndsForUCERF2_Rups();
+			findAssociations(faultSysRupSet.getSectionIndicesForAllRups());
+			
+			try {
+				if (info_fw != null)
+					info_fw.close();
+			} catch (IOException e) {
+				e.printStackTrace(); // an exception here isn't worth killing everything!
 			}
 
 			writePreComputedDataFile();
@@ -383,16 +390,18 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		
 		// write info results
 		try {
-			for(String line:resultsString)
-				info_fw.write(line);
-			info_fw.write("\nProblem Sources (can't find associated inv section for one end of at least one rupture):\n\n");
-			for(String line:problemSourceList)
-				info_fw.write("\t"+line+"\n");
-			info_fw.write("\nSubseimso Sources (has one or more subseismogenic ruptures):\n\n");
-			for(String line:subseismoRateString)
-				info_fw.write("\t"+line+"\n");
+			if (info_fw != null) {
+				for(String line:resultsString)
+					info_fw.write(line);
+				info_fw.write("\nProblem Sources (can't find associated inv section for one end of at least one rupture):\n\n");
+				for(String line:problemSourceList)
+					info_fw.write("\t"+line+"\n");
+				info_fw.write("\nSubseimso Sources (has one or more subseismogenic ruptures):\n\n");
+				for(String line:subseismoRateString)
+					info_fw.write("\t"+line+"\n");
+			}
 		} catch (IOException e) {
-			ExceptionUtils.throwAsRuntimeException(e);
+			e.printStackTrace(); // an exception here isn't worth killing everything!
 		}
 		
 	}
@@ -570,23 +579,25 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		
 		// write un-associated UCERF2 ruptures
 		try {
-			int numUnassociated=0;
-			info_fw.write("\nUnassociated UCERF2 ruptures (not from FM 2.2 or subseismogenic, so there should be a mapping?)\n\n");
-			info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
-			for(int r=0;r<ucerf2_fm.numRuptures;r++) {
-				int srcIndex = srcIndexOfUCERF2_Rup[r];
-				if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
-					info_fw.write("\t"+r+"\t"+srcIndexOfUCERF2_Rup[r]+"\t"+rupIndexOfUCERF2_Rup[r]+
-									"\t"+subSeismoUCERF2_Rup[r]+"\t"+invRupIndexForUCERF2_Rup[r]+"\t"+
-									modifiedUCERF2.getSource(srcIndexOfUCERF2_Rup[r]).getName()+
-									"\t("+faultSectionData.get(firstSectOfUCERF2_Rup[r]).getName()+
-									"\t"+faultSectionData.get(lastSectOfUCERF2_Rup[r]).getName()+")\n");
-							numUnassociated+=1;
+			if (info_fw != null) {
+				int numUnassociated=0;
+				info_fw.write("\nUnassociated UCERF2 ruptures (not from FM 2.2 or subseismogenic, so there should be a mapping?)\n\n");
+				info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
+				for(int r=0;r<ucerf2_fm.numRuptures;r++) {
+					int srcIndex = srcIndexOfUCERF2_Rup[r];
+					if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
+						info_fw.write("\t"+r+"\t"+srcIndexOfUCERF2_Rup[r]+"\t"+rupIndexOfUCERF2_Rup[r]+
+										"\t"+subSeismoUCERF2_Rup[r]+"\t"+invRupIndexForUCERF2_Rup[r]+"\t"+
+										modifiedUCERF2.getSource(srcIndexOfUCERF2_Rup[r]).getName()+
+										"\t("+faultSectionData.get(firstSectOfUCERF2_Rup[r]).getName()+
+										"\t"+faultSectionData.get(lastSectOfUCERF2_Rup[r]).getName()+")\n");
+								numUnassociated+=1;
+					}
 				}
+				info_fw.write("\tTot Num of Above Problems = "+numUnassociated+" (of "+ucerf2_fm.numRuptures+")\n\n");
 			}
-			info_fw.write("\tTot Num of Above Problems = "+numUnassociated+" (of "+ucerf2_fm.numRuptures+")\n\n");
 		} catch (IOException e) {
-			ExceptionUtils.throwAsRuntimeException(e);
+			e.printStackTrace(); // an exception here isn't worth killing everything!
 		}
 
 		if(D) System.out.println("Done with associations");
@@ -1075,7 +1086,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 /*	*/	
    		// read XML rup set file
 		if(D) System.out.println("Reading rup set file");
-   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.forBranch(DeformationModels.UCERF2_NCAL);
+   		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.forBranch(DeformationModels.UCERF2_ALL);
  //  		FaultSystemRupSet faultSysRupSet=InversionFaultSystemRupSetFactory.ALLCAL.getRupSet();
 //   		try {
 ////			faultSysRupSet = SimpleFaultSystemRupSet.fromFile(new File(precompDataDir.getAbsolutePath()+File.separator+"rupSetNoCal.xml"));

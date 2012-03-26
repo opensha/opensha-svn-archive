@@ -99,8 +99,14 @@ public class UCERF3_PaleoRateConstraintFetcher {
 				}
 			}
 			if(minDist>2 && !blindThrustHack && !safOffshoreHack || closestFaultSectionIndex < 0) {
-				if (D) System.out.println("No match for: "+siteName+" (lat="+lat+", lon="+lon
-						+") closest was "+minDist+" away: "+faultSectionData.get(closestFaultSectionIndex).getSectionName());
+				if (D) {
+					if (D) System.out.print("No match for: "+siteName+" (lat="+lat+", lon="+lon
+							+") closest was "+minDist+" away: "+closestFaultSectionIndex);
+					if (closestFaultSectionIndex >= 0)
+						System.out.println(". "+faultSectionData.get(closestFaultSectionIndex).getSectionName());
+					else
+						System.out.println();
+				}
 				continue; // closest fault section is at a distance of more than 2 km
 			}
 			System.out.println("Matching constraint for closest index: "+closestFaultSectionIndex+" site name: "+siteName);
