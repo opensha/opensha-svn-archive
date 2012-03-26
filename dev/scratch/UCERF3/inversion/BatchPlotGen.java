@@ -42,8 +42,12 @@ public class BatchPlotGen {
 			
 			String prefix = fileName.substring(0, fileName.indexOf("_sol.zip"));
 			
-			File testDoneFile = new File(dir, prefix+"_sect_pairs.png");
-			if (testDoneFile.exists()) {
+			File testMapDoneFile = new File(dir, prefix+"_sect_pairs.png");
+			boolean hasMapPlots = testMapDoneFile.exists();
+			File testMFDDoneFile = new File(dir, prefix+"_MFD_RELM_SOCAL_Region.png");
+			boolean hasMFDPlots = testMFDDoneFile.exists() && !prefix.contains("VarMFDMod1.3");
+//			boolean hasMFDPlots = 
+			if (hasMapPlots && hasMFDPlots) {
 				// we've already done this one, skip!
 				System.out.println("Skipping (already done): "+prefix);
 				continue;
@@ -52,25 +56,31 @@ public class BatchPlotGen {
 			
 			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
 			
-			Region region;
-			if (sol.getDeformationModel() == DeformationModels.UCERF2_NCAL
-					|| sol.getDeformationModel() == DeformationModels.UCERF2_BAYAREA)
-				region = new CaliforniaRegions.RELM_NOCAL();
-			else
-				region = new CaliforniaRegions.RELM_TESTING();
-			
-			FaultBasedMapGen.plotOrigNonReducedSlipRates(sol, region, dir, prefix, false);
-			FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
-			FaultBasedMapGen.plotTargetSlipRates(sol, region, dir, prefix, false);
-			FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
-			FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false);
-			double[] ucerf2_rates = InversionConfiguration.getUCERF2Solution(sol);
-			FaultSystemSolution ucerf2 = new SimpleFaultSystemSolution(sol, ucerf2_rates);
-			for (double[] range : partic_mag_ranges) {
-				FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);
-				FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
+			if (!hasMapPlots) {
+				Region region;
+				if (sol.getDeformationModel() == DeformationModels.UCERF2_NCAL
+						|| sol.getDeformationModel() == DeformationModels.UCERF2_BAYAREA)
+					region = new CaliforniaRegions.RELM_NOCAL();
+				else
+					region = new CaliforniaRegions.RELM_TESTING();
+
+				FaultBasedMapGen.plotOrigNonReducedSlipRates(sol, region, dir, prefix, false);
+				FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
+				FaultBasedMapGen.plotTargetSlipRates(sol, region, dir, prefix, false);
+				FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
+				FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false);
+				double[] ucerf2_rates = InversionConfiguration.getUCERF2Solution(sol);
+				FaultSystemSolution ucerf2 = new SimpleFaultSystemSolution(sol, ucerf2_rates);
+				for (double[] range : partic_mag_ranges) {
+					FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);
+					FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
+				}
+				FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
 			}
-			FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
+			if (!hasMFDPlots) {
+				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
+				CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
+			}
 		}
 	}
 
