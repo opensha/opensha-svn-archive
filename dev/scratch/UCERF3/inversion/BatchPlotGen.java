@@ -45,7 +45,7 @@ public class BatchPlotGen {
 			File testMapDoneFile = new File(dir, prefix+"_sect_pairs.png");
 			boolean hasMapPlots = testMapDoneFile.exists();
 			File testMFDDoneFile = new File(dir, prefix+"_MFD_RELM_SOCAL_Region.png");
-			boolean hasMFDPlots = testMFDDoneFile.exists() && !prefix.contains("VarMFDMod1.3");
+			boolean hasMFDPlots = testMFDDoneFile.exists();
 //			boolean hasMFDPlots = 
 			if (hasMapPlots && hasMFDPlots) {
 				// we've already done this one, skip!
