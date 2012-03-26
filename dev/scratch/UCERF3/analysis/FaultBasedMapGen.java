@@ -369,7 +369,8 @@ public class FaultBasedMapGen {
 	
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 		File invSolsDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
 		
 		Region region = new CaliforniaRegions.RELM_TESTING();
@@ -388,8 +389,14 @@ public class FaultBasedMapGen {
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 7, 8);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 8, 10);
 		
-//		double[] ucerf2_rates = InversionConfiguration.getUCERF2Solution(sol);
-//		FaultSystemSolution ucerf2Sol = new SimpleFaultSystemSolution(sol, ucerf2_rates);
+		double[] ucerf2_rates = InversionConfiguration.getUCERF2Solution(sol);
+		FaultSystemSolution ucerf2Sol = new SimpleFaultSystemSolution(sol, ucerf2_rates);
+		for (int r=0; r<ucerf2Sol.getNumRuptures(); r++) {
+			double mag = ucerf2Sol.getMagForRup(r);
+			double rate = ucerf2_rates[r];
+			if (mag>=8 && rate > 0)
+				System.out.println("Nonzero M>=8!: "+r+": Mag="+mag+", rate="+rate);
+		}
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 6, 7);
 //		plotParticipationRates(ucerf2Sol, region, saveDir, prefix, display, 6, 7);
 //		plotParticipationRatios(sol, ucerf2Sol, region, saveDir, prefix, display, 6, 7, true);
@@ -400,7 +407,7 @@ public class FaultBasedMapGen {
 //		plotParticipationRates(ucerf2Sol, region, saveDir, prefix, display, 8, 10);
 //		plotParticipationRatios(sol, ucerf2Sol, region, saveDir, prefix, display, 8, 10, true);
 		
-		plotSectionPairRates(sol, region, saveDir, prefix, display);
+//		plotSectionPairRates(sol, region, saveDir, prefix, display);
 	}
 
 }

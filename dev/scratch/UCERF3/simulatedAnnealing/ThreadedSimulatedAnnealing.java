@@ -103,7 +103,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			sas.add(new SerialSimulatedAnnealing(A, d, initialState, relativeSmoothnessWt, A_ineq, d_ineq));
 		
 		xbest = sas.get(0).getBestSolution();
-		Ebest = sas.get(0).getBestEnergy();
 	}
 	
 	public CompletionCriteria getSubCompetionCriteria() {
