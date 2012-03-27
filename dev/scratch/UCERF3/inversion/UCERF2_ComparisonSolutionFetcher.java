@@ -16,6 +16,8 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 
 public class UCERF2_ComparisonSolutionFetcher {
 	
@@ -62,11 +64,19 @@ public class UCERF2_ComparisonSolutionFetcher {
 	}
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
-//		SimpleFaultSystemSolution sol = getUCERF2Solution(FaultModels.FM2_1);
-//		BatchPlotGen.makeMapPlots(sol, new File("/tmp"), "ucerf2_fm2_compare");
+		FaultModels fm = FaultModels.FM3_1;
+		String prefix = "ucerf2_fm3_compare";
+		File dir = new File("/tmp");
 		
-		SimpleFaultSystemSolution sol = getUCERF2Solution(FaultModels.FM3_1);
-		BatchPlotGen.makeMapPlots(sol, new File("/tmp"), "ucerf2_fm3_compare");
+		SimpleFaultSystemSolution sol = getUCERF2Solution(fm);
+		BatchPlotGen.makeMapPlots(sol, dir, prefix);
+		sol.toZipFile(new File(dir, prefix+".zip"));
+		
+		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
+		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, sol, dir, prefix);
+		
+//		SimpleFaultSystemSolution sol = getUCERF2Solution(FaultModels.FM3_1);
+//		BatchPlotGen.makeMapPlots(sol, new File("/tmp"), "ucerf2_fm3_compare");
 	}
 
 }

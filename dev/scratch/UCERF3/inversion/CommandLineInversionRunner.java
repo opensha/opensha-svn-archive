@@ -348,7 +348,7 @@ public class CommandLineInversionRunner {
 		}
 	}
 	
-	private static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, FaultSystemSolution sol,
+	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, FaultSystemSolution sol,
 			File dir, String prefix)
 			throws IOException {
 		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(

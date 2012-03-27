@@ -60,7 +60,7 @@ public class BatchPlotGen {
 	private static FaultSystemSolution getUCERF2Comparision(FaultModels fm, File dir) throws IOException, DocumentException {
 		if (ucerf2SolutionCache.containsKey(fm))
 			return ucerf2SolutionCache.get(fm);
-		File cachedFile = new File(fm.getShortName()+"_UCERF2_COMPARISON_SOL.zip");
+		File cachedFile = new File(dir, fm.getShortName()+"_UCERF2_COMPARISON_SOL.zip");
 		SimpleFaultSystemSolution sol;
 		if (cachedFile.exists()) {
 			System.out.println("Loading UCERF2 comparison from: "+cachedFile.getName());
