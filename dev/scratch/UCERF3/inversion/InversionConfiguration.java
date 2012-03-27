@@ -1,32 +1,23 @@
 package scratch.UCERF3.inversion;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.zip.ZipException;
 
-import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
-import com.google.common.base.Preconditions;
-
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
@@ -36,6 +27,8 @@ import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
+
+import com.google.common.base.Preconditions;
 
 /**
  * This represents all of the inversion configuration parameters specific to an individual model
@@ -373,11 +366,11 @@ public class InversionConfiguration {
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			break;
 		case GR:
-			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, getSeisMomentFractionOffFault(rupSet, offFaultAseisFactor));
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			break;
 		case UNCONSTRAINED:
-			mfdConstraints = reduceMFDConstraint(mfdConstraints, findMomentFractionOffFaults(rupSet, offFaultAseisFactor));
+			mfdConstraints = reduceMFDConstraint(mfdConstraints, getSeisMomentFractionOffFault(rupSet, offFaultAseisFactor));
 			mfdConstraints = accountForVaryingMinMag(mfdConstraints, rupSet);
 			break;
 
@@ -639,11 +632,11 @@ public class InversionConfiguration {
 	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve the desired moment rate reduction.
 	 */
 	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet, double offFaultAseisFactor) {
-				
+		
 		DeformationModelOffFaultMoRateData moRateData = new DeformationModelOffFaultMoRateData();
 		double totalMomentOffFaults =  moRateData.getTotalOffFaultMomentRate(rupSet.getFaultModel(), rupSet.getDeformationModel());
 		double momentRateToRemove = totalMomentOffFaults*(1d-offFaultAseisFactor);
-	
+		
 		// Use the mag-dist for the whole region since the deformation model off-fault moment #s from Kaj are also for the whole region
 		IncrementalMagFreqDist magDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
 		
@@ -698,110 +691,24 @@ public class InversionConfiguration {
 //		return bValue;
 //	}
 	
-	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet,
-			double offFaultAseisFactor) {
-		return findMomentFractionOffFaults(rupSet, rupSet.getFaultModel(),
-				rupSet.getDeformationModel(), offFaultAseisFactor);
-	}
-	
 	/**
-	 * For GEOLOGIC deformation model, this assumes that the total moment rate for the ABM model is correct
-	 * (since we have not estimate for off-fault moment rate for this model)
+	 * TODO Ned/Morgan write javadocs
+	 * 
+	 * @param rupSet
+	 * @param offFaultAseisFactor
+	 * @return
 	 */
-	public static double findMomentFractionOffFaults(FaultSystemRupSet rupSet, FaultModels faultModel,
-			DeformationModels deformationModel, double offFaultAseisFactor) {
+	public static double getSeisMomentFractionOffFault(FaultSystemRupSet rupSet, double offFaultAseisFactor) {
 		// These values are from an e-mail from Kaj dated 2/29/12, for Zeng model see 3/5/12 e-mail
 		
+		DeformationModelOffFaultMoRateData offFaultData = new DeformationModelOffFaultMoRateData();
+		double offFaultMoment = offFaultData.getTotalOffFaultMomentRate(rupSet.getFaultModel(), rupSet.getDeformationModel());
+		offFaultMoment *= (1-offFaultAseisFactor); // apply off fault asiesmicity factor
+		double onFaultTotal = rupSet.getTotalOrigMomentRate();
 		
-		double momentFractionOffFaults;
+		double overallTotal = offFaultMoment + onFaultTotal;
 		
-		switch (faultModel) {
-		case FM3_1:
-			switch (deformationModel) {
-			case GEOLOGIC:
-				// ON THE CLUSTER WE CAN'T USED THIS CODE, NEED TO HARD CODE IN NUMBER
-/*				// assume total moment rates is same as for ABM model
-				// get total moment rate for on-fault GEOLOGIC
-				File scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
-				DeformationModelFetcher defFetch = new DeformationModelFetcher(faultModel,DeformationModels.GEOLOGIC, scratch_dir);
-				double moRateFaultGEO = DeformationModelsCalc.calculateTotalMomentRate(defFetch.getSubSectionList(),true);
-				// now get moment rate for on-fault ABM
-				defFetch = new DeformationModelFetcher(faultModel,DeformationModels.ABM, scratch_dir);
-				double moRateFaultABM = DeformationModelsCalc.calculateTotalMomentRate(defFetch.getSubSectionList(),true);
-				double fractOffABM = findMomentFractionOffFaults(faultModel, DeformationModels.ABM);
-				double totalMomentABM = DeformationModelsCalc.calcTotalMomentRate(moRateFaultABM, fractOffABM);
-				momentFractionOffFaults = (totalMomentABM-moRateFaultGEO)/totalMomentABM;	*/
-				momentFractionOffFaults = 14.3 / 100.0;
-				break;
-			case ABM:
-				momentFractionOffFaults = 33.6766 / 100.0;
-				break;
-			case GEOBOUND:
-				momentFractionOffFaults = 34.2229 / 100.0;
-				break;
-			case NEOKINEMA:
-				momentFractionOffFaults = 28.0202 / 100.0;
-				break;
-			case GEOLOGIC_PLUS_ABM:
-				return momentFractionOffFaults = (findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.GEOLOGIC, offFaultAseisFactor)
-						+ findMomentFractionOffFaults(rupSet, faultModel, DeformationModels.ABM, offFaultAseisFactor)) / 2.0;
-			case ZENG:
-				momentFractionOffFaults = 37.0728 / 100.0;
-				break;	
-			default:
-				throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model/fault model: "
-						+faultModel+", "+deformationModel);
-			}
-			break;
-		case FM3_2:
-			switch (deformationModel) {
-			case GEOLOGIC:
-/*				UCERF2_MFD_ConstraintFetcher ucerf2Constraints = new UCERF2_MFD_ConstraintFetcher();
-				Region entire_region = new CaliforniaRegions.RELM_TESTING();
-				ucerf2Constraints.setRegion(entire_region);
-				double UCERF2_OnFaultMoment = ucerf2Constraints.getTargetMinusBackgroundMFD().getTotalMomentRate();
-				double UCERF2_TargetMoment = ucerf2Constraints.getTargetMFDConstraint().getMagFreqDist().getTotalMomentRate();
-				momentFractionOffFaults = 1 - UCERF2_OnFaultMoment / UCERF2_TargetMoment;
-				System.out.println("UCERF2 moment fraction off faults = " + momentFractionOffFaults); 				*/		
-				momentFractionOffFaults = 14.3 / 100.0;  // THIS IS THE NUMBER FOR FM 3.1		
-				break;
-			// No other deformation models for FM2.1
-			default:
-				throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model/fault model: "
-							+faultModel+", "+deformationModel);
-			}
-			break;
-		case FM2_1:
-			switch (deformationModel) {
-			case UCERF2_ALL:
-				momentFractionOffFaults = 22.0 / 100.0;
-				break;
-
-			default:
-				throw new IllegalStateException("Moment fraction off faults is not defined for this deformation model/fault model: "
-						+faultModel+", "+deformationModel);
-			}
-			break;
-
-		default:
-			throw new RuntimeException("Can't get fraction off fault for FM: "+faultModel);
-		}
-		
-		
-		// Take into account the momentRateReduction - this is moment that is in subseismogenic ruptures 
-		// & we need to put it into the "background" moment
-		// DON'T DO THIS HERE - we account for subseismogenic rups (on a mag-bin dependent basis) in accountForVaryingMinMag()
-/*		if (rupSet != null) {
-			double subseismogenicRupsMomentFraction = rupSet.getTotalSubseismogenicMomentRateReductionFraction();
-			System.out.println("Fraction of on-fault moment that is in subseismogenic ruptures = "+subseismogenicRupsMomentFraction);
-			momentFractionOffFaults = momentFractionOffFaults + (1.0 - momentFractionOffFaults)*subseismogenicRupsMomentFraction;
-		}	*/
-		
-		
-		// apply off fault aseismicity factor
-		momentFractionOffFaults *= (1d-offFaultAseisFactor);
-		if (D) System.out.println("Moment fraction off faults = " + momentFractionOffFaults);
-		return momentFractionOffFaults;
+		return offFaultMoment / overallTotal;
 	}
 	
 	/**
