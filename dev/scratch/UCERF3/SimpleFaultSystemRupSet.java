@@ -268,6 +268,11 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	public List<Integer> getSectionsIndicesForRup(int rupIndex) {
 		return sectionForRups.get(rupIndex);
 	}
+	
+	public void setMagForallRups(double[] mags) {
+		Preconditions.checkArgument(mags.length == getNumRuptures());
+		this.mags = mags;
+	}
 
 	@Override
 	public double[] getMagForAllRups() {

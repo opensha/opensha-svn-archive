@@ -23,6 +23,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
@@ -33,6 +34,7 @@ import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
@@ -212,8 +214,11 @@ public class CommandLineInversionRunner {
 					rupSet, offFaultAseisFactor, mfdConstraintModifier,
 					mfdEqualityConstraintWt, mfdInequalityConstraintWt);
 			
-			ArrayList<PaleoRateConstraint> paleoRateConstraints =
-				UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+			ArrayList<PaleoRateConstraint> paleoRateConstraints;
+			if (branch.getFaultModel() == FaultModels.FM2_1)
+				paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+			else
+				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 			
 			PaleoProbabilityModel paleoProbabilityModel =
 				PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
@@ -322,7 +327,7 @@ public class CommandLineInversionRunner {
 		System.exit(0);
 	}
 	
-	static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
+	public static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 		
 		List<MFD_InversionConstraint> origMFDConstraints = invSol.getPlotOriginalMFDConstraints(ucerf2Fetch);
@@ -348,6 +353,7 @@ public class CommandLineInversionRunner {
 			throws IOException {
 		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(
 				paleoRateConstraints, Lists.newArrayList(sol));
+		gp.setYLog(true);
 		
 		File file = new File(dir, prefix+"_paleo_fit");
 		gp.getCartPanel().setSize(1000, 800);

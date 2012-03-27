@@ -63,7 +63,8 @@ public class FaultBasedMapGen {
 	private static CPT getFractionalDifferenceCPT() {
 		if (fractDiffCPT == null) {
 			try {
-				fractDiffCPT = GMT_CPT_Files.GMT_POLAR.instance();
+				fractDiffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+//				fractDiffCPT = GMT_CPT_Files.GMT_POLAR.instance();
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -90,11 +91,12 @@ public class FaultBasedMapGen {
 	private static CPT getRatioCPT() {
 		if (ratioCPT == null) {
 			try {
-				ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
+				ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+//				ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
-			ratioCPT = ratioCPT.rescale(-1, 1);
+			ratioCPT = ratioCPT.rescale(-3, 3);
 //			ratioCPT.get(0).start = (float)(1d/3d);
 //			ratioCPT.get(0).end = 1f;
 //			ratioCPT.get(1).start = 1f;
@@ -111,9 +113,8 @@ public class FaultBasedMapGen {
 	private static CPT getNormalizedPairRatesCPT() {
 		if (normalizedPairRatesCPT == null) {
 			try {
-				normalizedPairRatesCPT = GMT_CPT_Files.GMT_POLAR.instance().rescale(0, 1);
-//				normalizedPairRatesCPT.get(0).maxColor = Color.GRAY;
-//				normalizedPairRatesCPT.get(1).minColor = Color.GRAY;
+				normalizedPairRatesCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0, 1);
+//				normalizedPairRatesCPT = GMT_CPT_Files.GMT_POLAR.instance().rescale(0, 1);
 				normalizedPairRatesCPT.setNanColor(Color.GRAY);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
@@ -369,8 +370,8 @@ public class FaultBasedMapGen {
 	
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 		File invSolsDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-//		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
 		
 		Region region = new CaliforniaRegions.RELM_TESTING();
@@ -383,7 +384,7 @@ public class FaultBasedMapGen {
 //		plotOrigCreepReducedSlipRates(sol, region, saveDir, prefix, display);
 //		plotTargetSlipRates(sol, region, saveDir, prefix, display);
 //		plotSolutionSlipRates(sol, region, saveDir, prefix, display);
-//		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display);
+		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 6.7, 10);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 6, 7);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 7, 8);

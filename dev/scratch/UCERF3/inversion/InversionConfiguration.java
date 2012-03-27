@@ -905,7 +905,7 @@ public class InversionConfiguration {
 	 * @param faultSystemRupSet
 	 * @return
 	 */
-	public static double[] getUCERF2Solution(FaultSystemRupSet faultSystemRupSet) {
+	public static ArrayList<double[]> getUCERF2MagsAndrates(FaultSystemRupSet faultSystemRupSet) {
 		Preconditions.checkNotNull(faultSystemRupSet, "No rupture set supplied!");
 		FaultModels fm = faultSystemRupSet.getFaultModel();
 		Preconditions.checkNotNull(fm, "A fault model must be specified by the rupture set in order" +
@@ -919,9 +919,20 @@ public class InversionConfiguration {
 			findUCERF2_Rups = new FindEquivUCERF2_FM3_Ruptures(faultSystemRupSet,
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, fm);
 		
+		return findUCERF2_Rups.getMagsAndRatesForRuptures();
+	}
+	
+	/**
+	 * Probably has to be revised for FM 3.1? currently not used
+	 * 
+	 * @param findUCERF2_Rups
+	 * @param faultSystemRupSet
+	 * @return
+	 */
+	public static double[] getUCERF2Solution(FaultSystemRupSet faultSystemRupSet) {
+		ArrayList<double[]> ucerf2_magsAndRates = getUCERF2MagsAndrates(faultSystemRupSet);
 		int numRuptures=faultSystemRupSet.getNumRuptures();
 		double[] initial_state = new double[numRuptures];
-		ArrayList<double[]> ucerf2_magsAndRates = findUCERF2_Rups.getMagsAndRatesForRuptures();
 		for (int r=0; r<numRuptures; r++) {
 			double[] magAndRate = ucerf2_magsAndRates.get(r);
 			if(magAndRate != null) 

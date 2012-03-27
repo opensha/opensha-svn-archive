@@ -253,7 +253,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "unconstrained-run-like-crazy";
+		String runName = "production-supplement";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -261,15 +261,15 @@ public class LogicTreePBSWriter {
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
-		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
+//		RunSites site = RunSites.EPICENTER;
+		RunSites site = RunSites.HPCC;
 
-		int numRuns = 1000;
+		int numRuns = 1;
 		
 		boolean lightweight = numRuns > 10;
 
-//		FaultModels[] faultModels = { FaultModels.FM3_1 };
-		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
+		FaultModels[] faultModels = { FaultModels.FM3_1 };
+//		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
 //		FaultModels[] faultModels = { FaultModels.FM2_1 };
 
 		// if null, all that are applicable to each fault model will be used
@@ -279,25 +279,27 @@ public class LogicTreePBSWriter {
 
 //		InversionModels[] inversionModels = InversionModels.values();
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
-		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-//		InversionModels[] inversionModels =  { InversionModels.CHAR };
+//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
+		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
 
 		//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
-//		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
-		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B, MagAreaRelationships.HB_08,
-				MagAreaRelationships.SHAW_09 };
+		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
+//		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
+//		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B, MagAreaRelationships.HB_08,
+//				MagAreaRelationships.SHAW_09 };
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
 		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
 								SlipAlongRuptureModels.UNIFORM };
 //		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
 
-//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
-		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B,
-				AveSlipForRupModels.SHAW12_SQRT_LENGTH, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP,
-				AveSlipForRupModels.SHAW_2009_MOD };
+		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
+//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
+//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B,
+//				AveSlipForRupModels.SHAW12_SQRT_LENGTH, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP,
+//				AveSlipForRupModels.SHAW_2009_MOD };
 		//		AveSlipForRupModels[] aveSlipModels = AveSlipForRupModels.values();
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
@@ -332,7 +334,7 @@ public class LogicTreePBSWriter {
 //				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 //						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
 //						buildVariationBranch(ops, toArray("0.2", "0.5", "1", null))),
-				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+				new VariableLogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
 						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
 						null),
 						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
