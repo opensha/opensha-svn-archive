@@ -15,6 +15,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -735,6 +736,20 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			graph4.setYLog(true);
 			graph4.setY_AxisRange(1e-6, 1.0);
 		}
+	}
+	
+	/**
+	 * This returns the total moment of the solution (this does not include any off fault moment).<br>
+	 * <br>
+	 * This is calculated as the sum of the rates or each rupture times its moment (which is calculated form the magnitude)
+	 * @return
+	 */
+	public double getTotalFaultSolutionMomentRate() {
+		// calculate the moment
+		double totalSolutionMoment = 0;
+		for (int rup=0; rup<getNumRuptures(); rup++) 
+			totalSolutionMoment += getRateForRup(rup)*MagUtils.magToMoment(getMagForRup(rup));
+		return totalSolutionMoment;
 	}
 
 }
