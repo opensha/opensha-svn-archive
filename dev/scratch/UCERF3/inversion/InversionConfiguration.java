@@ -692,7 +692,10 @@ public class InversionConfiguration {
 //	}
 	
 	/**
-	 * TODO Ned/Morgan write javadocs
+	 * This Applies the offFaultAsiesFactor, and considers the aseismicity and 
+	 * coupling coefficients (including the default on the former), but does not include
+	 * the moment reduction for sub-seismo ruptures.  In other words, it's for the pure,
+	 * off fault seismicity.
 	 * 
 	 * @param rupSet
 	 * @param offFaultAseisFactor
