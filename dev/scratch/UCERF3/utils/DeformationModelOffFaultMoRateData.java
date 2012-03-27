@@ -71,6 +71,8 @@ public class DeformationModelOffFaultMoRateData {
 	 * @return
 	 */
 	public double getTotalOffFaultMomentRate(FaultModels fm, DeformationModels dm) {
+		if (dm == DeformationModels.UCERF2_ALL) 
+			return 0.54e19;
 		double total=0;
 		GriddedGeoDataSet data = getDefModSpatialOffFaultMoRates(fm, dm);
 		for(int i=0;i<data.size();i++)
