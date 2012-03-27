@@ -18,6 +18,7 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -290,28 +291,53 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 	}
 	
+	private boolean isStatewideDM() {
+		return getDeformationModel() != DeformationModels.UCERF2_BAYAREA && getDeformationModel() != DeformationModels.UCERF2_NCAL;
+	}
+	
+	/**
+	 * This returns the statewide MFD constraint (scaled if necessary by mfdConstraintModifier)
+	 * @return
+	 */
+	public MFD_InversionConstraint getStatewideMFDConstraint() {
+		return getStatewideMFDConstraint(null);
+	}
+	
+	/**
+	 * This returns the statewide MFD constraint (scaled if necessary by mfdConstraintModifier)
+	 * @param ucerf2Fetch UCERF2 mfd constraint fetcher if you already have one instantiated
+	 * @return
+	 */
+	public MFD_InversionConstraint getStatewideMFDConstraint(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
+		Preconditions.checkState(isStatewideDM(), "Can't get statewide MFD constraint for non statewide dm: "+getDeformationModel());
+		
+		MFD_InversionConstraint allConst;
+		if (ucerf3MFDs)
+			allConst = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
+		else {
+			Region reg = new CaliforniaRegions.RELM_TESTING();
+			if (ucerf2Fetch == null)
+				ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
+			ucerf2Fetch.setRegion(reg);
+			allConst = ucerf2Fetch.getTargetMFDConstraint();
+		}
+		
+		if (mfdConstraintModifier != 1 && mfdConstraintModifier > 0) {
+			IncrementalMagFreqDist magDist = allConst.getMagFreqDist();
+			for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
+				double setVal = mfdConstraintModifier * magDist.getClosestY(m);
+				magDist.set(m, setVal);
+			}
+		}
+		
+		return allConst;
+	}
+	
 	public List<MFD_InversionConstraint> getPlotOriginalMFDConstraints(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		List<MFD_InversionConstraint> origMFDConstraints = getOrigMFDConstraints();
 		
-		if (origMFDConstraints.size() == 2) {
-			// add all cal
-			MFD_InversionConstraint allConst;
-			if (ucerf3MFDs)
-				allConst = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
-			else {
-				Region reg = new CaliforniaRegions.RELM_TESTING();
-				ucerf2Fetch.setRegion(reg);
-				allConst = ucerf2Fetch.getTargetMFDConstraint();
-			}
-			
-			if (mfdConstraintModifier != 1 && mfdConstraintModifier > 0) {
-				IncrementalMagFreqDist magDist = allConst.getMagFreqDist();
-				for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
-					double setVal = mfdConstraintModifier * magDist.getClosestY(m);
-					magDist.set(m, setVal);
-				}
-			}
-			origMFDConstraints.add(0, allConst);
+		if (isStatewideDM() && origMFDConstraints.size() == 2) {
+			origMFDConstraints.add(0, getStatewideMFDConstraint(ucerf2Fetch));
 		}
 		
 		return origMFDConstraints;
@@ -431,6 +457,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			plotTitle += " ("+region.getName()+")";
 		
 		return new PlotSpec(funcs, chars, plotTitle, "Magnitude", "Frequency (per bin)");
+	}
+	
+	/**
+	 * This calculates the MFD for the solution and returns the total RELM testing region target minus the solution.
+	 * @return
+	 */
+	public IncrementalMagFreqDist getInpliedOffFaultStatewideMFD() {
+		return getInpliedOffFaultMFD(getStatewideMFDConstraint());
 	}
 	
 	/**
