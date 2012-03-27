@@ -72,7 +72,7 @@ public class DeformationModelOffFaultMoRateData {
 	 */
 	public double getTotalOffFaultMomentRate(FaultModels fm, DeformationModels dm) {
 		if (dm == DeformationModels.UCERF2_ALL) 
-			return 0.54e19;
+			return 0.54e19;	// this is the value for non CA B faults, background, and C Zones (see Table in report)
 		double total=0;
 		GriddedGeoDataSet data = getDefModSpatialOffFaultMoRates(fm, dm);
 		for(int i=0;i<data.size();i++)
