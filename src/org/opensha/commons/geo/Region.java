@@ -92,7 +92,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 	private ArrayList<LocationList> interiors;
 
 	// Internal representation of region
-	private Area area;
+	Area area;
 
 	// Default angle used to subdivide a circular region: 10 deg
 	private static final double WEDGE_WIDTH = 10;
