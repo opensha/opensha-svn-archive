@@ -20,6 +20,7 @@
 package org.opensha.sha.magdist;
 
 
+import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.Point2DException;
@@ -384,11 +385,67 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
     * This returns the maximum magnitude with a non-zero rate
     * @return
     */
+   public double getMinMagWithNonZeroRate() {
+	   for(int i=0; i<num; i++) {
+		   if(getY(i)>0) return getX(i);
+	   }
+	   return Double.NaN;
+   }
+   
+   /**
+    * This returns the maximum magnitude with a non-zero rate
+    * @return
+    */
    public double getMaxMagWithNonZeroRate() {
 	   for(int i=num-1; i>=0; i--) {
 		   if(getY(i)>0) return getX(i);
 	   }
-	   return -1;
+	   return  Double.NaN;
    }
+
+   
+   /**
+	* This computes the b-value (the slope of the line of a linear-log plot, meaning
+    * after computing log10 of all y-axis values) between the the given x-axis values.
+    * If Double.NaN is passed in, then the first (or last) non-zero rate is used for
+    * min_bValMag (or max_bValMag).
+    * @param min_bValMag
+    * @param max_bValMag
+    * @return
+    */
+   public double compute_bValue(double min_bValMag, double max_bValMag) {
+	   int firstIndex, lastIndex;
+
+	   if(Double.isNaN(min_bValMag))
+		   firstIndex = getClosestXIndex(getMinMagWithNonZeroRate());
+	   else
+		   firstIndex = getClosestXIndex(min_bValMag);
+
+	   if(Double.isNaN(max_bValMag))
+		   lastIndex = getClosestXIndex(getMaxMagWithNonZeroRate());
+	   else
+		   lastIndex = getClosestXIndex(max_bValMag);
+
+	   SimpleRegression regression = new SimpleRegression();
+	   for(int i=firstIndex; i<=lastIndex; i++) {
+		   if(getY(i)>0.0)	// avoid taking log of zero
+			   regression.addData(getX(i), Math.log10(getY(i)));
+	   }
+
+	   return regression.getSlope();
+   }
+   
+   
+   /**
+    * This computes the b-value (the slope of the line of a linear-log plot, meaning
+    * after computing log10 of all y-axis values) between the smallest and largest 
+    * mags with non-zero rates (zeros at the beginning and end of the distribution 
+    * are ignored).
+    * @return
+    */
+   public double compute_bValue() {
+	   return compute_bValue(Double.NaN, Double.NaN);
+   }
+
 
 }

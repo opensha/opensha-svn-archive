@@ -226,9 +226,34 @@ public class ERF_Calculator {
 			  }
 		  }
 	  }
-	  System.out.println(unassignedMFD.getCumRateDistWithOffset());
+//	  System.out.println(unassignedMFD.getCumRateDistWithOffset());
 	  return magFreqDists;
   }
+  
+  
+  /**
+   * This returns the b-value between min_bValMag and max_bValMag at each point in the region for the given ERF.
+   * Set min_bValMag (or max_bValMag) as Double.NaN if you want this set as the smallest (or largest) mag with a
+   * non-zero rate.
+   * @param erf
+   * @param griddedRegion
+   * @param min_bValMag
+   * @param max_bValMag
+   * @return
+   */
+  public static GriddedGeoDataSet get_bValueAtPointsInRegion(ERF erf, GriddedRegion griddedRegion, double min_bValMag, double max_bValMag) {
+	  ArrayList<SummedMagFreqDist> mfdList = getMagFreqDistsAtLocsInRegion(erf, griddedRegion,0.05,100,0.1, true);
+	  GriddedGeoDataSet xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+	  
+	  System.out.println(mfdList.get(1536));
+	  
+//	  GutenbergRichterMagFreqDist grTest = new GutenbergRichterMagFreqDist(1d, 1d,0.0,10d,100);
+	  for(int i=0;i<xyzData.size();i++)
+//		  xyzData.set(i, grTest.compute_bValue(min_bValMag, max_bValMag));
+	  		xyzData.set(i, mfdList.get(i).compute_bValue(min_bValMag, max_bValMag));
+	  return xyzData;
+  }
+  
   
 
   /**

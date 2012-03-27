@@ -385,5 +385,15 @@ public class GutenbergRichterMagFreqDist
    throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
      }*/
+  
+  
+	public static void main(String[] args) {
+		  GutenbergRichterMagFreqDist grTest = new GutenbergRichterMagFreqDist(1d, 1d,0.0,10d,100);
+		  System.out.println(grTest);
+		  System.out.println("bVal="+grTest.compute_bValue(Double.NaN,Double.NaN));
+		  
+
+	}
+
 
 }
