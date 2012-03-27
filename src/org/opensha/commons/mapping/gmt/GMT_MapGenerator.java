@@ -111,16 +111,6 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/classes";
 	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
 
-	/*				gravity.usc.edu paths				*/
-	public static final String GRAVITY_GMT_PATH="/opt/install/gmt/bin/";
-	public static final String GRAVITY_GS_PATH="/usr/local/bin/gs";
-	public static final String GRAVITY_PS2PDF_PATH = "/usr/local/bin/ps2pdf";
-	public static final String GRAVITY_CONVERT_PATH="/usr/bin/convert";
-	public static final String GRAVITY_GMT_DATA_PATH = "/usr/scec/data/gmt/";
-	public static final String GRAVITY_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/GMT_MapGeneratorServlet";
-	public static final String GRAVITY_JAVA_PATH = "";
-	public static final String GRAVITY_CLASSPATH = "";
-
 	// this is the path where general data (e.g., topography) are found:
 	public static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
 	private static String SERVLET_URL = OPENSHA_SERVLET_URL;

@@ -264,11 +264,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	throws GMT_MapException{
 		eqkRup = eqkRupture;
 
-		GMT_PATH="/opt/install/gmt/bin/";
-		GS_PATH="/usr/local/bin/gs";
-		PS2PDF_PATH = "/usr/local/bin/ps2pdf";
-		CONVERT_PATH="/usr/bin/convert";
-
 		GMT_Map maps[] = new GMT_Map[4];
 
 		// Do 0.3-sec SA first
