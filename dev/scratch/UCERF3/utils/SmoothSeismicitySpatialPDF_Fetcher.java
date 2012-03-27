@@ -77,7 +77,7 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 		return sum;
 	}
 	
-	private static void testPlotMap() {
+	private static void plotMaps() {
 		try {
 			GMT_CA_Maps.plotSpatialPDF_Map(getUCERF2_PDF(), "UCERF2_SmoothSeisPDF", "test meta data", "UCERF2_SmoothSeisPDF_Map");
 			GMT_CA_Maps.plotSpatialPDF_Map(getUCERF3_PDF(), "UCERF3_SmoothSeisPDF", "test meta data", "UCERF3_SmoothSeisPFD_Map");
@@ -93,7 +93,7 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		testPlotMap();
+		plotMaps();
 	}
 
 }

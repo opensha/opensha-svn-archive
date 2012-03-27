@@ -8,11 +8,14 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 /**
  * This reads and provides the off-fault moment rates provided by Kaj Johnson 
@@ -166,6 +169,76 @@ public class DeformationModelOffFaultMoRateData {
 	
 	
 	/**
+	 * This generates an average PDF of the off-fault deformation models.  The data is read here in order
+	 * to deal with the zero values differently (they are not considered in the average).  Each off-fault
+	 * model is normalized to a PDF before computing the average PDF.
+	 * @return
+	 */
+	public static GriddedGeoDataSet getAveDefModelPDF() {
+		GriddedGeoDataSet aveData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet neok_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet zeng_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet abm_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet geobound_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		
+		// to convert dyn-cm/yr to Nm/yr and seismo thickness of 15 to 12;
+		double CONVERSION = (REVISED_SEISMO_THICKNESS/KAJ_SEISMO_THICKNESS)*1e-7;
+
+		try {
+			BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUBDIR, FILENAME));
+			int l=-1;
+			String line;
+			while ((line = reader.readLine()) != null) {
+				l+=1;
+				if (l == 0)
+					continue;
+				String[] st = StringUtils.split(line,"\t");
+				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
+				int index = griddedRegion.indexForLocation(loc);
+				neok_Fm3pt1_xyzData.set(index, Double.valueOf(st[2])*CONVERSION);
+				zeng_Fm3pt1_xyzData.set(index, Double.valueOf(st[3])*CONVERSION);
+				abm_Fm3pt1_xyzData.set(index, Double.valueOf(st[4])*CONVERSION);
+				geobound_Fm3pt1_xyzData.set(index, Double.valueOf(st[5])*CONVERSION);
+			}
+		} catch (Exception e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
+		neok_Fm3pt1_xyzData = getNormalizdeData(neok_Fm3pt1_xyzData);
+		zeng_Fm3pt1_xyzData = getNormalizdeData(zeng_Fm3pt1_xyzData);
+		abm_Fm3pt1_xyzData = getNormalizdeData(abm_Fm3pt1_xyzData);
+		geobound_Fm3pt1_xyzData = getNormalizdeData(geobound_Fm3pt1_xyzData);
+		
+		for(int i=0;i<aveData.size();i++) {
+			double val=0;
+			int num =0;
+			if(neok_Fm3pt1_xyzData.get(i) !=0) {
+				val += neok_Fm3pt1_xyzData.get(i);
+				num+=1;
+			}
+			if(zeng_Fm3pt1_xyzData.get(i) !=0) {
+				val += zeng_Fm3pt1_xyzData.get(i);
+				num+=1;
+			}
+			if(abm_Fm3pt1_xyzData.get(i) !=0) {
+				val += abm_Fm3pt1_xyzData.get(i);
+				num+=1;
+			}
+			if(geobound_Fm3pt1_xyzData.get(i) !=0) {
+				val += geobound_Fm3pt1_xyzData.get(i);
+				num+=1;
+			}
+			if(num !=0)
+				aveData.set(i,val/num);
+			else
+				aveData.set(i,0.0);
+		}
+		
+		return aveData;
+	}
+	
+	
+	/**
 	 * This writes the total moment rates to system.out
 	 */
 	public void writeAllTotalMomentRates() {
@@ -276,15 +349,39 @@ public class DeformationModelOffFaultMoRateData {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void plotAveDefModPDF_Map() {
+		
+		// get the UCERF PDF with C zones for comparison
+		ModMeanUCERF2 erf= new ModMeanUCERF2();
+		erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		erf.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
+		erf.updateForecast();
+		GriddedGeoDataSet ucerf2_OffFaultMoRate = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
+		GriddedGeoDataSet ucerf2_OffFaultSeis = ERF_Calculator.getNucleationRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance(),0d,10d);
+
+		try {
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(), "Ave Def Mod PDF", "average of the 4 gps deformation models", "AveDefModPDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(ucerf2_OffFaultMoRate), "UCERF2 Off-Fault MoRate", "this includes the C zones", "UCERF2_OffFaultMoRatePDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(ucerf2_OffFaultSeis), "UCERF2 Off-Fault Seis", "this includes the C zones", "UCERF2_OffFaultSeisPDF_Map");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 
-		DeformationModelOffFaultMoRateData test = new DeformationModelOffFaultMoRateData();
-		test.writeAllTotalMomentRates();
-//		test.testPlotMap();
+		plotAveDefModPDF_Map();
+		
+//		DeformationModelOffFaultMoRateData test = new DeformationModelOffFaultMoRateData();
+//		test.writeAllTotalMomentRates();
+////		test.testPlotMap();
 	}
 
 }

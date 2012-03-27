@@ -25,9 +25,12 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
 
 
 /**
@@ -71,7 +74,7 @@ public class GMT_CA_Maps {
 	final static double defaultImageWidth = 6.5; 
 	final static boolean defaultApplyGMT_Smoothing = false;
 	final static boolean defaultBlackBackground = false;
-	final static CaliforniaRegions.RELM_TESTING_GRIDDED defaultGridRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+	final static CaliforniaRegions.RELM_TESTING_GRIDDED defaultGridRegion  = RELM_RegionUtils.getGriddedRegionInstance();
 
 	final static File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
 	
@@ -533,7 +536,7 @@ public class GMT_CA_Maps {
 	/**
 	 * This makes a map of the ratio of M>=mag rates to the rate projected from M 5.0 to mag using
 	 * a GR distribution with the given b-value (like shown in figure 19 of the UCERF2 report). 
-	 * Ther is no version of this that takes a FaultSystemSolution because you need smaller events to
+	 * There is no version of this that takes a FaultSystemSolution because you need smaller events to
 	 * make the plot meaningful.
 	 * @param erf
 	 * @param mag - magnitude for the ratio
@@ -626,6 +629,41 @@ public class GMT_CA_Maps {
 		makeMap(geoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
 	}
 
+	
+	
+	/**
+	 * This makes a map of b-values
+	 * @param erf
+	 * @param min_bValMag - If Double.NaN, this defaults to the smallest mag with non-zero rate
+	 * @param max_bValMag - If Double.NaN, this defaults to the largest mag with non-zero rate
+	 * @param scaleLabel
+	 * @param metadata
+	 * @param dirName
+	 * @throws IOException 
+	 */
+	public static void plot_bValueMap(ERF erf, double min_bValMag, double max_bValMag, String scaleLabel,
+			String metadata, String dirName) throws IOException {
+		
+		GriddedGeoDataSet geoDataSet = ERF_Calculator.get_bValueAtPointsInRegion(erf, defaultGridRegion, min_bValMag, max_bValMag);
+		
+		GMT_MapGenerator gmt_MapGenerator = getDefaultGMT_MapGenerator();
+		
+		//override default scale
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -2d);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 2d);
+		
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, false);
+		
+		// must set this parameter this way because the setValue(CPT) method takes a CPT object, and it must be the
+		// exact same object as in the constraint (same instance); the setValue(String) method was added for convenience
+		// but it won't succeed for the isAllowed(value) call.
+		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(defaultNucleationCPT);
+
+		makeMap(geoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
+		
+	}
+
 
 	
 
@@ -636,12 +674,16 @@ public class GMT_CA_Maps {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		
+		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(FaultModels.FM3_1);
+		plot_bValueMap(modMeanUCERF2, Double.NaN, Double.NaN, "UCERF2 bVals","test", "test_bValMap");
+		
+		
 		// ****** TEST FROM A FaultSystemRupSet ******
 
-		File solutionDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaAvU2_DsrTap_DrAvU2_Unconst_sol.zip");
-   		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);
-		plotNucleationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Nucl", "test meta data FOR fltSysSol", "testFltSysSolNucl");
+//		File solutionDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaAvU2_DsrTap_DrAvU2_Unconst_sol.zip");
+//   		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);
+//		plotNucleationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Nucl", "test meta data FOR fltSysSol", "testFltSysSolNucl");
 //		plotParticipationRateMap(fltSysSol, 0, 10, "TEST fltSysSol Part", "test meta data FOR fltSysSol", "testFltSysSolPart");
 
 		

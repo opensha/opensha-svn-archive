@@ -110,19 +110,30 @@ public class PaleoProbabilityModel {
 		return new PaleoProbabilityModel(xyz, dispMagFunc);
 	}
 	
+	public void writeTableData() {
+		for(double mag=5d; mag <=8.05; mag+=0.5) {
+			double aveSlip = dispMagFunc.getFirstInterpolatedX(mag);
+			double p05=getForMag(mag,0.05);
+			double p25=getForMag(mag,0.25);
+			double p50=getForMag(mag,0.4999);
+			System.out.println((float)aveSlip+"\t"+mag+"\t"+(float)p05+"\t"+(float)p25+"\t"+(float)p50);
+		}
+	}
+	
 	public static void main(String[] args) throws IOException {
 		PaleoProbabilityModel model = loadUCERF3PaleoProbabilityModel();
-		for (int yInd=0; yInd<model.xyz.getNumY(); yInd++) {
-			String line = null;
-			for (int xInd=0; xInd<model.xyz.getNumX(); xInd++) {
-				if (line == null)
-					line = "";
-				else
-					line += "\t";
-				line += model.xyz.get(xInd, yInd);
-			}
-			System.out.println(line);
-		}
+		model.writeTableData();
+//		for (int yInd=0; yInd<model.xyz.getNumY(); yInd++) {
+//			String line = null;
+//			for (int xInd=0; xInd<model.xyz.getNumX(); xInd++) {
+//				if (line == null)
+//					line = "";
+//				else
+//					line += "\t";
+//				line += model.xyz.get(xInd, yInd);
+//			}
+//			System.out.println(line);
+//		}
 	}
 
 }

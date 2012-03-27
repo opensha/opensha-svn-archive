@@ -913,7 +913,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		for(int i=0;i<griddedRegion.getNodeCount();i++)
 			mappingNucleationRates.set(i, zVals[i]);
 		GMT_CA_Maps.plotRatioOfRateMaps(mappingNucleationRates, erfNucleationRates, 
-				"Nucleation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Nucleation Rate Ratio Test", "ucerf2to3_MapNuclRatioTest");
+				"Nucleation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Nucleation Rate Ratio Test", "ucerf2to"+faultModel+"_MapNuclRatioTest");
 
 		
 		// Now do participation rates
@@ -946,7 +946,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		for(int i=0;i<griddedRegion.getNodeCount();i++)
 			mappingParticipationRates.set(i, zVals[i]);
 		GMT_CA_Maps.plotRatioOfRateMaps(mappingParticipationRates, erfParticipationRates, 
-				"Participation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Participation Rate Ratio Test", "ucerf2to3_MapPartRatioTest");
+				"Participation Rates Ratio", "FindEquivUCERF2_FM3_Ruptures Participation Rate Ratio Test", "ucerf2to"+faultModel+"_MapPartRatioTest");
 
 	}
 	
@@ -1312,12 +1312,12 @@ if(debug) System.exit(0);
 
 		System.out.println("Getting rup set");
 		
-//   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(
-//   				FaultModels.FM3_2,DeformationModels.GEOLOGIC,InversionModels.CHAR, false);
-//		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_2);
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(
+   				FaultModels.FM3_2,DeformationModels.GEOLOGIC,InversionModels.CHAR, false);
+		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_2);
 		
-		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
-		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
+//		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
+//		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
 
 		System.out.println("Done getting rup set");
 		
