@@ -32,6 +32,7 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
@@ -478,6 +479,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			offFaultMFD.set(m, tVal - myVal);
 		}
 		return offFaultMFD;
+	}
+	
+	/**
+	 * TODO Ned add comments
+	 * 
+	 * @return
+	 */
+	public double getTotalOffFaultSeisMomentRate() {
+		DeformationModelOffFaultMoRateData offFaultData = new DeformationModelOffFaultMoRateData();
+		double offFaultMoRate = offFaultData.getTotalOffFaultMomentRate(getFaultModel(), getDeformationModel());
+		offFaultMoRate *= (1-offFaultAseisFactor);
+		return offFaultMoRate + getTotalSubseismogenicMomentRateReduction();
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {
