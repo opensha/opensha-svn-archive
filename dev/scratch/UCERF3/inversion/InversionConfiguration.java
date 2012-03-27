@@ -789,11 +789,12 @@ public class InversionConfiguration {
 		
 		// Take into account the momentRateReduction - this is moment that is in subseismogenic ruptures 
 		// & we need to put it into the "background" moment
-		if (rupSet != null) {
+		// DON'T DO THIS HERE - we account for subseismogenic rups (on a mag-bin dependent basis) in accountForVaryingMinMag()
+/*		if (rupSet != null) {
 			double subseismogenicRupsMomentFraction = rupSet.getTotalSubseismogenicMomentRateReductionFraction();
 			System.out.println("Fraction of on-fault moment that is in subseismogenic ruptures = "+subseismogenicRupsMomentFraction);
 			momentFractionOffFaults = momentFractionOffFaults + (1.0 - momentFractionOffFaults)*subseismogenicRupsMomentFraction;
-		}
+		}	*/
 		
 		
 		// apply off fault aseismicity factor
