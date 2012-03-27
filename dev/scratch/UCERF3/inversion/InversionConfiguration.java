@@ -27,6 +27,7 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -123,6 +124,7 @@ public class InversionConfiguration {
 	
 	public static final double DEFAULT_MFD_EQUALITY_WT = 10;
 	public static final double DEFAULT_MFD_INEQUALITY_WT = 1000;
+	private static final String DeformationModelOffFaultMoRateData = null;
 	
 	/**
 	 * This generates an inversion configuration for the given inversion model and rupture set
@@ -637,11 +639,11 @@ public class InversionConfiguration {
 	 * The returned b-value is the b-value below the transition magnitude (assuming the previous MFD was G-R with b=1) to achieve the desired moment rate reduction.
 	 */
 	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet, double offFaultAseisFactor) {
-		
-		double momentFractionOffFaults = findMomentFractionOffFaults(rupSet, offFaultAseisFactor);
-		double totalMoment = rupSet.getTotalOrigMomentRate(); // reduced for creep, not for subseismogenic rups
-		if (D) System.out.println("\nImplementing bilinear MFD constraint . . .\nTotal Moment = "+totalMoment);
-		
+				
+		DeformationModelOffFaultMoRateData moRateData = new DeformationModelOffFaultMoRateData();
+		double totalMomentOffFaults =  moRateData.getTotalOffFaultMomentRate(rupSet.getFaultModel(), rupSet.getDeformationModel());
+		double momentRateToRemove = totalMomentOffFaults*(1d-offFaultAseisFactor);
+	
 		// Use the mag-dist for the whole region since the deformation model off-fault moment #s from Kaj are also for the whole region
 		IncrementalMagFreqDist magDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
 		
@@ -652,7 +654,6 @@ public class InversionConfiguration {
 		}
 		if (D) System.out.println("Total Moment below the Transition Magnitude of "+transitionMag+" = "+totalMomentBelowTransition);
 		
-		double momentRateToRemove = momentFractionOffFaults*totalMoment;
 		if (D) System.out.println("The amount of moment to remove from MFD = "+momentRateToRemove);
 		if (momentRateToRemove>=totalMomentBelowTransition)
 			throw new IllegalStateException("This is not going to work. The total moment below your transition magnitude is less than the off-fault moment");
