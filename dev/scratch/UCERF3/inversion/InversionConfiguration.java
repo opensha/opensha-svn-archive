@@ -117,7 +117,6 @@ public class InversionConfiguration {
 	
 	public static final double DEFAULT_MFD_EQUALITY_WT = 10;
 	public static final double DEFAULT_MFD_INEQUALITY_WT = 1000;
-	private static final String DeformationModelOffFaultMoRateData = null;
 	
 	/**
 	 * This generates an inversion configuration for the given inversion model and rupture set
@@ -633,7 +632,7 @@ public class InversionConfiguration {
 	 */
 	private static double findBValueForMomentRateReduction(double transitionMag, FaultSystemRupSet rupSet, double offFaultAseisFactor) {
 		
-		DeformationModelOffFaultMoRateData moRateData = new DeformationModelOffFaultMoRateData();
+		DeformationModelOffFaultMoRateData moRateData = DeformationModelOffFaultMoRateData.getInstance();
 		double totalMomentOffFaults =  moRateData.getTotalOffFaultMomentRate(rupSet.getFaultModel(), rupSet.getDeformationModel());
 		double momentRateToRemove = totalMomentOffFaults*(1d-offFaultAseisFactor);
 		
@@ -704,7 +703,7 @@ public class InversionConfiguration {
 	public static double getSeisMomentFractionOffFault(FaultSystemRupSet rupSet, double offFaultAseisFactor) {
 		// These values are from an e-mail from Kaj dated 2/29/12, for Zeng model see 3/5/12 e-mail
 		
-		DeformationModelOffFaultMoRateData offFaultData = new DeformationModelOffFaultMoRateData();
+		DeformationModelOffFaultMoRateData offFaultData = DeformationModelOffFaultMoRateData.getInstance();
 		double offFaultMoment = offFaultData.getTotalOffFaultMomentRate(rupSet.getFaultModel(), rupSet.getDeformationModel());
 		offFaultMoment *= (1-offFaultAseisFactor); // apply off fault asiesmicity factor
 		double onFaultTotal = rupSet.getTotalOrigMomentRate();

@@ -25,6 +25,17 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
  */
 public class DeformationModelOffFaultMoRateData {
 	
+	private static DeformationModelOffFaultMoRateData data;
+	/**
+	 * Gets an instance of the DeformationModelOffFaultMoRateData (cached so that we don't wast time instantiating it multiple times)
+	 * @return
+	 */
+	public static DeformationModelOffFaultMoRateData getInstance() {
+		if (data == null)
+			data = new DeformationModelOffFaultMoRateData();
+		return data;
+	}
+	
 	public static final String SUBDIR = "DeformationModels";
 	public static final String FILENAME = "gridded_moment_latlon_3_21.txt";
 	public static final double KAJ_SEISMO_THICKNESS = 15d;
@@ -35,8 +46,10 @@ public class DeformationModelOffFaultMoRateData {
 	GriddedGeoDataSet neok_Fm3pt1_xyzData, zeng_Fm3pt1_xyzData, abm_Fm3pt1_xyzData, geobound_Fm3pt1_xyzData,
 					  geol_Fm3pt1_xyzData, abmPlusGeol_Fm3pt1_xyzData;
 	
-	
-	public DeformationModelOffFaultMoRateData() {
+	/**
+	 * This is private so that we always use the cached version. use getInstance() instead.
+	 */
+	private DeformationModelOffFaultMoRateData() {
 		readDefModelGridData();
 		makeGeolData();
 	}
@@ -379,9 +392,9 @@ public class DeformationModelOffFaultMoRateData {
 	 */
 	public static void main(String[] args) {
 
-		plotAveDefModPDF_Map();
+//		plotAveDefModPDF_Map();
 		
-//		DeformationModelOffFaultMoRateData test = new DeformationModelOffFaultMoRateData();
+		DeformationModelOffFaultMoRateData test = new DeformationModelOffFaultMoRateData();
 //		test.writeAllTotalMomentRates();
 ////		test.testPlotMap();
 	}

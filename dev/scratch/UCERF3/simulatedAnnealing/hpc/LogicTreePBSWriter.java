@@ -310,7 +310,7 @@ public class LogicTreePBSWriter {
 		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
 				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
-		variationBranches.add(buildVariationBranch(ops, toArray("0.2", "0.5", "1", null)));
+		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.3", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", TAG_OPTION_ON)));
 		

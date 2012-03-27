@@ -208,7 +208,7 @@ public class DeformationModelsCalc {
 	 * @return
 	 */
 	public static double calcMoRateOffFaultsForDefModel(FaultModels fm, DeformationModels dm) {
-		DeformationModelOffFaultMoRateData offFaultData = new DeformationModelOffFaultMoRateData();
+		DeformationModelOffFaultMoRateData offFaultData = DeformationModelOffFaultMoRateData.getInstance();
 		return offFaultData.getTotalOffFaultMomentRate(fm, dm);
 	}
 
@@ -489,7 +489,7 @@ public class DeformationModelsCalc {
 	
 	
 	private static void makeSpatialMoRateMaps(FaultModels fm, DeformationModels dm, GriddedGeoDataSet refForRatioData) {
-		DeformationModelOffFaultMoRateData spatPDFgen = new DeformationModelOffFaultMoRateData();
+		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
 		
 		GriddedGeoDataSet offFaultData = spatPDFgen.getDefModSpatialOffFaultMoRates(fm, dm);
 		GriddedGeoDataSet onFaultData = getDefModMoRatesInRELM_Region(fm, dm);
