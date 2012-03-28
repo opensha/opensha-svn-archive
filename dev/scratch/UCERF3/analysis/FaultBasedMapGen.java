@@ -184,6 +184,18 @@ public class FaultBasedMapGen {
 		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit", display, false, "Log10(Solution Slip Rate Misfit Ratio)");
 	}
 	
+	public static void plotSolutionSlipMisfitFractDiff(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+			throws GMT_MapException, RuntimeException, IOException {
+		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
+		double[] solSlips = sol.calcSlipRateForAllSects();
+		double[] targetSlips = sol.getSlipRateForAllSections();
+		double[] values = new double[faults.size()];
+		for (int i=0; i<faults.size(); i++)
+			values[i] = calcFractionalDifferentce(targetSlips[i], solSlips[i]);
+		CPT cpt = getFractionalDifferenceCPT();
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit_fract", display, false, "Solution Slip Rate Misfit (fractional diff)");
+	}
+	
 	public static void plotParticipationRates(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display,
 			double minMag, double maxMag)
 			throws GMT_MapException, RuntimeException, IOException {
