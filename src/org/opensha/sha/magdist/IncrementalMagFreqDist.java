@@ -436,6 +436,38 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
    }
    
    
+   public void setValuesAboveMomentRateToZero(double moRate) {
+	   double mag=findMagJustAboveMomentRate(moRate);
+	   if(Double.isNaN(mag))
+		   return;
+	   for(int i=getXIndex(mag)+1; i<getNum();i++)
+		   set(i,0d);
+   }
+   
+   /**
+    * This finds the smallest magnitude such that all those less than and equal
+    * to this have a cumulative moment rate less than that passed in.
+    * @param moRate - in Nm/yr
+    */
+   public double findMagJustAboveMomentRate(double moRate) {
+	   double cumMoRate=0;
+	   int targetIndex = -1;
+	   for(int i=0;i<this.getNum();i++) {
+		   cumMoRate += this.getMomentRate(i);
+		   if(cumMoRate>moRate) {
+			   targetIndex = i;
+			   break;
+		   }
+	   }
+	   if(targetIndex == -1)
+		   return Double.NaN;
+	   else
+		   return getX(targetIndex);
+	   
+   }
+
+   
+   
    /**
     * This computes the b-value (the slope of the line of a linear-log plot, meaning
     * after computing log10 of all y-axis values) between the smallest and largest 
