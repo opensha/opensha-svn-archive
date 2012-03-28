@@ -435,7 +435,11 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 	   return regression.getSlope();
    }
    
-   
+   /**
+    * This sets all y-axis values above the given total moment rate to zero.
+    * The final total moment rate will be something less than the value passed in.
+    * @param moRate
+    */
    public void setValuesAboveMomentRateToZero(double moRate) {
 	   double mag=findMagJustAboveMomentRate(moRate);
 	   if(Double.isNaN(mag))
@@ -452,10 +456,10 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
    public double findMagJustAboveMomentRate(double moRate) {
 	   double cumMoRate=0;
 	   int targetIndex = -1;
-	   for(int i=0;i<this.getNum();i++) {
-		   cumMoRate += this.getMomentRate(i);
+	   for(int i=0;i<getNum();i++) {
+		   cumMoRate += getMomentRate(i);
 		   if(cumMoRate>moRate) {
-			   targetIndex = i;
+			   targetIndex = i-1;
 			   break;
 		   }
 	   }
