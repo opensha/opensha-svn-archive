@@ -783,6 +783,10 @@ public class DeformationModelFetcher {
 //					System.out.println("New Aseis: "+ aseismicityFactor);
 //					System.out.println("New Coupling: "+ couplingCoeff);
 				} else {
+					if (subSect.getAseismicSlipFactor() == 0)
+						subSect.setAseismicSlipFactor(defaultAseismicityValue);
+					else
+						System.out.println("Keeping default aseis of "+subSect.getAseismicSlipFactor()+" for: "+subSect.getName());
 					// otherwise keep UCERF2 aseismicity value as recommended by Tim Dawson
 					// via e-mail 3/2/12 (subject: Moment Rate Reductions)
 				}
