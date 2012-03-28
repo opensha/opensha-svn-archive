@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -14,9 +17,12 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -41,6 +47,7 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class CommandLineInversionRunner {
 	
@@ -263,6 +270,7 @@ public class CommandLineInversionRunner {
 			System.out.println("Creating TSA");
 			ThreadedSimulatedAnnealing tsa = ThreadedSimulatedAnnealing.parseOptions(cmd, A, d,
 					initialState, A_ineq, d_ineq, minimumRuptureRates, rangeEndRows, rangeNames);
+			initialState = Arrays.copyOf(initialState, initialState.length);
 			CompletionCriteria criteria = ThreadedSimulatedAnnealing.parseCompletionCriteria(cmd);
 			if (!(criteria instanceof ProgressTrackingCompletionCriteria)) {
 				File csvFile = new File(dir, prefix+".csv");
@@ -274,8 +282,22 @@ public class CommandLineInversionRunner {
 			info += "\n";
 			info += "\n****** Simulated Annealing Metadata ******";
 			info += "\n"+tsa.getMetadata(args, criteria);
+			// add perturbation info
+			ProgressTrackingCompletionCriteria pComp = (ProgressTrackingCompletionCriteria)criteria;
+			long numPerturbs = pComp.getPerturbs().get(pComp.getPerturbs().size()-1);
+			int numRups = initialState.length;
+			info += "\nAvg Perturbs Per Rup: "+numPerturbs+"/"+numRups+" = "
+						+((double)numPerturbs/(double)numRups);
+			int rupsPerturbed = 0;
+			double[] solution_no_min_rates = tsa.getBestSolution();
+			for (int i=0; i<numRups; i++)
+				if ((float)solution_no_min_rates[i] != (float)initialState[i])
+					rupsPerturbed++;
+			info += "\nNum rups actually perturbed: "+rupsPerturbed+"/"+numRups+" ("
+					+(float)(100d*((double)rupsPerturbed/(double)numRups))+" %)";
+			info += "\nAvg Perturbs Per Perturbed Rup: "+numPerturbs+"/"+rupsPerturbed+" = "
+					+((double)numPerturbs/(double)rupsPerturbed);
 			info += "\n******************************************";
-			
 			System.out.println("Writing solution bin files");
 			tsa.writeBestSolution(new File(dir, prefix+".bin"));
 			
@@ -318,6 +340,24 @@ public class CommandLineInversionRunner {
 						numNonZeros++;
 				float percent = (float)numNonZeros / rupSet.getNumRuptures() * 100f;
 				info += "\nNum Non-Zero Rups: "+numNonZeros+"/"+rupSet.getNumRuptures()+" ("+percent+" %)";
+				
+				// parent fault moment rates
+				ArrayList<ParentMomentRecord> parentMoRates = getSectionMoments(sol);
+				info += "\n\n****** Larges Moment Rate Discrepancies ******";
+				for (int i=0; i<10 && i<parentMoRates.size(); i++) {
+					ParentMomentRecord p = parentMoRates.get(i);
+					info += "\n"+p.parentID+". "+p.name+"\ttarget: "+p.targetMoment
+							+"\tsolution:"+p.solutionMoment+"\tdiff: "+p.getDiff();
+				}
+				info += "\n**********************************************";
+				CSVFile<String> moRateCSV = new CSVFile<String>(true);
+				moRateCSV.addLine(Lists.newArrayList("ID", "Name", "Target", "Solution", "Diff"));
+				for (ParentMomentRecord p : parentMoRates)
+					moRateCSV.addLine(Lists.newArrayList(p.parentID+"", p.name, p.targetMoment+"",
+							p.solutionMoment+"", p.getDiff()+""));
+				moRateCSV.writeToFile(new File(dir, prefix+"_sect_mo_rates.csv"));
+				
+				sol.setInfoString(info);
 				
 				System.out.println("Writing solution");
 				sol.toZipFile(solutionFile);
@@ -390,6 +430,57 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+	}
+	
+	private static ArrayList<ParentMomentRecord> getSectionMoments(FaultSystemSolution sol) {
+		HashMap<Integer, ParentMomentRecord> map = Maps.newHashMap();
+		
+		for (int sectIndex=0; sectIndex<sol.getNumSections(); sectIndex++) {
+			FaultSectionPrefData sect = sol.getFaultSectionData(sectIndex);
+			int parent = sect.getParentSectionId();
+			if (!map.containsKey(parent)) {
+				String name = sect.getName();
+				if (name.contains(", Subsection"))
+					name = name.substring(0, name.indexOf(", Subsection"));
+				map.put(parent, new ParentMomentRecord(parent, name, 0, 0));
+			}
+			ParentMomentRecord rec = map.get(parent);
+			double targetMo = sol.getSubseismogenicReducedMomentRate(sectIndex);
+			double solSlip = sol.calcSlipRateForSect(sectIndex);
+			double solMo = FaultMomentCalc.getMoment(sol.getAreaForSection(sectIndex), solSlip);
+			if (!Double.isNaN(targetMo))
+				rec.targetMoment += targetMo;
+			if (!Double.isNaN(solMo))
+				rec.solutionMoment += solMo;
+		}
+		
+		ArrayList<ParentMomentRecord> recs =
+				new ArrayList<CommandLineInversionRunner.ParentMomentRecord>(map.values());
+		Collections.sort(recs);
+		Collections.reverse(recs);
+		return recs;
+	}
+	
+	private static class ParentMomentRecord implements Comparable<ParentMomentRecord> {
+		int parentID;
+		String name;
+		double targetMoment;
+		double solutionMoment;
+		public ParentMomentRecord(int parentID, String name,
+				double targetMoment, double solutionMoment) {
+			super();
+			this.parentID = parentID;
+			this.name = name;
+			this.targetMoment = targetMoment;
+			this.solutionMoment = solutionMoment;
+		}
+		public double getDiff() {
+			return targetMoment - solutionMoment;
+		}
+		@Override
+		public int compareTo(ParentMomentRecord o) {
+			return Double.compare(Math.abs(getDiff()), Math.abs(o.getDiff()));
+		}
 	}
 
 }

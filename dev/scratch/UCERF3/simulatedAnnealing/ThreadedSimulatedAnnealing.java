@@ -76,6 +76,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	private double[] misfit_ineq = null;
 	private double[] minimumRuptureRates = null;
 	
+	private double[] initialState;
+	
 	private List<Integer> rangeEndRows;
 	private List<String> rangeNames;
 	
@@ -97,6 +99,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		this.numThreads = numThreads;
 		this.subCompetionCriteria = subCompetionCriteria;
 		this.minimumRuptureRates = minimumRuptureRates;
+		this.initialState = initialState;
 		
 		sas = new ArrayList<SerialSimulatedAnnealing>();
 		for (int i=0; i<numThreads; i++)
@@ -735,8 +738,16 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		if (cmd.hasOption("checkpoint")) {
 			String time = cmd.getOptionValue("checkpoint");
 			TimeCompletionCriteria checkPointCriteria = TimeCompletionCriteria.fromTimeString(time);
-			String outputStr = cmd.getOptionValue("solution-file");
-			File checkPointFilePrefix = getFileWithoutBinSuffix(outputStr);
+			File checkPointFilePrefix;
+			if (cmd.hasOption("solution-file")) {
+				String outputStr = cmd.getOptionValue("solution-file");
+				checkPointFilePrefix = getFileWithoutBinSuffix(outputStr);
+			} else {
+				// assume this is being called from CommandLineInversionRunner
+				File dir = new File(cmd.getOptionValue("directory"));
+				String prefix = cmd.getOptionValue("branch-prefix");
+				checkPointFilePrefix = new File(dir, prefix);
+			}
 			tsa.setCheckPointCriteria(checkPointCriteria, checkPointFilePrefix);
 		}
 		
@@ -799,14 +810,23 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		funcs.add(func);
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList(
 //				new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
-				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLUE));
+		
+		EvenlyDiscretizedFunc initialFunc = new EvenlyDiscretizedFunc(0d, initialState.length, 1d);
+		double[] initialSorted = getSorted(initialState);
+		cnt = 0;
+		for (int i=initialSorted.length; --i >= 0;)
+			initialFunc.set(cnt++, initialSorted[i]);
+		funcs.add(0, initialFunc);
+		chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN));
+		
 		if (adjustedRates != null) {
 			EvenlyDiscretizedFunc adjFunc = new EvenlyDiscretizedFunc(0d, solutionRates.length, 1d);
 			cnt = 0;
 			for (int i=adjustedRates.length; --i >= 0;)
 				adjFunc.set(cnt++, adjustedRates[i]);
 			funcs.add(0, adjFunc);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLUE));
+			chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		}
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setBackgroundColor(Color.WHITE);
