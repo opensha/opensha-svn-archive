@@ -111,18 +111,8 @@ public class DeformationModelFetcher {
 		Preconditions.checkArgument(deformationModel.isApplicableTo(faultModel), "Deformation model and fault model aren't compatible!");
 		chosenDefModName = deformationModel;
 		this.faultModel = faultModel;
-		if(deformationModel == DeformationModels.UCERF2_NCAL) {
-			faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, maxSubSectionLength);
-			fileNamePrefix = "nCal_0_82_"+faultSubSectPrefDataList.size();	// now hard coded as no NaN slip rates (the 0), defModID=82, & number of sections
-		}
-		else if(deformationModel == DeformationModels.UCERF2_ALL) {
-			faultSubSectPrefDataList = createAll_UCERF2_SubSections(false, maxSubSectionLength);
-			fileNamePrefix = "all_0_82_"+faultSubSectPrefDataList.size();			
-		}
-		else if (deformationModel == DeformationModels.UCERF2_BAYAREA) {
-			faultSubSectPrefDataList = this.createBayAreaSubSections(maxSubSectionLength);
-			fileNamePrefix = "bayArea_0_82_"+faultSubSectPrefDataList.size();						
-		} else if (deformationModel.getDataFileURL(faultModel) != null) {
+		if (deformationModel.getDataFileURL(faultModel) != null) {
+			// UCERF3
 			URL url = deformationModel.getDataFileURL(faultModel);
 			try {
 				if (D) System.out.println("Loading def model from: "+url);
@@ -138,22 +128,34 @@ public class DeformationModelFetcher {
 					if (D) System.out.println("Using rakes from: "+faultModel.getFilterBasis());
 					rakesModel = DeformationModelFileParser.load(faultModel.getFilterBasis().getDataFileURL(faultModel));
 				}
-				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength, rakesModel);
+				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength, rakesModel, defaultAseismicityValue);
 				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
 				if (D) System.out.println("DONE.");
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		} else {
-			throw new IllegalStateException("Deformation model couldn't be loaded: "+deformationModel);
-		}
-		
-		if (defaultAseismicityValue > 0) {
-			Preconditions.checkState(defaultAseismicityValue < 1, "asesimicity values must be in the range (0,1)");
-			if (D) System.out.println("Applying default aseismicity value of: "+defaultAseismicityValue);
-			for (FaultSectionPrefData data : faultSubSectPrefDataList) {
-				if (data.getAseismicSlipFactor() == 0)
-					data.setAseismicSlipFactor(defaultAseismicityValue);
+			if(deformationModel == DeformationModels.UCERF2_NCAL) {
+				faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, maxSubSectionLength);
+				fileNamePrefix = "nCal_0_82_"+faultSubSectPrefDataList.size();	// now hard coded as no NaN slip rates (the 0), defModID=82, & number of sections
+			}
+			else if(deformationModel == DeformationModels.UCERF2_ALL) {
+				faultSubSectPrefDataList = createAll_UCERF2_SubSections(false, maxSubSectionLength);
+				fileNamePrefix = "all_0_82_"+faultSubSectPrefDataList.size();			
+			}
+			else if (deformationModel == DeformationModels.UCERF2_BAYAREA) {
+				faultSubSectPrefDataList = this.createBayAreaSubSections(maxSubSectionLength);
+				fileNamePrefix = "bayArea_0_82_"+faultSubSectPrefDataList.size();						
+			} else {
+				throw new IllegalStateException("Deformation model couldn't be loaded: "+deformationModel);
+			}
+			if (defaultAseismicityValue > 0) {
+				Preconditions.checkState(defaultAseismicityValue < 1, "asesimicity values must be in the range (0,1)");
+				if (D) System.out.println("Applying default aseismicity value of: "+defaultAseismicityValue);
+				for (FaultSectionPrefData data : faultSubSectPrefDataList) {
+					if (data.getAseismicSlipFactor() == 0)
+						data.setAseismicSlipFactor(defaultAseismicityValue);
+				}
 			}
 		}
 
@@ -651,7 +653,7 @@ public class DeformationModelFetcher {
 
 	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
 			List<FaultSectionPrefData> sections, Map<Integer,DeformationSection> model, double maxSubSectionLength,
-			Map<Integer,DeformationSection> rakesModel)
+			Map<Integer,DeformationSection> rakesModel, double defaultAseismicityValue)
 					throws IOException {
 		final boolean DD = D && false;
 
@@ -781,14 +783,6 @@ public class DeformationModelFetcher {
 //					System.out.println("New Aseis: "+ aseismicityFactor);
 //					System.out.println("New Coupling: "+ couplingCoeff);
 				} else {
-					// TODO what to do here if aseismicity or coupling coeff is not 0/1 and we didn't have a value for it?
-					if (subSect.getParentSectionId() == 49) {
-						// override it for Garlock (West), set to 0/1
-						if (subSect.getAseismicSlipFactor() != 0)
-							subSect.setAseismicSlipFactor(0d);
-						if (subSect.getCouplingCoeff() != 1)
-							subSect.setCouplingCoeff(1d);
-					}
 					// otherwise keep UCERF2 aseismicity value as recommended by Tim Dawson
 					// via e-mail 3/2/12 (subject: Moment Rate Reductions)
 				}
