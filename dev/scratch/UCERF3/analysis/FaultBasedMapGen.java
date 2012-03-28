@@ -215,7 +215,7 @@ public class FaultBasedMapGen {
 		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
 		double[] newVals = sol.calcParticRateForAllSects(minMag, maxMag);
 		double[] refVals = referenceSol.calcParticRateForAllSects(minMag, maxMag);
-		Preconditions.checkState(newVals.length == refVals.length, "solution rupture counts are incompatible!");
+//		Preconditions.checkState(newVals.length == refVals.length, "solution rupture counts are incompatible!");
 		
 		double[] values = new double[newVals.length];
 		for (int i=0; i<values.length; i++) {
@@ -376,7 +376,7 @@ public class FaultBasedMapGen {
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_PREVENT_run0_sol.zip");
-		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0_VarMFDMod1_VarRelaxMFD_sol.zip");
+		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0_VarMFDMod1.3_VarNone_sol.zip");
 //		File solFile = new File("/tmp/ucerf2_fm2_compare.zip");
 		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
 		
