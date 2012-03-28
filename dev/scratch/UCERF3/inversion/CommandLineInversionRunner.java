@@ -275,9 +275,6 @@ public class CommandLineInversionRunner {
 			info += "\n****** Simulated Annealing Metadata ******";
 			info += "\n"+tsa.getMetadata(args, criteria);
 			info += "\n******************************************";
-			FileWriter fw = new FileWriter(new File(dir, prefix+"_metadata.txt"));
-			fw.write(info);
-			fw.close();
 			
 			System.out.println("Writing solution bin files");
 			tsa.writeBestSolution(new File(dir, prefix+".bin"));
@@ -290,14 +287,44 @@ public class CommandLineInversionRunner {
 				rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(
 						rupRateSolution, minimumRuptureRates);
 				SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rupRateSolution);
-				System.out.println("Writing solution");
+				
 				File solutionFile = new File(dir, prefix+"_sol.zip");
+				
+				// add moments to info string
+				info += "\n\nOriginal File Name: "+solutionFile.getName()
+						+"\nNum Ruptures: "+rupSet.getNumRuptures();
+				info += "\nOrig (creep reduced) Fault Moment Rate: "+rupSet.getTotalOrigMomentRate();
+				double subSeisReduction = rupSet.getTotalSubseismogenicMomentRateReduction();
+				info += "\nSubseismogenic Moment Reduction: "+subSeisReduction;
+				info += "\nSubseismogenic Moment Reduction Fraction: "+rupSet.getTotalSubseismogenicMomentRateReductionFraction();
+				info += "\nFinal (creep & subseismogenic rup reduced) Fault Moment Rate: "
+						+rupSet.getTotalSubseismogenicReducedMomentRate();
+				double totalSolutionMoment = sol.getTotalFaultSolutionMomentRate();
+				info += "\nFault Solution Moment Rate: "+totalSolutionMoment;
+				
+				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
+				
+				double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate();
+				info += "\nTotal Off Fault Seis Moment Rate (excluding subseismogenic): "
+						+(totalOffFaultMomentRate-subSeisReduction);
+				info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
+						+totalOffFaultMomentRate;
+				info += "\nTotal Model Seis Moment Rate: "
+						+(totalOffFaultMomentRate+totalSolutionMoment);
+
+				int numNonZeros = 0;
+				for (double rate : sol.getRateForAllRups())
+					if (rate != 0)
+						numNonZeros++;
+				float percent = (float)numNonZeros / rupSet.getNumRuptures() * 100f;
+				info += "\nNum Non-Zero Rups: "+numNonZeros+"/"+rupSet.getNumRuptures()+" ("+percent+" %)";
+				
+				System.out.println("Writing solution");
 				sol.toZipFile(solutionFile);
 				
 				System.out.println("Writing Plots");
 				tsa.writePlots(criteria, new File(dir, prefix));
 				
-				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
 				// MFD plots
 				try {
 					writeMFDPlots(invSol, dir, prefix);
@@ -310,6 +337,10 @@ public class CommandLineInversionRunner {
 					e.printStackTrace();
 				}
 			}
+			
+			FileWriter fw = new FileWriter(new File(dir, prefix+"_metadata.txt"));
+			fw.write(info);
+			fw.close();
 			
 			System.out.println("Deleting RupSet (no longer needed)");
 			rupSetFile.delete();

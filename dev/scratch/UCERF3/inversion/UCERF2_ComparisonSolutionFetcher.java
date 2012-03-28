@@ -64,8 +64,8 @@ public class UCERF2_ComparisonSolutionFetcher {
 	}
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
-		FaultModels fm = FaultModels.FM3_1;
-		String prefix = "ucerf2_fm3_compare";
+		FaultModels fm = FaultModels.FM2_1;
+		String prefix = "ucerf2_fm2_compare";
 		File dir = new File("/tmp");
 		
 		SimpleFaultSystemSolution sol = getUCERF2Solution(fm);

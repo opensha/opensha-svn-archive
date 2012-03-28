@@ -63,12 +63,11 @@ public class FaultBasedMapGen {
 	private static CPT getFractionalDifferenceCPT() {
 		if (fractDiffCPT == null) {
 			try {
-				fractDiffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+				fractDiffCPT = GMT_CPT_Files.UCERF3_RATIOS.instance().rescale(-1, 1);
 //				fractDiffCPT = GMT_CPT_Files.GMT_POLAR.instance();
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
-			fractDiffCPT = fractDiffCPT.rescale(-1, 1);
 		}
 		
 		return fractDiffCPT;
@@ -91,7 +90,8 @@ public class FaultBasedMapGen {
 	private static CPT getRatioCPT() {
 		if (ratioCPT == null) {
 			try {
-				ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+//				ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+				ratioCPT = GMT_CPT_Files.UCERF3_RATIOS.instance();
 //				ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
@@ -101,9 +101,9 @@ public class FaultBasedMapGen {
 //			ratioCPT.get(0).end = 1f;
 //			ratioCPT.get(1).start = 1f;
 //			ratioCPT.get(1).end = 3f;
-			ratioCPT.setNanColor(Color.GRAY);
-			ratioCPT.setAboveMaxColor(ratioCPT.getMaxColor());
-			ratioCPT.setBelowMinColor(ratioCPT.getMinColor());
+//			ratioCPT.setNanColor(Color.GRAY);
+//			ratioCPT.setAboveMaxColor(ratioCPT.getMaxColor());
+//			ratioCPT.setBelowMinColor(ratioCPT.getMinColor());
 		}
 		
 		return ratioCPT;
@@ -170,15 +170,18 @@ public class FaultBasedMapGen {
 	
 	public static void plotSolutionSlipMisfit(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
 			throws GMT_MapException, RuntimeException, IOException {
-		CPT cpt = getFractionalDifferenceCPT();
 		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
 		double[] solSlips = sol.calcSlipRateForAllSects();
 		double[] targetSlips = sol.getSlipRateForAllSections();
 		double[] values = new double[faults.size()];
+//		for (int i=0; i<faults.size(); i++)
+//			values[i] = calcFractionalDifferentce(targetSlips[i], solSlips[i]);
+//		CPT cpt = getFractionalDifferenceCPT();
+//		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit", display, false, "Solution Slip Rate Misfit (fractional diff)");
 		for (int i=0; i<faults.size(); i++)
-			values[i] = calcFractionalDifferentce(targetSlips[i], solSlips[i]);
-		
-		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit", display, false, "Solution Slip Rate Misfit (fractional diff)");
+			values[i] = Math.log(solSlips[i] / targetSlips[i]);
+		CPT cpt = getRatioCPT().rescale(-1, 1);
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit", display, false, "Log10(Solution Slip Rate Misfit Ratio)");
 	}
 	
 	public static void plotParticipationRates(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display,
@@ -371,7 +374,10 @@ public class FaultBasedMapGen {
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 		File invSolsDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_PREVENT_run0_sol.zip");
+		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0_VarMFDMod1_VarRelaxMFD_sol.zip");
+//		File solFile = new File("/tmp/ucerf2_fm2_compare.zip");
 		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
 		
 		Region region = new CaliforniaRegions.RELM_TESTING();
@@ -392,15 +398,15 @@ public class FaultBasedMapGen {
 		
 		double[] ucerf2_rates = InversionConfiguration.getUCERF2Solution(sol);
 		FaultSystemSolution ucerf2Sol = new SimpleFaultSystemSolution(sol, ucerf2_rates);
-		for (int r=0; r<ucerf2Sol.getNumRuptures(); r++) {
-			double mag = ucerf2Sol.getMagForRup(r);
-			double rate = ucerf2_rates[r];
-			if (mag>=8 && rate > 0)
-				System.out.println("Nonzero M>=8!: "+r+": Mag="+mag+", rate="+rate);
-		}
+//		for (int r=0; r<ucerf2Sol.getNumRuptures(); r++) {
+//			double mag = ucerf2Sol.getMagForRup(r);
+//			double rate = ucerf2_rates[r];
+//			if (mag>=8 && rate > 0)
+//				System.out.println("Nonzero M>=8!: "+r+": Mag="+mag+", rate="+rate);
+//		}
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 6, 7);
 //		plotParticipationRates(ucerf2Sol, region, saveDir, prefix, display, 6, 7);
-//		plotParticipationRatios(sol, ucerf2Sol, region, saveDir, prefix, display, 6, 7, true);
+		plotParticipationRatios(sol, ucerf2Sol, region, saveDir, prefix, display, 6, 7, true);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 7, 8);
 //		plotParticipationRates(ucerf2Sol, region, saveDir, prefix, display, 7, 8);
 //		plotParticipationRatios(sol, ucerf2Sol, region, saveDir, prefix, display, 7, 8, true);

@@ -253,7 +253,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "production-supplement";
+		String runName = "def-model-sweep";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -274,7 +274,9 @@ public class LogicTreePBSWriter {
 
 		// if null, all that are applicable to each fault model will be used
 //		DeformationModels[] defModels = null;
-		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+		DeformationModels[] defModels = { DeformationModels.ABM, DeformationModels.GEOBOUND, DeformationModels.GEOLOGIC,
+				DeformationModels.GEOLOGIC_PLUS_ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
+//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 //		DeformationModels[] defModels = { DeformationModels.UCERF2_ALL };
 
 //		InversionModels[] inversionModels = InversionModels.values();
@@ -311,8 +313,8 @@ public class LogicTreePBSWriter {
 				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
 		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1", null)));
-//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.3", null)));
-//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", TAG_OPTION_ON)));
+		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0", "1.3", null)));
+		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0", "1", TAG_OPTION_ON)));
 		
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.35", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.4", null)));

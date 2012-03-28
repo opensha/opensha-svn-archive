@@ -21,6 +21,7 @@ public enum GMT_CPT_Files {
 	SHAKEMAP("Shakemap.cpt"),
 	STEP("STEP.cpt"),
 	UCERF2_FIGURE_35("ucerf2_fig_35.cpt"),
+	UCERF3_RATIOS("UCERF3_RatiosCPT.cpt"),
 	GMT_COPPER("GMT_copper.cpt"),
 //	GMT_CYCLIC("GMT_cyclic.cpt"),
 	GMT_DRYWET("GMT_drywet.cpt"),
