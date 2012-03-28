@@ -198,14 +198,14 @@ public class DeformationModelFetcher {
 			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
 			String name = faultSectionPrefData.getName();
 			
-			if(name.equals("Mendocino") ||
-					name.equals("Brawley (Seismic Zone), alt 1") ||
-					name.equals("Brawley (Seismic Zone), alt 2") ||
-					name.equals("Carson Range (Genoa)") ||
-					name.equals("Antelope Valley")) {
-				System.out.println("Hard coded skip from UCERF2: "+name);
-				continue;
-			}
+//			if(name.equals("Mendocino") ||
+//					name.equals("Brawley (Seismic Zone), alt 1") ||
+//					name.equals("Brawley (Seismic Zone), alt 2") ||
+//					name.equals("Carson Range (Genoa)") ||
+//					name.equals("Antelope Valley")) {
+//				System.out.println("Hard coded skip from UCERF2: "+name);
+//				continue;
+//			}
 			
 			double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);

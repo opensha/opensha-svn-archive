@@ -215,7 +215,7 @@ public class FaultBasedMapGen {
 		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
 		double[] newVals = sol.calcParticRateForAllSects(minMag, maxMag);
 		double[] refVals = referenceSol.calcParticRateForAllSects(minMag, maxMag);
-//		Preconditions.checkState(newVals.length == refVals.length, "solution rupture counts are incompatible!");
+		Preconditions.checkState(newVals.length == refVals.length, "solution rupture counts are incompatible!");
 		
 		double[] values = new double[newVals.length];
 		for (int i=0; i<values.length; i++) {
