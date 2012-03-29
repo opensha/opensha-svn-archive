@@ -300,7 +300,7 @@ public class DeformationModelFileParser {
 	private synchronized static void loadMomentReductionsData() throws IOException {
 		if (momemtReductionsData == null) {
 			InputStream is = UCERF3_DataUtils.locateResourceAsStream("DeformationModels",
-					"Moment_Reductions_2012_03_28.xls");
+					"Moment_Reductions_2012_03_28_v2.xls");
 			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
