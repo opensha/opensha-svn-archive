@@ -464,7 +464,13 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	public IncrementalMagFreqDist getInpliedOffFaultStatewideMFD() {
-		return getInpliedOffFaultMFD(getStatewideMFDConstraint());
+		if (branch.getInvModel() == InversionModels.GR) {
+			IncrementalMagFreqDist mfd = getInpliedOffFaultMFD(getStatewideMFDConstraint());
+			mfd.setValuesAboveMomentRateToZero(getTotalOffFaultSeisMomentRate());
+			return mfd;
+		}
+		else
+			return getInpliedOffFaultMFD(getStatewideMFDConstraint());
 	}
 	
 	/**
