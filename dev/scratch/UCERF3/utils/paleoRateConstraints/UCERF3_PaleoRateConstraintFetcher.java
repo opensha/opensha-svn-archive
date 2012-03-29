@@ -260,9 +260,11 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	}
 	
 	public static HeadlessGraphPanel getHeadlessSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
-			ArrayList<FaultSystemSolution> solutions) {
+			ArrayList<FaultSystemSolution> solutions, boolean yLog) {
 		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, solutions);
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		gp.setYLog(yLog);
 		
 		gp.drawGraphPanel(spec.xAxisLabel, spec.yAxisLabel, spec.funcs, spec.chars, false, spec.title);
 		

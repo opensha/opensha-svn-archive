@@ -253,7 +253,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "unconstrained-run-like-crazy";
+		String runName = "unconstrained-run-like-crazy-pt-2";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -261,11 +261,11 @@ public class LogicTreePBSWriter {
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
-		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
+//		RunSites site = RunSites.EPICENTER;
+		RunSites site = RunSites.HPCC;
 
-		int numRuns = 500;
-		int runStart = 0;
+		int numRuns = 1000;
+		int runStart = 500;
 		
 		boolean lightweight = numRuns > 10;
 

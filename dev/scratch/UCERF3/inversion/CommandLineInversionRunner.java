@@ -331,6 +331,7 @@ public class CommandLineInversionRunner {
 						+(totalOffFaultMomentRate-subSeisReduction);
 				info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
 						+totalOffFaultMomentRate;
+				info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedOffFaultStatewideMFD().getTotalMomentRate();
 				info += "\nTotal Model Seis Moment Rate: "
 						+(totalOffFaultMomentRate+totalSolutionMoment);
 
@@ -347,7 +348,7 @@ public class CommandLineInversionRunner {
 				for (int i=0; i<10 && i<parentMoRates.size(); i++) {
 					ParentMomentRecord p = parentMoRates.get(i);
 					info += "\n"+p.parentID+". "+p.name+"\ttarget: "+p.targetMoment
-							+"\tsolution:"+p.solutionMoment+"\tdiff: "+p.getDiff();
+							+"\tsolution: "+p.solutionMoment+"\tdiff: "+p.getDiff();
 				}
 				info += "\n**********************************************";
 				CSVFile<String> moRateCSV = new CSVFile<String>(true);
@@ -423,8 +424,7 @@ public class CommandLineInversionRunner {
 			File dir, String prefix)
 			throws IOException {
 		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(
-				paleoRateConstraints, Lists.newArrayList(sol));
-		gp.setYLog(true);
+				paleoRateConstraints, Lists.newArrayList(sol), true);
 		
 		File file = new File(dir, prefix+"_paleo_fit");
 		gp.getCartPanel().setSize(1000, 800);

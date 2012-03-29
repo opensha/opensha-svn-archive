@@ -434,7 +434,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 		
 		// Implied Off Fault
-		IncrementalMagFreqDist solOffFaultMFD = getInpliedOffFaultMFD(totalMFD, solMFD);
+		IncrementalMagFreqDist solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
 		solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
 		funcs.add(solOffFaultMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
@@ -463,14 +463,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * This calculates the MFD for the solution and returns the total RELM testing region target minus the solution.
 	 * @return
 	 */
-	public IncrementalMagFreqDist getInpliedOffFaultStatewideMFD() {
-		if (branch.getInvModel() == InversionModels.GR) {
-			IncrementalMagFreqDist mfd = getInpliedOffFaultMFD(getStatewideMFDConstraint());
+	public IncrementalMagFreqDist getImpliedOffFaultStatewideMFD() {
+		IncrementalMagFreqDist mfd = getImpliedOffFaultMFD(getStatewideMFDConstraint());
+		if (branch.getInvModel() == InversionModels.GR || branch.getInvModel() == InversionModels.UNCONSTRAINED)
 			mfd.setValuesAboveMomentRateToZero(getTotalOffFaultSeisMomentRate());
-			return mfd;
-		}
-		else
-			return getInpliedOffFaultMFD(getStatewideMFDConstraint());
+		return mfd;
 	}
 	
 	/**
@@ -478,11 +475,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param target
 	 * @return
 	 */
-	public IncrementalMagFreqDist getInpliedOffFaultMFD(MFD_InversionConstraint target) {
+	public IncrementalMagFreqDist getImpliedOffFaultMFD(MFD_InversionConstraint target) {
 		IncrementalMagFreqDist totalMFD = target.getMagFreqDist();
 		IncrementalMagFreqDist magHist = calcNucleationMFD_forRegion(target.getRegion(), totalMFD.getMinX(),
 				totalMFD.getMaxX(), totalMFD.getNum(), false);
-		return getInpliedOffFaultMFD(totalMFD, magHist);
+		return getImpliedOffFaultMFD(totalMFD, magHist);
 	}
 		
 	/**
@@ -490,11 +487,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param target
 	 * @return
 	 */
-	private IncrementalMagFreqDist getInpliedOffFaultMFD(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist magHist) {
+	private IncrementalMagFreqDist getImpliedOffFaultMFD(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist magHist) {
 		double maxOffFaultMag = Double.MAX_VALUE;
 		if (branch.getInvModel() == InversionModels.CHAR && !Double.isNaN(bilinearTransitionMag) && bilinearTransitionMag > 0)
 			maxOffFaultMag = bilinearTransitionMag;
-		return getInpliedOffFaultMFD(totalMFD, magHist, maxOffFaultMag);
+		return getImpliedOffFaultMFD(totalMFD, magHist, maxOffFaultMag);
 	}
 	
 	/**
@@ -503,7 +500,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @param target
 	 * @return
 	 */
-	public static IncrementalMagFreqDist getInpliedOffFaultMFD(IncrementalMagFreqDist target,
+	public static IncrementalMagFreqDist getImpliedOffFaultMFD(IncrementalMagFreqDist target,
 			IncrementalMagFreqDist magHist, double maxOffFaultMag) {
 		IncrementalMagFreqDist offFaultMFD = newSameRange(target);
 		offFaultMFD.setTolerance(0.2);
