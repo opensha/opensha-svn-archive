@@ -240,6 +240,40 @@ public class FaultBasedMapGen {
 		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, name, display, true, title);
 	}
 	
+	public static double plotParticipationDiffs(FaultSystemSolution sol, FaultSystemSolution referenceSol, Region region,
+			File saveDir, String prefix, boolean display, double minMag, double maxMag)
+			throws GMT_MapException, RuntimeException, IOException {
+//		CPT cpt = getLinearRatioCPT().rescale(-3, 3);
+		CPT cpt = getLinearRatioCPT().rescale(-0.005, 0.005);
+		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
+		double[] newVals = sol.calcParticRateForAllSects(minMag, maxMag);
+		double[] refVals = referenceSol.calcParticRateForAllSects(minMag, maxMag);
+		Preconditions.checkState(newVals.length == refVals.length, "solution rupture counts are incompatible!");
+		
+		double[] values = new double[newVals.length];
+		double total = 0;
+		for (int i=0; i<values.length; i++) {
+			double diff = newVals[i] - refVals[i];
+			if (!Double.isNaN(diff))
+				total += diff;
+			values[i] = diff;
+		}
+		
+		String name = prefix+"_ref_partic_diff_"+(float)minMag;
+//		String title = "Log10(Sol Partic Rate) - Log10(Ref Partic Rate) "+(float)+minMag;
+		String title = "Participation Rate Diff "+(float)+minMag;
+		if (maxMag < 9) {
+			name += "_"+(float)maxMag;
+			title += "=>"+(float)maxMag;
+		} else {
+			name += "+";
+			title += "+";
+		}
+		
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, name, display, true, title);
+		return total;
+	}
+	
 	public static void plotSectionPairRates(FaultSystemSolution sol, Region region,
 			File saveDir, String prefix, boolean display) throws GMT_MapException, RuntimeException, IOException {
 		CPT cpt = getNormalizedPairRatesCPT();
