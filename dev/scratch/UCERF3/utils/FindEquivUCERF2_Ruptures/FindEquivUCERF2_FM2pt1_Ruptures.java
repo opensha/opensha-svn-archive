@@ -1180,9 +1180,9 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		
 		FindEquivUCERF2_FM2pt1_Ruptures test = new FindEquivUCERF2_FM2pt1_Ruptures(faultSysRupSet, precompDataDir);
 		
-//		test.plotMFD_Test();
+		test.plotMFD_Test();
 
-		test.plotGMT_MapRatio_Tests();
+//		test.plotGMT_MapRatio_Tests();
 		
 		/*   // The Code To Make The Statewide InversionFaultSystemRuptureSet XML **********************
 		double maxJumpDist = 5.0;

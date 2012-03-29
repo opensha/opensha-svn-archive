@@ -234,8 +234,8 @@ public class FaultSystemRupSetCalc {
 			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(
 					FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.GR, true);
 			System.out.println("Done getting rup set");
-			getMomentRateReductionHistogram(faultSysRupSet, true, true);
-//			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
+//			getMomentRateReductionHistogram(faultSysRupSet, true, true);
+			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
 			
 //			System.out.println(getMinMagHistogram(faultSysRupSet, 5.05,40,0.1, true).getCumulativeDistFunction());
 

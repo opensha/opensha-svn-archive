@@ -290,18 +290,6 @@ public class DeformationModelsCalc {
 	}
 	
 	/**
-	 * This computes the total moment rate for the given arguments
-	 * @param moRateOnFaults
-	 * @param fractMoRateOffFaults
-	 * @return
-	 */
-	public static double calcTotalMomentRate(double moRateOnFaults, double fractMoRateOffFaults) {
-		return 	moRateOnFaults*fractMoRateOffFaults/(1-fractMoRateOffFaults)+moRateOnFaults;
-
-	}
-	
-	
-	/**
 	 * This writes out the names of sections that are new to UCERF3 (either the section was added or it now
 	 * has a slip rate from the Geologic deformation model, as UCERF2 ignored sections with no slip rate)
 	 */
@@ -558,13 +546,13 @@ public class DeformationModelsCalc {
 		
 //		writeListOfNewFaultSections();
 		
-		plotAllSpatialMoRateMaps();
+//		plotAllSpatialMoRateMaps();
 		
 //		writeMoRateOfParentSections(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
 		
 //		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		
-//		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
+		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		
