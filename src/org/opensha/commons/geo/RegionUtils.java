@@ -20,9 +20,12 @@
 package org.opensha.commons.geo;
 
 import java.awt.Color;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -35,7 +38,11 @@ import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultElement;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 
+import scratch.UCERF3.griddedSeismicity.SectionPolygons;
+
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 /**
  * Add comments here
@@ -445,6 +452,28 @@ public class RegionUtils {
 		return (double)numInside / (double)cnt;
 	}
 	
+	/**
+	 * Returns the {@code Region} spanned by a node centered at the supplied
+	 * location with the given width and height.
+	 * @param p {@code Location} at center of a grid node
+	 * @param w node width
+	 * @param h node height
+	 * @return the node's {@code Region}
+	 */
+	public static Area getNodeShape(Location p, double w, double h) {
+		double halfW = w / 2;
+		double halfH = h / 2;
+		double nodeLat = p.getLatitude();
+		double nodeLon = p.getLongitude();
+		LocationList locs = new LocationList();
+		locs.add(new Location(nodeLat + halfH, nodeLon + halfW)); // top right
+		locs.add(new Location(nodeLat - halfH, nodeLon + halfW)); // bot right
+		locs.add(new Location(nodeLat - halfH, nodeLon - halfW)); // bot left
+		locs.add(new Location(nodeLat + halfH, nodeLon - halfW)); // top left
+		return new Area(locs.toPath());
+	}
+
+
 //	private String convertLocations(LocationList ll) {
 //		
 //	}

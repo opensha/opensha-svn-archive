@@ -371,7 +371,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 * curvature of the earth is more significant.
 	 * @return the area of this region in km<sup>2</sup>
 	 */
-	public double getArea() {
+	public double getExtent() {
 		// set origin as center of region bounds
 		Rectangle2D rRect = area.getBounds2D();
 		Location origin = new Location(rRect.getCenterY(), rRect.getCenterX());
@@ -394,7 +394,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 	public static void main(String[] args) {
 		// Region r = new CaliforniaRegions.RELM_TESTING();
 		Region r = new Region(new Location(20, 20), new Location(21, 21));
-		System.out.println(r.getArea());
+		System.out.println(r.getExtent());
 	}
 
 	/*
