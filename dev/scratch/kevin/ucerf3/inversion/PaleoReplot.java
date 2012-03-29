@@ -26,6 +26,7 @@ public class PaleoReplot {
 				continue;
 			if (!file.getName().endsWith("_sol.zip"))
 				continue;
+			System.out.println("Working on: "+file.getName());
 			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
 			String prefix = file.getName().substring(0, file.getName().indexOf("_sol.zip"));
 			
