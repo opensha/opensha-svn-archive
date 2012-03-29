@@ -221,11 +221,7 @@ public class CommandLineInversionRunner {
 					rupSet, offFaultAseisFactor, mfdConstraintModifier,
 					mfdEqualityConstraintWt, mfdInequalityConstraintWt);
 			
-			ArrayList<PaleoRateConstraint> paleoRateConstraints;
-			if (branch.getFaultModel() == FaultModels.FM2_1)
-				paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
-			else
-				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getFaultModel(), rupSet);
 			
 			PaleoProbabilityModel paleoProbabilityModel =
 				PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
@@ -418,6 +414,12 @@ public class CommandLineInversionRunner {
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
+	}
+	
+	public static ArrayList<PaleoRateConstraint> getPaleoConstraints(FaultModels fm, FaultSystemRupSet rupSet) throws IOException {
+		if (fm == FaultModels.FM2_1)
+			return UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+		return UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 	}
 	
 	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, FaultSystemSolution sol,
