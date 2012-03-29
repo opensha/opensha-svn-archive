@@ -72,7 +72,7 @@ public class UCERF3_GridSourceGenerator {
 		
 		this.fss = fss;
 		this.totalOffFaultMFD = (totalOffFaultMFD == null) ? fss
-			.getInpliedOffFaultStatewideMFD() : totalOffFaultMFD;
+			.getImpliedOffFaultStatewideMFD() : totalOffFaultMFD;
 					
 		this.totalMgt5_Rate = totalMgt5_Rate;
 		
