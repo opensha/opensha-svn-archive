@@ -1,5 +1,8 @@
 package scratch.UCERF3.griddedSeismicity;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -9,12 +12,12 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.LittleEndianDataInputStream;
 
 /**
- * Add comments here
- *
+ * Utility class to build files from UCERF2 and NSHMP08.
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -23,8 +26,150 @@ public class UCERF2_GridBuilder {
 
 	
 	public static void main(String[] args) {
-		generateUCERF2pdf();
+//		generateUCERF2pdf();
+		generateMechWeights();
 	}
+	
+	private static List<String> gridNames;
+	private static List<List<Double>> gridMechWts;
+	static {
+		gridNames = Lists.newArrayList();
+		gridNames.add("CA/gridded/GR_DOS/agrd_brawly.out"); // 0.5 S 0.0 R 0.5 N
+		gridNames.add("CA/gridded/GR_DOS/agrd_mendos.out"); // 0.5 S 0.5 R 0.0 N
+		gridNames.add("CA/gridded/GR_DOS/agrd_creeps.out"); // 1.0 S 0.0 R 0.0 N
+		gridNames.add("CA/gridded/GR_DOS/agrd_deeps.out");  // 1.0 S 0.0 R 0.0 N
+		gridNames.add("CA/gridded/GR_DOS/agrd_impext.out"); // 0.5 S 0.0 R 0.5 N
+		gridNames.add("CA/gridded/GR_DOS/agrd_cstcal.out"); // 0.5 S 0.5 R 0.0 N
+		gridNames.add("WUS/gridded/GR_DOS/agrd_wuscmp.out");// 0.5 S 0.5 R 0.0 N
+		gridNames.add("WUS/gridded/GR_DOS/agrd_wusext.out");// 0.5 S 0.0 R 0.5 N
+		
+		gridMechWts = Lists.newArrayList();
+		gridMechWts.add(ImmutableList.of(0.5, 0.0, 0.5));
+		gridMechWts.add(ImmutableList.of(0.5, 0.5, 0.0));
+		gridMechWts.add(ImmutableList.of(1.0, 0.0, 0.0));
+		gridMechWts.add(ImmutableList.of(1.0, 0.0, 0.0));
+		gridMechWts.add(ImmutableList.of(0.5, 0.0, 0.5));
+		gridMechWts.add(ImmutableList.of(0.5, 0.5, 0.0));
+		gridMechWts.add(ImmutableList.of(0.5, 0.5, 0.0));
+		gridMechWts.add(ImmutableList.of(0.5, 0.0, 0.5));
+	}
+	
+	private static void generateMechWeights() {
+		double minLat = 24.6;
+		double maxLat = 51.0;
+		double dLat  = 0.1;
+		double minLon = -126.5;
+		double maxLon = -100.0;
+		double dLon = 0.1;
+		
+		GriddedRegion gridRegion = new GriddedRegion(
+			new Location(minLat, minLon),
+			new Location(maxLat, maxLon),
+			dLat, GriddedRegion.ANCHOR_0_0);
+		GriddedRegion ucerfRegion = 
+				new CaliforniaRegions.RELM_TESTING_GRIDDED();
+		int nRows = (int) Math.rint((maxLat - minLat) / dLat) + 1;
+		int nCols = (int) Math.rint((maxLon - minLon) / dLon) + 1;
+		
+		List<double[]> aGrids = Lists.newArrayList();
+		double[] aSum = null;
+		
+		// set up grid arrays and a-value totals
+		for (String gridName : gridNames) {
+			File gridFile = new File("src/resources/data/nshmp/sources/" + 
+				gridName);
+			double[] aDat = readGrid(gridFile, nRows, nCols);
+			aGrids.add(aDat);
+			if (aSum == null) {
+				aSum = aDat.clone();
+				continue;
+			}
+			addArray(aSum, aDat);
+		}
+		
+//		int idx = 20057;
+//		for (double[] aDat : aGrids) {
+//			System.out.println(aDat[idx]);
+//		}
+//		System.out.println("----");
+//		System.out.println(aSum[20057]);
+
+		
+		// normalize a-values
+		for (double[] aDat : aGrids) {
+			arrayDivide(aDat, aSum);
+		}
+		
+//		double sum = 0.0;
+//		for (double[] aDat : aGrids) {
+//			System.out.println(aDat[idx]);
+//			sum += aDat[idx];
+//		}
+//		System.out.println("----");
+//		System.out.println(sum);
+
+		// build focal mech arrays
+		double[] s = new double[aSum.length];
+		double[] r = new double[aSum.length];
+		double[] n = new double[aSum.length];
+		for (int i=0; i<aGrids.size(); i++) {
+			List<Double> mechWts = gridMechWts.get(i);
+			double[] aDat = aGrids.get(i);
+			for (int j=0; j<aDat.length; j++) {
+				s[j] = s[j] + mechWts.get(0) * aDat[j];
+				r[j] = r[j] + mechWts.get(1) * aDat[j];
+				n[j] = n[j] + mechWts.get(2) * aDat[j];
+			}
+		}
+		
+//		for (int i=0; i<100; i++) {
+//			double sum = s[i] + r[i] + n[i];
+//			System.out.println(sum);
+//			System.out.println(aSum[i]);
+//		}
+		
+		List<String> sRecords = Lists.newArrayList();
+		List<String> rRecords = Lists.newArrayList();
+		List<String> nRecords = Lists.newArrayList();
+		for (Location loc : ucerfRegion) {
+			int idx = gridRegion.indexForLocation(loc);
+			double sVal = (idx == -1) ? Double.NaN : s[idx];
+			double rVal = (idx == -1) ? Double.NaN : r[idx];
+			double nVal = (idx == -1) ? Double.NaN : n[idx];
+			double lat = loc.getLatitude();
+			double lon = loc.getLongitude();
+			sRecords.add(String.format("%.3f %.3f %.10f", lat, lon, sVal));
+			rRecords.add(String.format("%.3f %.3f %.10f", lat, lon, rVal));
+			nRecords.add(String.format("%.3f %.3f %.10f", lat, lon, nVal));
+		}
+		File dir = new File("tmp");
+		File sOut = new File(dir, "StrikeSlipWts.txt");
+		File rOut = new File(dir, "ReverseWts.txt");
+		File nOut = new File(dir, "NormalWts.txt");
+		try {
+			FileUtils.writeLines(sOut, sRecords);
+			FileUtils.writeLines(rOut, rRecords);
+			FileUtils.writeLines(nOut, nRecords);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}		
+	}
+	
+	
+	/**
+	 * 
+	 * @param a1
+	 * @param a2
+	 */
+	private static void arrayDivide(double[] a1, double[] a2) {
+		checkNotNull(a1);
+		checkNotNull(a2);
+		checkArgument(a1.length == a2.length, "Arrays are different sizes");
+		for (int i=0; i<a1.length; i++) {
+			a1[i] /= a2[i];
+		}
+	}
+	
 	
 	private static void generateUCERF2pdf() {
 		double minLat = 24.6;
@@ -43,16 +188,6 @@ public class UCERF2_GridBuilder {
 		
 		int nRows = (int) Math.rint((maxLat - minLat) / dLat) + 1;
 		int nCols = (int) Math.rint((maxLon - minLon) / dLon) + 1;
-
-		List<String> gridNames = Lists.newArrayList();
-		gridNames.add("CA/gridded/GR_DOS/agrd_brawly.out");
-		gridNames.add("CA/gridded/GR_DOS/agrd_mendos.out");
-		gridNames.add("CA/gridded/GR_DOS/agrd_creeps.out");
-		gridNames.add("CA/gridded/GR_DOS/agrd_deeps.out");
-		gridNames.add("CA/gridded/GR_DOS/agrd_impext.out");
-		gridNames.add("CA/gridded/GR_DOS/agrd_cstcal.out");
-		gridNames.add("WUS/gridded/GR_DOS/agrd_wuscmp.out");
-		gridNames.add("WUS/gridded/GR_DOS/agrd_wusext.out");
 		
 		double[] gridSum = null;
 		
@@ -61,7 +196,7 @@ public class UCERF2_GridBuilder {
 				gridName);
 			double[] aDat = readGrid(gridFile, nRows, nCols);
 			if (gridSum == null) {
-				gridSum = aDat;
+				gridSum = aDat.clone();
 				continue;
 			}
 			addArray(gridSum, aDat);
