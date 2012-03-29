@@ -442,10 +442,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
     */
    public void setValuesAboveMomentRateToZero(double moRate) {
 	   double mag=findMagJustAboveMomentRate(moRate);
-	   if(Double.isNaN(mag))
-		   return;
-	   for(int i=getXIndex(mag)+1; i<getNum();i++)
-		   set(i,0d);
+	   if(Double.isNaN(mag)) return;
+	   zeroAboveMag(mag);
    }
    
    /**
@@ -469,8 +467,16 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 		   return getX(targetIndex);
 	   
    }
-
    
+	/**
+	 * Sets the rate of all magnitudes above the supplied magnitude to 0.
+	 * @param mag 
+	 */
+	public void zeroAboveMag(double mag) {
+		for (int i = getXIndex(mag)+1; i < getNum(); i++) {
+			set(i, 0);
+		}
+	}   
    
    /**
     * This computes the b-value (the slope of the line of a linear-log plot, meaning
