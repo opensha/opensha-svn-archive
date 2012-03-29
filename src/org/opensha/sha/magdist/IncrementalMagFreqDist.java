@@ -476,6 +476,16 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 		for (int i = getXIndex(mag)+1; i < getNum(); i++) {
 			set(i, 0);
 		}
+	}
+	
+	/**
+	 * Sets the rate of all magnitudes above the supplied magnitude to 0.
+	 * @param mag 
+	 */
+	public void zeroAtAndAboveMag(double mag) {
+		for (int i = getXIndex(mag); i < getNum(); i++) {
+			set(i, 0);
+		}
 	}   
    
    /**
