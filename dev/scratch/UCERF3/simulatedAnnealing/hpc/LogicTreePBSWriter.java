@@ -253,7 +253,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "perturb-count-test";
+		String runName = "unconstrained-run-like-crazy";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -261,10 +261,11 @@ public class LogicTreePBSWriter {
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
-//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
+		RunSites site = RunSites.EPICENTER;
+//		RunSites site = RunSites.HPCC;
 
-		int numRuns = 10;
+		int numRuns = 500;
+		int runStart = 0;
 		
 		boolean lightweight = numRuns > 10;
 
@@ -277,12 +278,13 @@ public class LogicTreePBSWriter {
 //		DeformationModels[] defModels = { DeformationModels.ABM, DeformationModels.GEOBOUND, DeformationModels.GEOLOGIC,
 //				DeformationModels.GEOLOGIC_PLUS_ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
 		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+//		DeformationModels[] defModels = { DeformationModels.ABM };
 //		DeformationModels[] defModels = { DeformationModels.UCERF2_ALL };
 
 //		InversionModels[] inversionModels = InversionModels.values();
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
-//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-		InversionModels[] inversionModels =  { InversionModels.CHAR };
+		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
+//		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
 
@@ -312,8 +314,12 @@ public class LogicTreePBSWriter {
 		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
 				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
+//		for (double offAseis=0; offAseis <= 1; offAseis+=0.1)
+//			variationBranches.add(buildVariationBranch(ops, toArray("0.1", (float)offAseis+"", "1", null)));
 		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0", "1.3", null)));
+//		for (double mfdIncr=1.25; mfdIncr <= 1.45; mfdIncr+=0.05)
+//			variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0", (float)mfdIncr+"", null)));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0", "1", TAG_OPTION_ON)));
 		
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1.35", null)));
@@ -479,7 +485,7 @@ public class LogicTreePBSWriter {
 									javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
 									javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
 
-									for (int r=0; r<numRuns; r++) {
+									for (int r=runStart; r<numRuns; r++) {
 										String jobName = name;
 										if (numRuns > 1) {
 											String rStr = r+"";

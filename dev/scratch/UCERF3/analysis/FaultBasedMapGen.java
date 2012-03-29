@@ -59,20 +59,6 @@ public class FaultBasedMapGen {
 		return slipCPT;
 	}
 	
-	private static CPT fractDiffCPT = null;
-	private static CPT getFractionalDifferenceCPT() {
-		if (fractDiffCPT == null) {
-			try {
-				fractDiffCPT = GMT_CPT_Files.UCERF3_RATIOS.instance().rescale(-1, 1);
-//				fractDiffCPT = GMT_CPT_Files.GMT_POLAR.instance();
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
-			}
-		}
-		
-		return fractDiffCPT;
-	}
-	
 	private static CPT participationCPT = null;
 	private static CPT getParticipationCPT() {
 		if (participationCPT == null) {
@@ -86,27 +72,32 @@ public class FaultBasedMapGen {
 		return participationCPT;
 	}
 	
-	private static CPT ratioCPT = null;
-	private static CPT getRatioCPT() {
-		if (ratioCPT == null) {
+	private static CPT linearRatioCPT = null;
+	private static CPT getLinearRatioCPT() {
+		if (linearRatioCPT == null) {
 			try {
-//				ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
-				ratioCPT = GMT_CPT_Files.UCERF3_RATIOS.instance();
-//				ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
+				linearRatioCPT = GMT_CPT_Files.UCERF3_RATIOS.instance();
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
-			ratioCPT = ratioCPT.rescale(-3, 3);
-//			ratioCPT.get(0).start = (float)(1d/3d);
-//			ratioCPT.get(0).end = 1f;
-//			ratioCPT.get(1).start = 1f;
-//			ratioCPT.get(1).end = 3f;
-//			ratioCPT.setNanColor(Color.GRAY);
-//			ratioCPT.setAboveMaxColor(ratioCPT.getMaxColor());
-//			ratioCPT.setBelowMinColor(ratioCPT.getMinColor());
+			linearRatioCPT = linearRatioCPT.rescale(0, 2);
 		}
 		
-		return ratioCPT;
+		return linearRatioCPT;
+	}
+	
+	private static CPT logRatioCPT = null;
+	private static CPT getLogRatioCPT() {
+		if (logRatioCPT == null) {
+			try {
+				logRatioCPT = GMT_CPT_Files.UCERF3_RATIOS.instance();
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+			logRatioCPT = logRatioCPT.rescale(-3, 3);
+		}
+		
+		return logRatioCPT;
 	}
 	
 	private static CPT normalizedPairRatesCPT = null;
@@ -168,7 +159,7 @@ public class FaultBasedMapGen {
 		return (comparison - target) / target;
 	}
 	
-	public static void plotSolutionSlipMisfit(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+	public static void plotSolutionSlipMisfit(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display, boolean logRatio)
 			throws GMT_MapException, RuntimeException, IOException {
 		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
 		double[] solSlips = sol.calcSlipRateForAllSects();
@@ -179,21 +170,19 @@ public class FaultBasedMapGen {
 //		CPT cpt = getFractionalDifferenceCPT();
 //		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit", display, false, "Solution Slip Rate Misfit (fractional diff)");
 		for (int i=0; i<faults.size(); i++)
-			values[i] = Math.log(solSlips[i] / targetSlips[i]);
-		CPT cpt = getRatioCPT().rescale(-1, 1);
-		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit", display, false, "Log10(Solution Slip Rate Misfit Ratio)");
-	}
-	
-	public static void plotSolutionSlipMisfitFractDiff(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
-			throws GMT_MapException, RuntimeException, IOException {
-		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
-		double[] solSlips = sol.calcSlipRateForAllSects();
-		double[] targetSlips = sol.getSlipRateForAllSections();
-		double[] values = new double[faults.size()];
-		for (int i=0; i<faults.size(); i++)
-			values[i] = calcFractionalDifferentce(targetSlips[i], solSlips[i]);
-		CPT cpt = getFractionalDifferenceCPT();
-		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit_fract", display, false, "Solution Slip Rate Misfit (fractional diff)");
+			values[i] = solSlips[i] / targetSlips[i];
+		CPT cpt;
+		prefix += "_slip_misfit";
+		String name = "Solution Slip / Target Slip";
+		if (logRatio) {
+			values = log10(values);
+			cpt = getLogRatioCPT().rescale(-1, 1);
+			prefix += "_log";
+			name = "Log10("+name+")";
+		} else {
+			cpt = getLinearRatioCPT();
+		}
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix, display, false, name);
 	}
 	
 	public static void plotParticipationRates(FaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display,
@@ -223,7 +212,7 @@ public class FaultBasedMapGen {
 	public static void plotParticipationRatios(FaultSystemSolution sol, FaultSystemSolution referenceSol, Region region,
 			File saveDir, String prefix, boolean display, double minMag, double maxMag, boolean omitInfinites)
 			throws GMT_MapException, RuntimeException, IOException {
-		CPT cpt = getRatioCPT();
+		CPT cpt = getLogRatioCPT();
 		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
 		double[] newVals = sol.calcParticRateForAllSects(minMag, maxMag);
 		double[] refVals = referenceSol.calcParticRateForAllSects(minMag, maxMag);
@@ -402,7 +391,8 @@ public class FaultBasedMapGen {
 //		plotOrigCreepReducedSlipRates(sol, region, saveDir, prefix, display);
 //		plotTargetSlipRates(sol, region, saveDir, prefix, display);
 //		plotSolutionSlipRates(sol, region, saveDir, prefix, display);
-		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display);
+		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display, true);
+		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display, false);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 6.7, 10);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 6, 7);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 7, 8);

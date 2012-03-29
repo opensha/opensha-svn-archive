@@ -46,8 +46,8 @@ public class BatchPlotGen {
 		FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotTargetSlipRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotSolutionSlipMisfitFractDiff(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, true);
+		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, false);
 		FaultSystemSolution ucerf2 = getUCERF2Comparision(sol.getFaultModel(), dir);
 		for (double[] range : partic_mag_ranges) {
 			FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);

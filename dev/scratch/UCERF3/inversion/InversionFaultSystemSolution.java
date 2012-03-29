@@ -528,8 +528,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //						"FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip"));
 		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(new File(
 						"/tmp/ucerf2_fm2_compare.zip"));
-//		new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
-//				"FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Unconst_VarAseis0_VarOffAseis0_VarMFDMod1.3_VarNone_sol.zip"));
 		simple.plotMFDs(Lists.newArrayList(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850)));
 		
 //		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
