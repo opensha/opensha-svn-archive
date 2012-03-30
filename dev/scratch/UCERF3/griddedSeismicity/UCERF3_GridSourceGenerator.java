@@ -364,25 +364,25 @@ public class UCERF3_GridSourceGenerator {
 	}
 	
 	
-	public static void main(String[] args) {
-		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			invFss, null,null, 8.54);
-	}
+//	public static void main(String[] args) {
+//		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
+//			invFss, null,null, 8.54);
+//	}
 
 	
 	// test data
-	static InversionFaultSystemSolution invFss;
-	static {
-		
-		SimpleFaultSystemSolution tmp = null;
-		try {
-			File f = new File("tmp/invSols/reference_gr_sol.zip");
-			tmp =  SimpleFaultSystemSolution.fromFile(f);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		// a little dirty as it reads the info string, but oh well
-		invFss = new InversionFaultSystemSolution(tmp);
+//	static InversionFaultSystemSolution invFss;
+//	static {
+//		
+//		SimpleFaultSystemSolution tmp = null;
+//		try {
+//			File f = new File("tmp/invSols/reference_gr_sol.zip");
+//			tmp =  SimpleFaultSystemSolution.fromFile(f);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		// a little dirty as it reads the info string, but oh well
+//		invFss = new InversionFaultSystemSolution(tmp);
 		
 		
 		
@@ -424,7 +424,7 @@ public class UCERF3_GridSourceGenerator {
 //		
 //		System.out.println(gr_mfd); 
 
-	}
+//	}
 	
 //	private ArrayList<IncrementalMagFreqDist> mfds = Lists.newArrayList();
 //	private void plotMFDs() {

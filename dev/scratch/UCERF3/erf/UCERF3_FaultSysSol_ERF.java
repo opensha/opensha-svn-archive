@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -11,9 +12,11 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSei
 
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.IOException;
 
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
@@ -78,6 +81,13 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 		// update forecast to we can get a main shock
 		erf.updateForecast();
 		System.out.println("numSrc here="+erf.getNumSources());
+		
+		try {
+			GMT_CA_Maps.plotParticipationRateMap(erf, 6.7, 10d, "testUCERF3_ERF", "test", "testUCERF3_ERF");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
