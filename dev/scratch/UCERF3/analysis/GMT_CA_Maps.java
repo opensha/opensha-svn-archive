@@ -52,7 +52,7 @@ public class GMT_CA_Maps {
 	final static String defaultColorScaleLimits=GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY;
 	final static double defaultColorScaleMinNucl = -6.0;
 	final static double defaultColorScaleMaxNucl = -1.0;
-	final static double defaultColorScaleMinPart = -5.0;
+	final static double defaultColorScaleMinPart = -6.0;
 	final static double defaultColorScaleMaxPart = 0.0;
 	final static double defaultColorScaleMinRatio = -3.0;
 	final static double defaultColorScaleMaxRatio = 3.0;
@@ -678,15 +678,15 @@ public class GMT_CA_Maps {
 //		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(FaultModels.FM3_1);
 //		plot_bValueMap(modMeanUCERF2, Double.NaN, Double.NaN, "UCERF2 bVals","test", "test_bValMap");
 		
-		File solutionDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-//		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);
-		InversionFaultSystemSolution invFltSysSol = new InversionFaultSystemSolution(fltSysSol);
-		System.out.println(invFltSysSol.getImpliedOffFaultStatewideMFD());
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(fltSysSol);
-		erf.updateForecast();
-		plot_bValueMap(erf, Double.NaN, Double.NaN, "Char Inversion bVals","test", "test_CharInv_bValMap");
+//		File solutionDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+////		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);
+//		InversionFaultSystemSolution invFltSysSol = new InversionFaultSystemSolution(fltSysSol);
+//		System.out.println(invFltSysSol.getImpliedOffFaultStatewideMFD());
+//		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(fltSysSol);
+//		erf.updateForecast();
+//		plot_bValueMap(erf, Double.NaN, Double.NaN, "Char Inversion bVals","test", "test_CharInv_bValMap");
 		
 		// ****** TEST FROM A FaultSystemRupSet ******
 
@@ -713,7 +713,7 @@ public class GMT_CA_Maps {
 		
 		// ********* TEST OF UCERF2 PLOTS **************
 		
-//		testMakeUCERF2_Fig35("ucerf2_Fig35_Test");
+		testMakeUCERF2_Fig35("ucerf2_Fig35_Test");
 
 //		testMakeUCERF2_Fig19("ucerf2_Fig19_Test");
 
