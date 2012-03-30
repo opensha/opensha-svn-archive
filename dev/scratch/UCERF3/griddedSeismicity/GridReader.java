@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 
@@ -31,7 +32,9 @@ import com.google.common.io.Resources;
  * @version $Id:$
  */
 public class GridReader {
-
+	private static final CaliforniaRegions.RELM_TESTING_GRIDDED region = 
+			new CaliforniaRegions.RELM_TESTING_GRIDDED();
+	
 	private static final String DATA_DIR = "../data/seismicityGrids/";
 
 	private static final Splitter SPLIT;
@@ -78,7 +81,7 @@ public class GridReader {
 	 * @param region of interest
 	 * @return all required values
 	 */
-	public double[] getValues(GriddedRegion region) {
+	public double[] getValues() {
 		
 		double[] values = new double[region.getNodeCount()];
 		int i = 0;
