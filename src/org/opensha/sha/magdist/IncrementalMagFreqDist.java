@@ -431,6 +431,9 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 		   if(getY(i)>0.0)	// avoid taking log of zero
 			   regression.addData(getX(i), Math.log10(getY(i)));
 	   }
+	   
+//	   if(getX(lastIndex)-getX(firstIndex) <1.0)
+//		   return Double.NaN;
 
 	   return regression.getSlope();
    }

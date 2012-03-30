@@ -28,6 +28,7 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
@@ -674,9 +675,18 @@ public class GMT_CA_Maps {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		
-		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(FaultModels.FM3_1);
-		plot_bValueMap(modMeanUCERF2, Double.NaN, Double.NaN, "UCERF2 bVals","test", "test_bValMap");
+//		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(FaultModels.FM3_1);
+//		plot_bValueMap(modMeanUCERF2, Double.NaN, Double.NaN, "UCERF2 bVals","test", "test_bValMap");
 		
+		File solutionDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		File solutionFile = new File(solutionDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+		FaultSystemSolution fltSysSol = SimpleFaultSystemSolution.fromFile(solutionFile);
+		InversionFaultSystemSolution invFltSysSol = new InversionFaultSystemSolution(fltSysSol);
+		System.out.println(invFltSysSol.getImpliedOffFaultStatewideMFD());
+		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(fltSysSol);
+		erf.updateForecast();
+		plot_bValueMap(erf, Double.NaN, Double.NaN, "Char Inversion bVals","test", "test_CharInv_bValMap");
 		
 		// ****** TEST FROM A FaultSystemRupSet ******
 
