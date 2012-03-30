@@ -1,6 +1,8 @@
 package scratch.UCERF3.griddedSeismicity;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
@@ -9,6 +11,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -34,13 +37,14 @@ public class UCERF3_GridSourceGenerator {
 	
 	private double[] fracStrikeSlip,fracNormal,fracReverse;
 
+	private IncrementalMagFreqDist totalOffFaultMFD;
+	private IncrementalMagFreqDist realOffFaultMFD;	// this has the sub-seismo fault section rupture removed
 	
-	final static int numLocs = region.getNodeCount();
-	
-	IncrementalMagFreqDist totalOffFaultMFD;
-	IncrementalMagFreqDist realOffFaultMFD;	// this has the sub-seismo fault section rupture removed
-//	IncrementalMagFreqDist[] subSeismoFaultSectMFD_Array;	// one for each fault section in the faultSystemSolution
-	
+	// the sub-seismogenic MFDs for those nodes that have them
+	private Map<Integer, SummedMagFreqDist> nodeMFDs;
+	// the sub-seismogenic MFDs for each section
+	private Map<Integer, IncrementalMagFreqDist> sectSubSeisMFDs;
+
 	double[] srcSpatialPDF;		// from Karen or from UCERF2 (or maybe a deformation model)
 	double[] revisedSpatialPDF;	// revised to cut fault-section-polygon areas out (and renormalized)
 	
@@ -49,9 +53,9 @@ public class UCERF3_GridSourceGenerator {
 	double totalMgt5_Rate;
 	
 	// reference mfd values
-	private static final double MFD_MIN = 5.05;
-	private static final double MFD_MAX = 8.45;
-	private static final int MFD_NUM = 35;
+	private double mfdMin = 5.05;
+	private double mfdMax = 8.95;
+	private int mfdNum = 35;
 	
 	/**
 	 * Options:
@@ -71,18 +75,19 @@ public class UCERF3_GridSourceGenerator {
 			double totalMgt5_Rate) {
 		
 		this.fss = fss;
+		
 		this.totalOffFaultMFD = (totalOffFaultMFD == null) ? fss
 			.getImpliedOffFaultStatewideMFD() : totalOffFaultMFD;
-					
+		mfdMin = this.totalOffFaultMFD.getMinX();
+		mfdMax = this.totalOffFaultMFD.getMaxX();
+		mfdNum = this.totalOffFaultMFD.getNum();
+		
 		this.totalMgt5_Rate = totalMgt5_Rate;
 		
 		polyMgr = new FaultPolyMgr(fss);
 		
 		// smoothed seismicity pdf and focal mechs
-		// will probably want to pass in enums specifying which 
-		//spatial pdf to use
 		initGrids(spatialPDFsrc);
-		
 		
 		/*
 		 *  1) compute subSeismoFaultSectMFD_Array, the sub-seismo MFD for each fault section.  Do this by
@@ -121,24 +126,20 @@ public class UCERF3_GridSourceGenerator {
 		initNodeMFDs();
 		updateOffFaultMFD();
 		updateSpatialPDF();
-		
-		System.out.println(totalOffFaultMFD);
-		System.out.println(realOffFaultMFD);
 	}
-	
-	private Map<Integer, IncrementalMagFreqDist> sectSubSeisMFDs;
 	
 	// 1
 	private void initSectionMFDs() {
 		sectSubSeisMFDs = Maps.newHashMap();
-		for (FaultSectionPrefData sect : fss.getFaultSectionDataList()) {
+		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
+
+		for (FaultSectionPrefData sect : faults) {
 			int idx = sect.getSectionId();
 			double minMag = fss.getMinMagForSection(idx);
-			double maxMag = fss.getMaxMagForSection(idx);
 			IncrementalMagFreqDist subSeisMFD = totalOffFaultMFD.deepClone();
-			subSeisMFD.zeroAboveMag(minMag);
-
-			MomentMethod method = MomentMethod.MO_REDUCTION;
+			subSeisMFD.zeroAtAndAboveMag(minMag);
+				
+			MomentMethod method = MomentMethod.SPATIAL;
 			if (method == MomentMethod.MO_REDUCTION) {
 				// scale by moment reduction
 				double reduction = fss.getSubseismogenicReducedMomentRate(idx);
@@ -146,14 +147,11 @@ public class UCERF3_GridSourceGenerator {
 			} else {
 				// scale by smoothed seis area
 				double polySeisRate = rateForSect(polyMgr.getSectFractions(idx));
-				int nMag = (int) ((maxMag - minMag) / 0.1) + 1;
-				IncrementalMagFreqDist supraSeisMFD = fss
-					.calcNucleationMFD_forSect(idx, minMag, maxMag, nMag);
 //				IncrementalMagFreqDist supraSeisMFD = fss
-//						.calcNucleationMFD_forSect(idx, MFD_MIN, MFD_MAX, MFD_NUM);
-				double sectCumRate = supraSeisMFD.getCumRate(minMag);
-				double scaledRate = polySeisRate - sectCumRate;
-				subSeisMFD.scaleToCumRate(5, scaledRate);
+//					.calcNucleationMFD_forSect(idx, mfdMin, mfdMax, mfdNum);
+//				double sectCumRate = supraSeisMFD.getCumRate(mfdMin);
+//				double scaledRate = polySeisRate - sectCumRate;
+				subSeisMFD.scaleToCumRate(mfdMin, polySeisRate);
 			}
 			sectSubSeisMFDs.put(idx, subSeisMFD);
 		}
@@ -167,14 +165,15 @@ public class UCERF3_GridSourceGenerator {
 		double sum = 0; // sect rate M>5
 		for (Integer nodeIdx : particMap.keySet()) {
 			double partic = particMap.get(nodeIdx);
+			System.out.println("node: " + nodeIdx);
+			System.out.println("  " + srcSpatialPDF[nodeIdx]);
+			System.out.println("  " + totalMgt5_Rate);
+			System.out.println("  " + partic);
 			sum += srcSpatialPDF[nodeIdx] * totalMgt5_Rate * partic;
 		}
+		System.out.println("sum: " + sum);
 		return sum;
 	}
-	
-	
-	// the MFDs for those nodes that have an off-fault or subSeis component
-	private Map<Integer, SummedMagFreqDist> nodeMFDs;
 
 	// 2 6
 	private void initNodeMFDs() {
@@ -186,7 +185,7 @@ public class UCERF3_GridSourceGenerator {
 			for (Integer nodeIdx : nodeFractions.keySet()) {
 				SummedMagFreqDist nodeMFD = nodeMFDs.get(nodeIdx);
 				if (nodeMFD == null) {
-					nodeMFD = new SummedMagFreqDist(MFD_MIN, MFD_MAX, MFD_NUM);
+					nodeMFD = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
 					nodeMFDs.put(nodeIdx, nodeMFD);
 				}
 				double scale = nodeFractions.get(nodeIdx);
@@ -213,7 +212,7 @@ public class UCERF3_GridSourceGenerator {
 	//5
 	private void updateSpatialPDF() {
 		revisedSpatialPDF = new double[srcSpatialPDF.length];
-		for (int i=0; i<numLocs; i++) {
+		for (int i=0; i<region.getNodeCount(); i++) {
 			double fraction =  polyMgr.getNodeFraction(i);
 			revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
 		}
@@ -242,31 +241,86 @@ public class UCERF3_GridSourceGenerator {
 	}
 	
 	
+	/**
+	 * Returns the number of sources in the model.
+	 * @return the source count
+	 */
 	public int getNumSources() {
 		return region.getNodeCount();
 	}
 	
-	
+	/**
+	 * This returns the sub-seismogenic MFD associated with a section.
+	 * @param idx
+	 * @return the MFD
+	 */
+	public IncrementalMagFreqDist getSectSubSeisMFD(int idx) {
+		return sectSubSeisMFDs.get(idx);
+	}
+
+	/**
+	 * This returns the MFD associated with a grid node.
+	 * @param idx
+	 * @return the MFD
+	 */
+	public IncrementalMagFreqDist getNodeTotalMFD(int idx) {
+		SummedMagFreqDist sumMFD = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
+		
+		IncrementalMagFreqDist nodeIndMFD = getNodeIndependentMFD(idx);
+		if (nodeIndMFD != null) 
+			sumMFD.addIncrementalMagFreqDist(nodeIndMFD);
+		
+		IncrementalMagFreqDist nodeSubMFD = getNodeSubSeisMFD(idx);
+		if (nodeSubMFD != null) 
+			sumMFD.addIncrementalMagFreqDist(nodeSubMFD);
+		
+		return sumMFD;
+	}
+
+	/**
+	 * This returns the MFD associated with a grid node.
+	 * @param idx
+	 * @return the MFD
+	 */
+	public IncrementalMagFreqDist getNodeIndependentMFD(int idx) {
+		IncrementalMagFreqDist mfd = realOffFaultMFD.deepClone();
+		mfd.scale(revisedSpatialPDF[idx]);
+		return mfd;
+	}
+
+	/**
+	 * This returns the sub-seismogenic MFD associated with a grid node, if any
+	 * exists.
+	 * @param idx
+	 * @return the MFD
+	 */
+	public IncrementalMagFreqDist getNodeSubSeisMFD(int idx) {
+		return nodeMFDs.get(idx);
+	}
+
+	/**
+	 * Returns the source of the requested type at the supplied index for a
+	 * forecast with a given duration.
+	 * @param type
+	 * @param idx
+	 * @param duration
+	 * @return the source
+	 */
 	public ProbEqkSource getSource(SourceType type, int idx, double duration) {
 		if (type == SourceType.RANDOM) return getRandomStrikeSource(idx, duration);
 		if (type == SourceType.CROSSHAIR) return getCrosshairSource(idx, duration);
 		return null;
 	}
 	
-	
-	private IncrementalMagFreqDist getMFD(int index) {
-		return null;
-	}
-
 	/**
 	 * Get the random strike gridded source at a specified index (this ignores
 	 * the fixed-strike contribution)
-	 * 
-	 * @param srcIndex
-	 * @return
+	 * @param idx 
+	 * @param duration 
+	 * @return the source
 	 */
 	public ProbEqkSource getRandomStrikeSource(int idx, double duration) {
-		IncrementalMagFreqDist mfd = getMFD(idx);
+		IncrementalMagFreqDist mfd = getNodeTotalMFD(idx);
 		Location loc = region.locationForIndex(idx);
 		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
@@ -278,12 +332,10 @@ public class UCERF3_GridSourceGenerator {
 	 * fixed-strike contribution)
 	 * @param idx of location for source
 	 * @param duration 
-	 * 
-	 * @param srcIndex
-	 * @return
+	 * @return the source
 	 */
 	public ProbEqkSource getCrosshairSource(int idx, double duration) {
-		IncrementalMagFreqDist mfd = getMFD(idx);
+		IncrementalMagFreqDist mfd = getNodeTotalMFD(idx);
 		Location loc = region.locationForIndex(idx);
 		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
@@ -291,8 +343,8 @@ public class UCERF3_GridSourceGenerator {
 	}
 
 	/**
-	 * Set whether all sources should just be treated as point sources, not
-	 * just those with M&leq;6.0
+	 * Set whether all sources should just be treated as point sources, not just
+	 * those with M&leq;6.0
 	 * 
 	 * @param usePoints
 	 */
@@ -313,7 +365,7 @@ public class UCERF3_GridSourceGenerator {
 	
 	public static void main(String[] args) {
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			invFss, null,null, 4.3);
+			invFss, null,null, 8.54);
 
 	}
 
@@ -374,5 +426,26 @@ public class UCERF3_GridSourceGenerator {
 
 	}
 	
+//	private ArrayList<IncrementalMagFreqDist> mfds = Lists.newArrayList();
+//	private void plotMFDs() {
+//		totalOffFaultMFD.setName("totalOffFault");
+//		mfds.add(totalOffFaultMFD);
+//		for (int i=516; i<517; i++) {
+//			IncrementalMagFreqDist mfd = sectSubSeisMFDs.get(i);
+////			System.out.println(mfd);
+//			mfd.setName(Integer.toString(i));
+//			mfds.add(mfd);
+//		}
+//		plot(mfds);
+//	}
 
+	static void plot(ArrayList<IncrementalMagFreqDist> mfds) { 
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds,
+				"GridSeis Test");
+			graph.setX_AxisLabel("Magnitude");
+			graph.setY_AxisLabel("Incremental Rate");
+			graph.setYLog(true);
+			graph.setY_AxisRange(1e-8, 1e2);
+
+	}
 }
