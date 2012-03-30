@@ -10,8 +10,10 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 
 import java.awt.Toolkit;
+import java.io.File;
 
 
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
@@ -27,11 +29,10 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	UCERF3_GridSourceGenerator ucerf3_gridSrcGen;
 	
 	
-	public UCERF3_FaultSysSol_ERF(String fullPathInputFileForFltSysSol) {
-//		super("/Users/field/ALLCAL_UCERF2.zip");
-		super(fullPathInputFileForFltSysSol);
+	public UCERF3_FaultSysSol_ERF(InversionFaultSystemSolution faultSysSolution) {
+		super(faultSysSolution);
 		
-		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator((InversionFaultSystemSolution)faultSysSolution, null,null, 8.54);
+		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(faultSysSolution, null,null, 8.54);
 
 		numOtherSources = ucerf3_gridSrcGen.getNumSources();
 //		numOtherSources=0;
@@ -54,14 +55,29 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		super("/Users/field/ALLCAL_UCERF2.zip");
+
+		InversionFaultSystemSolution invFss;
+		SimpleFaultSystemSolution tmp = null;
+		try {
+			File f = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+			tmp =  SimpleFaultSystemSolution.fromFile(f);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		invFss = new InversionFaultSystemSolution(tmp);
+
+		
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
+
+		
 		erf.aleatoryMagAreaStdDevParam.setValue(0.0);
 		erf.getTimeSpan().setDuration(1);
 		long runtime = System.currentTimeMillis();
 
 		// update forecast to we can get a main shock
 		erf.updateForecast();
-		System.out.println("numSrc="+erf.getNumSources());
+		System.out.println("numSrc here="+erf.getNumSources());
 		
 	}
 
