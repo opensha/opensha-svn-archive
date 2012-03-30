@@ -16,6 +16,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.collect.Maps;
+import com.sun.msv.datatype.xsd.TotalDigitsFacet;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
@@ -171,7 +172,7 @@ public class UCERF3_GridSourceGenerator {
 //			System.out.println("  " + partic);
 			sum += srcSpatialPDF[nodeIdx] * totalMgt5_Rate * partic;
 		}
-		System.out.println("sum: " + sum);
+//		System.out.println("sum: " + sum);
 		return sum;
 	}
 
