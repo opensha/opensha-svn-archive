@@ -45,8 +45,8 @@ public class UCERF3_GridSourceGenerator {
 	// the sub-seismogenic MFDs for each section
 	private Map<Integer, IncrementalMagFreqDist> sectSubSeisMFDs;
 
-	double[] srcSpatialPDF;		// from Karen or from UCERF2 (or maybe a deformation model)
-	double[] revisedSpatialPDF;	// revised to cut fault-section-polygon areas out (and renormalized)
+	private double[] srcSpatialPDF;		// from Karen or from UCERF2 (or maybe a deformation model)
+	private double[] revisedSpatialPDF;	// revised to cut fault-section-polygon areas out (and renormalized)
 	
 	private FaultSystemSolution fss;
 	
@@ -165,10 +165,10 @@ public class UCERF3_GridSourceGenerator {
 		double sum = 0; // sect rate M>5
 		for (Integer nodeIdx : particMap.keySet()) {
 			double partic = particMap.get(nodeIdx);
-			System.out.println("node: " + nodeIdx);
-			System.out.println("  " + srcSpatialPDF[nodeIdx]);
-			System.out.println("  " + totalMgt5_Rate);
-			System.out.println("  " + partic);
+//			System.out.println("node: " + nodeIdx);
+//			System.out.println("  " + srcSpatialPDF[nodeIdx]);
+//			System.out.println("  " + totalMgt5_Rate);
+//			System.out.println("  " + partic);
 			sum += srcSpatialPDF[nodeIdx] * totalMgt5_Rate * partic;
 		}
 		System.out.println("sum: " + sum);
@@ -366,7 +366,6 @@ public class UCERF3_GridSourceGenerator {
 	public static void main(String[] args) {
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
 			invFss, null,null, 8.54);
-
 	}
 
 	
