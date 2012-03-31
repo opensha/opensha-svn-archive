@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
@@ -341,7 +342,8 @@ public class UCERF3_GridSourceGenerator {
 			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
 			true);
 	}
-
+	
+	
 	/**
 	 * Set whether all sources should just be treated as point sources, not just
 	 * those with M&leq;6.0

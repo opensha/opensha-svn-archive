@@ -7,6 +7,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.griddedSeismicity.GridSourceType;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
@@ -26,15 +27,16 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	UCERF3_GridSourceGenerator ucerf3_gridSrcGen;
 	
 	
-	public UCERF3_FaultSysSol_ERF(InversionFaultSystemSolution faultSysSolution) {
+	public UCERF3_FaultSysSol_ERF(InversionFaultSystemSolution faultSysSolution, SpatialSeisPDF spatialPDF, SmallMagScaling scalingMethod) {
 		super(faultSysSolution);
 		
-		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(
-			faultSysSolution, 
-			null, 
-			SpatialSeisPDF.AVG_DEF_MODEL,
-			8.54, 
-			SmallMagScaling.MO_REDUCTION);
+		double totalRate = faultSysSolution.getTotalRateForAllFaultSystemRups()+
+							faultSysSolution.getImpliedOffFaultStatewideMFD().getTotalIncrRate();
+		
+		System.out.println("rateTest="+totalRate);
+		
+//		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(faultSysSolution,null,SpatialSeisPDF.AVG_DEF_MODEL,8.54,SmallMagScaling.MO_REDUCTION);
+		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(faultSysSolution,null,spatialPDF,8.54,scalingMethod);
 
 		numOtherSources = ucerf3_gridSrcGen.getNumSources();
 //		numOtherSources=0;
@@ -59,38 +61,9 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		super("/Users/field/ALLCAL_UCERF2.zip");
 
-		InversionFaultSystemSolution invFss;
-		SimpleFaultSystemSolution tmp = null;
-		try {
-			File f = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-//			File f = new File("tmp/invSols/reference_gr_sol.zip");
-			
-			tmp =  SimpleFaultSystemSolution.fromFile(f);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		invFss = new InversionFaultSystemSolution(tmp);
-
-		
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
-
-		
-		erf.aleatoryMagAreaStdDevParam.setValue(0.0);
-		erf.getTimeSpan().setDuration(1);
-		long runtime = System.currentTimeMillis();
-
-		// update forecast to we can get a main shock
-		erf.updateForecast();
-		System.out.println("numSrc here="+erf.getNumSources());
-		
-		try {
-			GMT_CA_Maps.plotParticipationRateMap(erf, 6.7, 10d, "testUCERF3_ERF", "test", "testUCERF3_ERF");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+		UCERF3_FaultSysSol_ERF erf = FaultSysSolutionERF_Calc.getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION);
 		
 	}
 
