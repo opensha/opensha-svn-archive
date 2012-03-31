@@ -66,11 +66,23 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	public abstract double getRateForRup(int rupIndex);
 	
 	/**
-	 * Thise gives the long-term rate (events/yr) of all ruptures
+	 * This gives the long-term rate (events/yr) of all ruptures
 	 * @param rupIndex
 	 * @return
 	 */
 	public abstract double[] getRateForAllRups();
+	
+	/**
+	 * This returns the total long-term rate (events/yr) of all fault-based ruptures
+	 * (fault based in case off-fault ruptures are added to subclass)
+	 * @return
+	 */
+	public double getTotalRateForAllFaultSystemRups() {
+		double totRate=0;
+		for(double rate:getRateForAllRups())
+			totRate += rate;
+		return totRate;
+	}
 	
 	/**
 	 * This enables/disables visible progress bars for long calculations
