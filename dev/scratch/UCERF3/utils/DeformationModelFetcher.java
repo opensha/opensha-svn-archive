@@ -1119,13 +1119,36 @@ public class DeformationModelFetcher {
 
 		return azimuths;
 	}
+	
+	
+	
+	public void writeFractParentSectionsWithNonZeroAsies() {
+		int num=0;
+		int totNum=0;
+		ArrayList<String> parentNames = new ArrayList<String>();
+		for(FaultSectionPrefData data:getSubSectionList()) {
+			if(!parentNames.contains(data.getParentSectionName())) {
+				totNum += 1;
+				if(data.getAseismicSlipFactor() > 0)
+					num += 1;
+			}
+		}
+		System.out.println("num non-zero aseis ="+num);
+		System.out.println("total num ="+totNum);
+		System.out.println("fract non-zero = "+(float)num/(float)totNum);
+	}
 
 	public static void main(String[] args) {
 		try {
 			File precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 			
-			FaultModels fm = FaultModels.FM3_1;
-			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+			FaultModels fm = FaultModels.FM2_1;
+			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.UCERF2_ALL, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+			dm.writeFractParentSectionsWithNonZeroAsies();
+			
+			
+//			FaultModels fm = FaultModels.FM3_1;
+//			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 //			
 //			dm.getSubSectionDistanceMap(5d);
 //			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",

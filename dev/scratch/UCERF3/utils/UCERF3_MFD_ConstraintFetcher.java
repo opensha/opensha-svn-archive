@@ -10,6 +10,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -336,6 +337,76 @@ public class UCERF3_MFD_ConstraintFetcher {
 
 		
 	}
+	
+	
+	/**
+	 * This plots the computed MFDs
+	 */
+	public void makePrelimReportMFDsPlot() {
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();	
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.MAGENTA));
+		
+		ArrayList<EvenlyDiscretizedFunc> funcs2 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs2.add(noCal1850_mean_cumMFD);
+		funcs2.add(noCal1984_mean_cumMFD);
+		funcs2.add(soCal1850_mean_cumMFD);
+		funcs2.add(soCal1984_mean_cumMFD);
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "N. vs S. Cal MFDs", plotChars); 
+		graph2.setX_AxisLabel("Mag");
+		graph2.setY_AxisLabel("Rate");
+		graph2.setY_AxisRange(1e-2, 100);
+		graph2.setX_AxisRange(4, 7.5);
+		graph2.setYLog(true);
+		graph2.setPlotLabelFontSize(18);
+		graph2.setAxisLabelFontSize(16);
+		graph2.setTickLabelFontSize(16);
+
+		
+		// All Cal Plot
+		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();	
+		plotChars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		plotChars2.add(new PlotCurveCharacterstics(null, 2f, PlotSymbol.BOLD_CROSS, 4f, Color.BLUE));
+		plotChars2.add(new PlotCurveCharacterstics(null, 2f, PlotSymbol.BOLD_CROSS, 4f, Color.BLUE));
+		plotChars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars2.add(new PlotCurveCharacterstics(null, 2f, PlotSymbol.BOLD_CROSS, 4f, Color.BLACK));
+		plotChars2.add(new PlotCurveCharacterstics(null, 2f, PlotSymbol.BOLD_CROSS, 4f, Color.BLACK));
+
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs.add(allCal1850_mean_cumMFD);
+		funcs.add(allCal1850_lower95_cumMFD);
+		funcs.add(allCal1850_upper95_cumMFD);
+		funcs.add(allCal1984_mean_cumMFD);
+		funcs.add(allCal1984_lower95_cumMFD);
+		funcs.add(allCal1984_upper95_cumMFD);
+		
+		// add UCERF2 obs MFDs
+		funcs.addAll(UCERF2.getObsCumMFD(true));
+		plotChars2.add(new PlotCurveCharacterstics(null, 2f, PlotSymbol.BOLD_CROSS, 4f, Color.RED));
+		plotChars2.add(new PlotCurveCharacterstics(null, 2f, PlotSymbol.BOLD_CROSS, 4f, Color.RED));
+		plotChars2.add(new PlotCurveCharacterstics(null, 2f, PlotSymbol.BOLD_CROSS, 4f, Color.RED));
+		
+//		// Add target we've been working with
+//		Region region = new CaliforniaRegions.RELM_GRIDDED();
+//		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
+//		funcs.add(fetcher.getTargetMFDConstraint().getMagFreqDist().getCumRateDistWithOffset());
+//		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "All Cal MFDs", plotChars2); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate");
+		graph.setY_AxisRange(1e-3, 500);
+		graph.setX_AxisRange(3.5, 8.0);
+		graph.setYLog(true);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(16);
+
+
+	}
 
 	
 	
@@ -356,7 +427,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 //		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
 	
 		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
-		test.plotCumMFDs();
+		test.makePrelimReportMFDsPlot();
 	}
 
 	

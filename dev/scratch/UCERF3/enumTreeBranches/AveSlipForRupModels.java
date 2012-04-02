@@ -3,6 +3,7 @@
  */
 package scratch.UCERF3.enumTreeBranches;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,8 +16,10 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.ShortNamed;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * @author field
@@ -160,17 +163,29 @@ public enum AveSlipForRupModels implements ShortNamed {
     	}
     	
     	ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
-    	funcs.add(u2_func);
+//    	funcs.add(u2_func);
     	funcs.add(sh09_func);
     	funcs.add(ellB_Mod_func);
-    	funcs.add(ellB_func);
+ //   	funcs.add(ellB_func);
     	funcs.add(hb_func);
     	funcs.add(sh12_sqrtL_func);
     	funcs.add(sh12_csd_func);
     	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip-Length Relationships, seimoThickness="+seismoThickness); 
+    	ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.GREEN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.MAGENTA));
+
+    	
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip-Length Relationships", plotChars); 
 		graph.setX_AxisLabel("Length (km)");
 		graph.setY_AxisLabel("Slip (m)");
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
+
 //		graph.setXLog(true);
 //		graph.setX_AxisRange(0, 1e5);
 //		graph.setY_AxisRange(4, 9);

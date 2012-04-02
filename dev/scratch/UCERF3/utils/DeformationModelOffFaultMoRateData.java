@@ -392,9 +392,9 @@ public class DeformationModelOffFaultMoRateData {
 	 */
 	public static void main(String[] args) {
 
-//		plotAveDefModPDF_Map();
+		plotAveDefModPDF_Map();
 		
-		DeformationModelOffFaultMoRateData test = new DeformationModelOffFaultMoRateData();
+//		DeformationModelOffFaultMoRateData test = new DeformationModelOffFaultMoRateData();
 //		test.writeAllTotalMomentRates();
 ////		test.testPlotMap();
 	}

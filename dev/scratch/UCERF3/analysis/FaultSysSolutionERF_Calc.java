@@ -44,7 +44,6 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 	public static void makePrelimReportPartPlots() {
-		File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 
 		try {
 			// UCERF2_FaultSysSol_ERF
@@ -59,18 +58,30 @@ public class FaultSysSolutionERF_Calc {
 //			erf.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
 //			erf.getTimeSpan().setDuration(1d);
 //			erf.updateForecast();
-//
-//			GMT_CA_Maps.plotParticipationRateMap(erf, 6.7, 10d, "testUCERF2_ERF", "test", "testUCERF2_ERF");
+//			String fileName = "UCERF2";
 
-			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION);
-			String fileName = "UCERF3_AVE_MO";
+			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION);
+//			String fileName = "UCERF3_CHAR_DefMod_MoBal";
+//			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.SPATIAL);
+//			String fileName = "UCERF3_CHAR_DefMod_Seis";
+			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.UCERF3,SmallMagScaling.SPATIAL);
+			String fileName = "UCERF3_CHAR_U3smSeis_Seis";
 			
-			GMT_CA_Maps.plotParticipationRateMap(getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION), 
-					5.0, 10d, fileName+"_Part5pt0", "test", fileName+"_Part5pt0");
-			GMT_CA_Maps.plotParticipationRateMap(getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION), 
-					6.7, 10d, fileName+"_Part6pt7", "test", fileName+"_Part6pt7");
-			GMT_CA_Maps.plotParticipationRateMap(getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION), 
-					7.7, 10d, fileName+"_Part7pt7", "test", fileName+"_Part7pt7");
+//			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION);
+//			String fileName = "UCERF3_GR_DefMod_MoBal";
+//			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.SPATIAL);
+//			String fileName = "UCERF3_GR_DefMod_Seis";
+//			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.UCERF3,SmallMagScaling.SPATIAL);
+//			String fileName = "UCERF3_GR_U3smSeis_Seis";
+
+
+			
+			GMT_CA_Maps.plotParticipationRateMap(erf, 5.0, 10d, fileName+"_Part5pt0", "test", fileName+"_Part5pt0");
+			GMT_CA_Maps.plotParticipationRateMap(erf, 6.7, 10d, fileName+"_Part6pt7", "test", fileName+"_Part6pt7");
+			GMT_CA_Maps.plotParticipationRateMap(erf, 7.7, 10d, fileName+"_Part7pt7", "test", fileName+"_Part7pt7");
+			GMT_CA_Maps.plotM6_5_BulgeMap(erf, 6.5, 1.0, fileName+"_Bulge", "test", fileName+"_Bulge");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -83,7 +94,19 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) {
 		
-		makePrelimReportPartPlots();
+//		makePrelimReportPartPlots();
+		
+		
+		File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+		SimpleFaultSystemSolution tmp = null;
+		try {
+			tmp =  SimpleFaultSystemSolution.fromFile(file);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("numRups="+tmp.getNumRuptures());
+		System.out.println("numSect="+tmp.getNumSections());
+
 
 	}
 
