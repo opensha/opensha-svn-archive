@@ -129,11 +129,11 @@ public class FaultSectionDataWriter {
 	public static StringBuffer getRupsASCII(FaultSystemRupSet rupSet) {
 		StringBuffer buff = new StringBuffer();
 		buff.append("rupID\tclusterID\trupInClustID\tmag\tnumSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
-		//			  int rupIndex = 0;
+		int rupIndex = 0;
 		for(int c=0;c<rupSet.getNumClusters();c++) {
 			List<Integer> rups = rupSet.getRupturesForCluster(c);
 			//				  ArrayList<ArrayList<Integer>>  rups = rupSet.getCluster(c).getSectionIndicesForRuptures();
-			for(int rupIndex : rups) {
+			for(int i=0; i<rups.size(); i++) {
 				//					  ArrayList<Integer> rup = rups.get(r);
 				List<Integer> sections = rupSet.getSectionsIndicesForRup(rupIndex);
 				String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(rupIndex)+"\t"+
