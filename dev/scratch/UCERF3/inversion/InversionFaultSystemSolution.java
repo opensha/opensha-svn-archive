@@ -434,7 +434,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 		
 		// Implied Off Fault
-		IncrementalMagFreqDist solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
+		IncrementalMagFreqDist solOffFaultMFD;
+		if (region.getName().contains("RELM") && region.getName().contains("TESTING"))
+			solOffFaultMFD = getImpliedOffFaultStatewideMFD();
+		else
+			solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
 		solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
 		funcs.add(solOffFaultMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));

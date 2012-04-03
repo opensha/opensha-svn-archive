@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipException;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.GMT_MapException;
@@ -31,9 +33,11 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 import com.google.common.base.Preconditions;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionConfiguration;
+import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class FaultBasedMapGen {
@@ -209,6 +213,75 @@ public class FaultBasedMapGen {
 		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, name, display, false, title);
 	}
 	
+	public static void plotParticipationStdDevs(FaultSystemRupSet rupSet, double[][] partRates, Region region, File saveDir,
+			String prefix, boolean display, double minMag, double maxMag)
+			throws GMT_MapException, RuntimeException, IOException {
+		CPT cpt = getParticipationCPT();
+		List<FaultSectionPrefData> faults = rupSet.getFaultSectionDataList();
+		
+		double[] stdDevs = new double[partRates.length];
+		double[] mean = new double[partRates.length];
+		for (int i=0; i<partRates.length; i++) {
+			mean[i] = StatUtils.mean(partRates[i]);
+			stdDevs[i] = Math.sqrt(StatUtils.variance(partRates[i], mean[i]));
+		}
+		
+		String name = prefix+"_partic_std_dev_"+(float)minMag;
+		String title = "Log10(Participation Rates Std. Dev. "+(float)+minMag;
+		if (maxMag < 9) {
+			name += "_"+(float)maxMag;
+			title += "=>"+(float)maxMag;
+		} else {
+			name += "+";
+			title += "+";
+		}
+		title += ")";
+		
+		MatrixIO.doubleArrayToFile(stdDevs, new File(saveDir, name+".bin"));
+		
+		// now log space
+		double[] logStdDevs = log10(stdDevs);
+		
+		makeFaultPlot(cpt, getTraces(faults), logStdDevs, region, saveDir, name, display, false, title);
+		
+		title = title.replaceAll("Dev. ", "Dev. / Mean ");
+		name = name.replaceAll("_dev_", "_dev_norm_");
+		double[] norm = new double[mean.length];
+		for (int i=0; i<mean.length; i++)
+			norm[i] = stdDevs[i] / mean[i];
+		norm = log10(norm);
+		cpt = cpt.rescale(-3, 2);
+		
+		makeFaultPlot(cpt, getTraces(faults), norm, region, saveDir, name, display, false, title);
+	}
+	
+	public static void plotSolutionSlipRateStdDevs(FaultSystemRupSet rupSet, double[][] slipRates, Region region, File saveDir, String prefix, boolean display)
+			throws GMT_MapException, RuntimeException, IOException {
+		CPT cpt = getParticipationCPT().rescale(-4, 1);
+		List<FaultSectionPrefData> faults = rupSet.getFaultSectionDataList();
+		
+		double[] stdDev = new double[slipRates.length];
+		double[] mean = new double[slipRates.length];
+		for (int i=0; i<slipRates.length; i++) {
+			double[] rates = scale(slipRates[i], 1e3); // to mm
+			mean[i] = StatUtils.mean(rates);
+			stdDev[i] = Math.sqrt(StatUtils.variance(rates, mean[i]));
+		}
+		MatrixIO.doubleArrayToFile(stdDev, new File(saveDir, prefix+"_solution_slip_std_dev.bin"));
+		// now log space
+		double[] logStdDev = log10(stdDev);
+		
+		makeFaultPlot(cpt, getTraces(faults), logStdDev, region, saveDir, prefix+"_solution_slip_std_dev", display, false, "Log10(Solution Slip Rate Std Dev (mm/yr))");
+
+		double[] norm = new double[mean.length];
+		for (int i=0; i<mean.length; i++)
+			norm[i] = stdDev[i] / mean[i];
+		norm = log10(norm);
+		cpt = cpt.rescale(-3, 2);
+		
+		makeFaultPlot(cpt, getTraces(faults), norm, region, saveDir, prefix+"_solution_slip_std_dev_norm", display, false, "Log10(Solution Slip Rate Std Dev / Mean)");
+	}
+	
 	public static void plotParticipationRatios(FaultSystemSolution sol, FaultSystemSolution referenceSol, Region region,
 			File saveDir, String prefix, boolean display, double minMag, double maxMag, boolean omitInfinites)
 			throws GMT_MapException, RuntimeException, IOException {
@@ -342,6 +415,21 @@ public class FaultBasedMapGen {
 		return faultTraces;
 	}
 	
+	private static class TraceValue implements Comparable<TraceValue> {
+		private LocationList trace;
+		private double value;
+		public TraceValue(LocationList trace, double value) {
+			this.trace = trace;
+			this.value = value;
+		}
+
+		@Override
+		public int compareTo(TraceValue o) {
+			return Double.compare(value, o.value);
+		}
+		
+	}
+	
 	private synchronized static void makeFaultPlot(CPT cpt, List<LocationList> faults, double[] values, Region region,
 			File saveDir, String prefix, boolean display, boolean skipNans, String label)
 					throws GMT_MapException, RuntimeException, IOException {
@@ -356,11 +444,19 @@ public class FaultBasedMapGen {
 		
 		Preconditions.checkState(faults.size() == values.length, "faults and values are different lengths!");
 		
+		ArrayList<TraceValue> vals = new ArrayList<FaultBasedMapGen.TraceValue>();
 		for (int i=0; i<faults.size(); i++) {
 			if (skipNans && Double.isNaN(values[i]))
 				continue;
 			LocationList fault = faults.get(i);
-			Color c = cpt.getColor((float)values[i]);
+			vals.add(new TraceValue(fault, values[i]));
+		}
+		Collections.sort(vals); // so that high values are on top
+		
+		for (TraceValue val : vals) {
+			LocationList fault = val.trace;
+			double value = val.value;
+			Color c = cpt.getColor((float)value);
 			for (PSXYPolygon poly : getPolygons(fault, c))
 				map.addPolys(poly);
 		}

@@ -57,6 +57,12 @@ public abstract class FaultSystemRupSet {
 		fractRupsInsideRegions.clear();
 	}
 	
+	public void copyCacheFrom(FaultSystemRupSet rupSet) {
+		rupturesForSectionCache = rupSet.rupturesForSectionCache;
+		rupSectionSlipsCache = rupSet.rupSectionSlipsCache;
+		fractRupsInsideRegions = rupSet.fractRupsInsideRegions;
+	}
+	
 	/**
 	 * The total number of ruptures in the fault system
 	 * @return
@@ -249,8 +255,13 @@ public abstract class FaultSystemRupSet {
 	public double[] getSlipOnSectionsForRup(int rthRup) {
 		double[] slips = rupSectionSlipsCache.get(rthRup);
 		if (slips == null) {
-			slips = calcSlipOnSectionsForRup(rthRup);
-			rupSectionSlipsCache.put(rthRup, slips);
+			synchronized (this) {
+				slips = rupSectionSlipsCache.get(rthRup);
+				if (slips != null)
+					return slips;
+				slips = calcSlipOnSectionsForRup(rthRup);
+				rupSectionSlipsCache.put(rthRup, slips);
+			}
 		}
 		return slips;
 	}
@@ -593,22 +604,26 @@ public abstract class FaultSystemRupSet {
 	 */
 	public final List<Integer> getRupturesForSection(int secIndex) {
 		if (rupturesForSectionCache == null) {
-			CalcProgressBar p = null;
-			if (showProgress) {
-				p = new CalcProgressBar("Calculating Ruptures for each Section", "Calculating Ruptures for each Section");
-			}
-			rupturesForSectionCache = new ArrayList<ArrayList<Integer>>();
-			for (int secID=0; secID<getNumSections(); secID++)
-				rupturesForSectionCache.add(new ArrayList<Integer>());
-			
-			int numRups = getNumRuptures();
-			for (int rupID=0; rupID<numRups; rupID++) {
-				if (p != null) p.updateProgress(rupID, numRups);
-				for (int secID : getSectionsIndicesForRup(rupID)) {
-					rupturesForSectionCache.get(secID).add(rupID);
+			synchronized (this) {
+				if (rupturesForSectionCache != null)
+					return rupturesForSectionCache.get(secIndex);
+				CalcProgressBar p = null;
+				if (showProgress) {
+					p = new CalcProgressBar("Calculating Ruptures for each Section", "Calculating Ruptures for each Section");
 				}
+				rupturesForSectionCache = new ArrayList<ArrayList<Integer>>();
+				for (int secID=0; secID<getNumSections(); secID++)
+					rupturesForSectionCache.add(new ArrayList<Integer>());
+
+				int numRups = getNumRuptures();
+				for (int rupID=0; rupID<numRups; rupID++) {
+					if (p != null) p.updateProgress(rupID, numRups);
+					for (int secID : getSectionsIndicesForRup(rupID)) {
+						rupturesForSectionCache.get(secID).add(rupID);
+					}
+				}
+				if (p != null) p.dispose();
 			}
-			if (p != null) p.dispose();
 		}
 		
 		return rupturesForSectionCache.get(secIndex);

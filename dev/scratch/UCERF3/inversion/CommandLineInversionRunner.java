@@ -425,8 +425,14 @@ public class CommandLineInversionRunner {
 	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, FaultSystemSolution sol,
 			File dir, String prefix)
 			throws IOException {
+		writePaleoPlots(paleoRateConstraints, Lists.newArrayList(sol), dir, prefix);
+	}
+	
+	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, ArrayList<FaultSystemSolution> sols,
+			File dir, String prefix)
+			throws IOException {
 		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(
-				paleoRateConstraints, Lists.newArrayList(sol), true);
+				paleoRateConstraints, sols, true);
 		
 		File file = new File(dir, prefix+"_paleo_fit");
 		gp.getCartPanel().setSize(1000, 800);
