@@ -1995,45 +1995,51 @@ public class UCERF2 extends AbstractERF {
 		// System.out.println("totMoRateReduction="+totMoRateReduction);
 		this.allSources = new ArrayList();
 		String rupModel = (String) rupModelParam.getValue();
-
-		//System.out.println("Creating A Fault sources");
-		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) {
-
-			// Note that BPT is same as Poisson in case of Unsegmented A-Fault sources
-			mkA_FaultUnsegmentedSources();
-
-			// Calculate Predicted event rates at the locations where we have obs (given in Tom Parson's excel sheet)
-			// These are stored in the aFaultsFetcher for others to reference later
-			ArrayList<EventRates> eventRatesList = this.aFaultsFetcher.getEventRatesList();
-			int numSources = this.aFaultSourceGenerators.size();
-			//System.out.println(numSources);
-			for(int locIndex=0; locIndex<eventRatesList.size(); ++locIndex) {
-				EventRates event = eventRatesList.get(locIndex);	
-				double rate = 0, obsRate = 0;
-				Location loc;
-				for(int iSource=0; iSource<numSources; ++iSource) {
-					UnsegmentedSource source = (UnsegmentedSource)aFaultSourceGenerators.get(iSource);
-					if(source.getFaultSegmentData().getFaultName().equalsIgnoreCase(event.getFaultName())) {
-						loc = new Location(event.getLatitude(), event.getLongitude());
-						rate+=source.getPredEventRate(loc);
-						obsRate+=source.getPredObsEventRate(loc);  // this one is reduced by the probability of it being paleoseismically observed
-					}
-				}
-				event.setPredictedRate(rate);
-				event.setPredictedObsRate(obsRate);
-			}	
-		}
-		else 
-			mkA_FaultSegmentedSources();
-		/* */
-		//System.out.println("Creating B Fault sources");
-		mkB_FaultSources();
 		
-		mkNonCA_B_FaultSources();
+		String backSeis = backSeisParam.getValue();
+		
+		// if "background only" is not selected
+		if(!backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
+			//System.out.println("Creating A Fault sources");
+			if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) {
 
-		//System.out.println("Creating C Zone Fault sources");
-		makeC_ZoneSources();
+				// Note that BPT is same as Poisson in case of Unsegmented A-Fault sources
+				mkA_FaultUnsegmentedSources();
 
+				// Calculate Predicted event rates at the locations where we have obs (given in Tom Parson's excel sheet)
+				// These are stored in the aFaultsFetcher for others to reference later
+				ArrayList<EventRates> eventRatesList = this.aFaultsFetcher.getEventRatesList();
+				int numSources = this.aFaultSourceGenerators.size();
+				//System.out.println(numSources);
+				for(int locIndex=0; locIndex<eventRatesList.size(); ++locIndex) {
+					EventRates event = eventRatesList.get(locIndex);	
+					double rate = 0, obsRate = 0;
+					Location loc;
+					for(int iSource=0; iSource<numSources; ++iSource) {
+						UnsegmentedSource source = (UnsegmentedSource)aFaultSourceGenerators.get(iSource);
+						if(source.getFaultSegmentData().getFaultName().equalsIgnoreCase(event.getFaultName())) {
+							loc = new Location(event.getLatitude(), event.getLongitude());
+							rate+=source.getPredEventRate(loc);
+							obsRate+=source.getPredObsEventRate(loc);  // this one is reduced by the probability of it being paleoseismically observed
+						}
+					}
+					event.setPredictedRate(rate);
+					event.setPredictedObsRate(obsRate);
+				}	
+			}
+			else 
+				mkA_FaultSegmentedSources();
+			/* */
+			//System.out.println("Creating B Fault sources");
+			mkB_FaultSources();
+			
+			mkNonCA_B_FaultSources();
+
+			//System.out.println("Creating C Zone Fault sources");
+			makeC_ZoneSources();
+		}
+
+		// checks for background seismicity include/only are included in this method, no need to add them here
 		//System.out.println("Creating Background sources");
 		makeBackgroundGridSources();
 
