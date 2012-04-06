@@ -121,7 +121,7 @@ public class PosterImageGen {
 		if (!tableOnly)
 			windows = ResultPlotter.generatePlots(null, dir, highlight, coolType, threads, nodes,
 				includeStartSubZero, plotAvg, bundleDsaBySubs, bundleTsaBySubs,
-				myAvgNumX, myTargetNum, false, plots);
+				myAvgNumX, myTargetNum, false, plots, null);
 		GraphiWindowAPI_Impl gw;
 		
 //		wikiTable.get(0).add("!"+dir.getName());

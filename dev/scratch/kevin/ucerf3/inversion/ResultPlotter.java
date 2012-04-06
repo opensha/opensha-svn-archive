@@ -3,10 +3,13 @@ package scratch.kevin.ucerf3.inversion;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.math.stat.StatUtils;
 import org.jfree.chart.plot.DatasetRenderingOrder;
@@ -16,6 +19,10 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.cpt.CPT;
+import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -557,7 +564,7 @@ public class ResultPlotter {
 		for (DiscretizedFunc func : speedupVsTime) {
 			String name = func.getName();
 			System.out.println("Processing threads for func: "+name);
-			if (name == null || name.length()<10 || !(name.contains("dsa") || name.contains("tsa"))) {
+			if (name == null || name.length()<10 || !(name.contains("dsa") || name.contains("tsa") || name.startsWith("FM"))) {
 				continue;
 			}
 			if (name.contains("min") || name.contains("max"))
@@ -714,14 +721,16 @@ public class ResultPlotter {
 	/**
 	 * @param args
 	 * @throws IOException 
+	 * @throws InvocationTargetException 
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException, InvocationTargetException {
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/test_inversion/bench/");
 //		File mainDir = new File("D:\\Documents\\temp\\Inversion Results");
 		
-		File tsaDir = null;
-		File dsaDir = null;
+		final File tsaDir = null;
+//		final File dsaDir = null;
 		
 //		tsaDir = new File(mainDir, "results_5");
 //		tsaDir = new File(mainDir, "results_6");
@@ -740,7 +749,7 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
 //		dsaDir = new File(mainDir, "2012_02_22-model2-bench/8threads");
 //		dsaDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_02_27-unconstrained");
-		dsaDir = new File("D:\\Documents\\temp\\csvs");
+		final File dsaDir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_04-threaded-bench/csvs/char");
 		
 //		dsaDir = new File(mainDir, "agu/ncal_constrained");
 //		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
@@ -750,16 +759,16 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_09_07_morgan_NoCS_UCERF2MagDist");
 //		dsaDir = new File(mainDir, "2011_09_16_genetic_test");
 		
-		ArrayList<String> plots = new ArrayList<String>();
-//		plots.add(energy_vs_time_title);
-		plots.add(improvement_vs_iterations);
-//		plots.add(avg_energy_vs_time_title);
+		final ArrayList<String> plots = new ArrayList<String>();
+		plots.add(energy_vs_time_title);
+//		plots.add(improvement_vs_iterations);
+		plots.add(avg_energy_vs_time_title);
 //		plots.add(std_dev_vs_time_title);
 //		plots.add(improvement_vs_time_title);
 //		plots.add(time_speedup_vs_energy_title);
 //		plots.add(time_comparison_title);
-//		plots.add(time_speedup_vs_time_title);
-//		plots.add(speedup_vs_threads_title);
+		plots.add(time_speedup_vs_time_title);
+		plots.add(speedup_vs_threads_title);
 //		plots.add(speedup_vs_time_title);
 //		plots.add(energy_vs_iterations_title);
 //		plots.add(avg_energy_vs_iterations_title);
@@ -767,33 +776,51 @@ public class ResultPlotter {
 //		plots.add(parallel_iterations_vs_time_title);
 //		plots.add(iterations_vs_time_title);
 		
-		String highlight = "Unconst";
+//		String highlight = "Unconst";
+		final String highlight = null;
 		
 //		highlight = "dsa_8threads_10nodes_FAST_SA_dSub200_sub100";
 		
 //		String coolType = "VERYFAST";
-		String coolType = null;
-		int threads = -1;
+		final String coolType = null;
+		final int threads = -1;
 //		int threads = 6;
-		int nodes = -1;
-		boolean includeStartSubZero = false;
-		boolean plotAvg = true;
-		boolean bundleDsaBySubs = false;
-		boolean bundleTsaBySubs = false;
+		final int nodes = -1;
+		final boolean includeStartSubZero = false;
+		final boolean plotAvg = true;
+		final boolean bundleDsaBySubs = false;
+		final boolean bundleTsaBySubs = false;
 		
-		int avgNumX = 400;
-		int targetPPM = 2;
+		CPT tempCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+		CPTVal last = tempCPT.remove(tempCPT.size()-1);
+		final CPT threadCPT = tempCPT.rescale(1, 8);
+		last.start = 8f;
+		last.end = 23f;
+		threadCPT.add(last);
 		
-		generatePlots(tsaDir, dsaDir, highlight, coolType, threads, nodes,
-				includeStartSubZero, plotAvg, bundleDsaBySubs, bundleTsaBySubs,
-				avgNumX, targetPPM, true, plots);
+		final int avgNumX = 400;
+		final int targetPPM = 2;
+		
+		SwingUtilities.invokeAndWait(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					generatePlots(tsaDir, dsaDir, highlight, coolType, threads, nodes,
+							includeStartSubZero, plotAvg, bundleDsaBySubs, bundleTsaBySubs,
+							avgNumX, targetPPM, true, plots, threadCPT);
+				} catch (Exception e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+		});
 	}
 
 	protected static HashMap<String, GraphiWindowAPI_Impl> generatePlots(File tsaDir, File dsaDir,
 			String highlight, String coolType, int threads, int nodes,
 			boolean includeStartSubZero, boolean plotAvg,
 			boolean bundleDsaBySubs, boolean bundleTsaBySubs, int avgNumX, int targetPPM,
-			boolean visible, Collection<String> plots)
+			boolean visible, Collection<String> plots, CPT threadCPT)
 			throws IOException {
 		File[] tsaFiles;
 		if (tsaDir == null)
@@ -969,18 +996,25 @@ public class ResultPlotter {
 					else if (name.contains("8threads"))
 						size = 4f;
 				} else {
-					if (name.contains("1thread"))
-						c = Color.BLACK;
-					else if (name.contains("_2threads"))
-						c = Color.BLUE;
-					else if (name.contains("4threads"))
-						c = Color.GREEN;
-					else if (name.contains("6threads"))
-						c = Color.MAGENTA;
-					else if (name.contains("8threads"))
-						c = Color.RED;
-					else
-						c = Color.ORANGE;
+					if (threadCPT != null && name.contains("thread")) {
+						String sub = name.substring(0, name.indexOf("thread"));
+						sub = sub.substring(sub.lastIndexOf("_")+1);
+						int numThreads = Integer.parseInt(sub);
+						c = threadCPT.getColor((float)numThreads);
+					} else {
+						if (name.contains("1thread"))
+							c = Color.BLACK;
+						else if (name.contains("_2threads"))
+							c = Color.BLUE;
+						else if (name.contains("4threads"))
+							c = Color.GREEN;
+						else if (name.contains("6threads"))
+							c = Color.MAGENTA;
+						else if (name.contains("8threads"))
+							c = Color.RED;
+						else
+							c = Color.ORANGE;
+					}
 				}
 			}
 			
@@ -1073,6 +1107,8 @@ public class ResultPlotter {
 				if (refFunc == null) {
 					if (coolType == null && name.startsWith("tsa_1threads_FAST")
 							|| name.startsWith("tsa_1threads_"+coolType))
+						refFunc = avg;
+					else if (name.startsWith("FM") && name.contains("_1thread"))
 						refFunc = avg;
 				}
 //				if (refFunc == null && name.startsWith("tsa_1threads_VERYFAST"))
@@ -1235,7 +1271,8 @@ public class ResultPlotter {
 					windows.put(time_speedup_vs_time_title,
 							getGraphWindow(timeSpeedups, time_speedup_vs_time_title, timeCompChars,
 									parallel_time_label, time_speedup_label, visible));
-				}
+				} else
+					System.out.println("can't display "+time_speedup_vs_time_title+"...no funcs!");
 			} else if (plot.equals(speedup_vs_threads_title)) {
 				if (combinedSpeedups != null) {
 					System.out.println("generating "+speedup_vs_threads_title);

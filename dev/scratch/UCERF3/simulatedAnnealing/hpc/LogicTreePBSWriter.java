@@ -253,7 +253,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "unconstrained-run-like-crazy-pt-3";
+		String runName = "threaded-bench";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -264,7 +264,7 @@ public class LogicTreePBSWriter {
 //		RunSites site = RunSites.EPICENTER;
 		RunSites site = RunSites.HPCC;
 
-		int numRuns = 500;
+		int numRuns = 5;
 		int runStart = 0;
 		
 		boolean lightweight = numRuns > 10;
@@ -282,8 +282,8 @@ public class LogicTreePBSWriter {
 //		DeformationModels[] defModels = { DeformationModels.UCERF2_ALL };
 
 //		InversionModels[] inversionModels = InversionModels.values();
-//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
-		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
+		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
+//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };

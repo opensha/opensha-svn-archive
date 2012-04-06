@@ -869,6 +869,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		public boolean matchesVariation(VariableLogicTreeBranch branch) {
 			if (variations != null) {
 				List<String> o = branch.getVariations();
+				if (o == null)
+					return variations.isEmpty();
 				if (variations.size()> o.size())
 					return false;
 				for (int i=0; i<variations.size(); i++) {

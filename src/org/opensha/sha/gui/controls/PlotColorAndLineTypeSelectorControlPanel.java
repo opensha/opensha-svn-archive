@@ -48,6 +48,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -625,7 +626,7 @@ ActionListener,ParameterChangeListener{
 	 * @return 
 	 */
 	public void setAxisLabelFontSize(int fontSize){
-		axisLabelsFontSizeParam.setValue(""+fontSize);
+		setOrAddParameterValue(axisLabelsFontSizeParam, ""+fontSize);
 	}
 
 	/**
@@ -642,7 +643,23 @@ ActionListener,ParameterChangeListener{
 	 * @param fontSize
 	 */
 	public void setPlotLabelFontSize(int fontSize) {
-		plotLabelsFontSizeParam.setValue(""+fontSize);
+		setOrAddParameterValue(plotLabelsFontSizeParam, ""+fontSize);
+	}
+	
+	/**
+	 * This sets the value of the given string parameter to the given value. If the value is not allowed, it is added
+	 * to the string constraint's "allowed" list.
+	 * @param stringParam
+	 * @param value
+	 */
+	private void setOrAddParameterValue(StringParameter stringParam, String value) {
+		if (stringParam.isAllowed(value)) {
+			stringParam.setValue(value);
+		} else {
+			StringConstraint sconst = (StringConstraint) stringParam.getConstraint();
+			sconst.addString(value);
+			stringParam.setValue(value);
+		}
 	}
 
 	/**
@@ -659,7 +676,7 @@ ActionListener,ParameterChangeListener{
 	 * @param fontSize
 	 */
 	public void setTickLabelFontSize(int fontSize) {
-		this.tickFontSizeParam.setValue(""+fontSize);
+		setOrAddParameterValue(tickFontSizeParam, ""+fontSize);
 	}
 
 	/**

@@ -14,6 +14,8 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
+import com.google.common.collect.Lists;
+
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -108,6 +110,30 @@ public class FaultSystemRupSetCalc {
 		if(D) System.out.println(hist);
 		hist.normalizeBySumOfY_Vals();
 		hist.setName("Mag Histogram for FaultSystemRupSet");
+		hist.setInfo("(based on "+faultSystemRupSet.getNumRuptures()+" ruptures)");
+		return hist;
+	}
+	
+	
+	/**
+	 * This computes a histogram of the the lengths (in KM) among all ruptures 
+	 * in the given FaultSystemRupSet
+	 * @param faultSystemRupSet
+	 * @param minLength
+	 * @param numLengths
+	 * @param deltaLength
+	 */
+	public static HistogramFunction getLengthHistogram(FaultSystemRupSet faultSystemRupSet, double minLength, int numLengths, double deltaLength) {
+		HistogramFunction hist = new HistogramFunction(minLength, numLengths, deltaLength);
+			for (int r=0;r<faultSystemRupSet.getNumRuptures(); r++) {
+				double length = 0;
+				for (int sectID : faultSystemRupSet.getSectionsIndicesForRup(r))
+					length += faultSystemRupSet.getFaultSectionData(sectID).getTraceLength();
+				hist.add(length, 1.0);
+			}
+		if(D) System.out.println(hist);
+		hist.normalizeBySumOfY_Vals();
+		hist.setName("Length Histogram for FaultSystemRupSet");
 		hist.setInfo("(based on "+faultSystemRupSet.getNumRuptures()+" ruptures)");
 		return hist;
 	}

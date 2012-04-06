@@ -13,7 +13,11 @@ import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
@@ -28,11 +32,16 @@ public class MPJ_EAL_ScriptWriter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		AbstractERF erf = new MeanUCERF2();
-//		ScalarIMR imr = new CB_2008_AttenRel(null);
+		ERF erf = new MeanUCERF2();
+//		UCERF2_TimeDependentEpistemicList erf = new UCERF2_TimeDependentEpistemicList();
+		int listIndex = 0;
+		
+//		int startYear = 2012;
+		String backSeis = UCERF2.BACK_SEIS_ONLY;
+		ScalarIMR imr = new CB_2008_AttenRel(null);
 //		ScalarIMR imr = new BA_2008_AttenRel(null);
 //		ScalarIMR imr = new AS_2008_AttenRel(null);
-		ScalarIMR imr = new CY_2008_AttenRel(null);
+//		ScalarIMR imr = new CY_2008_AttenRel(null);
 		
 		int mins = 500;
 		int nodes = 10;
@@ -42,8 +51,13 @@ public class MPJ_EAL_ScriptWriter {
 		File vulnFile = new File("/home/scec-02/kmilner/tree_trimming/2011_11_07_VUL06.txt");
 //		String vulnFileName = ""
 		
+//		erf.getTimeSpan().setStartTime(startYear);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, backSeis);
+		
 		String jobName = imr.getShortName();
 		jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+jobName;
+		jobName += "-only-back";
+//		jobName += "-epi-excl-back";
 		
 		File localDir = new File("/tmp", jobName);
 		File remoteDir = new File("/auto/scec-02/kmilner/tree_trimming", jobName);
@@ -51,7 +65,6 @@ public class MPJ_EAL_ScriptWriter {
 		localDir.mkdir();
 		
 		imr.setParamDefaults();
-		erf.updateForecast();
 		
 		ArrayList<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir.getParentFile(), "OpenSHA_complete.jar"));
@@ -62,7 +75,12 @@ public class MPJ_EAL_ScriptWriter {
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
-		erf.toXMLMetadata(root);
+		if (erf instanceof AbstractEpistemicListERF)
+			((AbstractEpistemicListERF)erf).toXMLMetadata(root, listIndex);
+		else if (erf instanceof AbstractERF)
+			((AbstractERF)erf).toXMLMetadata(root);
+		else
+			throw new RuntimeException("uh oh.");
 		imr.toXMLMetadata(root);
 		
 		String xmlName = jobName+".xml";
