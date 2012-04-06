@@ -285,7 +285,7 @@ public class PointSurface implements RuptureSurface {
 	 * @return 
 	 */
 	@Override
-	public double getDistanceRup(Location siteLoc){
+	public synchronized double getDistanceRup(Location siteLoc){
 		calcPropagationDistances(siteLoc);
 		return distanceRup;
 	}
@@ -297,7 +297,7 @@ public class PointSurface implements RuptureSurface {
 	 * @return
 	 */
 	@Override
-	public double getDistanceJB(Location siteLoc){
+	public synchronized double getDistanceJB(Location siteLoc){
 		calcPropagationDistances(siteLoc);
 		return distanceJB;
 	}
@@ -309,7 +309,7 @@ public class PointSurface implements RuptureSurface {
 	 * @return
 	 */
 	@Override
-	public double getDistanceSeis(Location siteLoc){
+	public synchronized double getDistanceSeis(Location siteLoc){
 		calcPropagationDistances(siteLoc);
 		return distanceSeis;
 	}

@@ -208,7 +208,7 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return 
 	 */
-	public double getDistanceRup(Location siteLoc){
+	public synchronized double getDistanceRup(Location siteLoc){
 		if(!siteLocForDistCalcs.equals(siteLoc)) {
 			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
@@ -222,7 +222,7 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceJB(Location siteLoc){
+	public synchronized double getDistanceJB(Location siteLoc){
 		if(!siteLocForDistCalcs.equals(siteLoc)) {
 			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
@@ -236,7 +236,7 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return
 	 */
-	public double getDistanceSeis(Location siteLoc){
+	public synchronized double getDistanceSeis(Location siteLoc){
 		if(!siteLocForDistCalcs.equals(siteLoc)) {
 			siteLocForDistCalcs = siteLoc;
 			setPropagationDistances();
@@ -251,7 +251,7 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * depth (for numerical expediency).
 	 * @return
 	 */
-	public double getDistanceX(Location siteLoc){
+	public synchronized double getDistanceX(Location siteLoc){
 		if(!siteLocForDistXCalc.equals(siteLoc)) {
 			siteLocForDistXCalc = siteLoc;
 			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistCalcs);

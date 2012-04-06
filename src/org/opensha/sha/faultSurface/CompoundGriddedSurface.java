@@ -260,7 +260,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	}
 
 	@Override
-	public double getDistanceJB(Location siteLoc) {
+	public synchronized double getDistanceJB(Location siteLoc) {
 		if(!siteLocForDistCalcs.equals(siteLoc)) {
 			siteLocForDistCalcs = siteLoc;
 			computeDistances();
@@ -269,7 +269,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	}
 
 	@Override
-	public double getDistanceRup(Location siteLoc) {
+	public synchronized double getDistanceRup(Location siteLoc) {
 		if(!siteLocForDistCalcs.equals(siteLoc)) {
 			siteLocForDistCalcs = siteLoc;
 			computeDistances();
@@ -278,7 +278,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	}
 
 	@Override
-	public double getDistanceSeis(Location siteLoc) {
+	public synchronized double getDistanceSeis(Location siteLoc) {
 		if(!siteLocForDistCalcs.equals(siteLoc)) {
 			siteLocForDistCalcs = siteLoc;
 			computeDistances();
@@ -287,7 +287,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	}
 
 	@Override
-	public double getDistanceX(Location siteLoc) {
+	public synchronized double getDistanceX(Location siteLoc) {
 		// new implementation relies on knowing the index of the surface of the
 		// smallest rRup; first ensure that rRup calc has been done for
 		// supplied Location; in all likelihood another distance metric will
