@@ -318,7 +318,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	public synchronized double getDistanceX(Location siteLoc){
 		if(!siteLocForDistXCalc.equals(siteLoc)) {
 			siteLocForDistXCalc = siteLoc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistCalcs);
+			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistXCalc);
 		}
 		return distanceX;
 	}
