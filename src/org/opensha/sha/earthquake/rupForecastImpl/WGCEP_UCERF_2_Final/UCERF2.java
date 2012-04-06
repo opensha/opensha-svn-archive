@@ -938,52 +938,60 @@ public class UCERF2 extends AbstractERF {
 		// get the total rate of M≥5 events & b-value
 		double rate = ((Double)totalMagRateParam.getValue()).doubleValue();
 		double bValue = ((Double)regionB_ValParam.getValue()).doubleValue();
-
-		double totRateABC = aFaultSummedMFD.getTotalIncrRate()+bFaultCharSummedMFD.getTotalIncrRate()+
-		bFaultGR_SummedMFD.getTotalIncrRate()+cZoneSummedMFD.getTotalIncrRate()+this.nonCA_B_FaultsSummedMFD.getTotalIncrRate();
-
-		double totBackRate = rate-totRateABC;
-
+		
 		String backgroundTreatment = (String) setForBckParam.getValue();
-		if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) ||
-				backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR)) {
-			double totMoRateABC = aFaultSummedMFD.getTotalMomentRate()+bFaultCharSummedMFD.getTotalMomentRate()+
-			bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate()+nonCA_B_FaultsSummedMFD.getTotalMomentRate();
-			//restore the original, total moment rate:
-			totMoRateABC /= (1-totMoRateReduction);
-			// now get background component:
-			double moRateFracToBackground = ((Double)moRateFracToBackgroundParam.getValue()).doubleValue();
-			double totBackMoRate = totMoRateABC*moRateFracToBackground;
-			if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR)) {
-				totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-				if(moRateFracToBackground > 0)
-					((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
-				// NOTE that momentRate is not exactly conserved here due to mag discretization
-			}
-			else {
-				totBackgroundMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-				if(moRateFracToBackground > 0)
-					((TaperedGR_MagFreqDist) totBackgroundMFD).setAllButCornerMag(MIN_MAG, totBackMoRate, totBackRate, bValue);
-			}
-//			System.out.println(totBackMoRate+", "+totBackRate+", "+bValue+", "+totBackgroundMFD.getTotalMomentRate());
-		}
-		else if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
-			double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
-			totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
-		}
-		else { // the SET_FOR_BCK_PARAM_NSHMP07 case
-//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		
+		String backSeis = (String)backSeisParam.getValue();
+		
+		if (backgroundTreatment.equals(SET_FOR_BCK_PARAM_NSHMP07)) {
+			//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+			//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(null, false,true,true, true);
+			System.out.println("WOAH I'm in here!");
 			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
 
 			// Test of Golden's proposed solution
 			//for(int i=totBackgroundMFD.getXIndex(6.5);i<totBackgroundMFD.getNum();i++)
 			//	totBackgroundMFD.set(i,0.33*totBackgroundMFD.getY(i));
+		} else {
+			if (backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY))
+				throw new IllegalStateException("Can only use Only Background when using the NSHMP07 background MFD");
+			double totRateABC = aFaultSummedMFD.getTotalIncrRate()+bFaultCharSummedMFD.getTotalIncrRate()+
+					bFaultGR_SummedMFD.getTotalIncrRate()+cZoneSummedMFD.getTotalIncrRate()+this.nonCA_B_FaultsSummedMFD.getTotalIncrRate();
+
+			double totBackRate = rate-totRateABC;
+
+
+			if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) ||
+					backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR)) {
+				double totMoRateABC = aFaultSummedMFD.getTotalMomentRate()+bFaultCharSummedMFD.getTotalMomentRate()+
+						bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate()+nonCA_B_FaultsSummedMFD.getTotalMomentRate();
+				//restore the original, total moment rate:
+				totMoRateABC /= (1-totMoRateReduction);
+				// now get background component:
+				double moRateFracToBackground = ((Double)moRateFracToBackgroundParam.getValue()).doubleValue();
+				double totBackMoRate = totMoRateABC*moRateFracToBackground;
+				if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR)) {
+					totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+					if(moRateFracToBackground > 0)
+						((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
+					// NOTE that momentRate is not exactly conserved here due to mag discretization
+				}
+				else {
+					totBackgroundMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+					if(moRateFracToBackground > 0)
+						((TaperedGR_MagFreqDist) totBackgroundMFD).setAllButCornerMag(MIN_MAG, totBackMoRate, totBackRate, bValue);
+				}
+				//						System.out.println(totBackMoRate+", "+totBackRate+", "+bValue+", "+totBackgroundMFD.getTotalMomentRate());
+			}
+			else if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
+				double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
+				totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+				((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
+			}
 		}
-		String backSeis = (String)backSeisParam.getValue();
+		
 		ArrayList<ProbEqkSource> backgroundSources;
 		// if background sources are included
 		// if background sources are included
