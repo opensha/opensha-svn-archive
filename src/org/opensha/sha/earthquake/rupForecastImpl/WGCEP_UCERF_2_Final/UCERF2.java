@@ -947,7 +947,6 @@ public class UCERF2 extends AbstractERF {
 			//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 			//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(null, false,true,true, true);
-			System.out.println("WOAH I'm in here!");
 			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
 
