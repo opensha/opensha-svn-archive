@@ -97,7 +97,25 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 	 * @return the iterator object for the RuptureList
 	 */
 	public Iterator<ProbEqkRupture> getRupturesIterator() {
-		return getRuptureList().iterator();
+		return new Iterator<ProbEqkRupture>() {
+			
+			private int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < getNumRuptures();
+			}
+
+			@Override
+			public ProbEqkRupture next() {
+				return getRupture(index++);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Not supported by this iterator");
+			}
+		};
 	}
 
 
