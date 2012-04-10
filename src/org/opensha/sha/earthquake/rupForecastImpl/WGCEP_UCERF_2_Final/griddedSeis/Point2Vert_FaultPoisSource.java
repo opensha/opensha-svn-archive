@@ -71,10 +71,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 	private double duration;
 	private MagLengthRelationship magLengthRelationship;
 	private double magCutOff;
-	private FaultTrace finiteFaultTrace1;
-	private FaultTrace finiteFaultTrace2;
-//	private FrankelGriddedSurface finiteFaultSurface1;
-//	private FrankelGriddedSurface finiteFaultSurface2; // this is used if isCrossHair is true
+	private FrankelGriddedSurface finiteFaultSurface1;
+	private FrankelGriddedSurface finiteFaultSurface2; // this is used if isCrossHair is true
 	private double strike; // only used when isCrossHair is false
 	private Location loc;
 
@@ -251,9 +249,10 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 			dir = LocationUtils.vector(loc1,loc);
 			dir.setHorzDistance(dir.getHorzDistance()*2.0);
 			loc2 = LocationUtils.location(loc1,dir);
-			finiteFaultTrace1 = new FaultTrace("");
-			finiteFaultTrace1.add(loc1);
-			finiteFaultTrace1.add(loc2);
+			FaultTrace fault = new FaultTrace("");
+			fault.add(loc1);
+			fault.add(loc2);
+			finiteFaultSurface1 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
 
 			// Make second surface for cross Hair option
 			if(this.isCrossHair) {
@@ -264,9 +263,10 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 				dir = LocationUtils.vector(loc1,loc);
 				dir.setHorzDistance(dir.getHorzDistance()*2.0);
 				loc2 = LocationUtils.location(loc1,dir);
-				finiteFaultTrace2 = new FaultTrace("");
-				finiteFaultTrace2.add(loc1);
-				finiteFaultTrace2.add(loc2);
+				fault = new FaultTrace("");
+				fault.add(loc1);
+				fault.add(loc2);
+				finiteFaultSurface2 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
 			}
 
 		}
@@ -282,18 +282,16 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 	public LocationList getAllSourceLocs() {
 		LocationList locList = new LocationList();
 
-		if(this.finiteFaultTrace1!=null) { 
-			locList = new FrankelGriddedSurface(finiteFaultTrace1,aveDip,1d,1d,1d)
-						.getEvenlyDiscritizedListOfLocsOnSurface();
+		if(this.finiteFaultSurface1!=null) { 
+			locList = finiteFaultSurface1.getEvenlyDiscritizedListOfLocsOnSurface();
 		}
 
-		if(this.finiteFaultTrace2!=null) { 
-			Iterator<Location> it = new FrankelGriddedSurface(finiteFaultTrace2,aveDip,1d,1d,1d).getLocationsIterator();
+		if(this.finiteFaultSurface2!=null) { 
+			Iterator<Location> it = finiteFaultSurface2.getLocationsIterator();
 			while(it.hasNext()) locList.add(it.next());
 		}
 
 		locList.add(loc);
-		
 		return locList;
 	}
 
@@ -373,13 +371,15 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 			probEqkRupture.setRuptureSurface(ptSurface);
 		}
 		else { // set finite surface
+			FrankelGriddedSurface finiteFault;
 
 			// set the appropriate surface in case of CrossHair option
-			FaultTrace fault;
-			if(secondSurface) fault = this.finiteFaultTrace2;
-			else fault  = this.finiteFaultTrace1;
+			if(secondSurface) finiteFault = this.finiteFaultSurface2;
+			else finiteFault  = this.finiteFaultSurface1;
 			
-			FrankelGriddedSurface finiteFault = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
+			if(finiteFault.getLocation(0, 0).getDepth()!=depth) {
+				finiteFault = finiteFault.deepCopyOverrideDepth(depth);
+			}
 			
 			if(magIndex == magFreqDist.getNum()-1) {
 				probEqkRupture.setRuptureSurface(finiteFault);

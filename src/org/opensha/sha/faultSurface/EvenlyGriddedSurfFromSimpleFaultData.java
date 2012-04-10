@@ -191,7 +191,7 @@ extends AbstractEvenlyGriddedSurfaceWithSubsets{
 
 
 
-	private void set(FaultTrace faultTrace, double aveDip, double upperSeismogenicDepth,
+	protected void set(FaultTrace faultTrace, double aveDip, double upperSeismogenicDepth,
 			double lowerSeismogenicDepth, double gridSpacingAlong, double gridSpacingDown)	{
 		this.faultTrace =faultTrace;
 		this.aveDip =aveDip;
