@@ -19,7 +19,7 @@ import com.google.common.base.Preconditions;
 public class ThreadedEALCalc {
 	
 	private List<Asset> assets;
-	private ERF erf;
+	private ERF[] erfs;
 	private ScalarIMR[] imrs;
 	private Site[] sites;
 	
@@ -28,18 +28,23 @@ public class ThreadedEALCalc {
 	private Deque<Asset> stack;
 	private double maxSourceDistance;
 	
-	public ThreadedEALCalc(List<Asset> assets, ERF erf, ScalarIMR[] imrs, MPJ_EAL_Calc mpj, double maxSourceDistance) {
+	public ThreadedEALCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs, MPJ_EAL_Calc mpj, double maxSourceDistance) {
 		Preconditions.checkNotNull(assets);
 		Preconditions.checkArgument(!assets.isEmpty());
-		Preconditions.checkNotNull(erf);
+		Preconditions.checkNotNull(erfs);
 		Preconditions.checkNotNull(imrs);
 		Preconditions.checkArgument(imrs.length > 0);
 		for (ScalarIMR imr : imrs) {
-			Preconditions.checkNotNull(imr != null);
+			Preconditions.checkNotNull(imr);
 		}
+		Preconditions.checkArgument(erfs.length > 0);
+		for (ERF erf : erfs)
+			Preconditions.checkNotNull(erf);
+		if (erfs.length > 1)
+			Preconditions.checkState(erfs.length == imrs.length);
 		
 		this.assets = assets;
-		this.erf = erf;
+		this.erfs = erfs;
 		this.imrs = imrs;
 		this.mpj = mpj;
 		this.maxSourceDistance = maxSourceDistance;
@@ -80,7 +85,12 @@ public class ThreadedEALCalc {
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		
 		for (int i=0; i<numThreads; i++) {
-			threads.add(new CalcThread(imrs[i], sites[i]));
+			ERF erf;
+			if (erfs.length > 1)
+				erf = erfs[i];
+			else
+				erf = erfs[0];
+			threads.add(new CalcThread(erf, imrs[i], sites[i]));
 		}
 		
 		// start the threSiteads
@@ -98,9 +108,11 @@ public class ThreadedEALCalc {
 		
 		private ScalarIMR imr;
 		private Site site;
-		public CalcThread(ScalarIMR imr, Site site) {
+		private ERF erf;
+		public CalcThread(ERF erf, ScalarIMR imr, Site site) {
 			this.imr = imr;
 			this.site = site;
+			this.erf = erf;
 		}
 		
 		@Override

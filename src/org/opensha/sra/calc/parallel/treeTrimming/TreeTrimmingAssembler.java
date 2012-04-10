@@ -129,7 +129,8 @@ public class TreeTrimmingAssembler {
 //		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run2");
 //		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run3");
 //		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run4");
-		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run5_CA99ptc");
+//		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run5_CA99ptc");
+		File mainDir = new File("/home/kevin/OpenSHA/portfolio_lec/parallel_eal/run4_compare");
 		
 		EpistemicListERF erfList = new UCERF2_TimeDependentEpistemicList();
 		

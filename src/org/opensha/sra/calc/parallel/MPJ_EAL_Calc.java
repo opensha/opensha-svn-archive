@@ -70,10 +70,24 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 			outputFile = new File(el.attributeValue("outputFile"));
 		this.outputFile = outputFile;
 		
-		ERF erf = loadERF(el);
-		erf.updateForecast();
+		int numThreads = getNumThreads();
 		
-		ScalarIMR[] imrs = new ScalarIMR[getNumThreads()];
+		int numERFs;
+		if (cmd.hasOption("mult-erfs"))
+			numERFs = numThreads; // could set to 1 for single instance
+		else
+			numERFs = 1;
+		
+		ERF[] erfs = new ERF[numERFs];
+		for (int i=0; i<numERFs; i++) {
+			erfs[i] = loadERF(el);
+			erfs[i].updateForecast();
+		}
+		
+//		ERF erf = loadERF(el);
+//		erf.updateForecast();
+		
+		ScalarIMR[] imrs = new ScalarIMR[numThreads];
 		for (int i=0; i<imrs.length; i++) {
 			imrs[i] = (ScalarIMR)AbstractIMR.fromXMLMetadata(el.element(AbstractIMR.XML_METADATA_NAME), null);
 		}
@@ -85,7 +99,7 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 			System.out.println("DONE loading vulns.");
 		}
 		
-		calc = new ThreadedEALCalc(assets, erf, imrs, this, maxSourceDistance);
+		calc = new ThreadedEALCalc(assets, erfs, imrs, this, maxSourceDistance);
 	}
 	
 	private ERF loadERF(Element root) throws InvocationTargetException {
@@ -194,6 +208,10 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 		Option vulnOp = new Option("v", "vuln-file", true, "VUL06 file");
 		vulnOp.setRequired(false);
 		ops.addOption(vulnOp);
+		
+		Option erfOp = new Option("e", "mult-erfs", false, "If set, a copy of the ERF will be instantiated for each thread.");
+		erfOp.setRequired(false);
+		ops.addOption(erfOp);
 		
 		return ops;
 	}

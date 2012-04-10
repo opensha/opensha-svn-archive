@@ -339,10 +339,10 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 			// loop over these ruptures
 			for(int n=0; n < numRuptures ; n++,++currRuptures) {
+				
+				EqkRupture rupture = source.getRupture(n);
 
 				try {
-					EqkRupture rupture = source.getRupture(n);
-
 					// get the rupture probability
 					qkProb = ((ProbEqkRupture)rupture).getProbability();
 
@@ -388,6 +388,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 				} catch (Throwable t) {
 					System.err.println("Error occured while calculating hazard curve " +
 							"for rupture:  "+sourceIndex+" "+n);
+					System.err.println("Source Name: "+source.getName());
+					System.err.println("Surface Type: "+rupture.getRuptureSurface().getClass().getName());
 					System.err.println("ERF: "+eqkRupForecast.getName());
 					System.err.println("IMR: "+imr.getName());
 					System.err.println("Site: "+site);

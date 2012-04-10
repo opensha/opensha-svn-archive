@@ -20,6 +20,13 @@ public class UCERF2EpistemicBackSeisTest {
 		print(erf, UCERF2.BACK_SEIS_INCLUDE);
 		print(erf, UCERF2.BACK_SEIS_EXCLUDE);
 		print(erf, UCERF2.BACK_SEIS_ONLY);
+		
+		for (int i=0; i<erf.getNumERFs(); i++) {
+			ERF subERF = erf.getERF(i);
+			if (!subERF.getAdjustableParameterList().getParameter(String.class, UCERF2.SET_FOR_BCK_PARAM_NAME).getValue().equals("NSHMP07 MFD")) {
+				System.out.println("UH OH: isn't NSHMP07 MFD at index "+i);
+			}
+		}
 	}
 
 	/**
