@@ -285,7 +285,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 	
 	/**
 	 * This returns a deep copy of this FrankelGriddedSurface with all depths set to the given depth (if depth is NaN, the original
-	 * depth will be preserved)
+	 * depth will be preserved). This is useful for background seismicity sources that create copies of Frankel surfaces with only
+	 * the depths changed.
 	 * @param depth new depth value to override all depths in cloned surface, or NaN to preserve original depths
 	 * @return
 	 */
