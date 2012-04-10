@@ -294,6 +294,8 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		FrankelGriddedSurface surf = new FrankelGriddedSurface();
 		
 		surf.set(faultTrace.clone(), aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacingAlong, gridSpacingDown);
+		surf.setName(getName());
+		surf.setNumRowsAndNumCols(getNumRows(), getNumCols());
 		
 		for (int row=0; row<getNumRows(); row++) {
 			for (int col=0; col<getNumCols(); col++) {

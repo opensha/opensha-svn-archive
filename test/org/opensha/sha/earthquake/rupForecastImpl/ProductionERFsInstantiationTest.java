@@ -1,6 +1,10 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,11 +30,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.util.TectonicRegionType;
-
-import com.google.common.collect.Lists;
 
 /**
  * Tests the following criteria for each {@link DevStatus}.PRODUCTION ERF.
@@ -38,6 +39,8 @@ import com.google.common.collect.Lists;
  * <ul>
  * <li> ERF instantiation is not null
  * <li> updateForecast() returns successfully
+ * <li> does not reuse the same source objects for multiple sources (for thread safety)
+ * <li> does not reuse the same rupture objects/surfaces for multiple ruptures in a source (for thread safety)
  * </ul>
  * 
  * If the erf is a regular {@link ERF} the following criteria is checked:
@@ -327,7 +330,7 @@ public class ProductionERFsInstantiationTest {
 		for (String backSeisType : getBackSeisTypes(erf)) {
 			if (backSeisType != null)
 				erf.setParameter(TREAT_BACK_SEIS_AS, backSeisType);
-//			System.out.println("Testing Ruptures "+name+": "+backSeisType);
+			System.out.println("Testing Ruptures "+name+": "+backSeisType);
 			erf.updateForecast();
 
 			// now check that it's not reusing ruptures
@@ -358,8 +361,8 @@ public class ProductionERFsInstantiationTest {
 					double mag1 = rup1.getMag();
 					double prob1 = rup1.getProbability();
 					Location hypo1 = rup1.getHypocenterLocation();
-					String info1 = rup1.getInfo();
 					RuptureSurface surf1 = rup1.getRuptureSurface();
+					String info1 = rup1.getInfo();
 					boolean doSurf1Test = surf1 != null && surf1.equals(rup1.getRuptureSurface());
 
 					src.getRupture(rupID-1);
