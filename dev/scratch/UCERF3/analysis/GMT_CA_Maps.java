@@ -79,7 +79,7 @@ public class GMT_CA_Maps {
 
 	final static File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
 	
-	private static GMT_MapGenerator getDefaultGMT_MapGenerator() {
+	public static GMT_MapGenerator getDefaultGMT_MapGenerator() {
 		
 		GMT_MapGenerator gmt_MapGenerator = new GMT_MapGenerator();
 		
