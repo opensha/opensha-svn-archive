@@ -6,24 +6,38 @@ import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.commons.param.impl.CPTParameter;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
 
 
+import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
 
 
@@ -38,6 +52,12 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 	GriddedRegion griddedRegion;
 	
+	double minGridLat=35.0;
+	double maxGridLat=37.0;
+	double minGridLon=240-360;
+	double maxGridLon=244-360;
+	double gridSpacing=0.05;
+	
 	ArbIncrementalMagFreqDist  onFaultPointMFD, offFaultPointMFD;
 	
 	ArrayList<Integer> locIndicesOnFault;
@@ -47,11 +67,13 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 	public TestModel1_ERF() {
 		super(new TestModel1_FSS());
 		
-		griddedRegion = new GriddedRegion(new Location(35,240-360), new Location(37,244-360), 0.05, 0.05, null);
+		griddedRegion = new GriddedRegion(new Location(minGridLat,minGridLon), new Location(maxGridLat,maxGridLon), gridSpacing, gridSpacing, null);
 		
 		numOtherSources = griddedRegion.getNumLocations();
 //		numOtherSources=0;
 		System.out.println("numOtherSources="+numOtherSources);
+//		System.out.println(griddedRegion.getLocation(0));
+//		System.out.println(griddedRegion.getLocation(1));
 		
 		magLengthRel = new WC1994_MagLengthRelationship();
 		
@@ -71,8 +93,8 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		// the following is the MFD for the fault (seismogenic and larger)
 		ArbIncrementalMagFreqDist faultGR = ((TestModel1_FSS)faultSysSolution).getFaultGR();
 		
-		double offFaultSeisReductionFactor = 1;
-//		double offFaultSeisReductionFactor = 10;
+//		double offFaultSeisReductionFactor = 1;
+		double offFaultSeisReductionFactor = 10;
 		int numPtsOnFault = pointLocsOnFault.size();
 		if(D) System.out.println("numPtsOnFault+"+numPtsOnFault);
 		onFaultPointMFD  = new ArbIncrementalMagFreqDist(2.55, 6.05, 36);
@@ -128,6 +150,54 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 
 	
+	private void makeNucleationMap() throws IOException {
+		
+		String scaleLabel="TestMod1 Nucl";
+		String metadata=""; 
+		String dirName="TestMod1 Nucl"; 
+		
+		GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME, minGridLat);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME, minGridLon);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME, maxGridLat);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, maxGridLon);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridSpacing);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -6.0);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 2.0);
+		
+		// must set this parameter this way because the setValue(CPT) method takes a CPT object, and it must be the
+		// exact same object as in the constraint (same instance); the setValue(String) method was added for convenience
+		// but it won't succeed for the isAllowed(value) call.
+		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+
+		
+		File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
+		
+		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(this, griddedRegion, 6.0, 10.0);
+
+		try {
+				if (!GMT_DIR.exists())
+					GMT_DIR.mkdir();
+				String url = gmt_MapGenerator.makeMapUsingServlet(geoDataSet, scaleLabel, metadata, null);
+				metadata += GMT_MapGuiBean.getClickHereHTML(gmt_MapGenerator.getGMTFilesWebAddress());
+				File downloadDir = new File(GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
+				
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);
+		} catch (GMT_MapException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	
 	
 	/**
@@ -142,11 +212,16 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		erf.getTimeSpan().setDuration(1);
 		long runtime = System.currentTimeMillis();
 		
-//		System.exit(0);
-
-		// update forecast to we can get a main shock
-		System.out.println("Running updateForecast()");
+		// update forecast
 		erf.updateForecast();
+		
+		// print the nucleation rate map
+//		try {
+//			erf.makeNucleationMap();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		int nthRup = 892;	// same as source index
 		ProbEqkRupture mainshock = erf.getNthRupture(nthRup);		
@@ -163,7 +238,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		erf.setRuptureOccurrence(nthRup, 0);
 		
-		erf.testETAS_SimulationOld(erf.getGriddedRegion(), obsEqkRuptureList);
+		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, false);
 
 //		erf.testER_Simulation();
 		runtime -= System.currentTimeMillis();

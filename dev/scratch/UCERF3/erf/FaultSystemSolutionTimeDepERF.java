@@ -503,7 +503,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		SIMULATION_MODE=true;
 		initiateTimeSpan();	// just in case the non-simulation timeSpan was in use
 		normalizedRecurIntervals = new ArrayList<Double>();
-		double startYear = ((double)origStartTime)*MILLISEC_PER_YEAR+1970.0;
+		double startYear = ((double)origStartTime)*MILLISEC_PER_YEAR+1970.0;	// THIS SHOULD BE DIVIDED BY!!!!!!!!
 		long startTimeMillis = origStartTime;
 
 		timeSpan.setDuration(1.0);
@@ -1452,11 +1452,11 @@ numSpontEvents=0;
 		double latLonDiscrDeg=0.02;
 		double distDecay = 2;
 		double minDist = 0.3;
-		boolean includeDistDecat = true;
+		boolean includeDistDecay = true;
 
 		GriddedRegion gridRegForRatesInSpace = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, GriddedRegion.ANCHOR_0_0);
 		// parent locs are mid way between rates in space:
-		GriddedRegion gridRegForParentLocs = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, new Location(0.01,0.01));
+		GriddedRegion gridRegForParentLocs = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, new Location(latLonDiscrDeg/2d,latLonDiscrDeg/2d));
 
 		// check
 		System.out.println("First Location in gridRegForRatesInSpace: "+gridRegForRatesInSpace.getLocation(0));
@@ -1465,16 +1465,16 @@ numSpontEvents=0;
 		System.out.println("\nMaking ERF_RatesAtPointsInSpace");
 		long st = System.currentTimeMillis();
 		// first make array of rates for each source
-		double sourceRates[] = new double[this.getNumSources()];
-		double duration = this.getTimeSpan().getDuration();
-		for(int s=0;s<this.getNumSources();s++)
-			sourceRates[s] = this.getSource(s).computeTotalEquivMeanAnnualRate(duration);
+		double sourceRates[] = new double[getNumSources()];
+		double duration = getTimeSpan().getDuration();
+		for(int s=0;s<getNumSources();s++)
+			sourceRates[s] = getSource(s).computeTotalEquivMeanAnnualRate(duration);
 
 		// this is not yet used for anything
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
 		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(gridRegForRatesInSpace, gridRegForParentLocs, this, 
-				sourceRates, maxDepthKm,depthDiscr,0.1,null, distDecay, minDist, includeEqkRates, includeDistDecat);
+				sourceRates, maxDepthKm,depthDiscr,0.1,null, distDecay, minDist, includeEqkRates, includeDistDecay);
 		System.out.println("that took "+(System.currentTimeMillis()-st)/1000+ " sec");
 
 		
