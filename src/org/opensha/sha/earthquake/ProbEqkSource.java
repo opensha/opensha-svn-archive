@@ -60,12 +60,6 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 	// This represents the tectonic region type for this source (as well as the default)
 	private TectonicRegionType tectonicRegionType = TectonicRegionType.ACTIVE_SHALLOW;
 
-
-	/**
-	 * This is private variable which saves a earthquake rupture
-	 */
-	protected ProbEqkRupture probEqkRupture;
-
 	//index of the source as defined by the Earthquake Rupture Forecast
 	private int sourceIndex;
 
@@ -97,7 +91,25 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 	 * @return the iterator object for the RuptureList
 	 */
 	public Iterator<ProbEqkRupture> getRupturesIterator() {
-		return getRuptureList().iterator();
+		return new Iterator<ProbEqkRupture>() {
+			
+			private int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < getNumRuptures();
+			}
+
+			@Override
+			public ProbEqkRupture next() {
+				return getRupture(index++);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Not supported by this iterator");
+			}
+		};
 	}
 
 

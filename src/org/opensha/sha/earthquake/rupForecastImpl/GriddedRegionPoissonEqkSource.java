@@ -86,12 +86,9 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
     // set the magFreqDist
     setMagFreqDist(magFreqDist);
 
-    // make the prob qk rupture
-    probEqkRupture = new ProbEqkRupture();
-    probEqkRupture.setAveRake(aveRake);
     if( D ) System.out.println("GriddedRegionPoissonEqkSource Constructor: numLocs="+numLocs+
                                "; numMags="+numMags+"; aveDip="+aveDip+
-                               "; aveRake="+ probEqkRupture.getAveRake());
+                               "; aveRake="+aveRake);
   }
 
 
@@ -164,6 +161,9 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
 
     if(D) System.out.println(nthRupture+"th rupture; "+ithMag+"th mag; "+ithLoc+"th loc");
 
+    ProbEqkRupture probEqkRupture = new ProbEqkRupture();
+    probEqkRupture.setAveRake(aveRake);
+    
     // set the magnitude
     probEqkRupture.setMag(((Double)mags.get(ithMag)).doubleValue());
 

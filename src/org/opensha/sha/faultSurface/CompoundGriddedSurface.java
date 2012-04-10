@@ -303,7 +303,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 			FaultTrace trace = surfaces.get(distXidx)
 				.getEvenlyDiscritizedUpperEdge();
 			distanceX = GriddedSurfaceUtils.getDistanceX(trace,
-				siteLocForDistCalcs);
+					siteLocForDistXCalc);
 		}
 		return distanceX;
 	}

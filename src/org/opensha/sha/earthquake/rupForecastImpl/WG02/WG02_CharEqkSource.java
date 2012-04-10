@@ -48,6 +48,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   private GaussianMagFreqDist gaussMagDist;
   private int numRupSurfaces, numMag;
   private double rupWidth, rupLength, rupOffset;
+  private double rake;
 
   /**
    * Name of this class
@@ -83,8 +84,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
       this.prob = prob;
       this.rupSurface = rupSurface;
       this.rupOffset = rupOffset;
-      probEqkRupture = new ProbEqkRupture();
-      probEqkRupture.setAveRake(rake);
+      this.rake = rake;
       this.name = sourceName;
 
       if(D) System.out.println("prob="+prob+"; meanMag="+meanMag+"; =magSigma"+magSigma+
@@ -179,6 +179,9 @@ public class WG02_CharEqkSource extends ProbEqkSource {
     int iMag = nRupture/numRupSurfaces;
     int iRupSurf = nRupture - iMag*numRupSurfaces;
 
+    ProbEqkRupture probEqkRupture = new ProbEqkRupture();
+    probEqkRupture.setAveRake(rake);
+    
     // set the magnitude
     probEqkRupture.setMag(gaussMagDist.getX(iMag));
 

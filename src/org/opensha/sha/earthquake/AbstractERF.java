@@ -318,7 +318,26 @@ public abstract class AbstractERF implements
 	
 	@Override
 	public Iterator<ProbEqkSource> iterator() {
-		return getSourceList().iterator();
+//		return getSourceList().iterator();
+		return new Iterator<ProbEqkSource>() {
+			
+			private int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < getNumSources();
+			}
+
+			@Override
+			public ProbEqkSource next() {
+				return getSource(index++);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Not supported by this iterator");
+			}
+		};
 	}
 
 }

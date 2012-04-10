@@ -105,15 +105,15 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 
 	// private fields
 	private ArrayList<ProbEqkRupture> ruptureList;
-		
-//	private ArrayList<Location> faultCornerLocations = new ArrayList<Location>();   // used for the getMinDistance(Site) method
+
+	//	private ArrayList<Location> faultCornerLocations = new ArrayList<Location>();   // used for the getMinDistance(Site) method
 	private double duration;
 	private AbstractEvenlyGriddedSurfaceWithSubsets faultSurface;
-	
+
 	// used for the getMinDistance(Site) method
 	private Region sourceRegion;
 	private LocationList sourceTrace;
-	
+
 	private double lastDuration = Double.NaN;
 
 
@@ -322,7 +322,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 						numRup = faultSurface.getNumSubsetSurfacesAlongLength(rupLen, rupOffset);
 
 					for(int r=0; r < numRup; ++r) {
-						probEqkRupture = new ProbEqkRupture();
+						ProbEqkRupture probEqkRupture = new ProbEqkRupture();
 						probEqkRupture.setAveRake(rake);
 						if(floatTypeFlag != 2)
 							probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
@@ -341,7 +341,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 				}
 				// Apply full fault rupture
 				else {
-					probEqkRupture = new ProbEqkRupture();
+					ProbEqkRupture probEqkRupture = new ProbEqkRupture();
 					probEqkRupture.setAveRake(rake);
 					probEqkRupture.setRuptureSurface(faultSurface);
 					probEqkRupture.setMag(mag);
@@ -424,7 +424,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 				sourceTrace.add((Location) it.next());
 		}
 	}
-	
+
 
 	/**
 	 * set the name of this class
