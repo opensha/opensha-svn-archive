@@ -120,10 +120,6 @@ public class FixedStrikeSource extends ProbEqkSource {
                                        double strike, double duration, double magCutOff
                                        ,double fracStrikeSlip, double fracNormal,double fracReverse){
     this.magCutOff = magCutOff;
-    
- 
-    // make the prob qk rupture
-    probEqkRupture = new ProbEqkRupture();
 
 //    if(D) {
 //      System.out.println("magCutOff="+magCutOff);
@@ -156,8 +152,6 @@ public class FixedStrikeSource extends ProbEqkSource {
      this.magCutOff = magCutOff;
      // whether to simulate it as 2 perpendicular faults
 //     this.isCrossHair = isCrossHair;
-     // make the prob qk rupture
-     probEqkRupture = new ProbEqkRupture();
 
      // set the mags, rates, and rupture surfaces
      setAll(loc,magFreqDist,magLengthRelationship,duration, fracStrikeSlip, fracNormal, fracReverse);
@@ -377,6 +371,7 @@ public class FixedStrikeSource extends ProbEqkSource {
     double depth;
     if(mag<=6.5) depth = 5.0;
     else depth = 1.0;
+    ProbEqkRupture probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setMag(mag);
     probEqkRupture.setAveRake(rake);
     if(this.isCrossHair) fraction/=2;

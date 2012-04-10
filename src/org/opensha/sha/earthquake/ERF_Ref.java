@@ -227,6 +227,10 @@ public enum ERF_Ref {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
 	}
+	
+	public Class<? extends BaseERF> getERFClass() {
+		return clazz;
+	}
 
 	/**
 	 * Convenience method to return references for all

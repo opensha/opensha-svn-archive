@@ -110,8 +110,12 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
         createEvenlyGriddedSurface();
       }
 
-
-
+    /**
+     * Default constructor - private and only used for cloning purposes
+     */
+    private FrankelGriddedSurface() {
+    	
+    }
 
 	/**
 	 * Creates the Frankel Gridded Surface from the Simple Fault Data
@@ -270,8 +274,47 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 	public double getAveDipDirection() {
 		return faultTrace.getDipDirection();
 	}
+	
+	/**
+	 * This returns a deep copy of this FrankelGriddedSurface
+	 * @return
+	 */
+	public FrankelGriddedSurface deepCopy() {
+		return deepCopyOverrideDepth(Double.NaN);
+	}
+	
+	/**
+	 * This returns a deep copy of this FrankelGriddedSurface with all depths set to the given depth (if depth is NaN, the original
+	 * depth will be preserved). This is useful for background seismicity sources that create copies of Frankel surfaces with only
+	 * the depths changed.
+	 * @param depth new depth value to override all depths in cloned surface, or NaN to preserve original depths
+	 * @return
+	 */
+	public FrankelGriddedSurface deepCopyOverrideDepth(double depth) {
+		FrankelGriddedSurface surf = new FrankelGriddedSurface();
+		
+		surf.set(faultTrace.clone(), aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacingAlong, gridSpacingDown);
+		surf.setName(getName());
+		surf.setNumRowsAndNumCols(getNumRows(), getNumCols());
+		
+		for (int row=0; row<getNumRows(); row++) {
+			for (int col=0; col<getNumCols(); col++) {
+				Location loc = get(row, col);
+				if (Double.isNaN(depth))
+					surf.set(row, col, loc); // don't have to clone location as it is immutable
+				else 
+					surf.set(row, col, new Location(loc.getLatitude(), loc.getLongitude(), depth));
+			}
+		}
+		
+		return surf;
+	}
 
-
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+		return super.clone();
+	}
 
 	public static void main(String args[]) {
 

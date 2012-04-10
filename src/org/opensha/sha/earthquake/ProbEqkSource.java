@@ -60,12 +60,6 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 	// This represents the tectonic region type for this source (as well as the default)
 	private TectonicRegionType tectonicRegionType = TectonicRegionType.ACTIVE_SHALLOW;
 
-
-	/**
-	 * This is private variable which saves a earthquake rupture
-	 */
-	protected ProbEqkRupture probEqkRupture;
-
 	//index of the source as defined by the Earthquake Rupture Forecast
 	private int sourceIndex;
 

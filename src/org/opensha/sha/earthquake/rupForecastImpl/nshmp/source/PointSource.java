@@ -64,6 +64,8 @@ public class PointSource extends ProbEqkSource {
 	private double lgMagDepth;
 	private double smMagDepth;
 	private Map<FocalMech, Double> mechWts;
+	
+	private Location loc;
 
 	private int mechCount; // mechs with weight 1-3;
 	private int ssIdx, revIdx; // normal not needed
@@ -72,8 +74,6 @@ public class PointSource extends ProbEqkSource {
 	// that users will only request values in the range getNumRuptures()-1
 	// Focal mech is determined using the max indices for each type of mech
 	// determined using the Math.ceil(wt) [scales to 1] * num_M
-	
-	private PointSurface ptSurface;
 
 	/**
 	 * The Constructor for the case where either a random strike is computed and
@@ -95,15 +95,11 @@ public class PointSource extends ProbEqkSource {
 		smMagDepth = depths[0];
 		lgMagDepth = depths[1];
 		this.mechWts = mechWtMap;
+		this.loc = loc;
 
 		// rupture indexing
 		mechCount = countMechs(mechWtMap);
 		setMechIndices();
-
-		// single reused eqkRupture and ptSurface per source
-		probEqkRupture = new ProbEqkRupture(); // super
-		ptSurface = new PointSurface(loc);
-		probEqkRupture.setPointSurface(ptSurface);
 	}
 
 	@Override
@@ -115,6 +111,10 @@ public class PointSource extends ProbEqkSource {
 		int magIdx = idx % mfd.getNum();
 		double mag = mfd.getX(magIdx);
 		double depth = depthForMag(mag);
+		
+		ProbEqkRupture probEqkRupture = new ProbEqkRupture(); // super
+		PointSurface ptSurface = new PointSurface(loc);
+		probEqkRupture.setPointSurface(ptSurface);
 
 		probEqkRupture.setMag(mag);
 		probEqkRupture.setAveRake(mech.rake());
@@ -140,15 +140,13 @@ public class PointSource extends ProbEqkSource {
 	@Override
 	public LocationList getAllSourceLocs() {
 		LocationList locList = new LocationList();
-		locList.add(ptSurface.getLocation());
+		locList.add(loc);
 		return locList;
 	}
 
 	@Override
 	public RuptureSurface getSourceSurface() {
-		// NOTE this returns the shared mutable (possibly depth varying) point
-		// surface instance
-		return ptSurface;
+		return getRupture(0).getRuptureSurface();
 	}
 
 	@Override
@@ -158,8 +156,7 @@ public class PointSource extends ProbEqkSource {
 
 	@Override
 	public double getMinDistance(Site site) {
-		return LocationUtils.horzDistanceFast(site.getLocation(),
-			ptSurface.getLocation());
+		return LocationUtils.horzDistanceFast(site.getLocation(), loc);
 	}
 
 	private double dipForMech(FocalMech mech) {
