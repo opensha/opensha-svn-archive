@@ -507,6 +507,64 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	public boolean isClusterBased() {
 		return false;
 	}
+	
+	
+	/**
+	 * This returns all ruptures that are: 1) completely inside the given rupture surface, 
+	 * 2) completely surrounding it; 3) have half or more of its surface within, or 
+	 * 4) extends inside by at least the given numSectOverlap.
+	 * @param rthRup
+	 * @param numSectOverlap
+	 * @return
+	 */
+	public List<Integer> getRupsThatOverlapGivenRup(int rthRup, int numSectOverlap) {
+		
+		ArrayList<Integer> rupsWithOverlap = new ArrayList<Integer> ();
+		
+		List<Integer>  rupSects = getSectionsIndicesForRup(rthRup);
+
+		int firstRupSect = rupSects.get(0);
+		int lastRupSect = rupSects.get(rupSects.size()-1);
+// System.out.println("TARGET: "+rthRup+"\t"+firstRupSect+"\t"+lastRupSect);
+
+				
+		for(int i=0; i<getNumRuptures(); i++) {
+			List<Integer>  sects = getSectionsIndicesForRup(i);
+			int first = sects.get(0);
+			int last = sects.get(sects.size()-1);
+			
+			// check if it's entirely inside
+			if(first >= firstRupSect && last <= lastRupSect) {
+				rupsWithOverlap.add(i);
+			} 
+			// check if surrounding
+			else if(first <= firstRupSect && last >= lastRupSect) {
+				rupsWithOverlap.add(i);
+			}
+			
+			// now examine fractional overlaps
+			else {
+				int numInside =0;
+				for(Integer s:sects) {
+					if(s>=firstRupSect && s<=lastRupSect)
+						numInside +=1;
+				}
+				double fractInside = (double)numInside/(double)sects.size();
+				if(fractInside >=0.49999999)	// if more than half the rupture is inside
+					rupsWithOverlap.add(i);
+				else if(numInside>=numSectOverlap)	// if more than numSectOverlap are inside
+					rupsWithOverlap.add(i);
+			}
+			
+			// write test
+// System.out.println(i+"\t"+first+"\t"+last+"\t"+rupsWithOverlap.contains(i));
+
+		}
+		
+
+		return rupsWithOverlap;
+	}
+
 
 	/**
 	 * @param args
@@ -514,6 +572,13 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	public static void main(String[] args) {
 		
 		TestModel1_FSS test = new TestModel1_FSS();
+
+		test.getRupsThatOverlapGivenRup(892, 10);
+		
+//		for(int i=0; i<test.getNumRuptures(); i++) {
+//			List<Integer>  sects = test.getSectionsIndicesForRup(i);
+//			System.out.println(i+"\t"+sects.get(0)+"\t"+sects.get(sects.size()-1));
+//		}
 
 	}
 
