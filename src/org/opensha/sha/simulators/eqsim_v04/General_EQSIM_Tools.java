@@ -90,7 +90,7 @@ public class General_EQSIM_Tools {
 	final static int GEOM_FILE_SPEC_LEVEL = 2;
 	final static String EVENT_FILE_SIG = "EQSim_Output_Event_2";
 	final static int EVENT_FILE_SPEC_LEVEL = 2;
-	final static double SECONDS_PER_YEAR = 365*24*60*60;
+	public final static double SECONDS_PER_YEAR = 365*24*60*60;
 	
 	ArrayList<String> infoStrings;
 	String dirNameForSavingFiles;
@@ -156,6 +156,18 @@ public class General_EQSIM_Tools {
 	/**
 	 * This constructor loads the data from an EQSIM_v04 Geometry file
 	 * @param url		 - full URL path name
+	 * @throws IOException 
+	 */
+	public General_EQSIM_Tools(File file) throws IOException {
+		ArrayList<String> lines = FileUtils.loadFile(file.getAbsolutePath());
+		System.out.println("Number of file lines: "+lines.size()+" (in "+file.getAbsolutePath()+")");
+		loadFromEQSIMv04_GeometryLines(lines);
+	}
+
+	
+	/**
+	 * This constructor loads the data from an EQSIM_v04 Geometry file
+	 * @param url		 - full URL path name
 	 */
 	public General_EQSIM_Tools(URL url) {
 		ArrayList<String> lines=null;
@@ -189,8 +201,13 @@ public class General_EQSIM_Tools {
 		read_EQSIMv04_EventsFile(lines);
 	}
 	
+	public void read_EQSIMv04_EventsFile(File file) throws IOException {
+		ArrayList<String> lines = FileUtils.loadFile(file.getAbsolutePath());
+		read_EQSIMv04_EventsFile(lines);
+	}
 	
-	private void read_EQSIMv04_EventsFile(String filePathName) {
+	
+	public void read_EQSIMv04_EventsFile(String filePathName) {
 
 		ArrayList<String> lines=null;
 		try {
