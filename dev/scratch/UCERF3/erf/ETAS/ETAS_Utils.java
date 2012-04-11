@@ -18,12 +18,20 @@ import org.apache.commons.math.random.RandomDataImpl;
 
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
+/**
+ * This class provides various info and calculations related to the ETAS model.
+ * @author field
+ *
+ */
 public class ETAS_Utils {
 	
-	final static double k_DEFAULT = 0.008;	// units are number of events > magMain per day
-	final static double p_DEFAULT = 1.34;
-	final static double c_DEFAULT = 0.095;
-	final static double magMin_DEFAULT = 2.5;
+	// The following are from Table 2 of Hardebeck (2012)
+	final static double k_DEFAULT = 0.008;			// Felzer (2000) value in units of number of events >= magMain per day
+	final static double p_DEFAULT = 1.34;			// Felzer (2000) value
+	final static double c_DEFAULT = 0.095;			// Felzer (2000) value in units of days
+	final static double magMin_DEFAULT = 2.5;		// as assumed in Hardebeck
+	final static double distDecay_DEFAULT = 1.96;	// this is "q" in Hardebeck's Table 2
+	final static double minDist_DEFAULT = 0.79;		// km; this is "d" in Hardebeck's Table 2
 	
 	RandomDataImpl randomDataImpl = new RandomDataImpl();
 	

@@ -70,8 +70,8 @@ public class ETAS_PrimaryEventSamplerAlt {
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
 	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
-	public static final double DEFAULT_DIST_DECAY = 2.0;
-	public static final double DEFAULT_MIN_DIST = 0.3;
+	public static final double DEFAULT_DIST_DECAY = ETAS_Utils.distDecay_DEFAULT;
+	public static final double DEFAULT_MIN_DIST = ETAS_Utils.minDist_DEFAULT;
 	
 	
 	/**

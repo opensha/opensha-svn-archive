@@ -1,6 +1,7 @@
 package scratch.ned.ETAS_ERF.testModels;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
@@ -9,9 +10,11 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
@@ -37,6 +40,7 @@ import java.io.IOException;
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
+import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSamplerAlt;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
 
@@ -198,6 +202,79 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		}
 
 	}
+	
+	
+	public void calcSelfTriggeringPob(GriddedRegion griddedRegion, ObsEqkRupture mainShock, int rthRup, boolean includeEqkRates, 
+			double gridSeisDiscr, double magThresh) {
+		
+		if(!SIMULATION_MODE)
+			throw new RuntimeException("This method can only be run if SIMULATION_MODE = true");
+
+		System.out.println("Updating forecast (twice)");
+		// get the total rate over the duration of the forecast
+		updateForecast();	// do this to get annual rate over the entire forecast (used to sample spontaneous events)
+		double origTotRate = totalRate;	// this include ER time dependence, but diff shouldn't be noticeable.
+		System.out.println("origTotRate="+origTotRate);
+		
+		// set to yearly probabilities for simulation forecast (in case input was not a 1-year forecast)
+		timeSpan.setDuration(1.0);	// annualize
+		updateForecast();
+
+		
+		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
+		// first make array of rates for each source
+		double sourceRates[] = new double[getNumSources()];
+		double duration = getTimeSpan().getDuration();
+		for(int s=0;s<getNumSources();s++)
+			sourceRates[s] = getSource(s).computeTotalEquivMeanAnnualRate(duration);
+
+		System.out.println("making ETAS_PrimaryEventSamplerAlt");
+		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, this, sourceRates, gridSeisDiscr,null, includeEqkRates);
+		
+//		etas_PrimEventSampler.testRates();
+		
+		System.out.println("getting TriggerProbOfEachSource");
+		double[] srcTrigProb = etas_PrimEventSampler.getTriggerProbOfEachSource(mainShock);
+		
+		System.out.println("getting rupsThatOverlap");
+		List<Integer> rupsThatOverlap = ((TestModel1_FSS)faultSysSolution).getRupsThatOverlapGivenRup(rthRup, 11);
+		
+//		int indexOfMagThresh = offFaultPointMFD.getClosestXIndex(magThresh);
+//		System.out.println(magThresh+"\t"+indexOfMagThresh);
+//		System.out.println(offFaultPointMFD);
+
+		System.out.println("computing probabilities");
+		double ptSrcProbAboveMagThresh = offFaultPointMFD.getCumRate(magThresh)/offFaultPointMFD.getTotalIncrRate();
+//		System.out.println("offFaultPointMFD.getTotalIncrRate()="+offFaultPointMFD.getTotalIncrRate());
+//		System.out.println("offFaultPointMFD.getCumRate(indexOfMagThresh)="+offFaultPointMFD.getCumRate(magThresh));
+//		System.out.println("ptSrcProbAboveMagThresh="+ptSrcProbAboveMagThresh);
+
+		double sameEventProb = 0;
+		double totalLargeEventProb = 0;
+		double totalProb = 0;
+		for(int s=0; s<srcTrigProb.length; s++) {
+			totalProb += srcTrigProb[s];
+			if(s<numFaultSystemSources) {
+				if(getSource(s).getNumRuptures() != 1)  throw new RuntimeException("Problem");	// check to make sure there is only one rupture
+				if(getSource(s).getRupture(0).getMag() >= (magThresh-0.05)) {	// 0.05 is half the bin width
+					totalLargeEventProb += srcTrigProb[s];
+					if(rupsThatOverlap.contains(s)) {
+						sameEventProb += srcTrigProb[s];
+					}
+				}
+			}
+			else {
+				// these are all gridded sources
+				totalLargeEventProb += srcTrigProb[s]*ptSrcProbAboveMagThresh;
+			}
+		}
+		
+		System.out.println("totalProb="+(float)totalProb+"\t(should be ~1.0)");
+		System.out.println("totalLargeEventProb="+(float)totalLargeEventProb);
+		System.out.println("sameEventProb="+(float)sameEventProb);
+		System.out.println("(sameEventProb/totalLargeEventProb)="+(float)(sameEventProb/totalLargeEventProb));
+
+	}
 
 	
 	
@@ -217,33 +294,37 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		erf.updateForecast();
 		
 		// print the nucleation rate map
-		try {
-			erf.makeNucleationMap(2.5,10.0);
-			erf.makeNucleationMap(6.5,10.0);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			erf.makeNucleationMap(2.5,10.0);
+//			erf.makeNucleationMap(6.5,10.0);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
-		int nthRup = 892;	// same as source index
-		ProbEqkRupture mainshock = erf.getNthRupture(nthRup);		
+		int sthSrc = 892;	// same as source index
+		ProbEqkRupture mainshock = erf.getNthRupture(sthSrc);		
 		ObsEqkRupture obsMainShock = new ObsEqkRupture();
 		obsMainShock.setAveRake(mainshock.getAveRake());
 		obsMainShock.setMag(mainshock.getMag());
 		obsMainShock.setRuptureSurface(mainshock.getRuptureSurface());
 //		obsMainShock.setPointSurface(mainshock.getRuptureSurface().getFirstLocOnUpperEdge());
 		obsMainShock.setOriginTime(0);	// occurs at 1970
-		System.out.println("main shock: nthRup="+nthRup+"; mag="+obsMainShock.getMag()+
-				"; src name: " +erf.getSource(nthRup).getName());
+		System.out.println("main shock: nthRup="+sthSrc+"; mag="+obsMainShock.getMag()+
+				"; src name: " +erf.getSource(sthSrc).getName());
 
+		// this applies elastic rebound reduction of probability
+//		erf.setRuptureOccurrence(sthSrc, 0);
+//		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, false, 0.05, 6.15);
+		
+		
+		// this is for test simulations
 		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
 		obsEqkRuptureList.add(obsMainShock);
-		
-		erf.setRuptureOccurrence(nthRup, 0);
-		
-		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, false,0.05);
+//		erf.setRuptureOccurrence(sthSrc, 0);
+		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, true,0.05);
 
-//		erf.testER_Simulation();
+		erf.testER_Simulation();
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+(double)runtime/(1000.0*60.0)+" minutes");
 	}

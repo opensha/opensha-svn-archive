@@ -90,7 +90,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	// these fields are for simulation mode (stochastic event sets).
 	public boolean SIMULATION_MODE = true;
 	ArrayList<Double> normalizedRecurIntervals;
-	double totalRate;
+	protected double totalRate;
 	IntegerPDF_FunctionSampler spontaneousRupSampler=null;
 	double[] longTermRateOfNthRups;
 	double[] magOfNthRups;
