@@ -45,6 +45,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF
 import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 
 
+import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.christine.URS.URS_MeanUCERF2;
@@ -176,7 +177,10 @@ public enum ERF_Ref {
 	CYBERSHAKE_UCERF2_WRAPPER(CyberShakeUCERFWrapper_ERF.class,
 			CyberShakeUCERFWrapper_ERF.NAME, EXPERIMENTAL, false),
 	
-	INVERSION_SOLUTION_ERF(FaultSystemSolutionPoissonERF.class, FaultSystemSolutionPoissonERF.NAME, EXPERIMENTAL, false);
+	INVERSION_SOLUTION_ERF(FaultSystemSolutionPoissonERF.class, FaultSystemSolutionPoissonERF.NAME, EXPERIMENTAL, false),
+	
+	TEST_ETAS1_ERF(TestModel1_ERF.class, TestModel1_ERF.NAME, EXPERIMENTAL, false);
+
 	
 	private Class<? extends BaseERF> clazz;
 	private String name;
