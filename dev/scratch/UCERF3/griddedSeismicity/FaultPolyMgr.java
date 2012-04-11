@@ -78,7 +78,7 @@ public class FaultPolyMgr {
 	 * @return
 	 */
 	Map<Integer, Double> getNodeFractions(int idx) {
-		return sectInNodePartic.column(idx);
+		return nodeInSectPartic.column(idx);
 	}
 
 	FaultPolyMgr(FaultSystemSolution fss) {
@@ -88,6 +88,8 @@ public class FaultPolyMgr {
 		if (log) System.out.println("  subsection polygons");
 		polys = SectionPolygons.build(faults);
 		init();
+		
+		
 	}
 	
 	FaultPolyMgr(FaultModels fm, double len) {		
@@ -168,7 +170,7 @@ public class FaultPolyMgr {
 	 * Initializes table of fault section participation in each node, i.e.
 	 * the percent of a node's area covered by a fault section's polygon. In
 	 * the process, the sect:node and node:sect maps are created. This is later
-	 * revised to to multiple overlapping section sin many nodes.
+	 * revised to to multiple overlapping sections in many nodes.
 	 */
 	private void initSectInNodeParticipTable() {
 		sectToNodes = ArrayListMultimap.create();
@@ -285,6 +287,8 @@ public class FaultPolyMgr {
 	
 	public static void main(String[] args) {
 		FaultPolyMgr mgr = new FaultPolyMgr(FaultModels.FM3_2, 7);
+		
+		
 //		System.out.println(mgr.nodeInSectPartic);
 //		
 //		for (Integer sectIdx : mgr.nodeInSectPartic.rowKeySet()) {
