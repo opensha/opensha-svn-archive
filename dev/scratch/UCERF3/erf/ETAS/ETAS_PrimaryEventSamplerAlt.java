@@ -13,6 +13,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -65,20 +66,31 @@ public class ETAS_PrimaryEventSamplerAlt {
 	
 	boolean includeERF_Rates, includeSpatialDecay;
 	
+	// Make the ERF_RatesInSpace and ETAS_LocationWeightCalculator
+	public static final double DEFAULT_MAX_DEPTH = 24;
+	public static final double DEFAULT_DEPTH_DISCR = 2.0;
+	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
+	public static final double DEFAULT_DIST_DECAY = 2.0;
+	public static final double DEFAULT_MIN_DIST = 0.3;
 	
 	
-
 	/**
-	 * TO DO
-	 * 
-	 * @param gridRegion
+	 * Constructor that uses default values
+	 * @param regionForRates
 	 * @param erf
-	 * @param maxDepth
-	 * @param depthDiscr
-	 * @param pointSrcDiscr - the grid spacing of off-fault/background events
-	 * @param includeERF_Rates - this applies long term rates from ERF in sampling the primary event
-	 * @param rupToFillIn - this applies the spatial distance decay in sampling the primary event (set false for testing)
+	 * @param sourceRates
+	 * @param pointSrcDiscr
+	 * @param oututFileNameWithPath
+	 * @param includeERF_Rates
+	 * @param includeSpatialDecay
 	 */
+	public ETAS_PrimaryEventSamplerAlt(Region regionForRates, FaultSystemSolutionPoissonERF erf, double sourceRates[],
+			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates) {
+
+		this(regionForRates, DEFAULT_LAT_LON_DISCR, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
+				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, includeERF_Rates, true);
+	}
+
 	
 	/**
 	 * 
@@ -95,7 +107,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 	 * @param includeERF_Rates - tells whether to consider long-term rates in sampling aftershocks
 	 * @param includeSpatialDecay - tells whether to include spatial decay in sampling aftershocks (for testing)
 	 */
-	public ETAS_PrimaryEventSamplerAlt(GriddedRegion gridRegForRatesInSpace, GriddedRegion gridRegForParentLocs, FaultSystemSolutionPoissonERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSamplerAlt(Region regionForRates, double latLonDiscrDeg, FaultSystemSolutionPoissonERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay) {
 		
@@ -105,11 +117,15 @@ public class ETAS_PrimaryEventSamplerAlt {
 		this.depthDiscr=depthDiscr;
 		numDepths = (int)Math.round(maxDepth/depthDiscr);
 		
-		this.gridRegForRatesInSpace = gridRegForRatesInSpace;
+		// Make the regions
+		gridRegForRatesInSpace = new GriddedRegion(regionForRates, latLonDiscrDeg, GriddedRegion.ANCHOR_0_0);
+		// parent locs are mid way between rates in space:
+		gridRegForParentLocs = new GriddedRegion(regionForRates, latLonDiscrDeg, new Location(latLonDiscrDeg/2d,latLonDiscrDeg/2d));
+
+		
 		numRegLocsForRatesInSpace = gridRegForRatesInSpace.getNumLocations();
 		numPointsForRates = numRegLocsForRatesInSpace*numDepths;
 		
-		this.gridRegForParentLocs = gridRegForParentLocs;
 		numParDepths = numDepths+1;
 		numPointsForParLocs = gridRegForParentLocs.getNumLocations()*numParDepths;
 		
@@ -271,6 +287,94 @@ public class ETAS_PrimaryEventSamplerAlt {
 	
 	
 	/**
+	 * For the given main shock, this gives the trigger probability of each source in the ERF.
+	 * This loops over all points on the main shock rupture surface, giving equal triggering
+	 * potential to each.
+	 * @param mainshock
+	 * @return double[] the relative triggering probability of each ith source
+	 */
+	public double[] getTriggerProbOfEachSource(EqkRupture mainshock) {
+		double[] trigProb = new double[erf.getNumSources()];
+		
+		double[] summedSamplers = new double[numPointsForRates];
+		
+		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		for(Location loc: locList) {
+			
+			// set the sampler
+			int parRegIndex = gridRegForParentLocs.indexForLocation(loc);
+			if(parRegIndex <0)
+				throw new RuntimeException("parRegIndex<0");
+			int parDepIndex = getParDepthIndex(loc.getDepth());
+			int locIndexForPar = parDepIndex*gridRegForParentLocs.getNodeCount()+parRegIndex;
+			Location tempLoc = gridRegForParentLocs.getLocation(parRegIndex);
+			// the above will be null if it's out of the region
+			Location translatedParLoc = new Location(tempLoc.getLatitude(),tempLoc.getLongitude(),getParDepth(parDepIndex));
+			IntegerPDF_FunctionSampler sampler = getSampler(locIndexForPar, translatedParLoc);
+			
+			for(int i=0;i <numPointsForRates;i++)
+				summedSamplers[i] = sampler.getY(i);
+			
+		}
+		
+		// normalize to sum to 1.0
+		double total = 0;
+		for(int i=0;i <numPointsForRates;i++)  total += summedSamplers[i];
+		for(int i=0;i <numPointsForRates;i++) summedSamplers[i] /= total;
+
+		// now loop over all the points for rates
+		for(int i=0;i <numPointsForRates;i++) {
+			int[] sources = srcAtPointList.get(i);
+			if(sources.length==0) {
+				continue;
+			}
+			if (sources.length==1) {
+				trigProb[sources[0]] += summedSamplers[i];
+			}
+			else {
+				double[] fracts = fractionSrcAtPointList.get(i);
+				double[] relProb = new double[sources.length];
+				for(int s=0; s<sources.length;s++)
+					relProb[s] = sourceRates[sources[s]]*fracts[s];
+				total=0;
+				for(int s=0; s<sources.length;s++)	// sum for normalization
+					total += relProb[s];
+				for(int s=0; s<sources.length;s++)
+					trigProb[sources[s]] += summedSamplers[i]*relProb[s]/total;
+			}
+		}
+
+		double testSum=0;
+		for(int s=0; s<trigProb.length; s++)
+			testSum += trigProb[s];
+		
+System.out.println("testSum="+testSum);
+		
+		return trigProb;
+	}
+	
+	
+	
+	public double getDistDecay() {
+		return distDecay;
+	}
+	
+	
+	public double getMinDist() {
+		return minDist;
+	}
+	
+	
+	/**
+	 * This returns the max depth in km
+	 */
+	public double getMaxDepth() {
+		return maxDepth;
+	}
+
+	
+	
+	/**
 	 * This method will populate the given rupToFillIn with attributes of a randomly chosen
 	 * primary aftershock for the given main shock.  If a fault system rupture is sampled, the
 	 * hypocenter is chosen randomly from the points on the surface that are at the point where
@@ -310,38 +414,14 @@ public class ETAS_PrimaryEventSamplerAlt {
 //System.out.println("translatedParLoc: "+translatedParLoc);
 //System.exit(0);
 
-		IntegerPDF_FunctionSampler sampler=null;
-		if(includeERF_Rates && includeSpatialDecay) {
-			if(cachedSamplers[locIndexForPar] == null) {
-				sampler = getPointSamplerWithDistDecay(translatedParLoc);
-				cachedSamplers[locIndexForPar] = sampler;
-			}
-			else {
-				sampler = cachedSamplers[locIndexForPar];
-			}
-				
-		}
-		else if(includeERF_Rates && !includeSpatialDecay) {
-			sampler = getPointSamplerWithERF_RatesOnly();
-		}
-		else if(!includeERF_Rates && includeSpatialDecay) {
-			if(cachedSamplers[locIndexForPar] == null) {
-				sampler = getPointSamplerWithOnlyDistDecay(translatedParLoc);
-				cachedSamplers[locIndexForPar] = sampler;
-//System.out.println("Used this one: getPointSamplerWithOnlyDistDecay(parentLoc)");
-			}
-			else {
-				sampler = cachedSamplers[locIndexForPar];
-			}
-
-		}
+		IntegerPDF_FunctionSampler sampler = getSampler(locIndexForPar, translatedParLoc);
 		
 		int aftShPointIndex = sampler.getRandomInt();
 		int randSrcIndex = getRandomSourceIndexAtPoint(aftShPointIndex);
 		
 		// following is needed for case where includeERF_Rates = false (point can be chosen that has no sources)
 		if(randSrcIndex<0) {
-//			System.out.println("working on finding a non-neg source indes");
+//			System.out.println("working on finding a non-neg source index");
 			while (randSrcIndex<0) {
 				aftShPointIndex = sampler.getRandomInt();
 				randSrcIndex = getRandomSourceIndexAtPoint(aftShPointIndex);
@@ -444,6 +524,36 @@ public class ETAS_PrimaryEventSamplerAlt {
 		rupToFillIn.setDistanceToParent(distToParent);
 	}
 	
+	
+	
+	private IntegerPDF_FunctionSampler getSampler(int locIndexForPar, Location translatedParLoc) {
+		IntegerPDF_FunctionSampler sampler=null;
+		if(includeERF_Rates && includeSpatialDecay) {
+			if(cachedSamplers[locIndexForPar] == null) {
+				sampler = getPointSamplerWithDistDecay(translatedParLoc);
+				cachedSamplers[locIndexForPar] = sampler;
+			}
+			else {
+				sampler = cachedSamplers[locIndexForPar];
+			}
+				
+		}
+		else if(includeERF_Rates && !includeSpatialDecay) {
+			sampler = getPointSamplerWithERF_RatesOnly();
+		}
+		else if(!includeERF_Rates && includeSpatialDecay) {
+			if(cachedSamplers[locIndexForPar] == null) {
+				sampler = getPointSamplerWithOnlyDistDecay(translatedParLoc);
+				cachedSamplers[locIndexForPar] = sampler;
+//System.out.println("Used this one: getPointSamplerWithOnlyDistDecay(parentLoc)");
+			}
+			else {
+				sampler = cachedSamplers[locIndexForPar];
+			}
+
+		}
+		return sampler;
+	}
 	
 	
 	
@@ -553,7 +663,18 @@ public class ETAS_PrimaryEventSamplerAlt {
 			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sources.length);
 			for(int s=0; s<sources.length;s++) 
 				sampler.set(s,sourceRates[sources[s]]*fracts[s]);
-			return sources[sampler.getRandomInt()];			
+			return sources[sampler.getRandomInt()];
+			
+//			int randInt=-1;
+//			try {
+//				randInt = sampler.getRandomInt();
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				System.out.println(sampler);
+//				System.exit(0);
+//				e.printStackTrace();
+//			}
+//			return sources[randInt];			
 		}
 	}
 
@@ -687,16 +808,12 @@ public class ETAS_PrimaryEventSamplerAlt {
 
 //		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
-		System.out.println("Instantiating Region");
-		GriddedRegion griddedRegionForRates = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), 0.02, GriddedRegion.ANCHOR_0_0);
-		GriddedRegion griddedRegionForParLocs = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), 0.02, new Location(0.01,0.01));
-		
 		long startTime = System.currentTimeMillis();
 		System.out.println("Instantiating ETAS_PrimaryEventSamplerAlt");
 		
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
-		ETAS_PrimaryEventSamplerAlt erf_RatesAtPointsInSpace = new ETAS_PrimaryEventSamplerAlt(griddedRegionForRates, griddedRegionForParLocs, erf, 
+		ETAS_PrimaryEventSamplerAlt erf_RatesAtPointsInSpace = new ETAS_PrimaryEventSamplerAlt(new CaliforniaRegions.RELM_TESTING(), 0.02, erf, 
 				sourceRates, 24d,2d,0.1,testFileName, 2, 0.3,true,true);
 		System.out.println("Instantiating took "+(System.currentTimeMillis()-startTime)/1000+" sec");
 

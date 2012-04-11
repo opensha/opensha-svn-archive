@@ -124,7 +124,8 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 			offFaultPointMFD.setName("offFaultPointMFD");
 			offFaultPointMFD.setInfo(" ");		
 			funcs.add(offFaultPointMFD.getCumRateDistWithOffset());
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, ""); 			
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, ""); 	
+			graph.setYLog(true);
 		}
 
 
@@ -150,7 +151,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 
 	
-	private void makeNucleationMap() throws IOException {
+	private void makeNucleationMap(double minMag, double maxMag) throws IOException {
 		
 		String scaleLabel="TestMod1 Nucl";
 		String metadata=""; 
@@ -174,7 +175,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
 		
-		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(this, griddedRegion, 6.0, 10.0);
+		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(this, griddedRegion, minMag, maxMag);
 
 		try {
 				if (!GMT_DIR.exists())
@@ -216,12 +217,13 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		erf.updateForecast();
 		
 		// print the nucleation rate map
-//		try {
-//			erf.makeNucleationMap();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			erf.makeNucleationMap(2.5,10.0);
+			erf.makeNucleationMap(6.5,10.0);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		int nthRup = 892;	// same as source index
 		ProbEqkRupture mainshock = erf.getNthRupture(nthRup);		
@@ -229,6 +231,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		obsMainShock.setAveRake(mainshock.getAveRake());
 		obsMainShock.setMag(mainshock.getMag());
 		obsMainShock.setRuptureSurface(mainshock.getRuptureSurface());
+//		obsMainShock.setPointSurface(mainshock.getRuptureSurface().getFirstLocOnUpperEdge());
 		obsMainShock.setOriginTime(0);	// occurs at 1970
 		System.out.println("main shock: nthRup="+nthRup+"; mag="+obsMainShock.getMag()+
 				"; src name: " +erf.getSource(nthRup).getName());
@@ -238,7 +241,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		erf.setRuptureOccurrence(nthRup, 0);
 		
-		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, false);
+		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, false,0.05);
 
 //		erf.testER_Simulation();
 		runtime -= System.currentTimeMillis();

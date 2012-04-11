@@ -31,7 +31,7 @@ import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
  */
 public class TestModel1_FSS extends FaultSystemSolution {
 	
-	final static boolean D = true;	// debug flag
+	final static boolean D = false;	// debug flag
 	
 	double rake=0;
 	double slipRate = 25;	// mm/yr

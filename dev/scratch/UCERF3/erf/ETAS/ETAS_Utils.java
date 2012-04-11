@@ -260,14 +260,37 @@ public class ETAS_Utils {
 	 * time using the default ETAS parameter values for CA from Hardebeck et al. 
 	 * (2008, JGR, v 113, B08310, doi:10.1029/2007JB005410):
 	 * @param magMain
-	 * @param tMin
-	 * @param tMax
-	 * @param tDelta
+	 * @param tMin - days
+	 * @param tMax - days
+	 * @param tDelta - days
 	 * @return
 	 */
 	public EvenlyDiscretizedFunc getDefaultNumWithTimeFunc(double magMain, double tMin, double tMax, double tDelta) {
 		return getNumWithTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMin, tMax, tDelta);
 	}
+	
+	
+	
+	public EvenlyDiscretizedFunc getNumWithLogTimeFunc(double k, double p, double magMain, double magMin, double c, double log_tMin, 
+			double log_tMax, double log_tDelta) {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
+		for(int i=0;i<func.getNum();i++) {
+			double binTmin = Math.pow(10, func.getX(i) - log_tDelta/2);
+			double binTmax = Math.pow(10, func.getX(i) + log_tDelta/2);
+			double yVal = getExpectedNumEvents(k, p, magMain, magMin, c, binTmin, binTmax);
+	//		double yVal = k*Math.pow(10,magMain-magMin)*Math.pow(c+func.getX(i), -p);
+			func.set(i,yVal);
+		}
+		func.setName("Expected Number of Primary Aftershocks for log-day intervals of "+log_tDelta);
+		func.setInfo("for k="+k+", p="+p+", c="+c+", magMain="+magMain+", magMin="+magMin);
+		return func;
+	}
+
+	
+	public EvenlyDiscretizedFunc getDefaultNumWithLogTimeFunc(double magMain, double log_tMin, double log_tMax, double log_tDelta) {
+		return getNumWithLogTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, log_tMin, log_tMax, log_tDelta);
+	}
+
 	
 	public static void main(String[] args) {
 //		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));

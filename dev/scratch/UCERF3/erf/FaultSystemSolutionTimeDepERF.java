@@ -12,10 +12,12 @@ import org.apache.commons.math.random.RandomDataImpl;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -1359,10 +1361,11 @@ numSpontEvents=0;
 	 * @param includeSpontEvents
 	 * @param includeIndirectTriggering - include secondary, tertiary, etc events
 	 * @param includeEqkRates - whether or not to include the long-term rate of events in sampling aftershocks
+	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
 
 	 */
 	public void testETAS_Simulation(GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList, 
-			boolean includeSpontEvents, boolean includeIndirectTriggering, boolean includeEqkRates) {
+			boolean includeSpontEvents, boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr) {
 		
 		// this will store the aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
@@ -1444,25 +1447,11 @@ numSpontEvents=0;
 			}
 		}
 		
-		
-		
-		// Make the ERF_RatesInSpace and ETAS_LocationWeightCalculator
-		double maxDepthKm=24;
-		double depthDiscr=2.0;
-		double latLonDiscrDeg=0.02;
-		double distDecay = 2;
-		double minDist = 0.3;
-		boolean includeDistDecay = true;
+//		Region regionForRates = new CaliforniaRegions.RELM_TESTING();
+		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
 
-		GriddedRegion gridRegForRatesInSpace = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, GriddedRegion.ANCHOR_0_0);
-		// parent locs are mid way between rates in space:
-		GriddedRegion gridRegForParentLocs = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), latLonDiscrDeg, new Location(latLonDiscrDeg/2d,latLonDiscrDeg/2d));
 
-		// check
-		System.out.println("First Location in gridRegForRatesInSpace: "+gridRegForRatesInSpace.getLocation(0));
-		System.out.println("First Location in gridRegForParentLocs: "+gridRegForParentLocs.getLocation(0));
-
-		System.out.println("\nMaking ERF_RatesAtPointsInSpace");
+		System.out.println("\nMaking ETAS_PrimaryEventSamplerAlt");
 		long st = System.currentTimeMillis();
 		// first make array of rates for each source
 		double sourceRates[] = new double[getNumSources()];
@@ -1472,11 +1461,35 @@ numSpontEvents=0;
 
 		// this is not yet used for anything
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
+		
+		
+		
+		
+		
+		// Make the ERF_RatesInSpace and ETAS_LocationWeightCalculator
+//		double maxDepthKm=24;
+//		double depthDiscr=2.0;
+//		double latLonDiscrDeg=0.02;
+//		double distDecay = 2;
+//		double minDist = 0.3;
+//		boolean includeDistDecay = true;
+//		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, latLonDiscrDeg, this, 
+//				sourceRates, maxDepthKm,depthDiscr,0.1,null, distDecay, minDist, includeEqkRates, includeDistDecay);
+//		System.out.println("that took "+(System.currentTimeMillis()-st)/1000+ " sec");
 
-		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(gridRegForRatesInSpace, gridRegForParentLocs, this, 
-				sourceRates, maxDepthKm,depthDiscr,0.1,null, distDecay, minDist, includeEqkRates, includeDistDecay);
+		
+
+		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, this, sourceRates, 
+				gridSeisDiscr,null, includeEqkRates);
 		System.out.println("that took "+(System.currentTimeMillis()-st)/1000+ " sec");
-
+		
+		double distDecay = etas_PrimEventSampler.getDistDecay();
+		double minDist = etas_PrimEventSampler.getMinDist();
+		double maxDepthKm = etas_PrimEventSampler.getMaxDepth();
+		
+		
+		
+		
 		
 		System.out.println("Testing the etas_PrimEventSampler");
 		etas_PrimEventSampler.testRates();
@@ -1548,6 +1561,8 @@ numSpontEvents=0;
 				numToProcess = mainshockNumToProcess.get(parID);	// this is the number of events the sampler has yet to process
 				EqkRupture mainshock = mainshockHashMap.get(parID);
 				etas_PrimEventSampler.setRandomPrimaryEvent(mainshock, rup);
+//etas_PrimEventSampler.getTriggerProbOfEachSource( mainshock);
+//System.exit(0);
 				numToProcess -= 1;	// decrement num to process
 			}
 
@@ -1662,12 +1677,14 @@ numSpontEvents=0;
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
+			ETAS_SimAnalysisTools.plotNumVsTime("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0));
 		}
 		else {
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 		}
 		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
+		
 		
 		
 		System.out.println("Total num ruptures: "+simulatedRupsQueue.size());

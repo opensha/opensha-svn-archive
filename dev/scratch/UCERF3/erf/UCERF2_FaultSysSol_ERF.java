@@ -134,7 +134,8 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 		boolean includeSpontEvents=false;
 		boolean includeIndirectTriggering=false;
 		boolean includeEqkRates = false;
-		erf.testETAS_Simulation(griddedRegion, obsEqkRuptureList, includeSpontEvents, includeIndirectTriggering,includeEqkRates);
+		erf.testETAS_Simulation(griddedRegion, obsEqkRuptureList, includeSpontEvents, includeIndirectTriggering,
+				includeEqkRates, 0.1);
 //		erf.testETAS_SimulationOld(griddedRegion, obsEqkRuptureList);
 
 //		erf.testER_Simulation();

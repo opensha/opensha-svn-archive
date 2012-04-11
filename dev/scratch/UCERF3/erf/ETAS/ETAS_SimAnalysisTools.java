@@ -26,6 +26,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
 import scratch.ned.ETAS_ERF.ETAS_PrimaryEventSampler;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
@@ -479,7 +480,7 @@ public class ETAS_SimAnalysisTools {
 
 
 
-	public void plotNumVsTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+	public static void plotNumVsTimeOld(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			EqkRupture mainShock) {
 		
 		double delta = 1.0; // days
@@ -533,6 +534,76 @@ public class ETAS_SimAnalysisTools {
 				e.printStackTrace();
 			}
 	}
+	
+	
+	
+	public static void plotNumVsTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+			ObsEqkRupture mainShock) {
+		
+		long startTimeMillis = mainShock.getOriginTime();
+		double firstLogDay = -4;
+		double lastLocDay = 3;
+		double deltaLogDay =0.05;
+		int numPts = (int)Math.round((lastLocDay-firstLogDay)/deltaLogDay);
+		
+		ETAS_Utils etasUtils = new ETAS_Utils();
+
+		// make the target function & change it to a PDF
+		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(mainShock.getMag(), firstLogDay, lastLocDay, deltaLogDay);
+		targetFunc.setName("Expected Number for First-generation Aftershocks");
+		
+		EvenlyDiscretizedFunc allEvents = new EvenlyDiscretizedFunc(firstLogDay+deltaLogDay/2d,numPts,deltaLogDay);
+		EvenlyDiscretizedFunc firstGenEvents= new EvenlyDiscretizedFunc(firstLogDay+deltaLogDay/2d,numPts,deltaLogDay);
+
+		allEvents.setTolerance(deltaLogDay);
+		firstGenEvents.setTolerance(deltaLogDay);
+		for (ETAS_EqkRupture event : simulatedRupsQueue) {
+			long timeMillis = event.getOriginTime()-startTimeMillis;
+			double logTimeYrs = Math.log10((double)timeMillis/FaultSystemSolutionTimeDepERF.MILLISEC_PER_DAY);
+			if(logTimeYrs<=firstLogDay) {
+				allEvents.add(0, 1.0);
+				if(event.getGeneration() == 1)
+					firstGenEvents.add(0, 1.0);
+			}
+			else {
+				allEvents.add(logTimeYrs, 1.0);
+				if(event.getGeneration() == 1)
+					firstGenEvents.add(logTimeYrs, 1.0);
+			}
+		}
+		allEvents.setName("All aftershocks");
+		firstGenEvents.setName("First-generation aftershocks");
+		allEvents.setInfo(" ");
+		firstGenEvents.setInfo(" ");
+		
+		ArrayList funcs = new ArrayList();
+		funcs.add(allEvents);
+		funcs.add(firstGenEvents);
+		funcs.add(targetFunc);
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Num aftershocks for "+info); 
+		graph.setX_AxisLabel("Log-day");
+		graph.setY_AxisLabel("Num Events");
+		graph.setX_AxisRange(firstLogDay, lastLocDay);
+		graph.setY_AxisRange(0.1, graph.getY_AxisMax());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		graph.setPlottingFeatures(plotChars);
+		graph.setYLog(true);
+//		graph.setXLog(true);
+		if(pdf_FileName != null)
+			try {
+				graph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+	
+	
 	
 	public static void writeDataToFile(String fileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
 		try{
