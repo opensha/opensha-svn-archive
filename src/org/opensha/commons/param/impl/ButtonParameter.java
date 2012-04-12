@@ -35,6 +35,10 @@ public class ButtonParameter extends AbstractParameter<Integer> {
 	public String getButtonText() {
 		return buttonText;
 	}
+	
+	public void setButtonText(String buttonText) {
+		this.buttonText = buttonText;
+	}
 
 	@Override
 	public Object clone() {

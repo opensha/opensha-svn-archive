@@ -37,6 +37,30 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 		return true;
 	}
 	
+	public int getElementID() {
+		return elementID;
+	}
+
+	public void setElementID(int elementID) {
+		this.elementID = elementID;
+	}
+
+	public double getMinMag() {
+		return minMag;
+	}
+
+	public void setMinMag(double minMag) {
+		this.minMag = minMag;
+	}
+
+	public double getMaxMag() {
+		return maxMag;
+	}
+
+	public void setMaxMag(double maxMag) {
+		this.maxMag = maxMag;
+	}
+
 	public static void main(String[] args) throws IOException {
 		File dir = new File("/home/kevin/Simulators");
 		File geomFile = new File(dir, "ALLCAL2_1-7-11_Geometry.dat");
