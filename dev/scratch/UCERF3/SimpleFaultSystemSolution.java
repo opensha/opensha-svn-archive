@@ -276,6 +276,10 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		simpleRupSet.toZipFile(file, tempDir, zipFileNames);
 	}
 	
+	public static void toZipFile(FaultSystemSolution solution, File file) throws IOException {
+		new SimpleFaultSystemSolution(solution).toZipFile(file);
+	}
+	
 	public static SimpleFaultSystemSolution fromZipFile(File zipFile) throws ZipException, IOException, DocumentException {
 		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.fromZipFile(zipFile);
 		

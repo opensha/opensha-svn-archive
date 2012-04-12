@@ -700,6 +700,10 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		return fromXMLMetadata(rupSetEl);
 	}
 	
+	public static void toZipFile(FaultSystemRupSet rupSet, File file) throws IOException {
+		toSimple(rupSet).toZipFile(file);
+	}
+	
 	public void toZipFile(File file) throws IOException {
 		File tempDir = FileUtils.createTempDir();
 		
