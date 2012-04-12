@@ -61,6 +61,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 	double minGridLon=240-360;
 	double maxGridLon=244-360;
 	double gridSpacing=0.05;
+//	double gridSpacing=0.1;
 	
 	ArbIncrementalMagFreqDist  onFaultPointMFD, offFaultPointMFD;
 	
@@ -204,8 +205,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 	}
 	
 	
-	public void calcSelfTriggeringPob(GriddedRegion griddedRegion, ObsEqkRupture mainShock, int rthRup, boolean includeEqkRates, 
-			double gridSeisDiscr, double magThresh) {
+	public void calcSelfTriggeringPob(GriddedRegion griddedRegion, ObsEqkRupture mainShock, int rthRup, boolean includeEqkRates, double magThresh) {
 		
 		if(!SIMULATION_MODE)
 			throw new RuntimeException("This method can only be run if SIMULATION_MODE = true");
@@ -229,7 +229,10 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 			sourceRates[s] = getSource(s).computeTotalEquivMeanAnnualRate(duration);
 
 		System.out.println("making ETAS_PrimaryEventSamplerAlt");
-		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, this, sourceRates, gridSeisDiscr,null, includeEqkRates);
+		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, this, sourceRates, gridSpacing, null, includeEqkRates);
+		
+		// Plot the map
+		etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(mainShock), "testMod1", "testMod1_Map");
 		
 //		etas_PrimEventSampler.testRates();
 		
@@ -315,17 +318,17 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 		// this applies elastic rebound reduction of probability
 //		erf.setRuptureOccurrence(sthSrc, 0);
-//		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, false, 0.05, 6.15);
+		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, true, 6.15);
 		
 		
 		// this is for test simulations
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
-		obsEqkRuptureList.add(obsMainShock);
+//		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+//		obsEqkRuptureList.add(obsMainShock);
 //		erf.setRuptureOccurrence(sthSrc, 0);
-		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, true,0.05);
-
-		erf.testER_Simulation();
-		runtime -= System.currentTimeMillis();
-		System.out.println("simulation took "+(double)runtime/(1000.0*60.0)+" minutes");
+//		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, true,0.05);
+//
+//		erf.testER_Simulation();
+//		runtime -= System.currentTimeMillis();
+//		System.out.println("simulation took "+(double)runtime/(1000.0*60.0)+" minutes");
 	}
 }

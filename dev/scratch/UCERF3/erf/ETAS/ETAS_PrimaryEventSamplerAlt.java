@@ -1,5 +1,6 @@
 package scratch.UCERF3.erf.ETAS;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -16,6 +17,8 @@ import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.commons.param.impl.CPTParameter;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -26,6 +29,7 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
 
@@ -69,7 +73,8 @@ public class ETAS_PrimaryEventSamplerAlt {
 	// Make the ERF_RatesInSpace and ETAS_LocationWeightCalculator
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
-	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
+//	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
+	public static final double DEFAULT_LAT_LON_DISCR = 0.025;	// discretization here, not of gridded sources
 	public static final double DEFAULT_DIST_DECAY = ETAS_Utils.distDecay_DEFAULT;
 	public static final double DEFAULT_MIN_DIST = ETAS_Utils.minDist_DEFAULT;
 	
@@ -111,6 +116,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay) {
 		
+		this.regSpacing = latLonDiscrDeg;
 		this.erf = erf;
 		
 		this.maxDepth=maxDepth;
@@ -118,9 +124,11 @@ public class ETAS_PrimaryEventSamplerAlt {
 		numDepths = (int)Math.round(maxDepth/depthDiscr);
 		
 		// Make the regions
-		gridRegForRatesInSpace = new GriddedRegion(regionForRates, latLonDiscrDeg, GriddedRegion.ANCHOR_0_0);
+		gridRegForRatesInSpace = new GriddedRegion(regionForRates, regSpacing, GriddedRegion.ANCHOR_0_0);
 		// parent locs are mid way between rates in space:
-		gridRegForParentLocs = new GriddedRegion(regionForRates, latLonDiscrDeg, new Location(latLonDiscrDeg/2d,latLonDiscrDeg/2d));
+		gridRegForParentLocs = new GriddedRegion(regionForRates, regSpacing, new Location(regSpacing/2d,regSpacing/2d));
+//System.out.println("first loc for gridRegForRatesInSpace:"+gridRegForRatesInSpace.getLocation(0));
+//System.out.println("first loc for gridRegForParentLocs:"+gridRegForParentLocs.getLocation(0));
 
 		
 		numRegLocsForRatesInSpace = gridRegForRatesInSpace.getNumLocations();
@@ -140,12 +148,12 @@ public class ETAS_PrimaryEventSamplerAlt {
 		this.includeERF_Rates=includeERF_Rates;
 		this.includeSpatialDecay=includeSpatialDecay;
 
-		regSpacing = gridRegForRatesInSpace.getLatSpacing();
-		// do some checks
-		if(gridRegForRatesInSpace.getLonSpacing() != regSpacing)
-			throw new RuntimeException("gridRegForRatesInSpace.getLonSpacing() must equal gridRegForRatesInSpace.getLatSpacing()");
-		if(gridRegForParentLocs.getLonSpacing() != regSpacing)
-			throw new RuntimeException("gridRegForParentLocs.getLonSpacing() must equal gridRegForRatesInSpace.getLatSpacing()");
+//		regSpacing = gridRegForRatesInSpace.getLatSpacing();
+//		// do some checks
+//		if(gridRegForRatesInSpace.getLonSpacing() != regSpacing)
+//			throw new RuntimeException("gridRegForRatesInSpace.getLonSpacing() must equal gridRegForRatesInSpace.getLatSpacing()");
+//		if(gridRegForParentLocs.getLonSpacing() != regSpacing)
+//			throw new RuntimeException("gridRegForParentLocs.getLonSpacing() must equal gridRegForRatesInSpace.getLatSpacing()");
 		
 		latForPoint = new double[numPointsForRates];
 		lonForPoint = new double[numPointsForRates];
@@ -177,6 +185,8 @@ public class ETAS_PrimaryEventSamplerAlt {
 		}
 
 		int numPtSrcSubPts = (int)Math.round(pointSrcDiscr/regSpacing);
+		
+// System.out.println("HERE numPtSrcSubPts="+numPtSrcSubPts+"\t"+pointSrcDiscr+"\t"+regSpacing);
 	
 		rateUnassigned=0;
 
@@ -238,6 +248,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 					for(int iLon=0; iLon<numPtSrcSubPts;iLon++) {
 						double lon = centerLoc.getLongitude()-pointSrcDiscr/2 + iLon*regSpacing + regSpacing/2.0;
 						int regIndex = gridRegForRatesInSpace.indexForLocation(new Location(lat,lon));
+if(regIndex==1000) System.out.println("TEST HERE: "+lat+"\t"+lon+"\t"+gridRegForRatesInSpace.getLocation(regIndex));
 						if(regIndex != -1){
 							for(int iDep =0; iDep<numDepths; iDep++) {
 //								int ptIndex = iDep*numRegLocs+regIndex;
@@ -287,6 +298,41 @@ public class ETAS_PrimaryEventSamplerAlt {
 	
 	
 	/**
+	 * This loops over all points on the rupture surface and creates a net (average) point sampler.
+	 * @param mainshock
+	 * @return
+	 */
+	public IntegerPDF_FunctionSampler getAveSamplerForRupture(EqkRupture mainshock) {
+		
+		IntegerPDF_FunctionSampler aveSampler = new IntegerPDF_FunctionSampler(numPointsForRates);
+		
+		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		for(Location loc: locList) {
+			
+			// get the translated parent location
+			// ******** SHOULD BE A COMMON METHOD FOR THIS BLOCK (CUT FROM ELSEWHERE) ********
+			int parRegIndex = gridRegForParentLocs.indexForLocation(loc);
+			if(parRegIndex <0)
+				throw new RuntimeException("parRegIndex<0");
+			int parDepIndex = getParDepthIndex(loc.getDepth());
+			int locIndexForPar = parDepIndex*gridRegForParentLocs.getNodeCount()+parRegIndex;
+			Location tempLoc = gridRegForParentLocs.getLocation(parRegIndex);
+			// the above will be null if it's out of the region
+			Location translatedParLoc = new Location(tempLoc.getLatitude(),tempLoc.getLongitude(),getParDepth(parDepIndex));
+			// ***********************************************************************
+			
+			// set the sampler
+			IntegerPDF_FunctionSampler sampler = getSampler(locIndexForPar, translatedParLoc);
+			
+			for(int i=0;i <numPointsForRates;i++) {
+				aveSampler.add(i, sampler.getY(i));
+			}
+		}
+		return aveSampler;
+	}
+	
+	
+	/**
 	 * For the given main shock, this gives the trigger probability of each source in the ERF.
 	 * This loops over all points on the main shock rupture surface, giving equal triggering
 	 * potential to each.
@@ -296,40 +342,20 @@ public class ETAS_PrimaryEventSamplerAlt {
 	public double[] getTriggerProbOfEachSource(EqkRupture mainshock) {
 		double[] trigProb = new double[erf.getNumSources()];
 		
-		double[] summedSamplers = new double[numPointsForRates];
-		
-		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
-		for(Location loc: locList) {
-			
-			// set the sampler
-			int parRegIndex = gridRegForParentLocs.indexForLocation(loc);
-			if(parRegIndex <0)
-				throw new RuntimeException("parRegIndex<0");
-			int parDepIndex = getParDepthIndex(loc.getDepth());
-			int locIndexForPar = parDepIndex*gridRegForParentLocs.getNodeCount()+parRegIndex;
-			Location tempLoc = gridRegForParentLocs.getLocation(parRegIndex);
-			// the above will be null if it's out of the region
-			Location translatedParLoc = new Location(tempLoc.getLatitude(),tempLoc.getLongitude(),getParDepth(parDepIndex));
-			IntegerPDF_FunctionSampler sampler = getSampler(locIndexForPar, translatedParLoc);
-			
-			for(int i=0;i <numPointsForRates;i++)
-				summedSamplers[i] = sampler.getY(i);
-			
-		}
-		
-		// normalize to sum to 1.0
-		double total = 0;
-		for(int i=0;i <numPointsForRates;i++)  total += summedSamplers[i];
-		for(int i=0;i <numPointsForRates;i++) summedSamplers[i] /= total;
+		IntegerPDF_FunctionSampler aveSampler = getAveSamplerForRupture(mainshock);
 
+		// normalize so values sum to 1.0
+		aveSampler.scale(1.0/aveSampler.getSumOfY_vals());
+		
 		// now loop over all the points for rates
+		double total = 0;
 		for(int i=0;i <numPointsForRates;i++) {
 			int[] sources = srcAtPointList.get(i);
 			if(sources.length==0) {
 				continue;
 			}
 			if (sources.length==1) {
-				trigProb[sources[0]] += summedSamplers[i];
+				trigProb[sources[0]] += aveSampler.getY(i);
 			}
 			else {
 				double[] fracts = fractionSrcAtPointList.get(i);
@@ -340,7 +366,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 				for(int s=0; s<sources.length;s++)	// sum for normalization
 					total += relProb[s];
 				for(int s=0; s<sources.length;s++)
-					trigProb[sources[s]] += summedSamplers[i]*relProb[s]/total;
+					trigProb[sources[s]] += aveSampler.getY(i)*relProb[s]/total;
 			}
 		}
 
@@ -831,69 +857,94 @@ System.out.println("testSum="+testSum);
 	
 	
 	/**
-	 * This plots the rates in space for the RELM region (rates are summed inside each spatial bin).
-	 * 
-	 * Compare this to what produced by the plotOrigERF_RatesMap(*) method (should be same)
+	 * This plots the spatial distribution of probabilities implied be the given pointSampler
+	 * (probs are summed inside each spatial bin of gridRegForRatesInSpace).
 	 * 
 	 * @param label - plot label
-	 * @param local - whether GMT map is made locally or on server
 	 * @param dirName
 	 * @return
 	 */
-	public String plotRatesMap(IntegerPDF_FunctionSampler pointSamplerForMap, String label, boolean local, String dirName) {
+	public String plotSamplerMap(IntegerPDF_FunctionSampler pointSampler, String label, String dirName) {
 		
-		GMT_MapGenerator mapGen = new GMT_MapGenerator();
-		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
-		mapGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
-		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
-		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
-		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
-		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForRatesInSpace.getMinGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForRatesInSpace.getMaxGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForRatesInSpace.getMinGridLon());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForRatesInSpace.getMaxGridLon());
+		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForRatesInSpace.getLatSpacing());	// assume lat and lon spacing are same
+//		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, 0.05);	// assume lat and lon spacing are same
 		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
 
-
-		CaliforniaRegions.RELM_GRIDDED mapGriddedRegion = new CaliforniaRegions.RELM_GRIDDED();
-		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(mapGriddedRegion, true);
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(gridRegForRatesInSpace, true);
 		
 		// initialize values to zero
 		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
 		
-		getPointSamplerWithERF_RatesOnly();
 		for(int i=0;i<numPointsForRates;i++) {
 			Location loc = getLocationForSamplerIndex(i);
-			int mapLocIndex = mapGriddedRegion.indexForLocation(loc);
+			int mapLocIndex = gridRegForRatesInSpace.indexForLocation(loc);
 			if(mapLocIndex>=0) {
 				double oldRate = xyzDataSet.get(mapLocIndex);
-				xyzDataSet.set(mapLocIndex, pointSamplerForMap.getY(i)+oldRate);					
+				xyzDataSet.set(mapLocIndex, pointSampler.getY(i)+oldRate);					
 			}
-
 		}
 		
+		// normalize xyzDataSet (since pointSampler aren't necessarily normalized)
+		
+		// check sum
+		double sum=0;
+		for(int i=0; i<xyzDataSet.size();i++) sum += xyzDataSet.get(i);
+		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i,xyzDataSet.get(i)/sum);
+		// check
+//		sum=0;
+//		for(int i=0; i<xyzDataSet.size();i++) sum += xyzDataSet.get(i);
+//		System.out.println("sumTestForMaps="+sum);
+		
+		// remove any zeros because they blow up the log-plot
+		System.out.println("xyzDataSet.getMinZ()="+xyzDataSet.getMinZ());
+		if(xyzDataSet.getMinZ()==0) {
+			double minNonZero = Double.MAX_VALUE;
+			for(int i=0; i<xyzDataSet.size();i++) {
+				if(xyzDataSet.get(i)>0 && xyzDataSet.get(i)<minNonZero)
+					minNonZero=xyzDataSet.get(i);
+			}
+			for(int i=0; i<xyzDataSet.size();i++) {
+				if(xyzDataSet.get(i)==0)
+					xyzDataSet.set(i,minNonZero);
+			}
+			System.out.println("minNonZero="+minNonZero);
+			System.out.println("xyzDataSet.getMinZ()="+xyzDataSet.getMinZ());
+		}
+		
+
+
+
 //		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
-		String metadata = "no metadata";
+		String metadata = "Map from calling plotSamplerMap(*) method";
 		
 		try {
-			String name;
-			if(local)
-				name = mapGen.makeMapLocally(xyzDataSet, "Prob from "+label, metadata, dirName);
-			else {
-				name = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
-				ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);				
-			}
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+				
+				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
 
 //			System.out.println("GMT Plot Filename: "+name);
-		} catch (GMT_MapException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RuntimeException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
 	
@@ -906,7 +957,7 @@ System.out.println("testSum="+testSum);
 	 * @param dirName
 	 * @return
 	 */
-	public String plotOrigERF_RatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf) {
+	public String old_plotOrigERF_RatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
@@ -974,7 +1025,7 @@ System.out.println("testSum="+testSum);
 	 * @param dirName
 	 * @return
 	 */
-	public String plotRandomSampleRatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf, int numYrs) {
+	public String old_plotRandomSampleRatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf, int numYrs) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);

@@ -77,7 +77,7 @@ public class GMT_CA_Maps {
 	final static boolean defaultBlackBackground = false;
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED defaultGridRegion  = RELM_RegionUtils.getGriddedRegionInstance();
 
-	final static File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
+	public final static File GMT_DIR = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
 	
 	public static GMT_MapGenerator getDefaultGMT_MapGenerator() {
 		
