@@ -43,8 +43,8 @@ public class ERFLoopTest {
 				assertEquals(rup1.getMag(), rup2.getMag(), 1e-10);
 				assertEquals(rup1.getProbability(), rup2.getProbability(), 1e-10);
 				// surface will not be the same object if surface is generated on the fly each time
-//				assertEquals(rup1.getRuptureSurface(), rup2.getRuptureSurface());
-				assertEquals(rup1, rup2);
+				assertEquals(rup1.getRuptureSurface().toString(), rup2.getRuptureSurface().toString());
+				assertEquals(rup1.getInfo(), rup2.getInfo());
 			}
 			assertFalse(rupIt.hasNext());
 		}
