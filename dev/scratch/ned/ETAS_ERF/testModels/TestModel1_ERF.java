@@ -20,6 +20,7 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
@@ -231,8 +232,13 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		System.out.println("making ETAS_PrimaryEventSamplerAlt");
 		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, this, sourceRates, gridSpacing, null, includeEqkRates);
 		
+		System.out.println("Plotting expected MFD");
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(etas_PrimEventSampler.getExpectedMFD(mainShock), "Expected MFD for MainShock"); 
+
 		// Plot the map
+		System.out.println("Making sampler map");
 		etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(mainShock), "testMod1", "testMod1_Map");
+
 		
 //		etas_PrimEventSampler.testRates();
 		
@@ -318,15 +324,15 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 		// this applies elastic rebound reduction of probability
 //		erf.setRuptureOccurrence(sthSrc, 0);
-		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, true, 6.15);
+		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, false, 6.15);
 		
 		
 		// this is for test simulations
 //		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
 //		obsEqkRuptureList.add(obsMainShock);
 //		erf.setRuptureOccurrence(sthSrc, 0);
-//		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, true,0.05);
-//
+//		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, false,0.05);
+
 //		erf.testER_Simulation();
 //		runtime -= System.currentTimeMillis();
 //		System.out.println("simulation took "+(double)runtime/(1000.0*60.0)+" minutes");

@@ -1678,6 +1678,7 @@ numSpontEvents=0;
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
 			ETAS_SimAnalysisTools.plotNumVsTime("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.plotNumVsTimeOld("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0));
 		}
 		else {
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, griddedRegion.getBorder());

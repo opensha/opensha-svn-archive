@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.apache.commons.math.random.RandomDataImpl;
 
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
@@ -26,9 +27,12 @@ import scratch.ned.ETAS_Tests.PrimaryAftershock;
 public class ETAS_Utils {
 	
 	// The following are from Table 2 of Hardebeck (2012)
-	final static double k_DEFAULT = 0.008;			// Felzer (2000) value in units of number of events >= magMain per day
-	final static double p_DEFAULT = 1.34;			// Felzer (2000) value
-	final static double c_DEFAULT = 0.095;			// Felzer (2000) value in units of days
+//	final static double k_DEFAULT = 0.008;			// Felzer (2000) value in units of number of events >= magMain per day
+//	final static double p_DEFAULT = 1.34;			// Felzer (2000) value
+//	final static double c_DEFAULT = 0.095;			// Felzer (2000) value in units of days
+	final static double k_DEFAULT = 0.00284*Math.pow(365.25,0.07);			// Hardebeck's value converted to units of days (see email to Ned Field on April 1, 2012)
+	final static double p_DEFAULT = 1.07;			// Hardebeck's value
+	final static double c_DEFAULT = 1.78e-5*365.25;	// Hardebeck's value converted to units of days
 	final static double magMin_DEFAULT = 2.5;		// as assumed in Hardebeck
 	final static double distDecay_DEFAULT = 1.96;	// this is "q" in Hardebeck's Table 2
 	final static double minDist_DEFAULT = 0.79;		// km; this is "d" in Hardebeck's Table 2
@@ -247,7 +251,7 @@ public class ETAS_Utils {
 	 * @param tDelta - days
 	 * @return
 	 */
-	public EvenlyDiscretizedFunc getNumWithTimeFunc(double k, double p, double magMain, double magMin, double c, double tMin, double tMax, double tDelta) {
+	public static  EvenlyDiscretizedFunc getNumWithTimeFunc(double k, double p, double magMain, double magMin, double c, double tMin, double tMax, double tDelta) {
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(tMin+tDelta/2, tMax-tDelta/2, (int)Math.round((tMax-tMin)/tDelta));
 		for(int i=0;i<func.getNum();i++) {
 			double binTmin = func.getX(i) - tDelta/2;
@@ -273,13 +277,13 @@ public class ETAS_Utils {
 	 * @param tDelta - days
 	 * @return
 	 */
-	public EvenlyDiscretizedFunc getDefaultNumWithTimeFunc(double magMain, double tMin, double tMax, double tDelta) {
+	public static EvenlyDiscretizedFunc getDefaultNumWithTimeFunc(double magMain, double tMin, double tMax, double tDelta) {
 		return getNumWithTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, tMin, tMax, tDelta);
 	}
 	
 	
 	
-	public EvenlyDiscretizedFunc getNumWithLogTimeFunc(double k, double p, double magMain, double magMin, double c, double log_tMin, 
+	public static EvenlyDiscretizedFunc getNumWithLogTimeFunc(double k, double p, double magMain, double magMin, double c, double log_tMin, 
 			double log_tMax, double log_tDelta) {
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
 		for(int i=0;i<func.getNum();i++) {
@@ -295,16 +299,22 @@ public class ETAS_Utils {
 	}
 
 	
-	public EvenlyDiscretizedFunc getDefaultNumWithLogTimeFunc(double magMain, double log_tMin, double log_tMax, double log_tDelta) {
+	public static EvenlyDiscretizedFunc getDefaultNumWithLogTimeFunc(double magMain, double log_tMin, double log_tMax, double log_tDelta) {
 		return getNumWithLogTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, log_tMin, log_tMax, log_tDelta);
 	}
 
 	
 	public static void main(String[] args) {
-//		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
-//		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
-		System.out.println("Double.MAX_VALUE="+Double.MAX_VALUE+"\t"+Double.MAX_VALUE/(1000*60*60*24*265.25));
-		System.out.println("Long.MAX_VALUE="+Long.MAX_VALUE+"\t"+Long.MAX_VALUE/(1000*60*60*24*265));
+		System.out.println("k_DEFAULT: "+ETAS_Utils.k_DEFAULT);
+		System.out.println("c_DEFAULT: "+ETAS_Utils.c_DEFAULT);
+		System.out.println("p_DEFAULT: "+ETAS_Utils.p_DEFAULT);
+		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
+		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
+		
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(getDefaultNumWithTimeFunc(7.0, 0.5, 365d, 1), "Num aftershocks vs time");
+//		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(getDefaultNumWithLogTimeFunc(7.0, 0, 2.56, 0.0256), "Num aftershocks vs time");
+//		System.out.println("Double.MAX_VALUE="+Double.MAX_VALUE+"\t"+Double.MAX_VALUE/(1000*60*60*24*265.25));
+//		System.out.println("Long.MAX_VALUE="+Long.MAX_VALUE+"\t"+Long.MAX_VALUE/(1000*60*60*24*265));
 		
 	}
 

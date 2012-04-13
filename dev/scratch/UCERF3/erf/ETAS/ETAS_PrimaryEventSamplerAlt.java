@@ -16,6 +16,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.FileUtils;
@@ -74,7 +75,8 @@ public class ETAS_PrimaryEventSamplerAlt {
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
 //	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
-	public static final double DEFAULT_LAT_LON_DISCR = 0.025;	// discretization here, not of gridded sources
+//	public static final double DEFAULT_LAT_LON_DISCR = 0.05;	// discretization here, not of gridded sources
+	public static final int DEFAULT_NUM_PT_SRC_SUB_PTS = 3;		// 5 is good for orig pt-src gridding of 0.1
 	public static final double DEFAULT_DIST_DECAY = ETAS_Utils.distDecay_DEFAULT;
 	public static final double DEFAULT_MIN_DIST = ETAS_Utils.minDist_DEFAULT;
 	
@@ -92,15 +94,17 @@ public class ETAS_PrimaryEventSamplerAlt {
 	public ETAS_PrimaryEventSamplerAlt(Region regionForRates, FaultSystemSolutionPoissonERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates) {
 
-		this(regionForRates, DEFAULT_LAT_LON_DISCR, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
+		this(regionForRates, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, includeERF_Rates, true);
+//		this(regionForRates, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
+//				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, true, false);
 	}
 
 	
 	/**
 	 * 
-	 * @param gridRegForRatesInSpace - region for rates in space
-	 * @param gridRegForParentLocs - region for parent locations (points here should be half way between those in the above)
+	 * @param regionForRates - region for etas sampling
+	 * @param numPtSrcSubPts - this is how the sampling region will be discretized (discr = pointSrcDiscr/numPtSrcSubPts)
 	 * @param erf
 	 * @param sourceRates - pointer to an array of source rates (which may get updated externally)
 	 * @param maxDepth
@@ -112,21 +116,32 @@ public class ETAS_PrimaryEventSamplerAlt {
 	 * @param includeERF_Rates - tells whether to consider long-term rates in sampling aftershocks
 	 * @param includeSpatialDecay - tells whether to include spatial decay in sampling aftershocks (for testing)
 	 */
-	public ETAS_PrimaryEventSamplerAlt(Region regionForRates, double latLonDiscrDeg, FaultSystemSolutionPoissonERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSamplerAlt(Region regionForRates, int numPtSrcSubPts, FaultSystemSolutionPoissonERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay) {
 		
-		this.regSpacing = latLonDiscrDeg;
+
+		this.regSpacing = pointSrcDiscr/numPtSrcSubPts;
 		this.erf = erf;
 		
 		this.maxDepth=maxDepth;
 		this.depthDiscr=depthDiscr;
 		numDepths = (int)Math.round(maxDepth/depthDiscr);
 		
-		// Make the regions
-		gridRegForRatesInSpace = new GriddedRegion(regionForRates, regSpacing, GriddedRegion.ANCHOR_0_0);
-		// parent locs are mid way between rates in space:
-		gridRegForParentLocs = new GriddedRegion(regionForRates, regSpacing, new Location(regSpacing/2d,regSpacing/2d));
+		// need to set the region anchors so that the gridRegForRatesInSpace sub-regions fall completely inside the griddes seis regions
+		//this assumes the point sources have an anchor of GriddedRegion.ANCHOR_0_0)
+		if(numPtSrcSubPts % 2 == 0) {	// it's an even number
+			gridRegForRatesInSpace = new GriddedRegion(regionForRates, regSpacing, new Location(regSpacing/2d,regSpacing/2d));
+			// parent locs are mid way between rates in space:
+			gridRegForParentLocs = new GriddedRegion(regionForRates, regSpacing, GriddedRegion.ANCHOR_0_0);			
+		}
+		else {	// it's odd
+			gridRegForRatesInSpace = new GriddedRegion(regionForRates, regSpacing, GriddedRegion.ANCHOR_0_0);
+			// parent locs are mid way between rates in space:
+			gridRegForParentLocs = new GriddedRegion(regionForRates, regSpacing, new Location(regSpacing/2d,regSpacing/2d));			
+		}
+		
+
 //System.out.println("first loc for gridRegForRatesInSpace:"+gridRegForRatesInSpace.getLocation(0));
 //System.out.println("first loc for gridRegForParentLocs:"+gridRegForParentLocs.getLocation(0));
 
@@ -184,8 +199,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 			fractionsAtPointList.add(new ArrayList<Double>());
 		}
 
-		int numPtSrcSubPts = (int)Math.round(pointSrcDiscr/regSpacing);
-		
+				
 // System.out.println("HERE numPtSrcSubPts="+numPtSrcSubPts+"\t"+pointSrcDiscr+"\t"+regSpacing);
 	
 		rateUnassigned=0;
@@ -200,6 +214,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 		progressBar.showProgress(true);
 	
 		if(D) System.out.println("Starting loop to populate fractionSrcAtPointList & srcAtPointList");
+boolean doneOne=false;
 		for(int s=0;s<totNumSrc;s++) {
 			ProbEqkSource src = erf.getSource(s);
 			progressBar.updateProgress(s, totNumSrc);
@@ -211,6 +226,12 @@ public class ETAS_PrimaryEventSamplerAlt {
 				int numLocs = locsOnRupSurf.size();
 				for(Location loc: locsOnRupSurf) {
 					int regIndex = gridRegForRatesInSpace.indexForLocation(loc);
+if(!doneOne) {
+	System.out.println("fault loc: "+loc);
+	System.out.println("assoc reg loc: "+gridRegForRatesInSpace.getLocation(regIndex));
+	doneOne=true;
+	//System.exit(0);
+}
 					int depIndex = getDepthIndex(loc.getDepth());
 					if(regIndex != -1) {
 						int ptIndex = depIndex*numRegLocsForRatesInSpace+regIndex;
@@ -248,7 +269,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 					for(int iLon=0; iLon<numPtSrcSubPts;iLon++) {
 						double lon = centerLoc.getLongitude()-pointSrcDiscr/2 + iLon*regSpacing + regSpacing/2.0;
 						int regIndex = gridRegForRatesInSpace.indexForLocation(new Location(lat,lon));
-if(regIndex==1000) System.out.println("TEST HERE: "+lat+"\t"+lon+"\t"+gridRegForRatesInSpace.getLocation(regIndex));
+// if(regIndex==1000) System.out.println("TEST HERE: "+lat+"\t"+lon+"\t"+gridRegForRatesInSpace.getLocation(regIndex));
 						if(regIndex != -1){
 							for(int iDep =0; iDep<numDepths; iDep++) {
 //								int ptIndex = iDep*numRegLocs+regIndex;
@@ -359,6 +380,7 @@ if(regIndex==1000) System.out.println("TEST HERE: "+lat+"\t"+lon+"\t"+gridRegFor
 			}
 			else {
 				double[] fracts = fractionSrcAtPointList.get(i);
+				// compute the relative probability of each source at this point
 				double[] relProb = new double[sources.length];
 				for(int s=0; s<sources.length;s++)
 					relProb[s] = sourceRates[sources[s]]*fracts[s];
@@ -377,6 +399,20 @@ if(regIndex==1000) System.out.println("TEST HERE: "+lat+"\t"+lon+"\t"+gridRegFor
 System.out.println("testSum="+testSum);
 		
 		return trigProb;
+	}
+	
+	
+	public SummedMagFreqDist getExpectedMFD(EqkRupture mainshock) {
+		double[] srcProbs = getTriggerProbOfEachSource(mainshock);
+		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
+		for(int s=0; s<srcProbs.length;s++) {
+			SummedMagFreqDist srcMFD = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), 1.0, 2.05, 8.95, 70, true);
+			srcMFD.normalizeByTotalRate();
+			srcMFD.scale(srcProbs[s]);
+			if(!Double.isNaN(srcMFD.getTotalIncrRate())) // not sure why this is needed
+				magDist.addIncrementalMagFreqDist(srcMFD);
+		}
+		return magDist;
 	}
 	
 	
@@ -586,7 +622,7 @@ System.out.println("testSum="+testSum);
 	private void makeETAS_LocWtCalcList() {
 		double maxDistKm=1000.0;
 		double midLat = (gridRegForRatesInSpace.getMaxLat() + gridRegForRatesInSpace.getMinLat())/2.0;
-		if(D) System.out.println("midLat="+midLat);
+//		if(D) System.out.println("midLat="+midLat);
 		etasLocWtCalclist = new ETAS_LocationWeightCalculatorHypDepDep[numParDepths];
 		for(int iParDep=0;iParDep<numParDepths;iParDep ++) {
 			etasLocWtCalclist[iParDep] = new ETAS_LocationWeightCalculatorHypDepDep(maxDistKm, maxDepth, 
@@ -839,7 +875,7 @@ System.out.println("testSum="+testSum);
 		
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
-		ETAS_PrimaryEventSamplerAlt erf_RatesAtPointsInSpace = new ETAS_PrimaryEventSamplerAlt(new CaliforniaRegions.RELM_TESTING(), 0.02, erf, 
+		ETAS_PrimaryEventSamplerAlt erf_RatesAtPointsInSpace = new ETAS_PrimaryEventSamplerAlt(new CaliforniaRegions.RELM_TESTING(), 5, erf, 
 				sourceRates, 24d,2d,0.1,testFileName, 2, 0.3,true,true);
 		System.out.println("Instantiating took "+(System.currentTimeMillis()-startTime)/1000+" sec");
 
@@ -868,6 +904,9 @@ System.out.println("testSum="+testSum);
 		
 		GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
 		
+		CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		
 		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForRatesInSpace.getMinGridLat());
 		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForRatesInSpace.getMaxGridLat());
 		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForRatesInSpace.getMinGridLon());
@@ -879,6 +918,9 @@ System.out.println("testSum="+testSum);
 //		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
 //		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
 //		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
+
+		//mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, true);
+
 
 		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(gridRegForRatesInSpace, true);
 		

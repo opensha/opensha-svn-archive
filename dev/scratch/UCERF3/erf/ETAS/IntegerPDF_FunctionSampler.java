@@ -112,8 +112,16 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 //
 //			}
 		}
-		if(indexHigh == this.getNum()) 
-			throw new RuntimeException("Problem: chosen int above x-axis bounds; could Y'axis contain NaNs?");
+		if(indexHigh == this.getNum()) {
+			boolean containsNaNs=false;
+			for(int i=0;i<this.getNum();i++)
+				if(Double.isNaN(getY(i))) {
+						containsNaNs=true;
+						break;
+				}
+//			System.out.println(this);
+			throw new RuntimeException("Problem: chosen int above x-axis bounds; Y-axis contain NaNs? = "+containsNaNs+"\tsumOfAllYVals="+this.getSumOfY_vals());
+		}
 
 		/*
 		if(indexHigh == this.getNum()) {

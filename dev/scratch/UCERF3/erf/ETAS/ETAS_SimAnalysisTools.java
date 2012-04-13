@@ -481,8 +481,9 @@ public class ETAS_SimAnalysisTools {
 
 
 	public static void plotNumVsTimeOld(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
-			EqkRupture mainShock) {
+			ObsEqkRupture mainShock) {
 		
+		long startTimeMillis = mainShock.getOriginTime();
 		double delta = 1.0; // days
 		double tMin=0;		//days
 		double tMax=360;	//days
@@ -499,7 +500,7 @@ public class ETAS_SimAnalysisTools {
 		allEvents.setTolerance(2.0);
 		firstGenEvents.setTolerance(2.0);
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
-			double time = event.getOriginTime();
+			double time = (double)(event.getOriginTime()-startTimeMillis)/FaultSystemSolutionTimeDepERF.MILLISEC_PER_DAY;
 			allEvents.add(time, 1.0);
 			if(event.getGeneration() == 1)
 				firstGenEvents.add(time, 1.0);
@@ -543,7 +544,7 @@ public class ETAS_SimAnalysisTools {
 		long startTimeMillis = mainShock.getOriginTime();
 		double firstLogDay = -4;
 		double lastLocDay = 3;
-		double deltaLogDay =0.05;
+		double deltaLogDay =0.1;
 		int numPts = (int)Math.round((lastLocDay-firstLogDay)/deltaLogDay);
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
