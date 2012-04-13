@@ -40,6 +40,7 @@ import java.io.IOException;
 
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
+import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
 import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSamplerAlt;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -141,6 +142,10 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		return griddedRegion;
 	}
 	
+	public ArbIncrementalMagFreqDist getOnFaultMFD() {
+		return onFaultPointMFD;
+	}
+	
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
 		int regionIndex = iSource-numFaultSystemSources;
@@ -206,7 +211,8 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 	}
 	
 	
-	public void calcSelfTriggeringPob(GriddedRegion griddedRegion, ObsEqkRupture mainShock, int rthRup, boolean includeEqkRates, double magThresh) {
+	public void calcSelfTriggeringPob(GriddedRegion griddedRegion, ObsEqkRupture mainShock, int rthRup, boolean includeEqkRates, 
+			double magThresh) {
 		
 		if(!SIMULATION_MODE)
 			throw new RuntimeException("This method can only be run if SIMULATION_MODE = true");
@@ -230,7 +236,9 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 			sourceRates[s] = getSource(s).computeTotalEquivMeanAnnualRate(duration);
 
 		System.out.println("making ETAS_PrimaryEventSamplerAlt");
-		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, this, sourceRates, gridSpacing, null, includeEqkRates);
+		ETAS_PrimaryEventSamplerAlt etas_PrimEventSampler = new ETAS_PrimaryEventSamplerAlt(regionForRates, this, sourceRates, 
+				gridSpacing, null, includeEqkRates);
+		
 		
 		System.out.println("Plotting expected MFD");
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(etas_PrimEventSampler.getExpectedMFD(mainShock), "Expected MFD for MainShock"); 
@@ -324,14 +332,14 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 		// this applies elastic rebound reduction of probability
 //		erf.setRuptureOccurrence(sthSrc, 0);
-		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, false, 6.15);
+//		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, true, 6.15);
 		
 		
 		// this is for test simulations
-//		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
-//		obsEqkRuptureList.add(obsMainShock);
-//		erf.setRuptureOccurrence(sthSrc, 0);
-//		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,false, false, false,0.05);
+		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+		obsEqkRuptureList.add(obsMainShock);
+		erf.setRuptureOccurrence(sthSrc, 0);
+		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,true, true, false,0.05);
 
 //		erf.testER_Simulation();
 //		runtime -= System.currentTimeMillis();

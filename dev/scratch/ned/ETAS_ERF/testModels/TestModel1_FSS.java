@@ -3,6 +3,8 @@
  */
 package scratch.ned.ETAS_ERF.testModels;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +23,11 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
  * @author field
@@ -86,6 +90,7 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		
 		for(int s=0;s<subSectionData.size();s++) {
 			subSectionData.get(s).setSectionName("Subsection "+s);
+			subSectionData.get(s).setSectionId(s);
 			if(D)
 				System.out.println("subsection name = "+subSectionData.get(s).getName());
 		}
@@ -267,7 +272,7 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		double[] rakes = new double[totNumRups];
 		for(int r=0; r<totNumRups;r++)
 			rakes[r]=rake;
-		return null;
+		return rakes;
 	}
 
 	/* (non-Javadoc)
@@ -572,8 +577,20 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	public static void main(String[] args) {
 		
 		TestModel1_FSS test = new TestModel1_FSS();
+		
+		System.out.println(test.getNumRuptures());
 
-		test.getRupsThatOverlapGivenRup(892, 10);
+//		test.getRupsThatOverlapGivenRup(892, 10);
+		
+		File file = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR,"/TestModel1_FSS.zip");
+		
+		try {
+			SimpleFaultSystemSolution simpSol = new SimpleFaultSystemSolution(test);
+			SimpleFaultSystemSolution.toZipFile(simpSol, file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 //		for(int i=0; i<test.getNumRuptures(); i++) {
 //			List<Integer>  sects = test.getSectionsIndicesForRup(i);

@@ -1670,21 +1670,21 @@ numSpontEvents=0;
 
 		}
 
-		String fileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/hypoTest.pdf";
+		String dirName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/";
 		
 //		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
-			ETAS_SimAnalysisTools.plotNumVsTime("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0));
-			ETAS_SimAnalysisTools.plotNumVsTimeOld("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.plotEpicenterMap("", dirName+"hypoMap.pdf", obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
+			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("", dirName+"distDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
+			ETAS_SimAnalysisTools.plotNumVsLogTime("", dirName+"logTimeDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.plotNumVsTime("", dirName+"timeDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0));
 		}
 		else {
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, griddedRegion.getBorder());
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", dirName+"hypoMap.pdf", null, simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 		}
-		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
+		ETAS_SimAnalysisTools.plotMagFreqDists("", null, simulatedRupsQueue);
 		
 		
 		

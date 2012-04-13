@@ -28,6 +28,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
 import scratch.ned.ETAS_ERF.ETAS_PrimaryEventSampler;
+import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
+import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
 
@@ -227,8 +229,7 @@ public class ETAS_SimAnalysisTools {
 			funcs.add(regBorderFunc);
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		}
-		
-		
+
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Aftershock Epicenters for "+info); 
 		graph.setX_AxisLabel("Longitude");
 		graph.setY_AxisLabel("Latitude");
@@ -246,7 +247,17 @@ public class ETAS_SimAnalysisTools {
 			graph.setX_AxisRange(minLon, maxLon);
 			graph.setY_AxisRange(minLat, newMaxLat);
 		}
+		
+		// ****** HACK FOR SSA TALK ************ (delete next two lines when done)
+		graph.setX_AxisRange(-120, -116);
+		graph.setY_AxisRange(35, 37);
+
+		
 		graph.setPlottingFeatures(plotChars);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
+
 		if(pdf_FileNameFullPath != null)
 		try {
 			graph.saveAsPDF(pdf_FileNameFullPath);
@@ -275,21 +286,54 @@ public class ETAS_SimAnalysisTools {
 			Collection<ETAS_EqkRupture> allAftershocks) {
 		
 		// get the observed mag-prob dist for the sampled set of events 
-		ArbIncrementalMagFreqDist obsMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
-		for (ETAS_EqkRupture event : allAftershocks)
-			obsMagProbDist.addResampledMagRate(event.getMag(), 1.0, true);
-		obsMagProbDist.setName("Sampled Mag-Dist");
-		obsMagProbDist.setInfo(" ");
+		ArbIncrementalMagFreqDist allAftShMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
+		ArbIncrementalMagFreqDist primaryAftShMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
+//		ArbIncrementalMagFreqDist obsMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
+		for (ETAS_EqkRupture event : allAftershocks) {
+			allAftShMagProbDist.addResampledMagRate(event.getMag(), 1.0, true);
+			if(event.getGeneration()==1)
+				primaryAftShMagProbDist.addResampledMagRate(event.getMag(), 1.0, true);
+		}
+		allAftShMagProbDist.setName("All Aftershock MFD");
+		allAftShMagProbDist.setInfo(" ");
+		primaryAftShMagProbDist.setName("Primary Aftershock MFD");
+		primaryAftShMagProbDist.setInfo(" ");
 		
 		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
-		magProbDists.add(obsMagProbDist);
+		magProbDists.add(allAftShMagProbDist);
+		magProbDists.add(primaryAftShMagProbDist);
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
+
+		
+		// HACK FOR SSA TALK ******************
+		TestModel1_FSS temp = new TestModel1_FSS();
+		GutenbergRichterMagFreqDist targetMFD = temp.getTargetFaultGR(); 
+		targetMFD.normalizeByTotalRate();
+		targetMFD.scale(ETAS_Utils.getDefaultExpectedNumEvents(6.93, 0, 360.25));
+		System.out.println("targetMFD.getTotalIncrRate()"+targetMFD.getTotalIncrRate());
+		targetMFD.setName("Target Primary MFD");
+		targetMFD.setInfo(" ");
+		magProbDists.add(targetMFD);
+		magProbDists.add(targetMFD.getCumRateDistWithOffset());
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
+
+		//****************************
+
 				
 		// Plot these MFDs
-		GraphiWindowAPI_Impl magProbDistsGraph = new GraphiWindowAPI_Impl(magProbDists, "Mag-Freq Distributions for "+info+" Aftershocks"); 
+		GraphiWindowAPI_Impl magProbDistsGraph = new GraphiWindowAPI_Impl(magProbDists, "Mag-Freq Distributions for "+info+" Aftershocks",plotChars); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Number");
-		magProbDistsGraph.setY_AxisRange(0.1, magProbDistsGraph.getY_AxisMax());
+		magProbDistsGraph.setY_AxisRange(0.001, 1e3);
+		magProbDistsGraph.setX_AxisRange(2d, 8d);
 		magProbDistsGraph.setYLog(true);
+		magProbDistsGraph.setPlotLabelFontSize(18);
+		magProbDistsGraph.setAxisLabelFontSize(16);
+		magProbDistsGraph.setTickLabelFontSize(14);
 		
 		if(pdf_FileNameFullPath != null) {
 			try {
@@ -454,7 +498,9 @@ public class ETAS_SimAnalysisTools {
 		distDecayFuncs.add(obsLogDistDecayHist);
 		if(mainShock != null) {
 			obsLogDistDecayFromMainShockHist.setInfo("(based on "+numFromMainShock+" aftershocks)");
-			distDecayFuncs.add(obsLogDistDecayFromMainShockHist);			
+
+			// TEMP HACK FOR SSA TALK
+//			distDecayFuncs.add(obsLogDistDecayFromMainShockHist);			
 		}
 
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(distDecayFuncs, "Distance Decay for Aftershocks; "+info); 
@@ -462,6 +508,11 @@ public class ETAS_SimAnalysisTools {
 		graph.setY_AxisLabel("Fraction of Aftershocks");
 		graph.setX_AxisRange(histLogMin, histLogMax);
 		graph.setY_AxisRange(1e-6, 1);
+
+// TEMP HACK FOR SSA TALK
+		graph.setX_AxisRange(-1.5, 3);
+		graph.setY_AxisRange(1e-4, 0.3);
+		
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
@@ -469,6 +520,9 @@ public class ETAS_SimAnalysisTools {
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
 		graph.setPlottingFeatures(plotChars);
 		graph.setYLog(true);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
 		if(pdf_FileName != null)
 			try {
 				graph.saveAsPDF(pdf_FileName);
@@ -480,13 +534,13 @@ public class ETAS_SimAnalysisTools {
 
 
 
-	public static void plotNumVsTimeOld(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+	public static void plotNumVsTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			ObsEqkRupture mainShock) {
 		
 		long startTimeMillis = mainShock.getOriginTime();
 		double delta = 1.0; // days
 		double tMin=0;		//days
-		double tMax=360;	//days
+		double tMax=366;	//days
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
 
@@ -538,7 +592,7 @@ public class ETAS_SimAnalysisTools {
 	
 	
 	
-	public static void plotNumVsTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+	public static void plotNumVsLogTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			ObsEqkRupture mainShock) {
 		
 		long startTimeMillis = mainShock.getOriginTime();
@@ -578,7 +632,8 @@ public class ETAS_SimAnalysisTools {
 		firstGenEvents.setInfo(" ");
 		
 		ArrayList funcs = new ArrayList();
-		funcs.add(allEvents);
+		// TEMP HACK FOR SSA TALK
+//		funcs.add(allEvents);
 		funcs.add(firstGenEvents);
 		funcs.add(targetFunc);
 		
@@ -588,12 +643,18 @@ public class ETAS_SimAnalysisTools {
 		graph.setX_AxisRange(firstLogDay, lastLocDay);
 		graph.setY_AxisRange(0.1, graph.getY_AxisMax());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
+		// TEMP HACK FOR SSA TALK (delete first two when done, un-comment 3rd)
+		graph.setX_AxisRange(-2.5, 3);
+		graph.setY_AxisRange(1, 100);
+//		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		graph.setPlottingFeatures(plotChars);
 		graph.setYLog(true);
 //		graph.setXLog(true);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
 		if(pdf_FileName != null)
 			try {
 				graph.saveAsPDF(pdf_FileName);
