@@ -363,7 +363,7 @@ public class RateTable {
 	// double mean = imr.getMean();
 	// DiscretizedFunc func = per.getFunction();
 	//
-	// Iterator<Point2D> it = func.getPointsIterator();
+	// Iterator<Point2D> it = func.iterator();
 	// while (it.hasNext()) {
 	// Point2D point = it.next();
 	// double x = point.getX();

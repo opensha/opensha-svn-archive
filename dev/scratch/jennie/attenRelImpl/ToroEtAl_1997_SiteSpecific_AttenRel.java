@@ -595,7 +595,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	    double stdDev = getStdDev();
 	    double mean = getMean();
 
-	    Iterator it = intensityMeasureLevels.getPointsIterator();
+	    Iterator it = intensityMeasureLevels.iterator();
 	    while (it.hasNext()) {
 
 	      Point2D point = (Point2D) it.next();

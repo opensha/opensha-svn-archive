@@ -31,17 +31,17 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<P
 	/** returns the number of points in this function list */
 	public int getNum();
 
-	/** return the minimum x value along the x-axis */
-	public double getMinX();
+	/** return the minimum x value along the x-axis. */
+	public double getMinX() throws IndexOutOfBoundsException;
 
 	/** return the maximum x value along the x-axis */
-	public double getMaxX();
+	public double getMaxX() throws IndexOutOfBoundsException;
 
 	/** return the minimum y value along the y-axis */
-	public double getMinY();
+	public double getMinY() throws IndexOutOfBoundsException;
 
 	/** return the maximum y value along the y-axis */
-	public double getMaxY();
+	public double getMaxY() throws IndexOutOfBoundsException;
 
 
 
@@ -50,13 +50,13 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<P
 	/* ******************/
 
 	/** Returns the nth (x,y) point in the Function by index */
-	public Point2D get(int index);
+	public Point2D get(int index) throws IndexOutOfBoundsException;
 
 	/** Returns the x-value given an index */
-	public double getX(int index);
+	public double getX(int index) throws IndexOutOfBoundsException;
 
 	/** Returns the y-value given an index */
-	public double getY(int index);
+	public double getY(int index) throws IndexOutOfBoundsException;
 
 
 	/* ***************/
@@ -73,7 +73,7 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<P
 	public void set(double x, double y) throws Point2DException;
 
 	/** Replaces a DataPoint y-value at the specifed index. */
-	public void set(int index, double Y);
+	public void set(int index, double Y) throws IndexOutOfBoundsException;
 
 
 
@@ -84,6 +84,8 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<P
 	/**
 	 * Determine wheither a point exists in the list,
 	 * as determined by it's x-value within tolerance.
+	 * 
+	 * Will return false if given a null value.
 	 */
 	public boolean hasPoint(Point2D point);
 
@@ -100,20 +102,13 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<P
 	/* Iterators  */
 	/* ************/
 
-	/**
-	 * Returns an iterator over all datapoints in the list. Results returned
-	 * in sorted order.
-	 * @return
-	 */
-	public Iterator<Point2D> getPointsIterator();
-
 
 	/**
 	 * Returns an iterator over all x-values in the list. Results returned
 	 * in sorted order.
 	 * @return
 	 */
-	public ListIterator<Double> getXValuesIterator();
+	public Iterator<Double> getXValuesIterator();
 
 
 	/**
@@ -121,7 +116,7 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<P
 	 * in sorted order along the x-axis.
 	 * @return
 	 */
-	public ListIterator<Double> getYValuesIterator();
+	public Iterator<Double> getYValuesIterator();
 
 
 

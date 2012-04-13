@@ -94,7 +94,7 @@ implements Serializable {
 	 */
 	public ArbitrarilyDiscretizedFunc(AbstractDiscretizedFunc func) {
 		this(func.getTolerance());
-		Iterator<Point2D> it = func.getPointsIterator();
+		Iterator<Point2D> it = func.iterator();
 		while (it.hasNext())
 			this.set(it.next());
 		this.setInfo(func.getInfo());
@@ -609,7 +609,7 @@ if(debug) {
 		function.setInfo(getInfo());
 		function.setXAxisName(this.getXAxisName());
 		function.setYAxisName(this.getYAxisName());
-		Iterator it = this.getPointsIterator();
+		Iterator it = this.iterator();
 		if( it != null ) {
 			while(it.hasNext()) {
 				function.set( (Point2D)((Point2D)it.next()).clone() );
@@ -628,7 +628,7 @@ if(debug) {
 	public boolean equalXValues(DiscretizedFunc function){
 		// String S = C + ": equalXValues():";
 		if( this.getNum() != function.getNum() ) return false;
-		Iterator it = this.getPointsIterator();
+		Iterator it = this.iterator();
 		while(it.hasNext()) {
 			Point2D point = (Point2D)it.next();
 			if( !function.hasPoint( point ) ) return false;
@@ -661,7 +661,7 @@ if(debug) {
 	 */
 	public String getMetadataString(){
 		StringBuffer b = new StringBuffer();
-		Iterator it2 = this.getPointsIterator();
+		Iterator it2 = this.iterator();
 
 		while(it2.hasNext()){
 
@@ -682,7 +682,7 @@ if(debug) {
 
 		StringBuffer b = new StringBuffer();
 		b.append(C + ": Log values:\n");
-		Iterator it = this.getPointsIterator();
+		Iterator it = this.iterator();
 		while(it.hasNext()) {
 
 			Point2D point = (Point2D)it.next();
@@ -699,7 +699,7 @@ if(debug) {
 	 * @param s
 	 */
 	private void writeObject(ObjectOutputStream s){
-		Iterator<Point2D> it =getPointsIterator();
+		Iterator<Point2D> it =iterator();
 		try{
 			s.writeObject(points.getComparator());
 			s.writeObject(new Integer(getNum()));
@@ -798,7 +798,7 @@ public static void main( String[] args ) {
   func.set(1+8e-16,8);
   func.set(1+9e-16,9);
   func.set(1+10e-16,10);
-  Iterator it = func.getPointsIterator();
+  Iterator it = func.iterator();
   Point2D point;
   while( it.hasNext()) {
     point = (Point2D) it.next();

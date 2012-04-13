@@ -788,7 +788,7 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		// set the IMT in the various relationships
 		setAttenRelsIMT();
 
-		Iterator it = intensityMeasureLevels.getPointsIterator();
+		Iterator it = intensityMeasureLevels.iterator();
 		while (it.hasNext()) {
 			point = (Point2D) it.next();
 			double x = point.getX();

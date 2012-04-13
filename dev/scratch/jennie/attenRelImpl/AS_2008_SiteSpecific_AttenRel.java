@@ -602,7 +602,7 @@ Named {
 		double stdDev = getStdDev();
 		double mean = getMean();
 
-		Iterator<Point2D> it = intensityMeasureLevels.getPointsIterator();
+		Iterator<Point2D> it = intensityMeasureLevels.iterator();
 		while (it.hasNext()) {
 
 			Point2D point = it.next();

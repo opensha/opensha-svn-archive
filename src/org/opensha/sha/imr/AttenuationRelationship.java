@@ -573,7 +573,7 @@ extends AbstractIMR implements ScalarIMR {
 		double stdDev = getStdDev();
 		double mean = getMean();
 
-		Iterator<Point2D> it = intensityMeasureLevels.getPointsIterator();
+		Iterator<Point2D> it = intensityMeasureLevels.iterator();
 		while (it.hasNext()) {
 
 			Point2D point = (Point2D) it.next();

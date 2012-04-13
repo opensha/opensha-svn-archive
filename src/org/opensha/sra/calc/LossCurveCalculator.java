@@ -1,6 +1,7 @@
 package org.opensha.sra.calc;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -52,7 +53,7 @@ public class LossCurveCalculator {
 		double[] dfs = curVulnModel.getDEMDFVals();
 		
 		// Get the probabilities of exceedance (hazard curve)...
-		ListIterator<Double> iter = hazFunc.getYValuesIterator();
+		Iterator<Double> iter = hazFunc.getYValuesIterator();
 		ArrayList<Double> pelist = new ArrayList<Double>();
 		while(iter.hasNext())
 			pelist.add((Double) iter.next());
@@ -94,7 +95,7 @@ public class LossCurveCalculator {
 		Matrix fragMatrix = new Matrix(numIMLs, 1);
 		
 		ArrayList<Double> hazFuncVals = new ArrayList<Double>();
-		ListIterator<Double> iter = hazFunc.getYValuesIterator();
+		Iterator<Double> iter = hazFunc.getYValuesIterator();
 		while (iter.hasNext())
 			hazFuncVals.add((Double) iter.next());
 		hazFuncVals = diffIt(hazFuncVals);

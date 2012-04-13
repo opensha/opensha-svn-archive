@@ -93,7 +93,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
         ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc(  );
         function.setInfo(getInfo());
-        Iterator it = this.getPointsIterator();
+        Iterator it = this.iterator();
         if( it != null ) {
             while(it.hasNext()) {
                 function.set( (Point2D)((Point2D)it.next()).clone() );
@@ -172,8 +172,8 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      */
     public double getSumOfAllY_Values() {
         double totSum = 0;
-        Iterator it = getPointsIterator();
-        while (it.hasNext()) { totSum += ((Point2D) it.next()).getY(); }
+        Iterator<Point2D>it = iterator();
+        while (it.hasNext()) { totSum += (it.next()).getY(); }
         return totSum;    	
     }
     
@@ -275,9 +275,9 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
       ArbitrarilyDiscretizedFunc cumDist = new ArbitrarilyDiscretizedFunc();
       Point2D dp;
       double sum = 0;
-      Iterator it = getPointsIterator();
+      Iterator<Point2D> it = iterator();
       while (it.hasNext()) {
-        dp = (Point2D) it.next();
+        dp = it.next();
         sum += dp.getY();
         Point2D dpNew = new Point2D.Double(dp.getX(),sum/totSum);
         cumDist.set(dpNew);
@@ -335,7 +335,7 @@ public static void main( String[] args ) {
   func.set(0.0106969625,.02);
 
   System.out.println("func:");
-  Iterator it = func.getPointsIterator();
+  Iterator it = func.iterator();
   Point2D point;
   while( it.hasNext()) {
     point = (Point2D) it.next();
@@ -344,7 +344,7 @@ public static void main( String[] args ) {
 
   System.out.println("\ncumFunc:");
   ArbitrarilyDiscretizedFunc cumFunc = func.getNormalizedCumDist();
-  it = cumFunc.getPointsIterator();
+  it = cumFunc.iterator();
   while( it.hasNext()) {
     point = (Point2D) it.next();
     System.out.println(point.getX()+"  "+point.getY());

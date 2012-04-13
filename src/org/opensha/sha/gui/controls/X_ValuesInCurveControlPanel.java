@@ -29,6 +29,7 @@ import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.text.DecimalFormat;
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -378,7 +379,7 @@ public class X_ValuesInCurveControlPanel extends ControlPanel {
 	 * @param func: ArbitrarilyDiscretizedFunc function to be shown in the control Panel
 	 */
 	public void setX_Values(ArbitrarilyDiscretizedFunc func){
-		ListIterator lt=func.getXValuesIterator();
+		Iterator<Double> lt=func.getXValuesIterator();
 		xValuesSelectionCombo.setSelectedItem(CUSTOM_VALUES);
 		String st =new String("");
 		while(lt.hasNext())
@@ -392,7 +393,7 @@ public class X_ValuesInCurveControlPanel extends ControlPanel {
 	 * initialise the X values with the default X values in the textArea
 	 */
 	private void setX_Values(){
-		ListIterator lt=function.getXValuesIterator();
+		Iterator<Double> lt=function.getXValuesIterator();
 		String st =new String("");
 		while(lt.hasNext())
 			st += lt.next().toString().trim()+"\n";

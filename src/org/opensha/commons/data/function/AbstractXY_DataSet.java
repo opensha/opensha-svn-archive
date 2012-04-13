@@ -37,7 +37,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	public void setInfo(String info){ this.info = info; }
 	
 	//X and Y Axis name
-	private String xAxisName,yAxisName;
+	protected String xAxisName,yAxisName;
 	
 	public void setXAxisName(String xName){
 		xAxisName = xName;
@@ -106,12 +106,26 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	 * in sorted order. Returns null if no points present.
 	 * @return
 	 */
-	public ListIterator<Double> getXValuesIterator(){
-		ArrayList<Double> list = new ArrayList<Double>();
-		for( int i = 0; i < getNum(); i++){
-			list.add( new Double(this.getX(i)) );
-		}
-		return list.listIterator();
+	public Iterator<Double> getXValuesIterator(){
+		return new Iterator<Double>() {
+			
+			int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < getNum();
+			}
+
+			@Override
+			public Double next() {
+				return getX(index++);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 
 	/**
@@ -119,19 +133,49 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	 * in sorted order along the x-axis. Returns null if no points present.
 	 * @return
 	 */
-	public ListIterator<Double> getYValuesIterator(){
-		ArrayList<Double> list = new ArrayList<Double>();
-		for( int i = 0; i < getNum(); i++){
-			list.add( new Double(this.getY(i)));
-		}
-		return list.listIterator();
+	public Iterator<Double> getYValuesIterator(){
+		return new Iterator<Double>() {
+			
+			int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < getNum();
+			}
+
+			@Override
+			public Double next() {
+				return getY(index++);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
+	
 	@Override
 	public Iterator<Point2D> iterator() {
-		ArrayList<Point2D> list = new ArrayList<Point2D>();
-		for (int i=0; i<getNum(); i++)
-			list.add(get(i));
-		return list.iterator();
+		return new Iterator<Point2D>() {
+			
+			int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < getNum();
+			}
+
+			@Override
+			public Point2D next() {
+				return get(index++);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 
 }

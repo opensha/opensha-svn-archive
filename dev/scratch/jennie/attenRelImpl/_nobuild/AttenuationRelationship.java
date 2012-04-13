@@ -898,7 +898,7 @@ public abstract class AttenuationRelationship
     double stdDev = getStdDev();
     double mean = getMean();
 
-    Iterator it = intensityMeasureLevels.getPointsIterator();
+    Iterator it = intensityMeasureLevels.iterator();
     while (it.hasNext()) {
 
       Point2D point = (Point2D) it.next();

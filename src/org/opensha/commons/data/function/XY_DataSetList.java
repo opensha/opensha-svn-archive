@@ -220,7 +220,7 @@ public class XY_DataSetList extends ArrayList<XY_DataSet> {
         while( it.hasNext() ){
 
             XY_DataSet function = (XY_DataSet)it.next();
-            Iterator<Point2D> it2 = function.getPointsIterator();
+            Iterator<Point2D> it2 = function.iterator();
 
             counter++;
             b.append("\nData Set #" + counter + '\n');
@@ -282,7 +282,7 @@ public class XY_DataSetList extends ArrayList<XY_DataSet> {
             XY_DataSet function = (XY_DataSet)it1.next();
             b.append("\nColumn " + (counter + 2) + ". Y-Axis: " + function.toString());
 
-            Iterator<Point2D> it = function.getPointsIterator();
+            Iterator<Point2D> it = function.iterator();
 
             // Conversion
             if(D) System.out.println(S + "Converting Function to 2D Array");

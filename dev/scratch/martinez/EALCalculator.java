@@ -1,6 +1,7 @@
 package scratch.martinez;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -54,13 +55,13 @@ public class EALCalculator {
 		this.IML = new ArrayList<Double>();
 		this.MAFE = new ArrayList<Double>();
 		this.DF = DF;
-		ListIterator xIter = hazFunc.getXValuesIterator();
-		ListIterator yIter = hazFunc.getYValuesIterator();
+		Iterator<Double> xIter = hazFunc.getXValuesIterator();
+		Iterator<Double> yIter = hazFunc.getYValuesIterator();
 		while(xIter.hasNext()) {
-			IML.add((Double) xIter.next());
+			IML.add(xIter.next());
 		}
 		while(yIter.hasNext()) {
-			MAFE.add((Double) yIter.next());
+			MAFE.add(yIter.next());
 		}
 		this.structValue = structValue;
 	}
@@ -77,13 +78,13 @@ public class EALCalculator {
 		this.IML = new ArrayList<Double>();
 		this.MAFE = MAFE;
 		this.DF = new ArrayList<Double>();
-		ListIterator xIter = vulnFunc.getXValuesIterator();
-		ListIterator yIter = vulnFunc.getYValuesIterator();
+		Iterator<Double> xIter = vulnFunc.getXValuesIterator();
+		Iterator<Double> yIter = vulnFunc.getYValuesIterator();
 		while(xIter.hasNext()) {
-			IML.add((Double) xIter.next());
+			IML.add(xIter.next());
 		}
 		while(yIter.hasNext()) {
-			DF.add((Double) yIter.next());
+			DF.add(yIter.next());
 		}
 		this.structValue = structValue;
 	}
@@ -103,15 +104,15 @@ public class EALCalculator {
 		this.IML = new ArrayList<Double>();
 		this.MAFE = new ArrayList<Double>();
 		this.DF = new ArrayList<Double>();
-		ListIterator hXIter = hazFunc.getXValuesIterator();
-		ListIterator hYIter = hazFunc.getYValuesIterator();
-		ListIterator vXIter = vulnFunc.getXValuesIterator();
-		ListIterator vYIter = vulnFunc.getXValuesIterator();
+		Iterator<Double> hXIter = hazFunc.getXValuesIterator();
+		Iterator<Double> hYIter = hazFunc.getYValuesIterator();
+		Iterator<Double> vXIter = vulnFunc.getXValuesIterator();
+		Iterator<Double> vYIter = vulnFunc.getXValuesIterator();
 		while(hXIter.hasNext() && hYIter.hasNext() && vXIter.hasNext() && vYIter.hasNext()) {
-			double hx = (Double) hXIter.next();
-			double hy = (Double) hYIter.next();
-			double vx = (Double) vYIter.next();
-			double vy = (Double) vXIter.next();
+			double hx = hXIter.next();
+			double hy = hYIter.next();
+			double vx = vYIter.next();
+			double vy = vXIter.next();
 			if(hx != vx)
 				throw new IllegalArgumentException("IML Values for hazFunc and vulnFunc must match!");
 			IML.add(hx);
@@ -247,9 +248,9 @@ public class EALCalculator {
 	 */
 	public void setDF(DiscretizedFunc vulnFunc) {
 		DF.clear();
-		ListIterator iter = vulnFunc.getYValuesIterator();
+		Iterator<Double> iter = vulnFunc.getYValuesIterator();
 		while(iter.hasNext()) {
-			DF.add((Double) iter.next());
+			DF.add(iter.next());
 		}
 	}
 	
@@ -263,9 +264,9 @@ public class EALCalculator {
 	 */
 	public void setMAFE(DiscretizedFunc hazFunc) {
 		MAFE.clear();
-		ListIterator iter = hazFunc.getYValuesIterator();
+		Iterator<Double> iter = hazFunc.getYValuesIterator();
 		while(iter.hasNext()) {
-			MAFE.add((Double) iter.next());
+			MAFE.add(iter.next());
 		}
 	}
 	

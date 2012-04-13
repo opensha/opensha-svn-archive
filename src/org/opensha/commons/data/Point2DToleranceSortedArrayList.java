@@ -84,7 +84,7 @@ public class Point2DToleranceSortedArrayList implements Point2DToleranceSortedLi
 	@Override
 	public double getMinY() {
 		if (isEmpty())
-			return Double.NaN;
+			throw new IndexOutOfBoundsException("list is empty!");
 		double minY = Double.POSITIVE_INFINITY;
 		for (Point2D p : this)
 			if (p.getY() < minY)
@@ -95,7 +95,7 @@ public class Point2DToleranceSortedArrayList implements Point2DToleranceSortedLi
 	@Override
 	public double getMaxY() {
 		if (isEmpty())
-			return Double.NaN;
+			throw new IndexOutOfBoundsException("list is empty!");
 		double maxY = Double.NEGATIVE_INFINITY;
 		for (Point2D p : this)
 			if (p.getY() > maxY)
@@ -105,11 +105,15 @@ public class Point2DToleranceSortedArrayList implements Point2DToleranceSortedLi
 
 	@Override
 	public double getMinX() {
+		if (isEmpty())
+			throw new IndexOutOfBoundsException("list is empty!");
 		return get(0).getX();
 	}
 
 	@Override
 	public double getMaxX() {
+		if (isEmpty())
+			throw new IndexOutOfBoundsException("list is empty!");
 		return get(size()-1).getX();
 	}
 

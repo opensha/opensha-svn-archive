@@ -145,7 +145,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 
 	public void set(double min, double max, int num) {
 		if (num <= 0)
-			throw new XY_DataSetException("num points must be >= 0");
+			throw new XY_DataSetException("num points must be > 0");
 
 		if (num == 1 && min != max)
 			throw new XY_DataSetException("min must equal max if num points = 1");
@@ -632,6 +632,8 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		f.minX = minX;
 		f.maxX = maxX;
 		f.name = name;
+		f.xAxisName = xAxisName;
+		f.yAxisName = yAxisName;
 		f.tolerance = tolerance;
 		f.setInfo(this.getInfo());
 		f.setName(this.getName());
@@ -740,7 +742,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 */
 	public String getMetadataString(){
 		StringBuffer b = new StringBuffer();
-		Iterator<Point2D> it2 = this.getPointsIterator();
+		Iterator<Point2D> it2 = this.iterator();
 
 		while(it2.hasNext()){
 
@@ -757,7 +759,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * and the y value is equal to y value in the list.
 	 */
 	public boolean hasPoint(Point2D point){
-		return hasPoint(point.getX(),point.getY());
+		return point != null && hasPoint(point.getX(),point.getY());
 	}
 
 	/**

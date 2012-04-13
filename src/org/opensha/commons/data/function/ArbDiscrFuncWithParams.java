@@ -158,7 +158,7 @@ public class ArbDiscrFuncWithParams
         function.setInfo(getInfo());
         function.setParameterList( (ParameterList)this.getParameterList().clone() );
 
-        Iterator it = this.getPointsIterator();
+        Iterator it = this.iterator();
         if( it != null ) {
             while(it.hasNext()) {
                 function.set( (Point2D)((Point2D)it.next()).clone() );

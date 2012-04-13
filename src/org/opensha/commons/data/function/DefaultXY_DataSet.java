@@ -133,11 +133,6 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public Iterator<Point2D> getPointsIterator() {
-		return points.iterator();
-	}
-
-	@Override
 	public double getX(int index) {
 		return get(index).getX();
 	}
@@ -191,7 +186,7 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	 */
 	public String toString(){
 		StringBuffer b = new StringBuffer();
-		//Iterator it2 = this.getPointsIterator();
+		//Iterator it2 = this.iterator();
 
 		b.append("Name: " + getName() + '\n');
 		b.append("Num Points: " + getNum() + '\n');
@@ -207,7 +202,7 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	 */
 	public String getMetadataString(){
 		StringBuffer b = new StringBuffer();
-		Iterator<Point2D> it2 = this.getPointsIterator();
+		Iterator<Point2D> it2 = this.iterator();
 
 		while(it2.hasNext()){
 

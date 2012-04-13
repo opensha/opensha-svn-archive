@@ -300,7 +300,7 @@ public class Utils {
 		}
 		try {
 			double Pclip = Utils.gaussProbExceed(mean, sigma, clip);
-			Iterator<Point2D> it = imls.getPointsIterator();
+			Iterator<Point2D> it = imls.iterator();
 			while (it.hasNext()) {
 				Point2D point = it.next();
 				double x = point.getX();

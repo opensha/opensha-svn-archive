@@ -1,6 +1,7 @@
 package scratch.martinez;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -49,7 +50,7 @@ public class LossCurveCalculator {
 		double[] dfs = curVulnModel.getDEMDFVals();
 		
 		// Get the probabilities of exceedance (hazard curve)...
-		ListIterator<Double> iter = hazFunc.getYValuesIterator();
+		Iterator<Double> iter = hazFunc.getYValuesIterator();
 		ArrayList<Double> pelist = new ArrayList<Double>();
 		while(iter.hasNext())
 			pelist.add((Double) iter.next());
