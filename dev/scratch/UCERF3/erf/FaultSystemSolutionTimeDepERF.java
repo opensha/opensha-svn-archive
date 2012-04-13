@@ -1684,7 +1684,7 @@ numSpontEvents=0;
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", dirName+"hypoMap.pdf", null, simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 		}
-		ETAS_SimAnalysisTools.plotMagFreqDists("", null, simulatedRupsQueue);
+		ETAS_SimAnalysisTools.plotMagFreqDists("", dirName+"aftMFD.pdf", simulatedRupsQueue);
 		
 		
 		

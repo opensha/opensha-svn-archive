@@ -503,7 +503,7 @@ public class ETAS_SimAnalysisTools {
 //			distDecayFuncs.add(obsLogDistDecayFromMainShockHist);			
 		}
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(distDecayFuncs, "Distance Decay for Aftershocks; "+info); 
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(distDecayFuncs, "Distance Decay for Aftershocks"+info); 
 		graph.setX_AxisLabel("Log10-Distance (km)");
 		graph.setY_AxisLabel("Fraction of Aftershocks");
 		graph.setX_AxisRange(histLogMin, histLogMax);
@@ -637,7 +637,7 @@ public class ETAS_SimAnalysisTools {
 		funcs.add(firstGenEvents);
 		funcs.add(targetFunc);
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Num aftershocks for "+info); 
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Temporal Aftershock Decay"); 
 		graph.setX_AxisLabel("Log-day");
 		graph.setY_AxisLabel("Num Events");
 		graph.setX_AxisRange(firstLogDay, lastLocDay);
