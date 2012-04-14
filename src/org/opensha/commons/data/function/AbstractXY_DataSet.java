@@ -55,6 +55,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 		return yAxisName;
 	}
 	
+	@Override
 	public double getClosestX(double y) {
 		double x = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;
@@ -69,6 +70,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 		return x;
 	}
 
+	@Override
 	public double getClosestY(double x) {
 		double y = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;

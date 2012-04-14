@@ -226,10 +226,20 @@ implements Serializable {
 
 
 	/** Returns the x value of a point given the index */
-	public double getX(int index){ return get(index).getX(); }
+	public double getX(int index){
+		Point2D pt = get(index);
+		if (pt == null)
+			throw new IndexOutOfBoundsException("no point at index "+index);
+		return pt.getX();
+	}
 
 	/** Returns the y value of a point given the index */
-	public double getY(int index){ return get(index).getY(); }
+	public double getY(int index){
+		Point2D pt = get(index);
+		if (pt == null)
+			throw new IndexOutOfBoundsException("no point at index "+index);
+		return pt.getY();
+	}
 
 	/** returns the Y value given an x value - within tolerance, returns null if not found */
 	public double getY(double x){ return points.get( x ).getY(); }
@@ -238,7 +248,7 @@ implements Serializable {
 	/** returns the Y value given an x value - within tolerance, returns null if not found */
 	public int getIndex(Point2D point){ return points.indexOf( point ); }
 
-	/** Returns the x value of a point given the index */
+	/** Returns the x value of a point given the index or -1 if not found */
 	public int getXIndex(double x){ return points.indexOf( new Point2D.Double(x, 0.0 ) ); }
 
 
@@ -425,6 +435,9 @@ implements Serializable {
 			return getY(x);
 		//finds the X values within which the the given x value lies
 		int x1Ind = getXIndexBefore(x);
+		if (x1Ind == -1)
+			// this means that it matches at index 0
+			return getY(0);
 		int x2Ind = x1Ind+1;
 		Point2D pt1 = get(x1Ind);
 		Point2D pt2 = get(x2Ind);

@@ -49,14 +49,30 @@ public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<P
 	/* Point Accessors  */
 	/* ******************/
 
-	/** Returns the nth (x,y) point in the Function by index */
-	public Point2D get(int index) throws IndexOutOfBoundsException;
+	/** Returns the nth (x,y) point in the Function by index, or null if no such point exists */
+	public Point2D get(int index);
 
 	/** Returns the x-value given an index */
 	public double getX(int index) throws IndexOutOfBoundsException;
 
 	/** Returns the y-value given an index */
 	public double getY(int index) throws IndexOutOfBoundsException;
+	
+	/**
+	 * Get the Y value for the point with closest X
+	 * 
+	 * @param x
+	 * @return
+	 */
+	public double getClosestY(double x);
+
+	/**
+	 * Get the X value for the point with closest Y
+	 * 
+	 * @param y
+	 * @return
+	 */
+	public double getClosestX(double y);
 
 
 	/* ***************/

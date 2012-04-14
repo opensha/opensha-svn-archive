@@ -239,6 +239,8 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * into the y-points array.  The index is based along the x-axis.
 	 */
 	public Point2D get(int index){
+		if (index < 0 || index >= getNum())
+			return null;
 		return new Point2D.Double(getX(index), getY(index));
 	}
 
@@ -248,7 +250,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * The index is based along the x-axis.
 	 */
 	public double getX(int index){
-		if( index < 0 || index > ( num -1 ) ) return Double.NaN;
+		if( index < 0 || index > ( num -1 ) ) throw new IndexOutOfBoundsException("no point at index "+index);
 		else return ( minX + delta * index );
 	}
 
@@ -258,7 +260,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * The index is based along the x-axis.
 	 */
 	public double getY(int index){
-		if( index < 0 || index > ( num -1 ) ) return Double.NaN;
+		if( index < 0 || index > ( num -1 ) ) throw new IndexOutOfBoundsException("no point at index "+index);
 		return points[index];
 	}
 
@@ -275,13 +277,18 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * of one of the dicretized values.
 	 */
 	public int getXIndex( double x) throws Point2DException{
+		if (x < (minX-tolerance) || x > (maxX+tolerance))
+			return -1;
 		// single value functions with delta=0 causes problems
 		int i = (delta == 0) ? 0 : (int) Math.round((x-minX)/delta);
 		//int i = (int)Math.round((double)((x-minX)/delta));
-		if( withinTolerance(x, this.getX(i)))
+		double closeX = getX(i);
+		if( withinTolerance(x, closeX))
 			return i;
 		else
-			throw new Point2DException(C + ": set(): This point doesn't match a permitted x value (your x="+x+"; closest X="+getX(i)+"; tol="+tolerance+").");
+			return -1;
+//			throw new Point2DException(C + ": set(): This point doesn't match a permitted x value (your x="+x+"; closest X="
+//						+closeX+"; tol="+tolerance+"; diff="+Math.abs( x - closeX)+").");
 		/*
         // Steve's old approach:
 
@@ -346,8 +353,8 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * within the range of 0 to num -1
 	 */
 	public void set(int index, double y) throws Point2DException {
-		if( index < 0 || index > ( num -1 ) ) {
-			throw new Point2DException(C + ": set(): The specified index ("+index+") doesn't match this function domain.");
+		if( index < 0 || index >= num ) {
+			throw new IndexOutOfBoundsException(C + ": set(): The specified index ("+index+") doesn't match this function domain.");
 		}
 		points[index] = y;
 	}
@@ -769,6 +776,8 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	public boolean hasPoint(double x, double y){
 		try {
 			int index = getXIndex( x );
+			if (index < 0)
+				return false;
 			double yVal = this.getY(index);
 			if(Double.isNaN(yVal)|| yVal!=y) return false;
 			return true;

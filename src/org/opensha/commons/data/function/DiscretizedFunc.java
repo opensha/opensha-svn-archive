@@ -124,22 +124,6 @@ public interface DiscretizedFunc extends XY_DataSet {
 	 */
 	public double getFirstInterpolatedX_inLogXLogYDomain(double y);
 	
-	/**
-	 * Get the Y value for the point with closest X
-	 * 
-	 * @param x
-	 * @return
-	 */
-	public double getClosestY(double x);
-
-	/**
-	 * Get the X value for the point with closest Y
-	 * 
-	 * @param y
-	 * @return
-	 */
-	public double getClosestX(double y);
-	
 	/* ***************************/
 	/* Index Getters From Points */
 	/* ***************************/
@@ -164,5 +148,7 @@ public interface DiscretizedFunc extends XY_DataSet {
 	 * @param scale
 	 */
 	public void scale(double scale);
+	
+	public DiscretizedFunc deepClone();
 
 }
