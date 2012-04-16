@@ -33,6 +33,7 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import java.awt.Toolkit;
 import java.io.File;
@@ -240,8 +241,8 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 				gridSpacing, null, includeEqkRates);
 		
 		
-		System.out.println("Plotting expected MFD");
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(etas_PrimEventSampler.getExpectedMFD(mainShock), "Expected MFD for MainShock"); 
+//		System.out.println("Plotting expected MFD");
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(etas_PrimEventSampler.getExpectedMFD(mainShock), "Expected MFD for MainShock"); 
 
 		// Plot the map
 		System.out.println("Making sampler map");
@@ -259,22 +260,66 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 //		int indexOfMagThresh = offFaultPointMFD.getClosestXIndex(magThresh);
 //		System.out.println(magThresh+"\t"+indexOfMagThresh);
 //		System.out.println(offFaultPointMFD);
+		
+		
+		// compute expected and overlapping MFDs
+		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
+		SummedMagFreqDist rupsThatOverlapMFD = new SummedMagFreqDist(2.05, 8.95, 70);
+		double testFault =0, testFaultSame =0, testOffFault=0;
+		for(int s=0; s<srcTrigProb.length;s++) {
+			SummedMagFreqDist srcMFD = ERF_Calculator.getTotalMFD_ForSource(this.getSource(s), 1.0, 2.05, 8.95, 70, true);
+			srcMFD.normalizeByTotalRate();
+			srcMFD.scale(srcTrigProb[s]);
+			if(!Double.isNaN(srcMFD.getTotalIncrRate())) { // not sure why this is needed
+				magDist.addIncrementalMagFreqDist(srcMFD);
+				// test
+				if(s<numFaultSystemSources) {
+					testFault += srcMFD.getCumRate(magThresh);
+					if(rupsThatOverlap.contains(s)) {
+						testFaultSame += srcMFD.getCumRate(magThresh);
+					}
+				}
+				else {
+					testOffFault += srcMFD.getCumRate(magThresh);
+				}
+				
+				// end test
+				if(rupsThatOverlap.contains(s)) {
+					rupsThatOverlapMFD.addIncrementalMagFreqDist(srcMFD);
+				}
+			}
+		}
+		System.out.println("\ttestFault="+testFault+"\ttestFaultSame="+testFaultSame+"\ttestOffFault="+testOffFault
+				+"\ttestTotal="+(testOffFault+testFault));
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs.add(magDist.getCumRateDistWithOffset());
+		funcs.add(rupsThatOverlapMFD.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs, "Expected MFD for MainShock"); 
+
+
+		
 
 		System.out.println("computing probabilities");
 		double ptSrcProbAboveMagThresh = offFaultPointMFD.getCumRate(magThresh)/offFaultPointMFD.getTotalIncrRate();
+//		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(offFaultPointMFD.getCumRateDistWithOffset(), "Expected MFD for MainShock"); 
+
 //		System.out.println("offFaultPointMFD.getTotalIncrRate()="+offFaultPointMFD.getTotalIncrRate());
 //		System.out.println("offFaultPointMFD.getCumRate(indexOfMagThresh)="+offFaultPointMFD.getCumRate(magThresh));
-//		System.out.println("ptSrcProbAboveMagThresh="+ptSrcProbAboveMagThresh);
+		System.out.println("magThresh="+magThresh);
+		System.out.println("ptSrcProbAboveMagThresh="+ptSrcProbAboveMagThresh);
 
 		double sameEventProb = 0;
 		double totalLargeEventProb = 0;
 		double totalProb = 0;
+		double totalPtSrcLargeEventProb=0;
+		double totalLargeFaultProb=0;
 		for(int s=0; s<srcTrigProb.length; s++) {
 			totalProb += srcTrigProb[s];
 			if(s<numFaultSystemSources) {
 				if(getSource(s).getNumRuptures() != 1)  throw new RuntimeException("Problem");	// check to make sure there is only one rupture
 				if(getSource(s).getRupture(0).getMag() >= (magThresh-0.05)) {	// 0.05 is half the bin width
 					totalLargeEventProb += srcTrigProb[s];
+					totalLargeFaultProb += srcTrigProb[s];
 					if(rupsThatOverlap.contains(s)) {
 						sameEventProb += srcTrigProb[s];
 					}
@@ -282,13 +327,18 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 			}
 			else {
 				// these are all gridded sources
-				totalLargeEventProb += srcTrigProb[s]*ptSrcProbAboveMagThresh;
+				if(!locIndicesOnFault.contains(s-numFaultSystemSources)){	// make sure this is not a fault location (that would be double counting)
+					totalLargeEventProb += srcTrigProb[s]*ptSrcProbAboveMagThresh;
+					totalPtSrcLargeEventProb += srcTrigProb[s]*ptSrcProbAboveMagThresh;				
+				}
 			}
 		}
 		
 		System.out.println("totalProb="+(float)totalProb+"\t(should be ~1.0)");
 		System.out.println("totalLargeEventProb="+(float)totalLargeEventProb);
+		System.out.println("totalPtSrcLargeEventProb="+(float)totalPtSrcLargeEventProb);
 		System.out.println("sameEventProb="+(float)sameEventProb);
+		System.out.println("totalLargeFaultProb="+(float)totalLargeFaultProb);
 		System.out.println("(sameEventProb/totalLargeEventProb)="+(float)(sameEventProb/totalLargeEventProb));
 
 	}
@@ -332,14 +382,14 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 		// this applies elastic rebound reduction of probability
 //		erf.setRuptureOccurrence(sthSrc, 0);
-//		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, true, 6.15);
+		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, false, 6.15);
 		
 		
 		// this is for test simulations
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
-		obsEqkRuptureList.add(obsMainShock);
-		erf.setRuptureOccurrence(sthSrc, 0);
-		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,true, true, false,0.05);
+//		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+//		obsEqkRuptureList.add(obsMainShock);
+//		erf.setRuptureOccurrence(sthSrc, 0);
+//		erf.testETAS_Simulation(erf.getGriddedRegion(), obsEqkRuptureList,true, true, false,0.05);
 
 //		erf.testER_Simulation();
 //		runtime -= System.currentTimeMillis();
