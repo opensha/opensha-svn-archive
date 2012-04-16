@@ -4,11 +4,25 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Set;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.metadata.XMLSaveable;
 
+/**
+ * A wrapper for 2D double-valued data that provides access to data points via
+ * {@link Point2D}s.
+ * 
+ * <p><i>Note:</i> Use of the word 'Set' in this class does not imply adherence
+ * to the {@link Set} interface. An {@code XY_DataSet} may contain multiple
+ * identical points, although subclasses are free to provide alternate behavior.
+ * </p>
+ * 
+ * @author Kevin Milner
+ * @author Peter Powers
+ * @version $Id$
+ */
 public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<Point2D> {
 
 	/* ******************************/
