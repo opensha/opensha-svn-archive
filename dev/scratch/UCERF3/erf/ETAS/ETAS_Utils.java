@@ -311,6 +311,8 @@ public class ETAS_Utils {
 		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
 		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
 		
+		System.out.println(getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 3));
+		
 //		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(getDefaultNumWithTimeFunc(7.0, 0.5, 365d, 1), "Num aftershocks vs time");
 //		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(getDefaultNumWithLogTimeFunc(7.0, 0, 2.56, 0.0256), "Num aftershocks vs time");
 //		System.out.println("Double.MAX_VALUE="+Double.MAX_VALUE+"\t"+Double.MAX_VALUE/(1000*60*60*24*265.25));
