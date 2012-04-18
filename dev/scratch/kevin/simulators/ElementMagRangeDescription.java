@@ -9,6 +9,7 @@ import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * This is the simplest rupture identifier implementation - it defines a match as any rupture that includes
@@ -18,11 +19,15 @@ import com.google.common.base.Preconditions;
  */
 public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	
-	private int elementID;
+	private List<Integer> elementIDs;
 	private double minMag, maxMag;
 	
 	public ElementMagRangeDescription(int elementID, double minMag, double maxMag) {
-		this.elementID = elementID;
+		this(Lists.newArrayList(elementID), minMag, maxMag);
+	}
+	
+	public ElementMagRangeDescription(List<Integer> elementIDs, double minMag, double maxMag) {
+		this.elementIDs = elementIDs;
 		this.minMag = minMag;
 		this.maxMag = maxMag;
 	}
@@ -32,17 +37,34 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 		double mag = event.getMagnitude();
 		if (mag < minMag || mag >= maxMag)
 			return false;
-		if (!event.getAllElementIDs().contains(elementID))
-			return false;
+		for (int elementID : elementIDs)
+			if (!event.getAllElementIDs().contains(elementID))
+				return false;
 		return true;
 	}
 	
-	public int getElementID() {
-		return elementID;
+	public List<Integer> getElementIDs() {
+		return elementIDs;
 	}
 
 	public void setElementID(int elementID) {
-		this.elementID = elementID;
+		this.elementIDs = Lists.newArrayList(elementID);
+	}
+
+	public void addElementID(int elementID) {
+		this.elementIDs.add(elementID);
+	}
+	
+	public int removeElementID(int elementID) {
+		int ind = elementIDs.indexOf(elementID);
+		if (ind < 0)
+			return -1;
+		this.elementIDs.remove(ind);
+		return ind;
+	}
+
+	public void setElementID(List<Integer> elementIDs) {
+		this.elementIDs = elementIDs;
 	}
 
 	public double getMinMag() {
