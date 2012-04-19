@@ -36,7 +36,7 @@ public class FaultPolyMgr {
 	private SectionPolygons polys;
 	
 	
-	// Table<NodeIndex, SubSectionID, Value>
+	// Table<SubSectionID, NodeIndex, Value>
 	private Table<Integer, Integer, Double> sectInNodePartic;
 	// Table<SubSectionID, NodeIndex, Value>
 	private Table<Integer, Integer, Double> nodeInSectPartic;
@@ -62,23 +62,25 @@ public class FaultPolyMgr {
 	}
 	
 	/**
-	 * Returns a map of the percent area of a node occupied by each of the
-	 * sections that intersect it.
-	 * @param idx
-	 * @return
+	 * Returns a map of the indices of nodes that intersect the section at
+	 * {@code idx} where the values are the (weighted) fraction of the area of
+	 * the node occupied by the section.
+	 * @param idx section index
+	 * @return a map of section participation in nodes
 	 */
 	Map<Integer, Double> getSectFractions(int idx) {
-		return sectInNodePartic.column(idx);
+		return sectInNodePartic.row(idx);
 	}
 	
 	/**
-	 * Returns a map of the percent area of a section that is present in each
-	 * node it intersects.
-	 * @param idx
-	 * @return
+	 * Returns a map of the indices of nodes that intersect the section at
+	 * {@code idx} where the values are the fraction of the area of the section
+	 * occupied by each node. The values in the map sum to 1.
+	 * @param idx section index
+	 * @return a map of node participation in a section
 	 */
 	Map<Integer, Double> getNodeFractions(int idx) {
-		return nodeInSectPartic.column(idx);
+		return nodeInSectPartic.row(idx);
 	}
 
 	FaultPolyMgr(FaultSystemSolution fss) {
@@ -196,7 +198,7 @@ public class FaultPolyMgr {
 			double faultExtent = SectionPolygons.getExtent(nodeArea);
 			double ratio = faultExtent / nodeExtents.get(nodeIdx);
 			newNodeIdxs.add(nodeIdx);
-			sectInNodePartic.put(nodeIdx, ssIdx, ratio);
+			sectInNodePartic.put(ssIdx, nodeIdx, ratio);
 		}
 		return newNodeIdxs;
 	}
@@ -209,8 +211,8 @@ public class FaultPolyMgr {
 	private void initNodeInSectParticipTable() {
 		nodeInSectPartic = HashBasedTable.create();
 		for (Table.Cell<Integer, Integer, Double> cell : sectInNodePartic.cellSet()) {
-			int sectIdx = cell.getColumnKey();
-			int nodeIdx = cell.getRowKey();
+			int sectIdx = cell.getRowKey();
+			int nodeIdx = cell.getColumnKey();
 			double sectExtent = sectExtents.get(sectIdx);
 			double nodeExtent = nodeExtents.get(nodeIdx);
 			double sectPartic = cell.getValue();
@@ -264,8 +266,8 @@ public class FaultPolyMgr {
 	 */
 	private void updateParticipationTable() {
 		// sum of section participations in node
-		for (Integer nodeIdx : sectInNodePartic.rowKeySet()) {
-			Map<Integer, Double> sects = sectInNodePartic.row(nodeIdx);
+		for (Integer nodeIdx : sectInNodePartic.columnKeySet()) {
+			Map<Integer, Double> sects = sectInNodePartic.column(nodeIdx);
 			double totalPartic = sum(sects.values());
 			double nodePartic = nodeExtents.get(nodeIdx);
 			for (Integer sectIdx : sects.keySet()) {
@@ -288,7 +290,12 @@ public class FaultPolyMgr {
 	public static void main(String[] args) {
 		FaultPolyMgr mgr = new FaultPolyMgr(FaultModels.FM3_2, 7);
 		
+//		mgr.sectInNodePartic
+//		mgr.nodeInSectPartic
 		
+		for (Integer sectIdx : mgr.nodeInSectPartic.rowKeySet()) {
+			System.out.println(sum(mgr.nodeInSectPartic.row(sectIdx).values()));
+		}
 //		System.out.println(mgr.nodeInSectPartic);
 //		
 //		for (Integer sectIdx : mgr.nodeInSectPartic.rowKeySet()) {

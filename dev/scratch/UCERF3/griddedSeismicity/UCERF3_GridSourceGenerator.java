@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
@@ -44,7 +43,8 @@ public class UCERF3_GridSourceGenerator {
 	private IncrementalMagFreqDist realOffFaultMFD;	// this has the sub-seismo fault section rupture removed
 	
 	// the sub-seismogenic MFDs for those nodes that have them
-	private Map<Integer, SummedMagFreqDist> nodeMFDs;
+	private Map<Integer, SummedMagFreqDist> nodeSubSeisMFDs;
+	
 	// the sub-seismogenic MFDs for each section
 	private Map<Integer, IncrementalMagFreqDist> sectSubSeisMFDs;
 
@@ -138,6 +138,7 @@ public class UCERF3_GridSourceGenerator {
 	// 1
 	private void initSectionMFDs() {
 		sectSubSeisMFDs = Maps.newHashMap();
+		
 		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
 
 		for (FaultSectionPrefData sect : faults) {
@@ -148,7 +149,8 @@ public class UCERF3_GridSourceGenerator {
 				
 			if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
 				// scale by moment reduction
-				double reduction = fss.getSubseismogenicReducedMomentRate(idx);
+				double reduction = fss.getOrigMomentRate(idx) -
+					fss.getSubseismogenicReducedMomentRate(idx);
 				subSeisMFD.scaleToTotalMomentRate(reduction);
 			} else {
 				// scale by smoothed seis area
@@ -178,19 +180,19 @@ public class UCERF3_GridSourceGenerator {
 
 	// 2 6
 	private void initNodeMFDs() {
-		nodeMFDs = Maps.newHashMap();
+		nodeSubSeisMFDs = Maps.newHashMap();
 		for (FaultSectionPrefData sect : fss.getFaultSectionDataList()) {
 			int id = sect.getSectionId();
-			IncrementalMagFreqDist subSeisMFD = sectSubSeisMFDs.get(id);
+			IncrementalMagFreqDist sectSubSeisMFD = sectSubSeisMFDs.get(id);
 			Map<Integer, Double> nodeFractions = polyMgr.getNodeFractions(id);
 			for (Integer nodeIdx : nodeFractions.keySet()) {
-				SummedMagFreqDist nodeMFD = nodeMFDs.get(nodeIdx);
+				SummedMagFreqDist nodeMFD = nodeSubSeisMFDs.get(nodeIdx);
 				if (nodeMFD == null) {
 					nodeMFD = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
-					nodeMFDs.put(nodeIdx, nodeMFD);
+					nodeSubSeisMFDs.put(nodeIdx, nodeMFD);
 				}
 				double scale = nodeFractions.get(nodeIdx);
-				IncrementalMagFreqDist scaledMFD = subSeisMFD.deepClone();
+				IncrementalMagFreqDist scaledMFD = sectSubSeisMFD.deepClone();
 				scaledMFD.scale(scale);
 				nodeMFD.addIncrementalMagFreqDist(scaledMFD);
 			}
@@ -258,16 +260,25 @@ public class UCERF3_GridSourceGenerator {
 	public IncrementalMagFreqDist getSectSubSeisMFD(int idx) {
 		return sectSubSeisMFDs.get(idx);
 	}
+	
+	public IncrementalMagFreqDist getSectSubSeisMFD() {
+		SummedMagFreqDist sum = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
+		sum.setName("Sub-seismogenic MFD for all fault sections");
+		for (IncrementalMagFreqDist mfd : sectSubSeisMFDs.values()) {
+			sum.addIncrementalMagFreqDist(mfd);
+		}
+		return sum;
+	}
 
 	/**
 	 * This returns the MFD associated with a grid node.
 	 * @param idx
 	 * @return the MFD
 	 */
-	public IncrementalMagFreqDist getNodeTotalMFD(int idx) {
+	public IncrementalMagFreqDist getNodeMFD(int idx) {
 		SummedMagFreqDist sumMFD = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
 		
-		IncrementalMagFreqDist nodeIndMFD = getNodeIndependentMFD(idx);
+		IncrementalMagFreqDist nodeIndMFD = getNodeUnassociatedMFD(idx);
 		if (nodeIndMFD != null) 
 			sumMFD.addIncrementalMagFreqDist(nodeIndMFD);
 		
@@ -279,24 +290,38 @@ public class UCERF3_GridSourceGenerator {
 	}
 
 	/**
-	 * This returns the MFD associated with a grid node.
+	 * Returns the MFD associated with a grid node.
 	 * @param idx
 	 * @return the MFD
 	 */
-	public IncrementalMagFreqDist getNodeIndependentMFD(int idx) {
+	public IncrementalMagFreqDist getNodeUnassociatedMFD(int idx) {
 		IncrementalMagFreqDist mfd = realOffFaultMFD.deepClone();
 		mfd.scale(revisedSpatialPDF[idx]);
 		return mfd;
 	}
+	
+	public IncrementalMagFreqDist getNodeUnassociatedMFD() {
+		realOffFaultMFD.setName("Unassociated MFD for all nodes");
+		return realOffFaultMFD;
+	}
 
 	/**
-	 * This returns the sub-seismogenic MFD associated with a grid node, if any
+	 * Returns the sub-seismogenic MFD associated with a grid node, if any
 	 * exists.
 	 * @param idx
 	 * @return the MFD
 	 */
 	public IncrementalMagFreqDist getNodeSubSeisMFD(int idx) {
-		return nodeMFDs.get(idx);
+		return nodeSubSeisMFDs.get(idx);
+	}
+
+	public IncrementalMagFreqDist getNodeSubSeisMFD() {
+		SummedMagFreqDist sum = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
+		sum.setName("Sub-seismogenic MFD for all nodes");
+		for (IncrementalMagFreqDist mfd : nodeSubSeisMFDs.values()) {
+			sum.addIncrementalMagFreqDist(mfd);
+		}
+		return sum;
 	}
 
 	/**
@@ -321,7 +346,7 @@ public class UCERF3_GridSourceGenerator {
 	 * @return the source
 	 */
 	public ProbEqkSource getRandomStrikeSource(int idx, double duration) {
-		IncrementalMagFreqDist mfd = getNodeTotalMFD(idx);
+		IncrementalMagFreqDist mfd = getNodeMFD(idx);
 		Location loc = region.locationForIndex(idx);
 		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
@@ -336,7 +361,7 @@ public class UCERF3_GridSourceGenerator {
 	 * @return the source
 	 */
 	public ProbEqkSource getCrosshairSource(int idx, double duration) {
-		IncrementalMagFreqDist mfd = getNodeTotalMFD(idx);
+		IncrementalMagFreqDist mfd = getNodeMFD(idx);
 		Location loc = region.locationForIndex(idx);
 		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
