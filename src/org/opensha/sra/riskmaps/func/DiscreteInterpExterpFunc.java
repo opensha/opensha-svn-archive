@@ -1,7 +1,5 @@
 package org.opensha.sra.riskmaps.func;
 
-import gov.usgs.util.MathUtils;
-
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 
@@ -237,17 +235,17 @@ public class DiscreteInterpExterpFunc extends DiscreteFunction {
 	private double interpolate(double x1, double x2, double y1, double y2, 
 			double x) {
 		if (interpType == LINEAR_LINEAR) {
-			return MathUtils.linearInterp(x1, x2, y1, y2, x);
+			return linearInterp(x1, x2, y1, y2, x);
 		} else if (interpType == LINEAR_LOG) {
-			return Math.exp(MathUtils.linearInterp(x1, x2, Math.log(y1),
+			return Math.exp(linearInterp(x1, x2, Math.log(y1),
 					Math.log(y2), x
 				));
 		} else if (interpType == LOG_LINEAR) {
-			return MathUtils.linearInterp(Math.log(x1), Math.log(x2), y1, y2,
+			return linearInterp(Math.log(x1), Math.log(x2), y1, y2,
 					Math.log(x)
 				);
 		} else if (interpType == LOG_LOG) {
-			return Math.exp(MathUtils.linearInterp(Math.log(x1), Math.log(x2),
+			return Math.exp(linearInterp(Math.log(x1), Math.log(x2),
 					Math.log(y1), Math.log(y2), Math.log(x)
 				));
 		}
@@ -289,16 +287,16 @@ public class DiscreteInterpExterpFunc extends DiscreteFunction {
 			}
 		} else if (extrapType == EXTRAP_EXTEND) {
 			if (interpType == LINEAR_LINEAR) {
-				return MathUtils.linearExtrap(x1, x2, y1, y2, x);
+				return linearExtrap(x1, x2, y1, y2, x);
 			} else if (interpType == LOG_LINEAR) {
-				return MathUtils.linearExtrap(Math.log(x1), Math.log(x2), y1, y2,
+				return linearExtrap(Math.log(x1), Math.log(x2), y1, y2,
 						Math.log(x));
 			} else if (interpType == LINEAR_LOG) {
-				return Math.exp(MathUtils.linearExtrap(x1, x2, Math.log(y1),
+				return Math.exp(linearExtrap(x1, x2, Math.log(y1),
 						Math.log(y2), x)
 					);
 			} else if (interpType == LOG_LOG) {
-				return Math.exp(MathUtils.linearExtrap(Math.log(x1), Math.log(x2),
+				return Math.exp(linearExtrap(Math.log(x1), Math.log(x2),
 						Math.log(y1), Math.log(y2), Math.log(x))
 					);
 			}
@@ -338,4 +336,52 @@ public class DiscreteInterpExterpFunc extends DiscreteFunction {
 		
 		return new DiscreteInterpExterpFunc(xVals, yVals);
 	}
+	
+	
+	  private static double linearInterp(double paramDouble1, double paramDouble2, double paramDouble3, double paramDouble4, double paramDouble5)
+	  {
+	    if (paramDouble1 == paramDouble2)
+	    {
+	      IllegalArgumentException localIllegalArgumentException = new IllegalArgumentException("X1 and X1 were equal. Cannot interpolate these values.");
+	      localIllegalArgumentException.fillInStackTrace();
+	      throw localIllegalArgumentException;
+	    }
+	    return (paramDouble3 + (paramDouble5 - paramDouble1) / (paramDouble2 - paramDouble1) * (paramDouble4 - paramDouble3));
+	  }
+
+	  private static double linearExtrap(double paramDouble1, double paramDouble2, double paramDouble3, double paramDouble4, double paramDouble5)
+	  {
+	    if (paramDouble1 == paramDouble2)
+	    {
+	      IllegalArgumentException localIllegalArgumentException = new IllegalArgumentException("X1 and X1 were equal. Cannot extrapolate these values.");
+	      localIllegalArgumentException.fillInStackTrace();
+	      throw localIllegalArgumentException;
+	    }
+	    double d1 = (paramDouble4 - paramDouble3) / (paramDouble2 - paramDouble1);
+	    double d2 = paramDouble4 - (d1 * paramDouble2);
+	    return (d1 * paramDouble5 + d2);
+	  }
+
+	  private static double precisionFloor(double paramDouble1, double paramDouble2)
+	  {
+	    if (paramDouble1 < 0.0D)
+	      return (-1.0D * precisionCeil(Math.abs(paramDouble1), paramDouble2));
+	    int i = (int)(paramDouble1 / paramDouble2);
+	    double d = paramDouble1 - (paramDouble2 * i);
+	    if (d == 0.0D)
+	      return paramDouble1;
+	    return (paramDouble2 * i);
+	  }
+
+	  private static double precisionCeil(double paramDouble1, double paramDouble2)
+	  {
+	    if (paramDouble1 < 0.0D)
+	      return (-1.0D * precisionFloor(Math.abs(paramDouble1), paramDouble2));
+	    int i = (int)(paramDouble1 / paramDouble2);
+	    double d = paramDouble1 - (paramDouble2 * i);
+	    if (d == 0.0D)
+	      return paramDouble1;
+	    return (paramDouble2 * (i + 1));
+	  }
+
 }

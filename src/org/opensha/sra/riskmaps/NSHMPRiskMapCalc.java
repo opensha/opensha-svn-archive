@@ -1,6 +1,7 @@
 package org.opensha.sra.riskmaps;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
@@ -8,6 +9,8 @@ import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.util.ArrayUtils;
 import org.opensha.sra.calc.LossCurveCalculator;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
+
+import com.google.common.primitives.Doubles;
 
 public class NSHMPRiskMapCalc {
 	
@@ -41,7 +44,7 @@ public class NSHMPRiskMapCalc {
 		
 		ArbitrarilyDiscretizedFunc interpHazCurve = new ArbitrarilyDiscretizedFunc();
 		ArbitrarilyDiscretizedFunc interpFragCurve = new ArbitrarilyDiscretizedFunc();
-		double xVals[] = ArrayUtils.boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
+		double xVals[] = boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
 		for (double x : xVals) {
 			interpHazCurve.set(x, interpHazFunc.valueOf(x));
 			interpFragCurve.set(x, interpFragFunc.valueOf(x));
@@ -60,7 +63,7 @@ public class NSHMPRiskMapCalc {
 	
 	private double[] getXVals(DiscreteInterpExterpFunc hazCurve,
 			DiscreteInterpExterpFunc fragilityCurve) {
-		return ArrayUtils.boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
+		return boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
 	}
 	
 	private ArbitrarilyDiscretizedFunc interp(ArbitrarilyDiscretizedFunc func, double xvals[]) {
@@ -85,7 +88,7 @@ public class NSHMPRiskMapCalc {
 			DiscreteInterpExterpFunc fragilityCurve) {
 		long start = System.currentTimeMillis();
 		
-		double xVals[] = ArrayUtils.boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
+		double xVals[] = boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
 		double hazYVals[] = new double[xVals.length];
 		double fragYVals[] = new double[xVals.length];
 		for (int i=0; i<xVals.length; i++) {
@@ -107,7 +110,7 @@ public class NSHMPRiskMapCalc {
 		long start = System.currentTimeMillis();
 		ArbitrarilyDiscretizedFunc interpHazCurve = new ArbitrarilyDiscretizedFunc();
 		ArbitrarilyDiscretizedFunc interpFragCurve = new ArbitrarilyDiscretizedFunc();
-		double xVals[] = ArrayUtils.boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
+		double xVals[] = boundedMerge(hazCurve.getXVals(), fragilityCurve.getXVals());
 		for (double x : xVals) {
 			interpHazCurve.set(x, hazCurve.getInterpExterpY_inLogYDomain(x));
 			interpFragCurve.set(x, fragilityCurve.getInterpExterpY_inLogYDomain(x));
@@ -261,5 +264,81 @@ public class NSHMPRiskMapCalc {
 		
 		result.writeXYZBinFile(outputFile);
 	}
+	
+	
+	
+	// decompiled methods from old gov.usgs.util.ArrayUtils.java
+	
+	  private static double[] boundedMerge(double[] paramArrayOfDouble1, double[] paramArrayOfDouble2)
+	  {
+	    double d1 = Math.max(Doubles.min(paramArrayOfDouble1), Doubles.min(paramArrayOfDouble2));
+	    double d2 = Math.min(Doubles.max(paramArrayOfDouble1), Doubles.max(paramArrayOfDouble2));
+	    return merge(trim(paramArrayOfDouble1, d1, d2), trim(paramArrayOfDouble2, d1, d2));
+	  }
+	  
+	  private static double[] trim(double[] paramArrayOfDouble, double paramDouble1, double paramDouble2)
+	  {
+	    int i = 0;
+	    int j = paramArrayOfDouble.length;
+	    double[] arrayOfDouble = new double[j];
+	    for (int k = 0; k < j; ++k)
+	    {
+	      if ((paramArrayOfDouble[k] < paramDouble1) || (paramArrayOfDouble[k] > paramDouble2))
+	        continue;
+	      arrayOfDouble[(i++)] = paramArrayOfDouble[k];
+	    }
+	    return trim(arrayOfDouble, i);
+	  }
+
+	  private static double[] trim(double[] paramArrayOfDouble, int paramInt)
+	  {
+	    double[] arrayOfDouble = new double[paramInt];
+	    System.arraycopy(paramArrayOfDouble, 0, arrayOfDouble, 0, paramInt);
+	    return arrayOfDouble;
+	  }
+
+
+		private static double [] merge(double [] vals1, double [] vals2) {
+		int i = 0;
+		int len1 = vals1.length;
+		int len2 = vals2.length;
+		int maxlen = len1 + len2;
+		double [] allVals = new double[maxlen];
+		int idx = 0;
+
+		for (i = 0; i < len1; i++) {
+			boolean [] isNewVal = { true, true };
+			double [] curVal = {
+					vals1[i],
+					(len2 > i) ? vals2[i] : (0.0D / 0.0D)
+			};
+
+			for (int j = 0; (j < idx) && (isNewVal[0] || isNewVal[1]); j++) {
+				isNewVal[0] = ( (isNewVal[0]) && (allVals[i] != curVal[0]) );
+				isNewVal[1] = ( (isNewVal[1]) && (allVals[i] != curVal[1]) );
+			}
+
+			if (isNewVal[0]) { allVals[idx++] = curVal[0]; }
+			if (!isNewVal[1] || (curVal[0] == curVal[1])) { continue; }
+			allVals[idx++] = curVal[1];
+		}
+
+		for (i = len1; i < len2; i++) {
+			boolean isNewVal = true;
+			double curVal = vals2[i];
+
+			for (int i5 = 0; (i5 < idx) && isNewVal; ++i5) {
+				isNewVal = (isNewVal && (allVals[i] != curVal));
+			}
+			if (!isNewVal) { continue; }
+			allVals[(idx++)] = curVal;
+		}
+
+		double [] mergedVals = new double[idx];
+		System.arraycopy(allVals, 0, mergedVals, 0, idx);
+		Arrays.sort(mergedVals);
+		return mergedVals;
+	}
+
 
 }

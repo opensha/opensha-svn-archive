@@ -2,7 +2,6 @@ package org.opensha.sra.riskmaps.func;
 
 import java.util.Arrays;
 
-import gov.usgs.util.AssociativeSorter;
 
 /**
  * This class represents the mathematical idea of a discrete function. Discrete
@@ -54,7 +53,7 @@ public class DiscreteFunction implements FunctionAPI {
 		// changed so the same changes can be made to the yvals.
 
 		// Sort by xvals and re-order yvals to match.
-		AssociativeSorter.sort(xvals, yvals);
+		sort(xvals, yvals);
 
 		this.xvals = xvals;
 		this.yvals = yvals;
@@ -168,4 +167,56 @@ public class DiscreteFunction implements FunctionAPI {
 		s += Arrays.toString(yvals) + "\n";
 		return s;
 	}
+	
+	
+	// decompiled methods from old gov.usgs.util.AssociativeSorter.java
+	
+	  private static void sort(double[] paramArrayOfDouble1, double[] paramArrayOfDouble2)
+	  {
+	    if (paramArrayOfDouble1.length != paramArrayOfDouble2.length)
+	    {
+	      IllegalArgumentException localIllegalArgumentException = new IllegalArgumentException("Cannot associatively sort arrays of different lengths.");
+	      localIllegalArgumentException.fillInStackTrace();
+	      throw localIllegalArgumentException;
+	    }
+	    sort(paramArrayOfDouble1, 0, paramArrayOfDouble1.length - 1, paramArrayOfDouble2);
+	  }
+
+	  private static void sort(double[] paramArrayOfDouble1, int paramInt1, int paramInt2, double[] paramArrayOfDouble2)
+	  {
+	    int i = paramInt1;
+	    int j = paramInt2;
+	    if (paramInt2 - paramInt1 >= 1)
+	    {
+	      double d = paramArrayOfDouble1[paramInt1];
+	      while (j > i)
+	      {
+	        while ((paramArrayOfDouble1[i] <= d) && (i < paramInt2) && (j > i))
+	          ++i;
+	        while ((paramArrayOfDouble1[j] > d) && (j >= paramInt1) && (j >= i))
+	          --j;
+	        if (j <= i)
+	          continue;
+	        swap(paramArrayOfDouble1, i, j, paramArrayOfDouble2);
+	      }
+	      swap(paramArrayOfDouble1, paramInt1, j, paramArrayOfDouble2);
+	      sort(paramArrayOfDouble1, paramInt1, j - 1, paramArrayOfDouble2);
+	      sort(paramArrayOfDouble1, j + 1, paramInt2, paramArrayOfDouble2);
+	    }
+	    else
+	    {
+	      return;
+	    }
+	  }
+
+	  private static void swap(double[] paramArrayOfDouble1, int paramInt1, int paramInt2, double[] paramArrayOfDouble2)
+	  {
+	    double d = paramArrayOfDouble1[paramInt1];
+	    paramArrayOfDouble1[paramInt1] = paramArrayOfDouble1[paramInt2];
+	    paramArrayOfDouble1[paramInt2] = d;
+	    d = paramArrayOfDouble2[paramInt1];
+	    paramArrayOfDouble2[paramInt1] = paramArrayOfDouble2[paramInt2];
+	    paramArrayOfDouble2[paramInt2] = d;
+	  }
+
 }
