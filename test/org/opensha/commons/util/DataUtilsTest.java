@@ -19,21 +19,37 @@ public class DataUtilsTest {
 	private double[] dd = {-10, Double.NaN, 0.0, 10};
 	
 	@Test (expected = NullPointerException.class)
-	public final void testValidateArrayNPE() { validate(null, -10, 10); }
+	public final void testValidateArrayNPE() { validate(-10, 10, null); }
 
 	@Test (expected = IllegalArgumentException.class)
-	public final void testValidateArray1() { validate(dd, -9, 10); }
+	public final void testValidateArray1() { validate(-9, 10, dd); }
 
 	@Test (expected = IllegalArgumentException.class)
-	public final void testValidateArray2() { validate(dd, -10, 9); }
+	public final void testValidateArray2() { validate(-10, 9, dd); }
 	
 	
 	@Test (expected = IllegalArgumentException.class)
-	public final void testValidate1() { validate(-11, -10, 10); }
+	public final void testValidate0() { validate(-10, 10, 11); }
 
 	@Test (expected = IllegalArgumentException.class)
-	public final void testValidate2() { validate(11, -10, 10); }
+	public final void testValidate1() { validate(-10, 10, -11); }
+	
+	@Test (expected = IllegalArgumentException.class)
+	public final void testValidate2() { validate(-10, Double.NaN, -11); }
 
+	@Test (expected = IllegalArgumentException.class)
+	public final void testValidate3() { validate(Double.NaN, 10, 11); }
+
+	@Test (expected = IllegalArgumentException.class)
+	public final void testValidate7() { validate(10, -10, 0); }
+
+	@Test
+	public final void testValidate() throws IllegalArgumentException {
+		// should be able to get through these
+		validate(-1, 1, Double.NaN);
+		validate(Double.NaN, Double.NaN, 0);
+		validate(Double.NaN, Double.NaN, Double.NaN);
+	}
 	
 	@Test (expected = NullPointerException.class)
 	public final void testArraySelectNPE1() { arraySelect(null, new int[0]); }

@@ -38,20 +38,17 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
 /**
- * This class provides various data processing utilities.
+ * Utilities for operating on {@code double}-values data. This class: <ul>
+ * <li>should probably be enhanced to work with {@code Double}
+ * {@code Collection}s</li> <li>could be renamed to DoubleUtils or something
+ * funny like Dubbles</li> </p>
  * 
+ * <p>See {@link Doubles} and {@link StatUtils} to find minimum, maximum, sum,
+ * mean, product, etc... of {@code double} arrays as well as other
+ * properties</p>
  * 
- *  * Utilities for operating on {@code double}s and {@code double[]}s. This class
- * supplements functionality found in Google's Guava lib {@link Doubles}, and is
- * so named to avoid confusion and excess import strings.
- * 
- * <p>This class shoiuld probably be enhanced to work with {@code Double}
- * {@code Collection}s</p>
- * 
- * <p>See {@link Doubles#min(double...)} and {@link Doubles#max(double...)} to
- * find minimum and maximums of {@code double} arrays</p>
-
  * @author Peter Powers
+ * @author Kevin Milner
  * @version $Id$
  */
 public class DataUtils {
@@ -224,52 +221,57 @@ public class DataUtils {
 
 	
 	/**
-	 * Validates the domain of a <code>double</code> data set. Method verifies
-	 * that data values all fall within a specified minimum and maximum range
-	 * (inclusive). Empty arrays are ignored. If <code>min</code> is
-	 * <code>Double.NaN</code>, no lower limit is imposed; the same holds true
-	 * for <code>max</code>. <code>Double.NaN</code> values in <code>data</code>
+	 * Validates the domain of a {@code double} data set. Method verifies
+	 * that data values all fall between {@code min} and {@code max} range
+	 * (inclusive). Empty arrays are ignored. If {@code min} is
+	 * {@code Double.NaN}, no lower limit is imposed; the same holds true
+	 * for {@code max}. {@code Double.NaN} values in {@code array}
 	 * will validate.
 	 * 
-	 * @param data to validate
 	 * @param min minimum range value
 	 * @param max maximum range value
-	 * @throws NullPointerException if <code>data</code> is <code>null</code>
-	 * @throws IllegalArgumentException if any <code>data</code> value is out of
+	 * @param array to validate
+	 * @throws IllegalArgumentException if {@code min > max}
+	 * @throws IllegalArgumentException if any {@code array} value is out of
 	 *         range
 	 */
-	public final static void validate(double[] data, double min, double max)
-			throws IllegalArgumentException, NullPointerException {
-		checkNotNull(data, "Supplied data array is null");
-		double value;
-		for (int i = 0; i < data.length; i++) {
-			value = data[i];
-			if (value > max || value < min) {
-				throw new IllegalArgumentException("Data value (" + value
-					+ ") at position " + (i + 1) + " is out of range.");
-			}
+	public final static void validate(double min, double max, double... array) {
+		checkNotNull(array, "array");
+		for (int i = 0; i < array.length; i++) {
+			validate(min, max, array[i]);
 		}
 	}
 		
 	/**
-	 * Verifies that a <code>double</code> data value falls within a specified
-	 * minimum and maximum range (inclusive). If <code>min</code> is 
-	 * <code>Double.NaN</code>, no lower limit is imposed; the same holds true
-	 * for <code>max</code>. A value of <code>Double.NaN</code> will always
+	 * Verifies that a {@code double} data value falls within a specified
+	 * minimum and maximum range (inclusive). If {@code min} is 
+	 * {@code Double.NaN}, no lower limit is imposed; the same holds true
+	 * for {@code max}. A value of {@code Double.NaN} will always
 	 * validate.
 	 * 
-	 * @param value to check
 	 * @param min minimum range value
 	 * @param max minimum range value
+	 * @param value to check
+	 * @throws IllegalArgumentException if {@code min > max}
 	 * @throws IllegalArgumentException if value is out of range
 	 */
-	public final static void validate(double value, double min, double max) {
-		if (value > max || value < min) {
-			throw new IllegalArgumentException("Value (" + value
-				+ ") is out of range.");
-		}
+	public final static void validate(double min, double max, double value) {
+		boolean valNaN = Double.isNaN(value);
+		boolean minNaN = Double.isNaN(min);
+		boolean maxNaN = Double.isNaN(max);
+		boolean both = minNaN && maxNaN;
+		boolean neither = !(minNaN || maxNaN);
+		if (neither) checkArgument(min <= max, "min-max reversed");
+		boolean expression = valNaN || both ? true : minNaN
+			? value <= max : maxNaN ? value >= min : value >= min &&
+				value <= max;
+		checkArgument(expression, "value");
 	}
-
+	
+	public static void main(String[] args) {
+		System.out.println(4>Double.NaN);
+	}
+	
 	/**
 	 * Creates a new array from the values in a source array at the specified
 	 * indices. Returned array is of same type as source.
@@ -277,8 +279,8 @@ public class DataUtils {
 	 * @param array array source
 	 * @param indices index values of items to select
 	 * @return a new array of values at indices in source
-	 * @throws NullPointerException if <code>array</code> or
-	 *         <code>indices</code> are <code>null</code>
+	 * @throws NullPointerException if {@code array} or
+	 *         {@code indices} are {@code null}
 	 * @throws IllegalArgumentException if data object is not an array or if
 	 *         data array is empty
 	 * @throws IndexOutOfBoundsException if any indices are out of range
@@ -305,14 +307,14 @@ public class DataUtils {
 	}
 
 	/**
-	 * Sorts the supplied data array in place and returns an <code>int[]</code>
+	 * Sorts the supplied data array in place and returns an {@code int[]}
 	 * array of the original indices of the data values. For example, if the
 	 * supplied array is [3, 1, 8], the supplied array will be sorted to [1, 3,
 	 * 8] and the array [2, 1, 3] will be returned.
 	 * 
 	 * @param data array to sort
 	 * @return the inidices of the unsorted array values
-	 * @throws NullPointerException if source array is <code>null</code>
+	 * @throws NullPointerException if source array is {@code null}
 	 */
 	public static int[] indexAndSort(final double[] data) {
 		checkNotNull(data, "Source array is null");
@@ -334,9 +336,9 @@ public class DataUtils {
 
 
     /**
-     * Creates an array of random <code>double</code> values.
+     * Creates an array of random {@code double} values.
      * @param length of output array
-     * @return the array of random <code>double</code>s
+     * @return the array of random {@code double}s
      */
     public static double[] randomValues(int length) {
     	Random random = new Random();
@@ -357,22 +359,22 @@ public class DataUtils {
 	 * computed as the difference between the last values in adjacent bins. In
 	 * the case of the 1st bin, the supplied origin is taken as the "last value"
 	 * of the previous bin. Bin positions are set from the median value in each
-	 * bin. Note that the supplied <code>data</code> is not modified; this
+	 * bin. Note that the supplied {@code data} is not modified; this
 	 * method uses a copy internally. In most cases, data will be fairly
-	 * continuous in X, however, for small <code>size</code>s it's possible to
+	 * continuous in X, however, for small {@code size}s it's possible to
 	 * have bins of identical values such that corresponding bin value is
 	 * Infinity. Such values are not included in the resultant data set.
 	 * 
 	 * @param data to be binned
 	 * @param origin for binning
 	 * @param size of each bin
-	 * @return an <code>XY_DataSet</code> of the binned distribution or
-	 *         <code>null</code> if the binned distribution is empty
-	 * @throws NullPointerException if the supplied <code>data</code> is
-	 *         <code>null</code>
-	 * @throws IllegalArgumentException if supplied <code>data</code> is empty,
-	 *         the bin <code>size</code> is &lt;1, or the <code>origin</code> is
-	 *         greater than all <code>data</code> values
+	 * @return an {@code XY_DataSet} of the binned distribution or
+	 *         {@code null} if the binned distribution is empty
+	 * @throws NullPointerException if the supplied {@code data} is
+	 *         {@code null}
+	 * @throws IllegalArgumentException if supplied {@code data} is empty,
+	 *         the bin {@code size} is &lt;1, or the {@code origin} is
+	 *         greater than all {@code data} values
 	 */
 	public static DefaultXY_DataSet nearestNeighborHist(double[] data, double origin,
 			int size) {
@@ -410,58 +412,6 @@ public class DataUtils {
 		return (x.isEmpty()) ? null : new DefaultXY_DataSet(x, y);
 	}
 
-	/**
-	 * Returns the percent difference between two values.
-	 * TODO test,edit
-	 */
-//	public static double getPercentDiff2(double test, double target) {
-//		return Math.abs((test - target) / target) * 100.0;
-//
-//
-//		// double result = 0;
-//		// if (targetVal != 0)
-//		// result = (Math.abs(testVal - targetVal) / targetVal) * 100d;
-//		//
-//		// return result;
-//	}
-	
-//	public static double getPercentDiff(double testVal, double targetVal) {
-//		if (targetVal == 0){
-//			if (testVal == 0)
-//				return 0;
-//			else
-//				return Double.POSITIVE_INFINITY;
-//		}
-//		return (Math.abs(testVal - targetVal) / targetVal) * 100d;
-//	}
-	
-	
-// TODO clean
-	public static void main(String[] args) {
-//		System.out.println(getPercentDiff1(10,10) + " " + getPercentDiff2(10,10));
-//		System.out.println(getPercentDiff1(10.0000000000001,10) + " " + getPercentDiff2(10.0000000000001,10));
-//		System.out.println(getPercentDiff1(10,10.0000000000001) + " " + getPercentDiff2(10,10.0000000000001));
-//		System.out.println(getPercentDiff1(10,0) + " " + getPercentDiff2(10.0,0.0));
-//		System.out.println(getPercentDiff1(0,10) + " " + getPercentDiff2(0,10));
-//		System.out.println(getPercentDiff1(Double.NaN,10) + " " + getPercentDiff2(Double.NaN,10));
-//		System.out.println(getPercentDiff1(10,Double.NaN) + " " + getPercentDiff2(10,Double.NaN));
-//		
-//		double d1 = 10.0;
-//		double d2 = 0.0;
-//		try {
-//			double dd = Math.abs((d1 - d2) / d2) * 100.0;
-//			System.out.println(dd);
-//		} catch (ArithmeticException e) {
-//			System.out.println("hi");
-//			//return (test == 0.0) ? 0.0 : 100.0;
-//		}
-//		System.out.println(Math.abs((10d - 0d) / 0d) * 100.0);
-		
-		//getPercentDiff(0.)
-		
-		System.out.println(StatUtils.percentile(new double[]{5,3,3,5,3}, 50.0));
-	}
-	
 
 	// TODO test; instances should be replaced with statistical summaries
 	/**

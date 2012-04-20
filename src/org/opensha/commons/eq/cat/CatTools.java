@@ -31,7 +31,7 @@ public class CatTools {
 	 * @throws IllegalArgumentException if a data value is out of range
 	 */
 	public final static void validateMags(double[] mags) {
-		DataUtils.validate(mags, MAG_MIN, MAG_MAX);
+		DataUtils.validate(MAG_MIN, MAG_MAX, mags);
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class CatTools {
 	 * @throws IllegalArgumentException if data value is out of range
 	 */
 	public final static void validateMag(double mag) {
-		DataUtils.validate(mag, MAG_MIN, MAG_MAX);
+		DataUtils.validate(MAG_MIN, MAG_MAX, mag);
 	}
 
 	/**
