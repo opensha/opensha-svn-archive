@@ -6,7 +6,6 @@ import java.util.Arrays;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
-import org.opensha.commons.util.ArrayUtils;
 import org.opensha.sra.calc.LossCurveCalculator;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
 
