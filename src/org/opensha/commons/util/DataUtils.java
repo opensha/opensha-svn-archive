@@ -20,6 +20,7 @@
 package org.opensha.commons.util;
 
 import static com.google.common.base.Preconditions.*;
+import static org.opensha.commons.util.DataUtils.Direction.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -32,21 +33,196 @@ import java.util.Random;
 import org.apache.commons.math.stat.StatUtils;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 
+import com.google.common.base.Function;
+import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
 /**
  * This class provides various data processing utilities.
  * 
+ * 
+ *  * Utilities for operating on {@code double}s and {@code double[]}s. This class
+ * supplements functionality found in Google's Guava lib {@link Doubles}, and is
+ * so named to avoid confusion and excess import strings.
+ * 
+ * <p>This class shoiuld probably be enhanced to work with {@code Double}
+ * {@code Collection}s</p>
+ * 
+ * <p>See {@link Doubles#min(double...)} and {@link Doubles#max(double...)} to
+ * find minimum and maximums of {@code double} arrays</p>
+
  * @author Peter Powers
  * @version $Id$
  */
 public class DataUtils {
 
-    private static Random random;
-
-	// no instantiation
 	private DataUtils() {}
 
+	/*
+	 * Some quick tests of abs() and scale() using a non-Function based approach
+	 * and hence no autoboxing showed only marginal slowdown over a 10^8 sized
+	 * array of random values. If profiling shows that in practice the function
+	 * based approach of transforming arrays is slow, primitive implementations
+	 * may be substituted. See DubblesTest for speed test.
+	 * 
+	 * Similarly, boolean tests such as isSorted() could be short-circuited to
+	 * return at the first failure. However, there is more reusable code in the
+	 * current implementation that is easier to follow. Again, this will may be
+	 * changed if there is a demonstrable performance hit.
+	 * 
+	 * We could probably intern commonly used scale functions.
+	 */
+	
+	/**
+	 * Returns the difference between {@code test} and {@code target}, relative
+	 * to {@code target}, as a percent. If {@code target} is 0, method returns 0
+	 * if {@code test} is also 0, otherwise {@code Double.POSITIVE_INFINITY}. If
+	 * either value is {@code Double.NaN}, method returns {@code Double.NaN}.
+	 * @param test value
+	 * @param target value
+	 * @return the percent difference
+	 */
+	public static double getPercentDiff(double test, double target) {
+		if (Double.isNaN(target) || Double.isNaN(test)) return Double.NaN;
+		if (target == 0) return test == 0 ? 0 : Double.POSITIVE_INFINITY;
+		return Math.abs(test - target) / target * 100d;
+	}
+
+	@SuppressWarnings("javadoc")
+	public enum Direction {
+		ASCENDING,
+		DESCENDING;
+	}
+
+	/**
+	 * Returns whether the elements of the supplied {@code array} increase or
+	 * decrease monotonically, with a flag indicating if duplicate elements are
+	 * permitted. The {@code repeats} flag could be {@code false} if checking
+	 * the x-values of a function for any steps, or {@code true} if checking the
+	 * y-values of a cumulative distribution function, which are commonly
+	 * constant.
+	 * @param dir direction of monotonicity
+	 * @param repeats whether repeated adjacent elements are allowed
+	 * @param array to validate
+	 * @return {@code true} if monotonic, {@code false} otherwise
+	 */
+	public static boolean isMonotonic(Direction dir, boolean repeats,
+			double... array) {
+		checkNotNull(dir, "direction");
+		double[] diff = diff(array);
+		if (dir == DESCENDING) flip(diff);
+		double min = Doubles.min(diff);
+		return (repeats) ? min >= 0 : min > 0;
+	}
+
+	/**
+	 * Returns the difference of adjacent elements in the supplied {@code array}
+	 * . Method returns results in a new array that has {@code array.length - 1}
+	 * where differences are computed per {@code array[i+1] - array[i]}.
+	 * @param array to difference
+	 * @return the differences between adjacent values
+	 */
+	public static double[] diff(double... array) {
+		checkNotNull(array);
+		checkArgument(array.length > 1);
+		int size = array.length - 1;
+		double[] diff = new double[size];
+		for (int i = 0; i < size; i++) {
+			diff[i] = array[i + 1] - array[i];
+		}
+		return diff;
+	}
+
+	/**
+	 * Scales (multiplies) the elements of the supplied {@code array} in place
+	 * by {@code value}.
+	 * 
+	 * <p><b>Note:</b> This method does not check for over/underrun.</p>
+	 * @param array to scale
+	 * @param value to scale by
+	 * @return a reference to the supplied array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] scale(double value, double... array) {
+		return transform(new Scale(value), array);
+	}
+	
+	/**
+	 * Adds the {@code value} to the supplied {@code array} in place.
+	 * 
+	 * <p><b>Note:</b> This method does not check for over/underrun.</p>
+	 * @param array to add to
+	 * @param value to add
+	 * @return a reference to the supplied array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] add(double value, double... array) {
+		return transform(new Add(value), array);
+	}
+	
+	/**
+	 * Sets every element of the supplied {@code array} to its absolute value.
+	 * @param array to operate on
+	 * @return a reference to the array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] abs(double... array) {
+		return transform(ABS, array);
+	}
+	
+	/**
+	 * Flips the sign of every element in the supplied {@code array}.
+	 * @param array to operate on
+	 * @return a reference to the array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] flip(double... array) {
+		return transform(new Scale(-1), array);
+	}
+	
+	/**
+	 * Transforms the supplied {@code array} in place as per the supplied
+	 * {@code function}'s {@link Function#apply(Object)} method.
+	 * @param function to apply to array elements
+	 * @param array to operate on
+	 * @return a reference to the array
+	 * @throws NullPointerException if {@code array} or {@code function} are
+	 *         {@code null}
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	private static double[] transform(Function<Double, Double> function,
+			double... array) {
+		// checkNotNull(function, "function"); uncomment if public
+		checkNotNull(array, "array");
+		checkArgument(array.length > 0, "empty array");
+		for (int i = 0; i < array.length; i++) {
+			array[i] = function.apply(array[i]);
+		}
+		return array;
+	}	
+	
+	
+	// @formatter:off
+	
+	private static final Function<Double, Double> ABS = new Function<Double, Double>() {
+		@Override public Double apply(Double in) { return Math.abs(in); }
+	}; 
+	
+	private static class Scale implements Function<Double, Double> {
+		private final double scale;
+		private Scale(final double scale) { this.scale = scale; }
+		@Override public Double apply(Double d) { return d * scale; }
+	}
+
+	private static class Add implements Function<Double, Double> {
+		private final double term;
+		private Add(final double term) { this.term = term; }
+		@Override public Double apply(Double d) { return d + term; }
+	}
+	
+	// @formatter:on
+
+	
 	/**
 	 * Validates the domain of a <code>double</code> data set. Method verifies
 	 * that data values all fall within a specified minimum and maximum range
@@ -156,21 +332,19 @@ public class DataUtils {
 		return Ints.toArray(indices);
 	}
 
-	
+
     /**
-     * Creates an array of random <code>double</code> values. Method re-seeds
-     * the random generator with the current time on each call.
+     * Creates an array of random <code>double</code> values.
      * @param length of output array
      * @return the array of random <code>double</code>s
      */
     public static double[] randomValues(int length) {
-    	if (random == null) random = new Random();
-        double[] sequence = new double[length];
-        random.setSeed(System.currentTimeMillis());
+    	Random random = new Random();
+        double[] values = new double[length];
         for (int i=0; i<length; i++) {
-            sequence[i] = random.nextFloat();
+        	values[i] = random.nextDouble();
         }
-        return sequence;
+        return values;
     }
 
 	/**
@@ -251,15 +425,17 @@ public class DataUtils {
 //		// return result;
 //	}
 	
-	public static double getPercentDiff(double testVal, double targetVal) {
-		if (targetVal == 0){
-			if (testVal == 0)
-				return 0;
-			else
-				return Double.POSITIVE_INFINITY;
-		}
-		return (Math.abs(testVal - targetVal) / targetVal) * 100d;
-	}
+//	public static double getPercentDiff(double testVal, double targetVal) {
+//		if (targetVal == 0){
+//			if (testVal == 0)
+//				return 0;
+//			else
+//				return Double.POSITIVE_INFINITY;
+//		}
+//		return (Math.abs(testVal - targetVal) / targetVal) * 100d;
+//	}
+	
+	
 // TODO clean
 	public static void main(String[] args) {
 //		System.out.println(getPercentDiff1(10,10) + " " + getPercentDiff2(10,10));
@@ -287,7 +463,7 @@ public class DataUtils {
 	}
 	
 
-	// TODO test
+	// TODO test; instances should be replaced with statistical summaries
 	/**
 	 * Class for tracking the minimum and maximum values of a set of data.
 	 */
