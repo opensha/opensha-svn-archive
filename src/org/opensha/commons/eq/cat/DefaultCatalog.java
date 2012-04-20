@@ -414,6 +414,7 @@ public class DefaultCatalog implements Catalog {
 
 	/*
 	 * Duplicates the supplied array.
+	 * TODO this is not needed Arrays.copyOf(T[]) works
 	 */
 	private Object duplicateArray(Object data) {
 		int size = Array.getLength(data);
