@@ -63,7 +63,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.commons.util.DataUtil;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
 import org.opensha.nshmp.sha.gui.beans.ASCE7_GuiBean;
 import org.opensha.nshmp.sha.gui.beans.AnalysisOptionsGuiBeanAPI;
@@ -753,7 +753,7 @@ public class ProbabilisticHazardApplication
     }
 	 data += guiBeanAPI.getData();
 
-    DataUtil.save(fileName, data);
+    FileUtils.save(fileName, data);
   }
 
   /**
@@ -782,7 +782,7 @@ public class ProbabilisticHazardApplication
     if (pjob != null) {
       Graphics pg = pjob.getGraphics();
       if (pg != null) {
-        DataUtil.print(pjob, pg, data);
+        FileUtils.print(pjob, pg, data);
         pg.dispose();
       }
       pjob.end();

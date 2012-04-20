@@ -55,7 +55,6 @@ import javax.swing.event.HyperlinkListener;
 import org.jpedal.PdfDecoder;
 import org.opensha.commons.util.BrowserUtils;
 import org.opensha.commons.util.CustomFileFilter;
-import org.opensha.commons.util.DataUtil;
 import org.opensha.commons.util.FileUtils;
 
 import com.lowagie.text.Document;
@@ -348,7 +347,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
 	
 	public static void saveAsTXT(String outputFileName, String meanModeText,
 			String metadataText, String binDataText, String sourceDataText) {
-		DataUtil.save(outputFileName, getDisaggTest(meanModeText, metadataText, binDataText, sourceDataText));
+		FileUtils.save(outputFileName, getDisaggTest(meanModeText, metadataText, binDataText, sourceDataText));
 	}
 
 	public static void saveAsPDF(String disaggPDF_URL, String outputFileName, String meanModeText,

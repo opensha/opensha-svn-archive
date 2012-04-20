@@ -20,16 +20,23 @@
 package org.opensha.commons.util;
 
 
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.PrintGraphics;
+import java.awt.PrintJob;
 import java.awt.Toolkit;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +44,7 @@ import java.io.LineNumberReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -433,6 +441,88 @@ public class FileUtils {
 		in.close();
 		out.close();
 		System.out.println("DONE");
+	}
+
+	/**
+	 * Prints a Text file
+	 * @param pjob PrintJob  created using getToolkit().getPrintJob(JFrame,String,Properties);
+	 * @param pg Graphics
+	 * @param textToPrint String
+	 */
+	public static void print(PrintJob pjob, Graphics pg, String textToPrint) {
+	
+		int margin = 60;
+		
+		int pageNum = 1;
+		int linesForThisPage = 0;
+		int linesForThisJob = 0;
+		// Note: String is immutable so won't change while printing.
+		if (!(pg instanceof PrintGraphics)) {
+			throw new IllegalArgumentException ("Graphics context not PrintGraphics");
+		}
+		StringReader sr = new StringReader (textToPrint);
+		LineNumberReader lnr = new LineNumberReader (sr);
+		String nextLine;
+		int pageHeight = pjob.getPageDimension().height - margin;
+		Font helv = new Font("Monaco", Font.PLAIN, 12);
+		//have to set the font to get any output
+		pg.setFont (helv);
+		FontMetrics fm = pg.getFontMetrics(helv);
+		int fontHeight = fm.getHeight();
+		int fontDescent = fm.getDescent();
+		int curHeight = margin;
+		try {
+			do {
+				nextLine = lnr.readLine();
+				if (nextLine != null) {
+					if ((curHeight + fontHeight) > pageHeight) {
+						// New Page
+						if (linesForThisPage == 0)
+							break;
+	
+						pageNum++;
+						linesForThisPage = 0;
+						pg.dispose();
+						pg = pjob.getGraphics();
+						if (pg != null) {
+							pg.setFont (helv);
+						}
+						curHeight = 0;
+					}
+					curHeight += fontHeight;
+					if (pg != null) {
+						pg.drawString (nextLine, margin, curHeight - fontDescent);
+						linesForThisPage++;
+	
+						linesForThisJob++;
+					}
+				}
+			} while (nextLine != null);
+		} catch (EOFException eof) {
+			// Fine, ignore
+		} catch (Throwable t) { // Anything else
+			t.printStackTrace();
+		}
+	}
+
+	/**
+	 * Saves the text to a file on the users machine.
+	 * File is saved with extension ".txt".
+	 * @param panel Component
+	 * @param dataToSave String
+	 */
+	public static void save(String fileName, String dataToSave) {
+	
+		try {
+			FileWriter fw = new FileWriter(fileName);
+			fw.write(dataToSave);
+			fw.close();
+		}
+		catch (IOException e) {
+			//JOptionPane.showMessageDialog(panel, "Error creating file", "Error",
+			//                            JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
 	}
 
 }

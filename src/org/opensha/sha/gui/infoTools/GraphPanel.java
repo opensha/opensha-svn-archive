@@ -65,7 +65,7 @@ import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.util.CustomFileFilter;
-import org.opensha.commons.util.DataUtil;
+import org.opensha.commons.util.FileUtils;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -867,7 +867,7 @@ public class GraphPanel extends JSplitPane {
 			} else if (ext.equals(".png")) {
 				saveAsPNG(fileName);
 			} else if (ext.equals(".txt")) {
-				DataUtil.save(fileName, dataTextArea.getText());
+				FileUtils.save(fileName, dataTextArea.getText());
 			} else {
 				throw new RuntimeException("Unknown extension selected: "+ext);
 			}
