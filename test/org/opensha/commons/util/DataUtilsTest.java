@@ -260,6 +260,53 @@ public class DataUtilsTest {
 		assertEquals(Double.NaN, DataUtils.getPercentDiff(0, Double.NaN), 0.0);
 	}
 	
+	private static final double SEQ_TOL = 0.000000000001;
+	
+	@Test
+	public final void testCreateSequence() {
+		double[] expectUp = {1, 1.7, 2.4, 3.1, 3.8, 4.5, 5};
+		double[] resultUp = DataUtils.buildSequence(1, 5, 0.7, Direction.ASCENDING);
+		assertArrayEquals(expectUp, resultUp, SEQ_TOL);
+		
+		double[] expectDn = {5, 4.3, 3.6, 2.9, 2.2, 1.5, 1};
+		double[] resultDn = DataUtils.buildSequence(1, 5, 0.7, Direction.DESCENDING);
+		assertArrayEquals(expectDn, resultDn, SEQ_TOL);
+		
+		double[] logExpUp = DataUtils.buildLogSequence(1, 1000, 10, ASCENDING);
+		double[] logResUp = {1, 10, 100, 1000};
+		assertArrayEquals(logExpUp, logResUp, SEQ_TOL);
+		
+		double[] logExpDn = DataUtils.buildLogSequence(1, 1000, 10, DESCENDING);
+		double[] logResDn = {1000, 100, 10, 1};
+		assertArrayEquals(logExpDn, logResDn, SEQ_TOL);
+		
+	}
+	
+	// the following tests a small number of argument options that should
+	// generate an IAE. These chould suffice for coverage as the myriad of
+	// combinations are coalesced into a single int value that will be out of
+	// range
+	@Test(expected=IllegalArgumentException.class)
+	public final void testCreateSequenceIAE0() {
+		DataUtils.buildSequence(1, Double.NaN, 0.7, Direction.ASCENDING);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testCreateSequenceIAE1() {
+		DataUtils.buildSequence(1, Double.POSITIVE_INFINITY, 0.7, Direction.ASCENDING);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testCreateSequenceIAE2() {
+		DataUtils.buildSequence(Double.NEGATIVE_INFINITY, 5, 0.7, Direction.ASCENDING);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testCreateSequenceIAE3() { //min > max
+		DataUtils.buildSequence(5, 1, 0.7, Direction.ASCENDING);
+	}
+	@Test(expected=IllegalArgumentException.class)
+	public final void testCreateSequenceIAE4() { //min = max
+		DataUtils.buildSequence(1,1,1,Direction.ASCENDING);
+	}
+	
 	
 	
 	

@@ -20,7 +20,9 @@
 package org.opensha.commons.util;
 
 import static com.google.common.base.Preconditions.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.opensha.commons.util.DataUtils.Direction.*;
+import static java.lang.Double.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import org.apache.commons.math.stat.StatUtils;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
@@ -80,8 +83,8 @@ public class DataUtils {
 	 * @return the percent difference
 	 */
 	public static double getPercentDiff(double test, double target) {
-		if (Double.isNaN(target) || Double.isNaN(test)) return Double.NaN;
-		if (target == 0) return test == 0 ? 0 : Double.POSITIVE_INFINITY;
+		if (isNaN(target) || isNaN(test)) return NaN;
+		if (target == 0) return test == 0 ? 0 : POSITIVE_INFINITY;
 		return Math.abs(test - target) / target * 100d;
 	}
 
@@ -129,6 +132,69 @@ public class DataUtils {
 		}
 		return diff;
 	}
+	
+	/**
+	 * Creates a sequence of values starting at {@code min} and ending at
+	 * {@code max}, the log of which are evenly spaced.
+	 * @param min sequence value
+	 * @param max sequence value
+	 * @param step sequence spacing
+	 * @param dir sequence direction ({@code min} to {@code max} or {@code max}
+	 *        to {@code min})
+	 * @return a monotonically increasing or decreasing sequence where the log
+	 *         of the values are evenly spaced
+	 * @throws IllegalArgumentException if {@code min >= max}, {@code step <= 0}
+	 *         , or any arguments are {@code Double.NaN},
+	 *         {@code Double.POSITIVE_INFINITY}, or
+	 *         {@code Double.NEGATIVE_INFINITY}
+	 * 
+	 */
+	public static double[] buildLogSequence(double min, double max,
+			double step, Direction dir) {
+		double[] seq = buildSequence(Math.log(min), Math.log(max),
+			Math.log(step), dir);
+		return exp(seq);
+	}
+
+	/**
+	 * Creates a sequence of evenly spaced values starting at {@code min} and
+	 * ending at {@code max}. If {@code (max - min) / step} is not integer
+	 * valued, the last step in the sequence will be {@code &lt;step}.
+	 * @param min sequence value
+	 * @param max sequence value
+	 * @param step sequence spacing
+	 * @param dir sequence direction ({@code min} to {@code max} or {@code max}
+	 *        to {@code min})
+	 * @return a monotonically increasing or decreasing sequence of values
+	 * @throws IllegalArgumentException if {@code min >= max}, {@code step <= 0}
+	 *         , or any arguments are {@code Double.NaN},
+	 *         {@code Double.POSITIVE_INFINITY}, or
+	 *         {@code Double.NEGATIVE_INFINITY}
+	 */
+	public static double[] buildSequence(double min, double max, double step,
+			Direction dir) {
+		// if passed in arguments are NaN, +Inf, or -Inf, and step <= 0,
+		// then capacity [c] will end up 0 because (int) NaN = 0, or outside the
+		// range 1:10000
+		int c = (int) Math.floor((max - min) / step);
+		checkArgument(c > 0 && c < MAX_SEQ_LEN, "sequence size");
+		checkArgument(min <= max, "min-max reversed");
+		if (dir == ASCENDING) return buildSequence(min, max, step, c + 2);
+		double[] descSeq = buildSequence(-max, -min, step, c + 2);
+		return flip(descSeq);
+	}
+
+	private static final int MAX_SEQ_LEN = 10001;
+
+	private static double[] buildSequence(double min, double max, double step,
+			int capacity) {
+		List<Double> seq = Lists.newArrayListWithCapacity(capacity);
+		for (double val = min; val < max; val += step) {
+			seq.add(val);
+		}
+		if (seq.get(seq.size() - 1) != max) seq.add(max);
+		return Doubles.toArray(seq);
+	}	
 
 	/**
 	 * Scales (multiplies) the elements of the supplied {@code array} in place
@@ -165,6 +231,17 @@ public class DataUtils {
 	 */
 	public static double[] abs(double... array) {
 		return transform(ABS, array);
+	}
+	
+	/**
+	 * Applies the exponential function to every element of the supplied 
+	 * {@code array}.
+	 * @param array to operate on
+	 * @return a reference to the array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] exp(double... array) {
+		return transform(EXP, array);
 	}
 	
 	/**
@@ -205,6 +282,10 @@ public class DataUtils {
 		@Override public Double apply(Double in) { return Math.abs(in); }
 	}; 
 	
+	private static final Function<Double, Double> EXP = new Function<Double, Double>() {
+		@Override public Double apply(Double in) { return Math.exp(in); }
+	}; 
+
 	private static class Scale implements Function<Double, Double> {
 		private final double scale;
 		private Scale(final double scale) { this.scale = scale; }
@@ -256,9 +337,9 @@ public class DataUtils {
 	 * @throws IllegalArgumentException if value is out of range
 	 */
 	public final static void validate(double min, double max, double value) {
-		boolean valNaN = Double.isNaN(value);
-		boolean minNaN = Double.isNaN(min);
-		boolean maxNaN = Double.isNaN(max);
+		boolean valNaN = isNaN(value);
+		boolean minNaN = isNaN(min);
+		boolean maxNaN = isNaN(max);
 		boolean both = minNaN && maxNaN;
 		boolean neither = !(minNaN || maxNaN);
 		if (neither) checkArgument(min <= max, "min-max reversed");
@@ -266,10 +347,6 @@ public class DataUtils {
 			? value <= max : maxNaN ? value >= min : value >= min &&
 				value <= max;
 		checkArgument(expression, "value");
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(4>Double.NaN);
 	}
 	
 	/**
