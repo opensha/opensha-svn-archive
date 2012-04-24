@@ -312,7 +312,7 @@ public class MeanUCERF2 extends AbstractERF {
 	 *
 	 * @return ArrayList of Prob Earthquake sources
 	 */
-	public ArrayList  getSourceList(){
+	public ArrayList<ProbEqkSource>  getSourceList(){
 		ArrayList sourceList = new ArrayList();
 		sourceList.addAll(allSources);
 		
