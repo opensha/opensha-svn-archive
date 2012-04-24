@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jpedal.utils.sleep;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
@@ -56,9 +57,17 @@ class Processor implements Runnable {
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		for (int i = 0; i < erfs.getNumERFs(); ++i) {
 			DiscretizedFunc f = per.getFunction();
-			ERF erf = erfs.getERF(i);
-			f = calc.getHazardCurve(f, site, imr, erf);
-			addResults(i, erf, f);
+			try {
+				ERF erf = erfs.getERF(i);
+				f = calc.getHazardCurve(f, site, imr, erf);
+				addResults(i, erf, f);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if (i % 20 == 0) {
+				System.out.println(imr.getShortName().substring(0, 2) + " "
+					+ loc.toString().substring(0, 2) + " " + i);
+			}
 		}
 		writeFiles();
 		System.out.println("Finished:");
@@ -72,7 +81,8 @@ class Processor implements Runnable {
 		for (int i=0; i<paramMap.size(); i++) paramDat.add(null);
 		for (Parameter<?> param : erf.getAdjustableParameterList()) {
 			int index = paramMap.get(param.getName());
-			paramDat.set(index, param.getValue().toString());
+			String paramVal = StringUtils.replace(param.getValue().toString(), ",", ";");
+			paramDat.set(index, paramVal);
 		}
 		paramData.add(paramDat);
 		// curve data
@@ -163,10 +173,10 @@ class Processor implements Runnable {
 	public static void main(String[] args) {
 //		buildParamHeaders();
 		
-		Processor p = new Processor(AttenRelRef.BA_2008.instance(null), null, 
-			TestLoc.ANDERSON_SPRINGS, Period.GM0P00);
-		p.init();
-		p.writeFiles();
+//		Processor p = new Processor(AttenRelRef.BA_2008.instance(null), null, 
+//			TestLoc.ANDERSON_SPRINGS, Period.GM0P00);
+//		p.init();
+//		p.writeFiles();
 	}
 		
 	private static void buildParamHeaders() {

@@ -46,9 +46,9 @@ import com.google.common.collect.Maps;
 
 class UcerfBranchGenerator implements PropertyChangeListener {
 
-	static final String OUT_DIR = "tmp/curve_gen/";
-	 private static AttenRelRef[] imrRefs = { CB_2008, BA_2008, CY_2008, AS_2008 };
-//	private static AttenRelRef[] imrRefs = { AS_2008 };
+	static final String OUT_DIR = "/Volumes/Scratch/scherbaum/PGA_03-09-2012/";
+	 private static AttenRelRef[] imrRefs = {CY_2008, AS_2008, CB_2008, BA_2008 };
+//	private static AttenRelRef[] imrRefs = { BA_2008 };
 	private static Period period = Period.GM0P00;
 	private List<Future<?>> futures;
 
@@ -63,7 +63,7 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 
 	private UcerfBranchGenerator() {
 		try {
-			int numProc = Runtime.getRuntime().availableProcessors() - 1;
+			int numProc = Runtime.getRuntime().availableProcessors();
 			ExecutorService ex = Executors.newFixedThreadPool(numProc);
 			futures = Lists.newArrayList();
 			for (AttenRelRef imrRef : imrRefs) {
@@ -72,12 +72,13 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 					EpistemicListERF erfs = newERF();
 					Processor proc = new Processor(imr, erfs, loc, period);
 					futures.add(ex.submit(proc));
+					
 					// proc.addPropertyChangeListener(this);
 					// proc.execute();
 				}
 			}
 			ex.shutdown();
-			ex.awaitTermination(12, TimeUnit.HOURS);
+			ex.awaitTermination(48, TimeUnit.HOURS);
 		} catch (InterruptedException ie) {
 			ie.printStackTrace();
 		}
