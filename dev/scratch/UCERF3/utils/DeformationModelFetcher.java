@@ -1142,9 +1142,9 @@ public class DeformationModelFetcher {
 		try {
 			File precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 			
-			FaultModels fm = FaultModels.FM2_1;
-			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.UCERF2_ALL, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
-			dm.writeFractParentSectionsWithNonZeroAsies();
+			FaultModels fm = FaultModels.FM3_1;
+			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+//			dm.writeFractParentSectionsWithNonZeroAsies();
 			
 			
 //			FaultModels fm = FaultModels.FM3_1;
@@ -1160,10 +1160,10 @@ public class DeformationModelFetcher {
 //			for (DeformationModels dm : DeformationModels.forFaultModel(fm))
 //				new DeformationModelFetcher(fm, dm, precomputedDataDir);
 			
-			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 2.1 Sections",
-					new SimpleDateFormat().format(new Date()));
-			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM2_1.fetchFaultSections(), metaData,
-					new File(precomputedDataDir, "fault_model_sections_"+FaultModels.FM2_1.name()+".txt").getAbsolutePath());
+//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 FM 2.1 Sections",
+//					new SimpleDateFormat().format(new Date()));
+//			FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM2_1.fetchFaultSections(), metaData,
+//					new File(precomputedDataDir, "fault_model_sections_"+FaultModels.FM2_1.name()+".txt").getAbsolutePath());
 			
 			
 //			new DeformationModelFetcher(DefModName.UCERF3_ZENG, precomputedDataDir);

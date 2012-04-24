@@ -1,6 +1,7 @@
 package scratch.UCERF3.enumTreeBranches;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
@@ -16,6 +17,7 @@ import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public enum FaultModels implements ShortNamed {
 
@@ -25,6 +27,7 @@ public enum FaultModels implements ShortNamed {
 	
 	public static final String XML_ELEMENT_NAME = "FaultModel";
 	public static final String FAULT_MODEL_STORE_PROPERTY_NAME = "FaultModelStore";
+	private static final String FAULT_MODEL_STORE_DIR_NAME = "FaultModels";
 	
 	private String modelName;
 	private int id;
@@ -85,15 +88,23 @@ public enum FaultModels implements ShortNamed {
 			throws MalformedURLException, DocumentException {
 		System.out.println("Loading fault model from: "+fmStoreFile.getAbsolutePath());
 		Document doc = XMLUtils.loadDocument(fmStoreFile);
+		return loadStoredFaultSections(doc);
+	}
+	
+	private static ArrayList<FaultSectionPrefData> loadStoredFaultSections(Document doc) {
 		Element root = doc.getRootElement();
 		return SimpleFaultSystemRupSet.fsDataFromXML(root.element("FaultModel"));
 	}
 	
 	public ArrayList<FaultSectionPrefData> fetchFaultSections() {
 		// this lets us load the FM from XML if we're on the cluster
+		
+		String fmFileName = getShortName()+".xml";
+		
+		// first see if the system property was set
 		String fmStoreProp = System.getProperty("FaultModelStore");
 		if (fmStoreProp != null) {
-			File fmStoreFile = new File(fmStoreProp, getShortName()+".xml");
+			File fmStoreFile = new File(fmStoreProp, fmFileName);
 			if (fmStoreFile.exists()) {
 				try {
 					return loadStoredFaultSections(fmStoreFile);
@@ -103,6 +114,18 @@ public enum FaultModels implements ShortNamed {
 				}
 			}
 		}
+		
+		// now see if they're cached in the project itself
+		try {
+			InputStream is = UCERF3_DataUtils.locateResourceAsStream(FAULT_MODEL_STORE_DIR_NAME, fmFileName);
+			System.out.println("Loading FM from cached file: "+fmFileName);
+			return loadStoredFaultSections(XMLUtils.loadDocument(is));
+		} catch (Exception e) {
+			// an exception is fine here - means that the data file doesn't exist. load directly from the database
+		}
+		
+		System.out.println("Loading FM from database: "+this);
+		// load directly from the database
 		DB_AccessAPI db = getDBAccess();
 		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
 		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
