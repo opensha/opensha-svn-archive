@@ -249,7 +249,7 @@ public class DeformationModelFileParser {
 			
 			for (int i=0; i<fileLocs.size()&&i<trace.size(); i++) {
 				double dist = LocationUtils.horzDistance(fileLocs.get(i), trace.get(i));
-				if (dist > 1) {
+				if (dist > 0.5) {
 					System.out.println(nameID+": trace location mismatch at index "+i+"/"+(fileLocs.size()-1));
 					mismatch = true;
 				}
@@ -476,13 +476,15 @@ public class DeformationModelFileParser {
 //			CSVFile<String> csv = CSVFile.readURL(url, true);
 			
 //			System.out.println("Fetching fault data");
-//			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
+			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
 //			System.out.println("Fetching fault model");
-//			ArrayList<Integer> fm = fm2db.getFaultSectionIdList(faultModelId);
-//			defFile = new File(dir, "neokinema_slip_rake_feb06.txt");
+			ArrayList<Integer> fm = fm2db.getFaultSectionIdList(faultModelId);
+			File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(),
+					"DeformationModels");
+			defFile = new File(dir, "geologic_slip_rake_2012_03_02.csv");
 //			System.out.println("Doing comparison: "+defFile.getName());
-//			HashMap<Integer, DeformationSection>  defs = load(defFile);
-//			compareAgainst(defs, datas, fm);
+			Map<Integer, DeformationSection>  defs = load(defFile);
+			compareAgainst(defs, datas, fm);
 //			System.out.println("");
 //			defFile = new File(dir, "ABM_slip_rake_feb06.txt");
 //			System.out.println("Doing comparison: "+defFile.getName());
