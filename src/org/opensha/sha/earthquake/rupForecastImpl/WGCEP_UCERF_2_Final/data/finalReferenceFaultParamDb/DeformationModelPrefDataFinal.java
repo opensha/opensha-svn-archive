@@ -49,11 +49,11 @@ public class DeformationModelPrefDataFinal implements Serializable {
 	private static final String XML_DATA_FILENAME = "DeformationModelPrefData.xml";
 	
 	// these will store the data for each deformation model
-	private static HashMap slipRateMap;
-	private static HashMap aseismicSlipMap;
-	private static HashMap stdDevMap;
-	private static HashMap faultSectionIdIndexMapMap; // a map of maps (the array index for each Id, for each def model)
-	private static HashMap<Integer, ArrayList<Integer>> faultSectionIdMap; // contains Array list of fault sections Ids for each def model
+	private HashMap slipRateMap;
+	private HashMap aseismicSlipMap;
+	private HashMap stdDevMap;
+	private HashMap faultSectionIdIndexMapMap; // a map of maps (the array index for each Id, for each def model)
+	private HashMap<Integer, ArrayList<Integer>> faultSectionIdMap; // contains Array list of fault sections Ids for each def model
 	
 	private PrefFaultSectionDataFinal prefFaultSectionDataFinal;
 	

@@ -82,7 +82,7 @@ class Nnls {
 	static int jz= 0;
 //	C 
 
-	public static void nnls (double [] a, int _a_offset,
+	public static synchronized void nnls (double [] a, int _a_offset,
 			int mdim,
 			int m,
 			int n,

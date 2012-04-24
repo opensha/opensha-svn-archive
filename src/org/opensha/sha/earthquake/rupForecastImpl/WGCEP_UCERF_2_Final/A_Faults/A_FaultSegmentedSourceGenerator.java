@@ -1,4 +1,5 @@
 /*******************************************************************************
+
  * Copyright 2009 OpenSHA.org in partnership with
  * the Southern California Earthquake Center (SCEC, http://www.scec.org)
  * at the University of Southern California and the UnitedStates Geological
@@ -136,7 +137,7 @@ public class A_FaultSegmentedSourceGenerator {
 	private MagAreaRelationship magAreaRel;
 	
 	// NNLS inversion solver - static to save time and memory
-	private static NNLSWrapper nnls = new NNLSWrapper();
+	private NNLSWrapper nnls = new NNLSWrapper();
 
 	// list of sources
 	private ArrayList<FaultRuptureSource> sourceList;
@@ -152,7 +153,7 @@ public class A_FaultSegmentedSourceGenerator {
 	private HashMap<Integer, Integer> rupSrcMapping; 
 	private HashMap<Integer, Integer> srcRupMapping; 
 
-	private static Somerville_2006_MagAreaRel somerville_magAreaRel = new Somerville_2006_MagAreaRel();
+	private Somerville_2006_MagAreaRel somerville_magAreaRel = new Somerville_2006_MagAreaRel();
 
 	/**
 	 * Description:
@@ -1679,7 +1680,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param d
 	 * @return
 	 */
-	private static double[] getNNLS_solution(double[][] C, double[] d) {
+	private double[] getNNLS_solution(double[][] C, double[] d) {
 
 		int nRow = C.length;
 		int nCol = C[0].length;
@@ -1793,7 +1794,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * 
 	 * @param num
 	 */
-	private static void testNNLS_SolutionLimits(int num) {
+	private void testNNLS_SolutionLimits(int num) {
 		// data vector
 		double [] d= new double[num];
 		d[0]=1;
@@ -1817,7 +1818,7 @@ public class A_FaultSegmentedSourceGenerator {
 		
 		
 	// TEST THE  LIMITS of NNLS SOLUTION	
-		testNNLS_SolutionLimits(5000);
+		//testNNLS_SolutionLimits(5000);
 		
 		
 // ******* THIS REPRODUCES THE 2-SEGMENT EXAMPLE IN WG02 APPENDIX G ***************

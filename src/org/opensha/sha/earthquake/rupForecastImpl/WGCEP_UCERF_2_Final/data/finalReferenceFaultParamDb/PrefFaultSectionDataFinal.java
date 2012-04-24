@@ -32,10 +32,10 @@ import org.opensha.sha.faultSurface.FaultTrace;
  *
  */
 public class PrefFaultSectionDataFinal implements Serializable {
-	private static ArrayList<FaultSectionPrefData> faultSectionsList;
-	private static ArrayList<FaultSectionPrefData> dbFaultSectionsList = new ArrayList<FaultSectionPrefData>();
-	private static HashMap indexForID_Map;
-	private static HashMap dbMap;
+	private  ArrayList<FaultSectionPrefData> faultSectionsList;
+	private  ArrayList<FaultSectionPrefData> dbFaultSectionsList = new ArrayList<FaultSectionPrefData>();
+	private  HashMap indexForID_Map;
+	private  HashMap dbMap;
 	
 	private static final String XML_DATA_FILENAME = "PrefFaultSectionData.xml";
 	
