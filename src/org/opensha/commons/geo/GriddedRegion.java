@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.math.util.MathUtils;
 import org.dom4j.Element;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
@@ -455,6 +456,23 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	}
 
 	/**
+	 * Returns the index of the node at the supplied <code>Direction</code> from
+	 * the node at the supplied index.
+	 * @param idx to move from
+	 * @param dir to move
+	 * @return index at <code>Direction</code> or -1 if no node exists
+	 * @throws NullPointerException if supplied index is not a valid grid index
+	 */
+	public int move(int idx, Direction dir) {
+		Location start = locationForIndex(idx);
+		checkNotNull(start, "Invalid start index");
+		Location end = new Location(start.getLatitude() + latSpacing *
+			dir.signLatMove(), start.getLongitude() + lonSpacing *
+			dir.signLonMove());
+		return indexForLocation(end);
+	}
+	
+	/**
 	 * Compares this <code>GriddedRegion</code> to another and returns
 	 * <code>true</code> if they are the same with respect to aerial extent
 	 * (both exterior and interior borders), grid node spacing, and location.
@@ -673,6 +691,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	 * @param index
 	 * @return
 	 */
+	// TODO not needed; only used 1 place
 	public Location getLocation(int index) {
 		return locationForIndex(index);
 	}
