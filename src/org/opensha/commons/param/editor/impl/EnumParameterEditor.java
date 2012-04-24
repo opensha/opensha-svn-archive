@@ -89,7 +89,7 @@ public class EnumParameterEditor<E extends Enum<E>> extends
 	protected JComponent buildWidget() {
 		widget = new JComboBox(new DefaultComboBoxModel(buildModel()));
 		widget.setModel(new DefaultComboBoxModel(buildModel()));
-		widget.setMaximumRowCount(32);
+		widget.setMaximumRowCount(40);
 		String nullOption = ((EnumParameter<E>) getParameter()).getNullOption();
 		E value = getParameter().getValue();
 		widget.setSelectedItem(value == null ? nullOption : value);

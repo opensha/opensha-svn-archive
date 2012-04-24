@@ -245,6 +245,10 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 	}
 
+	private static GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1,
+		1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+		new Insets(4, 4, 4, 4), 0, 0);
+
 	/**
 	 * VERY IMPORTANT setup function. This is where all the parameter editors
 	 * are dynamcally created based by parameter getType() function. It uses
@@ -267,11 +271,13 @@ public class ParameterListEditor extends LabeledBoxPanel {
 			ParameterEditor paramEdit = param.getEditor();
 			//paramEdit.setVisible(true);
 			if (paramEdit == null)
-				throw new RuntimeException("No parameter editor exists for type: " + param.getType() + " (" + param.getClass().getName() + ")");
+				throw new RuntimeException(
+					"No parameter editor exists for type: " + param.getType() +
+						" (" + param.getClass().getName() + ")");
 			parametersName.add(param.getName());
 			parameterEditors.add(paramEdit );
-			editorPanel.add(paramEdit.getComponent(), new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
-					, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 4, 4 ), 0, 0 ) );
+			gbc.gridy = counter;
+			editorPanel.add(paramEdit.getComponent(), gbc);
 			counter++;
 		}
 	}
