@@ -51,11 +51,12 @@ public class ETAS_PrimaryEventSamplerAlt {
 	// this is for each point in space
 	double[] latForPoint, lonForPoint, depthForPoint;
 	
-	// this will hold the rate of each ERF source
+	// this will hold the rate of each ERF source (which can be modified by external objects)
 	double sourceRates[];
 	
 	// this stores the rates of erf ruptures that go unassigned (outside the region here)
 	double rateUnassigned;
+	
 	double totRate;
 	
 	ArrayList<double[]> fractionSrcAtPointList;
@@ -71,7 +72,6 @@ public class ETAS_PrimaryEventSamplerAlt {
 	
 	boolean includeERF_Rates, includeSpatialDecay;
 	
-	// Make the ERF_RatesInSpace and ETAS_LocationWeightCalculator
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
 //	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
@@ -163,13 +163,6 @@ public class ETAS_PrimaryEventSamplerAlt {
 		this.includeERF_Rates=includeERF_Rates;
 		this.includeSpatialDecay=includeSpatialDecay;
 
-//		regSpacing = gridRegForRatesInSpace.getLatSpacing();
-//		// do some checks
-//		if(gridRegForRatesInSpace.getLonSpacing() != regSpacing)
-//			throw new RuntimeException("gridRegForRatesInSpace.getLonSpacing() must equal gridRegForRatesInSpace.getLatSpacing()");
-//		if(gridRegForParentLocs.getLonSpacing() != regSpacing)
-//			throw new RuntimeException("gridRegForParentLocs.getLonSpacing() must equal gridRegForRatesInSpace.getLatSpacing()");
-		
 		latForPoint = new double[numPointsForRates];
 		lonForPoint = new double[numPointsForRates];
 		depthForPoint = new double[numPointsForRates];
@@ -214,7 +207,7 @@ public class ETAS_PrimaryEventSamplerAlt {
 		progressBar.showProgress(true);
 	
 		if(D) System.out.println("Starting loop to populate fractionSrcAtPointList & srcAtPointList");
-boolean doneOne=false;
+// boolean doneOne=false;
 		for(int s=0;s<totNumSrc;s++) {
 			ProbEqkSource src = erf.getSource(s);
 			progressBar.updateProgress(s, totNumSrc);
@@ -226,12 +219,12 @@ boolean doneOne=false;
 				int numLocs = locsOnRupSurf.size();
 				for(Location loc: locsOnRupSurf) {
 					int regIndex = gridRegForRatesInSpace.indexForLocation(loc);
-if(!doneOne) {
-	System.out.println("fault loc: "+loc);
-	System.out.println("assoc reg loc: "+gridRegForRatesInSpace.getLocation(regIndex));
-	doneOne=true;
-	//System.exit(0);
-}
+//if(!doneOne) {
+//	System.out.println("fault loc: "+loc);
+//	System.out.println("assoc reg loc: "+gridRegForRatesInSpace.getLocation(regIndex));
+//	doneOne=true;
+//	//System.exit(0);
+//}
 					int depIndex = getDepthIndex(loc.getDepth());
 					if(regIndex != -1) {
 						int ptIndex = depIndex*numRegLocsForRatesInSpace+regIndex;

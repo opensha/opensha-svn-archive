@@ -311,7 +311,23 @@ public class ETAS_Utils {
 		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
 		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
 		
-		System.out.println(getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 3));
+//		System.out.println(getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 3));
+		EvenlyDiscretizedFunc cumDecayFunc1 = new EvenlyDiscretizedFunc(-3d,25,0.25);
+		EvenlyDiscretizedFunc cumDecayFunc2 = new EvenlyDiscretizedFunc(-3d,25,0.25);
+		EvenlyDiscretizedFunc cumDecayFunc3 = new EvenlyDiscretizedFunc(-3d,25,0.25);
+		for(int i=0;i<cumDecayFunc1.getNum();i++) {
+			double dist = Math.pow(10d, cumDecayFunc1.getX(i));
+			cumDecayFunc1.set(i,getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, dist));
+			cumDecayFunc2.set(i,getDecayFractionInsideDistance(1.8,0.63, dist));
+			cumDecayFunc2.set(i,getDecayFractionInsideDistance(5.4,10d, dist));
+		}
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs.add(cumDecayFunc1);
+		funcs.add(cumDecayFunc2);
+		funcs.add(cumDecayFunc3);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Probability of Aftershock Within Distance");
+
+		
 		
 //		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(getDefaultNumWithTimeFunc(7.0, 0.5, 365d, 1), "Num aftershocks vs time");
 //		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(getDefaultNumWithLogTimeFunc(7.0, 0, 2.56, 0.0256), "Num aftershocks vs time");

@@ -101,8 +101,8 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		// the following is the MFD for the fault (seismogenic and larger)
 		ArbIncrementalMagFreqDist faultGR = ((TestModel1_FSS)faultSysSolution).getFaultGR();
 		
-//		double offFaultSeisReductionFactor = 1;
-		double offFaultSeisReductionFactor = 10;
+		double offFaultSeisReductionFactor = 1;
+//		double offFaultSeisReductionFactor = 10;
 		int numPtsOnFault = pointLocsOnFault.size();
 		if(D) System.out.println("numPtsOnFault+"+numPtsOnFault);
 		onFaultPointMFD  = new ArbIncrementalMagFreqDist(2.55, 6.05, 36);
@@ -192,7 +192,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		try {
 				if (!GMT_DIR.exists())
 					GMT_DIR.mkdir();
-				String url = gmt_MapGenerator.makeMapUsingServlet(geoDataSet, scaleLabel, metadata, null);
+				String url = gmt_MapGenerator.makeMapUsingServlet(geoDataSet, scaleLabel, metadata, "TestModel1_ERF_"+minMag);
 				metadata += GMT_MapGuiBean.getClickHereHTML(gmt_MapGenerator.getGMTFilesWebAddress());
 				File downloadDir = new File(GMT_DIR, dirName);
 				if (!downloadDir.exists())
@@ -256,6 +256,8 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		System.out.println("getting rupsThatOverlap");
 		List<Integer> rupsThatOverlap = ((TestModel1_FSS)faultSysSolution).getRupsThatOverlapGivenRup(rthRup, 11);
+		
+		System.out.println("rupsThatOverlap.size()="+rupsThatOverlap.size());
 		
 //		int indexOfMagThresh = offFaultPointMFD.getClosestXIndex(magThresh);
 //		System.out.println(magThresh+"\t"+indexOfMagThresh);
@@ -382,7 +384,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 
 		// this applies elastic rebound reduction of probability
 //		erf.setRuptureOccurrence(sthSrc, 0);
-		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, true, 6.15);
+		erf.calcSelfTriggeringPob(erf.getGriddedRegion(), obsMainShock, sthSrc, false, 6.15);
 		
 		
 		// this is for test simulations

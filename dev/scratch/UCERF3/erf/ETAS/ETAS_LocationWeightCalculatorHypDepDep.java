@@ -10,6 +10,18 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 /**
+ * This class gives the probability of sampling a primary aftershock at a given latitude, longitude, and depth
+ * (each given relative to the source location).  This is achieved by creating a discretized quarter disk, where the
+ * the height of the disk is related to  seismogenic depth.  A quarter disk is can be used because of 
+ * symmetry.  This class honors the target distance day precisely, accounting for the transition between between 
+ * sub-seimogenic distances and supra-seismogenic distance (where the triggering volume value goes from a spherical shell
+ * close in to a cylindrical shell farther out); the sampling is consequently hypocenter dependent.
+ * 
+ * This utilizes a discretized volume with adaptive grid spacing.  For example, if lat/lon grid spacing is 0.02 (about 2 km), then the
+ * first cell (between latitude 0 and 0.02) is subdivided into 100 sub cells (0.02/100, or a spacing of ~20 meters). The next
+ * set of cells is discretized at ~0.1 km; etc.
+ * 
+ * 
  * This uses a faster, more approximate distance calculation 
  * (see getDistance(double relLat, double relLon, double relDep) here)
  * @author field
@@ -259,9 +271,9 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 	 * given location and based on the distance decay.  This first chooses among the
 	 * sub-locations at the given point, and then adds some additional randomness to
 	 * the sublocation.
-	 * @param relLat
-	 * @param relLon
-	 * @param relDep
+	 * @param relLat - target latitude relative to the source latitude
+	 * @param relLon - as above for longitude
+	 * @param relDep - as above for depth
 	 * @return
 	 */
 	public Location getRandomDeltaLoc(double relLat, double relLon, double relDep) {
@@ -353,11 +365,11 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 
 	
 	/**
-	 * This give the probability of an event at the given point, and for the 
+	 * This give the probability of sampling an event at the given point, and for the 
 	 * given main shock hypocenter depth
-	 * @param relLat
-	 * @param relLon
-	 * @param relDep
+	 * @param relLat - latitude relative to the source location (targetLat-sourceLat)
+	 * @param relLon - as above, but for longitude
+	 * @param relDep - as above, but for depth
 	 * @return
 	 */
 	public double getProbAtPoint(double relLat, double relLon, double relDep) {
