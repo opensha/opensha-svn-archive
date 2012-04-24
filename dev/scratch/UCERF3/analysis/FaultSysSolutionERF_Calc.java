@@ -60,17 +60,17 @@ public class FaultSysSolutionERF_Calc {
 //			erf.updateForecast();
 //			String fileName = "UCERF2";
 
-			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/Fig16_ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 //			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION);
 //			String fileName = "UCERF3_CHAR_DefMod_MoBal";
 //			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.SPATIAL);
 //			String fileName = "UCERF3_CHAR_DefMod_Seis";
-			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.UCERF3,SmallMagScaling.SPATIAL);
-			String fileName = "UCERF3_CHAR_U3smSeis_Seis";
+//			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.UCERF3,SmallMagScaling.SPATIAL);
+//			String fileName = "UCERF3_CHAR_U3smSeis_Seis";
 			
-//			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-//			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION);
-//			String fileName = "UCERF3_GR_DefMod_MoBal";
+			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/Fig16_ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.MO_REDUCTION);
+			String fileName = "UCERF3_GR_DefMod_MoBal";
 //			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.SPATIAL);
 //			String fileName = "UCERF3_GR_DefMod_Seis";
 //			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.UCERF3,SmallMagScaling.SPATIAL);
@@ -94,18 +94,18 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) {
 		
-//		makePrelimReportPartPlots();
+		makePrelimReportPartPlots();
 		
 		
-		File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-		SimpleFaultSystemSolution tmp = null;
-		try {
-			tmp =  SimpleFaultSystemSolution.fromFile(file);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println("numRups="+tmp.getNumRuptures());
-		System.out.println("numSect="+tmp.getNumSections());
+//		File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/Fig16_ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
+//		SimpleFaultSystemSolution tmp = null;
+//		try {
+//			tmp =  SimpleFaultSystemSolution.fromFile(file);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		System.out.println("numRups="+tmp.getNumRuptures());
+//		System.out.println("numSect="+tmp.getNumSections());
 
 
 	}
