@@ -46,6 +46,7 @@ public class InversionInputGenerator {
 	 * is enabled, the 2nd value of the following line is used to enable/disable.
 	 */
 	private static final boolean QUICK_GETS_SETS = !D || true;
+	private static final boolean aPrioriConstraintForZeroRates = false;  // If true, a Priori rup-rate constraint is applied to zero rates (eg, rups not in UCERF2)
 	
 	// inputs
 	private FaultSystemRupSet rupSet;
@@ -178,7 +179,10 @@ public class InversionInputGenerator {
 			double[] relativeRupRateConstraintWt = config.getA_PrioriRupConstraint();
 			int numRupRateRows = 0;
 			for (int i=0; i<numRuptures; i++) 
-				if (relativeRupRateConstraintWt[i]>0) 	numRupRateRows++;
+				if (!aPrioriConstraintForZeroRates) {
+					if (relativeRupRateConstraintWt[i]>0) 	numRupRateRows++;	}
+				else
+					numRupRateRows++;
 			if(D) System.out.println("Number of rupture-rate constraints: "+numRupRateRows);
 			numRows += numRupRateRows;
 			rangeEndRows.add(numRows-1);
@@ -383,7 +387,7 @@ public class InversionInputGenerator {
 			double[] aPrioriRupConstraint = config.getA_PrioriRupConstraint();
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
-				// Only apply if rupture-rate is greater than 0, this will keep ruptures on faults not in UCERF2 from being minimized
+				// If aPrioriConstrintforZeroRates=false, Only apply if rupture-rate is greater than 0, this will keep ruptures on faults not in UCERF2 from being minimized
 				if (aPrioriRupConstraint[rup]>0) { 
 					if (QUICK_GETS_SETS)
 						A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
@@ -392,6 +396,14 @@ public class InversionInputGenerator {
 					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
 					numNonZeroElements++; rowIndex++;
 				}
+				else if (aPrioriConstraintForZeroRates) {
+					if (QUICK_GETS_SETS)
+						A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
+					else
+						A.set(rowIndex,rup,relativeRupRateConstraintWt);
+					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
+					numNonZeroElements++; rowIndex++;
+				}	
 			}
 			if (D) {
 				System.out.println("Adding rupture-rate Constraints took "+getTimeStr(watch)+".");
