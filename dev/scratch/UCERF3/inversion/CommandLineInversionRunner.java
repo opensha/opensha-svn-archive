@@ -62,7 +62,8 @@ public class CommandLineInversionRunner {
 				"Off fault aseismicity factor"),
 		A_PRIORI_CONST_FOR_ZERO_RATES("apz", "a-priori-zero", "APrioriZero", false,
 				"Flag to apply a priori constraint to zero rate ruptures"),
-		A_PRIORI_CONST_WT("apwt", "a-priori-wt", "APrioriWt", true, "A priori constraint weight");
+		A_PRIORI_CONST_WT("apwt", "a-priori-wt", "APrioriWt", true, "A priori constraint weight"),
+		WATER_LEVEL_FRACT("wtlv", "waterlevel", "Waterlevel", true, "Waterlevel fraction");
 		
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -228,6 +229,12 @@ public class CommandLineInversionRunner {
 				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.argName));
 				System.out.println("Setting a priori constraint wt: "+wt);
 				config.setRelativeRupRateConstraintWt(wt);
+			}
+			
+			if (cmd.hasOption(InversionOptions.WATER_LEVEL_FRACT.argName)) {
+				double fract = Double.parseDouble(cmd.getOptionValue(InversionOptions.WATER_LEVEL_FRACT.argName));
+				System.out.println("Setting waterlevel fract: "+fract);
+				config.setMinimumRuptureRateFraction(fract);
 			}
 			
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getFaultModel(), rupSet);

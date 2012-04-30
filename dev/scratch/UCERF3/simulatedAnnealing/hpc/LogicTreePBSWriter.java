@@ -315,11 +315,13 @@ public class LogicTreePBSWriter {
 		List<CustomArg[]> variations = null;
 		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES, InversionOptions.A_PRIORI_CONST_WT };
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000")));
-		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
-		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
+		InversionOptions[] ops = { InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES, InversionOptions.A_PRIORI_CONST_WT,
+				InversionOptions.WATER_LEVEL_FRACT };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100", "0")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000", "0")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
