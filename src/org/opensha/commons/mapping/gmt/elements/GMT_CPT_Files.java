@@ -33,6 +33,7 @@ public enum GMT_CPT_Files {
 	GMT_JET("GMT_jet.cpt"),
 	GMT_NO_GREEN("GMT_no_green.cpt"),
 	GMT_OCEAN("GMT_ocean.cpt"),
+	GMT_OCEAN2("GMT_ocean2.cpt"),
 	GMT_PANOPLY("GMT_panoply.cpt"),
 	GMT_POLAR("GMT_polar.cpt"),
 //	GMT_RAINBOW("GMT_rainbow.cpt"),
