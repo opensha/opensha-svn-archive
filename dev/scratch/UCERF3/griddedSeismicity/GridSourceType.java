@@ -1,14 +1,13 @@
 package scratch.UCERF3.griddedSeismicity;
 
 /**
- * Add comments here
- *
+ * Grid source identifier.
  * 
  * @author Peter Powers
  * @version $Id:$
  */
+@SuppressWarnings("javadoc")
 public enum GridSourceType {
 	RANDOM,
 	CROSSHAIR
-
 }

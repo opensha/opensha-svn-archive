@@ -35,10 +35,8 @@ public class FaultPolyMgr {
 	
 	private SectionPolygons polys;
 	
-	
-	// Table<SubSectionID, NodeIndex, Value>
+	// both are Table<SubSectionID, NodeIndex, Value>
 	private Table<Integer, Integer, Double> sectInNodePartic;
-	// Table<SubSectionID, NodeIndex, Value>
 	private Table<Integer, Integer, Double> nodeInSectPartic;
 	
 	// utility collections

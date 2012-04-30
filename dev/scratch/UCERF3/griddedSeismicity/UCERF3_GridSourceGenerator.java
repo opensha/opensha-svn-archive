@@ -12,6 +12,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -40,7 +41,9 @@ public class UCERF3_GridSourceGenerator {
 	private double[] fracStrikeSlip,fracNormal,fracReverse;
 
 	private IncrementalMagFreqDist totalOffFaultMFD;
-	private IncrementalMagFreqDist realOffFaultMFD;	// this has the sub-seismo fault section rupture removed
+	
+	// this has the sub-seismo fault section rupture removed
+	private IncrementalMagFreqDist realOffFaultMFD;
 	
 	// the sub-seismogenic MFDs for those nodes that have them
 	private Map<Integer, SummedMagFreqDist> nodeSubSeisMFDs;
@@ -70,8 +73,9 @@ public class UCERF3_GridSourceGenerator {
 	 * 
 	 * @param fss FaultSystemSolution 
 	 * @param totalOffFaultMFD
-	 * @param spatialPDFsrc spatial PDF filename; defaults to KF if null
+	 * @param spatialPDF spatial PDF filename; defaults to KF if null
 	 * @param totalMgt5_Rate
+	 * @param scalingMethod method to use when scaling small magnitude MFDs 
 	 */
 	public UCERF3_GridSourceGenerator(
 			InversionFaultSystemSolution fss, 
@@ -253,14 +257,18 @@ public class UCERF3_GridSourceGenerator {
 	}
 	
 	/**
-	 * This returns the sub-seismogenic MFD associated with a section.
-	 * @param idx
+	 * Returns the sub-seismogenic MFD associated with a section.
+	 * @param idx node index
 	 * @return the MFD
 	 */
 	public IncrementalMagFreqDist getSectSubSeisMFD(int idx) {
 		return sectSubSeisMFDs.get(idx);
 	}
 	
+	/**
+	 * Returns the sum of the sub-seismogenic MFDs of all fault sub-sections.
+	 * @return the MFD
+	 */
 	public IncrementalMagFreqDist getSectSubSeisMFD() {
 		SummedMagFreqDist sum = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
 		sum.setName("Sub-seismogenic MFD for all fault sections");
@@ -271,9 +279,12 @@ public class UCERF3_GridSourceGenerator {
 	}
 
 	/**
-	 * This returns the MFD associated with a grid node.
-	 * @param idx
+	 * Returns the MFD associated with a grid node. This is the sum of any
+	 * unassociated and sub-seismogenic MFDs for the node.
+	 * @param idx node index
 	 * @return the MFD
+	 * @see UCERF3_GridSourceGenerator#getNodeUnassociatedMFD(int)
+	 * @see UCERF3_GridSourceGenerator#getNodeSubSeisMFD(int)
 	 */
 	public IncrementalMagFreqDist getNodeMFD(int idx) {
 		SummedMagFreqDist sumMFD = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
@@ -290,8 +301,8 @@ public class UCERF3_GridSourceGenerator {
 	}
 
 	/**
-	 * Returns the MFD associated with a grid node.
-	 * @param idx
+	 * Returns the unassociated MFD of a grid node.
+	 * @param idx node index
 	 * @return the MFD
 	 */
 	public IncrementalMagFreqDist getNodeUnassociatedMFD(int idx) {
@@ -300,6 +311,10 @@ public class UCERF3_GridSourceGenerator {
 		return mfd;
 	}
 	
+	/**
+	 * Returns the sum of the unassociated MFD of all nodes.
+	 * @return the MFD
+	 */
 	public IncrementalMagFreqDist getNodeUnassociatedMFD() {
 		realOffFaultMFD.setName("Unassociated MFD for all nodes");
 		return realOffFaultMFD;
@@ -308,13 +323,17 @@ public class UCERF3_GridSourceGenerator {
 	/**
 	 * Returns the sub-seismogenic MFD associated with a grid node, if any
 	 * exists.
-	 * @param idx
+	 * @param idx node index
 	 * @return the MFD
 	 */
 	public IncrementalMagFreqDist getNodeSubSeisMFD(int idx) {
 		return nodeSubSeisMFDs.get(idx);
 	}
-
+	
+	/**
+	 * Returns the sum of the sub-seismogenic MFD of all nodes. 
+	 * @return the MFD
+	 */
 	public IncrementalMagFreqDist getNodeSubSeisMFD() {
 		SummedMagFreqDist sum = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
 		sum.setName("Sub-seismogenic MFD for all nodes");
@@ -325,11 +344,30 @@ public class UCERF3_GridSourceGenerator {
 	}
 
 	/**
+	 * Returns the MFD associated with a grid node, implied by the
+	 * {@code spatialPDF} of seismicity and the {@code totalMgt5_Rate} supplied
+	 * at initialization.
+	 * @param inPoly {@code true} for MFD associated with fault polygons,
+	 *        {@code false} if unassociated part requested
+	 * @param idx node index
+	 * @return the MFD
+	 */
+	public IncrementalMagFreqDist getSpatialMFD(boolean inPoly, int idx) {
+		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(
+			mfdMin, mfdMax, mfdNum);
+		mfd.setAllButTotMoRate(mfdMin, mfdMax, totalMgt5_Rate, 0.8);
+		double frac = polyMgr.getNodeFraction(idx);
+		if (!inPoly) frac = 1 - frac;
+		mfd.scale(frac);
+		return mfd;
+	}
+	
+	/**
 	 * Returns the source of the requested type at the supplied index for a
 	 * forecast with a given duration.
-	 * @param type
-	 * @param idx
-	 * @param duration
+	 * @param type of source
+	 * @param idx node index
+	 * @param duration of forecast
 	 * @return the source
 	 */
 	public ProbEqkSource getSource(GridSourceType type, int idx, double duration) {
