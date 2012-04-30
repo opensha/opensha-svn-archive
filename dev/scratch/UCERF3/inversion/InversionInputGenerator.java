@@ -46,7 +46,7 @@ public class InversionInputGenerator {
 	 * is enabled, the 2nd value of the following line is used to enable/disable.
 	 */
 	private static final boolean QUICK_GETS_SETS = !D || true;
-	private static final boolean aPrioriConstraintForZeroRates = false;  // If true, a Priori rup-rate constraint is applied to zero rates (eg, rups not in UCERF2)
+	private boolean aPrioriConstraintForZeroRates = false;  // If true, a Priori rup-rate constraint is applied to zero rates (eg, rups not in UCERF2)
 	
 	// inputs
 	private FaultSystemRupSet rupSet;
@@ -877,6 +877,15 @@ public class InversionInputGenerator {
 
 	public List<String> getRangeNames() {
 		return rangeNames;
+	}
+
+	public boolean isAPrioriConstraintForZeroRates() {
+		return aPrioriConstraintForZeroRates;
+	}
+
+	public void setAPrioriConstraintForZeroRates(
+			boolean aPrioriConstraintForZeroRates) {
+		this.aPrioriConstraintForZeroRates = aPrioriConstraintForZeroRates;
 	}
 
 }

@@ -172,7 +172,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	/**
 	 * This computes the grid spacing wt-averaged by area
 	 */
-	public double getAveGridSpacing() {
+	public synchronized double getAveGridSpacing() {
 		if(aveGridSpacing == -1) {
 			aveGridSpacing = 0;
 			for(EvenlyGriddedSurface surf: surfaces) {
@@ -187,7 +187,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	/**
 	 * This sums the lengths of the given surfaces
 	 */
-	public double getAveLength() {
+	public synchronized double getAveLength() {
 		if(aveLength == -1) {
 			aveLength = 0;
 			for(EvenlyGriddedSurface surf: surfaces) {
@@ -201,7 +201,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	/**
 	 * This returns the area-wt-averaged rup-top depths of the given surfaces
 	 */
-	public double getAveRupTopDepth() {
+	public synchronized double getAveRupTopDepth() {
 		if(aveRupTopDepth == -1) {
 			aveRupTopDepth = 0;
 			for(EvenlyGriddedSurface surf: surfaces) {
@@ -224,7 +224,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	/**
 	 * This returns the area-wt-averaged width of the given surfaces
 	 */
-	public double getAveWidth() {
+	public synchronized double getAveWidth() {
 		if(aveWidth == -1) {
 			aveWidth = 0;
 			for(EvenlyGriddedSurface surf: surfaces) {

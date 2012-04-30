@@ -13,6 +13,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sra.gui.portfolioeal.Asset;
+import org.opensha.sra.gui.portfolioeal.CalculationExceptionHandler;
 
 import com.google.common.base.Preconditions;
 
@@ -23,12 +24,12 @@ public class ThreadedEALCalc {
 	private ScalarIMR[] imrs;
 	private Site[] sites;
 	
-	private MPJ_EAL_Calc mpj;
+	private CalculationExceptionHandler handler;
 	
 	private Deque<Asset> stack;
 	private double maxSourceDistance;
 	
-	public ThreadedEALCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs, MPJ_EAL_Calc mpj, double maxSourceDistance) {
+	public ThreadedEALCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs, CalculationExceptionHandler handler, double maxSourceDistance) {
 		Preconditions.checkNotNull(assets);
 		Preconditions.checkArgument(!assets.isEmpty());
 		Preconditions.checkNotNull(erfs);
@@ -46,7 +47,7 @@ public class ThreadedEALCalc {
 		this.assets = assets;
 		this.erfs = erfs;
 		this.imrs = imrs;
-		this.mpj = mpj;
+		this.handler = handler;
 		this.maxSourceDistance = maxSourceDistance;
 		
 		sites = new Site[imrs.length];
@@ -60,14 +61,16 @@ public class ThreadedEALCalc {
 		}
 	}
 	
-	public void calculateBatch(int[] batch) throws InterruptedException {
+	public double[] calculateBatch(int[] batch) throws InterruptedException {
 		ArrayDeque<Asset> deque = new ArrayDeque<Asset>();
 		for (int index : batch)
 			deque.add(assets.get(index));
 		calculateBatch(deque);
 		
-		for (int index : batch)
-			mpj.registerResult(index, assets.get(index).getAssetEAL());
+		double[] results = new double[batch.length];
+		for (int i=0; i<batch.length; i++)
+			results[i] = assets.get(batch[i]).getAssetEAL();
+		return results;
 	}
 	
 	private synchronized Asset popAsset() {
@@ -120,7 +123,7 @@ public class ThreadedEALCalc {
 			Asset asset = popAsset();
 			
 			while (asset != null) {
-				asset.calculateEAL(imr, maxSourceDistance, site, erf, mpj);
+				asset.calculateEAL(imr, maxSourceDistance, site, erf, handler);
 				
 //				System.out.println("Calculated EAL: "+asset.getAssetEAL());
 				

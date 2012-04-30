@@ -197,5 +197,9 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	public void setRangeNames(List<String> rangeNames) {
 		this.rangeNames = rangeNames;
 	}
+	
+	public CompletionCriteria getCriteria() {
+		return criteria;
+	}
 
 }

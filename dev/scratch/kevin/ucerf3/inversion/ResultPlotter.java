@@ -749,7 +749,12 @@ public class ResultPlotter {
 //		dsaDir = new File(mainDir, "2011_10_31-allcal-bench-sub-secs-test");
 //		dsaDir = new File(mainDir, "2012_02_22-model2-bench/8threads");
 //		dsaDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_02_27-unconstrained");
-		final File dsaDir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_04-threaded-bench/csvs/char");
+//		final File dsaDir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_04-threaded-bench/csvs/char");
+		final File dsaDir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_19-threaded-bench/csvs");
+		
+//		List<String> bundleKeys = null;
+		final List<String> bundleKeys = Lists.newArrayList("VarNormal", "VarKeepAsBest", "VarSingleThreadKeep",
+				"VarSingleThreadNoKeep", "VarSub5_1", "VarSub5_0.3", "VarSub10_1");
 		
 //		dsaDir = new File(mainDir, "agu/ncal_constrained");
 //		dsaDir = new File(mainDir, "agu/ncal_unconstrained");
@@ -808,7 +813,7 @@ public class ResultPlotter {
 				try {
 					generatePlots(tsaDir, dsaDir, highlight, coolType, threads, nodes,
 							includeStartSubZero, plotAvg, bundleDsaBySubs, bundleTsaBySubs,
-							avgNumX, targetPPM, true, plots, threadCPT);
+							avgNumX, targetPPM, true, plots, threadCPT, bundleKeys);
 				} catch (Exception e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
@@ -820,7 +825,7 @@ public class ResultPlotter {
 			String highlight, String coolType, int threads, int nodes,
 			boolean includeStartSubZero, boolean plotAvg,
 			boolean bundleDsaBySubs, boolean bundleTsaBySubs, int avgNumX, int targetPPM,
-			boolean visible, Collection<String> plots, CPT threadCPT)
+			boolean visible, Collection<String> plots, CPT threadCPT, List<String> bundleKeys)
 			throws IOException {
 		File[] tsaFiles;
 		if (tsaDir == null)
@@ -852,6 +857,7 @@ public class ResultPlotter {
 		HashMap<String, PlotCurveCharacterstics> runsChars = new HashMap<String, PlotCurveCharacterstics>();
 		
 		DiscretizedFunc refFunc = null;
+		CPT bundleCPT = null;
 		
 		for (File file : files) {
 			String name = file.getName();
@@ -995,6 +1001,24 @@ public class ResultPlotter {
 						size = 3f;
 					else if (name.contains("8threads"))
 						size = 4f;
+				} else if (bundleKeys != null && !bundleKeys.isEmpty()) {
+					if (bundleCPT == null) {
+						bundleCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+						bundleCPT = bundleCPT.rescale(0, bundleKeys.size()-1);
+//						bundleCPT = threadCPT.rescale(0, bundleKeys.size());
+						bundleCPT.setNanColor(Color.BLACK);
+					}
+					float val = Float.NaN;
+					for (int i=0; i<bundleKeys.size(); i++) {
+						String key = bundleKeys.get(i);
+						if (name.contains(key)) {
+							val = (float)i;
+							break;
+						}
+					}
+					System.out.println("VAL: "+val);
+					c = bundleCPT.getColor(val);
+					size = 1f;
 				} else {
 					if (threadCPT != null && name.contains("thread")) {
 						String sub = name.substring(0, name.indexOf("thread"));

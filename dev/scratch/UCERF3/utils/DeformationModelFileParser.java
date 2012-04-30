@@ -105,7 +105,7 @@ public class DeformationModelFileParser {
 		return ret;
 	}
 	
-	private static String getMinisectionString(int[] miniSection) {
+	public static String getMinisectionString(int[] miniSection) {
 		String str = miniSection[0]+".";
 		if (miniSection[1] < 10)
 			str += "0";

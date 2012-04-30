@@ -59,7 +59,10 @@ public class CommandLineInversionRunner {
 		MFD_CONSTRAINT_RELAX("relmfd", "relax-mfd", "RelaxMFD", false,
 				"Flag to reduce MFD constraint weights"),
 		OFF_FUALT_ASEIS("offaseis", "off-fault-aseis", "OffAseis", true,
-				"Off fault aseismicity factor");
+				"Off fault aseismicity factor"),
+		A_PRIORI_CONST_FOR_ZERO_RATES("apz", "a-priori-zero", "APrioriZero", false,
+				"Flag to apply a priori constraint to zero rate ruptures"),
+		A_PRIORI_CONST_WT("apwt", "a-priori-wt", "APrioriWt", true, "A priori constraint weight");
 		
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -221,6 +224,12 @@ public class CommandLineInversionRunner {
 					rupSet, offFaultAseisFactor, mfdConstraintModifier,
 					mfdEqualityConstraintWt, mfdInequalityConstraintWt);
 			
+			if (cmd.hasOption(InversionOptions.A_PRIORI_CONST_WT.argName)) {
+				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.argName));
+				System.out.println("Setting a priori constraint wt: "+wt);
+				config.setRelativeRupRateConstraintWt(wt);
+			}
+			
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getFaultModel(), rupSet);
 			
 			PaleoProbabilityModel paleoProbabilityModel =
@@ -228,6 +237,11 @@ public class CommandLineInversionRunner {
 			
 			InversionInputGenerator gen = new InversionInputGenerator(rupSet, config,
 					paleoRateConstraints, null, paleoProbabilityModel);
+			
+			if (cmd.hasOption(InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES.argName)) {
+				System.out.println("Setting a prior constraint for zero rates");
+				gen.setAPrioriConstraintForZeroRates(true);
+			}
 			
 			System.out.println("Building Inversion Inputs");
 			gen.generateInputs();

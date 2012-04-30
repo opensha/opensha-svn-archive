@@ -5,7 +5,9 @@ package scratch.UCERF3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.opensha.commons.calc.FaultMomentCalc;
@@ -20,6 +22,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 
@@ -53,12 +56,14 @@ public abstract class FaultSystemRupSet {
 	
 	public void clearCache() {
 		rupturesForSectionCache.clear();
+		rupturesForParentSectionCache.clear();
 		rupSectionSlipsCache.clear();
 		fractRupsInsideRegions.clear();
 	}
 	
 	public void copyCacheFrom(FaultSystemRupSet rupSet) {
 		rupturesForSectionCache = rupSet.rupturesForSectionCache;
+		rupturesForParentSectionCache = rupSet.rupturesForParentSectionCache;
 		rupSectionSlipsCache = rupSet.rupSectionSlipsCache;
 		fractRupsInsideRegions = rupSet.fractRupsInsideRegions;
 	}
@@ -627,6 +632,55 @@ public abstract class FaultSystemRupSet {
 		}
 		
 		return rupturesForSectionCache.get(secIndex);
+	}
+	
+	/**
+	 * this caches the ruptures involving each section
+	 */
+	private Map<Integer, ArrayList<Integer>> rupturesForParentSectionCache = null;
+	
+	/**
+	 * This returns the a list of all ruptures that occur on each parent section
+	 * @param secIndex
+	 * @return
+	 */
+	public final List<Integer> getRupturesForParentSection(int parentSectID) {
+		if (rupturesForParentSectionCache == null) {
+			synchronized (this) {
+				if (rupturesForParentSectionCache != null)
+					return rupturesForParentSectionCache.get(parentSectID);
+				CalcProgressBar p = null;
+				if (showProgress) {
+					p = new CalcProgressBar("Calculating Ruptures for each Parent Section", "Calculating Ruptures for each Parent Section");
+				}
+				// note this assumes that sections are in order
+				rupturesForParentSectionCache = Maps.newHashMap();
+
+				int numRups = getNumRuptures();
+				for (int rupID=0; rupID<numRups; rupID++) {
+					if (p != null) p.updateProgress(rupID, numRups);
+					HashSet<Integer> parents = new HashSet<Integer>();
+					for (int secID : getSectionsIndicesForRup(rupID)) {
+						int parent = getFaultSectionData(secID).getParentSectionId();
+						if (parent < 0)
+							continue;
+						if (!parents.contains(parent))
+							parents.add(parent);
+					}
+					for (int parent : parents) {
+						ArrayList<Integer> rupsForParent = rupturesForParentSectionCache.get(parent);
+						if (rupsForParent == null) {
+							rupsForParent = new ArrayList<Integer>();
+							rupturesForParentSectionCache.put(parent, rupsForParent);
+						}
+						rupsForParent.add(rupID);
+					}
+				}
+				if (p != null) p.dispose();
+			}
+		}
+		
+		return rupturesForParentSectionCache.get(parentSectID);
 	}
 	
 }

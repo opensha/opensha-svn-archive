@@ -117,7 +117,10 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 
 	@Override
 	protected void calculateBatch(int[] batch) throws Exception {
-		calc.calculateBatch(batch);
+		double[] results = calc.calculateBatch(batch);
+		
+		for (int i=0; i<batch.length; i++)
+			registerResult(batch[i], results[i]);
 	}
 	
 	protected synchronized void registerResult(int index, double eal) {

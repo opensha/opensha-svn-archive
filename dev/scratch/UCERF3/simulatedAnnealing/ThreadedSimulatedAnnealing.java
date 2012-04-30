@@ -44,6 +44,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.EnergyCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.VariableSubTimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.GenerationFunctionType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
@@ -279,9 +280,15 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		}
 		long perturbs = startPerturbs;
 		
+		if (subCompetionCriteria instanceof VariableSubTimeCompletionCriteria)
+			((VariableSubTimeCompletionCriteria)subCompetionCriteria).setGlobalCriteria(criteria);
+		
 		int rounds = 0;
 		long iter = startIter;
 		while (!criteria.isSatisfied(watch, iter, Ebest, perturbs)) {
+			if (subCompetionCriteria instanceof VariableSubTimeCompletionCriteria)
+				((VariableSubTimeCompletionCriteria)subCompetionCriteria).setGlobalState(watch, iter, Ebest, perturbs);
+			
 			if (checkPointCriteria != null &&
 					checkPointCriteria.isSatisfied(checkPointWatch, iter, Ebest, perturbs)) {
 				numCheckPoints++;
@@ -411,7 +418,8 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		Options ops = SerialSimulatedAnnealing.createOptions();
 		
 		Option subOption = new Option("s", "sub-completion", true, "number of sub iterations. Optionally, append 's'" +
-		" to specify in seconds or 'm' to specify in minutes instead of iterations.");
+		" to specify in seconds or 'm' to specify in minutes instead of iterations. You can also specify a range of times in the" +
+		" form 'time,time'.");
 		subOption.setRequired(true);
 		ops.addOption(subOption);
 		
@@ -523,6 +531,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			return ""+((IterationCompletionCriteria)subCompletion).getMinIterations();
 		else if (subCompletion instanceof TimeCompletionCriteria)
 			return ((TimeCompletionCriteria)subCompletion).getTimeStr();
+		else if (subCompletion instanceof VariableSubTimeCompletionCriteria) {
+			return ((VariableSubTimeCompletionCriteria)subCompletion).getTimeStr();
+		}
 		else
 			throw new UnsupportedOperationException("Can't create command line argument for: "+subCompletion);
 	}
@@ -593,6 +604,15 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	public static CompletionCriteria parseSubCompletionCriteria(String optionVal) {
+		if (optionVal.contains(",")) {
+			String[] times = optionVal.split(",");
+			Preconditions.checkArgument(times.length == 2, "must specify exactly 2 times if using multiple option: "+optionVal);
+			long maxTime = TimeCompletionCriteria.parseTimeString(times[0]);
+			long minTime = TimeCompletionCriteria.parseTimeString(times[1]);
+			Preconditions.checkArgument(maxTime >= minTime, "max must be greater than min! ("+optionVal+")");
+			
+			return new VariableSubTimeCompletionCriteria(maxTime, minTime);
+		}
 		if (optionVal.endsWith("s") || optionVal.endsWith("m") || optionVal.endsWith("h") || optionVal.endsWith("mi")) {
 			return TimeCompletionCriteria.fromTimeString(optionVal);
 		}

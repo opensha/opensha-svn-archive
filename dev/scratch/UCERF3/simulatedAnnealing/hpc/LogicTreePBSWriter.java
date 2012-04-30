@@ -31,6 +31,7 @@ import scratch.UCERF3.inversion.CommandLineInversionRunner.InversionOptions;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.VariableSubTimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
@@ -253,7 +254,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "threaded-bench";
+		String runName = "fm2-a-priori-test";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -263,44 +264,47 @@ public class LogicTreePBSWriter {
 		//		RunSites site = RunSites.RANGER;
 //		RunSites site = RunSites.EPICENTER;
 		RunSites site = RunSites.HPCC;
+		
+//		String nameAdd = "VarSub5_0.3";
+		String nameAdd = null;
 
-		int numRuns = 5;
+		int numRuns = 50;
 		int runStart = 0;
 		
 		boolean lightweight = numRuns > 10;
 
-		FaultModels[] faultModels = { FaultModels.FM3_1 };
+//		FaultModels[] faultModels = { FaultModels.FM3_1 };
 //		FaultModels[] faultModels = { FaultModels.FM3_1, FaultModels.FM3_2 };
-//		FaultModels[] faultModels = { FaultModels.FM2_1 };
+		FaultModels[] faultModels = { FaultModels.FM2_1 };
 
 		// if null, all that are applicable to each fault model will be used
 //		DeformationModels[] defModels = null;
 //		DeformationModels[] defModels = { DeformationModels.ABM, DeformationModels.GEOBOUND, DeformationModels.GEOLOGIC,
 //				DeformationModels.GEOLOGIC_PLUS_ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
-		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
+//		DeformationModels[] defModels = { DeformationModels.GEOLOGIC_PLUS_ABM };
 //		DeformationModels[] defModels = { DeformationModels.ABM };
-//		DeformationModels[] defModels = { DeformationModels.UCERF2_ALL };
+		DeformationModels[] defModels = { DeformationModels.UCERF2_ALL };
 
 //		InversionModels[] inversionModels = InversionModels.values();
-		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
+//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-//		InversionModels[] inversionModels =  { InversionModels.CHAR };
+		InversionModels[] inversionModels =  { InversionModels.CHAR };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
 
 		//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
-		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
-//		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
+//		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
+		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
 //		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B, MagAreaRelationships.HB_08,
 //				MagAreaRelationships.SHAW_09 };
 
 		//		SlipAlongRuptureModels[] slipAlongs = SlipAlongRuptureModels.values();
-		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
-								SlipAlongRuptureModels.UNIFORM };
-//		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
+//		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED,
+//								SlipAlongRuptureModels.UNIFORM };
+		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
 
-		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
-//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
+//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
+		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
 //		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B,
 //				AveSlipForRupModels.SHAW12_SQRT_LENGTH, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP,
 //				AveSlipForRupModels.SHAW_2009_MOD };
@@ -311,12 +315,19 @@ public class LogicTreePBSWriter {
 		List<CustomArg[]> variations = null;
 		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
-				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
+		InversionOptions[] ops = { InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES, InversionOptions.A_PRIORI_CONST_WT };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000")));
+		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
+		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
+		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
+//				InversionOptions.MFD_MODIFICATION, InversionOptions.MFD_CONSTRAINT_RELAX };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0", "0", "1", null)));
 //		for (double offAseis=0; offAseis <= 1; offAseis+=0.1)
 //			variationBranches.add(buildVariationBranch(ops, toArray("0.1", (float)offAseis+"", "1", null)));
-		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1", null)));    // THIS IS DEFAULT
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0", "1.3", null)));
 //		for (double mfdIncr=1.25; mfdIncr <= 1.45; mfdIncr+=0.05)
 //			variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0", (float)mfdIncr+"", null)));
@@ -409,8 +420,12 @@ public class LogicTreePBSWriter {
 		//		BatchScriptWriter batch = new USC_HPCC_ScriptWriter("quadcore");
 		File javaBin = site.JAVA_BIN;
 		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+//		String threads = "1";
 		CoolingScheduleType cool = CoolingScheduleType.FAST_SA; // TODO
 		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(1);
+//		CompletionCriteria subCompletion = VariableSubTimeCompletionCriteria.instance("5s", "300");
+		boolean keepCurrentAsBest = false;
+		System.out.println("SUB: "+subCompletion);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath(site));
 		javaWriter.setHeadless(true);
 		if (site.FM_STORE != null) {
@@ -422,8 +437,6 @@ public class LogicTreePBSWriter {
 
 		double nodeHours = 0;
 		int cnt = 0;
-
-		PaleoProbabilityModel paleoProbabilityModel = PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
 
 		for (FaultModels fm : faultModels) {
 			DeformationModels[] defModelsForFM;
@@ -457,6 +470,12 @@ public class LogicTreePBSWriter {
 											name += "_VarNone";
 										else
 											name += "_Var"+variation.op.getFileName(variation.arg);
+									}
+									
+									if (nameAdd != null && !nameAdd.isEmpty()) {
+										if (!nameAdd.startsWith("_"))
+											nameAdd = "_"+nameAdd;
+										name += nameAdd;
 									}
 
 									int mins;
@@ -512,6 +531,8 @@ public class LogicTreePBSWriter {
 										String className = CommandLineInversionRunner.class.getName();
 										String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
 										classArgs += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
+										if (keepCurrentAsBest)
+											classArgs += " --cur-as-best";
 										classArgs += " --cool "+cool.name();
 										classArgs += " --nonneg "+nonNeg.name();
 										classArgs += " --num-threads "+threads;

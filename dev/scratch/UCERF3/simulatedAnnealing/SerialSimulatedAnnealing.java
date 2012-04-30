@@ -51,6 +51,12 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	private static GenerationFunctionType PERTURB_FUNC_DEFAULT = GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE;
 	private GenerationFunctionType perturbationFunc = PERTURB_FUNC_DEFAULT;
 	
+	/**
+	 * If true, the current model will always be kept as the best model instead of the best model seen. This allows
+	 * the SA algorithm to avoid local minimums in threaded mode where only the "best" solution is passed between threads.
+	 */
+	private boolean keepCurrentAsBest = false;
+	
 	private double[] variablePerturbBasis;
 	
 	private DoubleMatrix2D A, A_MFD;
@@ -516,7 +522,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				perturbs++;
 				
 				// Is this a new best?
-				if (Enew[0] < Ebest[0]) {
+				if (Enew[0] < Ebest[0] || keepCurrentAsBest) {
 					// we don't want to array copy as it's slow. instead we fix special cases only when
 					// needed with an array copy (see below)
 					xbest = x;
@@ -679,6 +685,11 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		nonNegOption.setRequired(false);
 		ops.addOption(nonNegOption);
 		
+		Option curAsBestOption = new Option("curbest", "cur-as-best", false,
+				"Flag for keeping current solution as best, even if it's not the best seen.");
+		curAsBestOption.setRequired(false);
+		ops.addOption(curAsBestOption);
+		
 		return ops;
 	}
 	
@@ -693,6 +704,10 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		
 		if (cmd.hasOption("nonneg")) {
 			nonnegativityConstraintAlgorithm = NonnegativityConstraintType.valueOf(cmd.getOptionValue("nonneg"));
+		}
+		
+		if (cmd.hasOption("curbest")) {
+			keepCurrentAsBest = true;
 		}
 	}
 
