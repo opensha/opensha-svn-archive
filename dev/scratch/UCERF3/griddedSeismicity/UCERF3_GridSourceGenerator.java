@@ -70,7 +70,7 @@ public class UCERF3_GridSourceGenerator {
 	
 	// reference mfd values
 	private double mfdMin = 5.05;
-	private double mfdMax = 8.95;
+	private double mfdMax = 8.45;
 	private int mfdNum = 35;
 	
 	/**
@@ -100,7 +100,6 @@ public class UCERF3_GridSourceGenerator {
 		mfdMax = this.totalOffFaultMFD.getMaxX();
 		mfdNum = this.totalOffFaultMFD.getNum();
 		
-		System.out.println(this.totalOffFaultMFD);
 		this.totalMgt5_Rate = totalMgt5_Rate;
 		this.scalingMethod = scalingMethod;
 				
@@ -110,6 +109,8 @@ public class UCERF3_GridSourceGenerator {
 		initGrids(spatialPDF);
 		
 		/*
+		 * NOTE: THIS HAS CHANGED...
+		 * 
 		 *  1) compute subSeismoFaultSectMFD_Array, the sub-seismo MFD for each fault section.  Do this by
 		 *  duplicating totalOffFaultMFD to faultSectionMFD, setting all rates above Mmin for the fault to zero
 		 *  (to avoid double counting), and then constraining the total rate by either 
@@ -154,20 +155,20 @@ public class UCERF3_GridSourceGenerator {
 		
 		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
 
+		boolean test = true;
+		
 		for (FaultSectionPrefData sect : faults) {
 			int idx = sect.getSectionId();
-			double minMag = fss.getMinMagForSection(idx);
-			System.out.println("minMag: " + minMag);
-			GutenbergRichterMagFreqDist subSeisMFD = new GutenbergRichterMagFreqDist(
-				mfdMin, mfdMax, mfdNum);
-			double magUpper = subSeisMFD.getX(subSeisMFD.getXIndex(minMag) - 1);
-			subSeisMFD.setAllButTotMoRate(mfdMin, magUpper, 1, 1);
+			double subSeisMax = fss.getMinMagForSection(idx);
+			GutenbergRichterMagFreqDist subSeisMFD = new GutenbergRichterMagFreqDist(1d,1d,mfdMin, mfdMax, mfdNum);
+			subSeisMFD.setTolerance(0.2);
+			subSeisMFD.zeroAtAndAboveMag(subSeisMax);
 
 			if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
 				double reduction = fss.getOrigMomentRate(idx) -
 						fss.getSubseismogenicReducedMomentRate(idx);
 				// scale 
-				reduction = adjustMoScale(M0_MIN, mfdMax, M0_NUM, mfdMin, magUpper, reduction);
+				reduction = adjustMoScale(M0_MIN, mfdMax, M0_NUM, mfdMin, subSeisMFD.getMaxMagWithNonZeroRate(), reduction);
 				subSeisMFD.scaleToTotalMomentRate(reduction);
 			} else {
 				// SPATIAL
@@ -183,46 +184,51 @@ public class UCERF3_GridSourceGenerator {
 			sectSubSeisMFDs.put(idx, subSeisMFD);
 		}		
 		
-		for (FaultSectionPrefData sect : faults) {
-			int idx = sect.getSectionId();
-			double minMag = fss.getMinMagForSection(idx);
-			IncrementalMagFreqDist subSeisMFD = totalOffFaultMFD.deepClone();
-			subSeisMFD.zeroAtAndAboveMag(minMag);
-				
-			if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
-				// scale by moment reduction
-				double reduction = fss.getOrigMomentRate(idx) -
-					fss.getSubseismogenicReducedMomentRate(idx);
-				subSeisMFD.scaleToTotalMomentRate(reduction);
-			} else {
-				// scale by smoothed seis area
-				double polySeisRate = rateForSect(polyMgr.getSectFractions(idx));
-//				IncrementalMagFreqDist supraSeisMFD = fss
-//					.calcNucleationMFD_forSect(idx, mfdMin, mfdMax, mfdNum);
-//				double sectCumRate = supraSeisMFD.getCumRate(mfdMin);
-//				double scaledRate = polySeisRate - sectCumRate;
-				subSeisMFD.scaleToCumRate(mfdMin, polySeisRate);
-			}
-			sectSubSeisMFDs.put(idx, subSeisMFD);
-		}
+//		for (FaultSectionPrefData sect : faults) {
+//			int idx = sect.getSectionId();
+//			double minMag = fss.getMinMagForSection(idx);
+//			IncrementalMagFreqDist subSeisMFD = totalOffFaultMFD.deepClone();
+//			subSeisMFD.zeroAtAndAboveMag(minMag);
+//				
+//			if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
+//				// scale by moment reduction
+//				double reduction = fss.getOrigMomentRate(idx) -
+//					fss.getSubseismogenicReducedMomentRate(idx);
+//				subSeisMFD.scaleToTotalMomentRate(reduction);
+//			} else {
+//				// scale by smoothed seis area
+//				double polySeisRate = rateForSect(polyMgr.getSectFractions(idx));
+////				IncrementalMagFreqDist supraSeisMFD = fss
+////					.calcNucleationMFD_forSect(idx, mfdMin, mfdMax, mfdNum);
+////				double sectCumRate = supraSeisMFD.getCumRate(mfdMin);
+////				double scaledRate = polySeisRate - sectCumRate;
+//				subSeisMFD.scaleToCumRate(mfdMin, polySeisRate);
+//			}
+//			sectSubSeisMFDs.put(idx, subSeisMFD);
+//		}
 	}
 	
 	// MFD down to M=0
 	private static final double M0_MIN = 0.05;
-	private static final int M0_NUM = 89;
+	private static final int M0_NUM = 85;
 	
 	/*
 	 * Scales a GR MFD (b=1) from min<M<max to the supplied total moment
 	 */
-	private static double adjustMoScale(double mfdMin, double mfdMax, int mfdNum, double cutMin, double cutMax, double Mo) {
-		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(mfdMin, mfdMax, mfdNum);
-		mfd.setAllButTotCumRate(mfdMin, cutMax, Mo, 1);
+	private static double adjustMoScale(double min, double max, int num, double minCut, double maxCut, double Mo) {
+		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(1d, 1d, min, max, num);
+		mfd.setTolerance(0.2);
+		mfd.zeroAtAndAboveMag(maxCut);
+		mfd.scaleToTotalMomentRate(Mo);
+		
+//		System.out.println(mfd);
 		double sum = 0.0;
-		int startIdx = mfd.getXIndex(cutMin);
-		int endIdx = mfd.getXIndex(cutMax);
+		int startIdx = mfd.getXIndex(minCut);
+		int endIdx = mfd.getXIndex(maxCut);
 		for (int i=startIdx; i<=endIdx; i++) {
 			sum += mfd.getMomentRate(i);
 		}
+//		System.out.println(Mo + " : " + sum);
 		return sum;
 	}
 	
@@ -268,9 +274,10 @@ public class UCERF3_GridSourceGenerator {
 	// as mMax of offFaultMFD
 	private void updateOffFaultMFD() {
 		if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
-			GutenbergRichterMagFreqDist grTmp = new GutenbergRichterMagFreqDist(mfdMin, mfdMax, mfdNum);
-			double max = totalOffFaultMFD.getMaxX();
-			grTmp.setAllButTotCumRate(mfdMin, max, 1, 1);
+			GutenbergRichterMagFreqDist grTmp = new GutenbergRichterMagFreqDist(1d, 1d, mfdMin, mfdMax, mfdNum);
+			double max = totalOffFaultMFD.getMaxMagWithNonZeroRate();
+			grTmp.zeroAboveMag(max);
+			grTmp.scaleToCumRate(mfdMin, totalMgt5_Rate);
 			realOffFaultMFD = grTmp;
 		} else {
 			double min = totalOffFaultMFD.getMinX();
