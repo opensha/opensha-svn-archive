@@ -643,7 +643,10 @@ public class ManyRunCompilation {
 		
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarAPrioriZero_VarAPrioriWt100");
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarAPrioriZero_VarAPrioriWt1000");
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarNone_VarAPrioriWt1000");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarNone_VarAPrioriWt100");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarNone_VarAPrioriWt1000");
+		
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/results/VarAPrioriZero_VarAPrioriWt10000_VarWaterlevel0");
 		File rupSetFile = new File(dir, "rupSet.zip");
 		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
 		int numRups = rupSet.getNumRuptures();
@@ -660,7 +663,10 @@ public class ManyRunCompilation {
 		
 //		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt100";
 //		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt1000";
-		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarNone_VarAPrioriWt1000";
+//		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarNone_VarAPrioriWt100";
+//		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarNone_VarAPrioriWt1000";
+		
+		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt10000_VarWaterlevel0";
 		System.out.println("Loaded rates!");
 		
 		RateRecord[] rateRecords = new RateRecord[numRups];

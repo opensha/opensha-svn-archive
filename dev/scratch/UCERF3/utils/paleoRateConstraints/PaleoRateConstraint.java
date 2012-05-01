@@ -73,7 +73,9 @@ public class PaleoRateConstraint  implements java.io.Serializable {
 		return paleoSiteLoction;
 	}
 
-	
+	public void setPaleoSiteName(String paleoSiteName) {
+		this.paleoSiteName = paleoSiteName;
+	}
 	
 	/**
 	 * Get the paleoSiteName

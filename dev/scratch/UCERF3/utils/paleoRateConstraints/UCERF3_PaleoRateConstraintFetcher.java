@@ -114,6 +114,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
 			PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
 					meanRate, lower68Conf, upper68Conf);
+			paleoRateConstraint.setPaleoSiteName(siteName);
 			if(D) System.out.println("\t"+siteName+" (lat="+lat+", lon="+lon+") associated with "+name+
 					" (section index = "+closestFaultSectionIndex+")\tdist="+(float)minDist+"\tmeanRate="+(float)meanRate+
 					"\tlower68="+(float)lower68Conf+"\tupper68="+(float)upper68Conf);
