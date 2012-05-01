@@ -114,7 +114,7 @@ public class GMT_CA_Maps {
 	}
 	
 	
-	private static void makeMap(GeoDataSet geoDataSet, String scaleLabel, String metadata, 
+	public static void makeMap(GeoDataSet geoDataSet, String scaleLabel, String metadata, 
 			String dirName, GMT_MapGenerator gmt_MapGenerator) throws IOException {
 		
 		try {
