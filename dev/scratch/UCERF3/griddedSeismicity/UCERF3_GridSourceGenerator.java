@@ -36,6 +36,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemSolution;
  */
 public class UCERF3_GridSourceGenerator {
 	
+	// TODO these probably shouldn't be static
 	private static final CaliforniaRegions.RELM_TESTING_GRIDDED region = 
 			new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	private static final WC1994_MagLengthRelationship magLenRel = 
@@ -99,6 +100,7 @@ public class UCERF3_GridSourceGenerator {
 		mfdMax = this.totalOffFaultMFD.getMaxX();
 		mfdNum = this.totalOffFaultMFD.getNum();
 		
+		System.out.println(this.totalOffFaultMFD);
 		this.totalMgt5_Rate = totalMgt5_Rate;
 		this.scalingMethod = scalingMethod;
 				
@@ -155,6 +157,35 @@ public class UCERF3_GridSourceGenerator {
 		for (FaultSectionPrefData sect : faults) {
 			int idx = sect.getSectionId();
 			double minMag = fss.getMinMagForSection(idx);
+			System.out.println("minMag: " + minMag);
+			GutenbergRichterMagFreqDist subSeisMFD = new GutenbergRichterMagFreqDist(
+				mfdMin, mfdMax, mfdNum);
+			double magUpper = subSeisMFD.getX(subSeisMFD.getXIndex(minMag) - 1);
+			subSeisMFD.setAllButTotMoRate(mfdMin, magUpper, 1, 1);
+
+			if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
+				double reduction = fss.getOrigMomentRate(idx) -
+						fss.getSubseismogenicReducedMomentRate(idx);
+				// scale 
+				reduction = adjustMoScale(M0_MIN, mfdMax, M0_NUM, mfdMin, magUpper, reduction);
+				subSeisMFD.scaleToTotalMomentRate(reduction);
+			} else {
+				// SPATIAL
+				// rate of events implied by section-node intersections
+				double sectSubSeisRate = rateForSect(polyMgr.getSectFractions(idx));
+				// avoid double counting seismogenic (large) events
+				IncrementalMagFreqDist seisMFD = fss.calcNucleationMFD_forSect(
+					idx, mfdMin, mfdMax, mfdNum);
+				double sectSeisRate = seisMFD.getCumRate(mfdMin);
+				sectSubSeisRate -= sectSeisRate;
+				subSeisMFD.scaleToCumRate(mfdMin, sectSubSeisRate);
+			}
+			sectSubSeisMFDs.put(idx, subSeisMFD);
+		}		
+		
+		for (FaultSectionPrefData sect : faults) {
+			int idx = sect.getSectionId();
+			double minMag = fss.getMinMagForSection(idx);
 			IncrementalMagFreqDist subSeisMFD = totalOffFaultMFD.deepClone();
 			subSeisMFD.zeroAtAndAboveMag(minMag);
 				
@@ -175,8 +206,27 @@ public class UCERF3_GridSourceGenerator {
 			sectSubSeisMFDs.put(idx, subSeisMFD);
 		}
 	}
-		
 	
+	// MFD down to M=0
+	private static final double M0_MIN = 0.05;
+	private static final int M0_NUM = 89;
+	
+	/*
+	 * Scales a GR MFD (b=1) from min<M<max to the supplied total moment
+	 */
+	private static double adjustMoScale(double mfdMin, double mfdMax, int mfdNum, double cutMin, double cutMax, double Mo) {
+		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(mfdMin, mfdMax, mfdNum);
+		mfd.setAllButTotCumRate(mfdMin, cutMax, Mo, 1);
+		double sum = 0.0;
+		int startIdx = mfd.getXIndex(cutMin);
+		int endIdx = mfd.getXIndex(cutMax);
+		for (int i=startIdx; i<=endIdx; i++) {
+			sum += mfd.getMomentRate(i);
+		}
+		return sum;
+	}
+	
+		
 	
 	/*
 	 * partic = particip in each node
@@ -190,7 +240,7 @@ public class UCERF3_GridSourceGenerator {
 		return sum;
 	}
 
-	// 2 6
+	// 2 6 repartition sectSubSeisMFDs over relevant nodes
 	private void initNodeMFDs() {
 		nodeSubSeisMFDs = Maps.newHashMap();
 		for (FaultSectionPrefData sect : fss.getFaultSectionDataList()) {
@@ -211,35 +261,60 @@ public class UCERF3_GridSourceGenerator {
 		}
 	}
 	
-	// 4
+	// 4 
+	// only have to do this for spatial approach where impliedOffFaultMFD
+	// is used - subtracting subSeis MFDs
+	// otherwise set intial real-off fault mfd to smoothed spatial with Mmax
+	// as mMax of offFaultMFD
 	private void updateOffFaultMFD() {
-		double min = totalOffFaultMFD.getMinX();
-		double max = totalOffFaultMFD.getMaxX();
-		int num = totalOffFaultMFD.getNum();
-		SummedMagFreqDist realMFD = new SummedMagFreqDist(min, max, num);
-		realMFD.addIncrementalMagFreqDist(totalOffFaultMFD);
-		for (IncrementalMagFreqDist mfd : sectSubSeisMFDs.values()) {
-			realMFD.subtractIncrementalMagFreqDist(mfd);
+		if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
+			GutenbergRichterMagFreqDist grTmp = new GutenbergRichterMagFreqDist(mfdMin, mfdMax, mfdNum);
+			double max = totalOffFaultMFD.getMaxX();
+			grTmp.setAllButTotCumRate(mfdMin, max, 1, 1);
+			realOffFaultMFD = grTmp;
+		} else {
+			double min = totalOffFaultMFD.getMinX();
+			double max = totalOffFaultMFD.getMaxX();
+			int num = totalOffFaultMFD.getNum();
+			SummedMagFreqDist realMFD = new SummedMagFreqDist(min, max, num);
+			realMFD.addIncrementalMagFreqDist(totalOffFaultMFD);
+			for (IncrementalMagFreqDist mfd : sectSubSeisMFDs.values()) {
+				realMFD.subtractIncrementalMagFreqDist(mfd);
+			}
+			realOffFaultMFD = realMFD;
 		}
-		realOffFaultMFD = realMFD;
 	}
 	
 	//5
 	private void updateSpatialPDF() {
+		// for moment reduction, change the offFaultMFD to be GR with a rate
+		// equivalent to the regional catalog; scale nodes that intersect
+		// faults to whatever fraction of their area is NOT occupied by faults
+		//    - this does not require normalization
 		revisedSpatialPDF = new double[srcSpatialPDF.length];
-		for (int i=0; i<region.getNodeCount(); i++) {
-			double fraction = 1 - polyMgr.getNodeFraction(i);
-			revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
-		}
-		// normalize
-		double sum = 0.0;
-		for (double d : revisedSpatialPDF) {
-			sum += d;
-		}
-		for (int i=0; i<revisedSpatialPDF.length; i++) {
-			revisedSpatialPDF[i] /= sum;
+		if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
+			for (int i=0; i<region.getNodeCount(); i++) {
+				double fraction = 1 - polyMgr.getNodeFraction(i);
+				revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
+			}
+		} else {
+			//SPATIAL - this is the same as before
+			for (int i=0; i<region.getNodeCount(); i++) {
+				double fraction = 1 - polyMgr.getNodeFraction(i);
+				revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
+			}
+			// normalize
+			double sum = 0.0;
+			for (double d : revisedSpatialPDF) {
+				sum += d;
+			}
+			for (int i=0; i<revisedSpatialPDF.length; i++) {
+				revisedSpatialPDF[i] /= sum;
+			}
 		}
 	}
+	
+	// the GR spatial
 	
 	private void initGrids(SpatialSeisPDF pdf) {
 		if (pdf == null) pdf = SpatialSeisPDF.UCERF3;
@@ -430,7 +505,7 @@ public class UCERF3_GridSourceGenerator {
 
 		SimpleFaultSystemSolution tmp = null;
 		try {
-			File f = new File("tmp/invSols/reference_gr_sol.zip");
+			File f = new File("tmp/invSols/reference_gr_sol2.zip");
 			tmp = SimpleFaultSystemSolution.fromFile(f);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -458,15 +533,17 @@ public class UCERF3_GridSourceGenerator {
 //		System.out.println("EqRup");
 //		System.out.println( peq.getMFD());
 		
-		GriddedGeoDataSet polyDat = new GriddedGeoDataSet(gridGen.region, true);	// true makes X latitude
-		for (int i=0; i<gridGen.region.getNodeCount(); i++) {
-			polyDat.set(i, gridGen.polyMgr.getNodeFraction(i));
-		}
-		try {
-			plotMap(polyDat, "UCERF3_NodePolyParticipation", "no info", "UCERF3_NodePolyParticipation");
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		
+		
+//		GriddedGeoDataSet polyDat = new GriddedGeoDataSet(gridGen.region, true);	// true makes X latitude
+//		for (int i=0; i<gridGen.region.getNodeCount(); i++) {
+//			polyDat.set(i, gridGen.polyMgr.getNodeFraction(i));
+//		}
+//		try {
+//			plotMap(polyDat, "UCERF3_NodePolyParticipation", "no info", "UCERF3_NodePolyParticipation");
+//		} catch (IOException ioe) {
+//			ioe.printStackTrace();
+//		}
 	}
 
 	public static void plotMap(GeoDataSet geoDataSet, String scaleLabel,
