@@ -1,6 +1,7 @@
 package scratch.UCERF3.griddedSeismicity;
 
 import java.awt.geom.Area;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class FaultPolyMgr {
 	private Map<Integer, Double> nodeExtents;
 	private Map<Integer, Double> sectExtents;
 
-	private GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+	private static GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
 	/**
 	 * Returns the fraction of the node at idx that participates in fault
@@ -285,15 +286,31 @@ public class FaultPolyMgr {
 	}
 	
 	
+	/**
+	 * NOTE: Only for use when working with fault models.
+	 * @return
+	 */
+	public static double[] getNodeFractions(FaultModels model) {
+		if (model == null) model = FaultModels.FM3_1;
+		FaultPolyMgr mgr = new FaultPolyMgr(model, 7);
+		double[] values = new double[region.getNodeCount()];
+		for (int i=0; i<region.getNodeCount(); i++) {
+			values[i] = mgr.getNodeFraction(i);
+		}
+		return values;
+	}
+	
+	
 	public static void main(String[] args) {
-		FaultPolyMgr mgr = new FaultPolyMgr(FaultModels.FM3_2, 7);
+		//FaultPolyMgr mgr = new FaultPolyMgr(FaultModels.FM3_1, 7);
 		
+		System.out.println(Arrays.toString(getNodeFractions(FaultModels.FM3_1)));
 //		mgr.sectInNodePartic
 //		mgr.nodeInSectPartic
 		
-		for (Integer sectIdx : mgr.nodeInSectPartic.rowKeySet()) {
-			System.out.println(sum(mgr.nodeInSectPartic.row(sectIdx).values()));
-		}
+//		for (Integer sectIdx : mgr.nodeInSectPartic.rowKeySet()) {
+//			System.out.println(sum(mgr.nodeInSectPartic.row(sectIdx).values()));
+//		}
 //		System.out.println(mgr.nodeInSectPartic);
 //		
 //		for (Integer sectIdx : mgr.nodeInSectPartic.rowKeySet()) {
