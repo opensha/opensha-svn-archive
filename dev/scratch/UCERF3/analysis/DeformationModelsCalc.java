@@ -501,6 +501,65 @@ public class DeformationModelsCalc {
 	}
 
 	
+	
+	public static void plotSmSeisOverAveDefModelMap() {
+		FaultModels fm = FaultModels.FM3_1;
+		ArrayList<DeformationModels> dmList = new ArrayList<DeformationModels>();
+		dmList.add(DeformationModels.GEOLOGIC);
+		dmList.add(DeformationModels.ABM);
+		dmList.add(DeformationModels.NEOKINEMA);
+		dmList.add(DeformationModels.ZENG);
+		
+		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
+		
+		// compute aveDefModPDF
+		GriddedGeoDataSet aveDefModPDF = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
+		for(int i=0;i<aveDefModPDF.size();i++) // initialize to zero
+			aveDefModPDF.set(i,0);
+
+		for(DeformationModels dm : dmList) {
+			GriddedGeoDataSet offFaultData = spatPDFgen.getDefModSpatialOffFaultMoRates(fm, dm);
+			GriddedGeoDataSet onFaultData = getDefModMoRatesInRELM_Region(fm, dm);
+			GriddedGeoDataSet totalMoRateData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
+			for(int i=0; i<totalMoRateData.size();i++) {
+				// some GEOL on-fault values are NaN:
+				if(Double.isNaN(onFaultData.get(i))) {
+					System.out.println("NaN onFault:\t"+i+"\t"+dm.getShortName());
+					totalMoRateData.set(i, offFaultData.get(i));
+				}
+				else {
+					totalMoRateData.set(i, offFaultData.get(i)+onFaultData.get(i));
+				}
+			}
+			double sum=0;
+			for(int i=0;i<totalMoRateData.size();i++) 
+				sum += totalMoRateData.get(i);
+			System.out.println("sum="+(float)sum);
+			for(int i=0;i<totalMoRateData.size();i++) {
+				double newVal = (totalMoRateData.get(i)/sum)/dmList.size();
+				aveDefModPDF.set(i, aveDefModPDF.get(i)+newVal);
+			}
+
+		}
+		
+		double sum=0;
+		for(int i=0;i<aveDefModPDF.size();i++) 
+			sum += aveDefModPDF.get(i);
+		System.out.println("Test:  sum="+(float)sum+" (should be 1.0)");
+
+		GriddedGeoDataSet ucerf2_SmSeisData = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
+		GriddedGeoDataSet ucerf3_SmSeisData = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+
+		try {
+			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_SmSeisData, aveDefModPDF, "UCERF2_SmSeis/AveDefMod (Ratio)", " " , "UCERF2_SmSeis_AveDefMod_RatioMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(ucerf3_SmSeisData, aveDefModPDF, "UCERF3_SmSeis/AveDefMod (Ratio)", " " , "UCERF3_SmSeis_AveDefMod_RatioMap");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 
 	/**
 	 * This computes a GriddedGeoDataSet with the total moment rate in each bin.
@@ -541,6 +600,8 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
+		plotSmSeisOverAveDefModelMap();
 
 //		testFaultZonePolygons();
 		
@@ -552,7 +613,7 @@ public class DeformationModelsCalc {
 		
 //		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		
-		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
+//		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		

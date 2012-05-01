@@ -343,7 +343,7 @@ public class DeformationModelOffFaultMoRateData {
 	 * this normalizes the data so they sum to 1.0
 	 * @param data
 	 */
-	private static GriddedGeoDataSet getNormalizdeData(GriddedGeoDataSet data) {
+	public static GriddedGeoDataSet getNormalizdeData(GriddedGeoDataSet data) {
 		GriddedGeoDataSet normData = new GriddedGeoDataSet(griddedRegion, true);;
 		double sum=0;
 		for(int i=0;i<data.size();i++) 
