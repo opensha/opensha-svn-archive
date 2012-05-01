@@ -1,13 +1,19 @@
 package scratch.UCERF3.griddedSeismicity;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
@@ -20,6 +26,7 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 
 /**
@@ -169,6 +176,7 @@ public class UCERF3_GridSourceGenerator {
 		}
 	}
 		
+	
 	
 	/*
 	 * partic = particip in each node
@@ -430,7 +438,7 @@ public class UCERF3_GridSourceGenerator {
 		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
 
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			invFss, null, SpatialSeisPDF.AVG_DEF_MODEL, 8.54, SmallMagScaling.MO_REDUCTION);
+			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);
 		System.out.println("init done");
 
 		
@@ -450,8 +458,32 @@ public class UCERF3_GridSourceGenerator {
 //		System.out.println("EqRup");
 //		System.out.println( peq.getMFD());
 		
+		GriddedGeoDataSet polyDat = new GriddedGeoDataSet(gridGen.region, true);	// true makes X latitude
+		for (int i=0; i<gridGen.region.getNodeCount(); i++) {
+			polyDat.set(i, gridGen.polyMgr.getNodeFraction(i));
+		}
+		try {
+			plotMap(polyDat, "UCERF3_NodePolyParticipation", "no info", "UCERF3_NodePolyParticipation");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 	}
 
+	public static void plotMap(GeoDataSet geoDataSet, String scaleLabel,
+			String metadata, String dirName) throws IOException {
+		
+		GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, false);
+			
+		//override default scale
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, 0.0);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 1.0);
+		
+		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.GMT_OCEAN2.getFileName());
+		
+		GMT_CA_Maps.makeMap(geoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
+	}
 
 	static void plot(ArrayList<IncrementalMagFreqDist> mfds) { 
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds,

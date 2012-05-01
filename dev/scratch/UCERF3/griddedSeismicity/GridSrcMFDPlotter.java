@@ -34,9 +34,9 @@ public class GridSrcMFDPlotter {
 	
 	private static InversionFaultSystemSolution fss;
 	private static ArrayList<PlotCurveCharacterstics> plotChars;
-	private static SmallMagScaling magScaling = SmallMagScaling.SPATIAL;
-	private static boolean incremental = false;
-	private static String fName = "tmp/invSols/reference_ch_sol.zip";
+	private static SmallMagScaling magScaling = SmallMagScaling.MO_REDUCTION;
+	private static boolean incremental = true;
+	private static String fName = "tmp/invSols/reference_gr_sol.zip";
 	
 	static {
 		
@@ -67,7 +67,7 @@ public class GridSrcMFDPlotter {
 	GridSrcMFDPlotter() {
 
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			fss, null, SpatialSeisPDF.AVG_DEF_MODEL, 8.54, magScaling);
+			fss, null, SpatialSeisPDF.UCERF3, 8.54, magScaling);
 		System.out.println("init done");
 		
 		sectionMap = Maps.newLinkedHashMap();
@@ -136,7 +136,7 @@ public class GridSrcMFDPlotter {
 	
 	private static void addDistro(EvenlyDiscretizedFunc f1, EvenlyDiscretizedFunc f2) {
 		for (int i=0; i<f1.getNum(); i++) {
-			f1.set(i, f1.getX(i) + f2.getX(i));
+			f1.set(i, f1.getY(i) + f2.getY(i));
 		}
 	}
 	
