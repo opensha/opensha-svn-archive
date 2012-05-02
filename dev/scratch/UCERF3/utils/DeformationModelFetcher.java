@@ -771,7 +771,7 @@ public class DeformationModelFetcher {
 				subSect.setAveSlipRate(avgSlip);
 				subSect.setAveRake(avgRake);
 				
-				int parentID = section.getParentSectionId();
+				int parentID = section.getSectionId();
 				
 				boolean customParkfield = CUSTOM_PARKFIELD_CREEPING_SECTION_MOMENT_REDUCTIONS
 						&& (parentID == 32 || parentID == 658);
@@ -780,18 +780,14 @@ public class DeformationModelFetcher {
 					// apply moment reduction
 					double momentReductionFactor;
 					if (customParkfield) {
-						String name = section.getName();
-						String subMatch = "Subsection ";
-						String subStr = name.substring(name.indexOf(subMatch)+subMatch.length());
-						int sub = Integer.parseInt(subStr);
 						if (parentID == 32) {
-							momentReductionFactor = parkfield_mo_reds[sub];
+							momentReductionFactor = parkfield_mo_reds[s];
 							System.out.println("Applying super dirty parkfield hack, subsection "
-									+sub+": "+momentReductionFactor);
+									+s+": "+momentReductionFactor);
 						} else {
-							momentReductionFactor = creep_mo_reds[sub];
+							momentReductionFactor = creep_mo_reds[s];
 							System.out.println("Applying super dirty creeping section hack, subsection "
-									+sub+": "+momentReductionFactor);
+									+s+": "+momentReductionFactor);
 						}
 					} else
 						momentReductionFactor = getLengthBasedAverage(subLocs, subMomentReductions);
