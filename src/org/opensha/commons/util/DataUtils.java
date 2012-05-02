@@ -46,7 +46,7 @@ import com.google.common.primitives.Ints;
  * {@code Collection}s</li> <li>could be renamed to DoubleUtils or something
  * funny like Dubbles</li> </p>
  * 
- * <p>See {@link Doubles} and {@link StatUtils} to find minimum, maximum, sum,
+ * <p>See {@link Doubles}  minimum, maximum, sum,
  * mean, product, etc... of {@code double} arrays as well as other
  * properties</p>
  * 
@@ -200,7 +200,7 @@ public class DataUtils {
 	 * Scales (multiplies) the elements of the supplied {@code array} in place
 	 * by {@code value}.
 	 * 
-	 * <p><b>Note:</b> This method does not check for over/underrun.</p>
+	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
 	 * @param array to scale
 	 * @param value to scale by
 	 * @return a reference to the supplied array
@@ -236,6 +236,8 @@ public class DataUtils {
 	/**
 	 * Applies the exponential function to every element of the supplied 
 	 * {@code array}.
+	 * 
+	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
 	 * @param array to operate on
 	 * @return a reference to the array
 	 * @throws IllegalArgumentException if {@code array} is empty
@@ -254,6 +256,70 @@ public class DataUtils {
 		return transform(new Scale(-1), array);
 	}
 	
+	/**
+	 * Returns the minimum of the supplied values. Method delegates to
+	 * {@link Doubles#min(double...)}. Method returns {@code Double.NaN} if
+	 * array contains {@code Double.NaN}.
+	 * 
+	 * @param array of values to search
+	 * @return the minimum of the supplied values
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @see Doubles#min(double...)
+	 */
+	public static double min(double... array) {
+		return Doubles.min(array);
+	}
+	
+	/**
+	 * Returns the maximum of the supplied values. Method delegates to
+	 * {@link Doubles#max(double...)}. Method returns {@code Double.NaN} if
+	 * array contains {@code Double.NaN}.
+	 * 
+	 * @param array of values to search
+	 * @return the maximum of the supplied values
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @see Doubles#max(double...)
+	 */
+	public static double max(double... array) {
+		return Doubles.max(array);
+	}
+
+	/**
+	 * Returns the sum of the supplied values. Method returns {@code Double.NaN}
+	 * if array contains {@code Double.NaN}.
+	 * 
+	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
+	 * @param array of values to add together
+	 * @return the sum of the supplied values
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double sum(double... array) {
+		checkNotNull(array, "array");
+		checkArgument(array.length > 0, "empty array");
+		double sum = 0;
+		for (double d : array) {
+			sum += d;
+		}
+		return sum;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(sum(new double[] {0,Double.NaN,2,3,4,5}));
+	}
+	
+	/**
+	 * Converts the elements of the supplied array to weights, in place, such
+	 * that they sum to 1. Array will contain only {@code Double.NaN} if any
+	 * element is {@code Double.NaN}.
+	 * @param array to convert
+	 * @return a reference to the supplied array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] asWeights(double... array) {
+		double scale = 1d / sum(array);
+		return scale(scale, array);
+	}
+		
 	/**
 	 * Transforms the supplied {@code array} in place as per the supplied
 	 * {@code function}'s {@link Function#apply(Object)} method.

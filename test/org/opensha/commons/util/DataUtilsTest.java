@@ -217,9 +217,53 @@ public class DataUtilsTest {
 		double[] expect = Arrays.copyOf(actual, actual.length);
 		Collections.reverse(Doubles.asList(expect));
 		assertArrayEquals(expect, DataUtils.flip(actual), 0);
+	}
+	
+	@Test
+	public final void testMin() {
+		double[] array = {-1, -4, 5, 10,};
+		double[] arrayNaN = {-1, Double.NaN, 5, 10,};
+		assertEquals(-4.0, DataUtils.min(array), 0.0);
+		assertTrue(Double.isNaN(DataUtils.min(arrayNaN)));
 	}	
 
+	@Test
+	public final void testMax() {
+		double[] array = {-1, -4, 5, 10};
+		double[] arrayNaN = {-1, Double.NaN, 5, 10};
+		assertEquals(10.0, DataUtils.max(array), 0.0);
+		assertTrue(Double.isNaN(DataUtils.max(arrayNaN)));
+	}
 	
+	@Test(expected=NullPointerException.class)
+	public final void testSumNPE() {
+		DataUtils.sum(null);
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public final void testSumIAE() {
+		DataUtils.sum(new double[0]);
+	}
+
+	@Test
+	public final void testSum() {
+		double[] array = {0,1,2,3,4};
+		double[] arrayNaN = {0,1,Double.NaN,3,4};
+		assertEquals(10.0, DataUtils.sum(array), 0.0);
+		assertTrue(Double.isNaN(DataUtils.sum(arrayNaN)));
+	}
+	
+	@Test
+	public final void testAsWeights() {
+		double[] array = {0,1,2,3,4};
+		double[] expect = {0, 0.1, 0.2, 0.3, 0.4};
+		double[] arrayNaN = {0,1,Double.NaN,3,4};
+		double[] expectNaN = {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+		assertArrayEquals(expect, DataUtils.asWeights(array), 0.0000000000000001);
+		assertArrayEquals(expectNaN, DataUtils.asWeights(arrayNaN), 0.0);
+	}
+
+
 	@Test
 	public final void testIsMonotonic() {
 		
