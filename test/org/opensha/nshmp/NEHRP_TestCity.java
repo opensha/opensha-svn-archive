@@ -1,8 +1,16 @@
 package org.opensha.nshmp;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import org.apache.commons.math.util.MathUtils;
 
+import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 /**
  * List of 34 city sites in regions of the United States of greatest seismic
@@ -73,6 +81,26 @@ public enum NEHRP_TestCity {
 	public Location location() {
 		return loc;
 	}
+	
+	/**
+	 * Returns all California cities.
+	 * @return a {@code Set} of California cities
+	 */
+	public static Set<NEHRP_TestCity> getCA() {
+		return EnumSet.range(LOS_ANGELES, SANTA_ROSA);
+	}
+	
+	/**
+	 * Returns a site object for this location.
+	 * @return
+	 */
+	public Site getSite() {
+		Site s = new Site(loc, this.name());
+		Vs30_Param vs30p = new Vs30_Param(760);
+		vs30p.setValueAsDefault();
+		s.addParameter(vs30p);
+		return s;
+	}
 
 	public static void main(String[] args) {
 		for (NEHRP_TestCity city : NEHRP_TestCity.values()) {
@@ -84,5 +112,7 @@ public enum NEHRP_TestCity {
 			System.out.println();
 		}
 	}
+	
+
 
 }
