@@ -49,6 +49,7 @@ public class InversionConfiguration {
 	private double participationConstraintMagBinSize;
 	private double relativeMinimizationConstraintWt;
 	private double relativeMomentConstraintWt;
+	private double relativeParkfieldConstraintWt;
 	private double[] aPrioriRupConstraint;
 	private double[] initialRupModel;
 	// thses are the rates that should be used for water level computation. this will
@@ -73,6 +74,7 @@ public class InversionConfiguration {
 			double participationConstraintMagBinSize,
 			double relativeMinimizationConstraintWt,
 			double relativeMomentConstraintWt,
+			double relativeParkfieldConstraintWt,
 			double[] aPrioriRupConstraint,
 			double[] initialRupModel,
 			double[] minimumRuptureRateBasis, 
@@ -103,6 +105,8 @@ public class InversionConfiguration {
 		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
 		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
 		metadata += "\nrelativeMomentConstraintWt: "+relativeMomentConstraintWt;
+		this.relativeParkfieldConstraintWt = relativeParkfieldConstraintWt;
+		metadata += "\nrelativeParkfieldConstraintWt: "+relativeParkfieldConstraintWt;
 		this.aPrioriRupConstraint = aPrioriRupConstraint;
 		this.initialRupModel = initialRupModel;
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
@@ -179,6 +183,10 @@ public class InversionConfiguration {
 		// weight of Moment Constraint (set solution moment to equal deformation model moment) (recommended: 1e-17)
 		double relativeMomentConstraintWt = 0;
 		
+		// weight of Parkfield rupture rate Constraint (recommended: 1e8)
+		double relativeParkfieldConstraintWt = 1e8;
+		
+		
 		String metadata = "";
 		metadata += "offFaultAseisFactor: "+offFaultAseisFactor;
 		metadata += "\nmfdConstraintModifier: "+mfdConstraintModifier;
@@ -218,7 +226,8 @@ public class InversionConfiguration {
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 100;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
-			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length);
+			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
+			initialRupModel = new double[rupSet.getNumRuptures()];
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
 			initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
@@ -273,6 +282,7 @@ public class InversionConfiguration {
 				participationConstraintMagBinSize,
 				relativeMinimizationConstraintWt,
 				relativeMomentConstraintWt,
+				relativeParkfieldConstraintWt,
 				aPrioriRupConstraint,
 				initialRupModel,
 				minimumRuptureRateBasis,
@@ -1078,6 +1088,15 @@ public class InversionConfiguration {
 		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
 	}
 
+	public double getRelativeParkfieldConstraintWt() {
+		return relativeParkfieldConstraintWt;
+	}
+
+	public void setRelativeParkfieldConstraintWt(
+			double relativeParkfieldConstraintWt) {
+		this.relativeParkfieldConstraintWt = relativeParkfieldConstraintWt;
+	}
+	
 	public double[] getA_PrioriRupConstraint() {
 		return aPrioriRupConstraint;
 	}

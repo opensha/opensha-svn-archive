@@ -247,7 +247,12 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("Moment");
 		}
-		
+		if (config.getRelativeParkfieldConstraintWt() > 0.0) {
+			numRows++;
+			if(D) System.out.println("Number of Parkfield constraints: 1");
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Parkfield");
+		}
 		
 		
 		// Components of matrix equation to invert (Ax=d)
@@ -613,6 +618,51 @@ public class InversionInputGenerator {
 		}
 		
 		
+		// Constraint rupture-rate for M~6 Parkfield earthquakes
+		// The Parkfield eqs are defined as rates of 6, 7, and 8 subsection ruptures in the Parkfield parent section (which has 8 subsections in total)
+		// THIS CONSTRAINT WILL NOT WORK IF SUBSECTIONS DRASTICALLY CHANGE IN SIZE OR IF PARENT-SECT-IDS CHANGE!
+		if (config.getRelativeParkfieldConstraintWt() > 0.0) {
+			if(D) System.out.println("\nAdding Parkfield rupture-rate constraints to A matrix ...");
+			double relativeParkfieldConstraintWt = config.getRelativeParkfieldConstraintWt();
+			double ParkfieldMeanRate = 1/25; // Bakun et al. (2005)
+			int parkfieldParentSectID = 32;
+			
+			// Find Parkfield M~6 ruptures
+			List<Integer> potentialRups = rupSet.getRupturesForParentSection(parkfieldParentSectID);
+			List<Integer> parkfieldRups = new ArrayList<Integer>();
+			rupLoop:
+			for (int i=0; i<potentialRups.size(); i++) {
+				List<Integer> sects = rupSet.getSectionsIndicesForRup(potentialRups.get(i));
+				// Make sure there are 6-8 subsections
+				if (sects.size()<6 || sects.size()>8)
+					continue rupLoop;
+				// Make sure each section in rup is in Parkfield parent section
+				for (int s=0; s<sects.size(); s++) {
+					int parent = rupSet.getFaultSectionData(sects.get(s)).getParentSectionId();
+					if (parent != parkfieldParentSectID)
+						continue rupLoop;
+				}
+				parkfieldRups.add(potentialRups.get(i));
+			}
+			if (D) System.out.println("Number of M~6 Parkfield rups = "+parkfieldRups.size());
+			
+			// Put together A, d elements
+			numNonZeroElements = 0;
+			for (int r=0; r<parkfieldRups.size(); r++)  {
+				int rup = parkfieldRups.get(r);
+				if (QUICK_GETS_SETS)
+					A.setQuick(rowIndex,rup,relativeParkfieldConstraintWt);
+				else
+					A.set(rowIndex,rup,relativeParkfieldConstraintWt);
+				numNonZeroElements++;
+			}
+			d[rowIndex]=relativeParkfieldConstraintWt * ParkfieldMeanRate;
+			rowIndex++;
+			System.out.println("Adding Parkfield Constraint took "+getTimeStr(watch)+".");
+			watch.reset();
+			watch.start();
+			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
+		}
 		
 		
 		if (minimumRuptureRates != null) {
