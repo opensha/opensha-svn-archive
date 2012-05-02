@@ -52,7 +52,15 @@ public class DeformationModelFetcher {
 
 	protected final static boolean D = true;  // for debugging
 	
-	private final static double MOMENT_REDUCTION_THRESHOLD = 0.5;
+	// TODO add HB08 & Shaw09 custom moment reductions
+	private final static boolean CUSTOM_PARKFIELD_CREEPING_SECTION_MOMENT_REDUCTIONS = true;
+	private final static double[] creep_mo_reds = {0.9102, 0.9333, 0.9520, 0.9662, 0.9760, 0.9813,
+		0.9820, 0.9782, 0.9698, 0.9568, 0.9391, 0.9168, 0.8897, 0.8579, 0.8214, 0.7800, 0.7338,
+		0.6827, 0.6267, 0.5658, 0.5000};
+	private final static double[] parkfield_mo_reds = {0.6476, 0.6836, 0.7197, 0.7558, 0.7918,
+		0.8279, 0.8639, 0.9000};
+	private final static double MOMENT_REDUCTION_THRESHOLD = 0.9;
+	private final static double MOMENT_REDUCTION_MAX = 0.95;
 
 	//	 Stepover fix for Elsinor
 	private final static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
@@ -118,7 +126,7 @@ public class DeformationModelFetcher {
 				if (D) System.out.println("Loading def model from: "+url);
 				Map<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
 				if (D) System.out.println("Applying moment reductions to: "+deformationModel);
-				DeformationModelFileParser.applyMomentReductions(model, deformationModel, 0.9); // TODO hardcoded
+				DeformationModelFileParser.applyMomentReductions(model, deformationModel, MOMENT_REDUCTION_MAX);
 				if (D) System.out.println("Loading fault model: "+faultModel);
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				if (D) System.out.println("Combining model with sections...");
@@ -763,9 +771,30 @@ public class DeformationModelFetcher {
 				subSect.setAveSlipRate(avgSlip);
 				subSect.setAveRake(avgRake);
 				
-				if (subMomentReductions != null) {
+				int parentID = section.getParentSectionId();
+				
+				boolean customParkfield = CUSTOM_PARKFIELD_CREEPING_SECTION_MOMENT_REDUCTIONS
+						&& (parentID == 32 || parentID == 658);
+				
+				if (subMomentReductions != null || customParkfield) {
 					// apply moment reduction
-					double momentReductionFactor = getLengthBasedAverage(subLocs, subMomentReductions);
+					double momentReductionFactor;
+					if (customParkfield) {
+						String name = section.getName();
+						String subMatch = "Subsection ";
+						String subStr = name.substring(name.indexOf(subMatch)+subMatch.length());
+						int sub = Integer.parseInt(subStr);
+						if (parentID == 32) {
+							momentReductionFactor = parkfield_mo_reds[sub];
+							System.out.println("Applying super dirty parkfield hack, subsection "
+									+sub+": "+momentReductionFactor);
+						} else {
+							momentReductionFactor = creep_mo_reds[sub];
+							System.out.println("Applying super dirty creeping section hack, subsection "
+									+sub+": "+momentReductionFactor);
+						}
+					} else
+						momentReductionFactor = getLengthBasedAverage(subLocs, subMomentReductions);
 					
 					double aseismicityFactor, couplingCoeff;
 					

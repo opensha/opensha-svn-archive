@@ -221,9 +221,11 @@ public class FaultBasedMapGen {
 		
 		double[] stdDevs = new double[partRates.length];
 		double[] mean = new double[partRates.length];
+		double[] meanOverStdDev = new double[partRates.length];
 		for (int i=0; i<partRates.length; i++) {
 			mean[i] = StatUtils.mean(partRates[i]);
 			stdDevs[i] = Math.sqrt(StatUtils.variance(partRates[i], mean[i]));
+			meanOverStdDev[i] = mean[i] / stdDevs[i];
 		}
 		
 		String name = prefix+"_partic_std_dev_"+(float)minMag;
@@ -253,6 +255,22 @@ public class FaultBasedMapGen {
 		cpt = cpt.rescale(-3, 2);
 		
 		makeFaultPlot(cpt, getTraces(faults), norm, region, saveDir, name, display, false, title);
+		
+		double[] logMeanOverStdDevs = log10(meanOverStdDev);
+		
+		cpt = getLogRatioCPT();
+		name = prefix+"_partic_mean_over_std_dev_"+(float)minMag;
+		title = "Log10(Participation Rates Mean / Std. Dev. "+(float)+minMag;
+		if (maxMag < 9) {
+			name += "_"+(float)maxMag;
+			title += "=>"+(float)maxMag;
+		} else {
+			name += "+";
+			title += "+";
+		}
+		title += ")";
+		
+		makeFaultPlot(cpt, getTraces(faults), logMeanOverStdDevs, region, saveDir, name, display, false, title);
 	}
 	
 	public static void plotSolutionSlipRateStdDevs(FaultSystemRupSet rupSet, double[][] slipRates, Region region, File saveDir, String prefix, boolean display)

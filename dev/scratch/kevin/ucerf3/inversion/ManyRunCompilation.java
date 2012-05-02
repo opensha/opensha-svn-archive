@@ -29,6 +29,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.threads.Task;
@@ -318,12 +319,21 @@ public class ManyRunCompilation {
 		ArrayList<EvenlyDiscretizedFunc> avgFuncs = Lists.newArrayList();
 		ArrayList<EvenlyDiscretizedFunc> medFuncs = Lists.newArrayList();
 		
+		ArrayList<EvenlyDiscretizedFunc> lowestMeanOverStdDevOfMeanFuncs = Lists.newArrayList();
+		ArrayList<EvenlyDiscretizedFunc> avgMeanOverStdDevOfMeanFuncs = Lists.newArrayList();
+		ArrayList<EvenlyDiscretizedFunc> medMeanOverStdDevOfMeanFuncs = Lists.newArrayList();
+		
+		ArrayList<ArbitrarilyDiscretizedFunc> theoreticalNFuncs = Lists.newArrayList();
+		
 		double min = 6;
 		double max = 8.5;
 		double delta = 0.5;
+//		double max = 9;
+//		double delta = 1;
 		
 		ArrayList<double[]> ranges = Lists.newArrayList();
 		List<double[]> meanParticRatesList = Lists.newArrayList();
+		List<double[]> stdDevParticRatesList = Lists.newArrayList();
 		for (double start=min; (start+delta)<=max; start+=delta) {
 			ranges.add(toArray(start, start+delta));
 			
@@ -352,12 +362,27 @@ public class ManyRunCompilation {
 			medFunc = new EvenlyDiscretizedFunc(1d, totRuns, 1d);
 			medFunc.setName("Median Individual Partic Residual vs Overall Mean"+str);
 			
+			EvenlyDiscretizedFunc meanOverStdDevOfMeanFunc = new EvenlyDiscretizedFunc(1d, totRuns, 1d);
+			meanOverStdDevOfMeanFunc.setName("Lowest Mean / Std. Dev Of Mean"+str);
+			lowestMeanOverStdDevOfMeanFuncs.add(meanOverStdDevOfMeanFunc);
+			EvenlyDiscretizedFunc avgOverStdDevOfMeanFunc = new EvenlyDiscretizedFunc(1d, totRuns, 1d);
+			avgOverStdDevOfMeanFunc.setName("Avg Mean / Std. Dev Of Mean"+str);
+			avgMeanOverStdDevOfMeanFuncs.add(avgOverStdDevOfMeanFunc);
+			EvenlyDiscretizedFunc medOverStdDevOfMeanFunc = new EvenlyDiscretizedFunc(1d, totRuns, 1d);
+			medOverStdDevOfMeanFunc.setName("Median Mean / Std. Dev Of Mean"+str);
+			medMeanOverStdDevOfMeanFuncs.add(medOverStdDevOfMeanFunc);
+			
+			ArbitrarilyDiscretizedFunc theoreticalNFunc = new ArbitrarilyDiscretizedFunc();
+			theoreticalNFunc.setName("Theoretical N to reach targen Mean / Std. Dev Of Mean"+str);
+			theoreticalNFuncs.add(theoreticalNFunc);
+			
 			maxFuncs.add(maxFunc);
 			totFuncs.add(totFunc);
 			avgFuncs.add(avgFunc);
 			medFuncs.add(medFunc);
 			
 			meanParticRatesList.add(new double[numSects]);
+			stdDevParticRatesList.add(new double[numSects]);
 		}
 		
 		Map<Integer, List<List<Integer>>> particRupsMap = Maps.newHashMap();
@@ -384,6 +409,26 @@ public class ManyRunCompilation {
 			}
 		}
 		
+		for (int i=0; i<ranges.size(); i++) {
+			double[] stdDevs = stdDevParticRatesList.get(i);
+			double[] means = meanParticRatesList.get(i);
+			
+			for (int sect=0; sect<numSects; sect++) {
+				double[] particRates = new double[totRuns];
+				for (int run=0; run<totRuns; run++) {
+					//					if (meanParticRates[sect] < 1e-5)
+					//						continue;
+					particRates[run] = 0;
+					List<Integer> rups = particRupsMap.get(sect).get(i);
+					for (int rup : rups)
+						particRates[run] += rates[rup][run];
+				}
+				double mean = StatUtils.mean(particRates);
+				stdDevs[sect] = Math.sqrt(StatUtils.variance(particRates, mean));
+				Preconditions.checkState(DataUtils.getPercentDiff(means[sect], mean) < 0.01, "uh oh, mean is off!");
+			}
+		}
+		
 		double[] runningMeans = new double[numRups];
 		
 		for (int rup=0; rup<numRups; rup++) {
@@ -402,6 +447,7 @@ public class ManyRunCompilation {
 			
 			for (int i=0; i<ranges.size(); i++) {
 				double[] meanParticRates = meanParticRatesList.get(i);
+				double[] stdDevParticRates = stdDevParticRatesList.get(i);
 				
 				double maxNormalizedResidual = 0;
 				int maxNormalizedIndex = 0;
@@ -411,6 +457,8 @@ public class ManyRunCompilation {
 				double maxResidual = 0;
 				int maxIndex = 0;
 				double totResidual = 0;
+				
+				double[] meanOverStdDevOfMeans = new double[numSects];
 				
 				ArrayList<Double> normalizedResiduals = new ArrayList<Double>();
 				ArrayList<Double> residuals = new ArrayList<Double>();
@@ -455,6 +503,8 @@ public class ManyRunCompilation {
 						maxPartic = particRate;
 					}
 					normalizedResiduals.add(normalizedResidual);
+					
+					meanOverStdDevOfMeans[sect] = meanParticRates[sect] / (stdDevParticRates[sect] / Math.sqrt((double)runs));
 				}
 				double avgNormResidual = totNormalizedResidual / (double)normalizedResiduals.size();
 				
@@ -473,6 +523,10 @@ public class ManyRunCompilation {
 				Collections.sort(residuals);
 				median = median(residuals);
 				medFuncs.get(i).set(runs-1, median);
+				
+				lowestMeanOverStdDevOfMeanFuncs.get(i).set(runs-1, StatUtils.min(meanOverStdDevOfMeans));
+				avgMeanOverStdDevOfMeanFuncs.get(i).set(runs-1, StatUtils.mean(meanOverStdDevOfMeans));
+				medMeanOverStdDevOfMeanFuncs.get(i).set(runs-1, median(meanOverStdDevOfMeans));
 				
 				if (runs % 20 == 0) {
 					System.out.println("RANGE: "+ranges.get(i)[0]+" => "+ranges.get(i)[1]);
@@ -521,6 +575,49 @@ public class ManyRunCompilation {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
+		
+		// move the dashed ones up a touch
+		for (int i=0; i<lowestMeanOverStdDevOfMeanFuncs.size(); i++)
+			chars.remove(lowestMeanOverStdDevOfMeanFuncs.size());
+		
+		funcs.clear();
+		funcs.addAll(lowestMeanOverStdDevOfMeanFuncs);
+//		funcs.addAll(avgMeanOverStdDevOfMeanFuncs);
+//		funcs.addAll(medMeanOverStdDevOfMeanFuncs);
+		
+		gp.setYLog(false);
+		gp.drawGraphPanel("N", "Mean / Std Dev Of Mean", funcs, chars, false,
+				"Lowest Mean / Std Dev Of Mean vs # Runs");
+		plotFile = new File(dir, "partic_mean_over_std_dev_of_mean");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
+		
+		for (int i=0; i<ranges.size(); i++) {
+			for (double targetVal=1; targetVal<=100; targetVal += 0.5) {
+				double[] meanParticRates = meanParticRatesList.get(i);
+				double[] stdDevParticRates = stdDevParticRatesList.get(i);
+				
+				double worstN = 0;
+				
+				for (int sect=0; sect<numSects; sect++) {
+					double n = Math.pow((targetVal * stdDevParticRates[sect]) / meanParticRates[sect], 2);
+					if (n > worstN)
+						worstN = n;
+				}
+				
+				theoreticalNFuncs.get(i).set(worstN, targetVal);
+			}
+		}
+		
+		gp.drawGraphPanel("N", "Target Mean / Std Dev Of Mean", theoreticalNFuncs, chars, false,
+				"Theoretical N Needed to reach given Mean / Std Dev Of Mean");
+		plotFile = new File(dir, "partic_target_mean_over_std_dev_of_mean");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
+		
+		System.exit(0);
 	}
 	
 	private static void generateStabilityEALPlot(double[][] rates, double[] meanRates,
@@ -646,7 +743,7 @@ public class ManyRunCompilation {
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarNone_VarAPrioriWt100");
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarNone_VarAPrioriWt1000");
 		
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/results/VarAPrioriZero_VarAPrioriWt10000_VarWaterlevel0");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/results/VarAPrioriZero_VarAPrioriWt100_VarWaterlevel0");
 		File rupSetFile = new File(dir, "rupSet.zip");
 		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
 		int numRups = rupSet.getNumRuptures();
@@ -666,7 +763,7 @@ public class ManyRunCompilation {
 //		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarNone_VarAPrioriWt100";
 //		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarNone_VarAPrioriWt1000";
 		
-		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt10000_VarWaterlevel0";
+		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt100_VarWaterlevel0";
 		System.out.println("Loaded rates!");
 		
 		RateRecord[] rateRecords = new RateRecord[numRups];

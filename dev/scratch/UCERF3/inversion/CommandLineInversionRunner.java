@@ -63,7 +63,8 @@ public class CommandLineInversionRunner {
 		A_PRIORI_CONST_FOR_ZERO_RATES("apz", "a-priori-zero", "APrioriZero", false,
 				"Flag to apply a priori constraint to zero rate ruptures"),
 		A_PRIORI_CONST_WT("apwt", "a-priori-wt", "APrioriWt", true, "A priori constraint weight"),
-		WATER_LEVEL_FRACT("wtlv", "waterlevel", "Waterlevel", true, "Waterlevel fraction");
+		WATER_LEVEL_FRACT("wtlv", "waterlevel", "Waterlevel", true, "Waterlevel fraction"),
+		PARKFIELD_WT("pkfld", "parkfield-wt", "Parkfield", true, "Parkfield constraint weight");
 		
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -235,6 +236,12 @@ public class CommandLineInversionRunner {
 				double fract = Double.parseDouble(cmd.getOptionValue(InversionOptions.WATER_LEVEL_FRACT.argName));
 				System.out.println("Setting waterlevel fract: "+fract);
 				config.setMinimumRuptureRateFraction(fract);
+			}
+			
+			if (cmd.hasOption(InversionOptions.PARKFIELD_WT.argName)) {
+				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.PARKFIELD_WT.argName));
+				System.out.println("Setting parkfield constraint wt: "+wt);
+				config.setRelativeParkfieldConstraintWt(wt);
 			}
 			
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getFaultModel(), rupSet);
