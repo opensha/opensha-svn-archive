@@ -26,11 +26,14 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
+import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -45,40 +48,33 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * This was used to generate hazard curves for the sites in the TestLoc enum for
- * Frank Cherbaum and Nicolas Kuehn <Nicolas.Kuehn@geo.uni-potsdam.de>
- *
+ * USed to generate hazard curves for UCERF2 Time Independent List
+ * 
  * @author Peter Powers
  * @version $Id:$
  */
-class UcerfBranchGenerator implements PropertyChangeListener {
+class UcerfBranchGenerator2 implements PropertyChangeListener {
 
-	static final String OUT_DIR = "/Volumes/Scratch/scherbaum/PGA_03-09-2012/";
-	 private static AttenRelRef[] imrRefs = {CY_2008, AS_2008, CB_2008, BA_2008 };
-//	private static AttenRelRef[] imrRefs = { BA_2008 };
-	private static Period period = Period.GM0P00;
+	static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2_1p00_5-2-2012/";
+	 private static AttenRelRef[] imrRefs = { NSHMP_2008 };
+	private static Period period = Period.GM1P00;
 	private List<Future<?>> futures;
 
 	public static void main(String[] args) {
-		UcerfBranchGenerator gen = new UcerfBranchGenerator();
-		// SwingUtilities.invokeLater(new Runnable() {
-		// public void run() {
-		//
-		// }
-		// });
+		UcerfBranchGenerator2 gen = new UcerfBranchGenerator2();
 	}
 
-	private UcerfBranchGenerator() {
+	private UcerfBranchGenerator2() {
 		try {
 			int numProc = Runtime.getRuntime().availableProcessors();
 			ExecutorService ex = Executors.newFixedThreadPool(numProc);
 			futures = Lists.newArrayList();
 			for (AttenRelRef imrRef : imrRefs) {
-				for (TestLoc loc : TestLoc.values()) {
+				for (NEHRP_TestCity loc : NEHRP_TestCity.getCA()) {
 					ScalarIMR imr = newIMR(imrRef);
 					EpistemicListERF erfs = newERF();
-//					Processor proc = new Processor(imr, erfs, loc, period);
-//					futures.add(ex.submit(proc));
+					Processor proc = new Processor(imr, erfs, loc, period);
+					futures.add(ex.submit(proc));
 					
 					// proc.addPropertyChangeListener(this);
 					// proc.execute();
@@ -92,16 +88,22 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 	}
 
 	static EpistemicListERF newERF() {
-		AbstractEpistemicListERF erf = new UCERF2_TimeDependentEpistemicList();
+		AbstractEpistemicListERF erf = new UCERF2_TimeIndependentEpistemicList();
 		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		ts.setDuration(1);
 		erf.setTimeSpan(ts);
-		// erf.updateForecast();
+		
+		Parameter bgSrcParam = erf.getParameter(UCERF2.BACK_SEIS_RUP_NAME);
+		bgSrcParam.setValue(UCERF2.BACK_SEIS_RUP_POINT);
+		Parameter floatParam = erf.getParameter(UCERF2.FLOATER_TYPE_PARAM_NAME);
+		floatParam.setValue(UCERF2.FULL_DDW_FLOATER);
+		
+		// updateForecast called by EpistemicListERF
 		return erf;
 	}
 
 	static ScalarIMR newIMR(AttenRelRef imrRef) {
-		ScalarIMR imr = imrRef.instance(null);
+		ScalarIMR imr = imrRef.instance(null); 
 		imr.setParamDefaults();
 		if (period == Period.GM0P00) {
 			imr.setIntensityMeasure("PGA");
@@ -121,47 +123,6 @@ class UcerfBranchGenerator implements PropertyChangeListener {
 		// System.out.println(pce.getNewValue() + ": " + p.imr.getShortName() +
 		// " " + p.loc);
 		// }
-	}
-
-	enum TestLoc {
-		 HOLLISTER_CITY_HALL(-121.402, 36.851),
-		 INDIO_RV_SHOWCASE(-116.215, 33.747),
-		 CALEXICO_FIRE_STATION(-115.493, 32.6695),
-		 SAN_LUIS_OBISPO_REC(-120.661, 35.285),
-		 ANDERSON_SPRINGS(-122.706, 38.7742),
-		 COBB(-122.753, 38.8387);
-
-		private Location loc;
-
-		private TestLoc(double lon, double lat) {
-			loc = new Location(lat, lon);
-		}
-
-		public Location getLocation() {
-			return loc;
-		}
-
-		public Site getSite() {
-			Site s = new Site(loc, this.name());
-			// CY AS
-			DepthTo1pt0kmPerSecParam d10p = new DepthTo1pt0kmPerSecParam(null,
-				0, 1000, true);
-			d10p.setValueAsDefault();
-			s.addParameter(d10p);
-			// CB
-			DepthTo2pt5kmPerSecParam d25p = new DepthTo2pt5kmPerSecParam(null,
-				0, 1000, true);
-			d25p.setValueAsDefault();
-			s.addParameter(d25p);
-			// all
-			Vs30_Param vs30p = new Vs30_Param(760);
-			vs30p.setValueAsDefault();
-			s.addParameter(vs30p);
-			// AS CY
-			Vs30_TypeParam vs30tp = new Vs30_TypeParam();
-			s.addParameter(vs30tp);
-			return s;
-		}
 	}
 
 }

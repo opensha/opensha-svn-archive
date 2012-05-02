@@ -15,6 +15,7 @@ import org.jpedal.utils.sleep;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
+import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
@@ -32,7 +33,7 @@ class Processor implements Runnable {
 
 	private ScalarIMR imr;
 	private EpistemicListERF erfs;
-	private TestLoc loc;
+	private NEHRP_TestCity loc;
 	private Period per;
 	private Site site;
 	
@@ -41,7 +42,7 @@ class Processor implements Runnable {
 	private List<List<String>> paramData;
 	private List<List<String>> curveData;
 
-	Processor(ScalarIMR imr, EpistemicListERF erfs, TestLoc loc, Period per) {
+	Processor(ScalarIMR imr, EpistemicListERF erfs, NEHRP_TestCity loc, Period per) {
 		this.imr = imr;
 		this.erfs = erfs;
 		this.loc = loc;
@@ -180,7 +181,7 @@ class Processor implements Runnable {
 	}
 		
 	private static void buildParamHeaders() {
-		EpistemicListERF erfs = UcerfBranchGenerator.newERF();
+		EpistemicListERF erfs = UcerfBranchGenerator2.newERF();
 		HashMap<String, Integer> map = Maps.newHashMap();
 		List<String> header = Lists.newArrayList();
 		for (int i = 0; i < erfs.getNumERFs(); i++) {

@@ -107,7 +107,7 @@ ParameterChangeListener {
 	
 	// custom params
 	private static final String IMR_UNCERT_PARAM_NAME = "IMR uncertainty";
-	private boolean includeImrUncert = true;
+	private boolean includeImrUncert = false;
 	private static final String HW_EFFECT_PARAM_NAME = "Hanging Wall Effect Approx.";
 	private boolean hwEffectApprox = true;
 
