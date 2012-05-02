@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.swing.SwingUtilities;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -35,7 +36,7 @@ public class GridSrcMFDPlotter {
 	private static InversionFaultSystemSolution fss;
 	private static ArrayList<PlotCurveCharacterstics> plotChars;
 	private static SmallMagScaling magScaling = SmallMagScaling.MO_REDUCTION;
-	private static boolean incremental = false;
+	private static boolean incremental = true;
 	private static String fName = "tmp/invSols/reference_gr_sol2.zip";
 	
 	static {
@@ -66,8 +67,56 @@ public class GridSrcMFDPlotter {
 	GridSrcMFDPlotter() {
 		if (fName.contains("_ch_")) plotChar();
 		if (fName.contains("_gr_")) plotGR();
+		
+		plotFault(1617);
 	}
 	
+	void plotFault(int idx) {
+
+		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
+			fss, null, SpatialSeisPDF.UCERF3, 8.54, magScaling);
+		System.out.println("init done");
+		
+		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
+
+		String name = fss.getFaultSectionData(idx).getName();
+		
+		
+		IncrementalMagFreqDist fSubSeisIncr = gridGen.getSectSubSeisMFD(idx);
+		fSubSeisIncr.setName(name + " SubSeis MFD");
+		EvenlyDiscretizedFunc fSubSeisCum = fSubSeisIncr.getCumRateDist();
+		
+		IncrementalMagFreqDist fSupSeisIncr = fss.calcNucleationMFD_forSect(idx,
+			fSubSeisIncr.getMinX(), fSubSeisIncr.getMaxX(),fSubSeisIncr.getNum());
+		fSupSeisIncr.setName(name + " SupraSeis MFD");
+		EvenlyDiscretizedFunc fSupSeisCum = fSupSeisIncr.getCumRateDist();
+		
+		IncrementalMagFreqDist fTotalIncr = fSubSeisIncr.deepClone();
+		fTotalIncr.setName(name + "Total MFD");
+		addDistro(fTotalIncr, fSupSeisIncr);
+		EvenlyDiscretizedFunc fTotalCum = fTotalIncr.getCumRateDist();
+		
+		funcs.add(incremental ? fSupSeisIncr : fSupSeisCum);
+		funcs.add(incremental ? fSubSeisIncr : fSubSeisCum);
+		funcs.add(incremental ? fTotalIncr : fTotalCum);
+
+		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
+			(fName.contains("_gr_") ? "GR" : "CH") +
+				" : " +
+				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+					magScaling.toString()) + " : " +
+							(incremental ? "Incr" : "Cum") + " : " + name, plotChars);
+		plotter.setX_AxisRange(fTotalIncr.getMinX(), fTotalIncr.getMaxX());
+		plotter.setY_AxisRange(1e-10, 1e-4);
+		plotter.setYLog(true);
+		
+
+		// for (FaultSectionPrefData fault : fss.getFaultSectionDataList()) {
+		// System.out.println(fault.getSectionId() + " : " +
+		// fault.getSectionName());
+		// }
+
+	}
 	void plotChar() {
 
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
@@ -77,7 +126,8 @@ public class GridSrcMFDPlotter {
 		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
 		
 		// Total on-fault
-		IncrementalMagFreqDist tOnIncr = fss.calcTotalNucleationMFD(5.05, 8.45, 0.1);
+//		IncrementalMagFreqDist tOnIncr = fss.calcTotalNucleationMFD(5.05, 8.45, 0.1);
+		IncrementalMagFreqDist tOnIncr = fss.calcNucleationMFD_forRegion(new CaliforniaRegions.RELM_TESTING(), 5.05, 8.45, 0.1, true);
 		tOnIncr.setName("Total on-fault MFD from inversion");
 		EvenlyDiscretizedFunc tOnCum = tOnIncr.getCumRateDist();
 		funcs.add(incremental ? tOnIncr : tOnCum);
@@ -136,7 +186,7 @@ public class GridSrcMFDPlotter {
 				" : " +
 				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
 					magScaling.toString()) + " : " +
-				(incremental ? "Incremental" : "Cumulative"), plotChars);
+				(incremental ? "Incr" : "Cum"), plotChars);
 		plotter.setX_AxisRange(tssSectIncr.getMinX(), tssSectIncr.getMaxX());
 		plotter.setY_AxisRange(1e-6, 1e1);
 		plotter.setYLog(true);
@@ -193,30 +243,20 @@ public class GridSrcMFDPlotter {
 		EvenlyDiscretizedFunc trueOffCum = trueOffIncr.getCumRateDist();
 		funcs.add(incremental ? trueOffIncr : trueOffCum);
 		
-		// unassoc sum + section sum
-		IncrementalMagFreqDist unSectIncr = tssSectIncr.deepClone();
-		addDistro(unSectIncr, trueOffIncr);
-		unSectIncr.setName("Summed sub-seismogenic MFDs (sect + unnassociated)");
-		EvenlyDiscretizedFunc unSectCum = unSectIncr.getCumRateDist();
-		funcs.add(incremental ? unSectIncr : unSectCum);
+//		// unassoc sum + section sum
+//		IncrementalMagFreqDist unSectIncr = tssSectIncr.deepClone();
+//		addDistro(unSectIncr, trueOffIncr);
+//		unSectIncr.setName("Summed sub-seismogenic MFDs (sect + unnassociated)");
+//		EvenlyDiscretizedFunc unSectCum = unSectIncr.getCumRateDist();
+//		funcs.add(incremental ? unSectIncr : unSectCum);
 
-		// subSeis + on
-		IncrementalMagFreqDist tssSectOnIncr = tssSectIncr.deepClone();
-		addDistro(tssSectOnIncr, tOnIncr);
-		tssSectOnIncr.setName("Total subSeis + on-fault");
-		EvenlyDiscretizedFunc tssSectOnCum = tssSectOnIncr.getCumRateDist();
-		funcs.add(incremental ? tssSectOnIncr : tssSectOnCum);
-
-		
-//		// test scaling total off fault by total MoReduc
-//		if (magScaling.equals(SmallMagScaling.MO_REDUCTION)) {
-//			IncrementalMagFreqDist testScale = tofIncr.deepClone();
-//			testScale.setName("MFD scaled to total mo reduction");
-//			testScale.zeroAtAndAboveMag(6.6);
-//			double reduction = fss.getTotalSubseismogenicMomentRateReduction();
-//			testScale.scaleToTotalMomentRate(reduction);
-//			funcs.add(testScale);
-//		}
+		// onFault + subSeis + unassociated
+		IncrementalMagFreqDist tssRegionIncr = tssSectIncr.deepClone();
+		addDistro(tssRegionIncr, tOnIncr);
+		addDistro(tssRegionIncr, trueOffIncr);
+		tssRegionIncr.setName("Total on-fault + subSeis + unassociated");
+		EvenlyDiscretizedFunc tssRegionCum = tssRegionIncr.getCumRateDist();
+		funcs.add(incremental ? tssRegionIncr : tssRegionCum);
 		
 		
 		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
@@ -224,9 +264,9 @@ public class GridSrcMFDPlotter {
 				" : " +
 				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
 					magScaling.toString()) + " : " +
-				(incremental ? "Incremental" : "Cumulative"), plotChars);
+				(incremental ? "Incr" : "Cum"), plotChars);
 		plotter.setX_AxisRange(tssSectIncr.getMinX(), tssSectIncr.getMaxX());
-		plotter.setY_AxisRange(1e-6, 1e1);
+		plotter.setY_AxisRange(1e-6, 3e1);
 		plotter.setYLog(true);
 		
 	}
@@ -238,82 +278,5 @@ public class GridSrcMFDPlotter {
 			}
 		});
 	}
-	
-	
-	GridSrcMFDPlotter(double duh) {
-
-		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			fss, null, SpatialSeisPDF.UCERF3, 8.54, magScaling);
-		System.out.println("init done");
-		
-		Map<String, FaultSectionPrefData> sectionMap = Maps.newLinkedHashMap();
-		for (FaultSectionPrefData fault : fss.getFaultSectionDataList()) {
-			sectionMap.put(fault.getName(), fault);
-		}
-		
-//		int idx = 300;
-//		System.out.println(fss.getFaultSectionData(idx).getSectionName());
-		
-//		fss.get
-		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
-		
-		
-		// Total on fault (seismogenic)
-		IncrementalMagFreqDist tofIncr = fss.getImpliedOffFaultStatewideMFD();
-		tofIncr.setName("Total off-fault MFD from inversion");
-		EvenlyDiscretizedFunc tofCum = tofIncr.getCumRateDist();
-		funcs.add(incremental ? tofIncr : tofCum);
-		
-		// Total sub seismogenic (section sum)
-//		IncrementalMagFreqDist tssSect = gridGen.getSectSubSeisMFD();
-//		funcs.add(tssSect);
-		
-		// Total sub seismogenic (node sum)
-		IncrementalMagFreqDist tssNodeIncr = gridGen.getNodeSubSeisMFD();
-		EvenlyDiscretizedFunc tssNodeCum = tssNodeIncr.getCumRateDist();
-		funcs.add(incremental ? tssNodeIncr : tssNodeCum);
-		
-		// the two above should be equal
-		
-		// Total true off-fault (unassociated)
-		IncrementalMagFreqDist trueOffIncr = gridGen.getNodeUnassociatedMFD();
-		EvenlyDiscretizedFunc trueOffCum = trueOffIncr.getCumRateDist();
-		funcs.add(incremental ? trueOffIncr : trueOffCum);
-		
-		// node sum + section sum
-		IncrementalMagFreqDist tssIncr = tssNodeIncr.deepClone();
-		addDistro(tssIncr, trueOffIncr);
-		tssIncr.setName("Summed sub-seismogenic MFDs (node + unnassociated)");
-		EvenlyDiscretizedFunc tssCum = tssIncr.getCumRateDist();
-		funcs.add(incremental ? tssIncr : tssCum);
-
-		
-//		// test scaling total off fault by total MoReduc
-//		if (magScaling.equals(SmallMagScaling.MO_REDUCTION)) {
-//			IncrementalMagFreqDist testScale = tofIncr.deepClone();
-//			testScale.setName("MFD scaled to total mo reduction");
-//			testScale.zeroAtAndAboveMag(6.6);
-//			double reduction = fss.getTotalSubseismogenicMomentRateReduction();
-//			testScale.scaleToTotalMomentRate(reduction);
-//			funcs.add(testScale);
-//		}
-		
-		
-		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
-			(fName.contains("_gr_") ? "GR" : "CH") +
-				" : " +
-				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
-					magScaling.toString()) + " : " +
-				(incremental ? "Incremental" : "Cumulative"), plotChars);
-		plotter.setX_AxisRange(tssNodeIncr.getMinX(), tssNodeIncr.getMaxX());
-		plotter.setY_AxisRange(1e-6, 1e1);
-		plotter.setYLog(true);
-		
-		
-		
-		
-	}
-
-
 	
 }

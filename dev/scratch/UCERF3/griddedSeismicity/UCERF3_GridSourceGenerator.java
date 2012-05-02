@@ -14,6 +14,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.impl.CPTParameter;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
@@ -299,25 +300,33 @@ public class UCERF3_GridSourceGenerator {
 		// faults to whatever fraction of their area is NOT occupied by faults
 		//    - this does not require normalization
 		revisedSpatialPDF = new double[srcSpatialPDF.length];
+		for (int i=0; i<region.getNodeCount(); i++) {
+			double fraction = 1 - polyMgr.getNodeFraction(i);
+			revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
+		}
 		if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
-			for (int i=0; i<region.getNodeCount(); i++) {
-				double fraction = 1 - polyMgr.getNodeFraction(i);
-				revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
-			}
+			// to maintain consistency with spatial approach, where the
+			// realOffFaultMFD is the sum of the unassociated mfd for all nodes
+			// [via getNodeUnassociatedMFD()] and the unassociated mfd for any
+			// node is the product of the pdf and realOffFaultMFD, we must
+			// scale the previously computed realOffFaultMFD
+			double scale = DataUtils.sum(revisedSpatialPDF);
+			System.out.println("scale: " + scale);
+			realOffFaultMFD.scaleToCumRate(mfdMin, totalMgt5_Rate * scale);
+			DataUtils.asWeights(revisedSpatialPDF);
+			
 		} else {
 			//SPATIAL - this is the same as before
-			for (int i=0; i<region.getNodeCount(); i++) {
-				double fraction = 1 - polyMgr.getNodeFraction(i);
-				revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
-			}
+//			for (int i=0; i<region.getNodeCount(); i++) {
+//				double fraction = 1 - polyMgr.getNodeFraction(i);
+//				revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
+//			}
 			// normalize
-			double sum = 0.0;
-			for (double d : revisedSpatialPDF) {
-				sum += d;
-			}
-			for (int i=0; i<revisedSpatialPDF.length; i++) {
-				revisedSpatialPDF[i] /= sum;
-			}
+			DataUtils.asWeights(revisedSpatialPDF);
+//			double sum = DataUtils.sum(revisedSpatialPDF);
+//			for (int i=0; i<revisedSpatialPDF.length; i++) {
+//				revisedSpatialPDF[i] /= sum;
+//			}
 		}
 	}
 	
