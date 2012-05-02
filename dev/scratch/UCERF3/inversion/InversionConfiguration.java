@@ -183,8 +183,8 @@ public class InversionConfiguration {
 		// weight of Moment Constraint (set solution moment to equal deformation model moment) (recommended: 1e-17)
 		double relativeMomentConstraintWt = 0;
 		
-		// weight of Parkfield rupture rate Constraint (recommended: 1e8)
-		double relativeParkfieldConstraintWt = 1e8;
+		// weight of Parkfield rupture rate Constraint (recommended: 1000?)
+		double relativeParkfieldConstraintWt = 1000;
 		
 		
 		String metadata = "";
@@ -227,11 +227,11 @@ public class InversionConfiguration {
 			relativeRupRateConstraintWt = 100;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
 			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
-			initialRupModel = new double[rupSet.getNumRuptures()];
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,getGR_Dist(rupSet, 1.0, 9.0)), mfdConstraints, rupSet, true);
 			initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
 			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
+			initialRupModel = adjustParkfield(rupSet, initialRupModel);
 			break;
 		case GR:
 			relativeParticipationSmoothnessConstraintWt = 1000;
@@ -241,6 +241,7 @@ public class InversionConfiguration {
 			minimumRuptureRateFraction = 0.01;
 			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
+			initialRupModel = adjustParkfield(rupSet, initialRupModel);
 			break;
 		case UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
@@ -293,6 +294,40 @@ public class InversionConfiguration {
 				metadata);
 	}
 	
+	// Adjust rates of 6 Parkfield M~6 ruptures (6- 7- and 8- subsection ruptures on the Parkfield section)
+	// So that they sum to 1/25 per year for the initial model
+	private static double[] adjustParkfield(FaultSystemRupSet rupSet,
+			double[] initialRupModel) {
+		
+		double parkfieldMeanRate = 1.0/25.0; // Bakun et al. (2005)
+		int parkfieldParentSectID = 32;
+		
+		// Find Parkfield M~6 ruptures
+		List<Integer> potentialRups = rupSet.getRupturesForParentSection(parkfieldParentSectID);
+		List<Integer> parkfieldRups = new ArrayList<Integer>();
+		rupLoop:
+		for (int i=0; i<potentialRups.size(); i++) {
+			List<Integer> sects = rupSet.getSectionsIndicesForRup(potentialRups.get(i));
+			// Make sure there are 6-8 subsections
+			if (sects.size()<6 || sects.size()>8)
+				continue rupLoop;
+			// Make sure each section in rup is in Parkfield parent section
+			for (int s=0; s<sects.size(); s++) {
+				int parent = rupSet.getFaultSectionData(sects.get(s)).getParentSectionId();
+				if (parent != parkfieldParentSectID)
+					continue rupLoop;
+			}
+			parkfieldRups.add(potentialRups.get(i));
+		}
+		
+		for (int i=0; i<parkfieldRups.size(); i++) {
+			initialRupModel[parkfieldRups.get(i)] = parkfieldMeanRate/(double)parkfieldRups.size();
+			System.out.println("initialRupModel["+parkfieldRups.get(i)+"] = "+initialRupModel[parkfieldRups.get(i)]);
+		}
+			
+		return initialRupModel;
+	}
+
 	/**
 	 * This builds the original MFD constraints without making any modifications for minimum magnitudes of off fault moment.
 	 * 

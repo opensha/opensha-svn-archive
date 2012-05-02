@@ -47,6 +47,7 @@ public class InversionInputGenerator {
 	 */
 	private static final boolean QUICK_GETS_SETS = !D || true;
 	private boolean aPrioriConstraintForZeroRates = false;  // If true, a Priori rup-rate constraint is applied to zero rates (eg, rups not in UCERF2)
+	private boolean excludeParkfieldRupsFromMfdEqualityConstraints = true; // If true, rates of Parkfield M~6 ruptures do not count toward MFD Equality Constraint misfit
 	
 	// inputs
 	private FaultSystemRupSet rupSet;
@@ -450,6 +451,27 @@ public class InversionInputGenerator {
 			if(D) System.out.println("\nAdding " + mfdEqualityConstraints.size()
 					+ " magnitude distribution equality constraints to A matrix ...");	
 			
+			// Find Parkfield M~6 ruptures (if we're excluding them)
+			List<Integer> parkfieldRups = new ArrayList<Integer>();
+			if (config.getRelativeParkfieldConstraintWt() > 0.0) {
+				int parkfieldParentSectID = 32;
+				List<Integer> potentialRups = rupSet.getRupturesForParentSection(parkfieldParentSectID);
+				rupLoop:
+					for (int i=0; i<potentialRups.size(); i++) {
+						List<Integer> sects = rupSet.getSectionsIndicesForRup(potentialRups.get(i));
+						// Make sure there are 6-8 subsections
+						if (sects.size()<6 || sects.size()>8)
+							continue rupLoop;
+						// Make sure each section in rup is in Parkfield parent section
+						for (int s=0; s<sects.size(); s++) {
+							int parent = rupSet.getFaultSectionData(sects.get(s)).getParentSectionId();
+							if (parent != parkfieldParentSectID)
+								continue rupLoop;
+						}
+						parkfieldRups.add(potentialRups.get(i));
+					}
+			}
+			
 			// Loop over all MFD constraints in different regions
 			for (int i=0; i < mfdEqualityConstraints.size(); i++) {
 				double[] fractRupsInside = rupSet.getFractRupsInsideRegion(mfdEqualityConstraints.get(i).getRegion(), false);
@@ -458,12 +480,14 @@ public class InversionInputGenerator {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInside[rup];
 					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
-//						A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
-						if (QUICK_GETS_SETS)
-							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
-						else
-							A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
-						numNonZeroElements++;
+						if (excludeParkfieldRupsFromMfdEqualityConstraints==false || !parkfieldRups.contains(rup)) {		
+//							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
+							if (QUICK_GETS_SETS)
+								A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+							else
+								A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+							numNonZeroElements++;
+						}
 					}
 				}		
 				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
@@ -624,7 +648,7 @@ public class InversionInputGenerator {
 		if (config.getRelativeParkfieldConstraintWt() > 0.0) {
 			if(D) System.out.println("\nAdding Parkfield rupture-rate constraints to A matrix ...");
 			double relativeParkfieldConstraintWt = config.getRelativeParkfieldConstraintWt();
-			double ParkfieldMeanRate = 1/25; // Bakun et al. (2005)
+			double ParkfieldMeanRate = 1.0/25.0; // Bakun et al. (2005)
 			int parkfieldParentSectID = 32;
 			
 			// Find Parkfield M~6 ruptures
@@ -650,7 +674,7 @@ public class InversionInputGenerator {
 			numNonZeroElements = 0;
 			for (int r=0; r<parkfieldRups.size(); r++)  {
 				int rup = parkfieldRups.get(r);
-				if (QUICK_GETS_SETS)
+				if (QUICK_GETS_SETS) 
 					A.setQuick(rowIndex,rup,relativeParkfieldConstraintWt);
 				else
 					A.set(rowIndex,rup,relativeParkfieldConstraintWt);
