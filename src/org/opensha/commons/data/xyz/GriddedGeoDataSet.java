@@ -22,14 +22,12 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 	private static final long serialVersionUID = 1L;
 	
 	private GriddedRegion region;
-	private LocationList nodeList;
-	private HashMap<Location, Double> map;
+	double[] values;
 	
 	public GriddedGeoDataSet(GriddedRegion region, boolean latitudeX) {
 		super(latitudeX);
 		this.region = region;
-		nodeList = region.getNodeList();
-		map = new HashMap<Location, Double>();
+		values = new double[region.getNodeCount()];
 	}
 
 	@Override
@@ -39,29 +37,30 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 
 	@Override
 	public void set(Location loc, double value) {
-		if (!contains(loc))
+		int index = indexOf(loc);
+		if (index < 0)
 			throw new InvalidRangeException("point must exist in the gridded region!");
-		map.put(loc, value);
+		values[index] = value;
 	}
 
 	@Override
 	public double get(Location loc) {
-		return map.get(loc);
+		return values[indexOf(loc)];
 	}
 
 	@Override
 	public int indexOf(Location loc) {
-		return nodeList.indexOf(loc);
+		return region.indexForLocation(loc);
 	}
 
 	@Override
 	public Location getLocation(int index) {
-		return nodeList.get(index);
+		return region.getLocation(index);
 	}
 
 	@Override
 	public boolean contains(Location loc) {
-		return nodeList.contains(loc);
+		return indexOf(loc) >= 0;
 	}
 
 	@Override
@@ -82,7 +81,7 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 
 	@Override
 	public LocationList getLocationList() {
-		return nodeList;
+		return region.getNodeList();
 	}
 
 }

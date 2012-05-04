@@ -147,8 +147,9 @@ public class TestGriddedRegionDataSet {
 		// now set some that aren't contained
 		Location origin = grid.getNodeList().get(0);
 		double halfSpacing = grid.getSpacing()*0.5;
+		
 		try {
-			data.set(new Location(origin.getLatitude() + halfSpacing, origin.getLongitude() + halfSpacing), 0d);
+			data.set(new Location(data.getMaxLat()+halfSpacing+0.01, data.getMaxLon()+halfSpacing+0.01), 0d);
 			fail("Exceptoin should have been thrown setting incorrect point!");
 		} catch (InvalidRangeException e) {}
 		try {
