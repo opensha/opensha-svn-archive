@@ -141,7 +141,7 @@ public class GridReader {
 
 	public static void main(String[] args) {
 		
-//		String fName =  "SmoothSeis_KF_3-12-2012.txt";
+//		String fName =  "SmoothSeis_KF_5-5-2012.txt";
 //		File f = getSourceFile(fName);
 //		System.out.println(f.exists());
 //		GridReader gr = new GridReader();

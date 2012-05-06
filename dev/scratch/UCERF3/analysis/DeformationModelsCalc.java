@@ -6,13 +6,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -50,14 +53,15 @@ public class DeformationModelsCalc {
 		int num=0;
 		
 		for(FaultSectionPrefData data : subsectData) {
+			if(data.getAveLowerDepth()>25.0) {
+//				System.out.println(data.toString());
+				String info = data.getParentSectionName()+"\tLowSeisDep = "+Math.round(data.getAveLowerDepth());
+				if(!largeValuesInfoLSD.contains(info)) largeValuesInfoLSD.add(info);
+//				continue;
+			}
 			num+=1;
-			
 			meanLSD+= data.getAveLowerDepth();
 			origDepthsHist.add(data.getAveLowerDepth(), 1.0);
-			if(data.getAveLowerDepth()>25.0) {
-				String info = data.getParentSectionName()+"\tLowSeeisDep = "+Math.round(data.getAveLowerDepth());
-				if(!largeValuesInfoLSD.contains(info)) largeValuesInfoLSD.add(info);
-			}
 			meanDDW += data.getReducedDownDipWidth();
 			meanLowerMinusUpperSeisDepth += (1.0-data.getAseismicSlipFactor())*(data.getAveLowerDepth()-data.getOrigAveUpperDepth());
 			reducedDDW_Hist.add(data.getReducedDownDipWidth(), 1.0);
@@ -71,9 +75,11 @@ public class DeformationModelsCalc {
 		meanDDW /= num;
 		meanLowerMinusUpperSeisDepth /= num;
 		
+//		System.out.println("meanLowerMinusUpperSeisDepth="+(float)meanLowerMinusUpperSeisDepth);
 		System.out.println("meanLowerMinusUpperSeisDepth="+Math.round(meanLowerMinusUpperSeisDepth));
 		
 		origDepthsHist.normalizeBySumOfY_Vals();
+//		origDepthsHist.setName("Distribution of Lower Seis. Depths; mean = "+(float)meanLSD);
 		origDepthsHist.setName("Distribution of Lower Seis. Depths; mean = "+Math.round(meanLSD));
 		String infoLSW = "(among all fault subsections, and not influcenced by aseismicity)\n\nValues greater than 25km:\n\n";
 		for(String info:largeValuesInfoLSD)
@@ -225,7 +231,7 @@ public class DeformationModelsCalc {
 //		double fractOff = InversionConfiguration.findMomentFractionOffFaults(null, fm, dm, 1d);
 //		double totMoRate = calcTotalMomentRate(moRate,fractOff);
 		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(0.0005,9.9995,10000);
-		targetMFD.setAllButMagUpper(0.0005, totMoRate, 854000, 1.0, true);
+		targetMFD.setAllButMagUpper(0.0005, totMoRate, 8.54e5, 1.0, true);
 		
 		// now get moment rate of new faults only
 		ArrayList<String> getEquivUCERF2_SectionNames = FindEquivUCERF2_FM3_Ruptures.getAllSectionNames(fm);
@@ -504,6 +510,9 @@ public class DeformationModelsCalc {
 	}
 
 	
+	/**
+	 * This was done for the May 8-9, 2012 review meeting
+	 */
 	public static void plotMoreSpatialMaps() {
 		
 		FaultModels fm = FaultModels.FM3_1;
@@ -847,6 +856,69 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	public static void plotMmaxVersusFractSeisOffFault(double moRateOnFault, double moRateOffFault, double totMge5_rate,
+			String label, String fileName) {
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0, 1100, 0.01);
+		EvenlyDiscretizedFunc offMmaxFunc = new EvenlyDiscretizedFunc(0.1,9,0.1);
+		EvenlyDiscretizedFunc onMmaxFunc = new EvenlyDiscretizedFunc(0.1,9,0.1);
+		for(int i=0; i<offMmaxFunc.getNum();i++) {
+			double fracOff = offMmaxFunc.getX(i);
+			gr.setAllButMagUpper(0.0, moRateOffFault, fracOff*totMge5_rate*1e5, 1.0, false);
+			offMmaxFunc.set(i,gr.getMagUpper());
+			gr.setAllButMagUpper(0.0, moRateOnFault, (1-fracOff)*totMge5_rate*1e5, 1.0, false);
+			onMmaxFunc.set(i,gr.getMagUpper());
+		}
+		offMmaxFunc.setName("offMmaxFunc");
+		onMmaxFunc.setName("onMmaxFunc");
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+		funcs.add(offMmaxFunc);
+		funcs.add(onMmaxFunc);
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 5, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 5, null, 0, Color.BLUE));
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, label);
+		graph.setX_AxisRange(0, 1);
+		graph.setY_AxisRange(6.5, 10);
+		graph.setX_AxisLabel("Fraction of Total Seismicity That is Off Fault");
+		graph.setY_AxisLabel("Maximum Magnitude");
+		graph.setTickLabelFontSize(14);
+		graph.setAxisLabelFontSize(16);
+		graph.setPlotLabelFontSize(18);
+		if(fileName != null) {
+			try {
+				graph.saveAsPNG(fileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}		
+	}
+	
+	public static void plotAllMmaxVersusFractSeisOffFault() {
+		
+		double rateMge5 = 8.54;  // HARD CODED!!!!!
+		
+		// hard-coded values for UCERF2
+		plotMmaxVersusFractSeisOffFault(1.73e19, 0.54e19, 8.54,"UCERF2 Def Mod 2.1", "mMaxVsOffFltSeis_UCERF2.png");
+		
+		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
+		FaultModels fm = FaultModels.FM3_1;
+		
+		defModList.add(DeformationModels.ABM);
+		defModList.add(DeformationModels.GEOLOGIC);
+		defModList.add(DeformationModels.GEOLOGIC_PLUS_ABM);
+		defModList.add(DeformationModels.NEOKINEMA);
+		defModList.add(DeformationModels.ZENG);
+		defModList.add(DeformationModels.GEOBOUND);
+		
+		for(DeformationModels dm :defModList) {
+			String label = dm+" Def Mod";
+			String fileName = "mMaxVsOffFltSeis_"+dm+".png";
+			plotMmaxVersusFractSeisOffFault(calcFaultMoRateForDefModel(fm,dm,true), 
+					calcMoRateOffFaultsForDefModel(fm,dm), rateMge5, label, fileName);
+		}
+
+	}
 	
 
 	/**
@@ -855,13 +927,20 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
+//		plotAllMmaxVersusFractSeisOffFault();
+		
+//		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 
+//				DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+//		plotDDW_AndLowerSeisDepthDistributions(defFetch.getSubSectionList(),"FM3_1 & GEOLOGIC Def Mod");
+
+		
 //		writeFractionOffFaultMoRateInsideFaultPolygons();
 		
 //		writeFractionRegionNodesInsideFaultPolygons();
 		
-		writeMoRateOfParentSections(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
+//		writeMoRateOfParentSections(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
 		
-//		plotMoreSpatialMaps();
+		plotMoreSpatialMaps();
 
 //		testFaultZonePolygons();
 		
@@ -894,9 +973,6 @@ public class DeformationModelsCalc {
 
 		
 		
-//		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1,
-//				DeformationModels.GEOLOGIC_PLUS_ABM,default_scratch_dir);
-//		plotDDW_AndLowerSeisDepthDistributions(defFetch.getSubSectionList(),"FM3_1 & GEOLOGIC_PLUS_ABM");
 	}
 
 }

@@ -30,7 +30,7 @@ public enum SpatialSeisPDF {
 	
 	UCERF3 {
 		@Override public double[] getPDF() {
-			return new GridReader("SmoothSeis_KF_3-12-2012.txt").getValues();
+			return new GridReader("SmoothSeis_KF_5-5-2012.txt").getValues();
 		}
 	},
 	

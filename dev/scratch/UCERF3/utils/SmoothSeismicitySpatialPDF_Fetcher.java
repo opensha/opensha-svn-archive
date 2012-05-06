@@ -24,7 +24,7 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 	
 	public static final String SUBDIR = "SeismicityGrids";
 	public static final String FILENAME_UCERF2 = "SmoothSeis_UCERF2.txt";
-	public static final String FILENAME_UCERF3 = "SmoothSeis_KF_3-12-2012.txt";
+	public static final String FILENAME_UCERF3 = "SmoothSeis_KF_5-5-2012.txt";
 	
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	
