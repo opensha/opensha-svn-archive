@@ -38,6 +38,7 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 
 public class CVM2BasinDepth extends AbstractSiteData<Double> {
 	
@@ -84,7 +85,7 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 		this.fileName = fileName;
 		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
-				BinaryMesh2DCalculator.TYPE_FLOAT, nx, ny, minLat, minLon, gridSpacing);
+				DataType.FLOAT, nx, ny, minLat, minLon, gridSpacing);
 		
 		if (useServlet) {
 			servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);

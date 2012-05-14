@@ -36,6 +36,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
 public class WillsMap2006 extends AbstractSiteData<Double> {
@@ -83,7 +84,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		this.fileName = dataFile;
 		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
-				BinaryMesh2DCalculator.TYPE_SHORT,nx, ny, minLat, minLon, spacing);
+				DataType.SHORT,nx, ny, minLat, minLon, spacing);
 		
 		calc.setStartBottom(false);
 		calc.setStartLeft(true);

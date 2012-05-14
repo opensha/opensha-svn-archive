@@ -38,6 +38,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 
 public class SRTM30Topography extends AbstractSiteData<Double> {
 	
@@ -90,7 +91,7 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 		}
 		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
-				BinaryMesh2DCalculator.TYPE_SHORT,nx, ny, minLat, minLon, spacing);
+				DataType.SHORT,nx, ny, minLat, minLon, spacing);
 		
 		calc.setStartBottom(false);
 		calc.setStartLeft(true);

@@ -64,7 +64,8 @@ public class CommandLineInversionRunner {
 				"Flag to apply a priori constraint to zero rate ruptures"),
 		A_PRIORI_CONST_WT("apwt", "a-priori-wt", "APrioriWt", true, "A priori constraint weight"),
 		WATER_LEVEL_FRACT("wtlv", "waterlevel", "Waterlevel", true, "Waterlevel fraction"),
-		PARKFIELD_WT("pkfld", "parkfield-wt", "Parkfield", true, "Parkfield constraint weight");
+		PARKFIELD_WT("pkfld", "parkfield-wt", "Parkfield", true, "Parkfield constraint weight"),
+		PALEO_WT("paleo", "paleo-wt", "Paleo", true, "Paleoconstraint weight");
 		
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -244,6 +245,12 @@ public class CommandLineInversionRunner {
 				config.setRelativeParkfieldConstraintWt(wt);
 			}
 			
+			if (cmd.hasOption(InversionOptions.PALEO_WT.argName)) {
+				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.PALEO_WT.argName));
+				System.out.println("Setting paleo constraint wt: "+wt);
+				config.setRelativePaleoRateWt(wt);
+			}
+			
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getFaultModel(), rupSet);
 			
 			PaleoProbabilityModel paleoProbabilityModel =
@@ -407,7 +414,7 @@ public class CommandLineInversionRunner {
 			fw.write(info);
 			fw.close();
 			
-			System.out.println("Deleting RupSet (no longer needed)");
+			System.out.println("Deleting RupSet (norelativePaleoRateWt longer needed)");
 			rupSetFile.delete();
 		} catch (MissingOptionException e) {
 			System.err.println(e.getMessage());

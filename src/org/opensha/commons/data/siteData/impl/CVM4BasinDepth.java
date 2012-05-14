@@ -20,6 +20,7 @@
 package org.opensha.commons.data.siteData.impl;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -40,6 +41,7 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 
 public class CVM4BasinDepth extends AbstractSiteData<Double> {
@@ -114,7 +116,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 		this.type = type;
 		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
-				BinaryMesh2DCalculator.TYPE_FLOAT, nx, ny, minLat, minLon, gridSpacing);
+				DataType.FLOAT, nx, ny, minLat, minLon, gridSpacing);
 		
 		if (useServlet) {
 			if (type.equals(TYPE_DEPTH_TO_1_0))
@@ -240,17 +242,22 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	public static void main(String[] args) throws IOException {
 		CVM4BasinDepth local = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5, false);
 		
+		FileWriter fw = new FileWriter(new File("/tmp/cvm_grid_locs.txt"));
+		System.out.println("Expected Lat Bounds: "+local.calc.getMinLat()+"=>"+local.calc.getMaxLat());
+		System.out.println("Expected Lon Bounds: "+local.calc.getMinLon()+"=>"+local.calc.getMaxLon());
 		int cnt = 0;
 		for (long pos=0; pos<MAX_FILE_POS; pos+=4) {
 			Double val = local.getValue(pos);
-			if (val > DepthTo2pt5kmPerSecParam.MAX) {
+//			if (val > DepthTo2pt5kmPerSecParam.MAX) {
 				cnt++;
 				long x = local.calc.calcFileX(pos);
-				long y = local.calc.calcFileX(pos);
+				long y = local.calc.calcFileY(pos);
 				Location loc = local.calc.getLocationForPoint(x, y);
-				System.out.println(loc.getLatitude() + ", " + loc.getLongitude() + ": " + val);
-			}
+//				System.out.println(loc.getLatitude() + ", " + loc.getLongitude() + ": " + val);
+				fw.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\n");
+//			}
 		}
+		fw.close();
 		System.out.println("Num above: " + cnt);
 		
 		System.exit(0);

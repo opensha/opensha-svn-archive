@@ -14,6 +14,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 import org.opensha.commons.util.interp.BicubicInterpolation2D;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
@@ -193,7 +194,7 @@ public class NewWillsMap {
 		RandomAccessFile file = new RandomAccessFile(new File(BIN_FILE), "r");
 		
 		GeolocatedRectangularBinaryMesh2DCalculator calc = new GeolocatedRectangularBinaryMesh2DCalculator(
-				BinaryMesh2DCalculator.TYPE_SHORT,nx, ny, minLat, minLon, spacing);
+				DataType.SHORT,nx, ny, minLat, minLon, spacing);
 		
 		calc.setStartBottom(false);
 		calc.setStartLeft(true);

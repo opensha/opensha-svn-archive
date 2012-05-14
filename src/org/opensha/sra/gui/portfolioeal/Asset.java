@@ -154,7 +154,7 @@ public class Asset implements Cloneable {
 	 */
 	private void siteSetup( Site site ) {
 		site.setName((String) getParameterList().getParameter("SiteName").getValue());
-		site.setLocation(new Location((Double) getParameterList().getParameter("Lat").getValue(), (Double) paramList.getParameter("Lon").getValue()));
+		site.setLocation(getLocation());
 		assetSite = (Site)site.clone();
 		
 		double vs30 = (Double)getParameterList().getParameter("Vs30").getValue();
@@ -164,6 +164,10 @@ public class Asset implements Cloneable {
 		while (it.hasNext()) {
 			trans.setParameterValue(it.next(), vs30val);
 		}
+	}
+	
+	public Location getLocation() {
+		return new Location((Double) getParameterList().getParameter("Lat").getValue(), (Double) paramList.getParameter("Lon").getValue());
 	}
 
 	/**
@@ -303,11 +307,15 @@ public class Asset implements Cloneable {
 
 		if ( error ) controller.calculationException( errorMessage );
 
-		EALCalculator currentCalc = new EALCalculator( annualizedRates, vulnModel.getVulnerabilityFunc(), (Double)paramList.getParameter("Value").getValue() );
+		EALCalculator currentCalc = new EALCalculator( annualizedRates, vulnModel.getVulnerabilityFunc(), getValue() );
 		EAL = currentCalc.computeEAL();
 		calculationDone();
 		calc = null;
 		return EAL;
+	}
+	
+	public double getValue() {
+		return (Double)paramList.getParameter("Value").getValue();
 	}
 
 	/**

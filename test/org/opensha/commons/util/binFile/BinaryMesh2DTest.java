@@ -23,6 +23,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.MeshOrder;
 
 public class BinaryMesh2DTest {
 	
@@ -32,11 +34,11 @@ public class BinaryMesh2DTest {
 	BinaryMesh2DCalculator rect_fast_yx;
 
 	public BinaryMesh2DTest() {
-		singleRow = new BinaryMesh2DCalculator(BinaryMesh2DCalculator.TYPE_FLOAT, 10, 1);
-		singleCol = new BinaryMesh2DCalculator(BinaryMesh2DCalculator.TYPE_FLOAT, 1, 10);
-		rect = new BinaryMesh2DCalculator(BinaryMesh2DCalculator.TYPE_FLOAT, 7, 11);
-		rect_fast_yx = new BinaryMesh2DCalculator(BinaryMesh2DCalculator.TYPE_FLOAT, 7, 11);
-		rect_fast_yx.setMeshOrder(BinaryMesh2DCalculator.FAST_YX);
+		singleRow = new BinaryMesh2DCalculator(DataType.FLOAT, 10, 1);
+		singleCol = new BinaryMesh2DCalculator(DataType.FLOAT, 1, 10);
+		rect = new BinaryMesh2DCalculator(DataType.FLOAT, 7, 11);
+		rect_fast_yx = new BinaryMesh2DCalculator(DataType.FLOAT, 7, 11);
+		rect_fast_yx.setMeshOrder(MeshOrder.FAST_YX);
 	}
 	
 	@Test
@@ -95,7 +97,7 @@ public class BinaryMesh2DTest {
 	
 	private void doCalcXYTest(BinaryMesh2DCalculator calc) {
 		String fast;
-		if (calc.getMeshOrder() == BinaryMesh2DCalculator.FAST_XY)
+		if (calc.getMeshOrder() == MeshOrder.FAST_XY)
 			fast = "Fast XY";
 		else
 			fast = "Fast YX";

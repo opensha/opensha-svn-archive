@@ -52,7 +52,7 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 	 * @param minLon
 	 * @param gridSpacing
 	 */
-	public GeolocatedRectangularBinaryMesh2DCalculator(int numType, int nx, int ny,
+	public GeolocatedRectangularBinaryMesh2DCalculator(DataType numType, int nx, int ny,
 			double minLat, double minLon, double gridSpacing) {
 		super(numType, nx, ny);
 		
@@ -140,8 +140,16 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 	}
 	
 	public Location getLocationForPoint(long x, long y) {
-		double lat = maxLat - y * gridSpacing;
-		double lon = minLon + x * gridSpacing;
+		double lat;
+		if (startBottom)
+			lat = minLat + y * gridSpacing;
+		else
+			lat = maxLat - y * gridSpacing;
+		double lon;
+		if (startLeft)
+			lon = minLon + x * gridSpacing;
+		else
+			lon = maxLon - x * gridSpacing;
 		
 		return new Location(lat, lon);
 	}
@@ -221,6 +229,14 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 //			e.printStackTrace();
 //			return null;
 //		}
+	}
+	
+	public boolean isWrapLat() {
+		return wrapY;
+	}
+	
+	public boolean isWrapLon() {
+		return wrapX;
 	}
 
 }

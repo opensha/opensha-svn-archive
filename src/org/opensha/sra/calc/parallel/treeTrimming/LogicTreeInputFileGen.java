@@ -30,11 +30,15 @@ import com.google.common.collect.Lists;
 
 public class LogicTreeInputFileGen {
 	
-	private static void writeJob(MPJShellScriptWriter writer, File portfolio, File vulnFile,
-			File localDir, File remoteDir, String jobName, File outputFile, int mins, int nodes, String queue)
+	public static void writeJob(MPJShellScriptWriter writer, File portfolio, File vulnFile,
+			File localDir, File remoteDir, String jobName, File outputFile, int mins, int nodes,
+			String queue, boolean multiERF)
 					throws IOException {
 		File inputsFile = new File(remoteDir, jobName+".xml");
-		String args = "--vuln-file "+vulnFile.getAbsolutePath()+" "+portfolio.getAbsolutePath()
+		String args = "--vuln-file "+vulnFile.getAbsolutePath();
+		if (multiERF)
+			args += " --mult-erfs";
+		args += " "+portfolio.getAbsolutePath()
 				+" "+inputsFile.getAbsolutePath();
 		if (outputFile != null)
 			args += " "+outputFile.getAbsolutePath();
@@ -127,7 +131,7 @@ public class LogicTreeInputFileGen {
 			XMLUtils.writeDocumentToFile(new File(imrLocalDir, name+".xml"), doc);
 			File outputFile = new File(imrRemoteDir, name+".txt");
 			writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
-					name, outputFile, backgroundJobMins, 10, "nbns");
+					name, outputFile, backgroundJobMins, 10, "nbns", true);
 			
 			erfList.getAdjustableParameterList().getParameter(String.class,
 					UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
@@ -162,7 +166,7 @@ public class LogicTreeInputFileGen {
 				
 				XMLUtils.writeDocumentToFile(new File(imrLocalDir, name+".xml"), doc);
 				writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
-						name, null, normalJobMins, 5, "nbns");
+						name, null, normalJobMins, 5, "nbns", true);
 			}
 		}
 	}

@@ -39,22 +39,29 @@ public class CPTListCellRenderer extends DefaultListCellRenderer {
 		if (width < 100)
 			width = 100;
 		int height = 20;
-
+		
+		Color background;
+		Color foreground;
+		
+		if (isSelected) {
+			background = list.getSelectionBackground();
+			foreground =list.getSelectionForeground();
+		} else {
+			background = list.getBackground();
+			foreground =list.getForeground();
+		}
+		
+		return buildComponent(cpt, width, height, background, foreground);
+	}
+	
+	public JPanel buildComponent(CPT cpt, int width, int height, Color background, Color foreground) {
 		CPTPanel cptPanel = new CPTPanel(cpt, width, height, 0, 0);
 		JPanel panel= new JPanel();
 		
-		if (isSelected) {
-			panel.setBackground(list.getSelectionBackground());
-			panel.setForeground(list.getSelectionForeground());
-			cptPanel.setBackground(list.getSelectionBackground());
-			cptPanel.setForeground(list.getSelectionForeground());
-		}
-		else {
-			panel.setBackground(list.getBackground());
-			panel.setForeground(list.getForeground());
-			cptPanel.setBackground(list.getBackground());
-			cptPanel.setForeground(list.getForeground());
-		}
+		panel.setBackground(background);
+		panel.setForeground(foreground);
+		cptPanel.setBackground(background);
+		cptPanel.setForeground(foreground);
 		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		JLabel label = new JLabel();
@@ -76,7 +83,6 @@ public class CPTListCellRenderer extends DefaultListCellRenderer {
 		cptPanel.repaint();
 //		cptPanel.paint(cptPanel.getGraphics());
 		return panel;
-		//		return new javax.swing.JLabel("CPT: "+cpt.getName());
 	}
 
 

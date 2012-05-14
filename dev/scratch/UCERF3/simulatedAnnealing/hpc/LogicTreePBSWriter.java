@@ -254,7 +254,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "fm2-a-priori-test";
+		String runName = "fm2-paleo-tests";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -268,7 +268,7 @@ public class LogicTreePBSWriter {
 //		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 50;
+		int numRuns = 5;
 		int runStart = 0;
 		
 		boolean lightweight = numRuns > 10;
@@ -314,14 +314,45 @@ public class LogicTreePBSWriter {
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES, InversionOptions.A_PRIORI_CONST_WT,
+//				InversionOptions.WATER_LEVEL_FRACT };
+////		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100", "0")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000", "0")));
+////		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
+////		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
+		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 		InversionOptions[] ops = { InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES, InversionOptions.A_PRIORI_CONST_WT,
-				InversionOptions.WATER_LEVEL_FRACT };
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100", "0")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000", "0")));
-//		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
-//		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
+				InversionOptions.WATER_LEVEL_FRACT, InversionOptions.PALEO_WT };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100", "0", "1.0")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100", "0", "0.5")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100", "0", "0.0")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0", "1.0")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0", "0.5")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0", "0.0")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000", "0")));
+////		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
+////		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
+		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS, InversionOptions.PARKFIELD_WT };
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1e7")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1e8")));
+		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
+//				InversionOptions.A_PRIORI_CONST_WT, InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES };
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "100", TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1000", TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "10000", TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "100000", TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "100", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "1000", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "10000", null)));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0.5", "100000", null)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.DEFAULT_ASEISMICITY, InversionOptions.OFF_FUALT_ASEIS,
@@ -544,6 +575,7 @@ public class LogicTreePBSWriter {
 										classArgs += " --directory "+runSubDir.getAbsolutePath();
 										if (lightweight && r > 0)
 											classArgs += " --lightweight";
+//										classArgs += " --slower-cooling 1000";
 										for (CustomArg variation : variationBranch) {
 											if (variation != null)
 												// this is the "off" state for a flag option

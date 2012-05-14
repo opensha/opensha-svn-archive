@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 
 public class GeolocatedBinaryMesh2DTest {
 	
@@ -41,6 +42,30 @@ public class GeolocatedBinaryMesh2DTest {
 		}
 		assertTrue(ind[0] == correctX);
 		assertTrue(ind[1] == correctY);
+		Location locForPt = calc.getLocationForPoint(correctX, correctY);
+		Location closestLoc = calc.calcClosestLocation(loc);
+		assertEquals("getLocationForPoint and calcClosestLocation inconsistant!", locForPt, closestLoc);
+		double halfSpacing = calc.getGridSpacing() * 0.5;
+		double lat1 = loc.getLatitude();
+		double lat2 = locForPt.getLatitude();
+		while (calc.isWrapLat() && Math.abs(lat1 - lat2) >= (180d-halfSpacing)) {
+			if (lat1 < lat2)
+				lat1 += 180;
+			else
+				lat2 += 180;
+		}
+		assertEquals("Latitude not equal within half grid spacing of "+halfSpacing+". testLoc="+loc,
+				lat1, lat2, halfSpacing);
+		double lon1 = loc.getLongitude();
+		double lon2 = locForPt.getLongitude();
+		while (calc.isWrapLon() && Math.abs(lon1 - lon2) >= (360d-halfSpacing)) {
+			if (lon1 < lon2)
+				lon1 += 360;
+			else
+				lon2 += 360;
+		}
+		assertEquals("Longitude not equal within half grid spacing of "+halfSpacing+". testLoc="+loc,
+				lon1, lon2, halfSpacing);
 	}
 	
 	private void doAssertPointNull(GeolocatedRectangularBinaryMesh2DCalculator calc, Location loc) {
@@ -53,7 +78,7 @@ public class GeolocatedBinaryMesh2DTest {
 		if (verbose)
 			System.out.println("GLOBAL CORNERS");
 		GeolocatedRectangularBinaryMesh2DCalculator global =
-			new GeolocatedRectangularBinaryMesh2DCalculator(BinaryMesh2DCalculator.TYPE_FLOAT, 360, 180, -90, -180, 1);
+			new GeolocatedRectangularBinaryMesh2DCalculator(DataType.FLOAT, 360, 180, -90, -180, 1);
 		double minLat = global.getMinLat();
 		double maxLat = global.getMaxLat();
 		double minLon = global.getMinLon();
@@ -108,7 +133,7 @@ public class GeolocatedBinaryMesh2DTest {
 		if (verbose)
 			System.out.println("REGIONAL");
 		GeolocatedRectangularBinaryMesh2DCalculator regional =
-			new GeolocatedRectangularBinaryMesh2DCalculator(BinaryMesh2DCalculator.TYPE_FLOAT, 13, 9, 32, -122, .5);
+			new GeolocatedRectangularBinaryMesh2DCalculator(DataType.FLOAT, 13, 9, 32, -122, .5);
 		double minLat = regional.getMinLat();
 		double maxLat = regional.getMaxLat();
 		double minLon = regional.getMinLon();

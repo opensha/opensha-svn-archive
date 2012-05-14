@@ -43,6 +43,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 	private static CoolingScheduleType COOLING_FUNC_DEFAULT = CoolingScheduleType.FAST_SA;
 	private CoolingScheduleType coolingFunc = COOLING_FUNC_DEFAULT;
+	private double coolingFuncSlowdown = 1; // iters will be divided by this for the cooling func
 	
 	private static NonnegativityConstraintType NONNEGATIVITY_CONST_DEFAULT =
 		NonnegativityConstraintType.LIMIT_ZERO_RATES;
@@ -385,19 +386,23 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		while (!criteria.isSatisfied(watch, iter-1, Ebest, perturbs)) {
 
 			// Find current simulated annealing "temperature" based on chosen cooling schedule
+//			double coolIter = (double)iter / coolingFuncSlowdown;
+			double coolIter = iter;
+			if (coolingFuncSlowdown != 1)
+				coolIter = ((double)iter - 1) / coolingFuncSlowdown + 1;
 			switch (coolingFunc) {
 			case CLASSICAL_SA:
-				T = 1/Math.log( (double) iter); // classical SA cooling schedule (Geman and Geman, 1984) (slow but ensures convergence)
+				T = 1/Math.log(coolIter); // classical SA cooling schedule (Geman and Geman, 1984) (slow but ensures convergence)
 				break;
 			case FAST_SA:
-				T = 1 / (double) iter;  // fast SA cooling schedule (Szu and Hartley, 1987) (recommended)
+				T = 1 / coolIter;  // fast SA cooling schedule (Szu and Hartley, 1987) (recommended)
 				break;
 			case VERYFAST_SA:
-				T = Math.exp(-( (double) iter - 1)); // very fast SA cooling schedule (Ingber, 1989)  (= 0 to machine precision for high iteration #)
+				T = Math.exp(-( coolIter - 1d)); // very fast SA cooling schedule (Ingber, 1989)  (= 0 to machine precision for high iteration #)
 				break;
 			case LINEAR:
-//				T = 1 - (iter / numIterations);
-				T = 1 - (iter / 100000);  // need to fix this -- for now just putting in numIterations by hand
+//				T = 1 - (coolIter / numIterations);
+				T = 1 - (coolIter / 100000);  // need to fix this -- for now just putting in numIterations by hand
 				break;
 			default:
 				throw new IllegalStateException("It's impossible to get here, as long as all cooling schedule enum cases are stated above!");
@@ -690,6 +695,11 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		curAsBestOption.setRequired(false);
 		ops.addOption(curAsBestOption);
 		
+		Option slowerOption = new Option("slow", "slower-cooling", true,
+				"If supplied, the iteration count seen by the cooling function will be divided by the given amount");
+		slowerOption.setRequired(false);
+		ops.addOption(slowerOption);
+		
 		return ops;
 	}
 	
@@ -697,6 +707,9 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		if (cmd.hasOption("cool")) {
 			coolingFunc = CoolingScheduleType.valueOf(cmd.getOptionValue("cool"));
 		}
+		
+		if (cmd.hasOption("slow"))
+			coolingFuncSlowdown = Double.parseDouble(cmd.getOptionValue("slow"));
 		
 		if (cmd.hasOption("perturb")) {
 			perturbationFunc = GenerationFunctionType.valueOf(cmd.getOptionValue("perturb"));

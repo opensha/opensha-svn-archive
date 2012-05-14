@@ -37,6 +37,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 
 public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 	
@@ -92,7 +93,7 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 		this.type = type;
 		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
-				BinaryMesh2DCalculator.TYPE_FLOAT, nx, ny, minLat, minLon, gridSpacing);
+				DataType.FLOAT, nx, ny, minLat, minLon, gridSpacing);
 		
 		if (useServlet) {
 			if (type.equals(TYPE_DEPTH_TO_1_0))

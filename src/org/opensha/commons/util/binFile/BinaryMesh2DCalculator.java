@@ -21,34 +21,41 @@ package org.opensha.commons.util.binFile;
 
 public class BinaryMesh2DCalculator {
 	
-	public static final int FAST_XY = 0;
-	public static final int FAST_YX = 1;
+	public enum MeshOrder {
+		FAST_XY,
+		FAST_YX;
+	}
 	
-	public static final int TYPE_SHORT = 0;
-	public static final int TYPE_INT = 1;
-	public static final int TYPE_LONG = 2;
-	public static final int TYPE_FLOAT = 3;
-	public static final int TYPE_DOUBLE = 4;
+	public enum DataType {
+		SHORT(2),
+		INT(4),
+		LONG(8),
+		FLOAT(4),
+		DOUBLE(8);
+		
+		private int bytes;
+		private DataType(int bytes) {
+			this.bytes = bytes;
+		}
+		
+		public int getNumBytes() {
+			return bytes;
+		}
+	}
 	
 	protected long nx;
 	protected long ny;
-	private int numType;
+	private DataType numType;
 	
 	private long maxFilePos;
 	
-	private int meshOrder = FAST_XY;
+	private MeshOrder meshOrder = MeshOrder.FAST_XY;
 	
 	private int numBytesPerPoint;
 	
-	public BinaryMesh2DCalculator(int numType, long nx, long ny) {
+	public BinaryMesh2DCalculator(DataType numType, long nx, long ny) {
 		
-		if (numType == TYPE_SHORT) {
-			numBytesPerPoint = 2;
-		} else if (numType == TYPE_INT || numType == TYPE_FLOAT) {
-			numBytesPerPoint = 4;
-		} else if (numType == TYPE_LONG || numType == TYPE_DOUBLE) {
-			numBytesPerPoint = 8;
-		}
+		numBytesPerPoint = numType.getNumBytes();
 		
 		this.nx = nx;
 		this.ny = ny;
@@ -59,7 +66,7 @@ public class BinaryMesh2DCalculator {
 	}
 	
 	public long calcMeshIndex(long x, long y) {
-		if (meshOrder == FAST_XY) {
+		if (meshOrder == MeshOrder.FAST_XY) {
 			return nx * y + x;
 		} else { // FAST_YX
 			return ny * x + y;
@@ -71,7 +78,7 @@ public class BinaryMesh2DCalculator {
 	}
 	
 	public long calcMeshX(long index) {
-		if (meshOrder == FAST_XY) {
+		if (meshOrder == MeshOrder.FAST_XY) {
 			return index % nx;
 		} else {
 			return index / ny;
@@ -83,7 +90,7 @@ public class BinaryMesh2DCalculator {
 	}
 	
 	public long calcMeshY(long index) {
-		if (meshOrder == FAST_XY) {
+		if (meshOrder == MeshOrder.FAST_XY) {
 			return index / nx;
 		} else {
 			return index % ny;
@@ -120,15 +127,15 @@ public class BinaryMesh2DCalculator {
 		return (nx - 1) * (ny - 1) * numBytesPerPoint;
 	}
 
-	public int getMeshOrder() {
+	public MeshOrder getMeshOrder() {
 		return meshOrder;
 	}
 
-	public void setMeshOrder(int meshOrder) {
+	public void setMeshOrder(MeshOrder meshOrder) {
 		this.meshOrder = meshOrder;
 	}
 	
-	public int getType() {
+	public DataType getType() {
 		return numType;
 	}
 

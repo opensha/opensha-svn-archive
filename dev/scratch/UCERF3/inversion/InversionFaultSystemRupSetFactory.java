@@ -299,7 +299,7 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, InversionModels.CHAR);
-			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, InversionModels.CHAR, true);
+			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.CHAR, true);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
 //					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault(), MomentReductions.INCREASE_ASEIS);

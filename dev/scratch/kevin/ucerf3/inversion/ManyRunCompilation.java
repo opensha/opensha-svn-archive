@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import javax.swing.JFrame;
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -27,6 +30,7 @@ import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
@@ -60,6 +64,7 @@ import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.kevin.magDepth.NoCollissionFunc;
 
 public class ManyRunCompilation {
 	
@@ -214,7 +219,7 @@ public class ManyRunCompilation {
 		return rates;
 	}
 	
-	private static void generateStabilityPlot(double[][] rates, double[] meanRates, File dir) throws IOException {
+	private static void generateStabilityPlot(double[][] rates, double[] meanRates, File dir, FaultSystemRupSet rupSet) throws IOException {
 		int totRuns = rates[0].length;
 		
 		EvenlyDiscretizedFunc maxFunc = new EvenlyDiscretizedFunc(1d, totRuns, 1d);
@@ -301,6 +306,69 @@ public class ManyRunCompilation {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
+		
+		int[] nVals = { 1, 10, 100, 1000, 10000, 100000 };
+		
+		ArrayList<String> header = Lists.newArrayList("Rup ID", "Mag", "# Sects", "# Parent Sects",
+				"Mean Rate", "Std Dev");
+		for (int n : nVals)
+			header.add("Mean/SDOM n="+n);
+		
+		// now csv file
+		CSVFile<String> rupRateCSV = new CSVFile<String>(true);
+		rupRateCSV.addLine(header);
+		
+		for (int r=0; r<numRups; r++) {
+			double mean = StatUtils.mean(rates[r]);
+			double stdDev = Math.sqrt(StatUtils.variance(rates[r], mean));
+			
+			double mag = rupSet.getMagForRup(r);
+			List<Integer> sects = rupSet.getSectionsIndicesForRup(r);
+			int numSects = sects.size();
+			HashSet<Integer> parents = new HashSet<Integer>();
+			for (int sect : sects) {
+				int parent = rupSet.getFaultSectionData(sect).getParentSectionId();
+				if (!parents.contains(parent))
+					parents.add(parent);
+			}
+			
+			ArrayList<String> line = Lists.newArrayList();
+			line.add(r+"");
+			line.add(mag+"");
+			line.add(numSects+"");
+			line.add(parents.size()+"");
+			line.add(mean+"");
+			line.add(stdDev+"");
+			for (int n : nVals)
+				line.add((mean / (stdDev / Math.sqrt(n)))+"");
+			
+			rupRateCSV.addLine(line);
+			
+//			int numRows = rupRateCSV.getNumRows();
+//			for (int row=1; row<=numRows; row++) {
+//				if (row == numRows) {
+//					rupRateCSV.addLine(line);
+//				}
+//				double otherMoverSD = Double.parseDouble(rupRateCSV.get(row, 6));
+//				if (meanOverStdDev >= otherMoverSD || Double.isNaN(otherMoverSD)) {
+//					rupRateCSV.addLine(row, line);
+//					break;
+//				}
+//			}
+		}
+		
+		rupRateCSV.sort(6, 1, new Comparator<String>() {
+			
+			@Override
+			public int compare(String o1, String o2) {
+				Double d1 = Double.parseDouble(o1);
+				Double d2 = Double.parseDouble(o2);
+				return Double.compare(d1, d2);
+			}
+		});
+		
+		File csvFile = new File(dir, "rupRates.csv");
+		rupRateCSV.writeToFile(csvFile);
 	}
 	
 	private static void generateStabilityParticPlot(double[][] rates, double[] meanRates,
@@ -324,6 +392,8 @@ public class ManyRunCompilation {
 		ArrayList<EvenlyDiscretizedFunc> medMeanOverStdDevOfMeanFuncs = Lists.newArrayList();
 		
 		ArrayList<ArbitrarilyDiscretizedFunc> theoreticalNFuncs = Lists.newArrayList();
+		ArrayList<ArbitrarilyDiscretizedFunc> percentAvobeMeanOverSDOMFuncs = Lists.newArrayList();
+		ArrayList<NoCollissionFunc> scatterMeanOverSDOMFuncs = Lists.newArrayList();
 		
 		double min = 6;
 		double max = 8.5;
@@ -373,8 +443,16 @@ public class ManyRunCompilation {
 			medMeanOverStdDevOfMeanFuncs.add(medOverStdDevOfMeanFunc);
 			
 			ArbitrarilyDiscretizedFunc theoreticalNFunc = new ArbitrarilyDiscretizedFunc();
-			theoreticalNFunc.setName("Theoretical N to reach targen Mean / Std. Dev Of Mean"+str);
+			theoreticalNFunc.setName("Theoretical N to reach target Mean / Std. Dev Of Mean"+str);
 			theoreticalNFuncs.add(theoreticalNFunc);
+			
+			ArbitrarilyDiscretizedFunc percentAvobeMeanOverSDOMFunc = new ArbitrarilyDiscretizedFunc();
+			percentAvobeMeanOverSDOMFunc.setName("% sects above targen Mean / Std. Dev Of Mean"+str);
+			percentAvobeMeanOverSDOMFuncs.add(percentAvobeMeanOverSDOMFunc);
+			
+			NoCollissionFunc scatterMeanOverSDOMFunc = new NoCollissionFunc();
+			scatterMeanOverSDOMFunc.setName("Mean Rate vs Mean / Std. Dev Of Mean"+str);
+			scatterMeanOverSDOMFuncs.add(scatterMeanOverSDOMFunc);
 			
 			maxFuncs.add(maxFunc);
 			totFuncs.add(totFunc);
@@ -546,6 +624,9 @@ public class ManyRunCompilation {
 		funcs.addAll(avgNormFuncs);
 		funcs.addAll(medNormFuncs);
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> scatterChars = Lists.newArrayList();
+		for (int j=0; j<maxNormFuncs.size(); j++)
+			scatterChars.add(new PlotCurveCharacterstics(PlotSymbol.X, 1f, cpt.getColor((float)j)));
 		for (int j=0; j<maxNormFuncs.size(); j++)
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, cpt.getColor((float)j)));
 		for (int j=0; j<maxNormFuncs.size(); j++)
@@ -594,13 +675,15 @@ public class ManyRunCompilation {
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 		
 		for (int i=0; i<ranges.size(); i++) {
+			double[] meanParticRates = meanParticRatesList.get(i);
+			double[] stdDevParticRates = stdDevParticRatesList.get(i);
+			
 			for (double targetVal=1; targetVal<=100; targetVal += 0.5) {
-				double[] meanParticRates = meanParticRatesList.get(i);
-				double[] stdDevParticRates = stdDevParticRatesList.get(i);
-				
 				double worstN = 0;
 				
 				for (int sect=0; sect<numSects; sect++) {
+					if (particRupsMap.get(sect).get(i).isEmpty())
+						continue;
 					double n = Math.pow((targetVal * stdDevParticRates[sect]) / meanParticRates[sect], 2);
 					if (n > worstN)
 						worstN = n;
@@ -617,7 +700,59 @@ public class ManyRunCompilation {
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 		
-		System.exit(0);
+		double[] aboveTargets = { 20d, 50d, 100d };
+		
+		for (double aboveTarget : aboveTargets) {
+			for (int i=0; i<ranges.size(); i++) {
+				double[] meanParticRates = meanParticRatesList.get(i);
+				double[] stdDevParticRates = stdDevParticRatesList.get(i);
+				
+				for (int runs=1; runs<=1000; runs++) {
+					double above = 0;
+					double num = 0;
+					for (int sect=0; sect<numSects; sect++) {
+						if (particRupsMap.get(sect).get(i).isEmpty())
+							continue;
+//						if (stdDevParticRates[sect] == 0 || meanParticRates[sect] == 0)
+//							System.out.println("We have a zero!!!! (mean="+meanParticRates[sect]+", stdDev="+stdDevParticRates[sect]+")");
+						double meanOverSDOM = meanParticRates[sect] / (stdDevParticRates[sect] / Math.sqrt((double)runs));
+						if (meanOverSDOM >= aboveTarget || (meanParticRates[sect] == 0))
+							above++;
+						
+						if (runs == 1)
+							scatterMeanOverSDOMFuncs.get(i).set(meanParticRates[sect], meanOverSDOM);
+						num++;
+					}
+					above = (above / num) * 100d;
+//					System.out.println(runs+", "+above);
+					percentAvobeMeanOverSDOMFuncs.get(i).set((double)runs, above);
+				}
+			}
+			
+			gp.drawGraphPanel("N", "% above Mean / Std Dev Of Mean of "+aboveTarget, percentAvobeMeanOverSDOMFuncs, chars, false,
+					"% Sects above Mean/SDOM of "+aboveTarget);
+			plotFile = new File(dir, "partic_above_"+(int)aboveTarget+"_mean_over_std_dev_of_mean");
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
+			
+
+			if (aboveTarget == aboveTargets[0]) {
+				gp.setXLog(true);
+				gp.setYLog(true);
+				gp.setUserBounds(1e-10, 1e-2, 1e-1, 1e3);
+				gp.drawGraphPanel("Mean Rate", "Mean / Std Dev", scatterMeanOverSDOMFuncs, scatterChars, true,
+						"Mean Rate vs Mean/SDOM of N=1");
+				plotFile = new File(dir, "partic_scatter_mean_over_std_dev_of_mean");
+				gp.getCartPanel().setSize(1000, 800);
+				gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
+				gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
+				gp.setXLog(false);
+				gp.setYLog(false);
+			}
+		}
+		
+//		System.exit(0);
 	}
 	
 	private static void generateStabilityEALPlot(double[][] rates, double[] meanRates,
@@ -743,7 +878,9 @@ public class ManyRunCompilation {
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarNone_VarAPrioriWt100");
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_29-fm2-a-priori-test/results/VarNone_VarAPrioriWt1000");
 		
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/results/VarAPrioriZero_VarAPrioriWt100_VarWaterlevel0");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/results/VarAPrioriZero_VarAPrioriWt1000_VarWaterlevel0");
+		
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_05_02-fm2-cooling-tests/results");
 		File rupSetFile = new File(dir, "rupSet.zip");
 		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
 		int numRups = rupSet.getNumRuptures();
@@ -763,7 +900,9 @@ public class ManyRunCompilation {
 //		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarNone_VarAPrioriWt100";
 //		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarNone_VarAPrioriWt1000";
 		
-		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt100_VarWaterlevel0";
+//		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt1000_VarWaterlevel0";
+		
+		String prefix = "FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt1000_VarWaterlevel0";
 		System.out.println("Loaded rates!");
 		
 		RateRecord[] rateRecords = new RateRecord[numRups];
@@ -808,7 +947,7 @@ public class ManyRunCompilation {
 		System.out.println("avg zeros per run: "+numZerosPer);
 		
 		System.out.println("Generating residuals plot...");
-		generateStabilityPlot(rates, meanRates, dir);
+		generateStabilityPlot(rates, meanRates, dir, rupSet);
 		System.out.println("DONE");
 		
 		System.out.println("Generating partic residuals plot...");

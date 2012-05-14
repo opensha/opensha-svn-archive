@@ -51,7 +51,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	public static final String NAME = "Fault System Solution Poisson ERF";
 	
 	// Adjustable parameters
-	protected static final String FILE_PARAM_NAME = "Solution Input File";
+	public static final String FILE_PARAM_NAME = "Solution Input File";
 	protected FileParameter fileParam;
 	protected boolean fileParamChanged;
 	protected FaultGridSpacingParam faultGridSpacingParam;
