@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -269,6 +271,36 @@ public class CSVFile<E> implements Iterable<List<E>> {
 	@Override
 	public Iterator<List<E>> iterator() {
 		return values.iterator();
+	}
+	
+	public void sort(int col, int headerRows, Comparator<E> comparator) {
+		ArrayList<List<E>> header = Lists.newArrayList();
+		for (int row=0; row<headerRows; row++)
+			header.add(removeLine(0));
+		
+		// sort
+		ColumnComparator comp = new ColumnComparator(col, comparator);
+		Collections.sort(values, comp);
+		
+		Collections.reverse(header);
+		for (List<E> line : header)
+			addLine(0, line);
+	}
+	
+	private class ColumnComparator implements Comparator<List<E>> {
+		private Comparator<E> comp;
+		private int col;
+		
+		public ColumnComparator(int col, Comparator<E> comp) {
+			this.col = col;
+			this.comp = comp;
+		}
+
+		@Override
+		public int compare(List<E> o1, List<E> o2) {
+			return comp.compare(o1.get(col), o2.get(col));
+		}
+		
 	}
 
 }
