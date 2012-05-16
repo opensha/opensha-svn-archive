@@ -39,7 +39,7 @@ TARGET_RISK = - log( 1 - 0.01 )/ 50
 FRAGILITY_AT_RTGM = 0.10
 
 % Logarithmic standard deviation of fragility curve
-BETA = 0.6
+BETA = 0.4
 
 % Annual frequency of exceedance for Uniform-Hazard Ground Motion (UHGM)
 % UHGM is both denominator of risk coefficient and initial guess for RTGM 

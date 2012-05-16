@@ -31,16 +31,16 @@ for i=1:numel(periods)
     SAstr = SAstr(1:length(SAstr)-1); % strip last comma
     
     
-    % for i=1:numel(cities)
-    for j=1:1
+    for j=1:numel(cities)
+%     for j=1:1
         city = cities(j);
         disp(['Fetching: ',city.name]);
         lat = str2double(city.lat);
         lon = str2double(city.lon);
         
         % cities are ordered identically but check to be sure
-        fLat = HazCurves.lat(1,i);
-        fLon = HazCurves.lon(1,i);
+        fLat = HazCurves.lat(1,j);
+        fLon = HazCurves.lon(1,j);
         if ((fLat ~= lat) || (fLon ~= lon))
             error('LatLon mismatch in %s: %f %f %f %f', ...
                 city.name, fLat, lat, fLon, lon);
@@ -70,12 +70,19 @@ for i=1:numel(periods)
         city.afeStr = AFEstr;
 		city.afeVal = AFEvals;
 % 		
-		HazardCurve = struct('SAs', SAvals, 'AFEs', AFEvals)
+		% geo-mean to maxHoriz ground motion conversion
+		corr = 1.1;
+		if (strcmp(periods{i},periods{2})) 
+			corr = 1.3;
+		end
+		SAcorr = SAvals * corr;
+		
+		HazardCurve = struct('SAs', SAcorr, 'AFEs', AFEvals);
 		[rtgm, riskCoeff] = RTGM_Calculator(HazardCurve);
 		city.rtgm = rtgm;
 		city.rc = riskCoeff;
 % 		
-%  		exportEntry(city, fid);
+ 		exportEntry(city, fid);
 	end
 end
 

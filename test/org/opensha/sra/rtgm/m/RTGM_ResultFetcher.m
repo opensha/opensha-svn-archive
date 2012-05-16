@@ -1,4 +1,4 @@
-function [] = RTGM_ResultBuilder()
+function [] = RTGM_ResultFetcher()
 
 % USE THIS TO FETCH CURVES FROM USGS WEBSERVICE
 %
@@ -48,7 +48,14 @@ for i=1:numel(cities)
 		city.afeStr = AFEstr;
 		city.afeVal = AFEvals;
 		
-		HazardCurve = struct('SAs', SAvals, 'AFEs', AFEvals)
+		% geo-mean to maxHoriz ground motion conversion
+		corr = 1.1;
+		if (strcmp(periods{j},periods{2})) 
+			corr = 1.3;
+		end
+		SAcorr = SAvals * corr;
+
+		HazardCurve = struct('SAs', SAcorr, 'AFEs', AFEvals)
 		[rtgm, riskCoeff] = RTGM_Calculator(HazardCurve);
 		city.rtgm = rtgm;
 		city.rc = riskCoeff;
