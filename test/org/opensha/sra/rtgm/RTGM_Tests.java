@@ -1,18 +1,18 @@
 package org.opensha.sra.rtgm;
 
 import static org.junit.Assert.*;
+import static org.opensha.sra.rtgm.RTGM.Frequency.*;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.nshmp.NEHRP_TestCity;
-import org.opensha.sha.nshmp.Period;
 import org.opensha.sra.rtgm.RTGM;
+import org.opensha.sra.rtgm.RTGM.Frequency;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Enums;
@@ -20,8 +20,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import com.google.common.io.Resources;
 
 @SuppressWarnings("javadoc")
@@ -43,13 +41,16 @@ public class RTGM_Tests {
 		
 		// load results
 		results = Lists.newArrayList();
-		URL url = Resources.getResource(RTGM_Tests.class, "m/results.txt");
+		URL url = Resources.getResource(RTGM_Tests.class, "m/resultsFINAL.txt");
 		List<String> lines = Resources.readLines(url, Charsets.US_ASCII);
 		ResultSet result = null;
 		for (String line : lines) {
 			if (line.startsWith("city:")) {
 				result = new ResultSet();
 				result.city = findCity.apply(readString(line));
+			}
+			if (line.startsWith("period:")) {
+				result.freq = (readString(line).equals("1p00")) ? SA_1P00 : SA_0P20;
 			}
 			if (line.startsWith("sa:")) {
 				result.saVals = readValues(line);
@@ -80,9 +81,9 @@ public class RTGM_Tests {
 	@Test
 	public final void test() {
 		for (ResultSet result : results) {
-			RTGM rtgm = RTGM.create(result.hc);
+			RTGM rtgm = RTGM.create(result.hc, result.freq, 0.4);
 			double rtgmDiff = pDiff(result.rtgm, rtgm.get());
-			assertTrue("rtgm diff % is: " + rtgmDiff, rtgmDiff < TOL);
+			assertTrue("rtgm diff % is: " + rtgmDiff + " " + result.rtgm + " " +rtgm.get() , rtgmDiff < TOL);
 			double riskDiff = pDiff(result.risk, rtgm.riskCoeff());
 			assertTrue("risk diff % is: " + riskDiff, riskDiff < TOL);
 		}
@@ -114,6 +115,7 @@ public class RTGM_Tests {
 	
 	private static class ResultSet {
 		NEHRP_TestCity city;
+		Frequency freq;
 		DiscretizedFunc hc;
 		List<Double> saVals;
 		List<Double> afeVals;

@@ -3,7 +3,6 @@ package org.opensha.sra.rtgm;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.geom.Point2D;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +53,8 @@ public class RTGM {
 	private static final double FRAGILITY_AT_RTGM = 0.10;
 
 	// Logarithmic standard deviation of fragility curve
-	private static final double BETA = 0.6;
+	private static final double BETA_DEFAULT = 0.6;
+	private double beta = BETA_DEFAULT;
 
 	// Annual frequency of exceedance for Uniform-Hazard Ground Motion (UHGM)
 	// UHGM is both denominator of risk coefficient and initial guess for RTGM 
@@ -78,19 +78,43 @@ public class RTGM {
 	private double rtgm = Double.NaN;
 	private List<Double> rtgmIters = null;
 	private List<Double> riskIters = null;
+	private Frequency sa;
 	
 	private RTGM() {}
 	
 	/**
 	 * Creates a new RTGM result for the supplied hazard curve.
 	 * @param hazCurve to process
+	 * @param sa specifies the period of the supplied curve; if not {@code null}
+	 *        a conversion factor of 1.1 (for 0.2sec) or 1.3 (for 1sec) will be
+	 *        applied to the RTGM returned by {@code get()}
+	 * @param beta the fragility curve standard deviation; if {@code null} the
+	 *        default value, 0.6, is used
 	 * @return an RTGM result container
+	 * @throws RuntimeException if internal RTGM calculation exceeds 6
+	 *         iterations
 	 */
-	public static RTGM create(DiscretizedFunc hazCurve) {
+	public static RTGM create(DiscretizedFunc hazCurve, Frequency sa, Double beta) {
+		checkNotNull(hazCurve, "Supplied curve is null");
 		RTGM instance = new RTGM();
+		// geoMean to maxHorizDir component conversion
+		//    this could be done afterwards meaning scale the rtgm after
+		//    rather than incur the overhead of creating a new function
+		if (sa != null) hazCurve = scaleHC(hazCurve, sa.scale);
+		if (beta != null) instance.beta = beta;
 		instance.calculate(hazCurve);
 		return instance;
 	}
+	
+	private static DiscretizedFunc scaleHC(DiscretizedFunc f, double scale) {
+		ArbitrarilyDiscretizedFunc adf = new ArbitrarilyDiscretizedFunc();
+		for (Point2D p : f) {
+			adf.set(p.getX()*scale, p.getY());
+		}
+		return adf;
+	}
+	
+	
 	
 	/**
 	 * Returns the risk-targeted ground motion for the hazard curve supplied at
@@ -99,6 +123,7 @@ public class RTGM {
 	 */
 	public double get() {
 		return rtgm;
+//		return (sa != null) ? rtgm * sa.scale : rtgm;
 	}
 	
 	/**
@@ -127,7 +152,6 @@ public class RTGM {
 	
 
 	private void calculate(DiscretizedFunc hazCurve) {
-		checkNotNull(hazCurve, "Supplied curve is null");
 		
 		// TODO I really wish we had a HazardCurve object that would guarantee
 		// monotonically increasing x-values and flat, or monotonically
@@ -178,7 +202,7 @@ public class RTGM {
 			// Generate fragility curve corresponding to current guess for RTGM
 //			FragilityCurve fc = new FragilityCurve(rtgmIters.get(i),
 //				upsampHazCurve);
-			FragilityCurve fc = new FragilityCurve(rtgmTmp, upsampHazCurve);
+			FragilityCurve fc = new FragilityCurve(rtgmTmp, upsampHazCurve, beta);
 
 			// Calculate risk using fragility curve generated above & upsampled
 			// hazard curve
@@ -198,7 +222,7 @@ public class RTGM {
 
 			// If number of iterations has reached specified maximum, exit loop
 			if (i == MAX_ITERATIONS) {
-				System.err.println("Max # iterations reached");
+				throw new RuntimeException("RTGM: max # iterations reached");
 			}
 		}
 
@@ -252,13 +276,15 @@ public class RTGM {
 	private static class FragilityCurve {
 		
 		private double median;
+		private double beta;
 		private XY_DataSet model;
 		private DiscretizedFunc pdf;
 		private DiscretizedFunc cdf;
 		
-		FragilityCurve(double rtgm, DiscretizedFunc model) {
-			median = rtgm / Math.exp(RTGM_Util.norminv(FRAGILITY_AT_RTGM) * BETA);
+		FragilityCurve(double rtgm, DiscretizedFunc model, double beta) {
+			median = rtgm / Math.exp(RTGM_Util.norminv(FRAGILITY_AT_RTGM) * beta);
 			this.model = model;
+			this.beta = beta;
 		}
 				
 		double median() { 
@@ -272,7 +298,7 @@ public class RTGM {
 				pdf = new ArbitrarilyDiscretizedFunc();
 				for (Point2D p : model) {
 					pdf.set(p.getX(), RTGM_Util.logNormalDensity(p.getX(),
-						Math.log(median), BETA));
+						Math.log(median), beta));
 				}
 			}
 			return pdf;
@@ -283,25 +309,39 @@ public class RTGM {
 				cdf = new ArbitrarilyDiscretizedFunc();
 				for (Point2D p : model) {
 					cdf.set(p.getX(), RTGM_Util.logNormalCumProb(p.getX(),
-						Math.log(median), BETA));
+						Math.log(median), beta));
 				}
 			}
 			return cdf;
+		}
+	}
+	
+	@SuppressWarnings("javadoc")
+	public enum Frequency {
+		SA_0P20(1.1),
+		SA_1P00(1.3);
+		private double scale;
+		private Frequency(double scale) {
+			this.scale = scale;
 		}
 	}
 
 	public static void main(String[] args) {
 //		double[] xs = {0.005,0.0075,0.0113,0.0169,0.0253,0.038,0.057,0.0854,0.128,0.192,0.288,0.432,0.649,0.973,1.46,2.19,3.28,4.92,7.38};
 //		double[] ys = {0.585,0.5209,0.4395,0.3524,0.2688,0.1962,0.1382,0.09381,0.06055,0.03676,0.02105,0.01151,0.006008,0.002944,0.001291,0.0004791,0.0001413,3.025e-05,3.828e-06};
-		double[] xs = { 0.005,0.0075,0.0113,0.0169,0.0253,0.038,0.057,0.0854,0.128,0.192,0.288,0.432,0.649,0.973,1.46,2.19,3.28,4.92,7.38};
-		double[] ys = {0.4264,0.3804,0.3209,0.2556,0.1919,0.1368,0.09399,0.06247,0.03985,0.02437,0.01464,0.009007,0.005703,0.003489,0.001874,0.0008187,0.000277,6.776e-05,1.076e-05};
+//		double[] xs = { 0.005,0.0075,0.0113,0.0169,0.0253,0.038,0.057,0.0854,0.128,0.192,0.288,0.432,0.649,0.973,1.46,2.19,3.28,4.92,7.38};
+//		double[] ys = {0.4264,0.3804,0.3209,0.2556,0.1919,0.1368,0.09399,0.06247,0.03985,0.02437,0.01464,0.009007,0.005703,0.003489,0.001874,0.0008187,0.000277,6.776e-05,1.076e-05};
+
+		
+		double[] xs = { 0.0025,0.00375,0.00563,0.00844, 0.0127,0.019, 0.0285, 0.0427, 0.0641, 0.0961,0.144,0.216,0.324,0.487,0.73,1.09,1.64,2.46,3.69,5.54};
+		double[] ys = {0.4782,0.3901,0.3055,0.2322,0.1716,0.1241,0.08621,0.05687,0.03492,0.01985,0.01045, 0.005095, 0.002302,0.0009371,0.0003308,9.488e-05,1.952e-05,2.174e-06,8.553e-08,1.315e-10};
 
 		DiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
 		for (int i=0; i<xs.length; i++) {
 			f.set(xs[i], ys[i]);
 		}
 		
-		RTGM rtgm = RTGM.create(f);
+		RTGM rtgm = RTGM.create(f, Frequency.SA_1P00, 0.4);
 		System.out.println(rtgm.get());
 		System.out.println(rtgm.riskCoeff());
 		System.out.println(rtgm.rtgmIterations());
