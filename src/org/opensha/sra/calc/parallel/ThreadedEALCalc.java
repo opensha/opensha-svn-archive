@@ -19,14 +19,14 @@ import com.google.common.base.Preconditions;
 
 public class ThreadedEALCalc {
 	
-	private List<Asset> assets;
-	private ERF[] erfs;
-	private ScalarIMR[] imrs;
-	private Site[] sites;
+	protected List<Asset> assets;
+	protected ERF[] erfs;
+	protected ScalarIMR[] imrs;
+	protected Site[] sites;
 	
 	private CalculationExceptionHandler handler;
 	
-	private Deque<Asset> stack;
+	protected Deque<Asset> stack;
 	private double maxSourceDistance;
 	
 	public ThreadedEALCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs, CalculationExceptionHandler handler, double maxSourceDistance) {
@@ -73,7 +73,7 @@ public class ThreadedEALCalc {
 		return results;
 	}
 	
-	private synchronized Asset popAsset() {
+	public synchronized Asset popAsset() {
 		try {
 			return stack.pop();
 		} catch (Exception e) {
@@ -131,4 +131,18 @@ public class ThreadedEALCalc {
 			}
 		}
 	}
+
+	public List<Asset> getAssets() {
+		return assets;
+	}
+
+	public ERF[] getERFs() {
+		return erfs;
+	}
+
+	public ScalarIMR[] getIMRs() {
+		return imrs;
+	}
+	
+	
 }

@@ -269,7 +269,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		ArrayList<String> zipFileNames = new ArrayList<String>();
 		
 		File ratesFile = new File(tempDir, "rates.bin");
-		MatrixIO.doubleArrayToFile(rupRateSolution, ratesFile);
+		MatrixIO.doubleArrayToFile(getRateForAllRups(), ratesFile);
 		zipFileNames.add(ratesFile.getName());
 		
 		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.toSimple(rupSet);

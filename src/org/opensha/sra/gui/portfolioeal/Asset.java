@@ -152,7 +152,7 @@ public class Asset implements Cloneable {
 	 * @param site The site to have its values changed
 	 * @return The updated site
 	 */
-	private void siteSetup( Site site ) {
+	public void siteSetup( Site site ) {
 		site.setName((String) getParameterList().getParameter("SiteName").getValue());
 		site.setLocation(getLocation());
 		assetSite = (Site)site.clone();

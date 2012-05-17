@@ -45,13 +45,13 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 	public static final String BATCH_ELEMENT_NAME = "BatchCalculation";
 	
 	private Portfolio portfolio;
-	private List<Asset> assets;
-	private double maxSourceDistance = 200; // TODO set
+	protected List<Asset> assets;
+	protected double maxSourceDistance = 200; // TODO set
 	
 	private ArrayList<Integer> indexes = new ArrayList<Integer>();
 	private ArrayList<Double> eals = new ArrayList<Double>();
 	
-	private ThreadedEALCalc calc;
+	protected ThreadedEALCalc calc;
 	
 	private File outputFile;
 	

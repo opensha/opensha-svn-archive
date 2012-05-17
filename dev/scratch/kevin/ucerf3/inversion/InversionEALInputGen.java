@@ -48,6 +48,27 @@ public class InversionEALInputGen {
 		
 		return files;
 	}
+	
+	private static void writeRTGMJob(MPJShellScriptWriter writer, File portfolio, File vulnFile,
+			File localDir, File remoteDir, String jobName, File outputFile, int mins, int nodes,
+			String queue, boolean multiERF) throws IOException {
+		File inputsFile = new File(remoteDir, jobName+".xml");
+		String args = "--vuln-file "+vulnFile.getAbsolutePath();
+		if (multiERF)
+			args += " --mult-erfs";
+		args += " "+portfolio.getAbsolutePath()
+				+" "+inputsFile.getAbsolutePath();
+		if (outputFile != null)
+			args += " "+outputFile.getAbsolutePath();
+		
+		File jobFile = new File(localDir, jobName+".pbs");
+		
+		List<String> script = writer.buildScript(MPJ_EAL_Calc.class.getName(), args);
+		
+		USC_HPCC_ScriptWriter usc = new USC_HPCC_ScriptWriter();
+		script = usc.buildScript(script, mins, nodes, 8, queue);
+		usc.writeScript(jobFile, script);
+	}
 
 	/**
 	 * @param args
@@ -55,6 +76,8 @@ public class InversionEALInputGen {
 	public static void main(String[] args) throws IOException, InvocationTargetException {
 		int batchSize = 5;
 		int normalJobMins = 900;
+		
+		boolean rtgm = true;
 		
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2012_05_03-eal-tests-apriori-1000");
 		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/eal/2012_05_03-eal-tests-apriori-1000");
@@ -121,8 +144,12 @@ public class InversionEALInputGen {
 				}
 				
 				XMLUtils.writeDocumentToFile(new File(imrLocalDir, name+".xml"), doc);
-				LogicTreeInputFileGen.writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
-						name, null, normalJobMins, 5, "nbns", true);
+				if (rtgm)
+					writeRTGMJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
+							name, null, normalJobMins, 5, "nbns", true);
+				else
+					LogicTreeInputFileGen.writeJob(mpjWrite, portfolio, vulnFile, imrLocalDir, imrRemoteDir,
+							name, null, normalJobMins, 5, "nbns", true);
 			}
 		}
 	}
