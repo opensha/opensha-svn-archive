@@ -53,12 +53,12 @@ for i=1:numel(cities)
 		if (strcmp(periods{j},periods{2})) 
 			corr = 1.3;
 		end
-		SAcorr = SAvals * corr;
+		%SAcorr = SAvals * corr;
 
-		HazardCurve = struct('SAs', SAcorr, 'AFEs', AFEvals)
+		HazardCurve = struct('SAs', SAvals, 'AFEs', AFEvals)
 		[rtgm, riskCoeff] = RTGM_Calculator(HazardCurve);
-		city.rtgm = rtgm;
-		city.rc = riskCoeff;
+		city.rtgm = rtgm * corr;
+		city.rc = riskCoeff
 		
  		exportEntry(city, fid);
 	end
@@ -67,8 +67,6 @@ end
 end
 
 function exportEntry(city, fid)
-% 	disp('yo')
-% 	city.saStr
 	fprintf(fid, ...
 		'\ncity: %s\nlat: %s\nlon: %s\nperiod: %s\nsa: %s\nafe: %s\nrtgm: %e\nrc: %e\n', ...
 		city.name, city.lat, city.lon, city.period, city.saStr, city.afeStr, city.rtgm, city.rc);
