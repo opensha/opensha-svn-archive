@@ -33,6 +33,10 @@ public class RTGM_Tests {
 	private static List<ResultSet> results;
 	
 	private static final double TOL = 0.0001;
+	
+	// value used in USGS design maps
+	private static final double BETA = 0.8;
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -81,7 +85,7 @@ public class RTGM_Tests {
 	@Test
 	public final void test() {
 		for (ResultSet result : results) {
-			RTGM rtgm = RTGM.create(result.hc, result.freq, 0.4);
+			RTGM rtgm = RTGM.create(result.hc, result.freq, BETA);
 			double rtgmDiff = pDiff(result.rtgm, rtgm.get());
 			assertTrue("rtgm diff % is: " + rtgmDiff + " " + result.rtgm + " " +rtgm.get() , rtgmDiff < TOL);
 			double riskDiff = pDiff(result.risk, rtgm.riskCoeff());

@@ -100,19 +100,19 @@ public class RTGM {
 		// geoMean to maxHorizDir component conversion
 		//    this could be done afterwards meaning scale the rtgm after
 		//    rather than incur the overhead of creating a new function
-		if (sa != null) hazCurve = scaleHC(hazCurve, sa.scale);
+		if (sa != null) instance.sa = sa; //hazCurve = scaleHC(hazCurve, sa.scale);
 		if (beta != null) instance.beta = beta;
 		instance.calculate(hazCurve);
 		return instance;
 	}
 	
-	private static DiscretizedFunc scaleHC(DiscretizedFunc f, double scale) {
-		ArbitrarilyDiscretizedFunc adf = new ArbitrarilyDiscretizedFunc();
-		for (Point2D p : f) {
-			adf.set(p.getX()*scale, p.getY());
-		}
-		return adf;
-	}
+//	private static DiscretizedFunc scaleHC(DiscretizedFunc f, double scale) {
+//		ArbitrarilyDiscretizedFunc adf = new ArbitrarilyDiscretizedFunc();
+//		for (Point2D p : f) {
+//			adf.set(p.getX()*scale, p.getY());
+//		}
+//		return adf;
+//	}
 	
 	
 	
@@ -122,8 +122,8 @@ public class RTGM {
 	 * @return the risk targeted ground motion
 	 */
 	public double get() {
-		return rtgm;
-//		return (sa != null) ? rtgm * sa.scale : rtgm;
+//		return rtgm;
+		return (sa != null) ? rtgm * sa.scale : rtgm;
 	}
 	
 	/**
@@ -341,7 +341,7 @@ public class RTGM {
 			f.set(xs[i], ys[i]);
 		}
 		
-		RTGM rtgm = RTGM.create(f, Frequency.SA_1P00, 0.4);
+		RTGM rtgm = RTGM.create(f, Frequency.SA_1P00, 0.8);
 		System.out.println(rtgm.get());
 		System.out.println(rtgm.riskCoeff());
 		System.out.println(rtgm.rtgmIterations());
