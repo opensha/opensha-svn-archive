@@ -208,7 +208,10 @@ Named,java.io.Serializable{
 	}
 
 	public static void writeSimpleFuncFile(DiscretizedFunc func, String fileName) throws IOException {
-		File outFile = new File(fileName);
+		writeSimpleFuncFile(func, new File(fileName));
+	}
+
+	public static void writeSimpleFuncFile(DiscretizedFunc func, File outFile) throws IOException {
 		FileWriter fr = new FileWriter(outFile);
 		for (int i = 0; i < func.getNum(); ++i)
 			fr.write(func.getX(i) + " " + func.getY(i) + "\n");

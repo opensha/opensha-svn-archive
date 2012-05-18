@@ -13,6 +13,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 
 /**
  * @author Ned Field
@@ -127,8 +128,26 @@ public class FaultSectionDataWriter {
 	 * @param filePathAndName
 	 */
 	public static StringBuffer getRupsASCII(FaultSystemRupSet rupSet) {
+		return getRupsASCII(rupSet, false);
+	}
+
+	/**
+	 * This writes the rupture sections to an ASCII file
+	 * @param filePathAndName
+	 */
+	public static StringBuffer getRupsASCII(FaultSystemRupSet rupSet, boolean includeRates) {
+		FaultSystemSolution sol = null;
+		if (includeRates) {
+			if (rupSet instanceof FaultSystemSolution)
+				sol = (FaultSystemSolution)rupSet;
+			else
+				throw new IllegalArgumentException("IndludeRates=true but only a rupture set was supplied");
+		}
 		StringBuffer buff = new StringBuffer();
-		buff.append("rupID\tclusterID\trupInClustID\tmag\tnumSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
+		buff.append("rupID\tclusterID\trupInClustID\tmag\t");
+		if (sol != null)
+			buff.append("rate\t");
+		buff.append("numSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
 		int rupIndex = 0;
 		for(int c=0;c<rupSet.getNumClusters();c++) {
 			List<Integer> rups = rupSet.getRupturesForCluster(c);
@@ -137,7 +156,10 @@ public class FaultSectionDataWriter {
 				//					  ArrayList<Integer> rup = rups.get(r);
 				List<Integer> sections = rupSet.getSectionsIndicesForRup(rupIndex);
 				String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(rupIndex)+"\t"+
-						+(float)rupSet.getMagForRup(rupIndex)+"\t"+sections.size();
+						+(float)rupSet.getMagForRup(rupIndex);
+				if (sol != null)
+					line += "\t"+sol.getRateForRup(rupIndex);
+				line += "\t"+sections.size();
 				for(Integer sectID: sections) {
 					line += "\t"+sectID;
 				}

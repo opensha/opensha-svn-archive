@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -50,7 +51,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	
 	public static final String XML_METADATA_NAME = "SimpleFaultSystemSolution";
 	
-	private FaultSystemRupSet rupSet;
+	protected FaultSystemRupSet rupSet;
 	protected double[] rupRateSolution;
 	
 	/**
@@ -245,9 +246,20 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		} else {
 			ZipFile zip = new ZipFile(file);
 			ZipEntry ratesEntry = zip.getEntry("rates.bin");
-			if (ratesEntry != null)
-				return fromZipFile(file);
-			else
+			if (ratesEntry != null) {
+				// now see if it's an average solution
+				boolean avg = false;
+				for (ZipEntry entry : Collections.list(zip.entries())) {
+					if (entry.getName().startsWith("sol_rates_")) {
+						avg = true;
+						break;
+					}
+				}
+				if (avg)
+					return AverageFaultSystemSolution.fromZipFile(file);
+				else
+					return fromZipFile(file);
+			} else
 				return SimpleFaultSystemRupSet.fromZipFile(file);
 		}
 	}

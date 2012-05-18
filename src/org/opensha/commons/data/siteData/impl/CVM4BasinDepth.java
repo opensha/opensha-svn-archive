@@ -55,7 +55,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	private static final int nx = 1701;
 	private static final int ny = 1101;
 	
-	private static final long MAX_FILE_POS = (nx-1) * (ny-1) * 4;
+	private static final long MAX_FILE_POS = (nx*ny) * 4;
 	
 	public static final double gridSpacing = 0.005;
 	

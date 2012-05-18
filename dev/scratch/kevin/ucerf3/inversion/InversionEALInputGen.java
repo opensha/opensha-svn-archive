@@ -63,7 +63,7 @@ public class InversionEALInputGen {
 		
 		File jobFile = new File(localDir, jobName+".pbs");
 		
-		List<String> script = writer.buildScript(MPJ_EAL_Calc.class.getName(), args);
+		List<String> script = writer.buildScript(MPJ_AssetRTGM_Calc.class.getName(), args);
 		
 		USC_HPCC_ScriptWriter usc = new USC_HPCC_ScriptWriter();
 		script = usc.buildScript(script, mins, nodes, 8, queue);
@@ -79,8 +79,8 @@ public class InversionEALInputGen {
 		
 		boolean rtgm = true;
 		
-		File localDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2012_05_03-eal-tests-apriori-1000");
-		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/eal/2012_05_03-eal-tests-apriori-1000");
+		File localDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2012_05_17-rtgm-tests-apriori-1000");
+		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/eal/2012_05_17-rtgm-tests-apriori-1000");
 		
 //		File portfolio = new File(remoteDir, "Porter-23-Jan-2012-CA99ptcPof.txt");
 //		File vulnFile = new File(remoteDir, "2012_01_02_VUL06.txt");

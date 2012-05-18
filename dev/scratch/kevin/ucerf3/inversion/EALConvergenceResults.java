@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math.stat.StatUtils;
@@ -197,19 +198,41 @@ public class EALConvergenceResults {
 			line0 = line0.substring(line0.indexOf(':')+1).trim();
 			double portEAL = Double.parseDouble(line0);
 			
-			ArrayList<Double> assetEALs = new ArrayList<Double>();
+			ArrayList<IndexedEAL> assetEALs = new ArrayList<IndexedEAL>();
 			
 			for (String line : lines.subList(1, lines.size())) {
 				line = line.trim();
 				if (line.isEmpty())
 					continue;
-				assetEALs.add(Double.parseDouble(line.split(",")[1]));
+				String[] splt = line.split(",");
+				int index = Integer.parseInt(splt[0]);
+				double eal = Double.parseDouble(splt[1]);
+				assetEALs.add(new IndexedEAL(index, eal));
 			}
 			
-			eals.add(new PortfolioEAL(portEAL, assetEALs));
+			Collections.sort(assetEALs);
+			
+			ArrayList<Double> ealDoubles = new ArrayList<Double>();
+			for (IndexedEAL eal : assetEALs)
+				ealDoubles.add(eal.eal);
+			
+			eals.add(new PortfolioEAL(portEAL, ealDoubles));
 		}
 		
 		return eals;
+	}
+	
+	private static class IndexedEAL implements Comparable<IndexedEAL> {
+		private int index;
+		private double eal;
+		public IndexedEAL(int index, double eal) {
+			this.index = index;
+			this.eal = eal;
+		}
+		@Override
+		public int compareTo(IndexedEAL o) {
+			return Double.compare(index, o.index);
+		}
 	}
 	
 	private static class PortfolioEAL {
@@ -281,11 +304,12 @@ public class EALConvergenceResults {
 	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException {
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/eal/2012_05_03-eal-tests-apriori-1000/CB2008");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/eal/2012_05_03-eal-tests-apriori-1000/CB2008");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/eal/2012_05_17-rtgm-tests-apriori-1000/CB2008");
 		
 		List<PortfolioEAL> eals = loadEALs(dir);
 		
-		plotCumDist(eals, dir);
+//		plotCumDist(eals, dir);
 		
 		File portfolioFile = new File(dir.getParentFile(), "portfolio.csv");
 		Portfolio port = Portfolio.createPortfolio(portfolioFile);
