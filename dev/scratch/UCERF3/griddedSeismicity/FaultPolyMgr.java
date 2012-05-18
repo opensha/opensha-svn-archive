@@ -12,7 +12,6 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -25,8 +24,9 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 
 /**
- * Maintains collections of the relationships between grid nodes and fault
- * sections.
+ * Class maintains collections of the polygonal relationships between grid nodes
+ * and fault sections. Use of the word 'node' in this class generally referes to
+ * the lat-lon cell represented by the 'node'.
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -53,8 +53,10 @@ public class FaultPolyMgr {
 
 	/**
 	 * Returns the fraction of the node at idx that participates in fault
-	 * section related seismicity.
+	 * section related seismicity (i.e. the percent of cell represented by a 
+	 * node that is spanned by fault-section polygons).
 	 * @param idx
+	 * @return the fraction of the node area at {@code idx} occupied by faults
 	 */
 	public double getNodeFraction(int idx) {
 		Double fraction = nodeExtents.get(idx);
@@ -62,22 +64,22 @@ public class FaultPolyMgr {
 	}
 	
 	/**
-	 * Returns a map of the indices of nodes that intersect the section at
+	 * Returns a map of the indices of nodes that intersect the fault-section at
 	 * {@code idx} where the values are the (weighted) fraction of the area of
-	 * the node occupied by the section.
-	 * @param idx section index
-	 * @return a map of section participation in nodes
+	 * the node occupied by the fault-section.
+	 * @param idx fault-section index
+	 * @return a map of fault-section participation in nodes
 	 */
 	public Map<Integer, Double> getSectFractions(int idx) {
 		return sectInNodePartic.row(idx);
 	}
 	
 	/**
-	 * Returns a map of the indices of nodes that intersect the section at
-	 * {@code idx} where the values are the fraction of the area of the section
-	 * occupied by each node. The values in the map sum to 1.
+	 * Returns a map of the indices of nodes that intersect the fault-section at
+	 * {@code idx} where the values are the fraction of the area of the
+	 * fault-section occupied by each node. The values in the map sum to 1.
 	 * @param idx section index
-	 * @return a map of node participation in a section
+	 * @return a map of node participation in a fault-section
 	 */
 	public Map<Integer, Double> getNodeFractions(int idx) {
 		return nodeInSectPartic.row(idx);
@@ -86,25 +88,29 @@ public class FaultPolyMgr {
 	/**
 	 * Initialize a fault polygon manager from a FaultSystemRuptureSet, which
 	 * provides all the fault-section infmormation necessary.
-	 * @param fsrs
+	 * @param fsrs {@code FaultSystemRuptureSet} to initialize manager with
 	 */
 	public FaultPolyMgr(FaultSystemRupSet fsrs) {
 		if (log) System.out.println("Building...");
 		if (log) System.out.println("  getting faults from solution");
 		List<FaultSectionPrefData> faults = fsrs.getFaultSectionDataList();
 		if (log) System.out.println("  subsection polygons");
-		polys = SectionPolygons.build(faults);
+		polys = SectionPolygons.create(faults, null);
 		init();
-		
-		
 	}
 	
-	FaultPolyMgr(FaultModels fm, double len) {		
+	/**
+	 * Initialize a fault polygon manager from a FaultModel and a desired
+	 * fault-section length (for subdividing faults in model).
+	 * @param fm {@code FaultModel} to initialize manager with
+	 * @param len fault-section length for subdividing
+	 */
+	public FaultPolyMgr(FaultModels fm, double len) {		
 		if (log) System.out.println("Building...");
 		if (log) System.out.println("  getting faults from model");
 		List<FaultSectionPrefData> faults = fm.fetchFaultSections();
 		if (log) System.out.println("  subsection polygons");
-		polys = SectionPolygons.build(faults, len);
+		polys = SectionPolygons.create(faults, len);
 		init();
 	}
 	
