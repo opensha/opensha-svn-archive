@@ -38,8 +38,6 @@ import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultElement;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 
-import scratch.UCERF3.griddedSeismicity.SectionPolygons;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
