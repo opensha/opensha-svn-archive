@@ -11,6 +11,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
@@ -55,7 +56,7 @@ public class FaultPolyMgr {
 	 * section related seismicity.
 	 * @param idx
 	 */
-	double getNodeFraction(int idx) {
+	public double getNodeFraction(int idx) {
 		Double fraction = nodeExtents.get(idx);
 		return (fraction == null) ? 0.0 : fraction;
 	}
@@ -67,7 +68,7 @@ public class FaultPolyMgr {
 	 * @param idx section index
 	 * @return a map of section participation in nodes
 	 */
-	Map<Integer, Double> getSectFractions(int idx) {
+	public Map<Integer, Double> getSectFractions(int idx) {
 		return sectInNodePartic.row(idx);
 	}
 	
@@ -78,14 +79,19 @@ public class FaultPolyMgr {
 	 * @param idx section index
 	 * @return a map of node participation in a section
 	 */
-	Map<Integer, Double> getNodeFractions(int idx) {
+	public Map<Integer, Double> getNodeFractions(int idx) {
 		return nodeInSectPartic.row(idx);
 	}
 
-	FaultPolyMgr(FaultSystemSolution fss) {
+	/**
+	 * Initialize a fault polygon manager from a FaultSystemRuptureSet, which
+	 * provides all the fault-section infmormation necessary.
+	 * @param fsrs
+	 */
+	public FaultPolyMgr(FaultSystemRupSet fsrs) {
 		if (log) System.out.println("Building...");
 		if (log) System.out.println("  getting faults from solution");
-		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
+		List<FaultSectionPrefData> faults = fsrs.getFaultSectionDataList();
 		if (log) System.out.println("  subsection polygons");
 		polys = SectionPolygons.build(faults);
 		init();
@@ -155,7 +161,7 @@ public class FaultPolyMgr {
 	}
 	
 	/*
-	 * Initializes a map of the total area covered by each fault section .
+	 * Initializes a map of the total area covered by each fault section.
 	 */
 	private void initSectionExtents() {
 		sectExtents = Maps.newHashMap();
