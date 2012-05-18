@@ -25,117 +25,104 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
-/**
- * This utility class will take a FaultSystemSolution and populate all fault
- * subsection zone polygon fields. This is a multistep process that involves:
+/*
+ * Accessory class to FaultPolyMgr that creates and manages the polygons for a
+ * supplied List<FaultSectionPrefData>. The list may be derived from a
+ * FaultModel (whole faults) in which case a subsection length must be provided
+ * for subdividing the models into fault-sections. Or the list may be derived
+ * from a FaultSystemRuptureSet, in which case thefault-sections are already
+ * defined but whose getZonePolygon() method returns the parent fault polygon.
  * 
- * Polygon problems:
- *    - intersect, union etc... can yield micron-scale residual polys
- *    - some sections do not have polys
- *    - some polys do not span all subsections
- *    
+ * This is a multistep process that involves:
+ * 
+ * 
+ * Polygon problems: - intersect, union etc... can yield micron-scale residual
+ * polys - some sections do not have polys - some polys do not span all
+ * subsections
+ * 
  * @author Peter Powers
+ * 
  * @version $Id:$
  */
-public class SectionPolygons {
+class SectionPolygons {
 
 	private static boolean log = false;
 	
-//	private double len;
-//	private List<FaultSectionPrefData> faults;
-	
 	// map of subsections to polygons
 	private Map<Integer, Area> polyMap;
-//	private Map<Integer, String> nameMap;
 	
+	// parent reference maps
 	private Map<Integer, String> parentNameMap;
 	private Map<Integer, Region> parentRegionMap;
 	private Map<Integer, List<FaultSectionPrefData>> parentSubSectionMap;
-//	private Map<Integer, List<Integer>> parentSubSectIdxMap;
 	
 	private SectionPolygons() {};
 	
-	
-	/**
-	 * FSS based init
-	 * @param subs
-	 * @return
+	/*
+	 * Creates a SectionPolygon instance. If len == null, the supplied list is
+	 * assumed to be derived from a FaultSystemRuptureSet, otherwise it is
+	 * treated as being derived from a FaultModel.
 	 */
-	public static SectionPolygons build(List<FaultSectionPrefData> subs) {
+	static SectionPolygons create(List<FaultSectionPrefData> srcList, Double len) {
 		SectionPolygons fp = new SectionPolygons();
 		fp.parentRegionMap = Maps.newHashMap();
 		fp.parentSubSectionMap = Maps.newHashMap();
 		fp.parentNameMap = Maps.newHashMap();
-		for (FaultSectionPrefData sect : subs) {
+		if (len == null) {
+			initFSRS(fp, srcList);
+		} else {
+			initFM(fp, srcList, len);
+		}
+		fp.build();
+		return fp;
+	}
+	
+	private static void initFSRS(SectionPolygons fp,
+			List<FaultSectionPrefData> sects) {
+		for (FaultSectionPrefData sect : sects) {
 			int pID = sect.getParentSectionId();
 			if (!fp.parentRegionMap.containsKey(pID)) {
 				fp.parentRegionMap.put(pID, sect.getZonePolygon());
 			}
-			List<FaultSectionPrefData> sects = fp.parentSubSectionMap.get(pID);
-			if (sects == null) {
-				sects = Lists.newArrayList();
-				fp.parentSubSectionMap.put(pID, sects);
+			List<FaultSectionPrefData> fSects = fp.parentSubSectionMap.get(pID);
+			if (fSects == null) {
+				fSects = Lists.newArrayList();
+				fp.parentSubSectionMap.put(pID, fSects);
 			}
-			sects.add(sect);
+			fSects.add(sect);
 			if (!fp.parentNameMap.containsKey(pID)) {
 				fp.parentNameMap.put(pID, sect.getParentSectionName());
 			}
 		}
-		fp.init();
-		return fp;
-	}
 
-	/**
-	 * Fault Model based init
-	 * Builds an instance of this class that can be used to access fault sub-
-	 * scetion polygons by sectionID.
-	 * @param faults
-	 * @param len
-	 * @return an instance
-	 */
-	public static SectionPolygons build(List<FaultSectionPrefData> faults, 
-			double len) {
-		SectionPolygons fp = new SectionPolygons();
-		fp.parentRegionMap = Maps.newHashMap();
-		fp.parentSubSectionMap = Maps.newHashMap();
-		fp.parentNameMap = Maps.newHashMap();
+	}
+	
+	private static void initFM(SectionPolygons fp,
+			List<FaultSectionPrefData> faults, double len) {
 		for (FaultSectionPrefData fault : faults) {
 			int id = fault.getSectionId();
 			fp.parentRegionMap.put(id, fault.getZonePolygon());
 			fp.parentSubSectionMap.put(id, fault.getSubSectionsList(len));
 			fp.parentNameMap.put(id, fault.getName());
 		}
-		fp.init();
-		return fp;
 	}
 	
-	/**
-	 * Returns the polygon for the supplied id.
-	 * @param id
-	 * @return the polygon
-	 */
-	public Area get(int id) {
+	/* Returns the polygon for the supplied id. */
+	Area get(int id) {
 		return polyMap.get(id);
 	}
 	
-	public Set<Integer> indices() {
+	/* Returns the reference indices of all polygons. */
+	Set<Integer> indices() {
 		return polyMap.keySet();
 	}
-	
-	public int size() {
-		return polyMap.size();
-	}
-	
-	private void init() {
-		polyMap = Maps.newTreeMap();
-//		nameMap = Maps.newTreeMap();
-		buildPolys();
-	}
-	
 
-	private void buildPolys() {
+	private void build() {
+		polyMap = Maps.newTreeMap();
+
 //			FaultSectionPrefData f1 = faults.get(248); // San Cayetano 3.2
 //			FaultSectionPrefData f1 = faults.get(167); // Mission Ridge 3.1
 //			faults.clear();
@@ -941,7 +928,7 @@ public class SectionPolygons {
 	
 	public static void main(String[] args) {
 //		writeFaultModel();
-		SectionPolygons.build(FaultModels.FM3_2.fetchFaultSections(), 7);
+		SectionPolygons.create(FaultModels.FM3_2.fetchFaultSections(), 7d);
 	}
 
 
