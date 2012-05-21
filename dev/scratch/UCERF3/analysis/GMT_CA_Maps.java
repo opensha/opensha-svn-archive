@@ -631,6 +631,34 @@ public class GMT_CA_Maps {
 	}
 
 	
+	/**
+	 * This plot a map of magnitudes (between M 3 and 9); used for plotting max magnitudes
+	 * @param geoDataSet
+	 * @param scaleLabel
+	 * @param metadata
+	 * @param dirName
+	 * @throws IOException
+	 */
+	public static void plotMagnitudeMap(GeoDataSet magGeoDataSet, String scaleLabel,
+			String metadata, String dirName) throws IOException {
+		
+		GMT_MapGenerator gmt_MapGenerator = getDefaultGMT_MapGenerator();
+		
+		//override default scale
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, 4d);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 10d);
+		
+		// must set this parameter this way because the setValue(CPT) method takes a CPT object, and it must be the
+		// exact same object as in the constraint (same instance); the setValue(String) method was added for convenience
+		// but it won't succeed for the isAllowed(value) call.
+		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, false);
+
+		makeMap(magGeoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
+	}
+
 	
 	/**
 	 * This makes a map of b-values

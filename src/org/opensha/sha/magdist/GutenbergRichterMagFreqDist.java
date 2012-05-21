@@ -228,7 +228,7 @@ public class GutenbergRichterMagFreqDist
       if (diff2 < diff1) index--;
     }
     else
-      throw new RuntimeException("Moment rate not attainable");
+      throw new RuntimeException("Moment rate not attainable; totMoRate="+totMoRate+"  totCumRate="+totCumRate);
 
     magUpper = getX(index);
 

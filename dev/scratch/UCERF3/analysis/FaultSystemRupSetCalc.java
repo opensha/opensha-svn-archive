@@ -255,41 +255,101 @@ public class FaultSystemRupSetCalc {
 	 * assuming all moment at a section goes into a GR with b=1 from M=0 to the
 	 * maximum magnitude the section participates in.
 	 */
-	public static void plotImpliedTotalSectGR_MFD(FaultSystemRupSet faultSysRupSet) {
+	public static void plotImpliedTotalSectGR_MFD(FaultSystemRupSet faultSysRupSet, String label) {
 		List<FaultSectionPrefData> sectDataList = faultSysRupSet.getFaultSectionDataList();
 		SummedMagFreqDist mfd = new SummedMagFreqDist(0.0, 91, 0.1);
 		double totMoRate=0;
 		double mMaxInRegion=0;
 		for(int i=0; i< sectDataList.size();i++) {
 			FaultSectionPrefData sectData = sectDataList.get(i);
-			// filter out ????????
-			if(faultSysRupSet.getFaultModel() == FaultModels.FM2_1) {
-				if(sectData.getParentSectionName().equals("Mendocino")) continue;
-			}
-
 			double mMax = (double)Math.round(10*faultSysRupSet.getMaxMagForSection(i))/10.0;
 			if(mMax>mMaxInRegion) mMaxInRegion= mMax;
 			double moRate = sectData.calcMomentRate(true);
-			totMoRate += moRate;
 			if(Double.isNaN(moRate)) continue;
+			totMoRate += moRate;
 			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.0, 91, 0.1, 0.0, mMax, moRate, 1.0);
 			mfd.addIncrementalMagFreqDist(gr);
 		}
 		mfd.setName(faultSysRupSet.getDeformationModel()+ " Target GR MFD");
 		mfd.setInfo("Rate ge M5 = "+(float)mfd.getCumRate(5.0)+"; totMoRate = "+(float)mfd.getTotalMomentRate());
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.0, 91, 0.1, 0.0, mMaxInRegion, totMoRate, 1.0);
+		System.out.println(mMaxInRegion+"\t"+totMoRate);
 		gr.setName("Perfect GR");
 		gr.setInfo("(up to mag of largest event in fault system; Rate ge M5 = "+(float)gr.getCumRate(5.0)+")");
 		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
 		funcs.add(mfd);
 		funcs.add(mfd.getCumRateDistWithOffset());
 		funcs.add(gr);
-		funcs.add(gr.getCumRateDistWithOffset());		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Implied GR MFD");
+		funcs.add(gr.getCumRateDistWithOffset());	
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, null, 0, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, null, 0, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, null, 0, Color.GRAY));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, null, 0, Color.GRAY));
+		String morelabel = " (M>=5 rate = "+((float)Math.round(mfd.getCumRate(5.0)*10.0))/10+")";
+		// note that mendocino is included here (but filtered in the UCERF2 ERF)
+		if(faultSysRupSet.getFaultModel() == FaultModels.FM2_1) {
+			morelabel += " -- Mendocino included!";
+		}
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, label+morelabel,plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-5, 20);
 		graph.setYLog(true);
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate (per year)");
+
+		graph.setTickLabelFontSize(14);
+		graph.setAxisLabelFontSize(16);
+		graph.setPlotLabelFontSize(18);
+		String fileName = "TargetGR_"+label + ".png";
+		if(fileName != null) {
+			try {
+				graph.saveAsPNG(fileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}		
+
 		
+	}
+
+	
+	public static void plotAllImpliedTotalSectGR_MFD() {
+		ArrayList<MagAreaRelationships> magAreaList = new ArrayList<MagAreaRelationships>();
+		magAreaList.add(MagAreaRelationships.ELL_B);
+		magAreaList.add(MagAreaRelationships.HB_08);
+		magAreaList.add(MagAreaRelationships.SHAW_09);
+		
+		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
+		FaultModels fm = FaultModels.FM3_1;
+		
+		defModList.add(DeformationModels.ABM);
+		defModList.add(DeformationModels.GEOLOGIC);
+		defModList.add(DeformationModels.GEOLOGIC_PLUS_ABM);
+		defModList.add(DeformationModels.NEOKINEMA);
+		defModList.add(DeformationModels.ZENG);
+		defModList.add(DeformationModels.GEOBOUND);
+		
+		// for UCERF3
+//		for(DeformationModels dm :defModList) {
+//			for(MagAreaRelationships ma:magAreaList) {
+//				FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
+//						ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+//				String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+ma.getShortName();
+//				plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
+//			}
+//		}
+		
+		// now do UCERF2
+		fm = FaultModels.FM2_1;
+		DeformationModels dm = DeformationModels.UCERF2_ALL;
+		for(MagAreaRelationships ma:magAreaList) {
+			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
+					ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+			String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+ma.getShortName();
+			plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
+		}
 	}
 
 	
@@ -299,20 +359,22 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void main(String[] args) {
 		
+		plotAllImpliedTotalSectGR_MFD();
+		
+//		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
+//				MagAreaRelationships.HB_08, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+//		getMomentRateReductionHistogram(faultSysRupSet, true, true);
+//		plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
+
+		
 //		getFractMomentReductionForSmallMags(6.0, 8.0, 1.0);
 //		getFractMomentReductionForSmallMags(7.0, 8.0, 1.0);
 		
 //   		try {
-   			System.out.println("Getting rup set");
+//  			System.out.println("Getting rup set");
 //			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(
 //					FaultModels.FM2_1, DeformationModels.UCERF2_ALL, InversionModels.GR, true);
 			
-			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
-					MagAreaRelationships.HB_08, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
-			System.out.println("Done getting rup set");
-//			getMomentRateReductionHistogram(faultSysRupSet, true, true);
-//			plotAllHistograms(faultSysRupSet, 5.05,40,0.1, true);
-			plotImpliedTotalSectGR_MFD(faultSysRupSet);
 			
 //			System.out.println(getMinMagHistogram(faultSysRupSet, 5.05,40,0.1, true).getCumulativeDistFunction());
 

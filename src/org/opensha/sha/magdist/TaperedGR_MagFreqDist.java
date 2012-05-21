@@ -21,10 +21,14 @@ package org.opensha.sha.magdist;
 
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 /**
  * <p>Title: TaperedGR_MagFreqDist </p>
@@ -215,8 +219,31 @@ public class TaperedGR_MagFreqDist
   }
   
 	public static void main(String[] args) {
-		TaperedGR_MagFreqDist tgr = new TaperedGR_MagFreqDist(0.0,201,0.05);
-		tgr.setAllButCornerMag(5, 1e19, 5, 1.0);
+		TaperedGR_MagFreqDist tgr = new TaperedGR_MagFreqDist(0.0,2001,0.005);
+		tgr.setAllButCornerMag(5, 2.2e19, 8.7, 1.0);
+//		tgr.setAllButTotCumRate(5.0, 7.8, 2e19, 1.0);
+		
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.0,2001,0.005);
+		gr.setAllButMagUpper(5, 2.2e19, 8.7, 1.0, true);
+//		gr.setAllButTotCumRate(5.0, 8.4, 2e19, 1.0);
+		
+		ArrayList<EvenlyDiscretizedFunc> hists = new ArrayList<EvenlyDiscretizedFunc>();
+		hists.add(tgr);
+		hists.add(gr);
+		hists.add(tgr.getCumRateDistWithOffset());
+		hists.add(gr.getCumRateDistWithOffset());
+		
+//		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
+//		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+//		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hists, "GR Comparison"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate");
+		graph.setX_AxisRange(5, 9);
+		graph.setY_AxisRange(1e-8, 10);
+		graph.setYLog(true);
+
 //		System.out.println(tgr.toString());
 	}
 
