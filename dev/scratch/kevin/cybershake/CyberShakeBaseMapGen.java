@@ -112,7 +112,7 @@ public class CyberShakeBaseMapGen {
 		classpath.add(jarFile);
 		classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 		
-		MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 2000, classpath,
+		MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 7000, classpath,
 				USC_HPCC_ScriptWriter.MPJ_HOME, false);
 		
 		for (ScalarIMR imr : imrs) {
