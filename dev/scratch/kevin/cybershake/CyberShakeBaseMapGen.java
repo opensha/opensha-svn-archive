@@ -141,7 +141,7 @@ public class CyberShakeBaseMapGen {
 			
 			script = writer.buildScript(script, mins, nodes, 0, queue);
 			
-			File pbsFile = new File(imrDir, "mpj.pbs");
+			File pbsFile = new File(imrDir, imr.getShortName().toLowerCase()+".pbs");
 			JavaShellScriptWriter.writeScript(pbsFile, script);
 		}
 	}
