@@ -50,6 +50,7 @@ public class CyberShakeBaseMapGen {
 		if (args.length != 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
 					+" <IMRs> <SA period> <spacing> <CVM4/CVMH> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
+			System.exit(2);
 		}
 		
 		// TODO args
@@ -122,7 +123,7 @@ public class CyberShakeBaseMapGen {
 			imrMaps.add(map);
 			
 			File imrDir = new File(jobDir, imr.getShortName());
-			if (imrDir.exists())
+			if (!imrDir.exists())
 				imrDir.mkdir();
 			
 			String curveDir = new File(imrDir, "curves").getAbsolutePath()+File.separator;
