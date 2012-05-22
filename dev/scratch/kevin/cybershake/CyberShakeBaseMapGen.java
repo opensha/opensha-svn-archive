@@ -14,7 +14,6 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.GriddedRegion;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
@@ -26,14 +25,12 @@ import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
 import org.opensha.sha.calc.hazus.parallel.HardCodedTest;
-import org.opensha.sha.calc.hazus.parallel.HazusDataSetAssmbler;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.gcim.ui.infoTools.IMT_Info;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
 import com.google.common.base.Splitter;
@@ -74,7 +71,10 @@ public class CyberShakeBaseMapGen {
 		
 		ArrayList<ScalarIMR> imrs = Lists.newArrayList();
 		for (String imrName : Splitter.on(",").split(imrNames)) {
-			imrs.add(AttenRelRef.valueOf(imrName).instance(null));
+			ScalarIMR imr = AttenRelRef.valueOf(imrName).instance(null);
+			imr.setIntensityMeasure(SA_Param.NAME);
+			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
+			imrs.add(imr);
 		}
 		
 		ArrayList<SiteData<?>> provs = Lists.newArrayList();
