@@ -91,7 +91,6 @@ public class FaultPolyMgr implements Iterable<Area> {
 	public Iterator<Area> iterator() {
 		return polys.polys().iterator();
 	}
-	
 
 	/**
 	 * Initialize a fault polygon manager from a FaultSystemRuptureSet, which
@@ -195,7 +194,7 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * Initializes table of fault section participation in each node, i.e.
 	 * the percent of a node's area covered by a fault section's polygon. In
 	 * the process, the sect:node and node:sect maps are created. This is later
-	 * revised to to multiple overlapping sections in many nodes.
+	 * revised to account for multiple overlapping sections in many nodes.
 	 */
 	private void initSectInNodeParticipTable() {
 		sectToNodes = ArrayListMultimap.create();
