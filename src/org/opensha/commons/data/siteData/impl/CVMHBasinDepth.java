@@ -31,7 +31,9 @@ public class CVMHBasinDepth extends AbstractCVMBasinDepth {
 	public static final String SERVLET_2_5_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVMH_2_5";
 	public static final String SERVLET_1_0_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVMH_1_0";
 	
-	// TODO servlet constructor
+	public CVMHBasinDepth(String type) throws IOException {
+		this(type, null, true);
+	}
 
 	public CVMHBasinDepth(String type, File dataFile, boolean useServlet) throws IOException {
 		super(nx, ny, minLat, minLon, grid_spacing, true, true, type,

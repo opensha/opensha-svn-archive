@@ -370,13 +370,13 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		}
 		/*		CVM H Depth 2.5		*/
 		try {
-			providers.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5, null, false));
+			providers.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/*		CVM H Depth 1.0		*/
 		try {
-			providers.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0, null, false));
+			providers.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
