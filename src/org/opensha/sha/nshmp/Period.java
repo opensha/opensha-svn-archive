@@ -91,6 +91,18 @@ public enum Period {
 		return f;
 	}
 
+	/**
+	 * Returns a function with x-values initialized to values for this item.
+	 * @return a function initialized with the values for this item
+	 */
+	public ArbitrarilyDiscretizedFunc getLogFunction() {
+		ArbitrarilyDiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
+		for (double d : getIMLs()) {
+			f.set(Math.log(d), 1);
+		}
+		return f;
+	}
+
 	private static class Values {
 		static double[] per0p00 = { 0.0050, 0.0070, 0.0098, 0.0137, 0.0192, 0.0269, 0.0376, 0.0527, 0.0738, 0.103, 0.145, 0.203, 0.284, 0.397, 0.556, 0.778, 1.09, 1.52, 2.13 };
 		static double[] per0p10 = { 0.0025, 0.0060, 0.0098, 0.0137, 0.0192, 0.0269, 0.0376, 0.0527, 0.0738, 0.103, 0.145, 0.203, 0.284, 0.397, 0.556, 0.778, 1.09, 1.52, 2.13, 3.3 };
