@@ -104,7 +104,7 @@ public class UCERF3_GridSourceGenerator {
 		this.totalMgt5_Rate = totalMgt5_Rate;
 		this.scalingMethod = scalingMethod;
 				
-		polyMgr = new FaultPolyMgr(fss);
+		polyMgr = new FaultPolyMgr(fss, 0d);
 		
 		// smoothed seismicity pdf and focal mechs
 		initGrids(spatialPDF);
@@ -156,8 +156,6 @@ public class UCERF3_GridSourceGenerator {
 		
 		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
 
-		boolean test = true;
-		
 		for (FaultSectionPrefData sect : faults) {
 			int idx = sect.getSectionId();
 			double subSeisMax = fss.getMinMagForSection(idx);
@@ -521,7 +519,9 @@ public class UCERF3_GridSourceGenerator {
 
 		SimpleFaultSystemSolution tmp = null;
 		try {
-			File f = new File("tmp/invSols/reference_gr_sol2.zip");
+//			File f = new File("tmp/invSols/reference_ch_sol2.zip");
+			File f = new File("tmp/invSols/ucerf2/FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt1000_mean_sol.zip");
+			
 			tmp = SimpleFaultSystemSolution.fromFile(f);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -549,33 +549,6 @@ public class UCERF3_GridSourceGenerator {
 //		System.out.println("EqRup");
 //		System.out.println( peq.getMFD());
 		
-		
-		
-//		GriddedGeoDataSet polyDat = new GriddedGeoDataSet(gridGen.region, true);	// true makes X latitude
-//		for (int i=0; i<gridGen.region.getNodeCount(); i++) {
-//			polyDat.set(i, gridGen.polyMgr.getNodeFraction(i));
-//		}
-//		try {
-//			plotMap(polyDat, "UCERF3_NodePolyParticipation", "no info", "UCERF3_NodePolyParticipation");
-//		} catch (IOException ioe) {
-//			ioe.printStackTrace();
-//		}
-	}
-
-	public static void plotMap(GeoDataSet geoDataSet, String scaleLabel,
-			String metadata, String dirName) throws IOException {
-		
-		GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
-		gmt_MapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, false);
-			
-		//override default scale
-		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, 0.0);
-		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 1.0);
-		
-		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
-		cptParam.setValue(GMT_CPT_Files.GMT_OCEAN2.getFileName());
-		
-		GMT_CA_Maps.makeMap(geoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
 	}
 
 	static void plot(ArrayList<IncrementalMagFreqDist> mfds) { 

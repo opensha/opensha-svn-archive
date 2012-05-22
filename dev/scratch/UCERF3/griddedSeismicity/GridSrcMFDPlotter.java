@@ -35,9 +35,11 @@ public class GridSrcMFDPlotter {
 	
 	private static InversionFaultSystemSolution fss;
 	private static ArrayList<PlotCurveCharacterstics> plotChars;
-	private static SmallMagScaling magScaling = SmallMagScaling.MO_REDUCTION;
-	private static boolean incremental = true;
-	private static String fName = "tmp/invSols/reference_gr_sol2.zip";
+	private static SmallMagScaling magScaling = SmallMagScaling.SPATIAL;
+	private static boolean incremental = false;
+//	private static String fName = "tmp/invSols/reference_ch_sol2.zip";
+//	private static String fName = "tmp/invSols/ucerf2/FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt100_mean_sol.zip";
+	private static String fName = "tmp/invSols/ucerf2/FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt1000_mean_sol.zip";
 	
 	static {
 		
@@ -65,10 +67,10 @@ public class GridSrcMFDPlotter {
 	
 //	Map<String, FaultSectionPrefData> sectionMap;
 	GridSrcMFDPlotter() {
-		if (fName.contains("_ch_")) plotChar();
+		if (fName.contains("_ch_") || fName.contains("_Char_")) plotChar();
 		if (fName.contains("_gr_")) plotGR();
 		
-		plotFault(1617);
+//		plotFault(1617);
 	}
 	
 	void plotFault(int idx) {
@@ -101,11 +103,10 @@ public class GridSrcMFDPlotter {
 		funcs.add(incremental ? fTotalIncr : fTotalCum);
 
 		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
-			(fName.contains("_gr_") ? "GR" : "CH") +
-				" : " +
+				(fName.contains("_gr_") ? "GR" : "CH") + " : " +
 				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
 					magScaling.toString()) + " : " +
-							(incremental ? "Incr" : "Cum") + " : " + name, plotChars);
+				(incremental ? "Incr" : "Cum") + " : " + name, plotChars);
 		plotter.setX_AxisRange(fTotalIncr.getMinX(), fTotalIncr.getMaxX());
 		plotter.setY_AxisRange(1e-10, 1e-4);
 		plotter.setYLog(true);
@@ -120,7 +121,7 @@ public class GridSrcMFDPlotter {
 	void plotChar() {
 
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			fss, null, SpatialSeisPDF.UCERF3, 8.54, magScaling);
+			fss, null, SpatialSeisPDF.UCERF2, 8.54, magScaling);
 		System.out.println("init done");
 		
 		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
@@ -182,11 +183,11 @@ public class GridSrcMFDPlotter {
 		
 		
 		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
-			(fName.contains("_gr_") ? "GR" : "CH") +
-				" : " +
-				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
-					magScaling.toString()) + " : " +
-				(incremental ? "Incr" : "Cum"), plotChars);
+			"UCERF2wt1000 : " +
+					(fName.contains("_gr_") ? "GR" : "CH") + " : " +
+					CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+						magScaling.toString()) + " : " +
+					(incremental ? "Incr" : "Cum"), plotChars);
 		plotter.setX_AxisRange(tssSectIncr.getMinX(), tssSectIncr.getMaxX());
 		plotter.setY_AxisRange(1e-6, 1e1);
 		plotter.setYLog(true);

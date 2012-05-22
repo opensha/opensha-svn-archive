@@ -23,7 +23,7 @@ import com.google.common.io.Files;
 import com.google.common.io.Resources;
 
 /**
- * Class provides one method, {@code getScale(Location)} that returns the value
+ * Class provides one method, {@code getValue(Location)} that returns the value
  * of Karen Felzer's UCERF3 smoothed seismicity spatial PDF at the supplied
  * location. Class assumes X and Y are lat lon discretized on 0.1 and uses ints
  * as row and column keys to access a sparse {@code HashBasedTable}.

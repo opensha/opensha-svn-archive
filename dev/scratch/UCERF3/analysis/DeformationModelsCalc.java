@@ -815,7 +815,7 @@ public class DeformationModelsCalc {
 		
 		double totRateMgt5 = 8.54; // HARD CODED!!!!
 		
-		double[] nodeFracs = FaultPolyMgr.getNodeFractions(FaultModels.FM3_1);
+		double[] nodeFracs = FaultPolyMgr.getNodeFractions(FaultModels.FM3_1, null, null);
 		GriddedGeoDataSet ucerf2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
 		GriddedGeoDataSet ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
 		double sum = 0;
@@ -853,7 +853,7 @@ public class DeformationModelsCalc {
 		
 		FaultModels fm = FaultModels.FM3_1;
 		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
-		double[] nodeFracs = FaultPolyMgr.getNodeFractions(fm);
+		double[] nodeFracs = FaultPolyMgr.getNodeFractions(fm, null, null);
 
 		ArrayList<DeformationModels> dmList = new ArrayList<DeformationModels>();
 		dmList.add(DeformationModels.GEOLOGIC);

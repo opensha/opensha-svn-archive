@@ -3,6 +3,7 @@ package scratch.UCERF3.griddedSeismicity;
 import java.awt.geom.Area;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -31,7 +33,7 @@ import com.google.common.collect.Table;
  * @author Peter Powers
  * @version $Id:$
  */
-public class FaultPolyMgr {
+public class FaultPolyMgr implements Iterable<Area> {
 
 	private boolean log = true;
 	
@@ -84,18 +86,26 @@ public class FaultPolyMgr {
 	public Map<Integer, Double> getNodeFractions(int idx) {
 		return nodeInSectPartic.row(idx);
 	}
+	
+	@Override
+	public Iterator<Area> iterator() {
+		return polys.polys().iterator();
+	}
+	
 
 	/**
 	 * Initialize a fault polygon manager from a FaultSystemRuptureSet, which
 	 * provides all the fault-section infmormation necessary.
 	 * @param fsrs {@code FaultSystemRuptureSet} to initialize manager with
+	 * @param buf additional buffer around fault trace to include in polygon in
+	 *        km on either side of fault; may be {@code null}
 	 */
-	public FaultPolyMgr(FaultSystemRupSet fsrs) {
+	public FaultPolyMgr(FaultSystemRupSet fsrs, Double buf) {
 		if (log) System.out.println("Building...");
 		if (log) System.out.println("  getting faults from solution");
 		List<FaultSectionPrefData> faults = fsrs.getFaultSectionDataList();
 		if (log) System.out.println("  subsection polygons");
-		polys = SectionPolygons.create(faults, null);
+		polys = SectionPolygons.create(faults, buf, null);
 		init();
 	}
 	
@@ -104,13 +114,15 @@ public class FaultPolyMgr {
 	 * fault-section length (for subdividing faults in model).
 	 * @param fm {@code FaultModel} to initialize manager with
 	 * @param len fault-section length for subdividing
+	 * @param buf additional buffer around fault trace to include in polygon in
+	 *        km on either side of fault; may be {@code null}
 	 */
-	public FaultPolyMgr(FaultModels fm, double len) {		
+	public FaultPolyMgr(FaultModels fm, Double buf, Double len) {		
 		if (log) System.out.println("Building...");
 		if (log) System.out.println("  getting faults from model");
 		List<FaultSectionPrefData> faults = fm.fetchFaultSections();
 		if (log) System.out.println("  subsection polygons");
-		polys = SectionPolygons.create(faults, len);
+		polys = SectionPolygons.create(faults, buf, len);
 		init();
 	}
 	
@@ -300,23 +312,27 @@ public class FaultPolyMgr {
 	
 	/**
 	 * NOTE: Only for use when working with fault models.
-	 * @return
+	 * @param model fault model to use
+	 * @param buf polygon buffer (km on either side of fault) to use
+	 * @param len to use when subdividing faults into sections
+	 * @return the fraction of each node 
 	 */
-	public static double[] getNodeFractions(FaultModels model) {
+	public static double[] getNodeFractions(FaultModels model, Double buf,
+			Double len) {
 		if (model == null) model = FaultModels.FM3_1;
-		FaultPolyMgr mgr = new FaultPolyMgr(model, 7);
+		if (len == null) len = 7d;
+		FaultPolyMgr mgr = new FaultPolyMgr(model, buf, len);
 		double[] values = new double[region.getNodeCount()];
-		for (int i=0; i<region.getNodeCount(); i++) {
+		for (int i = 0; i < region.getNodeCount(); i++) {
 			values[i] = mgr.getNodeFraction(i);
 		}
 		return values;
-	}
-	
+	}	
 	
 	public static void main(String[] args) {
 		//FaultPolyMgr mgr = new FaultPolyMgr(FaultModels.FM3_1, 7);
 		
-		System.out.println(Arrays.toString(getNodeFractions(FaultModels.FM3_1)));
+		System.out.println(Arrays.toString(getNodeFractions(FaultModels.FM3_1, 0d, 7d)));
 //		mgr.sectInNodePartic
 //		mgr.nodeInSectPartic
 		
@@ -330,6 +346,6 @@ public class FaultPolyMgr {
 //			System.out.println(sum(nodeVals.values()));
 //		}
 	}
-	
+
 	
 }

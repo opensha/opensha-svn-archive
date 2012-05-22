@@ -16,13 +16,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.LittleEndianDataInputStream;
 
-/**
+/*
  * Utility class to build files from UCERF2 and NSHMP08.
  * 
  * @author Peter Powers
  * @version $Id:$
  */
-public class UCERF2_GridBuilder {
+class UCERF2_GridBuilder {
 
 	
 	public static void main(String[] args) {

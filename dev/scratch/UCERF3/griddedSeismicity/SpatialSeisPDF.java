@@ -3,7 +3,6 @@ package scratch.UCERF3.griddedSeismicity;
 import java.util.List;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.Location;
 
@@ -13,12 +12,12 @@ import com.google.common.primitives.Doubles;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 
 /**
- * Add comments here
- *
+ * UCERF spatial seismicity pdfs.
  * 
  * @author Peter Powers
  * @version $Id:$
  */
+@SuppressWarnings("javadoc")
 public enum SpatialSeisPDF {
 	
 	
