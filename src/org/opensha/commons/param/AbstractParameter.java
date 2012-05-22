@@ -638,7 +638,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 		// first check for null
 		Attribute valueAtt = el.attribute("value");
 		if (valueAtt != null) {
-			if (valueAtt.getValue().equals(XML_NULL_VALUE)) {
+			if (valueAtt.getStringValue().equals(XML_NULL_VALUE)) {
 				try {
 					this.setValue(null);
 					setToNull = true;
@@ -658,6 +658,11 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 
 		boolean indepsuccess = setIndepParamsFromXML(el);
 		if (success) success = indepsuccess;
+		
+//		if (!success)
+//			System.err.println("Hmmm...why'd we fail? setToNull="+setToNull+" indepsuccess="+indepsuccess
+//					+" cur val: "+getValue()+" val att="+valueAtt+" equals Null? "+valueAtt.getStringValue().equals(XML_NULL_VALUE)
+//					+" null allowed? "+isNullAllowed());
 
 		// System.out.println("success? "+success);
 		return success;

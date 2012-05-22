@@ -185,13 +185,11 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			imrsList.add(imrs);
 		}
 		
-		ArrayList<Parameter> paramsToAdd = new ArrayList<Parameter>();
+		ArrayList<Parameter<?>> paramsToAdd = new ArrayList<Parameter<?>>();
 		for (ScalarIMR imr : imrsList.get(0)) {
-			ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();
-			while (it.hasNext()) {
-				Parameter param = it.next();
+			for (Parameter<?> param : imr.getSiteParams()) {
 				boolean add = true;
-				for (Parameter prevParam : paramsToAdd) {
+				for (Parameter<?> prevParam : paramsToAdd) {
 					if (param.getName().equals(prevParam.getName())) {
 						add = false;
 						break;

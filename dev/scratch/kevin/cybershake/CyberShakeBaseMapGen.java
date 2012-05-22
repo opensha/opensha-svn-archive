@@ -72,6 +72,7 @@ public class CyberShakeBaseMapGen {
 		ArrayList<ScalarIMR> imrs = Lists.newArrayList();
 		for (String imrName : Splitter.on(",").split(imrNames)) {
 			ScalarIMR imr = AttenRelRef.valueOf(imrName).instance(null);
+			imr.setParamDefaults();
 			imr.setIntensityMeasure(SA_Param.NAME);
 			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
 			imrs.add(imr);

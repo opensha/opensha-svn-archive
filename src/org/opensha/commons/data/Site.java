@@ -234,7 +234,7 @@ public class Site extends ParameterList implements Named,Serializable,XMLSaveabl
 		return root;
 	}
 	
-	public static Site fromXMLMetadata(Element siteEl, ArrayList<Parameter> paramsToAdd) {
+	public static Site fromXMLMetadata(Element siteEl, ArrayList<Parameter<?>> paramsToAdd) {
 		Element locEl = siteEl.element(Location.XML_METADATA_NAME);
 		Location loc = Location.fromXMLMetadata(locEl);
 		Site site = new Site(loc);
@@ -258,8 +258,12 @@ public class Site extends ParameterList implements Named,Serializable,XMLSaveabl
 		return root;
 	}
 	
-	public static ArrayList<Site> loadSitesFromXML(Element sitesEl, ArrayList<Parameter> paramsToAdd) {
+	public static ArrayList<Site> loadSitesFromXML(Element sitesEl, ArrayList<Parameter<?>> paramsToAdd) {
 		Iterator<Element> it = sitesEl.elementIterator(XML_METADATA_NAME);
+		
+		System.out.println("Params to add:");
+		for (Parameter<?> param : paramsToAdd)
+			System.out.println(param.getName());
 		
 		ArrayList<Site> sites = new ArrayList<Site>();
 		

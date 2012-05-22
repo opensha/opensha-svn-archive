@@ -610,6 +610,9 @@ public class ParameterList implements Serializable, Iterable<Parameter<?>> {
 					} else {
 						System.err.println("Parameter "+param.getName()+" could not be set from XML!");
 						System.err.println("It is possible that the parameter type doesn't yet support loading from XML");
+//						try {
+//							System.err.println("Value el: "+el.attributeValue("value"));
+//						} catch (Exception E) {}
 						failure = true;
 					}
 				}
