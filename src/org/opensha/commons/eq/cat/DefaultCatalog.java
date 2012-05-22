@@ -432,7 +432,7 @@ public class DefaultCatalog implements Catalog {
 		Arrays.sort(timesCopy);
 		return Arrays.equals(timesCopy, times);
 	}
-
+	
 	/* metadata id strings */
 	static final String XML_ELEM_CATALOG_DATA = "catalogData";
 	static final String XML_ELEM_CATALOG_DATA_FIELDS = "dataFields";

@@ -83,9 +83,9 @@ public abstract class AbstractReader implements CatalogReader {
 	 * 
 	 */
 	public AbstractReader(String name, String desc, int size) {
-		checkArgument(size > 0, "Supplied array size must be positive");
+		checkArgument(size > 0, "Supplied size must be positive");
 		checkArgument(size <= Catalog.MAX_SIZE,
-			"Supplied array size must be positive");
+			"Supplied size is too large");
 		this.size = size;
 		this.name = (name != null) ? name : this.name;
 		this.desc = (desc != null) ? desc : this.desc;
