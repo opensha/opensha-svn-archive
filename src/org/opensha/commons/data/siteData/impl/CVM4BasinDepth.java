@@ -28,6 +28,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.siteData.AbstractSiteData;
@@ -44,7 +45,7 @@ import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalcula
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 
-public class CVM4BasinDepth extends AbstractSiteData<Double> {
+public class CVM4BasinDepth extends AbstractCVMBasinDepth {
 	
 	public static final String NAME = "SCEC Community Velocity Model Version 4 Basin Depth";
 	public static final String SHORT_NAME = "CVM4";
@@ -64,20 +65,6 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	
 	public static final String SERVLET_2_5_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVM4_2_5";
 	public static final String SERVLET_1_0_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVM4_1_0";
-	
-	private RandomAccessFile file = null;
-	private String fileName = null;
-	
-	private GeolocatedRectangularBinaryMesh2DCalculator calc = null;
-	
-	private byte[] recordBuffer = null;
-	private FloatBuffer floatBuff = null;
-	
-	private boolean useServlet;
-	
-	private String type;
-	
-	private SiteDataServletAccessor<Double> servlet = null;
 	
 	/**
 	 * Constructor for creating a CVM accessor using servlets
@@ -105,54 +92,26 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	 * @param type
 	 * @throws IOException
 	 */
-	public CVM4BasinDepth(String type, String dataFile) throws IOException {
+	public CVM4BasinDepth(String type, File dataFile) throws IOException {
 		this(type, dataFile, false);
 	}
 	
-	public CVM4BasinDepth(String type, String dataFile, boolean useServlet) throws IOException {
-		super();
-		this.useServlet = useServlet;
-		this.fileName = dataFile;
-		this.type = type;
-		
-		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
-				DataType.FLOAT, nx, ny, minLat, minLon, gridSpacing);
-		
-		if (useServlet) {
-			if (type.equals(TYPE_DEPTH_TO_1_0))
-				servlet = new SiteDataServletAccessor<Double>(SERVLET_1_0_URL);
-			else
-				servlet = new SiteDataServletAccessor<Double>(SERVLET_2_5_URL);
-		} else {
-			if (dataFile == null) {
-				if (type.equals(TYPE_DEPTH_TO_1_0))
-					dataFile = DEPTH_1_0_FILE;
-				else
-					dataFile = DEPTH_2_5_FILE;
-			}
-			
-			file = new RandomAccessFile(new File(dataFile), "r");
-			
-			calc.setStartBottom(true);
-			calc.setStartLeft(true);
-			
-			recordBuffer = new byte[4];
-			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
-			record.order(ByteOrder.LITTLE_ENDIAN);
-			
-			floatBuff = record.asFloatBuffer();
-		}
-		initDefaultBasinParams();
-		this.paramList.addParameter(minBasinDoubleParam);
-		this.paramList.addParameter(maxBasinDoubleParam);
+	public CVM4BasinDepth(String type, File dataFile, boolean useServlet) throws IOException {
+		super(nx, ny, minLat, minLon, gridSpacing, true, true, type, dataFile, useServlet);
+	}
+	
+	@Override
+	File getDefaultFile(String type) {
+		if (type.equals(TYPE_DEPTH_TO_1_0))
+			return new File(DEPTH_1_0_FILE);
+		return new File(DEPTH_2_5_FILE);
 	}
 
-	public Region getApplicableRegion() {
-		return calc.getApplicableRegion();
-	}
-
-	public Location getClosestDataLocation(Location loc) {
-		return calc.calcClosestLocation(loc);
+	@Override
+	String getServletURL(String type) {
+		if (type.equals(TYPE_DEPTH_TO_1_0))
+			return SERVLET_1_0_URL;
+		return SERVLET_2_5_URL;
 	}
 
 	public String getName() {
@@ -164,79 +123,34 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	}
 	
 	public String getMetadata() {
-		return type + ", extracted from version 4 of the SCEC Community Velocity Model with patches from" +
+		return getDataType() + ", extracted from version 4 of the SCEC Community Velocity Model with patches from" +
 				"Geoff Ely and others. Extracted Feb 17, 2009 by Kevin Milner.\n\n" +
 				"It has a grid spacing of " + gridSpacing + " degrees";
-	}
-
-	public double getResolution() {
-		return gridSpacing;
-	}
-
-	public String getDataType() {
-		return type;
 	}
 	
 	// TODO: what should we set this to?
 	public String getDataMeasurementType() {
 		return TYPE_FLAG_INFERRED;
 	}
-
-	public Double getValue(Location loc) throws IOException {
-		if (useServlet) {
-			return certifyMinMaxBasinDepth(servlet.getValue(loc));
-		} else {
-			long pos = calc.calcClosestLocationFileIndex(loc);
-			
-			return getValue(pos);
-		}
-	}
-	
-	private Double getValue(long pos) throws IOException {
-		if (pos > MAX_FILE_POS || pos < 0)
-			return Double.NaN;
-		
-		file.seek(pos);
-		file.read(recordBuffer);
-		
-		// this is in meters
-		double val = floatBuff.get(0);
-		
-		// convert to KM
-		Double dobVal = (double)val / 1000d;
-		return certifyMinMaxBasinDepth(dobVal);
-	}
-
-	public ArrayList<Double> getValues(LocationList locs) throws IOException {
-		if (useServlet) {
-			ArrayList<Double> vals = servlet.getValues(locs);
-			for (int i=0; i<vals.size(); i++) {
-				vals.set(i, certifyMinMaxBasinDepth(vals.get(i)));
-			}
-			return vals;
-		} else {
-			return super.getValues(locs);
-		}
-	}
-
-	public boolean isValueValid(Double val) {
-		return val != null && !Double.isNaN(val);
-	}
 	
 	@Override
 	protected Element addXMLParameters(Element paramsEl) {
 		paramsEl.addAttribute("useServlet", this.useServlet + "");
-		paramsEl.addAttribute("fileName", this.fileName);
-		paramsEl.addAttribute("type", this.type);
+		if (this.dataFile != null)
+			paramsEl.addAttribute("fileName", this.dataFile.getPath());
+		paramsEl.addAttribute("type", getDataType());
 		return super.addXMLParameters(paramsEl);
 	}
 	
 	public static CVM4BasinDepth fromXMLParams(org.dom4j.Element paramsElem) throws IOException {
 		boolean useServlet = Boolean.parseBoolean(paramsElem.attributeValue("useServlet"));
-		String fileName = paramsElem.attributeValue("fileName");
+		Attribute fileAtt = paramsElem.attribute("fileName");
+		File file = null;
+		if (fileAtt != null)
+			file = new File(fileAtt.getStringValue());
 		String type = paramsElem.attributeValue("type");
 		
-		return new CVM4BasinDepth(type, fileName, useServlet);
+		return new CVM4BasinDepth(type, file, useServlet);
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -246,7 +160,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 		System.out.println("Expected Lat Bounds: "+local.calc.getMinLat()+"=>"+local.calc.getMaxLat());
 		System.out.println("Expected Lon Bounds: "+local.calc.getMinLon()+"=>"+local.calc.getMaxLon());
 		int cnt = 0;
-		for (long pos=0; pos<MAX_FILE_POS; pos+=4) {
+		for (long pos=0; pos<=MAX_FILE_POS; pos+=4) {
 			Double val = local.getValue(pos);
 //			if (val > DepthTo2pt5kmPerSecParam.MAX) {
 				cnt++;
