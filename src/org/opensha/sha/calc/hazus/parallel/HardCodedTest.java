@@ -177,6 +177,89 @@ public class HardCodedTest {
 		return locs;
 	}
 	
+	public static ArrayList<Site> loadSites(List<SiteData<?>> provs, LocationList locs, List<ScalarIMR> imrs,
+			boolean nullBasin, boolean constrainBasinMin, SiteDataValue<?> hardcodedVal) throws IOException {
+		if (provs == null)
+			provs = new ArrayList<SiteData<?>>();
+		
+		if (constrainBasinMin) {
+			// constrain basin depth to default minimums
+			for (SiteData<?> prov : provs) {
+				if (prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_2_5)
+						|| prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_1_0)) {
+					Parameter<Double> minBasinParam = null;
+					try {
+						minBasinParam = prov.getAdjustableParameterList()
+							.getParameter(Double.class, AbstractSiteData.PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME);
+					} catch (ParameterException e) {}
+					if (minBasinParam != null) {
+//						while (siteParamsIt.hasNext()) {
+						for (ScalarIMR imr : imrs) {
+							for (Parameter<?> param : imr.getSiteParams()) {
+								if (param.getName().equals(DepthTo2pt5kmPerSecParam.NAME)
+										&& prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_2_5)) {
+									minBasinParam.setValue((Double)param.getValue());
+								} else if (param.getName().equals(DepthTo1pt0kmPerSecParam.NAME)
+										&& prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_1_0)) {
+									Double minVal = (Double)param.getValue();
+									// convert from KM to M
+									minVal *= 1000;
+									minBasinParam.setValue(minVal);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		ArrayList<SiteDataValue<?>>[] siteData = new ArrayList[locs.size()];
+		if (hardcodedVal != null) {
+			for (int i=0; i<siteData.length; i++) {
+				siteData[i] = new ArrayList<SiteDataValue<?>>();
+				siteData[i].add(hardcodedVal);
+			}
+		}
+		
+		for (SiteData<?> prov : provs) {
+			SiteDataValueList<?> vals = prov.getAnnotatedValues(locs);
+			for (int i=0; i<siteData.length; i++) {
+				if (siteData[i] == null)
+					siteData[i] = new ArrayList<SiteDataValue<?>>();
+				SiteDataValue<?> val = vals.getValue(i);
+				siteData[i].add(val);
+			}
+		}
+		
+		SiteTranslator trans = new SiteTranslator();
+		
+		ArrayList<Site> sites = new ArrayList<Site>();
+		for (int i=0; i<locs.size(); i++) {
+			Location loc = locs.get(i);
+			Site site = new Site(loc);
+			ArrayList<SiteDataValue<?>> datas = siteData[i];
+			for (ScalarIMR imr : imrs) {
+				for (Parameter<?> siteParam : imr.getSiteParams()) {
+					if (site.containsParameter(siteParam))
+						continue;
+					Parameter<?> clonedParam = (Parameter<?>) siteParam.clone();
+					String paramName = siteParam.getName();
+					if (nullBasin &&
+							(paramName.equals(DepthTo2pt5kmPerSecParam.NAME)
+									|| paramName.equals(DepthTo1pt0kmPerSecParam.NAME))) {
+						clonedParam.setValue(null);
+					} else {
+						trans.setParameterValue(clonedParam, datas);
+					}
+					site.addParameter(clonedParam);
+				}
+			}
+			sites.add(site);
+		}
+		
+		return sites;
+	}
+	
 	private static final String NSHMP_08_NAME = "NSHMP08";
 	private static final String MultiIMR_NAME = "MultiIMR";
 	private static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
