@@ -31,6 +31,8 @@ import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.util.TectonicRegionType;
 
 import com.google.common.base.Splitter;
@@ -73,6 +75,8 @@ public class CyberShakeBaseMapGen {
 		for (String imrName : Splitter.on(",").split(imrNames)) {
 			ScalarIMR imr = AttenRelRef.valueOf(imrName).instance(null);
 			imr.setParamDefaults();
+			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(3d);
 			imr.setIntensityMeasure(SA_Param.NAME);
 			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
 			imrs.add(imr);
