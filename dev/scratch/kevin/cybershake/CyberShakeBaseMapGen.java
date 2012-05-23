@@ -139,7 +139,7 @@ public class CyberShakeBaseMapGen {
 			File inputsFile = new File(imrDir, "inputs.xml");
 			XMLUtils.writeObjectToXMLAsRoot(inputs, inputsFile);
 			
-			String cliArgs = inputsFile.getAbsolutePath();
+			String cliArgs = "--mult-erfs "+inputsFile.getAbsolutePath();
 			
 			List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
 			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
