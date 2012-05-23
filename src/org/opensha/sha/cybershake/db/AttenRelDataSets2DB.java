@@ -12,10 +12,12 @@ public class AttenRelDataSets2DB {
 		this.db = db;
 	}
 	
-	public int getDataSetID(int attenRelID, int erfID, int probModelID, int timeSpanID, Date date) {
+	public int getDataSetID(int attenRelID, int erfID, int velModelID, int probModelID,
+			int timeSpanID, Date date) {
 		String sql = "SELECT AR_Hazard_Dataset_ID FROM "+TABLE_NAME+" WHERE"
 						+" AR_ID="+attenRelID
 						+" AND ERF_ID="+erfID
+						+" AND Velocity_Model_ID="+velModelID
 						+" AND Prob_Model_ID="+probModelID
 						+" AND Time_Span_ID="+timeSpanID;
 		if (date == null)

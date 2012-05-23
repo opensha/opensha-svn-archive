@@ -75,6 +75,7 @@ public class ARCurveInserter {
 		imr.setParamDefaults();
 		setTruncation(imr, 3.0);
 		int erfID = 35;
+		int velModelID = 1;
 		int probModelID = 1;
 		int timeSpanID = 1;
 		int imTypeID = 21;
@@ -100,7 +101,7 @@ public class ARCurveInserter {
 			if (arID < 0)
 				throw new RuntimeException("AR not found!");
 			
-			int datasetID = arDataSets2DB.getDataSetID(arID, erfID, probModelID, timeSpanID, timeSpanDate);
+			int datasetID = arDataSets2DB.getDataSetID(arID, erfID, velModelID, probModelID, timeSpanID, timeSpanDate);
 			if (datasetID < 0)
 				throw new RuntimeException("AR Dataset not found!");
 			

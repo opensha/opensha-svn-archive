@@ -59,6 +59,7 @@ public class PosterImageGen {
 		
 		boolean logPlot = true;
 		int imTypeID = 21;
+		int velModelID = 1;
 		boolean isProbAt_IML = true;
 		double val = 0.2;
 		
@@ -88,13 +89,13 @@ public class PosterImageGen {
 				String name = config.getName().replaceAll(" ", "");
 				if (!gainOnly) {
 					String normAddr = 
-						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, normCustomMin, normCustomMax,
+						HardCodedInterpDiffMapCreator.getMap(logPlot, velModelID, imTypeID, normCustomMin, normCustomMax,
 								isProbAt_IML, val, baseMapIMR, config, false, normLabel);
 					saveCurves(normAddr, mainDir, name, InterpDiffMapType.INTERP_NOMARKS);
 				}
 				if (config instanceof ScenarioBasedModProbConfig) {
 					String gainAddr = 
-						HardCodedInterpDiffMapCreator.getMap(logPlot, imTypeID, gainCustomMin, gainCustomMax,
+						HardCodedInterpDiffMapCreator.getMap(logPlot, velModelID, imTypeID, gainCustomMin, gainCustomMax,
 								isProbAt_IML, val, baseMapIMR, config, true, gainLabel);
 					saveCurves(gainAddr, mainDir, name+"_gain", InterpDiffMapType.INTERP_NOMARKS);
 				}

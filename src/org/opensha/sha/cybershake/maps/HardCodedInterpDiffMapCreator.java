@@ -47,12 +47,11 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 public class HardCodedInterpDiffMapCreator {
 	
-	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, int imTypeID) {
+	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, int velModelID, int imTypeID) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		int erfID = 35;
 		int rupVarScenarioID = 3;
 		int sgtVarID = 5;
-		int velModelID = 1;
 		HazardCurveFetcher fetcher =
 			new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID);
 		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
@@ -179,6 +178,7 @@ public class HardCodedInterpDiffMapCreator {
 			ScalarIMR imr,
 			boolean isProbAt_IML,
 			double level,
+			int velModelID,
 			int imTypeID) throws SQLException {
 		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
@@ -187,7 +187,7 @@ public class HardCodedInterpDiffMapCreator {
 		int attenRelID = ar2db.getAttenRelID(imr);
 		
 		AttenRelDataSets2DB ds2db = new AttenRelDataSets2DB(db);
-		int datasetID = ds2db.getDataSetID(attenRelID, 35, 1, 1, null);
+		int datasetID = ds2db.getDataSetID(attenRelID, 35, velModelID, 1, 1, null);
 		
 		AttenRelCurves2DB curves2db = new AttenRelCurves2DB(db);
 		GeoDataSet xyz = curves2db.fetchMap(datasetID, imTypeID, isProbAt_IML, level, true);
@@ -263,6 +263,7 @@ public class HardCodedInterpDiffMapCreator {
 		try {
 			boolean logPlot = false;
 			int imTypeID = 21;
+			int velModelID = 1;
 			Double customMin = null;
 			Double customMax = null;
 			
@@ -294,7 +295,7 @@ public class HardCodedInterpDiffMapCreator {
 			boolean probGain = false;
 			
 			
-			String addr = getMap(logPlot, imTypeID, customMin, customMax,
+			String addr = getMap(logPlot, velModelID, imTypeID, customMin, customMax,
 					isProbAt_IML, val, baseMapIMR, config, probGain,
 					customLabel);
 			
@@ -314,7 +315,7 @@ public class HardCodedInterpDiffMapCreator {
 	protected static InterpDiffMapType[] gainPlotTypes = 
 			{ InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS};
 	
-	protected static String getMap(boolean logPlot, int imTypeID,
+	protected static String getMap(boolean logPlot, int velModelID, int imTypeID,
 			Double customMin, Double customMax, boolean isProbAt_IML,
 			double val, ScalarIMR baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
@@ -324,7 +325,7 @@ public class HardCodedInterpDiffMapCreator {
 		System.out.println("Loading basemap...");
 		GeoDataSet baseMap;
 		if (!probGain) {
-			baseMap = loadBaseMap(baseMapIMR, isProbAt_IML, val, imTypeID);
+			baseMap = loadBaseMap(baseMapIMR, isProbAt_IML, val, velModelID, imTypeID);
 //			baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
 			System.out.println("Basemap has " + baseMap.size() + " points");
 		} else {
@@ -336,7 +337,7 @@ public class HardCodedInterpDiffMapCreator {
 		if (singleDay)
 			scatterData = getCustomScatter(config, imTypeID, isProbAt_IML, val);
 		else
-			scatterData = getMainScatter(isProbAt_IML, val, imTypeID);
+			scatterData = getMainScatter(isProbAt_IML, val, velModelID, imTypeID);
 		
 		System.out.println("Creating map instance...");
 		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
