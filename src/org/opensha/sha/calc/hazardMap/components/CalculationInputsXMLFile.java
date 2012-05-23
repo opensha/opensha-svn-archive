@@ -156,25 +156,34 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	}
 	
 	public static CalculationInputsXMLFile loadXML(Document doc) throws InvocationTargetException, IOException {
-		return loadXML(doc, 1)[0];
+		return loadXML(doc, 1, false)[0];
 	}
 	
-	public static CalculationInputsXMLFile[] loadXML(Document doc, int threads)
+	public static CalculationInputsXMLFile[] loadXML(Document doc, int threads, boolean multERFs)
 	throws InvocationTargetException, IOException {
 		Preconditions.checkArgument(threads >= 1, "threads must be >= 1");
 		Element root = doc.getRootElement();
 		
 		/* Load the ERF 							*/
-		ERF erf;
-		Element erfElement = root.element(AbstractERF.XML_METADATA_NAME);
-		Attribute className = erfElement.attribute("className");
-		if (className == null) { // load it from a file
-			String erfFileName = erfElement.attribute("fileName").getValue();
-			erf = (AbstractERF)FileUtils.loadObject(erfFileName);
-		} else {
-			erf = AbstractERF.fromXMLMetadata(erfElement);
-			System.out.println("Updating Forecast");
-			erf.updateForecast();
+		ERF[] erfs = new ERF[threads];
+		for (int i=0; i<threads; i++) {
+			ERF erf;
+			if (i == 0 || multERFs) {
+				Element erfElement = root.element(AbstractERF.XML_METADATA_NAME);
+				Attribute className = erfElement.attribute("className");
+				if (className == null) { // load it from a file
+					String erfFileName = erfElement.attribute("fileName").getValue();
+					erf = (AbstractERF)FileUtils.loadObject(erfFileName);
+				} else {
+					erf = AbstractERF.fromXMLMetadata(erfElement);
+					System.out.println("Updating Forecast");
+					erf.updateForecast();
+				}
+			} else {
+				// this means i>0 but not using mult erfs
+				erf = erfs[0]; // just resuse the first one
+			}
+			erfs[i] = erf;
 		}
 		
 		/* Load the IMRs							*/
@@ -226,7 +235,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		CalculationInputsXMLFile[] inputs = new CalculationInputsXMLFile[threads];
 		
 		for (int i=0; i<threads; i++) {
-			inputs[i] = new CalculationInputsXMLFile(erf, imrMapsList.get(i), imts, sites, calcSettings, archiver);
+			inputs[i] = new CalculationInputsXMLFile(erfs[i], imrMapsList.get(i), imts, sites, calcSettings, archiver);
 		}
 		
 		return inputs;

@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -56,8 +57,10 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 		
 		Preconditions.checkArgument(getNumThreads() >= 1, "threads must be >= 1. you supplied: "+getNumThreads());
 		
+		boolean multERFs = cmd.hasOption("mult-erfs");
+		
 		debug(rank, "loading inputs for "+getNumThreads()+" threads");
-		CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, getNumThreads());
+		CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, getNumThreads(), multERFs);
 		sites = inputs[0].getSites();
 		HazardCurveSetCalculator[] calcs = new HazardCurveSetCalculator[getNumThreads()];
 		for (int i=0; i<inputs.length; i++)
@@ -81,6 +84,16 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 	@Override
 	public void calculateBatch(int[] batch) throws Exception, InterruptedException {
 		calc.calculateCurves(sites, batch);
+	}
+	
+	public static Options createOptions() {
+		Options ops = MPJTaskCalculator.createOptions();
+		
+		Option erfOp = new Option("e", "mult-erfs", false, "If set, a copy of the ERF will be instantiated for each thread.");
+		erfOp.setRequired(false);
+		ops.addOption(erfOp);
+		
+		return ops;
 	}
 	
 	public static void main(String[] args) {
