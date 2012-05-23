@@ -70,12 +70,13 @@ public class ARCurveInserter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		String dir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
-		ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
+//		String dir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
+		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/CY2008";
+		ScalarIMR imr = AttenRelRef.CY_2008.instance(null);
 		imr.setParamDefaults();
 		setTruncation(imr, 3.0);
 		int erfID = 35;
-		int velModelID = 1;
+		int velModelID = 2;
 		int probModelID = 1;
 		int timeSpanID = 1;
 		int imTypeID = 21;

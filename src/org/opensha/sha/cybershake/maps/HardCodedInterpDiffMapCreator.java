@@ -263,9 +263,9 @@ public class HardCodedInterpDiffMapCreator {
 		try {
 			boolean logPlot = false;
 			int imTypeID = 21;
-			int velModelID = 1;
-			Double customMin = null;
-			Double customMax = null;
+			int velModelID = 2;
+			Double customMin = 0d;
+			Double customMax = 1.4;
 			
 			
 //			boolean isProbAt_IML = true;
@@ -288,7 +288,7 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig config = null;
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
-			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
+			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
 			baseMapIMR.setParamDefaults();
 			setTruncation(baseMapIMR, 3.0);
 			String customLabel = "3sec SA, 2% in 50 yrs";

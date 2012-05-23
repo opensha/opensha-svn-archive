@@ -58,6 +58,7 @@ import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
@@ -201,7 +202,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		calc.setMaxSourceDistance(maxSourceDistance);
 	}
 	
-	private OrderedSiteDataProviderList getProviders() {
+	private OrderedSiteDataProviderList getProviders(int velModelID) {
 		if (dataProviders == null) {
 			ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 			
@@ -213,24 +214,37 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				e.printStackTrace();
 				providers.add(new CachedSiteDataWrapper<String>(new WillsMap2000()));
 			}
-			
-			/*		CVM4 Depth to 2.5 (CVM2 as backup)	 */
-			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (velModelID == 1) {
+				/*		CVM4 Depth to 2.5					 */
 				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVM2BasinDepth()));
-				} catch (IOException e1) {
-					e1.printStackTrace();
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			}
-			
-			/*		CVM4 Depth to 1.0					 */
-			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
-			} catch (IOException e) {
-				e.printStackTrace();
+				
+				/*		CVM4 Depth to 1.0					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (velModelID == 2) {
+				/*		CVMH Depth to 2.5					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				/*		CVMH Depth to 1.0					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.err.println("Unknown Velocity Model ID: "+velModelID);
+				System.exit(1);
 			}
 			
 			dataProviders = new OrderedSiteDataProviderList(providers);
@@ -830,7 +844,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		if (erf != null && attenRels.size() > 0) {
 			System.out.println("Plotting comparisons!");
-			curveNames.addAll(this.plotComparisions(curves, im, curveID, chars));
+			curveNames.addAll(this.plotComparisions(curves, im, curveID, chars, run));
 		}
 		
 		CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
@@ -920,7 +934,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return period_format.format(period);
 	}
 	
-	private ArrayList<String> plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im, int curveID, ArrayList<PlotCurveCharacterstics> chars) {
+	private ArrayList<String> plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im, int curveID,
+			ArrayList<PlotCurveCharacterstics> chars, CybershakeRun run) {
 		ArrayList<String> names = new ArrayList<String>();
 		System.out.println("Setting ERF Params");
 		this.setERFParams();
@@ -937,7 +952,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					plotChars.getAttenRelSymbol(), plotChars.getAttenRelLineWidth()*4f, color));
 			
 			System.out.println("Setting params for Attenuation Relationship: " + attenRel.getName());
-			Site site = this.setAttenRelParams(attenRel, im);
+			Site site = this.setAttenRelParams(attenRel, im, run);
 			
 			System.out.print("Calculating comparison curve for " + site.getLocation().getLatitude() + "," + site.getLocation().getLongitude() + "...");
 			ArbitrarilyDiscretizedFunc curve = plotChars.getHazardFunc();
@@ -1022,7 +1037,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		this.erf.updateForecast();
 	}
 	
-	private Site setAttenRelParams(AttenuationRelationship attenRel, CybershakeIM im) {
+	private Site setAttenRelParams(AttenuationRelationship attenRel, CybershakeIM im, CybershakeRun run) {
 //		// set 1 sided truncation
 //		StringParameter truncTypeParam = (StringParameter)attenRel.getParameter(SigmaTruncTypeParam.NAME);
 //		truncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
@@ -1057,7 +1072,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Site site = new Site(loc);
 		
 		try{
-			OrderedSiteDataProviderList providers = getProviders();
+			OrderedSiteDataProviderList providers = getProviders(run.getVelModelID());
 			ArrayList<SiteDataValue<?>> datas = providers.getBestAvailableData(loc);
 			
 			if (manualVs30 > 0) {
@@ -1325,11 +1340,12 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
 //		String confDir = "src/org/opensha/sha/cybershake/conf/";
-//		String[] newArgs = { "-R", "247", "--compare-to", "786,790",
+//		String[] newArgs = { "-R", "789",
 //				"--output-dir", "/tmp", "--type", "pdf,png",
 //				"--erf-file", confDir+"MeanUCERF.xml",
-//				"--atten-rel-file", confDir+"cb2008.xml,"+confDir+"ba2008.xml,"
-//				+confDir+"cy2008.xml,"+confDir+"as2008.xml", "--plot-chars-file", confDir+"tomPlot.xml"};
+//				"--atten-rel-file", confDir+"cb2008.xml,"
+//				+confDir+"ba2008.xml,"+confDir+"cy2008.xml,"+confDir+"as2008.xml"
+//				, "--plot-chars-file", confDir+"tomPlot.xml"};
 //		args = newArgs;
 		try {
 			Options options = createOptions();
