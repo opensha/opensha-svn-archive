@@ -241,6 +241,7 @@ public class General_EQSIM_Tools {
 					evRec = new EventRecord(line);
 				} catch (Exception e) {
 					System.err.println("Unable to parse line: "+line.trim()+" (error: "+e.getMessage()+")");
+					line = buffRead.readLine();
 					continue;
 				}
 				numEventRecs+=1;
