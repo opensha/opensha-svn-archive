@@ -1,11 +1,17 @@
 package org.opensha.sha.simulators.eqsim_v04;
 
 import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -188,46 +194,32 @@ public class General_EQSIM_Tools {
 	}
 	
 
-	public void read_EQSIMv04_EventsFile(URL url) {
-		ArrayList<String> lines=null;
-		try {
-			lines = FileUtils.loadFile(url);
-			System.out.println("Number of file lines: "+lines.size()+" (in "+url+")");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		read_EQSIMv04_EventsFile(lines);
+	public void read_EQSIMv04_EventsFile(URL url) throws IOException {
+		URLConnection uc = url.openConnection();
+		read_EQSIMv04_EventsFile(new InputStreamReader((InputStream) uc.getContent()));
 	}
 	
 	public void read_EQSIMv04_EventsFile(File file) throws IOException {
-		ArrayList<String> lines = FileUtils.loadFile(file.getAbsolutePath());
-		read_EQSIMv04_EventsFile(lines);
+		read_EQSIMv04_EventsFile(file);
 	}
 	
 	
-	public void read_EQSIMv04_EventsFile(String filePathName) {
-
-		ArrayList<String> lines=null;
-		try {
-			lines = FileUtils.loadJarFile(filePathName);
-			System.out.println("Number of file lines: "+lines.size()+" (in "+filePathName+")");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		read_EQSIMv04_EventsFile(lines);
+	public void read_EQSIMv04_EventsFile(String filePathName) throws FileNotFoundException, IOException {
+		read_EQSIMv04_EventsFile(new FileReader(filePathName));
 	}
 	
 	
-	private void read_EQSIMv04_EventsFile(ArrayList<String> lines) {
+	private void read_EQSIMv04_EventsFile(Reader reader) throws IOException {
 		
-		ListIterator<String> linesIterator = lines.listIterator();
+		BufferedReader buffRead;
+		
+		if (reader instanceof BufferedReader)
+			buffRead = (BufferedReader)reader;
+		else
+			buffRead = new BufferedReader(reader);
 		
 		// get & check first line (must be the signature line)
-		String line = linesIterator.next();
+		String line = buffRead.readLine();
 		StringTokenizer tok = new StringTokenizer(line);
 		int kindOfLine = Integer.parseInt(tok.nextToken());
 		String fileSignature = tok.nextToken();
@@ -240,8 +232,8 @@ public class General_EQSIM_Tools {
 		EQSIM_Event currEvent = null;
 		EventRecord evRec = new EventRecord(); // this one never used, but created to compile
 		int numEventRecs=0;
-		while (linesIterator.hasNext()) {
-			line = linesIterator.next();
+		line = buffRead.readLine();
+		while (line != null) {
 			tok = new StringTokenizer(line);
 			kindOfLine = Integer.parseInt(tok.nextToken());
 			if(kindOfLine ==200) {	// event record
@@ -275,6 +267,7 @@ public class General_EQSIM_Tools {
 			}
 			else if(kindOfLine ==202)
 				evRec.addType202_Line(line);
+			line = buffRead.readLine();
 		}
 		
 		System.out.println("Num Events = "+this.eventList.size()+"\tNum Event Records = "+numEventRecs);
@@ -2092,8 +2085,10 @@ public class General_EQSIM_Tools {
 	
 	/**
 	 * @param args
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException, IOException {
 		
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
