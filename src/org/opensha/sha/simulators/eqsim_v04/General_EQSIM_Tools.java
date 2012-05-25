@@ -55,6 +55,8 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.simulators.UCERF2_DataForComparisonFetcher;
 
+import com.google.common.primitives.Ints;
+
 /**
  * This class reads and writes various files, as well as doing some analysis of simulator results.
  * 
@@ -1201,13 +1203,11 @@ public class General_EQSIM_Tools {
 					boolean goodSample = true;
 					double eventMag = event.getMagnitude();
 					String sectionsInEventString = new String();
-					ArrayList<Double> slipList = new ArrayList<Double>();
-					ArrayList<Integer> elementID_List = new ArrayList<Integer>();
+					double[] slips = event.getAllElementSlips();
+					int[] elemIDs = event.getAllElementIDs();
 					// collect slip and ID data from all event records
 					for(EventRecord evRec: event) {
 						if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
-						slipList.addAll(evRec.getElementSlipList());
-						elementID_List.addAll(evRec.getElementID_List());
 /*if((evRec.getSectionID()-1) == 61) {
 	System.out.println("eventID="+event.getID()+"\teventMag="+event.getMagnitude()+"\tevRec="+evRec.getID()+"\tevRecSectID="+evRec.getSectionID());
 }*/
@@ -1220,9 +1220,9 @@ public class General_EQSIM_Tools {
 					double aveSlipRate =0;
 					double aveLastSlip =0;
 					double aveSlip=0;
-					int numElements = slipList.size();
+					int numElements = slips.length;
 					for(int e=0;e<numElements;e++) {
-						int index = elementID_List.get(e).intValue() -1;  // index = ID-1
+						int index = elemIDs[e]-1;  // index = ID-1
 						double lastTime = lastTimeForElement[index];
 						double lastSlip = lastSlipForElement[index];
 						double slipRate = rectElementsList.get(index).getSlipRate();
@@ -1232,11 +1232,11 @@ public class General_EQSIM_Tools {
 						aveLastEvTime += lastTime;
 						if(slipRate != 0) {  // there are a few of these, and I don't know what else to do
 							ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
-							ave_spNextEvTime += lastTime + slipList.get(e)/(slipRate/SECONDS_PER_YEAR);
+							ave_spNextEvTime += lastTime + slips[e]/(slipRate/SECONDS_PER_YEAR);
 						}
 						aveSlipRate += slipRate/SECONDS_PER_YEAR;
 						aveLastSlip += lastSlip;
-						aveSlip += slipList.get(e);
+						aveSlip += slips[e];
 						// mark as bad sample if  lastTime is -1
 						if(lastTime==-1){
 							goodSample=false;
@@ -1263,7 +1263,7 @@ public class General_EQSIM_Tools {
 					if(aveSlipRate == 0) goodSample = false;
 					
 					// set boolean for whether event utilizes test element
-					if(elementID_List.contains(testElementID))
+					if(Ints.contains(elemIDs, testElementID))
 						eventUtilizesTestElement=true;
 					else
 						eventUtilizesTestElement=false;
@@ -1303,9 +1303,9 @@ public class General_EQSIM_Tools {
 
 					// now fill in the last event data for next time
 					for(int e=0;e<numElements;e++) {
-						int index = elementID_List.get(e).intValue() -1;
+						int index = elemIDs[e]-1;
 						lastTimeForElement[index] = eventTime;
-						lastSlipForElement[index] = slipList.get(e);
+						lastSlipForElement[index] = slips[e];
 					}
 				}
 			}
@@ -1498,19 +1498,14 @@ public class General_EQSIM_Tools {
 
 				double eventMag = event.getMagnitude();
 				double moment =0;
-				ArrayList<Double> slipList = new ArrayList<Double>();
-				ArrayList<Integer> elementID_List = new ArrayList<Integer>();
-				// collect slip and ID data from all event records
-				for(EventRecord evRec: event) {
-					slipList.addAll(evRec.getElementSlipList());
-					elementID_List.addAll(evRec.getElementID_List());
-				}
+				double[] slips = event.getAllElementSlips();
+				int[] elemIDs = event.getAllElementIDs();
 				// get average date of last event and average predicted date of next
-				int numElements = slipList.size();
+				int numElements = slips.length;
 				for(int e=0;e<numElements;e++) {
-					int index = elementID_List.get(e).intValue() -1;
+					int index = elemIDs[e]-1;
 					double area = rectElementsList.get(index).getGriddedSurface().getArea();
-					double slip = slipList.get(e); // this is in meters
+					double slip = slips[e]; // this is in meters
 					moment += FaultMomentCalc.getMoment(area*1e6, slip);	// convert area to meters squared
 				}
 				double computedMag = MagUtils.momentToMag(moment);
@@ -1566,17 +1561,12 @@ public class General_EQSIM_Tools {
 		for(EQSIM_Event event:eventList) {
 			eventNum++;
 			if(event.hasElementSlipsAndIDs()) {
-				ArrayList<Double> slipList = new ArrayList<Double>();
-				ArrayList<Integer> elementID_List = new ArrayList<Integer>();
-				// collect slip and ID data from all event records
-				for(EventRecord evRec: event) {
-					slipList.addAll(evRec.getElementSlipList());
-					elementID_List.addAll(evRec.getElementID_List());
-				}
-				int numElements = slipList.size();
+				double[] slips = event.getAllElementSlips();
+				int[] elemIDs = event.getAllElementIDs();
+				int numElements = slips.length;
 				for(int e=0;e<numElements;e++) {
-					int index = elementID_List.get(e).intValue() -1;
-					obsAveSlipRate[index] += slipList.get(e);
+					int index = elemIDs[e]-1;
+					obsAveSlipRate[index] += slips[e];
 					numEvents[index] += 1;
 					//						if(eventNum ==3) System.out.println("Test: el_ID="+elementID_List.get(e).intValue()+"\tindex="+index+"\tslip="+slipList.get(e));
 				}
@@ -1727,7 +1717,7 @@ public class General_EQSIM_Tools {
 		ArrayList<Double> eventTimes = new ArrayList<Double>();
 		for(EQSIM_Event event:eventList)
 			if(event.hasElementSlipsAndIDs())
-				if(event.getAllElementIDs().contains(elemID) && event.getMagnitude() >= magThresh)
+				if(Ints.contains(event.getAllElementIDs(), elemID) && event.getMagnitude() >= magThresh)
 					eventTimes.add(event.getTimeInYears());
 		if (eventTimes.size()>0) {
 			double[] intervals = new double[eventTimes.size()-1];

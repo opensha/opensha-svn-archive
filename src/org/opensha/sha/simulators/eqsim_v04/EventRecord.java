@@ -1,7 +1,11 @@
 package org.opensha.sha.simulators.eqsim_v04;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.StringTokenizer;
+
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 
 /**
  * This gives information about an event on a specific section 
@@ -35,8 +39,10 @@ public class EventRecord {
     
     boolean hasElementSlipsAndIDs = true;
     
-    ArrayList<Double> elementSlipList;
-    ArrayList<Integer> elementID_List;
+    int numElements = 0;
+    private static final int element_array_padding = 10;
+    double[] elementSlips = new double[0];
+    int[] elementIDs = new int[0];
     
     /**
      * No arg constructor
@@ -87,11 +93,6 @@ public class EventRecord {
 
 	    while(tok.hasMoreTokens())
 	    	comment_text += tok.nextToken()+" ";
-	    
-	    elementSlipList = new ArrayList<Double>();
-	    elementID_List = new ArrayList<Integer>(); 
-
-
 	}
 	
 	/**
@@ -110,7 +111,7 @@ public class EventRecord {
 			tok.nextToken();	// das_lo
 			tok.nextToken();	// das_hi
 			tok.nextToken();	// area
-			Double slip = Double.parseDouble(tok.nextToken());
+			double slip = Double.parseDouble(tok.nextToken());
 			tok.nextToken();	// moment
 			tok.nextToken();	// shear_before
 			tok.nextToken();	// shear_after
@@ -137,8 +138,7 @@ public class EventRecord {
 			// test ends here
 */			
 			if(element_id>0) {
-				elementSlipList.add(slip);	// mean_slip
-				elementID_List.add(element_id);				
+				addSlip(element_id, slip);		
 			}
 			
 			if(element_id==0)
@@ -147,6 +147,15 @@ public class EventRecord {
 		}
 		
 		// the rest of the line is comments
+	}
+	
+	private void addSlip(int id, double slip) {
+		int ind = numElements;
+		numElements++;
+		elementSlips = Doubles.ensureCapacity(elementSlips, numElements, element_array_padding);
+		elementSlips[ind] = slip;
+		elementIDs = Ints.ensureCapacity(elementIDs, numElements, element_array_padding);
+		elementIDs[ind] = id;
 	}
 	
 	/**
@@ -159,8 +168,7 @@ public class EventRecord {
 			if(kindOfLine != 202) 
 				throw new RuntimeException("not a type 202 line; yours is type="+kindOfLine);
 			int element_id = Integer.parseInt(tok.nextToken());
-			elementSlipList.add(tempSlip);	// the values saved by addSlipAndElementData()
-			elementID_List.add(element_id);				
+			addSlip(element_id, tempSlip);
 	}
 
 	
@@ -176,7 +184,13 @@ public class EventRecord {
 	
 	public void setTime(double time) { this.time=time;}
 	
-	public ArrayList<Integer> getElementID_List() {return elementID_List;}
+	public int[] getElementIDs() {
+		if (elementIDs.length > numElements) {
+			// trim down the array;
+			elementIDs = Arrays.copyOf(elementIDs, numElements);
+		}
+		return elementIDs;
+	}
 	
 	/**
 	 * 
@@ -200,13 +214,19 @@ public class EventRecord {
 	public double getDepthHi() { return depth_hi;}
 	
 	/**
-	 * This gives a list of element slips (meters)
+	 * This gives an array of element slips (meters)
 	 * @return
 	 */
-	public ArrayList<Double> getElementSlipList() {return elementSlipList;}
+	public double[] getElementSlips() {
+		if (elementSlips.length > numElements) {
+			// trim down the array;
+			elementSlips = Arrays.copyOf(elementSlips, numElements);
+		}
+		return elementSlips;
+	}
 	
 	public boolean hasElementSlipsAndIDs() {
-		return (elementSlipList.size() > 0);
+		return numElements > 0;
 	}
 
 }

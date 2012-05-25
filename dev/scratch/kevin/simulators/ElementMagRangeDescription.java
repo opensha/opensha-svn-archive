@@ -10,6 +10,7 @@ import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 
 /**
  * This is the simplest rupture identifier implementation - it defines a match as any rupture that includes
@@ -38,7 +39,7 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 		if (mag < minMag || mag >= maxMag)
 			return false;
 		for (int elementID : elementIDs)
-			if (!event.getAllElementIDs().contains(elementID))
+			if (!Ints.contains(event.getAllElementIDs(), elementID))
 				return false;
 		return true;
 	}

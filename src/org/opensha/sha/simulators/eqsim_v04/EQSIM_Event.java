@@ -111,7 +111,7 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	public int getNumElements() {
 		int num = 0;
 		for (EventRecord evRec : this) {
-			num += evRec.getElementID_List().size();
+			num += evRec.getElementIDs().length;
 		}
 		return num;
 	}
@@ -122,16 +122,24 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	 * order as returned by getAllElementSlips().
 	 * @return
 	 */
-	public ArrayList<Integer> getAllElementIDs() {
+	public int[] getAllElementIDs() {
 		if(hasElementSlipsAndIDs()) {
-			ArrayList<Integer> idList = new ArrayList<Integer>();
+			ArrayList<int[]> idList = new ArrayList<int[]>();
+			int totSize = 0;
 			for(int r=0; r<this.size();r++) {
-				EventRecord er = get(r);
-				idList.addAll(er.getElementID_List());
+				int[] ids = get(r).getElementIDs();
+				totSize += ids.length;
+				idList.add(ids);
 			}
-			return idList;
-		}
-		else return null;
+			int[] ids = new int[totSize];
+			int index = 0;
+			for (int i=0; i<idList.size(); i++) {
+				int[] recIDs = idList.get(i);
+				System.arraycopy(recIDs, 0, ids, index, recIDs.length);
+				index += recIDs.length;
+			}
+			return ids;
+		} else return null;
 	}
 	
 	/**
@@ -140,16 +148,24 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	 * order as returned by getAllElementIDs().
 	 * @return
 	 */
-	public ArrayList<Double> getAllElementSlips() {
+	public double[] getAllElementSlips() {
 		if(hasElementSlipsAndIDs()) {
-			ArrayList<Double> slipList = new ArrayList<Double>();
+			ArrayList<double[]> slipList = new ArrayList<double[]>();
+			int totSize = 0;
 			for(int r=0; r<this.size();r++) {
-				EventRecord er = get(r);
-				slipList.addAll(er.getElementSlipList());
+				double[] slips = get(r).getElementSlips();
+				totSize += slips.length;
+				slipList.add(slips);
 			}
-			return slipList;
-		}
-		else return null;
+			double[] slips = new double[totSize];
+			int index = 0;
+			for (int i=0; i<slipList.size(); i++) {
+				double[] recSlips = slipList.get(i);
+				System.arraycopy(recSlips, 0, slips, index, recSlips.length);
+				index += recSlips.length;
+			}
+			return slips;
+		} else return null;
 	}
 	
 	/**
