@@ -248,7 +248,7 @@ public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 		} else if (retVal instanceof Exception) {
 			throw new RuntimeException((Exception)retVal);
 		} else {
-			throw new RuntimeException("Unknown error occured while updating pref data");
+			throw new RuntimeException("Unknown error occured while updating pref data ("+retVal+")");
 		}
 	}
 
