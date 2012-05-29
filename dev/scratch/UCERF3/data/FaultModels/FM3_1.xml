@@ -593,14 +593,15 @@
     <i18 sectionId="170" sectionName="Brawley (Seismic Zone) alt 1" aveLongTermSlipRate="NaN" slipRateStdDev="0.0" aveDip="90.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="13.199999809265137" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="249.5437" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
-          <Location Latitude="32.909311" Longitude="-115.467313" Depth="0.0"/>
-          <Location Latitude="32.839367" Longitude="-115.478077" Depth="0.0"/>
-          <Location Latitude="32.842102" Longitude="-115.49585399999998" Depth="0.0"/>
-          <Location Latitude="32.911018" Longitude="-115.485248" Depth="0.0"/>
-          <Location Latitude="32.922411" Longitude="-115.561752" Depth="0.0"/>
-          <Location Latitude="33.340491" Longitude="-115.71374100000001" Depth="0.0"/>
-          <Location Latitude="33.349554" Longitude="-115.698204" Depth="0.0"/>
-          <Location Latitude="32.961532" Longitude="-115.471868" Depth="0.0"/>
+          <Location Longitude="-115.467313" Latitude="32.909311" Depth="0.0"/>
+          <Location Longitude="-115.478077" Latitude="32.839367" Depth="0.0"/>
+          <Location Longitude="-115.563017" Latitude="32.842601" Depth="0.0"/>
+          <Location Longitude="-115.786711" Latitude="33.400911" Depth="0.0"/>
+          <Location Longitude="-115.777399" Latitude="33.402010" Depth="0.0"/>
+          <Location Longitude="-115.767897" Latitude="33.403473" Depth="0.0"/>
+          <Location Longitude="-115.698204" Latitude="33.349554" Depth="0.0"/>
+          <Location Longitude="-115.471868" Latitude="32.961532" Depth="0.0"/>
+          <Location Longitude="-115.467313" Latitude="32.909311" Depth="0.0"/>
         </LocationList>
       </ZonePolygon>
       <FaultTrace name="Brawley (Seismic Zone) alt 1">
