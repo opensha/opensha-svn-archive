@@ -1051,6 +1051,23 @@ public class FaultSystemRupSetCalc {
 
 
 	/**
+	 * This method computes the fraction of a SpatialSeisPDF that's inside the fault-section polygons 
+	 * of the given FaultSystemRupSet.
+	 * @param fltSysRupSet
+	 * @param spatialSeisPDF
+	 * @return
+	 */
+	public static double getFractSpatialPDF_InsideSectionPolygons(FaultSystemRupSet fltSysRupSet, SpatialSeisPDF spatialSeisPDF) {
+		double sum = 0;
+		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet, spatialSeisPDF);
+		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
+			sum += gridSeisUtils.pdfValForSection(s);
+		}
+		return sum;
+	}
+
+
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -1075,7 +1092,11 @@ public class FaultSystemRupSetCalc {
 		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
 				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
 		
-		getCharSubSeismoOnFaultMFD(faultSysRupSet, SpatialSeisPDF.UCERF3, totGR);
+		System.out.println("getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF3)="+getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF3));
+		System.out.println("getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF2)="+getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF2));
+		
+		
+//		getCharSubSeismoOnFaultMFD(faultSysRupSet, SpatialSeisPDF.UCERF3, totGR);
 
 //
 //		System.out.println("getMeanMinMag="+getMeanMinMag(faultSysRupSet, true));
