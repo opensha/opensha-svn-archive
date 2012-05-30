@@ -46,7 +46,8 @@ public class InversionInputGenerator {
 	 * is enabled, the 2nd value of the following line is used to enable/disable.
 	 */
 	private static final boolean QUICK_GETS_SETS = !D || true;
-	private boolean aPrioriConstraintForZeroRates = false;  // If true, a Priori rup-rate constraint is applied to zero rates (eg, rups not in UCERF2)
+	private boolean aPrioriConstraintForZeroRates = true;  // If true, a Priori rup-rate constraint is applied to zero rates (eg, rups not in UCERF2)
+	private double aPrioriConstraintForZeroRatesWtFactor = 0.1; // Amount to multiply standard a-priori rup rate weight by when applying to zero rates (minimization constraint for rups not in UCERF2)
 	private boolean excludeParkfieldRupsFromMfdEqualityConstraints = true; // If true, rates of Parkfield M~6 ruptures do not count toward MFD Equality Constraint misfit
 	
 	// inputs
@@ -385,10 +386,10 @@ public class InversionInputGenerator {
 		}
 
 			
-		// Constrain Rupture Rate Solution to approximately equal aPrioriRupConstraint
 		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previuos 2 constraints)
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
 			double relativeRupRateConstraintWt = config.getRelativeRupRateConstraintWt();
+			double zeroRupRateConstraintWt = config.getRelativeRupRateConstraintWt()*aPrioriConstraintForZeroRatesWtFactor;  // This is the RupRateConstraintWt for ruptures not in UCERF2 
 			if(D) System.out.println("\nAdding rupture-rate constraint to A matrix ...");
 			double[] aPrioriRupConstraint = config.getA_PrioriRupConstraint();
 			numNonZeroElements = 0;
@@ -404,10 +405,10 @@ public class InversionInputGenerator {
 				}
 				else if (aPrioriConstraintForZeroRates) {
 					if (QUICK_GETS_SETS)
-						A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
+						A.setQuick(rowIndex,rup,zeroRupRateConstraintWt);
 					else
-						A.set(rowIndex,rup,relativeRupRateConstraintWt);
-					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
+						A.set(rowIndex,rup,zeroRupRateConstraintWt);
+					d[rowIndex]=aPrioriRupConstraint[rup]*zeroRupRateConstraintWt;
 					numNonZeroElements++; rowIndex++;
 				}	
 			}
