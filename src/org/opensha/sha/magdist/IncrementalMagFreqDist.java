@@ -244,6 +244,23 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 
 
     /**
+     * This returns the object of the class EvenlyDiscretizedFunc which contains cumulative
+     * Moment Rate (the total moment rate for all points greater than and equal to each mag)
+     * @return
+     */
+    public EvenlyDiscretizedFunc getCumMomentRateDist() throws Point2DException{
+        EvenlyDiscretizedFunc momentRateDist = new EvenlyDiscretizedFunc(minX,num,delta);
+        double totMoRate=0;
+        for(int i=num-1;i>=0;--i) {
+        	totMoRate += getMomentRate(i);
+            momentRateDist.set(i,totMoRate);
+        }
+        momentRateDist.setInfo(this.getInfo());
+        momentRateDist.setName(this.getName());
+        return momentRateDist;
+    }
+
+    /**
      * Using this function each data point is scaled to ratio of specified newTotalMomentRate
      * and oldTotalMomentRate.
      * @param newTotMoRate

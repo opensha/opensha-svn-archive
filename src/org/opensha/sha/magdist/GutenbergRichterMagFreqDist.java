@@ -285,13 +285,17 @@ public class GutenbergRichterMagFreqDist
     // it also checks that magUpper > magLower
     if (magLower < minX || magLower > maxX)
       throw new Point2DException(
-          "magLower should lie between minX and maxX");
+          "magLower should lie between minX and maxX; magLower="+magLower);
     if (magLower > magUpper)
-      throw new InvalidRangeException("magLower must be < magUpper");
+      throw new InvalidRangeException("magLower must be < magUpper; magLower="+magLower);
 
     int indexLow = getXIndex(magLower); // find the index of magLower
+    if(indexLow == -1)
+    	throw new RuntimeException("magLower is not within tolerance of an x-axis value");
 
     int indexUp = getXIndex(magUpper); // find the index of magUpper
+    if(indexUp == -1)
+    	throw new RuntimeException("magUpper is not within tolerance of an x-axis value");
 
     int i;
 
