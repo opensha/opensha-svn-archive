@@ -27,6 +27,7 @@ import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
+import org.opensha.sha.calc.params.PtSrcDistanceCorrectionParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -203,6 +204,7 @@ public class DisaggregationPlotter {
 		disaggParams.addParameter(new MagDistCutoffParam());
 		disaggParams.addParameter(new SetTRTinIMR_FromSourceParam());
 		disaggParams.addParameter(new NonSupportedTRT_OptionsParam());
+		disaggParams.addParameter(new PtSrcDistanceCorrectionParam());
 		
 		this.outputDir = outputDir;
 	}
