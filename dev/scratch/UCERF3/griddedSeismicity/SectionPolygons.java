@@ -51,6 +51,8 @@ class SectionPolygons {
 
 	private static boolean log = false;
 	
+	private static final double MAX_BUF_DIP = 50;
+	
 	// map of subsections to polygons
 	private Map<Integer, Area> polyMap;
 	
@@ -81,7 +83,7 @@ class SectionPolygons {
 			initFM(fp, srcList, len);
 		}
 		// apply buffer
-		if (buf != null) {
+		if (buf != null && buf != 0.0) {
 			checkArgument(buf > 0 && buf <=20);
 			fp.applyBuffer(buf);
 		}
@@ -157,10 +159,15 @@ class SectionPolygons {
 				trace.addAll(sect.getFaultTrace());
 			}
 			trace = removeDupes(trace);
-			LocationList buffPoly = buildBufferPoly(trace, sects.get(0)
-				.getDipDirection(), buf);
+			double dip = sects.get(0).getAveDip();
+			double dipDir = sects.get(0).getDipDirection();
+			double scale = (dip - MAX_BUF_DIP) / (90 - MAX_BUF_DIP);
+			if (scale <= 0) continue;
+
+			// merge buf and fault polys if buf > 0 (i.e. dip > 45)
+			double scaledBuf = scale * buf;
+			LocationList buffPoly = buildBufferPoly(trace, dipDir, scaledBuf);
 			Area pArea = parentAreaMap.get(pID);
-			
 			pArea = merge(pArea, new Area(buffPoly.toPath()));
 			pArea = cleanBorder(pArea);
 			if (!pArea.isSingular()) {

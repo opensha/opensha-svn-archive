@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,13 +33,21 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 
+import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 
 /**
  * Use for the creation and presentation of various grid source diagnostics
- * including, but not limited to, smoothed seismicity MFDs and spatial pdfs
- * and fault zone polygons.
+ * including, but not limited to, smoothed seismicity MFDs, spatial pdfs, eq
+ * catalogs, and fault zone polygons.
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -46,16 +55,31 @@ import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 public class GridSources {
 	
 	private static final CaliforniaRegions.RELM_TESTING_GRIDDED region = 
-			new CaliforniaRegions.RELM_TESTING_GRIDDED();
-	
+ new CaliforniaRegions.RELM_TESTING_GRIDDED();
+
 	private static final String catPath = "/Users/pmpowers/Documents/UCERF3/seismicity/griddedSeis/data/cat/UCERF3_Catalog5.txt";
 
 	public static void main(String[] args) {
-		plotNodePolyParticiaption(FM3_1, 6.5, 7d, true);
+		// plotNodePolyParticipCat(FM3_1, 6.5, 7d, true);
+
+//		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory
+//			.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+//				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
+//				SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+
+		System.out.println("frac pdf UCERF3: " +
+			calcNodePolyParticPDF(FM3_1, 12.0, SpatialSeisPDF.UCERF3));
+		System.out.println("frac pdf UCERF2: " +
+			calcNodePolyParticPDF(FM3_1, 12.0, SpatialSeisPDF.UCERF2));
+
 	}
 	
+	private static double calcNodePolyParticPDF(FaultModels model, Double buf, SpatialSeisPDF pdf) {
+		FaultPolyMgr mgr = new FaultPolyMgr(model, buf, 7.0);
+		return pdfInPolys(mgr, pdf) * 100;
+	}
 	
-	private static void plotNodePolyParticiaption(FaultModels model, Double buf, Double len, boolean computeCatFrac) {
+	private static void plotNodePolyParticCat(FaultModels model, Double buf, Double len, boolean computeCatFrac) {
 
 //		 TODO this needs to be extended to work with UCERF3 inversion solutions
 //		SimpleFaultSystemSolution tmp = null;
@@ -120,6 +144,17 @@ public class GridSources {
 		cptParam.setValue(GMT_CPT_Files.GMT_OCEAN2.getFileName());
 		
 		GMT_CA_Maps.makeMap(geoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
+	}
+	
+
+	private static double pdfInPolys(FaultPolyMgr mgr, SpatialSeisPDF pdf) {
+		double[] pdfVals = pdf.getPDF();
+		double fraction = 0;
+		Map<Integer, Double> nodeMap = mgr.getNodeExtents();
+		for (int idx : nodeMap.keySet()) {
+			fraction += nodeMap.get(idx) * pdfVals[idx];
+		}
+		return fraction;
 	}
 	
 	

@@ -54,6 +54,15 @@ public class FaultPolyMgr implements Iterable<Area> {
 	private static GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
 	/**
+	 * Returns a map of nodes (indices of nodes intersected by faults) to the
+	 * fraction of each node that intersects faults.
+	 * @return the node extent map
+	 */
+	public Map<Integer, Double> getNodeExtents() {
+		return ImmutableMap.copyOf(nodeExtents);
+	}
+	
+	/**
 	 * Returns the fraction of the node at idx that participates in fault
 	 * section related seismicity (i.e. the percent of cell represented by a 
 	 * node that is spanned by fault-section polygons).
