@@ -37,8 +37,8 @@ import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCr
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;

@@ -36,8 +36,8 @@ import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 
 /**
  * This is a FaultSystemSolution that also contains parameters used in the UCERF3 Inversion
@@ -313,7 +313,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		MFD_InversionConstraint allConst;
 		if (ucerf3MFDs)
-			allConst = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
+			allConst = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
 		else {
 			Region reg = new CaliforniaRegions.RELM_TESTING();
 			if (ucerf2Fetch == null)
@@ -535,7 +535,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //						"FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip"));
 		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(new File(
 						"/tmp/ucerf2_fm2_compare.zip"));
-		simple.plotMFDs(Lists.newArrayList(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850)));
+		simple.plotMFDs(Lists.newArrayList(OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850)));
 		
 //		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
 //		inv.plotMFDs();

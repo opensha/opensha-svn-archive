@@ -31,7 +31,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  * @author field
  *
  */
-public class UCERF3_MFD_ConstraintFetcher {
+public class OLD_UCERF3_MFD_ConstraintFetcher {
 	
 	final static boolean D=true;
 	
@@ -66,7 +66,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 		
 		}
 	
-	public UCERF3_MFD_ConstraintFetcher() {
+	public OLD_UCERF3_MFD_ConstraintFetcher() {
 		
 		// Read all the files
 		ArrayList<EvenlyDiscretizedFunc> mfds;
@@ -420,13 +420,13 @@ public class UCERF3_MFD_ConstraintFetcher {
 //		System.out.println(getGarderKnoppoffFractAftershocksMDF());
 		
 //		MFD_InversionConstraint invConstr = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
-//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1984);
-//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850);
-//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1984);
-//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
-//		UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
+//		OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1984);
+//		OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850);
+//		OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1984);
+//		OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850);
+//		OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1984);
 	
-		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
+		OLD_UCERF3_MFD_ConstraintFetcher test = new OLD_UCERF3_MFD_ConstraintFetcher();		
 		test.makePrelimReportMFDsPlot();
 	}
 

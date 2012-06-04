@@ -22,8 +22,8 @@ import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
@@ -356,7 +356,7 @@ public class InversionConfiguration {
 		List<MFD_InversionConstraint> mfdConstraints = new ArrayList<MFD_InversionConstraint>();
 		// add MFD constraint for Northern CA
 		if (ucerf3MFDs) {
-			mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
+			mfdConstraints.add(OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850));
 		} else {
 			ucerf2Constraints.setRegion(noCal);
 			mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
@@ -365,7 +365,7 @@ public class InversionConfiguration {
 		if (entire_region != noCal) {
 			// don't add so cal if we're just doing a no cal inversion
 			if (ucerf3MFDs) {
-				mfdConstraints.add(UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
+				mfdConstraints.add(OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850));
 			} else {
 				ucerf2Constraints.setRegion(soCal);
 				mfdConstraints.add(ucerf2Constraints.getTargetMFDConstraint());
@@ -682,7 +682,7 @@ public class InversionConfiguration {
 		double momentRateToRemove = totalMomentOffFaults*(1d-offFaultAseisFactor);
 		
 		// Use the mag-dist for the whole region since the deformation model off-fault moment #s from Kaj are also for the whole region
-		IncrementalMagFreqDist magDist = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
+		IncrementalMagFreqDist magDist = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
 		
 		// Find total moment below transition magnitude (on-fault + off-fault)
 		double totalMomentBelowTransition = 0;

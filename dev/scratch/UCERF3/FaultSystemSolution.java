@@ -34,8 +34,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
 /**
@@ -708,7 +708,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			
 			// OPTIONAL: Plot implied off-fault MFD % Total Target
 			if (mfdConstraints.get(i).getRegion().getName()=="RELM_NOCAL Region") {
-				IncrementalMagFreqDist totalTargetMFD = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850).getMagFreqDist();
+				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850).getMagFreqDist();
 				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
 					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));		
@@ -718,7 +718,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 				funcs4.add(totalTargetMFD); funcs4.add(offFaultMFD);
 			}
 			if (mfdConstraints.get(i).getRegion().getName()=="RELM_SOCAL Region") {
-				IncrementalMagFreqDist totalTargetMFD = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850).getMagFreqDist();
+				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850).getMagFreqDist();
 				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
 					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
@@ -729,7 +729,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 				funcs4.add(totalTargetMFD); funcs4.add(offFaultMFD);
 			}
 			if (mfdConstraints.get(i).getRegion().getName()=="RELM_TESTING Region") {
-				IncrementalMagFreqDist totalTargetMFD = UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
+				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
 				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
 					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
