@@ -62,20 +62,24 @@ public class GridSources {
 	public static void main(String[] args) {
 		// plotNodePolyParticipCat(FM3_1, 6.5, 7d, true);
 
-//		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory
-//			.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
-//				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
-//				SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory
+			.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
+				SlipAlongRuptureModels.TAPERED, InversionModels.GR);
 
-		System.out.println("frac pdf UCERF3: " +
-			calcNodePolyParticPDF(FM3_1, 12.0, SpatialSeisPDF.UCERF3));
-		System.out.println("frac pdf UCERF2: " +
-			calcNodePolyParticPDF(FM3_1, 12.0, SpatialSeisPDF.UCERF2));
+		
+//		System.out.println("test def model frac: " +
+//		calcNodePolyParticPDF(faultSysRupSet, 12.0, SpatialSeisPDF.UCERF3));
+
+//		System.out.println("frac pdf UCERF3: " +
+//			calcNodePolyParticPDF(FM3_1, 12.0, SpatialSeisPDF.UCERF3));
+//		System.out.println("frac pdf UCERF2: " +
+//			calcNodePolyParticPDF(FM3_1, 12.0, SpatialSeisPDF.UCERF2));
 
 	}
 	
 	private static double calcNodePolyParticPDF(FaultModels model, Double buf, SpatialSeisPDF pdf) {
-		FaultPolyMgr mgr = new FaultPolyMgr(model, buf, 7.0);
+		FaultPolyMgr mgr = FaultPolyMgr.create(model, buf, 7.0);
 		return pdfInPolys(mgr, pdf) * 100;
 	}
 	
@@ -94,7 +98,7 @@ public class GridSources {
 //			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);
 //		System.out.println("init done");
 
-		FaultPolyMgr mgr = new FaultPolyMgr(model, buf, len);
+		FaultPolyMgr mgr = FaultPolyMgr.create(model, buf, len);
 
 		// true makes X latitude
 		GriddedGeoDataSet polyDat = new GriddedGeoDataSet(region, true); 

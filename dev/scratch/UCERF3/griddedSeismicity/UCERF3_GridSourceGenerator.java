@@ -104,7 +104,7 @@ public class UCERF3_GridSourceGenerator {
 		this.totalMgt5_Rate = totalMgt5_Rate;
 		this.scalingMethod = scalingMethod;
 				
-		polyMgr = new FaultPolyMgr(fss, 0d);
+		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 0d);
 		
 		// smoothed seismicity pdf and focal mechs
 		initGrids(spatialPDF);

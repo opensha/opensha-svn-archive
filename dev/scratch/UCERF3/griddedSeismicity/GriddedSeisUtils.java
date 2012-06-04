@@ -22,7 +22,7 @@ public class GriddedSeisUtils {
 	 * @param pdf
 	 */
 	public GriddedSeisUtils(FaultSystemRupSet fsrs, SpatialSeisPDF pdf) {
-		polyMgr = new FaultPolyMgr(fsrs, null);
+		polyMgr = FaultPolyMgr.create(fsrs.getFaultSectionDataList(), null);
 		this.pdf = pdf.getPDF();
 	}
 	

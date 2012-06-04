@@ -35,7 +35,7 @@ import com.google.common.collect.Table;
  */
 public class FaultPolyMgr implements Iterable<Area> {
 
-	private boolean log = true;
+	private static boolean log = true;
 	
 	private SectionPolygons polys;
 	
@@ -53,6 +53,8 @@ public class FaultPolyMgr implements Iterable<Area> {
 
 	private static GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
+	private FaultPolyMgr() {}
+	
 	/**
 	 * Returns a map of nodes (indices of nodes intersected by faults) to the
 	 * fraction of each node that intersects faults.
@@ -100,38 +102,42 @@ public class FaultPolyMgr implements Iterable<Area> {
 	public Iterator<Area> iterator() {
 		return polys.polys().iterator();
 	}
-
+	
 	/**
-	 * Initialize a fault polygon manager from a FaultSystemRuptureSet, which
-	 * provides all the fault-section infmormation necessary.
-	 * @param fsrs {@code FaultSystemRuptureSet} to initialize manager with
+	 * Create a fault polygon manager from a list of {@code FaultSectionPrefData}.
+	 * This method assumes that  of which references the polygon of it's parent fault.
+	 * @param fspd {@code FaultSectionPrefData} to initialize manager with
 	 * @param buf additional buffer around fault trace to include in polygon in
 	 *        km on either side of fault; may be {@code null}
+	 * @return a reference to the newly minted manager
 	 */
-	public FaultPolyMgr(FaultSystemRupSet fsrs, Double buf) {
+	public static FaultPolyMgr create(List<FaultSectionPrefData> fspd, Double buf) {
+		FaultPolyMgr mgr = new FaultPolyMgr();
 		if (log) System.out.println("Building...");
-		if (log) System.out.println("  getting faults from solution");
-		List<FaultSectionPrefData> faults = fsrs.getFaultSectionDataList();
-		if (log) System.out.println("  subsection polygons");
-		polys = SectionPolygons.create(faults, buf, null);
-		init();
+		if (log) System.out.println("  section polygons");
+		mgr.polys = SectionPolygons.create(fspd, buf, null);
+		mgr.init();
+		return mgr;
 	}
 	
 	/**
-	 * Initialize a fault polygon manager from a FaultModel and a desired
+	 * Create a fault polygon manager from a FaultModel and a desired
 	 * fault-section length (for subdividing faults in model).
 	 * @param fm {@code FaultModel} to initialize manager with
 	 * @param len fault-section length for subdividing
 	 * @param buf additional buffer around fault trace to include in polygon in
 	 *        km on either side of fault; may be {@code null}
+	 * @return a reference to the newly minted manager
 	 */
-	public FaultPolyMgr(FaultModels fm, Double buf, Double len) {		
+	public static FaultPolyMgr create(FaultModels fm, Double buf, Double len) {		
+		FaultPolyMgr mgr = new FaultPolyMgr();
 		if (log) System.out.println("Building...");
 		if (log) System.out.println("  getting faults from model");
 		List<FaultSectionPrefData> faults = fm.fetchFaultSections();
 		if (log) System.out.println("  subsection polygons");
-		polys = SectionPolygons.create(faults, buf, len);
-		init();
+		mgr.polys = SectionPolygons.create(faults, buf, len);
+		mgr.init();
+		return mgr;
 	}
 	
 	private void init() {
@@ -329,7 +335,7 @@ public class FaultPolyMgr implements Iterable<Area> {
 			Double len) {
 		if (model == null) model = FaultModels.FM3_1;
 		if (len == null) len = 7d;
-		FaultPolyMgr mgr = new FaultPolyMgr(model, buf, len);
+		FaultPolyMgr mgr = create(model, buf, len);
 		double[] values = new double[region.getNodeCount()];
 		for (int i = 0; i < region.getNodeCount(); i++) {
 			values[i] = mgr.getNodeFraction(i);

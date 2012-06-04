@@ -71,6 +71,8 @@ public class DeformationModelFetcher {
 	private final static int SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
 	private final static int SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401;
 
+	private static final double POLY_BUFFER_DEFAULT = 12.0;
+	
 	private DeformationModels chosenDefModName;
 	private FaultModels faultModel;
 
@@ -174,6 +176,10 @@ public class DeformationModelFetcher {
 					"multiple sub sections exist with ID: "+id);
 			faultSubSectPrefDataIDMap.put(id, data);
 		}
+		
+		// update polygons
+		
+		
 	}
 
 	public DeformationModels getDeformationModel() {
@@ -266,7 +272,7 @@ public class DeformationModelFetcher {
 		ArrayList<FaultSectionPrefData> subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
 		int subSectionIndex=0;
 		for(int i=0; i<nCalFaultSectionPrefData.size(); ++i) {
-			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)nCalFaultSectionPrefData.get(i);
+			FaultSectionPrefData faultSectionPrefData = nCalFaultSectionPrefData.get(i);
 			double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
