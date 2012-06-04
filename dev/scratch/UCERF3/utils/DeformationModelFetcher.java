@@ -999,16 +999,25 @@ public class DeformationModelFetcher {
 		Map<IDPairing, Double> distances;
 
 		// construct filename
-		String name = fileNamePrefix+"_Distances";
-		name += "_"+(float)maxDistance+"km";
-		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
-		File file = new File (fullpathname);
+		StringBuffer sb = new StringBuffer();
+		sb.append(fileNamePrefix).append("_Distances");
+		sb.append("_").append((float)maxDistance).append("km");
+		sb.append("_pairings.txt");
+		String fName = sb.toString();
+		String dName = precomputedDataDir.getAbsolutePath()+File.separator;
+		File dir = new File(dName);
+		dir.mkdirs();
+		File file = new File(dir, fName);
+//		String name = fileNamePrefix+"_Distances";
+//		name += "_"+(float)maxDistance+"km";
+//		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
+//		File file = new File (fullpathname);
 
-		File pairingsTextFile = new File(fullpathname+"_pairings.txt");
+//		File pairingsTextFile = new File(fullpathname+"_pairings.txt");
 
 		//		 Read data if already computed and saved
 		if(file.exists()) {
-			if(D) System.out.println("Reading existing file: "+ name);
+			if(D) System.out.println("Reading existing file: "+ fName);
 			try {
 				distances = readMapFile(file);
 			} catch  (IOException e) {
@@ -1063,9 +1072,9 @@ public class DeformationModelFetcher {
 		}
 		if (D) System.out.print("\tDONE.\n");
 
-		if (!pairingsTextFile.exists()) {
+		if (!file.exists()) {
 			try {
-				writePairingsTextFile(pairingsTextFile, distances);
+				writePairingsTextFile(file, distances);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
