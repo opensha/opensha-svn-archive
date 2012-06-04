@@ -193,7 +193,7 @@
 192	Independence	0	Independence rev 2011
 193	Johnson Valley (No)	0	Johnson Valley (No) 2011 rev
 194	Laguna Salada	0	Laguna Salada
-195	Landers	0	Johnson Valley (No) 2011 rev	Landers 2011 rev	Homestead Valley 2011	Emerson-Copper Mtn 2011	Camp Rock 2011
+195	Landers	0	Johnson Valley (No) 2011 rev	Kickapoo	Homestead Valley 2011	Emerson-Copper Mtn 2011	Camp Rock 2011
 196	Lenwood-Lockhart-Old Woman Springs	0	Lenwood-Lockhart-Old Woman Springs
 197	Likely	0	Likely 2011 CFM
 198	Lions Head	0	Lions Head 2011 CFM

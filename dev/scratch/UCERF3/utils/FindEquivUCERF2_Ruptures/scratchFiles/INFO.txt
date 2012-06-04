@@ -42,6 +42,15 @@ Finally, I created the files FM3_1_SectionsForUCERF2_Sources.txt and FM3_2_Secti
 in the above FM2to3_?_sectionNameChanges.txt files to the previous FM2_SectionsForUCERF2_Sources.txt using the following code:
 
 	FileMakingStuff.mkNewFilesBySubstitutingNames()
+	
+Following our preliminary model (and before the final model), two additional fault section name changes were made:
+
+	"Landers 2011 rev" changed to "Kickapoo"
+	"Oceanic 2011 CFM" changed to "Oceanic - West Huasna"
+	
+I update the FM3_1_SectionsForUCERF2_Sources.txt and FM3_2_SectionsForUCERF2_Sources.txt files accordingly 
+(only the first one exists in these files), but I did not redo all the above (meaning the files in this 
+directory are out of data).
 
 Results for FM3.1:
 ------------------

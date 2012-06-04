@@ -97,7 +97,7 @@ public enum FaultModels implements ShortNamed {
 	}
 	
 	public ArrayList<FaultSectionPrefData> fetchFaultSections() {
-		return fetchFaultSections(false);
+		return fetchFaultSections(true);
 	}
 	
 	public ArrayList<FaultSectionPrefData> fetchFaultSections(boolean ignoreCache) {
