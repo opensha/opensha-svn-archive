@@ -70,7 +70,7 @@ public enum FaultModels implements ShortNamed {
 		}
 	}
 	
-	private DB_AccessAPI getDBAccess() {
+	public DB_AccessAPI getDBAccess() {
 		switch (this) {
 		case FM2_1:
 			return DB_ConnectionPool.getDB2ReadOnlyConn();
@@ -97,31 +97,36 @@ public enum FaultModels implements ShortNamed {
 	}
 	
 	public ArrayList<FaultSectionPrefData> fetchFaultSections() {
-		// this lets us load the FM from XML if we're on the cluster
-		
-		String fmFileName = getShortName()+".xml";
-		
-		// first see if the system property was set
-		String fmStoreProp = System.getProperty("FaultModelStore");
-		if (fmStoreProp != null) {
-			File fmStoreFile = new File(fmStoreProp, fmFileName);
-			if (fmStoreFile.exists()) {
-				try {
-					return loadStoredFaultSections(fmStoreFile);
-				} catch (Exception e) {
-					// ok to fail here, will try it the other way
-					e.printStackTrace();
+		return fetchFaultSections(false);
+	}
+	
+	public ArrayList<FaultSectionPrefData> fetchFaultSections(boolean ignoreCache) {
+		if (!ignoreCache) {
+			// this lets us load the FM from XML if we're on the cluster
+			String fmFileName = getShortName()+".xml";
+			
+			// first see if the system property was set
+			String fmStoreProp = System.getProperty("FaultModelStore");
+			if (fmStoreProp != null) {
+				File fmStoreFile = new File(fmStoreProp, fmFileName);
+				if (fmStoreFile.exists()) {
+					try {
+						return loadStoredFaultSections(fmStoreFile);
+					} catch (Exception e) {
+						// ok to fail here, will try it the other way
+						e.printStackTrace();
+					}
 				}
 			}
-		}
-		
-		// now see if they're cached in the project itself
-		try {
-			InputStream is = UCERF3_DataUtils.locateResourceAsStream(FAULT_MODEL_STORE_DIR_NAME, fmFileName);
-			System.out.println("Loading FM from cached file: "+fmFileName);
-			return loadStoredFaultSections(XMLUtils.loadDocument(is));
-		} catch (Exception e) {
-			// an exception is fine here - means that the data file doesn't exist. load directly from the database
+			
+			// now see if they're cached in the project itself
+			try {
+				InputStream is = UCERF3_DataUtils.locateResourceAsStream(FAULT_MODEL_STORE_DIR_NAME, fmFileName);
+				System.out.println("Loading FM from cached file: "+fmFileName);
+				return loadStoredFaultSections(XMLUtils.loadDocument(is));
+			} catch (Exception e) {
+				// an exception is fine here - means that the data file doesn't exist. load directly from the database
+			}
 		}
 		
 		System.out.println("Loading FM from database: "+this);

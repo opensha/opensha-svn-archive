@@ -136,6 +136,21 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	 * and closely space faults from having connections back and forth all the way down the section.
 	 */
 	private List<List<Integer>> computeCloseSubSectionsListList(Map<IDPairing, Double> subSectionDistances) {
+		return computeCloseSubSectionsListList(faultSectionData, subSectionDistances, filter.getMaxJumpDist());
+	}
+	
+	/**
+	 * For each section, create a list of sections that are within maxJumpDist.  
+	 * This generates an ArrayList of ArrayLists (named sectionConnectionsList).  
+	 * Reciprocal duplicates are not filtered out.
+	 * If sections are actually subsections (meaning getParentSectionId() != -1), then each parent section can only
+	 * have one connection to another parent section (whichever subsections are closest).  This prevents parallel 
+	 * and closely space faults from having connections back and forth all the way down the section.
+	 */
+	public static List<List<Integer>> computeCloseSubSectionsListList(
+			List<FaultSectionPrefData> faultSectionData,
+			Map<IDPairing, Double> subSectionDistances,
+			double maxJumpDist) {
 
 		ArrayList<List<Integer>> sectionConnectionsListList = new ArrayList<List<Integer>>();
 		for(int i=0;i<faultSectionData.size();i++)
@@ -199,7 +214,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 					}
 				}
 				// add to lists for each subsection
-				if (minDist<filter.getMaxJumpDist()) {
+				if (minDist<maxJumpDist) {
 					sectionConnectionsListList.get(subSectIndex1).add(subSectIndex2);
 					sectionConnectionsListList.get(subSectIndex2).add(subSectIndex1);  // reciprocal of the above
 				}

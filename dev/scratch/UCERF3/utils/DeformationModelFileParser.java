@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +28,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
@@ -39,6 +43,8 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class DeformationModelFileParser {
 	
@@ -145,10 +151,14 @@ public class DeformationModelFileParser {
 	}
 	
 	public static void write(Map<Integer, DeformationSection> model, File file) throws IOException {
-		
+		write(model.values(), file);
 	}
 	
 	public static void write(Collection<DeformationSection> model, File file) throws IOException {
+		write(model, file, null);
+	}
+	
+	public static void write(Collection<DeformationSection> model, File file, Map<Integer, String> namesMap) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		for (DeformationSection def : model) {
 			List<Location> locs1 = def.getLocs1();
@@ -166,6 +176,8 @@ public class DeformationModelFileParser {
 				line.add(""+(float)locs2.get(i).getLatitude());
 				line.add(""+slips.get(i).floatValue());
 				line.add(""+rakes.get(i).floatValue());
+				if (namesMap != null)
+					line.add(namesMap.get(def.id));
 				csv.addLine(line);
 			}
 		}
@@ -217,6 +229,20 @@ public class DeformationModelFileParser {
 			locs2.add(loc2);
 			slips.add(slip);
 			rakes.add(rake);
+		}
+		
+		public void add(int index, Location loc1, Location loc2, double slip, double rake) {
+			locs1.add(index, loc1);
+			locs2.add(index, loc2);
+			slips.add(index, slip);
+			rakes.add(index, rake);
+		}
+		
+		public void remove(int index) {
+			locs1.remove(index);
+			locs2.remove(index);
+			slips.remove(index);
+			rakes.remove(index);
 		}
 		
 		public void setMomentReductions(List<Double> momentReductions) {
@@ -287,12 +313,103 @@ public class DeformationModelFileParser {
 			for (int i=1; i<locs2.size(); i++) {
 				if (!LocationUtils.areSimilar(locs1.get(i), locs2.get(i-1))) {
 					System.out.println(nameID+": trace locations inconsistant in def model!");
+					for (int j=0; j<locs1.size(); j++) {
+						System.out.print("["+(float)locs1.get(j).getLatitude()+"\t"+(float)locs1.get(j).getLongitude()+"\t0]");
+						System.out.println("\t["+(float)locs2.get(j).getLatitude()+"\t"+(float)locs2.get(j).getLongitude()+"\t0]");
+					}
 					return false;
 				}
 			}
 			
 			return true;
 		}
+	}
+	
+	private static <E> E getFromEnd(List<E> list, int numFromEnd) {
+		return list.get(list.size()-1-numFromEnd);
+	}
+	
+	private static void fixForRevisedFM(Map<Integer, DeformationSection> sects, FaultModels fm) {
+		ArrayList<FaultSectionPrefData> datas = fm.fetchFaultSections(true);
+		HashMap<Integer, FaultSectionPrefData> fmMap = Maps.newHashMap();
+		for (FaultSectionPrefData data : datas)
+			fmMap.put(data.getSectionId(), data);
+		
+		// fix 667. Almanor 2011 CFM:
+		FaultSectionPrefData data = fmMap.get(667);
+		FaultTrace trace = data.getFaultTrace();
+		DeformationSection sect = sects.get(667);
+		sect.add(getFromEnd(trace, 1), getFromEnd(trace, 0), getFromEnd(sect.getSlips(), 0), getFromEnd(sect.getRakes(), 0));
+		
+		// fix 74. Los Osos 2011
+		sect = sects.get(74);
+		// remove the last 3 points, but save them for oceanic
+		ArrayList<Double> slipsForOceanic = Lists.newArrayList();
+		ArrayList<Double> rakesForOceanic = Lists.newArrayList();
+		for (int i=sect.getSlips().size()-4; i<sect.getSlips().size(); i++) {
+			slipsForOceanic.add(sect.getSlips().get(i));
+			rakesForOceanic.add(sect.getRakes().get(i));
+		}
+		sect.remove(sect.getSlips().size()-1);
+		sect.remove(sect.getSlips().size()-1);
+		sect.remove(sect.getSlips().size()-1);
+		
+		// fix 82. North Frontal  (West)
+		// remove the first point, then average the next two for the first span in the new fault model
+		data = fmMap.get(82);
+		sect = sects.get(82);
+		trace = data.getFaultTrace();
+		sect.remove(0);
+		double slip = FaultUtils.getLengthBasedAngleAverage(sect.getLocsAsTrace().subList(0, 3), sect.getSlips().subList(0, 2));
+		double rake = FaultUtils.getLengthBasedAngleAverage(sect.getLocsAsTrace().subList(0, 3), sect.getRakes().subList(0, 2));
+		sect.remove(0);
+		sect.remove(0);
+		sect.remove(0);
+		sect.add(0, trace.get(0), trace.get(1), slip, rake);
+		sect.add(1, trace.get(1), trace.get(2), slip, rake);
+		sect.add(2, trace.get(2), trace.get(3), slip, rake);
+		sect.add(3, trace.get(3), trace.get(4), slip, rake);
+		
+		// 687. North Tahoe 2011 CFM
+		data = fmMap.get(687);
+		sect = sects.get(687);
+		trace = data.getFaultTrace();
+		slip = getFromEnd(sect.getSlips(), 0);
+		rake = getFromEnd(sect.getRakes(), 0);
+		sect.remove(sect.getSlips().size()-1);
+		sect.add(getFromEnd(trace, 2), getFromEnd(trace, 1), slip, rake);
+		sect.add(getFromEnd(trace, 1), getFromEnd(trace, 0), slip, rake);
+		sect.getLocs1().set(0, trace.get(0));
+		sect.getLocs2().set(0, trace.get(1));
+		
+		// fix 709. Oceanic - West Huasna
+		data = fmMap.get(709);
+		sect = sects.get(709);
+		trace = data.getFaultTrace();
+		sect.add(0, trace.get(0), trace.get(1), getFromEnd(slipsForOceanic, 0), getFromEnd(rakesForOceanic, 0));
+		sect.add(1, trace.get(1), trace.get(2), getFromEnd(slipsForOceanic, 1), getFromEnd(rakesForOceanic, 1));
+		sect.add(2, trace.get(2), trace.get(3), getFromEnd(slipsForOceanic, 2), getFromEnd(rakesForOceanic, 2));
+		
+		// fix 123. Rose Canyon
+		data = fmMap.get(123);
+		sect = sects.get(123);
+		trace = data.getFaultTrace();
+		for (int i=1; i<trace.size(); i++) {
+			sect.getLocs1().set(i-1, trace.get(i-1));
+			sect.getLocs2().set(i-1, trace.get(i));
+		}
+		
+		// fix 113. Sierra Madre (San Fernando)
+		data = fmMap.get(113);
+		sect = sects.get(113);
+		trace = data.getFaultTrace();
+		for (int i=1; i<trace.size(); i++) {
+			sect.getLocs1().set(i-1, trace.get(i-1));
+			sect.getLocs2().set(i-1, trace.get(i));
+		}
+		
+		// remove 182. Shelf (projection)
+		sects.remove(182);
 	}
 	
 	private static Map<String, double[]> momemtReductionsData = null;
@@ -426,18 +543,93 @@ public class DeformationModelFileParser {
 				def.momentReductions.set(sect-1, maxMomentReduction);
 		}
 	}
+	
+	static void writeFromDatabase(FaultModels fm, File file, boolean names) throws IOException {
+		int fmID = fm.getID();
+		DB_AccessAPI db = fm.getDBAccess();
+		
+		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
+		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
+		FaultModelDB_DAO fm2db = new FaultModelDB_DAO(db);
+		ArrayList<Integer> faultSectionIds = fm2db.getFaultSectionIdList(fmID);
+
+		ArrayList<FaultSectionPrefData> faultModel = new ArrayList<FaultSectionPrefData>();
+		for (FaultSectionPrefData data : datas) {
+			if (!faultSectionIds.contains(data.getSectionId()))
+				continue;
+			faultModel.add(data);
+		}
+		
+		if (names) {
+			Collections.sort(faultModel, new Comparator<FaultSectionPrefData>() {
+				
+				private Collator c = Collator.getInstance();
+
+				@Override
+				public int compare(FaultSectionPrefData o1, FaultSectionPrefData o2) {
+					return c.compare(o1.getSectionName(), o2.getSectionName());
+				}
+			});
+		} else {
+			Collections.sort(faultModel, new Comparator<FaultSectionPrefData>() {
+
+				@Override
+				public int compare(FaultSectionPrefData o1, FaultSectionPrefData o2) {
+					return Double.compare(o1.getSectionId(), o2.getSectionId());
+				}
+			});
+		}
+		
+		ArrayList<DeformationSection> sects = new ArrayList<DeformationModelFileParser.DeformationSection>();
+		Map<Integer, String> namesMap;
+		if (names)
+			namesMap = Maps.newHashMap();
+		else
+			namesMap = null;
+		
+		for (FaultSectionPrefData data : faultModel) {
+			DeformationSection sect = new DeformationSection(data.getSectionId());
+			
+			double slip = data.getOrigAveSlipRate();
+			double rake = data.getAveRake();
+			
+			FaultTrace trace = data.getFaultTrace();
+			
+			for (int i=1; i<trace.size(); i++) {
+				sect.add(trace.get(i-1), trace.get(i), slip, rake);
+			}
+			
+			if (namesMap != null)
+				namesMap.put(data.getSectionId(), data.getSectionName());
+			sects.add(sect);
+		}
+		
+		write(sects, file, namesMap);
+		
+		File asciiFile = new File(file.getParentFile(), file.getName().replaceAll(".csv", ".txt"));
+		FaultSectionDataWriter.writeSectionsToFile(faultModel, null, asciiFile.getAbsolutePath());
+		
+		try {
+			db.destroy();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * @param args
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+//		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
+//		System.exit(0);
+		
+		
 		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
 		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
 		FaultModelDB_DAO fm2db = new FaultModelDB_DAO(db);
 		File defFile;
-		
-		int faultModelId = 101;
 		
 //		File dir = new File("D:\\Documents\\SCEC\\def_models");
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/def_models/2012_02_07-initial");
@@ -478,13 +670,17 @@ public class DeformationModelFileParser {
 //			System.out.println("Fetching fault data");
 			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
 //			System.out.println("Fetching fault model");
-			ArrayList<Integer> fm = fm2db.getFaultSectionIdList(faultModelId);
+			FaultModels fm = FaultModels.FM3_1;
+			ArrayList<Integer> fmSects = fm2db.getFaultSectionIdList(fm.getID());
 			File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(),
 					"DeformationModels");
 			defFile = new File(dir, "geologic_slip_rake_2012_03_02.csv");
 //			System.out.println("Doing comparison: "+defFile.getName());
 			Map<Integer, DeformationSection>  defs = load(defFile);
-			compareAgainst(defs, datas, fm);
+			compareAgainst(defs, datas, fmSects);
+			System.out.println("ok lets fix it...");
+			fixForRevisedFM(defs, fm);
+			compareAgainst(defs, datas, fmSects);
 //			System.out.println("");
 //			defFile = new File(dir, "ABM_slip_rake_feb06.txt");
 //			System.out.println("Doing comparison: "+defFile.getName());

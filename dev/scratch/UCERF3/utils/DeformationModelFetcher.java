@@ -34,6 +34,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.inversion.SectionClusterList;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
 import com.google.common.base.Preconditions;
@@ -978,17 +979,41 @@ public class DeformationModelFetcher {
 		file_output.close ();
 	}
 
-	public static void writePairingsTextFile(File file, Map<IDPairing, Double> distances) throws IOException {
-		ArrayList<IDPairing> list = new ArrayList<IDPairing>();
-		list.addAll(distances.keySet());
-		Collections.sort(list);
+	public static void writePairingsTextFile(File file, List<FaultSectionPrefData> faultSubSections,
+			Map<IDPairing, Double> distances, double maxJumpDist) throws IOException {
+		
+		List<List<Integer>> connections = SectionClusterList.computeCloseSubSectionsListList(faultSubSections, distances, maxJumpDist);
+		
 		FileWriter fw = new FileWriter(file);
-
+		
 		fw.write("ID1\tID2\tDist\n");
-		for (IDPairing pair : list) {
-			fw.write(pair.getID1()+"\t"+pair.getID2()+"\t"+distances.get(pair).floatValue()+"\n");
+		for (int sectIndex=0; sectIndex<connections.size(); sectIndex++) {
+			List<Integer> conns = connections.get(sectIndex);
+			Collections.sort(conns);
+			for (int otherIndex : conns) {
+				if (sectIndex > otherIndex)
+					// exclude duplicates
+					continue;
+				Preconditions.checkState(sectIndex != otherIndex);
+				Preconditions.checkState(sectIndex>=0);
+				Preconditions.checkState(otherIndex>=0);
+				Preconditions.checkState(otherIndex<connections.size());
+				IDPairing pair = new IDPairing(sectIndex, otherIndex);
+				Preconditions.checkState(distances.containsKey(pair));
+				fw.write(sectIndex+"\t"+otherIndex+"\t"+distances.get(pair).floatValue()+"\n");
+			}
 		}
-
+		
+//		ArrayList<IDPairing> list = new ArrayList<IDPairing>();
+//		list.addAll(distances.keySet());
+//		Collections.sort(list);
+//		FileWriter fw = new FileWriter(file);
+//
+//		fw.write("ID1\tID2\tDist\n");
+//		for (IDPairing pair : list) {
+//			fw.write(pair.getID1()+"\t"+pair.getID2()+"\t"+distances.get(pair).floatValue()+"\n");
+//		}
+//
 		fw.close();
 	}
 
@@ -1010,25 +1035,16 @@ public class DeformationModelFetcher {
 		Map<IDPairing, Double> distances;
 
 		// construct filename
-		StringBuffer sb = new StringBuffer();
-		sb.append(fileNamePrefix).append("_Distances");
-		sb.append("_").append((float)maxDistance).append("km");
-		sb.append("_pairings.txt");
-		String fName = sb.toString();
-		String dName = precomputedDataDir.getAbsolutePath()+File.separator;
-		File dir = new File(dName);
-		dir.mkdirs();
-		File file = new File(dir, fName);
-//		String name = fileNamePrefix+"_Distances";
-//		name += "_"+(float)maxDistance+"km";
-//		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
-//		File file = new File (fullpathname);
+		String name = fileNamePrefix+"_Distances";
+		name += "_"+(float)maxDistance+"km";
+		String fullpathname = precomputedDataDir.getAbsolutePath()+File.separator+name;
+		File file = new File (fullpathname);
 
-//		File pairingsTextFile = new File(fullpathname+"_pairings.txt");
+		File pairingsTextFile = new File(fullpathname+"_pairings.txt");
 
 		//		 Read data if already computed and saved
 		if(file.exists()) {
-			if(D) System.out.println("Reading existing file: "+ fName);
+			if(D) System.out.println("Reading existing file: "+ name);
 			try {
 				distances = readMapFile(file);
 			} catch  (IOException e) {
@@ -1083,9 +1099,9 @@ public class DeformationModelFetcher {
 		}
 		if (D) System.out.print("\tDONE.\n");
 
-		if (!file.exists()) {
+		if (!pairingsTextFile.exists()) {
 			try {
-				writePairingsTextFile(file, distances);
+				writePairingsTextFile(pairingsTextFile, faultSubSectPrefDataList, distances, maxDistance);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -1185,10 +1201,10 @@ public class DeformationModelFetcher {
 
 	public static void main(String[] args) {
 		try {
-			File precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
-			
+
 			FaultModels fm = FaultModels.FM3_1;
 			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+			dm.getSubSectionDistanceMap(5d);
 //			dm.writeFractParentSectionsWithNonZeroAsies();
 			
 			
@@ -1196,10 +1212,11 @@ public class DeformationModelFetcher {
 //			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 //			
 //			dm.getSubSectionDistanceMap(5d);
-//			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",
-//					new SimpleDateFormat().format(new Date()));
-//			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
-//					new File(precomputedDataDir, "fault_sections_"+fm.name()+".txt").getAbsolutePath());
+			ArrayList<String> metaData = Lists.newArrayList("UCERF3 Geologic Deformation Model, "+fm+" Subsections",
+					new SimpleDateFormat().format(new Date()));
+			FaultSectionDataWriter.writeSectionsToFile(dm.getSubSectionList(), metaData,
+					new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets"),
+							"fault_sections_"+fm.name()+".txt").getAbsolutePath());
 			
 //			FaultModels fm = FaultModels.FM3_2;
 //			for (DeformationModels dm : DeformationModels.forFaultModel(fm))
