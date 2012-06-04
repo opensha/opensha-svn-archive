@@ -10,6 +10,9 @@ import java.util.Set;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -96,6 +99,17 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 */
 	public Map<Integer, Double> getNodeFractions(int idx) {
 		return nodeInSectPartic.row(idx);
+	}
+	
+	/**
+	 * Returns the polygon{@code Region} for the fault section at {@code idx}.
+	 * @param idx section to get polygon for
+	 * @return the section's polygon
+	 */
+	public Region getPoly(int idx) {
+		Area a = polys.get(idx);
+		LocationList locs = SectionPolygons.areaToLocLists(a).get(0);
+		return new Region(locs, null);
 	}
 	
 	@Override

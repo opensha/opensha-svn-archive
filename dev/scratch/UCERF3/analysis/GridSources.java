@@ -25,6 +25,7 @@ import org.opensha.commons.eq.cat.util.MagnitudeType;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.impl.CPTParameter;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
@@ -67,6 +68,21 @@ public class GridSources {
 				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
 				SlipAlongRuptureModels.TAPERED, InversionModels.GR);
 
+		FaultSectionPrefData f = faultSysRupSet.getFaultSectionData(603);
+		System.out.println(f.getSectionId());
+		System.out.println(f.getSectionName());		
+		System.out.println(f.getZonePolygon().getBorder());
+		
+		int pID = f.getParentSectionId();
+		List<FaultSectionPrefData> ps = faultSysRupSet.getFaultModel().fetchFaultSections();
+		FaultSectionPrefData p = null;
+		for (FaultSectionPrefData pps : ps) {
+			if (pps.getSectionId() == pID) p = pps;
+		}
+		System.out.println(pID);
+		System.out.println(f.getParentSectionName());
+		System.out.println(p.getName());
+		System.out.println(p.getZonePolygon().getBorder());
 		
 //		System.out.println("test def model frac: " +
 //		calcNodePolyParticPDF(faultSysRupSet, 12.0, SpatialSeisPDF.UCERF3));

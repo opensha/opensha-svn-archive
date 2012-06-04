@@ -33,6 +33,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
 import com.google.common.base.Preconditions;
@@ -178,8 +179,12 @@ public class DeformationModelFetcher {
 		}
 		
 		// update polygons
-		
-		
+		FaultPolyMgr mgr = FaultPolyMgr.create(
+			faultSubSectPrefDataList, POLY_BUFFER_DEFAULT);
+		for (FaultSectionPrefData section : faultSubSectPrefDataList) {
+			Region r = mgr.getPoly(section.getSectionId());
+			section.setZonePolygon(r);
+		}
 	}
 
 	public DeformationModels getDeformationModel() {

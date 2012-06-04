@@ -668,7 +668,7 @@ class SectionPolygons {
 	 * LocationLists. If Area is singular, returned list will only have one
 	 * LocationList
 	 */
-	private static List<LocationList> areaToLocLists(Area area) {
+	static List<LocationList> areaToLocLists(Area area) {
 		// break apart poly into component paths; many qualify
 		List<LocationList> locLists = Lists.newArrayList();
 		LocationList locs = null;
