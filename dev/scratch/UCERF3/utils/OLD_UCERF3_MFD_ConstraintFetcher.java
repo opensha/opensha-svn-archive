@@ -35,7 +35,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 	
 	final static boolean D=true;
 	
-	private final static String SUB_DIR_NAME = "mfdData";
+	private final static String SUB_DIR_NAME = "mfdData/old";
 	
 	// discretization params for Karen's MFD files:
 	final static double MIN_MAG=4.0;
