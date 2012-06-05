@@ -19,17 +19,17 @@ public enum DeformationModels implements ShortNamed {
 	UCERF2_ALL(				"UCERF2 All",			"UC2ALL",	FaultModels.FM2_1),
 	
 	// UCERF3
-	ABM(					"Average Block Model",	"ABM",		FaultModels.FM3_1, "ABM_slip_rake_2012_03_02.csv"),
-	GEOBOUND(				"Geobounded",			"GEOB",		FaultModels.FM3_1, "geobound_slip_rake_2012_03_02.csv"),
-	NEOKINEMA(				"Neokinema",			"NEOK",		FaultModels.FM3_1, "neokinema_slip_rake_2012_03_02.csv"),
-	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_2012_03_02.csv"),
-	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_2012_05_29-temp.csv",
-																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_05_29-temp.csv"),
-	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	FaultModels.FM3_1, "geologic_slip_rake_fm3pt1_upperbound_2012_03_19.csv",
-																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_upperbound_2012_03_19.csv"),
-	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	FaultModels.FM3_1, "geologic_slip_rake_fm3pt1_lowerbound_2012_03_19.csv",
-																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_lowerbound_2012_03_19.csv"),
-	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_2012_03_02.csv");
+	ABM(					"Average Block Model",	"ABM",		FaultModels.FM3_1, "ABM_slip_rake__MAPPED_2012_06_05.csv"),
+	GEOBOUND(				"Geobounded",			"GEOB",		FaultModels.FM3_1, "geobound_slip_rake__MAPPED_2012_06_05.csv"),
+	NEOKINEMA(				"Neokinema",			"NEOK",		FaultModels.FM3_1, "neokinema_slip_rake__MAPPED_2012_06_05.csv"),
+	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake__MAPPED_2012_06_05.csv"),
+	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_2012_05_29.csv",
+																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_2012_05_29.csv"),
+	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	FaultModels.FM3_1, "geologic_slip_rake_fm3pt1_upperbound__MAPPED_2012_06_05.csv",
+																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_upperbound__MAPPED_2012_06_05.csv"),
+	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	FaultModels.FM3_1, "geologic_slip_rake_fm3pt1_lowerbound__MAPPED_2012_06_05.csv",
+																FaultModels.FM3_2, "geologic_slip_rake_fm3pt2_lowerbound__MAPPED_2012_06_05.csv"),
+	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake__MAPPED_2012_06_05.csv");
 	
 	private List<FaultModels> faultModels;
 	private List<String> fileNames;

@@ -28,8 +28,10 @@ public class CoulombRates extends HashMap<IDPairing, CoulombRatesRecord> {
 	
 	static {
 		modelDataFilesMap = new HashMap<FaultModels, String>();
-		modelDataFilesMap.put(FaultModels.FM3_1, "Stress_Table_FM3_1_2601_v4.xls");
-		modelDataFilesMap.put(FaultModels.FM3_2, "Stress_Table_FM3_2_2659_v3.xls");
+//		modelDataFilesMap.put(FaultModels.FM3_1, "Stress_Table_FM3_1_2601_v4.xls");
+//		modelDataFilesMap.put(FaultModels.FM3_2, "Stress_Table_FM3_2_2659_v3.xls");
+		modelDataFilesMap.put(FaultModels.FM3_1, "2012_06_04-Stress_Table-FM3.1.xls");
+		modelDataFilesMap.put(FaultModels.FM3_2, "2012_06_04-Stress_Table-FM3.2.xls");
 	}
 	
 	private static final String DATA_SUB_DIR = "coulomb";

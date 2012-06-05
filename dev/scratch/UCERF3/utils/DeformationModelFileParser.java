@@ -119,8 +119,9 @@ public class DeformationModelFileParser {
 		return str;
 	}
 	
-	public static void compareAgainst(Map<Integer, DeformationSection> defs,
+	public static boolean compareAgainst(Map<Integer, DeformationSection> defs,
 			List<FaultSectionPrefData> datas, List<Integer> fm) throws IOException {
+		boolean ret = true;
 		HashSet<DeformationSection> dones = new HashSet<DeformationModelFileParser.DeformationSection>();
 		int noneCnt = 0;
 		for (int id : fm) {
@@ -135,19 +136,24 @@ public class DeformationModelFileParser {
 			Preconditions.checkNotNull(data);
 			if (def == null) {
 				System.out.println("No def model data for: "+data.getSectionId()+". "+data.getSectionName());
+				ret = false;
 				noneCnt++;
 				continue;
 			}
-			def.validateAgainst(data);
+			ret = ret && def.validateAgainst(data);
 			dones.add(def);
 		}
 		
-		System.out.println("No def model data for: "+noneCnt+" sections");
+		if (noneCnt > 0)
+			System.out.println("No def model data for: "+noneCnt+" sections");
 		
 		for (DeformationSection def : defs.values()) {
-			if (!dones.contains(def))
+			if (!dones.contains(def)) {
 				System.out.println("No fault exists for def model section of id: "+def.id);
+				ret = false;
+			}
 		}
+		return ret;
 	}
 	
 	public static void write(Map<Integer, DeformationSection> model, File file) throws IOException {
@@ -670,10 +676,32 @@ public class DeformationModelFileParser {
 //			System.out.println("Fetching fault data");
 			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
 //			System.out.println("Fetching fault model");
-			FaultModels fm = FaultModels.FM3_1;
+			FaultModels fm = FaultModels.FM3_2;
 			ArrayList<Integer> fmSects = fm2db.getFaultSectionIdList(fm.getID());
 			File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(),
 					"DeformationModels");
+			for (DeformationModels dm : DeformationModels.forFaultModel(fm)) {
+				if (dm == DeformationModels.GEOLOGIC)
+					continue;
+				String name = dm.getDataFileName(fm);
+				defFile = new File(dir, name);
+				System.out.println("******** FIXING "+dm);
+				Map<Integer, DeformationSection>  defs = load(defFile);
+				boolean success = compareAgainst(defs, datas, fmSects);
+				if (!success) {
+					System.out.println("ok lets fix it...");
+					fixForRevisedFM(defs, fm);
+					success = compareAgainst(defs, datas, fmSects);
+					Preconditions.checkState(success, "...still couldn't fix it :-(");
+					if (name.contains("2012_"))	{
+						name = name.substring(0, name.indexOf("2012"));
+						name += "_MAPPED_2012_06_05.csv";
+					}
+					write(defs, new File(dir, name));
+				}
+			}
+			System.exit(0);
+			
 			defFile = new File(dir, "geologic_slip_rake_2012_03_02.csv");
 //			System.out.println("Doing comparison: "+defFile.getName());
 			Map<Integer, DeformationSection>  defs = load(defFile);
