@@ -26,6 +26,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -69,11 +70,12 @@ public class RunInversion {
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
 		double defaultAseis = 0.2;
+		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
-					AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel, filter, defaultAseis);
+					AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel, filter, defaultAseis, spatialSeisPDF);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction

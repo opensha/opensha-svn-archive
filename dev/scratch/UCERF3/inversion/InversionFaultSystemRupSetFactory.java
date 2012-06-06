@@ -214,7 +214,7 @@ public class InversionFaultSystemRupSetFactory {
 			InversionModels inversionModel,
 			LaughTestFilter laughTest) {
 		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
-				slipAlongModel, inversionModel, laughTest, 0d);
+				slipAlongModel, inversionModel, laughTest, 0d, SpatialSeisPDF.UCERF3);
 	}
 	
 	/**
@@ -227,6 +227,8 @@ public class InversionFaultSystemRupSetFactory {
 	 * @param slipAlongModel
 	 * @param inversionModel
 	 * @param laughTest
+	 * @param defaultAseismicityValue
+	 * @param spatialSeisPDF
 	 * @return
 	 */
 	public static InversionFaultSystemRupSet forBranch(
@@ -237,7 +239,8 @@ public class InversionFaultSystemRupSetFactory {
 			SlipAlongRuptureModels slipAlongModel,
 			InversionModels inversionModel,
 			LaughTestFilter laughTest,
-			double defaultAseismicityValue) {
+			double defaultAseismicityValue,
+			SpatialSeisPDF spatialSeisPDF) {
 		System.out.println("Building a rupture set for: "+deformationModel+" ("+faultModel+")");
 		
 		List<MagAreaRelationship> magAreaRelList = magAreaRelationships.getMagAreaRelationships();
@@ -271,7 +274,7 @@ public class InversionFaultSystemRupSetFactory {
 		double totalRegionRateMgt5 = 8.7;
 		double mMaxOffFault = 7.6;
 		boolean applyImpliedCouplingCoeff = false;
-		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
+//		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
 		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
 				clusters, deformationModel, faultSectionData, magAreaRelList,

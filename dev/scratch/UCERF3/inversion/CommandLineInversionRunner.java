@@ -31,6 +31,7 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
@@ -192,7 +193,8 @@ public class CommandLineInversionRunner {
 			System.out.println("Building RupSet");
 			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
-					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), laughTest, defaultAseis);
+					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), laughTest, defaultAseis,
+					SpatialSeisPDF.UCERF3); // TODO don't hardcode
 			
 			// now build the inversion inputs
 			
