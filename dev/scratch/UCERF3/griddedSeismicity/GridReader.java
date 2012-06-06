@@ -10,6 +10,9 @@ import org.apache.commons.io.FileUtils;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.DataUtils;
+
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -35,7 +38,7 @@ public class GridReader {
 	private static final CaliforniaRegions.RELM_TESTING_GRIDDED region = 
 			new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	
-	private static final String DATA_DIR = "../data/seismicityGrids/";
+	private static final String DATA_DIR = "seismicityGrids";
 
 	private static final Splitter SPLIT;
 
@@ -95,7 +98,8 @@ public class GridReader {
 	private Table<Integer, Integer, Double> initTable() {
 		Table<Integer, Integer, Double> table = HashBasedTable.create();
 		try {
-			File f = getSourceFile(filename);
+			File f = FileUtils.toFile(UCERF3_DataUtils.locateResource(DATA_DIR,
+				filename));
 			List<String> lines = Files.readLines(f, Charsets.US_ASCII);
 			Iterator<String> dat;
 			for (String line : lines) {
@@ -108,11 +112,6 @@ public class GridReader {
 			throw Throwables.propagate(ioe);
 		}
 		return table;
-	}
-
-	private static File getSourceFile(String file) {
-		URL url = Resources.getResource(GridReader.class, DATA_DIR + file);
-		return FileUtils.toFile(url);
 	}
 
 	// //////// Conversion Functions //////////
@@ -140,7 +139,8 @@ public class GridReader {
 	}
 
 	public static void main(String[] args) {
-		
+		double[] pdf = SpatialSeisPDF.UCERF3.getPDF();
+		System.out.println(DataUtils.sum(pdf));
 //		String fName =  "SmoothSeis_KF_5-5-2012.txt";
 //		File f = getSourceFile(fName);
 //		System.out.println(f.exists());

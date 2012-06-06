@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 public class UCERF3_DataUtils {
@@ -15,16 +16,15 @@ public class UCERF3_DataUtils {
 	private static final String s = File.separator;
 	
 	/**
-	 * This is the location for scratch data that is computed locally and will never
-	 * be committed to the repository
+	 * The local scratch data directory that is ignored by repository commits.
 	 */
 	public static File DEFAULT_SCRATCH_DATA_DIR =
 		new File("dev"+s+"scratch"+s+"UCERF3"+s+"data"+s+"scratch");
 	
 	/**
-	 * This is the URL prefix for loading file from the persistant data directory
+	 * The URL prefix for loading file from the persistant data directory.
 	 */
-	public static String DATA_URL_PREFIX = "/scratch/UCERF3/data";
+	public static String DATA_URL_PREFIX = s+"scratch"+s+"UCERF3"+s+"data";
 	
 	/**
 	 * This gives the URL of a file in our UCERF3 data directory.
@@ -53,8 +53,8 @@ public class UCERF3_DataUtils {
 	private static String getRelativePath(String dataSubDirName, String fileName) {
 		String relativePath = DATA_URL_PREFIX;
 		if (dataSubDirName != null && !dataSubDirName.isEmpty())
-			relativePath += "/"+dataSubDirName;
-		relativePath += "/"+fileName;
+			relativePath += s+dataSubDirName;
+		relativePath += s+fileName;
 		return relativePath;
 	}
 	
