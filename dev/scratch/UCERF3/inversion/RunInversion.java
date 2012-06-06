@@ -69,7 +69,7 @@ public class RunInversion {
 		
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
-		double defaultAseis = 0.2;
+		double defaultAseis = 0.1;
 		double totalRegionRateMgt5 = 8.7;
 		double mMaxOffFault = 7.6;
 		boolean applyImpliedCouplingCoeff = false;

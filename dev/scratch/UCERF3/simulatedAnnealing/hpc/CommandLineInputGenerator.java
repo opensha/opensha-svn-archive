@@ -25,7 +25,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 public class CommandLineInputGenerator {
 	
 	public static void main(String[] args) {
-		double defaultAsesisValue = 0;
+		double defaultAsesisValue = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
 		while (args.length > 2 && args[0].equals("--var")) {
 			String variation = args[1];
 			

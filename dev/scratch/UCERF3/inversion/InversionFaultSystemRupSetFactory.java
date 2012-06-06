@@ -8,8 +8,6 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import com.google.common.base.Preconditions;
-
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
@@ -34,6 +32,8 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
  *
  */
 public class InversionFaultSystemRupSetFactory {
+	
+	public static final double DEFAULT_ASEIS_VALUE = 0.1;
 	
 	private static File rup_set_store_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 	
@@ -214,7 +214,7 @@ public class InversionFaultSystemRupSetFactory {
 			InversionModels inversionModel,
 			LaughTestFilter laughTest) {
 		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
-				slipAlongModel, inversionModel, laughTest, 0d, 8.7, 7.6, false, SpatialSeisPDF.UCERF3);
+				slipAlongModel, inversionModel, laughTest, DEFAULT_ASEIS_VALUE, 8.7, 7.6, false, SpatialSeisPDF.UCERF3);
 	}
 	
 	/**

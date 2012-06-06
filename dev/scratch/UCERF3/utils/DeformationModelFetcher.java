@@ -34,6 +34,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.SectionClusterList;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
@@ -95,18 +96,6 @@ public class DeformationModelFetcher {
 	 */
 	static int ucerf2_DefModelId = 82;
 	static boolean alphabetize = true;
-
-	/**
-	 * Constructor
-	 * 
-	 * @param faultModel - the fault model
-	 * @param deformationModel - then name of the desire deformation model (from the DefModName enum here).
-	 * @param precomputedDataDir - the dir where pre-computed data can be found (for faster instantiation)
-	 */
-	public DeformationModelFetcher(FaultModels faultModel, DeformationModels deformationModel,
-			File precomputedDataDir) {
-		this(faultModel, deformationModel, precomputedDataDir, 0d);
-	}
 
 	/**
 	 * Constructor
@@ -1203,7 +1192,7 @@ public class DeformationModelFetcher {
 		try {
 
 			FaultModels fm = FaultModels.FM3_1;
-			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+			DeformationModelFetcher dm = new DeformationModelFetcher(fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 			dm.getSubSectionDistanceMap(5d);
 //			dm.writeFractParentSectionsWithNonZeroAsies();
 			

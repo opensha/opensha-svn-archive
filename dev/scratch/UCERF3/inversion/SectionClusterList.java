@@ -36,7 +36,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	
 	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, File precomputedDataDir,
 			LaughTestFilter filter) {
-		this(new DeformationModelFetcher(faultModel, defModel, precomputedDataDir), filter);
+		this(new DeformationModelFetcher(faultModel, defModel, precomputedDataDir, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE), filter);
 	}
 	
 	public SectionClusterList(DeformationModelFetcher defModelFetcher, LaughTestFilter filter) {

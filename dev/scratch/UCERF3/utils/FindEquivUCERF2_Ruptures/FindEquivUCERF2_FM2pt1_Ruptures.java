@@ -927,7 +927,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 	private void writePrelimSectionsForUCERF2_Sources() {
 
 		DeformationModelFetcher deformationModelFetcher =
-			new DeformationModelFetcher(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,scratchDir);
+			new DeformationModelFetcher(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,scratchDir, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		ArrayList<FaultSectionPrefData> faultSectionData = deformationModelFetcher.getSubSectionList();
 		ArrayList<String> parentSectionNames = new ArrayList<String>();
 		for(int i=0; i<faultSectionData.size();i++) {

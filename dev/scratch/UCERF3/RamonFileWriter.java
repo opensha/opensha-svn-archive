@@ -10,6 +10,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
@@ -17,7 +18,7 @@ public class RamonFileWriter {
 	
 	private static void write(File file, FaultModels fm, DeformationModels dm) throws IOException {
 		ArrayList<FaultSectionPrefData> subSects =
-				new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR).getSubSectionList();
+				new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE).getSubSectionList();
 		FileWriter fw = new FileWriter(file);
 		
 		for (FaultSectionPrefData subSect : subSects) {

@@ -27,6 +27,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionConfiguration;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
@@ -193,7 +194,7 @@ public class DeformationModelsCalc {
 	 * @return
 	 */
 	public static double calcFaultMoRateForDefModel(FaultModels fm, DeformationModels dm, boolean creepReduced) {
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		return calculateTotalMomentRate(defFetch.getSubSectionList(),true);
 	}
 	
@@ -223,7 +224,7 @@ public class DeformationModelsCalc {
 
 	
 	private static String getTableLineForMoRateAndMmaxDataForDefModels(FaultModels fm, DeformationModels dm) {
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		double moRate = calculateTotalMomentRate(defFetch.getSubSectionList(),true);
 		System.out.println(fm.getName()+", "+dm.getName()+ " (reduced):\t"+(float)moRate);
 		System.out.println(fm.getName()+", "+dm.getName()+ " (not reduced):\t"+(float)calculateTotalMomentRate(defFetch.getSubSectionList(),false));
@@ -253,7 +254,7 @@ public class DeformationModelsCalc {
 	
 	
 	public static void writeMoRateOfParentSections(FaultModels fm, DeformationModels dm) {
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		
 		// get list of sections in UCERF2
 		ArrayList<String> getEquivUCERF2_SectionNames = FindEquivUCERF2_FM3_Ruptures.getAllSectionNames(fm);
@@ -306,12 +307,12 @@ public class DeformationModelsCalc {
 		
 		// get section name from FM 3.1
 		ArrayList<String> fm3_sectionNamesList = new ArrayList<String>();
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		for(FaultSectionPrefData data : defFetch.getSubSectionList())
 			if(!fm3_sectionNamesList.contains(data.getParentSectionName()))
 				fm3_sectionNamesList.add(data.getParentSectionName());
 		// add those from FM 3.2
-		defFetch = new DeformationModelFetcher(FaultModels.FM3_2, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_2, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		for(FaultSectionPrefData data : defFetch.getSubSectionList())
 			if(!fm3_sectionNamesList.contains(data.getParentSectionName()))
 				fm3_sectionNamesList.add(data.getParentSectionName());
@@ -344,7 +345,7 @@ public class DeformationModelsCalc {
 	 * @param dm
 	 */
 	public static void plotMoRateReductionHist(FaultModels fm, DeformationModels dm) {
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		HistogramFunction moRateReductionHist = new HistogramFunction(0d, 51, 0.02);
 
 		double totNoReduction=0, totWithReductionNotRedeced=0, totWithReductionRedeced=0;
@@ -793,7 +794,7 @@ public class DeformationModelsCalc {
 		System.out.println("moRates.size()="+moRates.size());
 		System.out.println("relmGrid.getNodeCount()="+relmGrid.getNodeCount());
 
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
 			double mr = data.calcMomentRate(true);
 			LocationList locList = data.getStirlingGriddedSurface(1.0).getEvenlyDiscritizedListOfLocsOnSurface();

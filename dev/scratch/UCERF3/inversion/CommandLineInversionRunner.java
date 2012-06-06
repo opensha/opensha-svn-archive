@@ -183,7 +183,7 @@ public class CommandLineInversionRunner {
 			
 			LaughTestFilter laughTest = LaughTestFilter.getDefault();
 			String aseisArg = InversionOptions.DEFAULT_ASEISMICITY.argName;
-			double defaultAseis = 0d;
+			double defaultAseis = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
 			if (cmd.hasOption(aseisArg)) {
 				String aseisVal = cmd.getOptionValue(aseisArg);
 				defaultAseis = Double.parseDouble(aseisVal);

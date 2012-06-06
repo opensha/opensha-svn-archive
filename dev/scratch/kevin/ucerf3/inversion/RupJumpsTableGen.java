@@ -24,7 +24,7 @@ public class RupJumpsTableGen {
 		FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 		
 		DeformationModelFetcher dmFetch = new DeformationModelFetcher(rupSet.getFaultModel(), rupSet.getDeformationModel(),
-				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		
 		Map<IDPairing, Double> dists = dmFetch.getSubSectionDistanceMap(5d);
 		

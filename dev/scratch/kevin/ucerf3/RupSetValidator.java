@@ -17,6 +17,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.inversion.SectionClusterList;
@@ -377,7 +378,7 @@ public class RupSetValidator {
 			FaultModels faultModel = FaultModels.FM3_2;
 			DeformationModels defModel = DeformationModels.GEOLOGIC;
 			DeformationModelFetcher fetch = new DeformationModelFetcher(faultModel,
-					defModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+					defModel, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 			Map<IDPairing, Double> subSectionDistances =
 				fetch.getSubSectionDistanceMap(filters.get(0).getMaxJumpDist());
 			Map<IDPairing, Double> subSectionAzimuths =
