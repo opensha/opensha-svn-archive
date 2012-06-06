@@ -526,7 +526,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		DeformationModelOffFaultMoRateData offFaultData = DeformationModelOffFaultMoRateData.getInstance();
 		double offFaultMoRate = offFaultData.getTotalOffFaultMomentRate(getFaultModel(), getDeformationModel());
 		offFaultMoRate *= (1-offFaultAseisFactor);
-		return offFaultMoRate + getTotalSubseismogenicMomentRateReduction();
+		return offFaultMoRate + getTotalMomentRateReduction();
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {

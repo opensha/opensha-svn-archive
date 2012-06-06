@@ -86,7 +86,7 @@ public class RunInversion {
 		}
 		
 		if (D) System.out.println("Total Orig (creep reduced) Moment Rate = "+rupSet.getTotalOrigMomentRate());
-		if (D) System.out.println("Total Final (creep & subseismogenic rup reduced) Moment Rate = "+rupSet.getTotalSubseismogenicReducedMomentRate());
+		if (D) System.out.println("Total Final (creep & subseismogenic rup reduced) Moment Rate = "+rupSet.getTotalReducedMomentRate());
 		
 		// get the inversion configuration
 		InversionConfiguration config;

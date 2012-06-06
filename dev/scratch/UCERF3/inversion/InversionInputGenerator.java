@@ -625,7 +625,7 @@ public class InversionInputGenerator {
 		// Constraint solution moment to equal deformation-model moment
 		if (config.getRelativeMomentConstraintWt() > 0.0) {
 			double relativeMomentConstraintWt = config.getRelativeMomentConstraintWt();
-			double totalMomentTarget = rupSet.getTotalSubseismogenicReducedMomentRate();
+			double totalMomentTarget = rupSet.getTotalReducedMomentRate();
 			numNonZeroElements = 0;
 			for (int rup=0; rup<numRuptures; rup++)  {
 				if (QUICK_GETS_SETS)

@@ -237,7 +237,7 @@ public class FaultSystemRupSetCalc {
 			if(wtByMoRate)
 				wt = faultSystemRupSet.getAreaForSection(i)*faultSystemRupSet.getSlipRateForSection(i);
 			if(!Double.isNaN(wt)) {
-				double reduction = faultSystemRupSet.getSubseismogenicMomentRateReductionFraction(i);
+				double reduction = faultSystemRupSet.getMomentRateReductionFraction(i);
 				if (Double.isNaN(reduction)) {
 					System.out.println("NaN reduction for section: "+faultSystemRupSet.getFaultSectionData(i).getName()
 							+" with slip: "+faultSystemRupSet.getSlipRateForSection(i));

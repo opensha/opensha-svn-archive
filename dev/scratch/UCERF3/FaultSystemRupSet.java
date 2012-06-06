@@ -142,7 +142,7 @@ public abstract class FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getSubseismogenicMomentRateReductionFraction(int sectIndex) {
+	public double getMomentRateReductionFraction(int sectIndex) {
 		double origSlipRate = getFaultSectionData(sectIndex).getReducedAveSlipRate() * 1e-3; // convert to meters
 		double moReducedSlipRate = getSlipRateForSection(sectIndex);
 		return 1d - moReducedSlipRate/origSlipRate;
@@ -154,18 +154,18 @@ public abstract class FaultSystemRupSet {
 	 * 
 	 * @return
 	 */
-	public double getTotalSubseismogenicMomentRateReduction() {
-		return getTotalOrigMomentRate() - getTotalSubseismogenicReducedMomentRate();
+	public double getTotalMomentRateReduction() {
+		return getTotalOrigMomentRate() - getTotalReducedMomentRate();
 	}
 	
 	/**
 	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures
 	 * and any coupling coefficient applied 
 	 * 
-	 * (getTotalSubseismogenicMomentRateReduction()/getTotalOrigMomentRate()).
+	 * (getTotalMomentRateReduction()/getTotalOrigMomentRate()).
 	 */
-	public double getTotalSubseismogenicMomentRateReductionFraction() {
-		return getTotalSubseismogenicMomentRateReduction() / getTotalOrigMomentRate();
+	public double getTotalMomentRateReductionFraction() {
+		return getTotalMomentRateReduction() / getTotalOrigMomentRate();
 	}
 
 	/**
@@ -201,8 +201,8 @@ public abstract class FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getSubseismogenicReducedMomentRate(int sectIndex) {
-		return getOrigMomentRate(sectIndex) * (1 - getSubseismogenicMomentRateReductionFraction(sectIndex));
+	public double getReducedMomentRate(int sectIndex) {
+		return getOrigMomentRate(sectIndex) * (1 - getMomentRateReductionFraction(sectIndex));
 	}
 	
 	/**
@@ -210,10 +210,10 @@ public abstract class FaultSystemRupSet {
 	 * ruptures and any coupling coefficient applied.
 	 * @return
 	 */
-	public double getTotalSubseismogenicReducedMomentRate() {
+	public double getTotalReducedMomentRate() {
 		double totMoRate = 0d;
 		for (int sectIndex=0; sectIndex<getNumSections(); sectIndex++) {
-			double sectMoment = getSubseismogenicReducedMomentRate(sectIndex);
+			double sectMoment = getReducedMomentRate(sectIndex);
 			if (!Double.isNaN(sectMoment))
 				totMoRate += sectMoment;
 		}

@@ -347,11 +347,11 @@ public class CommandLineInversionRunner {
 				info += "\n\nOriginal File Name: "+solutionFile.getName()
 						+"\nNum Ruptures: "+rupSet.getNumRuptures();
 				info += "\nOrig (creep reduced) Fault Moment Rate: "+rupSet.getTotalOrigMomentRate();
-				double subSeisReduction = rupSet.getTotalSubseismogenicMomentRateReduction();
-				info += "\nSubseismogenic Moment Reduction: "+subSeisReduction;
-				info += "\nSubseismogenic Moment Reduction Fraction: "+rupSet.getTotalSubseismogenicMomentRateReductionFraction();
-				info += "\nFinal (creep & subseismogenic rup reduced) Fault Moment Rate: "
-						+rupSet.getTotalSubseismogenicReducedMomentRate();
+				double momRed = rupSet.getTotalMomentRateReduction();
+				info += "\nMoment Reduction (subseismogenic & coupling coefficient): "+momRed;
+				info += "\nMoment Reduction Fraction: "+rupSet.getTotalMomentRateReductionFraction();
+				info += "\nFault Moment Rate: "
+						+rupSet.getTotalReducedMomentRate();
 				double totalSolutionMoment = sol.getTotalFaultSolutionMomentRate();
 				info += "\nFault Solution Moment Rate: "+totalSolutionMoment;
 				
@@ -359,7 +359,7 @@ public class CommandLineInversionRunner {
 				
 				double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate();
 				info += "\nTotal Off Fault Seis Moment Rate (excluding subseismogenic): "
-						+(totalOffFaultMomentRate-subSeisReduction);
+						+(totalOffFaultMomentRate-momRed);
 				info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
 						+totalOffFaultMomentRate;
 				info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedOffFaultStatewideMFD().getTotalMomentRate();
@@ -488,7 +488,7 @@ public class CommandLineInversionRunner {
 				map.put(parent, new ParentMomentRecord(parent, name, 0, 0));
 			}
 			ParentMomentRecord rec = map.get(parent);
-			double targetMo = sol.getSubseismogenicReducedMomentRate(sectIndex);
+			double targetMo = sol.getReducedMomentRate(sectIndex);
 			double solSlip = sol.calcSlipRateForSect(sectIndex);
 			double solMo = FaultMomentCalc.getMoment(sol.getAreaForSection(sectIndex), solSlip);
 			if (!Double.isNaN(targetMo))

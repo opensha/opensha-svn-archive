@@ -165,7 +165,7 @@ public class UCERF3_GridSourceGenerator {
 
 			if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
 				double reduction = fss.getOrigMomentRate(idx) -
-						fss.getSubseismogenicReducedMomentRate(idx);
+						fss.getReducedMomentRate(idx);
 				// scale 
 				reduction = adjustMoScale(M0_MIN, mfdMax, M0_NUM, mfdMin, subSeisMFD.getMaxMagWithNonZeroRate(), reduction);
 				subSeisMFD.scaleToTotalMomentRate(reduction);
