@@ -194,7 +194,7 @@ public class CommandLineInversionRunner {
 			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
 					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), laughTest, defaultAseis,
-					SpatialSeisPDF.UCERF3); // TODO don't hardcode
+					8.7, 7.6, false, SpatialSeisPDF.UCERF3); // TODO don't hardcode
 			
 			// now build the inversion inputs
 			

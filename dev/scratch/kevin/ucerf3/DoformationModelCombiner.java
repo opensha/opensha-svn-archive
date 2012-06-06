@@ -9,6 +9,7 @@ import java.util.Map;
 import org.opensha.commons.geo.Location;
 
 import scratch.UCERF3.utils.DeformationModelFileParser;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
 public class DoformationModelCombiner {
@@ -18,10 +19,11 @@ public class DoformationModelCombiner {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(), "DeformationModels");
 		Map<Integer, DeformationSection> geologicModel = DeformationModelFileParser.load(
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/DeformationModels/geologic_slip_rake_2012_02_21.csv"));
+				new File(dir, "geologic_slip_rake_fm_3_2_2012_05_29.csv"));
 		Map<Integer, DeformationSection> abmModel = DeformationModelFileParser.load(
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/DeformationModels/ABM_slip_rake_2012_02_21.csv"));
+				new File(dir, "ABM_slip_rake_fm_3_2_2012_06_06.csv"));
 		
 		ArrayList<DeformationSection> combined = new ArrayList<DeformationModelFileParser.DeformationSection>();
 		
@@ -49,7 +51,7 @@ public class DoformationModelCombiner {
 		}
 		
 		DeformationModelFileParser.write(combined,
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/DeformationModels/geologic_plus_ABM_slip_rake_2012_03_01.csv"));
+				new File(dir, "geologic_plus_ABM_slip_rake_fm_3_2_2012_06_06.csv"));
 	}
 
 }

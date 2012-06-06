@@ -63,7 +63,7 @@ public class CommandLineInputGenerator {
 				LaughTestFilter filter = LaughTestFilter.getDefault();
 				rupSet = InversionFaultSystemRupSetFactory.forBranch(branch.getFaultModel(), branch.getDefModel(),
 						branch.getMagArea(), branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), filter, defaultAsesisValue,
-						SpatialSeisPDF.UCERF3); // TODO don't hardcode
+						8.7, 7.6, false, SpatialSeisPDF.UCERF3); // TODO don't hardcode
 				// write it to a file
 				new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
 			}

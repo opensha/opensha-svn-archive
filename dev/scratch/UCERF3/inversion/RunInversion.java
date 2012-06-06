@@ -70,12 +70,16 @@ public class RunInversion {
 		// fetch the rupture set
 		FaultSystemRupSet rupSet = null;
 		double defaultAseis = 0.2;
+		double totalRegionRateMgt5 = 8.7;
+		double mMaxOffFault = 7.6;
+		boolean applyImpliedCouplingCoeff = false;
 		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
-					AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel, filter, defaultAseis, spatialSeisPDF);
+					AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel, filter, defaultAseis,
+					totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction

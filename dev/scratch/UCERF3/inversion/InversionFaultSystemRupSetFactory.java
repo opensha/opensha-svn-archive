@@ -214,7 +214,7 @@ public class InversionFaultSystemRupSetFactory {
 			InversionModels inversionModel,
 			LaughTestFilter laughTest) {
 		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
-				slipAlongModel, inversionModel, laughTest, 0d, SpatialSeisPDF.UCERF3);
+				slipAlongModel, inversionModel, laughTest, 0d, 8.7, 7.6, false, SpatialSeisPDF.UCERF3);
 	}
 	
 	/**
@@ -240,6 +240,9 @@ public class InversionFaultSystemRupSetFactory {
 			InversionModels inversionModel,
 			LaughTestFilter laughTest,
 			double defaultAseismicityValue,
+			double totalRegionRateMgt5,
+			double mMaxOffFault,
+			boolean applyImpliedCouplingCoeff,
 			SpatialSeisPDF spatialSeisPDF) {
 		System.out.println("Building a rupture set for: "+deformationModel+" ("+faultModel+")");
 		
@@ -271,10 +274,11 @@ public class InversionFaultSystemRupSetFactory {
 		
 		// TODO don't hardcode
 		System.out.println("**** WARNING: rate M5, mMaxOffFault, applyImpliedCoupling, and spatialSeisPDF HARDCODED!");
-		double totalRegionRateMgt5 = 8.7;
-		double mMaxOffFault = 7.6;
-		boolean applyImpliedCouplingCoeff = false;
+//		double totalRegionRateMgt5 = 8.7;
+//		double mMaxOffFault = 7.6;
+//		boolean applyImpliedCouplingCoeff = false;
 //		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
+		// 8.7, 7.6, false, SpatialSeisPDF.UCERF3
 		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
 				clusters, deformationModel, faultSectionData, magAreaRelList,

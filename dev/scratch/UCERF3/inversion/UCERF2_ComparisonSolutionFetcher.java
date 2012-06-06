@@ -40,7 +40,8 @@ public class UCERF2_ComparisonSolutionFetcher {
 			dm = DeformationModels.GEOLOGIC_PLUS_ABM;
 		FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 				fm, dm, MagAreaRelationships.AVE_UCERF2, AveSlipForRupModels.AVE_UCERF2,
-				SlipAlongRuptureModels.TAPERED, InversionModels.CHAR, LaughTestFilter.getDefault(), 0, SpatialSeisPDF.UCERF2);
+				SlipAlongRuptureModels.TAPERED, InversionModels.CHAR, LaughTestFilter.getDefault(), 0,
+				8.7, 7.6, false, SpatialSeisPDF.UCERF2);
 		
 		ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
 		

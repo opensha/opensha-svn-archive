@@ -631,6 +631,20 @@ public class DeformationModelFileParser {
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
 		
+		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
+		
+		for (FaultModels fm : fms) {
+			for (DeformationModels dm : DeformationModels.forFaultModel(fm)) {
+				System.out.println("TESTING "+fm+" : "+dm);
+				try {
+					new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
+				} catch (Exception e) {
+					System.out.println(dm+" failed!");
+					e.printStackTrace();
+				}
+			}
+		}
+		System.exit(0);
 		
 		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
 		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
