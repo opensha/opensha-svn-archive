@@ -16,6 +16,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.inversion.SectionClusterList;
@@ -62,8 +63,8 @@ public class LogicTreeMaxMagCalc {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
 						for (AveSlipForRupModels as : aveSlipModels) {
 							InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
-									clusters, dm, faultSectionData, ma.getMagAreaRelationships(),
-									im, sal, as);
+									clusters, dm, faultSectionData, ma.getMagAreaRelationships(), im, sal, as,
+									8.7, 7.6, false, SpatialSeisPDF.UCERF3);
 							double[] mags = rupSet.getMagForAllRups();
 							double max = StatUtils.max(mags);
 							double min = StatUtils.min(mags);

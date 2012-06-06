@@ -19,6 +19,7 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -265,9 +266,17 @@ public class InversionFaultSystemRupSetFactory {
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue).getSubSectionList();
 		}
 		
+		// TODO don't hardcode
+		System.out.println("**** WARNING: rate M5, mMaxOffFault, applyImpliedCoupling, and spatialSeisPDF HARDCODED!");
+		double totalRegionRateMgt5 = 8.7;
+		double mMaxOffFault = 7.6;
+		boolean applyImpliedCouplingCoeff = false;
+		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
+		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
 				clusters, deformationModel, faultSectionData, magAreaRelList,
-				inversionModel, slipAlongModel, aveSlipForRupModel);
+				inversionModel, slipAlongModel, aveSlipForRupModel,
+				totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF);
 		System.out.println("New rup set has "+rupSet.getNumRuptures()+" ruptures.");
 		String info = rupSet.getInfoString();
 		if (info == null)
@@ -281,6 +290,10 @@ public class InversionFaultSystemRupSetFactory {
 		info += "\nAveSlipForRupModel: "+aveSlipForRupModel.name();
 		info += "\nSlipAlongRuptureModel: "+slipAlongModel.name();
 		info += "\nInversionModel: "+inversionModel.name();
+		info += "\ntotalRegionRateMgt5: "+totalRegionRateMgt5;
+		info += "\nmMaxOffFault: "+mMaxOffFault;
+		info += "\napplyImpliedCouplingCoeff: "+applyImpliedCouplingCoeff;
+		info += "\nspatialSeisPDF: "+spatialSeisPDF.name();
 		info += "\n*******************************";
 		rupSet.setInfoString(info);
 		return rupSet;
