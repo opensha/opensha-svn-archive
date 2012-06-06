@@ -1,6 +1,9 @@
 package scratch.UCERF3.griddedSeismicity;
 
+import java.util.List;
 import java.util.Map;
+
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.FaultSystemRupSet;
 
@@ -21,8 +24,8 @@ public class GriddedSeisUtils {
 	 * @param fsrs
 	 * @param pdf
 	 */
-	public GriddedSeisUtils(FaultSystemRupSet fsrs, SpatialSeisPDF pdf) {
-		polyMgr = FaultPolyMgr.create(fsrs.getFaultSectionDataList(), null);
+	public GriddedSeisUtils(List<FaultSectionPrefData> fltSectPrefDataList, SpatialSeisPDF pdf) {
+		polyMgr = FaultPolyMgr.create(fltSectPrefDataList, null);
 		this.pdf = pdf.getPDF();
 	}
 	

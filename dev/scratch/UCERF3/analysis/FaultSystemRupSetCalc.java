@@ -45,12 +45,10 @@ public class FaultSystemRupSetCalc {
 	
 	
 	/**
-	 * This computes a histogram of the minimum magnitude among all the fault 
+	 * This the mean minimum magnitude among all the fault 
 	 * sections in the given FaultSystemRupSet
 	 * @param faultSystemRupSet
-	 * @param minMag
-	 * @param numMag
-	 * @param deltaMag
+	 * @param wtByMoRate - determines whether or not it's a weighted average based on orignal moment rate
 	 */
 	public static double getMeanMinMag(FaultSystemRupSet faultSystemRupSet, boolean wtByMoRate) {
 		double wt=1;
@@ -58,7 +56,7 @@ public class FaultSystemRupSetCalc {
 		double sum=0;
 		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
 			if(wtByMoRate) {
-				wt = faultSystemRupSet.getAreaForSection(i)*faultSystemRupSet.getSlipRateForSection(i);
+				wt = faultSystemRupSet.getFaultSectionData(i).calcMomentRate(true);
 				if(Double.isNaN(wt)) {
 					wt=0;
 					if(D) System.out.println(i+" has NaN moRate; "+faultSystemRupSet.getFaultSectionData(i).getName()+
@@ -291,7 +289,7 @@ public class FaultSystemRupSetCalc {
 	 * maximum magnitude the section participates in.
 	 */
 	public static void plotImpliedTotalSectGR_MFD(FaultSystemRupSet faultSysRupSet, String label) {
-		SummedMagFreqDist mfd = calcImpliedGR_NucleationMFD(faultSysRupSet);
+		SummedMagFreqDist mfd = calcImpliedGR_NucleationMFD(faultSysRupSet, 0.05, 90, 0.1);
 		
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.0, 91, 0.1, 0.0, mfd.getMaxMagWithNonZeroRate(), mfd.getTotalMomentRate(), 1.0);
 		gr.setName("Perfect GR");
@@ -341,10 +339,10 @@ public class FaultSystemRupSetCalc {
 	 * @param faultSysRupSet
 	 * @return
 	 */
-	public static SummedMagFreqDist calcImpliedGR_NucleationMFD(FaultSystemRupSet faultSysRupSet) {
+	public static SummedMagFreqDist calcImpliedGR_NucleationMFD(FaultSystemRupSet faultSysRupSet, double minMag, int numMag, double deltaMag) {
 		
-		ArrayList<GutenbergRichterMagFreqDist> gr_mfds = calcImpliedNuclMFD_ForEachSection(faultSysRupSet);
-		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 90, 0.1);
+		ArrayList<GutenbergRichterMagFreqDist> gr_mfds = calcImpliedNuclMFD_ForEachSection(faultSysRupSet, minMag, numMag, deltaMag);
+		SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, numMag, deltaMag);
 		double totMoRate=0;
 		double mMaxInRegion=0;
 		int index = 0;
@@ -366,12 +364,15 @@ public class FaultSystemRupSetCalc {
 	 * @param faultSysRupSet
 	 * @return
 	 */
-	public static ArrayList<GutenbergRichterMagFreqDist> calcImpliedNuclMFD_ForEachSection(FaultSystemRupSet faultSysRupSet) {
+	public static ArrayList<GutenbergRichterMagFreqDist> calcImpliedNuclMFD_ForEachSection(FaultSystemRupSet faultSysRupSet,
+			double minMag, int numMag, double deltaMag) {
 		List<FaultSectionPrefData> sectDataList = faultSysRupSet.getFaultSectionDataList();
 		ArrayList<GutenbergRichterMagFreqDist> mfds = new ArrayList<GutenbergRichterMagFreqDist>();
+		GutenbergRichterMagFreqDist tempGR = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag);
 		for(int i=0; i< sectDataList.size();i++) {
 			FaultSectionPrefData sectData = sectDataList.get(i);
-			double mMax = (double)Math.round(10*(faultSysRupSet.getMaxMagForSection(i)-0.05))/10.0 +0.05;
+			int mMaxIndex = tempGR.getClosestXIndex(faultSysRupSet.getMaxMagForSection(i));
+			double mMax = tempGR.getX(mMaxIndex);
 			double moRate = sectData.calcMomentRate(true);
 			if(Double.isNaN(moRate)) {
 				moRate = 0;
@@ -379,7 +380,7 @@ public class FaultSystemRupSetCalc {
 //System.out.println("NaN MoRate; set to zero");
 //System.out.println(gr);
 			}
-			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.05, 90, 0.1, 0.05, mMax, moRate, 1.0);
+			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag, minMag, mMax, moRate, 1.0);
 //if(Double.isNaN(gr.getTotalIncrRate())) {
 //	System.out.println(i+"\t"+mMax+"\t"+moRate);
 //	System.exit(0);
@@ -439,7 +440,7 @@ public class FaultSystemRupSetCalc {
 		double onFaultRate = totRegionalM5_Rate-offFaultRate;
 		
 		// GR Branch
-		SummedMagFreqDist mfd = calcImpliedGR_NucleationMFD(faultSysRupSet);
+		SummedMagFreqDist mfd = calcImpliedGR_NucleationMFD(faultSysRupSet, 0.05, 90, 0.1);
 		
 		double onCoupCoeff = onFaultRate/mfd.getCumRate(5.05);
 		double onFaultOrigMoRate = mfd.getTotalMomentRate();
@@ -1046,7 +1047,7 @@ public class FaultSystemRupSetCalc {
 		
 		ArrayList<GutenbergRichterMagFreqDist> mfds = new ArrayList<GutenbergRichterMagFreqDist>();
 		double totMgt5_rate = totalTargetGR.getCumRate(5.05);
-		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet, spatialSeisPDF);
+		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet.getFaultSectionDataList(), spatialSeisPDF);
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
 			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap
@@ -1059,22 +1060,6 @@ public class FaultSystemRupSetCalc {
 		return mfds;
 	}
 
-
-	/**
-	 * This method computes the fraction of a SpatialSeisPDF that's inside the fault-section polygons 
-	 * of the given FaultSystemRupSet.
-	 * @param fltSysRupSet
-	 * @param spatialSeisPDF
-	 * @return
-	 */
-	public static double getFractSpatialPDF_InsideSectionPolygons(FaultSystemRupSet fltSysRupSet, SpatialSeisPDF spatialSeisPDF) {
-		double sum = 0;
-		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet, spatialSeisPDF);
-		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
-			sum += gridSeisUtils.pdfValForSection(s);
-		}
-		return sum;
-	}
 
 
 	/**

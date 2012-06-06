@@ -36,6 +36,8 @@ import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Rupture
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
+import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 
 public class DeformationModelsCalc {
 	
@@ -939,6 +941,25 @@ public class DeformationModelsCalc {
 		}
 
 	}
+	
+	
+	/**
+	 * This method computes the fraction of a SpatialSeisPDF that's inside the fault-section polygons 
+	 * of the given fltSectPrefDataList.
+	 * @param fltSectPrefDataList
+	 * @param spatialSeisPDF
+	 * @return
+	 */
+	public static double getFractSpatialPDF_InsideSectionPolygons(List<FaultSectionPrefData> fltSectPrefDataList, SpatialSeisPDF spatialSeisPDF) {
+		double sum = 0;
+		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSectPrefDataList, spatialSeisPDF);
+		for(int s=0; s<fltSectPrefDataList.size(); s++) {
+			sum += gridSeisUtils.pdfValForSection(s);
+		}
+		return sum;
+	}
+
+
 	
 
 	/**

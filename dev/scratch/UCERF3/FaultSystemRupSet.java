@@ -134,22 +134,23 @@ public abstract class FaultSystemRupSet {
 	
 	
 	/**
-	 * This computes the moment rate reduction, if any, that was applied to the slip rate (as returned by
-	 * getSlipRateForSection).<br>
+	 * This computes the fractional moment-rate taken away for subseismogenic ruptures and
+	 * and any coupling coefficient that was applied.
 	 * <br>
-	 * This is computed as: <code>moRateReduction = 1 - (reducedSlip / origSlip)</code>
-	 * where origSlip is first converted to meters.
+	 * This is computed as: <code>moRateReduction = 1 - (reducedSlipRate / origSlipRate)</code>
+	 * where origSlipRate is first converted to meters/yr.
 	 * @param sectIndex
 	 * @return
 	 */
 	public double getSubseismogenicMomentRateReductionFraction(int sectIndex) {
-		double origSlip = getFaultSectionData(sectIndex).getReducedAveSlipRate() * 1e-3; // convert to meters
-		double moReducedSlip = getSlipRateForSection(sectIndex);
-		return 1d - moReducedSlip/origSlip;
+		double origSlipRate = getFaultSectionData(sectIndex).getReducedAveSlipRate() * 1e-3; // convert to meters
+		double moReducedSlipRate = getSlipRateForSection(sectIndex);
+		return 1d - moReducedSlipRate/origSlipRate;
 	}
 	
 	/**
 	 * This returns the total reduction in moment rate for subseimogenic ruptures
+	 * and any coupling coefficient applied (the amount removed)
 	 * 
 	 * @return
 	 */
@@ -158,7 +159,10 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the total fraction of moment that is reduced by the momentRateReduction factor
+	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures
+	 * and any coupling coefficient applied 
+	 * 
+	 * (getTotalSubseismogenicMomentRateReduction()/getTotalOrigMomentRate()).
 	 */
 	public double getTotalSubseismogenicMomentRateReductionFraction() {
 		return getTotalSubseismogenicMomentRateReduction() / getTotalOrigMomentRate();
@@ -190,8 +194,9 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the moment rate adjusted for subseimogenic ruptures. This simply returns
-	 * the original moment rate multiplied by <code>(1 -getMomentRateReductionForSection(sectIndex))</code>
+	 * This returns the moment rate after removing that for subseimogenic ruptures and
+	 * any applied coupling coefficient. This simply returns the original moment rate (which is already
+	 * creep reduced) multiplied by <code>(1 -getMomentRateReductionForSection(sectIndex))</code>
 	 * 
 	 * @param sectIndex
 	 * @return
@@ -201,7 +206,8 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the total moment rate adjusted for subseismogenic ruptures and creep.
+	 * This returns the total moment rate after removing that for subseismogenic  
+	 * ruptures and any coupling coefficient applied.
 	 * @return
 	 */
 	public double getTotalSubseismogenicReducedMomentRate() {

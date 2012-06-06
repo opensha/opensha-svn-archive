@@ -534,33 +534,6 @@ public class InversionConfiguration {
 	}
 	
 	
-	/**
-	 * This returns the moment rate reductions for each section in the given rupture set according to the
-	 * given inversion model
-	 * @param rupSet
-	 * @param model
-	 * @return moRateReductions
-	 */
-	public static double[] getMomentRateReductionsForSections(FaultSystemRupSet rupSet, InversionModels model) {
-		double[] moRateReductions = new double[rupSet.getNumSections()];
-
-		if (model == InversionModels.CHAR) {
-			// simple hardcoded at 7%
-			for (int i=0; i<moRateReductions.length; i++)
-				moRateReductions[i] = 0.07;
-		} else if (model == InversionModels.GR || model == InversionModels.UNCONSTRAINED) {
-			// based on mMin and mMax
-			double bValue = 1d;
-			for (int sectIndex=0; sectIndex<moRateReductions.length; sectIndex++) {
-				double magLower = rupSet.getMinMagForSection(sectIndex);
-				double magUpper = rupSet.getMaxMagForSection(sectIndex);
-				moRateReductions[sectIndex] = FaultSystemRupSetCalc.getFractMomentReductionForSmallMags(magLower, magUpper, bValue);
-			}
-		} else {
-			throw new IllegalArgumentException("Can't create moment rate reductions for: "+model);
-		}
-		return moRateReductions;
-	}
 	
 	/**
 	 * This method lowers an MFD constraint to account for spatially-varying minimum magnitudes on faults.
