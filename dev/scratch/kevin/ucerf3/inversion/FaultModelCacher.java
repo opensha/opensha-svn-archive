@@ -21,7 +21,7 @@ public class FaultModelCacher {
 //		File dir = new File("/tmp");
 		File dir = new File("D:\\Documents\\temp");
 		for (FaultModels fm : FaultModels.values()) {
-			ArrayList<FaultSectionPrefData> datas = fm.fetchFaultSections();
+			ArrayList<FaultSectionPrefData> datas = fm.fetchFaultSections(true);
 			Document doc = XMLUtils.createDocumentWithRoot();
 			SimpleFaultSystemRupSet.fsDataToXML(doc.getRootElement(), datas, FaultModels.XML_ELEMENT_NAME, fm, null);
 			XMLUtils.writeDocumentToFile(new File(dir, fm.getShortName()+".xml"), doc);

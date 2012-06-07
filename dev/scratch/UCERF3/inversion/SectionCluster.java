@@ -336,6 +336,10 @@ public class SectionCluster extends ArrayList<Integer> {
 			if (coulombFilter != null) {
 				if (!coulombFilter.isApplyBranchesOnly() || isBranchPoint(newIndex, newList)) {
 					CoulombRatesRecord forward = coulombRates.get(newLastPairing);
+					if (forward == null) {
+						System.out.println(sectionDataList.get(newLastPairing.getID1()).getSectionName());
+						System.out.println(sectionDataList.get(newLastPairing.getID2()).getSectionName());
+					}
 					Preconditions.checkNotNull(forward, "No mapping exists for pairing: "+newLastPairing);
 					IDPairing reversedPairing = newLastPairing.getReversed();
 					CoulombRatesRecord backward = coulombRates.get(reversedPairing);
