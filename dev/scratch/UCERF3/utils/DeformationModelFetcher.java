@@ -124,11 +124,14 @@ public class DeformationModelFetcher {
 				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
 				if (D) System.out.println("Combining model with sections...");
 				Map<Integer,DeformationSection> rakesModel = null;
-				if (faultModel.getFilterBasis() != null) {
-					// use the rakes from this one
-					if (D) System.out.println("Using rakes from: "+faultModel.getFilterBasis());
-					rakesModel = DeformationModelFileParser.load(faultModel.getFilterBasis().getDataFileURL(faultModel));
-				}
+				
+				// NOW KEEP DM RAKES - based on e-mail 6/7/2012 from Ned entitled "Re: Deformation Model Rakes"
+//				if (faultModel.getFilterBasis() != null) {
+//					// use the rakes from this one
+//					if (D) System.out.println("Using rakes from: "+faultModel.getFilterBasis());
+//					rakesModel = DeformationModelFileParser.load(faultModel.getFilterBasis().getDataFileURL(faultModel));
+//				}
+				
 				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength, rakesModel, defaultAseismicityValue);
 				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
 				if (D) System.out.println("DONE.");
