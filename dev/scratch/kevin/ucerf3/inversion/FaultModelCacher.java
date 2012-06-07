@@ -18,7 +18,8 @@ public class FaultModelCacher {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File dir = new File("/tmp");
+//		File dir = new File("/tmp");
+		File dir = new File("D:\\Documents\\temp");
 		for (FaultModels fm : FaultModels.values()) {
 			ArrayList<FaultSectionPrefData> datas = fm.fetchFaultSections();
 			Document doc = XMLUtils.createDocumentWithRoot();

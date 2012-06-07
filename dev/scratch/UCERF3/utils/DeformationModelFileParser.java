@@ -633,9 +633,19 @@ public class DeformationModelFileParser {
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
 		
+		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
+		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
+		FaultModelDB_DAO fm2db = new FaultModelDB_DAO(db);
+		ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
+//		System.out.println("Fetching fault model");
+		
 		for (FaultModels fm : fms) {
+			ArrayList<Integer> fmSects = fm2db.getFaultSectionIdList(fm.getID());
 			for (DeformationModels dm : DeformationModels.forFaultModel(fm)) {
+				Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
 				System.out.println("TESTING "+fm+" : "+dm);
+				boolean success = compareAgainst(sects, datas, fmSects);
+				System.out.println("VALIDATED??? "+success);
 				try {
 					new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
 				} catch (Exception e) {
@@ -646,9 +656,7 @@ public class DeformationModelFileParser {
 		}
 		System.exit(0);
 		
-		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
-		PrefFaultSectionDataDB_DAO pref2db = new PrefFaultSectionDataDB_DAO(db);
-		FaultModelDB_DAO fm2db = new FaultModelDB_DAO(db);
+		
 		File defFile;
 		
 //		File dir = new File("D:\\Documents\\SCEC\\def_models");
@@ -688,7 +696,7 @@ public class DeformationModelFileParser {
 //			CSVFile<String> csv = CSVFile.readURL(url, true);
 			
 //			System.out.println("Fetching fault data");
-			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
+//			ArrayList<FaultSectionPrefData> datas = pref2db.getAllFaultSectionPrefData();
 //			System.out.println("Fetching fault model");
 			FaultModels fm = FaultModels.FM3_2;
 			ArrayList<Integer> fmSects = fm2db.getFaultSectionIdList(fm.getID());
