@@ -213,8 +213,9 @@ public class InversionFaultSystemRupSetFactory {
 			SlipAlongRuptureModels slipAlongModel,
 			InversionModels inversionModel,
 			LaughTestFilter laughTest) {
+		System.out.println("**** WARNING: rate M5, mMaxOffFault, applyImpliedCoupling, and spatialSeisPDF HARDCODED!");
 		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
-				slipAlongModel, inversionModel, laughTest, DEFAULT_ASEIS_VALUE, 8.7, 7.6, false, SpatialSeisPDF.UCERF3);
+				slipAlongModel, inversionModel, laughTest, DEFAULT_ASEIS_VALUE, 8.7, 7.65, false, SpatialSeisPDF.UCERF3);
 	}
 	
 	/**
@@ -273,7 +274,6 @@ public class InversionFaultSystemRupSetFactory {
 		}
 		
 		// TODO don't hardcode
-		System.out.println("**** WARNING: rate M5, mMaxOffFault, applyImpliedCoupling, and spatialSeisPDF HARDCODED!");
 //		double totalRegionRateMgt5 = 8.7;
 //		double mMaxOffFault = 7.6;
 //		boolean applyImpliedCouplingCoeff = false;
