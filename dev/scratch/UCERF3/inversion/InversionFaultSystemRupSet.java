@@ -305,7 +305,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 			// make the perfect target GR for region
 			GutenbergRichterMagFreqDist totalTargetGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			double roundedMmax = totalTargetGR.getX(totalTargetGR.getXIndex(maxMag));
+			System.out.println(maxMag+"\t"+totalTargetGR.getMaxX());
+			double roundedMmax = totalTargetGR.getX(totalTargetGR.getClosestXIndex(maxMag));
 			totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmax, totalRegionRateMgt5*1e5, 1.0);
 			
 			// check that the following can be calculated since "this" is not fully instantiated
