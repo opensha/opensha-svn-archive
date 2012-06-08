@@ -20,16 +20,16 @@ public enum DeformationModels implements ShortNamed {
 	
 	// UCERF3
 	// AVERAGE BLOCK MODEL
-	ABM(					"Average Block Model",	"ABM",		FaultModels.FM3_1, "ABM_slip_rake_fm_3_1_2012_06_06.csv",
-																FaultModels.FM3_2, "ABM_slip_rake_fm_3_2_2012_06_06.csv"),
+	ABM(					"Average Block Model",	"ABM",		FaultModels.FM3_1, "ABM_slip_rake_fm_3_1_2012_06_08.csv",
+																FaultModels.FM3_2, "ABM_slip_rake_fm_3_2_2012_06_08.csv"),
 	// GEOBOUNDED INVERSION
 	GEOBOUND(				"Geobounded",			"GEOB",		FaultModels.FM3_1, "geobound_slip_rake__MAPPED_2012_06_05.csv"),
 	// NEOKINEMA
-	NEOKINEMA(				"Neokinema",			"NEOK",		FaultModels.FM3_1, "neokinema_slip_rake_fm_3_1_2012_06_06.csv",
-																FaultModels.FM3_2, "neokinema_slip_rake_fm_3_2_2012_06_06.csv"),
+	NEOKINEMA(				"Neokinema",			"NEOK",		FaultModels.FM3_1, "neokinema_slip_rake_fm_3_1_2012_06_08.csv",
+																FaultModels.FM3_2, "neokinema_slip_rake_fm_3_2_2012_06_08.csv"),
 	// ZENG
-	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_fm_3_1_2012_06_06.csv",
-																FaultModels.FM3_2, "zeng_slip_rake_fm_3_2_2012_06_06.csv"),
+	ZENG(					"Zeng",					"ZENG",		FaultModels.FM3_1, "zeng_slip_rake_fm_3_1_2012_06_08.csv",
+																FaultModels.FM3_2, "zeng_slip_rake_fm_3_2_2012_06_08.csv"),
 	// GEOLOGIC
 	GEOLOGIC(				"Geologic",				"GEOL", 	FaultModels.FM3_1, "geologic_slip_rake_fm_3_1_2012_05_29.csv",
 																FaultModels.FM3_2, "geologic_slip_rake_fm_3_2_2012_05_29.csv"),
@@ -38,8 +38,8 @@ public enum DeformationModels implements ShortNamed {
 	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	FaultModels.FM3_1, "geologic_slip_rake_fm_3_1_lowerbound__MAPPED_2012_06_05.csv",
 																FaultModels.FM3_2, "geologic_slip_rake_fm_3_2_lowerbound__MAPPED_2012_06_05.csv"),
 	// GEOLOGIC + ABM
-	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_fm_3_1_2012_06_06.csv",
-																FaultModels.FM3_2, "geologic_plus_ABM_slip_rake_fm_3_2_2012_06_06.csv");
+	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	FaultModels.FM3_1, "geologic_plus_ABM_slip_rake_fm_3_1_2012_06_08.csv",
+																FaultModels.FM3_2, "geologic_plus_ABM_slip_rake_fm_3_2_2012_06_08.csv");
 	
 	private List<FaultModels> faultModels;
 	private List<String> fileNames;
