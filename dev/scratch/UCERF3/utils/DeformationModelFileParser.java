@@ -1,5 +1,6 @@
 package scratch.UCERF3.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -24,6 +25,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -43,6 +45,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -419,9 +422,32 @@ public class DeformationModelFileParser {
 	}
 	
 	private static Map<String, double[]> momemtReductionsData = null;
+	private static ArbitrarilyDiscretizedFunc momentReductionConversionFunc = null;
 	
 	private synchronized static void loadMomentReductionsData() throws IOException {
 		if (momemtReductionsData == null) {
+			// first load the creep -> moment reductions table
+			momentReductionConversionFunc = new ArbitrarilyDiscretizedFunc();
+			BufferedReader convReader = new BufferedReader(UCERF3_DataUtils.getReader("DeformationModels",
+					"moment_reductions_conversion_table_2012_06_08.txt"));
+			convReader.readLine(); // header
+			String line = convReader.readLine();
+			while (line != null) {
+				line = line.trim();
+				if (line.isEmpty())
+					continue;
+				
+				ArrayList<String> vals = Lists.newArrayList(Splitter.on("\t").split(line));
+				double x = Double.parseDouble(vals.get(0));
+				double y = Double.parseDouble(vals.get(1));
+				
+				momentReductionConversionFunc.set(x, y);
+				
+				line = convReader.readLine();
+			}
+			
+			// now load the creep file
+			
 			InputStream is = UCERF3_DataUtils.locateResourceAsStream("DeformationModels",
 					"Moment_Reductions_2012_03_28_v2.xls");
 			POIFSFileSystem fs = new POIFSFileSystem(is);
