@@ -15,6 +15,7 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionConfiguration;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.inversion.LaughTestFilter;
@@ -52,21 +53,17 @@ public class CommandLineInputGenerator {
 		
 		try {
 			File rupSetFile = new File(args[0]);
-			FaultSystemRupSet rupSet;
-			if (rupSetFile.exists()) {
-				rupSet = SimpleFaultSystemRupSet.fromFile(rupSetFile);
-			} else {
-				// try to create it
-				LogicTreeBranch branch = LogicTreeBranch.parseFileName(rupSetFile.getName());
-				Preconditions.checkState(branch.isFullySpecified(), "Rup set file doesn't exist and can't be created because " +
-						"the logic tree branch could not be fully parsed: "+rupSetFile.getAbsolutePath());
-				LaughTestFilter filter = LaughTestFilter.getDefault();
-				rupSet = InversionFaultSystemRupSetFactory.forBranch(branch.getFaultModel(), branch.getDefModel(),
-						branch.getMagArea(), branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), filter, defaultAsesisValue,
-						8.7, 7.6, false, SpatialSeisPDF.UCERF3); // TODO don't hardcode
-				// write it to a file
-				new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
-			}
+			InversionFaultSystemRupSet rupSet;
+			// try to create it
+			LogicTreeBranch branch = LogicTreeBranch.parseFileName(rupSetFile.getName());
+			Preconditions.checkState(branch.isFullySpecified(), "Rup set file doesn't exist and can't be created because " +
+					"the logic tree branch could not be fully parsed: "+rupSetFile.getAbsolutePath());
+			LaughTestFilter filter = LaughTestFilter.getDefault();
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(branch.getFaultModel(), branch.getDefModel(),
+					branch.getMagArea(), branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), filter, defaultAsesisValue,
+					8.7, 7.6, false, SpatialSeisPDF.UCERF3); // TODO don't hardcode
+			// write it to a file
+			new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
 			
 			InversionModels model = InversionModels.getTypeForName(args[1]);
 			InversionConfiguration config = InversionConfiguration.forModel(model, rupSet);

@@ -129,7 +129,7 @@ public class InversionConfiguration {
 	 * @param rupSet
 	 * @return
 	 */
-	public static InversionConfiguration forModel(InversionModels model, FaultSystemRupSet rupSet) {
+	public static InversionConfiguration forModel(InversionModels model, InversionFaultSystemRupSet rupSet) {
 		double offFaultAseisFactor = 0;
 		double mfdConstraintModifier = 1;
 		double mfdEqualityConstraintWt = DEFAULT_MFD_EQUALITY_WT;
@@ -152,7 +152,7 @@ public class InversionConfiguration {
 	 * to slip-rate constraint (recommended:  1000)
 	 * @return
 	 */
-	public static InversionConfiguration forModel(InversionModels model, FaultSystemRupSet rupSet,
+	public static InversionConfiguration forModel(InversionModels model, InversionFaultSystemRupSet rupSet,
 			double offFaultAseisFactor, double mfdConstraintModifier,
 			double mfdEqualityConstraintWt, double mfdInequalityConstraintWt) {
 		/* *******************************************

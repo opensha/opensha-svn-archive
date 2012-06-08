@@ -68,7 +68,7 @@ public class RunInversion {
 		InversionModels inversionModel = InversionModels.CHAR;
 		
 		// fetch the rupture set
-		FaultSystemRupSet rupSet = null;
+		InversionFaultSystemRupSet rupSet = null;
 		double defaultAseis = 0.1;
 		double totalRegionRateMgt5 = 8.7;
 		double mMaxOffFault = 7.6;

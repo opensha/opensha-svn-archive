@@ -191,7 +191,7 @@ public class CommandLineInversionRunner {
 			
 			// first build the rupture set
 			System.out.println("Building RupSet");
-			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
+			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
 					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), laughTest, defaultAseis,
 					8.7, 7.6, false, SpatialSeisPDF.UCERF3); // TODO don't hardcode
@@ -336,24 +336,24 @@ public class CommandLineInversionRunner {
 			
 			if (!lightweight) {
 				System.out.println("Loading RupSet");
-				rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
-				rupSet.setInfoString(info);
+				FaultSystemRupSet loadedRupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
+				loadedRupSet.setInfoString(info);
 				double[] rupRateSolution = tsa.getBestSolution();
 				rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(
 						rupRateSolution, minimumRuptureRates);
-				SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rupRateSolution);
+				SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(loadedRupSet, rupRateSolution);
 				
 				File solutionFile = new File(dir, prefix+"_sol.zip");
 				
 				// add moments to info string
 				info += "\n\nOriginal File Name: "+solutionFile.getName()
-						+"\nNum Ruptures: "+rupSet.getNumRuptures();
-				info += "\nOrig (creep reduced) Fault Moment Rate: "+rupSet.getTotalOrigMomentRate();
-				double momRed = rupSet.getTotalMomentRateReduction();
+						+"\nNum Ruptures: "+loadedRupSet.getNumRuptures();
+				info += "\nOrig (creep reduced) Fault Moment Rate: "+loadedRupSet.getTotalOrigMomentRate();
+				double momRed = loadedRupSet.getTotalMomentRateReduction();
 				info += "\nMoment Reduction (subseismogenic & coupling coefficient): "+momRed;
-				info += "\nMoment Reduction Fraction: "+rupSet.getTotalMomentRateReductionFraction();
+				info += "\nMoment Reduction Fraction: "+loadedRupSet.getTotalMomentRateReductionFraction();
 				info += "\nFault Moment Rate: "
-						+rupSet.getTotalReducedMomentRate();
+						+loadedRupSet.getTotalReducedMomentRate();
 				double totalSolutionMoment = sol.getTotalFaultSolutionMomentRate();
 				info += "\nFault Solution Moment Rate: "+totalSolutionMoment;
 				
@@ -372,8 +372,8 @@ public class CommandLineInversionRunner {
 				for (double rate : sol.getRateForAllRups())
 					if (rate != 0)
 						numNonZeros++;
-				float percent = (float)numNonZeros / rupSet.getNumRuptures() * 100f;
-				info += "\nNum Non-Zero Rups: "+numNonZeros+"/"+rupSet.getNumRuptures()+" ("+percent+" %)";
+				float percent = (float)numNonZeros / loadedRupSet.getNumRuptures() * 100f;
+				info += "\nNum Non-Zero Rups: "+numNonZeros+"/"+loadedRupSet.getNumRuptures()+" ("+percent+" %)";
 				
 				// parent fault moment rates
 				ArrayList<ParentMomentRecord> parentMoRates = getSectionMoments(sol);

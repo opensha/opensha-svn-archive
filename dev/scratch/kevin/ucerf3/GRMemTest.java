@@ -15,6 +15,7 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.inversion.InversionConfiguration;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.inversion.LaughTestFilter;
@@ -36,7 +37,7 @@ public class GRMemTest {
 //					DeformationModels.GEOLOGIC_PLUS_ABM, im);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 			filter.setMaxCmlAzimuthChange(180);
-			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1,
+			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1,
 					DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 					AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED,
 					im, filter);
