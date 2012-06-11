@@ -96,21 +96,12 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	int[] clusterIndexForRup, rupIndexInClusterForRup;
 	ArrayList<ArrayList<Integer>> clusterRupIndexList;
 	int numRuptures=0;
+	double maxMag;	// this is the maximum magnitude in the rupture set
 	
-	double fractionSeisOnFault;
-	double impliedOnFaultCouplingCoeff;
-	double impliedTotalCouplingCoeff;
-	double finalOffFaultCouplingCoeff;
-	GutenbergRichterMagFreqDist totalTargetGR;
-	SummedMagFreqDist targetOnFaultSupraSeisMFD;
-	IncrementalMagFreqDist trulyOffFaultMFD;
-	ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List;
-	SummedMagFreqDist totalSubSeismoOnFaultMFD;		// this is a sum of the MFDs in subSeismoOnFaultMFD_List
+	// this holds the various MFDs implied by the inversion fault system rupture set 
+	// (e.g., we need to know the sub-seismo on-fault moment rates to reduce slip rates accordingly)
+	InversionMFDs inversionMFDs;
 	
-	// discretization parameters for MFDs
-	public final static double MIN_MAG = 0.05;
-	public final static int NUM_MAG = 90;
-	public final static double DELTA_MAG = 0.1;
 	
 	// general info about this instance
 	String infoString;
@@ -248,7 +239,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		rupIndexInClusterForRup = new int[numRuptures];
 		clusterRupIndexList = new ArrayList<ArrayList<Integer>>(sectionClusterList.size());
 		
-		double maxMag=0;
+		maxMag=0;
 				
 		int rupIndex=-1;
 		for(int c=0;c<sectionClusterList.size();c++) {
@@ -295,85 +286,11 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		}
 		
 		
-		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDF);
-		double onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
-		double offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;
-		double onFltDefModMoRate = DeformationModelsCalc.calculateTotalMomentRate(getFaultSectionDataList(),true);
-		double offFltDefModMoRate = DeformationModelsCalc.calcMoRateOffFaultsForDefModel(getFaultModel(), getDeformationModel());
-
-		// make the total target GR for region
-		totalTargetGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		double roundedMmax = totalTargetGR.getX(totalTargetGR.getClosestXIndex(maxMag));
-		totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmax, totalRegionRateMgt5*1e5, 1.0);
-
-		if (inversionModel == InversionModels.CHAR) {
-			
-			// check that the following can be calculated since "this" is not fully instantiated
-			double aveMinSeismoMag = FaultSystemRupSetCalc.getMeanMinMag(this, true);
-			
-			trulyOffFaultMFD = FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(totalTargetGR, onFaultRegionRateMgt5, aveMinSeismoMag, mMaxOffFault);
-
-			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(this, spatialSeisPDF, totalTargetGR);
-
-			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			for(GutenbergRichterMagFreqDist mfd:subSeismoOnFaultMFD_List) {
-				totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(mfd);
-			}
-			
-			targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			targetOnFaultSupraSeisMFD.addIncrementalMagFreqDist(totalTargetGR);
-			targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(trulyOffFaultMFD);
-			targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
-			
-			// compute coupling coefficients
-			impliedOnFaultCouplingCoeff = (targetOnFaultSupraSeisMFD.getTotalMomentRate()+totalSubSeismoOnFaultMFD.getTotalMomentRate())/onFltDefModMoRate;
-			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
-			impliedTotalCouplingCoeff = totalTargetGR.getTotalMomentRate()/(onFltDefModMoRate+offFltDefModMoRate);
-
-		} else if (inversionModel == InversionModels.GR) {
-			
-			// get the total GR nucleation MFD for all fault section
-			SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(this, MIN_MAG, NUM_MAG, DELTA_MAG);
-			
-			// compute coupling coefficient
-			impliedOnFaultCouplingCoeff = onFaultRegionRateMgt5/impliedOnFault_GR_NuclMFD.getCumRate(5.05);
-			double tempCoupCoeff = 1;	// defaults to 1.0; this is used below
-			if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff < 1.0) 	// only apply if it's < 1
-				tempCoupCoeff = impliedOnFaultCouplingCoeff;	
-			
-			// slit the on-fault MFDs into supra- vs sub-seismo MFDs, and apply tempCoupCoeff
-			ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = FaultSystemRupSetCalc.calcImpliedNuclMFD_ForEachSection(this, MIN_MAG, NUM_MAG, DELTA_MAG);
-			subSeismoOnFaultMFD_List = new ArrayList<GutenbergRichterMagFreqDist>();
-			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			for(int s=0;s<grNuclMFD_List.size();s++) {
-				GutenbergRichterMagFreqDist grNuclMFD = grNuclMFD_List.get(s);
-				int minSupraMagIndex = grNuclMFD.getClosestXIndex(getMinMagForSection(s));
-				double maxMagSubSeismo = grNuclMFD.getX(minSupraMagIndex-1);
-				GutenbergRichterMagFreqDist subSeisGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, maxMagSubSeismo, 1.0, 1.0);
-				double rateAtZeroMagBin = grNuclMFD.getY(0)*tempCoupCoeff;
-				subSeisGR.scaleToIncrRate(0, rateAtZeroMagBin);
-				subSeismoOnFaultMFD_List.add(subSeisGR);
-				totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(subSeisGR);
-				for(int i=minSupraMagIndex;i<grNuclMFD.getNum();i++)
-					targetOnFaultSupraSeisMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff);
-			}
-			
-			trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
-			trulyOffFaultMFD.scaleToCumRate(0, offFaultRegionRateMgt5*1e5);
-			
-			// compute coupling coefficients
-			double testOnFaultCouplingCoeff = (targetOnFaultSupraSeisMFD.getTotalMomentRate()+totalSubSeismoOnFaultMFD.getTotalMomentRate())/onFltDefModMoRate;
-			// testOnFaultCouplingCoeff should equal impliedOnFaultCouplingCoeff
-			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
-			impliedTotalCouplingCoeff = (impliedOnFaultCouplingCoeff*onFltDefModMoRate+finalOffFaultCouplingCoeff*offFltDefModMoRate)/(onFltDefModMoRate+offFltDefModMoRate);
-			
-		} else if (inversionModel == InversionModels.UNCONSTRAINED) {
-			throw new RuntimeException("Not yet implemented");
-			
-		} else {
-			throw new RuntimeException("Not yet implement");
-		}
+		inversionMFDs = new InversionMFDs(this,  totalRegionRateMgt5,  mMaxOffFault, 
+				 applyImpliedCouplingCoeff,  spatialSeisPDF,  inversionModel);	
+		
+		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getSubSeismoOnFaultMFD_List();
+		double impliedOnFaultCouplingCoeff = inversionMFDs.getImpliedOnFaultCouplingCoeff();
 
 		// compute sectSlipRateReduced
 		sectSlipRateReduced = new double[numSections];
@@ -680,30 +597,17 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	}
 	
 	
-	public double getTotalRegionRateMgt5() {return totalRegionRateMgt5;}
+	/**
+	 * This returns the maximum magnitude of this rupture set
+	 * @return
+	 */
+	public double getMaxMag() { 
+		return maxMag; 
+	}
+
+	public InversionMFDs getInversionMFDs() {
+		return inversionMFDs;
+	}
 	
-	public double getMmaxOffFault() {return mMaxOffFault;}
-	
-	public boolean getApplyImpliedCouplingCoeffBoolean() {return applyImpliedCouplingCoeff;}
-	
-	public SpatialSeisPDF getSpatialSeisPDF() {return spatialSeisPDF;}
-	
-	public double getFractionSeisOnFault() {return fractionSeisOnFault;}
-	
-	public double getImpliedOnFaultCouplingCoeff() {return impliedOnFaultCouplingCoeff;}
-	
-	public double getImpliedTotalCouplingCoeff() {return impliedTotalCouplingCoeff;}
-	
-	public double getFinalOffFaultCouplingCoeff() {return finalOffFaultCouplingCoeff;}
-	
-	public SummedMagFreqDist getTargetOnFaultSupraSeisMFD() {return targetOnFaultSupraSeisMFD;}
-	
-	public IncrementalMagFreqDist getTrulyOffFaultMFD() {return trulyOffFaultMFD;}
-	
-	public ArrayList<GutenbergRichterMagFreqDist> getSubSeismoOnFaultMFD_List() {return subSeismoOnFaultMFD_List;}
-	
-	public SummedMagFreqDist getTotalSubSeismoOnFaultMFD() {return totalSubSeismoOnFaultMFD;}
-	
-	public GutenbergRichterMagFreqDist getTotalTargetGR() {return totalTargetGR;}
 
 }

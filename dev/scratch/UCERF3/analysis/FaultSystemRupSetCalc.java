@@ -35,6 +35,7 @@ import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
 import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 
@@ -1067,19 +1068,21 @@ public class FaultSystemRupSetCalc {
 	
 	public static void plotPreInversionMFDs(InversionFaultSystemRupSet invFltSysRupSet) {
 		
-		SummedMagFreqDist targetOnFaultSupraSeisMFD  =invFltSysRupSet.getTargetOnFaultSupraSeisMFD();
+		InversionMFDs inversionMFDs = invFltSysRupSet.getInversionMFDs();
+		
+		SummedMagFreqDist targetOnFaultSupraSeisMFD  =inversionMFDs.getTargetOnFaultSupraSeisMFD();
 		targetOnFaultSupraSeisMFD.setName("targetOnFaultSupraSeisMFD");
 		targetOnFaultSupraSeisMFD.setInfo("Rate(M>=5)="+(float)targetOnFaultSupraSeisMFD.getCumRate(5.05)+"\tMoRate="+(float)targetOnFaultSupraSeisMFD.getTotalMomentRate());
 		
-		IncrementalMagFreqDist trulyOffFaultMFD = invFltSysRupSet.getTrulyOffFaultMFD();
+		IncrementalMagFreqDist trulyOffFaultMFD = inversionMFDs.getTrulyOffFaultMFD();
 		trulyOffFaultMFD.setName("trulyOffFaultMFD");
 		trulyOffFaultMFD.setInfo("Rate(M>=5)="+(float)trulyOffFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)trulyOffFaultMFD.getTotalMomentRate());
 				
-		SummedMagFreqDist totalSubSeismoOnFaultMFD = invFltSysRupSet.getTotalSubSeismoOnFaultMFD();
+		SummedMagFreqDist totalSubSeismoOnFaultMFD = inversionMFDs.getTotalSubSeismoOnFaultMFD();
 		totalSubSeismoOnFaultMFD.setName("totalSubSeismoOnFaultMFD");
 		totalSubSeismoOnFaultMFD.setInfo("Rate(M>=5)="+(float)totalSubSeismoOnFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)totalSubSeismoOnFaultMFD.getTotalMomentRate());
 		
-		GutenbergRichterMagFreqDist totalTargetGR = invFltSysRupSet.getTotalTargetGR();
+		GutenbergRichterMagFreqDist totalTargetGR = inversionMFDs.getTotalTargetGR();
 		totalTargetGR.setName("totalTargetGR");
 		totalTargetGR.setInfo("Rate(M>=5)="+(float)totalTargetGR.getCumRate(5.05)+"\tMoRate="+(float)totalTargetGR.getTotalMomentRate());
 		
@@ -1176,7 +1179,7 @@ public class FaultSystemRupSetCalc {
 			for(AveSlipForRupModels asm : aveSlipForRupModelsList) {
 				InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
 						ma, asm, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
-				result += "\n"+asm+"\t"+ma+":\n";
+				result += "\n"+ma+"\t"+asm+":\n";
 				result += calcImplDDWvsDDW_Ratio(faultSysRupSet);
 						
 			}
@@ -1206,23 +1209,22 @@ public class FaultSystemRupSetCalc {
 //		getTriLinearCharOffFaultTargetMFD(totGR, totOnFaultMgt5_Rate, mMinSeismoOnFault, mMaxOffFault);
 //		getTriLinearCharOffFaultTargetMFD(4E18, totGR, totOnFaultMgt5_Rate,mMinSeismoOnFault);
 		
-		testAllImpliedDDWs();
+//		testAllImpliedDDWs();
 		
-//		LaughTestFilter laughTest = LaughTestFilter.getDefault();
-//		double defaultAseismicityValue = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
-//		double totalRegionRateMgt5 = 8.7;
-//		double mMaxOffFault = 7.65;
-//		boolean applyImpliedCouplingCoeff = false;
-//		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
-//
-//
-//		InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
-//				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR,
-//				laughTest,defaultAseismicityValue,totalRegionRateMgt5,mMaxOffFault,applyImpliedCouplingCoeff,spatialSeisPDF);
+		LaughTestFilter laughTest = LaughTestFilter.getDefault();
+		double defaultAseismicityValue = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
+		double totalRegionRateMgt5 = 8.7;
+		double mMaxOffFault = 7.65;
+		boolean applyImpliedCouplingCoeff = false;
+		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
+
+		InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
+				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR,
+				laughTest,defaultAseismicityValue,totalRegionRateMgt5,mMaxOffFault,applyImpliedCouplingCoeff,spatialSeisPDF);
 //		
 //		System.out.println(calcImplDDWvsDDW_Ratio(faultSysRupSet));
 		
-//		plotPreInversionMFDs(faultSysRupSet);
+		plotPreInversionMFDs(faultSysRupSet);
 //		
 //		System.out.println("getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF3)="+getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF3));
 //		System.out.println("getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF2)="+getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF2));
