@@ -604,4 +604,9 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		return null;
 	}
 
+	@Override
+	public double getLengthForRup(int rupIndex) {
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
 }
