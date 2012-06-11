@@ -15,6 +15,8 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -453,11 +455,65 @@ public abstract class FaultSystemRupSet {
 	public abstract FaultSectionPrefData getFaultSectionData(int sectIndex);
 	
 	/**
-	 * This returns the fault-section data list for the given rupture
+	 * This gets a list of fault-section data for the specified rupture
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex);
+	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex) {
+		List<Integer> inds = getSectionsIndicesForRup(rupIndex);
+		ArrayList<FaultSectionPrefData> datas = new ArrayList<FaultSectionPrefData>();
+		for (int ind : inds)
+			datas.add(getFaultSectionData(ind));
+		return datas;
+	}
+	
+	
+	/**
+	 * This creates a CompoundGriddedSurface for the specified rupture.  This applies aseismicity as
+	 * a reduction of area and sets preserveGridSpacingExactly=false so there are no cut-off ends
+	 * (but variable grid spacing)
+	 * @param rupIndex
+	 * @param gridSpacing
+	 * @return
+	 */
+	public CompoundGriddedSurface getCompoundGriddedSurfaceForRupupture(int rupIndex, double gridSpacing) {
+		ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
+		for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
+			// TODO: should aseis be false instead of true?
+			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
+		}
+		return new CompoundGriddedSurface(surfaces);
+		
+	}
+	
+	/**
+	 * This returns the length (SI units: m) of the specified rupture (abstract in case the rupture 
+	 * length is not exactly the total length of sections (e.g., if from simulator)).
+	 * @param rupIndex
+	 * @return
+	 */
+	public abstract double getLengthForRup(int rupIndex);
+	
+	/**
+	 * This returns the width (SI units: m) of the specified rupture 
+	 * (calculated as getAreaForRup(rupIndex)/getLengthForRup(rupIndex))
+	 * @param rupIndex
+	 * @return
+	 */
+	public double getAveWidthForRup(int rupIndex) {
+		return getAreaForRup(rupIndex)/getLengthForRup(rupIndex);
+//		double sum =0;
+//		double totArea =0;
+//		for(FaultSectionPrefData data : getFaultSectionDataForRupture(rupIndex)) {
+//			double width = data.getReducedDownDipWidth();
+//			double area = width*data.getTraceLength();
+//			sum += width*area;
+//			totArea += area;
+//		}
+//		return sum/totArea;
+	}
+
+	
 	
 	/**
 	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
@@ -688,5 +744,7 @@ public abstract class FaultSystemRupSet {
 		
 		return rupturesForParentSectionCache.get(parentSectID);
 	}
+	
+	
 	
 }

@@ -980,7 +980,7 @@ public class DeformationModelsCalc {
 		
 //		writeFractionRegionNodesInsideFaultPolygons();
 		
-		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+//		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
 //		plotMoreSpatialMaps();
 

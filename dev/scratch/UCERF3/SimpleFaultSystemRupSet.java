@@ -1022,5 +1022,10 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		return slipModelType;
 	}
 
+	@Override
+	public double getLengthForRup(int rupIndex) {
+		throw new RuntimeException("not yet implemented");
+	}
+
 }
 

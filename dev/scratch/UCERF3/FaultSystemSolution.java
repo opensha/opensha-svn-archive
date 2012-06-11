@@ -492,33 +492,6 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	
 	
 	
-	@Override
-	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex) {
-		List<Integer> inds = getSectionsIndicesForRup(rupIndex);
-		ArrayList<FaultSectionPrefData> datas = new ArrayList<FaultSectionPrefData>();
-		for (int ind : inds)
-			datas.add(getFaultSectionData(ind));
-		return datas;
-	}
-	
-	/**
-	 * This creates a CompoundGriddedSurface for the specified rupture.  This applies aseismicity as
-	 * a reduction of area and sets preserveGridSpacingExactly=false so there are no cut-off ends
-	 * (but variable grid spacing)
-	 * @param rupIndex
-	 * @param gridSpacing
-	 * @return
-	 */
-	public CompoundGriddedSurface getCompoundGriddedSurfaceForRupupture(int rupIndex, double gridSpacing) {
-		ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
-		for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
-			// TODO: should aseis be false instead of true?
-			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
-		}
-		return new CompoundGriddedSurface(surfaces);
-		
-	}
-	
 	
 	/**
 	 * This plots the rupture rates (rate versus rupture index)

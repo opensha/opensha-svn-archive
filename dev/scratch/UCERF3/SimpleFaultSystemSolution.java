@@ -359,4 +359,10 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	public SlipAlongRuptureModels getSlipAlongRuptureModel() {
 		return rupSet.getSlipAlongRuptureModel();
 	}
+	
+	@Override
+	public double getLengthForRup(int rupIndex) {
+		throw new RuntimeException("not yet implemented");
+	}
+
 }

@@ -101,6 +101,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	double impliedOnFaultCouplingCoeff;
 	double impliedTotalCouplingCoeff;
 	double finalOffFaultCouplingCoeff;
+	GutenbergRichterMagFreqDist totalTargetGR;
 	SummedMagFreqDist targetOnFaultSupraSeisMFD;
 	IncrementalMagFreqDist trulyOffFaultMFD;
 	ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List;
@@ -247,7 +248,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		rupIndexInClusterForRup = new int[numRuptures];
 		clusterRupIndexList = new ArrayList<ArrayList<Integer>>(sectionClusterList.size());
 		
-		double maxMag=0, mMinSeismoOnFault=10;
+		double maxMag=0;
 				
 		int rupIndex=-1;
 		for(int c=0;c<sectionClusterList.size();c++) {
@@ -300,14 +301,12 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		double onFltDefModMoRate = DeformationModelsCalc.calculateTotalMomentRate(getFaultSectionDataList(),true);
 		double offFltDefModMoRate = DeformationModelsCalc.calcMoRateOffFaultsForDefModel(getFaultModel(), getDeformationModel());
 
-		
-		if (inversionModel == InversionModels.CHAR) {
+		// make the total target GR for region
+		totalTargetGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		double roundedMmax = totalTargetGR.getX(totalTargetGR.getClosestXIndex(maxMag));
+		totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmax, totalRegionRateMgt5*1e5, 1.0);
 
-			// make the perfect target GR for region
-			GutenbergRichterMagFreqDist totalTargetGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			System.out.println(maxMag+"\t"+totalTargetGR.getMaxX());
-			double roundedMmax = totalTargetGR.getX(totalTargetGR.getClosestXIndex(maxMag));
-			totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmax, totalRegionRateMgt5*1e5, 1.0);
+		if (inversionModel == InversionModels.CHAR) {
 			
 			// check that the following can be calculated since "this" is not fully instantiated
 			double aveMinSeismoMag = FaultSystemRupSetCalc.getMeanMinMag(this, true);
@@ -349,7 +348,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			for(int s=0;s<grNuclMFD_List.size();s++) {
 				GutenbergRichterMagFreqDist grNuclMFD = grNuclMFD_List.get(s);
-				int minSupraMagIndex = grNuclMFD.getXIndex(getMinMagForSection(s));
+				int minSupraMagIndex = grNuclMFD.getClosestXIndex(getMinMagForSection(s));
 				double maxMagSubSeismo = grNuclMFD.getX(minSupraMagIndex-1);
 				GutenbergRichterMagFreqDist subSeisGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, maxMagSubSeismo, 1.0, 1.0);
 				double rateAtZeroMagBin = grNuclMFD.getY(0)*tempCoupCoeff;
@@ -562,10 +561,21 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	/**
 	 * Area is in sq-m (SI units)
 	 */
+	@Override
 	public double getAreaForSection(int sectIndex) {
 		FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
 		return sectData.getTraceLength()*1e3*sectData.getReducedDownDipWidth()*1e3;	// aseismicity reduces area; km --> m on length & DDW
 	}
+	
+	
+	/**
+	 * Area is in m (SI units)
+	 */
+	@Override
+	public double getLengthForRup(int rupIndex) {
+		return rupLength[rupIndex];
+	}
+
 
 	public String getInfoString() {
 		return infoString;
@@ -693,5 +703,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	public ArrayList<GutenbergRichterMagFreqDist> getSubSeismoOnFaultMFD_List() {return subSeismoOnFaultMFD_List;}
 	
 	public SummedMagFreqDist getTotalSubSeismoOnFaultMFD() {return totalSubSeismoOnFaultMFD;}
+	
+	public GutenbergRichterMagFreqDist getTotalTargetGR() {return totalTargetGR;}
 
 }

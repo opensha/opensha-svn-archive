@@ -37,15 +37,28 @@ public enum AveSlipForRupModels implements ShortNamed {
 		}
 	},
 	
+	
+	SHAW_2009("Shaw (2009) for D(L)", "Shaw09") {
+		public double getAveSlip(double area, double length) {
+			double mag = sh09_magArea.getMedianMag(area/1e6);
+			double moment = MagUtils.magToMoment(mag);
+			return FaultMomentCalc.getSlip(area, moment);
+		}
+	},
+
+	
 	SHAW_2009_MOD("Shaw (2009) Modified for D(L)", "Shaw09Mod") {
 		public double getAveSlip(double area, double length) {
-			// From Table 2b of UCERF2_task2_p2.pdf (& using his equation 7)
-			double c3 = 3.72e-5;
-			double wBeta = 95.0*1e3;
+			// From Table 2b of UCERF2_task2_p5.pdf (& using his equation 9)
+			double c5 = 3.72e-5;
+			double w = area/length;
+			double beta = 95.0/15.0;	// computed from generic values
+			double wBeta = beta*w;
+//			double wBeta = 95.0*1e3;
 			if(length<wBeta)
-				return c3*length;
+				return c5*length;
 			else
-				return 2*c3/(1/length + 1/wBeta);  }
+				return 2*c5/(1/length + 1/wBeta);  }
 	},
 
 	HANKS_BAKUN_08("Hanks & Bakun (2008) M(A)", "HB08") {
@@ -79,18 +92,20 @@ public enum AveSlipForRupModels implements ShortNamed {
 		
 	SHAW12_SQRT_LENGTH("Sqrt Length D(L) (Shaw 2012)", "SqrtLen") {
 		public double getAveSlip(double area, double length) {
-			// c4 = 5.69e-5
-			// W = 15 km = 15e3 m
-			return 5.69e-5*Math.sqrt(length*15e3);
+			double c6 = 5.69e-5;
+//			double w = 15e3;  // units of m
+			double w = area/length;  // units of m
+			return c6*Math.sqrt(length*w);
 		}
 	},
 
 	SHAW_12_CONST_STRESS_DROP("Constant Stress Drop D(L) (Shaw 2012)", "ConstStressDrop") {
 		public double getAveSlip(double area, double length) {
-			// stressDrop = 4.54 MPa
-			// W = 15 km = 15e3 m
-			double temp = 1.0/(7.0/(3.0*length) + 1.0/(2.0*15e3))*1e6;
-			return 4.54*temp/FaultMomentCalc.SHEAR_MODULUS;
+			double stressDrop = 4.54;  // MPa
+//			double w = 15e3; // unit of meters
+			double w = area/length; // unit of meters
+			double temp = 1.0/(7.0/(3.0*length) + 1.0/(2.0*w))*1e6;
+			return stressDrop*temp/FaultMomentCalc.SHEAR_MODULUS;
 		}
 	};
 	
@@ -126,7 +141,9 @@ public enum AveSlipForRupModels implements ShortNamed {
 		ArbitrarilyDiscretizedFunc u2_func = new ArbitrarilyDiscretizedFunc();
 		u2_func.setName("AVE_UCERF2");
 		ArbitrarilyDiscretizedFunc sh09_func = new ArbitrarilyDiscretizedFunc();
-		sh09_func.setName("SHAW_2009_MOD");
+		sh09_func.setName("SHAW_2009");
+		ArbitrarilyDiscretizedFunc sh09_funcMod = new ArbitrarilyDiscretizedFunc();
+		sh09_funcMod.setName("SHAW_2009_MOD");
 		ArbitrarilyDiscretizedFunc ellB_Mod_func = new ArbitrarilyDiscretizedFunc();
 		ellB_Mod_func.setName("ELLSWORTH_B_MOD");
 		ArbitrarilyDiscretizedFunc ellB_func = new ArbitrarilyDiscretizedFunc();
@@ -140,7 +157,8 @@ public enum AveSlipForRupModels implements ShortNamed {
 		
 		
 		AveSlipForRupModels u2 = AveSlipForRupModels.AVE_UCERF2;
-		AveSlipForRupModels sh09 = AveSlipForRupModels.SHAW_2009_MOD;
+		AveSlipForRupModels sh09 = AveSlipForRupModels.SHAW_2009;
+		AveSlipForRupModels sh09_Mod = AveSlipForRupModels.SHAW_2009_MOD;
 		AveSlipForRupModels ellB_Mod = AveSlipForRupModels.ELLSWORTH_B_MOD;
 		AveSlipForRupModels ellB = AveSlipForRupModels.ELLSWORTH_B;
 		AveSlipForRupModels hb = AveSlipForRupModels.HANKS_BAKUN_08;
@@ -155,6 +173,7 @@ public enum AveSlipForRupModels implements ShortNamed {
     		double area = length*seismoThickness*1e3;
     		u2_func.set(lengthKm,u2.getAveSlip(area, length));
     		sh09_func.set(lengthKm,sh09.getAveSlip(area, length));
+    		sh09_funcMod.set(lengthKm,sh09_Mod.getAveSlip(area, length));
     		ellB_Mod_func.set(lengthKm,ellB_Mod.getAveSlip(area, length));
     		ellB_func.set(lengthKm,ellB.getAveSlip(area, length));
     		hb_func.set(lengthKm,hb.getAveSlip(area, length));
@@ -165,6 +184,7 @@ public enum AveSlipForRupModels implements ShortNamed {
     	ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
 //    	funcs.add(u2_func);
     	funcs.add(sh09_func);
+    	funcs.add(sh09_funcMod);
     	funcs.add(ellB_Mod_func);
  //   	funcs.add(ellB_func);
     	funcs.add(hb_func);
@@ -172,6 +192,7 @@ public enum AveSlipForRupModels implements ShortNamed {
     	funcs.add(sh12_csd_func);
     	
     	ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.ORANGE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.GREEN));
