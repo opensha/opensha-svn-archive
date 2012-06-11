@@ -903,43 +903,43 @@ public class FaultSystemRupSetCalc {
 		
 
 //		// TESTS
-		System.out.println("\nInputs:\n");
-		System.out.println("\ttotOnFaultMgt5_Rate = "+(float)totOnFaultMgt5_Rate);
-		double totRate = totalTargetGR.getCumRate(5.05);
-		double totMoRate = totalTargetGR.getTotalMomentRate();
-		System.out.println("\ttotalTargetGR.getCumRate(5.05) = "+(float)totRate);
-		System.out.println("\ttotalTargetGR.getTotalMomentRate() = "+(float)totMoRate);
-		System.out.println("\tmMinSeismoOnFault="+(float)mMinSeismoOnFault);
-		System.out.println("\tmMaxOffFault="+(float)mMaxOffFault);
-
-		System.out.println("\nResults:\n");
-		System.out.println("\tonFaultMFD.getCumRate(5.05) = "+(float)onFaultMFD.getCumRate(5.05)+"\tfraction="+((float)(onFaultMFD.getCumRate(5.05)/totRate)));
-		System.out.println("\toffFaultMFD.getCumRate(5.05) = "+(float)offFaultMFD.getCumRate(5.05)+"\tfraction="+((float)(offFaultMFD.getCumRate(5.05)/totRate)));
-		System.out.println("\ttotal implied Rate(>=5.05) = "+(float)(offFaultMFD.getCumRate(5.05)+onFaultMFD.getCumRate(5.05)));
-		System.out.println("\tonFaultMFD.getTotalMomentRate() = "+(float)onFaultMFD.getTotalMomentRate()+"\tfraction="+((float)(onFaultMFD.getTotalMomentRate()/totMoRate)));
-		System.out.println("\toffFaultMFD.getTotalMomentRate() = "+(float)offFaultMFD.getTotalMomentRate()+"\tfraction="+((float)(offFaultMFD.getTotalMomentRate()/totMoRate)));
-		System.out.println("\nTests (all should be close to 1.0):\n");
-		System.out.println("\tTotMoRate: "+(float)(totMoRate/(onFaultMFD.getTotalMomentRate()+offFaultMFD.getTotalMomentRate()))+"\t(totMoRate/(onFaultMFD.getTotalMomentRate()+offFaultMFD.getTotalMomentRate()))");
-		System.out.println("\tTotCumRate: "+(float)(totRate/(onFaultMFD.getCumRate(5.05)+offFaultMFD.getCumRate(5.05)))+"\t(totRate/(onFaultMFD.getCumRate(5.05)+offFaultMFD.getCumRate(5.05)))");
-		System.out.println("\tOnFaultCumRate: "+(float)(totOnFaultMgt5_Rate/onFaultMFD.getCumRate(5.05))+"\t(totOnFaultMgt5_Rate/onFaultMFD.getCumRate(5.05))");
-		System.out.println("\tOffFaultCumRate: "+(float)((totRate-totOnFaultMgt5_Rate)/+offFaultMFD.getCumRate(5.05))+"\t((totRate-totOnFaultMgt5_Rate)/+offFaultMFD.getCumRate(5.05))");
-
-		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs.add(totalTargetGR);
-		funcs.add(offFaultMFD);
-		funcs.add(onFaultMFD);
-//		funcs.add(totalTargetGR.getCumRateDistWithOffset());
-//		funcs.add(offFaultMFD.getCumRateDistWithOffset());
-//		funcs.add(onFaultMFD.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "MFDs");
-		graph.setX_AxisRange(5, 9);
-		graph.setY_AxisRange(1e-5, 10);
-		graph.setYLog(true);
-		graph.setX_AxisLabel("Mag");
-		graph.setY_AxisLabel("Rate (per year)");
-		graph.setPlotLabelFontSize(18);
-		graph.setAxisLabelFontSize(16);
-		graph.setTickLabelFontSize(14);
+//		System.out.println("\nInputs:\n");
+//		System.out.println("\ttotOnFaultMgt5_Rate = "+(float)totOnFaultMgt5_Rate);
+//		double totRate = totalTargetGR.getCumRate(5.05);
+//		double totMoRate = totalTargetGR.getTotalMomentRate();
+//		System.out.println("\ttotalTargetGR.getCumRate(5.05) = "+(float)totRate);
+//		System.out.println("\ttotalTargetGR.getTotalMomentRate() = "+(float)totMoRate);
+//		System.out.println("\tmMinSeismoOnFault="+(float)mMinSeismoOnFault);
+//		System.out.println("\tmMaxOffFault="+(float)mMaxOffFault);
+//
+//		System.out.println("\nResults:\n");
+//		System.out.println("\tonFaultMFD.getCumRate(5.05) = "+(float)onFaultMFD.getCumRate(5.05)+"\tfraction="+((float)(onFaultMFD.getCumRate(5.05)/totRate)));
+//		System.out.println("\toffFaultMFD.getCumRate(5.05) = "+(float)offFaultMFD.getCumRate(5.05)+"\tfraction="+((float)(offFaultMFD.getCumRate(5.05)/totRate)));
+//		System.out.println("\ttotal implied Rate(>=5.05) = "+(float)(offFaultMFD.getCumRate(5.05)+onFaultMFD.getCumRate(5.05)));
+//		System.out.println("\tonFaultMFD.getTotalMomentRate() = "+(float)onFaultMFD.getTotalMomentRate()+"\tfraction="+((float)(onFaultMFD.getTotalMomentRate()/totMoRate)));
+//		System.out.println("\toffFaultMFD.getTotalMomentRate() = "+(float)offFaultMFD.getTotalMomentRate()+"\tfraction="+((float)(offFaultMFD.getTotalMomentRate()/totMoRate)));
+//		System.out.println("\nTests (all should be close to 1.0):\n");
+//		System.out.println("\tTotMoRate: "+(float)(totMoRate/(onFaultMFD.getTotalMomentRate()+offFaultMFD.getTotalMomentRate()))+"\t(totMoRate/(onFaultMFD.getTotalMomentRate()+offFaultMFD.getTotalMomentRate()))");
+//		System.out.println("\tTotCumRate: "+(float)(totRate/(onFaultMFD.getCumRate(5.05)+offFaultMFD.getCumRate(5.05)))+"\t(totRate/(onFaultMFD.getCumRate(5.05)+offFaultMFD.getCumRate(5.05)))");
+//		System.out.println("\tOnFaultCumRate: "+(float)(totOnFaultMgt5_Rate/onFaultMFD.getCumRate(5.05))+"\t(totOnFaultMgt5_Rate/onFaultMFD.getCumRate(5.05))");
+//		System.out.println("\tOffFaultCumRate: "+(float)((totRate-totOnFaultMgt5_Rate)/+offFaultMFD.getCumRate(5.05))+"\t((totRate-totOnFaultMgt5_Rate)/+offFaultMFD.getCumRate(5.05))");
+//
+//		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+//		funcs.add(totalTargetGR);
+//		funcs.add(offFaultMFD);
+//		funcs.add(onFaultMFD);
+////		funcs.add(totalTargetGR.getCumRateDistWithOffset());
+////		funcs.add(offFaultMFD.getCumRateDistWithOffset());
+////		funcs.add(onFaultMFD.getCumRateDistWithOffset());
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "MFDs");
+//		graph.setX_AxisRange(5, 9);
+//		graph.setY_AxisRange(1e-5, 10);
+//		graph.setYLog(true);
+//		graph.setX_AxisLabel("Mag");
+//		graph.setY_AxisLabel("Rate (per year)");
+//		graph.setPlotLabelFontSize(18);
+//		graph.setAxisLabelFontSize(16);
+//		graph.setTickLabelFontSize(14);
 
 //		IncrementalMagFreqDist[] mfds = {onFaultMFD,offFaultMFD};
 		return offFaultMFD;
