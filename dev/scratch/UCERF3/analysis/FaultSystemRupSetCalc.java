@@ -1162,6 +1162,7 @@ public class FaultSystemRupSetCalc {
 		aveSlipForRupModelsList.add(AveSlipForRupModels.ELLSWORTH_B);
 		aveSlipForRupModelsList.add(AveSlipForRupModels.ELLSWORTH_B_MOD);
 		aveSlipForRupModelsList.add(AveSlipForRupModels.SHAW_2009_MOD);
+		aveSlipForRupModelsList.add(AveSlipForRupModels.SHAW_2009_MOD);
 		aveSlipForRupModelsList.add(AveSlipForRupModels.SHAW12_SQRT_LENGTH);
 		aveSlipForRupModelsList.add(AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP);
 		
@@ -1171,8 +1172,8 @@ public class FaultSystemRupSetCalc {
 		
 		result += "RESULTS FOR:\t"+fm+"  &  "+dm+"\n";
 		
-		for(AveSlipForRupModels asm : aveSlipForRupModelsList) {
-			for(MagAreaRelationships ma : magAreaList) {
+		for(MagAreaRelationships ma : magAreaList) {
+			for(AveSlipForRupModels asm : aveSlipForRupModelsList) {
 				InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
 						ma, asm, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
 				result += "\n"+asm+"\t"+ma+":\n";

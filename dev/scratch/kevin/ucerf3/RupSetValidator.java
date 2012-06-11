@@ -646,6 +646,13 @@ public class RupSetValidator {
 			return null;
 		}
 		
+		// net added the following to parent, but doesn't know what to do here
+		@Override
+		public double getLengthForRup(int rupIndex) {
+			throw new RuntimeException("not yet implemented");
+		}
+
+		
 	}
 	
 	

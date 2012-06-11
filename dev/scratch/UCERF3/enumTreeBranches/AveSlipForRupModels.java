@@ -93,8 +93,9 @@ public enum AveSlipForRupModels implements ShortNamed {
 	SHAW12_SQRT_LENGTH("Sqrt Length D(L) (Shaw 2012)", "SqrtLen") {
 		public double getAveSlip(double area, double length) {
 			double c6 = 5.69e-5;
+			double xi = 1.25;
 //			double w = 15e3;  // units of m
-			double w = area/length;  // units of m
+			double w = xi*area/length;  // units of m
 			return c6*Math.sqrt(length*w);
 		}
 	},
@@ -102,8 +103,9 @@ public enum AveSlipForRupModels implements ShortNamed {
 	SHAW_12_CONST_STRESS_DROP("Constant Stress Drop D(L) (Shaw 2012)", "ConstStressDrop") {
 		public double getAveSlip(double area, double length) {
 			double stressDrop = 4.54;  // MPa
+			double xi = 1.25;
 //			double w = 15e3; // unit of meters
-			double w = area/length; // unit of meters
+			double w = xi*area/length; // unit of meters
 			double temp = 1.0/(7.0/(3.0*length) + 1.0/(2.0*w))*1e6;
 			return stressDrop*temp/FaultMomentCalc.SHEAR_MODULUS;
 		}
