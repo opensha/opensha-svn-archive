@@ -242,6 +242,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	}
 	
 	/**
+	 * THIS NEEDS TO BE OBTAINED FROM AN InversionMFDs OBJECT (WHICH NEEDS TO BE REINSTANTIATED HERE)
+	 * 
 	 * This gets the original MFD constraints for the inversion run before modifications for off fault seismicity and
 	 * fault minimum magnitudes
 	 * @return
@@ -251,6 +253,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	}
 	
 	/**
+	 * 
+	 * THIS NEEDS TO BE OBTAINED FROM AN InversionMFDs OBJECT (WHICH NEEDS TO BE REINSTANTIATED HERE)
+	 * 
 	 * This gets the modified MFD constraints used to constrain the inversion after taking into account minimum magnitude
 	 * and off fault seismicity
 	 * @param origMFDConstraints

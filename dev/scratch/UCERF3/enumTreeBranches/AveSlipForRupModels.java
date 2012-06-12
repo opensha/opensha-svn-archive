@@ -188,7 +188,7 @@ public enum AveSlipForRupModels implements ShortNamed {
     	funcs.add(sh09_func);
     	funcs.add(sh09_funcMod);
     	funcs.add(ellB_Mod_func);
- //   	funcs.add(ellB_func);
+    	funcs.add(ellB_func);
     	funcs.add(hb_func);
     	funcs.add(sh12_sqrtL_func);
     	funcs.add(sh12_csd_func);
@@ -197,6 +197,7 @@ public enum AveSlipForRupModels implements ShortNamed {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.ORANGE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.DARK_GRAY));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.GREEN));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.MAGENTA));
@@ -215,9 +216,12 @@ public enum AveSlipForRupModels implements ShortNamed {
 	}
 	
 	
+	
 	//public 
 	public static void main(String[] args) throws IOException {
 		AveSlipForRupModels.makePlot(11.0, 1000);
+		
+		
 	}
 	
 	

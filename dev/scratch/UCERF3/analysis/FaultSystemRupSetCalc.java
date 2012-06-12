@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -1128,6 +1129,7 @@ public class FaultSystemRupSetCalc {
 	public static String calcImplDDWvsDDW_Ratio(InversionFaultSystemRupSet invFltSysRupSet) {
 		String result = "";
 		
+		DefaultXY_DataSet ratioVsLengthData = new DefaultXY_DataSet();
 		HistogramFunction hist = new HistogramFunction(0.1, 100, 0.1);
 		double ave=0, min=Double.MAX_VALUE, max=Double.NEGATIVE_INFINITY;
 		int minIndex=-1;
@@ -1148,11 +1150,15 @@ public class FaultSystemRupSetCalc {
 					minIndex=r;
 			}
 			if(max<ratio) max=ratio;
+			
+			ratioVsLengthData.set(length/1000d, ratio);
 		}
 		
 		ave /= invFltSysRupSet.getNumRuptures();
 		
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hist, "Histogram");
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(ratioVsLengthData, "ratio vs length");
+		graph.setX_AxisLabel("length (km)");
+		graph.setY_AxisLabel("implied/actual DDW");
 		
 		result = "\taveRatio="+(float)ave+"\tmin="+(float)min+"\tmax="+(float)max+"\tminIndex="+minIndex+"\n";
 		result += "\tnon-zero bins (ratio, num rups):\n";
@@ -1238,12 +1244,12 @@ public class FaultSystemRupSetCalc {
 		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
 
 		InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
-				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR,
+				MagAreaRelationships.SHAW_09, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR,
 				laughTest,defaultAseismicityValue,totalRegionRateMgt5,mMaxOffFault,applyImpliedCouplingCoeff,spatialSeisPDF);
 ////		
-//		System.out.println(calcImplDDWvsDDW_Ratio(faultSysRupSet));
+		System.out.println(calcImplDDWvsDDW_Ratio(faultSysRupSet));
 		
-		plotPreInversionMFDs(faultSysRupSet);
+//		plotPreInversionMFDs(faultSysRupSet);
 //		
 //		System.out.println("getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF3)="+getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF3));
 //		System.out.println("getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF2)="+getFractSpatialPDF_InsideSectionPolygons(faultSysRupSet, SpatialSeisPDF.UCERF2));

@@ -199,6 +199,12 @@ public class InversionMFDs {
 	
 	public GutenbergRichterMagFreqDist getTotalTargetGR() {return totalTargetGR;}
 	
+	/**
+	 * This returns the northern and southern RELM region MFD_InversionConstraint 
+	 * (as the 0th and 1st List elements, respectively).  The associated MFDs have been reduced
+	 * by both off-fault and subseismogenic ruptures.
+	 * @return
+	 */
 	public List<MFD_InversionConstraint> getMFD_ConstraintsForNoAndSoCal() { return mfdConstraintsForNoAndSoCal; }
 
 }
