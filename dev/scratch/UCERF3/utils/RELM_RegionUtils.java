@@ -2,6 +2,7 @@ package scratch.UCERF3.utils;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.geo.Region;
 
 public class RELM_RegionUtils {
 	
@@ -10,6 +11,15 @@ public class RELM_RegionUtils {
 		return new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	}
 	
+	
+	public static CaliforniaRegions.RELM_NOCAL_GRIDDED getNoCalGriddedRegionInstance() {
+		return new CaliforniaRegions.RELM_NOCAL_GRIDDED();
+	}
+
+	
+	public static CaliforniaRegions.RELM_SOCAL_GRIDDED getSoCalGriddedRegionInstance() {
+		return new CaliforniaRegions.RELM_SOCAL_GRIDDED();
+	}
 	
 	/**
 	 * this creates a GriddedGeoDataSet based on a gridded RELM region and initializes 

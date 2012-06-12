@@ -224,6 +224,7 @@ public class DeformationModelOffFaultMoRateData {
 		abm_Fm3pt1_xyzData = getNormalizdeData(abm_Fm3pt1_xyzData);
 		geobound_Fm3pt1_xyzData = getNormalizdeData(geobound_Fm3pt1_xyzData);
 		
+		double sum=0;
 		for(int i=0;i<aveData.size();i++) {
 			double val=0;
 			int num =0;
@@ -243,10 +244,17 @@ public class DeformationModelOffFaultMoRateData {
 				val += geobound_Fm3pt1_xyzData.get(i);
 				num+=1;
 			}
-			if(num !=0)
+			if(num !=0) {
 				aveData.set(i,val/num);
+				sum += aveData.get(i);
+			}
 			else
 				aveData.set(i,0.0);
+		}
+		
+		// renormalize to sum to 1.0
+		for(int i=0;i<aveData.size();i++) {
+			aveData.set(i, aveData.get(i)/sum);
 		}
 		
 		return aveData;

@@ -3,7 +3,10 @@ package scratch.UCERF3.inversion;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -11,8 +14,11 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 
 public class InversionMFDs {
 
@@ -29,9 +35,13 @@ public class InversionMFDs {
 	double finalOffFaultCouplingCoeff;
 	GutenbergRichterMagFreqDist totalTargetGR;
 	SummedMagFreqDist targetOnFaultSupraSeisMFD;
+	SummedMagFreqDist targetNoCalOnFaultSupraSeisMFD;
+	SummedMagFreqDist targetSoCalOnFaultSupraSeisMFD;
 	IncrementalMagFreqDist trulyOffFaultMFD;
 	ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List;
 	SummedMagFreqDist totalSubSeismoOnFaultMFD;		// this is a sum of the MFDs in subSeismoOnFaultMFD_List
+	
+	List<MFD_InversionConstraint> mfdConstraintsForNoAndSoCal;
 
 	// discretization parameters for MFDs
 	public final static double MIN_MAG = 0.05;
@@ -49,8 +59,18 @@ public class InversionMFDs {
 		this.spatialSeisPDF=spatialSeisPDF;
 		this.inversionModel=inversionModel;
 		
+		// test to make sure it's a statewide deformation model
+		DeformationModels dm = fltSysRupSet.getDeformationModel();
+		if(dm == DeformationModels.UCERF2_BAYAREA || dm == DeformationModels.UCERF2_NCAL)
+			throw new RuntimeException("Error - "+dm+" not yet supported by InversionMFD");
+		
 		List<FaultSectionPrefData> faultSectionData =  fltSysRupSet.getFaultSectionDataList();
-
+		
+		GriddedRegion noCalGrid = RELM_RegionUtils.getNoCalGriddedRegionInstance();
+		GriddedRegion soCalGrid = RELM_RegionUtils.getSoCalGriddedRegionInstance();
+		double fractSeisInSoCal = spatialSeisPDF.getFractionInRegion(soCalGrid);
+		mfdConstraintsForNoAndSoCal = new ArrayList<MFD_InversionConstraint>();
+		IncrementalMagFreqDist noCalTargetMFD, soCalTargetMFD;
 
 		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDF);
 		double onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
@@ -82,6 +102,14 @@ public class InversionMFDs {
 			targetOnFaultSupraSeisMFD.addIncrementalMagFreqDist(totalTargetGR);
 			targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(trulyOffFaultMFD);
 			targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
+			
+			// split the above between N & S cal
+			noCalTargetMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			soCalTargetMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			for(int i=0; i<NUM_MAG; i++) {
+				noCalTargetMFD.set(i,targetOnFaultSupraSeisMFD.getY(i)*(1.0-fractSeisInSoCal));
+				soCalTargetMFD.set(i,targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
+			}
 
 			// compute coupling coefficients
 			impliedOnFaultCouplingCoeff = (targetOnFaultSupraSeisMFD.getTotalMomentRate()+totalSubSeismoOnFaultMFD.getTotalMomentRate())/onFltDefModMoRate;
@@ -99,11 +127,13 @@ public class InversionMFDs {
 			if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff < 1.0) 	// only apply if it's < 1
 				tempCoupCoeff = impliedOnFaultCouplingCoeff;	
 
-			// slit the on-fault MFDs into supra- vs sub-seismo MFDs, and apply tempCoupCoeff
+			// split the on-fault MFDs into supra- vs sub-seismo MFDs, and apply tempCoupCoeff
 			ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = FaultSystemRupSetCalc.calcImpliedNuclMFD_ForEachSection(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
 			subSeismoOnFaultMFD_List = new ArrayList<GutenbergRichterMagFreqDist>();
 			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			noCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			soCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			for(int s=0;s<grNuclMFD_List.size();s++) {
 				GutenbergRichterMagFreqDist grNuclMFD = grNuclMFD_List.get(s);
 				int minSupraMagIndex = grNuclMFD.getClosestXIndex(fltSysRupSet.getMinMagForSection(s));
@@ -113,8 +143,13 @@ public class InversionMFDs {
 				subSeisGR.scaleToIncrRate(0, rateAtZeroMagBin);
 				subSeismoOnFaultMFD_List.add(subSeisGR);
 				totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(subSeisGR);
-				for(int i=minSupraMagIndex;i<grNuclMFD.getNum();i++)
+				FaultTrace sectTrace = faultSectionData.get(s).getStirlingGriddedSurface(1.0).getRowAsTrace(0);
+				double fractSectInSoCal = RegionUtils.getFractionInside(soCalGrid, sectTrace);
+				for(int i=minSupraMagIndex;i<grNuclMFD.getNum();i++) {
 					targetOnFaultSupraSeisMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff);
+					noCalTargetMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*(1.0-fractSectInSoCal));
+					soCalTargetMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*fractSectInSoCal);
+				}
 			}
 
 			trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
@@ -130,6 +165,9 @@ public class InversionMFDs {
 		} else {
 			throw new RuntimeException("Not yet implement");
 		}
+		
+		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(noCalTargetMFD, noCalGrid));
+		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(soCalTargetMFD, soCalGrid));
 
 	}
 
@@ -160,6 +198,7 @@ public class InversionMFDs {
 	public SummedMagFreqDist getTotalSubSeismoOnFaultMFD() {return totalSubSeismoOnFaultMFD;}
 	
 	public GutenbergRichterMagFreqDist getTotalTargetGR() {return totalTargetGR;}
-
+	
+	public List<MFD_InversionConstraint> getMFD_ConstraintsForNoAndSoCal() { return mfdConstraintsForNoAndSoCal; }
 
 }
