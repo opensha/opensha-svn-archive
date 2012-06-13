@@ -2,8 +2,8 @@ package scratch.UCERF3.enumTreeBranches;
 
 public enum RelaxMFDConstraint implements LogicTreeBranchNode<RelaxMFDConstraint> {
 	
-	TRUE("Relax MFD Constraint Weights",	"RelaxMFD",	true,	0d),
-	FALSE("Default MFD Constraint Weights",	"NormalMFD",	false,	0d);
+	TRUE("Weak (relaxed) MFD Constraint Weights",	"WeakMFD",	true,	0d),
+	FALSE("Strong (default) MFD Constraint Weights",	"StrongMFD",	false,	0d);
 	
 	private String name, shortName;
 	private boolean value;
