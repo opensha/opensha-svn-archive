@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.dom4j.DocumentException;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
@@ -30,7 +30,7 @@ public class PaleoReplot {
 			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
 			String prefix = file.getName().substring(0, file.getName().indexOf("_sol.zip"));
 			
-			LogicTreeBranch branch = LogicTreeBranch.parseFileName(file.getName());
+			OldLogicTreeBranch branch = OldLogicTreeBranch.parseFileName(file.getName());
 			
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = CommandLineInversionRunner.getPaleoConstraints(branch.getFaultModel(),
 					sol);

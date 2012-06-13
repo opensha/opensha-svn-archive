@@ -1,61 +1,114 @@
 package scratch.UCERF3.enumTreeBranches;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import org.opensha.commons.data.ShortNamed;
+import org.opensha.commons.util.ClassUtils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
-public class LogicTreeBranch {
-	/**
-	 * This is the default reference branch
-	 */
-	public static final LogicTreeBranch DEFAULT =
-		new LogicTreeBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM,
-				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
-				SlipAlongRuptureModels.TAPERED, InversionModels.CHAR);
+public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>> {
 	
-	FaultModels faultModel;
-	DeformationModels defModel;
-	MagAreaRelationships magArea;
-	AveSlipForRupModels aveSlip;
-	SlipAlongRuptureModels slipAlong;
-	InversionModels invModel;
-	public LogicTreeBranch(FaultModels fm,
-			DeformationModels dm,
-			MagAreaRelationships ma,
-			AveSlipForRupModels as,
-			SlipAlongRuptureModels sal,
-			InversionModels im) {
-		this.faultModel = fm;
-		this.defModel = dm;
-		this.magArea = ma;
-		this.aveSlip = as;
-		this.slipAlong = sal;
-		this.invModel = im;
+	/**
+	 * This is the default reference branch // TODO confirm
+	 */
+	public static final LogicTreeBranch DEFAULT = fromValues(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM,
+			MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
+			SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p8,
+			MaxMagOffFault.MAG_7p65, ApplyImpliedCouplingCoeff.FALSE, SpatialSeisPDF.UCERF3, RelaxMFDConstraint.FALSE);
+	
+	public static List<Class<? extends LogicTreeBranchNode<?>>> getLogicTreeNodeClasses() {
+		List<Class<? extends LogicTreeBranchNode<?>>> list = Lists.newArrayList();
+		
+		list.add(FaultModels.class);
+		list.add(DeformationModels.class);
+		list.add(MagAreaRelationships.class);
+		list.add(SlipAlongRuptureModels.class);
+		list.add(AveSlipForRupModels.class);
+		list.add(InversionModels.class);
+		list.add(TotalMag5Rate.class);
+		list.add(MaxMagOffFault.class);
+		list.add(ApplyImpliedCouplingCoeff.class);
+		list.add(SpatialSeisPDF.class);
+		list.add(RelaxMFDConstraint.class);
+		
+		return list;
 	}
 	
+	private List<LogicTreeBranchNode<? extends Enum<?>>> branch;
+	
+	private LogicTreeBranch(List<LogicTreeBranchNode<? extends Enum<?>>> branch) {
+		this.branch = branch;
+	}
+	
+	@SuppressWarnings("unchecked")
+//	public <E extends Enum<?>> E getValue(Class<? extends LogicTreeBranchNode<?>> clazz) {
+	public <E extends Enum<E>> E getValue(Class<? extends LogicTreeBranchNode<E>> clazz) {
+		return getValue(clazz, branch);
+	}
+		
+	private static <E extends Enum<E>> E getValue(Class<? extends LogicTreeBranchNode<E>> clazz,
+			List<LogicTreeBranchNode<? extends Enum<?>>> branch) {
+		clazz = getEnumEnclosingClass(clazz);
+		for (LogicTreeBranchNode<?> node : branch) {
+			if (node != null && getEnumEnclosingClass(node.getClass()).equals(clazz)) {
+				return (E)node;
+			}
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <E extends LogicTreeBranchNode<?>> Class<E> getEnumEnclosingClass(Class<E> clazz) {
+		if (!clazz.isEnum())
+			clazz = (Class<E>) clazz.getEnclosingClass();
+		return clazz;
+	}
+	
+	public void setValue(LogicTreeBranchNode<?> value) {
+		Class<? extends LogicTreeBranchNode> clazz = getEnumEnclosingClass(value.getClass());
+		
+//		System.out.println("Clazz? "+clazz);
+		
+		List<Class<? extends LogicTreeBranchNode<?>>> branchClasses = getLogicTreeNodeClasses();
+		Preconditions.checkState(branch.size() == branchClasses.size());
+		for (int i=0; i<branchClasses.size(); i++) {
+			Class<? extends LogicTreeBranchNode<?>> nodeClazz = branchClasses.get(i);
+//			System.out.println("testing: "+nodeClazz);
+			if (nodeClazz.equals(clazz)) {
+				branch.set(i, value);
+				return;
+			}
+		}
+		throw new IllegalArgumentException("Class '"+clazz+"' not part of logic tree node classes");
+	}
+	
+	public boolean isFullySpecified() {
+		for (LogicTreeBranchNode<?> val : branch)
+			if (val == null)
+				return false;
+		return true;
+	}
 	/**
 	 * @param branch
-	 * @return the number of logic tree branches that are non null and differ from the given
+	 * @return the number of logic tree branches that are non null in this branch and differ from the given
 	 * branch.
 	 */
-	public int getNumAwayFrom(LogicTreeBranch branch) {
+	public int getNumAwayFrom(LogicTreeBranch o) {
+		Preconditions.checkArgument(branch.size() == o.branch.size(), "branch sizes inconsistant!");
 		int away = 0;
-		if (faultModel != null && faultModel != branch.faultModel)
-			away++;
-		if (defModel != null && defModel != branch.defModel)
-			away++;
-		if (magArea != null && magArea != branch.magArea)
-			away++;
-		if (aveSlip != null && aveSlip != branch.aveSlip)
-			away++;
-		if (slipAlong != null && slipAlong != branch.slipAlong)
-			away++;
-		if (invModel != null && invModel != branch.invModel)
-			away++;
+		
+		for (int i=0; i<branch.size(); i++) {
+			Object mine = branch.get(i);
+			Object theirs = o.branch.get(i);
+			
+			if (mine != null && !mine.equals(theirs))
+				away++;
+		}
+		
 		return away;
 	}
 	
@@ -67,161 +120,167 @@ public class LogicTreeBranch {
 	public boolean matchesNonNulls(LogicTreeBranch branch) {
 		return getNumAwayFrom(branch) == 0;
 	}
-
-	@Override
-	public String toString() {
-		return "Branch [fm=" + faultModel + ", dm=" + defModel + ", ma=" + magArea + ", as="
-				+ aveSlip + ", sal=" + slipAlong + ", im=" + invModel + "]";
-	}
-	
-	private static <E extends ShortNamed> List<E> lengthSorted(E[] vals) {
-		ArrayList<E> list = new ArrayList<E>();
-		for (E val : vals) {
-			int ind = 0;
-			for (int i=0; i<list.size(); i++) {
-				E lVal = list.get(i);
-				if (val.getShortName().length() > lVal.getShortName().length())
-					ind = i+1;
-			}
-			list.add(ind, val);
-		}
-		Collections.reverse(list);
-		return list;
-	}
-	
-	public static LogicTreeBranch parseFileName(String fileName) {
-		FaultModels fm = null;
-		for (FaultModels mod : lengthSorted(FaultModels.values())) {
-			if (fileName.contains(mod.getShortName()+"_")) {
-				fm = mod;
-				break;
-			}
-		}
-		Preconditions.checkState(fm != null || !fileName.contains("FM"),
-				"Fault model found in file name but could not be parsed: "+fileName);
-		
-		DeformationModels dm = null;
-		for (DeformationModels mod : lengthSorted(DeformationModels.values())) {
-			if (fileName.contains("_"+mod.getShortName()+"_")) {
-				dm = mod;
-				break;
-			}
-		}
-		
-		MagAreaRelationships ma = null;
-		for (MagAreaRelationships mod : lengthSorted(MagAreaRelationships.values())) {
-			if (fileName.contains("_Ma"+mod.getShortName()+"_")) {
-				ma = mod;
-				break;
-			}
-		}
-		Preconditions.checkState(ma != null || !fileName.contains("_Ma"),
-				"MA found in file name but could not be parsed: "+fileName);
-		
-		AveSlipForRupModels as = null;
-		for (AveSlipForRupModels mod : lengthSorted(AveSlipForRupModels.values())) {
-			if (fileName.contains("_Dr"+mod.getShortName()+"_")) {
-				as = mod;
-				break;
-			}
-		}
-		if (fileName.contains("_DrCostStressDrop_")) // typo from old files!
-			as = AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP;
-		Preconditions.checkState(as != null || !fileName.contains("_Dr"),
-				"Dr found in file name but could not be parsed: "+fileName);
-		
-		SlipAlongRuptureModels sal = null;
-		for (SlipAlongRuptureModels mod : lengthSorted(SlipAlongRuptureModels.values())) {
-			if (fileName.contains("_Dsr"+mod.getShortName()+"_")) {
-				sal = mod;
-				break;
-			}
-		}
-		Preconditions.checkState(sal != null || !fileName.contains("_Dsr"),
-				"Dsr found in file name but could not be parsed: "+fileName);
-		
-		InversionModels inv = null;
-		for (InversionModels mod : lengthSorted(InversionModels.values())) {
-			if (fileName.contains("_"+mod.getShortName())) {
-				inv = mod;
-				break;
-			}
-		}
-		
-		return new LogicTreeBranch(fm, dm, ma, as, sal, inv);
-	}
-	
-	/**
-	 * @return true if every field is non null, false otherwise
-	 */
-	public boolean isFullySpecified() {
-		if (faultModel == null)
-			return false;
-		if (defModel == null)
-			return false;
-		if (magArea == null)
-			return false;
-		if (aveSlip == null)
-			return false;
-		if (slipAlong == null)
-			return false;
-		if (invModel == null)
-			return false;
-		return true;
-	}
 	
 	public String buildFileName() {
-		String name = faultModel.getShortName()+"_"+defModel.getShortName()
-		+"_Ma"+magArea.getShortName()+"_Dsr"+slipAlong.getShortName()+"_Dr"+aveSlip.getShortName()
-		+"_"+invModel.getShortName();
-		return name;
+		String str = null;
+		for (LogicTreeBranchNode<?> value : branch) {
+			Preconditions.checkNotNull(value, "Must be fully specified to build file name!");
+			if (str == null)
+				str = "";
+			else
+				str += "_";
+			str += value.encodeChoiceString();
+		}
+		return str;
+	}
+	
+	public static LogicTreeBranch fromValues(List<LogicTreeBranchNode<?>> vals) {
+		LogicTreeBranchNode<?>[] valsArray = new LogicTreeBranchNode[vals.size()];
+		
+		for (int i=0; i<vals.size(); i++)
+			valsArray[i] = vals.get(i);
+		
+		return fromValues(valsArray);
+	}
+	
+	public static LogicTreeBranch fromValues(LogicTreeBranchNode<?>... vals) {
+		return fromValues(true, vals);
+	}
+	
+	public static LogicTreeBranch fromValues(boolean setNullToDefault, LogicTreeBranchNode<?>... vals) {
+		List<Class<? extends LogicTreeBranchNode<?>>> classes = getLogicTreeNodeClasses();
+		
+		// initialize branch with null
+		List<LogicTreeBranchNode<? extends Enum<?>>> branch = Lists.newArrayList();
+		for (int i=0; i<classes.size(); i++)
+			branch.add(null);
+		
+		// now add each value
+		for (LogicTreeBranchNode<?> val : vals) {
+			if (val == null)
+				continue;
+			
+			// find the class
+			Class<? extends LogicTreeBranchNode> valClass = getEnumEnclosingClass(val.getClass());
+			int ind = -1;
+			for (int i=0; i<classes.size(); i++) {
+				Class<? extends LogicTreeBranchNode<?>> clazz = classes.get(i);
+				if (clazz.equals(valClass)) {
+					ind = i;
+					break;
+				}
+			}
+			Preconditions.checkArgument(ind >= 0, "Value of class '"+valClass+"' not a valid logic tree branch class");
+			branch.set(ind, val);
+		}
+		
+		if (setNullToDefault) {
+			// little fault model hack, since fault model can be dependent on deformation model if DM is specified
+			if (getValue(FaultModels.class, branch) == null && getValue(DeformationModels.class, branch) != null) {
+				int fmIndex = getLogicTreeNodeClasses().indexOf(FaultModels.class);
+				DeformationModels dm = getValue(DeformationModels.class, branch);
+				FaultModels defaultFM = DEFAULT.getValue(FaultModels.class);
+				if (dm.getApplicableFaultModels().contains(defaultFM))
+					branch.set(fmIndex, defaultFM);
+				else
+					branch.set(fmIndex, dm.getApplicableFaultModels().get(0));
+			}
+			for (int i=0; i<classes.size(); i++) {
+				if (branch.get(i) == null)
+					branch.set(i, DEFAULT.branch.get(i));
+			}
+		}
+		
+		return new LogicTreeBranch(branch);
+	}
+	
+	public static LogicTreeBranch fromStringValues(List<String> strings) {
+		return fromFileName(Joiner.on("_").join(strings));
+	}
+	
+	public static LogicTreeBranch fromFileName(String fileName) {
+		List<Class<? extends LogicTreeBranchNode<?>>> classes = getLogicTreeNodeClasses();
+		List<LogicTreeBranchNode<? extends Enum<?>>> branch = Lists.newArrayList();
+		
+		for (Class<? extends LogicTreeBranchNode<?>> clazz : classes) {
+//			LogicTreeBranchNode<?> value = parseValue(clazz, fileName);
+			LogicTreeBranchNode<?> value = null;
+			LogicTreeBranchNode<?>[] options = clazz.getEnumConstants();
+			for (LogicTreeBranchNode<?> option : options) {
+				if (doesStringContainOption(option, fileName)) {
+					value = option;
+					break;
+				}
+			}
+			branch.add(value);
+		}
+		return new LogicTreeBranch(branch);
+	}
+	
+	private static boolean doesStringContainOption(LogicTreeBranchNode<?> option, String str) {
+		String encoded = option.encodeChoiceString();
+		if (str.startsWith(encoded+"_") || str.contains("_"+encoded+"_")
+				|| str.contains("_"+encoded+".") || str.endsWith("_"+encoded))
+			return true;
+		return false;
+	}
+	
+	public static <E extends Enum<E>> E parseValue(Class<? extends LogicTreeBranchNode<E>> clazz, String str) {
+		LogicTreeBranchNode<E>[] options = clazz.getEnumConstants();
+		for (LogicTreeBranchNode<E> option : options)
+			if (doesStringContainOption(option, str))
+				return (E)option;
+		return null;
+	}
+	
+	@Override
+	public String toString() {
+		String str = null;
+		for (LogicTreeBranchNode<?> val : branch) {
+			if (str == null)
+				str = ClassUtils.getClassNameWithoutPackage(getClass())+"[";
+			else
+				str += ", ";
+//			str += ClassUtils.getClassNameWithoutPackage(getEnumEnclosingClass(val.getClass()))+"="+val.getShortName();
+			if (val == null)
+				str += "(null)";
+			else
+				str += val.encodeChoiceString();
+		}
+		return str+"]";
+	}
+	
+	public static void main(String[] args) {
+//		String str = "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char";
+		String str = DEFAULT.buildFileName();
+		System.out.println("PARSING: "+str);
+		LogicTreeBranch br = fromFileName(str);
+		
+		FaultModels fm = parseValue(FaultModels.class, str);
+		System.out.println("FM? "+fm);
+		
+//		for (Class<? extends LogicTreeBranchNode<?>> clazz : getLogicTreeNodeClasses())
+//			System.out.println(clazz+"\t?\t"+br.getValue(clazz));
+		
+		System.out.println("Num away? "+br.getNumAwayFrom(br));
+		
+		LogicTreeBranch br2 = fromFileName(str);
+		System.out.println(br2);
+		System.out.println("Num away? "+br.getNumAwayFrom(br2));
+		br2.setValue(FaultModels.FM3_2);
+		System.out.println(br2);
+		System.out.println("Num away? "+br.getNumAwayFrom(br2));
+		br2.setValue(MagAreaRelationships.SHAW_09);
+		System.out.println(br2);
+		System.out.println("Num away? "+br.getNumAwayFrom(br2));
+		br2.setValue(AveSlipForRupModels.HANKS_BAKUN_08);
+		System.out.println(br2);
+		System.out.println("Num away? "+br.getNumAwayFrom(br2));
 	}
 
-	public FaultModels getFaultModel() {
-		return faultModel;
+	@Override
+	public Iterator<LogicTreeBranchNode<? extends Enum<?>>> iterator() {
+		return branch.iterator();
 	}
 
-	public void setFaultModel(FaultModels faultModel) {
-		this.faultModel = faultModel;
-	}
-
-	public DeformationModels getDefModel() {
-		return defModel;
-	}
-
-	public void setDefModel(DeformationModels defModel) {
-		this.defModel = defModel;
-	}
-
-	public MagAreaRelationships getMagArea() {
-		return magArea;
-	}
-
-	public void setMagArea(MagAreaRelationships magArea) {
-		this.magArea = magArea;
-	}
-
-	public AveSlipForRupModels getAveSlip() {
-		return aveSlip;
-	}
-
-	public void setAveSlip(AveSlipForRupModels aveSlip) {
-		this.aveSlip = aveSlip;
-	}
-
-	public SlipAlongRuptureModels getSlipAlong() {
-		return slipAlong;
-	}
-
-	public void setSlipAlong(SlipAlongRuptureModels slipAlong) {
-		this.slipAlong = slipAlong;
-	}
-
-	public InversionModels getInvModel() {
-		return invModel;
-	}
-
-	public void setInvModel(InversionModels invModel) {
-		this.invModel = invModel;
-	}
 }

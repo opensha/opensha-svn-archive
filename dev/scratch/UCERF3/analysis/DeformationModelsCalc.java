@@ -26,6 +26,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -38,7 +39,6 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 
 public class DeformationModelsCalc {
 	

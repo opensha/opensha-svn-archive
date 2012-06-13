@@ -1,18 +1,20 @@
 package scratch.UCERF3.enumTreeBranches;
 
-import org.opensha.commons.data.ShortNamed;
-
-public enum InversionModels implements ShortNamed {
+public enum InversionModels implements LogicTreeBranchNode<InversionModels> {
 	
-	CHAR("Characteristic", "Char"),
-	GR("Gutenberg-Richter", "GR"),
-	UNCONSTRAINED("Unconstrained", "Unconst");
+	// TODO set weights
+	CHAR_CONSTRAINED(	"Characteristic (Constrained)",			"CharConst",		0d),
+	GR_CONSTRAINED(		"Gutenberg-Richter (Constrained)",		"GRConst",		0d),
+	CHAR_UNCONSTRAINED(		"Unconstrained (Unconstrained)",	"CharUnconst",	0d),
+	GR_UNCONSTRAINED(	"Unconstrained (Unconstrained)",		"GRUnconst",	0d);
 	
 	private String name, shortName;
+	private double weight;
 	
-	private InversionModels(String name, String shortName) {
+	private InversionModels(String name, String shortName, double weight) {
 		this.name = name;
 		this.shortName = shortName;
+		this.weight = weight;
 	}
 	
 	public String getName() {
@@ -34,5 +36,15 @@ public enum InversionModels implements ShortNamed {
 			if (inv.name.equals(name) || inv.name().equals(name) || inv.shortName.equals(name)) return inv;
 		}
 		throw new IllegalArgumentException("InversionModels name does not exist");
+	}
+
+	@Override
+	public double getRelativeWeight() {
+		return weight;
+	}
+
+	@Override
+	public String encodeChoiceString() {
+		return getShortName();
 	}
 }

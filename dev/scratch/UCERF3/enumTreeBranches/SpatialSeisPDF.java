@@ -1,4 +1,4 @@
-package scratch.UCERF3.griddedSeismicity;
+package scratch.UCERF3.enumTreeBranches;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import org.opensha.commons.geo.Location;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
+import scratch.UCERF3.griddedSeismicity.GridReader;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 
@@ -21,22 +22,22 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * @version $Id:$
  */
 @SuppressWarnings("javadoc")
-public enum SpatialSeisPDF {
+public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	
-	
-	UCERF2 {
+	// TODO set weights
+	UCERF2("UCERF2",							"U2",	0d) {
 		@Override public double[] getPDF() {
 			return new GridReader("SmoothSeis_UCERF2.txt").getValues();
 		}
 	},
 	
-	UCERF3 {
+	UCERF3("UCERF3",							"U3",	0d) {
 		@Override public double[] getPDF() {
 			return new GridReader("SmoothSeis_KF_5-5-2012.txt").getValues();
 		}
 	},
 	
-	AVG_DEF_MODEL {
+	AVG_DEF_MODEL("Average Deformation Model",	"AveDM",	0d) {
 		@Override public double[] getPDF() {
 			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
 			GriddedGeoDataSet xyz = DeformationModelOffFaultMoRateData.getAveDefModelPDF();
@@ -47,6 +48,15 @@ public enum SpatialSeisPDF {
 			return Doubles.toArray(vals);
 		}
 	};
+	
+	private String name, shortName;
+	private double weight;
+	
+	private SpatialSeisPDF(String name, String shortName, double weight) {
+		this.name = name;
+		this.shortName = shortName;
+		this.weight = weight;
+	}
 	
 	public abstract double[] getPDF();
 	
@@ -78,6 +88,26 @@ public enum SpatialSeisPDF {
 			for(int i=0; i<vals.length;i++) sum += vals[i];
 			System.out.println(testPDF+" sum = "+(float)sum);
 		}
+	}
+	
+	@Override
+	public String getShortName() {
+		return shortName;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public double getRelativeWeight() {
+		return weight;
+	}
+
+	@Override
+	public String encodeChoiceString() {
+		return "SpatSeis"+getShortName();
 	}
 	
 	/**

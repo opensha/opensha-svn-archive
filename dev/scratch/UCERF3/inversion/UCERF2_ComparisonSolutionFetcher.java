@@ -16,7 +16,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 
@@ -39,9 +39,8 @@ public class UCERF2_ComparisonSolutionFetcher {
 		else
 			dm = DeformationModels.GEOLOGIC_PLUS_ABM;
 		FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
-				fm, dm, MagAreaRelationships.AVE_UCERF2, AveSlipForRupModels.AVE_UCERF2,
-				SlipAlongRuptureModels.TAPERED, InversionModels.CHAR, LaughTestFilter.getDefault(), 0,
-				8.7, 7.6, false, SpatialSeisPDF.UCERF2);
+				LaughTestFilter.getDefault(), 0, fm, dm, MagAreaRelationships.AVE_UCERF2, AveSlipForRupModels.AVE_UCERF2,
+				SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, SpatialSeisPDF.UCERF2);
 		
 		ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
 		

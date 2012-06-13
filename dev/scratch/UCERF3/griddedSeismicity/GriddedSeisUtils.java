@@ -6,6 +6,7 @@ import java.util.Map;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 
 /**
  * Utility class for working with fault polygons and spatial PDFs of seismicity.

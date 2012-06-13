@@ -10,34 +10,35 @@ import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_MagAreaRel;
-import org.opensha.commons.data.ShortNamed;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.collect.Lists;
 
-public enum MagAreaRelationships implements ShortNamed {
+public enum MagAreaRelationships implements LogicTreeBranchNode<MagAreaRelationships> {
 	
-	HB_08("Hanks & Bakun (2002)", "HB08", new HanksBakun2002_MagAreaRel()),
-	ELL_B("Ellsworth B", "EllB", new Ellsworth_B_WG02_MagAreaRel()),
-	SHAW_09("Shaw (2009)", "Shaw09", new Shaw_2009_MagAreaRel()),
-	AVE_UCERF2("Average UCERF2", "AvU2", Lists.newArrayList(new Ellsworth_B_WG02_MagAreaRel(), new HanksBakun2002_MagAreaRel()));
+	HB_08(		"Hanks & Bakun (2002)",	"HB08",		0d,	new HanksBakun2002_MagAreaRel()),
+	ELL_B(		"Ellsworth B",			"EllB", 	0d,	new Ellsworth_B_WG02_MagAreaRel()),
+	SHAW_09(	"Shaw (2009)",			"Shaw09",	0d,	new Shaw_2009_MagAreaRel()),
+	AVE_UCERF2(	"Average UCERF2",		"AvU2",		0d,	Lists.newArrayList(new Ellsworth_B_WG02_MagAreaRel(),
+																new HanksBakun2002_MagAreaRel()));
 	
 	private List<MagAreaRelationship> rels;
 	
 	private String name, shortName;
+	private double weight;
 	
-	private MagAreaRelationships(String name, String shortName, MagAreaRelationship rel) {
-		this(name, shortName, Lists.newArrayList(rel));
+	private MagAreaRelationships(String name, String shortName, double weight, MagAreaRelationship rel) {
+		this(name, shortName, weight, Lists.newArrayList(rel));
 	}
 	
-	private MagAreaRelationships(String name, String shortName, List<MagAreaRelationship> rels) {
+	private MagAreaRelationships(String name, String shortName, double weight, List<MagAreaRelationship> rels) {
 		this.rels = Collections.unmodifiableList(rels);
 		this.name = name;
 		this.shortName = shortName;
+		this.weight = weight;
 	}
 	
 	public String getName() {
@@ -104,6 +105,16 @@ public enum MagAreaRelationships implements ShortNamed {
 	//public 
 	public static void main(String[] args) throws IOException {
 		makePlot();
+	}
+
+	@Override
+	public double getRelativeWeight() {
+		return weight;
+	}
+
+	@Override
+	public String encodeChoiceString() {
+		return "Ma"+getShortName();
 	}
 	
 

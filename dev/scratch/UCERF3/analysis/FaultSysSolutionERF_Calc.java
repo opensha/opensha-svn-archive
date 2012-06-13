@@ -7,10 +7,10 @@ import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 

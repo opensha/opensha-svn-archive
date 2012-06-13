@@ -22,7 +22,7 @@ import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
@@ -56,59 +56,59 @@ public class LogicTreePBSWriter {
 		EPICENTER("/home/epicenter/kmilner/inversions", EpicenterScriptWriter.JAVA_BIN,
 		"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
-			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
+			public BatchScriptWriter forBranch(OldLogicTreeBranch branch) {
 				InversionModels im = branch.getInvModel();
-				Preconditions.checkState(im != InversionModels.GR,
+				Preconditions.checkState(im != InversionModels.GR_CONSTRAINED,
 				"are you kidding me? we can't run GR on epicenter!");
 				return new EpicenterScriptWriter();
 			}
 
 			@Override
-			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
+			public int getMaxHeapSizeMB(OldLogicTreeBranch branch) {
 				return 7000;
 			}
 
 			@Override
-			public int getPPN(LogicTreeBranch branch) {
+			public int getPPN(OldLogicTreeBranch branch) {
 				return 8;
 			}
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 		"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
-			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
-				if (branch.getInvModel() == InversionModels.GR)
+			public BatchScriptWriter forBranch(OldLogicTreeBranch branch) {
+				if (branch.getInvModel() == InversionModels.GR_CONSTRAINED)
 					return new USC_HPCC_ScriptWriter("dodecacore");
 				return new USC_HPCC_ScriptWriter("quadcore");
 			}
 
 			@Override
-			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
-				if (branch.getInvModel() == InversionModels.GR)
+			public int getMaxHeapSizeMB(OldLogicTreeBranch branch) {
+				if (branch.getInvModel() == InversionModels.GR_CONSTRAINED)
 					return 40000;
 				return 10000;
 			}
 
 			@Override
-			public int getPPN(LogicTreeBranch branch) {
-				if (branch.getInvModel() == InversionModels.GR)
+			public int getPPN(OldLogicTreeBranch branch) {
+				if (branch.getInvModel() == InversionModels.GR_CONSTRAINED)
 					return 24;
 				return 8;
 			}
 		},
 		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN, null) { // TODO!!!!
 			@Override
-			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
+			public BatchScriptWriter forBranch(OldLogicTreeBranch branch) {
 				return new RangerScriptWriter();
 			}
 
 			@Override
-			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
+			public int getMaxHeapSizeMB(OldLogicTreeBranch branch) {
 				return 28000;
 			}
 
 			@Override
-			public int getPPN(LogicTreeBranch branch) {
+			public int getPPN(OldLogicTreeBranch branch) {
 				return 16;
 			}
 		};
@@ -123,12 +123,12 @@ public class LogicTreePBSWriter {
 			FM_STORE = fmStore;
 		}
 
-		public abstract BatchScriptWriter forBranch(LogicTreeBranch branch);
-		public abstract int getMaxHeapSizeMB(LogicTreeBranch branch);
-		public int getInitialHeapSizeMB(LogicTreeBranch branch) {
+		public abstract BatchScriptWriter forBranch(OldLogicTreeBranch branch);
+		public abstract int getMaxHeapSizeMB(OldLogicTreeBranch branch);
+		public int getInitialHeapSizeMB(OldLogicTreeBranch branch) {
 			return getMaxHeapSizeMB(branch);
 		}
-		public abstract int getPPN(LogicTreeBranch branch);
+		public abstract int getPPN(OldLogicTreeBranch branch);
 	}
 	
 	private static ArrayList<CustomArg[]> buildVariationBranches(List<CustomArg[]> variations, CustomArg[] curVariation) {
@@ -195,7 +195,7 @@ public class LogicTreePBSWriter {
 	
 	private static final String TAG_OPTION_ON = "Option On";
 	
-	private static class VariableLogicTreeBranch extends LogicTreeBranch {
+	private static class VariableLogicTreeBranch extends OldLogicTreeBranch {
 		CustomArg[] args;
 		public VariableLogicTreeBranch(FaultModels fm,
 				DeformationModels dm,
@@ -208,7 +208,7 @@ public class LogicTreePBSWriter {
 			this.args = args;
 		}
 		@Override
-		public int getNumAwayFrom(LogicTreeBranch branch) {
+		public int getNumAwayFrom(OldLogicTreeBranch branch) {
 			int num = super.getNumAwayFrom(branch);
 			
 			if (!(branch instanceof VariableLogicTreeBranch))
@@ -288,7 +288,7 @@ public class LogicTreePBSWriter {
 //		InversionModels[] inversionModels = InversionModels.values();
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
-		InversionModels[] inversionModels =  { InversionModels.CHAR };
+		InversionModels[] inversionModels =  { InversionModels.CHAR_CONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
 
@@ -379,9 +379,9 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR, 0);
-		maxAway.put(InversionModels.GR, 0);
-		maxAway.put(InversionModels.UNCONSTRAINED, 0);
+		maxAway.put(InversionModels.CHAR_CONSTRAINED, 0);
+		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
+		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);
 		VariableLogicTreeBranch[] defaultBranches = {
 //				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 //						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
@@ -396,7 +396,7 @@ public class LogicTreePBSWriter {
 		};
 		if (defaultBranches != null) {
 			// make sure all default branch choices are valid!
-			for (LogicTreeBranch defaultBranch : defaultBranches) {
+			for (OldLogicTreeBranch defaultBranch : defaultBranches) {
 				if (defaultBranch.getFaultModel() != null &&
 						!Arrays.asList(faultModels).contains(defaultBranch.getFaultModel()))
 					defaultBranch.setFaultModel(null);
@@ -488,7 +488,7 @@ public class LogicTreePBSWriter {
 									VariableLogicTreeBranch branch = new VariableLogicTreeBranch(fm, dm, ma, as, sal, im, variationBranch);
 									if (defaultBranches != null && defaultBranches.length > 0) {
 										int closest = Integer.MAX_VALUE;
-										for (LogicTreeBranch defaultBranch : defaultBranches) {
+										for (OldLogicTreeBranch defaultBranch : defaultBranches) {
 											int away = defaultBranch.getNumAwayFrom(branch);
 											if (away < closest)
 												closest = away;
@@ -516,13 +516,13 @@ public class LogicTreePBSWriter {
 
 									BatchScriptWriter batch = site.forBranch(branch);
 									TimeCompletionCriteria checkPointCriteria;
-									if (im == InversionModels.GR) {
+									if (im == InversionModels.GR_CONSTRAINED) {
 										mins = 500;
 										nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
 										batch = site.forBranch(branch);
 										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
 										checkPointCriteria = null;
-									} else if (im == InversionModels.CHAR) {
+									} else if (im == InversionModels.CHAR_CONSTRAINED) {
 										mins = 500; // TODO ?
 										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
 										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);

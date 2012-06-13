@@ -133,11 +133,10 @@ public class InversionConfiguration {
 	 * @return
 	 */
 	public static InversionConfiguration forModel(InversionModels model, InversionFaultSystemRupSet rupSet) {
-		double mfdConstraintModifier = 1;
 		double mfdEqualityConstraintWt = DEFAULT_MFD_EQUALITY_WT;
 		double mfdInequalityConstraintWt = DEFAULT_MFD_INEQUALITY_WT;
 		
-		return forModel(model, rupSet, mfdConstraintModifier, mfdEqualityConstraintWt, mfdInequalityConstraintWt);
+		return forModel(model, rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt);
 	}
 	
 	/**
@@ -194,7 +193,6 @@ public class InversionConfiguration {
 		
 		
 		String metadata = "";
-		metadata += "\nmfdConstraintModifier: "+mfdConstraintModifier;
 		
 		/* *******************************************
 		 * MODEL SPECIFIC
@@ -220,7 +218,7 @@ public class InversionConfiguration {
 		
 		
 		switch (model) {
-		case CHAR:
+		case CHAR_CONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 100;
 			aPrioriRupConstraint = getUCERF2Solution(rupSet);
@@ -231,7 +229,7 @@ public class InversionConfiguration {
 			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 			initialRupModel = adjustParkfield(rupSet, initialRupModel);
 			break;
-		case GR:
+		case GR_CONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 1000;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
@@ -241,7 +239,7 @@ public class InversionConfiguration {
 			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
 			initialRupModel = adjustParkfield(rupSet, initialRupModel);
 			break;
-		case UNCONSTRAINED:
+		case GR_UNCONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;

@@ -16,7 +16,7 @@ import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 
@@ -84,7 +84,7 @@ public class InversionMFDs {
 		totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmax, totalRegionRateMgt5*1e5, 1.0);
 
 		
-		if (inversionModel == InversionModels.CHAR) {
+		if (inversionModel == InversionModels.CHAR_CONSTRAINED) {
 
 			// check that the following can be calculated since "this" is not fully instantiated
 			double aveMinSeismoMag = FaultSystemRupSetCalc.getMeanMinMag(fltSysRupSet, true);
@@ -116,7 +116,7 @@ public class InversionMFDs {
 			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
 			impliedTotalCouplingCoeff = totalTargetGR.getTotalMomentRate()/(onFltDefModMoRate+offFltDefModMoRate);
 
-		} else if (inversionModel == InversionModels.GR) {
+		} else if (inversionModel == InversionModels.GR_CONSTRAINED) {
 
 			// get the total GR nucleation MFD for all fault section
 			SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
@@ -159,7 +159,7 @@ public class InversionMFDs {
 			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
 			impliedTotalCouplingCoeff = (impliedOnFaultCouplingCoeff*onFltDefModMoRate+finalOffFaultCouplingCoeff*offFltDefModMoRate)/(onFltDefModMoRate+offFltDefModMoRate);
 
-		} else if (inversionModel == InversionModels.UNCONSTRAINED) {
+		} else if (inversionModel == InversionModels.GR_UNCONSTRAINED) {
 			throw new RuntimeException("Not yet implemented");
 
 		} else {

@@ -6,18 +6,26 @@ import java.util.List;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+
+import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.ApplyImpliedCouplingCoeff;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -67,7 +75,7 @@ public class InversionFaultSystemRupSetFactory {
 	 */
 	public static FaultSystemRupSet cachedForBranch(DeformationModels deformationModel, boolean forceRebuild) throws IOException {
 		return cachedForBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel,
-				LogicTreeBranch.DEFAULT.getInvModel(), forceRebuild);
+				OldLogicTreeBranch.DEFAULT.getInvModel(), forceRebuild);
 	}
 
 	
@@ -130,124 +138,54 @@ public class InversionFaultSystemRupSetFactory {
 	}
 	
 	/**
-	 * Creates a rupture set for the specified deformation model (and it's first applicable fault model) using all
-	 * other default branch choices and the default laugh test filter
+	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter.
+	 * Any logic tree branch values not chosen will be set to default.
 	 * 
-	 * @param deformationModel
+	 * @param branchesChoices Logic tree branch values. any values that are omitted will be set to default as
+	 * specified by <code>LogicTreeBranch.DEFAULT</code>
 	 * @return
 	 */
-	public static InversionFaultSystemRupSet forBranch(DeformationModels deformationModel) {
-		return forBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel);
-	}
-	
-	/**
-	 * Creates a rupture set for the specified fault model/deformation model using all other default branch
-	 * choices and the default laugh test filter
-	 * 
-	 * @param faultModel
-	 * @param deformationModel
-	 * @return
-	 */
-	public static InversionFaultSystemRupSet forBranch(
-			FaultModels faultModel,
-			DeformationModels deformationModel) {
-		return forBranch(faultModel, deformationModel, LogicTreeBranch.DEFAULT.getInvModel());
-	}
-	
-	/**
-	 * Creates a rupture set for the specified fault model/deformation model using all other default branch
-	 * choices and the default laugh test filter
-	 * 
-	 * @param faultModel
-	 * @param deformationModel
-	 * @param inversionModel
-	 * @return
-	 */
-	public static InversionFaultSystemRupSet forBranch(
-			FaultModels faultModel,
-			DeformationModels deformationModel,
-			InversionModels inversionModel) {
-		return forBranch(faultModel, deformationModel, LogicTreeBranch.DEFAULT.getMagArea(),
-				LogicTreeBranch.DEFAULT.getAveSlip(), LogicTreeBranch.DEFAULT.getSlipAlong(), inversionModel);
-	}
-	
-	/**
-	 * Creates a rupture set for the specified branch on the logic tree and the default laugh test filter
-	 * 
-	 * @param faultModel
-	 * @param deformationModel
-	 * @param magAreaRelationships
-	 * @param aveSlipForRupModel
-	 * @param slipAlongModel
-	 * @param inversionModel
-	 * @return
-	 */
-	public static InversionFaultSystemRupSet forBranch(
-			FaultModels faultModel,
-			DeformationModels deformationModel,
-			MagAreaRelationships magAreaRelationships,
-			AveSlipForRupModels aveSlipForRupModel,
-			SlipAlongRuptureModels slipAlongModel,
-			InversionModels inversionModel) {
-		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
-				slipAlongModel, inversionModel, LaughTestFilter.getDefault());
+	public static InversionFaultSystemRupSet forBranch(LogicTreeBranchNode<?>... branchesChoices) {
+		return forBranch(LaughTestFilter.getDefault(), DEFAULT_ASEIS_VALUE, branchesChoices);
 	}
 	
 	/**
 	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter
 	 * 
-	 * @param faultModel
-	 * @param deformationModel
-	 * @param magAreaRelationships
-	 * @param aveSlipForRupModel
-	 * @param slipAlongModel
-	 * @param inversionModel
-	 * @param laughTest
-	 * @return
-	 */
-	public static InversionFaultSystemRupSet forBranch(
-			FaultModels faultModel,
-			DeformationModels deformationModel,
-			MagAreaRelationships magAreaRelationships,
-			AveSlipForRupModels aveSlipForRupModel,
-			SlipAlongRuptureModels slipAlongModel,
-			InversionModels inversionModel,
-			LaughTestFilter laughTest) {
-		System.out.println("**** WARNING: rate M5, mMaxOffFault, applyImpliedCoupling, and spatialSeisPDF HARDCODED!");
-		return forBranch(faultModel, deformationModel, magAreaRelationships, aveSlipForRupModel,
-				slipAlongModel, inversionModel, laughTest, DEFAULT_ASEIS_VALUE, 8.7, 7.65, false, SpatialSeisPDF.UCERF3);
-	}
-	
-	/**
-	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter
-	 * 
-	 * @param faultModel
-	 * @param deformationModel
-	 * @param magAreaRelationships
-	 * @param aveSlipForRupModel
-	 * @param slipAlongModel
-	 * @param inversionModel
 	 * @param laughTest
 	 * @param defaultAseismicityValue
-	 * @param spatialSeisPDF
+	 * @param branchesChoices Logic tree branch values. any values that are omitted will be set to default as
+	 * specified by <code>LogicTreeBranch.DEFAULT</code>
 	 * @return
 	 */
 	public static InversionFaultSystemRupSet forBranch(
-			FaultModels faultModel,
-			DeformationModels deformationModel,
-			MagAreaRelationships magAreaRelationships,
-			AveSlipForRupModels aveSlipForRupModel,
-			SlipAlongRuptureModels slipAlongModel,
-			InversionModels inversionModel,
 			LaughTestFilter laughTest,
 			double defaultAseismicityValue,
-			double totalRegionRateMgt5,
-			double mMaxOffFault,
-			boolean applyImpliedCouplingCoeff,
-			SpatialSeisPDF spatialSeisPDF) {
+			LogicTreeBranchNode<?>... branchesChoices) {
+		LogicTreeBranch branch = LogicTreeBranch.fromValues(branchesChoices);
+		return forBranch(laughTest, defaultAseismicityValue, branch);
+	}
+	
+	/**
+	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter
+	 * 
+	 * @param laughTest
+	 * @param defaultAseismicityValue
+	 * @param branch Logic tree branch for which to build a model. Must be fully specified (no null values)</code>
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(
+			LaughTestFilter laughTest,
+			double defaultAseismicityValue,
+			LogicTreeBranch branch) {
+		Preconditions.checkArgument(branch.isFullySpecified(), "Logic tree must be fully specified (no null values) in order " +
+				"to create an InversionFaultSystemRupSet.");
+		
+		FaultModels faultModel = branch.getValue(FaultModels.class);
+		DeformationModels deformationModel = branch.getValue(DeformationModels.class);
 		System.out.println("Building a rupture set for: "+deformationModel+" ("+faultModel+")");
 		
-		List<MagAreaRelationship> magAreaRelList = magAreaRelationships.getMagAreaRelationships();
+		List<MagAreaRelationship> magAreaRelList = branch.getValue(MagAreaRelationships.class).getMagAreaRelationships();
 		
 		if (faultModel == FaultModels.FM2_1 && laughTest.getCoulombFilter() != null) {
 			System.out.println("WARNING: removing coulomb filter since this is FM 2.1");
@@ -273,34 +211,23 @@ public class InversionFaultSystemRupSetFactory {
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue).getSubSectionList();
 		}
 		
-		// TODO don't hardcode
-//		double totalRegionRateMgt5 = 8.7;
-//		double mMaxOffFault = 7.6;
-//		boolean applyImpliedCouplingCoeff = false;
-//		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
-		// 8.7, 7.6, false, SpatialSeisPDF.UCERF3
-		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
 				clusters, deformationModel, faultSectionData, magAreaRelList,
-				inversionModel, slipAlongModel, aveSlipForRupModel,
-				totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF);
+				branch.getValue(InversionModels.class), branch.getValue(SlipAlongRuptureModels.class),
+				branch.getValue(AveSlipForRupModels.class), branch.getValue(TotalMag5Rate.class).getRateMag5(),
+				branch.getValue(MaxMagOffFault.class).getMaxMagOffFault(),
+				branch.getValue(ApplyImpliedCouplingCoeff.class).getValue(), branch.getValue(SpatialSeisPDF.class));
 		System.out.println("New rup set has "+rupSet.getNumRuptures()+" ruptures.");
 		String info = rupSet.getInfoString();
 		if (info == null)
 			info = "";
 		else
 			info += "\n\n";
+		
 		info += "\n****** Logic Tree Branch ******";
-		info += "\nFaultModel: "+faultModel.name();
-		info += "\nDeformationModel: "+deformationModel.name();
-		info += "\nMagAreaRelationship: "+magAreaRelationships.name();
-		info += "\nAveSlipForRupModel: "+aveSlipForRupModel.name();
-		info += "\nSlipAlongRuptureModel: "+slipAlongModel.name();
-		info += "\nInversionModel: "+inversionModel.name();
-		info += "\ntotalRegionRateMgt5: "+totalRegionRateMgt5;
-		info += "\nmMaxOffFault: "+mMaxOffFault;
-		info += "\napplyImpliedCouplingCoeff: "+applyImpliedCouplingCoeff;
-		info += "\nspatialSeisPDF: "+spatialSeisPDF.name();
+		for (LogicTreeBranchNode<?> node : branch)
+			info += "\n"+ClassUtils.getClassNameWithoutPackage(LogicTreeBranch.getEnumEnclosingClass(node.getClass()))
+							+": "+faultModel.name();
 		info += "\n*******************************";
 		rupSet.setInfoString(info);
 		return rupSet;
@@ -319,7 +246,7 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, InversionModels.CHAR);
-			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.CHAR, true);
+			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.CHAR_CONSTRAINED, true);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
 //					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault(), MomentReductions.INCREASE_ASEIS);
@@ -331,6 +258,8 @@ public class InversionFaultSystemRupSetFactory {
 			System.out.println("Total Reduced Mo Rate: "+rupSet.getTotalReducedMomentRate());
 			System.out.println("Total Mo Rate Reduction: "+rupSet.getTotalMomentRateReduction());
 			System.out.println("Total Mo Rate Reduction Fraction: "+rupSet.getTotalMomentRateReductionFraction());
+			
+			System.out.println("\n"+rupSet.getInfoString());
 			
 			// slip for an 8.4
 //			int id = 132520;

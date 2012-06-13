@@ -26,14 +26,17 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.ApplyImpliedCouplingCoeff;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionMFDs;
@@ -417,7 +420,7 @@ public class FaultSystemRupSetCalc {
 		for(DeformationModels dm :defModList) {
 			for(MagAreaRelationships ma:magAreaList) {
 				FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-						ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+						ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 				String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+ma.getShortName();
 				plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
 			}
@@ -428,7 +431,7 @@ public class FaultSystemRupSetCalc {
 		DeformationModels dm = DeformationModels.UCERF2_ALL;
 		for(MagAreaRelationships ma:magAreaList) {
 			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-					ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+					ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 			String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+ma.getShortName();
 			plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
 		}
@@ -803,7 +806,7 @@ public class FaultSystemRupSetCalc {
 		for(DeformationModels dm :defModList) {
 			for(MagAreaRelationships ma:magAreaList) {
 				FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-						ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+						ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 				for(double frSeisOff : fractSeisOffFault) {
 					for(double mMaxOff : mMaxOffFault) {
 						String lineFirstPart = faultSysRupSet.getDeformationModel().getShortName()+"\t"+ma.getShortName()+
@@ -1203,7 +1206,7 @@ public class FaultSystemRupSetCalc {
 		for(MagAreaRelationships ma : magAreaList) {
 			for(AveSlipForRupModels asm : aveSlipForRupModelsList) {
 				InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-						ma, asm, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+						ma, asm, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 				result += "\n"+ma+"\t"+asm+":\n";
 				result += calcImplDDWvsDDW_Ratio(faultSysRupSet);
 						
@@ -1238,14 +1241,12 @@ public class FaultSystemRupSetCalc {
 		
 		LaughTestFilter laughTest = LaughTestFilter.getDefault();
 		double defaultAseismicityValue = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
-		double totalRegionRateMgt5 = 8.7;
-		double mMaxOffFault = 7.65;
-		boolean applyImpliedCouplingCoeff = false;
-		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
 
-		InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
-				MagAreaRelationships.SHAW_09, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR,
-				laughTest,defaultAseismicityValue,totalRegionRateMgt5,mMaxOffFault,applyImpliedCouplingCoeff,spatialSeisPDF);
+		InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(laughTest, defaultAseismicityValue,
+				FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.SHAW_09,
+				AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED,
+				InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p8, MaxMagOffFault.MAG_7p65,
+				ApplyImpliedCouplingCoeff.FALSE, SpatialSeisPDF.UCERF3);
 ////		
 		System.out.println(calcImplDDWvsDDW_Ratio(faultSysRupSet));
 		

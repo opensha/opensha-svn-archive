@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.opensha.commons.data.ShortNamed;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
@@ -19,11 +18,12 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
-public enum FaultModels implements ShortNamed {
+public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 
-	FM2_1("Fault Model 2.1", 41),
-	FM3_1("Fault Model 3.1", 101),
-	FM3_2("Fault Model 3.2", 102);
+	// TODO set weights
+	FM2_1(	"Fault Model 2.1",	41,		0d),
+	FM3_1(	"Fault Model 3.1",	101,	0.5d),
+	FM3_2(	"Fault Model 3.2",	102,	0.5d);
 	
 	public static final String XML_ELEMENT_NAME = "FaultModel";
 	public static final String FAULT_MODEL_STORE_PROPERTY_NAME = "FaultModelStore";
@@ -31,10 +31,12 @@ public enum FaultModels implements ShortNamed {
 	
 	private String modelName;
 	private int id;
+	private double weight;
 	
-	private FaultModels(String modelName, int id) {
+	private FaultModels(String modelName, int id, double weight) {
 		this.modelName = modelName;
 		this.id = id;
+		this.weight = weight;
 	}
 	
 	public String getName() {
@@ -150,6 +152,16 @@ public enum FaultModels implements ShortNamed {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	@Override
+	public double getRelativeWeight() {
+		return weight;
+	}
+
+	@Override
+	public String encodeChoiceString() {
+		return getShortName();
 	}
 	
 }

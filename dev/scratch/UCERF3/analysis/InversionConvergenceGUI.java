@@ -57,7 +57,7 @@ import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -136,7 +136,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	private Map<VariableLogicTreeBranch, CSVFile<String>> resultFilesMap;
 	private ArrayList<String> curNames;
-	private ArrayList<LogicTreeBranch> curBranches;
+	private ArrayList<OldLogicTreeBranch> curBranches;
 	private ArrayList<ArbitrarilyDiscretizedFunc> curEnergyVsTimes;
 	private ArrayList<ArbitrarilyDiscretizedFunc> curEnergyVsIters;
 	private ArrayList<double[]> curFinalEnergies;
@@ -159,7 +159,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		enumParams.addParameter(buildEnumParam(MagAreaRelationships.class, MagAreaRelationships.ELL_B));
 		enumParams.addParameter(buildEnumParam(SlipAlongRuptureModels.class, SlipAlongRuptureModels.TAPERED));
 		enumParams.addParameter(buildEnumParam(AveSlipForRupModels.class, AveSlipForRupModels.ELLSWORTH_B));
-		enumParams.addParameter(buildEnumParam(InversionModels.class, InversionModels.CHAR));
+		enumParams.addParameter(buildEnumParam(InversionModels.class, InversionModels.CHAR_CONSTRAINED));
 		
 		refreshButton = new ButtonParameter(REFRESH_PARAM_NAME, REFRESH_BUTTON_TEXT);
 		refreshButton.addParameterChangeListener(this);
@@ -273,7 +273,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	private static VariableLogicTreeBranch loadBranchForName(String name) {
 		List<String> variations = parseVariations(name);
-		return new VariableLogicTreeBranch(LogicTreeBranch.parseFileName(name), variations);
+		return new VariableLogicTreeBranch(OldLogicTreeBranch.parseFileName(name), variations);
 	}
 	
 	private static HashMap<VariableLogicTreeBranch, CSVFile<String>> loadDir(File dir, VariableLogicTreeBranch branch)
@@ -359,7 +359,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	private void buildFunctions(VariableLogicTreeBranch branch) {
 		curNames = new ArrayList<String>();
-		curBranches = new ArrayList<LogicTreeBranch>();
+		curBranches = new ArrayList<OldLogicTreeBranch>();
 		curEnergyVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		curEnergyVsIters = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		curPerturbsPerItersVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc>();
@@ -844,11 +844,11 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		return 16;
 	}
 	
-	private static class VariableLogicTreeBranch extends LogicTreeBranch {
+	private static class VariableLogicTreeBranch extends OldLogicTreeBranch {
 		
 		private List<String> variations;
 
-		public VariableLogicTreeBranch(LogicTreeBranch branch, List<String> variations) {
+		public VariableLogicTreeBranch(OldLogicTreeBranch branch, List<String> variations) {
 			this(branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
 					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(),
 					variations);

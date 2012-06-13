@@ -30,8 +30,11 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.RelaxMFDConstraint;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
@@ -55,12 +58,6 @@ public class CommandLineInversionRunner {
 	public enum InversionOptions {
 		DEFAULT_ASEISMICITY("aseis", "default-aseis", "Aseis", true,
 				"Default Aseismicity Value"),
-		MFD_MODIFICATION("mfd", "mfd-mod", "MFDMod", true,
-				"MFD modification factor for increasing or decreasing MFDS"),
-		MFD_CONSTRAINT_RELAX("relmfd", "relax-mfd", "RelaxMFD", false,
-				"Flag to reduce MFD constraint weights"),
-		OFF_FUALT_ASEIS("offaseis", "off-fault-aseis", "OffAseis", true,
-				"Off fault aseismicity factor"),
 		A_PRIORI_CONST_FOR_ZERO_RATES("apz", "a-priori-zero", "APrioriZero", false,
 				"Flag to apply a priori constraint to zero rate ruptures"),
 		A_PRIORI_CONST_WT("apwt", "a-priori-wt", "APrioriWt", true, "A priori constraint weight"),
@@ -177,7 +174,7 @@ public class CommandLineInversionRunner {
 			if (!dir.exists())
 				dir.mkdir();
 			String prefix = cmd.getOptionValue("branch-prefix");
-			LogicTreeBranch branch = LogicTreeBranch.parseFileName(prefix);
+			LogicTreeBranch branch = LogicTreeBranch.fromFileName(prefix);
 			Preconditions.checkState(branch.isFullySpecified(),
 					"Branch is not fully fleshed out! Prefix: "+prefix+", branch: "+branch);
 			
@@ -192,42 +189,22 @@ public class CommandLineInversionRunner {
 			// first build the rupture set
 			System.out.println("Building RupSet");
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
-					branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
-					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), laughTest, defaultAseis,
-					8.7, 7.6, false, SpatialSeisPDF.UCERF3); // TODO don't hardcode
+					laughTest, defaultAseis, branch);
 			
 			// now build the inversion inputs
-			
-			// mfd constraint modification
-			String mfdModArg = InversionOptions.MFD_MODIFICATION.argName;
-			double mfdConstraintModifier = 1;
-			if (cmd.hasOption(mfdModArg)) {
-				String mfdMod = cmd.getOptionValue(mfdModArg);
-				mfdConstraintModifier = Double.parseDouble(mfdMod);
-			}
 			
 			// mfd relax flag
 			double mfdEqualityConstraintWt = InversionConfiguration.DEFAULT_MFD_EQUALITY_WT;
 			double mfdInequalityConstraintWt = InversionConfiguration.DEFAULT_MFD_INEQUALITY_WT;
 			
-			String relaxArg = InversionOptions.MFD_CONSTRAINT_RELAX.argName;
-			if (cmd.hasOption(relaxArg)) {
+			if (branch.getValue(RelaxMFDConstraint.class).getValue()) {
 				mfdEqualityConstraintWt = 1;
 				mfdInequalityConstraintWt = 1;
 			}
 			
-			// off fault aseis
-			double offFaultAseisFactor = 0;
-			String offFaultArg = InversionOptions.OFF_FUALT_ASEIS.argName;
-			if (cmd.hasOption(offFaultArg)) {
-				String offFaultMod = cmd.getOptionValue(offFaultArg);
-				offFaultAseisFactor = Double.parseDouble(offFaultMod);
-			}
-			
 			System.out.println("Building Inversion Configuration");
-			InversionConfiguration config = InversionConfiguration.forModel(branch.getInvModel(),
-					rupSet, offFaultAseisFactor, mfdConstraintModifier,
-					mfdEqualityConstraintWt, mfdInequalityConstraintWt);
+			InversionConfiguration config = InversionConfiguration.forModel(branch.getValue(InversionModels.class),
+					rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt);
 			
 			if (cmd.hasOption(InversionOptions.A_PRIORI_CONST_WT.argName)) {
 				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.argName));
@@ -253,7 +230,7 @@ public class CommandLineInversionRunner {
 				config.setRelativePaleoRateWt(wt);
 			}
 			
-			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getFaultModel(), rupSet);
+			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getValue(FaultModels.class), rupSet);
 			
 			PaleoProbabilityModel paleoProbabilityModel =
 				PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
@@ -359,14 +336,14 @@ public class CommandLineInversionRunner {
 				
 				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
 				
-				double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate();
-				info += "\nTotal Off Fault Seis Moment Rate (excluding subseismogenic): "
-						+(totalOffFaultMomentRate-momRed);
-				info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
-						+totalOffFaultMomentRate;
+//				double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate(); // TODO replace - what is off fault moment rate now?
+//				info += "\nTotal Off Fault Seis Moment Rate (excluding subseismogenic): "
+//						+(totalOffFaultMomentRate-momRed);
+//				info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
+//						+totalOffFaultMomentRate;
 				info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedOffFaultStatewideMFD().getTotalMomentRate();
-				info += "\nTotal Model Seis Moment Rate: "
-						+(totalOffFaultMomentRate+totalSolutionMoment);
+//				info += "\nTotal Model Seis Moment Rate: "
+//						+(totalOffFaultMomentRate+totalSolutionMoment);
 
 				int numNonZeros = 0;
 				for (double rate : sol.getRateForAllRups())

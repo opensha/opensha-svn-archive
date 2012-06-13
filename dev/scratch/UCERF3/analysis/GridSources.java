@@ -41,8 +41,8 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 
 /**
@@ -66,7 +66,7 @@ public class GridSources {
 		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory
 			.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
 				MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
-				SlipAlongRuptureModels.TAPERED, InversionModels.GR);
+				SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 
 		FaultSectionPrefData f = faultSysRupSet.getFaultSectionData(603);
 		System.out.println(f.getSectionId());

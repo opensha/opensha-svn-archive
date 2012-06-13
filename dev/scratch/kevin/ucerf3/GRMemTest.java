@@ -32,15 +32,16 @@ public class GRMemTest {
 	 */
 	public static void main(String[] args) {
 		try {
-			InversionModels im = InversionModels.GR;
+			InversionModels im = InversionModels.GR_CONSTRAINED;
 //			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1,
 //					DeformationModels.GEOLOGIC_PLUS_ABM, im);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 			filter.setMaxCmlAzimuthChange(180);
-			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1,
+			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(filter,
+					InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, FaultModels.FM3_1,
 					DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 					AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED,
-					im, filter);
+					im);
 			InversionConfiguration config = InversionConfiguration.forModel(im, rupSet);
 			
 			ArrayList<PaleoRateConstraint> paleoConstraints =

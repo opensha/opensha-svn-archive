@@ -1,19 +1,20 @@
 package scratch.UCERF3.enumTreeBranches;
 
-import org.opensha.commons.data.ShortNamed;
-
-public enum SlipAlongRuptureModels implements ShortNamed {
+public enum SlipAlongRuptureModels implements LogicTreeBranchNode<SlipAlongRuptureModels> {
 	// DO NOT RENAME THESE - they are used in rupture set files
-	CHAR("Characteristic", "Char"),	// "Characteristic (Dsr=Ds)"
-	UNIFORM("Uniform", "Uni"),	// "Uniform/Boxcar (Dsr=Dr)"
-	WG02("WGCEP-2002", "WG02"),	// "WGCEP-2002 model (Dsr prop to Vs)"
-	TAPERED("Tapered Ends", "Tap");	// "Tapered Ends ([Sin(x)]^0.5)"
+	
+	CHAR(		"Characteristic",	"Char",	0d),	// "Characteristic (Dsr=Ds)"
+	UNIFORM(	"Uniform",			"Uni",	0d),	// "Uniform/Boxcar (Dsr=Dr)"
+	WG02(		"WGCEP-2002",		"WG02",	0d),	// "WGCEP-2002 model (Dsr prop to Vs)"
+	TAPERED(	"Tapered Ends",		"Tap",	0d);	// "Tapered Ends ([Sin(x)]^0.5)"
 	
 	private String name, shortName;
+	private double weight;
 	
-	private SlipAlongRuptureModels(String name, String shortName) {
+	private SlipAlongRuptureModels(String name, String shortName, double weight) {
 		this.name = name;
 		this.shortName = shortName;
+		this.weight = weight;
 	}
 	
 	public String getName() {
@@ -27,5 +28,15 @@ public enum SlipAlongRuptureModels implements ShortNamed {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public double getRelativeWeight() {
+		return weight;
+	}
+
+	@Override
+	public String encodeChoiceString() {
+		return "Dsr"+getShortName();
 	}
 }

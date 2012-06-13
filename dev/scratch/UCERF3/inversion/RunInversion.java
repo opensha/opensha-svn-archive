@@ -20,13 +20,16 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.ApplyImpliedCouplingCoeff;
 import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -65,21 +68,16 @@ public class RunInversion {
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
-		InversionModels inversionModel = InversionModels.CHAR;
+		InversionModels inversionModel = InversionModels.CHAR_CONSTRAINED;
 		
 		// fetch the rupture set
 		InversionFaultSystemRupSet rupSet = null;
 		double defaultAseis = 0.1;
-		double totalRegionRateMgt5 = 8.7;
-		double mMaxOffFault = 7.6;
-		boolean applyImpliedCouplingCoeff = false;
-		SpatialSeisPDF spatialSeisPDF = SpatialSeisPDF.UCERF3;
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
-					AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel, filter, defaultAseis,
-					totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF);
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAseis, FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
+					AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p8, MaxMagOffFault.MAG_7p65, ApplyImpliedCouplingCoeff.FALSE, SpatialSeisPDF.UCERF3);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction

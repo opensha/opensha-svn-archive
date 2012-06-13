@@ -5,19 +5,15 @@ package scratch.UCERF3.enumTreeBranches;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_MagAreaRel;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-import org.opensha.commons.data.ShortNamed;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
@@ -25,7 +21,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * @author field
  *
  */
-public enum AveSlipForRupModels implements ShortNamed {
+public enum AveSlipForRupModels implements LogicTreeBranchNode<AveSlipForRupModels> {
 		
 	
 	AVE_UCERF2("Average UCERF2 M(A)", "AveU2") {
@@ -35,6 +31,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
 		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
+		}
 	},
 	
 	
@@ -43,6 +44,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 			double mag = sh09_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
+		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
 		}
 	},
 
@@ -58,7 +64,13 @@ public enum AveSlipForRupModels implements ShortNamed {
 			if(length<wBeta)
 				return c5*length;
 			else
-				return 2*c5/(1/length + 1/wBeta);  }
+				return 2*c5/(1/length + 1/wBeta);
+		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
+		}
 	},
 
 	HANKS_BAKUN_08("Hanks & Bakun (2008) M(A)", "HB08") {
@@ -66,6 +78,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 			double mag = hb_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
+		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
 		}
 	},
 	
@@ -77,6 +94,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
 		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
+		}
 	},
 	
 	
@@ -86,6 +108,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 			// c1 = 7.58e-5
 			// W = 15 km --> 15000 m
 			return 7.58e-5*Math.sqrt(length*15000d);
+		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
 		}
 	},
 
@@ -98,6 +125,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 			double w = xi*area/length;  // units of m
 			return c6*Math.sqrt(length*w);
 		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
+		}
 	},
 
 	SHAW_12_CONST_STRESS_DROP("Constant Stress Drop D(L) (Shaw 2012)", "ConstStressDrop") {
@@ -108,6 +140,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 			double w = xi*area/length; // unit of meters
 			double temp = 1.0/(7.0/(3.0*length) + 1.0/(2.0*w))*1e6;
 			return stressDrop*temp/FaultMomentCalc.SHEAR_MODULUS;
+		}
+		
+		@Override
+		public double getRelativeWeight() {
+			return 0d; // TODO
 		}
 	};
 	
@@ -231,6 +268,11 @@ public enum AveSlipForRupModels implements ShortNamed {
 	 * @return
 	 */
 	 public abstract double getAveSlip(double area, double length);
+	
+	@Override
+	public String encodeChoiceString() {
+		return "Dr"+getShortName();
+	}
 
 
 }

@@ -53,7 +53,7 @@ public class EnumParameter<E extends Enum<E>> extends AbstractParameter<E> {
 			defaultValue);
 		clazz = (Class<E>) Iterables.getFirst(choices, null).getClass();
 		if (choices.size() > 1) {
-			if (!clazz.isInstance(Iterables.getLast(choices))) {
+			if (!clazz.isEnum()) {
 				// this checks to see if the enum class is actually a concrete implementation
 				// of an abstract enum (this means that the enum has an abstract method that is
 				// Implemented by each instance - see AveSlipForRupModels for an example). in

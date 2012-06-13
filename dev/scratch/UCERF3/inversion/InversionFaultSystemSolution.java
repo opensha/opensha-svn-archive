@@ -10,34 +10,30 @@ import java.util.Map;
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
-import scratch.UCERF3.enumTreeBranches.DeformationModels;
-import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
-import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
-import scratch.UCERF3.utils.MFD_InversionConstraint;
-import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 
 /**
  * This is a FaultSystemSolution that also contains parameters used in the UCERF3 Inversion
@@ -50,10 +46,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	private InversionModels invModel;
 	private LogicTreeBranch branch;
 	
-	private double offFaultAseisFactor = Double.NaN;
-	private double mfdConstraintModifier = Double.NaN;
 	private boolean ucerf3MFDs = true;
-	private double bilinearTransitionMag = Double.NaN;
 	private double MFDTransitionMag = Double.NaN;
 	private boolean weightSlipRates = true;
 	private double relativePaleoRateWt = Double.NaN;
@@ -64,6 +57,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	private double relativeMinimizationConstraintWt = Double.NaN;
 	private double relativeMomentConstraintWt = Double.NaN;
 	private double minimumRuptureRateFraction = Double.NaN;
+	
+	private InversionMFDs inversionMFDs; // TODO instantiate from metadata (KEVIN)
 
 	/**
 	 * Parses the info string for inversion parameters
@@ -80,7 +75,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		Map<String, String> invProps = loadProperties(getMetedataSection(infoLines, "Inversion Configuration Metadata"));
 		Map<String, String> branchProps = loadProperties(getMetedataSection(infoLines, "Logic Tree Branch"));
 		branch = loadBranch(branchProps);
-		invModel = branch.getInvModel();
+		invModel = branch.getValue(InversionModels.class);
 		loadInvParams(invProps);
 	}
 	
@@ -120,13 +115,36 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	}
 	
 	private LogicTreeBranch loadBranch(Map<String, String> props) {
-		FaultModels fm = FaultModels.valueOf(props.get("FaultModel"));
-		DeformationModels dm = DeformationModels.valueOf(props.get("DeformationModel"));
-		MagAreaRelationships ma = MagAreaRelationships.valueOf(props.get("MagAreaRelationship"));
-		AveSlipForRupModels as = AveSlipForRupModels.valueOf(props.get("AveSlipForRupModel"));
-		SlipAlongRuptureModels sal = SlipAlongRuptureModels.valueOf(props.get("SlipAlongRuptureModel"));
-		InversionModels im = InversionModels.valueOf(props.get("InversionModel"));
-		return new LogicTreeBranch(fm, dm, ma, as, sal, im);
+		List<Class<? extends LogicTreeBranchNode<?>>> classes = LogicTreeBranch.getLogicTreeNodeClasses();
+		
+		List<LogicTreeBranchNode<?>> values = Lists.newArrayList();
+		
+		for (String key : props.keySet()) {
+			// find the associated class
+			Class<? extends LogicTreeBranchNode<?>> clazz = null;
+			for (Class<? extends LogicTreeBranchNode<?>> testClass : classes) {
+				String className = ClassUtils.getClassNameWithoutPackage(testClass);
+				if (className.startsWith(key)) {
+					clazz = testClass;
+					break;
+				}
+			}
+			Preconditions.checkNotNull(clazz, "Couldn't find class for logic tree branch: "+key);
+			
+			String valueName = props.get(key);
+			LogicTreeBranchNode<?> value = null;
+			for (LogicTreeBranchNode<?> testValue : clazz.getEnumConstants()) {
+				if (testValue.name().equals(valueName)) {
+					value = testValue;
+					break;
+				}
+			}
+			Preconditions.checkNotNull(value, "Couldn't find matching constant for logic tree value "+key+" (node="
+					+ClassUtils.getClassNameWithoutPackage(clazz)+")");
+			values.add(value);
+		}
+		
+		return LogicTreeBranch.fromValues(values);
 	}
 	
 //	private double offFaultAseisFactor = Double.NaN;
@@ -145,12 +163,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //	private double minimumRuptureRateFraction = Double.NaN;
 	
 	private void loadInvParams(Map<String, String> props) {
-		if (props.containsKey("offFaultAseisFactor"))
-			offFaultAseisFactor = Double.parseDouble(props.get("offFaultAseisFactor"));
-		if (props.containsKey("mfdConstraintModifier"))
-			mfdConstraintModifier = Double.parseDouble(props.get("mfdConstraintModifier"));
-		if (props.containsKey("bilinearTransitionMag"))
-			bilinearTransitionMag = Double.parseDouble(props.get("bilinearTransitionMag"));
+		// TODO add new metadata keys
 		if (props.containsKey("MFDTransitionMag"))
 			MFDTransitionMag = Double.parseDouble(props.get("MFDTransitionMag"));
 		if (props.containsKey("relativePaleoRateWt"))
@@ -185,20 +198,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		return branch;
 	}
 
-	public double getOffFaultAseisFactor() {
-		return offFaultAseisFactor;
-	}
-
-	public double getMfdConstraintModifier() {
-		return mfdConstraintModifier;
-	}
-
 	public boolean isUcerf3MFDs() {
 		return ucerf3MFDs;
-	}
-
-	public double getBilinearTransitionMag() {
-		return bilinearTransitionMag;
 	}
 
 	public double getMFDTransitionMag() {
@@ -249,7 +250,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	public List<MFD_InversionConstraint> getOrigMFDConstraints() {
-		return InversionConfiguration.getOriginalConstraints(this, ucerf3MFDs, mfdConstraintModifier);
+		// TODO Ned fill this in
+		return null;
 	}
 	
 	/**
@@ -262,12 +264,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	public List<MFD_InversionConstraint> getModifiedTargetMFDConstraints(List<MFD_InversionConstraint> origMFDConstraints) {
-		ArrayList<MFD_InversionConstraint> clones = new ArrayList<MFD_InversionConstraint>();
-		for (MFD_InversionConstraint mfd : origMFDConstraints) {
-			clones.add(new MFD_InversionConstraint(mfd.getMagFreqDist().deepClone(), mfd.getRegion()));
-		}
-		return InversionConfiguration.getTargetMFDConstraints(clones, invModel,
-				this, offFaultAseisFactor, bilinearTransitionMag);
+//		ArrayList<MFD_InversionConstraint> clones = new ArrayList<MFD_InversionConstraint>();
+//		for (MFD_InversionConstraint mfd : origMFDConstraints) {
+//			clones.add(new MFD_InversionConstraint(mfd.getMagFreqDist().deepClone(), mfd.getRegion()));
+//		}
+//		return InversionConfiguration.getTargetMFDConstraints(clones, invModel,
+//				this);
+		
+		return inversionMFDs.getMFD_ConstraintsForNoAndSoCal(); // TODO Ned, is this correct?
 	}
 	
 	/**
@@ -282,7 +286,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	/**
 	 * This compares the MFDs in the given MFD constraints with the MFDs 
-	 * implied by the Fault System Solution
+	 * implied by the Fault System Solution		// TODO throw not yet implemented exception
 	 * @param mfdConstraints
 	 */
 	public void plotMFDs() {
@@ -316,26 +320,29 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	public MFD_InversionConstraint getStatewideMFDConstraint(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		Preconditions.checkState(isStatewideDM(), "Can't get statewide MFD constraint for non statewide dm: "+getDeformationModel());
 		
-		MFD_InversionConstraint allConst;
-		if (ucerf3MFDs)
-			allConst = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
-		else {
-			Region reg = new CaliforniaRegions.RELM_TESTING();
-			if (ucerf2Fetch == null)
-				ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
-			ucerf2Fetch.setRegion(reg);
-			allConst = ucerf2Fetch.getTargetMFDConstraint();
-		}
+		// TODO Ned fill this in
+		return null;
 		
-		if (mfdConstraintModifier != 1 && mfdConstraintModifier > 0) {
-			IncrementalMagFreqDist magDist = allConst.getMagFreqDist();
-			for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
-				double setVal = mfdConstraintModifier * magDist.getClosestY(m);
-				magDist.set(m, setVal);
-			}
-		}
-		
-		return allConst;
+//		MFD_InversionConstraint allConst;
+//		if (ucerf3MFDs)
+//			allConst = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
+//		else {
+//			Region reg = new CaliforniaRegions.RELM_TESTING();
+//			if (ucerf2Fetch == null)
+//				ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
+//			ucerf2Fetch.setRegion(reg);
+//			allConst = ucerf2Fetch.getTargetMFDConstraint();
+//		}
+//		
+//		if (mfdConstraintModifier != 1 && mfdConstraintModifier > 0) {
+//			IncrementalMagFreqDist magDist = allConst.getMagFreqDist();
+//			for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
+//				double setVal = mfdConstraintModifier * magDist.getClosestY(m);
+//				magDist.set(m, setVal);
+//			}
+//		}
+//		
+//		return allConst;
 	}
 	
 	public List<MFD_InversionConstraint> getPlotOriginalMFDConstraints(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
@@ -426,17 +433,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		funcs.add(invTarget);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.CYAN));
 		
-		if (mfdConstraintModifier != 0 && mfdConstraintModifier != 1) {
-			// This is the overall target before it was multiplied
-			IncrementalMagFreqDist rolledBack = newSameRange(totalMFD);
-			for (int i=0; i<rolledBack.getNum(); i++) {
-				rolledBack.set(i, totalMFD.getY(i) / mfdConstraintModifier);
-			}
-			rolledBack.setName("Unmodified Original Target MFD");
-			rolledBack.setInfo("Total Target MFD without the mfdConstraintModifier of "+mfdConstraintModifier+" applied");
-			funcs.add(rolledBack);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1, Color.BLACK));
-		}
+		// TODO Kevin add dashed line back in?
+//		if (mfdConstraintModifier != 0 && mfdConstraintModifier != 1) {
+//			// This is the overall target before it was multiplied
+//			IncrementalMagFreqDist rolledBack = newSameRange(totalMFD);
+//			for (int i=0; i<rolledBack.getNum(); i++) {
+//				rolledBack.set(i, totalMFD.getY(i) / mfdConstraintModifier);
+//			}
+//			rolledBack.setName("Unmodified Original Target MFD");
+//			rolledBack.setInfo("Total Target MFD without the mfdConstraintModifier of "+mfdConstraintModifier+" applied");
+//			funcs.add(rolledBack);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1, Color.BLACK));
+//		}
 		
 		// Implied Off Fault
 		IncrementalMagFreqDist solOffFaultMFD;
@@ -474,8 +482,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 */
 	public IncrementalMagFreqDist getImpliedOffFaultStatewideMFD() {
 		IncrementalMagFreqDist mfd = getImpliedOffFaultMFD(getStatewideMFDConstraint());
-		if (branch.getInvModel() == InversionModels.GR || branch.getInvModel() == InversionModels.UNCONSTRAINED)
-			mfd.setValuesAboveMomentRateToZero(getTotalOffFaultSeisMomentRate());
+//		if (invModel == InversionModels.GR_CONSTRAINED || invModel == InversionModels.GR_UNCONSTRAINED) // TODO ?
+//			mfd.setValuesAboveMomentRateToZero(getTotalOffFaultSeisMomentRate());
 		return mfd;
 	}
 	
@@ -497,10 +505,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	private IncrementalMagFreqDist getImpliedOffFaultMFD(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist magHist) {
-		double maxOffFaultMag = Double.MAX_VALUE;
-		if (branch.getInvModel() == InversionModels.CHAR && !Double.isNaN(bilinearTransitionMag) && bilinearTransitionMag > 0)
-			maxOffFaultMag = bilinearTransitionMag;
-		return getImpliedOffFaultMFD(totalMFD, magHist, maxOffFaultMag);
+		// TODO did I do this right?
+		return getImpliedOffFaultMFD(totalMFD, magHist, branch.getValue(MaxMagOffFault.class).getMaxMagOffFault());
 	}
 	
 	/**
@@ -520,18 +526,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			offFaultMFD.set(m, tVal - myVal);
 		}
 		return offFaultMFD;
-	}
-	
-	/**
-	 * TODO Ned add comments
-	 * 
-	 * @return
-	 */
-	public double getTotalOffFaultSeisMomentRate() {
-		DeformationModelOffFaultMoRateData offFaultData = DeformationModelOffFaultMoRateData.getInstance();
-		double offFaultMoRate = offFaultData.getTotalOffFaultMomentRate(getFaultModel(), getDeformationModel());
-		offFaultMoRate *= (1-offFaultAseisFactor);
-		return offFaultMoRate + getTotalMomentRateReduction();
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {

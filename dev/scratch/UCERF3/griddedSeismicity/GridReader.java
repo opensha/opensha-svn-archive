@@ -12,6 +12,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils;
 
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.base.CharMatcher;

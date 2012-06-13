@@ -16,7 +16,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.griddedSeismicity.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.inversion.SectionClusterList;
@@ -39,7 +39,7 @@ public class LogicTreeMaxMagCalc {
 				AveSlipForRupModels.SHAW12_SQRT_LENGTH, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP,
 				AveSlipForRupModels.SHAW_2009_MOD };
 		
-		InversionModels im = InversionModels.CHAR;
+		InversionModels im = InversionModels.CHAR_CONSTRAINED;
 		
 		double defaultAseis = 0.1;
 		
