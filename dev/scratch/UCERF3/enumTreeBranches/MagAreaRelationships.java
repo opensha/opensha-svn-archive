@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelDepthDep;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_ModifiedMagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -21,7 +23,7 @@ public enum MagAreaRelationships implements LogicTreeBranchNode<MagAreaRelations
 	
 	HB_08(		"Hanks & Bakun (2002)",	"HB08",		0d,	new HanksBakun2002_MagAreaRel()),
 	ELL_B(		"Ellsworth B",			"EllB", 	0d,	new Ellsworth_B_WG02_MagAreaRel()),
-	SHAW_09(	"Shaw (2009)",			"Shaw09",	0d,	new Shaw_2009_MagAreaRel()),
+	SHAW_09_MOD( "Shaw (2009) Modified","Shaw09_Mod",	0d,	new Shaw_2009_ModifiedMagAreaRel()),
 	AVE_UCERF2(	"Average UCERF2",		"AvU2",		0d,	Lists.newArrayList(new Ellsworth_B_WG02_MagAreaRel(),
 																new HanksBakun2002_MagAreaRel()));
 	
@@ -61,27 +63,29 @@ public enum MagAreaRelationships implements LogicTreeBranchNode<MagAreaRelations
 	
 	public static void makePlot() {
 		
-		ArbitrarilyDiscretizedFunc sh09_func = new ArbitrarilyDiscretizedFunc();
-		sh09_func.setName("SHAW_2009");
+		double downDipWidth=11;
+		
+		ArbitrarilyDiscretizedFunc sh09mod_func = new ArbitrarilyDiscretizedFunc();
+		sh09mod_func.setName("SHAW_2009_Mod; downDipWidth="+downDipWidth);
 		ArbitrarilyDiscretizedFunc ellB_func = new ArbitrarilyDiscretizedFunc();
 		ellB_func.setName("ELLSWORTH_B");
 		ArbitrarilyDiscretizedFunc hb_func = new ArbitrarilyDiscretizedFunc();
 		hb_func.setName("HANKS_BAKUN_08");
 		
-		MagAreaRelationship sh09 = MagAreaRelationships.SHAW_09.getMagAreaRelationships().get(0);
+		MagAreaRelationship sh09mod = MagAreaRelationships.SHAW_09_MOD.getMagAreaRelationships().get(0);
 		MagAreaRelationship ellB = MagAreaRelationships.ELL_B.getMagAreaRelationships().get(0);
 		MagAreaRelationship hb = MagAreaRelationships.HB_08.getMagAreaRelationships().get(0);
 		
 		// log10 area from 1 to 5
     	for(int i=50; i<=20000; i+=10) {
     		double area = (double)i;
-     		sh09_func.set(area,sh09.getMedianMag(area));
+     		sh09mod_func.set(area,((MagAreaRelDepthDep)sh09mod).getWidthDepMedianMag(area,downDipWidth));
     		ellB_func.set(area,ellB.getMedianMag(area));
     		hb_func.set(area,hb.getMedianMag(area));
     	}
     	
     	ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
-    	funcs.add(sh09_func);
+    	funcs.add(sh09mod_func);
     	funcs.add(ellB_func);
     	funcs.add(hb_func);
     	

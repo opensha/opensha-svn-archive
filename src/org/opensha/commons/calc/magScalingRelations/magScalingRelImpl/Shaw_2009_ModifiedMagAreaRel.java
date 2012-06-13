@@ -19,27 +19,41 @@
 
 package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelDepthDep;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <b>Title:</b>Shaw_2007_MagAreaRel<br>
  *
- *@deprecated
- * <b>Description:</b>  .<p>
+ * <b>Description:  This is a modified version of Shaw (2009) where beta and h are changed,
+ * and where there is an option to pass the down-dip width in.</b>  .<p>
  *
  * @author Edward H. Field
  * @version 1.0
  */
 
-public class Shaw_2009_MagAreaRel extends MagAreaRelationship {
+public class Shaw_2009_ModifiedMagAreaRel extends MagAreaRelationship implements MagAreaRelDepthDep {
 
-    final static String C = "Shaw_2009_MagAreaRel";
-    public final static String NAME = "Shaw (2009)";
+    final static String C = "Shaw_2009_ModifiedMagAreaRel";
+    public final static String NAME = "Shaw (2009) Modified";
     ArbitrarilyDiscretizedFunc magAreaFunc = null;
-	public final static double beta=5;
-	public final static double h=19;
+	public final static double beta=95.0/15.0;
+	public final static double h=15;
 	public final static double cZero = 3.98;
+	
+    /**
+     * Computes the median magnitude from rupture area and down-dip width
+     * @param area in km-squared
+     * @param width in km-squared
+     * @return median magnitude
+     */
+    public  double getWidthDepMedianMag(double area, double width) {
+    	double numer= Math.max(1.0,Math.sqrt(area/(width*width)));
+    	double denom= (1 + Math.max(1.0,(area/(beta*width*width))))/2;
+    	return  cZero + Math.log10(area) + 0.6667*Math.log10(numer/denom);
+    }
+
 
 
     /**
@@ -102,7 +116,10 @@ public class Shaw_2009_MagAreaRel extends MagAreaRelationship {
     }
     
 	public static void main(String[] args) {
-		Shaw_2009_MagAreaRel test = new Shaw_2009_MagAreaRel();
+		Shaw_2009_ModifiedMagAreaRel test = new Shaw_2009_ModifiedMagAreaRel();
+		if(test.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME))
+			System.out.println("test OK");
+
 		test.getMedianArea(7);
 	}
 }

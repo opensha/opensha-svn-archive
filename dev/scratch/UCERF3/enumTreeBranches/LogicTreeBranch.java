@@ -270,7 +270,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		br2.setValue(FaultModels.FM3_2);
 		System.out.println(br2);
 		System.out.println("Num away? "+br.getNumAwayFrom(br2));
-		br2.setValue(MagAreaRelationships.SHAW_09);
+		br2.setValue(MagAreaRelationships.SHAW_09_MOD);
 		System.out.println(br2);
 		System.out.println("Num away? "+br.getNumAwayFrom(br2));
 		br2.setValue(AveSlipForRupModels.HANKS_BAKUN_08);

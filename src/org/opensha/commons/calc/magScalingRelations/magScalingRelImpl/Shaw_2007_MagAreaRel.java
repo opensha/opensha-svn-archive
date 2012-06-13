@@ -39,6 +39,7 @@ public class Shaw_2007_MagAreaRel extends MagAreaRelationship {
 
     /**
      * Computes the median magnitude from rupture area.
+     * @deprecated
      * @param area in km
      * @return median magnitude
      */

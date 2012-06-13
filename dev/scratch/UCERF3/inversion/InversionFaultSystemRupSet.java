@@ -13,7 +13,9 @@ import java.util.Map;
 
 import org.apache.commons.math.geometry.Vector3D;
 import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelDepthDep;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_ModifiedMagAreaRel;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FaultUtils;
@@ -270,7 +272,12 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				rupRake[rupIndex] = FaultUtils.getInRakeRange(FaultUtils.getScaledAngleAverage(areas, rakes));
 				double mag=0;
 				for(MagAreaRelationship magArea: magAreaRelList) {
-					mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
+					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
+						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
+//						System.out.println("YES!");
+					} else {
+						mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
+					}
 				}
 				rupMeanMag[rupIndex] = mag;
 				if(mag>maxMag)
