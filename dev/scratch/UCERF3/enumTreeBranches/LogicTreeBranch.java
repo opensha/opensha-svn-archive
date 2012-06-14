@@ -16,8 +16,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	 * This is the default reference branch // TODO confirm
 	 */
 	public static final LogicTreeBranch DEFAULT = fromValues(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM,
-			MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
-			SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p8,
+			ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p8,
 			MaxMagOffFault.MAG_7p65, ApplyImpliedCouplingCoeff.FALSE, SpatialSeisPDF.UCERF3, RelaxMFDConstraint.FALSE);
 	
 	public static List<Class<? extends LogicTreeBranchNode<?>>> getLogicTreeNodeClasses() {
@@ -25,9 +24,8 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		
 		list.add(FaultModels.class);
 		list.add(DeformationModels.class);
-		list.add(MagAreaRelationships.class);
+		list.add(ScalingRelationships.class);
 		list.add(SlipAlongRuptureModels.class);
-		list.add(AveSlipForRupModels.class);
 		list.add(InversionModels.class);
 		list.add(TotalMag5Rate.class);
 		list.add(MaxMagOffFault.class);

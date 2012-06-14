@@ -150,16 +150,13 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}
 	};
 	
-	Ellsworth_B_WG02_MagAreaRel ellB_magArea;
-	HanksBakun2002_MagAreaRel hb_magArea;
-	Shaw_2009_ModifiedMagAreaRel sh09_ModMagArea;
+	private static Ellsworth_B_WG02_MagAreaRel ellB_magArea = new Ellsworth_B_WG02_MagAreaRel();
+	private static HanksBakun2002_MagAreaRel hb_magArea = new HanksBakun2002_MagAreaRel();
+	private static Shaw_2009_ModifiedMagAreaRel sh09_ModMagArea = new Shaw_2009_ModifiedMagAreaRel();
 
 	private String name, shortName;
 	
 	private ScalingRelationships(String name, String shortName) {
-		ellB_magArea = new Ellsworth_B_WG02_MagAreaRel();
-		hb_magArea =new HanksBakun2002_MagAreaRel();
-		sh09_ModMagArea = new Shaw_2009_ModifiedMagAreaRel();
 		this.name = name;
 		this.shortName = shortName;
 	}
@@ -186,7 +183,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	
 	@Override
 	public String encodeChoiceString() {
-		return "Dr"+getShortName();
+		return getShortName();
 	}
 
 	
