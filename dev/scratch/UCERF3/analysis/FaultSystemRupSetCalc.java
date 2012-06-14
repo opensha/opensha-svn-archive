@@ -217,27 +217,6 @@ public class FaultSystemRupSetCalc {
 
 	}
 	
-	/**
-	 * This compute the fraction of moment released below the given minMag, and for
-	 * the given maxMag, assuming a Gutenberg Richter distribution
-	 * @param minMag
-	 * @param maxMag
-	 * @return
-	 */
-	public static double getFractMomentReductionForSmallMags(double magLower, double magUpper, double bValue) {
-		double magLowerRounded = Math.round((magLower-0.05)*10)/10.0+0.05;
-		double magUpperRounded = Math.round((magUpper-0.05)*10)/10.0+0.05;
-		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.05, 90, 0.1,0.05, magUpperRounded, 1.0, bValue);
-		
-		double moRateSum=0;
-		for(int i=0; i<gr.getXIndex(magLowerRounded);i++)
-			moRateSum += gr.getMomentRate(i);
-		if(D) System.out.println("\n"+moRateSum +"\t"+gr.getTotalMomentRate());
-		return moRateSum;
-	}
-	
-	
-	
 	public static HistogramFunction getMomentRateReductionHistogram(FaultSystemRupSet faultSystemRupSet, boolean wtByMoRate, boolean plotResult) {
 		HistogramFunction hist = new HistogramFunction(0.005, 100, 0.01);
 		double wt=1;
@@ -439,7 +418,7 @@ public class FaultSystemRupSetCalc {
 
 	
 	
-	public static String testInversionGR_Setup(double totRegionalM5_Rate, double fractSeisOffFault, double mMaxOffFault,
+	public static String oldTestInversionGR_Setup(double totRegionalM5_Rate, double fractSeisOffFault, double mMaxOffFault,
 			FaultSystemRupSet faultSysRupSet) {
 		
 		FaultModels fm = faultSysRupSet.getFaultModel();
@@ -479,8 +458,56 @@ public class FaultSystemRupSetCalc {
 	}
 	
 	
+	public static String getInversionSetupInfo(FaultSystemRupSet faultSysRupSet) {
+		
+		String header = "DefMod\tM(A)\tRge5\tfrSeisOff\tmMaxOff\tmMaxOn\tonCoupCoeff\toffCoupCoeff\tfrMoRateReduct\tonFltOrigMoRate\tonFltReducMoRate\toffFltOrigMoRate\toffFltReducMoRate\tmMaxOffWithFullMo\taveMinSeismoMag";
+		return header;
+//		System.out.println(header);
+
+//		String lineFirstPart = faultSysRupSet.getDeformationModel().getShortName()+"\t"+ma.getShortName()+
+//		"\t"+totRegionalM5_Rate+"\t"+frSeisOff+"\t"+mMaxOff+"\t";
+//
+//		
+//		FaultModels fm = faultSysRupSet.getFaultModel();
+//		DeformationModels dm = faultSysRupSet.getDeformationModel();
+//		
+//		double offFaultRate = totRegionalM5_Rate*fractSeisOffFault;
+//		double onFaultRate = totRegionalM5_Rate-offFaultRate;
+//		
+//		// GR Branch
+//		SummedMagFreqDist mfd = calcImpliedGR_NucleationMFD(faultSysRupSet, 0.05, 90, 0.1);
+//		
+//		double onCoupCoeff = onFaultRate/mfd.getCumRate(5.05);
+//		double onFaultOrigMoRate = mfd.getTotalMomentRate();
+//		double onFaultReducedMoRate = onCoupCoeff*onFaultOrigMoRate;
+//		
+//		GutenbergRichterMagFreqDist offFaultGR = new GutenbergRichterMagFreqDist(0.05, 90, 0.1, 0.05, mMaxOffFault, 1.0, 1.0);
+//		offFaultGR.scaleToCumRate(0, offFaultRate*1e5);
+//		DeformationModelOffFaultMoRateData defModOffFaultMoRateData = DeformationModelOffFaultMoRateData.getInstance();
+//		double offFaultOrigMoRate = defModOffFaultMoRateData.getTotalOffFaultMomentRate(fm, dm);
+//		double offFaultReducedMoRate = offFaultGR.getTotalMomentRate();
+//		
+//		// solve for the maximum magnitude off-fault with full moment
+//		GutenbergRichterMagFreqDist tempOffFaultGR = new GutenbergRichterMagFreqDist(0.005, 900, 0.01);
+//		tempOffFaultGR.setAllButMagUpper(0.005, offFaultOrigMoRate, offFaultRate*1e5, 1.0, true);
+//		double maxOffMagWithFullMoment = tempOffFaultGR.getMagUpper();
+//		
+//		double offCoupCoeff = offFaultReducedMoRate/offFaultOrigMoRate;
+//
+//		double moRateReduction = (onFaultReducedMoRate+offFaultReducedMoRate)/(onFaultOrigMoRate+offFaultOrigMoRate);
+//		// compute the average minimum seismogenic rupture mag
+//		double aveMinSeismoMag = getMeanMinMag(faultSysRupSet, true);
+//		
+//		return (float)mfd.getMaxMagWithNonZeroRate()+"\t"+(float)onCoupCoeff+"\t"+(float)offCoupCoeff+"\t"+(float)moRateReduction+"\t"+
+//				(float)onFaultOrigMoRate+"\t"+(float)onFaultReducedMoRate+"\t"+
+//				(float)offFaultOrigMoRate+"\t"+(float)offFaultReducedMoRate+"\t"+(float)maxOffMagWithFullMoment+"\t"+(float)aveMinSeismoMag;
+		
+	}
+
 	
-	public static String testInversionCharSetup(double totRegionalM5_Rate, double fractSeisOffFault, double mMaxOffFault,
+	
+	
+	public static String oldTestInversionCharSetup(double totRegionalM5_Rate, double fractSeisOffFault, double mMaxOffFault,
 			FaultSystemRupSet faultSysRupSet) {
 		
 		FaultModels fm = faultSysRupSet.getFaultModel();
@@ -811,8 +838,8 @@ public class FaultSystemRupSetCalc {
 					for(double mMaxOff : mMaxOffFault) {
 						String lineFirstPart = faultSysRupSet.getDeformationModel().getShortName()+"\t"+ma.getShortName()+
 						"\t"+totRegionalM5_Rate+"\t"+frSeisOff+"\t"+mMaxOff+"\t";
-						allLinesGR.add(lineFirstPart+testInversionGR_Setup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
-						allLinesChar.add(lineFirstPart+testInversionCharSetup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
+						allLinesGR.add(lineFirstPart+oldTestInversionGR_Setup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
+						allLinesChar.add(lineFirstPart+oldTestInversionCharSetup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
 					}			
 				}		
 			}
@@ -993,7 +1020,7 @@ public class FaultSystemRupSetCalc {
 			double test_mMaxOff = totalTargetGR.getX(mMaxOffIndex);
 			IncrementalMagFreqDist testOffFaultMFD = getTriLinearCharOffFaultTargetMFD(totalTargetGR, totOnFaultMgt5_Rate, mMinSeismoOnFault, test_mMaxOff);
 			double thisMoRateFracDiff = Math.abs(moRateOffFault-testOffFaultMFD.getTotalMomentRate())/moRateOffFault;
-			System.out.println(mMaxOffIndex+"\t"+(float)test_mMaxOff+"\t"+(float)thisMoRateFracDiff);
+//			System.out.println(mMaxOffIndex+"\t"+(float)test_mMaxOff+"\t"+(float)thisMoRateFracDiff);
 			if(thisMoRateFracDiff<fracMoRateDiff) {
 				offFaultMFD = testOffFaultMFD;
 				mMaxOff = test_mMaxOff;
@@ -1006,12 +1033,12 @@ public class FaultSystemRupSetCalc {
 		if(mMaxOff != mMaxTest)
 			throw new RuntimeException("Error: discrepancy with off-fault max mags: "+mMaxOff+" vs "+mMaxTest);
 
-		System.out.println("mMaxOff = "+mMaxOff);
-		double finalMoRate = offFaultMFD.getTotalMomentRate();
-		System.out.println("moRate (and ratio to target) = "+(float)finalMoRate+"\t("+(float)(finalMoRate/moRateOffFault)+")");
-		double targetRate = totalTargetGR.getCumRate(5.05)-totOnFaultMgt5_Rate;
-		double finalRate = offFaultMFD.getCumRate(5.05);
-		System.out.println("rate(M>=5) (and ratio to target) = "+(float)finalRate+"\t("+(float)(finalRate/targetRate)+")");
+//		System.out.println("mMaxOff = "+mMaxOff);
+//		double finalMoRate = offFaultMFD.getTotalMomentRate();
+//		System.out.println("moRate (and ratio to target) = "+(float)finalMoRate+"\t("+(float)(finalMoRate/moRateOffFault)+")");
+//		double targetRate = totalTargetGR.getCumRate(5.05)-totOnFaultMgt5_Rate;
+//		double finalRate = offFaultMFD.getCumRate(5.05);
+//		System.out.println("rate(M>=5) (and ratio to target) = "+(float)finalRate+"\t("+(float)(finalRate/targetRate)+")");
 
 		return offFaultMFD;
 	}
@@ -1032,10 +1059,10 @@ public class FaultSystemRupSetCalc {
 			mfd.addIncrementalMagFreqDist(gr);
 		}
 		
-		ArrayList<IncrementalMagFreqDist> funcs = new ArrayList<IncrementalMagFreqDist>();
-		funcs.add(mfd);
-		funcs.add(totalTargetGR);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Total On Fault MFD");
+//		ArrayList<IncrementalMagFreqDist> funcs = new ArrayList<IncrementalMagFreqDist>();
+//		funcs.add(mfd);
+//		funcs.add(totalTargetGR);
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Total On Fault MFD");
 
 		return mfd;
 	}
@@ -1124,11 +1151,14 @@ public class FaultSystemRupSetCalc {
 		graph.setTickLabelFontSize(14);
 		graph.setAxisLabelFontSize(16);
 		graph.setPlotLabelFontSize(18);
-
-
 	}
 	
-	
+	/**
+	 * The computes ratios between the implied DDW (since slip does not always 
+	 * depend on DDW) and actual DDW for each rupture
+	 * @param invFltSysRupSet
+	 * @return
+	 */
 	public static String calcImplDDWvsDDW_Ratio(InversionFaultSystemRupSet invFltSysRupSet) {
 		String result = "";
 		
@@ -1179,7 +1209,13 @@ public class FaultSystemRupSetCalc {
 		return result;
 	}
 	
-	
+	/**
+	 * The computes ratios between the implied DDW (since slip does not always 
+	 * depend on DDW) and actual DDW for each rupture for each M(A) D(L) branch
+	 * combination
+	 * @param invFltSysRupSet
+	 * @return
+	 */
 	public static void testAllImpliedDDWs() {
 		String result="";
 		

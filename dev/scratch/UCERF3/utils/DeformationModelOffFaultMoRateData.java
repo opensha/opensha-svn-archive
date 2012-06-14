@@ -2,6 +2,7 @@ package scratch.UCERF3.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -18,8 +19,12 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 /**
- * This reads and provides the off-fault moment rates provided by Kaj Johnson 
- * for each deformation model
+ * This reads and provides the off-fault gridded moment rates provided by Kaj Johnson 
+ * for each deformation model at each RELM region grid point.  Kaj assumed a seismogenic 
+ * thickness of 11 km.
+ * 
+ * Note that the NeoKinema model has zero values in SE California (276 of the 7637 points are zero; 3.6%).
+ *
  * @author field
  *
  */
@@ -37,21 +42,21 @@ public class DeformationModelOffFaultMoRateData {
 	}
 	
 	public static final String SUBDIR = "DeformationModels";
-	public static final String FILENAME = "gridded_moment_latlon_3_21.txt";
-	public static final double KAJ_SEISMO_THICKNESS = 15d;
-	public static final double REVISED_SEISMO_THICKNESS = 12d;
+	public static final String FILENAME_FM3_1 = "gridded_moment_fm_3_1_june11.txt";
+	public static final String FILENAME_FM3_2 = "gridded_moment_fm_3_2_june11.txt";
+	public static final double KAJ_SEISMO_THICKNESS = 11d;
+	public static final double REVISED_SEISMO_THICKNESS = 11d;
 	
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	
-	GriddedGeoDataSet neok_Fm3pt1_xyzData, zeng_Fm3pt1_xyzData, abm_Fm3pt1_xyzData, geobound_Fm3pt1_xyzData,
-					  geol_Fm3pt1_xyzData, abmPlusGeol_Fm3pt1_xyzData;
+	GriddedGeoDataSet neok_Fm3pt1_xyzData, zeng_Fm3pt1_xyzData, abm_Fm3pt1_xyzData,geol_Fm3pt1_xyzData, abmPlusGeol_Fm3pt1_xyzData;
+	GriddedGeoDataSet neok_Fm3pt2_xyzData, zeng_Fm3pt2_xyzData, abm_Fm3pt2_xyzData, geol_Fm3pt2_xyzData, abmPlusGeol_Fm3pt2_xyzData;
 	
 	/**
 	 * This is private so that we always use the cached version. use getInstance() instead.
 	 */
 	private DeformationModelOffFaultMoRateData() {
 		readDefModelGridData();
-		makeGeolData();
 	}
 	
 	
@@ -61,10 +66,10 @@ public class DeformationModelOffFaultMoRateData {
 	 * the average Geol+ABM model.
 	 */
 	private void makeGeolData() {
+		// do for FM 3.1
 		FaultModels fm = FaultModels.FM3_1;
 		DeformationModels dm = DeformationModels.ABM;
 		double assumedTotalMoRate = DeformationModelsCalc.calcFaultMoRateForDefModel(fm, dm, true)+getTotalOffFaultMomentRate(fm, dm);
-		
 		double geolMoRate = assumedTotalMoRate - DeformationModelsCalc.calcFaultMoRateForDefModel(fm, DeformationModels.GEOLOGIC, true);
 		geol_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);
 		int numPts = geol_Fm3pt1_xyzData.size();
@@ -75,6 +80,20 @@ public class DeformationModelOffFaultMoRateData {
 		for(int i=0;i<numPts;i++)
 			abmPlusGeol_Fm3pt1_xyzData.set(i,(geol_Fm3pt1_xyzData.get(i)+abm_Fm3pt1_xyzData.get(i))/2.0);
 		
+		// now do for FM 3.2
+		fm = FaultModels.FM3_2;
+		dm = DeformationModels.ABM;
+		assumedTotalMoRate = DeformationModelsCalc.calcFaultMoRateForDefModel(fm, dm, true)+getTotalOffFaultMomentRate(fm, dm);
+		geolMoRate = assumedTotalMoRate - DeformationModelsCalc.calcFaultMoRateForDefModel(fm, DeformationModels.GEOLOGIC, true);
+		geol_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);
+		numPts = geol_Fm3pt2_xyzData.size();
+		for(int i=0;i<numPts;i++)
+			geol_Fm3pt2_xyzData.set(i,geolMoRate/numPts);
+		
+		abmPlusGeol_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);
+		for(int i=0;i<numPts;i++)
+			abmPlusGeol_Fm3pt2_xyzData.set(i,(geol_Fm3pt2_xyzData.get(i)+abm_Fm3pt2_xyzData.get(i))/2.0);
+
 	}
 	
 	/**
@@ -95,28 +114,42 @@ public class DeformationModelOffFaultMoRateData {
 
 	
 	/**
-	 * Important notes on Kaj's file (at least the one sent on 3/21/12):
 	 * 
-	 * 0) only data for FM 3.1 are yet available
-	 * 
-	 * 1) moment rates in his files assume seismo thickness is 15 km, and mu=30GPa 
-	 * (seismo depth is changed to 12 below) 
-	 * 
-	 * 2) I added a header to the input (hopefully will provide this in the future)
-	 * 
-	 * 3) zero values are replaced by the average of non-zero values
 	 */
 	private void readDefModelGridData() {
 		neok_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		zeng_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		abm_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		geobound_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		neok_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		zeng_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		abm_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		
-		// to convert dyn-cm/yr to Nm/yr and seismo thickness of 15 to 12;
-		double CONVERSION = (REVISED_SEISMO_THICKNESS/KAJ_SEISMO_THICKNESS)*1e-7;
+		// to convert seismo thickness
+		double CONVERSION = (REVISED_SEISMO_THICKNESS/KAJ_SEISMO_THICKNESS);
 
+		// read for FM 3.1
 		try {
-			BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUBDIR, FILENAME));
+			BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUBDIR, FILENAME_FM3_1));
+			int l=-1;
+			String line;
+			while ((line = reader.readLine()) != null) {
+				l+=1;
+				if (l == 0)
+					continue;	// skip header
+				String[] st = StringUtils.split(line,"\t");
+				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
+				int index = griddedRegion.indexForLocation(loc);
+				neok_Fm3pt1_xyzData.set(index, Double.valueOf(st[2])*CONVERSION);
+				zeng_Fm3pt1_xyzData.set(index, Double.valueOf(st[3])*CONVERSION);
+				abm_Fm3pt1_xyzData.set(index, Double.valueOf(st[4])*CONVERSION);
+			}
+		} catch (Exception e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
+		// read for FM 3.2
+		try {
+			BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUBDIR, FILENAME_FM3_2));
 			int l=-1;
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -126,122 +159,58 @@ public class DeformationModelOffFaultMoRateData {
 				String[] st = StringUtils.split(line,"\t");
 				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
 				int index = griddedRegion.indexForLocation(loc);
-				neok_Fm3pt1_xyzData.set(index, Double.valueOf(st[2])*CONVERSION);
-				zeng_Fm3pt1_xyzData.set(index, Double.valueOf(st[3])*CONVERSION);
-				abm_Fm3pt1_xyzData.set(index, Double.valueOf(st[4])*CONVERSION);
-				geobound_Fm3pt1_xyzData.set(index, Double.valueOf(st[5])*CONVERSION);
+				neok_Fm3pt2_xyzData.set(index, Double.valueOf(st[2])*CONVERSION);
+				zeng_Fm3pt2_xyzData.set(index, Double.valueOf(st[3])*CONVERSION);
+				abm_Fm3pt2_xyzData.set(index, Double.valueOf(st[4])*CONVERSION);
 			}
 		} catch (Exception e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
-		
-		fillZeroMoRatesWithAve(neok_Fm3pt1_xyzData);
-		fillZeroMoRatesWithAve(zeng_Fm3pt1_xyzData);
-		fillZeroMoRatesWithAve(abm_Fm3pt1_xyzData);
-		fillZeroMoRatesWithAve(geobound_Fm3pt1_xyzData);
-		
-		
-//		double sum, min, max, val;
-//		min=Double.MAX_VALUE; max=0;
-//		sum=0;
-//		for(int i=0;i<neoKin_Fm3pt1_xyzData.size();i++) {
-//			val = neoKin_Fm3pt1_xyzData.get(i);
-//			sum += val;
-//			if(val < min) min = val;
-//			if(val > max) max = val;
-//		}
-//		System.out.println("neoKin_xyzData totMoRate="+(float)sum);
-//		sum=0;
-//		for(int i=0;i<zeng_Fm3pt1_xyzData.size();i++) {
-//			val = zeng_Fm3pt1_xyzData.get(i);
-//			sum += val;
-//			if(val < min) min = val;
-//			if(val > max) max = val;
-//		}
-//		System.out.println("zeng_xyzData totMoRate="+(float)sum);
-//		sum=0;
-//		for(int i=0;i<aveBlockMod_Fm3pt1_xyzData.size();i++) {
-//			val = aveBlockMod_Fm3pt1_xyzData.get(i);
-//			sum += val;
-//			if(val < min) min = val;
-//			if(val > max) max = val;
-//		}
-//		System.out.println("aveBlockMod_xyzData totMoRate="+(float)sum);
-//		sum=0;
-//		for(int i=0;i<geoBlockMod_Fm3pt1_xyzData.size();i++) {
-//			val = geoBlockMod_Fm3pt1_xyzData.get(i);
-//			sum += val;
-//			if(val < min) min = val;
-//			if(val > max) max = val;
-//		}
-//		System.out.println("geoBlockMod_xyzData totMoRate="+(float)sum);
-//		
-//		System.out.println("min="+(float)min);
-//		System.out.println("max="+(float)max);
-
-		
-	}
+		}
 	
 	
 	/**
 	 * This generates an average PDF of the off-fault deformation models.  The data is read here in order
-	 * to deal with the zero values differently (they are not considered in the average).  Each off-fault
-	 * model is normalized to a PDF before computing the average PDF.
+	 * to deal with NeoKinema zero values differently (they are not considered in the average); this is only
+	 * really needed if we change the zero values to something else when creating neok_Fm3pt1_xyzData and 
+	 * neok_Fm3pt2_xyzData, as we did in the past).  
+	 * 
+	 * Each off-fault model is normalized to a PDF before computing the average PDF.
+	 * 
+	 * @param fm - the specified fault model
 	 * @return
 	 */
-	public static GriddedGeoDataSet getAveDefModelPDF() {
+	public GriddedGeoDataSet getAveDefModelPDF(FaultModels fm) {
 		GriddedGeoDataSet aveData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		GriddedGeoDataSet neok_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		GriddedGeoDataSet zeng_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		GriddedGeoDataSet abm_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		GriddedGeoDataSet geobound_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet neok_xyzData, zeng_xyzData, abm_xyzData;
 		
-		// to convert dyn-cm/yr to Nm/yr and seismo thickness of 15 to 12;
-		double CONVERSION = (REVISED_SEISMO_THICKNESS/KAJ_SEISMO_THICKNESS)*1e-7;
-
-		try {
-			BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUBDIR, FILENAME));
-			int l=-1;
-			String line;
-			while ((line = reader.readLine()) != null) {
-				l+=1;
-				if (l == 0)
-					continue;
-				String[] st = StringUtils.split(line,"\t");
-				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
-				int index = griddedRegion.indexForLocation(loc);
-				neok_Fm3pt1_xyzData.set(index, Double.valueOf(st[2])*CONVERSION);
-				zeng_Fm3pt1_xyzData.set(index, Double.valueOf(st[3])*CONVERSION);
-				abm_Fm3pt1_xyzData.set(index, Double.valueOf(st[4])*CONVERSION);
-				geobound_Fm3pt1_xyzData.set(index, Double.valueOf(st[5])*CONVERSION);
-			}
-		} catch (Exception e) {
-			ExceptionUtils.throwAsRuntimeException(e);
+		if(fm == FaultModels.FM3_1) {
+			neok_xyzData = getNormalizdeData(neok_Fm3pt1_xyzData);
+			zeng_xyzData = getNormalizdeData(zeng_Fm3pt1_xyzData);
+			abm_xyzData = getNormalizdeData(abm_Fm3pt1_xyzData);
 		}
-		
-		neok_Fm3pt1_xyzData = getNormalizdeData(neok_Fm3pt1_xyzData);
-		zeng_Fm3pt1_xyzData = getNormalizdeData(zeng_Fm3pt1_xyzData);
-		abm_Fm3pt1_xyzData = getNormalizdeData(abm_Fm3pt1_xyzData);
-		geobound_Fm3pt1_xyzData = getNormalizdeData(geobound_Fm3pt1_xyzData);
-		
+		else if(fm == FaultModels.FM3_2) {
+			neok_xyzData = getNormalizdeData(neok_Fm3pt2_xyzData);
+			zeng_xyzData = getNormalizdeData(zeng_Fm3pt2_xyzData);
+			abm_xyzData = getNormalizdeData(abm_Fm3pt2_xyzData);
+		}
+		else
+			throw new RuntimeException("Error - Unsupported fault model: "+fm);
+
 		double sum=0;
 		for(int i=0;i<aveData.size();i++) {
 			double val=0;
 			int num =0;
-			if(neok_Fm3pt1_xyzData.get(i) !=0) {
-				val += neok_Fm3pt1_xyzData.get(i);
+			if(neok_xyzData.get(i) !=0) {
+				val += neok_xyzData.get(i);
 				num+=1;
 			}
-			if(zeng_Fm3pt1_xyzData.get(i) !=0) {
-				val += zeng_Fm3pt1_xyzData.get(i);
+			if(zeng_xyzData.get(i) !=0) {
+				val += zeng_xyzData.get(i);
 				num+=1;
 			}
-			if(abm_Fm3pt1_xyzData.get(i) !=0) {
-				val += abm_Fm3pt1_xyzData.get(i);
-				num+=1;
-			}
-			if(geobound_Fm3pt1_xyzData.get(i) !=0) {
-				val += geobound_Fm3pt1_xyzData.get(i);
+			if(abm_xyzData.get(i) !=0) {
+				val += abm_xyzData.get(i);
 				num+=1;
 			}
 			if(num !=0) {
@@ -252,7 +221,7 @@ public class DeformationModelOffFaultMoRateData {
 				aveData.set(i,0.0);
 		}
 		
-		// renormalize to sum to 1.0
+		// normalize to sum to 1.0
 		for(int i=0;i<aveData.size();i++) {
 			aveData.set(i, aveData.get(i)/sum);
 		}
@@ -262,44 +231,100 @@ public class DeformationModelOffFaultMoRateData {
 	
 	
 	/**
+	 * This average over both fault models (FM3.1 and FM 3.2)
+	 * @return
+	 */
+	public GriddedGeoDataSet getAveDefModelPDF() {
+		GriddedGeoDataSet aveData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet data1 = this.getAveDefModelPDF(FaultModels.FM3_1);
+		GriddedGeoDataSet data2 = this.getAveDefModelPDF(FaultModels.FM3_2);
+		for(int i=0; i< data1.size(); i++)
+			aveData.set(i, data1.get(i)+data2.get(i));
+		return getNormalizdeData(aveData);
+	
+	}
+	
+	/**
 	 * This writes the total moment rates to system.out
 	 */
 	public void writeAllTotalMomentRates() {
-		System.out.println(DeformationModels.ABM.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(FaultModels.FM3_1, DeformationModels.ABM));
-		System.out.println(DeformationModels.NEOKINEMA.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(FaultModels.FM3_1, DeformationModels.NEOKINEMA));
-		System.out.println(DeformationModels.ZENG.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(FaultModels.FM3_1, DeformationModels.ZENG));
-		System.out.println(DeformationModels.GEOBOUND.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(FaultModels.FM3_1, DeformationModels.GEOBOUND));
-		System.out.println(DeformationModels.GEOLOGIC.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(FaultModels.FM3_1, DeformationModels.GEOLOGIC));
-		System.out.println(DeformationModels.GEOLOGIC_PLUS_ABM.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM));
+		System.out.println("For FM3.1:");
+		FaultModels fm = FaultModels.FM3_1;
+		System.out.println("\t"+DeformationModels.ABM.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.ABM));
+		System.out.println("\t"+DeformationModels.NEOKINEMA.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.NEOKINEMA));
+		System.out.println("\t"+DeformationModels.ZENG.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.ZENG));
+		System.out.println("\t"+DeformationModels.GEOLOGIC.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.GEOLOGIC));
+		System.out.println("\t"+DeformationModels.GEOLOGIC_PLUS_ABM.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.GEOLOGIC_PLUS_ABM));
+		System.out.println("For FM3.2:");
+		fm = FaultModels.FM3_2;
+		System.out.println("\t"+DeformationModels.ABM.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.ABM));
+		System.out.println("\t"+DeformationModels.NEOKINEMA.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.NEOKINEMA));
+		System.out.println("\t"+DeformationModels.ZENG.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.ZENG));
+		System.out.println("\t"+DeformationModels.GEOLOGIC.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.GEOLOGIC));
+		System.out.println("\t"+DeformationModels.GEOLOGIC_PLUS_ABM.getShortName()+"\t"+(float) getTotalOffFaultMomentRate(fm, DeformationModels.GEOLOGIC_PLUS_ABM));
 	}
 
 	
+	/**
+	 * this returns a GriddedGeoDataSet with the deformation model moment rate (Nm/yr).
+	 * Note that the NeoKinema model has zero values in SE California (276 of the 7637 points are zero; 3.6%).
+	 * at each RELM region grid point 
+	 * @param fm - Fault Model
+	 * @param dm - Deformation Model
+	 * @return
+	 */
 	public GriddedGeoDataSet getDefModSpatialOffFaultMoRates(FaultModels fm, DeformationModels dm) {
 		
-		if(fm != FaultModels.FM3_1)
-			throw new RuntimeException("only FaultModels.FM3_1 is presently supported");
-		
 		GriddedGeoDataSet data=null;
-		switch(dm) {
-		case ABM:
-			data = abm_Fm3pt1_xyzData;
-			break;
-		case NEOKINEMA:
-			data = neok_Fm3pt1_xyzData;
-			break;
-		case ZENG:
-			data = zeng_Fm3pt1_xyzData;
-			break;
-		case GEOBOUND:
-			data = geobound_Fm3pt1_xyzData;
-			break;
-		case GEOLOGIC:
-			data = geol_Fm3pt1_xyzData;
-			break;
-		case GEOLOGIC_PLUS_ABM:
-			data = abmPlusGeol_Fm3pt1_xyzData;
-			break;
+
+		if(fm == FaultModels.FM3_1) {
+			switch(dm) {
+			case ABM:
+				data = abm_Fm3pt1_xyzData;
+				break;
+			case NEOKINEMA:
+				data = neok_Fm3pt1_xyzData;
+				break;
+			case ZENG:
+				data = zeng_Fm3pt1_xyzData;
+				break;
+			case GEOLOGIC:
+				if(geol_Fm3pt1_xyzData == null) makeGeolData();
+				data = geol_Fm3pt1_xyzData;
+				break;
+			case GEOLOGIC_PLUS_ABM:
+				data = abmPlusGeol_Fm3pt1_xyzData;
+				break;
+			}
 		}
+
+		else if(fm == FaultModels.FM3_2) {
+			switch(dm) {
+			case ABM:
+				data = abm_Fm3pt2_xyzData;
+				break;
+			case NEOKINEMA:
+				data = neok_Fm3pt2_xyzData;
+				break;
+			case ZENG:
+				data = zeng_Fm3pt2_xyzData;
+				break;
+			case GEOLOGIC:
+				if(geol_Fm3pt2_xyzData == null) makeGeolData();
+				data = geol_Fm3pt2_xyzData;
+				break;
+			case GEOLOGIC_PLUS_ABM:
+				data = abmPlusGeol_Fm3pt2_xyzData;
+				break;
+			}
+		}
+		else {
+			throw new RuntimeException("Error - unrecognized fault model: "+fm);
+		}
+		
+		if(data == null)
+			throw new RuntimeException("Error - unrecognized deformation model: "+dm);
+		
 		return data;
 	}
 
@@ -307,8 +332,10 @@ public class DeformationModelOffFaultMoRateData {
 	
 	/**
 	 * This returns the spatial PDF of off-fault moment rate (values sum to 1.0)
-	 * @param fm
-	 * @param dm
+	 * Note that the NeoKinema model has zero values in SE California (276 of the 7637 points are zero; 3.6%).
+	 * at each RELM region grid point 
+	 * @param fm - Fault Model
+	 * @param dm - Deformation Model
 	 * @return
 	 */
 	public GriddedGeoDataSet getDefModSpatialOffFaultPDF(FaultModels fm, DeformationModels dm) {
@@ -317,10 +344,10 @@ public class DeformationModelOffFaultMoRateData {
 	
 	
 	/**
-	 * This fills in any zero values with the average of non-zero values
+	 * This counts and returns the number of zero values
 	 * @param data
 	 */
-	private static void fillZeroMoRatesWithAve(GriddedGeoDataSet data) {
+	private static int countZeroValues(GriddedGeoDataSet data) {
 		int numZeros = 0;
 		double sum=0;
 		for(int i=0; i<data.size();i++) {
@@ -331,24 +358,13 @@ public class DeformationModelOffFaultMoRateData {
 				sum += data.get(i); 
 			}
 		}
-		//System.out.println(numZeros+"\t"+sum);
-		if(numZeros == 0) {
-			return;
-		}
-		else {
-			sum /= (double)(data.size()-numZeros);	// the average non-zero value
-			for(int i=0; i<data.size();i++) {
-				if(data.get(i) == 0) {
-					data.set(i, sum);
-				}
-			}
-		}
+		return numZeros;
 	}
 
 	
 	
 	/**
-	 * this normalizes the data so they sum to 1.0
+	 * this normalizes the data so they sum to 1.0 (original data is unchanged)
 	 * @param data
 	 */
 	public static GriddedGeoDataSet getNormalizdeData(GriddedGeoDataSet data) {
@@ -361,20 +377,37 @@ public class DeformationModelOffFaultMoRateData {
 		return normData;
 	}
 	
-	private void testPlotMap() {
+	private void testPlotMaps() {
 		try {
-			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(neok_Fm3pt1_xyzData), "NeoKinema PDF", "test meta data", "NeoKinemaPDF_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(zeng_Fm3pt1_xyzData), "Zeng PDF", "test meta data", "ZengPDF_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(abm_Fm3pt1_xyzData), "ABM PDF", "test meta data", "ABM_PDF_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(geobound_Fm3pt1_xyzData), "Geo Block Mod PDF", "test meta data", "GeoBlkModPDF_Map");
+			FaultModels fm = FaultModels.FM3_1;
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.NEOKINEMA), "NeoKinema FM3.1 PDF", "test meta data", "NeoKinema3pt1_PDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.ZENG), "Zeng FM3.1 PDF", "test meta data", "Zeng3pt1_PDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.ABM), "ABM FM3.1 PDF", "test meta data", "ABM_3pt1_PDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.GEOLOGIC), "Geologic FM3.1 PDF", "test meta data", "Geol_3pt1_PDF_Map");
+			
+			fm = FaultModels.FM3_2;
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.NEOKINEMA), "NeoKinema FM3.2 PDF", "test meta data", "NeoKinema3pt2_PDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.ZENG), "Zeng FM3.2 PDF", "test meta data", "Zeng3pt2_PDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.ABM), "ABM FM3.2 PDF", "test meta data", "ABM_3pt2_PDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getDefModSpatialOffFaultPDF(fm, DeformationModels.GEOLOGIC), "Geologic FM3.2 PDF", "test meta data", "Geol_3pt2_PDF_Map");
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private static void plotAveDefModPDF_Map() {
+	private void plotAveDefModPDF_Map() {
 		
+		try {
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_1), "Ave Def Mod PDF for  FM3.1", "average of the 4 gps deformation models", "AveDefModPDF_FM3_1_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_2), "Ave Def Mod PDF for  FM3.2", "average of the 4 gps deformation models", "AveDefModPDF_FM3_2_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(), "Ave Def Mod PDF for both FM 3.1 and 3.2", "average of the 4 gps deformation models", "AveDefModPDF_Map");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		// get the UCERF PDF with C zones for comparison
 		ModMeanUCERF2 erf= new ModMeanUCERF2();
 		erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
@@ -385,7 +418,6 @@ public class DeformationModelOffFaultMoRateData {
 		GriddedGeoDataSet ucerf2_OffFaultSeis = ERF_Calculator.getNucleationRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance(),0d,10d);
 
 		try {
-			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(), "Ave Def Mod PDF", "average of the 4 gps deformation models", "AveDefModPDF_Map");
 			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(ucerf2_OffFaultMoRate), "UCERF2 Off-Fault MoRate", "this includes the C zones", "UCERF2_OffFaultMoRatePDF_Map");
 			GMT_CA_Maps.plotSpatialPDF_Map(getNormalizdeData(ucerf2_OffFaultSeis), "UCERF2 Off-Fault Seis", "this includes the C zones", "UCERF2_OffFaultSeisPDF_Map");
 		} catch (IOException e) {
@@ -393,18 +425,49 @@ public class DeformationModelOffFaultMoRateData {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	/**
+	 * This lists the number of zero-value points in each model
+	 */
+	public void listNumZeroValues() {
+		System.out.println("neok_Fm3pt1_xyzData numZeros = "+countZeroValues(neok_Fm3pt1_xyzData));
+		System.out.println("zeng_Fm3pt1_xyzData numZeros = "+countZeroValues(zeng_Fm3pt1_xyzData));
+		System.out.println("abm_Fm3pt1_xyzData numZeros = "+countZeroValues(abm_Fm3pt1_xyzData));
+		System.out.println("neok_Fm3pt2_xyzData numZeros = "+countZeroValues(neok_Fm3pt2_xyzData));
+		System.out.println("zeng_Fm3pt2_xyzData numZeros = "+countZeroValues(zeng_Fm3pt2_xyzData));
+		System.out.println("abm_Fm3pt2_xyzData numZeros = "+countZeroValues(abm_Fm3pt2_xyzData));
+		System.out.println("(out of "+neok_Fm3pt2_xyzData.size()+" grid points)");
+	}
 
+	
+	public void testAveMapDiffs() {
+		GriddedGeoDataSet data1 = getAveDefModelPDF(FaultModels.FM3_1);
+		GriddedGeoDataSet data2 = getAveDefModelPDF(FaultModels.FM3_2);
+		double ave=0, min=Double.MAX_VALUE, max=0;
+		for(int i=0; i< data1.size();i++) {
+			double ratio = data1.get(i)/data2.get(i);
+			ave += ratio;
+			if(min>ratio) min=ratio;
+			if(max<ratio) max=ratio;
+		}
+		ave /= data1.size();
+		System.out.println("ave="+(float)ave+"\tmin="+(float)min+"\tmax="+(float)max);
+	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 
-		plotAveDefModPDF_Map();
+//		plotAveDefModPDF_Map();
 		
-//		DeformationModelOffFaultMoRateData test = new DeformationModelOffFaultMoRateData();
+		DeformationModelOffFaultMoRateData test = DeformationModelOffFaultMoRateData.getInstance();
+//		test.testAveMapDiffs();
+		test.plotAveDefModPDF_Map();
+//		test.listNumZeroValues();
 //		test.writeAllTotalMomentRates();
-////		test.testPlotMap();
+//		test.testPlotMaps();
 	}
 
 }

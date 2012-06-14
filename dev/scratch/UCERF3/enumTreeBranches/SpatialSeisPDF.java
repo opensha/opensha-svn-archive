@@ -40,7 +40,7 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	AVG_DEF_MODEL("Average Deformation Model",	"AveDM",	0d) {
 		@Override public double[] getPDF() {
 			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
-			GriddedGeoDataSet xyz = DeformationModelOffFaultMoRateData.getAveDefModelPDF();
+			GriddedGeoDataSet xyz = DeformationModelOffFaultMoRateData.getInstance().getAveDefModelPDF();
 			List<Double> vals = Lists.newArrayList();
 			for (Location loc : region) {
 				vals.add(xyz.get(loc));
