@@ -27,6 +27,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -60,7 +61,6 @@ public class DeformationModelsCalc {
 //				System.out.println(data.toString());
 				String info = data.getParentSectionName()+"\tLowSeisDep = "+Math.round(data.getAveLowerDepth());
 				if(!largeValuesInfoLSD.contains(info)) largeValuesInfoLSD.add(info);
-//				continue;
 			}
 			num+=1;
 			meanLSD+= data.getAveLowerDepth();
@@ -78,11 +78,9 @@ public class DeformationModelsCalc {
 		meanDDW /= num;
 		meanLowerMinusUpperSeisDepth /= num;
 		
-//		System.out.println("meanLowerMinusUpperSeisDepth="+(float)meanLowerMinusUpperSeisDepth);
 		System.out.println("meanLowerMinusUpperSeisDepth="+Math.round(meanLowerMinusUpperSeisDepth));
 		
 		origDepthsHist.normalizeBySumOfY_Vals();
-//		origDepthsHist.setName("Distribution of Lower Seis. Depths; mean = "+(float)meanLSD);
 		origDepthsHist.setName("Distribution of Lower Seis. Depths; mean = "+Math.round(meanLSD));
 		String infoLSW = "(among all fault subsections, and not influcenced by aseismicity)\n\nValues greater than 25km:\n\n";
 		for(String info:largeValuesInfoLSD)
@@ -223,6 +221,7 @@ public class DeformationModelsCalc {
 	}
 
 	
+	
 	private static String getTableLineForMoRateAndMmaxDataForDefModels(FaultModels fm, DeformationModels dm) {
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		double moRate = calculateTotalMomentRate(defFetch.getSubSectionList(),true);
@@ -231,8 +230,6 @@ public class DeformationModelsCalc {
 		double moRateOffFaults = calcMoRateOffFaultsForDefModel(fm, dm);
 		double totMoRate = moRate+moRateOffFaults;
 		double fractOff = moRateOffFaults/totMoRate;
-//		double fractOff = InversionConfiguration.findMomentFractionOffFaults(null, fm, dm, 1d);
-//		double totMoRate = calcTotalMomentRate(moRate,fractOff);
 		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(0.0005,9.9995,10000);
 		targetMFD.setAllButMagUpper(0.0005, totMoRate, 8.54e5, 1.0, true);
 		
@@ -340,7 +337,8 @@ public class DeformationModelsCalc {
 	
 	/**
 	 * This plots a historgram of fractional reductions due to creep,
-	 * and also calculates some things.
+	 * and also calculates some things (these latter things ignore the 
+	 * creeping section for some reason).
 	 * @param fm
 	 * @param dm
 	 */
@@ -361,7 +359,6 @@ public class DeformationModelsCalc {
 					numNotReduced += 1;
 				}
 				else if (!data.getParentSectionName().equals("San Andreas (Creeping Section) 2011 CFM")) {
-//				else {
 					totWithReductionNotRedeced += data.calcMomentRate(false);
 					totWithReductionRedeced += data.calcMomentRate(true);
 					straightAve += data.calcMomentRate(true)/data.calcMomentRate(false);
@@ -472,10 +469,10 @@ public class DeformationModelsCalc {
 		FaultModels fm=FaultModels.FM3_1;
 		try {
 			DeformationModels dm = DeformationModels.GEOLOGIC_PLUS_ABM;
-			GriddedGeoDataSet onFaultGeoPlusABMData = getDefModMoRatesInRELM_Region(fm, dm);
+			GriddedGeoDataSet onFaultGeoPlusABMData = getDefModFaultMoRatesInRELM_Region(fm, dm);
 			GMT_CA_Maps.plotRatioOfRateMaps(onFaultGeoPlusABMData, ucerf2_Faults, dm+"On Fault Ratio", " " , dm.getShortName()+"_onFaultRatioMap");
 			dm = DeformationModels.GEOLOGIC;
-			GriddedGeoDataSet onFaultGeologicData = getDefModMoRatesInRELM_Region(fm, dm);
+			GriddedGeoDataSet onFaultGeologicData = getDefModFaultMoRatesInRELM_Region(fm, dm);
 			GMT_CA_Maps.plotRatioOfRateMaps(onFaultGeologicData, ucerf2_Faults, dm+"On Fault Ratio", " " , dm.getShortName()+"_onFaultRatioMap");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -492,7 +489,7 @@ public class DeformationModelsCalc {
 		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
 		
 		GriddedGeoDataSet offFaultData = spatPDFgen.getDefModSpatialOffFaultMoRates(fm, dm);
-		GriddedGeoDataSet onFaultData = getDefModMoRatesInRELM_Region(fm, dm);
+		GriddedGeoDataSet onFaultData = getDefModFaultMoRatesInRELM_Region(fm, dm);
 		GriddedGeoDataSet totalMoRateData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
 		for(int i=0; i<totalMoRateData.size();i++)
 			totalMoRateData.set(i, offFaultData.get(i)+onFaultData.get(i));
@@ -569,7 +566,7 @@ public class DeformationModelsCalc {
 		for(DeformationModels dm : dmListForAve) {
 			System.out.println("adding "+dm+" to the mean");
 			GriddedGeoDataSet offFaultData = spatPDFgen.getDefModSpatialOffFaultMoRates(fm, dm);
-			GriddedGeoDataSet onFaultData = getDefModMoRatesInRELM_Region(fm, dm);
+			GriddedGeoDataSet onFaultData = getDefModFaultMoRatesInRELM_Region(fm, dm);
 			GriddedGeoDataSet totalMoRateData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
 			for(int i=0; i<totalMoRateData.size();i++) {
 				// some GEOL on-fault values are NaN:
@@ -781,14 +778,14 @@ public class DeformationModelsCalc {
 	
 
 	/**
-	 * This computes a GriddedGeoDataSet with the total moment rate in each bin.
+	 * This computes a GriddedGeoDataSet with the total fault moment rate in each bin.
 	 * 
 	 *  This include moment rate reductions
 	 * @param fm
 	 * @param dm
 	 * @return
 	 */
-	public static GriddedGeoDataSet getDefModMoRatesInRELM_Region(FaultModels fm, DeformationModels dm) {
+	public static GriddedGeoDataSet getDefModFaultMoRatesInRELM_Region(FaultModels fm, DeformationModels dm) {
 		GriddedGeoDataSet moRates = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
 		GriddedRegion relmGrid = RELM_RegionUtils.getGriddedRegionInstance();
 		System.out.println("moRates.size()="+moRates.size());
@@ -816,7 +813,7 @@ public class DeformationModelsCalc {
 	
 	public static void writeFractionRegionNodesInsideFaultPolygons() {
 		
-		double totRateMgt5 = 8.54; // HARD CODED!!!!
+		double totRateMgt5 = TotalMag5Rate.RATE_8p8.getRateMag5();
 		
 		double[] nodeFracs = FaultPolyMgr.getNodeFractions(FaultModels.FM3_1, null, null);
 		GriddedGeoDataSet ucerf2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
@@ -919,10 +916,10 @@ public class DeformationModelsCalc {
 	
 	public static void plotAllMmaxVersusFractSeisOffFault() {
 		
-		double rateMge5 = 8.54;  // HARD CODED!!!!!
+		double rateMge5 = TotalMag5Rate.RATE_8p8.getRateMag5();
 		
 		// hard-coded values for UCERF2
-		plotMmaxVersusFractSeisOffFault(1.73e19, 0.54e19, 8.54,"UCERF2 Def Mod 2.1", "mMaxVsOffFltSeis_UCERF2.png");
+		plotMmaxVersusFractSeisOffFault(1.73e19, 0.54e19, rateMge5,"UCERF2 Def Mod 2.1", "mMaxVsOffFltSeis_UCERF2.png");
 		
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
 		FaultModels fm = FaultModels.FM3_1;
