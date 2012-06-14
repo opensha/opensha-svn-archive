@@ -26,12 +26,9 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.ApplyImpliedCouplingCoeff;
-import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;

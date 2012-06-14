@@ -1312,8 +1312,8 @@ if(debug) System.exit(0);
 
 		System.out.println("Getting rup set");
 		
-   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(
-   				FaultModels.FM3_2,DeformationModels.GEOLOGIC,InversionModels.CHAR_CONSTRAINED, true);
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(true,
+   				FaultModels.FM3_2,DeformationModels.GEOLOGIC,InversionModels.CHAR_CONSTRAINED);
 		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_2);
 		
 //		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);

@@ -18,12 +18,12 @@ import org.opensha.commons.hpc.pbs.RangerScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
 import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
@@ -56,59 +56,59 @@ public class LogicTreePBSWriter {
 		EPICENTER("/home/epicenter/kmilner/inversions", EpicenterScriptWriter.JAVA_BIN,
 		"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
-			public BatchScriptWriter forBranch(OldLogicTreeBranch branch) {
-				InversionModels im = branch.getInvModel();
+			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
+				InversionModels im = branch.getValue(InversionModels.class);
 				Preconditions.checkState(im != InversionModels.GR_CONSTRAINED,
 				"are you kidding me? we can't run GR on epicenter!");
 				return new EpicenterScriptWriter();
 			}
 
 			@Override
-			public int getMaxHeapSizeMB(OldLogicTreeBranch branch) {
+			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
 				return 7000;
 			}
 
 			@Override
-			public int getPPN(OldLogicTreeBranch branch) {
+			public int getPPN(LogicTreeBranch branch) {
 				return 8;
 			}
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 		"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
 			@Override
-			public BatchScriptWriter forBranch(OldLogicTreeBranch branch) {
-				if (branch.getInvModel() == InversionModels.GR_CONSTRAINED)
+			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
+				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return new USC_HPCC_ScriptWriter("dodecacore");
 				return new USC_HPCC_ScriptWriter("quadcore");
 			}
 
 			@Override
-			public int getMaxHeapSizeMB(OldLogicTreeBranch branch) {
-				if (branch.getInvModel() == InversionModels.GR_CONSTRAINED)
+			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
+				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return 40000;
 				return 10000;
 			}
 
 			@Override
-			public int getPPN(OldLogicTreeBranch branch) {
-				if (branch.getInvModel() == InversionModels.GR_CONSTRAINED)
+			public int getPPN(LogicTreeBranch branch) {
+				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return 24;
 				return 8;
 			}
 		},
 		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN, null) { // TODO!!!!
 			@Override
-			public BatchScriptWriter forBranch(OldLogicTreeBranch branch) {
+			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				return new RangerScriptWriter();
 			}
 
 			@Override
-			public int getMaxHeapSizeMB(OldLogicTreeBranch branch) {
+			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
 				return 28000;
 			}
 
 			@Override
-			public int getPPN(OldLogicTreeBranch branch) {
+			public int getPPN(LogicTreeBranch branch) {
 				return 16;
 			}
 		};
@@ -123,12 +123,12 @@ public class LogicTreePBSWriter {
 			FM_STORE = fmStore;
 		}
 
-		public abstract BatchScriptWriter forBranch(OldLogicTreeBranch branch);
-		public abstract int getMaxHeapSizeMB(OldLogicTreeBranch branch);
-		public int getInitialHeapSizeMB(OldLogicTreeBranch branch) {
+		public abstract BatchScriptWriter forBranch(LogicTreeBranch branch);
+		public abstract int getMaxHeapSizeMB(LogicTreeBranch branch);
+		public int getInitialHeapSizeMB(LogicTreeBranch branch) {
 			return getMaxHeapSizeMB(branch);
 		}
-		public abstract int getPPN(OldLogicTreeBranch branch);
+		public abstract int getPPN(LogicTreeBranch branch);
 	}
 	
 	private static ArrayList<CustomArg[]> buildVariationBranches(List<CustomArg[]> variations, CustomArg[] curVariation) {
@@ -195,20 +195,14 @@ public class LogicTreePBSWriter {
 	
 	private static final String TAG_OPTION_ON = "Option On";
 	
-	private static class VariableLogicTreeBranch extends OldLogicTreeBranch {
+	private static class VariableLogicTreeBranch extends LogicTreeBranch {
 		CustomArg[] args;
-		public VariableLogicTreeBranch(FaultModels fm,
-				DeformationModels dm,
-				MagAreaRelationships ma,
-				AveSlipForRupModels as,
-				SlipAlongRuptureModels sal,
-				InversionModels im,
-				CustomArg[] args) {
-			super(fm, dm, ma, as, sal, im);
+		public VariableLogicTreeBranch(CustomArg[] args, boolean setNullToDefault, LogicTreeBranchNode<?>... branchChoices) {
+			super(LogicTreeBranch.fromValues(setNullToDefault, branchChoices));
 			this.args = args;
 		}
 		@Override
-		public int getNumAwayFrom(OldLogicTreeBranch branch) {
+		public int getNumAwayFrom(LogicTreeBranch branch) {
 			int num = super.getNumAwayFrom(branch);
 			
 			if (!(branch instanceof VariableLogicTreeBranch))
@@ -291,10 +285,12 @@ public class LogicTreePBSWriter {
 		InversionModels[] inversionModels =  { InversionModels.CHAR_CONSTRAINED };
 //		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 //		InversionModels[] inversionModels =  { InversionModels.GR };
+		
+		ScalingRelationships[] scaling = { ScalingRelationships.AVE_UCERF2 };
 
 		//		MagAreaRelationships[] magAreas = MagAreaRelationships.values();
 //		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B };
-		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
+//		MagAreaRelationships[] magAreas = { MagAreaRelationships.AVE_UCERF2 };
 //		MagAreaRelationships[] magAreas = { MagAreaRelationships.ELL_B, MagAreaRelationships.HB_08,
 //				MagAreaRelationships.SHAW_09 };
 
@@ -304,7 +300,7 @@ public class LogicTreePBSWriter {
 		SlipAlongRuptureModels[] slipAlongs = { SlipAlongRuptureModels.TAPERED };
 
 //		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B };
-		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
+//		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.AVE_UCERF2 };
 //		AveSlipForRupModels[] aveSlipModels = { AveSlipForRupModels.ELLSWORTH_B,
 //				AveSlipForRupModels.SHAW12_SQRT_LENGTH, AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP,
 //				AveSlipForRupModels.SHAW_2009_MOD };
@@ -386,35 +382,41 @@ public class LogicTreePBSWriter {
 //				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 //						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
 //						buildVariationBranch(ops, toArray("0.2", "0.5", "1", null))),
-				new VariableLogicTreeBranch(null, null, MagAreaRelationships.ELL_B,
-						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
-						null),
+				new VariableLogicTreeBranch(null, false, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED)
 						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
 						//								AveSlipForRupModels.ELLSWORTH_B, null, null),
 						//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 						//								AveSlipForRupModels.ELLSWORTH_B, null, null)
 		};
-		if (defaultBranches != null) {
+		if (defaultBranches != null) { // TODO
 			// make sure all default branch choices are valid!
-			for (OldLogicTreeBranch defaultBranch : defaultBranches) {
-				if (defaultBranch.getFaultModel() != null &&
-						!Arrays.asList(faultModels).contains(defaultBranch.getFaultModel()))
-					defaultBranch.setFaultModel(null);
-				if (defaultBranch.getDefModel() != null &&
-						defModels != null && !Arrays.asList(defModels).contains(defaultBranch.getDefModel()))
-					defaultBranch.setDefModel(null);
-				if (defaultBranch.getAveSlip() != null &&
-						!Arrays.asList(aveSlipModels).contains(defaultBranch.getAveSlip()))
-					defaultBranch.setAveSlip(null);
-				if (defaultBranch.getSlipAlong() != null &&
-						!Arrays.asList(slipAlongs).contains(defaultBranch.getSlipAlong()))
-					defaultBranch.setSlipAlong(null);
-				if (defaultBranch.getMagArea() != null &&
-						!Arrays.asList(magAreas).contains(defaultBranch.getMagArea()))
-					defaultBranch.setMagArea(null);
-				if (defaultBranch.getInvModel() != null &&
-						!Arrays.asList(inversionModels).contains(defaultBranch.getInvModel()))
-					defaultBranch.setInvModel(null);
+			for (LogicTreeBranch defaultBranch : defaultBranches) {
+				for (LogicTreeBranchNode<?> node : defaultBranch) {
+					if (node == null)
+						continue;
+					
+				}
+				
+				
+//				if (defaultBranch.getValue(FaultModels.class) != null &&
+//						!Arrays.asList(faultModels).contains(defaultBranch.getValue(FaultModels.class)))
+//					defaultBranch.clearValue(FaultModels.class);
+//					defaultBranch.setFaultModel(null);
+//				if (defaultBranch.getDefModel() != null &&
+//						defModels != null && !Arrays.asList(defModels).contains(defaultBranch.getDefModel()))
+//					defaultBranch.setDefModel(null);
+//				if (defaultBranch.getAveSlip() != null &&
+//						!Arrays.asList(aveSlipModels).contains(defaultBranch.getAveSlip()))
+//					defaultBranch.setAveSlip(null);
+//				if (defaultBranch.getSlipAlong() != null &&
+//						!Arrays.asList(slipAlongs).contains(defaultBranch.getSlipAlong()))
+//					defaultBranch.setSlipAlong(null);
+//				if (defaultBranch.getMagArea() != null &&
+//						!Arrays.asList(magAreas).contains(defaultBranch.getMagArea()))
+//					defaultBranch.setMagArea(null);
+//				if (defaultBranch.getValue(InversionModels.class) != null &&
+//						!Arrays.asList(inversionModels).contains(defaultBranch.getValue(InversionModels.class)))
+//					defaultBranch.setInvModel(null);
 			}
 		}
 		
@@ -480,115 +482,113 @@ public class LogicTreePBSWriter {
 			for (DeformationModels dm : defModelsForFM) {
 				if (!dm.isApplicableTo(fm))
 					continue;
-				for (MagAreaRelationships ma : magAreas) {
+				for (ScalingRelationships sc : scaling) {
 					for (SlipAlongRuptureModels sal : slipAlongs) {
-						for (AveSlipForRupModels as : aveSlipModels) {
-							for (CustomArg[] variationBranch : variationBranches) {
-								for (InversionModels im : inversionModels) {
-									VariableLogicTreeBranch branch = new VariableLogicTreeBranch(fm, dm, ma, as, sal, im, variationBranch);
-									if (defaultBranches != null && defaultBranches.length > 0) {
-										int closest = Integer.MAX_VALUE;
-										for (OldLogicTreeBranch defaultBranch : defaultBranches) {
-											int away = defaultBranch.getNumAwayFrom(branch);
-											if (away < closest)
-												closest = away;
-										}
-										if (closest > maxAway.get(im))
-											continue;
+						for (CustomArg[] variationBranch : variationBranches) {
+							for (InversionModels im : inversionModels) {
+								VariableLogicTreeBranch branch = new VariableLogicTreeBranch(variationBranch, true, fm, dm, sc, sal, im);
+								if (defaultBranches != null && defaultBranches.length > 0) {
+									int closest = Integer.MAX_VALUE;
+									for (LogicTreeBranch defaultBranch : defaultBranches) {
+										int away = defaultBranch.getNumAwayFrom(branch);
+										if (away < closest)
+											closest = away;
 									}
-									String name = branch.buildFileName();
+									if (closest > maxAway.get(im))
+										continue;
+								}
+								String name = branch.buildFileName();
+								for (CustomArg variation : variationBranch) {
+									if (variation == null)
+										// this is the "off" state for a flag option
+										name += "_VarNone";
+									else
+										name += "_Var"+variation.op.getFileName(variation.arg);
+								}
+
+								if (nameAdd != null && !nameAdd.isEmpty()) {
+									if (!nameAdd.startsWith("_"))
+										nameAdd = "_"+nameAdd;
+									name += nameAdd;
+								}
+
+								int mins;
+								NonnegativityConstraintType nonNeg;
+
+								BatchScriptWriter batch = site.forBranch(branch);
+								TimeCompletionCriteria checkPointCriteria;
+								if (im == InversionModels.GR_CONSTRAINED) {
+									mins = 500;
+									nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
+									batch = site.forBranch(branch);
+									//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
+									checkPointCriteria = null;
+								} else if (im == InversionModels.CHAR_CONSTRAINED) {
+									mins = 500; // TODO ?
+									nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+									//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
+									checkPointCriteria = null;
+								} else { // UNCONSTRAINED
+									mins = 60;
+									nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+									checkPointCriteria = null;
+								}
+								int ppn = site.getPPN(branch); // minimum number of cpus
+								CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
+								javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
+								javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
+
+								for (int r=runStart; r<numRuns; r++) {
+									String jobName = name;
+									if (numRuns > 1) {
+										String rStr = r+"";
+										while (rStr.length() < runDigits)
+											rStr = "0"+rStr;
+										jobName += "_run"+rStr;
+									}
+
+									File localRupSetFile = new File(writeDir, name+"_rupSet.zip");
+									File remoteRupSetFile = new File(runSubDir, name+"_rupSet.zip");
+
+									if (buildRupSets && !localRupSetFile.exists()) {
+										SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
+												InversionFaultSystemRupSetFactory.forBranch(fm, dm, sc, sal, im));
+										rupSet.toZipFile(localRupSetFile);
+										System.gc();
+									}
+
+									File pbs = new File(writeDir, jobName+".pbs");
+									System.out.println("Writing: "+pbs.getName());
+
+									int jobMins = mins+30;
+
+									String className = CommandLineInversionRunner.class.getName();
+									String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
+									classArgs += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
+									if (keepCurrentAsBest)
+										classArgs += " --cur-as-best";
+									classArgs += " --cool "+cool.name();
+									classArgs += " --nonneg "+nonNeg.name();
+									classArgs += " --num-threads "+threads;
+									if (checkPointCriteria != null)
+										classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
+									classArgs += " --branch-prefix "+jobName;
+									classArgs += " --directory "+runSubDir.getAbsolutePath();
+									if (lightweight && r > 0)
+										classArgs += " --lightweight";
+									//										classArgs += " --slower-cooling 1000";
 									for (CustomArg variation : variationBranch) {
-										if (variation == null)
+										if (variation != null)
 											// this is the "off" state for a flag option
-											name += "_VarNone";
-										else
-											name += "_Var"+variation.op.getFileName(variation.arg);
-									}
-									
-									if (nameAdd != null && !nameAdd.isEmpty()) {
-										if (!nameAdd.startsWith("_"))
-											nameAdd = "_"+nameAdd;
-										name += nameAdd;
+											classArgs += " "+variation.op.getCommandLineArgs(variation.arg);
 									}
 
-									int mins;
-									NonnegativityConstraintType nonNeg;
+									batch.writeScript(pbs, javaWriter.buildScript(className, classArgs),
+											jobMins, 1, ppn, queue);
 
-									BatchScriptWriter batch = site.forBranch(branch);
-									TimeCompletionCriteria checkPointCriteria;
-									if (im == InversionModels.GR_CONSTRAINED) {
-										mins = 500;
-										nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
-										batch = site.forBranch(branch);
-										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
-										checkPointCriteria = null;
-									} else if (im == InversionModels.CHAR_CONSTRAINED) {
-										mins = 500; // TODO ?
-										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-										//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
-										checkPointCriteria = null;
-									} else { // UNCONSTRAINED
-										mins = 60;
-										nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-										checkPointCriteria = null;
-									}
-									int ppn = site.getPPN(branch); // minimum number of cpus
-									CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
-									javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
-									javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
+									nodeHours += (double)mins / 60d;
 
-									for (int r=runStart; r<numRuns; r++) {
-										String jobName = name;
-										if (numRuns > 1) {
-											String rStr = r+"";
-											while (rStr.length() < runDigits)
-												rStr = "0"+rStr;
-											jobName += "_run"+rStr;
-										}
-
-										File localRupSetFile = new File(writeDir, name+"_rupSet.zip");
-										File remoteRupSetFile = new File(runSubDir, name+"_rupSet.zip");
-
-										if (buildRupSets && !localRupSetFile.exists()) {
-											SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
-													InversionFaultSystemRupSetFactory.forBranch(fm, dm, ma, as, sal, im));
-											rupSet.toZipFile(localRupSetFile);
-											System.gc();
-										}
-
-										File pbs = new File(writeDir, jobName+".pbs");
-										System.out.println("Writing: "+pbs.getName());
-
-										int jobMins = mins+30;
-										
-										String className = CommandLineInversionRunner.class.getName();
-										String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
-										classArgs += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
-										if (keepCurrentAsBest)
-											classArgs += " --cur-as-best";
-										classArgs += " --cool "+cool.name();
-										classArgs += " --nonneg "+nonNeg.name();
-										classArgs += " --num-threads "+threads;
-										if (checkPointCriteria != null)
-											classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
-										classArgs += " --branch-prefix "+jobName;
-										classArgs += " --directory "+runSubDir.getAbsolutePath();
-										if (lightweight && r > 0)
-											classArgs += " --lightweight";
-//										classArgs += " --slower-cooling 1000";
-										for (CustomArg variation : variationBranch) {
-											if (variation != null)
-												// this is the "off" state for a flag option
-												classArgs += " "+variation.op.getCommandLineArgs(variation.arg);
-										}
-
-										batch.writeScript(pbs, javaWriter.buildScript(className, classArgs),
-												jobMins, 1, ppn, queue);
-
-										nodeHours += (double)mins / 60d;
-
-										cnt++;
-									}
+									cnt++;
 								}
 							}
 						}

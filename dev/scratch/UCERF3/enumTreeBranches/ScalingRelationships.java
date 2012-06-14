@@ -270,10 +270,10 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		double widthKm = 1.2;
 		double areaKm = lengthKm*widthKm;
 		
-		ArrayList<MagAreaRelationships> magAreaList = new ArrayList<MagAreaRelationships>();
-		magAreaList.add(MagAreaRelationships.ELL_B);
-		magAreaList.add(MagAreaRelationships.HB_08);
-		magAreaList.add(MagAreaRelationships.SHAW_09_MOD);
+		ArrayList<ScalingRelationships> magAreaList = new ArrayList<ScalingRelationships>();
+		magAreaList.add(ScalingRelationships.ELLSWORTH_B);
+		magAreaList.add(ScalingRelationships.HANKS_BAKUN_08);
+		magAreaList.add(ScalingRelationships.SHAW_2009_MOD);
 		
 		ArrayList<ScalingRelationships> aveSlipForRupModelsList= new ArrayList<ScalingRelationships>();
 		aveSlipForRupModelsList.add(ScalingRelationships.ELLSWORTH_B);
@@ -288,15 +288,14 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		
 		String result = "CREEPING SECTION Mag and AveSlip (assuming length=150 and DDW=1.2 km):\n";
 		
-		for(MagAreaRelationships ma : magAreaList) {
-			for(ScalingRelationships asm : aveSlipForRupModelsList) {
-				double mag = ma.getMagAreaRelationships().get(0).getMedianMag(areaKm);
-				double slip = asm.getAveSlip(areaKm*1e6, lengthKm*1e3);
-				mag = Math.round(mag*100)/100.;
-				slip = Math.round(slip*100)/100.;
-				result += (float)mag+"\t"+(float)slip+"\tfor\t"+ma.getShortName()+"\t"+asm.getShortName()+"\n";
-			}
+		for(ScalingRelationships scale : ScalingRelationships.values()) {
+			double mag = scale.getMag(areaKm*1e6, widthKm*1e3);
+			double slip = scale.getAveSlip(areaKm*1e6, lengthKm*1e3);
+			mag = Math.round(mag*100)/100.;
+			slip = Math.round(slip*100)/100.;
+			result += (float)mag+"\t"+(float)slip+"\tfor\t"+scale.getShortName()+"\n";
 		}
+
 		
 		System.out.println(result);
 

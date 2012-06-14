@@ -13,16 +13,14 @@ import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.ApplyImpliedCouplingCoeff;
-import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
-import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
@@ -57,8 +55,8 @@ public class InversionFaultSystemRupSetFactory {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static FaultSystemRupSet cachedForBranch(DeformationModels deformationModel) throws IOException {
-		return cachedForBranch(deformationModel, false);
+	public static FaultSystemRupSet cachedForBranch(LogicTreeBranchNode<?>... branchNodes) throws IOException {
+		return cachedForBranch(false, branchNodes);
 	}
 	
 	/**
@@ -73,30 +71,9 @@ public class InversionFaultSystemRupSetFactory {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static FaultSystemRupSet cachedForBranch(DeformationModels deformationModel, boolean forceRebuild) throws IOException {
-		return cachedForBranch(deformationModel.getApplicableFaultModels().get(0), deformationModel,
-				OldLogicTreeBranch.DEFAULT.getInvModel(), forceRebuild);
+	public static FaultSystemRupSet cachedForBranch(boolean forceRebuild, LogicTreeBranchNode<?>... branchNodes) throws IOException {
+		return cachedForBranch(rup_set_store_dir, forceRebuild, branchNodes);
 	}
-
-	
-	/**
-	 * This loads a rupture set for the specified fault/deformation model using all other default branch
-	 * choices and the default laugh test filter.<br>
-	 * <br>
-	 * It will first attempt to see if a file exists in the precomputed data directory with the same name as
-	 * the deformation model. If so, that file will be simply loaded. Otherwise it will be created and the file
-	 * will be written to disk for future caching.
-	 * 
-	 * @param deformationModel
-	 * @return
-	 * @throws IOException 
-	 */
-	public static FaultSystemRupSet cachedForBranch(FaultModels faultModel, DeformationModels deformationModel,
-			InversionModels invModel, boolean forceRebuild) throws IOException {
-		return cachedForBranch(faultModel, deformationModel, invModel,
-				rup_set_store_dir, forceRebuild);
-	}
-
 	
 	/**
 	 * This loads a rupture set for the specified fault/deformation model using all other default branch
@@ -111,9 +88,12 @@ public class InversionFaultSystemRupSetFactory {
 	 * @throws IOException 
 	 */
 	public static FaultSystemRupSet cachedForBranch(
-			FaultModels faultModel, DeformationModels deformationModel, InversionModels invModel,
-			File directory, boolean forceRebuild)
+			File directory, boolean forceRebuild, LogicTreeBranchNode<?>... branchNodes)
 			throws IOException {
+		LogicTreeBranch branch = LogicTreeBranch.fromValues(branchNodes);
+		FaultModels faultModel = branch.getValue(FaultModels.class);
+		DeformationModels deformationModel = branch.getValue(DeformationModels.class);
+		InversionModels invModel = branch.getValue(InversionModels.class);
 		String fileName = deformationModel.name()+"_"+faultModel.name()+".zip";
 		File file = new File(directory, fileName);
 		if (!forceRebuild && file.exists()) {
@@ -129,7 +109,7 @@ public class InversionFaultSystemRupSetFactory {
 			}
 		}
 		// this means the file didn't exist, we had an error loading it, or we're forcing a rebuild
-		InversionFaultSystemRupSet rupSet = forBranch(faultModel, deformationModel, invModel);
+		InversionFaultSystemRupSet rupSet = forBranch(LaughTestFilter.getDefault(), DEFAULT_ASEIS_VALUE, branch);
 		System.out.println("Caching rup set to file: "+file.getAbsolutePath());
 		if (!directory.exists())
 			directory.mkdir();
@@ -185,8 +165,6 @@ public class InversionFaultSystemRupSetFactory {
 		DeformationModels deformationModel = branch.getValue(DeformationModels.class);
 		System.out.println("Building a rupture set for: "+deformationModel+" ("+faultModel+")");
 		
-		List<MagAreaRelationship> magAreaRelList = branch.getValue(MagAreaRelationships.class).getMagAreaRelationships();
-		
 		if (faultModel == FaultModels.FM2_1 && laughTest.getCoulombFilter() != null) {
 			System.out.println("WARNING: removing coulomb filter since this is FM 2.1");
 			laughTest.setCoulombFilter(null);
@@ -212,11 +190,10 @@ public class InversionFaultSystemRupSetFactory {
 		}
 		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
-				clusters, deformationModel, faultSectionData, magAreaRelList,
+				clusters, deformationModel, faultSectionData, branch.getValue(ScalingRelationships.class),
 				branch.getValue(InversionModels.class), branch.getValue(SlipAlongRuptureModels.class),
-				branch.getValue(AveSlipForRupModels.class), branch.getValue(TotalMag5Rate.class).getRateMag5(),
-				branch.getValue(MaxMagOffFault.class).getMaxMagOffFault(),
-				branch.getValue(ApplyImpliedCouplingCoeff.class).getValue(), branch.getValue(SpatialSeisPDF.class));
+				branch.getValue(TotalMag5Rate.class).getRateMag5(), branch.getValue(MaxMagOffFault.class).getMaxMagOffFault(),
+				branch.getValue(MomentRateFixes.class).isApplyCC(), branch.getValue(SpatialSeisPDF.class));
 		System.out.println("New rup set has "+rupSet.getNumRuptures()+" ruptures.");
 		String info = rupSet.getInfoString();
 		if (info == null)
@@ -246,7 +223,7 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, InversionModels.CHAR);
-			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.CHAR_CONSTRAINED, true);
+			FaultSystemRupSet rupSet = cachedForBranch(true, FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.CHAR_CONSTRAINED);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
 //					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault(), MomentReductions.INCREASE_ASEIS);

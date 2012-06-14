@@ -31,10 +31,10 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
-import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -74,10 +74,9 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	// following are defined in constructor
 	DeformationModels defModName;
 	FaultModels faultModel;
-	List<MagAreaRelationship> magAreaRelList;
 	String deformationModelString;
 	SlipAlongRuptureModels slipModelType;
-	AveSlipForRupModels aveSlipForRupModel;
+	ScalingRelationships scalingRelationship;
 	InversionModels inversionModel;
 	double totalRegionRateMgt5;
 	double mMaxOffFault;
@@ -128,11 +127,11 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param spatialSeisPDF
 	 */
 	public InversionFaultSystemRupSet(FaultModels faultModel, DeformationModels defModel,
-			List<MagAreaRelationship> magAreaRelList, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
-			AveSlipForRupModels aveSlipForRupModel, File precomputedDataDir, LaughTestFilter filter, double totalRegionRateMgt5, 
+			ScalingRelationships scalingRelationship, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
+			File precomputedDataDir, LaughTestFilter filter, double totalRegionRateMgt5, 
 			double mMaxOffFault, boolean applyImpliedCouplingCoeff, SpatialSeisPDF spatialSeisPDF) {
 		this(new SectionClusterList(faultModel, defModel, precomputedDataDir, filter),
-				defModel, null, magAreaRelList, inversionModel, slipModelType, aveSlipForRupModel, totalRegionRateMgt5, 
+				defModel, null, scalingRelationship, inversionModel, slipModelType, totalRegionRateMgt5, 
 				mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF);
 	}
 
@@ -154,8 +153,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 	 */
 	public InversionFaultSystemRupSet(SectionClusterList clusters, DeformationModels defModel, List<FaultSectionPrefData> faultSectionData,
-			List<MagAreaRelationship> magAreaRelList, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
-			AveSlipForRupModels aveSlipForRupModel, double totalRegionRateMgt5, double mMaxOffFault, boolean applyImpliedCouplingCoeff,
+			ScalingRelationships scalingRelationship, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
+			double totalRegionRateMgt5, double mMaxOffFault, boolean applyImpliedCouplingCoeff,
 		SpatialSeisPDF spatialSeisPDF) {
 		
 		if (faultSectionData == null)
@@ -164,9 +163,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		
 		this.faultModel = clusters.getFaultModel();
 		this.defModName = defModel;
-		this.magAreaRelList = magAreaRelList;
+		this.scalingRelationship = scalingRelationship;
 		this.slipModelType = slipModelType;
-		this.aveSlipForRupModel = aveSlipForRupModel;
 		this.sectionClusterList = clusters;
 		this.faultSectionData = faultSectionData;
 		this.inversionModel = inversionModel;
@@ -180,7 +178,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		infoString += "\tdefModName = " +defModName+ "\n";
 		infoString += "\tdefMod filter basis = " +clusters.getDefModel()+ "\n";
 		infoString += "\t" +clusters.getFilter()+ "\n";
-		infoString += "\tmagAreaRelList = " +magAreaRelList+ "\n";
+		infoString += "\tscalingRelationship = " +scalingRelationship+ "\n";
 		infoString += "\tinversionModel = " +inversionModel+ "\n";
 		infoString += "\tslipModelType = " +slipModelType+ "\n";
 
@@ -270,15 +268,15 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				rupArea[rupIndex] = totArea;
 				rupLength[rupIndex] = totLength;
 				rupRake[rupIndex] = FaultUtils.getInRakeRange(FaultUtils.getScaledAngleAverage(areas, rakes));
-				double mag=0;
-				for(MagAreaRelationship magArea: magAreaRelList) {
-					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
-						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
-//						System.out.println("YES!");
-					} else {
-						mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
-					}
-				}
+				double mag = scalingRelationship.getMag(totArea*1e-6, (totArea/totLength)*1e-3); // TODO verify that I did this correctly
+//				for(MagAreaRelationship magArea: magAreaRelList) {
+//					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
+//						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
+////						System.out.println("YES!");
+//					} else {
+//						mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
+//					}
+//				}
 				rupMeanMag[rupIndex] = mag;
 				if(mag>maxMag)
 					maxMag = mag;
@@ -288,7 +286,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				// (mean moment != moment of mean mag if aleatory uncertainty included)
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
 //				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
-				rupMeanSlip[rupIndex] = aveSlipForRupModel.getAveSlip(totArea, totLength);
+				rupMeanSlip[rupIndex] = scalingRelationship.getAveSlip(totArea, totLength);
 			}
 		}
 		

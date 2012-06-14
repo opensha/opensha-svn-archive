@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -55,12 +55,11 @@ public class CommandLineInputGenerator {
 			File rupSetFile = new File(args[0]);
 			InversionFaultSystemRupSet rupSet;
 			// try to create it
-			OldLogicTreeBranch branch = OldLogicTreeBranch.parseFileName(rupSetFile.getName());
+			LogicTreeBranch branch = LogicTreeBranch.fromFileName(rupSetFile.getName());
 			Preconditions.checkState(branch.isFullySpecified(), "Rup set file doesn't exist and can't be created because " +
 					"the logic tree branch could not be fully parsed: "+rupSetFile.getAbsolutePath());
 			LaughTestFilter filter = LaughTestFilter.getDefault();
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAsesisValue, branch.getFaultModel(), branch.getDefModel(),
-					branch.getMagArea(), branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(), SpatialSeisPDF.UCERF3);
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAsesisValue, branch);
 			// write it to a file
 			new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
 			

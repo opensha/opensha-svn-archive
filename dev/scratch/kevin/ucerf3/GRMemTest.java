@@ -1,18 +1,11 @@
 package scratch.kevin.ucerf3;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-import com.google.common.base.Stopwatch;
-
-import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
-
-import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -24,6 +17,9 @@ import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
+import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
+
+import com.google.common.base.Stopwatch;
 
 public class GRMemTest {
 
@@ -39,8 +35,7 @@ public class GRMemTest {
 			filter.setMaxCmlAzimuthChange(180);
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(filter,
 					InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, FaultModels.FM3_1,
-					DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
-					AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED,
+					DeformationModels.GEOLOGIC_PLUS_ABM, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED,
 					im);
 			InversionConfiguration config = InversionConfiguration.forModel(im, rupSet);
 			

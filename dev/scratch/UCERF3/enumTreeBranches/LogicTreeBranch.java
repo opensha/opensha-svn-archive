@@ -1,6 +1,6 @@
 package scratch.UCERF3.enumTreeBranches;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,26 +17,35 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	 */
 	public static final LogicTreeBranch DEFAULT = fromValues(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM,
 			ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p8,
-			MaxMagOffFault.MAG_7p65, ApplyImpliedCouplingCoeff.FALSE, SpatialSeisPDF.UCERF3, RelaxMFDConstraint.FALSE);
+			MaxMagOffFault.MAG_7p65, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 	
-	public static List<Class<? extends LogicTreeBranchNode<?>>> getLogicTreeNodeClasses() {
-		List<Class<? extends LogicTreeBranchNode<?>>> list = Lists.newArrayList();
+	private static List<Class<? extends LogicTreeBranchNode<?>>> logicTreeClasses;
+	
+	public static synchronized List<Class<? extends LogicTreeBranchNode<?>>> getLogicTreeNodeClasses() {
+		if (logicTreeClasses == null) {
+			logicTreeClasses = Lists.newArrayList();
+			
+			logicTreeClasses.add(FaultModels.class);
+			logicTreeClasses.add(DeformationModels.class);
+			logicTreeClasses.add(ScalingRelationships.class);
+			logicTreeClasses.add(SlipAlongRuptureModels.class);
+			logicTreeClasses.add(InversionModels.class);
+			logicTreeClasses.add(TotalMag5Rate.class);
+			logicTreeClasses.add(MaxMagOffFault.class);
+			logicTreeClasses.add(MomentRateFixes.class);
+			logicTreeClasses.add(SpatialSeisPDF.class);
+			
+			logicTreeClasses = Collections.unmodifiableList(logicTreeClasses);
+		}
 		
-		list.add(FaultModels.class);
-		list.add(DeformationModels.class);
-		list.add(ScalingRelationships.class);
-		list.add(SlipAlongRuptureModels.class);
-		list.add(InversionModels.class);
-		list.add(TotalMag5Rate.class);
-		list.add(MaxMagOffFault.class);
-		list.add(ApplyImpliedCouplingCoeff.class);
-		list.add(SpatialSeisPDF.class);
-		list.add(RelaxMFDConstraint.class);
-		
-		return list;
+		return logicTreeClasses;
 	}
 	
 	private List<LogicTreeBranchNode<? extends Enum<?>>> branch;
+	
+	protected LogicTreeBranch(LogicTreeBranch branch) {
+		this(branch.branch);
+	}
 	
 	private LogicTreeBranch(List<LogicTreeBranchNode<? extends Enum<?>>> branch) {
 		this.branch = branch;
@@ -59,11 +68,24 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return null;
 	}
 	
+	public int size() {
+		return branch.size();
+	}
+	
+	public LogicTreeBranchNode<?> getValue(int index) {
+		return branch.get(index);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <E extends LogicTreeBranchNode<?>> Class<E> getEnumEnclosingClass(Class<E> clazz) {
 		if (!clazz.isEnum())
 			clazz = (Class<E>) clazz.getEnclosingClass();
 		return clazz;
+	}
+	
+	public void clearValue(Class<? extends LogicTreeBranchNode<?>> clazz) {
+		clazz = getEnumEnclosingClass(clazz);
+		branch.set(getLogicTreeNodeClasses().indexOf(clazz), null);
 	}
 	
 	public void setValue(LogicTreeBranchNode<?> value) {
@@ -266,12 +288,6 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		System.out.println(br2);
 		System.out.println("Num away? "+br.getNumAwayFrom(br2));
 		br2.setValue(FaultModels.FM3_2);
-		System.out.println(br2);
-		System.out.println("Num away? "+br.getNumAwayFrom(br2));
-		br2.setValue(MagAreaRelationships.SHAW_09_MOD);
-		System.out.println(br2);
-		System.out.println("Num away? "+br.getNumAwayFrom(br2));
-		br2.setValue(AveSlipForRupModels.HANKS_BAKUN_08);
 		System.out.println(br2);
 		System.out.println("Num away? "+br.getNumAwayFrom(br2));
 	}

@@ -53,12 +53,12 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
-import scratch.UCERF3.enumTreeBranches.AveSlipForRupModels;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.MagAreaRelationships;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
+import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 
@@ -136,7 +136,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	private Map<VariableLogicTreeBranch, CSVFile<String>> resultFilesMap;
 	private ArrayList<String> curNames;
-	private ArrayList<OldLogicTreeBranch> curBranches;
+	private ArrayList<LogicTreeBranch> curBranches;
 	private ArrayList<ArbitrarilyDiscretizedFunc> curEnergyVsTimes;
 	private ArrayList<ArbitrarilyDiscretizedFunc> curEnergyVsIters;
 	private ArrayList<double[]> curFinalEnergies;
@@ -156,9 +156,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		enumParams = new ParameterList();
 		enumParams.addParameter(buildEnumParam(FaultModels.class, FaultModels.FM3_1));
 		enumParams.addParameter(buildEnumParam(DeformationModels.class, null));
-		enumParams.addParameter(buildEnumParam(MagAreaRelationships.class, MagAreaRelationships.ELL_B));
 		enumParams.addParameter(buildEnumParam(SlipAlongRuptureModels.class, SlipAlongRuptureModels.TAPERED));
-		enumParams.addParameter(buildEnumParam(AveSlipForRupModels.class, AveSlipForRupModels.ELLSWORTH_B));
+		enumParams.addParameter(buildEnumParam(ScalingRelationships.class, ScalingRelationships.ELLSWORTH_B));
 		enumParams.addParameter(buildEnumParam(InversionModels.class, InversionModels.CHAR_CONSTRAINED));
 		
 		refreshButton = new ButtonParameter(REFRESH_PARAM_NAME, REFRESH_BUTTON_TEXT);
@@ -273,7 +272,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	
 	private static VariableLogicTreeBranch loadBranchForName(String name) {
 		List<String> variations = parseVariations(name);
-		return new VariableLogicTreeBranch(OldLogicTreeBranch.parseFileName(name), variations);
+		return new VariableLogicTreeBranch(LogicTreeBranch.fromFileName(name), variations);
 	}
 	
 	private static HashMap<VariableLogicTreeBranch, CSVFile<String>> loadDir(File dir, VariableLogicTreeBranch branch)
@@ -330,18 +329,15 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	private VariableLogicTreeBranch getCurrentBranch() {
-		FaultModels fm = enumParams.getParameter(FaultModels.class,
-				ClassUtils.getClassNameWithoutPackage(FaultModels.class)).getValue();
-		DeformationModels dm = enumParams.getParameter(DeformationModels.class,
-				ClassUtils.getClassNameWithoutPackage(DeformationModels.class)).getValue();
-		MagAreaRelationships ma = enumParams.getParameter(MagAreaRelationships.class,
-				ClassUtils.getClassNameWithoutPackage(MagAreaRelationships.class)).getValue();
-		AveSlipForRupModels as = enumParams.getParameter(AveSlipForRupModels.class,
-				ClassUtils.getClassNameWithoutPackage(AveSlipForRupModels.class)).getValue();
-		SlipAlongRuptureModels sal = enumParams.getParameter(SlipAlongRuptureModels.class,
-				ClassUtils.getClassNameWithoutPackage(SlipAlongRuptureModels.class)).getValue();
-		InversionModels im = enumParams.getParameter(InversionModels.class,
-				ClassUtils.getClassNameWithoutPackage(InversionModels.class)).getValue();
+		List<LogicTreeBranchNode<?>> nodes = Lists.newArrayList();
+		for (Parameter<?> param : enumParams) {
+			if (param.getValue() != null) {
+				EnumParameter<?> enumParam = (EnumParameter<?>) param;
+				LogicTreeBranchNode<?> node = (LogicTreeBranchNode<?>) enumParam.getValue();
+				nodes.add(node);
+			}
+		}
+		
 		ArrayList<String> variations = new ArrayList<String>();
 		for (Parameter<?> param : griddedEditor.getParameterList()) {
 			if (param.getName().startsWith(VARIATION_PARAM_NAME)) {
@@ -354,12 +350,12 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				variations.add(variation);
 			}
 		}
-		return new VariableLogicTreeBranch(fm, dm, ma, as, sal, im, variations);
+		return new VariableLogicTreeBranch(LogicTreeBranch.fromValues(nodes), variations);
 	}
 	
 	private void buildFunctions(VariableLogicTreeBranch branch) {
 		curNames = new ArrayList<String>();
-		curBranches = new ArrayList<OldLogicTreeBranch>();
+		curBranches = new ArrayList<LogicTreeBranch>();
 		curEnergyVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		curEnergyVsIters = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		curPerturbsPerItersVsTimes = new ArrayList<ArbitrarilyDiscretizedFunc>();
@@ -374,18 +370,13 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			if (!branch.matchesVariation(candidate))
 				continue;
 			ArrayList<String> diffNames = new ArrayList<String>();
-			if (branch.getFaultModel() == null)
-				diffNames.add("FM: "+candidate.getFaultModel().getShortName());
-			if (branch.getDefModel() == null)
-				diffNames.add("DM: "+candidate.getDefModel().getShortName());
-			if (branch.getMagArea() == null)
-				diffNames.add("MA: "+candidate.getMagArea().getShortName());
-			if (branch.getAveSlip() == null)
-				diffNames.add("Dr: "+candidate.getAveSlip().getShortName());
-			if (branch.getSlipAlong() == null)
-				diffNames.add("Dsr: "+candidate.getSlipAlong().getShortName());
-			if (branch.getInvModel() == null)
-				diffNames.add("Inv: "+candidate.getInvModel().getShortName());
+
+			for (int i=0; i<branch.size(); i++) {
+				LogicTreeBranchNode<?> node = branch.getValue(i);
+				if (branch == null) {
+					diffNames.add(candidate.getValue(i).getShortName());
+				}
+			}
 			if (branch.getVariations() != null && candidate.getVariations() != null) {
 				for (int i=0; i<candidate.getVariations().size(); i++) {
 					String var = candidate.getVariations().get(i);
@@ -844,21 +835,12 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		return 16;
 	}
 	
-	private static class VariableLogicTreeBranch extends OldLogicTreeBranch {
+	private static class VariableLogicTreeBranch extends LogicTreeBranch {
 		
 		private List<String> variations;
 
-		public VariableLogicTreeBranch(OldLogicTreeBranch branch, List<String> variations) {
-			this(branch.getFaultModel(), branch.getDefModel(), branch.getMagArea(),
-					branch.getAveSlip(), branch.getSlipAlong(), branch.getInvModel(),
-					variations);
-		}
-		
-		public VariableLogicTreeBranch(FaultModels fm, DeformationModels dm,
-				MagAreaRelationships ma, AveSlipForRupModels as,
-				SlipAlongRuptureModels sal, InversionModels im,
-				List<String> variations) {
-			super(fm, dm, ma, as, sal, im);
+		public VariableLogicTreeBranch(LogicTreeBranch branch, List<String> variations) {
+			super(branch);
 			this.variations = variations;
 		}
 		

@@ -32,8 +32,7 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.OldLogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.RelaxMFDConstraint;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
@@ -197,7 +196,7 @@ public class CommandLineInversionRunner {
 			double mfdEqualityConstraintWt = InversionConfiguration.DEFAULT_MFD_EQUALITY_WT;
 			double mfdInequalityConstraintWt = InversionConfiguration.DEFAULT_MFD_INEQUALITY_WT;
 			
-			if (branch.getValue(RelaxMFDConstraint.class).getValue()) {
+			if (branch.getValue(MomentRateFixes.class).isRelaxMFD()) {
 				mfdEqualityConstraintWt = 1;
 				mfdInequalityConstraintWt = 1;
 			}
