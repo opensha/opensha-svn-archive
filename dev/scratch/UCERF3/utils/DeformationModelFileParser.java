@@ -421,15 +421,15 @@ public class DeformationModelFileParser {
 		sects.remove(182);
 	}
 	
-	private static Map<String, double[]> momemtReductionsData = null;
+	private static Map<String, Double> creepData = null;
 	private static ArbitrarilyDiscretizedFunc momentReductionConversionFunc = null;
 	
 	private synchronized static void loadMomentReductionsData() throws IOException {
-		if (momemtReductionsData == null) {
+		if (creepData == null) {
 			// first load the creep -> moment reductions table
 			momentReductionConversionFunc = new ArbitrarilyDiscretizedFunc();
-			BufferedReader convReader = new BufferedReader(UCERF3_DataUtils.getReader("DeformationModels",
-					"moment_reductions_conversion_table_2012_06_08.txt"));
+			BufferedReader convReader = new BufferedReader(UCERF3_DataUtils.getReader("creep",
+					"moment-reductions-conversion-table-2012_06_08.txt"));
 			convReader.readLine(); // header
 			String line = convReader.readLine();
 			while (line != null) {
@@ -448,14 +448,13 @@ public class DeformationModelFileParser {
 			
 			// now load the creep file
 			
-			InputStream is = UCERF3_DataUtils.locateResourceAsStream("DeformationModels",
-					"Moment_Reductions_2012_03_28_v2.xls");
+			InputStream is = UCERF3_DataUtils.locateResourceAsStream("creep",
+					"creep-by-minisection-2012_06_03.xls");
 			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastRowIndex = sheet.getLastRowNum();
-			int numModels = 6;
-			momemtReductionsData = new HashMap<String, double[]>();
+			creepData = new HashMap<String, Double>();
 			for(int r=1; r<=lastRowIndex; ++r) {
 //				System.out.println("Coulomb row: "+r);
 				HSSFRow row = sheet.getRow(r);
@@ -468,14 +467,12 @@ public class DeformationModelFileParser {
 					miniSection = ""+(float)miniCell.getNumericCellValue();
 				else
 					miniSection = miniCell.getStringCellValue();
-				double[] reductions = new double[numModels];
-				for (int i=0; i<numModels; i++) {
-					HSSFCell dataCell = row.getCell(2+i);
-					Preconditions.checkState(dataCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC,
-							"non numeric data cell!");
-					reductions[i] = dataCell.getNumericCellValue();
-				}
-				momemtReductionsData.put(miniSection, reductions);
+				
+				HSSFCell dataCell = row.getCell(2);
+				Preconditions.checkState(dataCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC,
+						"non numeric data cell!");
+				double creep = dataCell.getNumericCellValue();
+				creepData.put(miniSection, creep);
 			}
 		}
 	}
@@ -514,47 +511,16 @@ public class DeformationModelFileParser {
 //	}
 	
 	public static void applyMomentReductions(Map<Integer, DeformationSection> model, DeformationModels dm,
-			double maxMomentReduction) {
 		// first load the data if needed
+			double maxMomentReduction) {
 		try {
 			loadMomentReductionsData();
 		} catch (IOException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		
-		int index; // this is the index in the array, and thus the file for this def model
-		switch (dm) {
-		case GEOBOUND:
-			index = 0;
-			break;
-		case ZENG:
-			index = 1;
-			break;
-		case NEOKINEMA:
-			index = 2;
-			break;
-		case ABM:
-			index = 3;
-			break;
-		case GEOLOGIC:
-			index = 4;
-			break;
-		case GEOLOGIC_PLUS_ABM:
-			index = 5;
-			break;
-		case GEOLOGIC_LOWER:
-			index = 4;
-			break;
-		case GEOLOGIC_UPPER:
-			index = 4;
-			break;
-
-		default:
-			throw new IllegalStateException("No data file index is known for DM: "+dm);
-		}
-		
-		for (String miniSectionStr : momemtReductionsData.keySet()) {
-			double[] reductions = momemtReductionsData.get(miniSectionStr);
+		for (String miniSectionStr : creepData.keySet()) {
+			double creep = creepData.get(miniSectionStr);
 			int[] miniSection = parseMinisectionNumber(miniSectionStr);
 			int id = miniSection[0];
 			int sect = miniSection[1];
@@ -568,9 +534,18 @@ public class DeformationModelFileParser {
 					def.momentReductions.add(0d);
 			}
 			Preconditions.checkState(sect <= numMinisForSection, "Mini sections inconsistant for section: "+id);
-			double reduction = reductions[index];
-			if (reduction <= maxMomentReduction)
-				def.momentReductions.set(sect-1, reductions[index]);
+			double slip = def.getSlips().get(sect-1);
+			
+			double creepOverSlip = creep / slip;
+			
+			double momentRecution;
+			if (creepOverSlip > momentReductionConversionFunc.getMaxX())
+				momentRecution = 1;
+			else
+				momentRecution = momentReductionConversionFunc.getClosestY(creepOverSlip);
+			
+			if (momentRecution <= maxMomentReduction)
+				def.momentReductions.set(sect-1, momentRecution);
 			else
 				def.momentReductions.set(sect-1, maxMomentReduction);
 		}
@@ -648,6 +623,76 @@ public class DeformationModelFileParser {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void writeCreepReductionsTable(File file, FaultModels fm) throws IOException {
+		List<DeformationModels> dms = DeformationModels.forFaultModel(fm);
+		
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		List<String> header = Lists.newArrayList("Minisection ID", "Name");
+		
+		List<Map<Integer, DeformationSection>> sectsList = Lists.newArrayList();
+		
+		final Map<Integer, String> namesMap = Maps.newHashMap();
+		for (FaultSectionPrefData sect : fm.fetchFaultSections())
+			namesMap.put(sect.getSectionId(), sect.getSectionName());
+		
+		for (int i=0; i<dms.size(); i++) {
+			DeformationModels dm = dms.get(i);
+			
+			if (dm == DeformationModels.GEOLOGIC_LOWER || dm == DeformationModels.GEOLOGIC_UPPER)
+				continue;
+			
+			header.add(dm.getName());
+			
+			Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
+			
+			applyMomentReductions(sects, dm, 10d);
+			
+			sectsList.add(sects);
+		}
+		csv.addLine(header);
+		
+		ArrayList<String> keys = Lists.newArrayList();
+		for (String key : creepData.keySet())
+			keys.add(key);
+		Collections.sort(keys, new Comparator<String>() {
+			private Collator c = Collator.getInstance();
+
+			@Override
+			public int compare(String o1, String o2) {
+				int[] miniSection1 = parseMinisectionNumber(o1);
+				int[] miniSection2 = parseMinisectionNumber(o2);
+				String name1 = namesMap.get(miniSection1[0]);
+				String name2 = namesMap.get(miniSection2[0]);
+				int ret = c.compare(name1, name2);
+				if (ret == 0) {
+					ret = Double.compare(miniSection1[1], miniSection2[1]);
+				}
+				return ret;
+			}
+		});
+		
+		for (String miniSectionStr : keys) {
+			double creep = creepData.get(miniSectionStr);
+			int[] miniSection = parseMinisectionNumber(miniSectionStr);
+			int id = miniSection[0];
+			int sect = miniSection[1];
+			List<String> line = Lists.newArrayList(getMinisectionString(miniSection), namesMap.get(id));
+			
+			for (int i=0; i<sectsList.size(); i++) {
+				DeformationSection def = sectsList.get(i).get(id);
+				double momRed = def.getMomentReductions().get(sect-1);
+				
+				line.add(momRed+"");
+			}
+			
+			csv.addLine(line);
+		}
+		
+		csv.writeToFile(file);
+		csv.writeToTabSeparatedFile(new File(file.getParentFile(), file.getName().replaceAll(".csv", ".txt")), 1);
+	}
 
 	/**
 	 * @param args
@@ -656,6 +701,9 @@ public class DeformationModelFileParser {
 	public static void main(String[] args) throws IOException {
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
+		
+		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
+		System.exit(0);
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
 		

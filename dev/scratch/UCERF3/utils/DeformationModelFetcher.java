@@ -63,7 +63,7 @@ public class DeformationModelFetcher {
 	private final static double[] parkfield_mo_reds = {0.4984, 0.5557, 0.6131, 0.6705, 0.7279, 0.7852, 0.8426, 0.9000};
 
 	private final static double MOMENT_REDUCTION_THRESHOLD = 0.9;
-	private final static double MOMENT_REDUCTION_MAX = 0.95;
+	public final static double MOMENT_REDUCTION_MAX = 0.95;
 
 	//	 Stepover fix for Elsinor
 	private final static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
