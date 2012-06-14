@@ -241,7 +241,7 @@ public enum AveSlipForRupModels implements LogicTreeBranchNode<AveSlipForRupMode
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.MAGENTA));
 
     	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip-Length Relationships; DDW="+downDipWidth, plotChars); 
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip-Length Relationships; DDW="+downDipWidth+" km", plotChars); 
 		graph.setX_AxisLabel("Length (km)");
 		graph.setY_AxisLabel("Slip (m)");
 		graph.setPlotLabelFontSize(18);
