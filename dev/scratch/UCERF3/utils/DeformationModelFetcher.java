@@ -57,11 +57,11 @@ public class DeformationModelFetcher {
 	
 	// TODO add HB08 & Shaw09 custom moment reductions
 	private final static boolean CUSTOM_PARKFIELD_CREEPING_SECTION_MOMENT_REDUCTIONS = true;
-	private final static double[] creep_mo_reds = {0.9102, 0.9333, 0.9520, 0.9662, 0.9760, 0.9813,
-		0.9820, 0.9782, 0.9698, 0.9568, 0.9391, 0.9168, 0.8897, 0.8579, 0.8214, 0.7800, 0.7338,
-		0.6827, 0.6267, 0.5658, 0.5000};
-	private final static double[] parkfield_mo_reds = {0.6476, 0.6836, 0.7197, 0.7558, 0.7918,
-		0.8279, 0.8639, 0.9000};
+	private final static double[] creep_mo_reds = {0.9112, 0.9361, 0.9557, 0.9699, 0.9786, 0.9819, 0.9796, 0.9719, 0.9585, 0.9396, 0.9150, 0.8847, 0.8487,
+	    0.8069, 0.7593, 0.7059, 0.6466, 0.5814, 0.5103, 0.4331, 0.3500};
+
+	private final static double[] parkfield_mo_reds = {0.4984, 0.5557, 0.6131, 0.6705, 0.7279, 0.7852, 0.8426, 0.9000};
+
 	private final static double MOMENT_REDUCTION_THRESHOLD = 0.9;
 	private final static double MOMENT_REDUCTION_MAX = 0.95;
 
