@@ -79,8 +79,8 @@ class RTGM_ListGenerator {
 		bgSrcParam.setValue(UCERF2.BACK_SEIS_RUP_POINT);
 		Parameter floatParam = erf.getParameter(UCERF2.FLOATER_TYPE_PARAM_NAME);
 		floatParam.setValue(UCERF2.FULL_DDW_FLOATER);
-//		Parameter probParam = erf.getParameter(UCERF2.PROB_MODEL_PARAM_NAME);
-//		probParam.setValue(UCERF2.PROB_MODEL_POISSON);
+
+		// prob model is set to poisson by default
 		
 		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		ts.setDuration(1);

@@ -32,30 +32,25 @@ import com.google.common.collect.Maps;
 class RTGM_Processor implements Runnable {
 
 	private ScalarIMR imr;
-	private EpistemicListERF erfs;
-	private NEHRP_TestCity loc;
+	private ERF erf;
+	private Iterable<NEHRP_TestCity> locs;
 	private Period per;
-	private Site site;
 	
 	private String outDir;
 	private static final String S = File.separator;
 	private static final double TIME = 1;
 	
-	private HashMap<String, Integer> paramMap;
-	
-	private List<List<String>> paramData;
 	private List<List<String>> curveData;
 
-	RTGM_Processor(ScalarIMR imr, EpistemicListERF erfs, NEHRP_TestCity loc,
+	RTGM_Processor(ScalarIMR imr, ERF erf, Iterable<NEHRP_TestCity> locs,
 		Period per, String outDir) {
 		this.outDir = outDir;
 		
 		checkArgument(per.equals(Period.GM0P20) || per.equals(Period.GM1P00));
 		this.imr = imr;
-		this.erfs = erfs;
-		this.loc = loc;
+		this.erf = erf;
+		this.locs = locs;
 		this.per = per;
-		site = loc.getSite();
 	}
 
 	@Override
@@ -63,10 +58,10 @@ class RTGM_Processor implements Runnable {
 		System.out.println("Starting: " + toString());
 		init();
 		HazardCurveCalculator calc = new HazardCurveCalculator();
-		for (int i = 0; i < erfs.getNumERFs(); ++i) {
-			DiscretizedFunc f = per.getLogFunction();
+		DiscretizedFunc f = per.getLogFunction();
+		for (NEHRP_TestCity loc : locs) {
+			Site site = loc.getSite();
 			try {
-				ERF erf = erfs.getERF(i);
 				f = calc.getHazardCurve(f, site, imr, erf);
 				f = deLog(f);
 				f = calc.getAnnualizedRates(f, TIME);
@@ -76,16 +71,13 @@ class RTGM_Processor implements Runnable {
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
 				RTGM rtgm = RTGM.create(f, freq, 0.8);
 				
-				double wt = erfs.getERF_RelativeWeight(i);
-				
-				addResults(i, wt, erf, f, rtgm.get());
+				addResults(loc, f, rtgm.get());
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			if (i % 20 == 0) {
-				System.out.println(loc.toString().substring(0, 6) + " " + i);
-			}
+			System.out.println(loc.toString().substring(0, 6) + " " + per + 
+				" " + imr.getShortName());
 		}
 		writeFiles();
 		System.out.println("Finished: " + toString());
@@ -99,23 +91,11 @@ class RTGM_Processor implements Runnable {
 		return fOut;
 	}
 	
-	private void addResults(int idx, double wt, ERF erf, DiscretizedFunc f, double rtgm) {
-		
-		// param data
-		List<String> paramDat = Lists.newArrayList();
-		paramDat.add(Integer.toString(idx));
-		for (int i=0; i<paramMap.size(); i++) paramDat.add(null);
-		for (Parameter<?> param : erf.getAdjustableParameterList()) {
-			int index = paramMap.get(param.getName());
-			String paramVal = StringUtils.replace(param.getValue().toString(), ",", ";");
-			paramDat.set(index, paramVal);
-		}
-		paramData.add(paramDat);
-		
+	private void addResults(NEHRP_TestCity loc, DiscretizedFunc f, double rtgm) {
+				
 		// curve data
 		List<String> curveDat = Lists.newArrayList();
-		curveDat.add(Integer.toString(idx));
-		curveDat.add(Double.toString(wt));
+		curveDat.add(loc.name());
 		curveDat.add(Double.toString(rtgm));
 		for (Point2D p : f) {
 			curveDat.add(Double.toString(p.getY()));
@@ -124,12 +104,10 @@ class RTGM_Processor implements Runnable {
 	}
 
 	private void writeFiles() {
-		String outDirName = outDir + S + per + S + loc.name() + S;
+		String outDirName = outDir + S + per + S;
 		File outDir = new File(outDirName);
 		outDir.mkdirs();
-		String paramFile = outDirName +  imr.getShortName() + "_params.csv";
 		String curveFile = outDirName +  imr.getShortName() + "_curves.csv";
-		toCSV(paramFile, paramData);
 		toCSV(curveFile, curveData);
 	}
 	
@@ -149,7 +127,7 @@ class RTGM_Processor implements Runnable {
 	
 	@Override
 	public String toString() {
-		return "  " + imr.getShortName() + " " + per + " " + loc.name();
+		return "  " + imr.getShortName() + " " + per;
 	}
 	
 	
@@ -162,25 +140,9 @@ class RTGM_Processor implements Runnable {
 	 */
 	private void init() {
 		
-		paramMap = Maps.newHashMap();
-		String[] entries = StringUtils.splitByWholeSeparator(MAP, SEP);
-		for (String entry : entries) {
-			String[] nameVal = StringUtils.split(entry, "=");
-			paramMap.put(nameVal[0], Integer.valueOf(nameVal[1])+1);
-		}
-		
-		paramData = Lists.newArrayList();
-		String[] paramNames = StringUtils.splitByWholeSeparator(HEADER, SEP);
-		List<String> paramNameList = Arrays.asList(paramNames);
-		List<String> paramDataHeader = Lists.newArrayList();
-		paramDataHeader.add("ERF#");
-		paramDataHeader.addAll(paramNameList);
-		paramData.add(paramDataHeader);
-		
 		curveData = Lists.newArrayList();
 		List<String> curveHeader = Lists.newArrayList();
-		curveHeader.add("ERF#");
-		curveHeader.add("wt");
+		curveHeader.add("city");
 		curveHeader.add("rtgm");
 		for (Double d : per.getIMLs()) {
 			curveHeader.add(d.toString());
