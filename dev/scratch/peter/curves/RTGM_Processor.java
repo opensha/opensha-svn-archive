@@ -60,8 +60,7 @@ class RTGM_Processor implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Starting:");
-		System.out.println(toString());
+		System.out.println("Starting: " + toString());
 		init();
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		for (int i = 0; i < erfs.getNumERFs(); ++i) {
@@ -71,7 +70,7 @@ class RTGM_Processor implements Runnable {
 				f = calc.getHazardCurve(f, site, imr, erf);
 				f = deLog(f);
 				f = calc.getAnnualizedRates(f, TIME);
-				System.out.println(f);
+				// System.out.println(f);
 				
 				RTGM.Frequency freq = per.equals(Period.GM0P20)
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
@@ -85,12 +84,11 @@ class RTGM_Processor implements Runnable {
 				e.printStackTrace();
 			}
 			if (i % 20 == 0) {
-				System.out.println(loc.toString().substring(0, 2) + " " + i);
+				System.out.println(loc.toString().substring(0, 6) + " " + i);
 			}
 		}
 		writeFiles();
-		System.out.println("Finished:");
-		System.out.println(toString());
+		System.out.println("Finished: " + toString());
 	}
 	
 	private static DiscretizedFunc deLog(DiscretizedFunc f) {
@@ -151,7 +149,7 @@ class RTGM_Processor implements Runnable {
 	
 	@Override
 	public String toString() {
-		return "  " + imr.getShortName() + R + "  " + loc.name();
+		return "  " + imr.getShortName() + " " + per + " " + loc.name();
 	}
 	
 	

@@ -1,7 +1,9 @@
 package scratch.peter.curves;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -21,6 +23,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.nshmp.Period;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * USed to generate hazard curves for UCERF2 Time Independent List
@@ -30,26 +33,37 @@ import com.google.common.collect.Lists;
  */
 class RTGM_BranchGenerator {
 
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2";
+	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2-TimeIndep";
 	private static AttenRelRef[] imrRefs = { AttenRelRef.NSHMP_2008 };
-	private static Period period = Period.GM0P20;
+	private static Period[] periods = { Period.GM0P20, Period.GM1P00 };
+//	private static Period[] periods = { Period.GM0P20};
+	private static Collection<NEHRP_TestCity> cities;
+	
 	private List<Future<?>> futures;
 
+	static {
+//		cities = NEHRP_TestCity.getShortListCA();
+		cities = Sets.difference(NEHRP_TestCity.getCA(), NEHRP_TestCity.getShortListCA());
+	}
 	public static void main(String[] args) {
 		new RTGM_BranchGenerator();
+//		System.out.println(cities);
 	}
 
 	private RTGM_BranchGenerator() {
 		try {
 			int numProc = Runtime.getRuntime().availableProcessors();
 			ExecutorService ex = Executors.newFixedThreadPool(numProc);
+			System.out.println("NumProc: " + numProc);
 			futures = Lists.newArrayList();
-			for (AttenRelRef imrRef : imrRefs) {
-				for (NEHRP_TestCity loc : EnumSet.of(NEHRP_TestCity.LOS_ANGELES)) {
-					ScalarIMR imr = newIMR(imrRef);
-					EpistemicListERF erfs = newERF();
-					RTGM_Processor proc = new RTGM_Processor(imr, erfs, loc, period, OUT_DIR);
-					futures.add(ex.submit(proc));
+			for (Period period : periods) {
+				for (AttenRelRef imrRef : imrRefs) {
+					for (NEHRP_TestCity loc : cities) {
+						ScalarIMR imr = newIMR(imrRef, period);
+						EpistemicListERF erfs = newERF();
+						RTGM_Processor proc = new RTGM_Processor(imr, erfs, loc, period, OUT_DIR);
+						futures.add(ex.submit(proc));
+					}
 				}
 			}
 			ex.shutdown();
@@ -61,6 +75,7 @@ class RTGM_BranchGenerator {
 
 	static EpistemicListERF newERF() {
 		AbstractEpistemicListERF erf = new UCERF2_TimeIndependentEpistemicList();
+//		AbstractEpistemicListERF erf = new UCERF2_TimeDependentEpistemicList();
 		
 		Parameter bgSrcParam = erf.getParameter(UCERF2.BACK_SEIS_RUP_NAME);
 		bgSrcParam.setValue(UCERF2.BACK_SEIS_RUP_POINT);
@@ -75,7 +90,7 @@ class RTGM_BranchGenerator {
 		return erf;
 	}
 
-	static ScalarIMR newIMR(AttenRelRef imrRef) {
+	static ScalarIMR newIMR(AttenRelRef imrRef, Period period) {
 		ScalarIMR imr = imrRef.instance(null); 
 		imr.setParamDefaults();
 		if (period == Period.GM0P00) {
