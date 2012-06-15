@@ -86,8 +86,17 @@ public enum NEHRP_TestCity {
 	 * Returns all California cities.
 	 * @return a {@code Set} of California cities
 	 */
-	public static Set<NEHRP_TestCity> getCA() {
+	public static EnumSet<NEHRP_TestCity> getCA() {
 		return EnumSet.range(LOS_ANGELES, SANTA_ROSA);
+	}
+	
+	/**
+	 * Returns all California cities.
+	 * @return a {@code Set} of California cities
+	 */
+	public static EnumSet<NEHRP_TestCity> getShortListCA() {
+		return EnumSet.of(LOS_ANGELES, RIVERSIDE, SAN_DIEGO, SANTA_BARBARA,
+			OAKLAND, SACRAMENTO, SAN_FRANCISCO, SAN_JOSE);
 	}
 	
 	/**
@@ -96,9 +105,23 @@ public enum NEHRP_TestCity {
 	 */
 	public Site getSite() {
 		Site s = new Site(loc, this.name());
+		// CY AS
+		DepthTo1pt0kmPerSecParam d10p = new DepthTo1pt0kmPerSecParam(null,
+			0, 1000, true);
+		d10p.setValueAsDefault();
+		s.addParameter(d10p);
+		// CB
+		DepthTo2pt5kmPerSecParam d25p = new DepthTo2pt5kmPerSecParam(null,
+			0, 1000, true);
+		d25p.setValueAsDefault();
+		s.addParameter(d25p);
+		// all
 		Vs30_Param vs30p = new Vs30_Param(760);
 		vs30p.setValueAsDefault();
 		s.addParameter(vs30p);
+		// AS CY
+		Vs30_TypeParam vs30tp = new Vs30_TypeParam();
+		s.addParameter(vs30tp);
 		return s;
 	}
 
