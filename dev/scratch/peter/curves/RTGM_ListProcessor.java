@@ -136,11 +136,12 @@ class RTGM_ListProcessor implements Runnable {
 		outDir.mkdirs();
 		String paramFile = outDirName +  imr.getShortName() + "_params.csv";
 		String curveFile = outDirName +  imr.getShortName() + "_curves.csv";
-		toCSV(paramFile, paramData);
-		toCSV(curveFile, curveData);
+		toCSV(new File(paramFile), paramData);
+		toCSV(new File(curveFile), curveData);
 	}
 	
-	private static void toCSV(String file, List<List<String>> content) {
+	private static void toCSV(File file, List<List<String>> content) {
+		if (file.exists()) file.delete();
 		Joiner joiner = Joiner.on(',').useForNull(" ");
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file, true));

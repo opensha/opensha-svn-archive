@@ -45,6 +45,7 @@ class RTGM_Generator {
 
 	static {
 		cities = NEHRP_TestCity.getCA();
+//		cities = EnumSet.of(NEHRP_TestCity.LOS_ANGELES);
 	}
 	
 	public static void main(String[] args) {

@@ -58,14 +58,14 @@ class RTGM_Processor implements Runnable {
 		System.out.println("Starting: " + toString());
 		init();
 		HazardCurveCalculator calc = new HazardCurveCalculator();
-		DiscretizedFunc f = per.getLogFunction();
 		for (NEHRP_TestCity loc : locs) {
+			DiscretizedFunc f = per.getLogFunction();
 			Site site = loc.getSite();
 			try {
 				f = calc.getHazardCurve(f, site, imr, erf);
 				f = deLog(f);
 				f = calc.getAnnualizedRates(f, TIME);
-				// System.out.println(f);
+//				System.out.println(f);
 				
 				RTGM.Frequency freq = per.equals(Period.GM0P20)
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
@@ -108,10 +108,11 @@ class RTGM_Processor implements Runnable {
 		File outDir = new File(outDirName);
 		outDir.mkdirs();
 		String curveFile = outDirName +  imr.getShortName() + "_curves.csv";
-		toCSV(curveFile, curveData);
+		toCSV(new File(curveFile), curveData);
 	}
 	
-	private static void toCSV(String file, List<List<String>> content) {
+	private static void toCSV(File file, List<List<String>> content) {
+		if (file.exists()) file.delete();
 		Joiner joiner = Joiner.on(',').useForNull(" ");
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file, true));
