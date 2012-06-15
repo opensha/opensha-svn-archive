@@ -754,4 +754,14 @@ public abstract class FaultSystemRupSet {
 		return StatUtils.max(getMagForAllRups());
 	}
 	
+	/**
+	 * This returns the maximum magnitude of this rupture set
+	 * @return
+	 */
+	public double getMinMag() {
+		return StatUtils.min(getMagForAllRups());
+	}
+	
+	
+	
 }
