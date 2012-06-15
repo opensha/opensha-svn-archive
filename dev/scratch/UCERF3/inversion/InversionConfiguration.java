@@ -216,12 +216,14 @@ public class InversionConfiguration {
 		double[] minimumRuptureRateBasis;
 		
 		SummedMagFreqDist targetOnFaultMFD =  rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD();
+		System.out.println("SUPRA SEIS MFD = ");
+		System.out.println(rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD());
 		
 		if (model.isConstrained()) {
 			// CONSTRAINED BRANCHES
 			if (model == InversionModels.CHAR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 0;
-				relativeRupRateConstraintWt = 100;
+				relativeRupRateConstraintWt = 1000;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
 				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
 				minimumRuptureRateFraction = 0.01;
@@ -676,6 +678,8 @@ public class InversionConfiguration {
 		// Set up initial (non-normalized) target MFD rates for each rupture, normalized by meanSlipRate
 		for (int rup=0; rup<numRup; rup++) {
 			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * minimumSlipRate[rup] / magHist.getClosestY(rupMeanMag[rup]);
+			if (Double.isNaN(initial_state[rup]) || Double.isInfinite(initial_state[rup]))
+				throw new IllegalStateException("Pre-normalization initial_state["+rup+"] = "+initial_state[rup]);
 		}
 		
 		
@@ -689,6 +693,8 @@ public class InversionConfiguration {
 				totalEventRate += initial_state[rup];
 		}
 		double normalization = targetMagFreqDist.getClosestY(7.0)/totalEventRate;	
+		if (targetMagFreqDist.getClosestY(7.0)==0)
+			throw new IllegalStateException("targetMagFreqDist.getClosestY(7.0) = 0.  Check rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD()");
 		// Adjust rates by normalization to match target MFD total event rates
 		for (int rup=0; rup<numRup; rup++) {
 			initial_state[rup]=initial_state[rup]*normalization;

@@ -204,7 +204,8 @@ public class InversionInputGenerator {
 			int totalNumMagFreqConstraints = 0;
 			for (MFD_InversionConstraint constr : config.getMfdEqualityConstraints()) {
 				targetMagFreqDist=constr.getMagFreqDist();
-				totalNumMagFreqConstraints += targetMagFreqDist.getNum();
+				// Find number of rows used for MFD equality constraint - only include mag bins between minimum and maximum magnitudes in rupture set
+				totalNumMagFreqConstraints += targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag())-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag())+1;
 				// add number of rows used for magnitude distribution constraint
 				numRows=numRows+targetMagFreqDist.getNum();
 			}
@@ -267,13 +268,13 @@ public class InversionInputGenerator {
 		if (config.getRelativeMagnitudeInequalityConstraintWt() > 0.0) {
 			for (MFD_InversionConstraint constr : config.getMfdInequalityConstraints()) {
 				targetMagFreqDist=constr.getMagFreqDist();
-				// add number of rows used for magnitude distribution constraint
-				numMFDRows+=targetMagFreqDist.getNum();
+				// Add number of rows used for magnitude distribution constraint - only include mag bins between minimum and maximum magnitudes in rupture set				
+				numMFDRows += targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag())-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag())+1;
 			}
 			A_ineq = buildMatrix(clazz, numMFDRows, numRuptures); // (A_MFD * x <= d_MFD)
 			d_ineq = new double[numMFDRows];							
 			if(D) System.out.println("Number of magnitude-distribution inequality constraints (not in A matrix): "
-					+config.getMfdInequalityConstraints().size());
+					+numMFDRows);
 		}
 		
 		
@@ -494,10 +495,10 @@ public class InversionInputGenerator {
 						}
 					}
 				}		
-				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
-//					d[rowIndex]=targetMagFreqDist.getY(m)*relativeMagnitudeEqualityConstraintWt;
+				for (int xIndex=targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()); xIndex<=targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag()); xIndex++) {
+//					d[rowIndex]=targetMagFreqDist.getY(xIndex)*relativeMagnitudeEqualityConstraintWt;
 					d[rowIndex]=relativeMagnitudeEqualityConstraintWt;
-					if (targetMagFreqDist.getY(m)==0) d[rowIndex]=0;
+					if (targetMagFreqDist.getY(xIndex)==0) d[rowIndex]=0;
 					rowIndex++; 
 				}	
 			}
@@ -536,10 +537,10 @@ public class InversionInputGenerator {
 							A_ineq.set(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 					}
 				}		
-				for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m=m+targetMagFreqDist.getDelta()) {
-	//				d_ineq[rowIndex_ineq]=targetMagFreqDist.getY(m)*relativeMagnitudeInequalityConstraintWt;
+				for (int xIndex=targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()); xIndex<=targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag()); xIndex++) {
+//					d_ineq[rowIndex_ineq]=targetMagFreqDist.getY(xIndex)*relativeMagnitudeInequalityConstraintWt;
 					d_ineq[rowIndex_ineq]=relativeMagnitudeInequalityConstraintWt;
-					if (targetMagFreqDist.getY(m)==0) d_ineq[rowIndex_ineq]=0;
+					if (targetMagFreqDist.getY(xIndex)==0) d_ineq[rowIndex_ineq]=0;
 					rowIndex_ineq++; 
 				}	
 			}	
