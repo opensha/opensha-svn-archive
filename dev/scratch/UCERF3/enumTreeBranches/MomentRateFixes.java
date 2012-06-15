@@ -2,10 +2,10 @@ package scratch.UCERF3.enumTreeBranches;
 
 public enum MomentRateFixes implements LogicTreeBranchNode<MomentRateFixes> {
 	// TODO set weights
-	APPLY_IMPLIED_CC(		"Apply Implied Coupling Coefficient",		"ApplyCC",	0d),
-	RELAX_MFD(				"Relaxed (weak) MFD Constraint Weights",	"RelaxMFD",	0d),
+	APPLY_IMPLIED_CC(		"Apply Implied Coupling Coefficient",		"ApplyCC",	1d),
+	RELAX_MFD(				"Relaxed (weak) MFD Constraint Weights",	"RelaxMFD",	1d),
 	APPLY_CC_AND_RELAX_MFD(	"Apply Implied CC and Relax MFD",			"ApplyCC",	0d),
-	NONE(					"No Moment Rate Fixes",						"NoFix",	0d);
+	NONE(					"No Moment Rate Fixes",						"NoFix",	1d);
 	
 	private String name, shortName;
 	private double weight;

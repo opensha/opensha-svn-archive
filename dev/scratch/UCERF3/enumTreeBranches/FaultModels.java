@@ -22,8 +22,8 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 
 	// TODO set weights
 	FM2_1(	"Fault Model 2.1",	41,		0d),
-	FM3_1(	"Fault Model 3.1",	101,	0.5d),
-	FM3_2(	"Fault Model 3.2",	102,	0.5d);
+	FM3_1(	"Fault Model 3.1",	101,	1d),
+	FM3_2(	"Fault Model 3.2",	102,	1d);
 	
 	public static final String XML_ELEMENT_NAME = "FaultModel";
 	public static final String FAULT_MODEL_STORE_PROPERTY_NAME = "FaultModelStore";

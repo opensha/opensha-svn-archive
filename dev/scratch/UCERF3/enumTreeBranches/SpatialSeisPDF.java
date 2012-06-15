@@ -25,13 +25,13 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
 public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	
 	// TODO set weights
-	UCERF2("UCERF2",							"U2",	0d) {
+	UCERF2("UCERF2",										"U2",		1d) {
 		@Override public double[] getPDF() {
 			return new GridReader("SmoothSeis_UCERF2.txt").getValues();
 		}
 	},
 	
-	UCERF3("UCERF3",							"U3",	0d) {
+	UCERF3("UCERF3",										"U3",		1d) {
 		@Override public double[] getPDF() {
 			return new GridReader("SmoothSeis_KF_5-5-2012.txt").getValues();
 		}
@@ -40,7 +40,7 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	/**
 	 * This does not include the geologic off-fault deformation model
 	 */
-	AVG_DEF_MODEL("Average Deformation Model Off Fault",	"AveDM",	0d) {
+	AVG_DEF_MODEL("Average Deformation Model Off Fault",	"AveDM",	1d) {
 		@Override public double[] getPDF() {
 			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
 			GriddedGeoDataSet xyz = DeformationModelOffFaultMoRateData.getInstance().getAveDefModelPDF(false);
