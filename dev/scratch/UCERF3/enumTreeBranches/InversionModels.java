@@ -47,4 +47,27 @@ public enum InversionModels implements LogicTreeBranchNode<InversionModels> {
 	public String encodeChoiceString() {
 		return getShortName();
 	}
+	
+	/**
+	 * 
+	 * @return true if this is a characteristic branch (either constrained or unconstrained)
+	 */
+	public boolean isCharacteristic() {
+		return this == CHAR_CONSTRAINED || this == CHAR_UNCONSTRAINED;
+	}
+	
+	/**
+	 * 
+	 * @return true if this is a GR branch (either constrained or unconstrained)
+	 */
+	public boolean isGR() {
+		return !isCharacteristic();
+	}
+	
+	/**
+	 * @return true if this is a constrained branch (either characteristic or GR)
+	 */
+	public boolean isConstrained() {
+		return this == CHAR_CONSTRAINED || this == GR_CONSTRAINED;
+	}
 }

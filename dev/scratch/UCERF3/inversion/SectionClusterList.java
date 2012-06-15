@@ -139,7 +139,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	 * and closely space faults from having connections back and forth all the way down the section.
 	 */
 	private List<List<Integer>> computeCloseSubSectionsListList(Map<IDPairing, Double> subSectionDistances) {
-		return computeCloseSubSectionsListList(faultSectionData, subSectionDistances, filter.getMaxJumpDist());
+		return computeCloseSubSectionsListList(faultSectionData, subSectionDistances, filter.getMaxJumpDist(), coulombRates);
 	}
 	
 	/**
@@ -154,6 +154,21 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 			List<FaultSectionPrefData> faultSectionData,
 			Map<IDPairing, Double> subSectionDistances,
 			double maxJumpDist) {
+		return computeCloseSubSectionsListList(faultSectionData, subSectionDistances, maxJumpDist, null);
+	}
+	
+	/**
+	 * For each section, create a list of sections that are within maxJumpDist.  
+	 * This generates an ArrayList of ArrayLists (named sectionConnectionsList).  
+	 * Reciprocal duplicates are not filtered out.
+	 * If sections are actually subsections (meaning getParentSectionId() != -1), then each parent section can only
+	 * have one connection to another parent section (whichever subsections are closest).  This prevents parallel 
+	 * and closely space faults from having connections back and forth all the way down the section.
+	 */
+	public static List<List<Integer>> computeCloseSubSectionsListList(
+			List<FaultSectionPrefData> faultSectionData,
+			Map<IDPairing, Double> subSectionDistances,
+			double maxJumpDist, CoulombRates coulombRates) {
 
 		ArrayList<List<Integer>> sectionConnectionsListList = new ArrayList<List<Integer>>();
 		for(int i=0;i<faultSectionData.size();i++)
@@ -208,7 +223,32 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 						IDPairing ind = new IDPairing(data1.getSectionId(), data2.getSectionId());
 						if (subSectionDistances.containsKey(ind)) {
 							double dist = subSectionDistances.get(ind);
-							if(dist < minDist) {
+							if(dist < minDist || (float)dist == (float)minDist) {
+								if ((float)dist == (float)minDist) {
+									// this 2nd check in floating point precision gets around an issue where the distance is identical
+									// within floating point precision for 2 sub sections on the same section. if we don't do this check
+									// than the actual "closer" section could vary depending on the machine/os used. in this case, just
+									// use the one that's in coulomb. If neither are in coulomb, then keep the first occurrence (lower ID)
+									
+									boolean prevValCoulomb = false;
+									boolean curValCoulomb = false;
+									if (coulombRates != null) {
+										prevValCoulomb = coulombRates.containsKey(new IDPairing(subSectIndex1, subSectIndex2));
+										curValCoulomb = coulombRates.containsKey(new IDPairing(data1.getSectionId(), data2.getSectionId()));
+									}
+									System.out.println("IT HAPPENED!!!!!! "+subSectIndex1+"=>"+subSectIndex2+" vs "
+													+data1.getSectionId()+"=>"+data2.getSectionId());
+									System.out.println("prevValCoulomb="+prevValCoulomb+"\tcurValCoulomb="+curValCoulomb);
+									if (prevValCoulomb)
+										// this means that the previous value is in coulomb, use that!
+										continue;
+									if (!curValCoulomb) {
+										// this means that either no coulomb values were supplied, or neither choice is in coulomb. lets use
+										// the first one for consistency
+										continue;
+									}
+									System.out.println("Sticking with the latter, "+data2.getSectionId()+" (coulomb="+curValCoulomb+")");
+								}
 								minDist = dist;
 								subSectIndex1 = data1.getSectionId();
 								subSectIndex2 = data2.getSectionId();

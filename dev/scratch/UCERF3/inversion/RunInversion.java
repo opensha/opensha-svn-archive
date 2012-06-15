@@ -60,7 +60,7 @@ public class RunInversion {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAseis, FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM,
-					ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p8, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+					ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction

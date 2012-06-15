@@ -75,17 +75,26 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		ArrayList<String> infoLines = Lists.newArrayList(Splitter.on("\n").split(info));
 		
-		Map<String, String> invProps = loadProperties(getMetedataSection(infoLines, "Inversion Configuration Metadata"));
-		Map<String, String> branchProps = loadProperties(getMetedataSection(infoLines, "Logic Tree Branch"));
-		branch = loadBranch(branchProps);
-		invModel = branch.getValue(InversionModels.class);
-		loadInvParams(invProps);
-		
-		double totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
-		double mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
-		boolean applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
-		SpatialSeisPDF spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
-		inversionMFDs = new InversionMFDs(solution, totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF, invModel);
+		try {
+			Map<String, String> invProps = loadProperties(getMetedataSection(infoLines, "Inversion Configuration Metadata"));
+			Map<String, String> branchProps = loadProperties(getMetedataSection(infoLines, "Logic Tree Branch"));
+			branch = loadBranch(branchProps);
+			invModel = branch.getValue(InversionModels.class);
+			loadInvParams(invProps);
+			
+			double totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
+			double mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
+			boolean applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
+			SpatialSeisPDF spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
+			inversionMFDs = new InversionMFDs(solution, totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF, invModel);
+		} catch (RuntimeException e) {
+			// can be uncommented for debugging string parse errors
+//			System.out.println("******* EXCEPTION CAUGHT INSTANTIATING IFSS - PRINTING METADATA *********");
+//			System.out.println(info);
+//			System.out.println("*************************************************************************");
+//			System.out.flush();
+			throw e;
+		}
 	}
 	
 	private Map<String, String> loadProperties(ArrayList<String> section) {

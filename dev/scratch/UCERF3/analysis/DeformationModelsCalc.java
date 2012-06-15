@@ -711,7 +711,7 @@ public class DeformationModelsCalc {
 		}		
 		
 		// now make Mmax map plot
-		double totObsRate = TotalMag5Rate.RATE_8p8.getRateMag5();
+		double totObsRate = TotalMag5Rate.RATE_8p7.getRateMag5();
 		GriddedGeoDataSet mMaxData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
 		ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0, 3000, 0.01);
@@ -851,7 +851,7 @@ public class DeformationModelsCalc {
 	
 	public static void writeFractionRegionNodesInsideFaultPolygons() {
 		
-		double totRateMgt5 = TotalMag5Rate.RATE_8p8.getRateMag5();
+		double totRateMgt5 = TotalMag5Rate.RATE_8p7.getRateMag5();
 		
 		double[] nodeFracs = FaultPolyMgr.getNodeFractions(FaultModels.FM3_1, null, null);
 		GriddedGeoDataSet ucerf2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
@@ -954,7 +954,7 @@ public class DeformationModelsCalc {
 	
 	public static void plotAllMmaxVersusFractSeisOffFault() {
 		
-		double rateMge5 = TotalMag5Rate.RATE_8p8.getRateMag5();
+		double rateMge5 = TotalMag5Rate.RATE_8p7.getRateMag5();
 		
 		// hard-coded values for UCERF2
 		plotMmaxVersusFractSeisOffFault(1.73e19, 0.54e19, rateMge5,"UCERF2 Def Mod 2.1", "mMaxVsOffFltSeis_UCERF2.png");

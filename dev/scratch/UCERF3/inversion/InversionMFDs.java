@@ -84,7 +84,7 @@ public class InversionMFDs {
 		totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmax, totalRegionRateMgt5*1e5, 1.0);
 
 		
-		if (inversionModel == InversionModels.CHAR_CONSTRAINED) {
+		if (inversionModel.isCharacteristic()) {
 
 			// check that the following can be calculated since "this" is not fully instantiated
 			double aveMinSeismoMag = FaultSystemRupSetCalc.getMeanMinMag(fltSysRupSet, true);
@@ -116,8 +116,9 @@ public class InversionMFDs {
 			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
 			impliedTotalCouplingCoeff = totalTargetGR.getTotalMomentRate()/(onFltDefModMoRate+offFltDefModMoRate);
 
-		} else if (inversionModel == InversionModels.GR_CONSTRAINED) {
-
+		} else {
+			// GR
+			
 			// get the total GR nucleation MFD for all fault section
 			SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
 
@@ -159,11 +160,6 @@ public class InversionMFDs {
 			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
 			impliedTotalCouplingCoeff = (impliedOnFaultCouplingCoeff*onFltDefModMoRate+finalOffFaultCouplingCoeff*offFltDefModMoRate)/(onFltDefModMoRate+offFltDefModMoRate);
 
-		} else if (inversionModel == InversionModels.GR_UNCONSTRAINED) {
-			throw new RuntimeException("Not yet implemented");
-
-		} else {
-			throw new RuntimeException("Not yet implement");
 		}
 		
 		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(noCalTargetMFD, noCalGrid));

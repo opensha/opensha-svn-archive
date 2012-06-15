@@ -217,50 +217,38 @@ public class InversionConfiguration {
 		
 		SummedMagFreqDist targetOnFaultMFD =  rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD();
 		
-		
-		switch (model) {
-		case CHAR_CONSTRAINED:
-			relativeParticipationSmoothnessConstraintWt = 0;
-			relativeRupRateConstraintWt = 100;
-			aPrioriRupConstraint = getUCERF2Solution(rupSet);
-			initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
-			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,targetOnFaultMFD), mfdConstraints, rupSet, true);
-			initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
-			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
-			initialRupModel = adjustParkfield(rupSet, initialRupModel);
-			break;
-		case CHAR_UNCONSTRAINED:
-			// TODO I believe we have to do something here
-			relativeParticipationSmoothnessConstraintWt = 0;
-			relativeRupRateConstraintWt = 0;
-			aPrioriRupConstraint = null;
-			initialRupModel = new double[rupSet.getNumRuptures()];
-			minimumRuptureRateBasis = null;
-			minimumRuptureRateFraction = 0;
-			break;
-		case GR_CONSTRAINED:
-			relativeParticipationSmoothnessConstraintWt = 1000;
-			relativeRupRateConstraintWt = 0;
-			aPrioriRupConstraint = null;
-			initialRupModel = getSmoothStartingSolution(rupSet,targetOnFaultMFD);
-			minimumRuptureRateFraction = 0.01;
-			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
-			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
-			initialRupModel = adjustParkfield(rupSet, initialRupModel);
-			break;
-		case GR_UNCONSTRAINED:
-			// TODO is this right?
+		if (model.isConstrained()) {
+			// CONSTRAINED BRANCHES
+			if (model == InversionModels.CHAR_CONSTRAINED) {
+				relativeParticipationSmoothnessConstraintWt = 0;
+				relativeRupRateConstraintWt = 100;
+				aPrioriRupConstraint = getUCERF2Solution(rupSet);
+				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
+				minimumRuptureRateFraction = 0.01;
+				minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,targetOnFaultMFD), mfdConstraints, rupSet, true);
+				initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
+				if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
+				initialRupModel = adjustParkfield(rupSet, initialRupModel);
+			} else if (model == InversionModels.GR_CONSTRAINED) {
+				relativeParticipationSmoothnessConstraintWt = 1000;
+				relativeRupRateConstraintWt = 0;
+				aPrioriRupConstraint = null;
+				initialRupModel = getSmoothStartingSolution(rupSet,targetOnFaultMFD);
+				minimumRuptureRateFraction = 0.01;
+				minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
+				if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
+				initialRupModel = adjustParkfield(rupSet, initialRupModel);
+			} else
+				throw new IllegalStateException("Unknown inversion model: "+model);
+		} else {
+			// UNCONSTRAINED BRANCHES
+			// TODO is this right? MFDs were already set up in InversionMFDs so I believe this can be identical for Char and GR
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = new double[rupSet.getNumRuptures()];
 			minimumRuptureRateBasis = null;
 			minimumRuptureRateFraction = 0;
-			break;
-
-		default:
-			throw new IllegalStateException("Unknown inversion model: "+model);
 		}
 		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();

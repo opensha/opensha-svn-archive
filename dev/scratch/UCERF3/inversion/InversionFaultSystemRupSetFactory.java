@@ -216,7 +216,7 @@ public class InversionFaultSystemRupSetFactory {
 		info += "\n****** Logic Tree Branch ******";
 		for (LogicTreeBranchNode<?> node : branch)
 			info += "\n"+ClassUtils.getClassNameWithoutPackage(LogicTreeBranch.getEnumEnclosingClass(node.getClass()))
-							+": "+faultModel.name();
+							+": "+node.name();
 		info += "\n*******************************";
 		rupSet.setInfoString(info);
 		return rupSet;
