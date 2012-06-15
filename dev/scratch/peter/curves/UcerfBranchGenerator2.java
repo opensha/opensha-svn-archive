@@ -73,7 +73,7 @@ class UcerfBranchGenerator2 implements PropertyChangeListener {
 				for (NEHRP_TestCity loc : NEHRP_TestCity.getCA()) {
 					ScalarIMR imr = newIMR(imrRef);
 					EpistemicListERF erfs = newERF();
-					Processor2 proc = new Processor2(imr, erfs, loc, period);
+					Processor proc = new Processor(imr, erfs, loc, period);
 					futures.add(ex.submit(proc));
 					
 					// proc.addPropertyChangeListener(this);
