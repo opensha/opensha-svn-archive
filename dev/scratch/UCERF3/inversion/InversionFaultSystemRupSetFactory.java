@@ -130,6 +130,18 @@ public class InversionFaultSystemRupSetFactory {
 	}
 	
 	/**
+	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter.
+	 * Any logic tree branch values not chosen will be set to default.
+	 * 
+	 * @param branchesChoices Logic tree branch values. any values that are omitted will be set to default as
+	 * specified by <code>LogicTreeBranch.DEFAULT</code>
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(LogicTreeBranch branch) {
+		return forBranch(LaughTestFilter.getDefault(), DEFAULT_ASEIS_VALUE, branch);
+	}
+	
+	/**
 	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter
 	 * 
 	 * @param laughTest
