@@ -236,9 +236,9 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 										prevValCoulomb = coulombRates.containsKey(new IDPairing(subSectIndex1, subSectIndex2));
 										curValCoulomb = coulombRates.containsKey(new IDPairing(data1.getSectionId(), data2.getSectionId()));
 									}
-									System.out.println("IT HAPPENED!!!!!! "+subSectIndex1+"=>"+subSectIndex2+" vs "
-													+data1.getSectionId()+"=>"+data2.getSectionId());
-									System.out.println("prevValCoulomb="+prevValCoulomb+"\tcurValCoulomb="+curValCoulomb);
+//									System.out.println("IT HAPPENED!!!!!! "+subSectIndex1+"=>"+subSectIndex2+" vs "
+//													+data1.getSectionId()+"=>"+data2.getSectionId());
+//									System.out.println("prevValCoulomb="+prevValCoulomb+"\tcurValCoulomb="+curValCoulomb);
 									if (prevValCoulomb)
 										// this means that the previous value is in coulomb, use that!
 										continue;
@@ -247,7 +247,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 										// the first one for consistency
 										continue;
 									}
-									System.out.println("Sticking with the latter, "+data2.getSectionId()+" (coulomb="+curValCoulomb+")");
+//									System.out.println("Sticking with the latter, "+data2.getSectionId()+" (coulomb="+curValCoulomb+")");
 								}
 								minDist = dist;
 								subSectIndex1 = data1.getSectionId();
