@@ -1086,6 +1086,7 @@ public class FaultSystemRupSetCalc {
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
 			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap
+			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "+fltSysRupSet.getMinMagForSection(s));
 			double mMax = totalTargetGR.getX(mMaxIndex); // rounded to nearest MFD value
 			GutenbergRichterMagFreqDist tempOnFaultGR = new GutenbergRichterMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), 
 					totalTargetGR.getDelta(), totalTargetGR.getMagLower(), mMax, 1.0, 1.0);
