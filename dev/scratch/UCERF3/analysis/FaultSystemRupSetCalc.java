@@ -30,6 +30,7 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
@@ -377,11 +378,12 @@ public class FaultSystemRupSetCalc {
 
 	
 	public static void plotAllImpliedTotalSectGR_MFD() {
-		ArrayList<MagAreaRelationships> magAreaList = new ArrayList<MagAreaRelationships>();
-		magAreaList.add(MagAreaRelationships.ELL_B);
-		magAreaList.add(MagAreaRelationships.HB_08);
-		magAreaList.add(MagAreaRelationships.SHAW_09_MOD);
 		
+		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
 		FaultModels fm = FaultModels.FM3_1;
 		
@@ -394,10 +396,10 @@ public class FaultSystemRupSetCalc {
 		
 		// for UCERF3
 		for(DeformationModels dm :defModList) {
-			for(MagAreaRelationships ma:magAreaList) {
+			for(ScalingRelationships sr:scalingRelList) {
 				FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-						ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
-				String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+ma.getShortName();
+						sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
+				String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+sr.getShortName();
 				plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
 			}
 		}
@@ -405,10 +407,10 @@ public class FaultSystemRupSetCalc {
 		// now do UCERF2
 		fm = FaultModels.FM2_1;
 		DeformationModels dm = DeformationModels.UCERF2_ALL;
-		for(MagAreaRelationships ma:magAreaList) {
+		for(ScalingRelationships sr:scalingRelList) {
 			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-					ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
-			String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+ma.getShortName();
+					sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
+			String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+sr.getShortName();
 			plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
 		}
 	}
@@ -803,10 +805,10 @@ public class FaultSystemRupSetCalc {
 	
 	
 	public static void testAllInversionSetups() {
-		ArrayList<MagAreaRelationships> magAreaList = new ArrayList<MagAreaRelationships>();
-		magAreaList.add(MagAreaRelationships.ELL_B);
-		magAreaList.add(MagAreaRelationships.HB_08);
-		magAreaList.add(MagAreaRelationships.SHAW_09_MOD);
+		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
 		
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
 		FaultModels fm = FaultModels.FM3_1;
@@ -828,12 +830,12 @@ public class FaultSystemRupSetCalc {
 		ArrayList<String> allLinesChar = new ArrayList<String>();
 		// for UCERF3
 		for(DeformationModels dm :defModList) {
-			for(MagAreaRelationships ma:magAreaList) {
+			for(ScalingRelationships sr:scalingRelList) {
 				FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-						ma, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
+						sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 				for(double frSeisOff : fractSeisOffFault) {
 					for(double mMaxOff : mMaxOffFault) {
-						String lineFirstPart = faultSysRupSet.getDeformationModel().getShortName()+"\t"+ma.getShortName()+
+						String lineFirstPart = faultSysRupSet.getDeformationModel().getShortName()+"\t"+sr.getShortName()+
 						"\t"+totRegionalM5_Rate+"\t"+frSeisOff+"\t"+mMaxOff+"\t";
 						allLinesGR.add(lineFirstPart+oldTestInversionGR_Setup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
 						allLinesChar.add(lineFirstPart+oldTestInversionCharSetup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
@@ -1216,17 +1218,12 @@ public class FaultSystemRupSetCalc {
 	public static void testAllImpliedDDWs() {
 		String result="";
 		
-		ArrayList<MagAreaRelationships> magAreaList = new ArrayList<MagAreaRelationships>();
-		magAreaList.add(MagAreaRelationships.ELL_B);
-		magAreaList.add(MagAreaRelationships.HB_08);
-		magAreaList.add(MagAreaRelationships.SHAW_09_MOD);
-		
-		ArrayList<AveSlipForRupModels> aveSlipForRupModelsList= new ArrayList<AveSlipForRupModels>();
-		aveSlipForRupModelsList.add(AveSlipForRupModels.ELLSWORTH_B);
-		aveSlipForRupModelsList.add(AveSlipForRupModels.HANKS_BAKUN_08);
-		aveSlipForRupModelsList.add(AveSlipForRupModels.SHAW_2009_MOD);
-		aveSlipForRupModelsList.add(AveSlipForRupModels.SHAW12_SQRT_LENGTH);
-		aveSlipForRupModelsList.add(AveSlipForRupModels.SHAW_12_CONST_STRESS_DROP);
+		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+		scalingRelList.add(ScalingRelationships.ELLB_SQRT_LENGTH);
+		scalingRelList.add(ScalingRelationships.SHAW_CONST_STRESS_DROP);
 		
 		
 		FaultModels fm = FaultModels.FM3_1;
@@ -1234,14 +1231,12 @@ public class FaultSystemRupSetCalc {
 		
 		result += "RESULTS FOR:\t"+fm+"  &  "+dm+"\n";
 		
-		for(MagAreaRelationships ma : magAreaList) {
-			for(AveSlipForRupModels asm : aveSlipForRupModelsList) {
+		for(ScalingRelationships sr : scalingRelList) {
 				InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-						ma, asm, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
-				result += "\n"+ma+"\t"+asm+":\n";
+						sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
+				result += "\n"+sr+":\n";
 				result += calcImplDDWvsDDW_Ratio(faultSysRupSet);
 						
-			}
 		}
 		
 		System.out.println(result);

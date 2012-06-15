@@ -10,6 +10,8 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.exceptions.Point2DException;
+import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -56,6 +58,7 @@ public class DeformationModelsCalc {
 		double meanLowerMinusUpperSeisDepth=0;
 		int num=0;
 		
+		double totWt=0;
 		for(FaultSectionPrefData data : subsectData) {
 			if(data.getAveLowerDepth()>25.0) {
 //				System.out.println(data.toString());
@@ -66,7 +69,15 @@ public class DeformationModelsCalc {
 			meanLSD+= data.getAveLowerDepth();
 			origDepthsHist.add(data.getAveLowerDepth(), 1.0);
 			meanDDW += data.getReducedDownDipWidth();
-			meanLowerMinusUpperSeisDepth += (1.0-data.getAseismicSlipFactor())*(data.getAveLowerDepth()-data.getOrigAveUpperDepth());
+			double wt = data.getReducedAveSlipRate();
+			if(Double.isNaN(wt)) {
+				System.out.println("NaN slip rate: "+data.getName());
+				wt=0;
+			}
+			else {
+				totWt += wt;
+			}
+			meanLowerMinusUpperSeisDepth += wt*(1.0-data.getAseismicSlipFactor())*(data.getAveLowerDepth()-data.getOrigAveUpperDepth());
 			reducedDDW_Hist.add(data.getReducedDownDipWidth(), 1.0);
 			if(data.getReducedDownDipWidth()>25.0) {
 				String info = data.getParentSectionName()+"\tDownDipWidth = "+Math.round(data.getReducedDownDipWidth());
@@ -76,9 +87,10 @@ public class DeformationModelsCalc {
 		
 		meanLSD /= num;
 		meanDDW /= num;
-		meanLowerMinusUpperSeisDepth /= num;
+//		meanLowerMinusUpperSeisDepth /= num;
+		meanLowerMinusUpperSeisDepth /= totWt;
 		
-		System.out.println("meanLowerMinusUpperSeisDepth="+Math.round(meanLowerMinusUpperSeisDepth));
+		System.out.println("meanLowerMinusUpperSeisDepth="+meanLowerMinusUpperSeisDepth);
 		
 		origDepthsHist.normalizeBySumOfY_Vals();
 		origDepthsHist.setName("Distribution of Lower Seis. Depths; mean = "+Math.round(meanLSD));
@@ -288,7 +300,7 @@ public class DeformationModelsCalc {
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC_PLUS_ABM));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.NEOKINEMA));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG));
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOBOUND));
+//		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOBOUND));
 
 		System.out.println("\nmodel\tfltMoRate\tfractOff\tmoRateOff\ttotMoRate\tMmax\tRate_gtM8\tMRIgtM8\tnewFltMoRate");
 		for(String tableLine : tableData)
@@ -427,43 +439,43 @@ public class DeformationModelsCalc {
 //		System.out.println("minMoRate="+(float)ucerf2_OffFault.getMinZ());
 //		System.out.println("maxMoRate="+(float)ucerf2_All.getMaxZ());
 		
-//		try {
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_Faults, "UCERF2 On-Fault MoRate-Nm/yr", " " , "UCERF2_OnFaultMoRateMap");
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_OffFault, "UCERF2 Off-Fault MoRate-Nm/yr", " " , "UCERF2_OffFaultMoRateMap");
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_All.copy(), "UCERF2 Total MoRate-Nm/yr", " " , "UCERF2_TotalMoRateMap");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.ABM, ucerf2_All.copy());	// need the .copy() because method takes the log
-//		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.NEOKINEMA, ucerf2_All.copy());
-//		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.GEOBOUND, ucerf2_All.copy());
-//		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.ZENG, ucerf2_All.copy());
-//		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.GEOLOGIC, ucerf2_All.copy());
-//		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, ucerf2_All.copy());
-//		
-//		
-//		// now make the smoothed seismicity implied moRate maps (assuming ABM has correct total)
-//		double totMoRate = calcTotalMoRateForDefModel(FaultModels.FM3_1, DeformationModels.ABM, true);
-//		GriddedGeoDataSet uncer2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
-//		for(int i=0;i< uncer2_SmSeisDist.size();i++)
-//			uncer2_SmSeisDist.set(i, totMoRate*uncer2_SmSeisDist.get(i));
-//		
-//		GriddedGeoDataSet uncer3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
-//		for(int i=0;i< uncer3_SmSeisDist.size();i++)
-//			uncer3_SmSeisDist.set(i, totMoRate*uncer3_SmSeisDist.get(i));
-//		
-//		try {
-//			GMT_CA_Maps.plotSpatialMoRate_Map(uncer3_SmSeisDist.copy(), "UCERF3_SmoothSeis MoRate-Nm/yr", " " , "UCERF3_SmSeisMoRateMap");
-//			GMT_CA_Maps.plotRatioOfRateMaps(uncer3_SmSeisDist, ucerf2_All.copy(), "UCERF3_SmoothSeis Ratio", " " , "UCERF3_SmoothSeisRatio");
-//
-//			GMT_CA_Maps.plotSpatialMoRate_Map(uncer2_SmSeisDist.copy(), "UCERF2_SmoothSeis MoRate-Nm/yr", " " , "UCERF2_SmSeisMoRateMap");
-//			GMT_CA_Maps.plotRatioOfRateMaps(uncer2_SmSeisDist, ucerf2_All.copy(), "UCERF2_SmoothSeis Ratio", " " , "UCERF2_SmoothSeisRatio");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_Faults, "UCERF2 On-Fault MoRate-Nm/yr", " " , "UCERF2_OnFaultMoRateMap");
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_OffFault, "UCERF2 Off-Fault MoRate-Nm/yr", " " , "UCERF2_OffFaultMoRateMap");
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_All.copy(), "UCERF2 Total MoRate-Nm/yr", " " , "UCERF2_TotalMoRateMap");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.ABM, ucerf2_All.copy());	// need the .copy() because method takes the log
+		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.NEOKINEMA, ucerf2_All.copy());
+		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.GEOBOUND, ucerf2_All.copy());
+		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.ZENG, ucerf2_All.copy());
+		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.GEOLOGIC, ucerf2_All.copy());
+		makeSpatialMoRateMaps(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, ucerf2_All.copy());
+		
+		
+		// now make the smoothed seismicity implied moRate maps (assuming ABM has correct total)
+		double totMoRate = calcTotalMoRateForDefModel(FaultModels.FM3_1, DeformationModels.ABM, true);
+		GriddedGeoDataSet uncer2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
+		for(int i=0;i< uncer2_SmSeisDist.size();i++)
+			uncer2_SmSeisDist.set(i, totMoRate*uncer2_SmSeisDist.get(i));
+		
+		GriddedGeoDataSet uncer3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+		for(int i=0;i< uncer3_SmSeisDist.size();i++)
+			uncer3_SmSeisDist.set(i, totMoRate*uncer3_SmSeisDist.get(i));
+		
+		try {
+			GMT_CA_Maps.plotSpatialMoRate_Map(uncer3_SmSeisDist.copy(), "UCERF3_SmoothSeis MoRate-Nm/yr", " " , "UCERF3_SmSeisMoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(uncer3_SmSeisDist, ucerf2_All.copy(), "UCERF3_SmoothSeis Ratio", " " , "UCERF3_SmoothSeisRatio");
+
+			GMT_CA_Maps.plotSpatialMoRate_Map(uncer2_SmSeisDist.copy(), "UCERF2_SmoothSeis MoRate-Nm/yr", " " , "UCERF2_SmSeisMoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(uncer2_SmSeisDist, ucerf2_All.copy(), "UCERF2_SmoothSeis Ratio", " " , "UCERF2_SmoothSeisRatio");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// adding ratios of some on-fault cases
 		FaultModels fm=FaultModels.FM3_1;
@@ -508,63 +520,124 @@ public class DeformationModelsCalc {
 			e.printStackTrace();
 		}
 	}
-
+	
 	
 	/**
-	 * This was done for the May 8-9, 2012 review meeting
+	 * This returns the average on-fault moment rates for the given fault model, where the average
+	 * is taken over: GEOLOGIC, ABM, NEOKINEMA, and ZENG.
+	 * @param fm
 	 */
-	public static void plotMoreSpatialMaps() {
-		
-		FaultModels fm = FaultModels.FM3_1;
-		
-//		// make UCERF2 on, off, and total rates data
-//		ModMeanUCERF2 erf= new ModMeanUCERF2();
-//		erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-//		erf.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
-//		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
-//		erf.updateForecast();
-//		GriddedGeoDataSet ucerf2_OffFault = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
-//		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-//		erf.updateForecast();
-//		GriddedGeoDataSet ucerf2_Faults = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
-//		GriddedGeoDataSet ucerf2_All = new GriddedGeoDataSet(RELM_RegionUtils.getGriddedRegionInstance(), true);
-//		double fltTest=0, offTest=0, allTest=0;
-//		for(int i=0;i<ucerf2_All.size();i++) {
-//			offTest += ucerf2_OffFault.get(i);
-//			fltTest += ucerf2_Faults.get(i);
-//			ucerf2_All.set(i, ucerf2_OffFault.get(i)+ucerf2_Faults.get(i));
-//			allTest += ucerf2_All.get(i);
-//		}
-//		try {
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_Faults.copy(), "UCERF2 On-Fault MoRate-Nm/yr", " " , "UCERF2_OnFaultMoRateMap");
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_OffFault.copy(), "UCERF2 Off-Fault MoRate-Nm/yr", " " , "UCERF2_OffFaultMoRateMap");
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_All.copy(), "UCERF2 Total MoRate-Nm/yr", " " , "UCERF2_TotalMoRateMap");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-		
-		// Now make ave def model data
-		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
+	public static GriddedGeoDataSet getAveDefModSpatialOnFaultMomentRateData(FaultModels fm) {
 
 		ArrayList<DeformationModels> dmListForAve = new ArrayList<DeformationModels>();
 		dmListForAve.add(DeformationModels.GEOLOGIC);
 		dmListForAve.add(DeformationModels.ABM);
 		dmListForAve.add(DeformationModels.NEOKINEMA);
-//		dmListForAve.add(DeformationModels.GEOBOUND);
-//		dmListForAve.add(DeformationModels.ZENG);
-		// compute aveDefModPDF
+		dmListForAve.add(DeformationModels.ZENG);
+
 		GriddedGeoDataSet aveDefModOnFault = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
-		GriddedGeoDataSet aveDefModOffFault = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
-		GriddedGeoDataSet aveDefModTotal = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
 		for(int i=0;i<aveDefModOnFault.size();i++) {// initialize to zero
 			aveDefModOnFault.set(i,0);
-			aveDefModOffFault.set(i,0);
-			aveDefModTotal.set(i,0);
 		}
 		for(DeformationModels dm : dmListForAve) {
-			System.out.println("adding "+dm+" to the mean");
+			GriddedGeoDataSet onFaultData = getDefModFaultMoRatesInRELM_Region(fm, dm);
+			for(int i=0;i<onFaultData.size();i++) {
+				if(!Double.isNaN(onFaultData.get(i)))	// treat the Geo NaNs as zero
+					aveDefModOnFault.set(i, aveDefModOnFault.get(i) + onFaultData.get(i)/dmListForAve.size());
+			}
+		}
+		return aveDefModOnFault;
+	}
+	
+	
+	/**
+	 * This returns the average moment rate data including both on- and off-fault sources,
+	 * where the average is taken over  GEOLOGIC, ABM, NEOKINEMA, and ZENG.
+	 * 
+	 * The off-fault geologic is included here (which has a uniform distribution off fault)
+	 * @param fm
+	 * @return
+	 */
+	public static GriddedGeoDataSet getAveDefModSpatialMomentRateData(FaultModels fm) {
+
+		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm);
+		GriddedGeoDataSet aveDefModOffFault = DeformationModelOffFaultMoRateData.getInstance().getAveDefModelSpatialOffFaultMoRates(fm, true);
+		
+		GriddedGeoDataSet aveDefModData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
+
+		for(int i=0;i<aveDefModData.size();i++) {// initialize to zero
+			aveDefModData.set(i,aveDefModOnFault.get(i)+aveDefModOffFault.get(i));
+		}
+		return aveDefModData;
+	}
+
+
+	
+	/**
+	 * This was done for the May 8-9, 2012 review meeting (& final report analysis)
+	 */
+	public static void plotMoreSpatialMaps() {
+		
+		FaultModels fm = FaultModels.FM3_1;
+		
+		// make UCERF2 on, off, and total rates data
+		ModMeanUCERF2 erf= new ModMeanUCERF2();
+		erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		erf.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
+		erf.updateForecast();
+		GriddedGeoDataSet ucerf2_OffFault = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		erf.updateForecast();
+		GriddedGeoDataSet ucerf2_Faults = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
+		GriddedGeoDataSet ucerf2_All = new GriddedGeoDataSet(RELM_RegionUtils.getGriddedRegionInstance(), true);
+		double fltTest=0, offTest=0, allTest=0;
+		for(int i=0;i<ucerf2_All.size();i++) {
+			offTest += ucerf2_OffFault.get(i);
+			fltTest += ucerf2_Faults.get(i);
+			ucerf2_All.set(i, ucerf2_OffFault.get(i)+ucerf2_Faults.get(i));
+			allTest += ucerf2_All.get(i);
+		}
+		try {
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_Faults.copy(), "UCERF2 On-Fault MoRate-Nm/yr", " " , "UCERF2_OnFaultMoRateMap");
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_OffFault.copy(), "UCERF2 Off-Fault MoRate-Nm/yr", " " , "UCERF2_OffFaultMoRateMap");
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_All.copy(), "UCERF2 Total MoRate-Nm/yr", " " , "UCERF2_TotalMoRateMap");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		// Now make ave def model data
+		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
+		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm);
+		GriddedGeoDataSet aveDefModOffFault = spatPDFgen.getAveDefModelSpatialOffFaultMoRates(fm, true);
+		GriddedGeoDataSet aveDefModTotal = getAveDefModSpatialMomentRateData(fm);
+
+		
+		try {
+			GMT_CA_Maps.plotSpatialMoRate_Map(aveDefModOnFault.copy(), "AveDefModOnFaultMoRate-Nm/yr", " " , "AveDefModOnFaultMoRateMap");
+			GMT_CA_Maps.plotSpatialMoRate_Map(aveDefModOffFault.copy(), "AveDefModOffFaultMoRate-Nm/yr", " " , "AveDefModOffFaultMoRateMap");
+			GMT_CA_Maps.plotSpatialMoRate_Map(aveDefModTotal.copy(), "AveDefModTotalMoRate-Nm/yr", " " , "AveDefModTotalMoRate");
+			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModOnFault, ucerf2_Faults, "AveDefModOnFault_RatioToUCERF2_MoRateMap", " " , "AveDefModOnFault_RatioToUCERF2_MoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModOffFault, ucerf2_OffFault, "AveDefModOffFault_RatioToUCERF2_MoRateMap", " " , "AveDefModOffFault_RatioToUCERF2_MoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModTotal, ucerf2_All, "AveDefModTotal_RatioToUCERF2_MoRateMap", " " , "AveDefModTotal_RatioToUCERF2_MoRateMap");
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+		// now do individual dm models relative to U2 and the average DM
+		ArrayList<DeformationModels> dmList = new ArrayList<DeformationModels>();
+		dmList.add(DeformationModels.GEOLOGIC);
+		dmList.add(DeformationModels.ABM);
+		dmList.add(DeformationModels.NEOKINEMA);
+		dmList.add(DeformationModels.ZENG);
+				
+
+		for(DeformationModels dm : dmList) {
 			GriddedGeoDataSet offFaultData = spatPDFgen.getDefModSpatialOffFaultMoRates(fm, dm);
 			GriddedGeoDataSet onFaultData = getDefModFaultMoRatesInRELM_Region(fm, dm);
 			GriddedGeoDataSet totalMoRateData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
@@ -578,68 +651,24 @@ public class DeformationModelsCalc {
 					totalMoRateData.set(i, offFaultData.get(i)+onFaultData.get(i));
 				}
 			}
-			for(int i=0;i<totalMoRateData.size();i++) {
-				aveDefModOnFault.set(i, aveDefModOnFault.get(i) + onFaultData.get(i)/dmListForAve.size());
-				aveDefModOffFault.set(i, aveDefModOffFault.get(i) + offFaultData.get(i)/dmListForAve.size());
-				aveDefModTotal.set(i, aveDefModTotal.get(i) + totalMoRateData.get(i)/dmListForAve.size());
+			
+			try {
+				GMT_CA_Maps.plotSpatialMoRate_Map(onFaultData.copy(), dm+" MoRate-Nm/yr", " " , dm.getShortName()+"_OnFaultMoRateMap");
+				GMT_CA_Maps.plotSpatialMoRate_Map(offFaultData.copy(), dm+" MoRate-Nm/yr", " " , dm.getShortName()+"_OffFaultMoRateMap");
+				GMT_CA_Maps.plotSpatialMoRate_Map(totalMoRateData.copy(), dm+" MoRate-Nm/yr", " " , dm.getShortName()+"_TotalMoRateMap");
+				// ratios to U2
+				GMT_CA_Maps.plotRatioOfRateMaps(onFaultData, ucerf2_Faults, dm+" OnFaulRatioToUCERF2", " " , dm.getShortName()+"_OnFaulRatioToUCERF2Map");
+				GMT_CA_Maps.plotRatioOfRateMaps(offFaultData, ucerf2_OffFault, dm+" OffFaulRatioToUCERF2", " " , dm.getShortName()+"_OffFaulRatioToUCERF2Map");
+				GMT_CA_Maps.plotRatioOfRateMaps(totalMoRateData, ucerf2_All, dm+" TotalRatioToUCERF2", " " , dm.getShortName()+"_TotalRatioToUCERF2Map");
+				// ratios to Ave
+				GMT_CA_Maps.plotRatioOfRateMaps(onFaultData, aveDefModOnFault, dm+" OnFaulRatioToAveDefMod", " " , dm.getShortName()+"_OnFaulRatioToAveDefModMap");
+				GMT_CA_Maps.plotRatioOfRateMaps(offFaultData, aveDefModOffFault, dm+" OffFaulRatioToAveDefMod", " " , dm.getShortName()+"_OffFaulRatioToAveDefModMap");
+				GMT_CA_Maps.plotRatioOfRateMaps(totalMoRateData, aveDefModTotal, dm+" TotalRatioToAveDefMod", " " , dm.getShortName()+"_TotalRatioToAveDefModMap");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-		
-//		try {
-//			GMT_CA_Maps.plotSpatialMoRate_Map(aveDefModOnFault.copy(), "AveDefModOnFaultMoRate-Nm/yr", " " , "AveDefModOnFaultMoRateMap");
-//			GMT_CA_Maps.plotSpatialMoRate_Map(aveDefModOffFault.copy(), "AveDefModOffFaultMoRate-Nm/yr", " " , "AveDefModOffFaultMoRateMap");
-//			GMT_CA_Maps.plotSpatialMoRate_Map(aveDefModTotal.copy(), "AveDefModTotalMoRate-Nm/yr", " " , "AveDefModTotalMoRate");
-//			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModOnFault, ucerf2_Faults, "AveDefModOnFault_RatioToUCERF2_MoRateMap", " " , "AveDefModOnFault_RatioToUCERF2_MoRateMap");
-//			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModOffFault, ucerf2_OffFault, "AveDefModOffFault_RatioToUCERF2_MoRateMap", " " , "AveDefModOffFault_RatioToUCERF2_MoRateMap");
-//			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModTotal, ucerf2_All, "AveDefModTotal_RatioToUCERF2_MoRateMap", " " , "AveDefModTotal_RatioToUCERF2_MoRateMap");
-//
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-
-		// now do individual dm models relative to U2 and the average DM
-		ArrayList<DeformationModels> dmList = new ArrayList<DeformationModels>();
-		dmList.add(DeformationModels.GEOLOGIC);
-		dmList.add(DeformationModels.ABM);
-		dmList.add(DeformationModels.NEOKINEMA);
-		dmList.add(DeformationModels.GEOBOUND);
-		dmList.add(DeformationModels.ZENG);
-				
-
-//		for(DeformationModels dm : dmList) {
-//			GriddedGeoDataSet offFaultData = spatPDFgen.getDefModSpatialOffFaultMoRates(fm, dm);
-//			GriddedGeoDataSet onFaultData = getDefModMoRatesInRELM_Region(fm, dm);
-//			GriddedGeoDataSet totalMoRateData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
-//			for(int i=0; i<totalMoRateData.size();i++) {
-//				// some GEOL on-fault values are NaN:
-//				if(Double.isNaN(onFaultData.get(i))) {
-//					System.out.println("NaN onFault:\t"+i+"\t"+dm.getShortName());
-//					totalMoRateData.set(i, offFaultData.get(i));
-//				}
-//				else {
-//					totalMoRateData.set(i, offFaultData.get(i)+onFaultData.get(i));
-//				}
-//			}
-//			
-//			try {
-//				GMT_CA_Maps.plotSpatialMoRate_Map(onFaultData.copy(), dm+" MoRate-Nm/yr", " " , dm.getShortName()+"_OnFaultMoRateMap");
-//				GMT_CA_Maps.plotSpatialMoRate_Map(offFaultData.copy(), dm+" MoRate-Nm/yr", " " , dm.getShortName()+"_OffFaultMoRateMap");
-//				GMT_CA_Maps.plotSpatialMoRate_Map(totalMoRateData.copy(), dm+" MoRate-Nm/yr", " " , dm.getShortName()+"_TotalMoRateMap");
-//				// ratios to U2
-//				GMT_CA_Maps.plotRatioOfRateMaps(onFaultData, ucerf2_Faults, dm+" OnFaulRatioToUCERF2", " " , dm.getShortName()+"_OnFaulRatioToUCERF2Map");
-//				GMT_CA_Maps.plotRatioOfRateMaps(offFaultData, ucerf2_OffFault, dm+" OffFaulRatioToUCERF2", " " , dm.getShortName()+"_OffFaulRatioToUCERF2Map");
-//				GMT_CA_Maps.plotRatioOfRateMaps(totalMoRateData, ucerf2_All, dm+" TotalRatioToUCERF2", " " , dm.getShortName()+"_TotalRatioToUCERF2Map");
-//				// ratios to Ave
-//				GMT_CA_Maps.plotRatioOfRateMaps(onFaultData, aveDefModOnFault, dm+" OnFaulRatioToAveDefMod", " " , dm.getShortName()+"_OnFaulRatioToAveDefModMap");
-//				GMT_CA_Maps.plotRatioOfRateMaps(offFaultData, aveDefModOffFault, dm+" OffFaulRatioToAveDefMod", " " , dm.getShortName()+"_OffFaulRatioToAveDefModMap");
-//				GMT_CA_Maps.plotRatioOfRateMaps(totalMoRateData, aveDefModTotal, dm+" TotalRatioToAveDefMod", " " , dm.getShortName()+"_TotalRatioToAveDefModMap");
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
 		
 
 		// Now do the smooth-seismicity results
@@ -655,7 +684,8 @@ public class DeformationModelsCalc {
 			ucerf3_SmSeisDist.set(i, totAveMomentRate*ucerf3_SmSeisDist.get(i));
 		System.out.println("totAveMomentRate="+totAveMomentRate);
 		
-//		// make aveDefModTotal inside and outside fault polygons
+		// FOLLOWING COMMENTED OUT UNTIL PETER GIVES ME THE UPDATE TO THE 4TH LINE DOWN - Needs to get a faultSustemRupSet to do this properly
+		// make aveDefModTotal inside and outside fault polygons
 //		GriddedGeoDataSet aveDefModTotalInsideFaults = aveDefModTotal.copy();
 //		GriddedGeoDataSet aveDefModTotalOutsideFaults = aveDefModTotal.copy();
 //		double[] nodeFracsInside = FaultPolyMgr.getNodeFractions(fm);
@@ -663,33 +693,41 @@ public class DeformationModelsCalc {
 //			aveDefModTotalInsideFaults.set(i, aveDefModTotalInsideFaults.get(i)*nodeFracsInside[i]);
 //			aveDefModTotalOutsideFaults.set(i, aveDefModTotalOutsideFaults.get(i)*(1-nodeFracsInside[i]));
 //		}
-//
-//		try {
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_SmSeisDist.copy(), "UCERF2_SmoothSeis MoRate-Nm/yr", " " , "UCERF2_SmSeisMoRateMap");
-//			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_SmSeisDist, aveDefModTotal, "UCERF2_SmSeisToTotAveDefModRatio", " " , "UCERF2_SmSeisToTotAveDefModRatioMap");
+
+		try {
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf2_SmSeisDist.copy(), "UCERF2_SmoothSeis MoRate-Nm/yr", " " , "UCERF2_SmSeisMoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_SmSeisDist, aveDefModTotal, "UCERF2_SmSeisToTotAveDefModRatio", " " , "UCERF2_SmSeisToTotAveDefModRatioMap");
 //			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_SmSeisDist, aveDefModTotalInsideFaults, "UCERF2_SmSeisToInsideFaultAveDefModRatio", " " , "UCERF2_SmSeisToInsideFaultAveDefModRatioMap");
 //			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_SmSeisDist, aveDefModTotalOutsideFaults, "UCERF2_SmSeisToOutsideFaultAveDefModRatio", " " , "UCERF2_SmSeisToOutsideFaultAveDefModRatioMap");
-//
-//			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf3_SmSeisDist.copy(), "UCERF3_SmoothSeis MoRate-Nm/yr", " " , "UCERF3_SmSeisMoRateMap");
-//			GMT_CA_Maps.plotRatioOfRateMaps(ucerf3_SmSeisDist, aveDefModTotal, "UCERF3_SmSeisToTotAveDefModRatio", " " , "UCERF3_SmSeisToTotAveDefModRatioMap");
+
+			GMT_CA_Maps.plotSpatialMoRate_Map(ucerf3_SmSeisDist.copy(), "UCERF3_SmoothSeis MoRate-Nm/yr", " " , "UCERF3_SmSeisMoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(ucerf3_SmSeisDist, aveDefModTotal, "UCERF3_SmSeisToTotAveDefModRatio", " " , "UCERF3_SmSeisToTotAveDefModRatioMap");
 //			GMT_CA_Maps.plotRatioOfRateMaps(ucerf3_SmSeisDist, aveDefModTotalInsideFaults, "UCERF3_SmSeisToInsideFaultAveDefModRatio", " " , "UCERF3_SmSeisToInsideFaultAveDefModRatioMap");
 //			GMT_CA_Maps.plotRatioOfRateMaps(ucerf3_SmSeisDist, aveDefModTotalOutsideFaults, "UCERF3_SmSeisToOutsideFaultAveDefModRatio", " " , "UCERF3_SmSeisToOutsideFaultAveDefModRatioMap");
-//
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}		
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		
 		// now make Mmax map plot
-		double totObsRate = 8.54e5;
+		double totObsRate = TotalMag5Rate.RATE_8p8.getRateMag5();
 		GriddedGeoDataSet mMaxData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
 		ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
-		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0, 2000, 0.01);
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0, 3000, 0.01);
 		for(int i=0;i< ucerf3_SmSeisDist.size();i++) {
-			double rate = totObsRate*ucerf3_SmSeisDist.get(i);
+			double rate = totObsRate*ucerf3_SmSeisDist.get(i)*1e5;		// increase by 1e5 for rate at zero mag
 			double moRate = aveDefModTotal.get(i);
-			gr.setAllButMagUpper(0, moRate, rate, 1.0, false);
-			mMaxData.set(i, gr.getMagUpper());
+			try {
+				gr.setAllButMagUpper(0, moRate, rate, 1.0, false);
+				mMaxData.set(i, gr.getMagUpper());
+			} catch (XY_DataSetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Point2DException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		try {
 			GMT_CA_Maps.plotMagnitudeMap(mMaxData, "Implied Mmax", " " , "AveDefMod_UCERF3_smSeis_ImpliedMmaxMap");
@@ -966,20 +1004,23 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-//		plotAllMmaxVersusFractSeisOffFault();
+//		calcMoRateAndMmaxDataForDefModels();
 		
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 
-//				DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+//				DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 
+//				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 //		plotDDW_AndLowerSeisDepthDistributions(defFetch.getSubSectionList(),"FM3_1 & GEOLOGIC Def Mod");
 
 		
+//		plotAllMmaxVersusFractSeisOffFault();
+
 //		writeFractionOffFaultMoRateInsideFaultPolygons();
 		
 //		writeFractionRegionNodesInsideFaultPolygons();
 		
 //		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
-//		plotMoreSpatialMaps();
+		plotMoreSpatialMaps();
 
 //		testFaultZonePolygons();
 		
@@ -992,8 +1033,6 @@ public class DeformationModelsCalc {
 //		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		
 //		plotMoRateReductionHist(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
-		
-//		calcMoRateAndMmaxDataForDefModels();
 		
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1,
 //				DeformationModels.GEOLOGIC,default_scratch_dir);

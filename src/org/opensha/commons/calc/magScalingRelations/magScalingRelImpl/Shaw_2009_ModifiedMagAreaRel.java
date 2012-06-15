@@ -45,7 +45,7 @@ public class Shaw_2009_ModifiedMagAreaRel extends MagAreaRelationship implements
     /**
      * Computes the median magnitude from rupture area and down-dip width
      * @param area in km-squared
-     * @param width in km-squared
+     * @param width in km
      * @return median magnitude
      */
     public  double getWidthDepMedianMag(double area, double width) {

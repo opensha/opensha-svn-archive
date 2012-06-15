@@ -170,29 +170,34 @@ public class DeformationModelOffFaultMoRateData {
 	
 	
 	/**
-	 * This generates an average PDF of the off-fault deformation models.  The data is read here in order
-	 * to deal with NeoKinema zero values differently (they are not considered in the average); this is only
-	 * really needed if we change the zero values to something else when creating neok_Fm3pt1_xyzData and 
-	 * neok_Fm3pt2_xyzData, as we did in the past).  
-	 * 
-	 * Each off-fault model is normalized to a PDF before computing the average PDF.
+	 * This generates the average of off-fault moment rates for the deformation models.  
 	 * 
 	 * @param fm - the specified fault model
+	 * @param includeGeologic - tells whether to include the geologic model (which has a uniform distribution)
+	 * 
 	 * @return
 	 */
-	public GriddedGeoDataSet getAveDefModelPDF(FaultModels fm) {
+	public GriddedGeoDataSet getAveDefModelSpatialOffFaultMoRates(FaultModels fm, boolean includeGeologic) {
 		GriddedGeoDataSet aveData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		GriddedGeoDataSet neok_xyzData, zeng_xyzData, abm_xyzData;
+		GriddedGeoDataSet neok_xyzData, zeng_xyzData, abm_xyzData, geol_xyzData=null;
 		
 		if(fm == FaultModels.FM3_1) {
-			neok_xyzData = getNormalizdeData(neok_Fm3pt1_xyzData);
-			zeng_xyzData = getNormalizdeData(zeng_Fm3pt1_xyzData);
-			abm_xyzData = getNormalizdeData(abm_Fm3pt1_xyzData);
+			neok_xyzData = neok_Fm3pt1_xyzData;
+			zeng_xyzData = zeng_Fm3pt1_xyzData;
+			abm_xyzData = abm_Fm3pt1_xyzData;
+			if(includeGeologic) {
+				if(geol_Fm3pt1_xyzData == null) {makeGeolData();}
+				geol_xyzData = geol_Fm3pt1_xyzData;
+			}
 		}
 		else if(fm == FaultModels.FM3_2) {
-			neok_xyzData = getNormalizdeData(neok_Fm3pt2_xyzData);
-			zeng_xyzData = getNormalizdeData(zeng_Fm3pt2_xyzData);
-			abm_xyzData = getNormalizdeData(abm_Fm3pt2_xyzData);
+			neok_xyzData = neok_Fm3pt2_xyzData;
+			zeng_xyzData = zeng_Fm3pt2_xyzData;
+			abm_xyzData = abm_Fm3pt2_xyzData;
+			if(includeGeologic) {
+				if(geol_Fm3pt2_xyzData == null) {makeGeolData();}
+				geol_xyzData = geol_Fm3pt2_xyzData;
+			}
 		}
 		else
 			throw new RuntimeException("Error - Unsupported fault model: "+fm);
@@ -213,35 +218,54 @@ public class DeformationModelOffFaultMoRateData {
 				val += abm_xyzData.get(i);
 				num+=1;
 			}
+			if(includeGeologic) {
+				if(geol_xyzData.get(i) !=0) {
+					val += geol_xyzData.get(i);
+					num+=1;
+				}
+			}
+			
 			if(num !=0) {
 				aveData.set(i,val/num);
 				sum += aveData.get(i);
 			}
-			else
+			else {
 				aveData.set(i,0.0);
-		}
-		
-		// normalize to sum to 1.0
-		for(int i=0;i<aveData.size();i++) {
-			aveData.set(i, aveData.get(i)/sum);
+			}
 		}
 		
 		return aveData;
 	}
 	
 	
+	
 	/**
-	 * This average over both fault models (FM3.1 and FM 3.2)
+	 * This generates an average PDF of the off-fault deformation models.  
+	 * 
+	 * @param fm - the specified fault model
+	 * @param includeGeologic - tells whether to include the geologic model (which has a uniform distribution)
 	 * @return
 	 */
-	public GriddedGeoDataSet getAveDefModelPDF() {
+	public GriddedGeoDataSet getAveDefModelPDF(FaultModels fm, boolean includeGeologic) {
+		return getNormalizdeData(getAveDefModelSpatialOffFaultMoRates(fm, includeGeologic));
+	}
+	
+	
+	
+	/**
+	 * This average over both fault models (FM3.1 and FM 3.2)
+	 * 	 
+	 * @param fm - the specified fault model
+	 * @param includeGeologic - tells whether to include the geologic model (which has a uniform distribution)
+	 * @return
+	 */
+	public GriddedGeoDataSet getAveDefModelPDF(boolean includeGeologic) {
 		GriddedGeoDataSet aveData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		GriddedGeoDataSet data1 = this.getAveDefModelPDF(FaultModels.FM3_1);
-		GriddedGeoDataSet data2 = this.getAveDefModelPDF(FaultModels.FM3_2);
+		GriddedGeoDataSet data1 = this.getAveDefModelPDF(FaultModels.FM3_1, includeGeologic);
+		GriddedGeoDataSet data2 = this.getAveDefModelPDF(FaultModels.FM3_2, includeGeologic);
 		for(int i=0; i< data1.size(); i++)
 			aveData.set(i, data1.get(i)+data2.get(i));
 		return getNormalizdeData(aveData);
-	
 	}
 	
 	/**
@@ -397,12 +421,12 @@ public class DeformationModelOffFaultMoRateData {
 		}
 	}
 	
-	private void plotAveDefModPDF_Map() {
+	private void plotAveDefModPDF_Map(boolean includeGeologic) {
 		
 		try {
-			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_1), "Ave Def Mod PDF for  FM3.1", "average of the 4 gps deformation models", "AveDefModPDF_FM3_1_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_2), "Ave Def Mod PDF for  FM3.2", "average of the 4 gps deformation models", "AveDefModPDF_FM3_2_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(), "Ave Def Mod PDF for both FM 3.1 and 3.2", "average of the 4 gps deformation models", "AveDefModPDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_1, includeGeologic), "Ave Def Mod PDF for  FM3.1", "average of the 4 gps deformation models", "AveDefModPDF_FM3_1_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_2, includeGeologic), "Ave Def Mod PDF for  FM3.2", "average of the 4 gps deformation models", "AveDefModPDF_FM3_2_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(includeGeologic), "Ave Def Mod PDF for both FM 3.1 and 3.2", "average of the 4 gps deformation models", "AveDefModPDF_Map");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -442,8 +466,8 @@ public class DeformationModelOffFaultMoRateData {
 
 	
 	public void testAveMapDiffs() {
-		GriddedGeoDataSet data1 = getAveDefModelPDF(FaultModels.FM3_1);
-		GriddedGeoDataSet data2 = getAveDefModelPDF(FaultModels.FM3_2);
+		GriddedGeoDataSet data1 = getAveDefModelPDF(FaultModels.FM3_1, false);
+		GriddedGeoDataSet data2 = getAveDefModelPDF(FaultModels.FM3_2, false);
 		double ave=0, min=Double.MAX_VALUE, max=0;
 		for(int i=0; i< data1.size();i++) {
 			double ratio = data1.get(i)/data2.get(i);
@@ -464,7 +488,7 @@ public class DeformationModelOffFaultMoRateData {
 		
 		DeformationModelOffFaultMoRateData test = DeformationModelOffFaultMoRateData.getInstance();
 //		test.testAveMapDiffs();
-		test.plotAveDefModPDF_Map();
+		test.plotAveDefModPDF_Map(false);
 //		test.listNumZeroValues();
 //		test.writeAllTotalMomentRates();
 //		test.testPlotMaps();
