@@ -114,6 +114,7 @@ public class InversionConfiguration {
 		this.initialRupModel = initialRupModel;
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
 		this.relativeSmoothnessWt = relativeSmoothnessWt;
+		metadata += "\nrelativeSmoothnessWt: "+relativeSmoothnessWt;
 		this.mfdEqualityConstraints = mfdEqualityConstraints;
 		this.mfdInequalityConstraints = mfdInequalityConstraints;
 		this.minimumRuptureRateFraction = minimumRuptureRateFraction;
@@ -229,6 +230,15 @@ public class InversionConfiguration {
 			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 			initialRupModel = adjustParkfield(rupSet, initialRupModel);
 			break;
+		case CHAR_UNCONSTRAINED:
+			// TODO I believe we have to do something here
+			relativeParticipationSmoothnessConstraintWt = 0;
+			relativeRupRateConstraintWt = 0;
+			aPrioriRupConstraint = null;
+			initialRupModel = new double[rupSet.getNumRuptures()];
+			minimumRuptureRateBasis = null;
+			minimumRuptureRateFraction = 0;
+			break;
 		case GR_CONSTRAINED:
 			relativeParticipationSmoothnessConstraintWt = 1000;
 			relativeRupRateConstraintWt = 0;
@@ -240,6 +250,7 @@ public class InversionConfiguration {
 			initialRupModel = adjustParkfield(rupSet, initialRupModel);
 			break;
 		case GR_UNCONSTRAINED:
+			// TODO is this right?
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;

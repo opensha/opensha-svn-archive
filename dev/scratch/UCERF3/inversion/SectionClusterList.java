@@ -34,6 +34,8 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 	private List<FaultSectionPrefData> faultSectionData;
 	private CoulombRates coulombRates;
 	
+	private Map<IDPairing, Double> subSectionDistances;
+	
 	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, File precomputedDataDir,
 			LaughTestFilter filter) {
 		this(new DeformationModelFetcher(faultModel, defModel, precomputedDataDir, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE), filter);
@@ -61,6 +63,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 		this.faultModel = faultModel;
 		this.defModel = defModel;
 		this.filter = filter;
+		this.subSectionDistances = subSectionDistances;
 		
 		if (filter.getCoulombFilter() != null) {
 			try {
@@ -245,6 +248,10 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 
 	public List<FaultSectionPrefData> getFaultSectionData() {
 		return faultSectionData;
+	}
+
+	public Map<IDPairing, Double> getSubSectionDistances() {
+		return subSectionDistances;
 	}
 
 }

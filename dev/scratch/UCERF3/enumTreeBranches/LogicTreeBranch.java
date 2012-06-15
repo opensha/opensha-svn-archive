@@ -17,7 +17,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	 */
 	public static final LogicTreeBranch DEFAULT = fromValues(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM,
 			ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p8,
-			MaxMagOffFault.MAG_7p65, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+			MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> logicTreeClasses;
 	

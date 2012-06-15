@@ -1,5 +1,6 @@
 package scratch.UCERF3.inversion;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -19,11 +21,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -37,6 +43,7 @@ import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
+import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
@@ -189,6 +196,9 @@ public class CommandLineInversionRunner {
 			System.out.println("Building RupSet");
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					laughTest, defaultAseis, branch);
+			
+			// store distances for jump plot later
+			Map<IDPairing, Double> distsMap = rupSet.getSubSectionDistances();
 			
 			// now build the inversion inputs
 			
@@ -375,6 +385,13 @@ public class CommandLineInversionRunner {
 				System.out.println("Writing Plots");
 				tsa.writePlots(criteria, new File(dir, prefix));
 				
+				// 1 km jump plot
+				try {
+					writeJumpPlot(sol, distsMap, dir, prefix, 1d);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
 				// MFD plots
 				try {
 					writeMFDPlots(invSol, dir, prefix);
@@ -406,6 +423,63 @@ public class CommandLineInversionRunner {
 		}
 		System.out.println("DONE");
 		System.exit(0);
+	}
+	
+	public static void writeJumpPlot(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix, double jumpDist) throws IOException {
+		EvenlyDiscretizedFunc solFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
+		EvenlyDiscretizedFunc rupSetFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
+		int maxX = solFunc.getNum()-1;
+		
+		for (int r=0; r<sol.getNumRuptures(); r++) {
+			List<Integer> sects = sol.getSectionsIndicesForRup(r);
+			
+			int jumpsOverDist = 0;
+			for (int i=1; i<sects.size(); i++) {
+				int sect1 = sects.get(i-1);
+				int sect2 = sects.get(i);
+				
+				int parent1 = sol.getFaultSectionData(sect1).getParentSectionId();
+				int parent2 = sol.getFaultSectionData(sect2).getParentSectionId();
+				
+				if (parent1 != parent2) {
+					double dist = distsMap.get(new IDPairing(sect1, sect2));
+					if (dist > jumpDist)
+						jumpsOverDist++;
+				}
+			}
+			
+			// indexes are fine to use here since it starts at zero with a delta of one 
+			if (jumpsOverDist <= maxX) {
+				solFunc.set(jumpsOverDist, solFunc.getY(jumpsOverDist) + sol.getRateForRup(r));
+				rupSetFunc.set(jumpsOverDist, rupSetFunc.getY(jumpsOverDist) + 1d);
+			}
+		}
+		
+		// now normalize rupSetFunc so that the sum of it's y values equals the sum of solFunc's y values
+		double totY = solFunc.calcSumOfY_Vals();
+		double origRupSetTotY = rupSetFunc.calcSumOfY_Vals();
+		for (int i=0; i<rupSetFunc.getNum(); i++) {
+			double y = rupSetFunc.getY(i);
+			double fract = y / origRupSetTotY;
+			double newY = totY * fract;
+			rupSetFunc.set(i, newY);
+		}
+		
+		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(solFunc);
+		funcs.add(rupSetFunc);
+		
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, PlotSymbol.CIRCLE, 3f, Color.RED));
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, false, "Inversion Fault Jumps");
+		
+		File file = new File(dir, prefix+"_jumps");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 	
 	public static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.math.stat.StatUtils;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
@@ -745,6 +746,12 @@ public abstract class FaultSystemRupSet {
 		return rupturesForParentSectionCache.get(parentSectID);
 	}
 	
-	
+	/**
+	 * This returns the maximum magnitude of this rupture set
+	 * @return
+	 */
+	public double getMaxMag() {
+		return StatUtils.max(getMagForAllRups());
+	}
 	
 }

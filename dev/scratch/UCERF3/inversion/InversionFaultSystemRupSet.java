@@ -109,6 +109,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	
 	private List<List<Integer>> sectionConnectionsListList;
 	
+	private Map<IDPairing, Double> subSectionDistances;
+	
 	/**
 	 * This generates a new InversionFaultSystemRupSet for the given fault/deformation mode and all other branch
 	 * parameters.
@@ -172,6 +174,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		this.mMaxOffFault = mMaxOffFault;
 		this.applyImpliedCouplingCoeff = applyImpliedCouplingCoeff;
 		this.spatialSeisPDF = spatialSeisPDF;
+		this.subSectionDistances = clusters.getSubSectionDistances();
 		
 		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
 		infoString += "\tfaultModel = " +faultModel+ "\n";
@@ -268,7 +271,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				rupArea[rupIndex] = totArea;
 				rupLength[rupIndex] = totLength;
 				rupRake[rupIndex] = FaultUtils.getInRakeRange(FaultUtils.getScaledAngleAverage(areas, rakes));
-				double mag = scalingRelationship.getMag(totArea*1e-6, (totArea/totLength)*1e-3); // TODO verify that I did this correctly
+				double mag = scalingRelationship.getMag(totArea, (totArea/totLength));
 //				for(MagAreaRelationship magArea: magAreaRelList) {
 //					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
 //						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
@@ -349,7 +352,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			  }
 			  fw.close();
 		  } catch (IOException e) {
-			  // TODO Auto-generated catch block
 			  e.printStackTrace();
 		  }
 	  }
@@ -449,17 +451,12 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		return calcSlipOnSectionsForRup(rthRup);
 	}
 	
-	// TODO not yet implemented
 	public double[] getAveRakeForAllRups() {
-		double[] rakes = new double[numRuptures];
-		for (int i=0; i<numRuptures; i++)
-			rakes[i] = getAveRakeForRup(i);
-		return rakes;
+		return rupRake;
 	}
 	
-	// TODO not yet implemented...
 	public double getAveRakeForRup(int rupIndex) {
-		return Double.NaN;
+		return rupRake[rupIndex];
 	}
 
 	public double[] getAreaForAllRups() {
@@ -601,17 +598,17 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		return slipModelType;
 	}
 	
-	
-	/**
-	 * This returns the maximum magnitude of this rupture set
-	 * @return
-	 */
+	@Override
 	public double getMaxMag() { 
 		return maxMag; 
 	}
 
 	public InversionMFDs getInversionMFDs() {
 		return inversionMFDs;
+	}
+
+	public Map<IDPairing, Double> getSubSectionDistances() {
+		return subSectionDistances;
 	}
 	
 

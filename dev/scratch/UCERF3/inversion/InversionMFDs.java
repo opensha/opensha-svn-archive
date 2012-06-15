@@ -49,7 +49,7 @@ public class InversionMFDs {
 	public final static double DELTA_MAG = 0.1;
 
 
-	public InversionMFDs(InversionFaultSystemRupSet fltSysRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
+	public InversionMFDs(FaultSystemRupSet fltSysRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
 			boolean applyImpliedCouplingCoeff, SpatialSeisPDF spatialSeisPDF, InversionModels inversionModel) {
 		
 		this.fltSysRupSet=fltSysRupSet;

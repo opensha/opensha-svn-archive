@@ -25,6 +25,9 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
@@ -58,7 +61,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	private double relativeMomentConstraintWt = Double.NaN;
 	private double minimumRuptureRateFraction = Double.NaN;
 	
-	private InversionMFDs inversionMFDs; // TODO instantiate from metadata (KEVIN)
+	private InversionMFDs inversionMFDs;
 
 	/**
 	 * Parses the info string for inversion parameters
@@ -77,6 +80,12 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		branch = loadBranch(branchProps);
 		invModel = branch.getValue(InversionModels.class);
 		loadInvParams(invProps);
+		
+		double totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
+		double mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
+		boolean applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
+		SpatialSeisPDF spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
+		inversionMFDs = new InversionMFDs(solution, totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF, invModel);
 	}
 	
 	private Map<String, String> loadProperties(ArrayList<String> section) {

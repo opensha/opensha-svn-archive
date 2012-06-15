@@ -317,6 +317,7 @@ public class DeformationModelOffFaultMoRateData {
 				data = geol_Fm3pt1_xyzData;
 				break;
 			case GEOLOGIC_PLUS_ABM:
+				if (abmPlusGeol_Fm3pt1_xyzData == null) makeGeolData();
 				data = abmPlusGeol_Fm3pt1_xyzData;
 				break;
 			}
@@ -338,6 +339,7 @@ public class DeformationModelOffFaultMoRateData {
 				data = geol_Fm3pt2_xyzData;
 				break;
 			case GEOLOGIC_PLUS_ABM:
+				if (abmPlusGeol_Fm3pt2_xyzData == null) makeGeolData();
 				data = abmPlusGeol_Fm3pt2_xyzData;
 				break;
 			}
