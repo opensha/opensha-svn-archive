@@ -30,6 +30,7 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
@@ -1081,7 +1082,7 @@ public class FaultSystemRupSetCalc {
 			SpatialSeisPDF spatialSeisPDF, GutenbergRichterMagFreqDist totalTargetGR) {
 		
 		ArrayList<GutenbergRichterMagFreqDist> mfds = new ArrayList<GutenbergRichterMagFreqDist>();
-		double totMgt5_rate = totalTargetGR.getCumRate(5.05);
+		double totMgt5_rate = totalTargetGR.getCumRate(0);
 		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet.getFaultSectionDataList(), spatialSeisPDF);
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
@@ -1090,7 +1091,12 @@ public class FaultSystemRupSetCalc {
 			double mMax = totalTargetGR.getX(mMaxIndex); // rounded to nearest MFD value
 			GutenbergRichterMagFreqDist tempOnFaultGR = new GutenbergRichterMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), 
 					totalTargetGR.getDelta(), totalTargetGR.getMagLower(), mMax, 1.0, 1.0);
-			tempOnFaultGR.scaleToCumRate(5.05, sectRate);
+			tempOnFaultGR.scaleToCumRate(0, sectRate);
+			// check for NaN rates
+			if(Double.isNaN(tempOnFaultGR.getTotalIncrRate())) {
+				throw new RuntimeException("Bad MFD for section:\t"+s+"\t"+fltSysRupSet.getFaultSectionData(s).getName()+
+						"\tsectRate="+sectRate+"\tgridSeisUtils.pdfValForSection(s) = "+gridSeisUtils.pdfValForSection(s)+"\tmMax = "+mMax);
+			}
 			mfds.add(tempOnFaultGR);
 		}
 		return mfds;
@@ -1250,6 +1256,11 @@ public class FaultSystemRupSetCalc {
 	public static void main(String[] args) {
 		
 		
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ABM,
+				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		
+		System.out.println(rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD());
+		
 //		testAllInversionSetups();
 
 //		double mMaxInRegion = 8.45;
@@ -1264,7 +1275,7 @@ public class FaultSystemRupSetCalc {
 //		getTriLinearCharOffFaultTargetMFD(totGR, totOnFaultMgt5_Rate, mMinSeismoOnFault, mMaxOffFault);
 //		getTriLinearCharOffFaultTargetMFD(4E18, totGR, totOnFaultMgt5_Rate,mMinSeismoOnFault);
 		
-		testAllImpliedDDWs();
+//		testAllImpliedDDWs();
 		
 //		LaughTestFilter laughTest = LaughTestFilter.getDefault();
 //		double defaultAseismicityValue = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;

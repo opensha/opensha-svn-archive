@@ -21,6 +21,10 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 
 public class InversionMFDs {
+	
+	// debugging flag
+	final static boolean D = false;;
+	String debugString;
 
 	FaultSystemRupSet fltSysRupSet;
 	double totalRegionRateMgt5;
@@ -83,6 +87,22 @@ public class InversionMFDs {
 		double roundedMmax = totalTargetGR.getX(totalTargetGR.getClosestXIndex(fltSysRupSet.getMaxMag()));
 		totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmax, totalRegionRateMgt5*1e5, 1.0);
 
+		if(D) {
+			debugString = "\ttotalRegionRateMgt5 =\t"+totalRegionRateMgt5+"\n"+
+					"\tmMaxOffFault =\t"+mMaxOffFault+"\n"+
+					"\tapplyImpliedCouplingCoeff =\t"+applyImpliedCouplingCoeff+"\n"+
+					"\tspatialSeisPDF =\t"+spatialSeisPDF+"\n"+
+					"\tinversionModel =\t"+inversionModel+"\n"+
+					"\tfractSeisInSoCal =\t"+(float)fractSeisInSoCal+"\n"+
+					"\tfractionSeisOnFault =\t"+(float)fractionSeisOnFault+"\n"+
+					"\tonFaultRegionRateMgt5 =\t"+(float)onFaultRegionRateMgt5+"\n"+
+					"\toffFaultRegionRateMgt5 =\t"+(float)offFaultRegionRateMgt5+"\n"+
+					"\tonFltDefModMoRate =\t"+(float)onFltDefModMoRate+"\n"+
+					"\toffFltDefModMoRate =\t"+(float)offFltDefModMoRate+"\n"+
+					"\troundedMmax =\t"+(float)roundedMmax+"\n"+
+					"\ttotalTargetGR(5.05) =\t"+(float)totalTargetGR.getCumRate(5.05)+"\n";
+		}
+		
 		
 		if (inversionModel.isCharacteristic()) {
 
@@ -94,7 +114,13 @@ public class InversionMFDs {
 			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, spatialSeisPDF, totalTargetGR);
 
 			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			for(GutenbergRichterMagFreqDist mfd:subSeismoOnFaultMFD_List) {
+			for(int m=0; m<subSeismoOnFaultMFD_List.size(); m++) {
+				GutenbergRichterMagFreqDist mfd = subSeismoOnFaultMFD_List.get(m);
+				if(mfd.getMagUpper() <= 5.05 & D) {
+					debugString += "\tWARNING: "+faultSectionData.get(m).getName()+" has a max subSeism mag of "+mfd.getMagUpper()+" so no contribution above M5!\n";
+				}
+//				if(Double.isNaN(mfd.getTotalIncrRate()))
+//					throw new RuntimeException("Bad MFD for section:\t"+m+"\t"+faultSectionData.get(m).getName()+"\tslipRate="+faultSectionData.get(m).getReducedAveSlipRate());
 				totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(mfd);
 			}
 
@@ -115,6 +141,11 @@ public class InversionMFDs {
 			impliedOnFaultCouplingCoeff = (targetOnFaultSupraSeisMFD.getTotalMomentRate()+totalSubSeismoOnFaultMFD.getTotalMomentRate())/onFltDefModMoRate;
 			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
 			impliedTotalCouplingCoeff = totalTargetGR.getTotalMomentRate()/(onFltDefModMoRate+offFltDefModMoRate);
+			
+			if(D) {
+				debugString += "\taveMinSeismoMag =\t"+(float)aveMinSeismoMag+"\n";
+			}
+
 
 		} else {
 			// GR
@@ -127,6 +158,11 @@ public class InversionMFDs {
 			double tempCoupCoeff = 1;	// defaults to 1.0; this is used below
 			if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff < 1.0) 	// only apply if it's < 1
 				tempCoupCoeff = impliedOnFaultCouplingCoeff;	
+			
+			if(D) {
+				debugString += "\timpliedOnFault_GR_NuclMFD(5.05) =\t"+impliedOnFault_GR_NuclMFD.getCumRate(5.05);
+				debugString += "\tempCoupCoeff =\t"+tempCoupCoeff+"\n";
+			}
 
 			// split the on-fault MFDs into supra- vs sub-seismo MFDs, and apply tempCoupCoeff
 			ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = FaultSystemRupSetCalc.calcImpliedNuclMFD_ForEachSection(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
@@ -160,6 +196,20 @@ public class InversionMFDs {
 			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;
 			impliedTotalCouplingCoeff = (impliedOnFaultCouplingCoeff*onFltDefModMoRate+finalOffFaultCouplingCoeff*offFltDefModMoRate)/(onFltDefModMoRate+offFltDefModMoRate);
 
+		}
+		
+		if(D) {
+			debugString += "\timpliedOnFaultCouplingCoeff =\t"+(float)impliedOnFaultCouplingCoeff+"\n"+
+					"\tfinalOffFaultCouplingCoeff =\t"+(float)finalOffFaultCouplingCoeff+"\n"+
+					"\timpliedTotalCouplingCoeff =\t"+(float)impliedTotalCouplingCoeff+"\n"+
+					"\ttrulyOffFaultMFD(5.05) =\t"+(float)trulyOffFaultMFD.getCumRate(5.05)+"\n"+
+					"\ttotalSubSeismoOnFaultMFD(5.05) =\t"+(float)totalSubSeismoOnFaultMFD.getCumRate(5.05)+"\n"+
+					"\ttargetOnFaultSupraSeisMFD(5.05) =\t"+(float)targetOnFaultSupraSeisMFD.getCumRate(5.05)+"\n"+
+					"\tsum of above three =\t"+(float)(trulyOffFaultMFD.getCumRate(5.05)+totalSubSeismoOnFaultMFD.getCumRate(5.05)+targetOnFaultSupraSeisMFD.getCumRate(5.05))+"\n"+
+					"\tnoCalTargetMFD(5.05) =\t"+(float)noCalTargetMFD.getCumRate(5.05)+"\n"+
+					"\tsoCalTargetMFD(5.05) =\t"+(float)soCalTargetMFD.getCumRate(5.05)+"\n"+
+					"\tsum of above two =\t"+(float)(noCalTargetMFD.getCumRate(5.05)+soCalTargetMFD.getCumRate(5.05))+"\n";
+			System.out.println(debugString);
 		}
 		
 		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(noCalTargetMFD, noCalGrid));
