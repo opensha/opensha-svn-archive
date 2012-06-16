@@ -1006,9 +1006,13 @@ public class DeformationModelsCalc {
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		
-//		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 
-//				DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 
-//				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 
+				DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 
+				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		
+		System.out.println(getFractSpatialPDF_InsideSectionPolygons(defFetch.getSubSectionList(), SpatialSeisPDF.UCERF3));
+		
+		
 //		plotDDW_AndLowerSeisDepthDistributions(defFetch.getSubSectionList(),"FM3_1 & GEOLOGIC Def Mod");
 
 		
@@ -1020,7 +1024,7 @@ public class DeformationModelsCalc {
 		
 //		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
-		plotMoreSpatialMaps();
+//		plotMoreSpatialMaps();
 
 //		testFaultZonePolygons();
 		
