@@ -339,7 +339,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		Preconditions.checkState(isStatewideDM(), "Can't get statewide MFD constraint for non statewide dm: "+getDeformationModel());
 		
 		// TODO Ned verify
-		return inversionMFDs.getStatewideMFDConstraint();
+		return null;
 		
 //		MFD_InversionConstraint allConst;
 //		if (ucerf3MFDs)

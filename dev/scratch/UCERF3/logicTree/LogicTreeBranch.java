@@ -281,6 +281,28 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return str+"]";
 	}
 	
+	public String getTabSepValStringHeader() {
+		return "FltMod\tDefMod\tScRel\tSlipAlongMod\tInvModels\tM5Rate\tMmaxOff\tMoRateFix\tSpatSeisPDF";
+	}
+
+	
+	public String getTabSepValString() {
+		String str = "";
+		boolean first = true;
+		for (LogicTreeBranchNode<?> val : branch) {
+			if (!first)
+				str += "\t";
+			else
+				first = false;
+			if (val == null)
+				str += "(null)";
+			else
+				str += val.encodeChoiceString();
+		}
+		return str;
+	}
+	
+	
 	public static void main(String[] args) {
 //		String str = "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char";
 		String str = DEFAULT.buildFileName();

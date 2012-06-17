@@ -37,6 +37,7 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.FaultSectionDataWriter;
@@ -82,6 +83,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	double mMaxOffFault;
 	boolean applyImpliedCouplingCoeff;
 	SpatialSeisPDF spatialSeisPDF;
+	
+	LogicTreeBranch logicTreeBranch;
 	
 	List<FaultSectionPrefData> faultSectionData;
 	int numSections;
@@ -228,7 +231,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * This computes mag and various other attributes of the ruptures
 	 */
 	private void calcRuptureAttributes() {
-	
+		
 		if(numRuptures == 0) // make sure this has been computed
 			getNumRuptures();
 		rupMeanMag = new double[numRuptures];
@@ -306,12 +309,13 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		for(int s=0; s<numSections; s++) {
 			double subSeismoMoRate = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate();
 			double origMoRate = getOrigMomentRate(s);
-			double coupCoeffMoRateReduction = 0;
-			if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff<1)	// latter must be less than one
-				coupCoeffMoRateReduction = origMoRate*impliedOnFaultCouplingCoeff;
-			double fracMoRateReduction = (subSeismoMoRate+coupCoeffMoRateReduction)/origMoRate;
-			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*(1-fracMoRateReduction); // mm/yr --> m/yr; includes moRateReduction
-			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*(1-fracMoRateReduction); // mm/yr --> m/yr; includes moRateReduction
+			double fractionalMoRateReduction;
+			if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff<1)
+				fractionalMoRateReduction = (origMoRate*impliedOnFaultCouplingCoeff-subSeismoMoRate)/origMoRate;
+			else
+				fractionalMoRateReduction = (origMoRate-subSeismoMoRate)/origMoRate;
+			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
+			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 		}
 		for (int r=0; r<numRuptures; r++) {
 			double totMoRate=0;
@@ -609,6 +613,31 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 	public Map<IDPairing, Double> getSubSectionDistances() {
 		return subSectionDistances;
+	}
+	
+	/**
+	 * 
+	 * TODO
+	 * This if redundant (and potentially inconsistent with) constructor arguments.
+	 * Constructor should take a LogicTreeBranch and this should be removed.
+	 * @param branch
+	 */
+	public void setLogicTreeBranch(LogicTreeBranch branch) {
+		this.logicTreeBranch = branch;
+	}
+	
+	public LogicTreeBranch getLogicTreeBranch() { return logicTreeBranch; }
+	
+	public String getPreInversionAnalysisData(boolean includeHeader) {
+		String str = "";
+ 
+		if(includeHeader)
+			str += logicTreeBranch.getTabSepValStringHeader()+"\t"+inversionMFDs.getPreInversionAnalysisDataHeader()+
+				"\t"+"targetOnFaultMoRate\n";
+		
+		str += logicTreeBranch.getTabSepValString()+"\t"+inversionMFDs.getPreInversionAnalysisData()+
+			"\t"+getTotalReducedMomentRate()+"n";
+		return str;
 	}
 	
 

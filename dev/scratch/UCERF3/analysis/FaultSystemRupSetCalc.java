@@ -1259,7 +1259,9 @@ public class FaultSystemRupSetCalc {
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ABM,
 				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
-		System.out.println(rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD());
+		System.out.println(rupSet.getPreInversionAnalysisData(true));
+//		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
+//		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
 		
 //		testAllInversionSetups();
 
