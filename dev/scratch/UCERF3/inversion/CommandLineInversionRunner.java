@@ -37,9 +37,9 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
@@ -343,16 +343,23 @@ public class CommandLineInversionRunner {
 				double totalSolutionMoment = sol.getTotalFaultSolutionMomentRate();
 				info += "\nFault Solution Moment Rate: "+totalSolutionMoment;
 				
-				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
-				
-//				double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate(); // TODO replace - what is off fault moment rate now?
-//				info += "\nTotal Off Fault Seis Moment Rate (excluding subseismogenic): "
-//						+(totalOffFaultMomentRate-momRed);
-//				info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
-//						+totalOffFaultMomentRate;
-				info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedOffFaultStatewideMFD().getTotalMomentRate();
-//				info += "\nTotal Model Seis Moment Rate: "
-//						+(totalOffFaultMomentRate+totalSolutionMoment);
+				InversionFaultSystemSolution invSol;
+				try {
+					invSol = new InversionFaultSystemSolution(sol);
+					
+//					double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate(); // TODO replace - what is off fault moment rate now?
+//					info += "\nTotal Off Fault Seis Moment Rate (excluding subseismogenic): "
+//							+(totalOffFaultMomentRate-momRed);
+//					info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
+//							+totalOffFaultMomentRate;
+					info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedOffFaultStatewideMFD().getTotalMomentRate();
+//					info += "\nTotal Model Seis Moment Rate: "
+//							+(totalOffFaultMomentRate+totalSolutionMoment);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					invSol = null;
+					System.out.println("WARNING: InversionFaultSystemSolution could not be instantiated!");
+				}
 
 				int numNonZeros = 0;
 				for (double rate : sol.getRateForAllRups())
@@ -399,7 +406,7 @@ public class CommandLineInversionRunner {
 					e.printStackTrace();
 				}
 				try {
-					writePaleoPlots(paleoRateConstraints, invSol, dir, prefix);
+					writePaleoPlots(paleoRateConstraints, sol, dir, prefix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

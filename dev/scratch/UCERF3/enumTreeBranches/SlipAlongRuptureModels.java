@@ -1,5 +1,7 @@
 package scratch.UCERF3.enumTreeBranches;
 
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+
 public enum SlipAlongRuptureModels implements LogicTreeBranchNode<SlipAlongRuptureModels> {
 	// DO NOT RENAME THESE - they are used in rupture set files
 	

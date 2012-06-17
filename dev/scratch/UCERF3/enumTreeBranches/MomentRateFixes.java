@@ -1,5 +1,7 @@
 package scratch.UCERF3.enumTreeBranches;
 
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+
 public enum MomentRateFixes implements LogicTreeBranchNode<MomentRateFixes> {
 	// TODO set weights
 	APPLY_IMPLIED_CC(		"Apply Implied Coupling Coefficient",		"ApplyCC",	1d),

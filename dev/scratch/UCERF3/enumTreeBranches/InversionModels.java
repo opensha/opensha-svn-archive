@@ -1,5 +1,7 @@
 package scratch.UCERF3.enumTreeBranches;
 
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+
 public enum InversionModels implements LogicTreeBranchNode<InversionModels> {
 	
 	// TODO set weights

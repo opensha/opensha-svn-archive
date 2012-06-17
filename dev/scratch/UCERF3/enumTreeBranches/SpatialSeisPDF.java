@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.griddedSeismicity.GridReader;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 

@@ -1,6 +1,6 @@
 package scratch.UCERF3.griddedSeismicity;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
@@ -99,15 +99,16 @@ public class GridReader {
 	private Table<Integer, Integer, Double> initTable() {
 		Table<Integer, Integer, Double> table = HashBasedTable.create();
 		try {
-			File f = FileUtils.toFile(UCERF3_DataUtils.locateResource(DATA_DIR,
+			BufferedReader br = new BufferedReader(UCERF3_DataUtils.getReader(DATA_DIR,
 				filename));
-			List<String> lines = Files.readLines(f, Charsets.US_ASCII);
 			Iterator<String> dat;
-			for (String line : lines) {
+			String line = br.readLine();
+			while (line != null) {
 				dat = SPLIT.split(line).iterator();
 				table.put(FN_STR_TO_KEY.apply(dat.next()),
 					FN_STR_TO_KEY.apply(dat.next()),
 					FN_STR_TO_DBL.apply(dat.next()));
+				line = br.readLine();
 			}
 		} catch (IOException ioe) {
 			throw Throwables.propagate(ioe);

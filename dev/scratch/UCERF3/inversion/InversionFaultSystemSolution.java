@@ -22,12 +22,12 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
@@ -338,8 +338,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	public MFD_InversionConstraint getStatewideMFDConstraint(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		Preconditions.checkState(isStatewideDM(), "Can't get statewide MFD constraint for non statewide dm: "+getDeformationModel());
 		
-		// TODO Ned fill this in
-		return null;
+		// TODO Ned verify
+		return inversionMFDs.getStatewideMFDConstraint();
 		
 //		MFD_InversionConstraint allConst;
 //		if (ucerf3MFDs)

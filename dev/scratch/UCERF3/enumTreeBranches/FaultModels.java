@@ -16,6 +16,7 @@ import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public enum FaultModels implements LogicTreeBranchNode<FaultModels> {

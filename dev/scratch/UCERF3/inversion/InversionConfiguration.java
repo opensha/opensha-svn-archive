@@ -699,7 +699,8 @@ public class InversionConfiguration {
 		for (int rup=0; rup<numRup; rup++) {
 			initial_state[rup]=initial_state[rup]*normalization;
 			if (Double.isNaN(initial_state[rup]) || Double.isInfinite(initial_state[rup]))
-				throw new IllegalStateException("initial_state["+rup+"] = "+initial_state[rup]);
+				throw new IllegalStateException("initial_state["+rup+"] = "+initial_state[rup]
+						+" (norm="+normalization+", totalEventRate="+totalEventRate+")");
 		}
 		
 		

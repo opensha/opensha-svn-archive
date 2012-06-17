@@ -56,10 +56,10 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranch;
-import scratch.UCERF3.enumTreeBranches.LogicTreeBranchNode;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 
 import com.google.common.base.Joiner;

@@ -1,4 +1,4 @@
-package scratch.UCERF3.enumTreeBranches;
+package scratch.UCERF3.logicTree;
 
 import org.opensha.commons.data.ShortNamed;
 

@@ -46,6 +46,7 @@ public class InversionMFDs {
 	SummedMagFreqDist totalSubSeismoOnFaultMFD;		// this is a sum of the MFDs in subSeismoOnFaultMFD_List
 	
 	List<MFD_InversionConstraint> mfdConstraintsForNoAndSoCal;
+	MFD_InversionConstraint statewideMFDConstraint;
 
 	// discretization parameters for MFDs
 	public final static double MIN_MAG = 0.05;
@@ -70,6 +71,7 @@ public class InversionMFDs {
 		
 		List<FaultSectionPrefData> faultSectionData =  fltSysRupSet.getFaultSectionDataList();
 		
+		GriddedRegion allCalGrid = RELM_RegionUtils.getGriddedRegionInstance();
 		GriddedRegion noCalGrid = RELM_RegionUtils.getNoCalGriddedRegionInstance();
 		GriddedRegion soCalGrid = RELM_RegionUtils.getSoCalGriddedRegionInstance();
 		double fractSeisInSoCal = spatialSeisPDF.getFractionInRegion(soCalGrid);
@@ -214,6 +216,7 @@ public class InversionMFDs {
 		
 		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(noCalTargetMFD, noCalGrid));
 		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(soCalTargetMFD, soCalGrid));
+		statewideMFDConstraint = new MFD_InversionConstraint(targetOnFaultSupraSeisMFD, allCalGrid); // TODO verify
 
 	}
 
@@ -252,5 +255,9 @@ public class InversionMFDs {
 	 * @return
 	 */
 	public List<MFD_InversionConstraint> getMFD_ConstraintsForNoAndSoCal() { return mfdConstraintsForNoAndSoCal; }
+	
+	public MFD_InversionConstraint getStatewideMFDConstraint() {
+		return statewideMFDConstraint;
+	}
 
 }
