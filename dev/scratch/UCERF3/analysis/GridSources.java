@@ -97,6 +97,11 @@ public class GridSources {
 		return pdfInPolys(mgr, pdf) * 100;
 	}
 	
+//	private static double calcNodePolyParticPDF(List<FaultSectionPrefData> faults, Double buf, SpatialSeisPDF pdf) {
+//		FaultPolyMgr mgr = FaultPolyMgr.create(faults, buf);
+//		return pdfInPolys(mgr, pdf) * 100;
+//	}
+
 	private static void plotNodePolyParticCat(FaultModels model, Double buf, Double len, boolean computeCatFrac) {
 
 //		 TODO this needs to be extended to work with UCERF3 inversion solutions

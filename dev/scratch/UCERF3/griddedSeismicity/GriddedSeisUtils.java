@@ -30,6 +30,20 @@ public class GriddedSeisUtils {
 		this.pdf = pdf.getPDF();
 	}
 	
+	public GriddedSeisUtils(FaultPolyMgr polyMgr, SpatialSeisPDF pdf) {
+		this.polyMgr = polyMgr;
+		this.pdf = pdf.getPDF();
+	}
+	
+	public double pdfInPolys() {
+		double fraction = 0;
+		Map<Integer, Double> nodeMap = polyMgr.getNodeExtents();
+		for (int idx : nodeMap.keySet()) {
+			fraction += nodeMap.get(idx) * pdf[idx];
+		}
+		return fraction;
+	}
+
 	/**
 	 * Returns the fraction of the originally supplied spatial PDF captured
 	 * by the fault section at {@code idx}. This is a weighted value in as much

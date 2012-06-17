@@ -78,6 +78,7 @@ public class DeformationModelFetcher {
 	
 	private DeformationModels chosenDefModName;
 	private FaultModels faultModel;
+	private FaultPolyMgr polyMgr;
 
 
 	String fileNamePrefix;
@@ -172,10 +173,10 @@ public class DeformationModelFetcher {
 		}
 		
 		// update polygons
-		FaultPolyMgr mgr = FaultPolyMgr.create(
+		polyMgr = FaultPolyMgr.create(
 			faultSubSectPrefDataList, POLY_BUFFER_DEFAULT);
 		for (FaultSectionPrefData section : faultSubSectPrefDataList) {
-			Region r = mgr.getPoly(section.getSectionId());
+			Region r = polyMgr.getPoly(section.getSectionId());
 			section.setZonePolygon(r);
 		}
 	}
@@ -186,6 +187,10 @@ public class DeformationModelFetcher {
 	
 	public FaultModels getFaultModel() {
 		return faultModel;
+	}
+	
+	public FaultPolyMgr getPolyMgr() {
+		return polyMgr;
 	}
 
 	public ArrayList<FaultSectionPrefData> getSubSectionList() {

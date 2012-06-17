@@ -1009,8 +1009,10 @@ public class DeformationModelsCalc {
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 
 				DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 
 				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
-		
-		System.out.println(getFractSpatialPDF_InsideSectionPolygons(defFetch.getSubSectionList(), SpatialSeisPDF.UCERF3));
+
+		GriddedSeisUtils gsu = new GriddedSeisUtils(defFetch.getPolyMgr(), SpatialSeisPDF.UCERF3);
+		System.out.println(gsu.pdfInPolys());
+//		System.out.println(getFractSpatialPDF_InsideSectionPolygons(defFetch.getSubSectionList(), SpatialSeisPDF.UCERF3));
 		
 		
 //		plotDDW_AndLowerSeisDepthDistributions(defFetch.getSubSectionList(),"FM3_1 & GEOLOGIC Def Mod");
