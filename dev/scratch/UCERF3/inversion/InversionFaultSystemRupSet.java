@@ -314,6 +314,11 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				fractionalMoRateReduction = (origMoRate*impliedOnFaultCouplingCoeff-subSeismoMoRate)/origMoRate;
 			else
 				fractionalMoRateReduction = (origMoRate-subSeismoMoRate)/origMoRate;
+			// apply water level of 10% (to avoid negative slip rates)
+			if(fractionalMoRateReduction<0.1) {
+				fractionalMoRateReduction=0.1;
+//				System.out.println("HERE"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
+			}
 			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 		}
