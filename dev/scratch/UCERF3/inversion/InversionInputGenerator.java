@@ -45,7 +45,7 @@ public class InversionInputGenerator {
 	 * to errors. this will always be true if debugging is disabled above. when debugging
 	 * is enabled, the 2nd value of the following line is used to enable/disable.
 	 */
-	private static final boolean QUICK_GETS_SETS = !D || true;
+	private static final boolean QUICK_GETS_SETS = true;
 	private boolean aPrioriConstraintForZeroRates = true;  // If true, a Priori rup-rate constraint is applied to zero rates (eg, rups not in UCERF2)
 	private double aPrioriConstraintForZeroRatesWtFactor = 0.1; // Amount to multiply standard a-priori rup rate weight by when applying to zero rates (minimization constraint for rups not in UCERF2)
 	private boolean excludeParkfieldRupsFromMfdEqualityConstraints = true; // If true, rates of Parkfield M~6 ruptures do not count toward MFD Equality Constraint misfit
@@ -126,7 +126,7 @@ public class InversionInputGenerator {
 			// set up minimum rupture rates (water level)
 			double[] minimumRuptureRateBasis = config.getMinimumRuptureRateBasis();
 			Preconditions.checkNotNull(minimumRuptureRateBasis,
-					"minimum rate fraction specified by no minimum rate basis given!");
+					"minimum rate fraction specified but no minimum rate basis given!");
 			
 			// first check to make sure that they're not all zeros
 			boolean allZeros = true;
@@ -326,8 +326,7 @@ public class InversionInputGenerator {
 		}
 		// d vector component of slip-rate constraint
 		for (int sect=0; sect<numSections; sect++) {
-			
-			if (!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) 
+			if ((!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) && sectSlipRateReduced[sect]>=0)
 				d[sect] = sectSlipRateReduced[sect];			
 			else {
 				if (Double.isNaN(sectSlipRateReduced[sect]) || sectSlipRateReduced[sect]<1E-4)
@@ -336,6 +335,10 @@ public class InversionInputGenerator {
 				if (sectSlipRateReduced[sect]<1E-4)
 					// For very small slip rates, do not normalize by slip rate (normalize by 0.0001 instead) so they don't dominate misfit
 					d[sect] = sectSlipRateReduced[sect]/0.0001;
+				if (sectSlipRateReduced[sect]<0) {
+					d[sect] = 0;
+					System.out.println("WARNING: NEGATIVE SLIP RATE!!!  Setting to 0...");
+				}
 				else
 					// Normalize by slip rate
 					d[sect] = 1;
