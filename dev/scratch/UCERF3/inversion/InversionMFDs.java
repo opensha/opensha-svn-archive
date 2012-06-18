@@ -43,7 +43,7 @@ public class InversionMFDs {
 	double impliedOnFaultCouplingCoeff;
 	double impliedTotalCouplingCoeff;
 	double finalOffFaultCouplingCoeff;
-	GutenbergRichterMagFreqDist totalTargetGR;
+	GutenbergRichterMagFreqDist totalTargetGR, totalTargetGR_NoCal, totalTargetGR_SoCal;
 	SummedMagFreqDist targetOnFaultSupraSeisMFD;
 	SummedMagFreqDist targetNoCalOnFaultSupraSeisMFD;
 	SummedMagFreqDist targetSoCalOnFaultSupraSeisMFD;
@@ -106,6 +106,16 @@ public class InversionMFDs {
 		totalTargetGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);	// not used by GR branch
 		roundedMmaxOnFault = totalTargetGR.getX(totalTargetGR.getClosestXIndex(fltSysRupSet.getMaxMag()));
 		totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRegionRateMgt5*1e5, 1.0);
+		
+		totalTargetGR_NoCal = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);	
+		totalTargetGR_NoCal.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRegionRateMgt5*(1-fractSeisInSoCal)*1e5, 1.0);
+		
+		
+		totalTargetGR_SoCal = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);	
+		totalTargetGR_SoCal.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRegionRateMgt5*fractSeisInSoCal*1e5, 1.0);
+		
+		
+		
 		// get ave min seismo mag for region
 		double tempMag = FaultSystemRupSetCalc.getMeanMinMag(fltSysRupSet, true);
 		aveMinSeismoMag = totalTargetGR.getX(totalTargetGR.getClosestXIndex(tempMag));	// round to nearest MFD value
@@ -263,6 +273,12 @@ public class InversionMFDs {
 	public SummedMagFreqDist getTotalSubSeismoOnFaultMFD() {return totalSubSeismoOnFaultMFD;}
 	
 	public GutenbergRichterMagFreqDist getTotalTargetGR() {return totalTargetGR;}
+	
+	public GutenbergRichterMagFreqDist getTotalTargetGR_NoCal() {return totalTargetGR_NoCal;}
+	
+	public GutenbergRichterMagFreqDist getTotalTargetGR_SoCal() {return totalTargetGR_SoCal;}
+	
+	
 	
 	/**
 	 * This returns the northern and southern RELM region MFD_InversionConstraint 
