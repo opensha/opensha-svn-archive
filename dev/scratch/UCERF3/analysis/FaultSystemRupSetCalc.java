@@ -827,7 +827,7 @@ public class FaultSystemRupSetCalc {
 
 		ArrayList<InversionModels> invModList = new ArrayList<InversionModels>();
 		invModList.add(InversionModels.CHAR_CONSTRAINED);
-//		invModList.add(InversionModels.GR_CONSTRAINED);
+		invModList.add(InversionModels.GR_CONSTRAINED);
 		
 		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
 		mag5RateList.add(TotalMag5Rate.RATE_8p7);
@@ -877,7 +877,7 @@ public class FaultSystemRupSetCalc {
 			}
 		}
 		try {
-			File dataFile = new File("PreInversionDataForAnalysis.txt");
+			File dataFile = new File("PreInversionDataForAnalysis4.txt");
 			FileWriter fw = new FileWriter(dataFile);
 			for(String str: strings) {
 				fw.write(str+"\n");
@@ -904,6 +904,52 @@ public class FaultSystemRupSetCalc {
 //		}
 	}
 	
+	
+	public static void testImplGR_fracSeisOnFltAssumingSameCC() {
+		
+		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
+		defModList.add(DeformationModels.GEOLOGIC);
+		defModList.add(DeformationModels.ABM);
+		defModList.add(DeformationModels.NEOKINEMA);
+		defModList.add(DeformationModels.ZENG);
+		
+		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+
+		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
+		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
+		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
+
+		long startTime = System.currentTimeMillis();
+		double MIN_MAG = 0.05;
+		int NUM_MAG = 90;
+		double DELTA_MAG = 0.1;
+		ArrayList<String> strings = new ArrayList<String>();
+		for(DeformationModels dm :defModList) {
+			for(ScalingRelationships sr:scalingRelList) {
+				for(MaxMagOffFault mMaxOff : mMaxOffList) {
+					LogicTreeBranch ltb = LogicTreeBranch.fromValues(FaultModels.FM3_1,dm,sr,InversionModels.CHAR_CONSTRAINED,TotalMag5Rate.RATE_8p7,mMaxOff,MomentRateFixes.NONE,SpatialSeisPDF.UCERF3);
+					InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(ltb);
+					double offFltDefModMoRate = DeformationModelsCalc.calcMoRateOffFaultsForDefModel(FaultModels.FM3_1, dm);
+					SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(faultSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
+					GutenbergRichterMagFreqDist trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOff.getMaxMagOffFault()-DELTA_MAG/2, offFltDefModMoRate, 1.0);
+					double onFltFrac = impliedOnFault_GR_NuclMFD.getCumRate(5.05)/(impliedOnFault_GR_NuclMFD.getCumRate(5.05)+trulyOffFaultMFD.getCumRate(5.05));
+					String str = (float)onFltFrac+"\t"+dm+"\t"+sr+"\t"+mMaxOff;
+					strings.add(str);
+					System.out.println(str);
+				}
+			}
+		}
+		System.out.println("runtime (min): "+((double)(System.currentTimeMillis()-startTime))/(1000d*60d)); 
+		
+		System.out.println("Implied Fractions On Fault:");
+		for(String str:strings)  System.out.println(str);
+
+	}
+
 	
 	/**
 	 * This computes a tri-linear MFD for the off-fault MFD on the characteristic branch
@@ -1291,6 +1337,7 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void main(String[] args) {
 		
+//		testImplGR_fracSeisOnFltAssumingSameCC();
 		testAllInversionSetups();
 		
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ABM,

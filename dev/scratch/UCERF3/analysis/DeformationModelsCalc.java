@@ -29,6 +29,9 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionConfiguration;
@@ -1028,7 +1031,8 @@ public class DeformationModelsCalc {
 		GriddedSeisUtils gsu = new GriddedSeisUtils(fltSectPrefDataList, spatialSeisPDF, 12.0);
 		return gsu.pdfInPolys();
 	}
-
+	
+	
 
 	
 
