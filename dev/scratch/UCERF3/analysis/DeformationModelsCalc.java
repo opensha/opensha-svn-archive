@@ -234,7 +234,14 @@ public class DeformationModelsCalc {
 
 	
 	
-	private static String getTableLineForMoRateAndMmaxDataForDefModels(FaultModels fm, DeformationModels dm) {
+	/**
+	 * 
+	 * @param fm
+	 * @param dm
+	 * @param rateM5 - rate of events great than or equal to M5
+	 * @return
+	 */
+	private static String getTableLineForMoRateAndMmaxDataForDefModels(FaultModels fm, DeformationModels dm, double rateM5) {
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		double moRate = calculateTotalMomentRate(defFetch.getSubSectionList(),true);
 		System.out.println(fm.getName()+", "+dm.getName()+ " (reduced):\t"+(float)moRate);
@@ -243,7 +250,7 @@ public class DeformationModelsCalc {
 		double totMoRate = moRate+moRateOffFaults;
 		double fractOff = moRateOffFaults/totMoRate;
 		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(0.0005,9.9995,10000);
-		targetMFD.setAllButMagUpper(0.0005, totMoRate, 8.54e5, 1.0, true);
+		targetMFD.setAllButMagUpper(0.0005, totMoRate, rateM5*1e5, 1.0, true);
 		
 		// now get moment rate of new faults only
 		ArrayList<String> getEquivUCERF2_SectionNames = FindEquivUCERF2_FM3_Ruptures.getAllSectionNames(fm);
@@ -292,14 +299,16 @@ public class DeformationModelsCalc {
 	
 	public static void calcMoRateAndMmaxDataForDefModels() {
 		
+		double rateM5 = TotalMag5Rate.RATE_8p7.getRateMag5();
+		
 		ArrayList<String> tableData= new ArrayList<String>();
 		FaultModels fm = FaultModels.FM3_1;
 		
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ABM));
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC));
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC_PLUS_ABM));
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.NEOKINEMA));
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ABM,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC,rateM5));
+//		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC_PLUS_ABM,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.NEOKINEMA,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG,rateM5));
 //		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOBOUND));
 
 		System.out.println("\nmodel\tfltMoRate\tfractOff\tmoRateOff\ttotMoRate\tMmax\tRate_gtM8\tMRIgtM8\tnewFltMoRate");
@@ -307,6 +316,8 @@ public class DeformationModelsCalc {
 			System.out.println(tableLine);
 				
 	}
+	
+	
 	
 	/**
 	 * This writes out the names of sections that are new to UCERF3 (either the section was added or it now
@@ -990,8 +1001,7 @@ public class DeformationModelsCalc {
 			List<FaultSectionPrefData> fltSectPrefDataList, 
 			SpatialSeisPDF spatialSeisPDF) {
 		double sum = 0;
-		GriddedSeisUtils gsu = new GriddedSeisUtils(fltSectPrefDataList, 
-			spatialSeisPDF, 12.0);
+		GriddedSeisUtils gsu = new GriddedSeisUtils(fltSectPrefDataList, spatialSeisPDF, 12.0);
 		return gsu.pdfInPolys();
 	}
 

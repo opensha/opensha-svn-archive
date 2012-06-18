@@ -4,6 +4,8 @@
 package scratch.UCERF3.analysis;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.LaughTestFilter;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 
 /**
@@ -806,56 +809,88 @@ public class FaultSystemRupSetCalc {
 	
 	
 	public static void testAllInversionSetups() {
+		
+		ArrayList<FaultModels> fltModList = new ArrayList<FaultModels>();
+		fltModList.add(FaultModels.FM3_1);
+//		fltModList.add(FaultModels.FM3_2);	// 3% higher on-fault MoRate, and 5% lower off-fault moRate;  Not worth looping over
+		
+		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
+		defModList.add(DeformationModels.GEOLOGIC);
+//		defModList.add(DeformationModels.ABM);
+//		defModList.add(DeformationModels.NEOKINEMA);
+//		defModList.add(DeformationModels.ZENG);
+		
 		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
 		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
 		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
 		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+
+		ArrayList<InversionModels> invModList = new ArrayList<InversionModels>();
+		invModList.add(InversionModels.CHAR_CONSTRAINED);
+//		invModList.add(InversionModels.GR_CONSTRAINED);
 		
-		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
-		FaultModels fm = FaultModels.FM3_1;
+		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
+//		mag5RateList.add(TotalMag5Rate.RATE_8p7);
+		mag5RateList.add(TotalMag5Rate.RATE_7p1);
+//		mag5RateList.add(TotalMag5Rate.RATE_10p6);
 		
-		defModList.add(DeformationModels.ABM);
-		defModList.add(DeformationModels.GEOLOGIC);
-		defModList.add(DeformationModels.GEOLOGIC_PLUS_ABM);
-		defModList.add(DeformationModels.NEOKINEMA);
-//		defModList.add(DeformationModels.ZENG);
-//		defModList.add(DeformationModels.GEOBOUND);
+		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
+//		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
+//		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
 		
-		double totRegionalM5_Rate = 8.7;
-//		double[] fractSeisOffFault = {0.3,0.5,0.7};
-		double[] mMaxOffFault = {7.05,7.35,7.65,7.95, 8.25};
-		double[] fractSeisOffFault = {0.59};
-//		double[] mMaxOffFault = {7.55};
-		
-		ArrayList<String> allLinesGR = new ArrayList<String>();
-		ArrayList<String> allLinesChar = new ArrayList<String>();
-		// for UCERF3
-		for(DeformationModels dm :defModList) {
-			for(ScalingRelationships sr:scalingRelList) {
-				FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-						sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
-				for(double frSeisOff : fractSeisOffFault) {
-					for(double mMaxOff : mMaxOffFault) {
-						String lineFirstPart = faultSysRupSet.getDeformationModel().getShortName()+"\t"+sr.getShortName()+
-						"\t"+totRegionalM5_Rate+"\t"+frSeisOff+"\t"+mMaxOff+"\t";
-						allLinesGR.add(lineFirstPart+oldTestInversionGR_Setup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
-						allLinesChar.add(lineFirstPart+oldTestInversionCharSetup(totRegionalM5_Rate, frSeisOff, mMaxOff, faultSysRupSet));
-					}			
-				}		
+		ArrayList<MomentRateFixes> moRateFixList = new ArrayList<MomentRateFixes>();
+		moRateFixList.add(MomentRateFixes.NONE);
+		moRateFixList.add(MomentRateFixes.APPLY_IMPLIED_CC);
+
+		ArrayList<SpatialSeisPDF> seisPDFList = new ArrayList<SpatialSeisPDF>();
+		seisPDFList.add(SpatialSeisPDF.UCERF3);
+//		seisPDFList.add(SpatialSeisPDF.UCERF2);
+//		seisPDFList.add(SpatialSeisPDF.AVG_DEF_MODEL);
+
+		boolean first = true;
+		ArrayList<String> strings = new ArrayList<String>();
+		for(FaultModels fm :fltModList) {
+			for(DeformationModels dm :defModList) {
+				for(ScalingRelationships sr:scalingRelList) {
+					for(InversionModels invMod : invModList) {
+						for(TotalMag5Rate r5 : mag5RateList) {
+							for(MaxMagOffFault mMaxOff : mMaxOffList) {
+								for(MomentRateFixes moRateFix : moRateFixList) {
+									for(SpatialSeisPDF seisPDF : seisPDFList) {
+										LogicTreeBranch ltb = LogicTreeBranch.fromValues(fm,dm,sr,invMod,r5,mMaxOff,moRateFix,seisPDF);
+										InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(ltb);
+										if(first) {
+											strings.add(faultSysRupSet.getPreInversionAnalysisData(true));
+											first = false;
+										}
+										else {
+											strings.add(faultSysRupSet.getPreInversionAnalysisData(false));	
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
-		
-		System.out.println("\nGR:");
-		System.out.println("DefMod\tM(A)\tRge5\tfrSeisOff\tmMaxOff\tmMaxOn\tonCoupCoeff\toffCoupCoeff\tfrMoRateReduct\tonFltOrigMoRate\tonFltReducMoRate\toffFltOrigMoRate\toffFltReducMoRate\tmMaxOffWithFullMo\taveMinSeismoMag");
-		for(String line:allLinesGR) {
-			System.out.println(line);
+		try {
+			File dataFile = new File("PreInversionDataForAnalysis.txt");
+			FileWriter fw = new FileWriter(dataFile);
+			for(String str: strings) {
+				fw.write(str+"\n");
+			}
+			fw.close ();
 		}
-		
-		System.out.println("\nChar:");
-		System.out.println("DefMod\tM(A)\tRge5\tfrSeisOff\tmMaxOff\tmMaxOn\tonCoupCoeff\toffCoupCoeff\tfrMoRateReduct\tonFltOrigMoRate\tonFltReducMoRate\toffFltOrigMoRate\toffFltReducMoRate\tmMaxOffWithFullMo\taveMinSeismoMag");
-		for(String line:allLinesChar) {
-			System.out.println(line);
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
 		}
+
+		System.out.println ("Done making PreInversionDataForAnalysis.txt");
+
+//		for(String str:strings)
+//			System.out.println(str);
 		
 		// now do UCERF2
 //		fm = FaultModels.FM2_1;
@@ -1083,8 +1118,7 @@ public class FaultSystemRupSetCalc {
 		
 		ArrayList<GutenbergRichterMagFreqDist> mfds = new ArrayList<GutenbergRichterMagFreqDist>();
 		double totMgt5_rate = totalTargetGR.getCumRate(0);
-		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(
-			fltSysRupSet.getFaultSectionDataList(), spatialSeisPDF, 12.0);
+		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet.getFaultSectionDataList(), spatialSeisPDF, 12.0);
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
 			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap
@@ -1256,15 +1290,14 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void main(String[] args) {
 		
+		testAllInversionSetups();
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ABM,
-				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-		
-		System.out.println(rupSet.getPreInversionAnalysisData(true));
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ABM,
+//				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+//		System.out.println(rupSet.getPreInversionAnalysisData(true));
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
 		
-//		testAllInversionSetups();
 
 //		double mMaxInRegion = 8.45;
 //		double totRegionalM5_Rate = 8.7;

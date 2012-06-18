@@ -636,7 +636,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				"\t"+"targetOnFaultMoRate\n";
 		
 		str += logicTreeBranch.getTabSepValString()+"\t"+inversionMFDs.getPreInversionAnalysisData()+
-			"\t"+getTotalReducedMomentRate()+"n";
+			"\t"+getTotalReducedMomentRate();
 		return str;
 	}
 	

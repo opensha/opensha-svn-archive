@@ -15,10 +15,14 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class InversionMFDs {
 	
@@ -62,13 +66,16 @@ public class InversionMFDs {
 	 * 		object within fltSysRupSet (if the latter is an InversionFaultSystemRupSet)
 	 * @param fltSysRupSet
 	 * @param totalRegionRateMgt5
-	 * @param mMaxOffFault
+	 * @param mMaxOffFault - this should be the upper edge of the mag bin
 	 * @param applyImpliedCouplingCoeff
 	 * @param spatialSeisPDF
 	 * @param inversionModel
 	 */
 	public InversionMFDs(FaultSystemRupSet fltSysRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
 			boolean applyImpliedCouplingCoeff, SpatialSeisPDF spatialSeisPDF, InversionModels inversionModel) {
+		
+		// convert mMaxOffFault to bin center
+		mMaxOffFault -= DELTA_MAG/2;
 		
 		this.fltSysRupSet=fltSysRupSet;
 		this.totalRegionRateMgt5 = totalRegionRateMgt5;
@@ -89,6 +96,13 @@ public class InversionMFDs {
 		fractSeisInSoCal = spatialSeisPDF.getFractionInRegion(soCalGrid);
 
 		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDF);
+		// TEMP FIX (OLY WAY TO GET THIS RIGHT NOW)
+//		DeformationModelFetcher defFetch = new DeformationModelFetcher(fltSysRupSet.getFaultModel(), 
+//				fltSysRupSet.getDeformationModel(), UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 
+//				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+//		GriddedSeisUtils gsu = new GriddedSeisUtils(defFetch.getPolyMgr(), SpatialSeisPDF.UCERF3);
+//		fractionSeisOnFault = gsu.pdfInPolys();
+
 		double onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
 		double offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;
 		origOnFltDefModMoRate = DeformationModelsCalc.calculateTotalMomentRate(faultSectionData,true);
@@ -120,6 +134,7 @@ public class InversionMFDs {
 					"\taveMinSeismoMag =\t"+(float)aveMinSeismoMag+"\n";
 		}
 
+		
 		
 		if (inversionModel.isCharacteristic()) {
 
