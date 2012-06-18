@@ -1083,7 +1083,8 @@ public class FaultSystemRupSetCalc {
 		
 		ArrayList<GutenbergRichterMagFreqDist> mfds = new ArrayList<GutenbergRichterMagFreqDist>();
 		double totMgt5_rate = totalTargetGR.getCumRate(0);
-		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet.getFaultSectionDataList(), spatialSeisPDF);
+		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(
+			fltSysRupSet.getFaultSectionDataList(), spatialSeisPDF, 12.0);
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
 			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap

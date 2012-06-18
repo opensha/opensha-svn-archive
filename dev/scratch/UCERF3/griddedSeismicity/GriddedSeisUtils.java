@@ -25,16 +25,17 @@ public class GriddedSeisUtils {
 	 * @param fsrs
 	 * @param pdf
 	 */
-	public GriddedSeisUtils(List<FaultSectionPrefData> fltSectPrefDataList, SpatialSeisPDF pdf) {
-		polyMgr = FaultPolyMgr.create(fltSectPrefDataList, null);
+	public GriddedSeisUtils(List<FaultSectionPrefData> fltSectPrefDataList, 
+			SpatialSeisPDF pdf, double buf) {
+		polyMgr = FaultPolyMgr.create(fltSectPrefDataList, buf);
 		this.pdf = pdf.getPDF();
 	}
-	
-	public GriddedSeisUtils(FaultPolyMgr polyMgr, SpatialSeisPDF pdf) {
-		this.polyMgr = polyMgr;
-		this.pdf = pdf.getPDF();
-	}
-	
+		
+	/**
+	 * Returns the fraction of the spatial PDF contained inthe fault section
+	 * polygons.
+	 * @return
+	 */
 	public double pdfInPolys() {
 		double fraction = 0;
 		Map<Integer, Double> nodeMap = polyMgr.getNodeExtents();
