@@ -816,9 +816,9 @@ public class FaultSystemRupSetCalc {
 		
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
 		defModList.add(DeformationModels.GEOLOGIC);
-//		defModList.add(DeformationModels.ABM);
-//		defModList.add(DeformationModels.NEOKINEMA);
-//		defModList.add(DeformationModels.ZENG);
+		defModList.add(DeformationModels.ABM);
+		defModList.add(DeformationModels.NEOKINEMA);
+		defModList.add(DeformationModels.ZENG);
 		
 		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
 		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
@@ -830,14 +830,14 @@ public class FaultSystemRupSetCalc {
 //		invModList.add(InversionModels.GR_CONSTRAINED);
 		
 		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
-//		mag5RateList.add(TotalMag5Rate.RATE_8p7);
+		mag5RateList.add(TotalMag5Rate.RATE_8p7);
 		mag5RateList.add(TotalMag5Rate.RATE_7p1);
-//		mag5RateList.add(TotalMag5Rate.RATE_10p6);
+		mag5RateList.add(TotalMag5Rate.RATE_10p6);
 		
 		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
-//		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
 		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
-//		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
+		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
 		
 		ArrayList<MomentRateFixes> moRateFixList = new ArrayList<MomentRateFixes>();
 		moRateFixList.add(MomentRateFixes.NONE);
@@ -845,8 +845,9 @@ public class FaultSystemRupSetCalc {
 
 		ArrayList<SpatialSeisPDF> seisPDFList = new ArrayList<SpatialSeisPDF>();
 		seisPDFList.add(SpatialSeisPDF.UCERF3);
-//		seisPDFList.add(SpatialSeisPDF.UCERF2);
-//		seisPDFList.add(SpatialSeisPDF.AVG_DEF_MODEL);
+		seisPDFList.add(SpatialSeisPDF.UCERF2);
+//		seisPDFList.add(SpatialSeisPDF.AVG_DEF_MODEL_OFF);
+//		seisPDFList.add(SpatialSeisPDF.AVG_DEF_MODEL_ALL);
 
 		boolean first = true;
 		ArrayList<String> strings = new ArrayList<String>();

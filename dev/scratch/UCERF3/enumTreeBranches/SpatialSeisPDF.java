@@ -11,6 +11,7 @@ import org.opensha.commons.geo.Location;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
+import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.griddedSeismicity.GridReader;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
@@ -41,7 +42,7 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	/**
 	 * This does not include the geologic off-fault deformation model
 	 */
-	AVG_DEF_MODEL("Average Deformation Model Off Fault",	"AveDM",	1d) {
+	AVG_DEF_MODEL_OFF("Average Deformation Model Off Fault",	"AveDM_off",	1d) {
 		@Override public double[] getPDF() {
 			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
 			GriddedGeoDataSet xyz = DeformationModelOffFaultMoRateData.getInstance().getAveDefModelPDF(false);
@@ -51,7 +52,24 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 			}
 			return Doubles.toArray(vals);
 		}
+	},
+	
+	/**
+	 * This includes the geologic deformation model, for which the off-fault s
+	 * patial distribution is uniform
+	 */
+	AVG_DEF_MODEL_ALL("Average Deformation Model Including Faults",	"AveDM_all",	1d) {
+		@Override public double[] getPDF() {
+			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
+			GriddedGeoDataSet xyz = DeformationModelsCalc.getAveDefModSpatialPDF_WithFaults(false);
+			List<Double> vals = Lists.newArrayList();
+			for (Location loc : region) {
+				vals.add(xyz.get(loc));
+			}
+			return Doubles.toArray(vals);
+		}
 	};
+
 	
 	private String name, shortName;
 	private double weight;
@@ -85,7 +103,7 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 		ArrayList<SpatialSeisPDF> testPDF_List = new ArrayList<SpatialSeisPDF>();
 		testPDF_List.add(SpatialSeisPDF.UCERF3);
 		testPDF_List.add(SpatialSeisPDF.UCERF2);
-		testPDF_List.add(SpatialSeisPDF.AVG_DEF_MODEL);
+		testPDF_List.add(SpatialSeisPDF.AVG_DEF_MODEL_OFF);
 		for(SpatialSeisPDF testPDF : testPDF_List) {
 			double[] vals = testPDF.getPDF();
 			double sum=0;
@@ -126,7 +144,7 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 		ArrayList<SpatialSeisPDF> testPDF_List = new ArrayList<SpatialSeisPDF>();
 		testPDF_List.add(SpatialSeisPDF.UCERF3);
 		testPDF_List.add(SpatialSeisPDF.UCERF2);
-		testPDF_List.add(SpatialSeisPDF.AVG_DEF_MODEL);
+		testPDF_List.add(SpatialSeisPDF.AVG_DEF_MODEL_OFF);
 		for(SpatialSeisPDF testPDF : testPDF_List) {
 			noFrac = testPDF.getFractionInRegion(noCalGrid);
 			soFrac = testPDF.getFractionInRegion(soCalGrid);

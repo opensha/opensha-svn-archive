@@ -10,6 +10,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.data.xyz.XYZ_DataSetMath;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -535,13 +536,15 @@ public class DeformationModelsCalc {
 	
 	/**
 	 * This returns the average on-fault moment rates for the given fault model, where the average
-	 * is taken over: GEOLOGIC, ABM, NEOKINEMA, and ZENG.
+	 * is taken over: ABM, NEOKINEMA, ZENG, and optionally GEOLOGIC..
 	 * @param fm
 	 */
-	public static GriddedGeoDataSet getAveDefModSpatialOnFaultMomentRateData(FaultModels fm) {
+	public static GriddedGeoDataSet getAveDefModSpatialOnFaultMomentRateData(FaultModels fm, boolean includeGeologic) {
 
 		ArrayList<DeformationModels> dmListForAve = new ArrayList<DeformationModels>();
-		dmListForAve.add(DeformationModels.GEOLOGIC);
+		if(includeGeologic) {
+			dmListForAve.add(DeformationModels.GEOLOGIC);
+		}
 		dmListForAve.add(DeformationModels.ABM);
 		dmListForAve.add(DeformationModels.NEOKINEMA);
 		dmListForAve.add(DeformationModels.ZENG);
@@ -563,15 +566,15 @@ public class DeformationModelsCalc {
 	
 	/**
 	 * This returns the average moment rate data including both on- and off-fault sources,
-	 * where the average is taken over  GEOLOGIC, ABM, NEOKINEMA, and ZENG.
+	 * where the average is taken over  ABM, NEOKINEMA, ZENG, and optionally GEOLOGIC.
 	 * 
 	 * The off-fault geologic is included here (which has a uniform distribution off fault)
 	 * @param fm
 	 * @return
 	 */
-	public static GriddedGeoDataSet getAveDefModSpatialMomentRateData(FaultModels fm) {
+	public static GriddedGeoDataSet getAveDefModSpatialMomentRateData(FaultModels fm, boolean includeGeologic) {
 
-		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm);
+		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm, includeGeologic);
 		GriddedGeoDataSet aveDefModOffFault = DeformationModelOffFaultMoRateData.getInstance().getAveDefModelSpatialOffFaultMoRates(fm, true);
 		
 		GriddedGeoDataSet aveDefModData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
@@ -580,6 +583,27 @@ public class DeformationModelsCalc {
 			aveDefModData.set(i,aveDefModOnFault.get(i)+aveDefModOffFault.get(i));
 		}
 		return aveDefModData;
+	}
+	
+	/**
+	 * This returns a pdf of the ave deformation model (including faults, both fault 
+	 * models 3.1 and 3.2, and the following deformation models: ABM, NEOKINEMA, ZENG, 
+	 * and optionally GEOLOGIC)
+	 * @return
+	 */
+	public static GriddedGeoDataSet getAveDefModSpatialPDF_WithFaults(boolean includeGeologic) {
+		GriddedGeoDataSet data1 = getAveDefModSpatialMomentRateData(FaultModels.FM3_1, includeGeologic);
+		GriddedGeoDataSet data2 = getAveDefModSpatialMomentRateData(FaultModels.FM3_2, includeGeologic);
+		GriddedGeoDataSet pdf = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
+		double sum=0;
+		for(int i=0; i<pdf.size();i++) {
+			pdf.set(i, data1.get(i)+data2.get(i));
+			sum += pdf.get(i);
+		}
+		for(int i=0; i<pdf.size();i++) {
+			pdf.set(i, pdf.get(i)/sum);
+		}
+		return pdf;
 	}
 
 
@@ -621,9 +645,9 @@ public class DeformationModelsCalc {
 		
 		// Now make ave def model data
 		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
-		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm);
+		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm, true);
 		GriddedGeoDataSet aveDefModOffFault = spatPDFgen.getAveDefModelSpatialOffFaultMoRates(fm, true);
-		GriddedGeoDataSet aveDefModTotal = getAveDefModSpatialMomentRateData(fm);
+		GriddedGeoDataSet aveDefModTotal = getAveDefModSpatialMomentRateData(fm, true);
 
 		
 		try {
