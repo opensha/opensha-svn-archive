@@ -96,12 +96,6 @@ public class InversionMFDs {
 		fractSeisInSoCal = spatialSeisPDF.getFractionInRegion(soCalGrid);
 
 		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDF);
-		// TEMP FIX (OLY WAY TO GET THIS RIGHT NOW)
-//		DeformationModelFetcher defFetch = new DeformationModelFetcher(fltSysRupSet.getFaultModel(), 
-//				fltSysRupSet.getDeformationModel(), UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 
-//				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
-//		GriddedSeisUtils gsu = new GriddedSeisUtils(defFetch.getPolyMgr(), SpatialSeisPDF.UCERF3);
-//		fractionSeisOnFault = gsu.pdfInPolys();
 
 		double onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
 		double offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;

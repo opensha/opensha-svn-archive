@@ -101,6 +101,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	ArrayList<ArrayList<Integer>> clusterRupIndexList;
 	int numRuptures=0;
 	double maxMag;	// this is the maximum magnitude in the rupture set
+	final static double MIN_MO_RATE_REDUCTION = 0.1;
+	double seisMoRateAdded;	// this is the moment added subseismo MFD MoRate exceeds fault section MoRate
 	
 	// this holds the various MFDs implied by the inversion fault system rupture set 
 	// (e.g., we need to know the sub-seismo on-fault moment rates to reduce slip rates accordingly)
@@ -315,9 +317,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			else
 				fractionalMoRateReduction = (origMoRate-subSeismoMoRate)/origMoRate;
 			// apply water level of 10% (to avoid negative slip rates)
-			if(fractionalMoRateReduction<0.1) {
+			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
+				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
 				fractionalMoRateReduction=0.1;
-//				System.out.println("HERE"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
+				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
 			}
 			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
@@ -638,10 +641,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
  
 		if(includeHeader)
 			str += logicTreeBranch.getTabSepValStringHeader()+"\t"+inversionMFDs.getPreInversionAnalysisDataHeader()+
-				"\t"+"targetOnFaultMoRate\n";
+				"\t"+"targetOnFaultMoRate\tseisMoRateAdded\n";
 		
 		str += logicTreeBranch.getTabSepValString()+"\t"+inversionMFDs.getPreInversionAnalysisData()+
-			"\t"+getTotalReducedMomentRate();
+			"\t"+getTotalReducedMomentRate()+"\t"+seisMoRateAdded;
 		return str;
 	}
 	
