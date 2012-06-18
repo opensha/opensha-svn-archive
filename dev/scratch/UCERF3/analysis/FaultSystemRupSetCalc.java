@@ -815,28 +815,28 @@ public class FaultSystemRupSetCalc {
 //		fltModList.add(FaultModels.FM3_2);	// 3% higher on-fault MoRate, and 5% lower off-fault moRate;  Not worth looping over
 		
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
-		defModList.add(DeformationModels.GEOLOGIC);
+//		defModList.add(DeformationModels.GEOLOGIC);
 		defModList.add(DeformationModels.ABM);
-		defModList.add(DeformationModels.NEOKINEMA);
-		defModList.add(DeformationModels.ZENG);
+//		defModList.add(DeformationModels.NEOKINEMA);
+//		defModList.add(DeformationModels.ZENG);
 		
 		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
 		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
 		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
-		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+//		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
 
 		ArrayList<InversionModels> invModList = new ArrayList<InversionModels>();
 		invModList.add(InversionModels.CHAR_CONSTRAINED);
-		invModList.add(InversionModels.GR_CONSTRAINED);
+//		invModList.add(InversionModels.GR_CONSTRAINED);
 		
 		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
 		mag5RateList.add(TotalMag5Rate.RATE_8p7);
-		mag5RateList.add(TotalMag5Rate.RATE_7p1);
+//		mag5RateList.add(TotalMag5Rate.RATE_7p1);
 		mag5RateList.add(TotalMag5Rate.RATE_10p6);
 		
 		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
 		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
-		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
+//		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
 		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
 		
 		ArrayList<MomentRateFixes> moRateFixList = new ArrayList<MomentRateFixes>();
@@ -845,7 +845,7 @@ public class FaultSystemRupSetCalc {
 
 		ArrayList<SpatialSeisPDF> seisPDFList = new ArrayList<SpatialSeisPDF>();
 		seisPDFList.add(SpatialSeisPDF.UCERF3);
-		seisPDFList.add(SpatialSeisPDF.UCERF2);
+//		seisPDFList.add(SpatialSeisPDF.UCERF2);
 //		seisPDFList.add(SpatialSeisPDF.AVG_DEF_MODEL_OFF);
 //		seisPDFList.add(SpatialSeisPDF.AVG_DEF_MODEL_ALL);
 
@@ -1340,11 +1340,11 @@ public class FaultSystemRupSetCalc {
 //		testImplGR_fracSeisOnFltAssumingSameCC();
 //		testAllInversionSetups();
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
 				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_10p6, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-//		System.out.println(rupSet.getPreInversionAnalysisData(true));
-//		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
-//		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
+		System.out.println(rupSet.getPreInversionAnalysisData(true));
+		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
+		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
 		
 
 //		double mMaxInRegion = 8.45;
