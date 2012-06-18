@@ -386,8 +386,9 @@ public class InversionInputGenerator {
 			}
 		}
 
-			
-		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previuos 2 constraints)
+		
+		// Rupture-Rate Constraint
+		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previous 2 constraints)
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
 			double relativeRupRateConstraintWt = config.getRelativeRupRateConstraintWt();
 			double zeroRupRateConstraintWt = config.getRelativeRupRateConstraintWt()*aPrioriConstraintForZeroRatesWtFactor;  // This is the RupRateConstraintWt for ruptures not in UCERF2 
@@ -405,7 +406,7 @@ public class InversionInputGenerator {
 					numNonZeroElements++; rowIndex++;
 				}
 				else if (aPrioriConstraintForZeroRates) {
-					if (QUICK_GETS_SETS)
+					if (QUICK_GETS_SETS) 
 						A.setQuick(rowIndex,rup,zeroRupRateConstraintWt);
 					else
 						A.set(rowIndex,rup,zeroRupRateConstraintWt);

@@ -317,10 +317,8 @@ public class InversionConfiguration {
 			parkfieldRups.add(potentialRups.get(i));
 		}
 		
-		for (int i=0; i<parkfieldRups.size(); i++) {
+		for (int i=0; i<parkfieldRups.size(); i++) 
 			initialRupModel[parkfieldRups.get(i)] = parkfieldMeanRate/(double)parkfieldRups.size();
-			System.out.println("initialRupModel["+parkfieldRups.get(i)+"] = "+initialRupModel[parkfieldRups.get(i)]);
-		}
 			
 		return initialRupModel;
 	}
@@ -418,7 +416,10 @@ public class InversionConfiguration {
 				// If initial rup rate is 0, we will adjust the rate.
 				if (initialRupModel[rup]==0) {
 					double avgSlipRate = 0;
-					for(int sect:sects) avgSlipRate+=rupSet.getSlipRateForSection(sect);
+					for(int sect:sects) {
+						if (!Double.isNaN(rupSet.getSlipRateForSection(sect)))
+							avgSlipRate+=rupSet.getSlipRateForSection(sect);
+					}
 					avgSlipRate/=sects.size();  // average slip rate of sections in rup
 					double[] rupSlip = rupSet.getSlipOnSectionsForRup(rup);
 					double avgSlip = 0;
