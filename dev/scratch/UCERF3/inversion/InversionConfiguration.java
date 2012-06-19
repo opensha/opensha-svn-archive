@@ -216,8 +216,8 @@ public class InversionConfiguration {
 		double[] minimumRuptureRateBasis;
 		
 		SummedMagFreqDist targetOnFaultMFD =  rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD();
-		System.out.println("SUPRA SEIS MFD = ");
-		System.out.println(rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD());
+//		System.out.println("SUPRA SEIS MFD = ");
+//		System.out.println(rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD());
 		
 		if (model.isConstrained()) {
 			// CONSTRAINED BRANCHES
@@ -663,14 +663,16 @@ public class InversionConfiguration {
 		
 
 		// Find magnitude distribution of ruptures (as discretized)
-		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
+		double minMag = Math.floor(faultSystemRupSet.getMinMag()*10.0)/10.0;
+		double maxMag = Math.ceil(faultSystemRupSet.getMaxMag()*10.0)/10.0;
+		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(minMag,(int) Math.round((maxMag-minMag)*10+1),0.1);
 		magHist.setTolerance(0.05);
 		for(int rup=0; rup<numRup;rup++) {
 			// Each bin in the magnitude histogram should be weighted by the mean slip rates of those ruptures 
 			// (since later we weight the ruptures by the mean slip rate, which would otherwise result in 
 			// starting solution that did not match target MFD if the mean slip rates per rupture 
 			// differed between magnitude bins)
-			if (minimumSlipRate[rup]!=0)
+			if (minimumSlipRate[rup]!=0) 
 				magHist.add(rupMeanMag[rup], minimumSlipRate[rup]);  // each bin
 			else magHist.add(rupMeanMag[rup], 1E-4);
 		}
