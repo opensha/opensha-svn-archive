@@ -127,8 +127,8 @@ public class LogicTreeBranchIterator implements Iterable<LogicTreeBranch>, Itera
 	
 	public static void main(String[] args) {
 //		TreeTrimmer trimmer = null;
-//		TreeTrimmer trimmer = ListBasedTreeTrimmer.getNonZeroWeightsTrimmer();
-		TreeTrimmer trimmer = new ListBasedTreeTrimmer(null, true);
+		TreeTrimmer trimmer = ListBasedTreeTrimmer.getNonZeroWeightsTrimmer();
+//		TreeTrimmer trimmer = ListBasedTreeTrimmer;
 		LogicTreeBranchIterator it = new LogicTreeBranchIterator(trimmer);
 		
 		int cnt = 0;

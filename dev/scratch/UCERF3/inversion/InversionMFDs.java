@@ -255,7 +255,7 @@ public class InversionMFDs {
 		mfd.addIncrementalMagFreqDist(getTrulyOffFaultMFD());
 		mfd.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
 		return mfd;
-		}
+	}
  
 	
 	public double getTotalRegionRateMgt5() {return totalRegionRateMgt5;}

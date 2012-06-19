@@ -34,9 +34,12 @@ import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
@@ -133,13 +136,9 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param applyImpliedCouplingCoeff
 	 * @param spatialSeisPDF
 	 */
-	public InversionFaultSystemRupSet(FaultModels faultModel, DeformationModels defModel,
-			ScalingRelationships scalingRelationship, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
-			File precomputedDataDir, LaughTestFilter filter, double totalRegionRateMgt5, 
-			double mMaxOffFault, boolean applyImpliedCouplingCoeff, SpatialSeisPDF spatialSeisPDF) {
-		this(new SectionClusterList(faultModel, defModel, precomputedDataDir, filter),
-				defModel, null, scalingRelationship, inversionModel, slipModelType, totalRegionRateMgt5, 
-				mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF);
+	public InversionFaultSystemRupSet(LogicTreeBranch branch, File precomputedDataDir, LaughTestFilter filter) {
+		this(branch, new SectionClusterList(branch.getValue(FaultModels.class),
+				branch.getValue(DeformationModels.class), precomputedDataDir, filter), null);
 	}
 
 	/**
@@ -159,26 +158,25 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param spatialSeisPDF
 
 	 */
-	public InversionFaultSystemRupSet(SectionClusterList clusters, DeformationModels defModel, List<FaultSectionPrefData> faultSectionData,
-			ScalingRelationships scalingRelationship, InversionModels inversionModel, SlipAlongRuptureModels slipModelType,
-			double totalRegionRateMgt5, double mMaxOffFault, boolean applyImpliedCouplingCoeff,
-		SpatialSeisPDF spatialSeisPDF) {
+	public InversionFaultSystemRupSet(LogicTreeBranch branch, SectionClusterList clusters,
+			List<FaultSectionPrefData> faultSectionData) {
 		
 		if (faultSectionData == null)
 			// default to using the fault section data from the clusters
 			faultSectionData = clusters.getFaultSectionData();
 		
+		this.logicTreeBranch = branch;
 		this.faultModel = clusters.getFaultModel();
-		this.defModName = defModel;
-		this.scalingRelationship = scalingRelationship;
-		this.slipModelType = slipModelType;
+		this.defModName = branch.getValue(DeformationModels.class);
+		this.scalingRelationship = branch.getValue(ScalingRelationships.class);
+		this.slipModelType = branch.getValue(SlipAlongRuptureModels.class);
 		this.sectionClusterList = clusters;
 		this.faultSectionData = faultSectionData;
-		this.inversionModel = inversionModel;
-		this.totalRegionRateMgt5 = totalRegionRateMgt5;
-		this.mMaxOffFault = mMaxOffFault;
-		this.applyImpliedCouplingCoeff = applyImpliedCouplingCoeff;
-		this.spatialSeisPDF = spatialSeisPDF;
+		this.inversionModel = branch.getValue(InversionModels.class);
+		this.totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
+		this.mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
+		this.applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
+		this.spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
 		this.subSectionDistances = clusters.getSubSectionDistances();
 		
 		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
@@ -627,17 +625,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 	public Map<IDPairing, Double> getSubSectionDistances() {
 		return subSectionDistances;
-	}
-	
-	/**
-	 * 
-	 * TODO
-	 * This if redundant (and potentially inconsistent with) constructor arguments.
-	 * Constructor should take a LogicTreeBranch and this should be removed.
-	 * @param branch
-	 */
-	public void setLogicTreeBranch(LogicTreeBranch branch) {
-		this.logicTreeBranch = branch;
 	}
 	
 	public LogicTreeBranch getLogicTreeBranch() { return logicTreeBranch; }

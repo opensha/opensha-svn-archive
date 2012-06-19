@@ -21,7 +21,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>> {
+public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>, Cloneable {
 	
 	/**
 	 * This is the default reference branch // TODO confirm
@@ -360,6 +360,16 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	@Override
 	public Iterator<LogicTreeBranchNode<? extends Enum<?>>> iterator() {
 		return branch.iterator();
+	}
+
+	@Override
+	public Object clone() {
+		List<LogicTreeBranchNode<? extends Enum<?>>> newBranches = Lists.newArrayList();
+		
+		for (int i=0; i<size(); i++)
+			newBranches.add(branch.get(i));
+		
+		return new LogicTreeBranch(newBranches);
 	}
 
 }

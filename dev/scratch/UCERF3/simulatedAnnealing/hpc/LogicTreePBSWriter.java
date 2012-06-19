@@ -275,8 +275,14 @@ public class LogicTreePBSWriter {
 		}
 	}
 	
+	private static LogicTreeBranch getUCERF2_noIM() {
+		LogicTreeBranch UCERF2_noIM = (LogicTreeBranch) LogicTreeBranch.UCERF2.clone();
+		UCERF2_noIM.clearValue(InversionModels.class);
+		return UCERF2_noIM;
+	}
+	
 	private static TreeTrimmer getUCERF2Trimmer() {
-		return DiscreteListTreeTrimmer.getUCERF2_IngredientsTrimmer();
+		return new ListBasedTreeTrimmer(getUCERF2_noIM(), false);
 	}
 	
 	private static TreeTrimmer getAllDM_IM_Trimmer(boolean bothFMs) {
@@ -295,6 +301,41 @@ public class LogicTreePBSWriter {
 		limitations.add(invModels);
 		
 		return ListBasedTreeTrimmer.getDefaultPlusSpecifiedTrimmer(limitations);
+	}
+	
+	private static TreeTrimmer getUCERF3RefBranches() {
+		List<LogicTreeBranch> branches = Lists.newArrayList();
+		
+		branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM3_1, DeformationModels.ABM,
+				ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
+				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3));
+		branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+				ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
+				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3));
+		branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM3_1, DeformationModels.NEOKINEMA,
+				ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
+				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3));
+		branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM3_1, DeformationModels.ZENG,
+				ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
+				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3));
+		
+		branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
+				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
+				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
+		return new DiscreteListTreeTrimmer(branches);
+	}
+	
+	public static TreeTrimmer getNonZeroOrUCERF2Trimmer() {
+		final TreeTrimmer nonZero = ListBasedTreeTrimmer.getNonZeroWeightsTrimmer();
+		final TreeTrimmer ucerf2Trim = getUCERF2Trimmer();
+		
+		return new TreeTrimmer() {
+			
+			@Override
+			public boolean isTreeValid(LogicTreeBranch branch) {
+				return nonZero.isTreeValid(branch) || ucerf2Trim.isTreeValid(branch);
+			}
+		};
 	}
 	
 	private static TreeTrimmer getCustomTrimmer(boolean bothFMs) {
@@ -347,7 +388,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "quick-test";
+		String runName = "ref-branches-8hrs";
 		if (args.length > 1)
 			runName = args[1];
 		runName = df.format(new Date())+"-"+runName;
@@ -365,7 +406,10 @@ public class LogicTreePBSWriter {
 
 		boolean lightweight = numRuns > 10;
 
-		TreeTrimmer trimmer = getAllDM_IM_Trimmer(false);
+		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+		
+		
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
 		ArrayList<CustomArg[]> variationBranches = null;
@@ -383,21 +427,34 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR_CONSTRAINED, 1);
-		maxAway.put(InversionModels.CHAR_UNCONSTRAINED, 2);
-		maxAway.put(InversionModels.GR_CONSTRAINED, 1);
-		maxAway.put(InversionModels.GR_UNCONSTRAINED, 2);
-		VariableLogicTreeBranch[] defaultBranches = {
-				//				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
-				//						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
-				//						buildVariationBranch(ops, toArray("0.2", "0.5", "1", null))),
-				new VariableLogicTreeBranch(null, false, FaultModels.FM3_1, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6,
-						MomentRateFixes.NONE, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, SpatialSeisPDF.UCERF3)
-				//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
-				//								AveSlipForRupModels.ELLSWORTH_B, null, null),
-				//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
-				//								AveSlipForRupModels.ELLSWORTH_B, null, null)
-		};
+		maxAway.put(InversionModels.CHAR_CONSTRAINED, 0);
+		maxAway.put(InversionModels.CHAR_UNCONSTRAINED, 0);
+		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
+		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);
+		VariableLogicTreeBranch[] defaultBranches = null;
+		
+		if (defaultBranchesTrimmer != null) {
+			List<LogicTreeBranch> defBranches = Lists.newArrayList();
+			for (LogicTreeBranch branch : new LogicTreeBranchIterator(defaultBranchesTrimmer))
+				defBranches.add(branch);
+			defaultBranches = new VariableLogicTreeBranch[defBranches.size()];
+			for (int i=0; i<defBranches.size(); i++) {
+				LogicTreeBranch branch = defBranches.get(i);
+				defaultBranches[i] = new VariableLogicTreeBranch(null, branch);
+			}
+		}
+		
+//		VariableLogicTreeBranch[] defaultBranches = {
+//				//				new VariableLogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+//				//						AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, null,
+//				//						buildVariationBranch(ops, toArray("0.2", "0.5", "1", null))),
+//				new VariableLogicTreeBranch(null, false, FaultModels.FM3_1, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6,
+//						MomentRateFixes.NONE, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, SpatialSeisPDF.UCERF3)
+//				//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B,
+//				//								AveSlipForRupModels.ELLSWORTH_B, null, null),
+//				//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
+//				//								AveSlipForRupModels.ELLSWORTH_B, null, null)
+//		};
 		if (defaultBranches != null) { // TODO
 			// make sure all default branch choices are valid!
 			for (LogicTreeBranch defaultBranch : defaultBranches) {
@@ -521,13 +578,13 @@ public class LogicTreePBSWriter {
 				BatchScriptWriter batch = site.forBranch(branch);
 				TimeCompletionCriteria checkPointCriteria;
 				if (im == InversionModels.GR_CONSTRAINED) {
-					mins = 250;
+					mins = 500;
 					nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
 					batch = site.forBranch(branch);
 					//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
 					checkPointCriteria = null;
 				} else if (im == InversionModels.CHAR_CONSTRAINED) {
-					mins = 250; // TODO ?
+					mins = 500; // TODO ?
 					nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
 					//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
 					checkPointCriteria = null;

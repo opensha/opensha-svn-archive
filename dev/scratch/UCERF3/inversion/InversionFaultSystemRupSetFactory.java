@@ -201,12 +201,8 @@ public class InversionFaultSystemRupSetFactory {
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue).getSubSectionList();
 		}
 		
-		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
-				clusters, deformationModel, faultSectionData, branch.getValue(ScalingRelationships.class),
-				branch.getValue(InversionModels.class), branch.getValue(SlipAlongRuptureModels.class),
-				branch.getValue(TotalMag5Rate.class).getRateMag5(), branch.getValue(MaxMagOffFault.class).getMaxMagOffFault(),
-				branch.getValue(MomentRateFixes.class).isApplyCC(), branch.getValue(SpatialSeisPDF.class));
-		rupSet.setLogicTreeBranch(branch);  //TODO make the above constructor take this branch to avoid inconsistencies
+		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(branch,
+				clusters, faultSectionData);
 		System.out.println("New rup set has "+rupSet.getNumRuptures()+" ruptures.");
 		String info = rupSet.getInfoString();
 		if (info == null)

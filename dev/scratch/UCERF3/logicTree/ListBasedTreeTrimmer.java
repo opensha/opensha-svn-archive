@@ -13,7 +13,8 @@ public class ListBasedTreeTrimmer implements TreeTrimmer {
 	private boolean nonZeroWeight;
 	
 	public static ListBasedTreeTrimmer getNonZeroWeightsTrimmer() {
-		return new ListBasedTreeTrimmer(null, true);
+		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
+		return new ListBasedTreeTrimmer(limitations, true);
 	}
 		
 	public static ListBasedTreeTrimmer getDefaultPlusSpecifiedTrimmer(List<List<LogicTreeBranchNode<?>>> customLimitations) {
@@ -48,6 +49,25 @@ public class ListBasedTreeTrimmer implements TreeTrimmer {
 	}
 	
 	public ListBasedTreeTrimmer(List<List<LogicTreeBranchNode<?>>> limitationsList, boolean nonZeroWeight) {
+		init(limitationsList, nonZeroWeight);
+	}
+	
+	public ListBasedTreeTrimmer(LogicTreeBranch defaultBranch, boolean nonZeroWeight) {
+		List<List<LogicTreeBranchNode<?>>> limitationsList = Lists.newArrayList();
+		
+		for (int i=0; i<defaultBranch.size(); i++) {
+			LogicTreeBranchNode<?> val = defaultBranch.getValue(i);
+			if (val != null) {
+				List<LogicTreeBranchNode<?>> list = Lists.newArrayList();
+				list.add(val);
+				limitationsList.add(list);
+			}
+		}
+		
+		init(limitationsList, nonZeroWeight);
+	}
+	
+	private void init(List<List<LogicTreeBranchNode<?>>> limitationsList, boolean nonZeroWeight) {
 		this.limitations = Lists.newArrayList();
 		this.nonZeroWeight = nonZeroWeight;
 		for (int i=0; i<classes.size(); i++)

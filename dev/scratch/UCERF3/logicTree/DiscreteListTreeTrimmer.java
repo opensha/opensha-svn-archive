@@ -8,13 +8,6 @@ import com.google.common.collect.Lists;
 public class DiscreteListTreeTrimmer implements TreeTrimmer,
 		Iterable<LogicTreeBranch> {
 	
-	public static DiscreteListTreeTrimmer getUCERF2_IngredientsTrimmer() {
-		List<LogicTreeBranch> branches = Lists.newArrayList();
-		branches.add(LogicTreeBranch.UCERF2);
-		
-		return new DiscreteListTreeTrimmer(branches);
-	}
-	
 	List<LogicTreeBranch> branches;
 	
 	public DiscreteListTreeTrimmer(List<LogicTreeBranch> branches) {
