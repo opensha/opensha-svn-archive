@@ -28,8 +28,10 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -46,6 +48,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCr
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
@@ -492,22 +495,30 @@ public class CommandLineInversionRunner {
 	public static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 		
-		List<MFD_InversionConstraint> origMFDConstraints = invSol.getPlotOriginalMFDConstraints(ucerf2Fetch);
+		// statewide
+		writeMFDPlot(invSol, dir, prefix, invSol.getInversionMFDs().getTotalTargetGR(), invSol.getInversionMFDs().getTargetOnFaultSupraSeisMFD(),
+				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 		
-		int cnt = 0;
-		for (MFD_InversionConstraint constraint : origMFDConstraints) {
-			cnt++;
-			HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(constraint, ucerf2Fetch);
-			Region reg = constraint.getRegion();
-			String regName = reg.getName();
-			if (regName == null || regName.isEmpty())
-				regName = "Uknown"+cnt;
-			regName = regName.replaceAll(" ", "_");
-			File file = new File(dir, prefix+"_MFD_"+regName);
-			gp.getCartPanel().setSize(1000, 800);
-			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-			gp.saveAsPNG(file.getAbsolutePath()+".png");
-		}
+		// no cal
+		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_NoCal(), invSol.getInversionMFDs().noCalTargetMFD,
+				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
+		
+		// so cal
+		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_SoCal(), invSol.getInversionMFDs().soCalTargetMFD,
+				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
+	}
+	
+	private static void writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
+			IncrementalMagFreqDist targetMFD, Region region, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) throws IOException {
+		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(totalMFD, targetMFD, region, ucerf2Fetch);
+		String regName = region.getName();
+		if (regName == null || regName.isEmpty())
+			regName = "Uknown";
+		regName = regName.replaceAll(" ", "_");
+		File file = new File(dir, prefix+"_MFD_"+regName);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 	
 	public static ArrayList<PaleoRateConstraint> getPaleoConstraints(FaultModels fm, FaultSystemRupSet rupSet) throws IOException {

@@ -99,6 +99,7 @@ public class CaliforniaRegions {
 		public RELM_TESTING_GRIDDED(double spacing) {
 			super(readCoords("RELM_testing.coords"), 
 					BorderType.MERCATOR_LINEAR, spacing, ANCHOR_0_0);
+			this.setName("RELM_TESTING Region");
 		}
 	}
 
@@ -147,6 +148,7 @@ public class CaliforniaRegions {
 		public RELM_NOCAL_GRIDDED() {
 			super(readCoords("RELM_NoCal.coords"), 
 					BorderType.MERCATOR_LINEAR, 0.1, ANCHOR_0_0);
+			this.setName("RELM_NOCAL Region");
 		}
 	}
 
@@ -171,6 +173,7 @@ public class CaliforniaRegions {
 		public RELM_SOCAL_GRIDDED() {
 			super(readCoords("RELM_SoCal.coords"), 
 					BorderType.MERCATOR_LINEAR, 0.1, ANCHOR_0_0);
+			this.setName("RELM_SOCAL Region");
 		}
 	}
 

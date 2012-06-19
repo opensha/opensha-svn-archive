@@ -39,7 +39,10 @@ import scratch.UCERF3.inversion.SectionClusterList;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 
 /**
@@ -1013,6 +1016,18 @@ public class DeformationModelFetcher {
 //
 		fw.close();
 	}
+	
+	// this is a local cache for storing distances in memory
+	private static Table<FaultModels, DeformationModels, Map<IDPairing, Double>> distCache = HashBasedTable.create();
+	
+	private static synchronized Map<IDPairing, Double> loadCachedDistances(FaultModels fm, DeformationModels dm) {
+		return distCache.get(fm, dm);
+	}
+	
+	private static synchronized void cacheDistances(FaultModels fm, DeformationModels dm, Map<IDPairing, Double> distMap) {
+		if (!distCache.contains(fm, dm))
+			distCache.put(fm, dm, distMap);
+	}
 
 	/**
 	 * This computes the distances between subsection if it hasn't already been done.
@@ -1029,7 +1044,7 @@ public class DeformationModelFetcher {
 
 		int numSubSections = faultSubSectPrefDataList.size();
 		// map from [id1, id2] to the distance. index1 is always less than index2
-		Map<IDPairing, Double> distances;
+		Map<IDPairing, Double> distances = loadCachedDistances(faultModel, chosenDefModName);
 
 		// construct filename
 		String name = fileNamePrefix+"_Distances";
@@ -1039,62 +1054,66 @@ public class DeformationModelFetcher {
 
 		File pairingsTextFile = new File(fullpathname+"_pairings.txt");
 
-		//		 Read data if already computed and saved
-		if(file.exists()) {
-			if(D) System.out.println("Reading existing file: "+ name);
-			try {
-				distances = readMapFile(file);
-			} catch  (IOException e) {
-				System.out.println ( "IO Exception =: " + e );
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-
-		}
-		else {// Calculate new distance matrix & save to a file
-			System.out.println("Calculating data and will save to file: "+file.getAbsolutePath());
-
-			distances = new HashMap<IDPairing, Double>();
-
-			int progress = 0, progressInterval=10;  // for progress report
-			System.out.print("Dist Calc % Done:");
-			for(int a=0;a<numSubSections;a++) {
-				if (100*a/numSubSections > progress) {
-					System.out.print("\t"+progress);
-					progress += progressInterval;
+		if (distances == null) {
+//			 Read data if already computed and saved
+			if(file.exists()) {
+				if(D) System.out.println("Reading existing file: "+ name);
+				try {
+					distances = readMapFile(file);
+				} catch  (IOException e) {
+					System.out.println ( "IO Exception =: " + e );
+					throw ExceptionUtils.asRuntimeException(e);
 				}
-				//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
-				FaultSectionPrefData data1 = faultSubSectPrefDataList.get(a);
-				StirlingGriddedSurface surf1 = data1.getStirlingGriddedSurface(1.0, false, false);
-				//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(data1.getSimpleFaultData(false), 1.0, 1.0);
 
-				for(int b=a+1;b<numSubSections;b++) { // a+1 because array is initialized to zero
-					//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
-					FaultSectionPrefData data2 = faultSubSectPrefDataList.get(b);
-					//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(data2.getSimpleFaultData(false), 1.0, 1.0);
-					StirlingGriddedSurface surf2 = data2.getStirlingGriddedSurface(1.0, false, false);
-					//					double minDist = surf1.getMinDistance(surf2);
-					//					subSectionDistances[a][b] = minDist;
-					//					subSectionDistances[b][a] = minDist;
-					double minDist = QuickSurfaceDistanceCalculator.calcMinDistance(surf1, surf2, maxDistance*3);
-					if (minDist < maxDistance) {
-						IDPairing ind = new IDPairing(data1.getSectionId(), data2.getSectionId());
-						Preconditions.checkState(!distances.containsKey(ind), "distances already computed for given sections!" +
-								" duplicate sub section ids?");
-						distances.put(ind, minDist);
+			}
+			else {// Calculate new distance matrix & save to a file
+				System.out.println("Calculating data and will save to file: "+file.getAbsolutePath());
+
+				distances = new HashMap<IDPairing, Double>();
+
+				int progress = 0, progressInterval=10;  // for progress report
+				System.out.print("Dist Calc % Done:");
+				for(int a=0;a<numSubSections;a++) {
+					if (100*a/numSubSections > progress) {
+						System.out.print("\t"+progress);
+						progress += progressInterval;
+					}
+					//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
+					FaultSectionPrefData data1 = faultSubSectPrefDataList.get(a);
+					StirlingGriddedSurface surf1 = data1.getStirlingGriddedSurface(1.0, false, false);
+					//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(data1.getSimpleFaultData(false), 1.0, 1.0);
+
+					for(int b=a+1;b<numSubSections;b++) { // a+1 because array is initialized to zero
+						//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
+						FaultSectionPrefData data2 = faultSubSectPrefDataList.get(b);
+						//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(data2.getSimpleFaultData(false), 1.0, 1.0);
+						StirlingGriddedSurface surf2 = data2.getStirlingGriddedSurface(1.0, false, false);
+						//					double minDist = surf1.getMinDistance(surf2);
+						//					subSectionDistances[a][b] = minDist;
+						//					subSectionDistances[b][a] = minDist;
+						double minDist = QuickSurfaceDistanceCalculator.calcMinDistance(surf1, surf2, maxDistance*3);
+						if (minDist < maxDistance) {
+							IDPairing ind = new IDPairing(data1.getSectionId(), data2.getSectionId());
+							Preconditions.checkState(!distances.containsKey(ind), "distances already computed for given sections!" +
+									" duplicate sub section ids?");
+							distances.put(ind, minDist);
+						}
 					}
 				}
+				// Now save to a binary file
+				try {
+					writeMapFile(distances, file);
+				}
+				catch (IOException e) {
+					System.out.println ("IO exception = " + e );
+					// an IO exception is actually OK here, it just means we'll have to recreate it next time.
+//					ExceptionUtils.throwAsRuntimeException(e);
+				}
+				cacheDistances(faultModel, chosenDefModName, distances);
 			}
-			// Now save to a binary file
-			try {
-				writeMapFile(distances, file);
-			}
-			catch (IOException e) {
-				System.out.println ("IO exception = " + e );
-				// an IO exception is actually OK here, it just means we'll have to recreate it next time.
-//				ExceptionUtils.throwAsRuntimeException(e);
-			}
+			if (D) System.out.print("\tDONE.\n");
 		}
-		if (D) System.out.print("\tDONE.\n");
+		
 
 		if (!pairingsTextFile.exists()) {
 			try {

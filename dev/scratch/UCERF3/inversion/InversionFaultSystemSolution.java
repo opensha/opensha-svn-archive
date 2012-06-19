@@ -16,6 +16,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
@@ -31,6 +32,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 
 import com.google.common.base.Preconditions;
@@ -181,7 +183,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //	private double minimumRuptureRateFraction = Double.NaN;
 	
 	private void loadInvParams(Map<String, String> props) {
-		// TODO add new metadata keys
 		if (props.containsKey("MFDTransitionMag"))
 			MFDTransitionMag = Double.parseDouble(props.get("MFDTransitionMag"));
 		if (props.containsKey("relativePaleoRateWt"))
@@ -260,117 +261,34 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		return minimumRuptureRateFraction;
 	}
 	
-	/**
-	 * THIS NEEDS TO BE OBTAINED FROM AN InversionMFDs OBJECT (WHICH NEEDS TO BE REINSTANTIATED HERE)
-	 * 
-	 * This gets the original MFD constraints for the inversion run before modifications for off fault seismicity and
-	 * fault minimum magnitudes
-	 * @return
-	 */
-	public List<MFD_InversionConstraint> getOrigMFDConstraints() {
-		// TODO Ned fill this in
-		return null;
-	}
-	
-	/**
-	 * 
-	 * THIS NEEDS TO BE OBTAINED FROM AN InversionMFDs OBJECT (WHICH NEEDS TO BE REINSTANTIATED HERE)
-	 * 
-	 * This gets the modified MFD constraints used to constrain the inversion after taking into account minimum magnitude
-	 * and off fault seismicity
-	 * @param origMFDConstraints
-	 * @return
-	 */
-	public List<MFD_InversionConstraint> getModifiedTargetMFDConstraints(List<MFD_InversionConstraint> origMFDConstraints) {
-//		ArrayList<MFD_InversionConstraint> clones = new ArrayList<MFD_InversionConstraint>();
-//		for (MFD_InversionConstraint mfd : origMFDConstraints) {
-//			clones.add(new MFD_InversionConstraint(mfd.getMagFreqDist().deepClone(), mfd.getRegion()));
-//		}
-//		return InversionConfiguration.getTargetMFDConstraints(clones, invModel,
-//				this);
-		
-		return inversionMFDs.getMFD_ConstraintsForNoAndSoCal(); // TODO Ned, is this correct?
-	}
-	
-	/**
-	 * This gets the modified MFD constraints used to constrain the inversion after taking into account minimum magnitude
-	 * and off fault seismicity
-	 * @param origMFDConstraints
-	 * @return
-	 */
-	public MFD_InversionConstraint getModifiedTargetMFDConstraint(MFD_InversionConstraint origMFDConstraint) {
-		return getModifiedTargetMFDConstraints(Lists.newArrayList(origMFDConstraint)).get(0);
+	public InversionMFDs getInversionMFDs() {
+		return inversionMFDs;
 	}
 	
 	/**
 	 * This compares the MFDs in the given MFD constraints with the MFDs 
-	 * implied by the Fault System Solution		// TODO throw not yet implemented exception
+	 * implied by the Fault System Solution
 	 * @param mfdConstraints
 	 */
 	public void plotMFDs() {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 		
-		List<MFD_InversionConstraint> origMFDConstraints = getPlotOriginalMFDConstraints(ucerf2Fetch);
+		// Statewide
+		GraphiWindowAPI_Impl gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR(), inversionMFDs.getTargetOnFaultSupraSeisMFD(),
+				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
+		gw.getGraphWindow().setVisible(true);
 		
-		for (MFD_InversionConstraint constraint : origMFDConstraints) {
-			GraphiWindowAPI_Impl gw = getMFDPlotWindow(constraint, ucerf2Fetch);
-			gw.getGraphWindow().setVisible(true);
-		}
+		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_NoCal(), inversionMFDs.noCalTargetMFD,
+				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
+		gw.getGraphWindow().setVisible(true);
+		
+		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_SoCal(), inversionMFDs.soCalTargetMFD,
+				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
+		gw.getGraphWindow().setVisible(true);
 	}
 	
 	private boolean isStatewideDM() {
 		return getDeformationModel() != DeformationModels.UCERF2_BAYAREA && getDeformationModel() != DeformationModels.UCERF2_NCAL;
-	}
-	
-	/**
-	 * This returns the statewide MFD constraint (scaled if necessary by mfdConstraintModifier)
-	 * @return
-	 */
-	public MFD_InversionConstraint getStatewideMFDConstraint() {
-		return getStatewideMFDConstraint(null);
-	}
-	
-	/**
-	 * This returns the statewide MFD constraint (scaled if necessary by mfdConstraintModifier)
-	 * @param ucerf2Fetch UCERF2 mfd constraint fetcher if you already have one instantiated
-	 * @return
-	 */
-	public MFD_InversionConstraint getStatewideMFDConstraint(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
-		Preconditions.checkState(isStatewideDM(), "Can't get statewide MFD constraint for non statewide dm: "+getDeformationModel());
-		
-		// TODO Ned verify
-		return null;
-		
-//		MFD_InversionConstraint allConst;
-//		if (ucerf3MFDs)
-//			allConst = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850);
-//		else {
-//			Region reg = new CaliforniaRegions.RELM_TESTING();
-//			if (ucerf2Fetch == null)
-//				ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
-//			ucerf2Fetch.setRegion(reg);
-//			allConst = ucerf2Fetch.getTargetMFDConstraint();
-//		}
-//		
-//		if (mfdConstraintModifier != 1 && mfdConstraintModifier > 0) {
-//			IncrementalMagFreqDist magDist = allConst.getMagFreqDist();
-//			for (double m=magDist.getMinX(); m<=magDist.getMaxX(); m+=magDist.getDelta()) {
-//				double setVal = mfdConstraintModifier * magDist.getClosestY(m);
-//				magDist.set(m, setVal);
-//			}
-//		}
-//		
-//		return allConst;
-	}
-	
-	public List<MFD_InversionConstraint> getPlotOriginalMFDConstraints(UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
-		List<MFD_InversionConstraint> origMFDConstraints = getOrigMFDConstraints();
-		
-		if (isStatewideDM() && origMFDConstraints.size() == 2) {
-			origMFDConstraints.add(0, getStatewideMFDConstraint(ucerf2Fetch));
-		}
-		
-		return origMFDConstraints;
 	}
 	
 	private static IncrementalMagFreqDist newSameRange(IncrementalMagFreqDist other) {
@@ -392,10 +310,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 	}
 	
-	public GraphiWindowAPI_Impl getMFDPlotWindow(MFD_InversionConstraint totalTargetMFDConstraint,
+	public GraphiWindowAPI_Impl getMFDPlotWindow(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		
-		PlotSpec spec = getMFDPlots(totalTargetMFDConstraint, ucerf2Fetch);
+		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		
 		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.funcs, spec.title, spec.chars, true);
 		
@@ -409,28 +327,28 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		return gw;
 	}
 	
-	public HeadlessGraphPanel getHeadlessMFDPlot(MFD_InversionConstraint totalTargetMFDConstraint,
+	public HeadlessGraphPanel getHeadlessMFDPlot(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
-		PlotSpec spec = getMFDPlots(totalTargetMFDConstraint, ucerf2Fetch);
+		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(true);
 		gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
-		gp.setUserBounds(totalTargetMFDConstraint.getMagFreqDist().getMinX(), totalTargetMFDConstraint.getMagFreqDist().getMaxX(),
+		double minX = totalMFD.getMinX();
+		if (minX < 5)
+			minX = 5;
+		gp.setUserBounds(minX, totalMFD.getMaxX(),
 				1e-6, 1.0);
 		gp.drawGraphPanel(spec.xAxisLabel, spec.yAxisLabel, spec.funcs, spec.chars, true, spec.title);
 		
 		return gp;
 	}
 	
-	private PlotSpec getMFDPlots(MFD_InversionConstraint totalTargetMFDConstraint,
+	private PlotSpec getMFDPlots(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
-		Region region = totalTargetMFDConstraint.getRegion();
 		
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
-		
-		IncrementalMagFreqDist totalMFD = totalTargetMFDConstraint.getMagFreqDist();
 		
 		// Solution
 		IncrementalMagFreqDist solMFD = calcNucleationMFD_forRegion(region,
@@ -446,9 +364,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLACK));
 		
 		// Inversion Target
-		IncrementalMagFreqDist invTarget = getModifiedTargetMFDConstraint(totalTargetMFDConstraint).getMagFreqDist();
-		invTarget.setName("Inversion Modified Target MFD");
-		funcs.add(invTarget);
+		targetMFD.setName("Inversion Modified Target MFD");
+		funcs.add(targetMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.CYAN));
 		
 		// TODO Kevin add dashed line back in?
@@ -466,10 +383,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Implied Off Fault
 		IncrementalMagFreqDist solOffFaultMFD;
-		if (region.getName().contains("RELM") && region.getName().contains("TESTING"))
-			solOffFaultMFD = getImpliedOffFaultStatewideMFD();
-		else
-			solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
+		solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
 		solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
 		funcs.add(solOffFaultMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
@@ -499,7 +413,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	public IncrementalMagFreqDist getImpliedOffFaultStatewideMFD() {
-		IncrementalMagFreqDist mfd = getImpliedOffFaultMFD(getStatewideMFDConstraint());
+		IncrementalMagFreqDist mfd = getImpliedOffFaultMFD(inversionMFDs.getTotalTargetGR(), RELM_RegionUtils.getGriddedRegionInstance());
+		
 //		if (invModel == InversionModels.GR_CONSTRAINED || invModel == InversionModels.GR_UNCONSTRAINED) // TODO ?
 //			mfd.setValuesAboveMomentRateToZero(getTotalOffFaultSeisMomentRate());
 		return mfd;
@@ -507,12 +422,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	/**
 	 * This calculates the MFD for the solution and returns the target minus the solution.
-	 * @param target
+	 * @param totalMFD
 	 * @return
 	 */
-	public IncrementalMagFreqDist getImpliedOffFaultMFD(MFD_InversionConstraint target) {
-		IncrementalMagFreqDist totalMFD = target.getMagFreqDist();
-		IncrementalMagFreqDist magHist = calcNucleationMFD_forRegion(target.getRegion(), totalMFD.getMinX(),
+	public IncrementalMagFreqDist getImpliedOffFaultMFD(GutenbergRichterMagFreqDist totalMFD, Region region) {
+		IncrementalMagFreqDist magHist = calcNucleationMFD_forRegion(region, totalMFD.getMinX(),
 				totalMFD.getMaxX(), totalMFD.getNum(), false);
 		return getImpliedOffFaultMFD(totalMFD, magHist);
 	}

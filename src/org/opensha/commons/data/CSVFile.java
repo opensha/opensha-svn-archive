@@ -118,7 +118,7 @@ public class CSVFile<E> implements Iterable<List<E>> {
 				cols = line.size();
 			} else {
 				Preconditions.checkArgument(line.size() == cols, "New line must contain" +
-					" same number of values as columns");
+					" same number of values as columns (expected "+cols+", got "+line.size()+")");
 			}
 		}
 	}

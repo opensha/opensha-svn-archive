@@ -297,7 +297,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 			if (val == null)
 				str += "(null)";
 			else
-				str += val.getName();
+				str += val.getShortName();
 		}
 		return str;
 	}
