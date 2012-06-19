@@ -246,7 +246,17 @@ public class InversionMFDs {
 
 	}
 
-
+	/**
+	 * This returns the sum of the truly off-fault and total sub-seismo MFDs
+	 * @return
+	 */
+	public SummedMagFreqDist getTotalSubSeismoOnPlusTrulyOffFaultMFD() {
+		SummedMagFreqDist mfd =new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);		
+		mfd.addIncrementalMagFreqDist(getTrulyOffFaultMFD());
+		mfd.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
+		return mfd;
+		}
+ 
 	
 	public double getTotalRegionRateMgt5() {return totalRegionRateMgt5;}
 	
