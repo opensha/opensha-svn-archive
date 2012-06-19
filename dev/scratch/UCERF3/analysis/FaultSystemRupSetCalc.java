@@ -1338,13 +1338,13 @@ public class FaultSystemRupSetCalc {
 	public static void main(String[] args) {
 		
 //		testImplGR_fracSeisOnFltAssumingSameCC();
-//		testAllInversionSetups();
+		testAllInversionSetups();
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
-				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_10p6, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-		System.out.println(rupSet.getPreInversionAnalysisData(true));
-		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
-		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
+//				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_10p6, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+//		System.out.println(rupSet.getPreInversionAnalysisData(true));
+//		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
+//		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
 		
 
 //		double mMaxInRegion = 8.45;
