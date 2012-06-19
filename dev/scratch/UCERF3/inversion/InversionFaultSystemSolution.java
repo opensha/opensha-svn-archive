@@ -350,7 +350,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		
-		// Solution
+		// Solution TODO: region issues for statewide/mendocino
 		IncrementalMagFreqDist solMFD = calcNucleationMFD_forRegion(region,
 				totalMFD.getMinX(), 9.05, 0.1, true);
 		solMFD.setName("Solution MFD");

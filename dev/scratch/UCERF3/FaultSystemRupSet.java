@@ -263,7 +263,7 @@ public abstract class FaultSystemRupSet {
 	protected HashMap<Integer, double[]> rupSectionSlipsCache = new HashMap<Integer, double[]>();
 	
 	/**
-	 * This gives the average slip (SI untis: m) on each section for the rth rupture
+	 * This gives the slip (SI untis: m) on each section for the rth rupture
 	 * @return
 	 */
 	public double[] getSlipOnSectionsForRup(int rthRup) {

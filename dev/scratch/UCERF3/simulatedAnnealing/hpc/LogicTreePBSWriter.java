@@ -30,6 +30,7 @@ import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.CommandLineInversionRunner.InversionOptions;
+import scratch.UCERF3.logicTree.DiscreteListTreeTrimmer;
 import scratch.UCERF3.logicTree.ListBasedTreeTrimmer;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchIterator;
@@ -273,52 +274,39 @@ public class LogicTreePBSWriter {
 			return num;
 		}
 	}
-
-	/**
-	 * @param args
-	 * @throws IOException 
-	 * @throws DocumentException 
-	 */
-	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "branch-test";
-		if (args.length > 1)
-			runName = args[1];
-		runName = df.format(new Date())+"-"+runName;
-		//		runName = "2012_03_02-weekend-converg-test";
-
-		//		RunSites site = RunSites.RANGER;
-		//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
-
-		//		String nameAdd = "VarSub5_0.3";
-		String nameAdd = null;
-
-		int numRuns = 1;
-		int runStart = 0;
-
-		boolean lightweight = numRuns > 10;
-
-		boolean ucerf2 = false;
-
+	
+	private static TreeTrimmer getUCERF2Trimmer() {
+		return DiscreteListTreeTrimmer.getUCERF2_IngredientsTrimmer();
+	}
+	
+	private static TreeTrimmer getAllDM_IM_Trimmer(boolean bothFMs) {
+		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
+		
+		List<LogicTreeBranchNode<?>> faultModels = Lists.newArrayList();
+		faultModels.add(FaultModels.FM3_1);
+		if (bothFMs)
+			faultModels.add(FaultModels.FM3_2);
+		limitations.add(faultModels);
+		
+		List<LogicTreeBranchNode<?>> defModels = getNonZeroChoices(DeformationModels.class);
+		limitations.add(defModels);
+		
+		List<LogicTreeBranchNode<?>> invModels = getNonZeroChoices(InversionModels.class);
+		limitations.add(invModels);
+		
+		return ListBasedTreeTrimmer.getDefaultPlusSpecifiedTrimmer(limitations);
+	}
+	
+	private static TreeTrimmer getCustomTrimmer(boolean bothFMs) {
 		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
 
-		List<LogicTreeBranchNode<?>> faultModels;
-		if (ucerf2) {
-			faultModels = toList(FaultModels.FM2_1);
-		} else {
-//			faultModels = toList(FaultModels.FM3_1);
-			faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
-		}
+//		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1);
+		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
 		limitations.add(faultModels);
 
 		// if null, all that are applicable to each fault model will be used
-		List<LogicTreeBranchNode<?>> defModels;
-		if (ucerf2) {
-			defModels = toList(DeformationModels.UCERF2_ALL);
-		} else {
-//			defModels = toList(DeformationModels.GEOLOGIC);
-			defModels = toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG);
-		}
+//		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.GEOLOGIC);
+		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG);
 		limitations.add(defModels);
 
 		List<LogicTreeBranchNode<?>> inversionModels = allOf(InversionModels.class);
@@ -329,14 +317,9 @@ public class LogicTreePBSWriter {
 		//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
 		//		InversionModels[] inversionModels =  { InversionModels.GR };
 
-		List<LogicTreeBranchNode<?>> scaling;
-		if (ucerf2) {
-			scaling = toList(ScalingRelationships.AVE_UCERF2);
-		} else {
-			//			scaling = toList(ScalingRelationships.ELLSWORTH_B);
-			scaling = toList(ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP,
+//		List<LogicTreeBranchNode<?>> scaling = toList(ScalingRelationships.ELLSWORTH_B);
+		List<LogicTreeBranchNode<?>> scaling = toList(ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP,
 					ScalingRelationships.ELLSWORTH_B, ScalingRelationships.ELLB_SQRT_LENGTH, ScalingRelationships.HANKS_BAKUN_08);
-		}
 		limitations.add(scaling);
 
 		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class);
@@ -354,8 +337,35 @@ public class LogicTreePBSWriter {
 
 		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class);
 		limitations.add(spatialSeis);
+		
+		return new ListBasedTreeTrimmer(limitations);
+	}
 
-		TreeTrimmer trimmer = new ListBasedTreeTrimmer(limitations);
+	/**
+	 * @param args
+	 * @throws IOException 
+	 * @throws DocumentException 
+	 */
+	public static void main(String[] args) throws IOException, DocumentException {
+		String runName = "quick-test";
+		if (args.length > 1)
+			runName = args[1];
+		runName = df.format(new Date())+"-"+runName;
+		//		runName = "2012_03_02-weekend-converg-test";
+
+		//		RunSites site = RunSites.RANGER;
+		//		RunSites site = RunSites.EPICENTER;
+		RunSites site = RunSites.HPCC;
+
+		//		String nameAdd = "VarSub5_0.3";
+		String nameAdd = null;
+
+		int numRuns = 1;
+		int runStart = 0;
+
+		boolean lightweight = numRuns > 10;
+
+		TreeTrimmer trimmer = getAllDM_IM_Trimmer(false);
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
 		ArrayList<CustomArg[]> variationBranches = null;

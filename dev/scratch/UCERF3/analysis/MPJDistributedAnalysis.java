@@ -57,6 +57,8 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 		branches = Lists.newArrayList();
 
 		List<List<LogicTreeBranchNode<?>>> limitationsList = Lists.newArrayList();
+		
+		ListBasedTreeTrimmer trimmer;
 
 		limitationsList.add(toList(FaultModels.FM3_1));
 		limitationsList.add(toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG));
@@ -77,8 +79,11 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 //		limitationsList.add(toList(MaxMagOffFault.MAG_7p2));
 //		limitationsList.add(toList(MomentRateFixes.NONE, MomentRateFixes.APPLY_IMPLIED_CC));
 //		limitationsList.add(toList(SpatialSeisPDF.UCERF2, SpatialSeisPDF.UCERF3));
+		
+		trimmer = new ListBasedTreeTrimmer(limitationsList);
+//		trimmer = ListBasedTreeTrimmer.getNonZeroWeightsTrimmer();
 
-		for (LogicTreeBranch branch : new LogicTreeBranchIterator(new ListBasedTreeTrimmer(limitationsList))) {
+		for (LogicTreeBranch branch : new LogicTreeBranchIterator(trimmer)) {
 			branches.add(branch);
 		}
 

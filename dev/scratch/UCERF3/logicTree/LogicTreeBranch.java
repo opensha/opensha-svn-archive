@@ -30,6 +30,13 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 			ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 			MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 	
+	/**
+	 * This is the default reference branch // TODO confirm
+	 */
+	public static final LogicTreeBranch UCERF2 = fromValues(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
+			ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+			MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
+	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> logicTreeClasses;
 	
 	public static synchronized List<Class<? extends LogicTreeBranchNode<?>>> getLogicTreeNodeClasses() {
@@ -142,7 +149,32 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		
 		return away;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((branch == null) ? 0 : branch.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LogicTreeBranch other = (LogicTreeBranch) obj;
+		if (branch == null) {
+			if (other.branch != null)
+				return false;
+		} else if (!branch.equals(other.branch))
+			return false;
+		return true;
+	}
+
 	/**
 	 * 
 	 * @param branch

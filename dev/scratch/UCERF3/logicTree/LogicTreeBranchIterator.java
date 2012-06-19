@@ -16,6 +16,7 @@ public class LogicTreeBranchIterator implements Iterable<LogicTreeBranch>, Itera
 	private LogicTreeBranch next = null;
 	
 	private TreeTrimmer trimmer;
+	private Iterator<LogicTreeBranch> customIt;
 	
 	private boolean exhausted = false;
 	
@@ -25,6 +26,8 @@ public class LogicTreeBranchIterator implements Iterable<LogicTreeBranch>, Itera
 	
 	public LogicTreeBranchIterator(TreeTrimmer trimmer) {
 		this.trimmer = trimmer;
+		if (trimmer instanceof Iterable<?>)
+			customIt = ((Iterable<LogicTreeBranch>)trimmer).iterator();
 		classes = LogicTreeBranch.getLogicTreeNodeClasses();
 		maxNums = new int[classes.size()];
 		curNums = new int[classes.size()];
@@ -39,32 +42,43 @@ public class LogicTreeBranchIterator implements Iterable<LogicTreeBranch>, Itera
 		next = null;
 		if (exhausted)
 			return;
-		mainLoop:
-		while (next == null) {
-//			printNextState();
-			LogicTreeBranch candidate = buildBranch();
-			if (trimmer == null || trimmer.isTreeValid(candidate))
-				next = candidate;
-			
-			// find where to increment
-			for (int i=maxNums.length; --i>=0;) {
-				if (curNums[i] < maxNums[i]) {
-					// this is simple, just increment the current stage
-					curNums[i]++;
-					break;
-				} else {
-					// the current level of the tree is exhausted, set it to zero and keep searching
-					curNums[i] = 0;
-					if (i == 0) {
-						// we're done
-						exhausted = true;
-						break mainLoop;
-					}
-					// reset all children of this back to the start
-					for (int j=i+1; j<curNums.length; j++)
-						curNums[j] = 0;
-				}
+		if (customIt != null) {
+			// use the built in iterator
+			while (customIt.hasNext() && next == null) {
+				LogicTreeBranch candidate = customIt.next();
+				if (trimmer.isTreeValid(candidate))
+					next = candidate;
 			}
+			if (next == null)
+				exhausted = true;
+		} else {
+			mainLoop:
+				while (next == null) {
+					//					printNextState();
+					LogicTreeBranch candidate = buildBranch();
+					if (trimmer == null || trimmer.isTreeValid(candidate))
+						next = candidate;
+
+					// find where to increment
+					for (int i=maxNums.length; --i>=0;) {
+						if (curNums[i] < maxNums[i]) {
+							// this is simple, just increment the current stage
+							curNums[i]++;
+							break;
+						} else {
+							// the current level of the tree is exhausted, set it to zero and keep searching
+							curNums[i] = 0;
+							if (i == 0) {
+								// we're done
+								exhausted = true;
+								break mainLoop;
+							}
+							// reset all children of this back to the start
+							for (int j=i+1; j<curNums.length; j++)
+								curNums[j] = 0;
+						}
+					}
+				}
 		}
 	}
 	
@@ -113,7 +127,8 @@ public class LogicTreeBranchIterator implements Iterable<LogicTreeBranch>, Itera
 	
 	public static void main(String[] args) {
 //		TreeTrimmer trimmer = null;
-		TreeTrimmer trimmer = ListBasedTreeTrimmer.getNonZeroWeightsTrimmer();
+//		TreeTrimmer trimmer = ListBasedTreeTrimmer.getNonZeroWeightsTrimmer();
+		TreeTrimmer trimmer = new ListBasedTreeTrimmer(null, true);
 		LogicTreeBranchIterator it = new LogicTreeBranchIterator(trimmer);
 		
 		int cnt = 0;
