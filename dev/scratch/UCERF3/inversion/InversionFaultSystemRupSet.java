@@ -311,11 +311,17 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		for(int s=0; s<numSections; s++) {
 			double subSeismoMoRate = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate();
 			double origMoRate = getOrigMomentRate(s);
-			double fractionalMoRateReduction;
-			if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff<1)
-				fractionalMoRateReduction = (origMoRate*impliedOnFaultCouplingCoeff-subSeismoMoRate)/origMoRate;
-			else
-				fractionalMoRateReduction = (origMoRate-subSeismoMoRate)/origMoRate;
+			double fractionalMoRateReduction=1;
+			if(origMoRate > 0) { // avoid division by zero
+				if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff<1)
+					fractionalMoRateReduction = (origMoRate*impliedOnFaultCouplingCoeff-subSeismoMoRate)/origMoRate;
+				else
+					fractionalMoRateReduction = (origMoRate-subSeismoMoRate)/origMoRate;
+			}
+			else {
+				System.out.println("Zero MoRate for section (name. DDW, slipRate:\t"+getFaultSectionData(s).getName()+
+						"\t"+getFaultSectionData(s).getReducedDownDipWidth()+"\t"+getFaultSectionData(s).getReducedAveSlipRate());
+			}
 			// apply water level of 10% (to avoid negative slip rates)
 			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
 				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
@@ -644,7 +650,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				"\t"+"targetOnFaultMoRate\tseisMoRateAdded\n";
 		
 		str += logicTreeBranch.getTabSepValString()+"\t"+inversionMFDs.getPreInversionAnalysisData()+
-			"\t"+getTotalReducedMomentRate()+"\t"+seisMoRateAdded;
+			"\t"+(float)getTotalReducedMomentRate()+"\t"+(float)seisMoRateAdded;
 		return str;
 	}
 	
