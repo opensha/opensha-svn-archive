@@ -318,15 +318,15 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				else
 					fractionalMoRateReduction = (origMoRate-subSeismoMoRate)/origMoRate;
 			}
-			else {
-				System.out.println("Zero MoRate for section (name. DDW, slipRate:\t"+getFaultSectionData(s).getName()+
-						"\t"+getFaultSectionData(s).getReducedDownDipWidth()+"\t"+getFaultSectionData(s).getReducedAveSlipRate());
-			}
+//			else {
+//				System.out.println("Zero MoRate for section (name. DDW, slipRate:\t"+getFaultSectionData(s).getName()+
+//						"\t"+getFaultSectionData(s).getReducedDownDipWidth()+"\t"+getFaultSectionData(s).getReducedAveSlipRate());
+//			}
 			// apply water level of 10% (to avoid negative slip rates)
 			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
 				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
 				fractionalMoRateReduction=0.1;
-				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
+//				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
 			}
 			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
