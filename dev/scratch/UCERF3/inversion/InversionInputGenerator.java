@@ -489,9 +489,9 @@ public class InversionInputGenerator {
 						if (excludeParkfieldRupsFromMfdEqualityConstraints==false || !parkfieldRups.contains(rup)) {		
 //							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
 							if (QUICK_GETS_SETS){
-								A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+								A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 								if (targetMagFreqDist.getClosestY(mag)==0) 
-									A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,0);
+									A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,0);
 							}
 							else
 								A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
