@@ -74,6 +74,7 @@ import scratch.UCERF3.utils.IDPairing;
 public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	
 	protected final static boolean D = false;  // for debugging
+	static boolean applySubSeismoMomentReduction = true; // set to false to turn off reductions to slip rate from subseismogenic-rup moment
 	
 	// following are defined in constructor
 	DeformationModels defModName;
@@ -307,7 +308,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		sectSlipRateReduced = new double[numSections];
 		sectSlipRateStdDevReduced = new double[numSections];
 		for(int s=0; s<numSections; s++) {
-			double subSeismoMoRate = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate();
+			double subSeismoMoRate = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate();  
+			if (!applySubSeismoMomentReduction) subSeismoMoRate =0;  // For Testing effect of subseismogenic-rupture slip-rate reduction
 			double origMoRate = getOrigMomentRate(s);
 			double fractionalMoRateReduction=1;
 			if(origMoRate > 0) { // avoid division by zero
