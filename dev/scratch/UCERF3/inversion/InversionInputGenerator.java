@@ -312,7 +312,7 @@ public class InversionInputGenerator {
 						val = slips[i]/0.0001;  
 					else {
 						val = slips[i]/sectSlipRateReduced[row]; 
-						}
+					}
 				}
 				if (Double.isNaN(val))
 					throw new IllegalStateException("A["+row+"]["+col+"] is NaN! sectSlipRateReduced["+row
@@ -326,26 +326,18 @@ public class InversionInputGenerator {
 		}
 		// d vector component of slip-rate constraint
 		for (int sect=0; sect<numSections; sect++) {
-			if ((!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) && sectSlipRateReduced[sect]>=0)
+			if (!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) 
 				d[sect] = sectSlipRateReduced[sect];			
 			else {
-				if (Double.isNaN(sectSlipRateReduced[sect]) || sectSlipRateReduced[sect]<1E-4)
-					// Treat NaN slip rates as 0 (minimize)
-					d[sect] = 0;
-				if (sectSlipRateReduced[sect]<1E-4)
-					// For very small slip rates, do not normalize by slip rate (normalize by 0.0001 instead) so they don't dominate misfit
+				if (sectSlipRateReduced[sect]<1E-4)  // For very small slip rates, do not normalize by slip rate (normalize by 0.0001 instead) so they don't dominate misfit
 					d[sect] = sectSlipRateReduced[sect]/0.0001;
-				if (sectSlipRateReduced[sect]<0) {
-					d[sect] = 0;
-					System.out.println("WARNING: NEGATIVE SLIP RATE!!!  Setting to 0...");
-				}
-				else
-					// Normalize by slip rate
+				else  // Normalize by slip rate
 					d[sect] = 1;
 			}
-			if (Double.isNaN(d[sect]))
-				throw new IllegalStateException("d["+sect
-						+"] is NaN!  sectSlipRateReduced["+sect+"] = "+sectSlipRateReduced[sect]);
+			if (Double.isNaN(sectSlipRateReduced[sect]))  // Treat NaN slip rates as 0 (minimize)
+				d[sect] = 0;
+			if (Double.isNaN(d[sect]) || d[sect]<0)
+				throw new IllegalStateException("d["+sect+"] is NaN or 0!  sectSlipRateReduced["+sect+"] = "+sectSlipRateReduced[sect]);
 		}
 		if (D) {
 			System.out.println("Adding Slip-Rate Constraints took "+getTimeStr(watch)+".");
