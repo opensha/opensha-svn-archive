@@ -242,6 +242,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			String name = entry.getName();
 			if (!name.endsWith(".csv"))
 				continue;
+//			System.out.println("Parsing: "+name);
 			VariableLogicTreeBranch candidate = loadBranchForName(name);
 			if (!branch.matchesNonNulls(candidate)) {
 				continue;
@@ -266,6 +267,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			if (sub.contains("_Var"))
 				sub = sub.substring(0, sub.indexOf("_Var"));
 			vars.add(sub);
+			System.out.println("VARIATION: "+sub);
 		}
 		return vars;
 	}
@@ -350,7 +352,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 				variations.add(variation);
 			}
 		}
-		return new VariableLogicTreeBranch(LogicTreeBranch.fromValues(nodes), variations);
+		return new VariableLogicTreeBranch(LogicTreeBranch.fromValues(
+				false, nodes.toArray(new LogicTreeBranchNode[0])), variations);
 	}
 	
 	private void buildFunctions(VariableLogicTreeBranch branch) {
@@ -373,7 +376,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 
 			for (int i=0; i<branch.size(); i++) {
 				LogicTreeBranchNode<?> node = branch.getValue(i);
-				if (branch == null) {
+				if (node == null) {
 					diffNames.add(candidate.getValue(i).getShortName());
 				}
 			}
@@ -861,6 +864,32 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 						return false;
 				}
 			}
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result
+					+ ((variations == null) ? 0 : variations.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!super.equals(obj))
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			VariableLogicTreeBranch other = (VariableLogicTreeBranch) obj;
+			if (variations == null) {
+				if (other.variations != null)
+					return false;
+			} else if (!variations.equals(other.variations))
+				return false;
 			return true;
 		}
 		
