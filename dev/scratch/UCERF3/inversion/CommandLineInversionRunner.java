@@ -72,7 +72,11 @@ public class CommandLineInversionRunner {
 		A_PRIORI_CONST_WT("apwt", "a-priori-wt", "APrioriWt", true, "A priori constraint weight"),
 		WATER_LEVEL_FRACT("wtlv", "waterlevel", "Waterlevel", true, "Waterlevel fraction"),
 		PARKFIELD_WT("pkfld", "parkfield-wt", "Parkfield", true, "Parkfield constraint weight"),
-		PALEO_WT("paleo", "paleo-wt", "Paleo", true, "Paleoconstraint weight");
+		PALEO_WT("paleo", "paleo-wt", "Paleo", true, "Paleoconstraint weight"),
+//		NO_SUBSEIS_RED("nosub", "no-subseismo", "NoSubseismo", false,
+//				"Flag to turn off subseimogenic reductions"),
+		MFD_WT("mfd", "mfd-wt", "MFDWt", true, "MFD constraint wt"),
+		INITIAL_ZERO("zeros", "initial-zeros", "Zeros", false, "Force initial state to zeros");
 		
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -195,6 +199,10 @@ public class CommandLineInversionRunner {
 				defaultAseis = Double.parseDouble(aseisVal);
 			}
 			
+			// flag for disabling sub seismogenic moment reductions
+//			InversionFaultSystemRupSet.applySubSeismoMomentReduction = !cmd.hasOption(InversionOptions.NO_SUBSEIS_RED.argName);
+			
+			
 			// first build the rupture set
 			System.out.println("Building RupSet");
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
@@ -212,6 +220,13 @@ public class CommandLineInversionRunner {
 			if (branch.getValue(MomentRateFixes.class).isRelaxMFD()) {
 				mfdEqualityConstraintWt = 1;
 				mfdInequalityConstraintWt = 1;
+			}
+			
+			if (cmd.hasOption(InversionOptions.MFD_WT.argName)) {
+				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.MFD_WT.argName));
+				System.out.println("Setting MFD constraint wt: "+wt);
+				mfdEqualityConstraintWt = wt;
+				mfdInequalityConstraintWt = wt;
 			}
 			
 			System.out.println("Building Inversion Configuration");
@@ -276,6 +291,8 @@ public class CommandLineInversionRunner {
 			DoubleMatrix2D A = gen.getA();
 			double[] d = gen.getD();
 			double[] initialState = gen.getInitial();
+			if (cmd.hasOption(InversionOptions.INITIAL_ZERO.argName))
+				initialState = new double[initialState.length];
 			DoubleMatrix2D A_ineq = gen.getA_ineq();
 			double[] d_ineq = gen.getD_ineq();
 			double[] minimumRuptureRates = gen.getMinimumRuptureRates();

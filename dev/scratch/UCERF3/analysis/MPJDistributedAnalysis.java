@@ -60,10 +60,10 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 		
 		ListBasedTreeTrimmer trimmer;
 
-		limitationsList.add(toList(FaultModels.FM3_1));
+		limitationsList.add(toList(FaultModels.FM3_1, FaultModels.FM3_2));
 		limitationsList.add(toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG));
 		limitationsList.add(toList(InversionModels.CHAR_CONSTRAINED, InversionModels.GR_CONSTRAINED));
-		limitationsList.add(toList(SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM));
+		limitationsList.add(toList(SlipAlongRuptureModels.TAPERED));
 		limitationsList.add(toList(ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_2009_MOD));
 		limitationsList.add(toList(TotalMag5Rate.RATE_8p7, TotalMag5Rate.RATE_7p1, TotalMag5Rate.RATE_10p6));
 		limitationsList.add(toList(MaxMagOffFault.MAG_7p2, MaxMagOffFault.MAG_7p6, MaxMagOffFault.MAG_8p0));

@@ -41,7 +41,8 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_lowerbound__MAPPED_2012_06_05.csv"),
 	// GEOLOGIC + ABM
 	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	0d,		FaultModels.FM3_1,	"geologic_plus_ABM_slip_rake_fm_3_1_2012_06_08.csv",
-																		FaultModels.FM3_2,	"geologic_plus_ABM_slip_rake_fm_3_2_2012_06_08.csv");
+																		FaultModels.FM3_2,	"geologic_plus_ABM_slip_rake_fm_3_2_2012_06_08.csv"),
+	GEOL_P_ABM_OLD_MAPPED(	"Geologic + ABM OLD",	"GLpABMOLD",0d,		FaultModels.FM3_1,	"geologic_plus_ABM_slip_rake__MAPPED_2012_06_05.csv");
 	
 	private List<FaultModels> faultModels;
 	private List<String> fileNames;

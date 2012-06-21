@@ -82,6 +82,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	private List<Integer> rangeEndRows;
 	private List<String> rangeNames;
 	
+	private DoubleMatrix2D A;
+	private DoubleMatrix2D A_ineq;
+	
 	public ThreadedSimulatedAnnealing(
 			DoubleMatrix2D A, double[] d, double[] initialState,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
@@ -107,6 +110,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			sas.add(new SerialSimulatedAnnealing(A, d, initialState, relativeSmoothnessWt, A_ineq, d_ineq));
 		
 		xbest = sas.get(0).getBestSolution();
+		
+		this.A = A;
+		this.A_ineq = A_ineq;
 	}
 	
 	public CompletionCriteria getSubCompetionCriteria() {
@@ -1027,6 +1033,11 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		builder.append("Threads per node: "+getNumThreads()+"\n");
 		builder.append(""+"\n");
 		builder.append("Solution size: "+getBestSolution().length+"\n");
+		builder.append("A matrix size: "+A.rows()+"x"+A.columns()+"\n");
+		if (A_ineq == null)
+			builder.append("A_ineq matrix size: (null)\n");
+		else
+			builder.append("A_ineq matrix size: "+A_ineq.rows()+"x"+A_ineq.columns()+"\n");
 		double[] e = getBestEnergy();
 		builder.append("Best energy: "+Doubles.join(", ", e)+"\n");
 		if (rangeNames != null) {

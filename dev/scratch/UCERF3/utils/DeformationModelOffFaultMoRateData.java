@@ -320,6 +320,10 @@ public class DeformationModelOffFaultMoRateData {
 				if (abmPlusGeol_Fm3pt1_xyzData == null) makeGeolData();
 				data = abmPlusGeol_Fm3pt1_xyzData;
 				break;
+			case GEOL_P_ABM_OLD_MAPPED:
+				if (abmPlusGeol_Fm3pt1_xyzData == null) makeGeolData();
+				data = abmPlusGeol_Fm3pt1_xyzData;
+				break;
 			}
 		}
 
