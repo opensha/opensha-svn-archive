@@ -178,13 +178,11 @@ public class InversionInputGenerator {
 		}
 		
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
-			double[] relativeRupRateConstraintWt = config.getA_PrioriRupConstraint();
+			double[] aPrioriRupRates = config.getA_PrioriRupConstraint();
 			int numRupRateRows = 0;
 			for (int i=0; i<numRuptures; i++) 
-				if (!aPrioriConstraintForZeroRates) {
-					if (relativeRupRateConstraintWt[i]>0) 	numRupRateRows++;	}
-				else
-					numRupRateRows++;
+					if ( aPrioriRupRates[i]>0) 	numRupRateRows++;	
+			if (aPrioriConstraintForZeroRates) numRupRateRows++;
 			if(D) System.out.println("Number of rupture-rate constraints: "+numRupRateRows);
 			numRows += numRupRateRows;
 			rangeEndRows.add(numRows-1);
@@ -400,14 +398,20 @@ public class InversionInputGenerator {
 					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
 					numNonZeroElements++; rowIndex++;
 				}
-				else if (aPrioriConstraintForZeroRates) {
-					if (QUICK_GETS_SETS) 
-						A.setQuick(rowIndex,rup,zeroRupRateConstraintWt);
-					else
-						A.set(rowIndex,rup,zeroRupRateConstraintWt);
-					d[rowIndex]=aPrioriRupConstraint[rup]*zeroRupRateConstraintWt;
-					numNonZeroElements++; rowIndex++;
+			}
+			// If aPrioriConstrintforZeroRates=true, constrain sum of all these rupture rates to be zero (minimize - adding only one row to A matrix)
+			if (aPrioriConstraintForZeroRates) {
+				for(int rup=0; rup<numRuptures; rup++) {
+					if (aPrioriRupConstraint[rup]==0) { 
+						if (QUICK_GETS_SETS) 
+							A.setQuick(rowIndex,rup,zeroRupRateConstraintWt);
+						else
+							A.set(rowIndex,rup,zeroRupRateConstraintWt);
+						numNonZeroElements++; 
+					}
 				}	
+				d[rowIndex]=0;
+				rowIndex++;
 			}
 			if (D) {
 				System.out.println("Adding rupture-rate Constraints took "+getTimeStr(watch)+".");
