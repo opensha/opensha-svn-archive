@@ -74,7 +74,7 @@ import scratch.UCERF3.utils.IDPairing;
 public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	
 	protected final static boolean D = false;  // for debugging
-	static boolean applySubSeismoMomentReduction = true; // set to false to turn off reductions to slip rate from subseismogenic-rup moment
+//	static boolean applySubSeismoMomentReduction = true; // set to false to turn off reductions to slip rate from subseismogenic-rup moment
 	
 	// following are defined in constructor
 	DeformationModels defModName;
@@ -307,27 +307,39 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		// compute sectSlipRateReduced
 		sectSlipRateReduced = new double[numSections];
 		sectSlipRateStdDevReduced = new double[numSections];
+		
+		// compute the average moment rate fraction for sub-seismo ruptures
+		// Note the numerator is reduced if desired, but the denominator (original total moment rate is not reduced) 
+		double aveSubSeismoMoRateFraction = inversionMFDs.getTotalSubSeismoOnFaultMFD().getTotalMomentRate()/inversionMFDs.getOrigOnFltDefModMoRate();
+		
+		// now compute reduced slip rates and their std
 		for(int s=0; s<numSections; s++) {
-			double subSeismoMoRate = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate();  
-			if (!applySubSeismoMomentReduction) subSeismoMoRate =0;  // For Testing effect of subseismogenic-rupture slip-rate reduction
 			double origMoRate = getOrigMomentRate(s);
+			double subSeismoMoRateReduced;
+			if(inversionModel.isCharacteristic())
+				subSeismoMoRateReduced = origMoRate*aveSubSeismoMoRateFraction;	// apply same average value to all sections to avoid wild changes in fractional reduction
+			else	// GR branch
+				subSeismoMoRateReduced = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate(); 	// apply section-specific value; this is already reduced if desired
+
 			double fractionalMoRateReduction=1;
 			if(origMoRate > 0) { // avoid division by zero
 				if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff<1)
-					fractionalMoRateReduction = (origMoRate*impliedOnFaultCouplingCoeff-subSeismoMoRate)/origMoRate;
+					fractionalMoRateReduction = (origMoRate*impliedOnFaultCouplingCoeff-subSeismoMoRateReduced)/origMoRate;
 				else
-					fractionalMoRateReduction = (origMoRate-subSeismoMoRate)/origMoRate;
+					fractionalMoRateReduction = (origMoRate-subSeismoMoRateReduced)/origMoRate;
 			}
+			
+			// FOLLOWING NO LONGER NEEDED:
 //			else {
 //				System.out.println("Zero MoRate for section (name. DDW, slipRate:\t"+getFaultSectionData(s).getName()+
 //						"\t"+getFaultSectionData(s).getReducedDownDipWidth()+"\t"+getFaultSectionData(s).getReducedAveSlipRate());
 //			}
 			// apply water level of 10% (to avoid negative slip rates)
-			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
-				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
-				fractionalMoRateReduction=0.1;
-//				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
-			}
+//			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
+//				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
+//				fractionalMoRateReduction=0.1;
+////				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
+//			}
 			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 		}

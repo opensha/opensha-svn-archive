@@ -1410,7 +1410,7 @@ public class FaultSystemRupSetCalc {
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
 		System.out.println(rupSet.getPreInversionAnalysisData(true));
-		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
+		plotPreInversionMFDs(rupSet, false, false, false, "preInvGR_MFDs.pdf");
 		
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 //				InversionModels.GR_UNCONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 

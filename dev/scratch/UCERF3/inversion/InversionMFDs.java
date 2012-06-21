@@ -218,18 +218,19 @@ public class InversionMFDs {
 				}
 			}
 			
-			// If we want the NoFix branch to return a target MFD consistent with observations
-			// (to let inversion decide where to cut slip rates):
-			// scale target and subtract scaled subseismo MFDs
-			// NEED TO APPLY TO SUBSEISMO AND N VS S CAL MFDs
-//			if(!applyImpliedCouplingCoeff) { //  only do if CC not applied above
-//				targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-//				for(int i=0; i<targetOnFaultSupraSeisMFD.getNum();i++) {
-//					targetOnFaultSupraSeisMFD.add(i,(totalTargetGR.getY(i)*fractionSeisOnFault - totalSubSeismoOnFaultMFD.getY(i)*impliedOnFaultCouplingCoeff));
-//				}
-//			}
+			// If on the NoFix branch, we need to reduce totalSubSeismoOnFaultMFD and targetOnFaultSupraSeisMFD so
+			// that they sum with trulyOffFaultMFD to match the regional target (where we let the inversion reduce the slip
+			// rates); Note that we are not reducing subSeismoOnFaultMFD_List because these are used elsewhere in reducing final
+			// target slip rates; Note that subSeismoOnFaultMFD_List needs to be recomputed on this GR NoFix branch
+			// since final slip rates will vary (and we need the subseismo GR to be consistent with the supra-seismo GR)
+			if(!applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff < 1.0) {
+				totalSubSeismoOnFaultMFD.scale(impliedOnFaultCouplingCoeff);
+				targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+				targetOnFaultSupraSeisMFD.addIncrementalMagFreqDist(totalTargetGR);
+				targetOnFaultSupraSeisMFD.scale(fractionSeisOnFault);
+				targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
+			}
 			
-
 			trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
 //			trulyOffFaultMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
 			trulyOffFaultMFD.scaleToCumRate(0, offFaultRegionRateMgt5*1e5);
@@ -302,6 +303,8 @@ public class InversionMFDs {
 	
 	public GutenbergRichterMagFreqDist getTotalTargetGR_SoCal() {return totalTargetGR_SoCal;}
 	
+	public double getOrigOnFltDefModMoRate() {return origOnFltDefModMoRate; }
+	
 	
 	
 	/**
@@ -313,7 +316,7 @@ public class InversionMFDs {
 	public List<MFD_InversionConstraint> getMFD_ConstraintsForNoAndSoCal() { return mfdConstraintsForNoAndSoCal; }
 	
 	public String getPreInversionAnalysisData() {
-		String str = fractionSeisOnFault+"\t" +
+		String str = (float)fractionSeisOnFault+"\t" +
 			(float)fractSeisInSoCal+"\t"+
 			(float)roundedMmaxOnFault+"\t" +
 			(float)aveMinSeismoMag+"\t" +
