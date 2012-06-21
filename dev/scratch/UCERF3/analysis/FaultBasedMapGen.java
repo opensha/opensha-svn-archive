@@ -173,8 +173,11 @@ public class FaultBasedMapGen {
 //			values[i] = calcFractionalDifferentce(targetSlips[i], solSlips[i]);
 //		CPT cpt = getFractionalDifferenceCPT();
 //		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_slip_misfit", display, false, "Solution Slip Rate Misfit (fractional diff)");
-		for (int i=0; i<faults.size(); i++)
+		for (int i=0; i<faults.size(); i++) {
+			if (solSlips[i] == 0 && targetSlips[i] == 0)
+				values[i] = 1;
 			values[i] = solSlips[i] / targetSlips[i];
+		}
 		CPT cpt;
 		prefix += "_slip_misfit";
 		String name = "Solution Slip / Target Slip";
