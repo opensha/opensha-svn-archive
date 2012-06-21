@@ -106,7 +106,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	int numRuptures=0;
 	double maxMag;	// this is the maximum magnitude in the rupture set
 	final static double MIN_MO_RATE_REDUCTION = 0.1;
-	double seisMoRateAdded;	// this is the moment added subseismo MFD MoRate exceeds fault section MoRate
+//	double seisMoRateAdded;	// this is the moment added subseismo MFD MoRate exceeds fault section MoRate
 	
 	// this holds the various MFDs implied by the inversion fault system rupture set 
 	// (e.g., we need to know the sub-seismo on-fault moment rates to reduce slip rates accordingly)
@@ -650,10 +650,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
  
 		if(includeHeader)
 			str += logicTreeBranch.getTabSepValStringHeader()+"\t"+inversionMFDs.getPreInversionAnalysisDataHeader()+
-				"\t"+"targetOnFaultMoRate\tseisMoRateAdded\tMMaxOffFaultIfDefModMoRateSatisfied\n";
+				"\t"+"targetOnFaultMoRate\tMMaxOffFaultIfDefModMoRateSatisfied\n";
 		
 		str += logicTreeBranch.getTabSepValString()+"\t"+inversionMFDs.getPreInversionAnalysisData()+
-			"\t"+(float)getTotalReducedMomentRate()+"\t"+(float)seisMoRateAdded+"\t"+(float)inversionMFDs.getOffFaultMmaxIfOrigMoRateSatisfied();
+			"\t"+(float)getTotalReducedMomentRate()+"\t"+(float)inversionMFDs.getOffFaultMmaxIfOrigMoRateSatisfied();
 		return str;
 	}
 	

@@ -115,8 +115,6 @@ public class InversionMFDs {
 		totalTargetGR_SoCal = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);	
 		totalTargetGR_SoCal.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRegionRateMgt5*fractSeisInSoCal*1e5, 1.0);
 		
-		
-		
 		// get ave min seismo mag for region
 		double tempMag = FaultSystemRupSetCalc.getMeanMinMag(fltSysRupSet, true);
 		aveMinSeismoMag = totalTargetGR.getX(totalTargetGR.getClosestXIndex(tempMag));	// round to nearest MFD value
@@ -229,6 +227,12 @@ public class InversionMFDs {
 				targetOnFaultSupraSeisMFD.addIncrementalMagFreqDist(totalTargetGR);
 				targetOnFaultSupraSeisMFD.scale(fractionSeisOnFault);
 				targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
+				noCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+				soCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+				for(int i=0;i<targetOnFaultSupraSeisMFD.getNum();i++) {
+					noCalTargetMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*(1.0-fractSeisInSoCal));
+					soCalTargetMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
+				}
 			}
 			
 			trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
