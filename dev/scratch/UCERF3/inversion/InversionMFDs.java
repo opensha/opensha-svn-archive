@@ -32,7 +32,7 @@ public class InversionMFDs {
 	String debugString;
 
 	FaultSystemRupSet fltSysRupSet;
-	double totalRegionRateMgt5;
+	double totalRegionRateMgt5, onFaultRegionRateMgt5, offFaultRegionRateMgt5;
 	double mMaxOffFault;
 	boolean applyImpliedCouplingCoeff;
 	SpatialSeisPDF spatialSeisPDF;
@@ -98,8 +98,8 @@ public class InversionMFDs {
 
 		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDF);
 
-		double onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
-		double offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;
+		onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
+		offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;
 		origOnFltDefModMoRate = DeformationModelsCalc.calculateTotalMomentRate(faultSectionData,true);
 		offFltDefModMoRate = DeformationModelsCalc.calcMoRateOffFaultsForDefModel(fltSysRupSet.getFaultModel(), fltSysRupSet.getDeformationModel());
 
@@ -217,6 +217,18 @@ public class InversionMFDs {
 					soCalTargetMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*fractSectInSoCal);
 				}
 			}
+			
+			// If we want the NoFix branch to return a target MFD consistent with observations
+			// (to let inversion decide where to cut slip rates):
+			// scale target and subtract scaled subseismo MFDs
+			// NEED TO APPLY TO SUBSEISMO AND N VS S CAL MFDs
+//			if(!applyImpliedCouplingCoeff) { //  only do if CC not applied above
+//				targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+//				for(int i=0; i<targetOnFaultSupraSeisMFD.getNum();i++) {
+//					targetOnFaultSupraSeisMFD.add(i,(totalTargetGR.getY(i)*fractionSeisOnFault - totalSubSeismoOnFaultMFD.getY(i)*impliedOnFaultCouplingCoeff));
+//				}
+//			}
+			
 
 			trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
 //			trulyOffFaultMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
@@ -347,6 +359,31 @@ public class InversionMFDs {
 		return str;
 	}
 
+	/**
+	 * This returns the maximum magnitude off fault if the total original off-fault 
+	 * moment rate is satisfied.  If (inversionModel.isCharacteristic() == true), Double.NaN 
+	 * is returned if it's impossible to satisfy the moment rate.
+	 * @return
+	 */
+	public double getOffFaultMmaxIfOrigMoRateSatisfied() {
+		double maxOffMagWithFullMoment;
+		if(inversionModel.isCharacteristic()) {
+			IncrementalMagFreqDist charOffMFD = FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(offFltDefModMoRate, 
+					totalTargetGR, onFaultRegionRateMgt5, aveMinSeismoMag);
+			if(charOffMFD != null)
+				maxOffMagWithFullMoment = charOffMFD.getMaxMagWithNonZeroRate();
+			else
+				maxOffMagWithFullMoment = Double.NaN;
+		}
+		else {
+			GutenbergRichterMagFreqDist tempOffFaultGR = new GutenbergRichterMagFreqDist(0.005, 2000, 0.01);
+			tempOffFaultGR.setAllButMagUpper(0.005, offFltDefModMoRate, offFaultRegionRateMgt5*1e5, 1.0, true);
+			maxOffMagWithFullMoment = tempOffFaultGR.getMagUpper();
+		}
+			
+		return maxOffMagWithFullMoment;
+
+	}
 
 
 }

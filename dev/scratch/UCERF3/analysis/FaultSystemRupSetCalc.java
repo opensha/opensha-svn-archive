@@ -818,19 +818,19 @@ public class FaultSystemRupSetCalc {
 //		fltModList.add(FaultModels.FM3_2);	// 3% higher on-fault MoRate, and 5% lower off-fault moRate;  Not worth looping over
 		
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
-//		defModList.add(DeformationModels.GEOLOGIC);
-		defModList.add(DeformationModels.ABM);
+		defModList.add(DeformationModels.GEOLOGIC);
+//		defModList.add(DeformationModels.ABM);
 //		defModList.add(DeformationModels.NEOKINEMA);
 //		defModList.add(DeformationModels.ZENG);
 		
 		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
 		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
-		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+//		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
 //		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
 
 		ArrayList<InversionModels> invModList = new ArrayList<InversionModels>();
 		invModList.add(InversionModels.CHAR_CONSTRAINED);
-//		invModList.add(InversionModels.GR_CONSTRAINED);
+		invModList.add(InversionModels.GR_CONSTRAINED);
 		
 		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
 		mag5RateList.add(TotalMag5Rate.RATE_8p7);
@@ -838,13 +838,13 @@ public class FaultSystemRupSetCalc {
 		mag5RateList.add(TotalMag5Rate.RATE_10p6);
 		
 		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
-		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
-//		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
-		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
+//		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
+//		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
 		
 		ArrayList<MomentRateFixes> moRateFixList = new ArrayList<MomentRateFixes>();
 		moRateFixList.add(MomentRateFixes.NONE);
-		moRateFixList.add(MomentRateFixes.APPLY_IMPLIED_CC);
+//		moRateFixList.add(MomentRateFixes.APPLY_IMPLIED_CC);
 
 		ArrayList<SpatialSeisPDF> seisPDFList = new ArrayList<SpatialSeisPDF>();
 		seisPDFList.add(SpatialSeisPDF.UCERF3);
@@ -880,7 +880,7 @@ public class FaultSystemRupSetCalc {
 			}
 		}
 		try {
-			File dataFile = new File("PreInversionDataForAnalysis4.txt");
+			File dataFile = new File("PreInversionDataForAnalysis0.txt");
 			FileWriter fw = new FileWriter(dataFile);
 			for(String str: strings) {
 				fw.write(str+"\n");
@@ -1222,8 +1222,7 @@ public class FaultSystemRupSetCalc {
 		totalGridSeis.addIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
 		totalGridSeis.setName("totalGridSeis (trulyOffFaultMFD plus totalSubSeismoOnFaultMFD)");
 		totalGridSeis.setInfo("Rate(M>=5)="+(float)totalGridSeis.getCumRate(5.05)+"\tMoRate="+(float)totalGridSeis.getTotalMomentRate());							
-
-		
+	
 		ArrayList<IncrementalMagFreqDist> mfds = new ArrayList<IncrementalMagFreqDist>();
 		mfds.add(targetOnFaultSupraSeisMFD);
 		mfds.add(trulyOffFaultMFD);
@@ -1232,11 +1231,19 @@ public class FaultSystemRupSetCalc {
 		mfds.add(totalGridSeis);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.CYAN));
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.PINK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.GREEN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.PINK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.GRAY));
 		
+		SummedMagFreqDist totalOnFaultTarget = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
+		totalOnFaultTarget.addIncrementalMagFreqDist(totalTargetGR);
+		totalOnFaultTarget.subtractIncrementalMagFreqDist(trulyOffFaultMFD);
+		totalOnFaultTarget.setName("totalOnFaultTarget (totalTargetGR minus trulyOffFaultMFD)");
+		totalOnFaultTarget.setInfo("Rate(M>=5)="+(float)totalOnFaultTarget.getCumRate(5.05)+"\tMoRate="+(float)totalOnFaultTarget.getTotalMomentRate());							
+		mfds.add(totalOnFaultTarget);
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.ORANGE));
+
 		if(plotSumTests) {
 			SummedMagFreqDist totalTest = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
 			totalTest.addIncrementalMagFreqDist(trulyOffFaultMFD);
@@ -1399,15 +1406,15 @@ public class FaultSystemRupSetCalc {
 //		testAllInversionSetups();
 		
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
-				InversionModels.GR_UNCONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
+				InversionModels.GR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
-		plotPreInversionMFDs(rupSet, false, true, false, "preInvPlot3.pdf");
+		System.out.println(rupSet.getPreInversionAnalysisData(true));
+		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
 		
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 //				InversionModels.GR_UNCONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 
 //				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-//		System.out.println(rupSet.getPreInversionAnalysisData(true));
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
 		

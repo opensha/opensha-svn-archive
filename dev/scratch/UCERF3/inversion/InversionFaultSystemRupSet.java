@@ -632,14 +632,16 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	public LogicTreeBranch getLogicTreeBranch() { return logicTreeBranch; }
 	
 	public String getPreInversionAnalysisData(boolean includeHeader) {
+		
+
 		String str = "";
  
 		if(includeHeader)
 			str += logicTreeBranch.getTabSepValStringHeader()+"\t"+inversionMFDs.getPreInversionAnalysisDataHeader()+
-				"\t"+"targetOnFaultMoRate\tseisMoRateAdded\n";
+				"\t"+"targetOnFaultMoRate\tseisMoRateAdded\tMMaxOffFaultIfDefModMoRateSatisfied\n";
 		
 		str += logicTreeBranch.getTabSepValString()+"\t"+inversionMFDs.getPreInversionAnalysisData()+
-			"\t"+(float)getTotalReducedMomentRate()+"\t"+(float)seisMoRateAdded;
+			"\t"+(float)getTotalReducedMomentRate()+"\t"+(float)seisMoRateAdded+"\t"+(float)inversionMFDs.getOffFaultMmaxIfOrigMoRateSatisfied();
 		return str;
 	}
 	
