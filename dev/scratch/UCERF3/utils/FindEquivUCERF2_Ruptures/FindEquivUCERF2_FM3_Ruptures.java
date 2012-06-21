@@ -1312,17 +1312,13 @@ if(debug) System.exit(0);
 
 		System.out.println("Getting rup set");
 		
-   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(true,
-   				FaultModels.FM3_2,DeformationModels.GEOLOGIC,InversionModels.CHAR_CONSTRAINED);
-		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_2);
+   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(
+   				FaultModels.FM3_1,DeformationModels.GEOLOGIC,InversionModels.CHAR_CONSTRAINED);
+		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
 		
-//		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);
-//		FindEquivUCERF2_FM3_Ruptures test = new FindEquivUCERF2_FM3_Ruptures(faultSysRupSet, precompDataDir, FaultModels.FM3_1);
-
 		System.out.println("Done getting rup set");
 		
-		
-		test.plotMFD_Test();
+//		test.plotMFD_Test();
 		
 		test.plotGMT_MapRatio_Tests();
 

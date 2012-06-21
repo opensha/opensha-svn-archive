@@ -18,6 +18,7 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -44,6 +45,8 @@ import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
+import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 
 /**
  * This class hosts various calculations for a FaultSystemRupSet
@@ -1185,7 +1188,16 @@ public class FaultSystemRupSetCalc {
 	}
 
 	
-	public static void plotPreInversionMFDs(InversionFaultSystemRupSet invFltSysRupSet) {
+	/**
+	 * 
+	 * @param invFltSysRupSet
+	 * @param plotNvsScalTargets
+	 * @param plotSumTests
+	 * @param addUCERF2_MFDs
+	 * @param pdfFileName - set as null if you don't want to save a PDF file
+	 */
+	public static void plotPreInversionMFDs(InversionFaultSystemRupSet invFltSysRupSet, boolean plotNvsScalTargets, 
+			boolean plotSumTests, boolean addUCERF2_MFDs, String pdfFileName) {
 		
 		InversionMFDs inversionMFDs = invFltSysRupSet.getInversionMFDs();
 		
@@ -1205,19 +1217,11 @@ public class FaultSystemRupSetCalc {
 		totalTargetGR.setName("totalTargetGR");
 		totalTargetGR.setInfo("Rate(M>=5)="+(float)totalTargetGR.getCumRate(5.05)+"\tMoRate="+(float)totalTargetGR.getTotalMomentRate());
 		
-		IncrementalMagFreqDist noCalTargetFaultMFD  =inversionMFDs.getMFD_ConstraintsForNoAndSoCal().get(0).getMagFreqDist();
-		noCalTargetFaultMFD.setName("noCalTargetFaultMFD");
-		noCalTargetFaultMFD.setInfo("Rate(M>=5)="+(float)noCalTargetFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)noCalTargetFaultMFD.getTotalMomentRate());
-
-		IncrementalMagFreqDist soCalTargetFaultMFD  =inversionMFDs.getMFD_ConstraintsForNoAndSoCal().get(1).getMagFreqDist();
-		soCalTargetFaultMFD.setName("soCalTargetFaultMFD");
-		soCalTargetFaultMFD.setInfo("Rate(M>=5)="+(float)soCalTargetFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)soCalTargetFaultMFD.getTotalMomentRate());
-
-		SummedMagFreqDist testTarget = new SummedMagFreqDist(soCalTargetFaultMFD.getX(0),soCalTargetFaultMFD.getNum(),soCalTargetFaultMFD.getDelta());
-		testTarget.addIncrementalMagFreqDist(noCalTargetFaultMFD);
-		testTarget.addIncrementalMagFreqDist(soCalTargetFaultMFD);
-		testTarget.setName("testTarget (should equal targetOnFaultSupraSeisMFD");
-		testTarget.setInfo("Rate(M>=5)="+(float)testTarget.getCumRate(5.05)+"\tMoRate="+(float)testTarget.getTotalMomentRate());
+		SummedMagFreqDist totalGridSeis = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
+		totalGridSeis.addIncrementalMagFreqDist(trulyOffFaultMFD);
+		totalGridSeis.addIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
+		totalGridSeis.setName("totalGridSeis (trulyOffFaultMFD plus totalSubSeismoOnFaultMFD)");
+		totalGridSeis.setInfo("Rate(M>=5)="+(float)totalGridSeis.getCumRate(5.05)+"\tMoRate="+(float)totalGridSeis.getTotalMomentRate());							
 
 		
 		ArrayList<IncrementalMagFreqDist> mfds = new ArrayList<IncrementalMagFreqDist>();
@@ -1225,11 +1229,59 @@ public class FaultSystemRupSetCalc {
 		mfds.add(trulyOffFaultMFD);
 		mfds.add(totalSubSeismoOnFaultMFD);
 		mfds.add(totalTargetGR);
-		mfds.add(noCalTargetFaultMFD);
-		mfds.add(soCalTargetFaultMFD);
-		mfds.add(testTarget);
+		mfds.add(totalGridSeis);
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.CYAN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.PINK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.GREEN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.GRAY));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Pre-Inversion MFDs");
+		if(plotSumTests) {
+			SummedMagFreqDist totalTest = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
+			totalTest.addIncrementalMagFreqDist(trulyOffFaultMFD);
+			totalTest.addIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
+			totalTest.setName("totalTest (trulyOffFaultMFD plus totalSubSeismoOnFaultMFD plus targetOnFaultSupraSeisMFD)");
+			totalTest.setInfo("Rate(M>=5)="+(float)totalTest.getCumRate(5.05)+"\tMoRate="+(float)totalTest.getTotalMomentRate());	
+			mfds.add(totalTest);
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS,4f,Color.BLACK));
+		}
+
+		
+		if(plotNvsScalTargets) {
+			IncrementalMagFreqDist noCalTargetFaultMFD  =inversionMFDs.getMFD_ConstraintsForNoAndSoCal().get(0).getMagFreqDist();
+			noCalTargetFaultMFD.setName("noCalTargetFaultMFD");
+			noCalTargetFaultMFD.setInfo("Rate(M>=5)="+(float)noCalTargetFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)noCalTargetFaultMFD.getTotalMomentRate());
+			IncrementalMagFreqDist soCalTargetFaultMFD  =inversionMFDs.getMFD_ConstraintsForNoAndSoCal().get(1).getMagFreqDist();
+			soCalTargetFaultMFD.setName("soCalTargetFaultMFD");
+			soCalTargetFaultMFD.setInfo("Rate(M>=5)="+(float)soCalTargetFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)soCalTargetFaultMFD.getTotalMomentRate());
+			mfds.add(noCalTargetFaultMFD);
+			mfds.add(soCalTargetFaultMFD);
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.ORANGE));
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.YELLOW));
+			if(plotSumTests) {
+				SummedMagFreqDist testTarget = new SummedMagFreqDist(soCalTargetFaultMFD.getX(0),soCalTargetFaultMFD.getNum(),soCalTargetFaultMFD.getDelta());
+				testTarget.addIncrementalMagFreqDist(noCalTargetFaultMFD);
+				testTarget.addIncrementalMagFreqDist(soCalTargetFaultMFD);
+				testTarget.setName("testTarget (should equal targetOnFaultSupraSeisMFD");
+				testTarget.setInfo("Rate(M>=5)="+(float)testTarget.getCumRate(5.05)+"\tMoRate="+(float)testTarget.getTotalMomentRate());							
+				mfds.add(testTarget);
+				plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS,4f,Color.CYAN));
+
+			}
+		}
+		
+		if(addUCERF2_MFDs) {
+			UCERF2_MFD_ConstraintFetcher u2fetcher = new UCERF2_MFD_ConstraintFetcher(RELM_RegionUtils.getGriddedRegionInstance());
+			mfds.add(u2fetcher.getTotalMFD());
+			mfds.add(u2fetcher.getBackgroundSeisMFD());
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.RED));
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.MAGENTA));
+		}
+
+		
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Pre-Inversion MFDs", plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-5, 20);
 		graph.setYLog(true);
@@ -1239,6 +1291,12 @@ public class FaultSystemRupSetCalc {
 		graph.setTickLabelFontSize(14);
 		graph.setAxisLabelFontSize(16);
 		graph.setPlotLabelFontSize(18);
+		if(pdfFileName != null)
+			try {
+				graph.saveAsPDF(pdfFileName);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 	
 	/**
@@ -1338,10 +1396,17 @@ public class FaultSystemRupSetCalc {
 	public static void main(String[] args) {
 		
 //		testImplGR_fracSeisOnFltAssumingSameCC();
-		testAllInversionSetups();
+//		testAllInversionSetups();
 		
-//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
-//				ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_10p6, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
+				InversionModels.GR_UNCONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+
+		plotPreInversionMFDs(rupSet, false, true, false, "preInvPlot3.pdf");
+		
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
+//				InversionModels.GR_UNCONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 
+//				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 //		System.out.println(rupSet.getPreInversionAnalysisData(true));
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
