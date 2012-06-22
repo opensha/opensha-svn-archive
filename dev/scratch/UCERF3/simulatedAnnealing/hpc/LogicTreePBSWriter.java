@@ -35,6 +35,8 @@ import scratch.UCERF3.logicTree.ListBasedTreeTrimmer;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchIterator;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+import scratch.UCERF3.logicTree.LogicalAndOrTrimmer;
+import scratch.UCERF3.logicTree.SingleValsTreeTrimmer;
 import scratch.UCERF3.logicTree.TreeTrimmer;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
@@ -279,6 +281,7 @@ public class LogicTreePBSWriter {
 	private static LogicTreeBranch getUCERF2_noIM() {
 		LogicTreeBranch UCERF2_noIM = (LogicTreeBranch) LogicTreeBranch.UCERF2.clone();
 		UCERF2_noIM.clearValue(InversionModels.class);
+		UCERF2_noIM.clearValue(MomentRateFixes.class);
 		return UCERF2_noIM;
 	}
 	
@@ -411,11 +414,11 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "new-a-priori-and-zero-initial";
+		String runName = "prod-4hr-ref-branch-vars";
 		if (args.length > 1)
 			runName = args[1];
-		int constrained_run_mins = 60;
-//		int constrained_run_mins = 250;
+//		int constrained_run_mins = 60;
+		int constrained_run_mins = 250;
 //		int constrained_run_mins = 500;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
@@ -435,6 +438,10 @@ public class LogicTreePBSWriter {
 		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
+		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
+//		TreeTrimmer neoKOnly = new SingleValsTreeTrimmer(DeformationModels.NEOKINEMA);
+		trimmer = new LogicalAndOrTrimmer(true, trimmer, charOnly);
+		
 		
 		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
 //		TreeTrimmer defaultBranchesTrimmer = null;
@@ -443,10 +450,10 @@ public class LogicTreePBSWriter {
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO, InversionOptions.A_PRIORI_CONST_WT };
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, "100")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO, InversionOptions.A_PRIORI_CONST_WT };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, "100")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.NO_SUBSEIS_RED,
@@ -478,7 +485,7 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR_CONSTRAINED, 0);
+		maxAway.put(InversionModels.CHAR_CONSTRAINED, 1);
 		maxAway.put(InversionModels.CHAR_UNCONSTRAINED, 0);
 		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);

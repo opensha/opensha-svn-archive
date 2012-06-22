@@ -74,13 +74,28 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	public <E extends Enum<E>> E getValue(Class<? extends LogicTreeBranchNode<E>> clazz) {
 		return getValue(clazz, branch);
 	}
-		
+	
+	public LogicTreeBranchNode<?> getValueUnchecked(Class<? extends LogicTreeBranchNode<?>> clazz) {
+		return getValueUnchecked(clazz, branch);
+	}
+	
 	private static <E extends Enum<E>> E getValue(Class<? extends LogicTreeBranchNode<E>> clazz,
+		List<LogicTreeBranchNode<? extends Enum<?>>> branch) {
+	clazz = getEnumEnclosingClass(clazz);
+	for (LogicTreeBranchNode<?> node : branch) {
+		if (node != null && getEnumEnclosingClass(node.getClass()).equals(clazz)) {
+			return (E)node;
+		}
+	}
+	return null;
+}
+		
+	private static LogicTreeBranchNode<?> getValueUnchecked(Class<? extends LogicTreeBranchNode<?>> clazz,
 			List<LogicTreeBranchNode<? extends Enum<?>>> branch) {
 		clazz = getEnumEnclosingClass(clazz);
 		for (LogicTreeBranchNode<?> node : branch) {
 			if (node != null && getEnumEnclosingClass(node.getClass()).equals(clazz)) {
-				return (E)node;
+				return node;
 			}
 		}
 		return null;
