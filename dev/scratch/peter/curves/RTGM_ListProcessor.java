@@ -21,6 +21,7 @@ import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.nshmp.Period;
 import org.opensha.sra.rtgm.RTGM;
@@ -70,6 +71,7 @@ class RTGM_ListProcessor implements Runnable {
 		System.out.println("Starting: " + toString());
 		init();
 		HazardCurveCalculator calc = new HazardCurveCalculator();
+		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
 		for (int i = 0; i < erfs.getNumERFs(); ++i) {
 			DiscretizedFunc f = per.getLogFunction();
 			try {
