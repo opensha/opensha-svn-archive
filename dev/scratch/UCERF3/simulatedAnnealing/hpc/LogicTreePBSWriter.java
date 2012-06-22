@@ -367,42 +367,50 @@ public class LogicTreePBSWriter {
 	private static TreeTrimmer getCustomTrimmer(boolean bothFMs) {
 		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
 
-//		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1);
-		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
+		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1);
+//		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
 		limitations.add(faultModels);
 
 		// if null, all that are applicable to each fault model will be used
 //		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.GEOLOGIC);
-		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG);
+		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.ABM);
+//		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG);
 		limitations.add(defModels);
 
-		List<LogicTreeBranchNode<?>> inversionModels = allOf(InversionModels.class);
+//		List<LogicTreeBranchNode<?>> inversionModels = allOf(InversionModels.class);
+		List<LogicTreeBranchNode<?>> inversionModels = toList(InversionModels.GR_CONSTRAINED);
 		limitations.add(inversionModels);
 		//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.UNCONSTRAINED };
 		//		InversionModels[] inversionModels =  { InversionModels.UNCONSTRAINED };
 		//		InversionModels[] inversionModels =  { InversionModels.CHAR_CONSTRAINED };
 		//		InversionModels[] inversionModels =  { InversionModels.CHAR, InversionModels.GR };
-		//		InversionModels[] inversionModels =  { InversionModels.GR };
+//				InversionModels[] inversionModels =  { InversionModels.GR_CONSTRAINED };
 
 //		List<LogicTreeBranchNode<?>> scaling = toList(ScalingRelationships.ELLSWORTH_B);
-		List<LogicTreeBranchNode<?>> scaling = toList(ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP,
-					ScalingRelationships.ELLSWORTH_B, ScalingRelationships.ELLB_SQRT_LENGTH, ScalingRelationships.HANKS_BAKUN_08);
+		List<LogicTreeBranchNode<?>> scaling = toList(ScalingRelationships.ELLSWORTH_B, ScalingRelationships.SHAW_2009_MOD,
+				ScalingRelationships.HANKS_BAKUN_08);;
+//		List<LogicTreeBranchNode<?>> scaling = toList(ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP,
+//					ScalingRelationships.ELLSWORTH_B, ScalingRelationships.ELLB_SQRT_LENGTH, ScalingRelationships.HANKS_BAKUN_08);
 		limitations.add(scaling);
 
-		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class);
-		//		List<SlipAlongRuptureModels> slipAlongs = Lists.newArrayList(SlipAlongRuptureModels.TAPERED);
+//		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class);
+		List<LogicTreeBranchNode<?>> slipAlongs = toList(SlipAlongRuptureModels.TAPERED);
 		limitations.add(slipAlongs);
 
-		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class);
+//		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class);
+		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_10p6);
 		limitations.add(mag5s);
 
-		List<LogicTreeBranchNode<?>> maxMags = getNonZeroChoices(MaxMagOffFault.class);
+//		List<LogicTreeBranchNode<?>> maxMags = getNonZeroChoices(MaxMagOffFault.class);
+		List<LogicTreeBranchNode<?>> maxMags = toList(MaxMagOffFault.MAG_7p6, MaxMagOffFault.MAG_8p0);
 		limitations.add(maxMags);
 
-		List<LogicTreeBranchNode<?>> momentFixes = getNonZeroChoices(MomentRateFixes.class);
+//		List<LogicTreeBranchNode<?>> momentFixes = getNonZeroChoices(MomentRateFixes.class);
+		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.NONE, MomentRateFixes.APPLY_IMPLIED_CC);
 		limitations.add(momentFixes);
 
-		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class);
+//		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class);
+		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF3);
 		limitations.add(spatialSeis);
 		
 		return new ListBasedTreeTrimmer(limitations);
@@ -414,7 +422,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "prod-4hr-ref-branch-vars";
+		String runName = "gr-impcc-test";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
@@ -438,12 +446,13 @@ public class LogicTreePBSWriter {
 		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
-		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
+		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.GR_CONSTRAINED);
 //		TreeTrimmer neoKOnly = new SingleValsTreeTrimmer(DeformationModels.NEOKINEMA);
 		trimmer = new LogicalAndOrTrimmer(true, trimmer, charOnly);
 		
 		
-		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
 //		TreeTrimmer defaultBranchesTrimmer = null;
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
@@ -485,7 +494,7 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR_CONSTRAINED, 1);
+		maxAway.put(InversionModels.CHAR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.CHAR_UNCONSTRAINED, 0);
 		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);
