@@ -267,7 +267,7 @@ public class DeformationModelsCalc {
 		
 		System.out.println("totMoRate="+(float)totMoRate+"\tgetTotalMomentRate()="+(float)targetMFD.getTotalMomentRate()+"\tMgt4rate="+(float)targetMFD.getCumRate(4.0005)+
 				"\tupperMag="+targetMFD.getMagUpper()+"\tMgt8rate="+(float)targetMFD.getCumRate(8.0005));
-		return dm+"\t"+(float)(moRate/1e19)+"\t"+(float)fractOff+"\t"+(float)(moRateOffFaults/1e19)+"\t"+(float)(totMoRate/1e19)+"\t"+
+		return fm+"\t"+dm+"\t"+(float)(moRate/1e19)+"\t"+(float)fractOff+"\t"+(float)(moRateOffFaults/1e19)+"\t"+(float)(totMoRate/1e19)+"\t"+
 				(float)targetMFD.getMagUpper()+"\t"+(float)targetMFD.getCumRate(8.0005)+"\t"+(float)(1.0/targetMFD.getCumRate(8.0005))+
 						"\t"+(float)(newFaultMoRate/1e19);
 	}
@@ -310,12 +310,17 @@ public class DeformationModelsCalc {
 		
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ABM,rateM5));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC,rateM5));
-//		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC_PLUS_ABM,rateM5));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.NEOKINEMA,rateM5));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG,rateM5));
-//		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOBOUND));
 
-		System.out.println("\nmodel\tfltMoRate\tfractOff\tmoRateOff\ttotMoRate\tMmax\tRate_gtM8\tMRIgtM8\tnewFltMoRate");
+		fm = FaultModels.FM3_2;
+		
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ABM,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.NEOKINEMA,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG,rateM5));
+
+		System.out.println("\nfltMod\tdefMod\tfltMoRate\tfractOff\tmoRateOff\ttotMoRate\tMmax\tRate_gtM8\tMRIgtM8\tnewFltMoRate");
 		for(String tableLine : tableData)
 			System.out.println(tableLine);
 				
@@ -646,11 +651,18 @@ public class DeformationModelsCalc {
 		}
 		
 		
-		// Now make ave def model data
+		// Now make ave def model data (excluding geol since none available for off-fault)
 		DeformationModelOffFaultMoRateData spatPDFgen = DeformationModelOffFaultMoRateData.getInstance();
-		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm, true);
-		GriddedGeoDataSet aveDefModOffFault = spatPDFgen.getAveDefModelSpatialOffFaultMoRates(fm, true);
-		GriddedGeoDataSet aveDefModTotal = getAveDefModSpatialMomentRateData(fm, true);
+		GriddedGeoDataSet aveDefModOnFault = getAveDefModSpatialOnFaultMomentRateData(fm, false);
+		GriddedGeoDataSet aveDefModOffFault = spatPDFgen.getAveDefModelSpatialOffFaultMoRates(fm, false);
+		GriddedGeoDataSet aveDefModTotal = getAveDefModSpatialMomentRateData(fm, false);
+
+		// This is if geol is included in the on- but not off-fault moRate map ave
+//		GriddedGeoDataSet aveDefModTotal = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
+//		for(int i=0;i<aveDefModTotal.size();i++) {// initialize to zero
+//			aveDefModTotal.set(i,aveDefModOnFault.get(i)+aveDefModOffFault.get(i));
+//		}
+
 
 		
 		try {
@@ -1044,6 +1056,9 @@ public class DeformationModelsCalc {
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		
+		plotMoreSpatialMaps();
+
+		
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 
 //				DeformationModels.NEOKINEMA, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 
 //				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
@@ -1060,9 +1075,8 @@ public class DeformationModelsCalc {
 		
 //		writeFractionRegionNodesInsideFaultPolygons();
 		
-		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
+//		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
 		
-//		plotMoreSpatialMaps();
 
 //		testFaultZonePolygons();
 		
