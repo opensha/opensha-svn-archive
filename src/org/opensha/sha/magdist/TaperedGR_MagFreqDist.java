@@ -219,13 +219,17 @@ public class TaperedGR_MagFreqDist
   }
   
 	public static void main(String[] args) {
-		TaperedGR_MagFreqDist tgr = new TaperedGR_MagFreqDist(0.0,2001,0.005);
-		tgr.setAllButCornerMag(5, 2.2e19, 8.7, 1.0);
-//		tgr.setAllButTotCumRate(5.0, 7.8, 2e19, 1.0);
 		
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.0,2001,0.005);
-		gr.setAllButMagUpper(5, 2.2e19, 8.7, 1.0, true);
+//		gr.setAllButMagUpper(5, 2.2e19, 8.7, 1.0, true);
+		gr.setAllButTotMoRate(0, 7.6, 3.6e5, 1.0);
 //		gr.setAllButTotCumRate(5.0, 8.4, 2e19, 1.0);
+		System.out.println(gr.getTotalMomentRate());
+
+		TaperedGR_MagFreqDist tgr = new TaperedGR_MagFreqDist(0.0,2001,0.005);
+		tgr.setAllButCornerMag(0, gr.getTotalMomentRate(), 3.6e5, 1.0);
+//		tgr.setAllButTotCumRate(5.0, 7.8, 2e19, 1.0);
+		
 		
 		ArrayList<EvenlyDiscretizedFunc> hists = new ArrayList<EvenlyDiscretizedFunc>();
 		hists.add(tgr);
@@ -242,6 +246,9 @@ public class TaperedGR_MagFreqDist
 		graph.setY_AxisLabel("Rate");
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-8, 10);
+		graph.setAxisLabelFontSize(18);
+		graph.setPlotLabelFontSize(20);
+		graph.setTickLabelFontSize(16);
 		graph.setYLog(true);
 
 //		System.out.println(tgr.toString());
