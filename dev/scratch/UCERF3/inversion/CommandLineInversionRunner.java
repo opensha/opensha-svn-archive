@@ -414,7 +414,8 @@ public class CommandLineInversionRunner {
 				
 				// 1 km jump plot
 				try {
-					writeJumpPlot(sol, distsMap, dir, prefix, 1d);
+					writeJumpPlot(sol, distsMap, dir, prefix, 1d, 7d, false);
+					writeJumpPlot(sol, distsMap, dir, prefix, 1d, 0d, true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -452,12 +453,18 @@ public class CommandLineInversionRunner {
 		System.exit(0);
 	}
 	
-	public static void writeJumpPlot(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix, double jumpDist) throws IOException {
+	public static void writeJumpPlot(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix,
+			double jumpDist, double minMag, boolean probPaleoVisible) throws IOException {
 		EvenlyDiscretizedFunc solFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		EvenlyDiscretizedFunc rupSetFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		int maxX = solFunc.getNum()-1;
 		
 		for (int r=0; r<sol.getNumRuptures(); r++) {
+			double mag = sol.getMagForRup(r);
+			
+			if (mag < minMag)
+				continue;
+			
 			List<Integer> sects = sol.getSectionsIndicesForRup(r);
 			
 			int jumpsOverDist = 0;
@@ -475,9 +482,14 @@ public class CommandLineInversionRunner {
 				}
 			}
 			
+			double rate = sol.getRateForRup(r);
+			
+			if (probPaleoVisible)
+				rate *= sol.getProbPaleoVisible(mag);
+			
 			// indexes are fine to use here since it starts at zero with a delta of one 
 			if (jumpsOverDist <= maxX) {
-				solFunc.set(jumpsOverDist, solFunc.getY(jumpsOverDist) + sol.getRateForRup(r));
+				solFunc.set(jumpsOverDist, solFunc.getY(jumpsOverDist) + rate);
 				rupSetFunc.set(jumpsOverDist, rupSetFunc.getY(jumpsOverDist) + 1d);
 			}
 		}
@@ -500,10 +512,22 @@ public class CommandLineInversionRunner {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, PlotSymbol.CIRCLE, 3f, Color.RED));
 		
-		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, false, "Inversion Fault Jumps");
+		String title = "Inversion Fault Jumps";
 		
-		File file = new File(dir, prefix+"_jumps");
+		prefix += "_jumps";
+		if (minMag > 0) {
+			prefix += "_m"+(float)minMag+"+";
+			title += " Mag "+(float)minMag+"+";
+		}
+		if (probPaleoVisible) {
+			prefix += "_prob_paleo";
+			title += " (Convolved w/ ProbPaleoVisible)";
+		}
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, false, title);
+		
+		File file = new File(dir, prefix);
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");

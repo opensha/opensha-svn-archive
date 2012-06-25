@@ -26,14 +26,13 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
 @SuppressWarnings("javadoc")
 public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	
-	// TODO set weights differently for GR
-	UCERF2("UCERF2",										"U2",		0.5d) { // TODO: 0.25 for GR
+	UCERF2("UCERF2",												"U2",		0.5d,	0.25d) {
 		@Override public double[] getPDF() {
 			return new GridReader("SmoothSeis_UCERF2.txt").getValues();
 		}
 	},
 	
-	UCERF3("UCERF3",										"U3",		0.5d) { // TODO: 0.25 for GR
+	UCERF3("UCERF3",												"U3",		0.5d,	0.25d) {
 		@Override public double[] getPDF() {
 			return new GridReader("SmoothSeis_KF_5-5-2012.txt").getValues();
 		}
@@ -42,7 +41,7 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	/**
 	 * This does not include the geologic off-fault deformation model
 	 */
-	AVG_DEF_MODEL_OFF("Average Deformation Model Off Fault",	"AveDM_off",	0d) { // TODO: 0.5 for GR
+	AVG_DEF_MODEL_OFF("Average Deformation Model Off Fault",	"AveDM_off",	0.0f,	0.5d) {
 		@Override public double[] getPDF() {
 			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
 			GriddedGeoDataSet xyz = DeformationModelOffFaultMoRateData.getInstance().getAveDefModelPDF(false);
@@ -58,7 +57,7 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	 * This includes the geologic deformation model, for which the off-fault s
 	 * patial distribution is uniform
 	 */
-	AVG_DEF_MODEL_ALL("Average Deformation Model Including Faults",	"AveDM_all",	0d) {
+	AVG_DEF_MODEL_ALL("Average Deformation Model Including Faults",	"AveDM_all",0.0d,	0.0d) {
 		@Override public double[] getPDF() {
 			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
 			GriddedGeoDataSet xyz = DeformationModelsCalc.getAveDefModSpatialPDF_WithFaults(false);
@@ -72,12 +71,13 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 
 	
 	private String name, shortName;
-	private double weight;
+	private double charWeight, grWeight;
 	
-	private SpatialSeisPDF(String name, String shortName, double weight) {
+	private SpatialSeisPDF(String name, String shortName, double charWeight, double grWeight) {
 		this.name = name;
 		this.shortName = shortName;
-		this.weight = weight;
+		this.charWeight = charWeight;
+		this.grWeight = grWeight;
 	}
 	
 	public abstract double[] getPDF();
@@ -123,8 +123,11 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	}
 
 	@Override
-	public double getRelativeWeight() {
-		return weight;
+	public double getRelativeWeight(InversionModels im) {
+		if (im.isCharacteristic())
+			return charWeight;
+		else
+			return grWeight;
 	}
 
 	@Override

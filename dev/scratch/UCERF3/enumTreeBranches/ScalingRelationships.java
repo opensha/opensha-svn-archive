@@ -46,7 +46,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}		
 		
 		@Override
-		public double getRelativeWeight() {
+		public double getRelativeWeight(InversionModels im) {
 			return 0d;
 		}
 		
@@ -68,7 +68,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}		
 		
 		@Override
-		public double getRelativeWeight() {
+		public double getRelativeWeight(InversionModels im) {
 			return 0.2d;
 		}
 	},
@@ -86,7 +86,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}		
 		
 		@Override
-		public double getRelativeWeight() {
+		public double getRelativeWeight(InversionModels im) {
 			return 0.2d;
 		}
 	},
@@ -106,7 +106,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}		
 		
 		@Override
-		public double getRelativeWeight() {
+		public double getRelativeWeight(InversionModels im) {
 			return 0.2d;
 		}
 	},
@@ -126,7 +126,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}		
 		
 		@Override
-		public double getRelativeWeight() {
+		public double getRelativeWeight(InversionModels im) {
 			return 0.2d;
 		}
 	},
@@ -146,7 +146,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}		
 		
 		@Override
-		public double getRelativeWeight() {
+		public double getRelativeWeight(InversionModels im) {
 			return 0.2d;
 		}
 	};

@@ -155,7 +155,7 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 	}
 
 	@Override
-	public double getRelativeWeight() {
+	public double getRelativeWeight(InversionModels im) {
 		return weight;
 	}
 

@@ -30,7 +30,7 @@ public enum TotalMag5Rate implements LogicTreeBranchNode<TotalMag5Rate> {
 	}
 
 	@Override
-	public double getRelativeWeight() {
+	public double getRelativeWeight(InversionModels im) {
 		return weight;
 	}
 	

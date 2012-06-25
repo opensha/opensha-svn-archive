@@ -33,7 +33,7 @@ public enum SlipAlongRuptureModels implements LogicTreeBranchNode<SlipAlongRuptu
 	}
 
 	@Override
-	public double getRelativeWeight() {
+	public double getRelativeWeight(InversionModels im) {
 		return weight;
 	}
 

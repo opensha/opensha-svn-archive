@@ -4,17 +4,17 @@ import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 public enum MaxMagOffFault implements LogicTreeBranchNode<MaxMagOffFault> {
 	
-	// TODO set weights different for GR?!?!?! :(
-	MAG_7p2(7.2, 0.3d), // TODO: 0.2 for GR
-	MAG_7p6(7.6, 0.6d), // (same for GR)
-	MAG_8p0(8.0, 0.1d); // TODO: 0.2 for GR
+	MAG_7p2(7.2, 0.3d, 0.2d),
+	MAG_7p6(7.6, 0.6d, 0.6d),
+	MAG_8p0(8.0, 0.1d, 0.2d);
 
 	private double mmax;
-	private double weight;
+	private double charWeight, grWeight;
 
-	private MaxMagOffFault(double mmax, double weight) {
+	private MaxMagOffFault(double mmax, double charWeight, double grWeight) {
 		this.mmax = mmax;
-		this.weight = weight;
+		this.charWeight = charWeight;
+		this.grWeight = grWeight;
 	}
 
 	@Override
@@ -31,8 +31,11 @@ public enum MaxMagOffFault implements LogicTreeBranchNode<MaxMagOffFault> {
 	}
 
 	@Override
-	public double getRelativeWeight() {
-		return weight;
+	public double getRelativeWeight(InversionModels im) {
+		if (im.isCharacteristic())
+			return charWeight;
+		else
+			return grWeight;
 	}
 
 	public double getMaxMagOffFault() {

@@ -26,15 +26,21 @@ public class RupJumpsTableGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(new File("/tmp/FM3_1_ZENG_EllB_DsrTap_GRConst_M5Rate8.7_MMaxOff7.6_ApplyCC_SpatSeisU3_sol.zip"));
+//		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+//		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrTap_GRConst_M5Rate8.7_MMaxOff7.6_ApplyCC_SpatSeisU3_sol.zip");
+		File solFile = new File("/tmp/FM3_1_GEOL_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarNoSubseismo_VarNone_VarAPrioriWt100_sol.zip");
+		FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(solFile);
 		
 		DeformationModelFetcher dmFetch = new DeformationModelFetcher(sol.getFaultModel(), sol.getFaultModel().getFilterBasis(),
 				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		
 		Map<IDPairing, Double> dists = dmFetch.getSubSectionDistanceMap(5d);
 		
-//		CommandLineInversionRunner.writeJumpPlot(sol, dists, new File("/tmp"), "ucerf2_fm2_compare", 1d);
-//		System.exit(0);
+		String prefix = solFile.getName().replaceAll(".zip", "");
+		CommandLineInversionRunner.writeJumpPlot(sol, dists, solFile.getParentFile(), prefix, 1d, 7d, false);
+		CommandLineInversionRunner.writeJumpPlot(sol, dists, solFile.getParentFile(), prefix, 1d, 0d, true);
+		CommandLineInversionRunner.writeJumpPlot(sol, dists, solFile.getParentFile(), prefix, 1d, 0d, false);
+		System.exit(0);
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		

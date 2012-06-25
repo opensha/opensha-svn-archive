@@ -192,10 +192,10 @@ public class LogicTreePBSWriter {
 		return vals;
 	}
 
-	private static List<LogicTreeBranchNode<?>> getNonZeroChoices(Class<? extends LogicTreeBranchNode<?>> clazz) {
+	private static List<LogicTreeBranchNode<?>> getNonZeroChoices(Class<? extends LogicTreeBranchNode<?>> clazz, InversionModels im) {
 		List<LogicTreeBranchNode<?>> nonZeros = Lists.newArrayList();
 		for (LogicTreeBranchNode<?> val : clazz.getEnumConstants())
-			if (val.getRelativeWeight() > 0)
+			if (val.getRelativeWeight(im) > 0)
 				nonZeros.add(val);
 		return nonZeros;
 	}
@@ -298,10 +298,10 @@ public class LogicTreePBSWriter {
 			faultModels.add(FaultModels.FM3_2);
 		limitations.add(faultModels);
 		
-		List<LogicTreeBranchNode<?>> defModels = getNonZeroChoices(DeformationModels.class);
+		List<LogicTreeBranchNode<?>> defModels = getNonZeroChoices(DeformationModels.class, null);
 		limitations.add(defModels);
 		
-		List<LogicTreeBranchNode<?>> invModels = getNonZeroChoices(InversionModels.class);
+		List<LogicTreeBranchNode<?>> invModels = getNonZeroChoices(InversionModels.class, null);
 		limitations.add(invModels);
 		
 		return ListBasedTreeTrimmer.getDefaultPlusSpecifiedTrimmer(limitations);
@@ -310,8 +310,8 @@ public class LogicTreePBSWriter {
 	private static TreeTrimmer getUCERF3RefBranches() {
 		List<LogicTreeBranch> branches = Lists.newArrayList();
 		
-		List<LogicTreeBranchNode<?>> dms = getNonZeroChoices(DeformationModels.class);
-		List<LogicTreeBranchNode<?>> ims = getNonZeroChoices(InversionModels.class);
+		List<LogicTreeBranchNode<?>> dms = getNonZeroChoices(DeformationModels.class, null);
+		List<LogicTreeBranchNode<?>> ims = getNonZeroChoices(InversionModels.class, null);
 		
 		// UCERF3
 		for (LogicTreeBranchNode<?> dm : dms) {

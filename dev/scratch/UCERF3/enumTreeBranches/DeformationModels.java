@@ -118,7 +118,7 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	}
 
 	@Override
-	public double getRelativeWeight() {
+	public double getRelativeWeight(InversionModels im) {
 		return weight;
 	}
 

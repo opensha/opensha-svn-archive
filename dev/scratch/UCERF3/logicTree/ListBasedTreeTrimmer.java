@@ -3,6 +3,8 @@ package scratch.UCERF3.logicTree;
 import java.util.Arrays;
 import java.util.List;
 
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -92,12 +94,13 @@ public class ListBasedTreeTrimmer implements TreeTrimmer {
 
 	@Override
 	public boolean isTreeValid(LogicTreeBranch branch) {
+		InversionModels im = branch.getValue(InversionModels.class);
 		for (int i=0; i<branch.size(); i++) {
 			LogicTreeBranchNode<?> val = branch.getValue(i);
 			List<LogicTreeBranchNode<?>> myLimits = limitations.get(i);
 			if (myLimits != null && !limitations.get(i).contains(val))
 				return false;
-			if (nonZeroWeight && val.getRelativeWeight() <= 0)
+			if (nonZeroWeight && val.getRelativeWeight(im) <= 0)
 				return false;
 		}
 		return true;
