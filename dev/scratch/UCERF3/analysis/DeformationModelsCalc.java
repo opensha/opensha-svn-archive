@@ -28,11 +28,15 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
+import com.google.common.collect.Lists;
+
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionConfiguration;
@@ -149,24 +153,33 @@ public class DeformationModelsCalc {
 	 * These cannot yet be subsections
 	 * @param sectData
 	 */
-	public static void testFaultZonePolygons() {
+	public static void testFaultZonePolygons(FaultModels faultModel) {
 		
+//		ArrayList<FaultSectionPrefData> sectData =  FaultModels.FM3_1.fetchFaultSections();
+//		sectData.addAll(FaultModels.FM3_2.fetchFaultSections());
 		
-		ArrayList<FaultSectionPrefData> sectData =  FaultModels.FM3_1.fetchFaultSections();
-		sectData.addAll(FaultModels.FM3_2.fetchFaultSections());
-						
+		double sectLen = 7d;
+		List<FaultSectionPrefData> faultData =  faultModel.fetchFaultSections();
+		List<FaultSectionPrefData> sectData  = Lists.newArrayList();
+		for (FaultSectionPrefData fault : faultData) {
+			sectData.addAll(fault.getSubSectionsList(sectLen));
+		}
+		FaultPolyMgr polyMgr = FaultPolyMgr.create(faultModel, null, sectLen);
+		
 		ArrayList<String> nullNames = new ArrayList<String>();
 		ArrayList<String> outsideZoneNames = new ArrayList<String>();
 		ArrayList<String> goodZoneNames = new ArrayList<String>();
 
 		for(FaultSectionPrefData data: sectData){
-			Region zone = data.getZonePolygon();
+//			Region zone = data.getZonePolygon();
+			Region zone = polyMgr.getPoly(data.getSectionId());
+			
 			if(zone == null) {
 				if(!nullNames.contains(data.getSectionName()))
 					nullNames.add(data.getSectionName());
 			}
 			else {
-				LocationList surfLocs = data.getStirlingGriddedSurface(1.0).getEvenlyDiscritizedListOfLocsOnSurface();
+				LocationList surfLocs = data.getStirlingGriddedSurface(1.0, false, false).getEvenlyDiscritizedListOfLocsOnSurface();
 				boolean good = true;
 				for(Location loc : surfLocs) {
 					if(!zone.contains(loc)) {
@@ -1116,7 +1129,8 @@ public class DeformationModelsCalc {
 //		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
 		
 
-//		testFaultZonePolygons();
+//		testFaultZonePolygons(FaultModels.FM3_1);
+		testFaultZonePolygons(FaultModels.FM3_2);
 		
 //		writeListOfNewFaultSections();
 		
