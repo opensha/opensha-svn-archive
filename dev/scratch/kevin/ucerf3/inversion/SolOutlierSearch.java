@@ -36,8 +36,8 @@ public class SolOutlierSearch {
 		SimpleFaultSystemSolution referenceSol = SimpleFaultSystemSolution.fromFile(referenceSolFile);
 		Region region = new CaliforniaRegions.RELM_TESTING();
 		
-		Region bayRegion = new CaliforniaRegions.WG02_GRIDDED();
-		Region laRegion = new CaliforniaRegions.WG07_GRIDDED();
+		Region bayRegion = new CaliforniaRegions.SF_BOX_GRIDDED();
+		Region laRegion = new CaliforniaRegions.LA_BOX_GRIDDED();
 		
 		String urlBase = "http://opensha.usc.edu/ftp/kmilner/ucerf3/"+saveDir.getName()+"/";
 		

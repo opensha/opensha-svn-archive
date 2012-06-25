@@ -1648,7 +1648,7 @@ public class UCERF2 extends AbstractERF {
 			double minMag, Region region) {
 		String faultName = segmentedSrcGenerator.getFaultSegmentData().getFaultName();
 		if(faultName.equals("N. San Andreas")
-				&& region instanceof CaliforniaRegions.WG02_GRIDDED) 
+				&& region instanceof CaliforniaRegions.SF_BOX_GRIDDED) 
 			return (1-segmentedSrcGenerator.getApproxTotFaultProb(minMag, null));
 		else return 1-segmentedSrcGenerator.getApproxTotFaultProb(minMag, region);
 
@@ -1667,7 +1667,7 @@ public class UCERF2 extends AbstractERF {
 			double minMag, Region region) {
 		String faultName = unsegmentedSrc.getFaultSegmentData().getFaultName();
 		if((faultName.equals("San Gregorio Connected") || faultName.equals("N. San Andreas"))
-				&& (region instanceof CaliforniaRegions.WG02_GRIDDED)) 
+				&& (region instanceof CaliforniaRegions.SF_BOX_GRIDDED)) 
 			return (1-unsegmentedSrc.computeApproxTotalProbAbove(minMag, null));
 		else return 1-unsegmentedSrc.computeApproxTotalProbAbove(minMag, region);
 

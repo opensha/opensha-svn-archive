@@ -9,6 +9,7 @@ import java.util.List;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSetMath;
 import org.opensha.commons.exceptions.Point2DException;
@@ -299,6 +300,40 @@ public class DeformationModelsCalc {
 			}
 
 	}
+	
+	public static void writeParentSectionsInsideRegion(FaultModels fm, DeformationModels dm, Region region) {
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		
+		String lastName = "";
+		System.out.println(region.getName()+"\nSect Name\tFractionInside\tMoRateInside");
+		double numInside=0, totNum=0, moRateInside=0;
+
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(data.getParentSectionName().equals(lastName)) {
+				StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
+				double frcInside = surf.getFractionOfSurfaceInRegion(region);
+				int numPts = surf.getNumCols()*surf.getNumRows();
+				numInside += frcInside*numPts;
+				totNum += numPts;
+				moRateInside += frcInside*data.calcMomentRate(true);
+			}
+			else {
+				if(!lastName.equals("") && totNum >0) {
+					double frac = (numInside/totNum);
+					if(frac > 0.3)
+						System.out.println(lastName+"\t"+(float)frac+"\t"+(float)moRateInside);
+				}
+				StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
+				double frcInside = surf.getFractionOfSurfaceInRegion(region);
+				int numPts = surf.getNumCols()*surf.getNumRows();
+				numInside = frcInside*numPts;
+				totNum = numPts;
+				moRateInside = frcInside*data.calcMomentRate(true);
+				lastName = data.getParentSectionName();
+			}
+		}
+	}
+
 	
 	
 	public static void calcMoRateAndMmaxDataForDefModels() {
@@ -1054,9 +1089,12 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
+		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.SF_BOX()); 
+		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.LA_BOX()); 
+		
 //		calcMoRateAndMmaxDataForDefModels();
 		
-		plotMoreSpatialMaps();
+//		plotMoreSpatialMaps();
 
 		
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 

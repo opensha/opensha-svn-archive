@@ -36,6 +36,7 @@ public class InversionMFDs {
 	double mMaxOffFault;
 	boolean applyImpliedCouplingCoeff;
 	SpatialSeisPDF spatialSeisPDF;
+	SpatialSeisPDF spatialSeisPDFforOnFaultRates;
 	InversionModels inversionModel;
 
 	double origOnFltDefModMoRate, offFltDefModMoRate, aveMinSeismoMag, roundedMmaxOnFault;
@@ -85,6 +86,13 @@ public class InversionMFDs {
 		this.spatialSeisPDF=spatialSeisPDF;
 		this.inversionModel=inversionModel;
 		
+		// this prevents using any non smoothed seismicity PDF for computing rates on fault (def mod PDF doesn't make sense)
+		if(spatialSeisPDF == SpatialSeisPDF.UCERF2 || spatialSeisPDF == SpatialSeisPDF.UCERF3)
+			spatialSeisPDFforOnFaultRates = spatialSeisPDF;
+		else
+			spatialSeisPDFforOnFaultRates = spatialSeisPDF.UCERF3;
+
+		
 		// test to make sure it's a statewide deformation model
 		DeformationModels dm = fltSysRupSet.getDeformationModel();
 		if(dm == DeformationModels.UCERF2_BAYAREA || dm == DeformationModels.UCERF2_NCAL)
@@ -94,9 +102,9 @@ public class InversionMFDs {
 		
 		GriddedRegion noCalGrid = RELM_RegionUtils.getNoCalGriddedRegionInstance();
 		GriddedRegion soCalGrid = RELM_RegionUtils.getSoCalGriddedRegionInstance();
-		fractSeisInSoCal = spatialSeisPDF.getFractionInRegion(soCalGrid);
-
-		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDF);
+		
+		fractSeisInSoCal = spatialSeisPDFforOnFaultRates.getFractionInRegion(soCalGrid);
+		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDFforOnFaultRates);
 
 		onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
 		offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;
@@ -125,6 +133,7 @@ public class InversionMFDs {
 					"\tmMaxOffFault =\t"+mMaxOffFault+"\n"+
 					"\tapplyImpliedCouplingCoeff =\t"+applyImpliedCouplingCoeff+"\n"+
 					"\tspatialSeisPDF =\t"+spatialSeisPDF+"\n"+
+					"\tspatialSeisPDFforOnFaultRates =\t"+spatialSeisPDFforOnFaultRates+"\n"+
 					"\tinversionModel =\t"+inversionModel+"\n"+
 					"\tfractSeisInSoCal =\t"+(float)fractSeisInSoCal+"\n"+
 					"\tfractionSeisOnFault =\t"+(float)fractionSeisOnFault+"\n"+

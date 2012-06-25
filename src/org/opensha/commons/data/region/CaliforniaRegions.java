@@ -182,14 +182,27 @@ public class CaliforniaRegions {
 	 * Working Group on California Earthquake Probabilities (WGCEP).
 	 * Grid spacing is 0.1&deg;.
 	 */
-	public static final class WG02_GRIDDED extends 
+	public static final class SF_BOX_GRIDDED extends 
 			GriddedRegion {
 		/** New instance of region. */
-		public WG02_GRIDDED() {
+		public SF_BOX_GRIDDED() {
 			super(readCoords("WG02.coords"), 
 					BorderType.MERCATOR_LINEAR, 0.1, ANCHOR_0_0);
 		}
 	}
+	
+	/** 
+	 * WGCEP 2002's San Francisco Box.
+	 */
+	public static final class SF_BOX extends Region {
+		/** New instance of region. */
+		public SF_BOX() {
+			super(readCoords("WG02.coords"), 
+					BorderType.MERCATOR_LINEAR);
+			this.setName("SF_BOX Region");
+		}
+	}
+
 				
 	/** 
 	 * A gridded, box-shaped region centered on Los Angeles (with the same 
@@ -199,15 +212,28 @@ public class CaliforniaRegions {
 	 * 
 	 * TODO this may not be necessary; no references
 	 */
-	public static final class WG07_GRIDDED extends 
+	public static final class LA_BOX_GRIDDED extends 
 			GriddedRegion {
 		/** New instance of region. */
-		public WG07_GRIDDED() {
+		public LA_BOX_GRIDDED() {
 			super(readCoords("WG07.coords"), 
 					BorderType.MERCATOR_LINEAR, 0.1,
 					new Location(34,-118));
 		}
 	}
+	
+	/** 
+	 * WGCEP 2007's Los Angeles Box.
+	 */
+	public static final class LA_BOX extends Region {
+		/** New instance of region. */
+		public LA_BOX() {
+			super(readCoords("WG07.coords"), 
+					BorderType.MERCATOR_LINEAR);
+			this.setName("LA_BOX Region");
+		}
+	}
+
 	
 	/** 
 	 * A box defining the region of the CyberShake 1.0 map region

@@ -141,11 +141,11 @@ public class UCERF3_MFD_ConstraintFetcher {
 			break;
 		case SF_BOX:
 			mfds = readMFD_DataFromFile("LongTermModelSF.txt");
-			region = new CaliforniaRegions.WG02_GRIDDED();
+			region = new CaliforniaRegions.SF_BOX_GRIDDED();
 			break;
 		case LA_BOX:
 			mfds = readMFD_DataFromFile("LongTermModelLA.txt");
-			region = new CaliforniaRegions.WG07_GRIDDED();
+			region = new CaliforniaRegions.LA_BOX_GRIDDED();
 			break;
 		}
 		

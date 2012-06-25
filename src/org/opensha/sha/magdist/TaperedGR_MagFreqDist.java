@@ -236,7 +236,6 @@ public class TaperedGR_MagFreqDist
 		hists.add(gr);
 		hists.add(tgr.getCumRateDistWithOffset());
 		hists.add(gr.getCumRateDistWithOffset());
-		
 //		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
 //		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 //		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
