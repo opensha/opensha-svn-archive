@@ -108,8 +108,17 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 */
 	public Region getPoly(int idx) {
 		Area a = polys.get(idx);
+		if (a == null) return null;
 		LocationList locs = SectionPolygons.areaToLocLists(a).get(0);
 		return new Region(locs, null);
+	}
+	
+	/**
+	 * Returns the indices of all polygons
+	 * @return
+	 */
+	public Set<Integer> indices() {
+		return polys.indices();
 	}
 	
 	@Override
