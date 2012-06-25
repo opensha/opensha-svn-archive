@@ -3,11 +3,10 @@ package scratch.UCERF3.enumTreeBranches;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 public enum TotalMag5Rate implements LogicTreeBranchNode<TotalMag5Rate> {
-	// TODO finalize values from Karen
-	// TODO set weights
-	RATE_7p1(7.1,	0.2d),
+	
+	RATE_7p1(7.1,	0.1d),
 	RATE_8p7(8.7,	0.6d),
-	RATE_10p6(10.6,	0.2d);
+	RATE_10p6(10.6,	0.3d);
 	
 	private double rate;
 	private double weight;

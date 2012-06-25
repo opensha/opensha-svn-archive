@@ -3,11 +3,11 @@ package scratch.UCERF3.enumTreeBranches;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 public enum MaxMagOffFault implements LogicTreeBranchNode<MaxMagOffFault> {
-	// TODO finalize values
-	// TODO set weights
-	MAG_7p2(7.2, 1d),
-	MAG_7p6(7.6, 1d),
-	MAG_8p0(8.0, 1d);
+	
+	// TODO set weights different for GR?!?!?! :(
+	MAG_7p2(7.2, 0.3d), // TODO: 0.2 for GR
+	MAG_7p6(7.6, 0.6d), // (same for GR)
+	MAG_8p0(8.0, 0.1d); // TODO: 0.2 for GR
 
 	private double mmax;
 	private double weight;

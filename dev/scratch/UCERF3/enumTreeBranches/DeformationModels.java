@@ -13,7 +13,6 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> {
 	
-	// TODO set weights
 	//						Name					ShortName	Weight	FaultModel			File
 	// UCERF2
 	UCERF2_NCAL(			"UCERF2 NCal", 			"NCAL", 	0d,		FaultModels.FM2_1),
@@ -22,18 +21,18 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	
 	// UCERF3
 	// AVERAGE BLOCK MODEL
-	ABM(					"Average Block Model",	"ABM",		1d,		FaultModels.FM3_1,	"ABM_slip_rake_fm_3_1_2012_06_22.csv",
+	ABM(					"Average Block Model",	"ABM",		0.20d,		FaultModels.FM3_1,	"ABM_slip_rake_fm_3_1_2012_06_22.csv",
 																		FaultModels.FM3_2,	"ABM_slip_rake_fm_3_2_2012_06_22.csv"),
 	// GEOBOUNDED INVERSION
 	GEOBOUND(				"Geobounded",			"GEOB",		0d,		FaultModels.FM3_1,	"geobound_slip_rake__MAPPED_2012_06_05.csv"),
 	// NEOKINEMA
-	NEOKINEMA(				"Neokinema",			"NEOK",		1d,		FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2012_06_08.csv",
+	NEOKINEMA(				"Neokinema",			"NEOK",		0.35d,		FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2012_06_08.csv",
 																		FaultModels.FM3_2,	"neokinema_slip_rake_fm_3_2_2012_06_08.csv"),
 	// ZENG
-	ZENG(					"Zeng",					"ZENG",		1d,		FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_06_08.csv",
+	ZENG(					"Zeng",					"ZENG",		0.30d,		FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_06_08.csv",
 																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_2012_06_08.csv"),
 	// GEOLOGIC
-	GEOLOGIC(				"Geologic",				"GEOL", 	1d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2012_05_29.csv",
+	GEOLOGIC(				"Geologic",				"GEOL", 	0.15d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2012_05_29.csv",
 																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_2012_05_29.csv"),
 	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_upperbound__MAPPED_2012_06_05.csv",
 																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_upperbound__MAPPED_2012_06_05.csv"),

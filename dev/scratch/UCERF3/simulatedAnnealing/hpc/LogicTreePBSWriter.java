@@ -522,37 +522,6 @@ public class LogicTreePBSWriter {
 //				//				new LogicTreeBranch(null, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.ELL_B,
 //				//								AveSlipForRupModels.ELLSWORTH_B, null, null)
 //		};
-		if (defaultBranches != null) { // TODO
-			// make sure all default branch choices are valid!
-			for (LogicTreeBranch defaultBranch : defaultBranches) {
-				for (LogicTreeBranchNode<?> node : defaultBranch) {
-					if (node == null)
-						continue;
-
-				}
-
-
-				//				if (defaultBranch.getValue(FaultModels.class) != null &&
-				//						!Arrays.asList(faultModels).contains(defaultBranch.getValue(FaultModels.class)))
-				//					defaultBranch.clearValue(FaultModels.class);
-				//					defaultBranch.setFaultModel(null);
-				//				if (defaultBranch.getDefModel() != null &&
-				//						defModels != null && !Arrays.asList(defModels).contains(defaultBranch.getDefModel()))
-				//					defaultBranch.setDefModel(null);
-				//				if (defaultBranch.getAveSlip() != null &&
-				//						!Arrays.asList(aveSlipModels).contains(defaultBranch.getAveSlip()))
-				//					defaultBranch.setAveSlip(null);
-				//				if (defaultBranch.getSlipAlong() != null &&
-				//						!Arrays.asList(slipAlongs).contains(defaultBranch.getSlipAlong()))
-				//					defaultBranch.setSlipAlong(null);
-				//				if (defaultBranch.getMagArea() != null &&
-				//						!Arrays.asList(magAreas).contains(defaultBranch.getMagArea()))
-				//					defaultBranch.setMagArea(null);
-				//				if (defaultBranch.getValue(InversionModels.class) != null &&
-				//						!Arrays.asList(inversionModels).contains(defaultBranch.getValue(InversionModels.class)))
-				//					defaultBranch.setInvModel(null);
-			}
-		}
 
 		if (variationBranches == null && (variations == null || variations.size() == 0)) {
 			variationBranches = new ArrayList<CustomArg[]>();
@@ -590,7 +559,7 @@ public class LogicTreePBSWriter {
 		File javaBin = site.JAVA_BIN;
 		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 		//		String threads = "1";
-		CoolingScheduleType cool = CoolingScheduleType.FAST_SA; // TODO
+		CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
 		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(1);
 		//		CompletionCriteria subCompletion = VariableSubTimeCompletionCriteria.instance("5s", "300");
 		boolean keepCurrentAsBest = false;

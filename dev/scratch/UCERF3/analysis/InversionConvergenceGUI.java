@@ -56,8 +56,12 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -156,9 +160,13 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		enumParams = new ParameterList();
 		enumParams.addParameter(buildEnumParam(FaultModels.class, FaultModels.FM3_1));
 		enumParams.addParameter(buildEnumParam(DeformationModels.class, null));
-		enumParams.addParameter(buildEnumParam(SlipAlongRuptureModels.class, SlipAlongRuptureModels.TAPERED));
 		enumParams.addParameter(buildEnumParam(ScalingRelationships.class, ScalingRelationships.ELLSWORTH_B));
+		enumParams.addParameter(buildEnumParam(SlipAlongRuptureModels.class, SlipAlongRuptureModels.TAPERED));
 		enumParams.addParameter(buildEnumParam(InversionModels.class, InversionModels.CHAR_CONSTRAINED));
+		enumParams.addParameter(buildEnumParam(TotalMag5Rate.class, TotalMag5Rate.RATE_8p7));
+		enumParams.addParameter(buildEnumParam(MaxMagOffFault.class, MaxMagOffFault.MAG_7p6));
+		enumParams.addParameter(buildEnumParam(MomentRateFixes.class, MomentRateFixes.NONE));
+		enumParams.addParameter(buildEnumParam(SpatialSeisPDF.class, SpatialSeisPDF.UCERF3));
 		
 		refreshButton = new ButtonParameter(REFRESH_PARAM_NAME, REFRESH_BUTTON_TEXT);
 		refreshButton.addParameterChangeListener(this);

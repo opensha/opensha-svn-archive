@@ -58,7 +58,6 @@ public class DeformationModelFetcher {
 
 	protected final static boolean D = true;  // for debugging
 	
-	// TODO add HB08 & Shaw09 custom moment reductions
 	private final static boolean CUSTOM_PARKFIELD_CREEPING_SECTION_MOMENT_REDUCTIONS = true;
 	private final static double[] creep_mo_reds = {0.9112, 0.9361, 0.9557, 0.9699, 0.9786, 0.9819, 0.9796, 0.9719, 0.9585, 0.9396, 0.9150, 0.8847, 0.8487,
 	    0.8069, 0.7593, 0.7059, 0.6466, 0.5814, 0.5103, 0.4331, 0.3500};

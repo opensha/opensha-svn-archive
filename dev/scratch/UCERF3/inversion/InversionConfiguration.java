@@ -244,7 +244,6 @@ public class InversionConfiguration {
 				throw new IllegalStateException("Unknown inversion model: "+model);
 		} else {
 			// UNCONSTRAINED BRANCHES
-			// TODO is this right? MFDs were already set up in InversionMFDs so I believe this can be identical for Char and GR
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;

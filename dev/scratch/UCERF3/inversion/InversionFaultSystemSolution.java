@@ -381,7 +381,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1, Color.BLACK));
 //		}
 		
-		// Implied Off Fault
+		// Implied Off Fault TODO: use off fault from InversionMFDs - need methods for so/no cal
 		IncrementalMagFreqDist solOffFaultMFD;
 		solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
 		solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
@@ -437,7 +437,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	 * @return
 	 */
 	private IncrementalMagFreqDist getImpliedOffFaultMFD(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist magHist) {
-		// TODO did I do this right?
 		return getImpliedOffFaultMFD(totalMFD, magHist, branch.getValue(MaxMagOffFault.class).getMaxMagOffFault());
 	}
 	

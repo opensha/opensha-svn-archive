@@ -248,7 +248,6 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 
 	@Override
 	public void setResults(double[] Ebest, double[] xbest, double[] misfit, double[] misfit_ineq) {
-		// TODO revisit
 		this.Ebest = Ebest;
 		this.xbest = xbest;
 		this.misfit = misfit;

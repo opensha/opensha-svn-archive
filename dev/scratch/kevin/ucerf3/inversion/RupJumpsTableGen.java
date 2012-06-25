@@ -26,15 +26,15 @@ public class RupJumpsTableGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(new File("/tmp/ucerf2_fm2_compare.zip"));
+		FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(new File("/tmp/FM3_1_ZENG_EllB_DsrTap_GRConst_M5Rate8.7_MMaxOff7.6_ApplyCC_SpatSeisU3_sol.zip"));
 		
-		DeformationModelFetcher dmFetch = new DeformationModelFetcher(sol.getFaultModel(), sol.getDeformationModel(),
+		DeformationModelFetcher dmFetch = new DeformationModelFetcher(sol.getFaultModel(), sol.getFaultModel().getFilterBasis(),
 				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		
 		Map<IDPairing, Double> dists = dmFetch.getSubSectionDistanceMap(5d);
 		
-		CommandLineInversionRunner.writeJumpPlot(sol, dists, new File("/tmp"), "ucerf2_fm2_compare", 1d);
-		System.exit(0);
+//		CommandLineInversionRunner.writeJumpPlot(sol, dists, new File("/tmp"), "ucerf2_fm2_compare", 1d);
+//		System.exit(0);
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
