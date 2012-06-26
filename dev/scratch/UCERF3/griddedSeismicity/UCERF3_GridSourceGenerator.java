@@ -1,5 +1,6 @@
 package scratch.UCERF3.griddedSeismicity;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
 
 /**
  * This class generates the gridded sources for the UCERF3 background seismicity.
@@ -327,48 +329,34 @@ public class UCERF3_GridSourceGenerator {
 	/**
 	 * Returns the source of the requested type at the supplied index for a
 	 * forecast with a given duration.
-	 * @param type of source
 	 * @param idx node index
 	 * @param duration of forecast
+	 * @param filterAftershocks 
+	 * @param isCrosshair 
 	 * @return the source
 	 */
-	public ProbEqkSource getSource(GridSourceType type, int idx, double duration) {
-		if (type == GridSourceType.RANDOM) return getRandomStrikeSource(idx, duration);
-		if (type == GridSourceType.CROSSHAIR) return getCrosshairSource(idx, duration);
-		return null;
-	}
-	
-	/**
-	 * Get the random strike gridded source at a specified index (this ignores
-	 * the fixed-strike contribution)
-	 * @param idx 
-	 * @param duration 
-	 * @return the source
-	 */
-	public ProbEqkSource getRandomStrikeSource(int idx, double duration) {
-		IncrementalMagFreqDist mfd = getNodeMFD(idx);
+	public ProbEqkSource getSource(int idx, double duration, boolean filterAftershocks, boolean isCrosshair) {
 		Location loc = region.locationForIndex(idx);
+		IncrementalMagFreqDist mfd = getNodeMFD(idx);
+		if (filterAftershocks) scaleMFD(mfd);
+		
 		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
-			false);
+			isCrosshair);
 	}
-
-	/**
-	 * Get Crosshair gridded source at a specified index (this ignores the
-	 * fixed-strike contribution)
-	 * @param idx of location for source
-	 * @param duration 
-	 * @return the source
+	
+	/*
+	 * Applies gardner Knopoff aftershock filter scaling to MFD in place.
 	 */
-	public ProbEqkSource getCrosshairSource(int idx, double duration) {
-		IncrementalMagFreqDist mfd = getNodeMFD(idx);
-		Location loc = region.locationForIndex(idx);
-		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
-			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
-			true);
+	private static void scaleMFD(IncrementalMagFreqDist mfd) {
+		double scale;
+		for (Point2D p : mfd) {
+			scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(p.getX());
+			p.setLocation(p.getX(), p.getY() * scale);
+			mfd.set(p);
+		}
 	}
-	
-	
+		
 	/**
 	 * Set whether all sources should just be treated as point sources, not just
 	 * those with M&leq;6.0
@@ -381,7 +369,12 @@ public class UCERF3_GridSourceGenerator {
 	
 	
 	public static void main(String[] args) {
-
+//
+//		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(1.0, 1.0, 5.05, 8.05, 31);
+//		System.out.println(grMFD);
+//		scaleMFD(grMFD);
+//		System.out.println(grMFD);
+		
 		SimpleFaultSystemSolution tmp = null;
 		try {
 //			File f = new File("tmp/invSols/reference_ch_sol2.zip");

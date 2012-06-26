@@ -10,7 +10,6 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
-import scratch.UCERF3.griddedSeismicity.GridSourceType;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -48,8 +47,8 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
 		int idx = iSource - numFaultSystemSources;
-		return ucerf3_gridSrcGen.getSource(GridSourceType.CROSSHAIR, idx, 
-			timeSpan.getDuration());
+		return ucerf3_gridSrcGen.getSource(idx, 
+			timeSpan.getDuration(), applyAftershockFilter, true);
 	}
 
 
