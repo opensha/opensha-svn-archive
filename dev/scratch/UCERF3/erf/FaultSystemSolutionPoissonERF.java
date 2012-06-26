@@ -16,6 +16,7 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -60,6 +61,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected AleatoryMagAreaStdDevParam aleatoryMagAreaStdDevParam;
 	protected boolean aleatoryMagAreaStdDevChanged;
 	double aleatoryMagAreaStdDev = Double.NaN;
+	protected ApplyGardnerKnopoffAftershockFilterParam applyAftershockFilterParam;
+	protected boolean applyAftershockFilter;
 	
 	// these help keep track of what's changed
 	protected File prevFile = null;
@@ -132,14 +135,20 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		aleatoryMagAreaStdDevParam = new AleatoryMagAreaStdDevParam();
 		adjustableParams.addParameter(aleatoryMagAreaStdDevParam);
 		
+		applyAftershockFilterParam= new ApplyGardnerKnopoffAftershockFilterParam();  // default is false
+		adjustableParams.addParameter(applyAftershockFilterParam);
+
+		
 		// set listeners
 		fileParam.addParameterChangeListener(this);
 		faultGridSpacingParam.addParameterChangeListener(this);
 		aleatoryMagAreaStdDevParam.addParameterChangeListener(this);
+		applyAftershockFilterParam.addParameterChangeListener(this);
 		
 		// set primitives
 		faultGridSpacing = faultGridSpacingParam.getValue();
 		aleatoryMagAreaStdDev = aleatoryMagAreaStdDevParam.getValue();
+		applyAftershockFilter = applyAftershockFilterParam.getValue();
 
 
 
@@ -190,6 +199,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		} else if (paramName.equalsIgnoreCase(aleatoryMagAreaStdDevParam.getName())) {
 			aleatoryMagAreaStdDev = aleatoryMagAreaStdDevParam.getValue();
 			aleatoryMagAreaStdDevChanged = true;
+		} else if (paramName.equalsIgnoreCase(applyAftershockFilterParam.getName())) {
+			applyAftershockFilter = applyAftershockFilterParam.getValue();
+
 		} else
 			throw new RuntimeException("parameter name not recognized");
 	}

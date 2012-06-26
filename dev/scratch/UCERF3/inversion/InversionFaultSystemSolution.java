@@ -410,6 +410,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	/**
 	 * This calculates the MFD for the solution and returns the total RELM testing region target minus the solution.
+	 * TODO rename to getImpliedTotalGriddedSeisMFD
 	 * @return
 	 */
 	public IncrementalMagFreqDist getImpliedOffFaultStatewideMFD() {
@@ -422,6 +423,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	/**
 	 * This calculates the MFD for the solution and returns the target minus the solution.
+	 * TODO rename to getImpliedTotalGriddedSeisMFD
 	 * @param totalMFD
 	 * @return
 	 */
@@ -433,6 +435,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 	/**
 	 * This calculates the MFD for the solution and returns the target minus the solution.
+	 * TODO rename to getImpliedTotalGriddedSeisMFD
 	 * @param target
 	 * @return
 	 */

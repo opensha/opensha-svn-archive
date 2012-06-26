@@ -35,8 +35,7 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 		
 		System.out.println("rateTest="+totalRate);
 		
-//		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(faultSysSolution,null,SpatialSeisPDF.AVG_DEF_MODEL,8.54,SmallMagScaling.MO_REDUCTION);
-		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(faultSysSolution,null,spatialPDF,8.54,scalingMethod);
+		ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(faultSysSolution);
 
 		numOtherSources = ucerf3_gridSrcGen.getNumSources();
 //		numOtherSources=0;

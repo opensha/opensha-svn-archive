@@ -76,8 +76,7 @@ public class GridSrcMFDPlotter {
 	
 	void plotFault(int idx) {
 
-		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			fss, null, SpatialSeisPDF.UCERF3, 8.54, magScaling);
+		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(fss);
 		System.out.println("init done");
 		
 		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
@@ -121,8 +120,7 @@ public class GridSrcMFDPlotter {
 	}
 	void plotChar() {
 
-		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			fss, null, SpatialSeisPDF.UCERF2, 8.54, magScaling);
+		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(fss);
 		System.out.println("init done");
 		
 		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
@@ -203,8 +201,7 @@ public class GridSrcMFDPlotter {
 	
 	void plotGR() {
 
-		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			fss, null, SpatialSeisPDF.UCERF3, 8.54, magScaling);
+		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(fss);
 		System.out.println("init done");
 		
 		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();

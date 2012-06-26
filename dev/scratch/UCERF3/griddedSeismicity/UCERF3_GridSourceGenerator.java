@@ -28,8 +28,12 @@ import com.google.common.collect.Maps;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 
 /**
  * This class generates the gridded sources for the UCERF3 background seismicity.
@@ -52,6 +56,8 @@ public class UCERF3_GridSourceGenerator {
 
 	private IncrementalMagFreqDist totalOffFaultMFD;
 	
+	private LogicTreeBranch branch;
+		
 	// this has the sub-seismo fault section rupture removed
 	private IncrementalMagFreqDist realOffFaultMFD;
 	
@@ -64,12 +70,10 @@ public class UCERF3_GridSourceGenerator {
 	private double[] srcSpatialPDF;		// from Karen or from UCERF2 (or maybe a deformation model)
 	private double[] revisedSpatialPDF;	// revised to cut fault-section-polygon areas out (and renormalized)
 	
-	private FaultSystemSolution fss;
+	private InversionFaultSystemSolution fss;
 	
 	private double totalMgt5_Rate;
-	
-	private SmallMagScaling scalingMethod;
-	
+		
 	// reference mfd values
 	private double mfdMin = 5.05;
 	private double mfdMax = 8.45;
@@ -87,38 +91,26 @@ public class UCERF3_GridSourceGenerator {
 	 * @param totalMgt5_Rate
 	 * @param scalingMethod method to use when scaling small magnitude MFDs 
 	 */
-	public UCERF3_GridSourceGenerator(
-			InversionFaultSystemSolution fss, 
-			IncrementalMagFreqDist totalOffFaultMFD,
-			SpatialSeisPDF spatialPDF,
-			double totalMgt5_Rate,
-			SmallMagScaling scalingMethod) {
+	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution fss) {
 		
 		this.fss = fss;
+		this.branch = fss.getBranch();
+		this.srcSpatialPDF = fss.getBranch().getValue(SpatialSeisPDF.class).getPDF();
+		this.totalMgt5_Rate =  fss.getBranch().getValue(TotalMag5Rate.class).getRateMag5();
 		
-		this.totalOffFaultMFD = (totalOffFaultMFD == null) ? fss
-			.getImpliedOffFaultStatewideMFD() : totalOffFaultMFD;
 		mfdMin = this.totalOffFaultMFD.getMinX();
 		mfdMax = this.totalOffFaultMFD.getMaxX();
 		mfdNum = this.totalOffFaultMFD.getNum();
-		
-		this.totalMgt5_Rate = totalMgt5_Rate;
-		this.scalingMethod = scalingMethod;
-				
-		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 0d);
-		initGrids(spatialPDF);
+						
+		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
+		initGrids();
 		
 		
 		/*
 		 * STEP 1:
 		 * 
 		 * Initialize the sub-seismogenic MFDs for each fault section
-		 * (sectSubSeisMFDs) by creating a GR MFD where b=1 and
-		 * Mmax=minMagForSection and scaling it to match either:
-		 * 
-		 * CH -- The rate implied by the smoothed spatial PDF of seismicity
-		 * 
-		 * GR -- The corresponding small event moment reduction (M 5+ only)
+		 * (sectSubSeisMFDs)
 		 */
 		initSectionMFDs();
 
@@ -134,26 +126,17 @@ public class UCERF3_GridSourceGenerator {
 		/*
 		 * STEP 3
 		 * 
-		 * Compute the realOffFaultMFD by either:
-		 * 
-		 * CH -- copying totalOffFaultMFD and subtracting all sectSubSeisMFDs
-		 * 
-		 * GR -- assign it a GR MFD with b=1 and Mmax from totalOffFaultMFD, and
-		 * scale it to have the totalMgt5_Rate; because this does not account
-		 * for the portion of the MFD already alotted to the sectSubSeisMFDs, it
-		 * is further scaled in STEP 4; this is not done here because it
-		 * requires the revised spatial PDF
-		 */
-		computeOffFaultMFD();
+		 * Get the realOffFaultMFD:
+		 */		
+		realOffFaultMFD = fss.getInversionMFDs().getTrulyOffFaultMFD();
+
 
 		/*
 		 * STEP 4:
 		 * 
 		 * Update (normalize) the spatial PDF to account for those nodes that
 		 * are partially of fully occupied by faults to whom all small magnitude
-		 * events will have been apportioned. As noted above in STEP 3, the
-		 * GR/MO_REDUCTION approach requires scaling the realOffFaultMFD by the
-		 * areal reduction of the spatial PDF
+		 * events will have been apportioned.
 		 */
 		updateSpatialPDF();
 		
@@ -162,77 +145,23 @@ public class UCERF3_GridSourceGenerator {
 
 	/* STEP 1 */
 	private void initSectionMFDs() {
+		
+		List<GutenbergRichterMagFreqDist> subSeisMFD_list;
+		// make sure we deal with special case for GR moFix branch
+		boolean noFix = (branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE);
+		boolean gr = (branch.getValue(InversionModels.class).isGR());
+		if(noFix && gr) {
+			throw new RuntimeException("not yet implemented"); // TODO implement this
+		}
+		else {
+			subSeisMFD_list = fss.getInversionMFDs().getSubSeismoOnFaultMFD_List();
+		}
+			
 		sectSubSeisMFDs = Maps.newHashMap();
 		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
-
-		for (FaultSectionPrefData sect : faults) {
-			int idx = sect.getSectionId();
-			
-			// creating sub-seismogenic MFDs
-			double subSeisMax = fss.getMinMagForSection(idx);
-			GutenbergRichterMagFreqDist subSeisMFD = new GutenbergRichterMagFreqDist(
-				1d, 1d, mfdMin, mfdMax, mfdNum);
-			subSeisMFD.setTolerance(0.2);
-			subSeisMFD.zeroAtAndAboveMag(subSeisMax);
-
-			if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
-				// scale to match small event Mo reduction for section
-				
-				// original moment rate reduction for section (down to M=0)
-				double reduction = fss.getOrigMomentRate(idx) -
-						fss.getReducedMomentRate(idx);
-				// true reduction considering only M>5
-				reduction = adjustMoScale(M0_MIN, mfdMax, M0_NUM, mfdMin,
-					subSeisMFD.getMaxMagWithNonZeroRate(), reduction);
-				subSeisMFD.scaleToTotalMomentRate(reduction);
-				
-			} else { // SmallMagScaling.SPATIAL
-				// scale to match rate implied by smoothed seismicity
-				
-				// rate of events implied by section-node intersections
-				double sectSubSeisRate = rateForSect(polyMgr
-					.getSectFractions(idx));
-				// to avoid double counting seismogenic (large) events
-				// subtract supra-seis rate
-				IncrementalMagFreqDist seisMFD = fss.calcNucleationMFD_forSect(
-					idx, mfdMin, mfdMax, mfdNum);
-				double sectSeisRate = seisMFD.getCumRate(mfdMin);
-				sectSubSeisRate -= sectSeisRate;
-				subSeisMFD.scaleToCumRate(mfdMin, sectSubSeisRate);
-			}
-			sectSubSeisMFDs.put(idx, subSeisMFD);
+		for (int i=0; i<faults.size();i++) {
+			sectSubSeisMFDs.put(faults.get(i).getSectionId(), subSeisMFD_list.get(i));
 		}
-	}
-	
-	// MFD down to M=0
-	private static final double M0_MIN = 0.05;
-	private static final int M0_NUM = 85;
-	
-	// Scales a GR MFD (b=1) from min<M<max to the supplied total moment
-	private static double adjustMoScale(double min, double max, int num,
-			double minCut, double maxCut, double Mo) {
-		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(1d,
-			1d, min, max, num);
-		mfd.setTolerance(0.2);
-		mfd.zeroAtAndAboveMag(maxCut);
-		mfd.scaleToTotalMomentRate(Mo);
-		double sum = 0.0;
-		int startIdx = mfd.getXIndex(minCut);
-		int endIdx = mfd.getXIndex(maxCut);
-		for (int i = startIdx; i <= endIdx; i++) {
-			sum += mfd.getMomentRate(i);
-		}
-		return sum;
-	}
-	
-	// Sums fractional rates of a section over all polys it intersects
-	private double rateForSect(Map<Integer, Double> particMap) {
-		double sum = 0; // sect rate M>5
-		for (Integer nodeIdx : particMap.keySet()) {
-			double partic = particMap.get(nodeIdx);
-			sum += srcSpatialPDF[nodeIdx] * totalMgt5_Rate * partic;
-		}
-		return sum;
 	}
 
 
@@ -257,28 +186,6 @@ public class UCERF3_GridSourceGenerator {
 		}
 	}
 	
-	/* STEP 3 */
-	private void computeOffFaultMFD() {
-		if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
-			GutenbergRichterMagFreqDist grTmp = new GutenbergRichterMagFreqDist(
-				1d, 1d, mfdMin, mfdMax, mfdNum);
-			double max = totalOffFaultMFD.getMaxMagWithNonZeroRate();
-			grTmp.zeroAboveMag(max);
-			grTmp.scaleToCumRate(mfdMin, totalMgt5_Rate);
-			realOffFaultMFD = grTmp;
-		} else {
-			double min = totalOffFaultMFD.getMinX();
-			double max = totalOffFaultMFD.getMaxX();
-			int num = totalOffFaultMFD.getNum();
-			SummedMagFreqDist realMFD = new SummedMagFreqDist(min, max, num);
-			realMFD.addIncrementalMagFreqDist(totalOffFaultMFD);
-			for (IncrementalMagFreqDist mfd : sectSubSeisMFDs.values()) {
-				realMFD.subtractIncrementalMagFreqDist(mfd);
-			}
-			realOffFaultMFD = realMFD;
-		}
-	}
-	
 	/* STEP 4 */
 	private void updateSpatialPDF() {
 		// update pdf
@@ -287,25 +194,12 @@ public class UCERF3_GridSourceGenerator {
 			double fraction = 1 - polyMgr.getNodeFraction(i);
 			revisedSpatialPDF[i] = srcSpatialPDF[i] * fraction;
 		}
-		if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
-			// to maintain consistency with spatial approach, where the
-			// realOffFaultMFD is the sum of the unassociated mfd for all nodes
-			// [via getNodeUnassociatedMFD()] and the unassociated mfd for any
-			// node is the product of the pdf and realOffFaultMFD, we must
-			// scale the previously computed realOffFaultMFD
-			double scale = DataUtils.sum(revisedSpatialPDF);
-			realOffFaultMFD.scaleToCumRate(mfdMin, totalMgt5_Rate * scale);
-			
-		}
 		// normalize
 		DataUtils.asWeights(revisedSpatialPDF);
 	}
 	
 	
-	private void initGrids(SpatialSeisPDF pdf) {
-		if (pdf == null) pdf = SpatialSeisPDF.UCERF3;
-		srcSpatialPDF = pdf.getPDF();
-		
+	private void initGrids() {
 		GridReader gRead;
 		gRead = new GridReader("StrikeSlipWts.txt");
 		fracStrikeSlip = gRead.getValues();
@@ -499,9 +393,9 @@ public class UCERF3_GridSourceGenerator {
 		}
 		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
 
-		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);
-		System.out.println("init done");
+//		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
+//			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);
+//		System.out.println("init done");
 
 		
 //		Location loc = new Location(36, -119);
