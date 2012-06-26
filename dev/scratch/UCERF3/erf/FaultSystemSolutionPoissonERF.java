@@ -24,6 +24,7 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
 
 /**
  * This class creates a Poisson ERF from a given FaultSystemSolution.  Each "rupture" in the FaultSystemSolution
@@ -351,17 +352,20 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		int invRupIndex= fltSysRupIndexForSource[iSource];
 		FaultRuptureSource src;
 		
+		double mag = faultSysSolution.getMagForRup(invRupIndex);
+		double aftRateCorr = 1d;
+		if(applyAftershockFilter) aftRateCorr = GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
+		
 		if(aleatoryMagAreaStdDev == 0) {
 			boolean isPoisson = true;
-			double prob = 1-Math.exp(-faultSysSolution.getRateForRup(invRupIndex)*timeSpan.getDuration());
-			src = new FaultRuptureSource(faultSysSolution.getMagForRup(invRupIndex), 
+			double prob = 1-Math.exp(-aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*timeSpan.getDuration());
+			src = new FaultRuptureSource(mag, 
 										  faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing), 
 										  faultSysSolution.getAveRakeForRup(invRupIndex), prob, isPoisson);
 		}
 		else {
 
-			double mag = faultSysSolution.getMagForRup(invRupIndex);
-			double totMoRate = faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
+			double totMoRate = aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
 			src = new FaultRuptureSource(srcMFD, 
 					faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing),
