@@ -9,7 +9,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
@@ -26,9 +28,12 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -1396,11 +1401,114 @@ public class FaultSystemRupSetCalc {
 		System.out.println(result);
 
 	}
+	
+	/**
+	 * Returns true if the given rupture occurs on multiple named faults as defined by
+	 * <code>FaultModels.getNamedFaultsMap()</code>.
+	 * 
+	 * @param rupSet
+	 * @param rupIndex
+	 * @return
+	 */
+	public static boolean isRupMultiplyNamed(FaultSystemRupSet rupSet, int rupIndex) {
+		Map<Integer, List<Integer>> namedMap = rupSet.getFaultModel().getNamedFaultsMap();
+		
+		List<Integer> parents = rupSet.getParentSectionsForRup(rupIndex);
+		
+		List<Integer> named = null;
+		for (Integer parent : parents) {
+			if (named == null) {
+				named = namedMap.get(parent);
+				Preconditions.checkNotNull(named, "Parent ID '"+parent+"' not found in named faults file!");
+			}
+			if (!named.contains(parent))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Calculates the rate of ruptures above the given magnitude that occur on multiple named faults. If
+	 * <code>probPaleoVisible</code> is true then rates are convolved with their paleo visible probability.
+	 * @param sol
+	 * @param minMag
+	 * @param probPaleoVisible
+	 * @return
+	 */
+	public static double calcTotRateMultiplyNamedFaults(FaultSystemSolution sol, double minMag, boolean probPaleoVisible) {
+		double rate = 0;
+		
+		for (int rupIndex=0; rupIndex<sol.getNumRuptures(); rupIndex++) {
+			double mag = sol.getMagForRup(rupIndex);
+			if (mag < minMag)
+				continue;
+			if (isRupMultiplyNamed(sol, rupIndex)) {
+				double rupRate = sol.getRateForRup(rupIndex);
+				if (probPaleoVisible)
+					rupRate *= sol.getProbPaleoVisible(mag);
+				rate += rupRate;
+			}
+		}
+		return rate;
+	}
+	
+	/**
+	 * This returns the total rate of events at or above the given minimum magnitude. If <code>probPaleoVisible</code>
+	 * is true then rates are convolved with their paleo visible probability.
+	 * 
+	 * @param sol
+	 * @param minMag
+	 * @param probPaleoVisible
+	 * @return
+	 */
+	public static double calcTotRateAboveMag(FaultSystemSolution sol, double minMag, boolean probPaleoVisible) {
+		double rate = 0;
+		for (int rupIndex=0; rupIndex<sol.getNumRuptures(); rupIndex++) {
+			double mag = sol.getMagForRup(rupIndex);
+			if (mag < minMag)
+				continue;
+			double rupRate = sol.getRateForRup(rupIndex);
+			if (probPaleoVisible)
+				rupRate *= sol.getProbPaleoVisible(mag);
+			rate += rupRate;
+		}
+		return rate;
+	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		try {
+//			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(
+//					new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
+//							"FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip"));
+//			
+//
+//			double totalMultiplyNamedM7Rate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 7d, false);
+//			double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, true);
+//			
+//			double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, false);
+//			double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, true);
+//			
+//			System.out.println("Total rupture rate (M7+): "+totalM7Rate);
+//			System.out.println("Total multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate);
+//			System.out.println("% of M7+ rate that are multiply named: "
+//					+(100d * totalMultiplyNamedM7Rate / totalM7Rate)+" %");
+//			System.out.println("Total paleo visible rupture rate: "+totalPaleoVisibleRate);
+//			System.out.println("Total multiply named paleo visible rupture rate: "+totalMultiplyNamedPaleoVisibleRate);
+//			System.out.println("% of paleo visible rate that are multiply named: "
+//					+(100d * totalMultiplyNamedPaleoVisibleRate / totalPaleoVisibleRate)+" %");
+//			System.exit(0);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (DocumentException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 //		testImplGR_fracSeisOnFltAssumingSameCC();
 //		testAllInversionSetups();

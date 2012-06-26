@@ -37,6 +37,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
@@ -352,8 +353,15 @@ public class CommandLineInversionRunner {
 				File solutionFile = new File(dir, prefix+"_sol.zip");
 				
 				// add moments to info string
-				info += "\n\nOriginal File Name: "+solutionFile.getName()
+				info += "\n\n****** Moment and Rupture Rate Metatdata ******";
+				info += "\nOriginal File Name: "+solutionFile.getName()
 						+"\nNum Ruptures: "+loadedRupSet.getNumRuptures();
+				int numNonZeros = 0;
+				for (double rate : sol.getRateForAllRups())
+					if (rate != 0)
+						numNonZeros++;
+				float percent = (float)numNonZeros / loadedRupSet.getNumRuptures() * 100f;
+				info += "\nNum Non-Zero Rups: "+numNonZeros+"/"+loadedRupSet.getNumRuptures()+" ("+percent+" %)";
 				info += "\nOrig (creep reduced) Fault Moment Rate: "+loadedRupSet.getTotalOrigMomentRate();
 				double momRed = loadedRupSet.getTotalMomentRateReduction();
 				info += "\nMoment Reduction (subseismogenic & coupling coefficient): "+momRed;
@@ -380,13 +388,22 @@ public class CommandLineInversionRunner {
 					invSol = null;
 					System.out.println("WARNING: InversionFaultSystemSolution could not be instantiated!");
 				}
-
-				int numNonZeros = 0;
-				for (double rate : sol.getRateForAllRups())
-					if (rate != 0)
-						numNonZeros++;
-				float percent = (float)numNonZeros / loadedRupSet.getNumRuptures() * 100f;
-				info += "\nNum Non-Zero Rups: "+numNonZeros+"/"+loadedRupSet.getNumRuptures()+" ("+percent+" %)";
+				
+				double totalMultiplyNamedM7Rate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 7d, false);
+				double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, true);
+				
+				double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, false);
+				double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, true);
+				
+				info += "\n\nTotal rupture rate (M7+): "+totalM7Rate;
+				info += "\nTotal multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate;
+				info += "\n% of M7+ rate that are multiply named: "
+						+(100d * totalMultiplyNamedM7Rate / totalM7Rate)+" %";
+				info += "\nTotal paleo visible rupture rate: "+totalPaleoVisibleRate;
+				info += "\nTotal multiply named paleo visible rupture rate: "+totalMultiplyNamedPaleoVisibleRate;
+				info += "\n% of paleo visible rate that are multiply named: "
+						+(100d * totalMultiplyNamedPaleoVisibleRate / totalPaleoVisibleRate)+" %";
+				info += "\n***********************************************";
 				
 				// parent fault moment rates
 				ArrayList<ParentMomentRecord> parentMoRates = getSectionMoments(sol);

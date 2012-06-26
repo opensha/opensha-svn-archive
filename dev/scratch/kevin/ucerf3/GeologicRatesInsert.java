@@ -1,5 +1,7 @@
 package scratch.kevin.ucerf3;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.gui.addEdit.faultSection.EditFaultSection;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.collect.Lists;
 
@@ -29,6 +32,12 @@ public class GeologicRatesInsert {
 	 */
 	public static void main(String[] args) throws IOException {
 		try {
+			FileWriter fw = new FileWriter(new File("/tmp/fm2_1_parents.txt"));
+			for (FaultSectionPrefData data : FaultModels.FM2_1.fetchFaultSections())
+				fw.write(data.getSectionId()+"\t"+data.getSectionName()+"\n");
+			fw.close();
+			System.exit(0);
+				
 //			DB_AccessAPI db = DB_ConnectionPool.getLatestReadWriteConn();
 			DB_AccessAPI db = DB_ConnectionPool.getDirectLatestReadWriteConnection();
 			DB_ConnectionPool.authenticateDBConnection(true, false);

@@ -25,6 +25,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
@@ -744,6 +745,16 @@ public abstract class FaultSystemRupSet {
 		}
 		
 		return rupturesForParentSectionCache.get(parentSectID);
+	}
+	
+	public final List<Integer> getParentSectionsForRup(int rupIndex) {
+		List<Integer> parents = Lists.newArrayList();
+		for (int sectIndex : getSectionsIndicesForRup(rupIndex)) {
+			int parent = getFaultSectionData(sectIndex).getParentSectionId();
+			if (!parents.contains(parent))
+				parents.add(parent);
+		}
+		return parents;
 	}
 	
 	/**

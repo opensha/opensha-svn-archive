@@ -1,19 +1,29 @@
 package scratch.UCERF3.enumTreeBranches;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
@@ -32,6 +42,7 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 	private String modelName;
 	private int id;
 	private double weight;
+	private Map<Integer, List<Integer>> namedFaultsMap;
 	
 	private FaultModels(String modelName, int id, double weight) {
 		this.modelName = modelName;
@@ -147,6 +158,53 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 		}
 
 		return faultModel;
+	}
+	
+	/**
+	 * This returns a mapping between fault section ids and other faults with the same name. Note that the
+	 * returned list will include the section id of the requested id in addition to other faults with the same
+	 * name.
+	 * @return
+	 */
+	public Map<Integer, List<Integer>> getNamedFaultsMap() {
+		if (namedFaultsMap == null) {
+			synchronized (this) {
+				try {
+					Map<Integer, List<Integer>> map = Maps.newHashMap();
+					
+					BufferedReader br = new BufferedReader(UCERF3_DataUtils.getReader(FAULT_MODEL_STORE_DIR_NAME,
+							getShortName()+"FaultsByName.txt"));
+					
+					String line = br.readLine();
+					
+					Splitter s = Splitter.on('\t');
+					
+					while (line != null) {
+						line = line.trim();
+						if (!line.isEmpty()) {
+							ArrayList<Integer> sects = Lists.newArrayList();
+							
+							for (String idStr : s.split(line))
+								sects.add(Integer.parseInt(idStr));
+							
+							Preconditions.checkState(!sects.isEmpty(), "Shouldn't be empty here!");
+							
+							for (Integer id : sects) {
+								map.put(id, sects);
+							}
+						}
+						
+						line = br.readLine();
+					}
+					
+					if (namedFaultsMap == null)
+						namedFaultsMap = map;
+				} catch (Throwable t) {
+					throw ExceptionUtils.asRuntimeException(t);
+				}
+			}
+		}
+		return namedFaultsMap;
 	}
 	
 	@Override
