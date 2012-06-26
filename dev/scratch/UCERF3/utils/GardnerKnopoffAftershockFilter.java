@@ -1,5 +1,7 @@
 package scratch.UCERF3.utils;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -32,6 +34,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 	 * @return
 	 */
 	public static double scaleForMagnitude(double m) {
+		checkArgument(m > instance.getMinX() && m < instance.getMaxX());
 		return instance.getClosestY(m);
 	}
 	
