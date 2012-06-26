@@ -9,18 +9,24 @@ import java.util.Map;
 
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
@@ -445,6 +451,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	/**
 	 * This simply returns the given target MFD minus the given MFD
+	 * TODO rename to getImpliedTotalGriddedSeisMFD
 	 * @param magHist
 	 * @param target
 	 * @return
@@ -461,6 +468,40 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 		return offFaultMFD;
 	}
+	
+	
+	/**
+	 * This computes the subseismogenic MFD for each sections using the final (post-inversion) slip rates
+	 * assuming the section nucleates a perfect GR (after moment balancing, values above and equal to
+	 * getMinMagForSection(s) are set to zero).
+	 * @return
+	 */
+	public ArrayList<GutenbergRichterMagFreqDist> getImpliedSubSeisGR_MFD_List() {
+		
+		double minMag = InversionMFDs.MIN_MAG;
+		double deltaMag = InversionMFDs.DELTA_MAG;
+		int numMag = InversionMFDs.NUM_MAG;
+		ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = new ArrayList<GutenbergRichterMagFreqDist>();
+		GutenbergRichterMagFreqDist tempGR = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag);
+		for(int s=0; s<this.getNumSections(); s++) {
+			
+			double area = getAreaForSection(s); // SI units
+			double slipRate = calcSlipRateForSect(s); // SI units
+			double newMoRate = FaultMomentCalc.getMoment(area, slipRate);
+			if(Double.isNaN(newMoRate)) newMoRate = 0;
+			int mMaxIndex = tempGR.getClosestXIndex(getMaxMagForSection(s));
+			double mMax = tempGR.getX(mMaxIndex);
+			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag, minMag, mMax, newMoRate, 1.0);
+			double minSeismoMag = getMinMagForSection(s);
+			if(Double.isNaN(minSeismoMag))
+				gr.scaleToCumRate(0, 0d);
+			else
+				gr.zeroAtAndAboveMag(minSeismoMag);
+			grNuclMFD_List.add(gr);
+		}
+		return grNuclMFD_List;
+	}
+	
 	
 	public static void main(String args[]) throws IOException, DocumentException {
 //		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(
