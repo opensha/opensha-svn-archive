@@ -153,7 +153,7 @@ public class UCERF3_GridSourceGenerator {
 		boolean noFix = (branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE);
 		boolean gr = (branch.getValue(InversionModels.class).isGR());
 		if(noFix && gr) {
-			throw new RuntimeException("not yet implemented"); // TODO implement this
+			subSeisMFD_list = fss.getImpliedSubSeisGR_MFD_List(); // get post-inversion MFDs
 		}
 		else {
 			subSeisMFD_list = fss.getInversionMFDs().getSubSeismoOnFaultMFD_List();
