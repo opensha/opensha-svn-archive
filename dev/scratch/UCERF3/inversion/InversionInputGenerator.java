@@ -675,6 +675,7 @@ public class InversionInputGenerator {
 						continue rupLoop;
 				}
 				parkfieldRups.add(potentialRups.get(i));
+				if (D) System.out.println("Parkfield rup: "+potentialRups.get(i));
 			}
 			if (D) System.out.println("Number of M~6 Parkfield rups = "+parkfieldRups.size());
 			

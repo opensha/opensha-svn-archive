@@ -20,6 +20,7 @@ import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.PaleoProbabilityModel;
@@ -47,11 +48,11 @@ public class RunInversion {
 
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "GEOLOGICPLUSABM_30MIN";
+		String fileName = "EllBScaling";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
-		InversionModels inversionModel = InversionModels.CHAR_CONSTRAINED;
+		InversionModels inversionModel = InversionModels.GR_UNCONSTRAINED;
 		
 		// fetch the rupture set
 		InversionFaultSystemRupSet rupSet = null;
@@ -59,8 +60,8 @@ public class RunInversion {
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAseis, FaultModels.FM3_1, DeformationModels.GEOLOGIC,
-					ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAseis, inversionModel, FaultModels.FM3_1, DeformationModels.NEOKINEMA,
+					ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.APPLY_IMPLIED_CC, SpatialSeisPDF.UCERF3);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction
@@ -143,10 +144,10 @@ public class RunInversion {
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
 //		criteria = TimeCompletionCriteria.getInHours(1); 
-		criteria = TimeCompletionCriteria.getInMinutes(1); 
+//		criteria = TimeCompletionCriteria.getInMinutes(1); 
 //		criteria = TimeCompletionCriteria.getInSeconds(30); 
 		// or use this to run until a set amount of iterations have been completed
-//		criteria = new IterationCompletionCriteria(1); 
+		criteria = new IterationCompletionCriteria(1); 
 
 		SimulatedAnnealing sa;
 		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
