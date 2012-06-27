@@ -28,7 +28,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class InversionMFDs {
 	
 	// debugging flag
-	final static boolean D = false;;
+	final static boolean D = false;
+	final static boolean GR_OFF_FAULT_IS_TAPERED = true;
 	String debugString;
 
 	FaultSystemRupSet fltSysRupSet;
@@ -245,8 +246,12 @@ public class InversionMFDs {
 			}
 			
 			trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
-//			trulyOffFaultMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
 			trulyOffFaultMFD.scaleToCumRate(0, offFaultRegionRateMgt5*1e5);
+			if(GR_OFF_FAULT_IS_TAPERED) {
+				double moRate = trulyOffFaultMFD.getTotalMomentRate();
+				trulyOffFaultMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+				((TaperedGR_MagFreqDist)trulyOffFaultMFD).setAllButCornerMag(MIN_MAG, moRate, offFaultRegionRateMgt5*1e5, 1.0);
+			}
 
 			// compute coupling coefficients
 			finalOffFaultCouplingCoeff = trulyOffFaultMFD.getTotalMomentRate()/offFltDefModMoRate;

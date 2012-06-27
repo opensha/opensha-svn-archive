@@ -27,6 +27,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -1204,6 +1205,9 @@ public class FaultSystemRupSetCalc {
 	public static void plotPreInversionMFDs(InversionFaultSystemRupSet invFltSysRupSet, boolean plotNvsScalTargets, 
 			boolean plotSumTests, boolean addUCERF2_MFDs, String pdfFileName) {
 		
+		boolean isGR = invFltSysRupSet.getLogicTreeBranch().getValue(InversionModels.class).isGR();
+		System.out.println("isGR="+isGR);
+		
 		InversionMFDs inversionMFDs = invFltSysRupSet.getInversionMFDs();
 		
 		SummedMagFreqDist targetOnFaultSupraSeisMFD  =inversionMFDs.getTargetOnFaultSupraSeisMFD();
@@ -1212,7 +1216,11 @@ public class FaultSystemRupSetCalc {
 		
 		IncrementalMagFreqDist trulyOffFaultMFD = inversionMFDs.getTrulyOffFaultMFD();
 		trulyOffFaultMFD.setName("trulyOffFaultMFD");
-		trulyOffFaultMFD.setInfo("Rate(M>=5)="+(float)trulyOffFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)trulyOffFaultMFD.getTotalMomentRate());
+		String infoString = "Rate(M>=5)="+(float)trulyOffFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)trulyOffFaultMFD.getTotalMomentRate();
+		if(trulyOffFaultMFD instanceof TaperedGR_MagFreqDist) {
+			infoString += "\tCornerMag="+(float)((TaperedGR_MagFreqDist)trulyOffFaultMFD).getmagCorner();
+		}
+		trulyOffFaultMFD.setInfo(infoString);
 				
 		SummedMagFreqDist totalSubSeismoOnFaultMFD = inversionMFDs.getTotalSubSeismoOnFaultMFD();
 		totalSubSeismoOnFaultMFD.setName("totalSubSeismoOnFaultMFD");
@@ -1241,13 +1249,25 @@ public class FaultSystemRupSetCalc {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.GRAY));
 		
-		SummedMagFreqDist totalOnFaultTarget = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
-		totalOnFaultTarget.addIncrementalMagFreqDist(totalTargetGR);
-		totalOnFaultTarget.subtractIncrementalMagFreqDist(trulyOffFaultMFD);
-		totalOnFaultTarget.setName("totalOnFaultTarget (totalTargetGR minus trulyOffFaultMFD)");
-		totalOnFaultTarget.setInfo("Rate(M>=5)="+(float)totalOnFaultTarget.getCumRate(5.05)+"\tMoRate="+(float)totalOnFaultTarget.getTotalMomentRate());							
-		mfds.add(totalOnFaultTarget);
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.ORANGE));
+		if(isGR) {	// plot total implied target
+			SummedMagFreqDist totalMFDsum = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
+			totalMFDsum.addIncrementalMagFreqDist(targetOnFaultSupraSeisMFD);
+			totalMFDsum.addIncrementalMagFreqDist(trulyOffFaultMFD);
+			totalMFDsum.addIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
+			totalMFDsum.setName("targetOnFaultSupraSeisMFD+totalSubSeismoOnFaultMFD+trulyOffFaultMFD+");
+			totalMFDsum.setInfo("Rate(M>=5)="+(float)totalMFDsum.getCumRate(5.05)+"\tMoRate="+(float)totalMFDsum.getTotalMomentRate());							
+			mfds.add(totalMFDsum);
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.ORANGE));		
+		}
+		else { // plot total target on-fault distribution
+			SummedMagFreqDist totalOnFaultTarget = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
+			totalOnFaultTarget.addIncrementalMagFreqDist(totalTargetGR);
+			totalOnFaultTarget.subtractIncrementalMagFreqDist(trulyOffFaultMFD);
+			totalOnFaultTarget.setName("totalOnFaultTarget (totalTargetGR minus trulyOffFaultMFD)");
+			totalOnFaultTarget.setInfo("Rate(M>=5)="+(float)totalOnFaultTarget.getCumRate(5.05)+"\tMoRate="+(float)totalOnFaultTarget.getTotalMomentRate());							
+			mfds.add(totalOnFaultTarget);
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.ORANGE));
+		}
 
 		if(plotSumTests) {
 			SummedMagFreqDist totalTest = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
@@ -1291,7 +1311,14 @@ public class FaultSystemRupSetCalc {
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.MAGENTA));
 		}
 
-		
+		// plot orig GR nucleation MFD if GR branch
+		if(isGR) {
+			SummedMagFreqDist impliedOnFault_GR_NuclMFD = calcImpliedGR_NucleationMFD(invFltSysRupSet, InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG, InversionMFDs.DELTA_MAG);
+			impliedOnFault_GR_NuclMFD.setName("ImpliedGR_NucleationMFD");
+			impliedOnFault_GR_NuclMFD.setInfo("(if every section nucleates a GR with no implied coupling coeff)");
+			mfds.add(impliedOnFault_GR_NuclMFD);
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.DARK_GRAY));
+		}
 		
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Pre-Inversion MFDs", plotChars);
 		graph.setX_AxisRange(5, 9);
@@ -1515,10 +1542,10 @@ public class FaultSystemRupSetCalc {
 		
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
 				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_8p0, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
 //		System.out.println(rupSet.getPreInversionAnalysisData(true));
-		plotPreInversionMFDs(rupSet, false, false, false, "preInvGR_MFDs.pdf");
+		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
 		
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 //				InversionModels.GR_UNCONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 

@@ -721,6 +721,10 @@ public class DeformationModelsCalc {
 			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModOffFault, ucerf2_OffFault, "AveDefModOffFault_RatioToUCERF2_MoRateMap", " " , "AveDefModOffFault_RatioToUCERF2_MoRateMap");
 			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModTotal, ucerf2_All, "AveDefModTotal_RatioToUCERF2_MoRateMap", " " , "AveDefModTotal_RatioToUCERF2_MoRateMap");
 
+			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_Faults, aveDefModOnFault, "UCERF2OnFault_RatioToAveDefMod_MoRateMap", " " , "UCERF2OnFault_RatioToAveDefMod_MoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_OffFault, aveDefModOffFault, "UCERF2OffFault_RatioToAveDefMod_MoRateMap", " " , "UCERF2OffFault_RatioToAveDefMod_MoRateMap");
+			GMT_CA_Maps.plotRatioOfRateMaps(ucerf2_All, aveDefModTotal, "UCERF2_Total_RatioToAveDefMod_MoRateMap", " " , "UCERF2_Total_RatioToAveDefMod_MoRateMap");
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1102,12 +1106,12 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.SF_BOX()); 
-		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.LA_BOX()); 
+//		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.SF_BOX()); 
+//		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.LA_BOX()); 
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		
-//		plotMoreSpatialMaps();
+		plotMoreSpatialMaps();
 
 		
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 
@@ -1130,7 +1134,7 @@ public class DeformationModelsCalc {
 		
 
 //		testFaultZonePolygons(FaultModels.FM3_1);
-		testFaultZonePolygons(FaultModels.FM3_2);
+//		testFaultZonePolygons(FaultModels.FM3_2);
 		
 //		writeListOfNewFaultSections();
 		
