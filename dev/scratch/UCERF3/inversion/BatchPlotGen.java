@@ -54,6 +54,7 @@ public class BatchPlotGen {
 			FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
 		}
 		FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false);
 	}
 	
 	private static HashMap<FaultModels, FaultSystemSolution> ucerf2SolutionCache = Maps.newHashMap();

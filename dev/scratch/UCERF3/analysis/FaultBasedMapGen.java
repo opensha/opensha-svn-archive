@@ -32,6 +32,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -412,6 +413,52 @@ public class FaultBasedMapGen {
 		makeFaultPlot(cpt, lines, values, region, saveDir, prefix+"_sect_pairs", display, true, "Normalized Section Pair Rates");
 	}
 	
+	public static void plotSegmentation(FaultSystemSolution sol, Region region,
+			File saveDir, String prefix, boolean display) throws GMT_MapException, RuntimeException, IOException {
+		CPT cpt = getNormalizedPairRatesCPT();
+		
+		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
+		double[] values = new double[faults.size()];
+		for (int i=0; i<values.length; i++)
+			values[i] = Double.NaN;
+		
+		ArrayList<Integer> ends = Lists.newArrayList();
+		
+		int prevParent = -2;
+		for (int sectIndex=0; sectIndex<sol.getNumSections(); sectIndex++) {
+			int parent = sol.getFaultSectionData(sectIndex).getParentSectionId();
+			
+			if (prevParent != parent) {
+				if (sectIndex > 0)
+					ends.add(sectIndex-1);
+				ends.add(sectIndex);
+			}
+			
+			prevParent = parent;
+		}
+		
+		// this will color ends by the rate of all ruptures ending at this section divided by
+		// the total rate of all ruptures involving this section.
+		for (int sect : ends) {
+			List<Integer> rups = sol.getRupturesForSection(sect);
+			
+			double totRate = 0;
+			double endRate = 0;
+			
+			for (int rupID : rups) {
+				double rate = sol.getRateForRup(rupID);
+				List<Integer> sects = sol.getSectionsIndicesForRup(rupID);
+				if (sects.get(0) == sect || sects.get(sects.size()-1) == sect)
+					endRate += rate;
+				totRate += rate;
+			}
+			
+			values[sect] = endRate / totRate;
+		}
+		
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_segmentation", display, false, "Segmentation");
+	}
+	
 	private static Location getTraceMidpoint(FaultSectionPrefData fault) {
 		return FaultUtils.resampleTrace(fault.getFaultTrace(), 10).get(5);
 	}
@@ -529,7 +576,8 @@ public class FaultBasedMapGen {
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_PREVENT_run0_sol.zip");
-		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0_VarMFDMod1.3_VarNone_sol.zip");
+//		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0_VarMFDMod1.3_VarNone_sol.zip");
+		File solFile = new File(invSolsDir, "FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
 //		File solFile = new File("/tmp/ucerf2_fm2_compare.zip");
 		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
 		
@@ -543,6 +591,8 @@ public class FaultBasedMapGen {
 //		plotOrigCreepReducedSlipRates(sol, region, saveDir, prefix, display);
 //		plotTargetSlipRates(sol, region, saveDir, prefix, display);
 //		plotSolutionSlipRates(sol, region, saveDir, prefix, display);
+		plotSegmentation(sol, region, saveDir, prefix, display);
+		System.exit(0);
 		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display, true);
 		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display, false);
 //		plotParticipationRates(sol, region, saveDir, prefix, display, 6.7, 10);
