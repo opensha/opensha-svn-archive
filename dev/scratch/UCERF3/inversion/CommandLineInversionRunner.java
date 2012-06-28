@@ -454,7 +454,7 @@ public class CommandLineInversionRunner {
 			fw.write(info);
 			fw.close();
 			
-			System.out.println("Deleting RupSet (norelativePaleoRateWt longer needed)");
+			System.out.println("Deleting RupSet (no longer needed)");
 			rupSetFile.delete();
 		} catch (MissingOptionException e) {
 			System.err.println(e.getMessage());

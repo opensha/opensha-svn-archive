@@ -302,6 +302,7 @@ public class GraphPanel extends JSplitPane {
 				((NumberAxis)xAxis).setAutoRangeIncludesZero( false );
 			xAxis.setStandardTickUnits(units);
 			xAxis.setTickMarksVisible(false);
+			xAxis.setTickLabelInsets(new RectangleInsets(3, 10, 3, 10));
 			//Axis label font
 			Font axisLabelFont = xAxis.getLabelFont();
 			xAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));

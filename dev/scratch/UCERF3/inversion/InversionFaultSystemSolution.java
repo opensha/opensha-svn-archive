@@ -323,6 +323,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.funcs, spec.title, spec.chars, true);
 		
+		gw.setTickLabelFontSize(14);
+		gw.setAxisLabelFontSize(16);
+		gw.setPlotLabelFontSize(18);
 		gw.setX_AxisLabel(spec.xAxisLabel);
 		gw.setY_AxisLabel(spec.yAxisLabel);
 		gw.setYLog(true);
@@ -338,6 +341,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(14);
+		gp.setAxisLabelFontSize(16);
+		gp.setPlotLabelFontSize(18);
 		gp.setYLog(true);
 		gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
 		double minX = totalMFD.getMinX();
@@ -395,15 +401,16 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //		}
 		
 		// Implied Off Fault TODO: use off fault from InversionMFDs - need methods for so/no cal
-		IncrementalMagFreqDist solOffFaultMFD;
+		IncrementalMagFreqDist solOffFaultMFD = null;
 		// this could be cleaner :-/
-		if (statewide)
-			solOffFaultMFD = inversionMFDs.getTrulyOffFaultMFD();
-		else
-			solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
-		solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
-		funcs.add(solOffFaultMFD);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
+		if (statewide) {
+			solOffFaultMFD = inversionMFDs.getTotalSubSeismoOnPlusTrulyOffFaultMFD();
+			solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
+			funcs.add(solOffFaultMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
+		}
+//		} else
+//			solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
 		
 		// UCERF2 comparisons
 		ucerf2Fetch.setRegion(region);
@@ -415,14 +422,43 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		ucerf2_OffFaultMFD.setName("UCERF2 Background Seismicity MFD"); 
 //		funcs.add(ucerf2_OnFaultTargetMFD);
 //		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
-		funcs.add(ucerf2_OffFaultMFD);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
+		funcs.add(0, ucerf2_OffFaultMFD);
+		chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
+		
+		if (solOffFaultMFD != null) {
+			// total sum
+			SummedMagFreqDist totalModelMFD = new SummedMagFreqDist(solMFD.getMinX(), solMFD.getMaxX(), solMFD.getNum());
+//			System.out.println(solMFD.getMinX()+"\t"+solMFD.getMaxX()+"\t"+solMFD.getNum());
+//			System.out.println(solOffFaultMFD.getMinX()+"\t"+solOffFaultMFD.getMaxX()+"\t"+solOffFaultMFD.getNum());
+			totalModelMFD.addIncrementalMagFreqDist(solMFD);
+			totalModelMFD.addIncrementalMagFreqDist(resizeMFD(solOffFaultMFD, solMFD));
+			totalModelMFD.setName("Total Model Solution MFD");
+			funcs.add(totalModelMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.RED));
+		}
 		
 		String plotTitle = "Magnitude Histogram for Final Rates";
 		if (region.getName() != null && !region.getName().isEmpty())
 			plotTitle += " ("+region.getName()+")";
 		
 		return new PlotSpec(funcs, chars, plotTitle, "Magnitude", "Frequency (per bin)");
+	}
+	
+	private static IncrementalMagFreqDist resizeMFD(IncrementalMagFreqDist smaller, IncrementalMagFreqDist target) {
+		if (smaller.getMinX() == target.getMinX() && smaller.getMaxX() == target.getMaxX())
+			return smaller;
+		IncrementalMagFreqDist newSmall = newSameRange(target);
+		for (int i=0; i<newSmall.getNum(); i++) {
+			double x = newSmall.getX(i);
+			double y;
+			try {
+				y = smaller.getY(x);
+			} catch (Exception e) {
+				y = 0d;
+			}
+			newSmall.set(i, y);
+		}
+		return newSmall;
 	}
 	
 	/**
@@ -520,10 +556,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 //						"FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip"));
 		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(new File(
 						"/tmp/ucerf2_fm2_compare.zip"));
-		simple.plotMFDs(Lists.newArrayList(OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850)));
+//		simple.plotMFDs(Lists.newArrayList(OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850)));
 		
-//		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
-//		inv.plotMFDs();
+		
+		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
+		inv.plotMFDs();
 		
 //		CommandLineInversionRunner.writeMFDPlots(inv, new File("/tmp"), "test_plots");
 	}
