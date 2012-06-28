@@ -120,6 +120,7 @@ public class BatchPlotGen {
 				File avgSolFile = new File(dir, meanPrefix+"_sol.zip");
 				if (avgSolFile.exists()) {
 					System.out.println("Skipping (mean sol already done): "+meanPrefix);
+					continue;
 				}
 				// this is an average of many run
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
