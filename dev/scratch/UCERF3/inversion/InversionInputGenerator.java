@@ -205,7 +205,7 @@ public class InversionInputGenerator {
 				// Find number of rows used for MFD equality constraint - only include mag bins between minimum and maximum magnitudes in rupture set
 				totalNumMagFreqConstraints += targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag())-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag())+1;
 				// add number of rows used for magnitude distribution constraint
-				numRows=numRows+targetMagFreqDist.getNum();
+				numRows+=targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag())-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag())+1;
 			}
 			if(D) System.out.println("Number of magnitude-distribution equality constraints: "
 					+totalNumMagFreqConstraints);
