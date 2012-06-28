@@ -115,16 +115,20 @@ public class BatchPlotGen {
 					System.out.println("Not quite done with '"+prefix+"' ("+completed+"/"+total+")");
 					continue;
 				}
+				prefix = prefix.substring(0, prefix.indexOf("_run"));
+				String meanPrefix = prefix + "_mean";
+				File avgSolFile = new File(dir, meanPrefix+"_sol.zip");
+				if (avgSolFile.exists()) {
+					System.out.println("Skipping (mean sol already done): "+meanPrefix);
+				}
 				// this is an average of many run
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
-				prefix = prefix.substring(0, prefix.indexOf("_run"));
 				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, dir, prefix);
 				prefix += "_mean";
-				File avgSolFile = new File(dir, prefix+"_sol.zip");
 				avgSol.toZipFile(avgSolFile);
 				// write bin file as well
-				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(dir, prefix+".bin"));
-				handleSolutionFile(avgSolFile, prefix, avgSol);
+				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(dir, meanPrefix+".bin"));
+				handleSolutionFile(avgSolFile, meanPrefix, avgSol);
 			} else {
 				handleSolutionFile(file, prefix, null);
 			}
