@@ -60,6 +60,7 @@ public class BatchPlotGen {
 		FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 0, 10);
 		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7, 10);
+		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7.5, 10);
 	}
 	
 	private static HashMap<FaultModels, FaultSystemSolution> ucerf2SolutionCache = Maps.newHashMap();
