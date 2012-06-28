@@ -15,9 +15,9 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	
 	//						Name					ShortName	Weight	FaultModel			File
 	// UCERF2
+	UCERF2_ALL(				"UCERF2 All",			"UC2ALL",	0d,		FaultModels.FM2_1),
 	UCERF2_NCAL(			"UCERF2 NCal", 			"NCAL", 	0d,		FaultModels.FM2_1),
 	UCERF2_BAYAREA(			"UCERF2 Bay Area", 		"BAY",		0d,		FaultModels.FM2_1),
-	UCERF2_ALL(				"UCERF2 All",			"UC2ALL",	0d,		FaultModels.FM2_1),
 	
 	// UCERF3
 	// AVERAGE BLOCK MODEL

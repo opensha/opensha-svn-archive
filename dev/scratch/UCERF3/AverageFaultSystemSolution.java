@@ -229,6 +229,9 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 	public static AverageFaultSystemSolution fromDirectory(FaultSystemRupSet rupSet, File dir, String prefix) throws IOException {
 		ArrayList<File> files = new ArrayList<File>();
 		
+		System.out.println("Loading average solution from: "+dir.getAbsolutePath());
+		System.out.println("Prefix: "+prefix);
+		
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory())
 				continue;
@@ -246,8 +249,8 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 		Collections.sort(files, new FileNameComparator());
 		
 		int numSols = files.size();
-		Preconditions.checkState(numSols > 0, "must have at least 1 solution!");
-		System.out.println("Loading ruptures with "+numSols+" solutions!");
+		Preconditions.checkState(numSols > 1, "must have at least 2 solutions! (found="+numSols+")");
+		System.out.println("Loading "+numSols+" solutions!");
 		int numRups = rupSet.getNumRuptures();
 		
 		List<double[]> rates = Lists.newArrayList();
