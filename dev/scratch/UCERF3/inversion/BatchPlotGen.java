@@ -22,6 +22,7 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.utils.MatrixIO;
 
 public class BatchPlotGen {
 	
@@ -119,6 +120,8 @@ public class BatchPlotGen {
 				prefix = prefix.substring(0, prefix.indexOf("_run"))+"_mean";
 				File avgSolFile = new File(dir, prefix+"_sol.zip");
 				avgSol.toZipFile(avgSolFile);
+				// write bin file as well
+				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(dir, prefix+".bin"));
 				handleSolutionFile(avgSolFile, prefix, avgSol);
 			} else {
 				handleSolutionFile(file, prefix, null);
