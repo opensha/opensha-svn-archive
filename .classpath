@@ -89,12 +89,8 @@
 			<attribute name="javadoc_location" value="http://mpj-express.org/docs/javadocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/poi-3.7-20101029.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://poi.apache.org/apidocs/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jxlayer.jar"/>
 	<classpathentry kind="lib" path="lib/BrowserLauncher2-1_3.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.8-20120326.jar"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>

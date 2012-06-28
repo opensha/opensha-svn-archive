@@ -14,7 +14,10 @@ import org.opensha.commons.util.ClassUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -54,7 +57,8 @@ public class BatchPlotGen {
 			FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
 		}
 		FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 0, 10);
+		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7, 10);
 	}
 	
 	private static HashMap<FaultModels, FaultSystemSolution> ucerf2SolutionCache = Maps.newHashMap();
@@ -92,27 +96,60 @@ public class BatchPlotGen {
 			
 			String prefix = fileName.substring(0, fileName.indexOf("_sol.zip"));
 			
-			File testMapDoneFile = new File(dir, prefix+"_sect_pairs.png");
-			boolean hasMapPlots = testMapDoneFile.exists();
-			File testMFDDoneFile = new File(dir, prefix+"_MFD_RELM_SOCAL_Region.png");
-			boolean hasMFDPlots = testMFDDoneFile.exists();
-//			boolean hasMFDPlots = 
-			if (hasMapPlots && hasMFDPlots) {
-				// we've already done this one, skip!
-				System.out.println("Skipping (already done): "+prefix);
-				continue;
+			if (prefix.contains("_run")) {
+				// make sure that every run is done
+				int total = 0;
+				int completed = 0;
+				for (File testFile : dir.listFiles()) {
+					String testName = testFile.getName();
+					if (testName.startsWith(prefix) && testName.endsWith(".pbs")) {
+						total++;
+						File binFile = new File(dir, testName.substring(0, testName.indexOf(".pbs"))+".bin");
+						if (binFile.exists())
+							completed++;
+					}
+				}
+				if (completed < total) {
+					System.out.println("Not quite done with '"+prefix+"' ("+completed+"/"+total+")");
+					continue;
+				}
+				// this is an average of many run
+				prefix = prefix.substring(0, prefix.indexOf("_run"))+"_mean";
+				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
+				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, dir, prefix);
+				File avgSolFile = new File(dir, prefix+"_sol.zip");
+				avgSol.toZipFile(file);
+				handleSolutionFile(avgSolFile, prefix, avgSol);
+			} else {
+				handleSolutionFile(file, prefix, null);
 			}
-			System.out.println("Processing: "+prefix);
-			
-			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
-			
-			if (!hasMapPlots) {
-				makeMapPlots(sol, dir, prefix);
-			}
-			if (!hasMFDPlots) {
-				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
-				CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
-			}
+		}
+	}
+	
+	private static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol) throws GMT_MapException, RuntimeException, IOException, DocumentException {
+		File dir = file.getParentFile();
+		
+		File testMapDoneFile = new File(dir, prefix+"_sect_pairs.png");
+		boolean hasMapPlots = testMapDoneFile.exists();
+		File testMFDDoneFile = new File(dir, prefix+"_MFD_RELM_SOCAL_Region.png");
+		boolean hasMFDPlots = testMFDDoneFile.exists();
+//		boolean hasMFDPlots = 
+		if (hasMapPlots && hasMFDPlots) {
+			// we've already done this one, skip!
+			System.out.println("Skipping (already done): "+prefix);
+			return;
+		}
+		System.out.println("Processing: "+prefix);
+		
+		if (sol == null)
+			sol = SimpleFaultSystemSolution.fromFile(file);
+		
+		if (!hasMapPlots) {
+			makeMapPlots(sol, dir, prefix);
+		}
+		if (!hasMFDPlots) {
+			InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
+			CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
 		}
 	}
 

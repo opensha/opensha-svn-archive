@@ -35,7 +35,9 @@ import scratch.UCERF3.logicTree.ListBasedTreeTrimmer;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchIterator;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
-import scratch.UCERF3.logicTree.LogicalAndOrTrimmer;
+import scratch.UCERF3.logicTree.LogicalAndTrimmer;
+import scratch.UCERF3.logicTree.LogicalNotTreeTrimmer;
+import scratch.UCERF3.logicTree.LogicalOrTrimmer;
 import scratch.UCERF3.logicTree.SingleValsTreeTrimmer;
 import scratch.UCERF3.logicTree.TreeTrimmer;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
@@ -318,12 +320,12 @@ public class LogicTreePBSWriter {
 			for (LogicTreeBranchNode<?> im : ims) {
 				boolean isChar = ((InversionModels)im).isCharacteristic();
 				MomentRateFixes momFix;
-				if (isChar)
+//				if (isChar)
 					momFix = MomentRateFixes.NONE;
-				else
-					momFix = MomentRateFixes.APPLY_IMPLIED_CC;
+//				else
+//					momFix = MomentRateFixes.APPLY_IMPLIED_CC;
 				branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM3_1, dm, im,
-						ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
+						ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7,
 						MaxMagOffFault.MAG_7p6, momFix, SpatialSeisPDF.UCERF3));
 			}
 		}
@@ -332,10 +334,10 @@ public class LogicTreePBSWriter {
 		for (LogicTreeBranchNode<?> im : ims) {
 			boolean isChar = ((InversionModels)im).isCharacteristic();
 			MomentRateFixes momFix;
-			if (isChar)
+//			if (isChar)
 				momFix = MomentRateFixes.NONE;
-			else
-				momFix = MomentRateFixes.APPLY_IMPLIED_CC;
+//			else
+//				momFix = MomentRateFixes.APPLY_IMPLIED_CC;
 			branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, im,
 					ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
 					MaxMagOffFault.MAG_7p6, momFix, SpatialSeisPDF.UCERF2));
@@ -353,6 +355,26 @@ public class LogicTreePBSWriter {
 			@Override
 			public boolean isTreeValid(LogicTreeBranch branch) {
 				return nonZero.isTreeValid(branch) || ucerf2Trim.isTreeValid(branch);
+			}
+		};
+	}
+	
+	public static TreeTrimmer getNoUCERF2Trimmer() {
+		return new TreeTrimmer() {
+			
+			@Override
+			public boolean isTreeValid(LogicTreeBranch branch) {
+				return !branch.getValue(FaultModels.class).equals(FaultModels.FM2_1);
+			}
+		};
+	}
+	
+	public static TreeTrimmer getNeokinemaOnlyTrimmer() {
+		return new TreeTrimmer() {
+			
+			@Override
+			public boolean isTreeValid(LogicTreeBranch branch) {
+				return branch.getValue(DeformationModels.class).equals(DeformationModels.NEOKINEMA);
 			}
 		};
 	}
@@ -422,12 +444,12 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "gr-impcc-test";
+		String runName = "ref-gr-unconst";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-		int constrained_run_mins = 250;
-//		int constrained_run_mins = 500;
+//		int constrained_run_mins = 250;
+		int constrained_run_mins = 500;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
@@ -438,21 +460,35 @@ public class LogicTreePBSWriter {
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 1;
+		int numRuns = 500;
 		int runStart = 0;
 
 		boolean lightweight = numRuns > 10;
 
 		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+//		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
-		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.GR_CONSTRAINED);
+		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
+		TreeTrimmer charUnconstOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_UNCONSTRAINED);
+		TreeTrimmer grOnly = new SingleValsTreeTrimmer(InversionModels.GR_CONSTRAINED);
+		TreeTrimmer grUnconstOnly = new SingleValsTreeTrimmer(InversionModels.GR_UNCONSTRAINED);
+		TreeTrimmer charOrGR = new LogicalOrTrimmer(charOnly, grOnly);
 //		TreeTrimmer neoKOnly = new SingleValsTreeTrimmer(DeformationModels.NEOKINEMA);
-		trimmer = new LogicalAndOrTrimmer(true, trimmer, charOnly);
+		TreeTrimmer noRefBranches = new LogicalNotTreeTrimmer(getUCERF3RefBranches());
+		TreeTrimmer noUCERF2 = getNoUCERF2Trimmer();
+//		trimmer = new LogicalAndTrimmer(trimmer, charOrGR);
+//		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
+//		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
+		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
+//		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
+//		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
+//		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noRefBranches, noUCERF2);
 		
 		
-//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getNeokinemaOnlyTrimmer());
+//		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
 //		TreeTrimmer defaultBranchesTrimmer = null;
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator

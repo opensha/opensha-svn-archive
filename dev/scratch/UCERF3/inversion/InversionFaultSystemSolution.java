@@ -357,8 +357,15 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		
 		// Solution TODO: region issues for statewide/mendocino
-		IncrementalMagFreqDist solMFD = calcNucleationMFD_forRegion(region,
-				totalMFD.getMinX(), 9.05, 0.1, true);
+		boolean statewide = region.getName().startsWith("RELM_TESTING");
+		
+		IncrementalMagFreqDist solMFD;
+		if (statewide)
+			solMFD = calcNucleationMFD_forRegion(null, // null since we want everything
+					totalMFD.getMinX(), 9.05, 0.1, true);
+		else
+			solMFD = calcNucleationMFD_forRegion(region,
+					totalMFD.getMinX(), 9.05, 0.1, true);
 		solMFD.setName("Solution MFD");
 		solMFD.setInfo("Inversion Solution MFD");
 		funcs.add(solMFD);
@@ -389,7 +396,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		// Implied Off Fault TODO: use off fault from InversionMFDs - need methods for so/no cal
 		IncrementalMagFreqDist solOffFaultMFD;
-		solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
+		// this could be cleaner :-/
+		if (statewide)
+			solOffFaultMFD = inversionMFDs.getTrulyOffFaultMFD();
+		else
+			solOffFaultMFD = getImpliedOffFaultMFD(totalMFD, solMFD);
 		solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
 		funcs.add(solOffFaultMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));

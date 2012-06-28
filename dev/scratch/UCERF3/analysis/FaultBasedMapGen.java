@@ -1,11 +1,14 @@
 package scratch.UCERF3.analysis;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipException;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -21,6 +24,9 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
@@ -33,12 +39,22 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionConfiguration;
+import scratch.UCERF3.utils.DeformationModelFileParser;
+import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
+import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.GeologicSlipRate;
+import scratch.UCERF3.utils.GeologicSlipRateLoader;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class FaultBasedMapGen {
@@ -414,28 +430,41 @@ public class FaultBasedMapGen {
 	}
 	
 	public static void plotSegmentation(FaultSystemSolution sol, Region region,
-			File saveDir, String prefix, boolean display) throws GMT_MapException, RuntimeException, IOException {
+			File saveDir, String prefix, boolean display, double minMag, double maxMag)
+					throws GMT_MapException, RuntimeException, IOException {
 		CPT cpt = getNormalizedPairRatesCPT();
 		
 		List<FaultSectionPrefData> faults = sol.getFaultSectionDataList();
-		double[] values = new double[faults.size()];
-		for (int i=0; i<values.length; i++)
-			values[i] = Double.NaN;
-		
+		Map<Integer, FaultSectionPrefData> faultsMap = Maps.newHashMap();
+		for (FaultSectionPrefData fault : faults)
+			faultsMap.put(fault.getSectionId(), fault);
 		ArrayList<Integer> ends = Lists.newArrayList();
 		
+		Map<Integer, List<FaultSectionPrefData>> parentsMap = Maps.newHashMap();
+		
 		int prevParent = -2;
+		List<FaultSectionPrefData> curSectsForParentList = null;
 		for (int sectIndex=0; sectIndex<sol.getNumSections(); sectIndex++) {
-			int parent = sol.getFaultSectionData(sectIndex).getParentSectionId();
+			FaultSectionPrefData fault = sol.getFaultSectionData(sectIndex);
+			int parent = fault.getParentSectionId();
 			
 			if (prevParent != parent) {
+				// this means we're at the start of a new section
 				if (sectIndex > 0)
 					ends.add(sectIndex-1);
 				ends.add(sectIndex);
+				curSectsForParentList = Lists.newArrayList();
+				parentsMap.put(parent, curSectsForParentList);
 			}
+			
+			curSectsForParentList.add(fault);
 			
 			prevParent = parent;
 		}
+		
+		List<FaultSectionPrefData> visibleFaults = Lists.newArrayList();
+		List<FaultSectionPrefData> visibleNanFaults = Lists.newArrayList();
+		List<Double> valsList = Lists.newArrayList();
 		
 		// this will color ends by the rate of all ruptures ending at this section divided by
 		// the total rate of all ruptures involving this section.
@@ -445,18 +474,133 @@ public class FaultBasedMapGen {
 			double totRate = 0;
 			double endRate = 0;
 			
+			int cnt = 0;
 			for (int rupID : rups) {
+				double mag = sol.getMagForRup(rupID);
+				if (mag < minMag || mag > maxMag)
+					continue;
 				double rate = sol.getRateForRup(rupID);
 				List<Integer> sects = sol.getSectionsIndicesForRup(rupID);
 				if (sects.get(0) == sect || sects.get(sects.size()-1) == sect)
 					endRate += rate;
 				totRate += rate;
+				
+				cnt++;
 			}
-			
-			values[sect] = endRate / totRate;
+			if (cnt > 0) {
+				valsList.add(endRate / totRate);
+				visibleFaults.add(faultsMap.get(sect));
+				
+				// now add the "middle" faults for this section
+				List<FaultSectionPrefData> sects = parentsMap.get(sol.getFaultSectionData(sect).getParentSectionId());
+				if (sect == sects.get(0).getSectionId()) {
+					// only add for the first section of each parent to avoid duplication
+					for (int i=1; i<sects.size()-1; i++)
+						visibleNanFaults.add(sects.get(i));
+				}
+			}
 		}
 		
-		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_segmentation", display, false, "Segmentation");
+		faults = Lists.newArrayList();
+		faults.addAll(visibleNanFaults);
+		faults.addAll(visibleFaults);
+		
+		double[] values = new double[faults.size()];
+		int index;
+		for (index=0; index<visibleNanFaults.size(); index++)
+			values[index] = Double.NaN;
+		
+		for (int i=0; i<visibleFaults.size(); i++)
+			values[index+i] = valsList.get(i);
+		
+		String title = "Segmentation";
+		String fName = prefix+"_segmentation";
+		
+		if (minMag > 5) {
+			title += " ("+(float)minMag;
+			fName += "_"+(float)minMag;
+		}
+		if (maxMag < 9) {
+			title += "=>"+(float)maxMag;
+			fName += "_"+(float)maxMag;
+		} else {
+			title += "+";
+			fName += "+";
+		}
+		
+		title += ")";
+		
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, fName, display, false, title);
+	}
+	
+	public static void plotDeformationModelSlips(Region region, File saveDir, boolean display)
+			throws IOException, GMT_MapException, RuntimeException {
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, "dm_ucerf2");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC, "dm_geol");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ABM, "dm_abm");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.NEOKINEMA, "dm_neok");
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOBOUND, "dm_geob");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ZENG, "dm_zeng");
+		
+		// now make geologic pts plot
+		CPT cpt = getSlipRateCPT();
+		List<GeologicSlipRate> geoRates = GeologicSlipRateLoader.loadExcelFile(
+				new URL("http://www.wgcep.org/sites/wgcep.org/files/UCERF3_Geologic_Slip%20Rates_version%203_2011_08_03.xls"));
+		ArrayList<PSXYSymbol> symbols = Lists.newArrayList();
+		ArrayList<Double> vals = Lists.newArrayList();
+		
+		for (GeologicSlipRate geoRate : geoRates) {
+			Location loc = geoRate.getLocation();
+			Point2D pt = new Point2D.Double(loc.getLongitude(), loc.getLatitude());
+			double rate = geoRate.getValue();
+			Symbol symbol = Symbol.CIRCLE;
+//			if (geoRate.isRange())
+			symbols.add(new PSXYSymbol(pt, symbol, 0.1d));
+			vals.add(rate);
+		}
+		
+		double penWidth = 1d;
+		Color penColor = Color.BLACK;
+		PSXYSymbolSet symbolSet = new PSXYSymbolSet(cpt, symbols, vals, penWidth, penColor, null);
+		
+		GMT_Map map = buildMap(cpt, new ArrayList<LocationList>(), new double[0], region, true, "Slip Rate (mm/yr)");
+		
+		map.setSymbolSet(symbolSet);
+		
+		plotMap(saveDir, "dm_geo_sites", display, map);
+	}
+	
+	public static void plotDeformationModelSlip(
+			Region region, File saveDir, boolean display, FaultModels fm, DeformationModels dm, String prefix)
+			throws IOException, GMT_MapException, RuntimeException {
+		CPT cpt = getSlipRateCPT();
+		
+		List<LocationList> faults = Lists.newArrayList();
+		List<Double> valsList = Lists.newArrayList();
+		
+		if (fm == FaultModels.FM2_1) {
+			DeformationModelFetcher dmFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
+			for (FaultSectionPrefData fault : dmFetch.getSubSectionList()) {
+				faults.add(fault.getFaultTrace());
+				valsList.add(fault.getOrigAveSlipRate());
+			}
+		} else {
+			Map<Integer, DeformationSection> sects = DeformationModelFileParser.load(dm.getDataFileURL(fm));
+			
+			for (DeformationSection sect : sects.values()) {
+				for (int i=0; i<sect.getLocs1().size(); i++) {
+					LocationList locs = new LocationList();
+					locs.add(sect.getLocs1().get(i));
+					locs.add(sect.getLocs2().get(i));
+					faults.add(locs);
+					valsList.add(sect.getSlips().get(i));
+				}
+			}
+		}
+		
+		double[] values = Doubles.toArray(valsList);
+		
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix, display, false, "Slip Rate (mm/yr)");
 	}
 	
 	private static Location getTraceMidpoint(FaultSectionPrefData fault) {
@@ -502,6 +646,41 @@ public class FaultBasedMapGen {
 	private synchronized static void makeFaultPlot(CPT cpt, List<LocationList> faults, double[] values, Region region,
 			File saveDir, String prefix, boolean display, boolean skipNans, String label)
 					throws GMT_MapException, RuntimeException, IOException {
+		GMT_Map map = buildMap(cpt, faults, values, region, skipNans, label);
+		
+		plotMap(saveDir, prefix, display, map);
+	}
+
+	private static void plotMap(File saveDir, String prefix, boolean display,
+			GMT_Map map) throws GMT_MapException, IOException {
+		if (gmt == null)
+			gmt = new GMT_MapGenerator();
+		
+		String url = gmt.makeMapUsingServlet(map, "metadata", null);
+		System.out.println(url);
+		String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
+		if (saveDir != null) {
+			String baseURL = url.substring(0, url.lastIndexOf('/')+1);
+			
+			File pngFile = new File(saveDir, prefix+".png");
+			FileUtils.downloadURL(baseURL+"map.png", pngFile);
+			
+			File pdfFile = new File(saveDir, prefix+".pdf");
+			FileUtils.downloadURL(baseURL+"map.pdf", pdfFile);
+		}
+//		File zipFile = new File(downloadDir, "allFiles.zip");
+//		// construct zip URL
+//		String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+//		FileUtils.downloadURL(zipURL, zipFile);
+//		FileUtils.unzipFile(zipFile, downloadDir);
+		
+		if (display) {
+			new ImageViewerWindow(url,metadata, true);
+		}
+	}
+
+	private static GMT_Map buildMap(CPT cpt, List<LocationList> faults,
+			double[] values, Region region, boolean skipNans, String label) {
 		GMT_Map map = new GMT_Map(region, null, 1, cpt);
 		
 		map.setBlackBackground(false);
@@ -529,31 +708,7 @@ public class FaultBasedMapGen {
 			for (PSXYPolygon poly : getPolygons(fault, c))
 				map.addPolys(poly);
 		}
-		
-		if (gmt == null)
-			gmt = new GMT_MapGenerator();
-		
-		String url = gmt.makeMapUsingServlet(map, "metadata", null);
-		System.out.println(url);
-		String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
-		if (saveDir != null) {
-			String baseURL = url.substring(0, url.lastIndexOf('/')+1);
-			
-			File pngFile = new File(saveDir, prefix+".png");
-			FileUtils.downloadURL(baseURL+"map.png", pngFile);
-			
-			File pdfFile = new File(saveDir, prefix+".pdf");
-			FileUtils.downloadURL(baseURL+"map.pdf", pdfFile);
-		}
-//		File zipFile = new File(downloadDir, "allFiles.zip");
-//		// construct zip URL
-//		String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
-//		FileUtils.downloadURL(zipURL, zipFile);
-//		FileUtils.unzipFile(zipFile, downloadDir);
-		
-		if (display) {
-			new ImageViewerWindow(url,metadata, true);
-		}
+		return map;
 	}
 	
 	private static ArrayList<PSXYPolygon> getPolygons(LocationList locs, Color c) {
@@ -587,11 +742,15 @@ public class FaultBasedMapGen {
 		String prefix = solFile.getName().replaceAll(".zip", "");
 		boolean display = true;
 		
+		plotDeformationModelSlips(region, saveDir, display);
+		System.exit(0);
+		
 //		plotOrigNonReducedSlipRates(sol, region, saveDir, prefix, display);
 //		plotOrigCreepReducedSlipRates(sol, region, saveDir, prefix, display);
 //		plotTargetSlipRates(sol, region, saveDir, prefix, display);
 //		plotSolutionSlipRates(sol, region, saveDir, prefix, display);
-		plotSegmentation(sol, region, saveDir, prefix, display);
+		plotSegmentation(sol, region, saveDir, prefix, display, 7, 10);
+		plotSegmentation(sol, region, saveDir, prefix, display, 7.5, 10);
 		System.exit(0);
 		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display, true);
 		plotSolutionSlipMisfit(sol, region, saveDir, prefix, display, false);

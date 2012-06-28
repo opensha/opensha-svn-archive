@@ -83,9 +83,20 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		this.ratesByRup = rates;
 		
+		String info = getInfoString();
+		
 		numSols = ratesByRup[0].length;
 		int numRups = getNumRuptures();
 		ratesBySol = new double[numSols][numRups];
+		
+		String newInfo = "";
+		newInfo += "************** Average Fault System Solution *****************\n";
+		newInfo += "Number of solutions averaged: "+numSols;
+		newInfo += "**************************************************************\n";
+		
+		info = newInfo+"\n\n"+info;
+		
+		setInfoString(info);
 		
 		for (int s=0; s<numSols; s++) {
 			for (int r=0; r<numRups; r++) {
