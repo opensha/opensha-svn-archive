@@ -114,11 +114,11 @@ public class BatchPlotGen {
 					continue;
 				}
 				// this is an average of many run
-				prefix = prefix.substring(0, prefix.indexOf("_run"))+"_mean";
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
 				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, dir, prefix);
+				prefix = prefix.substring(0, prefix.indexOf("_run"))+"_mean";
 				File avgSolFile = new File(dir, prefix+"_sol.zip");
-				avgSol.toZipFile(file);
+				avgSol.toZipFile(avgSolFile);
 				handleSolutionFile(avgSolFile, prefix, avgSol);
 			} else {
 				handleSolutionFile(file, prefix, null);

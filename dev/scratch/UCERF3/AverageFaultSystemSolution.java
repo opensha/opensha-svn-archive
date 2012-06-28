@@ -246,6 +246,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 		Collections.sort(files, new FileNameComparator());
 		
 		int numSols = files.size();
+		Preconditions.checkState(numSols > 0, "must have at least 1 solution!");
 		int numRups = rupSet.getNumRuptures();
 		
 		List<double[]> rates = Lists.newArrayList();
