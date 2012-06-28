@@ -98,6 +98,8 @@ public class BatchPlotGen {
 			
 			String prefix = fileName.substring(0, fileName.indexOf("_sol.zip"));
 			
+			handleSolutionFile(file, prefix, null);
+			
 			if (prefix.contains("_run")) {
 				// make sure that every run is done
 				int total = 0;
@@ -130,8 +132,6 @@ public class BatchPlotGen {
 				// write bin file as well
 				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(dir, meanPrefix+".bin"));
 				handleSolutionFile(avgSolFile, meanPrefix, avgSol);
-			} else {
-				handleSolutionFile(file, prefix, null);
 			}
 		}
 	}
