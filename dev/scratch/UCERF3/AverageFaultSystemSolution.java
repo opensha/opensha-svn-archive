@@ -242,6 +242,8 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 				continue;
 			if (!name.contains("_run"))
 				continue;
+			if (name.contains("_noMinRates"))
+				continue;
 			
 			files.add(file);
 		}
