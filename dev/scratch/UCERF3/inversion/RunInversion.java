@@ -48,11 +48,11 @@ public class RunInversion {
 
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "EllBScaling";
+		String fileName = "CHARUnconstrainedRef1Iter";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
-		InversionModels inversionModel = InversionModels.GR_UNCONSTRAINED;
+		InversionModels inversionModel = InversionModels.CHAR_UNCONSTRAINED;
 		
 		// fetch the rupture set
 		InversionFaultSystemRupSet rupSet = null;
@@ -61,7 +61,7 @@ public class RunInversion {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAseis, inversionModel, FaultModels.FM3_1, DeformationModels.NEOKINEMA,
-					ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.APPLY_IMPLIED_CC, SpatialSeisPDF.UCERF3);
+					ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
 //			rupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.UCERF2_ALL);  // CAREFUL USING THIS - WILL ALWAYS RUN CHAR BRANCH momentRateReduction
