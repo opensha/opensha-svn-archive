@@ -431,8 +431,7 @@ public class CommandLineInversionRunner {
 				
 				// 1 km jump plot
 				try {
-					writeJumpPlot(sol, distsMap, dir, prefix, 1d, 7d, false);
-					writeJumpPlot(sol, distsMap, dir, prefix, 1d, 0d, true);
+					writeJumpPlots(sol, distsMap, dir, prefix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -468,6 +467,12 @@ public class CommandLineInversionRunner {
 		}
 		System.out.println("DONE");
 		System.exit(0);
+	}
+	
+	public static void writeJumpPlots(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix)
+			throws IOException {
+		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 7d, false);
+		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 0d, true);
 	}
 	
 	public static void writeJumpPlot(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix,
@@ -531,15 +536,14 @@ public class CommandLineInversionRunner {
 		
 		String title = "Inversion Fault Jumps";
 		
-		prefix += "_jumps";
-		if (minMag > 0) {
-			prefix += "_m"+(float)minMag+"+";
+		prefix = getJumpFilePrefix(prefix, minMag, probPaleoVisible);
+		
+		if (minMag > 0)
 			title += " Mag "+(float)minMag+"+";
-		}
-		if (probPaleoVisible) {
-			prefix += "_prob_paleo";
+
+		if (probPaleoVisible)
 			title += " (Convolved w/ ProbPaleoVisible)";
-		}
+		
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, false, title);
@@ -548,6 +552,24 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+	}
+	
+	private static String getJumpFilePrefix(String prefix, double minMag, boolean probPaleoVisible) {
+		prefix += "_jumps";
+		if (minMag > 0)
+			prefix += "_m"+(float)minMag+"+";
+		if (probPaleoVisible)
+			prefix += "_prob_paleo";
+		return prefix;
+	}
+	
+	public static boolean doJumpPlotsExist(File dir, String prefix) {
+		return doesJumpPlotExist(dir, prefix, 0d, true);
+	}
+	
+	private static boolean doesJumpPlotExist(File dir, String prefix,
+			double minMag, boolean probPaleoVisible) {
+		return new File(dir, getJumpFilePrefix(prefix, minMag, probPaleoVisible)+".png").exists();
 	}
 	
 	public static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
@@ -569,14 +591,22 @@ public class CommandLineInversionRunner {
 	public static void writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
 			IncrementalMagFreqDist targetMFD, Region region, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) throws IOException {
 		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(totalMFD, targetMFD, region, ucerf2Fetch);
+		File file = new File(dir, getMFDPrefix(prefix, region));
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+	}
+	
+	private static String getMFDPrefix(String prefix, Region region) {
 		String regName = region.getName();
 		if (regName == null || regName.isEmpty())
 			regName = "Uknown";
 		regName = regName.replaceAll(" ", "_");
-		File file = new File(dir, prefix+"_MFD_"+regName);
-		gp.getCartPanel().setSize(1000, 800);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		return prefix+"_MFD_"+regName;
+	}
+	
+	public static boolean doMFDPlotsExist(File dir, String prefix) {
+		return new File(dir, getMFDPrefix(prefix, RELM_RegionUtils.getGriddedRegionInstance())+".png").exists();
 	}
 	
 	public static ArrayList<PaleoRateConstraint> getPaleoConstraints(FaultModels fm, FaultSystemRupSet rupSet) throws IOException {
@@ -601,6 +631,10 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+	}
+	
+	public static boolean doPaleoPlotsExist(File dir, String prefix) {
+		return new File(dir, prefix+"_paleo_fit.png").exists();
 	}
 	
 	private static ArrayList<ParentMomentRecord> getSectionMoments(FaultSystemSolution sol) {

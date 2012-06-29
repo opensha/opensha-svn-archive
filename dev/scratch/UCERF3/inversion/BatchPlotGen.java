@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -22,7 +23,11 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
 public class BatchPlotGen {
 	
@@ -141,10 +146,11 @@ public class BatchPlotGen {
 		
 		File testMapDoneFile = new File(dir, prefix+"_sect_pairs.png");
 		boolean hasMapPlots = testMapDoneFile.exists();
-		File testMFDDoneFile = new File(dir, prefix+"_MFD_RELM_SOCAL_Region.png");
-		boolean hasMFDPlots = testMFDDoneFile.exists();
+		boolean hasMFDPlots = CommandLineInversionRunner.doMFDPlotsExist(dir, prefix);
+		boolean hasJumpPlots = CommandLineInversionRunner.doJumpPlotsExist(dir, prefix);
+		boolean hasPaleoPlots = CommandLineInversionRunner.doPaleoPlotsExist(dir, prefix);
 //		boolean hasMFDPlots = 
-		if (hasMapPlots && hasMFDPlots) {
+		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
@@ -160,6 +166,21 @@ public class BatchPlotGen {
 		if (!hasMFDPlots) {
 			InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
 			CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
+		}
+		if (!hasJumpPlots) {
+			try {
+				Map<IDPairing, Double> distsMap = new DeformationModelFetcher(sol.getFaultModel(), sol.getDeformationModel(),
+						UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1).getSubSectionDistanceMap(
+								LaughTestFilter.getDefault().getMaxJumpDist());
+				CommandLineInversionRunner.writeJumpPlots(sol, distsMap, dir, prefix);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (!hasJumpPlots) {
+			ArrayList<PaleoRateConstraint> paleoRateConstraints =
+					CommandLineInversionRunner.getPaleoConstraints(sol.getFaultModel(), sol);
+			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, sol, dir, prefix);
 		}
 	}
 
