@@ -214,8 +214,11 @@ public class FaultSpecificSegmentationPlotGen {
 	public static List<Integer> getSAFParents(FaultModels fm) {
 		if (fm == FaultModels.FM2_1)
 			return Lists.newArrayList(295, 284, 283, 119, 301, 286, 287, 300, 285, 32, 57, 56, 67, 27, 26, 13);
-		else
+		else if (fm == FaultModels.FM3_1)
 			return Lists.newArrayList(97, 170, 295, 284, 283, 282, 301, 286, 287, 300,
+					285, 32, 658, 657, 655, 654, 653, 13);
+		else
+			return Lists.newArrayList(97, 171, 295, 284, 283, 282, 301, 286, 287, 300,
 					285, 32, 658, 657, 655, 654, 653, 13);
 	}
 	
