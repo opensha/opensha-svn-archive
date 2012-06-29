@@ -675,7 +675,7 @@ public class CommandLineInversionRunner {
 	}
 	
 	public static boolean doSAFSegPlotsExist(File dir, String prefix) {
-		return new File(dir, getSAFSegPrefix(prefix, 7.5, false)).exists();
+		return new File(dir, getSAFSegPrefix(prefix, 7.5, false)+".png").exists();
 	}
 	
 	private static ArrayList<ParentMomentRecord> getSectionMoments(FaultSystemSolution sol) {
