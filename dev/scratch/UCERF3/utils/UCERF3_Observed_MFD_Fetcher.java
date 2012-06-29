@@ -74,7 +74,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 	public UCERF3_Observed_MFD_Fetcher() {
 		
 		// DATA FILES
-//		DirectCountsFull.txt
+//		DirectCountsWholeState.txt
 //		DirectCountsLA.txt
 //		DirectCountsNoCal.txt
 //		DirectCountsSF.txt
@@ -99,7 +99,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		mfds = readMFD_DataFromFile("LongTermModelSoCal.txt");
 		longTermModelSoCal = mfds.get(0);
 		
-		mfds = readMFD_DataFromFile("DirectCountsFull.txt");
+		mfds = readMFD_DataFromFile("DirectCountsWholeState.txt");
 		directCountsFull = mfds.get(0);
 		directCountsFull_Lower95 = mfds.get(1);
 		directCountsFull_Upper95 = mfds.get(2);
@@ -374,7 +374,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-				
+		
 //		System.out.println(getGarderKnoppoffFractAftershocksMDF());
 	
 		UCERF3_Observed_MFD_Fetcher test = new UCERF3_Observed_MFD_Fetcher();		
