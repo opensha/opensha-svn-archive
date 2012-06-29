@@ -36,7 +36,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author field
  *
  */
-public class UCERF3_MFD_ConstraintFetcher {
+public class UCERF3_Observed_MFD_Fetcher {
 	
 	final static boolean D=true;
 	
@@ -71,7 +71,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 		
 		}
 	
-	public UCERF3_MFD_ConstraintFetcher() {
+	public UCERF3_Observed_MFD_Fetcher() {
 		
 		// DATA FILES
 //		DirectCountsFull.txt
@@ -377,7 +377,7 @@ public class UCERF3_MFD_ConstraintFetcher {
 				
 //		System.out.println(getGarderKnoppoffFractAftershocksMDF());
 	
-		UCERF3_MFD_ConstraintFetcher test = new UCERF3_MFD_ConstraintFetcher();		
+		UCERF3_Observed_MFD_Fetcher test = new UCERF3_Observed_MFD_Fetcher();		
 		test.plotCumMFDs();
 	}
 

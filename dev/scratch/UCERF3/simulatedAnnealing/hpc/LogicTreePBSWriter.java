@@ -449,13 +449,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "2012_06_29-ref-branches-vars-energyfix";
+		String runName = "ref-gr-unconst-targetmfdfix";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
 //		int constrained_run_mins = 250;
 		int constrained_run_mins = 500;
-//		runName = df.format(new Date())+"-"+runName;
+		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
@@ -465,7 +465,7 @@ public class LogicTreePBSWriter {
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 1;
+		int numRuns = 500;
 		int runStart = 0;
 
 		boolean lightweight = numRuns > 10;
@@ -484,10 +484,10 @@ public class LogicTreePBSWriter {
 		TreeTrimmer noRefBranches = new LogicalNotTreeTrimmer(getUCERF3RefBranches());
 		TreeTrimmer noUCERF2 = getNoUCERF2Trimmer();
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR);
-		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
+//		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
-//		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
+		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
@@ -539,9 +539,9 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR_CONSTRAINED, 1);
+		maxAway.put(InversionModels.CHAR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.CHAR_UNCONSTRAINED, 0);
-		maxAway.put(InversionModels.GR_CONSTRAINED, 1);
+		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);
 		VariableLogicTreeBranch[] defaultBranches = null;
 		
