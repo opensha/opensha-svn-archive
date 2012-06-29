@@ -149,8 +149,9 @@ public class BatchPlotGen {
 		boolean hasMFDPlots = CommandLineInversionRunner.doMFDPlotsExist(dir, prefix);
 		boolean hasJumpPlots = CommandLineInversionRunner.doJumpPlotsExist(dir, prefix);
 		boolean hasPaleoPlots = CommandLineInversionRunner.doPaleoPlotsExist(dir, prefix);
+		boolean hasSAFSegPlots = CommandLineInversionRunner.doSAFSegPlotsExist(dir, prefix);
 //		boolean hasMFDPlots = 
-		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots) {
+		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasSAFSegPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
@@ -185,6 +186,13 @@ public class BatchPlotGen {
 			ArrayList<PaleoRateConstraint> paleoRateConstraints =
 					CommandLineInversionRunner.getPaleoConstraints(sol.getFaultModel(), sol);
 			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, sol, dir, prefix);
+		}
+		if (!hasSAFSegPlots) {
+			try {
+				CommandLineInversionRunner.writeSAFSegPlots(sol, dir, prefix);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

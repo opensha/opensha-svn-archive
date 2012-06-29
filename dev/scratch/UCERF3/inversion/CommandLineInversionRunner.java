@@ -37,6 +37,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.FaultSpecificSegmentationPlotGen;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -447,6 +448,12 @@ public class CommandLineInversionRunner {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
+				try {
+					writeSAFSegPlots(sol, dir, prefix);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			
 			FileWriter fw = new FileWriter(new File(dir, prefix+"_metadata.txt"));
@@ -635,6 +642,40 @@ public class CommandLineInversionRunner {
 	
 	public static boolean doPaleoPlotsExist(File dir, String prefix) {
 		return new File(dir, prefix+"_paleo_fit.png").exists();
+	}
+	
+	public static void writeSAFSegPlots(FaultSystemSolution sol, File dir, String prefix) throws IOException {
+		List<Integer> parentSects = FaultSpecificSegmentationPlotGen.getSAFParents(sol.getFaultModel());
+		
+		writeSAFSegPlot(sol, dir, prefix, parentSects, 0, false);
+		writeSAFSegPlot(sol, dir, prefix, parentSects, 7, false);
+		writeSAFSegPlot(sol, dir, prefix, parentSects, 7.5, false);
+	
+	}
+	
+	public static void writeSAFSegPlot(FaultSystemSolution sol, File dir, String prefix,
+			List<Integer> parentSects, double minMag, boolean endsOnly) throws IOException {
+		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(parentSects, sol, minMag, endsOnly);
+		
+		prefix = getSAFSegPrefix(prefix, minMag, endsOnly);
+		
+		File file = new File(dir, prefix);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+	}
+	
+	private static String getSAFSegPrefix(String prefix, double minMag, boolean endsOnly) {
+		prefix += "_saf_seg";
+		
+		if (minMag > 5)
+			prefix += (float)minMag+"+";
+		
+		return prefix;
+	}
+	
+	public static boolean doSAFSegPlotsExist(File dir, String prefix) {
+		return new File(dir, getSAFSegPrefix(prefix, 7.5, false)).exists();
 	}
 	
 	private static ArrayList<ParentMomentRecord> getSectionMoments(FaultSystemSolution sol) {

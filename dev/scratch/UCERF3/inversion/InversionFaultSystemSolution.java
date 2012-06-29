@@ -20,6 +20,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -301,33 +302,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		return new IncrementalMagFreqDist(other.getMinX(), other.getMaxX(), other.getNum());
 	}
 	
-	private class PlotSpec {
-		private ArrayList<DiscretizedFunc> funcs;
-		private ArrayList<PlotCurveCharacterstics> chars;
-		private String title, xAxisLabel, yAxisLabel;
-		
-		public PlotSpec(ArrayList<DiscretizedFunc> funcs,
-				ArrayList<PlotCurveCharacterstics> chars, String title, String xAxisLabel, String yAxisLabel) {
-			this.funcs = funcs;
-			this.chars = chars;
-			this.title = title;
-			this.xAxisLabel = xAxisLabel;
-			this.yAxisLabel = yAxisLabel;
-		}
-	}
-	
 	public GraphiWindowAPI_Impl getMFDPlotWindow(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		
 		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.funcs, spec.title, spec.chars, true);
+		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), true);
 		
 		gw.setTickLabelFontSize(14);
 		gw.setAxisLabelFontSize(16);
 		gw.setPlotLabelFontSize(18);
-		gw.setX_AxisLabel(spec.xAxisLabel);
-		gw.setY_AxisLabel(spec.yAxisLabel);
+		gw.setX_AxisLabel(spec.getxAxisLabel());
+		gw.setY_AxisLabel(spec.getyAxisLabel());
 		gw.setYLog(true);
 		gw.setY_AxisRange(1e-6, 1.0);
 		
@@ -351,7 +337,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			minX = 5;
 		gp.setUserBounds(minX, totalMFD.getMaxX(),
 				1e-6, 1.0);
-		gp.drawGraphPanel(spec.xAxisLabel, spec.yAxisLabel, spec.funcs, spec.chars, true, spec.title);
+		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), true, spec.getTitle());
 		
 		return gp;
 	}

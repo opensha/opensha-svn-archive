@@ -18,7 +18,9 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -32,6 +34,29 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 public class FaultSpecificSegmentationPlotGen {
 	
 	public static void plotSegmentation(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly) {
+		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
+		
+		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), false);
+		gw.setX_AxisLabel(spec.getxAxisLabel());
+		gw.setY_AxisLabel(spec.getyAxisLabel());
+		gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
+		gw.getGraphWindow().setVisible(true);
+	}
+	
+	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, FaultSystemSolution sol,
+			double minMag, boolean endsOnly) throws IOException {
+		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		gp.setxAxisInverted(true);
+		
+		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), false, spec.getTitle());
+		
+		return gp;
+	}
+	
+	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly) {
 		// first assemble subsections by parent
 		Map<Integer, List<FaultSectionPrefData>> subSectsByParent = Maps.newHashMap();
 		int prevParentID = -2;
@@ -170,9 +195,7 @@ public class FaultSpecificSegmentationPlotGen {
 		else
 			title += " (All Mags)";
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, title, chars, false);
-		gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
-		gw.getGraphWindow().setVisible(true);
+		return new PlotSpec(funcs, chars, title, "Latitude", "Rate Ratio");
 	}
 	
 	private static Location searchForMatch(Location loc, Collection<Location> locs, double toleranceKM) {

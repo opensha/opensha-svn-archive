@@ -26,6 +26,7 @@ import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import com.google.common.base.Preconditions;
 
@@ -121,21 +122,6 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			paleoRateConstraints.add(paleoRateConstraint);
 		}
 		return paleoRateConstraints;
-	}
-	
-	private static class PlotSpec {
-		private ArrayList<DiscretizedFunc> funcs;
-		private ArrayList<PlotCurveCharacterstics> chars;
-		private String title, xAxisLabel, yAxisLabel;
-		
-		public PlotSpec(ArrayList<DiscretizedFunc> funcs,
-				ArrayList<PlotCurveCharacterstics> chars, String title, String xAxisLabel, String yAxisLabel) {
-			this.funcs = funcs;
-			this.chars = chars;
-			this.title = title;
-			this.xAxisLabel = xAxisLabel;
-			this.yAxisLabel = yAxisLabel;
-		}
 	}
 	
 	private static PlotSpec getSegRateComparisonSpec(ArrayList<PaleoRateConstraint> paleoRateConstraint,
@@ -255,9 +241,9 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			ArrayList<FaultSystemSolution> solutions) {
 		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, solutions);
 		
-		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(spec.funcs, spec.title, spec.chars, true);
-		w.setX_AxisLabel(spec.xAxisLabel);
-		w.setY_AxisLabel(spec.yAxisLabel);
+		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), true);
+		w.setX_AxisLabel(spec.getxAxisLabel());
+		w.setY_AxisLabel(spec.getyAxisLabel());
 	}
 	
 	public static HeadlessGraphPanel getHeadlessSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
@@ -267,7 +253,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		
 		gp.setYLog(yLog);
 		
-		gp.drawGraphPanel(spec.xAxisLabel, spec.yAxisLabel, spec.funcs, spec.chars, false, spec.title);
+		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), false, spec.getTitle());
 		
 		return gp;
 	}
