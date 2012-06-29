@@ -558,11 +558,11 @@ public class CommandLineInversionRunner {
 				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 		
 		// no cal
-		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_NoCal(), invSol.getInversionMFDs().noCalTargetMFD,
+		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_NoCal(), invSol.getInversionMFDs().noCalTargetSupraMFD,
 				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
 		
 		// so cal
-		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_SoCal(), invSol.getInversionMFDs().soCalTargetMFD,
+		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_SoCal(), invSol.getInversionMFDs().soCalTargetSupraMFD,
 				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
 	}
 	

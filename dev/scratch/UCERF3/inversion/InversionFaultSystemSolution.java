@@ -284,11 +284,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 		gw.getGraphWindow().setVisible(true);
 		
-		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_NoCal(), inversionMFDs.noCalTargetMFD,
+		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_NoCal(), inversionMFDs.noCalTargetSupraMFD,
 				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
 		gw.getGraphWindow().setVisible(true);
 		
-		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_SoCal(), inversionMFDs.soCalTargetMFD,
+		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_SoCal(), inversionMFDs.soCalTargetSupraMFD,
 				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
 		gw.getGraphWindow().setVisible(true);
 	}
