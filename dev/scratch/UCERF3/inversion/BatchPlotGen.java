@@ -102,6 +102,7 @@ public class BatchPlotGen {
 			
 			if (prefix.contains("_run")) {
 				// make sure that every run is done
+				prefix = prefix.substring(0, prefix.indexOf("_run"));
 				int total = 0;
 				int completed = 0;
 				for (File testFile : dir.listFiles()) {
@@ -117,7 +118,6 @@ public class BatchPlotGen {
 					System.out.println("Not quite done with '"+prefix+"' ("+completed+"/"+total+")");
 					continue;
 				}
-				prefix = prefix.substring(0, prefix.indexOf("_run"));
 				String meanPrefix = prefix + "_mean";
 				File avgSolFile = new File(dir, meanPrefix+"_sol.zip");
 				if (avgSolFile.exists()) {
