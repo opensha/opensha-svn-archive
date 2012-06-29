@@ -342,9 +342,9 @@ public class TaperedGR_MagFreqDist
 
   /**
    *
-   * @return the magCorner : highest magnitude that has non zero rate
+   * @return the magCorner : the corner mag of the tapered GR
    */
-  public double getmagCorner() {
+  public double getMagCorner() {
     return magCorner;
   }
 

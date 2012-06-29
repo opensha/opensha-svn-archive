@@ -53,7 +53,7 @@ public class InversionMFDs {
 	IncrementalMagFreqDist trulyOffFaultMFD;
 	ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List;
 	SummedMagFreqDist totalSubSeismoOnFaultMFD;		// this is a sum of the MFDs in subSeismoOnFaultMFD_List
-	IncrementalMagFreqDist noCalTargetMFD, soCalTargetMFD;
+	IncrementalMagFreqDist noCalTargetSupraMFD, soCalTargetSupraMFD;
 
 	
 	List<MFD_InversionConstraint> mfdConstraintsForNoAndSoCal;
@@ -113,7 +113,7 @@ public class InversionMFDs {
 		offFltDefModMoRate = DeformationModelsCalc.calcMoRateOffFaultsForDefModel(fltSysRupSet.getFaultModel(), fltSysRupSet.getDeformationModel());
 
 		// make the total target GR for region
-		totalTargetGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);	// not used by GR branch
+		totalTargetGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		roundedMmaxOnFault = totalTargetGR.getX(totalTargetGR.getClosestXIndex(fltSysRupSet.getMaxMag()));
 		totalTargetGR.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRegionRateMgt5*1e5, 1.0);
 		
@@ -172,11 +172,11 @@ public class InversionMFDs {
 			targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
 			
 			// split the above between N & S cal
-			noCalTargetMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			soCalTargetMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			noCalTargetSupraMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			soCalTargetSupraMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			for(int i=0; i<NUM_MAG; i++) {
-				noCalTargetMFD.set(i,targetOnFaultSupraSeisMFD.getY(i)*(1.0-fractSeisInSoCal));
-				soCalTargetMFD.set(i,targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
+				noCalTargetSupraMFD.set(i,targetOnFaultSupraSeisMFD.getY(i)*(1.0-fractSeisInSoCal));
+				soCalTargetSupraMFD.set(i,targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
 			}
 
 			// compute coupling coefficients
@@ -189,6 +189,7 @@ public class InversionMFDs {
 			
 			// get the total GR nucleation MFD for all fault section
 			SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
+			
 
 			// compute coupling coefficient
 			impliedOnFaultCouplingCoeff = onFaultRegionRateMgt5/impliedOnFault_GR_NuclMFD.getCumRate(5.05);
@@ -200,14 +201,15 @@ public class InversionMFDs {
 				debugString += "\timpliedOnFault_GR_NuclMFD(5.05) =\t"+impliedOnFault_GR_NuclMFD.getCumRate(5.05);
 				debugString += "\tempCoupCoeff =\t"+tempCoupCoeff+"\n";
 			}
+			
 
 			// split the on-fault MFDs into supra- vs sub-seismo MFDs, and apply tempCoupCoeff
 			ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = FaultSystemRupSetCalc.calcImpliedNuclMFD_ForEachSection(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
 			subSeismoOnFaultMFD_List = new ArrayList<GutenbergRichterMagFreqDist>();
 			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			noCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			soCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			noCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			soCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			for(int s=0;s<grNuclMFD_List.size();s++) {
 				GutenbergRichterMagFreqDist grNuclMFD = grNuclMFD_List.get(s);
 				int minSupraMagIndex = grNuclMFD.getClosestXIndex(fltSysRupSet.getMinMagForSection(s));
@@ -221,8 +223,8 @@ public class InversionMFDs {
 				double fractSectInSoCal = RegionUtils.getFractionInside(soCalGrid, sectTrace);
 				for(int i=minSupraMagIndex;i<grNuclMFD.getNum();i++) {
 					targetOnFaultSupraSeisMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff);
-					noCalTargetMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*(1.0-fractSectInSoCal));
-					soCalTargetMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*fractSectInSoCal);
+					noCalTargetSupraMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*(1.0-fractSectInSoCal));
+					soCalTargetSupraMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*fractSectInSoCal);
 				}
 			}
 			
@@ -235,13 +237,14 @@ public class InversionMFDs {
 				totalSubSeismoOnFaultMFD.scale(impliedOnFaultCouplingCoeff);
 				targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 				targetOnFaultSupraSeisMFD.addIncrementalMagFreqDist(totalTargetGR);
-				targetOnFaultSupraSeisMFD.scale(fractionSeisOnFault);
+				targetOnFaultSupraSeisMFD.scaleToIncrRate(5.05, impliedOnFault_GR_NuclMFD.getY(5.05)*impliedOnFaultCouplingCoeff);
+//				targetOnFaultSupraSeisMFD.scale(fractionSeisOnFault); this has numerical precisions problems?
 				targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
-				noCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-				soCalTargetMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+				noCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+				soCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 				for(int i=0;i<targetOnFaultSupraSeisMFD.getNum();i++) {
-					noCalTargetMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*(1.0-fractSeisInSoCal));
-					soCalTargetMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
+					noCalTargetSupraMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*(1.0-fractSeisInSoCal));	// this is approximate ?????????
+					soCalTargetSupraMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
 				}
 			}
 			
@@ -267,15 +270,15 @@ public class InversionMFDs {
 					"\ttotalSubSeismoOnFaultMFD(5.05) =\t"+(float)totalSubSeismoOnFaultMFD.getCumRate(5.05)+"\n"+
 					"\ttargetOnFaultSupraSeisMFD(5.05) =\t"+(float)targetOnFaultSupraSeisMFD.getCumRate(5.05)+"\n"+
 					"\tsum of above three =\t"+(float)(trulyOffFaultMFD.getCumRate(5.05)+totalSubSeismoOnFaultMFD.getCumRate(5.05)+targetOnFaultSupraSeisMFD.getCumRate(5.05))+"\n"+
-					"\tnoCalTargetMFD(5.05) =\t"+(float)noCalTargetMFD.getCumRate(5.05)+"\n"+
-					"\tsoCalTargetMFD(5.05) =\t"+(float)soCalTargetMFD.getCumRate(5.05)+"\n"+
-					"\tsum of above two =\t"+(float)(noCalTargetMFD.getCumRate(5.05)+soCalTargetMFD.getCumRate(5.05))+"\n";
+					"\tnoCalTargetMFD(5.05) =\t"+(float)noCalTargetSupraMFD.getCumRate(5.05)+"\n"+
+					"\tsoCalTargetMFD(5.05) =\t"+(float)soCalTargetSupraMFD.getCumRate(5.05)+"\n"+
+					"\tsum of above two =\t"+(float)(noCalTargetSupraMFD.getCumRate(5.05)+soCalTargetSupraMFD.getCumRate(5.05))+"\n";
 			System.out.println(debugString);
 		}
 		
 		mfdConstraintsForNoAndSoCal = new ArrayList<MFD_InversionConstraint>();
-		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(noCalTargetMFD, noCalGrid));
-		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(soCalTargetMFD, soCalGrid));
+		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(noCalTargetSupraMFD, noCalGrid));
+		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(soCalTargetSupraMFD, soCalGrid));
 
 	}
 
@@ -346,13 +349,13 @@ public class InversionMFDs {
 			(float)trulyOffFaultMFD.getCumRate(5.05)+"\t"+
 			(float)totalSubSeismoOnFaultMFD.getCumRate(5.05)+"\t"+
 			(float)targetOnFaultSupraSeisMFD.getCumRate(5.05)+"\t"+
-			(float)noCalTargetMFD.getCumRate(5.05)+"\t"+
-			(float)soCalTargetMFD.getCumRate(5.05)+"\t"+
+			(float)noCalTargetSupraMFD.getCumRate(5.05)+"\t"+
+			(float)soCalTargetSupraMFD.getCumRate(5.05)+"\t"+
 			(float)trulyOffFaultMFD.getTotalMomentRate()+"\t"+
 			(float)totalSubSeismoOnFaultMFD.getTotalMomentRate()+"\t"+
 			(float)targetOnFaultSupraSeisMFD.getTotalMomentRate()+"\t"+
-			(float)noCalTargetMFD.getTotalMomentRate()+"\t"+
-			(float)soCalTargetMFD.getTotalMomentRate();
+			(float)noCalTargetSupraMFD.getTotalMomentRate()+"\t"+
+			(float)soCalTargetSupraMFD.getTotalMomentRate();
 
 		return str;
 	}
@@ -405,6 +408,8 @@ public class InversionMFDs {
 		return maxOffMagWithFullMoment;
 
 	}
+	
+	public double getOffFaultRegionRateMgt5() {return offFaultRegionRateMgt5; }
 
 
 }

@@ -201,7 +201,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		return name;
 	}
 	
-	public static void makeSlipLengthPlot(double downDipWidth, int maxLength) {
+	public static void makeSlipLengthPlot(double downDipWidth, int maxLength, boolean saveFiles) {
 		
 		ArbitrarilyDiscretizedFunc u2_func = new ArbitrarilyDiscretizedFunc();
 		u2_func.setName("AVE_UCERF2");
@@ -259,6 +259,16 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		graph.setPlotLabelFontSize(18);
 		graph.setAxisLabelFontSize(18);
 		graph.setTickLabelFontSize(16);
+		
+		if(saveFiles) {
+			try {
+				graph.saveAsPDF("slipLengthScalingPlot.pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 	}
 	
 	
@@ -303,7 +313,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	}
 	
 	
-	public static void makeMagAreaPlot() {
+	public static void makeMagAreaPlot(boolean saveFiles) {
 		
 		double downDipWidth=11;
 		
@@ -346,6 +356,15 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		graph.setPlotLabelFontSize(18);
 		graph.setAxisLabelFontSize(18);
 		graph.setTickLabelFontSize(16);
+		
+		if(saveFiles) {
+			try {
+				graph.saveAsPDF("magAreaScalingPlot.pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 
@@ -353,8 +372,8 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	//public 
 	public static void main(String[] args) throws IOException {
 
-		 makeSlipLengthPlot(11, 1000);
-		 makeMagAreaPlot();
+		 makeSlipLengthPlot(11, 1000, true);
+		 makeMagAreaPlot(true);
 		
 	//	testCreepingSectionSlips();
 		

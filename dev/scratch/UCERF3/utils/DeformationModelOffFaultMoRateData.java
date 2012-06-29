@@ -430,9 +430,14 @@ public class DeformationModelOffFaultMoRateData {
 	private void plotAveDefModPDF_Map(boolean includeGeologic) {
 		
 		try {
-			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_1, includeGeologic), "Ave Def Mod PDF for  FM3.1", "average of the 4 gps deformation models", "AveDefModPDF_FM3_1_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_2, includeGeologic), "Ave Def Mod PDF for  FM3.2", "average of the 4 gps deformation models", "AveDefModPDF_FM3_2_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(includeGeologic), "Ave Def Mod PDF for both FM 3.1 and 3.2", "average of the 4 gps deformation models", "AveDefModPDF_Map");
+			String info;
+			if(includeGeologic)
+				info = "average of 4 deformation models (including Geologic)";
+			else
+				info = "average of 3 deformation models (excluding Geologic)";
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_1, includeGeologic), "Ave Def Mod PDF for  FM3.1", info, "AveDefModPDF_FM3_1_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(FaultModels.FM3_2, includeGeologic), "Ave Def Mod PDF for  FM3.2", info, "AveDefModPDF_FM3_2_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(getAveDefModelPDF(includeGeologic), "Ave Def Mod PDF for both FM 3.1 and 3.2", info, "AveDefModPDF_Map");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -287,24 +287,54 @@ public class FaultSystemRupSetCalc {
 	 * assuming all moment at a section goes into a GR with b=1 from M=0 to the
 	 * maximum magnitude the section participates in.
 	 */
-	public static void plotImpliedTotalSectGR_MFD(FaultSystemRupSet faultSysRupSet, String label) {
-		SummedMagFreqDist mfd = calcImpliedGR_NucleationMFD(faultSysRupSet, 0.05, 90, 0.1);
+	public static void plotImpliedTotalSectGR_MFD(InversionFaultSystemRupSet faultSysRupSet, String label) {
+		SummedMagFreqDist impliedGR = calcImpliedGR_NucleationMFD(faultSysRupSet, InversionMFDs.MIN_MAG,InversionMFDs.NUM_MAG, InversionMFDs.DELTA_MAG);
 		
-		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0.0, 91, 0.1, 0.0, mfd.getMaxMagWithNonZeroRate(), mfd.getTotalMomentRate(), 1.0);
-		gr.setName("Perfect GR");
-		gr.setInfo("(up to mag of largest event in fault system; MoRate ="+(float)mfd.getTotalMomentRate()+"; Rate ge M5 = "+(float)gr.getCumRate(5.0)+")");
+		double mMax = faultSysRupSet.getMaxMag();
+		double mMaxRounded = impliedGR.getX(impliedGR.getClosestXIndex(mMax));
+		
+		GutenbergRichterMagFreqDist totTargetMoMatched = new GutenbergRichterMagFreqDist(InversionMFDs.MIN_MAG,InversionMFDs.NUM_MAG, 
+				InversionMFDs.DELTA_MAG, InversionMFDs.MIN_MAG, mMaxRounded, impliedGR.getTotalMomentRate(), 1.0);
+		totTargetMoMatched.setName("Perfect GR, matching def mod moment");
+		totTargetMoMatched.setInfo("(up to mag of largest event in fault system; MoRate ="+(float)totTargetMoMatched.getTotalMomentRate()+"; Rate ge M5 = "+(float)totTargetMoMatched.getCumRate(5.05)+")");
+		
+		GutenbergRichterMagFreqDist totTargetRateMatched = new GutenbergRichterMagFreqDist(InversionMFDs.MIN_MAG,InversionMFDs.NUM_MAG, 
+				InversionMFDs.DELTA_MAG, InversionMFDs.MIN_MAG, mMaxRounded, 1.0, 1.0);
+		TotalMag5Rate rate = TotalMag5Rate.RATE_8p7;
+		totTargetRateMatched.scaleToCumRate(0, rate.getRateMag5()*1e5);
+		totTargetRateMatched.setName("Perfect GR, matching regional rate");
+		totTargetRateMatched.setInfo("(up to mag of largest event in fault system; MoRate ="+(float)totTargetRateMatched.getTotalMomentRate()+"; Rate ge M5 = "+(float)totTargetRateMatched.getCumRate(5.05)+")");
+
+		double fractOn = faultSysRupSet.getInversionMFDs().getFractionSeisOnFault();
+		
+		GutenbergRichterMagFreqDist totTargetOnFault = new GutenbergRichterMagFreqDist(InversionMFDs.MIN_MAG,InversionMFDs.NUM_MAG, 
+				InversionMFDs.DELTA_MAG, InversionMFDs.MIN_MAG, mMaxRounded, 1.0, 1.0);
+		totTargetOnFault.scaleToCumRate(0, fractOn*rate.getRateMag5()*1e5);
+		totTargetOnFault.setName("On Fault Target");
+		totTargetOnFault.setInfo("(MoRate ="+(float)totTargetOnFault.getTotalMomentRate()+"; Rate ge M5 = "+(float)totTargetOnFault.getCumRate(5.05)+")");
+
+		double mMaxOff = faultSysRupSet.getInversionMFDs().getMmaxOffFault();
+
+		GutenbergRichterMagFreqDist totTargetOffFault = new GutenbergRichterMagFreqDist(InversionMFDs.MIN_MAG,InversionMFDs.NUM_MAG, 
+				InversionMFDs.DELTA_MAG, InversionMFDs.MIN_MAG, mMaxRounded, 1.0, 1.0);
+		totTargetOffFault.scaleToCumRate(0, (1.0-fractOn)*rate.getRateMag5()*1e5);
+		totTargetOffFault.zeroAboveMag(mMaxOff);
+		totTargetOffFault.setName("Off Fault Target");
+		totTargetOffFault.setInfo("(MoRate ="+(float)totTargetOffFault.getTotalMomentRate()+"; Rate ge M5 = "+(float)totTargetOffFault.getCumRate(5.05)+")");
 
 		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
-		funcs.add(mfd);
-		funcs.add(mfd.getCumRateDistWithOffset());
-		funcs.add(gr);
-		funcs.add(gr.getCumRateDistWithOffset());	
+		funcs.add(impliedGR);
+		funcs.add(totTargetMoMatched);
+		funcs.add(totTargetRateMatched);
+		funcs.add(totTargetOnFault);
+		funcs.add(totTargetOffFault);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, null, 0, Color.BLUE));
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, null, 0, Color.BLUE));
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, null, 0, Color.GRAY));
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, null, 0, Color.GRAY));
-		String morelabel = " (M>=5 rate = "+((float)Math.round(mfd.getCumRate(5.0)*10.0))/10+")";
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.LIGHT_GRAY));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.ORANGE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.GREEN));
+		String morelabel = " (M>=5 rate = "+((float)Math.round(impliedGR.getCumRate(5.05)*10.0))/10+")";
 		// note that mendocino is included here (but filtered in the UCERF2 ERF)
 		if(faultSysRupSet.getFaultModel() == FaultModels.FM2_1) {
 			morelabel += " -- Mendocino included!";
@@ -319,15 +349,42 @@ public class FaultSystemRupSetCalc {
 		graph.setTickLabelFontSize(14);
 		graph.setAxisLabelFontSize(16);
 		graph.setPlotLabelFontSize(18);
-		String fileName = "TargetGR_"+label + ".png";
+		String fileName = "TargetGR_"+label + ".pdf";
 		if(fileName != null) {
 			try {
-				graph.saveAsPNG(fileName);
+				graph.saveAsPDF(fileName);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}			
 		}		
+		
+		
+		ArrayList<XY_DataSet> funcsCum = new ArrayList<XY_DataSet>();
+		funcsCum.add(impliedGR.getCumRateDistWithOffset());
+		funcsCum.add(totTargetMoMatched.getCumRateDistWithOffset());
+		funcsCum.add(totTargetRateMatched.getCumRateDistWithOffset());
+		funcsCum.add(totTargetOnFault.getCumRateDistWithOffset());
+		funcsCum.add(totTargetOffFault.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graphCum = new GraphiWindowAPI_Impl(funcsCum, label+morelabel,plotChars);
+		graphCum.setX_AxisRange(5, 9);
+		graphCum.setY_AxisRange(1e-5, 20);
+		graphCum.setYLog(true);
+		graphCum.setX_AxisLabel("Mag");
+		graphCum.setY_AxisLabel("Rate (per year)");
+
+		graphCum.setTickLabelFontSize(14);
+		graphCum.setAxisLabelFontSize(16);
+		graphCum.setPlotLabelFontSize(18);
+		String fileNameCum = "TargetGR_Cum_"+label + ".pdf";
+		if(fileName != null) {
+			try {
+				graph.saveAsPDF(fileNameCum);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+		}		
+
 
 		
 	}
@@ -393,24 +450,22 @@ public class FaultSystemRupSetCalc {
 	public static void plotAllImpliedTotalSectGR_MFD() {
 		
 		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
-		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
-		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+//		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+//		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
 		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
 
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
 		FaultModels fm = FaultModels.FM3_1;
 		
-		defModList.add(DeformationModels.ABM);
+//		defModList.add(DeformationModels.ABM);
 		defModList.add(DeformationModels.GEOLOGIC);
-		defModList.add(DeformationModels.GEOLOGIC_PLUS_ABM);
-		defModList.add(DeformationModels.NEOKINEMA);
-		defModList.add(DeformationModels.ZENG);
-		defModList.add(DeformationModels.GEOBOUND);
+//		defModList.add(DeformationModels.NEOKINEMA);
+//		defModList.add(DeformationModels.ZENG);
 		
 		// for UCERF3
 		for(DeformationModels dm :defModList) {
 			for(ScalingRelationships sr:scalingRelList) {
-				FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
+				InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
 						sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 				String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+sr.getShortName();
 				plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
@@ -418,14 +473,14 @@ public class FaultSystemRupSetCalc {
 		}
 		
 		// now do UCERF2
-		fm = FaultModels.FM2_1;
-		DeformationModels dm = DeformationModels.UCERF2_ALL;
-		for(ScalingRelationships sr:scalingRelList) {
-			FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
-					sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
-			String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+sr.getShortName();
-			plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
-		}
+//		fm = FaultModels.FM2_1;
+//		DeformationModels dm = DeformationModels.UCERF2_ALL;
+//		for(ScalingRelationships sr:scalingRelList) {
+//			InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm, 
+//					sr, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
+//			String label = faultSysRupSet.getDeformationModel().getShortName()+"_"+sr.getShortName();
+//			plotImpliedTotalSectGR_MFD(faultSysRupSet, label);				
+//		}
 	}
 
 	
@@ -1218,7 +1273,7 @@ public class FaultSystemRupSetCalc {
 		trulyOffFaultMFD.setName("trulyOffFaultMFD");
 		String infoString = "Rate(M>=5)="+(float)trulyOffFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)trulyOffFaultMFD.getTotalMomentRate();
 		if(trulyOffFaultMFD instanceof TaperedGR_MagFreqDist) {
-			infoString += "\tCornerMag="+(float)((TaperedGR_MagFreqDist)trulyOffFaultMFD).getmagCorner();
+			infoString += "\tCornerMag="+(float)((TaperedGR_MagFreqDist)trulyOffFaultMFD).getMagCorner();
 		}
 		trulyOffFaultMFD.setInfo(infoString);
 				
@@ -1502,50 +1557,92 @@ public class FaultSystemRupSetCalc {
 		}
 		return rate;
 	}
+	
+	public static void plotOffFaultTaperedGR_Comparisons(InversionFaultSystemRupSet invFltSysRupSet, String fileNamePrefix) {
+		InversionMFDs invMFDs = invFltSysRupSet.getInversionMFDs();
+		
+		double totalRateOffFault = invMFDs.getOffFaultRegionRateMgt5()*1e5;
+		
+		ArrayList<EvenlyDiscretizedFunc> mfds = new ArrayList<EvenlyDiscretizedFunc>();
+		ArrayList<EvenlyDiscretizedFunc> cumMFDs = new ArrayList<EvenlyDiscretizedFunc>();
+
+		for(MaxMagOffFault mMaxVals : MaxMagOffFault.values()) {
+			double mMaxOff = mMaxVals.getMaxMagOffFault()-InversionMFDs.DELTA_MAG/2.0;
+			GutenbergRichterMagFreqDist offFaultMFD_Truncated = new GutenbergRichterMagFreqDist(InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG, 
+					InversionMFDs.DELTA_MAG, InversionMFDs.MIN_MAG, mMaxOff, 1.0, 1.0);
+			offFaultMFD_Truncated.scaleToCumRate(0, totalRateOffFault);
+			offFaultMFD_Truncated.setName("Truncated GR with Mmax="+mMaxOff);
+			TaperedGR_MagFreqDist	offFaultMFD_Tapered = new TaperedGR_MagFreqDist(InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG, InversionMFDs.DELTA_MAG);
+			offFaultMFD_Tapered.setAllButCornerMag(InversionMFDs.MIN_MAG, offFaultMFD_Truncated.getTotalMomentRate(), totalRateOffFault, 1.0);
+			offFaultMFD_Tapered.setName("Tapered GR with Corner Mag ="+offFaultMFD_Tapered.getMagCorner());
+
+			mfds.add(offFaultMFD_Truncated);
+			mfds.add(offFaultMFD_Tapered);
+			cumMFDs.add(offFaultMFD_Truncated.getCumRateDistWithOffset());
+			cumMFDs.add(offFaultMFD_Tapered.getCumRateDistWithOffset());
+
+		}
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED,2f,Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED,2f,Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED,2f,Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLUE));
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Incremental Off-Fault MFDs", plotChars);
+		graph.setX_AxisRange(5, 9);
+		graph.setY_AxisRange(1e-5, 20);
+		graph.setYLog(true);
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Rate (per year)");
+		graph.setTickLabelFontSize(16);
+		graph.setAxisLabelFontSize(16);
+		graph.setPlotLabelFontSize(18);
+		if(fileNamePrefix != null) {
+			try {
+				graph.saveAsPDF(fileNamePrefix+"_Incr.pdf");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+			
+		GraphiWindowAPI_Impl cumGraph = new GraphiWindowAPI_Impl(cumMFDs, "Cumulative Off-Fault MFDs", plotChars);
+		cumGraph.setX_AxisRange(5, 9);
+		cumGraph.setY_AxisRange(1e-5, 20);
+		cumGraph.setYLog(true);
+		cumGraph.setX_AxisLabel("Magnitude");
+		cumGraph.setY_AxisLabel("Rate (per year)");
+		cumGraph.setTickLabelFontSize(16);
+		cumGraph.setAxisLabelFontSize(18);
+		cumGraph.setPlotLabelFontSize(18);
+		if(fileNamePrefix != null) {
+			try {
+				cumGraph.saveAsPDF(fileNamePrefix+"_Cum.pdf");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		
-//		try {
-//			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(
-//					new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
-//							"FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip"));
-//			
-//
-//			double totalMultiplyNamedM7Rate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 7d, false);
-//			double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, true);
-//			
-//			double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, false);
-//			double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, true);
-//			
-//			System.out.println("Total rupture rate (M7+): "+totalM7Rate);
-//			System.out.println("Total multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate);
-//			System.out.println("% of M7+ rate that are multiply named: "
-//					+(100d * totalMultiplyNamedM7Rate / totalM7Rate)+" %");
-//			System.out.println("Total paleo visible rupture rate: "+totalPaleoVisibleRate);
-//			System.out.println("Total multiply named paleo visible rupture rate: "+totalMultiplyNamedPaleoVisibleRate);
-//			System.out.println("% of paleo visible rate that are multiply named: "
-//					+(100d * totalMultiplyNamedPaleoVisibleRate / totalPaleoVisibleRate)+" %");
-//			System.exit(0);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (DocumentException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
+//		plotAllImpliedTotalSectGR_MFD();
+//		
 //		testImplGR_fracSeisOnFltAssumingSameCC();
 //		testAllInversionSetups();
 		
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
+				InversionModels.GR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
 //		System.out.println(rupSet.getPreInversionAnalysisData(true));
-		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
+		plotPreInversionMFDs(rupSet, false, false, false, "preInvGR_MFDs_Tapered.pdf");
+//		plotOffFaultTaperedGR_Comparisons(rupSet, "GR_MaxAndTaperComparison");
 		
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 //				InversionModels.GR_UNCONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 
@@ -1553,6 +1650,36 @@ public class FaultSystemRupSetCalc {
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValStringHeader());
 //		System.out.println(rupSet.getLogicTreeBranch().getTabSepValString());
 		
+		
+//		try {
+//		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(
+//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
+//						"FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip"));
+//		
+//
+//		double totalMultiplyNamedM7Rate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 7d, false);
+//		double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, true);
+//		
+//		double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, false);
+//		double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, true);
+//		
+//		System.out.println("Total rupture rate (M7+): "+totalM7Rate);
+//		System.out.println("Total multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate);
+//		System.out.println("% of M7+ rate that are multiply named: "
+//				+(100d * totalMultiplyNamedM7Rate / totalM7Rate)+" %");
+//		System.out.println("Total paleo visible rupture rate: "+totalPaleoVisibleRate);
+//		System.out.println("Total multiply named paleo visible rupture rate: "+totalMultiplyNamedPaleoVisibleRate);
+//		System.out.println("% of paleo visible rate that are multiply named: "
+//				+(100d * totalMultiplyNamedPaleoVisibleRate / totalPaleoVisibleRate)+" %");
+//		System.exit(0);
+//	} catch (IOException e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	} catch (DocumentException e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
+
 
 //		double mMaxInRegion = 8.45;
 //		double totRegionalM5_Rate = 8.7;
@@ -1607,7 +1734,6 @@ public class FaultSystemRupSetCalc {
 		
 
 		
-//		plotAllImpliedTotalSectGR_MFD();
 		
 //		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, 
 //				MagAreaRelationships.HB_08, AveSlipForRupModels.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR);
