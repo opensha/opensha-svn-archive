@@ -343,16 +343,26 @@ public class UCERF3_GridSourceGenerator {
 	 * 0.05.
 	 */
 	private static IncrementalMagFreqDist trimMFD(IncrementalMagFreqDist mfdIn, double mMin) {
-		double mMax = mfdIn.getMaxMagWithNonZeroRate();
-		int num = (int) ((mMax - mMin) / 0.1) + 1;
-		IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
-		for (int i=0; i<mfdOut.getNum(); i++) {
-			double mag = mfdOut.getX(i);
-			double rate = mfdIn.getY(mag);
-			mfdOut.set(mag, rate);
+		// in GR nofix branches there are mfds with all zero rates
+		try {
+			double mMax = mfdIn.getMaxMagWithNonZeroRate();
+			int num = (int) ((mMax - mMin) / 0.1) + 1;
+			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
+			for (int i=0; i<mfdOut.getNum(); i++) {
+				double mag = mfdOut.getX(i);
+				double rate = mfdIn.getY(mag);
+				mfdOut.set(mag, rate);
+			}
+			return mfdOut;
+		} catch (Exception e) {
+			System.out.println("empty MFD");
+			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin,mMin,1);
+			mfdOut.scaleToCumRate(mMin, 0.0);
+			return mfdOut;
 		}
-		return mfdOut;
 	}
+	
+	
 	
 	/*
 	 * Applies gardner Knopoff aftershock filter scaling to MFD in place.
@@ -387,6 +397,7 @@ public class UCERF3_GridSourceGenerator {
 		SimpleFaultSystemSolution tmp = null;
 		try {
 			//			File f = new File("tmp/invSols/reference_ch_sol2.zip");
+//			File f = new File("/Users/pmpowers/projects/OpenSHA/tmp/invSols/refCH/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 			File f = new File("/Users/pmpowers/projects/OpenSHA/tmp/invSols/refGR/FM3_1_NEOK_EllB_DsrUni_GRUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 			System.out.println(f.exists());
 			tmp = SimpleFaultSystemSolution.fromFile(f);
@@ -394,8 +405,19 @@ public class UCERF3_GridSourceGenerator {
 			e.printStackTrace();
 		}
 		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
-		List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
-		System.out.println(list.size());
+		
+		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(invFss);
+		int numSrcs = gridGen.getNumSources();
+		int numRups = 0;
+		System.out.println("numSrcs: " + numSrcs);
+		for (int i=0; i<numSrcs; i++) {
+			numRups += gridGen.getSource(i, 1, false, false).getNumRuptures();
+		}
+		System.out.println("numRups: " + numRups);
+
+		// gr nofix error test
+				List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
+				System.out.println(list.size());
 		
 		//		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
 		//			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);
