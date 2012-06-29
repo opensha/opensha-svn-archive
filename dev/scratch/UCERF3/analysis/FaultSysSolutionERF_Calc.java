@@ -33,7 +33,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 		invFss = new InversionFaultSystemSolution(tmp);
 
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss, spatialPDF, scalingMethod);
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
 
 		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.0);
 		erf.getTimeSpan().setDuration(1d);

@@ -1,5 +1,7 @@
 package scratch.UCERF3.erf;
 
+import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -17,7 +19,11 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BackgroundRupParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
@@ -48,7 +54,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 
 	public static final String NAME = "Fault System Solution Poisson ERF";
 	
@@ -64,6 +70,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	double aleatoryMagAreaStdDev = Double.NaN;
 	protected ApplyGardnerKnopoffAftershockFilterParam applyAftershockFilterParam;
 	protected boolean applyAftershockFilter;
+	protected IncludeBackgroundParam bgIncludeParam;
+	protected IncludeBackgroundOption bgInclude;
+	protected BackgroundRupParam bgRupTypeParam;
+	protected BackgroundRupType bgRupType;
+
 	
 	// these help keep track of what's changed
 	protected File prevFile = null;
@@ -139,19 +150,28 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilterParam= new ApplyGardnerKnopoffAftershockFilterParam();  // default is false
 		adjustableParams.addParameter(applyAftershockFilterParam);
 
-		
+		bgIncludeParam = new IncludeBackgroundParam();
+		bgIncludeParam.getEditor().setEnabled(false);
+		adjustableParams.addParameter(bgIncludeParam);
+
+		bgRupTypeParam = new BackgroundRupParam();
+		bgRupTypeParam.getEditor().setEnabled(false);
+		adjustableParams.addParameter(bgRupTypeParam);
+
 		// set listeners
 		fileParam.addParameterChangeListener(this);
 		faultGridSpacingParam.addParameterChangeListener(this);
 		aleatoryMagAreaStdDevParam.addParameterChangeListener(this);
 		applyAftershockFilterParam.addParameterChangeListener(this);
+		bgIncludeParam.addParameterChangeListener(this);
+		bgRupTypeParam.addParameterChangeListener(this);
 		
 		// set primitives
 		faultGridSpacing = faultGridSpacingParam.getValue();
 		aleatoryMagAreaStdDev = aleatoryMagAreaStdDevParam.getValue();
 		applyAftershockFilter = applyAftershockFilterParam.getValue();
-
-
+		bgInclude = bgIncludeParam.getValue();
+		bgRupType = bgRupTypeParam.getValue();
 
 	}
 	
@@ -173,6 +193,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		if(fileParamChanged) {
 			readFaultSysSolutionFromFile();	// this will not re-read the file if the name has not changed
 			setupArraysAndLists();
+			initOtherSources();
+//			if (!bgInclude.equals(ONLY)) setupArraysAndLists();
+//			if (!bgInclude.equals(EXCLUDE)) initOtherSources();
 		}
 		else if (aleatoryMagAreaStdDevChanged) {	// faultGridSpacingChanged not influential here
 			setupArraysAndLists();
@@ -189,6 +212,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 	}
 	
+	@Override
 	public void parameterChange(ParameterChangeEvent event) {
 		super.parameterChange(event);	// sets parameterChangeFlag = true;
 		String paramName = event.getParameterName();
@@ -202,9 +226,16 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			aleatoryMagAreaStdDevChanged = true;
 		} else if (paramName.equalsIgnoreCase(applyAftershockFilterParam.getName())) {
 			applyAftershockFilter = applyAftershockFilterParam.getValue();
+		} else if (paramName.equalsIgnoreCase(bgIncludeParam.getName())) {
+			bgInclude = bgIncludeParam.getValue();
+			boolean enable = !bgInclude.equals(IncludeBackgroundOption.EXCLUDE);
+			bgRupTypeParam.getEditor().setEnabled(enable);
+		} else if (paramName.equalsIgnoreCase(bgRupTypeParam.getName())) {
+			bgRupType = bgRupTypeParam.getValue();
 
-		} else
+		} else {
 			throw new RuntimeException("parameter name not recognized");
+		}
 	}
 
 	
@@ -213,11 +244,13 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * This method sets a bunch of fields, arrays, and ArrayLists.
 	 */
 	private void setupArraysAndLists() {
-		
-		System.out.println("Running setupArraysAndLists(); aleatoryMagAreaStdDev="+aleatoryMagAreaStdDev+
-				"\tfaultGridSpacing="+faultGridSpacing);
-		
-		if(D) System.out.println("faultSysSolution.getNumRuptures()="+faultSysSolution.getNumRuptures());
+				
+		if(D) {
+			System.out.println("Running setupArraysAndLists() ...");
+			System.out.println("   aleatoryMagAreaStdDev = "+aleatoryMagAreaStdDev);
+			System.out.println("   faultGridSpacing = "+faultGridSpacing);
+			System.out.println("   faultSysSolution.getNumRuptures() = "+faultSysSolution.getNumRuptures());
+		}
 		
 		// count number of non-zero rate inversion ruptures (each will be a source)
 		numFaultSystemSources =0;
@@ -227,7 +260,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				numFaultSystemSources +=1;			
 		}
 		
-		if(D) System.out.println(numFaultSystemSources+" of "+faultSysSolution.getNumRuptures()+ " fault system sources had non-zero rates");
+		if(D) {
+			System.out.println("   " + numFaultSystemSources+" of "+
+					faultSysSolution.getNumRuptures()+ 
+					" fault system sources had non-zero rates");
+		}
 		
 		// make fltSysRupIndexForSource & srcIndexForFltSysRup
 		srcIndexForFltSysRup = new int[faultSysSolution.getNumRuptures()];
@@ -259,7 +296,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		ArrayList<Integer> tempRupIndexForNthRup = new ArrayList<Integer>();
 		ArrayList<Integer> tempFltSysRupIndexForNthRup = new ArrayList<Integer>();
 		int n=0;
-		System.out.println("getNumSources()="+getNumSources()+"\tnumOtherSources="+numOtherSources);
 		for(int s=0; s<getNumSources(); s++) {
 // ProbEqkSource src = getSource(s);
 // System.out.println("src.getName()="+src.getName()+"\tsrc.getNumRuptures()="+src.getNumRuptures());
@@ -295,7 +331,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				fltSysRupIndexForNthRup[n] = tempFltSysRupIndexForNthRup.get(n);
 		}
 		
-		System.out.println("totNumRups="+totNumRups);
+		if (D) {
+			System.out.println("   getNumSources() = "+getNumSources());
+			System.out.println("   totNumRupsFromFaultSystem = "+totNumRupsFromFaultSystem);
+			System.out.println("   totNumRups = "+totNumRups);
+		}
 	}
 	
 	
@@ -329,24 +369,38 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	@Override
 	public int getNumSources() {
-		return fltSysRupIndexForSource.length + numOtherSources;
+		if (bgInclude.equals(ONLY)) return numOtherSources;
+		if (bgInclude.equals(EXCLUDE)) return numFaultSystemSources;
+		return numFaultSystemSources + numOtherSources;
 	}
 	
-	
+	@Override
 	public ProbEqkSource getSource(int iSource) {
-		if(iSource == lastSrcRequested)
-			return currentSrc;
-		else if (iSource <numFaultSystemSources) {
-			ProbEqkSource src = makeFaultSystemSource(iSource);
-			currentSrc = src;
-			lastSrcRequested = iSource;		
-			return src;
+		if (bgInclude.equals(ONLY)) return getOtherSource(iSource);
+		if (bgInclude.equals(EXCLUDE)) return makeFaultSystemSource(iSource);
+		if (iSource < numFaultSystemSources) {
+			return makeFaultSystemSource(iSource);
 		}
-		else	// this is where non-fault system sources can can go
-			return getOtherSource(iSource);
+		return getOtherSource(iSource - numFaultSystemSources);
+		
+//		if(iSource == lastSrcRequested)
+//			return currentSrc;
+//		else if (iSource <numFaultSystemSources) {
+//			ProbEqkSource src = makeFaultSystemSource(iSource);
+//			currentSrc = src;
+//			lastSrcRequested = iSource;		
+//			return src;
+//		}
+//		else	// this is where non-fault system sources can can go
+//			return getOtherSource(iSource);
 	}
 
 
+	/**
+	 * Creates a fault source.
+	 * @param iSource
+	 * @return
+	 */
 	protected ProbEqkSource makeFaultSystemSource(int iSource) {
 		
 		int invRupIndex= fltSysRupIndexForSource[iSource];
@@ -379,7 +433,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	}
 	
 	
-	
+	/**
+	 * @param fileNameAndPath
+	 */
 	public void writeSourceNamesToFile(String fileNameAndPath) {
 		try{
 			FileWriter fw1 = new FileWriter(fileNameAndPath);
@@ -403,6 +459,15 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 */
 	protected ProbEqkSource getOtherSource(int iSource) {
 		return null;
+	}
+	
+	/**
+	 * Any subclasses that need to update background sources should override
+	 * this method. This method will only be called when the internal
+	 * faultSystemSolution changes
+	 */
+	protected void initOtherSources() {
+		// default implementation does nothing
 	}
 	
 	

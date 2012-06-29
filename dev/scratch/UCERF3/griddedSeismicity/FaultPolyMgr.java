@@ -136,8 +136,8 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 */
 	public static FaultPolyMgr create(List<FaultSectionPrefData> fspd, Double buf) {
 		FaultPolyMgr mgr = new FaultPolyMgr();
-		if (log) System.out.println("Building...");
-		if (log) System.out.println("  section polygons");
+		if (log) System.out.println("Building poly mgr...");
+		if (log) System.out.println("   section polygons");
 		mgr.polys = SectionPolygons.create(fspd, buf, null);
 		mgr.init();
 		return mgr;
@@ -154,33 +154,33 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 */
 	public static FaultPolyMgr create(FaultModels fm, Double buf, Double len) {		
 		FaultPolyMgr mgr = new FaultPolyMgr();
-		if (log) System.out.println("Building...");
-		if (log) System.out.println("  getting faults from model");
+		if (log) System.out.println("Building poly mgr...");
+		if (log) System.out.println("   getting faults from model");
 		List<FaultSectionPrefData> faults = fm.fetchFaultSections();
-		if (log) System.out.println("  subsection polygons");
+		if (log) System.out.println("   subsection polygons");
 		mgr.polys = SectionPolygons.create(faults, buf, len);
 		mgr.init();
 		return mgr;
 	}
 	
 	private void init() {
-		if (log) System.out.println("  section:node map");
+		if (log) System.out.println("   section:node map");
 		initSectionToProbableNodes();
-		if (log) System.out.println("  node area cache");
+		if (log) System.out.println("   node area cache");
 		initNodeAreas();
-		if (log) System.out.println("  section extents");
+		if (log) System.out.println("   section extents");
 		initSectionExtents();
-		if (log) System.out.println("  section participation");
+		if (log) System.out.println("   section participation");
 		initSectInNodeParticipTable();
-		if (log) System.out.println("  update node cache");
+		if (log) System.out.println("   update node cache");
 		updateNodeAreas();
-		if (log) System.out.println("  node participation");
+		if (log) System.out.println("   node participation");
 		initNodeInSectParticipTable();
-		if (log) System.out.println("  node participation");
+		if (log) System.out.println("   node participation");
 		initNodeParticipation();
-		if (log) System.out.println("  update section participation");
+		if (log) System.out.println("   update section participation");
 		updateParticipationTable();
-		if (log) System.out.println("Done.");
+		if (log) System.out.println("   Done.");
 	}
 	
 	/*

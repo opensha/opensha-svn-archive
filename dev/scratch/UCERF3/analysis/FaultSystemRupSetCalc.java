@@ -1195,14 +1195,14 @@ public class FaultSystemRupSetCalc {
 	 * This gets the total (summed) sub-seismogenic MFD for all fault sections for the characteristic model 
 	 * (summing the MFDs from getCharSubSeismoOnFaultMFD_forEachSection(*))
 	 * @param fltSysRupSet
-	 * @param spatialSeisPDF
+	 * @param gridSeisUtils
 	 * @param totalTargetGR
 	 * @return
 	 */
-	public static SummedMagFreqDist getCharSubSeismoOnFaultMFD(FaultSystemRupSet fltSysRupSet, SpatialSeisPDF spatialSeisPDF, 
+	public static SummedMagFreqDist getCharSubSeismoOnFaultMFD(FaultSystemRupSet fltSysRupSet, GriddedSeisUtils gridSeisUtils, 
 			GutenbergRichterMagFreqDist totalTargetGR) {
 		SummedMagFreqDist mfd = new SummedMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), totalTargetGR.getDelta());
-		for(GutenbergRichterMagFreqDist gr : getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, spatialSeisPDF, totalTargetGR)) {
+		for(GutenbergRichterMagFreqDist gr : getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, gridSeisUtils, totalTargetGR)) {
 			mfd.addIncrementalMagFreqDist(gr);
 		}
 		
@@ -1225,12 +1225,13 @@ public class FaultSystemRupSetCalc {
 	 * @param totalTargetGR
 	 * @return
 	 */
-	public static ArrayList<GutenbergRichterMagFreqDist> getCharSubSeismoOnFaultMFD_forEachSection(FaultSystemRupSet fltSysRupSet, 
-			SpatialSeisPDF spatialSeisPDF, GutenbergRichterMagFreqDist totalTargetGR) {
+	public static ArrayList<GutenbergRichterMagFreqDist> getCharSubSeismoOnFaultMFD_forEachSection(
+			FaultSystemRupSet fltSysRupSet, 
+			GriddedSeisUtils gridSeisUtils,
+			GutenbergRichterMagFreqDist totalTargetGR) {
 		
 		ArrayList<GutenbergRichterMagFreqDist> mfds = new ArrayList<GutenbergRichterMagFreqDist>();
 		double totMgt5_rate = totalTargetGR.getCumRate(0);
-		GriddedSeisUtils gridSeisUtils = new GriddedSeisUtils(fltSysRupSet.getFaultSectionDataList(), spatialSeisPDF, 12.0);
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
 			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap

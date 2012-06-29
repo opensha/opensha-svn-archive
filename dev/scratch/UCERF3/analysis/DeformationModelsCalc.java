@@ -1088,13 +1088,13 @@ public class DeformationModelsCalc {
 	 * @param spatialSeisPDF
 	 * @return
 	 */
-	public static double getFractSpatialPDF_InsideSectionPolygons(
-			List<FaultSectionPrefData> fltSectPrefDataList, 
-			SpatialSeisPDF spatialSeisPDF) {
-		double sum = 0;
-		GriddedSeisUtils gsu = new GriddedSeisUtils(fltSectPrefDataList, spatialSeisPDF, 12.0);
-		return gsu.pdfInPolys();
-	}
+//	public static double getFractSpatialPDF_InsideSectionPolygons(
+//			List<FaultSectionPrefData> fltSectPrefDataList, 
+//			SpatialSeisPDF spatialSeisPDF) {
+//		double sum = 0;
+//		GriddedSeisUtils gsu = new GriddedSeisUtils(fltSectPrefDataList, spatialSeisPDF, 12.0);
+//		return gsu.pdfInPolys();
+//	}
 	
 	
 

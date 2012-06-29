@@ -26,12 +26,13 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 	
 	
 	public UCERF2_FaultSysSol_ERF() {
-		super("/Users/field/ALLCAL_UCERF2.zip");
-		nshmp_gridSrcGen = new NSHMP_GridSourceGeneratorMod2();
+		super("/Users/pmpowers/projects/OpenSHA/tmp/invSols/ucerf2map/ALLCAL_UCERF2_rakesfixed.zip");
+//		super("/Users/field/ALLCAL_UCERF2.zip");
+		// treat as point sources
+		nshmp_gridSrcGen = new NSHMP_GridSourceGenerator(); //new NSHMP_GridSourceGeneratorMod2()
+		nshmp_gridSrcGen.setAsPointSources(true);
 		numOtherSources = nshmp_gridSrcGen.getNumSources();
 //		numOtherSources=0;
-		// treat as point sources
-		nshmp_gridSrcGen.setAsPointSources(true);
 		System.out.println("numOtherSources="+numOtherSources);
 
 	}

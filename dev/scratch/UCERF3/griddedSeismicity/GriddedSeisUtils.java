@@ -30,6 +30,14 @@ public class GriddedSeisUtils {
 		polyMgr = FaultPolyMgr.create(fltSectPrefDataList, buf);
 		this.pdf = pdf.getPDF();
 	}
+	
+	/**
+	 * Returns a reference to the internal polygon manager.
+	 * @return
+	 */
+	public FaultPolyMgr getPolyMgr() {
+		return polyMgr;
+	}
 		
 	/**
 	 * Returns the fraction of the spatial PDF contained inthe fault section

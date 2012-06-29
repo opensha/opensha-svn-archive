@@ -39,7 +39,8 @@ public class InversionMFDs {
 	SpatialSeisPDF spatialSeisPDF;
 	SpatialSeisPDF spatialSeisPDFforOnFaultRates;
 	InversionModels inversionModel;
-
+	GriddedSeisUtils gridSeisUtils;
+	
 	double origOnFltDefModMoRate, offFltDefModMoRate, aveMinSeismoMag, roundedMmaxOnFault;
 	double fractSeisInSoCal;
 	double fractionSeisOnFault;
@@ -101,11 +102,14 @@ public class InversionMFDs {
 		
 		List<FaultSectionPrefData> faultSectionData =  fltSysRupSet.getFaultSectionDataList();
 		
+		gridSeisUtils = new GriddedSeisUtils(faultSectionData, spatialSeisPDFforOnFaultRates, 12.0);
+		
 		GriddedRegion noCalGrid = RELM_RegionUtils.getNoCalGriddedRegionInstance();
 		GriddedRegion soCalGrid = RELM_RegionUtils.getSoCalGriddedRegionInstance();
 		
 		fractSeisInSoCal = spatialSeisPDFforOnFaultRates.getFractionInRegion(soCalGrid);
-		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDFforOnFaultRates);
+//		fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDFforOnFaultRates);
+		fractionSeisOnFault = gridSeisUtils.pdfInPolys();
 
 		onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault;
 		offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;
@@ -153,7 +157,8 @@ public class InversionMFDs {
 
 			trulyOffFaultMFD = FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(totalTargetGR, onFaultRegionRateMgt5, aveMinSeismoMag, mMaxOffFault);
 
-			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, spatialSeisPDF, totalTargetGR);
+//			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, spatialSeisPDF, totalTargetGR);
+			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, gridSeisUtils, totalTargetGR);
 
 			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			for(int m=0; m<subSeismoOnFaultMFD_List.size(); m++) {
@@ -189,7 +194,6 @@ public class InversionMFDs {
 			
 			// get the total GR nucleation MFD for all fault section
 			SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
-			
 
 			// compute coupling coefficient
 			impliedOnFaultCouplingCoeff = onFaultRegionRateMgt5/impliedOnFault_GR_NuclMFD.getCumRate(5.05);
@@ -201,7 +205,6 @@ public class InversionMFDs {
 				debugString += "\timpliedOnFault_GR_NuclMFD(5.05) =\t"+impliedOnFault_GR_NuclMFD.getCumRate(5.05);
 				debugString += "\tempCoupCoeff =\t"+tempCoupCoeff+"\n";
 			}
-			
 
 			// split the on-fault MFDs into supra- vs sub-seismo MFDs, and apply tempCoupCoeff
 			ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = FaultSystemRupSetCalc.calcImpliedNuclMFD_ForEachSection(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
@@ -410,6 +413,14 @@ public class InversionMFDs {
 	}
 	
 	public double getOffFaultRegionRateMgt5() {return offFaultRegionRateMgt5; }
+	
+	/**
+	 * Returns the utility GriddedSeisUtils instance for reuse elsewhere.
+	 * @return
+	 */
+	public GriddedSeisUtils getGridSeisUtils() {
+		return gridSeisUtils;
+	}
 
 
 }

@@ -2,19 +2,13 @@ package scratch.UCERF3.griddedSeismicity;
 
 import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
-import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
-import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -24,11 +18,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import com.google.common.collect.Maps;
-
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
@@ -36,138 +26,122 @@ import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
+import scratch.UCERF3.utils.RELM_RegionUtils;
+
+import com.google.common.collect.Maps;
 
 /**
- * This class generates the gridded sources for the UCERF3 background seismicity.
- * @author field
- *
+ * This class generates UCERF3 background seismicity (gridded) sources.
+ * 
+ * @author Ned Field
+ * @author Peter Powers
  */
 public class UCERF3_GridSourceGenerator {
-	
+
 	// TODO these probably shouldn't be static
-	private static final CaliforniaRegions.RELM_TESTING_GRIDDED region = 
-			new CaliforniaRegions.RELM_TESTING_GRIDDED();
-	private static final WC1994_MagLengthRelationship magLenRel = 
-			new WC1994_MagLengthRelationship();
+	private static final CaliforniaRegions.RELM_TESTING_GRIDDED region;
+	private static final WC1994_MagLengthRelationship magLenRel;
 	
-	private double ptSrcCutoff = 6.0;
-	
+	static {
+		region = RELM_RegionUtils.getGriddedRegionInstance();
+		magLenRel = new WC1994_MagLengthRelationship();
+	}
+
+	private InversionFaultSystemSolution fss;
+	private LogicTreeBranch branch;
 	private FaultPolyMgr polyMgr;
 	
+	// spatial pdfs of seismicity, orginal and revised (reduced and
+	// renormalized) to avoid double counting with fault polygons
+	private double[] srcSpatialPDF;
+	private double[] revisedSpatialPDF;
+	
+	// foacl mechanism weights
 	private double[] fracStrikeSlip,fracNormal,fracReverse;
 
-	private IncrementalMagFreqDist totalOffFaultMFD;
-	
-	private LogicTreeBranch branch;
-		
-	// this has the sub-seismo fault section rupture removed
+	private double totalMgt5_Rate;
+	private double ptSrcCutoff = 6.0;
+
+	// the sub-seismo fault section rupture removed
 	private IncrementalMagFreqDist realOffFaultMFD;
-	
+
 	// the sub-seismogenic MFDs for those nodes that have them
 	private Map<Integer, SummedMagFreqDist> nodeSubSeisMFDs;
-	
+
 	// the sub-seismogenic MFDs for each section
 	private Map<Integer, IncrementalMagFreqDist> sectSubSeisMFDs;
 
-	private double[] srcSpatialPDF;		// from Karen or from UCERF2 (or maybe a deformation model)
-	private double[] revisedSpatialPDF;	// revised to cut fault-section-polygon areas out (and renormalized)
-	
-	private InversionFaultSystemSolution fss;
-	
-	private double totalMgt5_Rate;
-		
 	// reference mfd values
 	private double mfdMin = 5.05;
 	private double mfdMax = 8.45;
 	private int mfdNum = 35;
-	
+
 	/**
 	 * Options:
 	 * 
 	 * 1) set a-values in fault-section polygons from moment-rate reduction or from smoothed seismicity
 	 * 2) focal mechanism options, and finite vs point sources (cross hair, random strike, etc)?
 	 * 
-	 * @param fss FaultSystemSolution 
-	 * @param totalOffFaultMFD
-	 * @param spatialPDF spatial PDF filename; defaults to KF if null
-	 * @param totalMgt5_Rate
-	 * @param scalingMethod method to use when scaling small magnitude MFDs 
+	 * @param fss {@code InversionFaultSystemSolution} for which grided/background sources should be generated
 	 */
 	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution fss) {
-		
+
 		this.fss = fss;
-		this.branch = fss.getBranch();
-		this.srcSpatialPDF = fss.getBranch().getValue(SpatialSeisPDF.class).getPDF();
-		this.totalMgt5_Rate =  fss.getBranch().getValue(TotalMag5Rate.class).getRateMag5();
-		
-		mfdMin = this.totalOffFaultMFD.getMinX();
-		mfdMax = this.totalOffFaultMFD.getMaxX();
-		mfdNum = this.totalOffFaultMFD.getNum();
-						
-		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
-		initGrids();
-		
-		
-		/*
-		 * STEP 1:
-		 * 
-		 * Initialize the sub-seismogenic MFDs for each fault section
-		 * (sectSubSeisMFDs)
-		 */
-		initSectionMFDs();
-
-		/*
-		 * STEP 2:
-		 * 
-		 * Initialize the sub-seismogenic MFDs for each grid node
-		 * (nodeSubSeisMFDs) by partitioning the sectSubSeisMFDs according to
-		 * the overlapping fraction of each fault section and grid node.
-		 */
-		initNodeMFDs();
-
-		/*
-		 * STEP 3
-		 * 
-		 * Get the realOffFaultMFD:
-		 */		
+		branch = fss.getBranch();
+		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
+		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
 		realOffFaultMFD = fss.getInversionMFDs().getTrulyOffFaultMFD();
 
+		mfdMin = realOffFaultMFD.getMinX();
+		mfdMax = realOffFaultMFD.getMaxX();
+		mfdNum = realOffFaultMFD.getNum();
 
-		/*
-		 * STEP 4:
-		 * 
-		 * Update (normalize) the spatial PDF to account for those nodes that
-		 * are partially of fully occupied by faults to whom all small magnitude
-		 * events will have been apportioned.
-		 */
+//		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
+		polyMgr = fss.getInversionMFDs().getGridSeisUtils().getPolyMgr();
+
+		System.out.println("   initFocalMechGrids() ...");
+		initFocalMechGrids();
+		System.out.println("   initSectionMFDs() ...");
+		initSectionMFDs();
+		System.out.println("   initNodeMFDs() ...");
+		initNodeMFDs();
+		System.out.println("   updateSpatialPDF() ...");
 		updateSpatialPDF();
-		
 	}
 
 
-	/* STEP 1 */
+	/*
+	 * Initialize the sub-seismogenic MFDs for each fault section
+	 * (sectSubSeisMFDs)
+	 */
 	private void initSectionMFDs() {
-		
+
 		List<GutenbergRichterMagFreqDist> subSeisMFD_list;
 		// make sure we deal with special case for GR moFix branch
-		boolean noFix = (branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE);
-		boolean gr = (branch.getValue(InversionModels.class).isGR());
-		if(noFix && gr) {
-			subSeisMFD_list = fss.getImpliedSubSeisGR_MFD_List(); // get post-inversion MFDs
+		boolean noFix = branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE;
+		boolean gr = branch.getValue(InversionModels.class).isGR();
+		// get post-inversion MFDs
+		if (noFix && gr) {
+			subSeisMFD_list = fss.getImpliedSubSeisGR_MFD_List();
+		} else {
+			subSeisMFD_list = fss.getInversionMFDs()
+				.getSubSeismoOnFaultMFD_List();
 		}
-		else {
-			subSeisMFD_list = fss.getInversionMFDs().getSubSeismoOnFaultMFD_List();
-		}
-			
+
 		sectSubSeisMFDs = Maps.newHashMap();
 		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
-		for (int i=0; i<faults.size();i++) {
-			sectSubSeisMFDs.put(faults.get(i).getSectionId(), subSeisMFD_list.get(i));
+		for (int i = 0; i < faults.size(); i++) {
+			sectSubSeisMFDs.put(
+				faults.get(i).getSectionId(),
+				subSeisMFD_list.get(i));
 		}
 	}
 
-
-	/* STEP 2 */
+	/*
+	 * Initialize the sub-seismogenic MFDs for each grid node
+	 * (nodeSubSeisMFDs) by partitioning the sectSubSeisMFDs according to
+	 * the overlapping fraction of each fault section and grid node.
+	 */
 	private void initNodeMFDs() {
 		nodeSubSeisMFDs = Maps.newHashMap();
 		for (FaultSectionPrefData sect : fss.getFaultSectionDataList()) {
@@ -187,8 +161,12 @@ public class UCERF3_GridSourceGenerator {
 			}
 		}
 	}
-	
-	/* STEP 4 */
+
+	/*
+	 * Update (normalize) the spatial PDF to account for those nodes that
+	 * are partially of fully occupied by faults to whom all small magnitude
+	 * events will have been apportioned.
+	 */
 	private void updateSpatialPDF() {
 		// update pdf
 		revisedSpatialPDF = new double[srcSpatialPDF.length];
@@ -199,9 +177,9 @@ public class UCERF3_GridSourceGenerator {
 		// normalize
 		DataUtils.asWeights(revisedSpatialPDF);
 	}
-	
-	
-	private void initGrids() {
+
+
+	private void initFocalMechGrids() {
 		GridReader gRead;
 		gRead = new GridReader("StrikeSlipWts.txt");
 		fracStrikeSlip = gRead.getValues();
@@ -210,8 +188,8 @@ public class UCERF3_GridSourceGenerator {
 		gRead = new GridReader("NormalWts.txt");
 		fracNormal = gRead.getValues();
 	}
-	
-	
+
+
 	/**
 	 * Returns the number of sources in the model.
 	 * @return the source count
@@ -219,7 +197,7 @@ public class UCERF3_GridSourceGenerator {
 	public int getNumSources() {
 		return region.getNodeCount();
 	}
-	
+
 	/**
 	 * Returns the sub-seismogenic MFD associated with a section.
 	 * @param idx node index
@@ -228,7 +206,7 @@ public class UCERF3_GridSourceGenerator {
 	public IncrementalMagFreqDist getSectSubSeisMFD(int idx) {
 		return sectSubSeisMFDs.get(idx);
 	}
-	
+
 	/**
 	 * Returns the sum of the sub-seismogenic MFDs of all fault sub-sections.
 	 * @return the MFD
@@ -252,16 +230,28 @@ public class UCERF3_GridSourceGenerator {
 	 */
 	public IncrementalMagFreqDist getNodeMFD(int idx) {
 		SummedMagFreqDist sumMFD = new SummedMagFreqDist(mfdMin, mfdMax, mfdNum);
-		
+
 		IncrementalMagFreqDist nodeIndMFD = getNodeUnassociatedMFD(idx);
-		if (nodeIndMFD != null) 
+		if (nodeIndMFD != null)
 			sumMFD.addIncrementalMagFreqDist(nodeIndMFD);
-		
+
 		IncrementalMagFreqDist nodeSubMFD = getNodeSubSeisMFD(idx);
-		if (nodeSubMFD != null) 
+		if (nodeSubMFD != null)
 			sumMFD.addIncrementalMagFreqDist(nodeSubMFD);
-		
+
 		return sumMFD;
+	}
+	
+	/**
+	 * Returns the MFD associated with a grid node trimmed to the supplied 
+	 * minimum magnitude and the maximum non-zero magnitude.
+	 * 
+	 * @param idx node index
+	 * @param minMag minimum magniitude to trim MFD to
+	 * @return the trimmed MFD
+	 */
+	public IncrementalMagFreqDist getNodeMFD(int idx, double minMag) {
+		return trimMFD(getNodeMFD(idx), minMag);
 	}
 
 	/**
@@ -274,7 +264,7 @@ public class UCERF3_GridSourceGenerator {
 		mfd.scale(revisedSpatialPDF[idx]);
 		return mfd;
 	}
-	
+
 	/**
 	 * Returns the sum of the unassociated MFD of all nodes.
 	 * @return the MFD
@@ -293,9 +283,9 @@ public class UCERF3_GridSourceGenerator {
 	public IncrementalMagFreqDist getNodeSubSeisMFD(int idx) {
 		return nodeSubSeisMFDs.get(idx);
 	}
-	
+
 	/**
-	 * Returns the sum of the sub-seismogenic MFD of all nodes. 
+	 * Returns the sum of the sub-seismogenic MFD of all nodes.
 	 * @return the MFD
 	 */
 	public IncrementalMagFreqDist getNodeSubSeisMFD() {
@@ -325,24 +315,43 @@ public class UCERF3_GridSourceGenerator {
 		mfd.scale(frac);
 		return mfd;
 	}
-	
+
 	/**
 	 * Returns the source of the requested type at the supplied index for a
 	 * forecast with a given duration.
 	 * @param idx node index
 	 * @param duration of forecast
-	 * @param filterAftershocks 
-	 * @param isCrosshair 
+	 * @param filterAftershocks (Gardner-Knopoff filter)
+	 * @param isCrosshair
 	 * @return the source
+	 * @see GardnerKnopoffAftershockFilter
 	 */
 	public ProbEqkSource getSource(int idx, double duration, boolean filterAftershocks, boolean isCrosshair) {
 		Location loc = region.locationForIndex(idx);
-		IncrementalMagFreqDist mfd = getNodeMFD(idx);
+		IncrementalMagFreqDist mfd = getNodeMFD(idx, 5.05);
 		if (filterAftershocks) scaleMFD(mfd);
-		
+
 		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
 			isCrosshair);
+	}
+
+	/*
+	 * Utility to trim the supplied MFD to the supplied min mag and the maximum
+	 * non-zero mag. This method makes the assumtions that the min mag of the 
+	 * supplied mfd is lower then the mMin, and that mag bins are centered on
+	 * 0.05.
+	 */
+	private static IncrementalMagFreqDist trimMFD(IncrementalMagFreqDist mfdIn, double mMin) {
+		double mMax = mfdIn.getMaxMagWithNonZeroRate();
+		int num = (int) ((mMax - mMin) / 0.1) + 1;
+		IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
+		for (int i=0; i<mfdOut.getNum(); i++) {
+			double mag = mfdOut.getX(i);
+			double rate = mfdIn.getY(mag);
+			mfdOut.set(mag, rate);
+		}
+		return mfdOut;
 	}
 	
 	/*
@@ -356,7 +365,7 @@ public class UCERF3_GridSourceGenerator {
 			mfd.set(p);
 		}
 	}
-		
+
 	/**
 	 * Set whether all sources should just be treated as point sources, not just
 	 * those with M&leq;6.0
@@ -366,121 +375,59 @@ public class UCERF3_GridSourceGenerator {
 	public void setAsPointSources(boolean usePoints) {
 		ptSrcCutoff = (usePoints) ? 10.0 : 6.0;
 	}
-	
-	
+
+
 	public static void main(String[] args) {
-//
-//		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(1.0, 1.0, 5.05, 8.05, 31);
-//		System.out.println(grMFD);
-//		scaleMFD(grMFD);
-//		System.out.println(grMFD);
-		
+		//
+		//		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(1.0, 1.0, 5.05, 8.05, 31);
+		//		System.out.println(grMFD);
+		//		scaleMFD(grMFD);
+		//		System.out.println(grMFD);
+
 		SimpleFaultSystemSolution tmp = null;
 		try {
-//			File f = new File("tmp/invSols/reference_ch_sol2.zip");
-			File f = new File("tmp/invSols/ucerf2/FM2_1_UC2ALL_MaAvU2_DsrTap_DrAveU2_Char_VarAPrioriZero_VarAPrioriWt1000_mean_sol.zip");
-			
+			//			File f = new File("tmp/invSols/reference_ch_sol2.zip");
+			File f = new File("/Users/pmpowers/projects/OpenSHA/tmp/invSols/refGR/FM3_1_NEOK_EllB_DsrUni_GRUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+			System.out.println(f.exists());
 			tmp = SimpleFaultSystemSolution.fromFile(f);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
-
-//		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
-//			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);
-//		System.out.println("init done");
-
+		List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
+		System.out.println(list.size());
 		
-//		Location loc = new Location(36, -119);
-//		Location loc = new Location(34, -118.5);
-//		int locIdx = region.indexForLocation(loc);
-//		System.out.println(loc+ " " + locIdx);
-//		
-//		System.out.println("SubSeis");
-//		System.out.println(gridGen.getNodeSubSeisMFD(locIdx));
-//		System.out.println("Indep");
-//		System.out.println(gridGen.getNodeIndependentMFD(locIdx));
-//		System.out.println("Total");
-//		System.out.println(gridGen.getNodeTotalMFD(locIdx));
-//		
-//		Point2Vert_FaultPoisSource peq = (Point2Vert_FaultPoisSource) gridGen.getSource(GridSourceType.CROSSHAIR, locIdx, 1);
-//		System.out.println("EqRup");
-//		System.out.println( peq.getMFD());
-		
+		//		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
+		//			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);
+		//		System.out.println("init done");
+
+
+		//		Location loc = new Location(36, -119);
+		//		Location loc = new Location(34, -118.5);
+		//		int locIdx = region.indexForLocation(loc);
+		//		System.out.println(loc+ " " + locIdx);
+		//
+		//		System.out.println("SubSeis");
+		//		System.out.println(gridGen.getNodeSubSeisMFD(locIdx));
+		//		System.out.println("Indep");
+		//		System.out.println(gridGen.getNodeIndependentMFD(locIdx));
+		//		System.out.println("Total");
+		//		System.out.println(gridGen.getNodeTotalMFD(locIdx));
+		//
+		//		Point2Vert_FaultPoisSource peq = (Point2Vert_FaultPoisSource) gridGen.getSource(GridSourceType.CROSSHAIR, locIdx, 1);
+		//		System.out.println("EqRup");
+		//		System.out.println( peq.getMFD());
+
 	}
 
-	static void plot(ArrayList<IncrementalMagFreqDist> mfds) { 
+	static void plot(ArrayList<IncrementalMagFreqDist> mfds) {
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds,
 				"GridSeis Test");
-			graph.setX_AxisLabel("Magnitude");
-			graph.setY_AxisLabel("Incremental Rate");
-			graph.setYLog(true);
-			graph.setY_AxisRange(1e-8, 1e2);
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Incremental Rate");
+		graph.setYLog(true);
+		graph.setY_AxisRange(1e-8, 1e2);
 
 	}
-	
-	
-	/*     OLD NOTES     */
-	
-	
-//	for (FaultSectionPrefData sect : faults) {
-//		int idx = sect.getSectionId();
-//		double minMag = fss.getMinMagForSection(idx);
-//		IncrementalMagFreqDist subSeisMFD = totalOffFaultMFD.deepClone();
-//		subSeisMFD.zeroAtAndAboveMag(minMag);
-//			
-//		if (scalingMethod == SmallMagScaling.MO_REDUCTION) {
-//			// scale by moment reduction
-//			double reduction = fss.getOrigMomentRate(idx) -
-//				fss.getSubseismogenicReducedMomentRate(idx);
-//			subSeisMFD.scaleToTotalMomentRate(reduction);
-//		} else {
-//			// scale by smoothed seis area
-//			double polySeisRate = rateForSect(polyMgr.getSectFractions(idx));
-////			IncrementalMagFreqDist supraSeisMFD = fss
-////				.calcNucleationMFD_forSect(idx, mfdMin, mfdMax, mfdNum);
-////			double sectCumRate = supraSeisMFD.getCumRate(mfdMin);
-////			double scaledRate = polySeisRate - sectCumRate;
-//			subSeisMFD.scaleToCumRate(mfdMin, polySeisRate);
-//		}
-//		sectSubSeisMFDs.put(idx, subSeisMFD);
-//	}
-	
-	/*
-	 * NOTE: THIS HAS CHANGED...
-	 * 
-	 *  1) compute subSeismoFaultSectMFD_Array, the sub-seismo MFD for each fault section.  Do this by
-	 *  duplicating totalOffFaultMFD to faultSectionMFD, setting all rates above Mmin for the fault to zero
-	 *  (to avoid double counting), and then constraining the total rate by either 
-	 *  
-	 *  	a) fault-section moment rate reduction (need get method for this) or
-	 *  
-	 *  	b) total smoothed seismicity rate inside polygon; need get method for this, and
-	 *         subtract total rate of supra-seismogenic ruptures from:
-	 *         faultSystemSolution.calcNucleationMFD_forSect(sectIndex, minMag, maxMag, numMag)
-	 *         
-	 *         Need to figure out what to do if fault section polygons overlap
-	 *  
-	 *  2) determine the fraction of each fault-section MFD that goes to each associated node 
-	 *     (need an object that holds a list of node indices and their associated wts)
-	 *  
-	 *  3) determine the fraction of each node that is outside all fault-section polygons 
-	 *  (fractOfNodeOutsideFaultPolygons[])
-	 *  
-	 *  4) compute realOffFaultMFD by subtracting all the fault-section MFDs from totalOffFaultMFD
-	 *  
-	 *  5) create revisedSpatialPDF by multiplying origSpatialPDF by fractOfNodeOutsideFaultPolygons[], and renormalize to
-	 *  1.0.  Each value here multiplied by realOffFaultMFD is now the off-fault MFD for each node
-	 *  
-	 *  6) Each node also has some number of sub-seismo fault MFDs as determined in 2 (need to be able to query the
-	 *     indices of fault sections associated with a given node, as well as the weight the node gets for each 
-	 *     fault-section MFD).
-	 *     
-	 *  7) Summing all the MFDs for each node should give back totalOffFaultMFD
-	 *  
-	 *  Issue - if choice (a) in (1) is much higher on average than choice (b), we will have suppressed all truly off-fault
-	 *  rates
-	 */
-
 
 }
