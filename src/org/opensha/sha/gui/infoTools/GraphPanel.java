@@ -144,6 +144,9 @@ public class GraphPanel extends JSplitPane {
 	//and we have revert back the Axis
 	ValueAxis xAxis, xAxis1 ;
 	ValueAxis yAxis, yAxis1;
+	
+	private boolean xAxisInverted = false;
+	private boolean yAxisInverted = false;
 
 	// light blue color
 	private Color backgroundColor = new Color( 200, 200, 230 );
@@ -310,6 +313,9 @@ public class GraphPanel extends JSplitPane {
 			//tick label font
 			Font axisTickFont = xAxis.getTickLabelFont();
 			xAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
+			
+			if (xAxisInverted)
+				xAxis.setInverted(true);
 
 			//added to have the minimum range within the Upper and Lower Bound of the Axis
 			//xAxis.setAutoRangeMinimumSize(.1);
@@ -352,6 +358,9 @@ public class GraphPanel extends JSplitPane {
 			yAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
 			//added to have the minimum range within the Upper and Lower Bound of the Axis
 			//yAxis.setAutoRangeMinimumSize(.1);
+			
+			if (yAxisInverted)
+				yAxis.setInverted(true);
 
 			/* to set the range of the axis on the input from the user if the range combo box is selected*/
 			if(customAxis)
@@ -1034,5 +1043,25 @@ public class GraphPanel extends JSplitPane {
 
 	public void setRenderingOrder(DatasetRenderingOrder renderingOrder) {
 		this.renderingOrder = renderingOrder;
+	}
+
+	public boolean isxAxisInverted() {
+		return xAxisInverted;
+	}
+
+	public void setxAxisInverted(boolean xAxisInverted) {
+		this.xAxisInverted = xAxisInverted;
+		if (xAxis  != null)
+			xAxis.setInverted(xAxisInverted);
+	}
+
+	public boolean isyAxisInverted() {
+		return yAxisInverted;
+	}
+
+	public void setyAxisInverted(boolean yAxisInverted) {
+		this.yAxisInverted = yAxisInverted;
+		if (yAxis  != null)
+			yAxis.setInverted(yAxisInverted);
 	}
 }
