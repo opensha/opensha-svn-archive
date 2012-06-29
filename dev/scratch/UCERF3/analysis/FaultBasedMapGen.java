@@ -523,7 +523,7 @@ public class FaultBasedMapGen {
 		if (maxMag < 9) {
 			title += "=>"+(float)maxMag;
 			fName += "_"+(float)maxMag;
-		} else {
+		} else if (minMag > 5) {
 			title += "+";
 			fName += "+";
 		}
