@@ -542,8 +542,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			double minSeismoMag = getMinMagForSection(s);
 			if(Double.isNaN(minSeismoMag))
 				gr.scaleToCumRate(0, 0d);
-			else
-				gr.zeroAtAndAboveMag(minSeismoMag);
+			else {
+				double closestMag = gr.getX(gr.getClosestXIndex(minSeismoMag));
+				gr.zeroAtAndAboveMag(closestMag);
+			}
 			grNuclMFD_List.add(gr);
 		}
 		return grNuclMFD_List;
