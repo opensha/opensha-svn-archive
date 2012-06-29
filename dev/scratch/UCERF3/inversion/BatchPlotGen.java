@@ -177,7 +177,7 @@ public class BatchPlotGen {
 				e.printStackTrace();
 			}
 		}
-		if (!hasJumpPlots) {
+		if (!hasPaleoPlots) {
 			ArrayList<PaleoRateConstraint> paleoRateConstraints =
 					CommandLineInversionRunner.getPaleoConstraints(sol.getFaultModel(), sol);
 			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, sol, dir, prefix);
