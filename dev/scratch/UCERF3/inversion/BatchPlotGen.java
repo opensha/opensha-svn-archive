@@ -164,8 +164,12 @@ public class BatchPlotGen {
 			makeMapPlots(sol, dir, prefix);
 		}
 		if (!hasMFDPlots) {
-			InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
-			CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
+			try {
+				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
+				CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		if (!hasJumpPlots) {
 			try {
