@@ -47,6 +47,7 @@ import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -1631,17 +1632,38 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void main(String[] args) {
 		
+		
+		
+		
+		String PATH_TO_FILE_BELOW = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/FM3_1_NEOK_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
+		SimpleFaultSystemSolution tmp = null;
+		try {
+			File f = new File(PATH_TO_FILE_BELOW);
+			System.out.println(f.exists());
+			tmp = SimpleFaultSystemSolution.fromFile(f);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
+		List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
+		System.out.println(list.size());
+
+		
+		
+		
+		
+		
 //		plotAllImpliedTotalSectGR_MFD();
 //		
 //		testImplGR_fracSeisOnFltAssumingSameCC();
 //		testAllInversionSetups();
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
-				InversionModels.GR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
+//				InversionModels.GR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
+//				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
 //		System.out.println(rupSet.getPreInversionAnalysisData(true));
-		plotPreInversionMFDs(rupSet, false, false, false, "preInvGR_MFDs_Tapered.pdf");
+//		plotPreInversionMFDs(rupSet, false, false, false, "preInvGR_MFDs_Tapered.pdf");
 //		plotOffFaultTaperedGR_Comparisons(rupSet, "GR_MaxAndTaperComparison");
 		
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
