@@ -419,6 +419,8 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			if (region != null)
 				fractInside = fractRupsInside[r];
 			double rateInside=getRateForRup(r)*fractInside;
+//			if (fractInside < 1)
+//				System.out.println("inside: "+fractInside+"\trate: "+rateInside+"\tID: "+r);
 			mfd.addResampledMagRate(getMagForRup(r), rateInside, true);
 		}
 		return mfd;

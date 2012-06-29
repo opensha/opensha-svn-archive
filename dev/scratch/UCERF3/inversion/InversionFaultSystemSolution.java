@@ -366,10 +366,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		boolean statewide = region.getName().startsWith("RELM_TESTING");
 		
 		IncrementalMagFreqDist solMFD;
-		if (statewide)
-			solMFD = calcNucleationMFD_forRegion(null, // null since we want everything
-					totalMFD.getMinX(), 9.05, 0.1, true);
-		else
+//		if (statewide)
+//			solMFD = calcNucleationMFD_forRegion(null, // null since we want everything
+//					totalMFD.getMinX(), 9.05, 0.1, true);
+//		else
 			solMFD = calcNucleationMFD_forRegion(region,
 					totalMFD.getMinX(), 9.05, 0.1, true);
 		solMFD.setName("Solution MFD");

@@ -9,6 +9,7 @@ import java.util.Map;
 import mpi.MPI;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
@@ -41,34 +42,49 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 
 	private Map<Integer, String> results;
 
-	public MPJDistributedAnalysis(CommandLine cmd, File file) {
+	public MPJDistributedAnalysis(CommandLine cmd, File file, boolean ucerf2) {
 		super(cmd);
 
 		this.file = file;
 
-		buildTaskList();
+		buildTaskList(ucerf2);
 	}
 
 	private static List<LogicTreeBranchNode<?>> toList(LogicTreeBranchNode<?>... vals) {
 		return Arrays.asList(vals);
 	}
 
-	private void buildTaskList(){
+	private void buildTaskList(boolean ucerf2){
 		branches = Lists.newArrayList();
 
 		List<List<LogicTreeBranchNode<?>>> limitationsList = Lists.newArrayList();
 		
 		ListBasedTreeTrimmer trimmer;
 
-		limitationsList.add(toList(FaultModels.FM3_1, FaultModels.FM3_2));
-		limitationsList.add(toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG));
+		if (ucerf2)
+			limitationsList.add(toList(FaultModels.FM2_1));
+		else
+			limitationsList.add(toList(FaultModels.FM3_1, FaultModels.FM3_2));
+		if (ucerf2)
+			limitationsList.add(toList(DeformationModels.UCERF2_ALL));
+		else
+			limitationsList.add(toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG));
 		limitationsList.add(toList(InversionModels.CHAR_CONSTRAINED, InversionModels.GR_CONSTRAINED));
 		limitationsList.add(toList(SlipAlongRuptureModels.TAPERED));
 		limitationsList.add(toList(ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_2009_MOD));
+		if (ucerf2)
+			limitationsList.add(toList(ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08,
+					ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.AVE_UCERF2));
+		else
+			limitationsList.add(toList(ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08,
+					ScalingRelationships.SHAW_2009_MOD));
 		limitationsList.add(toList(TotalMag5Rate.RATE_8p7, TotalMag5Rate.RATE_7p1, TotalMag5Rate.RATE_10p6));
 		limitationsList.add(toList(MaxMagOffFault.MAG_7p2, MaxMagOffFault.MAG_7p6, MaxMagOffFault.MAG_8p0));
 		limitationsList.add(toList(MomentRateFixes.NONE, MomentRateFixes.APPLY_IMPLIED_CC));
-		limitationsList.add(toList(SpatialSeisPDF.UCERF2, SpatialSeisPDF.UCERF3));
+		if (ucerf2)
+			limitationsList.add(toList(SpatialSeisPDF.UCERF2, SpatialSeisPDF.UCERF3));
+		else
+			limitationsList.add(toList(SpatialSeisPDF.UCERF2));
 		
 //		limitationsList.add(toList(FaultModels.FM3_1));
 //		limitationsList.add(toList(DeformationModels.GEOLOGIC));
@@ -230,6 +246,15 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 			MPI.COMM_WORLD.Send(myStrings, 0, myStrings.length, MPI.OBJECT, 0, TAG_GET_EALS);
 		}
 	}
+	
+	protected static Options createOptions() {
+		Options options = MPJTaskCalculator.createOptions();
+		
+		Option ucerf2option = new Option("u2", "ucerf2", false, "Flag fot doing UCERF2 branches instead of UCERF3");
+		options.addOption(ucerf2option);
+		
+		return options;
+	}
 
 	/**
 	 * @param args
@@ -250,7 +275,9 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 
 			Preconditions.checkArgument(file.getAbsoluteFile().getParentFile().exists(), "File cannot be created: "+file);
 			
-			MPJDistributedAnalysis driver = new MPJDistributedAnalysis(cmd, file);
+			boolean ucerf2 = cmd.hasOption("ucerf2");
+			
+			MPJDistributedAnalysis driver = new MPJDistributedAnalysis(cmd, file, ucerf2);
 			
 			driver.run();
 			

@@ -211,6 +211,12 @@ public class RunInversion {
 		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
 		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(solution);
 		invSol.plotMFDs();
+		try {
+			CommandLineInversionRunner.writeMFDPlots(invSol, new File("/tmp"), rupSet.getLogicTreeBranch().buildFileName());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		solution.plotMFDs(config.getMfdEqualityConstraints());
 //		solution.plotMFDs(config.getMfdInequalityConstraints());
 		long runTime = System.currentTimeMillis()-startTime;

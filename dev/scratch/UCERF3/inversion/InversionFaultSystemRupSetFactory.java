@@ -232,7 +232,7 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, InversionModels.CHAR);
-			FaultSystemRupSet rupSet = cachedForBranch(true, FaultModels.FM3_1, DeformationModels.GEOLOGIC, InversionModels.CHAR_CONSTRAINED);
+			InversionFaultSystemRupSet rupSet = forBranch(LogicTreeBranch.UCERF2);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
 //					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault(), MomentReductions.INCREASE_ASEIS);
@@ -246,6 +246,14 @@ public class InversionFaultSystemRupSetFactory {
 			System.out.println("Total Mo Rate Reduction Fraction: "+rupSet.getTotalMomentRateReductionFraction());
 			
 			System.out.println("\n"+rupSet.getInfoString());
+			
+			String info1 = rupSet.getPreInversionAnalysisData(true);
+			LogicTreeBranch br = (LogicTreeBranch) LogicTreeBranch.UCERF2.clone();
+			br.setValue(InversionModels.GR_CONSTRAINED);
+			rupSet = forBranch(LogicTreeBranch.UCERF2);
+			String info2 = rupSet.getPreInversionAnalysisData(false);
+			System.out.println(info1);
+			System.out.println(info2);
 			
 			// slip for an 8.4
 //			int id = 132520;
