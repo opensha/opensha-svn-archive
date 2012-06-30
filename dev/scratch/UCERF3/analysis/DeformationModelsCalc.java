@@ -149,7 +149,8 @@ public class DeformationModelsCalc {
 	
 	
 	/**
-	 * This tests whether any part of the surface fall outside the polygon?
+	 * This tests whether any part of the surface fall outside the polygon?  
+	 * NOTE THAT THIS MAY ONLY USE THE POLYGONS IN THE FAULT DATABASE (NOT ADDED BUFFER); CONFIRM BEFORE USING.
 	 * These cannot yet be subsections
 	 * @param sectData
 	 */
@@ -1106,12 +1107,12 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-//		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.SF_BOX()); 
-//		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.NEOKINEMA, new CaliforniaRegions.LA_BOX()); 
+		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.SF_BOX()); 
+		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.LA_BOX()); 
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		
-		plotMoreSpatialMaps();
+//		plotMoreSpatialMaps();
 
 		
 //		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, 

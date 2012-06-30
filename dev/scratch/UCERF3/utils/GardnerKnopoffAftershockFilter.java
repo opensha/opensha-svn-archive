@@ -2,12 +2,17 @@ package scratch.UCERF3.utils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.XY_DataSetException;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 /**
@@ -102,29 +107,56 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 	}
 	
 	public void plotResults() {
-		 ArrayList<EvenlyDiscretizedFunc> hists = new ArrayList<EvenlyDiscretizedFunc>();
-		 hists.add(allGR);
-		 hists.add(mainGR);
-		 // hists.add(allGR.getCumRateDist());
-		 // hists.add(mainGR.getCumRateDist());
-		 hists.add(this);
-		 hists.add(getKarensFractions());
-		
-		 GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hists, "Test");
-		 graph.setX_AxisLabel("Mag");
-		 graph.setY_AxisLabel("Fraction");
-		 graph.setAxisLabelFontSize(18);
-		 graph.setPlotLabelFontSize(20);
-		 graph.setTickLabelFontSize(16);
-		 graph.setYLog(true);
 
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+
+		ArrayList<EvenlyDiscretizedFunc> mfds = new ArrayList<EvenlyDiscretizedFunc>();
+		mfds.add(allGR.getCumRateDistWithOffset());
+		mfds.add(mainGR.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Cumulative GR MFDs for Gardner-Knopoff filter", plotChars);
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Normalized Rate");
+		graph.setAxisLabelFontSize(18);
+		graph.setPlotLabelFontSize(20);
+		graph.setTickLabelFontSize(16);
+		graph.setX_AxisRange(5, 8);
+		graph.setY_AxisRange(1e-4, 2);
+		graph.setYLog(true);
+		try {
+			graph.saveAsPDF("mfdsForGardnerKnopoffFilter.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_TRIANGLE, 5, Color.BLACK));
+		ArrayList<EvenlyDiscretizedFunc> filters = new ArrayList<EvenlyDiscretizedFunc>();
+		filters.add(this);
+		filters.add(getKarensFractions());
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(filters, "Gardner-Knopoff filter", plotChars);
+		graph2.setX_AxisLabel("Magnitude");
+		graph2.setY_AxisLabel("Fraction Mainshocks (Incremental Distribution)");
+		graph2.setAxisLabelFontSize(18);
+		graph2.setPlotLabelFontSize(20);
+		graph2.setTickLabelFontSize(16);
+		graph2.setX_AxisRange(5, 8);
+		graph2.setY_AxisRange(0,1.2);
+		try {
+			graph2.saveAsPDF("GardnerKnopoffFilter.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	
 
 	public static void main(String[] args) {
 		GardnerKnopoffAftershockFilter test = new GardnerKnopoffAftershockFilter(0.05, 9.95, 100);
 		test.plotResults();
-
-
 	}
 
 }
