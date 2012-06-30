@@ -58,7 +58,7 @@ public class LogicTreePBSWriter {
 
 	public static ArrayList<File> getClasspath(RunSites runSite) {
 		ArrayList<File> jars = new ArrayList<File>();
-		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete.jar"));
+		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete_grfix2.jar"));
 		jars.add(new File(runSite.RUN_DIR, "parallelcolt-0.9.4.jar"));
 		jars.add(new File(runSite.RUN_DIR, "commons-cli-1.2.jar"));
 		jars.add(new File(runSite.RUN_DIR, "csparsej.jar"));
@@ -449,7 +449,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ref-gr-unconst-targetmfdfix";
+		String runName = "morgan-gr-supplement-targetmfdfix";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
@@ -465,13 +465,13 @@ public class LogicTreePBSWriter {
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 500;
+		int numRuns = 1;
 		int runStart = 0;
 
 		boolean lightweight = numRuns > 10;
 
-//		TreeTrimmer trimmer = getCustomTrimmer();
-		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
@@ -487,18 +487,18 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
-		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
+//		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly, noUCERF2);
-//		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
+		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noRefBranches, noUCERF2);
 		
 		
-		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getNeokinemaOnlyTrimmer());
+//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getNeokinemaOnlyTrimmer());
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
-//		TreeTrimmer defaultBranchesTrimmer = null;
+		TreeTrimmer defaultBranchesTrimmer = null;
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
 		ArrayList<CustomArg[]> variationBranches = null;

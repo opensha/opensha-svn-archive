@@ -97,6 +97,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		super.clearCache();
 		slipPDFMap.clear();
 		particRatesCache.clear();
+		nucleationRatesCache.clear();
 		totParticRatesCache = null;
 		paleoVisibleRatesCache = null;
 		slipRatesCache = null;
@@ -201,6 +202,61 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			particRatesCache.put(key, particRates);
 		}
 		return particRatesCache.get(key);
+	}
+
+	private HashMap<String, double[]> nucleationRatesCache = new HashMap<String, double[]>();
+	
+	/**
+	 * This computes the nucleation rate (events/yr) of the sth section for magnitudes 
+	 * greater and equal to magLow and less than magHigh.
+	 * @param sectIndex
+	 * @param magLow
+	 * @param magHigh
+	 * @return
+	 */
+	public double calcNucleationRateForSect(int sectIndex, double magLow, double magHigh) {
+		return calcNucleationRateForAllSects(magLow, magHigh)[sectIndex];
+	}
+		
+	private double doCalcNucleationRateForSect(int sectIndex, double magLow, double magHigh) {
+		double nucleationRate=0;
+		for (int r : getRupturesForSection(sectIndex)) {
+			double mag = this.getMagForRup(r);
+			if(mag>=magLow && mag<magHigh) {
+				double rate = getRateForRup(r);
+				double sectArea = getAreaForSection(sectIndex);
+				double rupArea = getAreaForRup(r);
+				nucleationRate += rate * (sectArea / rupArea);
+			}
+		}
+		return nucleationRate;
+	}
+	
+	
+	/**
+	 * This computes the nucleation rate (events/yr) of all sections for magnitudes 
+	 * greater and equal to magLow and less than magHigh.
+	 * @param sectIndex
+	 * @param magLow
+	 * @param magHigh
+	 * @return
+	 */
+	public synchronized double[] calcNucleationRateForAllSects(double magLow, double magHigh) {
+		String key = (float)magLow+"_"+(float)magHigh;
+		if (!nucleationRatesCache.containsKey(key)) {
+			double[] nucleationRates = new double[getNumSections()];
+			CalcProgressBar p = null;
+			if (showProgress) {
+				p = new CalcProgressBar("Calculating Nucleation Rates", "Calculating Participation Rates");
+			}
+			for (int i=0; i<nucleationRates.length; i++) {
+				if (p != null) p.updateProgress(i, nucleationRates.length);
+				nucleationRates[i] = doCalcNucleationRateForSect(i, magLow, magHigh);
+			}
+			if (p != null) p.dispose();
+			nucleationRatesCache.put(key, nucleationRates);
+		}
+		return nucleationRatesCache.get(key);
 	}
 	
 	private double[] totParticRatesCache;
@@ -330,6 +386,19 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			if (p != null) p.dispose();
 		}
 		return slipRatesCache;
+	}
+	
+	public SummedMagFreqDist calcNucleationMFD_forParentSect(int parentSectionID, double minMag, double maxMag, int numMag) {
+		SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, maxMag, numMag);
+		
+		for (int sectIndex=0; sectIndex<getNumSections(); sectIndex++) {
+			if (getFaultSectionData(sectIndex).getParentSectionId() != parentSectionID)
+				continue;
+			IncrementalMagFreqDist subMFD = calcNucleationMFD_forSect(sectIndex, minMag, maxMag, numMag);
+			mfd.addIncrementalMagFreqDist(subMFD);
+		}
+		
+		return mfd;
 	}
 
 	/**
