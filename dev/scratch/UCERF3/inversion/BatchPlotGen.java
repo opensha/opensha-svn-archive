@@ -208,11 +208,13 @@ public class BatchPlotGen {
 	
 	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
 		Region region = RELM_RegionUtils.getGriddedRegionInstance();
-		if (avgSol.getNumSolutions() <= 50)
+		if (avgSol.getNumSolutions() <= 10)
 			FaultBasedMapGen.plotSolutionSlipRateStdDevs(avgSol, avgSol.calcSlipRates(), region, dir, prefix, false);
-		FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(6, 7), region, dir, prefix, false, 6, 7);
-		FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(7, 8), region, dir, prefix, false, 7, 8);
-		FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(8, 10), region, dir, prefix, false, 8, 10);
+		if (avgSol.getNumSolutions() <= 50) {
+			FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(6, 7), region, dir, prefix, false, 6, 7);
+			FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(7, 8), region, dir, prefix, false, 7, 8);
+			FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(8, 10), region, dir, prefix, false, 8, 10);
+		}
 	}
 
 	/**
