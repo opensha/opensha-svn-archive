@@ -126,14 +126,19 @@ public class BatchPlotGen {
 				}
 				String meanPrefix = prefix + "_mean";
 				File avgSolFile = new File(dir, meanPrefix+"_sol.zip");
-				if (avgSolFile.exists()) {
+				if (avgSolFile.exists() && doAvgPlotsExist(dir, meanPrefix)) {
 					System.out.println("Skipping (mean sol already done): "+meanPrefix);
 					continue;
 				}
 				// this is an average of many run
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
 				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, dir, prefix);
-				prefix += "_mean";
+				if (!doAvgPlotsExist(dir, meanPrefix))
+					try {
+						writeAvgSolPlots(avgSol, dir, meanPrefix);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				avgSol.toZipFile(avgSolFile);
 				// write bin file as well
 				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(dir, meanPrefix+".bin"));
@@ -151,10 +156,8 @@ public class BatchPlotGen {
 		boolean hasJumpPlots = CommandLineInversionRunner.doJumpPlotsExist(dir, prefix);
 		boolean hasPaleoPlots = CommandLineInversionRunner.doPaleoPlotsExist(dir, prefix);
 		boolean hasSAFSegPlots = CommandLineInversionRunner.doSAFSegPlotsExist(dir, prefix);
-		boolean hasAVGPlots = !(sol instanceof AverageFaultSystemSolution &&
-				!new File(dir, prefix+"_partic_mean_over_std_dev_6.0_7.0.png").exists());
 //		boolean hasMFDPlots = 
-		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasSAFSegPlots && hasAVGPlots) {
+		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasSAFSegPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
@@ -197,13 +200,10 @@ public class BatchPlotGen {
 				e.printStackTrace();
 			}
 		}
-		if (!hasAVGPlots) {
-			try {
-				writeAvgSolPlots((AverageFaultSystemSolution)sol, dir, prefix);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	}
+	
+	private static boolean doAvgPlotsExist(File dir, String prefix) {
+		return new File(dir, prefix+"_partic_mean_over_std_dev_6.0_7.0.png").exists();
 	}
 	
 	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
