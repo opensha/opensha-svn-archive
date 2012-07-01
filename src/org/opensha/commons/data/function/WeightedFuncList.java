@@ -46,7 +46,7 @@ public class WeightedFuncList {
 	private XY_DataSetList fractileList = new XY_DataSetList();
 
 	//Discrrtized function to store the Mean function
-	private ArbitrarilyDiscretizedFunc meanFunction;
+	private AbstractXY_DataSet meanFunction;
 
 
 	// Error Strings to be dispalyed
@@ -282,7 +282,7 @@ public class WeightedFuncList {
 	 *
 	 * @return the mean fractile function if it was computed
 	 */
-	public DiscretizedFunc getMean(){
+	public AbstractXY_DataSet getMean(){
 		if(isMeanFractileCalculated)
 			return meanFunction;
 		return null;

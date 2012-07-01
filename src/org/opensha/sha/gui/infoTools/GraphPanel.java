@@ -56,6 +56,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleInsets;
+import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
@@ -800,7 +801,7 @@ public class GraphPanel extends JSplitPane {
 					numColorArray.add(new Integer(list.size()));
 				}
 				if(weightedList.isMeanToPlot()){
-					DiscretizedFunc meanFunc = weightedList.getMean();
+					AbstractXY_DataSet meanFunc = weightedList.getMean();
 					//String info = meanFunc.getInfo();
 					//meanFunc.setInfo("(c) "+info);
 					totalProbFuncs.add(meanFunc);

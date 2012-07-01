@@ -120,7 +120,7 @@ public class ERF_Calculator {
   
   
   /**
-   * This computes the total magnitude frequency distribution (equivalent poisson rates) for the
+   * This computes the total nucleation magnitude frequency distribution (equivalent poisson rates) for the
    * ERF inside the region (only the fraction of each rupture inside the region is included)
    * @param erf
    * @param region
@@ -154,6 +154,44 @@ public class ERF_Calculator {
 	  }
 	  return magFreqDist;
   }
+  
+  
+  
+  /**
+   * This computes the total participation magnitude frequency distribution (equivalent poisson rates) for the
+   * ERF inside the region (rupture mag and rate is included if any part of the rupture is inside)
+   * @param erf
+   * @param region
+   * @param minMag
+   * @param numMag
+   * @param deltaMag
+   * @param preserveRates - this tells whether to preserve rates or preserve moment rates
+   * @return
+   */
+  public static SummedMagFreqDist getParticipationMagFreqDistInRegion(ERF erf, Region region,
+		  double minMag,int numMag,double deltaMag, boolean preserveRates) {
+
+	  SummedMagFreqDist magFreqDist = new SummedMagFreqDist(minMag, numMag, deltaMag);
+	  double duration = erf.getTimeSpan().getDuration();
+	  for (ProbEqkSource source : erf) {
+		  for (ProbEqkRupture rupture : source) {
+			  // see if any point is inside
+			  boolean isInside = false;
+			  for(Location loc : rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+				  if (region.contains(loc)) {
+					  isInside = true;
+					  break;
+				  }
+			  }
+			  if(isInside) {
+				  double equivRate = rupture.getMeanAnnualRate(duration);
+				  magFreqDist.addResampledMagRate(rupture.getMag(), equivRate, preserveRates);
+			  }
+		  }
+	  }
+	  return magFreqDist;
+  }
+
   
   
   

@@ -21,6 +21,7 @@ package org.opensha.commons.calc;
 
 import java.util.ArrayList;
 
+import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
@@ -120,8 +121,8 @@ public class FractileCurveCalculator {
    * weights).
    * @return
    */
-  public ArbitrarilyDiscretizedFunc getMeanCurve() {
-    ArbitrarilyDiscretizedFunc result = (ArbitrarilyDiscretizedFunc) funcList.get(0).deepClone();
+  public AbstractXY_DataSet getMeanCurve() {
+	  AbstractXY_DataSet result = (AbstractXY_DataSet) funcList.get(0).deepClone();
     double wt, totWt=0;
     int numPoints = funcList.get(0).getNum();
     int numFuncs = funcList.size();
@@ -143,6 +144,8 @@ public class FractileCurveCalculator {
       // initialize result to zero
       for(i=0;i<numPoints;i++)
         result.set(i,result.getY(i)/totWt);
+      
+      result.setName("Mean");
 
     return result;
   }
@@ -162,6 +165,7 @@ public class FractileCurveCalculator {
       result.set(funcList.get(0).getX(i),
                  ((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).getDiscreteFractile(fraction));
     }
+    result.setName(fraction+" fractile");
     return result;
   }
 }

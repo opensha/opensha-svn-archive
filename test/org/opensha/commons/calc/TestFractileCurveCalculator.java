@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 
 import org.junit.Test;
+import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 
@@ -122,9 +123,9 @@ public class TestFractileCurveCalculator {
 	@Test
 	public void testGetMeanCurve() {
 		FractileCurveCalculator calc = new FractileCurveCalculator(getGoodTestData(), getGoodWeights());
-		ArbitrarilyDiscretizedFunc func = calc.getMeanCurve();
+		AbstractXY_DataSet func = calc.getMeanCurve();
 		calc.set(getGoodTestData(), getNormalizedWeights());
-		ArbitrarilyDiscretizedFunc normFunc = calc.getMeanCurve();
+		AbstractXY_DataSet normFunc = calc.getMeanCurve();
 //		System.out.println(func);
 		for (int x=0; x<20; x++) {
 			double expectedY = 10.125 - (x * 0.125);

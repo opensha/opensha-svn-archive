@@ -46,8 +46,22 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 
 	}
 	
+	public UCERF3_FaultSysSol_ERF(File file) {
+		
+		fileParam.setValue(file);
+		
+		bgIncludeParam.getEditor().setEnabled(true);
+		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
+		bgRupTypeParam.getEditor().setEnabled(true);
+	}
+
+	
 	public UCERF3_FaultSysSol_ERF(InversionFaultSystemSolution faultSysSolution) {
 		super(faultSysSolution);
+		bgIncludeParam.getEditor().setEnabled(true);
+		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
+		bgRupTypeParam.getEditor().setEnabled(true);
+
 	}
 		
 	@Override

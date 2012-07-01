@@ -1107,8 +1107,9 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.SF_BOX()); 
-		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.LA_BOX()); 
+//		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.SF_BOX()); 
+//		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.LA_BOX()); 
+		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.ZENG, new CaliforniaRegions.LA_BOX()); 
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		
