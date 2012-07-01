@@ -226,7 +226,8 @@ public class FaultSpecificSegmentationPlotGen {
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_GEOL_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_UCERF2_COMPARISON_sol.zip");
-		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol_high_a_priori.zip");
+		File solFile = new File("/tmp/FM2_1_UCERF2_COMPARISON_sol.zip");
+//		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol_high_a_priori.zip");
 		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(solFile);
 		
 //		Map<Integer, List<Integer>> namedMap = sol.getFaultModel().getNamedFaultsMap();

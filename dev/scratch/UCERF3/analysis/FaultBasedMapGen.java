@@ -573,7 +573,7 @@ public class FaultBasedMapGen {
 	public static void plotDeformationModelSlip(
 			Region region, File saveDir, boolean display, FaultModels fm, DeformationModels dm, String prefix)
 			throws IOException, GMT_MapException, RuntimeException {
-		CPT cpt = getSlipRateCPT();
+		CPT cpt = getSlipRateCPT().rescale(0, 10);
 		
 		List<LocationList> faults = Lists.newArrayList();
 		List<Double> valsList = Lists.newArrayList();
@@ -601,6 +601,60 @@ public class FaultBasedMapGen {
 		double[] values = Doubles.toArray(valsList);
 		
 		makeFaultPlot(cpt, faults, values, region, saveDir, prefix, display, false, "Slip Rate (mm/yr)");
+	}
+	
+	public static void plotDeformationModelSlipRatiosToGeol(Region region, File saveDir, boolean display)
+			throws IOException, GMT_MapException, RuntimeException {
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, "dm_ucerf2");
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC, "dm_geol");
+		plotDeformationModelSlipRatio(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ABM, DeformationModels.GEOLOGIC, "dm_abm_vs_geol");
+		plotDeformationModelSlipRatio(region, saveDir, display, FaultModels.FM3_1, DeformationModels.NEOKINEMA, DeformationModels.GEOLOGIC, "dm_neok_vs_geol");
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOBOUND, "dm_geob");
+		plotDeformationModelSlipRatio(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ZENG, DeformationModels.GEOLOGIC, "dm_zeng_vs_geol");
+	}
+	
+	public static void plotDeformationModelSlipRatio(
+			Region region, File saveDir, boolean display, FaultModels fm, DeformationModels dm, DeformationModels ref, String prefix)
+			throws IOException, GMT_MapException, RuntimeException {
+		CPT cpt = getLogRatioCPT();
+		
+		List<LocationList> faults = Lists.newArrayList();
+		List<Double> valsList = Lists.newArrayList();
+		
+		if (fm == FaultModels.FM2_1) {
+			DeformationModelFetcher dmFetch1 = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
+			DeformationModelFetcher dmFetch2 = new DeformationModelFetcher(fm, ref, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
+			ArrayList<FaultSectionPrefData> sects1 = dmFetch1.getSubSectionList();
+			ArrayList<FaultSectionPrefData> sects2 = dmFetch2.getSubSectionList();
+			for (int i=0; i<sects1.size(); i++) {
+				FaultSectionPrefData fault1 = sects1.get(i);
+				FaultSectionPrefData fault2 = sects2.get(i);
+				faults.add(fault1.getFaultTrace());
+				valsList.add(fault1.getOrigAveSlipRate() / fault2.getOrigAveSlipRate());
+			}
+		} else {
+			Map<Integer, DeformationSection> sects1 = DeformationModelFileParser.load(dm.getDataFileURL(fm));
+			Map<Integer, DeformationSection> sects2 = DeformationModelFileParser.load(ref.getDataFileURL(fm));
+			
+			for (DeformationSection sect : sects1.values()) {
+				DeformationSection sect2 = sects2.get(sect.getId());
+				for (int i=0; i<sect.getLocs1().size(); i++) {
+					LocationList locs = new LocationList();
+					locs.add(sect.getLocs1().get(i));
+					locs.add(sect.getLocs2().get(i));
+					faults.add(locs);
+					valsList.add(sect.getSlips().get(i) / sect2.getSlips().get(i));
+				}
+			}
+		}
+		
+		double[] values = Doubles.toArray(valsList);
+		for (int i=0; i<values.length; i++)
+			values[i] = Math.log10(values[i]);
+		
+		String str = dm.getShortName()+"/"+ref.getShortName();
+		
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix, display, false, "Log10(Slip Rate Ratio, "+str+")");
 	}
 	
 	private static Location getTraceMidpoint(FaultSectionPrefData fault) {
@@ -742,7 +796,8 @@ public class FaultBasedMapGen {
 		String prefix = solFile.getName().replaceAll(".zip", "");
 		boolean display = true;
 		
-		plotDeformationModelSlips(region, saveDir, display);
+//		plotDeformationModelSlips(region, saveDir, display);
+		plotDeformationModelSlipRatiosToGeol(region, saveDir, display);
 		System.exit(0);
 		
 //		plotOrigNonReducedSlipRates(sol, region, saveDir, prefix, display);

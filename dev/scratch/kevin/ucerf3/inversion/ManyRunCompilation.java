@@ -36,8 +36,6 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.commons.util.threads.Task;
-import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
@@ -53,8 +51,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
@@ -1062,7 +1060,7 @@ public class ManyRunCompilation {
 			double[][] partRates = new double[numSects][numRuns];
 			
 			try {
-				doThreaded(rates, partRates, true, magLow, magHigh, rupSet);
+				AverageFaultSystemSolution.calcThreaded(rates, partRates, true, magLow, magHigh, rupSet);
 			} catch (InterruptedException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -1091,62 +1089,12 @@ public class ManyRunCompilation {
 		double[][] slipRates = new double[numSects][numRuns];
 		
 		try {
-			doThreaded(rates, slipRates, false, 0, 0, rupSet);
+			AverageFaultSystemSolution.calcThreaded(rates, slipRates, false, 0, 0, rupSet);
 		} catch (InterruptedException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		FaultBasedMapGen.plotSolutionSlipRateStdDevs(rupSet, slipRates, region, dir, prefix, false);
 		System.exit(0);
-	}
-	
-	private static class ComputeTask implements Task {
-		
-		private double[][] rates;
-		private double[][] output;
-		private int i;
-		private boolean partic;
-		private FaultSystemRupSet rupSet;
-		private double magLow, magHigh;
-
-		public ComputeTask(double[][] rates, double[][] output, int i, boolean partic, double magLow, double magHigh,
-				FaultSystemRupSet rupSet) {
-			super();
-			this.rates = rates;
-			this.output = output;
-			this.i = i;
-			this.partic = partic;
-			this.rupSet = rupSet;
-			this.magLow = magLow;
-			this.magHigh = magHigh;
-		}
-
-		@Override
-		public void compute() {
-			double[] myRates = new double[rupSet.getNumRuptures()];
-			for (int r=0; r<rupSet.getNumRuptures(); r++)
-				myRates[r] = rates[r][i];
-			FaultSystemSolution mySol = new SimpleFaultSystemSolution(rupSet, myRates);
-			mySol.copyCacheFrom(rupSet);
-			double[] myAnswer;
-			if (partic)
-				myAnswer = mySol.calcParticRateForAllSects(magLow, magHigh);
-			else
-				myAnswer = mySol.calcSlipRateForAllSects();
-			
-			for (int s=0; s<rupSet.getNumSections();s++) {
-				output[s][i] = myAnswer[s];
-			}
-		}
-		
-	}
-	
-	private static void doThreaded(double[][] rates, double[][] output, boolean partic, double magLow, double magHigh, FaultSystemRupSet rupSet) throws InterruptedException {
-		ArrayList<ComputeTask> tasks = new ArrayList<ManyRunCompilation.ComputeTask>();
-		for (int i=0; i<output[0].length; i++)
-			tasks.add(new ComputeTask(rates, output, i, partic, magLow, magHigh, rupSet));
-		
-		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
-		comp.computThreaded();
 	}
 	
 	private static double[] toArray(double... vals) {

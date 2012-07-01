@@ -58,7 +58,7 @@ public class LogicTreePBSWriter {
 
 	public static ArrayList<File> getClasspath(RunSites runSite) {
 		ArrayList<File> jars = new ArrayList<File>();
-		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete_grfix2.jar"));
+		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete.jar"));
 		jars.add(new File(runSite.RUN_DIR, "parallelcolt-0.9.4.jar"));
 		jars.add(new File(runSite.RUN_DIR, "commons-cli-1.2.jar"));
 		jars.add(new File(runSite.RUN_DIR, "csparsej.jar"));
@@ -379,6 +379,16 @@ public class LogicTreePBSWriter {
 		};
 	}
 	
+	public static TreeTrimmer getZengOnlyTrimmer() {
+		return new TreeTrimmer() {
+			
+			@Override
+			public boolean isTreeValid(LogicTreeBranch branch) {
+				return branch.getValue(DeformationModels.class).equals(DeformationModels.ZENG);
+			}
+		};
+	}
+	
 	private static TreeTrimmer getDiscreteCustomTrimmer() {
 		List<LogicTreeBranch> branches = Lists.newArrayList();
 		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM3_1, DeformationModels.NEOKINEMA));
@@ -449,12 +459,12 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "morgan-gr-supplement-targetmfdfix";
+		String runName = "zeng-ref-branches-vars-4hr";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-//		int constrained_run_mins = 250;
-		int constrained_run_mins = 500;
+		int constrained_run_mins = 250;
+//		int constrained_run_mins = 500;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
@@ -470,8 +480,8 @@ public class LogicTreePBSWriter {
 
 		boolean lightweight = numRuns > 10;
 
-		TreeTrimmer trimmer = getCustomTrimmer();
-//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+//		TreeTrimmer trimmer = getCustomTrimmer();
+		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
@@ -484,29 +494,29 @@ public class LogicTreePBSWriter {
 		TreeTrimmer noRefBranches = new LogicalNotTreeTrimmer(getUCERF3RefBranches());
 		TreeTrimmer noUCERF2 = getNoUCERF2Trimmer();
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR);
-//		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
+		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly, noUCERF2);
-		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
+//		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noRefBranches, noUCERF2);
 		
 		
-//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getNeokinemaOnlyTrimmer());
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
-		TreeTrimmer defaultBranchesTrimmer = null;
+//		TreeTrimmer defaultBranchesTrimmer = null;
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO, InversionOptions.A_PRIORI_CONST_WT };
-//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, "100")));
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+//		variationBranches.add(buildVariationBranch(ops, toArray("0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
@@ -539,9 +549,9 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR_CONSTRAINED, 0);
+		maxAway.put(InversionModels.CHAR_CONSTRAINED, 1);
 		maxAway.put(InversionModels.CHAR_UNCONSTRAINED, 0);
-		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
+		maxAway.put(InversionModels.GR_CONSTRAINED, 1);
 		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);
 		VariableLogicTreeBranch[] defaultBranches = null;
 		

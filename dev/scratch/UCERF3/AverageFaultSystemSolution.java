@@ -16,6 +16,8 @@ import org.apache.commons.math.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.threads.Task;
+import org.opensha.commons.util.threads.ThreadedTaskComputer;
 
 import scratch.UCERF3.utils.MatrixIO;
 
@@ -176,6 +178,31 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 		simpleRupSet.toZipFile(file, tempDir, zipFileNames);
 	}
 	
+	public double[][] calcParticRates(double magLow, double magHigh) throws InterruptedException {
+		double[][] particRates = new double[getNumSections()][getNumSolutions()];
+		
+		calcThreaded(ratesByRup, particRates, true, magLow, magHigh, rupSet);
+		
+		return particRates;
+	}
+	
+	public double[][] calcSlipRates() throws InterruptedException {
+		double[][] particRates = new double[getNumSections()][getNumSolutions()];
+		
+		calcThreaded(ratesByRup, particRates, false, 0d, 10d, rupSet);
+		
+		return particRates;
+	}
+	
+	public static void calcThreaded(double[][] rates, double[][] output, boolean partic, double magLow, double magHigh, FaultSystemRupSet rupSet) throws InterruptedException {
+		ArrayList<AverageFaultSystemSolution.ParticipationComputeTask> tasks = new ArrayList<AverageFaultSystemSolution.ParticipationComputeTask>();
+		for (int i=0; i<output[0].length; i++)
+			tasks.add(new AverageFaultSystemSolution.ParticipationComputeTask(rates, output, i, partic, magLow, magHigh, rupSet));
+		
+		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
+		comp.computThreaded();
+	}
+
 	public static AverageFaultSystemSolution fromZipFile(File zipFile)
 	throws ZipException, IOException, DocumentException {
 		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.fromZipFile(zipFile);
@@ -226,6 +253,47 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 	}
 	
+	private static class ParticipationComputeTask implements Task {
+		
+		private double[][] rates;
+		private double[][] output;
+		private int i;
+		private boolean partic;
+		private FaultSystemRupSet rupSet;
+		private double magLow, magHigh;
+	
+		public ParticipationComputeTask(double[][] rates, double[][] output, int i, boolean partic, double magLow, double magHigh,
+				FaultSystemRupSet rupSet) {
+			super();
+			this.rates = rates;
+			this.output = output;
+			this.i = i;
+			this.partic = partic;
+			this.rupSet = rupSet;
+			this.magLow = magLow;
+			this.magHigh = magHigh;
+		}
+	
+		@Override
+		public void compute() {
+			double[] myRates = new double[rupSet.getNumRuptures()];
+			for (int r=0; r<rupSet.getNumRuptures(); r++)
+				myRates[r] = rates[r][i];
+			FaultSystemSolution mySol = new SimpleFaultSystemSolution(rupSet, myRates);
+			mySol.copyCacheFrom(rupSet);
+			double[] myAnswer;
+			if (partic)
+				myAnswer = mySol.calcParticRateForAllSects(magLow, magHigh);
+			else
+				myAnswer = mySol.calcSlipRateForAllSects();
+			
+			for (int s=0; s<rupSet.getNumSections();s++) {
+				output[s][i] = myAnswer[s];
+			}
+		}
+		
+	}
+
 	public static AverageFaultSystemSolution fromDirectory(FaultSystemRupSet rupSet, File dir, String prefix) throws IOException {
 		ArrayList<File> files = new ArrayList<File>();
 		

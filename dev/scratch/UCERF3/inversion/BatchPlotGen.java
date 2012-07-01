@@ -26,6 +26,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
@@ -150,8 +151,10 @@ public class BatchPlotGen {
 		boolean hasJumpPlots = CommandLineInversionRunner.doJumpPlotsExist(dir, prefix);
 		boolean hasPaleoPlots = CommandLineInversionRunner.doPaleoPlotsExist(dir, prefix);
 		boolean hasSAFSegPlots = CommandLineInversionRunner.doSAFSegPlotsExist(dir, prefix);
+		boolean hasAVGPlots = !(sol instanceof AverageFaultSystemSolution &&
+				!new File(dir, prefix+"_partic_mean_over_std_dev_6.0_7.0.png").exists());
 //		boolean hasMFDPlots = 
-		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasSAFSegPlots) {
+		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasSAFSegPlots && hasAVGPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
@@ -194,6 +197,21 @@ public class BatchPlotGen {
 				e.printStackTrace();
 			}
 		}
+		if (!hasAVGPlots) {
+			try {
+				writeAvgSolPlots((AverageFaultSystemSolution)sol, dir, prefix);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
+		Region region = RELM_RegionUtils.getGriddedRegionInstance();
+		FaultBasedMapGen.plotSolutionSlipRateStdDevs(avgSol, avgSol.calcSlipRates(), region, dir, prefix, false);
+		FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(6, 7), region, dir, prefix, false, 6, 7);
+		FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(7, 8), region, dir, prefix, false, 7, 8);
+		FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(8, 10), region, dir, prefix, false, 8, 10);
 	}
 
 	/**
