@@ -128,13 +128,15 @@ public class FaultSysSolutionERF_Calc {
 //			erf.updateForecast();
 //			String fileName = "UCERF2";
 
-//			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
-//			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
-//			String fileName = "UCERF3_Char_Ref_Zeng_Model";
+			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+			erf.updateForecast();
+			String fileName = "UCERF3_Char_Ref_Zeng_Model";
 			
-			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
-			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);;
-			String fileName = "UCERF3_GR_Ref_Zeng_Model";
+//			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+//			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+//			erf.updateForecast();
+//			String fileName = "UCERF3_GR_Ref_Zeng_Model";
 			
 			GMT_CA_Maps.plotParticipationRateMap(erf, 5.0, 10d, fileName+"_Part5pt0", "test", fileName+"_Part5pt0");
 			GMT_CA_Maps.plotParticipationRateMap(erf, 6.7, 10d, fileName+"_Part6pt7", "test", fileName+"_Part6pt7");
@@ -292,6 +294,7 @@ public class FaultSysSolutionERF_Calc {
 //		makeDraftFinalModelReportPartPlots();
 		
 		plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
+//		plotMFD_InRegion(new CaliforniaRegions.LA_BOX(), "LA_BoxMFDs.pdf");
 		
 //		makePrelimReportPartPlots();
 		
