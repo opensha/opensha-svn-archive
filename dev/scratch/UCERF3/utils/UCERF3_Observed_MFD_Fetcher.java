@@ -2,6 +2,7 @@ package scratch.UCERF3.utils;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,19 +44,9 @@ public class UCERF3_Observed_MFD_Fetcher {
 	private final static String SUB_DIR_NAME = "mfdData";
 	
 	// discretization params for Karen's MFD files:
-	final static double MIN_MAG=4.25;
-	final static double MAX_MAG=7.75;
-	final static int NUM_MAG=8;
-	final static double DELTA_MAG = (MAX_MAG-MIN_MAG)/((double)NUM_MAG-1.0);
+	final static double MIN_MAG=4.75;
+	final static double DELTA_MAG = 0.5;
 	
-	final static double TARGET_MIN_MAG=5.05;
-	final static int TARGET_NUM_MAG=35;
-	final static double TARGET_DELTA_MAG=0.1;
-	final static double TARGET_MAX_MAG=TARGET_MIN_MAG+TARGET_DELTA_MAG*(TARGET_NUM_MAG-1);
-
-	final static double TARGET_B_VALUE = 1.0;	
-	
-	IncrementalMagFreqDist longTermModelFull, longTermModelLA, longTermModelNoCal, longTermModelSF, longTermModelSoCal;
 	IncrementalMagFreqDist directCountsFull, directCountsLA, directCountsNoCal, directCountsSF, directCountsSoCal;
 	IncrementalMagFreqDist directCountsFull_Lower95, directCountsLA_Lower95, directCountsNoCal_Lower95, directCountsSF_Lower95, directCountsSoCal_Lower95;
 	IncrementalMagFreqDist directCountsFull_Upper95, directCountsLA_Upper95, directCountsNoCal_Upper95, directCountsSF_Upper95, directCountsSoCal_Upper95;
@@ -73,96 +64,37 @@ public class UCERF3_Observed_MFD_Fetcher {
 	
 	public UCERF3_Observed_MFD_Fetcher() {
 		
-		// DATA FILES
-//		DirectCountsWholeState.txt
-//		DirectCountsLA.txt
-//		DirectCountsNoCal.txt
-//		DirectCountsSF.txt
-//		DirectCountsSoCal.txt
-//		LongTermModelFull.txt
-//		LongTermModelLA.txt
-//		LongTermModelNoCal.txt
-//		LongTermModelSF.txt
-//		LongTermModelSoCal.txt
-		
+		readAllData();
+
+	}
+	
+	private void readAllData() {
 		// Read all the files
 		ArrayList<IncrementalMagFreqDist> mfds;
 
-		mfds = readMFD_DataFromFile("LongTermModelFull.txt");
-		longTermModelFull = mfds.get(0);
-		mfds = readMFD_DataFromFile("LongTermModelLA.txt");
-		longTermModelLA = mfds.get(0);
-		mfds = readMFD_DataFromFile("LongTermModelNoCal.txt");
-		longTermModelNoCal = mfds.get(0); 
-		mfds = readMFD_DataFromFile("LongTermModelSF.txt");
-		longTermModelSF = mfds.get(0); 
-		mfds = readMFD_DataFromFile("LongTermModelSoCal.txt");
-		longTermModelSoCal = mfds.get(0);
-		
-		mfds = readMFD_DataFromFile("DirectCountsWholeState.txt");
+		mfds = readMFD_DataFromFile("DirectCountWholeState.txt");
 		directCountsFull = mfds.get(0);
 		directCountsFull_Lower95 = mfds.get(1);
 		directCountsFull_Upper95 = mfds.get(2);
-		mfds = readMFD_DataFromFile("DirectCountsLA.txt");
+		mfds = readMFD_DataFromFile("DirectCountLA.txt");
 		directCountsLA = mfds.get(0);
 		directCountsLA_Lower95 = mfds.get(1);
 		directCountsLA_Upper95 = mfds.get(2);
-		mfds = readMFD_DataFromFile("DirectCountsNoCal.txt");
+		mfds = readMFD_DataFromFile("DirectCountNoCal.txt");
 		directCountsNoCal = mfds.get(0);
 		directCountsNoCal_Lower95 = mfds.get(1);
 		directCountsNoCal_Upper95 = mfds.get(2);
-		mfds = readMFD_DataFromFile("DirectCountsSF.txt");
+		mfds = readMFD_DataFromFile("DirectCountSF.txt");
 		directCountsSF = mfds.get(0);
 		directCountsSF_Lower95 = mfds.get(1);
 		directCountsSF_Upper95 = mfds.get(2);
-		mfds = readMFD_DataFromFile("DirectCountsSoCal.txt");
+		mfds = readMFD_DataFromFile("DirectCountSoCal.txt");
 		directCountsSoCal = mfds.get(0);
 		directCountsSoCal_Lower95 = mfds.get(1);
 		directCountsSoCal_Upper95 = mfds.get(2);
 
 	}
 	
-	public static MFD_InversionConstraint getTargetMFDConstraint(Area area) {
-		
-		Region region=null;
-		ArrayList<IncrementalMagFreqDist> mfds=null;
-		switch(area) {
-		case ALL_CA: 
-			mfds = readMFD_DataFromFile("LongTermModelFull.txt");
-			region = new CaliforniaRegions.RELM_TESTING();
-			break;
-		case NO_CA: 
-			mfds = readMFD_DataFromFile("LongTermModelNoCal.txt");
-			region = new CaliforniaRegions.RELM_NOCAL();
-			break;
-		case SO_CA: 
-			mfds = readMFD_DataFromFile("LongTermModelSoCal.txt");
-			region = new CaliforniaRegions.RELM_SOCAL();
-			break;
-		case SF_BOX:
-			mfds = readMFD_DataFromFile("LongTermModelSF.txt");
-			region = new CaliforniaRegions.SF_BOX_GRIDDED();
-			break;
-		case LA_BOX:
-			mfds = readMFD_DataFromFile("LongTermModelLA.txt");
-			region = new CaliforniaRegions.LA_BOX_GRIDDED();
-			break;
-		}
-		
-		double totalTargetRate = mfds.get(0).getCumRate(TARGET_MIN_MAG-TARGET_DELTA_MAG/2.0+DELTA_MAG/2);
-		
-		GutenbergRichterMagFreqDist targetMFD = new GutenbergRichterMagFreqDist(TARGET_B_VALUE,totalTargetRate,
-				TARGET_MIN_MAG,TARGET_MAX_MAG,TARGET_NUM_MAG);
-		
-        if(D) {
-//       	System.out.println("minTargetMagTest="+(TARGET_MIN_MAG-TARGET_DELTA_MAG/2.0+DELTA_MAG/2));
-        	System.out.println(area+" totalTargetRate="+totalTargetRate+"\t"+(float)targetMFD.getTotCumRate());
-//        	System.out.println("targetMFD=\n"+targetMFD);
-        }
-		
-		return new MFD_InversionConstraint(targetMFD,region);
-		
-	}
 	
 	/**
 	 * This reads the three cum MFDs from one of Karen's files
@@ -170,15 +102,28 @@ public class UCERF3_Observed_MFD_Fetcher {
 	 * @return
 	 */
 	private static ArrayList<IncrementalMagFreqDist> readMFD_DataFromFile(String fileName) {
-		IncrementalMagFreqDist mfdMean = new IncrementalMagFreqDist(MIN_MAG,MAX_MAG,NUM_MAG);
-		IncrementalMagFreqDist mfdLower95Conf = new IncrementalMagFreqDist(MIN_MAG,MAX_MAG,NUM_MAG);
-		IncrementalMagFreqDist mfdUpper95Conf = new IncrementalMagFreqDist(MIN_MAG,MAX_MAG,NUM_MAG);
 		
+		// make an array of lines
+		ArrayList<String> lineList = new ArrayList<String>();
 		try {
 			BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(SUB_DIR_NAME, fileName));
-			int l=0;
 			String line;
 			while ((line = reader.readLine()) != null) {
+				lineList.add(line);
+			}
+		} catch (Exception e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
+		int numMag = lineList.size();
+		
+		IncrementalMagFreqDist mfdMean = new IncrementalMagFreqDist(MIN_MAG,numMag,DELTA_MAG);
+		IncrementalMagFreqDist mfdLower95Conf = new IncrementalMagFreqDist(MIN_MAG,numMag,DELTA_MAG);
+		IncrementalMagFreqDist mfdUpper95Conf = new IncrementalMagFreqDist(MIN_MAG,numMag,DELTA_MAG);
+		
+			int l=0;
+			for (String line : lineList) {
+				System.out.println(line);
 				String[] st = StringUtils.split(line," ");
 				double magTest = MIN_MAG+l*DELTA_MAG;
 				double mag = (Double.valueOf(st[0])+Double.valueOf(st[1]))/2;
@@ -191,9 +136,6 @@ public class UCERF3_Observed_MFD_Fetcher {
 				}
 				l+=1;
 			}
-		} catch (Exception e) {
-			ExceptionUtils.throwAsRuntimeException(e);
-		}
 		
 		mfdMean.setName("Mean MFD from "+fileName);
 		mfdLower95Conf.setName("Lower 95th Conf MFD from "+fileName);
@@ -225,7 +167,6 @@ public class UCERF3_Observed_MFD_Fetcher {
 		
 		// No Cal Plot
 		ArrayList<EvenlyDiscretizedFunc> funcs2 = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs2.add(longTermModelNoCal);
 		funcs2.add(directCountsNoCal);
 		funcs2.add(directCountsNoCal_Lower95);
 		funcs2.add(directCountsNoCal_Upper95);
@@ -236,9 +177,8 @@ public class UCERF3_Observed_MFD_Fetcher {
 		graph2.setX_AxisRange(3.5, 8.0);
 		graph2.setYLog(true);
 
-		// No Cal Plot
+		// So Cal Plot
 		ArrayList<EvenlyDiscretizedFunc> funcs3 = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs3.add(longTermModelSoCal);
 		funcs3.add(directCountsSoCal);
 		funcs3.add(directCountsSoCal_Lower95);
 		funcs3.add(directCountsSoCal_Upper95);
@@ -251,7 +191,6 @@ public class UCERF3_Observed_MFD_Fetcher {
 
 		// All Cal Plot
 		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs.add(longTermModelFull);
 		funcs.add(directCountsFull);
 		funcs.add(directCountsFull_Lower95);
 		funcs.add(directCountsFull_Upper95);
@@ -269,6 +208,30 @@ public class UCERF3_Observed_MFD_Fetcher {
 		graph.setX_AxisRange(3.5, 8.0);
 		graph.setYLog(true);
 		
+		// LA Box
+		ArrayList<EvenlyDiscretizedFunc> funcs5 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs5.add(directCountsLA);
+		funcs5.add(directCountsLA_Lower95);
+		funcs5.add(directCountsLA_Upper95);
+		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs5, "LA Box MFD", plotChars); 
+		graph4.setX_AxisLabel("Mag");
+		graph4.setY_AxisLabel("Rate");
+		graph4.setY_AxisRange(1e-3, 500);
+		graph4.setX_AxisRange(3.5, 8.0);
+		graph4.setYLog(true);
+		
+		// SF Box
+		ArrayList<EvenlyDiscretizedFunc> funcs6 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs6.add(directCountsSF);
+		funcs6.add(directCountsSF_Lower95);
+		funcs6.add(directCountsSF_Upper95);
+		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs6, "SF Box MFD", plotChars); 
+		graph5.setX_AxisLabel("Mag");
+		graph5.setY_AxisLabel("Rate");
+		graph5.setY_AxisRange(1e-3, 500);
+		graph5.setX_AxisRange(3.5, 8.0);
+		graph5.setYLog(true);
+	
 
 	}
 	
@@ -286,11 +249,9 @@ public class UCERF3_Observed_MFD_Fetcher {
 		
 		// No Cal Plot
 		ArrayList<EvenlyDiscretizedFunc> funcs2 = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs2.add(longTermModelNoCal.getCumRateDistWithOffset());
 		funcs2.add(directCountsNoCal.getCumRateDistWithOffset());
 		funcs2.add(directCountsNoCal_Lower95.getCumRateDistWithOffset());
 		funcs2.add(directCountsNoCal_Upper95.getCumRateDistWithOffset());
-		funcs2.add(getTargetMFDConstraint(Area.NO_CA).getMagFreqDist().getCumRateDistWithOffset());
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "No Cal Mag-Freq Dists", plotChars); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
@@ -300,11 +261,9 @@ public class UCERF3_Observed_MFD_Fetcher {
 
 		// No Cal Plot
 		ArrayList<EvenlyDiscretizedFunc> funcs3 = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs3.add(longTermModelSoCal.getCumRateDistWithOffset());
 		funcs3.add(directCountsSoCal.getCumRateDistWithOffset());
 		funcs3.add(directCountsSoCal_Lower95.getCumRateDistWithOffset());
 		funcs3.add(directCountsSoCal_Upper95.getCumRateDistWithOffset());
-		funcs3.add(getTargetMFDConstraint(Area.SO_CA).getMagFreqDist().getCumRateDistWithOffset());
 		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "So Cal Mag-Freq Dists", plotChars); 
 		graph3.setX_AxisLabel("Mag");
 		graph3.setY_AxisLabel("Rate");
@@ -314,11 +273,9 @@ public class UCERF3_Observed_MFD_Fetcher {
 
 		// All Cal Plot
 		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs.add(longTermModelFull.getCumRateDistWithOffset());
 		funcs.add(directCountsFull.getCumRateDistWithOffset());
 		funcs.add(directCountsFull_Lower95.getCumRateDistWithOffset());
 		funcs.add(directCountsFull_Upper95.getCumRateDistWithOffset());
-		funcs.add(getTargetMFDConstraint(Area.ALL_CA).getMagFreqDist().getCumRateDistWithOffset());
 		
 		// add UCERF2 obs MFDs
 		funcs.addAll(UCERF2.getObsCumMFD(true));
@@ -333,41 +290,110 @@ public class UCERF3_Observed_MFD_Fetcher {
 		graph.setX_AxisRange(3.5, 8.0);
 		graph.setYLog(true);
 		
+		
+		// LA Box
+		ArrayList<EvenlyDiscretizedFunc> funcs5 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs5.add(directCountsLA.getCumRateDistWithOffset());
+		funcs5.add(directCountsLA_Lower95.getCumRateDistWithOffset());
+		funcs5.add(directCountsLA_Upper95.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs5, "LA Box Cum MFD", plotChars); 
+		graph4.setX_AxisLabel("Mag");
+		graph4.setY_AxisLabel("Rate");
+		graph4.setY_AxisRange(1e-3, 500);
+		graph4.setX_AxisRange(3.5, 8.0);
+		graph4.setYLog(true);
+		
+		// SF Box
+		ArrayList<EvenlyDiscretizedFunc> funcs6 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs6.add(directCountsSF.getCumRateDistWithOffset());
+		funcs6.add(directCountsSF_Lower95.getCumRateDistWithOffset());
+		funcs6.add(directCountsSF_Upper95.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs6, "SF Box Cum MFD", plotChars); 
+		graph5.setX_AxisLabel("Mag");
+		graph5.setY_AxisLabel("Rate");
+		graph5.setY_AxisRange(1e-3, 500);
+		graph5.setX_AxisRange(3.5, 8.0);
+		graph5.setYLog(true);
 
+		
 	}
 
+	
 	
 	
 	/**
-	 * This returns the fraction of aftershocks as a function of magnitude 
-	 * implied by Table 21 of UCERF2 Appendix I (where cumulative distributions were
-	 * first converted to incremental).
-	 * @return
+	 * This plots the computed MFDs
 	 */
-	private static EvenlyDiscretizedFunc getGarderKnoppoffFractAftershocksMDF() {
-		EvenlyDiscretizedFunc withAftCum = UCERF2.getObsCumMFD(true).get(0);
-		EvenlyDiscretizedFunc noAftCum = UCERF2.getObsCumMFD(false).get(0);
-		double min = noAftCum.getX(0)+noAftCum.getDelta()/2.0;
-		double max = noAftCum.getX(noAftCum.getNum()-1)-noAftCum.getDelta()/2.0;
-		EvenlyDiscretizedFunc fractFunc = new EvenlyDiscretizedFunc(min, max, noAftCum.getNum()-1);
-		for(int i=0;i<withAftCum.getNum()-1;i++) {
-			double mag = (withAftCum.getX(i)+withAftCum.getX(i+1))/2;
-			double with = withAftCum.getY(i)-withAftCum.getY(i+1);
-			double wOut = noAftCum.getY(i)-noAftCum.getY(i+1);
-			double frac = (with-wOut)/with;
-			if(frac<0) frac=0;
-//			System.out.println(mag+"\t"+frac);
-			fractFunc.set(i,frac);
+	public void plotDeclusteredSFandLS_BoxMFDs() {
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+
+		// apply aftershock filter
+		for(int i=0; i<directCountsLA.getNum();i++) {
+			double fract = GardnerKnopoffAftershockFilter.scaleForMagnitude(directCountsLA.getX(i));
+			directCountsLA.set(i,fract*directCountsLA.getY(i));
+			directCountsLA_Lower95.set(i,fract*directCountsLA_Lower95.getY(i));
+			directCountsLA_Upper95.set(i,fract*directCountsLA_Upper95.getY(i));
+			directCountsSF.set(i,fract*directCountsSF.getY(i));
+			directCountsSF_Lower95.set(i,fract*directCountsSF_Lower95.getY(i));
+			directCountsSF_Upper95.set(i,fract*directCountsSF_Upper95.getY(i));
+
 		}
 
-//		System.out.println(fractFunc);
+		// LA Box
+		ArrayList<EvenlyDiscretizedFunc> funcs5 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs5.add(directCountsLA.getCumRateDistWithOffset());
+		funcs5.add(directCountsLA_Lower95.getCumRateDistWithOffset());
+		funcs5.add(directCountsLA_Upper95.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs5, "LA Box Cum MFD", plotChars); 
+		graph4.setX_AxisLabel("Magnitude");
+		graph4.setY_AxisLabel("Rate (per year)");
+		graph4.setPlotLabelFontSize(18);
+		graph4.setAxisLabelFontSize(18);
+		graph4.setTickLabelFontSize(16);
+		graph4.setX_AxisRange(5, 9);
+		graph4.setY_AxisRange(1e-4, 1);
+		graph4.setYLog(true);
 		
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(fractFunc, "Fract aftershocks"); 
+		try {
+			graph4.saveAsPDF("FelzerLA_BoxDeclustered.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// SF Box
+		ArrayList<EvenlyDiscretizedFunc> funcs6 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs6.add(directCountsSF.getCumRateDistWithOffset());
+		funcs6.add(directCountsSF_Lower95.getCumRateDistWithOffset());
+		funcs6.add(directCountsSF_Upper95.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs6, "SF Box Cum MFD", plotChars); 
+		graph5.setX_AxisLabel("Magnitude");
+		graph5.setY_AxisLabel("Rate (per year)");
+		graph5.setPlotLabelFontSize(18);
+		graph5.setAxisLabelFontSize(18);
+		graph5.setTickLabelFontSize(16);
+		graph5.setX_AxisRange(5, 9);
+		graph5.setY_AxisRange(1e-4, 1);
+		graph5.setYLog(true);
 		
-		return fractFunc;
+		try {
+			graph5.saveAsPDF("FelzerSF_BoxDeclustered.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+		// rebuild data
+		readAllData();
 
 		
 	}
+
 	
 	
 	/**
@@ -378,7 +404,8 @@ public class UCERF3_Observed_MFD_Fetcher {
 //		System.out.println(getGarderKnoppoffFractAftershocksMDF());
 	
 		UCERF3_Observed_MFD_Fetcher test = new UCERF3_Observed_MFD_Fetcher();		
-		test.plotCumMFDs();
+//		test.plotCumMFDs();
+		test.plotDeclusteredSFandLS_BoxMFDs();
 	}
 
 	
