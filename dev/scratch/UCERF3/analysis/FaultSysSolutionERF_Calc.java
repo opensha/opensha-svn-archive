@@ -1,5 +1,6 @@
 package scratch.UCERF3.analysis;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -19,6 +21,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
@@ -200,31 +203,29 @@ public class FaultSysSolutionERF_Calc {
 	public static void plotMFD_InRegion(Region region, String fileName) {
 		
 		// First all UCERF2 branches:
-		UCERF2_TimeIndependentEpistemicList erf_list = new UCERF2_TimeIndependentEpistemicList();
-		erf_list.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
-//		erf_list.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
-		erf_list.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
-		erf_list.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
-		erf_list.getTimeSpan().setDuration(1d);
-		erf_list.updateForecast();
-				
-		XY_DataSetList wtedFuncList = new XY_DataSetList();
-		ArrayList<Double> relativeWts = new ArrayList<Double>();
-		
-		for(int e=0;e<erf_list.getNumERFs();e++) {
-//		for(int e=0;e<10;e++) {
-			System.out.println(e+" of "+erf_list.getNumERFs());
-			SummedMagFreqDist mfdPart = ERF_Calculator.getParticipationMagFreqDistInRegion(erf_list.getERF(e), region, 5.05, 40, 0.1, true);
-			wtedFuncList.add(mfdPart.getCumRateDistWithOffset());
-			relativeWts.add(erf_list.getERF_RelativeWeight(e));
-		}
-		FractileCurveCalculator fractileCalc = new FractileCurveCalculator(wtedFuncList,relativeWts);
+//		UCERF2_TimeIndependentEpistemicList erf_list = new UCERF2_TimeIndependentEpistemicList();
+//		erf_list.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
+//		erf_list.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+//		erf_list.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+//		erf_list.getTimeSpan().setDuration(1d);
+//		erf_list.updateForecast();
+//				
+//		XY_DataSetList wtedFuncList = new XY_DataSetList();
+//		ArrayList<Double> relativeWts = new ArrayList<Double>();
+//		
+//		for(int e=0;e<erf_list.getNumERFs();e++) {
+//			System.out.println(e+" of "+erf_list.getNumERFs());
+//			SummedMagFreqDist mfdPart = ERF_Calculator.getParticipationMagFreqDistInRegion(erf_list.getERF(e), region, 5.05, 40, 0.1, true);
+//			wtedFuncList.add(mfdPart.getCumRateDistWithOffset());
+//			relativeWts.add(erf_list.getERF_RelativeWeight(e));
+//		}
+//		FractileCurveCalculator fractileCalc = new FractileCurveCalculator(wtedFuncList,relativeWts);
 		
 		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
-		funcs.add(fractileCalc.getMeanCurve());
-		funcs.add(fractileCalc.getFractile(0.025));
+//		funcs.add(fractileCalc.getMeanCurve());
+//		funcs.add(fractileCalc.getFractile(0.025));
 //		funcs.add(fractileCalc.getFractile(0.5));
-		funcs.add(fractileCalc.getFractile(0.975));	
+//		funcs.add(fractileCalc.getFractile(0.975));	
 		
 		// Now mean UCERF2
 //		MeanUCERF2 erf= new MeanUCERF2();
@@ -240,15 +241,15 @@ public class FaultSysSolutionERF_Calc {
 //		funcs.add(meanPart.getCumRateDistWithOffset());	
 		
 		
-		File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
-		UCERF3_FaultSysSol_ERF ucerf3_erf = new UCERF3_FaultSysSol_ERF(file);
-		ucerf3_erf.updateForecast();
-		SummedMagFreqDist ucerf3_Part = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf, region, 5.05, 40, 0.1, true);
-		ucerf3_Part.setName("MFD for UCERF3 Char Reference Branch");
-		ucerf3_Part.setInfo(" ");
-		funcs.add(ucerf3_Part.getCumRateDistWithOffset());	
+//		File file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+//		UCERF3_FaultSysSol_ERF ucerf3_erf = new UCERF3_FaultSysSol_ERF(file);
+//		ucerf3_erf.updateForecast();
+//		SummedMagFreqDist ucerf3_Part = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf, region, 5.05, 40, 0.1, true);
+//		ucerf3_Part.setName("MFD for UCERF3 Char Reference Branch");
+//		ucerf3_Part.setInfo(" ");
+//		funcs.add(ucerf3_Part.getCumRateDistWithOffset());	
 		
-		file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+		File file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
 		UCERF3_FaultSysSol_ERF ucerf3_erf_2 = new UCERF3_FaultSysSol_ERF(file);
 		ucerf3_erf_2.updateForecast();
 		SummedMagFreqDist ucerf3_Part_2 = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf_2, region, 5.05, 40, 0.1, true);
@@ -256,22 +257,31 @@ public class FaultSysSolutionERF_Calc {
 		ucerf3_Part_2.setInfo(" ");
 		funcs.add(ucerf3_Part_2.getCumRateDistWithOffset());	
 
-		file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
-		UCERF3_FaultSysSol_ERF ucerf3_erf_3 = new UCERF3_FaultSysSol_ERF(file);
-		ucerf3_erf_3.updateForecast();
-		SummedMagFreqDist ucerf3_Part_3 = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf_3, region, 5.05, 40, 0.1, true);
-		ucerf3_Part_3.setName("MFD for UCERF3 GR Reference Branch w/ Zeng");
-		ucerf3_Part_3.setInfo(" ");
-		funcs.add(ucerf3_Part_3.getCumRateDistWithOffset());	
+//		file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+//		UCERF3_FaultSysSol_ERF ucerf3_erf_3 = new UCERF3_FaultSysSol_ERF(file);
+//		ucerf3_erf_3.updateForecast();
+//		SummedMagFreqDist ucerf3_Part_3 = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf_3, region, 5.05, 40, 0.1, true);
+//		ucerf3_Part_3.setName("MFD for UCERF3 GR Reference Branch w/ Zeng");
+//		ucerf3_Part_3.setInfo(" ");
+//		funcs.add(ucerf3_Part_3.getCumRateDistWithOffset());	
+		
+    	ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 1f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 1f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.GREEN));
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Cumulative MFDs in "+region.getName()); 
+
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Cumulative MFDs in "+region.getName(),plotChars); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Rate (per year)");
 		graph.setPlotLabelFontSize(18);
 		graph.setAxisLabelFontSize(18);
 		graph.setTickLabelFontSize(16);
-		graph.setX_AxisRange(5, 9);
-		graph.setY_AxisRange(1e-5, 1);
+		graph.setX_AxisRange(5, 8.5);
+		graph.setY_AxisRange(1e-4, 1);
 		graph.setYLog(true);
 		
 		try {
@@ -293,8 +303,8 @@ public class FaultSysSolutionERF_Calc {
 		
 //		makeDraftFinalModelReportPartPlots();
 		
-		plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
-//		plotMFD_InRegion(new CaliforniaRegions.LA_BOX(), "LA_BoxMFDs.pdf");
+	//	plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
+		plotMFD_InRegion(new CaliforniaRegions.LA_BOX(), "LA_BoxMFDs.pdf");
 		
 //		makePrelimReportPartPlots();
 		

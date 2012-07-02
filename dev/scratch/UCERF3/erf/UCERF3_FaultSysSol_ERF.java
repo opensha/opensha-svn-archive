@@ -43,6 +43,8 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
 		bgRupTypeParam.getEditor().setEnabled(true);
 		
+		applyAftershockFilterParam.setValue(true);
+		
 
 	}
 	
@@ -53,6 +55,8 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 		bgIncludeParam.getEditor().setEnabled(true);
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
 		bgRupTypeParam.getEditor().setEnabled(true);
+		
+		applyAftershockFilterParam.setValue(false);
 	}
 
 	
