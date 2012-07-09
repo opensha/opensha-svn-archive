@@ -303,7 +303,7 @@ public class FaultSysSolutionERF_Calc {
 		
 //		makeDraftFinalModelReportPartPlots();
 		
-	//	plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
+		plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
 		plotMFD_InRegion(new CaliforniaRegions.LA_BOX(), "LA_BoxMFDs.pdf");
 		
 //		makePrelimReportPartPlots();

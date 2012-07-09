@@ -499,8 +499,8 @@ public class DeformationModelOffFaultMoRateData {
 		
 		DeformationModelOffFaultMoRateData test = DeformationModelOffFaultMoRateData.getInstance();
 //		test.testAveMapDiffs();
-		test.plotAveDefModPDF_Map(false);
-//		test.listNumZeroValues();
+//		test.plotAveDefModPDF_Map(false);
+		test.listNumZeroValues();
 //		test.writeAllTotalMomentRates();
 //		test.testPlotMaps();
 	}
