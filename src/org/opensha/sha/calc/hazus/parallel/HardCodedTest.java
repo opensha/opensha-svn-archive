@@ -41,6 +41,7 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
@@ -69,15 +70,15 @@ public class HardCodedTest {
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
 		
+		ucerf.getTimeSpan().setDuration(years);
 		if (startYear > 0) {
-			ucerf.getAdjustableParameterList().getParameter(UCERF2.PROB_MODEL_PARAM_NAME)
+			ucerf.getAdjustableParameterList().getParameter(String.class, UCERF2.PROB_MODEL_PARAM_NAME)
 					.setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);
 			ucerf.getTimeSpan().setStartTime(startYear);
 		} else {
-			ucerf.getAdjustableParameterList().getParameter(UCERF2.PROB_MODEL_PARAM_NAME)
+			ucerf.getAdjustableParameterList().getParameter(String.class, UCERF2.PROB_MODEL_PARAM_NAME)
 					.setValue(UCERF2.PROB_MODEL_POISSON);
 		}
-		ucerf.getTimeSpan().setDuration(years);
 		
 		StringParameter backSeisParam = (StringParameter) ucerf.getParameter(UCERF2.BACK_SEIS_NAME);
 		if (includeBackSeis)
@@ -128,15 +129,23 @@ public class HardCodedTest {
 	}
 
 	private static ScalarIMR getIMR(String name, double sigmaTrunc, boolean propEffectSpeedup){
-		ScalarIMR attenRel;
+		ScalarIMR attenRel = null;
 		if (name.equals(NSHMP_08_NAME))
 			attenRel = getUSGSCombined2008IMR();
 		else if (name.equals(MultiIMR_NAME))
 			attenRel = getNGA_2008IMR(propEffectSpeedup, true);
 		else if (name.equals(MultiIMR_NO_AS_NAME))
 			attenRel = getNGA_2008IMR(propEffectSpeedup, false);
-		else
-			throw new IllegalArgumentException("Not valid IMR: "+name);
+		else {
+			for (AttenRelRef ref : AttenRelRef.values()) {
+				if (ref.name().equals(name)) {
+					attenRel = ref.instance(null);
+					break;
+				}
+			}
+			if (attenRel == null)
+				throw new IllegalArgumentException("Not valid IMR: "+name);
+		}
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getUSGSCombined2008IMR();
 //		ScalarIntensityMeasureRelationshipAPI attenRel = getCB_2008IMR();
 		attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
@@ -269,7 +278,7 @@ public class HardCodedTest {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
-					" <HardCoded Vs30 (or 'null' for site data providers>"+
+					" <HardCoded Vs30 (or 'null'/'wald'/'nobasin' for site data providers)>"+
 					" <spacing> <dir name> [<sites per job>] (OR) [<minutes> <nodes> [<ppn> [<queue>]]]");
 			System.exit(2);
 		}
@@ -281,12 +290,16 @@ public class HardCodedTest {
 		boolean includeBackSeis = Boolean.parseBoolean(args[3]);
 		String vs30Str = args[4];
 		SiteDataValue<?> hardcodedVal;
+		boolean noBasin = false;
 		boolean useWald = false;
 		if (vs30Str.equals("null")) {
 			hardcodedVal = null;
 		} else if (vs30Str.equalsIgnoreCase("wald")) {
 			useWald = true;
 			hardcodedVal = null;
+		} else if (vs30Str.equalsIgnoreCase("nobasin")) {
+			hardcodedVal = null;
+			noBasin = true;
 		} else
 			hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED,
 					Double.parseDouble(vs30Str));
@@ -352,10 +365,12 @@ public class HardCodedTest {
 				if (siteDataMap.isTypeApplicable(SiteData.TYPE_VS30, imr))
 					provs.add(new WillsMap2006());
 			}
-			if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_2_5, imr))
-				provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
-			if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_1_0, imr))
-				provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+			if (!noBasin) {
+				if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_2_5, imr))
+					provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+				if (siteDataMap.isTypeApplicable(SiteData.TYPE_DEPTH_TO_1_0, imr))
+					provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+			}
 		}
 		
 		if (constrainBasinMin) {
