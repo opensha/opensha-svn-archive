@@ -70,14 +70,15 @@ public class HardCodedTest {
 	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
 		
-		ucerf.getTimeSpan().setDuration(years);
 		if (startYear > 0) {
 			ucerf.getAdjustableParameterList().getParameter(String.class, UCERF2.PROB_MODEL_PARAM_NAME)
 					.setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);
+			ucerf.getTimeSpan().setDuration(years);
 			ucerf.getTimeSpan().setStartTime(startYear);
 		} else {
 			ucerf.getAdjustableParameterList().getParameter(String.class, UCERF2.PROB_MODEL_PARAM_NAME)
 					.setValue(UCERF2.PROB_MODEL_POISSON);
+			ucerf.getTimeSpan().setDuration(years);
 		}
 		
 		StringParameter backSeisParam = (StringParameter) ucerf.getParameter(UCERF2.BACK_SEIS_NAME);
