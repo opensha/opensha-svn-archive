@@ -308,7 +308,7 @@ public class HardCodedTest {
 		int years = 50;
 		int startYear;
 		if (timeDep)
-			startYear = 2011;
+			startYear = 2012;
 		else
 			startYear = -1;
 		AbstractERF erf = getERF(years, startYear, includeBackSeis);
