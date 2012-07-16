@@ -624,6 +624,91 @@ public class DeformationModelFileParser {
 		}
 	}
 	
+	private static void writeSlipCreepTable(File file, FaultModels fm) throws IOException {
+		loadMomentReductionsData();
+		
+		List<DeformationModels> dms = DeformationModels.forFaultModel(fm);
+		
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		List<String> header = Lists.newArrayList("Minisection ID", "Name", "Creep Rate");
+		
+		List<Map<Integer, DeformationSection>> sectsList = Lists.newArrayList();
+		
+		final Map<Integer, String> namesMap = Maps.newHashMap();
+		for (FaultSectionPrefData sect : fm.fetchFaultSections())
+			namesMap.put(sect.getSectionId(), sect.getSectionName());
+		
+		for (int i=0; i<dms.size(); i++) {
+			DeformationModels dm = dms.get(i);
+			
+			if (dm == DeformationModels.GEOLOGIC_PLUS_ABM || dm == DeformationModels.GEOL_P_ABM_OLD_MAPPED
+					|| dm == DeformationModels.GEOBOUND)
+				continue;
+			
+			header.add(dm.getName());
+			
+			Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
+			
+			applyMomentReductions(sects, dm, 10d);
+			
+			sectsList.add(sects);
+		}
+		csv.addLine(header);
+		
+		ArrayList<Integer> keys = Lists.newArrayList();
+		for (Integer key : sectsList.get(0).keySet())
+			keys.add(key);
+		Collections.sort(keys);
+		
+		Map<Integer, List<Double>> creepMap = Maps.newHashMap();
+		
+		for (String key : creepData.keySet()) {
+			int[] miniSection = parseMinisectionNumber(key);
+			int id = miniSection[0];
+			int sect = miniSection[1];
+			
+			List<Double> creepVals = creepMap.get(id);
+			if (creepVals == null) {
+				creepVals = Lists.newArrayList();
+				creepMap.put(id, creepVals);
+			}
+			
+			while (creepVals.size() <= sect)
+				creepVals.add(0d);
+			
+			creepVals.set(sect-1, creepData.get(key));
+		}
+		
+		for (Integer id : keys) {
+			
+			List<Double> creep = creepMap.get(id);
+			
+			List<DeformationSection> dmSects = Lists.newArrayList();
+			for (Map<Integer, DeformationSection> sects : sectsList)
+				dmSects.add(sects.get(id));
+			
+			for (int i=0; i<sectsList.get(0).get(id).getSlips().size(); i++) {
+				int[] miniSection = { id.intValue(), i+1 };
+				List<String> line = Lists.newArrayList(getMinisectionString(miniSection), namesMap.get(id));
+				
+				if (creep == null)
+					line.add("");
+				else
+					line.add(creep.get(i)+"");
+				
+				for (DeformationSection sect : dmSects) {
+					line.add(sect.getSlips().get(i)+"");
+				}
+				
+				csv.addLine(line);
+			}
+		}
+		
+		csv.writeToFile(file);
+		csv.writeToTabSeparatedFile(new File(file.getParentFile(), file.getName().replaceAll(".csv", ".txt")), 1);
+	}
+	
 	private static void writeCreepReductionsTable(File file, FaultModels fm) throws IOException {
 		List<DeformationModels> dms = DeformationModels.forFaultModel(fm);
 		
@@ -702,7 +787,8 @@ public class DeformationModelFileParser {
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
 		
-		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
+		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
+//		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
 		System.exit(0);
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };

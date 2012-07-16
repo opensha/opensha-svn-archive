@@ -17,6 +17,8 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
+import com.google.common.base.Preconditions;
+
 /**
  * This is a command line hazard curve calculator. It will be called by the Condor submit
  * scripts to calculate a set of hazard curves. It sets up the inputs to {@link HazardCurveSetCalculator}
@@ -31,31 +33,39 @@ import org.opensha.sha.util.TectonicRegionType;
  */
 public class HazardCurveDriver {
 	
+	private HazardCurveSetCalculator[] calcs;
 	private List<Site> sites;
-	private ERF erf;
-	private List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
-	private List<Parameter<Double>> imts;
-	private HazardCurveSetCalculator calc;
-	private CurveResultsArchiver archiver;
-	private CalculationSettings calcSettings;
 	
-	public HazardCurveDriver(Document doc) throws InvocationTargetException, IOException {
-		this(CalculationInputsXMLFile.loadXML(doc));
+	public HazardCurveDriver(Document doc, int threads) throws InvocationTargetException, IOException {
+		this(CalculationInputsXMLFile.loadXML(doc, threads, true), threads);
+	}
+	
+	private static CalculationInputsXMLFile[] toArray(CalculationInputsXMLFile inputs) {
+		CalculationInputsXMLFile[] array = { inputs };
+		return array;
 	}
 	
 	public HazardCurveDriver(CalculationInputsXMLFile inputs) throws InvocationTargetException, IOException {
-		sites = inputs.getSites();
-		erf = inputs.getERF();
-		imrMaps = inputs.getIMRMaps();
-		imts = inputs.getIMTs();
-		archiver = inputs.getArchiver();
-		calcSettings = inputs.getCalcSettings();
-		
-		calc = new HazardCurveSetCalculator(erf, imrMaps, imts, archiver, calcSettings);
+		this(toArray(inputs), 1);
 	}
 	
-	public void startCalculation() throws IOException {
-		calc.calculateCurves(sites);
+	public HazardCurveDriver(CalculationInputsXMLFile[] inputs, int threads) throws InvocationTargetException, IOException {
+		Preconditions.checkArgument(inputs.length == threads, "incompatible number of threads/inputs");
+		HazardCurveSetCalculator[] calcs = new HazardCurveSetCalculator[threads];
+		
+		for (int i=0; i<inputs.length; i++)
+			calcs[i] = new HazardCurveSetCalculator(inputs[i]);
+		
+		sites = inputs[0].getSites();
+	}
+	
+	public void startCalculation() throws IOException, InterruptedException {
+		if (calcs.length > 1) {
+			ThreadedHazardCurveSetCalculator calc = new ThreadedHazardCurveSetCalculator(calcs);
+			calc.calculateCurves(sites);
+		} else {
+			calcs[0].calculateCurves(sites);
+		}
 	}
 	
 	/**
@@ -66,8 +76,8 @@ public class HazardCurveDriver {
 	public static void main(String args[]) {
 		System.out.println(HazardCurveDriver.class.getName() + ": starting up");
 		try {
-			if (args.length != 1) {
-				System.err.println("USAGE: HazardCurveDriver <XML File>");
+			if (args.length != 1 && args.length != 2) {
+				System.err.println("USAGE: HazardCurveDriver [--threaded] <XML File>");
 				System.exit(2);
 			}
 			File xmlFile = new File(args[0]);
@@ -75,8 +85,14 @@ public class HazardCurveDriver {
 				throw new IOException("XML Input file '" + args[0] + "' not found!");
 			}
 			
+			int threads = 1;
+			if (args.length == 2) {
+				Preconditions.checkArgument(args[0].equals("--threaded"), "Unknown argument: "+args[0]);
+				threads = Runtime.getRuntime().availableProcessors();
+			}
+			
 			Document doc = XMLUtils.loadDocument(xmlFile.getAbsolutePath());
-			HazardCurveDriver driver = new HazardCurveDriver(doc);
+			HazardCurveDriver driver = new HazardCurveDriver(doc, threads);
 			
 			driver.startCalculation();
 			System.exit(0);

@@ -95,6 +95,10 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	
 	public void clearCache() {
 		super.clearCache();
+		clearSolutionCacheOnly();
+	}
+	
+	public void clearSolutionCacheOnly() {
 		slipPDFMap.clear();
 		particRatesCache.clear();
 		nucleationRatesCache.clear();

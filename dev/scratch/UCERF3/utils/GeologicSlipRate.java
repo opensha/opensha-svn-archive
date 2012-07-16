@@ -19,6 +19,8 @@ public class GeologicSlipRate {
 	private Location loc;
 	
 	private String valString;
+	
+	private int sectID = -1;
 
 	public GeologicSlipRate(Location loc, double min, double max) {
 		this.loc = loc;
@@ -80,6 +82,14 @@ public class GeologicSlipRate {
 
 	public double getMax() {
 		return max;
+	}
+	
+	public void setSectID(int sectID) {
+		this.sectID = sectID;
+	}
+	
+	public int getSectID() {
+		return sectID;
 	}
 
 	public static String numbersSpacesOnly(String str, boolean allowMinus) {

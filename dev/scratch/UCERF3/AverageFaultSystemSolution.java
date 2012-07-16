@@ -286,6 +286,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 				myAnswer = mySol.calcParticRateForAllSects(magLow, magHigh);
 			else
 				myAnswer = mySol.calcSlipRateForAllSects();
+			mySol.clearSolutionCacheOnly();
 			
 			for (int s=0; s<rupSet.getNumSections();s++) {
 				output[s][i] = myAnswer[s];

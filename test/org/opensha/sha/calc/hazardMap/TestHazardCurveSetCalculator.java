@@ -113,7 +113,7 @@ public class TestHazardCurveSetCalculator extends TestCase {
 		calc.calculateCurves(sites);
 	}
 	
-	public void testCurvesFromXML() throws DocumentException, InvocationTargetException, IOException {
+	public void testCurvesFromXML() throws DocumentException, InvocationTargetException, IOException, InterruptedException {
 		Document doc = XMLUtils.loadDocument(xmlFile);
 		
 		CalculationInputsXMLFile inputs = CalculationInputsXMLFile.loadXML(doc);

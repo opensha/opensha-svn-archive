@@ -459,12 +459,12 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "zeng-ref-branches-vars-4hr";
+		String runName = "zeng-ref-vars-lowpaleo";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-		int constrained_run_mins = 250;
-//		int constrained_run_mins = 500;
+//		int constrained_run_mins = 250;
+		int constrained_run_mins = 500;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
@@ -493,8 +493,8 @@ public class LogicTreePBSWriter {
 //		TreeTrimmer neoKOnly = new SingleValsTreeTrimmer(DeformationModels.NEOKINEMA);
 		TreeTrimmer noRefBranches = new LogicalNotTreeTrimmer(getUCERF3RefBranches());
 		TreeTrimmer noUCERF2 = getNoUCERF2Trimmer();
-//		trimmer = new LogicalAndTrimmer(trimmer, charOrGR);
-		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
+		trimmer = new LogicalAndTrimmer(trimmer, charOrGR);
+//		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
@@ -514,9 +514,10 @@ public class LogicTreePBSWriter {
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
-//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.PALEO_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
+		variationBranches.add(buildVariationBranch(ops, toArray("0.1")));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();

@@ -212,8 +212,8 @@ public class ParameterListParameter extends AbstractParameter<ParameterList> {
 	}
 
 	public boolean setIndividualParamValueFromXML(Element el) {
-		// TODO Auto-generated method stub
-		return false;
+		// just return true, param values are actually stored as independent params and will be set
+		return true;
 	}
 
 	public ParameterEditor<ParameterList> getEditor() {

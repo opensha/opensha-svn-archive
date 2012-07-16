@@ -109,6 +109,15 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 		return SimpleFaultSystemRupSet.fsDataFromXML(root.element("FaultModel"));
 	}
 	
+	public Map<Integer, FaultSectionPrefData> fetchFaultSectionsMap() {
+		Map<Integer, FaultSectionPrefData> map = Maps.newHashMap();
+		
+		for (FaultSectionPrefData sect : fetchFaultSections())
+			map.put(sect.getSectionId(), sect);
+		
+		return map;
+	}
+	
 	public ArrayList<FaultSectionPrefData> fetchFaultSections() {
 		return fetchFaultSections(false);
 	}
