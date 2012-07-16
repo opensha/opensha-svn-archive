@@ -51,7 +51,7 @@ public class HazardCurveDriver {
 	
 	public HazardCurveDriver(CalculationInputsXMLFile[] inputs, int threads) throws InvocationTargetException, IOException {
 		Preconditions.checkArgument(inputs.length == threads, "incompatible number of threads/inputs");
-		HazardCurveSetCalculator[] calcs = new HazardCurveSetCalculator[threads];
+		calcs = new HazardCurveSetCalculator[threads];
 		
 		for (int i=0; i<inputs.length; i++)
 			calcs[i] = new HazardCurveSetCalculator(inputs[i]);
