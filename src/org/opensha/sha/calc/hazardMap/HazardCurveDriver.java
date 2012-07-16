@@ -80,15 +80,21 @@ public class HazardCurveDriver {
 				System.err.println("USAGE: HazardCurveDriver [--threaded] <XML File>");
 				System.exit(2);
 			}
-			File xmlFile = new File(args[0]);
-			if (!xmlFile.exists()) {
-				throw new IOException("XML Input file '" + args[0] + "' not found!");
-			}
+			
+			String filePath;
 			
 			int threads = 1;
 			if (args.length == 2) {
 				Preconditions.checkArgument(args[0].equals("--threaded"), "Unknown argument: "+args[0]);
 				threads = Runtime.getRuntime().availableProcessors();
+				filePath = args[1];
+			} else {
+				filePath = args[0];
+			}
+
+			File xmlFile = new File(filePath);
+			if (!xmlFile.exists()) {
+				throw new IOException("XML Input file '"+filePath+"' not found!");
 			}
 			
 			Document doc = XMLUtils.loadDocument(xmlFile.getAbsolutePath());
