@@ -459,7 +459,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "zeng-ref-vars-lowpaleo";
+		String runName = "zeng-ref-lowpaleo-100runs";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
@@ -475,7 +475,7 @@ public class LogicTreePBSWriter {
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 1;
+		int numRuns = 100;
 		int runStart = 0;
 
 		boolean lightweight = numRuns > 10;
@@ -550,9 +550,9 @@ public class LogicTreePBSWriter {
 		// do all branch choices relative to these:
 		//		Branch defaultBranch = null;
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
-		maxAway.put(InversionModels.CHAR_CONSTRAINED, 1);
+		maxAway.put(InversionModels.CHAR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.CHAR_UNCONSTRAINED, 0);
-		maxAway.put(InversionModels.GR_CONSTRAINED, 1);
+		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);
 		VariableLogicTreeBranch[] defaultBranches = null;
 		

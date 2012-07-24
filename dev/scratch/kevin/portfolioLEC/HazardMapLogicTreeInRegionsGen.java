@@ -13,6 +13,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
@@ -35,6 +36,7 @@ import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenRelRef;
@@ -51,7 +53,7 @@ import com.google.common.collect.Maps;
 
 public class HazardMapLogicTreeInRegionsGen {
 	
-	private static List<GriddedRegion> getRegions() throws MalformedURLException, DocumentException {
+	static List<GriddedRegion> getRegions() throws MalformedURLException, DocumentException {
 		List<GriddedRegion> regions = Lists.newArrayList();
 		
 		Document doc = XMLUtils.loadDocument(new File(
@@ -100,8 +102,8 @@ public class HazardMapLogicTreeInRegionsGen {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws DocumentException, IOException {
-		File writeDir =  new File("/tmp"); // TODO
-		File outputDir =  new File("/tmp"); // TODO
+		File writeDir =  new File("/home/kevin/OpenSHA/portfolio_lec/region_map_runs"); // TODO
+		File outputDir =  new File("/auto/scec-02/kmilner/hazMaps/2012_07_16-porter-map-runs"); // TODO
 		int mins = 500;
 		int nodes = 1;
 		String queue = "nbns";
@@ -204,10 +206,6 @@ public class HazardMapLogicTreeInRegionsGen {
 		imtXValMap.put(SA_Param.NAME, imtInfo.getDefaultHazardCurve(SA_Param.NAME));
 		CalculationSettings calcSettings = new CalculationSettings(imtXValMap, 200d);
 		
-		File curveDir = new File(outputDir, "curves");
-		
-		CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir.getAbsolutePath(), true, false);
-		
 		int digits = ((listERF.getNumERFs()-1)+"").length();
 		
 		List<File> classpath = Lists.newArrayList();
@@ -216,15 +214,29 @@ public class HazardMapLogicTreeInRegionsGen {
 		
 		for (int i=0; i<listERF.getNumERFs(); i++) {
 			ERF erf = listERF.getERF(i);
-			erf.getTimeSpan().setStartTime(startYear);
+			if (!erf.getTimeSpan().getStartTimePrecision().equals(TimeSpan.NONE)) {
+				// can only set time span for BPT, not empirical model
+				try {
+					erf.getTimeSpan().setStartTime(startYear);
+				} catch (RuntimeException e) {
+					for (Parameter<?> param : erf.getAdjustableParameterList())
+						System.out.println(param.getName()+":\t"+param.getValue());
+					throw e;
+				}
+			}
+			
+			String numStr = i+"";
+			while (numStr.length() < digits)
+				numStr = "0"+numStr;
+			
+			File curveDir = new File(outputDir, "curves_"+numStr);
+			CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir.getAbsolutePath(), true, false);
+			
 			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, imts, sites, calcSettings, archiver);
 			
 			Document doc = XMLUtils.createDocumentWithRoot();
 			inputs.toXMLMetadata(doc.getRootElement());
 			
-			String numStr = i+"";
-			while (numStr.length() < digits)
-				numStr = "0"+numStr;
 			String prefix = "inputs_"+numStr;
 			String fname = prefix+".xml";
 			File remoteFName = new File(outputDir, fname);
@@ -239,7 +251,6 @@ public class HazardMapLogicTreeInRegionsGen {
 			
 			USC_HPCC_ScriptWriter pbsWriter = new USC_HPCC_ScriptWriter();
 			pbsWriter.writeScript(pbsFile, script, mins, nodes, ppn, queue);
-			break;
 		}
 	}
 
