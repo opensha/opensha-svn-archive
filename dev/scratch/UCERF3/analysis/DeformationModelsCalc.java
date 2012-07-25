@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
@@ -29,6 +30,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -1081,6 +1083,41 @@ public class DeformationModelsCalc {
 
 	}
 	
+	public static List<FaultSectionPrefData> getIsolatedEndpoints(FaultSystemRupSet rupSet) {
+		return getIsolatedEndpoints(rupSet.getFaultSectionDataList());
+	}
+	
+	public static List<FaultSectionPrefData> getIsolatedEndpoints(List<FaultSectionPrefData> subSects) {
+		List<FaultSectionPrefData> isolated = Lists.newArrayList();
+		
+		// this is the number of sub sections from the end of a a fault to count as the "end"
+		int maxAwayFromEnd = 1;
+		
+		Map<Integer, List<FaultSectionPrefData>> parentSects = Maps.newHashMap();
+		
+		for (int sectIndex=0; sectIndex<subSects.size(); sectIndex++) {
+			FaultSectionPrefData sect = subSects.get(sectIndex);
+			int parentID = sect.getParentSectionId();
+			List<FaultSectionPrefData> parentSectsList = parentSects.get(parentID);
+			if (parentSectsList == null) {
+				parentSectsList = Lists.newArrayList();
+				parentSects.put(parentID, parentSectsList);
+			}
+			
+			parentSectsList.add(sect);
+		}
+		
+		for (int parentID : parentSects.keySet()) {
+			List<FaultSectionPrefData> sects = parentSects.get(parentID);
+			
+			for (int i=0; i<=maxAwayFromEnd && i<sects.size(); i++) {
+				FaultSectionPrefData sect = sects.get(i);
+				
+			}
+		}
+		
+		return isolated;
+	}
 	
 	/**
 	 * This method computes the fraction of a SpatialSeisPDF that's inside the fault-section polygons 

@@ -118,6 +118,26 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 	}
 	
 	/**
+	 * Returns the minimum rate from any solution for the given rupture
+	 * 
+	 * @param rupIndex
+	 * @return
+	 */
+	public double getRateMin(int rupIndex) {
+		return StatUtils.min(ratesByRup[rupIndex]);
+	}
+	
+	/**
+	 * Returns the maximum rate from any solution for the given rupture
+	 * 
+	 * @param rupIndex
+	 * @return
+	 */
+	public double getRateMax(int rupIndex) {
+		return StatUtils.max(ratesByRup[rupIndex]);
+	}
+	
+	/**
 	 * Returns the number of solutions that constitute this average fault system solution
 	 * 
 	 * @return

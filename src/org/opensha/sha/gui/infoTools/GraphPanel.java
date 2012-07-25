@@ -747,6 +747,14 @@ public class GraphPanel extends JSplitPane {
 	public Range getY_AxisRange(){
 		return yAxis.getRange();
 	}
+	
+	public ValueAxis getXAxis() {
+		return xAxis;
+	}
+	
+	public ValueAxis getYAxis() {
+		return yAxis;
+	}
 
 
 	/**
