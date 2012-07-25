@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipException;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.GriddedParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -27,6 +29,7 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.ButtonParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
@@ -62,6 +65,10 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private static final Boolean LOG_PARAM_DEFAULT = false;
 	private BooleanParameter logParam = new BooleanParameter(LOG_PARAM_NAME, LOG_PARAM_DEFAULT);
 	
+	private static final String PARENT_SECT_FILTER_PARAM_NAME = "Parent Section Filter";
+	private static final String PARENT_SECT_FILTER_PARAM_DEFAULT = "(none)";
+	private StringParameter parentSectParam;
+	
 	private static final String ZOOM_IN_PARAM_NAME = "Zoom In";
 	private ButtonParameter zoomInParam = new ButtonParameter(ZOOM_IN_PARAM_NAME, "+");
 	
@@ -92,6 +99,9 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private static final String NEXT_RUP_PARAM_NAME = "Next Rup";
 	private ButtonParameter nextRupParam = new ButtonParameter(NEXT_RUP_PARAM_NAME, ">");
 	
+	private ArrayList<String> parentNames;
+	private ArrayList<Integer> parentIDs;
+	
 	private HeadlessGraphPanel gp;
 	private ArrayList<DiscretizedFunc> funcs;
 	private ArrayList<PlotCurveCharacterstics> chars;
@@ -121,6 +131,9 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		sdomNParam.setValue(SDOM_N_PARAM_MIN);
 		paramList.addParameter(sdomNParam);
 		paramList.addParameter(logParam);
+		ArrayList<String> parentSects = Lists.newArrayList(PARENT_SECT_FILTER_PARAM_DEFAULT);
+		parentSectParam = new StringParameter(PARENT_SECT_FILTER_PARAM_NAME, parentSects, PARENT_SECT_FILTER_PARAM_DEFAULT);
+		paramList.addParameter(parentSectParam);
 		
 		controlParamList = new ParameterList();
 		controlParamList.addParameter(zoomOutParam);
@@ -150,9 +163,10 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		
 		gp = new HeadlessGraphPanel();
 		
-		JPanel topPanel = new JPanel(new BorderLayout());
-		topPanel.add(paramEdit, BorderLayout.CENTER);
-		topPanel.add(controlParamEdit, BorderLayout.EAST);
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+		topPanel.add(paramEdit);
+		topPanel.add(controlParamEdit);
 		
 		mainPanel.add(topPanel, BorderLayout.NORTH);
 		mainPanel.add(gp, BorderLayout.CENTER);
@@ -213,6 +227,27 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			}
 			updateSDOM();
 		}
+		
+		// update parent sections
+		parentNames = Lists.newArrayList(PARENT_SECT_FILTER_PARAM_DEFAULT);
+		parentIDs = Lists.newArrayList(-1);
+		if (sol != null) {
+			int prevParentID = -2;
+			for (FaultSectionPrefData sect : sol.getFaultSectionDataList()) {
+				int parentID = sect.getParentSectionId();
+				
+				if (parentID != prevParentID) {
+					parentNames.add(sect.getParentSectionName());
+					parentIDs.add(parentID);
+					prevParentID = parentID;
+				}
+			}
+		}
+		parentSectParam.removeParameterChangeListener(this);
+		parentSectParam.setValue(PARENT_SECT_FILTER_PARAM_DEFAULT);
+		((StringConstraint)parentSectParam.getConstraint()).setStrings(parentNames);
+		parentSectParam.getEditor().refreshParamEditor();
+		parentSectParam.addParameterChangeListener(this);
 		
 		enableButtons();
 	}
@@ -282,36 +317,65 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 						rupsSet.add(ind);
 					}
 				}
-				
-				ArrayList<DiscretizedFunc> newFuncs = Lists.newArrayList();
-				for (DiscretizedFunc func : funcs) {
-					EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(0, curRups.size(), 1d);
-					newFunc.setName(func.getName());
-					
-					for (int i=0; i<curRups.size(); i++) {
-						newFunc.set(i, func.getY(curRups.get(i)));
-					}
-					
-					newFuncs.add(newFunc);
-				}
-				funcs = newFuncs;
 			} else {
 				curRups = Lists.newArrayList();
 				for (int i=0; i<sol.getNumRuptures(); i++)
 					curRups.add(i);
 			}
 			
-			int minX = 0;
-			int maxX = DEFAULT_PLOT_WIDTH-1;
-			double[] yBounds = getYBounds(minX, maxX);
-			gp.setUserBounds(minX, maxX, yBounds[0], yBounds[1]);
+			if (!parentSectParam.getValue().equals(PARENT_SECT_FILTER_PARAM_DEFAULT)) {
+				String parentName = parentSectParam.getValue();
+				int parentID = parentIDs.get(parentNames.indexOf(parentName));
+				
+				List<Integer> subSet = Lists.newArrayList();
+				
+				for (int r : curRups) {
+					List<Integer> parents = sol.getParentSectionsForRup(r);
+					if (parents.contains(parentID))
+						subSet.add(r);
+				}
+				
+				curRups = subSet;
+			}
 			
-			updateSectionsLabel(minX, maxX);
+			if (curRups.isEmpty()) {
+				funcs = Lists.newArrayList();
+				chars = Lists.newArrayList();
+			} else {
+				if (curRups.size() != funcs.get(0).getNum())
+					funcs = getForSubset();
+				
+				int minX = 0;
+				int maxX = DEFAULT_PLOT_WIDTH-1;
+				if (maxX >= curRups.size())
+					maxX = curRups.size()-1;
+				double[] yBounds = getYBounds(minX, maxX);
+				gp.setUserBounds(minX, maxX, yBounds[0], yBounds[1]);
+				updateSectionsLabel(minX, maxX);
+			}
 		}
+		
+		if (funcs.size() == 0)
+			updateSectionsLabel(-1, -1);
 		
 		drawGraph();
 		
 		enableButtons();
+	}
+	
+	private ArrayList<DiscretizedFunc> getForSubset() {
+		ArrayList<DiscretizedFunc> newFuncs = Lists.newArrayList();
+		for (DiscretizedFunc func : funcs) {
+			EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(0, curRups.size(), 1d);
+			newFunc.setName(func.getName());
+			
+			for (int i=0; i<curRups.size(); i++) {
+				newFunc.set(i, func.getY(curRups.get(i)));
+			}
+			
+			newFuncs.add(newFunc);
+		}
+		return newFuncs;
 	}
 	
 	private void drawGraph() {
@@ -371,7 +435,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		String startLabel;
 		String endLabel;
 		
-		if (sol == null) {
+		if (sol == null || minX < 0) {
 			startLabel = "";
 			endLabel = "";
 		} else {
@@ -450,6 +514,8 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			int[] bounds = getCurrentBounds();
 			rebuildPlot();
 			updatePlotRange(bounds[0], bounds[1]);
+		} else if (param == parentSectParam) {
+			rebuildPlot();
 		} else {
 			int totSize = funcs.get(0).getNum();
 			
