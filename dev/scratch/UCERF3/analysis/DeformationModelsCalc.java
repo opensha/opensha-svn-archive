@@ -44,6 +44,7 @@ import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.SmoothSeismicitySpatialPDF_Fetcher;
@@ -1083,15 +1084,13 @@ public class DeformationModelsCalc {
 
 	}
 	
-	public static List<FaultSectionPrefData> getIsolatedEndpoints(FaultSystemRupSet rupSet) {
-		return getIsolatedEndpoints(rupSet.getFaultSectionDataList());
-	}
-	
-	public static List<FaultSectionPrefData> getIsolatedEndpoints(List<FaultSectionPrefData> subSects) {
+	public static List<FaultSectionPrefData> getIsolatedEndpoints(
+			List<FaultSectionPrefData> subSects, Map<IDPairing, Double> distances, int maxAwayFromEnd) {
 		List<FaultSectionPrefData> isolated = Lists.newArrayList();
 		
-		// this is the number of sub sections from the end of a a fault to count as the "end"
-		int maxAwayFromEnd = 1;
+		Map<Integer, FaultSectionPrefData> subSectsMap = Maps.newHashMap();
+		for (FaultSectionPrefData sect : subSects)
+			subSectsMap.put(sect.getSectionId(), sect);
 		
 		Map<Integer, List<FaultSectionPrefData>> parentSects = Maps.newHashMap();
 		
@@ -1107,16 +1106,56 @@ public class DeformationModelsCalc {
 			parentSectsList.add(sect);
 		}
 		
+		Map<Integer, List<FaultSectionPrefData>> sectPairings = Maps.newHashMap();
+		
+		for (IDPairing pairing : distances.keySet()) {
+			Integer id = pairing.getID1(); // only need to do for ID1 since the reversed pairing will also appear in this list
+			
+			List<FaultSectionPrefData> pairings = sectPairings.get(id);
+			if (pairings == null) {
+				pairings = Lists.newArrayList();
+				sectPairings.put(id, pairings);
+			}
+			
+			if (!pairings.contains(pairing.getID2()))
+				pairings.add(subSectsMap.get(pairing.getID2()));
+		}
+		
 		for (int parentID : parentSects.keySet()) {
 			List<FaultSectionPrefData> sects = parentSects.get(parentID);
 			
-			for (int i=0; i<=maxAwayFromEnd && i<sects.size(); i++) {
-				FaultSectionPrefData sect = sects.get(i);
-				
-			}
+			int myMaxAwayFromEnd = maxAwayFromEnd;
+			if (myMaxAwayFromEnd >= sects.size())
+				myMaxAwayFromEnd = sects.size()-1;
+			
+			if (!isConnected(sects.subList(0, myMaxAwayFromEnd+1), sectPairings))
+				isolated.add(sects.get(0));
+			
+			int lastIndex = sects.size()-1;
+			if (!isConnected(sects.subList(lastIndex-myMaxAwayFromEnd, lastIndex+1), sectPairings))
+				isolated.add(sects.get(lastIndex));
 		}
 		
 		return isolated;
+	}
+	
+	/**
+	 * returns true if any of the given sections are connected to a fault with a different parent ID
+	 * @param sects
+	 * @param sectPairings
+	 * @return
+	 */
+	private static boolean isConnected(List<FaultSectionPrefData> sects, Map<Integer, List<FaultSectionPrefData>> sectPairings) {
+		for (FaultSectionPrefData sect : sects) {
+			// look for a pairing that is within the distance cutoff and has a different parent
+			List<FaultSectionPrefData> pairings = sectPairings.get(sect.getSectionId());
+			
+			for (FaultSectionPrefData pairing : pairings) {
+				if (pairing.getParentSectionId() != sect.getParentSectionId())
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	/**

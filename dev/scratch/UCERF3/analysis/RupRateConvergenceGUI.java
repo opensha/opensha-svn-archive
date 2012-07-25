@@ -4,12 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.Plot;
@@ -25,10 +27,12 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.ButtonParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
@@ -53,6 +57,10 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private static final Integer SDOM_N_PARAM_MAX = 10000;
 	private IntegerParameter sdomNParam = new IntegerParameter(
 			SDOM_N_PARAM_NAME, SDOM_N_PARAM_MIN, SDOM_N_PARAM_MAX);
+	
+	private static final String LOG_PARAM_NAME = "Log Y Scale";
+	private static final Boolean LOG_PARAM_DEFAULT = false;
+	private BooleanParameter logParam = new BooleanParameter(LOG_PARAM_NAME, LOG_PARAM_DEFAULT);
 	
 	private static final String ZOOM_IN_PARAM_NAME = "Zoom In";
 	private ButtonParameter zoomInParam = new ButtonParameter(ZOOM_IN_PARAM_NAME, "+");
@@ -98,7 +106,11 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private EvenlyDiscretizedFunc meanPlusStdDevOfMeanFunc;
 	private EvenlyDiscretizedFunc meanMinusStdDevOfMeanFunc;
 	
+	private List<Integer> curRups;
+	
 	private ParameterList controlParamList;
+	
+	private JTextArea labels;
 	
 	public RupRateConvergenceGUI() {
 //		super(new BorderLayout());
@@ -108,6 +120,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		paramList.addParameter(ucerf2Param);
 		sdomNParam.setValue(SDOM_N_PARAM_MIN);
 		paramList.addParameter(sdomNParam);
+		paramList.addParameter(logParam);
 		
 		controlParamList = new ParameterList();
 		controlParamList.addParameter(zoomOutParam);
@@ -144,6 +157,12 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		mainPanel.add(topPanel, BorderLayout.NORTH);
 		mainPanel.add(gp, BorderLayout.CENTER);
 		
+		labels = new JTextArea("");
+		labels.setEditable(false);
+		
+		mainPanel.add(labels, BorderLayout.SOUTH);
+		
+		setTitle("Rupture Rate Convergence GUI");
 		setSize(1400, 800);
 	}
 	
@@ -231,19 +250,20 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			funcs.add(meanFunc);
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, meanWidth, Color.BLACK));
 			funcs.add(minFunc);
-			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.GREEN));
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.RED));
 			funcs.add(maxFunc);
-			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.GREEN));
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.RED));
 			funcs.add(meanPlusStdDevFunc);
-			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.RED));
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.GREEN));
 			funcs.add(meanMinusStdDevFunc);
-			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.RED));
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.GREEN));
 			funcs.add(meanPlusStdDevOfMeanFunc);
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.BLUE));
 			funcs.add(meanMinusStdDevOfMeanFunc);
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.BLUE));
 			
 			if (sol != null && ucerf2Param.getValue()) {
+				System.out.println("Using UCERF2 Rups!");
 				if (ucerf2Rups == null) {
 					if (sol.getFaultModel() == FaultModels.FM2_1)
 						ucerf2Rups = new FindEquivUCERF2_FM2pt1_Ruptures(
@@ -251,31 +271,42 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 					else
 						ucerf2Rups = new FindEquivUCERF2_FM3_Ruptures(
 								sol, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, sol.getFaultModel());
-					
-					List<Integer> rups = Lists.newArrayList();
-					for (int r=0; r<ucerf2Rups.getNumUCERF2_Ruptures(); r++) {
-						int ind = ucerf2Rups.getEquivFaultSystemRupIndexForUCERF2_Rupture(r);
-						if (ind >= 0)
-							rups.add(ind);
-					}
-					
-					ArrayList<DiscretizedFunc> newFuncs = Lists.newArrayList();
-					for (DiscretizedFunc func : funcs) {
-						EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(0, rups.size(), 1d);
-						newFunc.setName(func.getName());
-						
-						for (int i=0; i<rups.size(); i++) {
-							newFunc.set(i, func.getY(rups.get(i)));
-						}
-					}
-					funcs = newFuncs;
 				}
+				
+				curRups = Lists.newArrayList();
+				HashSet<Integer> rupsSet = new HashSet<Integer>(); // for speed of contains() ops
+				for (int r=0; r<ucerf2Rups.getNumUCERF2_Ruptures(); r++) {
+					int ind = ucerf2Rups.getEquivFaultSystemRupIndexForUCERF2_Rupture(r);
+					if (ind >= 0 && !rupsSet.contains(ind)) {
+						curRups.add(ind);
+						rupsSet.add(ind);
+					}
+				}
+				
+				ArrayList<DiscretizedFunc> newFuncs = Lists.newArrayList();
+				for (DiscretizedFunc func : funcs) {
+					EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(0, curRups.size(), 1d);
+					newFunc.setName(func.getName());
+					
+					for (int i=0; i<curRups.size(); i++) {
+						newFunc.set(i, func.getY(curRups.get(i)));
+					}
+					
+					newFuncs.add(newFunc);
+				}
+				funcs = newFuncs;
+			} else {
+				curRups = Lists.newArrayList();
+				for (int i=0; i<sol.getNumRuptures(); i++)
+					curRups.add(i);
 			}
 			
 			int minX = 0;
 			int maxX = DEFAULT_PLOT_WIDTH-1;
 			double[] yBounds = getYBounds(minX, maxX);
 			gp.setUserBounds(minX, maxX, yBounds[0], yBounds[1]);
+			
+			updateSectionsLabel(minX, maxX);
 		}
 		
 		drawGraph();
@@ -284,11 +315,13 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	}
 	
 	private void drawGraph() {
+		gp.setYLog(logParam.getValue());
 		gp.drawGraphPanel("Rupture Index", "Rate", funcs, chars, true, "Rup Rate Convergence");
 	}
 	
 	private double[] getYBounds(int minX, int maxX) {
 		double minY = Double.POSITIVE_INFINITY;
+		double minNonZero = Double.POSITIVE_INFINITY;
 		double maxY = 0;
 		
 		for (DiscretizedFunc func : funcs) {
@@ -298,7 +331,23 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 					minY = y;
 				if (y > maxY)
 					maxY = y;
+				if (y > 0 && y < minNonZero)
+					minNonZero = y;
 			}
+		}
+		
+		if (logParam.getValue()) {
+			minY = minNonZero;
+		}
+		
+		if (Double.isInfinite(minY) || minY > maxY)
+			minY = maxY;
+		
+		if (logParam.getValue()) {
+			if (minY <= 0)
+				minY = 1e-10;
+			if (maxY < minY)
+				maxY = minY;
 		}
 		
 		double[] ret = {minY, maxY};
@@ -312,9 +361,47 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		gp.setUserBounds(min, max, minY, maxY);
 		gp.getXAxis().setRange(min, max);
 		gp.getYAxis().setRange(minY, maxY);
+		updateSectionsLabel(min, max);
 //		drawGraph();
 //		gp.validate();
 //		gp.repaint();
+	}
+	
+	private void updateSectionsLabel(int minX, int maxX) {
+		String startLabel;
+		String endLabel;
+		
+		if (sol == null) {
+			startLabel = "";
+			endLabel = "";
+		} else {
+			int startRup = curRups.get(minX);
+			int endRup = curRups.get(maxX);
+			
+			startLabel = getLabelForRup(startRup);
+			endLabel = getLabelForRup(endRup);
+		}
+		
+		String label = "FIRST RUP:\t"+startLabel+"\nLAST RUP:\t"+endLabel;
+		labels.setText(label);
+	}
+	
+	private String getLabelForRup(int rupIndex) {
+		List<Integer> inds = sol.getSectionsIndicesForRup(rupIndex);
+		
+		List<String> parentNames = Lists.newArrayList();
+		int lastParentID = -2;
+		
+		for (int ind : inds) {
+			FaultSectionPrefData sect = sol.getFaultSectionData(ind);
+			int parent = sect.getParentSectionId();
+			if (parent != lastParentID) {
+				parentNames.add(sect.getParentSectionName());
+				lastParentID = parent;
+			}
+		}
+		
+		return "Mag: "+(float)sol.getMagForRup(rupIndex)+"\tParent Sects: "+Joiner.on("; ").join(parentNames);
 	}
 	
 	private int[] getCurrentBounds() {
@@ -355,8 +442,14 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		} else if (param == ucerf2Param) {
 			rebuildPlot();
 		} else if (param == sdomNParam) {
+			int[] bounds = getCurrentBounds();
 			updateSDOM();
 			rebuildPlot();
+			updatePlotRange(bounds[0], bounds[1]);
+		} else if (param == logParam) {
+			int[] bounds = getCurrentBounds();
+			rebuildPlot();
+			updatePlotRange(bounds[0], bounds[1]);
 		} else {
 			int totSize = funcs.get(0).getNum();
 			
@@ -386,9 +479,11 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 				min++;
 				max++;
 			} else if (param == zoomInParam) {
-				max = (int)((double)max * 2d / 3d);
+				int size = (int)((double)num * 2d / 3d);
+				max = min + size;
 			} else if (param == zoomOutParam) {
-				max = (int)((double)max * 1.5d);
+				int size = (int)((double)num * 1.5d);
+				max = min + size;
 			}
 			
 			if (min < 0) {
