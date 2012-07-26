@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipException;
@@ -27,6 +30,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.ButtonParameter;
+import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
@@ -49,6 +53,8 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	
 	private static final int DEFAULT_PLOT_WIDTH = 100;
 	
+	private AverageFaultSystemSolution sol;
+	
 	private static final String BROWSE_PARAM_NAME = "Browse";
 	private FileParameter browseParam = new FileParameter(BROWSE_PARAM_NAME);
 	
@@ -68,6 +74,81 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private static final String PARENT_SECT_FILTER_PARAM_NAME = "Parent Section Filter";
 	private static final String PARENT_SECT_FILTER_PARAM_DEFAULT = "(none)";
 	private StringParameter parentSectParam;
+	
+	private static final String SORT_PARAM_NAME = "Sort By";
+	private enum SortTypes {
+		INDEX("Rupture Index") {
+			@Override
+			public Comparator<Integer> getComparator(AverageFaultSystemSolution sol) {
+				return new Comparator<Integer>() {
+
+					@Override
+					public int compare(Integer o1, Integer o2) {
+						return o1.compareTo(o2);
+					}
+				};
+			}
+		},
+		MAG_INCREASING("Mag (Increasing)") {
+			@Override
+			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol) {
+				return new Comparator<Integer>() {
+
+					@Override
+					public int compare(Integer o1, Integer o2) {
+						double m1 = sol.getMagForRup(o1);
+						double m2 = sol.getMagForRup(o2);
+						return Double.compare(m1, m2);
+					}
+					
+				};
+			}
+		},
+		MAG_DECREASING("Mag (Decreasing)") {
+			@Override
+			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol) {
+				return new Comparator<Integer>() {
+
+					@Override
+					public int compare(Integer o1, Integer o2) {
+						double m1 = sol.getMagForRup(o1);
+						double m2 = sol.getMagForRup(o2);
+						return -Double.compare(m1, m2);
+					}
+					
+				};
+			}
+		},
+		STD_DEV_OVER_MEAN("Std Dev / Mean") {
+			@Override
+			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol) {
+				return new Comparator<Integer>() {
+
+					@Override
+					public int compare(Integer o1, Integer o2) {
+						double d1 = sol.getRateStdDev(o1) / sol.getRateForRup(o1);
+						double d2 = sol.getRateStdDev(o2) / sol.getRateForRup(o2);
+						return Double.compare(d1, d2);
+					}
+					
+				};
+			}
+		};
+		
+		private String name;
+		private SortTypes(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+		
+		public abstract Comparator<Integer> getComparator(AverageFaultSystemSolution sol);
+	}
+	private EnumParameter<SortTypes> sortParam = new EnumParameter<RupRateConvergenceGUI.SortTypes>(
+			SORT_PARAM_NAME, EnumSet.allOf(SortTypes.class), SortTypes.INDEX, null);
 	
 	private static final String ZOOM_IN_PARAM_NAME = "Zoom In";
 	private ButtonParameter zoomInParam = new ButtonParameter(ZOOM_IN_PARAM_NAME, "+");
@@ -105,7 +186,6 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private HeadlessGraphPanel gp;
 	private ArrayList<DiscretizedFunc> funcs;
 	private ArrayList<PlotCurveCharacterstics> chars;
-	private AverageFaultSystemSolution sol;
 	private double[] stdDevs;
 	private FindEquivUCERF2_Ruptures ucerf2Rups;
 	private EvenlyDiscretizedFunc meanFunc;
@@ -134,6 +214,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		ArrayList<String> parentSects = Lists.newArrayList(PARENT_SECT_FILTER_PARAM_DEFAULT);
 		parentSectParam = new StringParameter(PARENT_SECT_FILTER_PARAM_NAME, parentSects, PARENT_SECT_FILTER_PARAM_DEFAULT);
 		paramList.addParameter(parentSectParam);
+		paramList.addParameter(sortParam);
 		
 		controlParamList = new ParameterList();
 		controlParamList.addParameter(zoomOutParam);
@@ -342,8 +423,10 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 				funcs = Lists.newArrayList();
 				chars = Lists.newArrayList();
 			} else {
-				if (curRups.size() != funcs.get(0).getNum())
-					funcs = getForSubset();
+				// now sort
+				Collections.sort(curRups, sortParam.getValue().getComparator(sol));
+				
+				funcs = getForSubset();
 				
 				int minX = 0;
 				int maxX = DEFAULT_PLOT_WIDTH-1;
@@ -489,6 +572,8 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		
 		int[] range = getCurrentBounds();
 		int min = range[0];
+		if (min < 0)
+			min = 0;
 		int max = range[1];
 		int num = max - min;
 		
@@ -515,6 +600,8 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			rebuildPlot();
 			updatePlotRange(bounds[0], bounds[1]);
 		} else if (param == parentSectParam) {
+			rebuildPlot();
+		} else if (param == sortParam) {
 			rebuildPlot();
 		} else {
 			int totSize = funcs.get(0).getNum();
