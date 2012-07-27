@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.eq.MagUtils;
@@ -359,7 +360,7 @@ public class InversionInputGenerator {
 					int rup = rupsForSect.get(rupIndex);
 					// Glenn's x/L
 					double distAlongRup = getDistanceAlongRupture(rupSet.getSectionsIndicesForRup(rup),
-							rupSet.getFaultSectionDataList(), constraint);
+							rupSet.getFaultSectionDataList(), constraint.getSectionIndex());
 //					double probPaleoVisible = getProbPaleoVisible(rupMeanMag[rup]); // OLD UCERF2 version!
 					// UCERF3 version!
 					double probPaleoVisible = paleoProbabilityModel.getForSlip(rupMeanSlip[rup], distAlongRup);	
@@ -773,10 +774,15 @@ public class InversionInputGenerator {
 	 * @return
 	 */
 	public static double getDistanceAlongRupture(List<Integer> sectsInRup,
-			List<FaultSectionPrefData> sectionDataList, PaleoRateConstraint constraint) {
+			List<FaultSectionPrefData> sectionDataList, int targetSectIndex) {
+		return getDistanceAlongRupture(sectsInRup, sectionDataList, targetSectIndex, null);
+	}
+	
+	public static double getDistanceAlongRupture(List<Integer> sectsInRup,
+			List<FaultSectionPrefData> sectionDataList, int targetSectIndex,
+			Map<Integer, Double> traceLengthCache) {
 		double distanceAlongRup = 0;
 		
-		int constraintIndex = constraint.getSectionIndex();
 		double totalLength = 0;
 		double lengthToRup = 0;
 		boolean reachConstraintLoc = false;
@@ -784,9 +790,18 @@ public class InversionInputGenerator {
 		// Find total length (km) of fault trace and length (km) from one end to the paleo trench location
 		for (int i=0; i<sectsInRup.size(); i++) {
 			int sectIndex = sectsInRup.get(i);
-			double sectLength = sectionDataList.get(i).getFaultTrace().getTraceLength();
+			Double sectLength = null;
+			if (traceLengthCache != null) {
+				sectLength = traceLengthCache.get(sectIndex);
+				if (sectLength == null) {
+					sectLength = sectionDataList.get(sectIndex).getFaultTrace().getTraceLength();
+					traceLengthCache.put(sectIndex, sectLength);
+				}
+			} else {
+				sectLength = sectionDataList.get(sectIndex).getFaultTrace().getTraceLength();
+			}
 			totalLength+=sectLength;
-			if (sectIndex == constraintIndex) {
+			if (sectIndex == targetSectIndex) {
 				reachConstraintLoc = true;
 				// We're putting the trench in the middle of the subsection for now
 				lengthToRup+=sectLength/2;

@@ -514,6 +514,8 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * @return
 	 */
 	public double getProbPaleoVisible(double mag) {
+		System.out.println("WARNING! You are using the OLD UCERF2 paleo probability model!!!!");
+		// TODO
 		return Math.exp(-12.51 + mag * 2.053)
 				/ (1.0 + Math.exp(-12.51 + mag * 2.053));
 		/*

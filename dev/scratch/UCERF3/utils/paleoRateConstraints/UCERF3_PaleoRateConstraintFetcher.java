@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -21,6 +22,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -29,12 +31,16 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.InversionInputGenerator;
+import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class UCERF3_PaleoRateConstraintFetcher {
@@ -140,6 +146,9 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		List<FaultSectionPrefData> datas = solutions.get(0).getFaultSectionDataList();
 		
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
+		List<Map<Integer, DiscretizedFunc>> funcParentsMapsList = Lists.newArrayList();
+		for (int i=0; i<solutions.size(); i++)
+			funcParentsMapsList.add(new HashMap<Integer, DiscretizedFunc>());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		
 		ArbitrarilyDiscretizedFunc paleoRateMean = new ArbitrarilyDiscretizedFunc();
@@ -157,11 +166,25 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		
 		final int xGap = 5;
 		
+		PaleoProbabilityModel paleoProbModel = null;
+		try {
+			paleoProbModel = PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
+		} catch (IOException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
 		int x = xGap;
 		
 		HashMap<Integer, Integer> xIndForParentMap = new HashMap<Integer, Integer>();
 		
-		for (PaleoRateConstraint constr : paleoRateConstraint) {
+		ArrayList<Double> runningMisfitTotals = Lists.newArrayList();
+		for (int i=0; i<solutions.size(); i++)
+			runningMisfitTotals.add(0d);
+		
+		Map<Integer, Double> traceLengthCache = Maps.newHashMap();
+		
+		for (int p=0; p<paleoRateConstraint.size(); p++) {
+			PaleoRateConstraint constr = paleoRateConstraint.get(p);
 			int sectID = constr.getSectionIndex();
 			int parentID = -1;
 			String name = null;
@@ -206,20 +229,19 @@ public class UCERF3_PaleoRateConstraintFetcher {
 				paleoRateX = x + relConstSect;
 				
 				for (int i=0; i<solutions.size(); i++) {
+					Map<Integer, DiscretizedFunc> funcParentsMap = funcParentsMapsList.get(i);
 					FaultSystemSolution sol = solutions.get(i);
 					Color color = GraphPanel.defaultColor[i % GraphPanel.defaultColor.length];
 					
 					EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
 					func.setName("(x="+x+") Solution "+i+" rates for: "+name);
 					for (int j=0; j<numSects; j++) {
-						double rate = 0;
 						int mySectID = minSect + j;
-						for (int rupID : sol.getRupturesForSection(mySectID))
-							// TODO is this the right value here?
-							rate += sol.getRateForRup(rupID) * sol.getProbPaleoVisible(sol.getMagForRup(rupID));
+						double rate = getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache);
 						func.set(j, rate);
 					}
 					funcs.add(func);
+					funcParentsMap.put(parentID, func);
 					plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
 				}
 				
@@ -229,12 +251,54 @@ public class UCERF3_PaleoRateConstraintFetcher {
 				x += xGap;
 			}
 			
+			for (int i=0; i<solutions.size(); i++) {
+				DiscretizedFunc func = funcParentsMapsList.get(i).get(parentID);
+				double rate = getPaleoRateForSect(solutions.get(i), sectID, paleoProbModel, traceLengthCache);
+//				double misfit = Math.pow(constr.getMeanRate() - rate, 2) / Math.pow(constr.getStdDevOfMeanRate(), 2);
+				double misfit = Math.pow((constr.getMeanRate() - rate) / constr.getStdDevOfMeanRate(), 2);
+				String info = func.getInfo();
+				if (info == null || info.isEmpty())
+					info = "";
+				else
+					info += "\n";
+				info += "\tSect "+sectID+". Mean: "+constr.getMeanRate()+"\tStd Dev: "
+					+constr.getStdDevOfMeanRate()+"\tSolution: "+rate+"\tMisfit: "+misfit;
+				runningMisfitTotals.set(i, runningMisfitTotals.get(i)+misfit);
+				func.setInfo(info);
+			}
+			
 			paleoRateMean.set(paleoRateX, constr.getMeanRate());
 			paleoRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
 			paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 		}
 		
+		int lastIndex = funcs.size() - solutions.size();
+		for (int i=0; i<solutions.size(); i++) {
+			DiscretizedFunc func = funcs.get(lastIndex++);
+			
+			String info = func.getInfo();
+			double totMisfit = runningMisfitTotals.get(i);
+			info += "\n\n\tTOTAL MISFIT: "+totMisfit;
+			
+			func.setInfo(info);
+		}
+		
 		return new PlotSpec(funcs, plotChars, "Paleosiesmic Constraint Fit", "", "Event Rate Per Year");
+	}
+	
+	private static double getPaleoRateForSect(FaultSystemSolution sol, int sectIndex,
+			PaleoProbabilityModel paleoProbModel, Map<Integer, Double> traceLengthCache) {
+		double rate = 0;
+		for (int rupID : sol.getRupturesForSection(sectIndex)) {
+			double distAlongRup = InversionInputGenerator.getDistanceAlongRupture(
+					sol.getSectionsIndicesForRup(rupID), sol.getFaultSectionDataList(), sectIndex, traceLengthCache);
+			
+			double probPaleoVisible = paleoProbModel.getForSlip(
+					sol.getAveSlipForRup(rupID), distAlongRup);
+//			rate += sol.getRateForRup(rupID) * sol.getProbPaleoVisible(sol.getMagForRup(rupID));
+			rate += sol.getRateForRup(rupID) * probPaleoVisible;
+		}
+		return rate;
 	}
 	
 	public static void showSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,

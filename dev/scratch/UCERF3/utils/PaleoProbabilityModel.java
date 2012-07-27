@@ -42,8 +42,11 @@ public class PaleoProbabilityModel {
 	}
 	
 	public double getForMag(double mag, double distAlongRup) {
-		Preconditions.checkArgument(distAlongRup >= xyz.getMinX() && distAlongRup <= xyz.getMaxX(),
-				"distance along rup must be between "+xyz.getMinX()+" and "+xyz.getMaxX());
+		double maxX = xyz.getMaxX();
+		if ((float)distAlongRup == (float)maxX)
+			distAlongRup = maxX;
+		Preconditions.checkArgument(distAlongRup >= xyz.getMinX() && distAlongRup <= maxX,
+				"distance along rup must be between "+xyz.getMinX()+" and "+maxX+" (you supplied: "+distAlongRup+")");
 		Preconditions.checkArgument(!Double.isNaN(mag), "magnitude cannot be NaN!");
 		if (mag < xyz.getMinY())
 			return 0;
