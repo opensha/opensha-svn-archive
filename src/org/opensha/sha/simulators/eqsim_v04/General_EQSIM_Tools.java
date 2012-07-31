@@ -15,6 +15,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -901,7 +902,7 @@ public class General_EQSIM_Tools {
 			boolean makePlot, boolean savePlot) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		
-		double simDurr = getSimulationDurationInYears();
+		double simDurr = getSimulationDurationYears();
 		for(EQSIM_Event event : eventList) {
 			mfd.addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
 		}
@@ -931,7 +932,7 @@ public class General_EQSIM_Tools {
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
-			double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationInYears())));
+			double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationYears())));
 			double yMax = graph.getY_AxisMax();
 			if(yMin<yMax) {
 				graph.setY_AxisRange(yMin,yMax);
@@ -979,13 +980,13 @@ public class General_EQSIM_Tools {
 			mfdList.add(mfd);
 		}
 		
-		double simDurr = getSimulationDurationInYears();
+		double simDurr = getSimulationDurationYears();
 		for(EQSIM_Event event : eventList) {
 			int sectionIndex = event.get(0).getSectionID()-1;	// nucleates on first (0th) event record, and index is one minus ID 
 			mfdList.get(sectionIndex).addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
 		}
 		
-		double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationInYears())));
+		double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationYears())));
 		if(makeOnePlotWithAll){
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dists (Incremental)");   
 			graph.setX_AxisLabel("Magnitude");
@@ -1078,7 +1079,7 @@ public class General_EQSIM_Tools {
 	public void plotYearlyEventRates() {
 		
 		double startTime=eventList.get(0).getTime();
-		int numYears = (int)getSimulationDurationInYears();
+		int numYears = (int)getSimulationDurationYears();
 		EvenlyDiscretizedFunc evPerYear = new EvenlyDiscretizedFunc(0.0, numYears+1, 1.0);
 		for(EQSIM_Event event :eventList) {
 			int year = (int)((event.getTime()-startTime)/SECONDS_PER_YEAR);
@@ -1533,17 +1534,37 @@ public class General_EQSIM_Tools {
 		}
 	}
 	
+	/**
+	 * 
+	 * @return simulation duration in seconds
+	 */
+	public double getSimulationDuration() {
+		return getSimulationDuration(eventList);
+	}
+	
+	public static double getSimulationDuration(List<EQSIM_Event> events) {
+		EQSIM_Event firstEvent = events.get(0);
+		EQSIM_Event lastEvent = events.get(events.size()-1);
+		double startTime = firstEvent.getTime();
+		double endTime = lastEvent.getTime()+lastEvent.getDuration(); // TODO worth adjusting for duration?
+		return (endTime - startTime);
+	}
 	
 	/**
-	 * This computes the simulation duration from the times of the first and last event
-	 * @return
+	 * 
+	 * @return simulation duration in years
 	 */
-	public double getSimulationDurationInYears() {
-		double startTime=eventList.get(0).getTime();
-		double endTime=eventList.get(eventList.size()-1).getTime();
-		return (endTime-startTime)/SECONDS_PER_YEAR;
+	public double getSimulationDurationYears() {
+		return getSimulationDurationYears(eventList);
 	}
-
+	
+	/**
+	 * 
+	 * @return simulation duration in years
+	 */
+	public static double getSimulationDurationYears(List<EQSIM_Event> events) {
+		return getSimulationDuration(events)/SECONDS_PER_YEAR;
+	}
 	
 	/**
 	 * This compares observed slip rate (from events) with those imposed.  This writes out
@@ -1574,7 +1595,7 @@ public class General_EQSIM_Tools {
 		}
 
 		// finish obs and get imposed slip rates:
-		double simDurr = getSimulationDurationInYears();
+		double simDurr = getSimulationDurationYears();
 		for(int i=0; i<obsAveSlipRate.length; i++) {
 			obsAveSlipRate[i] /= simDurr;
 			imposedSlipRate[i] = rectElementsList.get(i).getSlipRate();
@@ -1965,7 +1986,7 @@ public class General_EQSIM_Tools {
 		File file1 = new File(dirNameForSavingFiles);
 		file1.mkdirs();
 
-		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationInYears()+" years");
+		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationYears()+" years");
 		
 		// plot & save scaling relationships
 //		plotScalingRelationships(true);
@@ -2051,7 +2072,7 @@ public class General_EQSIM_Tools {
 		File file1 = new File(dirNameForSavingFiles);
 		file1.mkdirs();
 
-		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationInYears()+" years");
+		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationYears()+" years");
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
 		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);

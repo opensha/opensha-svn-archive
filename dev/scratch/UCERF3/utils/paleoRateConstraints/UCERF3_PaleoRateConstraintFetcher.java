@@ -130,7 +130,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		return paleoRateConstraints;
 	}
 	
-	private static PlotSpec getSegRateComparisonSpec(ArrayList<PaleoRateConstraint> paleoRateConstraint,
+	public static PlotSpec getSegRateComparisonSpec(ArrayList<PaleoRateConstraint> paleoRateConstraint,
 			ArrayList<FaultSystemSolution> solutions) {
 		Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
 		Preconditions.checkState(solutions.size() > 0, "Must have at least one solution");
