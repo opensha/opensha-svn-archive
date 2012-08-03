@@ -62,7 +62,8 @@ public class InversionConfiguration {
 	private List<MFD_InversionConstraint> mfdInequalityConstraints;
 	private double minimumRuptureRateFraction;
 
-	private double relativeSmoothnessWt;
+	private double relativeSmoothnessWt; // rupture rate smoothness (entropy)
+	private double relativeEventRateSmoothnessWt; // parent section event-rate smoothing
 	protected final static boolean D = true;  // for debugging
 	
 	private String metadata;
@@ -82,6 +83,7 @@ public class InversionConfiguration {
 			double[] initialRupModel,
 			double[] minimumRuptureRateBasis, 
 			double relativeSmoothnessWt,
+			double relativeEventRateSmoothnessWt,
 			List<MFD_InversionConstraint> mfdEqualityConstraints,
 			List<MFD_InversionConstraint> mfdInequalityConstraints,
 			double minimumRuptureRateFraction,
@@ -115,6 +117,8 @@ public class InversionConfiguration {
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
 		this.relativeSmoothnessWt = relativeSmoothnessWt;
 		metadata += "\nrelativeSmoothnessWt: "+relativeSmoothnessWt;
+		this.relativeEventRateSmoothnessWt = relativeEventRateSmoothnessWt;
+		metadata += "\nrelativeEventRateSmoothnessWt: "+relativeEventRateSmoothnessWt;
 		this.mfdEqualityConstraints = mfdEqualityConstraints;
 		this.mfdInequalityConstraints = mfdInequalityConstraints;
 		this.minimumRuptureRateFraction = minimumRuptureRateFraction;
@@ -208,6 +212,9 @@ public class InversionConfiguration {
 		// weight of participation MFD smoothness weight - applied on subsection basis (recommended:  1000)
 		double relativeParticipationSmoothnessConstraintWt;
 		
+		// weight of parent-section event-rate smoothness constraint
+		double relativeEventRateSmoothnessWt;
+		
 		// fraction of the minimum rupture rate basis to be used as initial rates
 		double minimumRuptureRateFraction;
 		
@@ -223,6 +230,7 @@ public class InversionConfiguration {
 			// CONSTRAINED BRANCHES
 			if (model == InversionModels.CHAR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 0;
+				relativeEventRateSmoothnessWt = 1000;
 				relativeRupRateConstraintWt = 100;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
 				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
@@ -233,6 +241,7 @@ public class InversionConfiguration {
 				initialRupModel = adjustParkfield(rupSet, initialRupModel);
 			} else if (model == InversionModels.GR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 1000;
+				relativeEventRateSmoothnessWt = 0;
 				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = null;
 				initialRupModel = getSmoothStartingSolution(rupSet,targetOnFaultMFD);
@@ -245,6 +254,7 @@ public class InversionConfiguration {
 		} else {
 			// UNCONSTRAINED BRANCHES
 			relativeParticipationSmoothnessConstraintWt = 0;
+			relativeEventRateSmoothnessWt = 0;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = new double[rupSet.getNumRuptures()];
@@ -283,7 +293,7 @@ public class InversionConfiguration {
 				aPrioriRupConstraint,
 				initialRupModel,
 				minimumRuptureRateBasis,
-				relativeSmoothnessWt,
+				relativeSmoothnessWt, relativeEventRateSmoothnessWt,
 				mfdEqualityConstraints,
 				mfdInequalityConstraints,
 				minimumRuptureRateFraction,
@@ -867,5 +877,14 @@ public class InversionConfiguration {
 		info += "\n**********************************************";
 		rupSet.setInfoString(info);
 	}
+
+	public double getEventRateSmoothnessWt() {
+		return relativeEventRateSmoothnessWt;
+	}
+
+	public void setEventRateSmoothnessWt(double relativeSmoothnessWt) {
+		this.relativeEventRateSmoothnessWt = relativeEventRateSmoothnessWt;
+	}
+	
 
 }

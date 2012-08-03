@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -213,6 +214,7 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Equality");
 		}
+		
 		if (config.getRelativeParticipationSmoothnessConstraintWt() > 0.0) {
 			int totalNumMagParticipationConstraints = 0;
 			for (int sect=0; sect<numSections; sect++) { 
@@ -255,7 +257,20 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("Parkfield");
 		}
-		
+		if (config.getEventRateSmoothnessWt() > 0.0) {
+			ArrayList<Integer> parentIDs = new ArrayList<Integer>();
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+				int parentID = sect.getParentSectionId();
+				if (!parentIDs.contains(parentID))
+					parentIDs.add(parentID);
+			}
+			int numParentSections=parentIDs.size();
+			int numNewRows = rupSet.getNumSections()-numParentSections;
+			numRows+=numNewRows;
+			if(D) System.out.println("Number of Event-Rate Smoothness constraints: "+numNewRows);
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Event-Rate Smoothness");	
+		}
 		
 		// Components of matrix equation to invert (Ax=d)
 		A = buildMatrix(clazz, numRows, numRuptures); // A matrix
@@ -696,6 +711,64 @@ public class InversionInputGenerator {
 			watch.reset();
 			watch.start();
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
+		}
+		
+		
+		// Constraint event rates along parent sections to be smooth
+		if (config.getEventRateSmoothnessWt() > 0.0) {
+			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
+			double relativeEventRateSmoothnessWt = config.getEventRateSmoothnessWt();
+			numNonZeroElements = 0;
+			
+			// Get list of parent IDs
+			List<Integer> parentIDs = new ArrayList<Integer>();
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+				int parentID = sect.getParentSectionId();
+				if (!parentIDs.contains(parentID))
+					parentIDs.add(parentID);
+			}
+
+			for (int parentID: parentIDs) {		
+		
+				// Find subsection IDs for given parent section
+				ArrayList<Integer> sectsForParent = new ArrayList<Integer>();
+				for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+					int sectParentID = sect.getParentSectionId();
+					if (sectParentID == parentID)
+						sectsForParent.add(sect.getSectionId());
+				}
+				
+				Collections.sort(sectsForParent); // sort subsection IDs (so they will be consecutive along a section)  (not sure this is needed if subsections are already in order, but can't hurt)
+				// Constrain the event rate of each neighboring subsection pair (with same parent section) to be approximately equal
+				for (int j=0; j<sectsForParent.size()-1; j++) {
+					int sect1 = sectsForParent.get(j);
+					int sect2 = sectsForParent.get(j+1);
+					List<Integer> sect1Rups = rupSet.getRupturesForSection(sect1);
+					List<Integer> sect2Rups = rupSet.getRupturesForSection(sect2);
+					
+					for (int rup: sect1Rups) {
+						if (QUICK_GETS_SETS) 
+							A.setQuick(rowIndex,rup,relativeEventRateSmoothnessWt);
+						else
+							A.set(rowIndex,rup,relativeEventRateSmoothnessWt);
+						numNonZeroElements++;
+					}
+					for (int rup: sect2Rups) {
+						if (QUICK_GETS_SETS) 
+							A.setQuick(rowIndex,rup,-relativeEventRateSmoothnessWt);
+						else
+							A.set(rowIndex,rup,-relativeEventRateSmoothnessWt);
+						numNonZeroElements++;
+					}
+					d[rowIndex] = 0;
+					rowIndex++;
+				}
+			}
+			System.out.println("Adding Event-Rate Smoothness Constraint took "+getTimeStr(watch)+".");
+			watch.reset();
+			watch.start();
+			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
+			
 		}
 		
 		
