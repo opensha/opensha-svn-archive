@@ -230,7 +230,7 @@ public class InversionConfiguration {
 			// CONSTRAINED BRANCHES
 			if (model == InversionModels.CHAR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 0;
-				relativeEventRateSmoothnessWt = 1000;
+				relativeEventRateSmoothnessWt = 0;
 				relativeRupRateConstraintWt = 100;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
 				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
