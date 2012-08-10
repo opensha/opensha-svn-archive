@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,7 @@ import com.google.common.collect.Maps;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class FaultSpecificSegmentationPlotGen {
 	
@@ -76,6 +80,7 @@ public class FaultSpecificSegmentationPlotGen {
 		List<Location> parentSectEnds = Lists.newArrayList();
 		
 		double toleranceKM = 3;
+		boolean normalize = true;
 		
 		for (Integer parent : parentSects) {
 			List<FaultSectionPrefData> sects = subSectsByParent.get(parent);
@@ -130,11 +135,96 @@ public class FaultSpecificSegmentationPlotGen {
 		ArbitrarilyDiscretizedFunc continueFunc = new ArbitrarilyDiscretizedFunc();
 		continueFunc.setName("Fract of rate that continues through this point");
 		
-		for (Location loc : stoppingPoints.keySet()) {
+		String info = null;
+		
+		List<Location> stoppingKeysSorted = Lists.newArrayList();
+		stoppingKeysSorted.addAll(stoppingPoints.keySet());
+		// sort by latitude decending
+		Collections.sort(stoppingKeysSorted, new Comparator<Location>() {
+
+			@Override
+			public int compare(Location o1, Location o2) {
+				return -Double.compare(o1.getLatitude(), o2.getLatitude());
+			}
+		});
+		
+		HashMap<Integer, List<Integer>> rupStopCountMap = Maps.newHashMap();
+		HashMap<Integer, List<Location>> rupStopLocationsMap = Maps.newHashMap();
+		
+		for (Location loc : stoppingKeysSorted) {
 			List<Integer> sects = stoppingPoints.get(loc);
 			
 			double stopRate = 0;
 			double continueRate = 0;
+			
+//			// if a rup includes only 1 section at this stopping point, then it stops there
+//			// otherwise it continues through
+//			
+//			// list of all ruptures involving this stopping point
+//			HashSet<Integer> allRups = new HashSet<Integer>();
+//			// list of all rups where the first of last section of the rup is at the stopping point
+//			// these are possible stops, but could be just next to stopping points
+//			HashSet<Integer> possibleStops = new HashSet<Integer>();
+//			// this is the same as above but for each section at this stopping point
+//			List<HashSet<Integer>> possibleStopsPerSect = Lists.newArrayList();
+//			
+//			for (int sectIndex : sects) {
+//				HashSet<Integer> sectPossibleStops = new HashSet<Integer>();
+//				possibleStopsPerSect.add(sectPossibleStops);
+//				for (int rupIndex : sol.getRupturesForSection(sectIndex)) {
+//					if (sol.getMagForRup(rupIndex) < minMag)
+//						continue;
+//					
+//					if (!allRups.contains(rupIndex))
+//						allRups.add(rupIndex);
+//					
+//					List<Integer> sectsForRup = sol.getSectionsIndicesForRup(rupIndex);
+//					boolean stoppingPoint = false;
+//					
+//					if (sectIndex == sectsForRup.get(0) && !sects.contains(sectsForRup.get(1)))
+//						stoppingPoint = true;
+//					
+//					if (sectIndex == sectsForRup.get(0) || sectIndex == sectsForRup.get(sectsForRup.size()-1)) {
+//						if (!possibleStops.contains(rupIndex))
+//							possibleStops.add(rupIndex);
+//						sectPossibleStops.add(rupIndex);
+//					}
+//				}
+//			}
+//			
+//			// now go through each rupture
+//			for (Integer rupIndex : allRups) {
+//				double rate = sol.getRateForRup(rupIndex);
+//				
+//				if (rate == 0)
+//					continue;
+//				
+//				boolean stoppingPoint = false;
+//				if (possibleStops.contains(rupIndex)) {
+//					// it could be a stop, but only if only one section here is involved
+//					stoppingPoint = true;
+//					Integer stopSect = null;
+//					for (int i=0; i<possibleStopsPerSect.size(); i++) {
+//						HashSet<Integer> sectPossibleStops = possibleStopsPerSect.get(i);
+//						if (sectPossibleStops.contains(rupIndex)) {
+//							if (stopSect == null)
+//								stopSect = sects.get(i);
+//							else {
+//								stoppingPoint = false;
+//								break;
+//							}
+//						}
+//					}
+//					Preconditions.checkNotNull(stopSect);
+//					
+//				}
+//				
+//				if (stoppingPoint)
+//					stopRate += rate;
+//				else
+//					continueRate += rate;
+//			}
+			
 			
 			HashSet<Integer> alreadyCounted = new HashSet<Integer>();
 			for (int sectIndex : sects) {
@@ -148,7 +238,40 @@ public class FaultSpecificSegmentationPlotGen {
 					double rate = sol.getRateForRup(rupIndex);
 					
 					List<Integer> sectsForRup = sol.getSectionsIndicesForRup(rupIndex);
-					if (sectIndex == sectsForRup.get(0) || sectIndex == sectsForRup.get(sectsForRup.size()-1))
+					boolean stoppingPoint = false;
+					
+					if (sectIndex == sectsForRup.get(0) && !sects.contains(sectsForRup.get(1)))
+						stoppingPoint = true;
+					else if (sectIndex == sectsForRup.get(sectsForRup.size()-1) && !sects.contains(sectsForRup.get(sectsForRup.size()-2)))
+						stoppingPoint = true;
+					
+					if (stoppingPoint) {
+						List<Integer> ends = rupStopCountMap.get(rupIndex);
+						List<Location> endLocs = rupStopLocationsMap.get(rupIndex);
+						if (ends == null) {
+							ends = Lists.newArrayList();
+							rupStopCountMap.put(rupIndex, ends);
+							endLocs = Lists.newArrayList();
+							rupStopLocationsMap.put(rupIndex, endLocs);
+						}
+						ends.add(sectIndex);
+						endLocs.add(loc);
+						if (ends.size() > 2) {
+							String endsStr = null;
+							for (int i=0; i<ends.size(); i++) {
+								if (i == 0)
+									endsStr = "";
+								else
+									endsStr += ", ";
+								endsStr += ends.get(i)+" ["
+										+Joiner.on(",").join(stoppingPoints.get(endLocs.get(i)))+"]";
+							}
+							throw new IllegalStateException("Stop count over 2 for rup "+rupIndex
+									+". Stops at: "+endsStr);
+						}
+					}
+					
+					if (stoppingPoint)
 						stopRate += rate;
 					else
 						continueRate += rate;
@@ -157,15 +280,39 @@ public class FaultSpecificSegmentationPlotGen {
 				}
 			}
 			double tot = stopRate + continueRate;
-			stopRate /= tot;
-			continueRate /= tot;
+			double normStopRate = stopRate / tot;
+			double normContinueRate = continueRate / tot;
 			
 			double x = loc.getLatitude();
 			Preconditions.checkState(stopFunc.getXIndex(x) == -1, "duplicate latitude!! "+loc);
 			
-			stopFunc.set(x, stopRate);
-			continueFunc.set(x, continueRate);
+			if (normStopRate > 0.075) {
+				if (info == null)
+					info = "";
+				else
+					info += "\n";
+				String parents = null;
+				for (int sectID : sects) {
+					String parentName = sol.getFaultSectionData(sectID).getParentSectionName();
+					if (parents == null)
+						parents = "";
+					else
+						parents += ", ";
+					parents += parentName;
+				}
+				info += "Lat="+(float)loc.getLatitude()+"\tnumSects="+sects.size()+"\tparents=("+parents+")"
+						+"\n\tstopRate="+stopRate+"\tcontinueRate="+continueRate+"\tnormStopRate="+normStopRate;
+			}
+			
+			if (normalize) {
+				stopFunc.set(x, normStopRate);
+				continueFunc.set(x, normContinueRate);
+			} else {
+				stopFunc.set(x, stopRate);
+				continueFunc.set(x, continueRate);
+			}
 		}
+		stopFunc.setInfo(info);
 		
 		ArbitrarilyDiscretizedFunc sectEnds = new ArbitrarilyDiscretizedFunc();
 		sectEnds.setName("Parent Section End Points");
@@ -226,8 +373,9 @@ public class FaultSpecificSegmentationPlotGen {
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_GEOL_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_UCERF2_COMPARISON_sol.zip");
-		File solFile = new File("/tmp/FM2_1_UCERF2_COMPARISON_sol.zip");
+//		File solFile = new File("/tmp/FM2_1_UCERF2_COMPARISON_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol_high_a_priori.zip");
+		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"), "FM3_1_UCERF2_COMPARISON_sol.zip");
 		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(solFile);
 		
 //		Map<Integer, List<Integer>> namedMap = sol.getFaultModel().getNamedFaultsMap();
