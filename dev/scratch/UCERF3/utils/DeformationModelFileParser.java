@@ -99,7 +99,7 @@ public class DeformationModelFileParser {
 		return defs;
 	}
 	
-	private static int[] parseMinisectionNumber(String miniSection) {
+	public static int[] parseMinisectionNumber(String miniSection) {
 		String[] split = miniSection.trim().split("\\.");
 		int id = Integer.parseInt(split[0]);
 		Preconditions.checkState(split.length > 1 && !split[1].isEmpty(),
@@ -787,9 +787,9 @@ public class DeformationModelFileParser {
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
 		
-		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
+//		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
 //		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
-		System.exit(0);
+//		System.exit(0);
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
 		

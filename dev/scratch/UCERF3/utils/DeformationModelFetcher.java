@@ -137,6 +137,8 @@ public class DeformationModelFetcher {
 //				}
 				
 				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength, rakesModel, defaultAseismicityValue);
+				if (deformationModel == DeformationModels.GEOLOGIC)
+					applyCustomGeologicTapers();
 				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
 				if (D) System.out.println("DONE.");
 			} catch (IOException e) {
@@ -794,12 +796,12 @@ public class DeformationModelFetcher {
 					if (customParkfield) {
 						if (parentID == 32) {
 							momentReductionFactor = parkfield_mo_reds[s];
-							System.out.println("Applying super dirty parkfield hack, subsection "
-									+s+": "+momentReductionFactor);
+//							System.out.println("Applying super dirty parkfield hack, subsection "
+//									+s+": "+momentReductionFactor);
 						} else {
 							momentReductionFactor = creep_mo_reds[s];
-							System.out.println("Applying super dirty creeping section hack, subsection "
-									+s+": "+momentReductionFactor);
+//							System.out.println("Applying super dirty creeping section hack, subsection "
+//									+s+": "+momentReductionFactor);
 						}
 					} else
 						momentReductionFactor = getLengthBasedAverage(subLocs, subMomentReductions);
@@ -822,8 +824,8 @@ public class DeformationModelFetcher {
 				} else {
 					if (subSect.getAseismicSlipFactor() == 0)
 						subSect.setAseismicSlipFactor(defaultAseismicityValue);
-					else
-						System.out.println("Keeping default aseis of "+subSect.getAseismicSlipFactor()+" for: "+subSect.getName());
+//					else
+//						System.out.println("Keeping default aseis of "+subSect.getAseismicSlipFactor()+" for: "+subSect.getName());
 					// otherwise keep UCERF2 aseismicity value as recommended by Tim Dawson
 					// via e-mail 3/2/12 (subject: Moment Rate Reductions)
 				}
@@ -937,6 +939,57 @@ public class DeformationModelFetcher {
 		double start_end_dist = LocationUtils.linearDistanceFast(start, end);
 
 		return pt_end_dist < pt_start_dist && pt_start_dist > start_end_dist;
+	}
+	
+	private void applyCustomGeologicTapers() {
+		Map<Integer, Location[]> tapers = Maps.newHashMap();
+		
+		double taperMin = 0.01;
+		
+		// cerro prieto
+		tapers.put(172, toArray(new Location(32.3715, -115.2366), new Location(32.6508, -115.6121)));
+		// imperial valley
+		tapers.put(97, toArray(new Location(32.786, -115.453), new Location(32.47, -115.169)));
+		
+		// rodgers creek
+		tapers.put(651, toArray(new Location(38.4678, -122.7056), new Location(38.7625, -122.9963)));
+		// Maacama
+		tapers.put(644, toArray(new Location(38.8157, -122.958), new Location(38.4999, -122.6472)));
+		
+		for (Integer parentID : tapers.keySet()) {
+			Location[] taperLocs = tapers.get(parentID);
+			
+			double taperLen = LocationUtils.horzDistanceFast(taperLocs[0], taperLocs[1]);
+			
+			for (FaultSectionPrefData sect : faultSubSectPrefDataList) {
+				if (sect.getParentSectionId() != parentID)
+					continue;
+				
+				FaultTrace trace = sect.getFaultTrace();
+				
+				Location subStart = trace.get(0);
+				Location subEnd = trace.get(trace.size()-1);
+				
+				double len = LocationUtils.horzDistanceFast(subStart, subEnd);
+				double az = LocationUtils.azimuth(subStart, subEnd);
+				Location midPt = LocationUtils.location(subStart, az, len*0.5);
+				
+				if (isBefore(taperLocs[0], taperLocs[1], midPt))
+					// leave at current slip rate
+					continue;
+				
+				if (isAfter(taperLocs[0], taperLocs[1], midPt))
+					// set to min
+					sect.setAveSlipRate(taperMin);
+				else
+					sect.setAveSlipRate(sect.getOrigAveSlipRate()
+							* (1d - LocationUtils.horzDistanceFast(taperLocs[0], midPt) / taperLen));
+			}
+		}
+	}
+	
+	private static <E> E[] toArray(E... vals) {
+		return vals;
 	}
 
 	public static Map<IDPairing, Double> readMapFile(File file) throws IOException {
