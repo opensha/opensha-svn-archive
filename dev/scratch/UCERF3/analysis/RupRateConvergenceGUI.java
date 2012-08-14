@@ -2,6 +2,7 @@ package scratch.UCERF3.analysis;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +20,7 @@ import javax.swing.JTextArea;
 
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.Plot;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -44,6 +46,7 @@ import com.google.common.collect.Lists;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
@@ -195,6 +198,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private EvenlyDiscretizedFunc meanMinusStdDevFunc;
 	private EvenlyDiscretizedFunc meanPlusStdDevOfMeanFunc;
 	private EvenlyDiscretizedFunc meanMinusStdDevOfMeanFunc;
+	private ArbitrarilyDiscretizedFunc ucerf2RatesFunc;
 	
 	private List<Integer> curRups;
 	
@@ -290,9 +294,13 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			meanPlusStdDevOfMeanFunc.setName("Mean + Std Dev Of Mean");
 			meanMinusStdDevOfMeanFunc = new EvenlyDiscretizedFunc(0, numRups, 1d);
 			meanMinusStdDevOfMeanFunc.setName("Mean - Std Dev Of Mean");
+			ucerf2RatesFunc = new ArbitrarilyDiscretizedFunc();
+			ucerf2RatesFunc.setName("UCERF2 Rates");
 			
 			sdomNParam.setValue(sol.getNumSolutions());
 			sdomNParam.getEditor().refreshParamEditor();
+			
+			ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(sol);
 			
 			for (int r=0; r<numRups; r++) {
 				double mean = sol.getRateForRup(r);
@@ -305,6 +313,9 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 				maxFunc.set(r, max);
 				meanPlusStdDevFunc.set(r, mean + stdDev);
 				meanMinusStdDevFunc.set(r, mean - stdDev);
+				double[] ucerf2_vals = ucerf2_magsAndRates.get(r);
+				if (ucerf2_vals != null)
+					ucerf2RatesFunc.set((double)r, ucerf2_vals[1]);
 			}
 			updateSDOM();
 		}
@@ -377,6 +388,8 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.BLUE));
 			funcs.add(meanMinusStdDevOfMeanFunc);
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, normalWidth, Color.BLUE));
+			funcs.add(ucerf2RatesFunc);
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.X, normalWidth*0.5f, Color.GRAY));
 			
 			if (sol != null && ucerf2Param.getValue()) {
 				System.out.println("Using UCERF2 Rups!");
@@ -449,14 +462,25 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private ArrayList<DiscretizedFunc> getForSubset() {
 		ArrayList<DiscretizedFunc> newFuncs = Lists.newArrayList();
 		for (DiscretizedFunc func : funcs) {
-			EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(0, curRups.size(), 1d);
-			newFunc.setName(func.getName());
-			
-			for (int i=0; i<curRups.size(); i++) {
-				newFunc.set(i, func.getY(curRups.get(i)));
+			if (func instanceof EvenlyDiscretizedFunc) {
+				EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(0, curRups.size(), 1d);
+				newFunc.setName(func.getName());
+				
+				for (int i=0; i<curRups.size(); i++) {
+					newFunc.set(i, func.getY(curRups.get(i)));
+				}
+				
+				newFuncs.add(newFunc);
+			} else {
+				ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+				newFunc.setName(func.getName());
+				for (int i=0; i<curRups.size(); i++) {
+					int ind = func.getXIndex(curRups.get(i));
+					if (ind >= 0)
+						newFunc.set((double)i, func.getY(ind));
+				}
+				newFuncs.add(newFunc);
 			}
-			
-			newFuncs.add(newFunc);
 		}
 		return newFuncs;
 	}
@@ -472,14 +496,29 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		double maxY = 0;
 		
 		for (DiscretizedFunc func : funcs) {
-			for (int x=minX; x<=maxX; x++) {
-				double y = func.getY(x);
-				if (y < minY)
-					minY = y;
-				if (y > maxY)
-					maxY = y;
-				if (y > 0 && y < minNonZero)
-					minNonZero = y;
+			if (func instanceof EvenlyDiscretizedFunc) {
+				for (int x=minX; x<=maxX; x++) {
+					double y = func.getY(x);
+					if (y < minY)
+						minY = y;
+					if (y > maxY)
+						maxY = y;
+					if (y > 0 && y < minNonZero)
+						minNonZero = y;
+				}
+			} else {
+				for (int x=minX; x<=maxX; x++) {
+					int ind = func.getXIndex((double)x);
+					if (ind >= 0) {
+						double y = func.getY(ind);
+						if (y < minY)
+							minY = y;
+						if (y > maxY)
+							maxY = y;
+						if (y > 0 && y < minNonZero)
+							minNonZero = y;
+					}
+				}
 			}
 		}
 		
