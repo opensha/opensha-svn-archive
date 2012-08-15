@@ -54,10 +54,14 @@ import com.google.common.collect.Maps;
 public class HazardMapLogicTreeInRegionsGen {
 	
 	static List<GriddedRegion> getRegions() throws MalformedURLException, DocumentException {
+		return getRegions(new File(
+				"/home/kevin/OpenSHA/portfolio_lec/SPA Risk LLC (10 Jul 2012) Geovera Add1 study areas.kml"));
+	}
+	
+	static List<GriddedRegion> getRegions(File regionFile) throws MalformedURLException, DocumentException {
 		List<GriddedRegion> regions = Lists.newArrayList();
 		
-		Document doc = XMLUtils.loadDocument(new File(
-				"/home/kevin/OpenSHA/portfolio_lec/SPA Risk LLC (10 Jul 2012) Geovera Add1 study areas.kml"));
+		Document doc = XMLUtils.loadDocument(regionFile);
 		
 		Element root = doc.getRootElement().element("Document");
 		Element folderEl = root.element("Folder");

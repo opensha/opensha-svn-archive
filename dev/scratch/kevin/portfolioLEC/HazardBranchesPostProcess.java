@@ -15,11 +15,13 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
+import org.opensha.sha.imr.AttenRelRef;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -35,6 +37,7 @@ public class HazardBranchesPostProcess {
 	 */
 	public static void main(String[] args) throws FileNotFoundException, IOException, DocumentException {
 		File dir = new File(args[0]);
+		File regionFile = new File(dir.getParent(), "regions.kml");
 		
 		//Line, IMR, Deformation Model, A-Fault Solution Type,  Wt On A-Priori Rates, Mag-Area Relationship,
 		//B-Faults b-value, Connect More B Faults?, Probability Model, Aperiodocity, IMT, Exceedance Probability, Lat, Lon, IML
@@ -57,6 +60,9 @@ public class HazardBranchesPostProcess {
 					paramNamesList.add(param.getName());
 				}
 			}
+			
+			// TODO remove!!!!
+			break;
 		}
 		
 		List<String> header = Lists.newArrayList();
@@ -67,6 +73,8 @@ public class HazardBranchesPostProcess {
 		header.add("Latitude");
 		header.add("Longitude");
 		header.add("IML");
+		
+		csv.addLine(header);
 		
 		ERF erf = erfList.getERF(erfIndex);
 		
@@ -85,22 +93,82 @@ public class HazardBranchesPostProcess {
 				continue;
 			}
 			if (value != null)
-				paramValues.set(paramNamesMap.get(paramName)+1, value);
+				paramValues.set(paramNamesMap.get(paramName), value);
 		}
 		
-		Map<Location, DiscretizedFunc> funcsMap = loadFuncs(dir);
-		
-		List<GriddedRegion> regions = HazardMapLogicTreeInRegionsGen.getRegions();
+		List<GriddedRegion> regions = HazardMapLogicTreeInRegionsGen.getRegions(regionFile);
 		
 		List<Location> locs = Lists.newArrayList();
 		
 		for (GriddedRegion region : regions)
 			locs.addAll(region.getNodeList());
 		
-		for (Location loc : locs) {
-			DiscretizedFunc func = funcsMap.get(loc);
-			Preconditions.checkNotNull(func, "No curve for loc: "+loc);
+		Map<Location, Location> locsMapping = null;
+		
+		AttenRelRef[] imrRefs = { AttenRelRef.CB_2008, AttenRelRef.BA_2008, AttenRelRef.CY_2008, AttenRelRef.AS_2008 };
+		String[] imts = { "PGA", "SA03", "SA10", "PGV" };
+		double[] exceed_probs = { 0.5, 0.1, 0.02 };
+		String[] exceed_strs = { "50%/50yr", "10%/50yr", "2%/50yr" };
+		
+		int branchCount = 0;
+		for (AttenRelRef imrRef : imrRefs) {
+			for (String imt : imts) {
+				branchCount++;
+				
+				File curveDir = new File(dir, "imrs"+branchCount);
+				
+				System.out.println("Parsing "+curveDir.getName()+" ("+imrRef.name()+", "+imt+")");
+				Map<Location, DiscretizedFunc> funcsMap = loadFuncs(curveDir);
+				
+				if (locsMapping == null) {
+					System.out.print("Mapping file locs to grid locs...");
+					locsMapping = Maps.newHashMap();
+					for (Location loc : locs) {
+						double minDist = 1d;
+						Location closestLoc = null;
+						for (Location dirLoc : funcsMap.keySet()) {
+							double dist = LocationUtils.horzDistanceFast(loc, dirLoc);
+							if (dist < minDist) {
+								minDist = dist;
+								closestLoc = dirLoc;
+							}
+						}
+						Preconditions.checkNotNull(closestLoc,
+								"No mapping found within "+minDist+"km from region loc: "+loc);
+						locsMapping.put(loc, closestLoc);
+					}
+					System.out.println("DONE.");
+				}
+				
+				List<String> linePrefix = Lists.newArrayList();
+				linePrefix.add(imrRef.name());
+				linePrefix.addAll(paramValues);
+				linePrefix.add(imt);
+				
+				for (Location loc : locs) {
+					DiscretizedFunc func = funcsMap.get(locsMapping.get(loc));
+					Preconditions.checkNotNull(func, "No curve for loc: "+loc);
+					
+					for (int e=0; e<exceed_probs.length; e++) {
+						List<String> line = Lists.newArrayList(linePrefix);
+						
+						line.add(exceed_strs[e]);
+						double prob = exceed_probs[e];
+						
+						double val = HazardDataSetLoader.getCurveVal(func, false, prob);
+						
+						line.add((float)loc.getLatitude()+"");
+						line.add((float)loc.getLongitude()+"");
+						line.add(val+"");
+						
+						csv.addLine(line);
+					}
+				}
+			}
 		}
+		
+		File outputFile = new File(dir, dir.getName()+".csv");
+		csv.writeToFile(outputFile);
 	}
 	
 	public static Map<Location, DiscretizedFunc> loadFuncs(File curveDir) throws FileNotFoundException, IOException {
