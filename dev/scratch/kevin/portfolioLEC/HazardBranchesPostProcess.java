@@ -60,9 +60,6 @@ public class HazardBranchesPostProcess {
 					paramNamesList.add(param.getName());
 				}
 			}
-			
-			// TODO remove!!!!
-			break;
 		}
 		
 		List<String> header = Lists.newArrayList();
