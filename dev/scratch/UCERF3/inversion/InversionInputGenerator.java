@@ -713,10 +713,11 @@ public class InversionInputGenerator {
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
 		}
 		
+		System.out.println("section 225 Rups = "+rupSet.getRupturesForSection(225));
 		
 		// Constraint event rates along parent sections to be smooth
 		if (config.getEventRateSmoothnessWt() > 0.0) {
-			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
+//			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
 			double relativeEventRateSmoothnessWt = config.getEventRateSmoothnessWt();
 			numNonZeroElements = 0;
 			
@@ -746,9 +747,26 @@ public class InversionInputGenerator {
 					List<Integer> sect1Rups = rupSet.getRupturesForSection(sect1);
 					List<Integer> sect2Rups = rupSet.getRupturesForSection(sect2);
 					
-					for (int rup: sect1Rups) {
+					if (parentID == 46 && sect1 == 225 && sect2 == 226) {
+						System.out.println("section 225 Rups = "+rupSet.getRupturesForSection(225));
+//						System.out.println("sect1Rups = "+sect1Rups);
+//						System.out.println("sect2Rups = "+sect2Rups);
+					}
+					
+					// Remove ruptures that are on both sect1 & sect2
+					List<Integer> temp = new ArrayList<Integer>(sect1Rups);
+					sect1Rups.removeAll(sect2Rups);
+					sect2Rups.removeAll(temp);
+					
+//					if (parentID == 46 && sect1 == 225 && sect2 == 226) {
+//						System.out.println("sect1Rups = "+sect1Rups);
+//						System.out.println("sect2Rups = "+sect2Rups);
+//					}
+					
+					
+					for (int rup: sect1Rups) { 
 						if (QUICK_GETS_SETS) 
-							A.setQuick(rowIndex,rup,relativeEventRateSmoothnessWt);
+							A.setQuick(rowIndex,rup,relativeEventRateSmoothnessWt); 
 						else
 							A.set(rowIndex,rup,relativeEventRateSmoothnessWt);
 						numNonZeroElements++;
