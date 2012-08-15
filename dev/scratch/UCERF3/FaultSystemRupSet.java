@@ -4,6 +4,7 @@
 package scratch.UCERF3;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -664,7 +665,7 @@ public abstract class FaultSystemRupSet {
 	/**
 	 * this caches the ruptures involving each section
 	 */
-	private ArrayList<ArrayList<Integer>> rupturesForSectionCache = null;
+	private ArrayList<List<Integer>> rupturesForSectionCache = null;
 	
 	/**
 	 * This returns the a list of all ruptures that occur on each section
@@ -680,7 +681,7 @@ public abstract class FaultSystemRupSet {
 				if (showProgress) {
 					p = new CalcProgressBar("Calculating Ruptures for each Section", "Calculating Ruptures for each Section");
 				}
-				rupturesForSectionCache = new ArrayList<ArrayList<Integer>>();
+				rupturesForSectionCache = new ArrayList<List<Integer>>();
 				for (int secID=0; secID<getNumSections(); secID++)
 					rupturesForSectionCache.add(new ArrayList<Integer>());
 
@@ -691,6 +692,9 @@ public abstract class FaultSystemRupSet {
 						rupturesForSectionCache.get(secID).add(rupID);
 					}
 				}
+				// now make the immutable
+				for (int i=0; i<rupturesForSectionCache.size(); i++)
+					rupturesForSectionCache.set(i, Collections.unmodifiableList(rupturesForSectionCache.get(i)));
 				if (p != null) p.dispose();
 			}
 		}
@@ -701,7 +705,7 @@ public abstract class FaultSystemRupSet {
 	/**
 	 * this caches the ruptures involving each section
 	 */
-	private Map<Integer, ArrayList<Integer>> rupturesForParentSectionCache = null;
+	private Map<Integer, List<Integer>> rupturesForParentSectionCache = null;
 	
 	/**
 	 * This returns the a list of all ruptures that occur on each parent section
@@ -732,7 +736,7 @@ public abstract class FaultSystemRupSet {
 							parents.add(parent);
 					}
 					for (int parent : parents) {
-						ArrayList<Integer> rupsForParent = rupturesForParentSectionCache.get(parent);
+						List<Integer> rupsForParent = rupturesForParentSectionCache.get(parent);
 						if (rupsForParent == null) {
 							rupsForParent = new ArrayList<Integer>();
 							rupturesForParentSectionCache.put(parent, rupsForParent);
@@ -740,6 +744,10 @@ public abstract class FaultSystemRupSet {
 						rupsForParent.add(rupID);
 					}
 				}
+				
+				// now make the immutable
+				for (Integer key : rupturesForParentSectionCache.keySet())
+					rupturesForParentSectionCache.put(key, Collections.unmodifiableList(rupturesForParentSectionCache.get(key)));
 				if (p != null) p.dispose();
 			}
 		}
