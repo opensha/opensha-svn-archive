@@ -16,6 +16,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 
 import cern.colt.function.tdouble.IntIntDoubleFunction;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
@@ -713,11 +714,11 @@ public class InversionInputGenerator {
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
 		}
 		
-		System.out.println("section 225 Rups = "+rupSet.getRupturesForSection(225));
+		
 		
 		// Constraint event rates along parent sections to be smooth
 		if (config.getEventRateSmoothnessWt() > 0.0) {
-//			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
+			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
 			double relativeEventRateSmoothnessWt = config.getEventRateSmoothnessWt();
 			numNonZeroElements = 0;
 			
@@ -744,25 +745,13 @@ public class InversionInputGenerator {
 				for (int j=0; j<sectsForParent.size()-1; j++) {
 					int sect1 = sectsForParent.get(j);
 					int sect2 = sectsForParent.get(j+1);
-					List<Integer> sect1Rups = rupSet.getRupturesForSection(sect1);
-					List<Integer> sect2Rups = rupSet.getRupturesForSection(sect2);
-					
-					if (parentID == 46 && sect1 == 225 && sect2 == 226) {
-						System.out.println("section 225 Rups = "+rupSet.getRupturesForSection(225));
-//						System.out.println("sect1Rups = "+sect1Rups);
-//						System.out.println("sect2Rups = "+sect2Rups);
-					}
+					List<Integer> sect1Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect1));  
+					List<Integer> sect2Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect2));
 					
 					// Remove ruptures that are on both sect1 & sect2
 					List<Integer> temp = new ArrayList<Integer>(sect1Rups);
 					sect1Rups.removeAll(sect2Rups);
 					sect2Rups.removeAll(temp);
-					
-//					if (parentID == 46 && sect1 == 225 && sect2 == 226) {
-//						System.out.println("sect1Rups = "+sect1Rups);
-//						System.out.println("sect2Rups = "+sect2Rups);
-//					}
-					
 					
 					for (int rup: sect1Rups) { 
 						if (QUICK_GETS_SETS) 
