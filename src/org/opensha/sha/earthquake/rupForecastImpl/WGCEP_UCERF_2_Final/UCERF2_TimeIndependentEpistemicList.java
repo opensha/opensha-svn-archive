@@ -269,6 +269,12 @@ public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListER
 	 * @return
 	 */
 	public ERF getERF(int index) {
+		getERF_noUpdate(index);
+		ucerf2.updateForecast();
+		return ucerf2;
+	}
+	
+	public ERF getERF_noUpdate(int index) {
 		Iterator it = logicTreeParamList.get(index).getParametersIterator();
 		while(it.hasNext()) {
 			AbstractParameter param = (AbstractParameter)it.next();
@@ -278,7 +284,6 @@ public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListER
 		if(this.adjustableParams.containsParameter(backSeisRupParam)) ucerf2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, this.backSeisRupParam.getValue());
 		ucerf2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, this.floaterTypeParam.getValue());
 		ucerf2.getTimeSpan().setDuration(this.timeSpan.getDuration());
-		ucerf2.updateForecast();
 		return ucerf2;
 	}
 	

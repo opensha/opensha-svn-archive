@@ -43,14 +43,14 @@ public class HazardBranchesPostProcess {
 		//B-Faults b-value, Connect More B Faults?, Probability Model, Aperiodocity, IMT, Exceedance Probability, Lat, Lon, IML
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
-		EpistemicListERF erfList = new UCERF2_TimeDependentEpistemicList();
+		UCERF2_TimeDependentEpistemicList erfList = new UCERF2_TimeDependentEpistemicList();
 		
 		int erfIndex = Integer.parseInt(dir.getName().split("_")[1]);
 		
 		HashMap<String, Integer> paramNamesMap = new HashMap<String, Integer>();
 		ArrayList<String> paramNamesList = new ArrayList<String>();
 		for (int i=0; i<erfList.getNumERFs(); i++) {
-			ERF erf = erfList.getERF(i);
+			ERF erf = erfList.getERF_noUpdate(i);
 			
 			System.out.println("ERF "+i);
 			
