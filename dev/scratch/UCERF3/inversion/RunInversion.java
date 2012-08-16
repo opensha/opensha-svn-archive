@@ -48,11 +48,11 @@ public class RunInversion {
 
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "CHARUnconstrainedRef1Iter";
+		String fileName = "UCERF2_EventRateSmoothingWt10000_PaleoWt10_1HR";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		
-		InversionModels inversionModel = InversionModels.CHAR_UNCONSTRAINED;
+		InversionModels inversionModel = InversionModels.CHAR_CONSTRAINED;
 		
 		// fetch the rupture set
 		InversionFaultSystemRupSet rupSet = null;
@@ -60,7 +60,7 @@ public class RunInversion {
 		try {
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(DeformationModels.GEOLOGIC_PLUS_ABM);
 			LaughTestFilter filter = LaughTestFilter.getDefault();
-			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAseis, inversionModel, FaultModels.FM3_1, DeformationModels.NEOKINEMA,
+			rupSet = InversionFaultSystemRupSetFactory.forBranch(filter, defaultAseis, inversionModel, FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
 					ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 //			rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC_PLUS_ABM, MagAreaRelationships.AVE_UCERF2,
 //																	AveSlipForRupModels.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, inversionModel);
@@ -143,11 +143,11 @@ public class RunInversion {
 		// now lets the run the inversion!
 		CompletionCriteria criteria;
 		// use one of these to run it for a set amount of time:
-//		criteria = TimeCompletionCriteria.getInHours(1); 
+		criteria = TimeCompletionCriteria.getInHours(1); 
 //		criteria = TimeCompletionCriteria.getInMinutes(1); 
 //		criteria = TimeCompletionCriteria.getInSeconds(30); 
 		// or use this to run until a set amount of iterations have been completed
-		criteria = new IterationCompletionCriteria(1); 
+//		criteria = new IterationCompletionCriteria(1); 
 
 		SimulatedAnnealing sa;
 		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
@@ -208,7 +208,7 @@ public class RunInversion {
 		long startTime = System.currentTimeMillis();
 		solution.plotRuptureRates();
 		solution.plotSlipRates();
-		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints);
+		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints, rupSet);
 		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(solution);
 		invSol.plotMFDs();
 		try {
