@@ -6,6 +6,7 @@ package scratch.UCERF3;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,10 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
@@ -530,10 +534,9 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * We need this for the UCERF3 probability of detecting a rupture in a trench.
 	 * @return
 	 */
-	public static double getDistanceAlongRupture(List<Integer> sectsInRup, ArrayList<FaultSectionPrefData> sectionDataList, PaleoRateConstraint constraint) {
+	public static double getDistanceAlongRupture(List<Integer> sectsInRup, List<FaultSectionPrefData> sectionDataList, int paleoSectIndex) {
 		double distanceAlongRup = 0;
 		
-		int constraintIndex = constraint.getSectionIndex();
 		double totalLength = 0;
 		double lengthToRup = 0;
 		boolean reachConstraintLoc = false;
@@ -543,7 +546,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			int sectIndex = sectsInRup.get(i);
 			double sectLength = sectionDataList.get(i).getFaultTrace().getTraceLength();
 			totalLength+=sectLength;
-			if (sectIndex == constraintIndex) {
+			if (sectIndex == paleoSectIndex) {
 				reachConstraintLoc = true;
 				lengthToRup+=sectLength/2;  // We're putting the trench in the middle of the subsection for now
 			}
@@ -665,17 +668,32 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * Fault System Solution.
 	 * 
 	 */
-	public void plotPaleoObsAndPredPaleoEventRates(List<PaleoRateConstraint> paleoRateConstraints) {
+	public void plotPaleoObsAndPredPaleoEventRates(List<PaleoRateConstraint> paleoRateConstraints, InversionFaultSystemRupSet rupSet) {
 		int numSections = this.getNumSections();
 		int numRuptures = this.getNumRuptures();
 		ArrayList funcs3 = new ArrayList();		
 		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
 		EvenlyDiscretizedFunc finalPaleoVisibleEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);	
 		for (int r=0; r<numRuptures; r++) {
-			List<Integer> rup= getSectionsIndicesForRup(r);
-			for (int i=0; i<rup.size(); i++) {			
-				finalEventRateFunc.add(rup.get(i),getRateForRup(r));  
-				finalPaleoVisibleEventRateFunc.add(rup.get(i),this.getProbPaleoVisible(this.getMagForRup(r))*getRateForRup(r));  			
+			List<Integer> sectsInRup= getSectionsIndicesForRup(r);
+			for (int i=0; i<sectsInRup.size(); i++) {			
+				finalEventRateFunc.add(sectsInRup.get(i),getRateForRup(r));  
+				
+				// UCERF2 Paleo Prob Model
+//				finalPaleoVisibleEventRateFunc.add(rup.get(i),this.getProbPaleoVisible(this.getMagForRup(r))*getRateForRup(r));  
+				
+				// UCERF3 Paleo Prob Model
+				try {
+					PaleoProbabilityModel paleoProbModel = InversionInputGenerator.loadDefaultPaleoProbabilityModel();
+					double distAlongRup = getDistanceAlongRupture(sectsInRup, rupSet.getFaultSectionDataList(), sectsInRup.get(i));
+					finalPaleoVisibleEventRateFunc.add(sectsInRup.get(i),paleoProbModel.getForMag(this.getMagForRup(r), distAlongRup)*getRateForRup(r));  
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				
 			}
 		}	
 		finalEventRateFunc.setName("Total Event Rates oer Section");
