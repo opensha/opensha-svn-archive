@@ -34,10 +34,10 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	
 	public UCERF3_FaultSysSol_ERF() {
 		
-		String f = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/refCH/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
-		File file = new File(f);
-
-		fileParam.setValue(file);
+//		String f = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/refCH/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
+//		File file = new File(f);
+//
+//		fileParam.setValue(file);
 		
 		bgIncludeParam.getEditor().setEnabled(true);
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
@@ -97,9 +97,9 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 			// update parent source count
 			numOtherSources = ucerf3_gridSrcGen.getNumSources();
 	
-			System.out.println(ucerf3_gridSrcGen.getNodeMFD(1000, 5.05));
+//			System.out.println(ucerf3_gridSrcGen.getNodeMFD(1000, 5.05));
 			// treat as point sources
-			System.out.println("numOtherSources=" + numOtherSources);
+//			System.out.println("numOtherSources=" + numOtherSources);
 	}	
 	
 	/**

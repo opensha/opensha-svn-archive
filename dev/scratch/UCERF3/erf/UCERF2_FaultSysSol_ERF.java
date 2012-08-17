@@ -10,6 +10,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 
 import java.awt.Toolkit;
+import java.io.File;
 
 
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
@@ -24,22 +25,27 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 
 	NSHMP_GridSourceGenerator nshmp_gridSrcGen;
 	
-	
 	public UCERF2_FaultSysSol_ERF() {
-		super("/Users/pmpowers/projects/OpenSHA/tmp/invSols/ucerf2map/ALLCAL_UCERF2_rakesfixed.zip");
+		this(null);
+	}
+	
+	public UCERF2_FaultSysSol_ERF(File zip) {
+		super((zip!=null) ? zip.getPath() : "/Volumes/Scratch/UCERF3invSols/ucerf2-noInv/FM2_1_UCERF2_COMPARISON_sol.zip");
+//		super("/Volumes/Scratch/UCERF3invSols/ucerf2-noInv/FM3_1_UCERF2_COMPARISON_sol.zip");
+//		super("/Volumes/Scratch/UCERF3invSols/ucerf2-noInv/FM3_2_UCERF2_COMPARISON_sol.zip");
 //		super("/Users/field/ALLCAL_UCERF2.zip");
 		// treat as point sources
 		nshmp_gridSrcGen = new NSHMP_GridSourceGenerator(); //new NSHMP_GridSourceGeneratorMod2()
 		nshmp_gridSrcGen.setAsPointSources(true);
-		numOtherSources = nshmp_gridSrcGen.getNumSources();
+//		numOtherSources = nshmp_gridSrcGen.getNumSources();
 //		numOtherSources=0;
-		System.out.println("numOtherSources="+numOtherSources);
+//		System.out.println("numOtherSources="+numOtherSources);
 
 	}
 	
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
-		return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - numFaultSystemSources, timeSpan.getDuration());
+		return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - numFaultSystemSources, timeSpan.getDuration());
 	}
 
 
@@ -50,7 +56,7 @@ public class UCERF2_FaultSysSol_ERF extends FaultSystemSolutionTimeDepERF {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF();
+		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF(null);
 		erf.aleatoryMagAreaStdDevParam.setValue(0.0);
 		erf.bpt_AperiodicityParam.setValue(0.2);
 		erf.getTimeSpan().setStartTimeInMillis(0);
