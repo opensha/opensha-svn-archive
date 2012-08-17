@@ -34,7 +34,7 @@ public class PtSrcDistCorr {
 			case NSHMP08:
 				if(mag<=6)
 					return 1.0;
-				else if (mag<=7.6) {
+				else { //if (mag<=7.6) {
 					// NSHMP getMeanRJB is built on the assumption of 0.05 M
 					// centered bins. Non-UCERF erf's often do not make
 					// this assumption and are 0.1 based so we push
@@ -43,6 +43,7 @@ public class PtSrcDistCorr {
 					// this was Peter's original correction, but it explodes if it's given say 6.449999999999999 (which converts to 6.39999999999999)
 //					double adjMagAlt = ((int) (mag*100) % 10 != 5) ? mag - 0.05 : mag;
 					double adjMag = ((double)Math.round(mag/0.05))*0.05;
+					if (adjMag > 7.6) adjMag = 7.55;
 //					if(adjMagAlt != adjMag)
 //						System.out.println("mag,adj,alt:\t"+mag+"\t"+adjMag+"\t"+adjMagAlt);
 					if(horzDist==0)
@@ -51,8 +52,8 @@ public class PtSrcDistCorr {
 						corr = NSHMP_Util.getMeanRJB(adjMag, horzDist)/horzDist;
 					break;
 				}
-				else
-					throw new RuntimeException("PtSrcDistCorr.Type.NSHMP08 cannot be used above mag 7.6; your mag is "+mag);
+//				else
+//					throw new RuntimeException("PtSrcDistCorr.Type.NSHMP08 cannot be used above mag 7.6; your mag is "+mag);
 		}
 		return corr;
 	}
