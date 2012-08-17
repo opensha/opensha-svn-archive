@@ -49,12 +49,13 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 
@@ -269,7 +270,7 @@ public class CommandLineInversionRunner {
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getValue(FaultModels.class), rupSet);
 			
 			PaleoProbabilityModel paleoProbabilityModel =
-				PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
+					InversionInputGenerator.loadDefaultPaleoProbabilityModel();
 			
 			InversionInputGenerator gen = new InversionInputGenerator(rupSet, config,
 					paleoRateConstraints, null, paleoProbabilityModel);
@@ -397,11 +398,13 @@ public class CommandLineInversionRunner {
 					System.out.println("WARNING: InversionFaultSystemSolution could not be instantiated!");
 				}
 				
-				double totalMultiplyNamedM7Rate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 7d, false);
-				double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, true);
+				PaleoProbabilityModel ucerf2PaleoProb = new UCERF2_PaleoProbabilityModel();
 				
-				double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, false);
-				double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, true);
+				double totalMultiplyNamedM7Rate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 7d, null);
+				double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, ucerf2PaleoProb);
+				
+				double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, null);
+				double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, ucerf2PaleoProb);
 				
 				info += "\n\nTotal rupture rate (M7+): "+totalM7Rate;
 				info += "\nTotal multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate;
@@ -483,14 +486,15 @@ public class CommandLineInversionRunner {
 		System.exit(0);
 	}
 	
-	public static void writeJumpPlots(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix)
-			throws IOException {
-		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 7d, false);
-		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 0d, true);
+	public static void writeJumpPlots(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix) throws IOException {
+		// use UCERF2 here because it doesn't depend on distance along
+		PaleoProbabilityModel paleoProbModel = new UCERF2_PaleoProbabilityModel();
+		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 7d, null);
+		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 0d, paleoProbModel);
 	}
 	
 	public static void writeJumpPlot(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix,
-			double jumpDist, double minMag, boolean probPaleoVisible) throws IOException {
+			double jumpDist, double minMag, PaleoProbabilityModel paleoProbModel) throws IOException {
 		EvenlyDiscretizedFunc solFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		EvenlyDiscretizedFunc rupSetFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		int maxX = solFunc.getNum()-1;
@@ -520,8 +524,8 @@ public class CommandLineInversionRunner {
 			
 			double rate = sol.getRateForRup(r);
 			
-			if (probPaleoVisible)
-				rate *= sol.getProbPaleoVisible(mag);
+			if (paleoProbModel != null)
+				rate *= paleoProbModel.getProbPaleoVisible(mag, 0.5); // TODO 0.5?
 			
 			// indexes are fine to use here since it starts at zero with a delta of one 
 			if (jumpsOverDist <= maxX) {
@@ -550,12 +554,12 @@ public class CommandLineInversionRunner {
 		
 		String title = "Inversion Fault Jumps";
 		
-		prefix = getJumpFilePrefix(prefix, minMag, probPaleoVisible);
+		prefix = getJumpFilePrefix(prefix, minMag, paleoProbModel != null);
 		
 		if (minMag > 0)
 			title += " Mag "+(float)minMag+"+";
 
-		if (probPaleoVisible)
+		if (paleoProbModel != null)
 			title += " (Convolved w/ ProbPaleoVisible)";
 		
 		

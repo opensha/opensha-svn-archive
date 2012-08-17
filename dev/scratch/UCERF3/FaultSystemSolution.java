@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -33,13 +34,16 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
 /**
@@ -308,7 +312,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		return totParticRatesCache;
 	}
 	
-	private double[] paleoVisibleRatesCache;
+	private Map<PaleoProbabilityModel, double[]> paleoVisibleRatesCache;
 	
 	/**
 	 * This gives the total paleoseismically observable rate (events/yr) of the sth section.
@@ -318,14 +322,14 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double calcTotPaleoVisibleRateForSect(int sectIndex) {
-		return calcTotPaleoVisibleRateForAllSects()[sectIndex];
+	public double calcTotPaleoVisibleRateForSect(int sectIndex, PaleoProbabilityModel paleoProbModel) {
+		return calcTotPaleoVisibleRateForAllSects(paleoProbModel)[sectIndex];
 	}
 	
-	public double doCalcTotPaleoVisibleRateForSect(int sectIndex) {
+	public double doCalcTotPaleoVisibleRateForSect(int sectIndex, PaleoProbabilityModel paleoProbModel) {
 		double partRate=0;
 		for (int r : getRupturesForSection(sectIndex))
-			partRate += getRateForRup(r)*getProbPaleoVisible(getMagForRup(r));
+			partRate += getRateForRup(r)*paleoProbModel.getProbPaleoVisible(this, r, sectIndex);
 		return partRate;
 	}
 
@@ -337,20 +341,27 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * 
 	 * @return
 	 */
-	public synchronized double[] calcTotPaleoVisibleRateForAllSects() {
+	public synchronized double[] calcTotPaleoVisibleRateForAllSects(PaleoProbabilityModel paleoProbModel) {
 		if (paleoVisibleRatesCache == null) {
-			paleoVisibleRatesCache = new double[getNumSections()];
+			paleoVisibleRatesCache = Maps.newHashMap();
+		}
+		
+		double[] paleoRates = paleoVisibleRatesCache.get(paleoProbModel);
+		
+		if (paleoRates == null) {
+			paleoRates = new double[getNumSections()];
+			paleoVisibleRatesCache.put(paleoProbModel, paleoRates);
 			CalcProgressBar p = null;
 			if (showProgress) {
 				p = new CalcProgressBar("Calculating Paleo Visible Rates", "Calculating Paleo Visible Rates");
 			}
-			for (int i=0; i<paleoVisibleRatesCache.length; i++) {
-				if (p != null) p.updateProgress(i, paleoVisibleRatesCache.length);
-				paleoVisibleRatesCache[i] = doCalcTotPaleoVisibleRateForSect(i);
+			for (int i=0; i<paleoRates.length; i++) {
+				if (p != null) p.updateProgress(i, paleoRates.length);
+				paleoRates[i] = doCalcTotPaleoVisibleRateForSect(i, paleoProbModel);
 			}
 			if (p != null) p.dispose();
 		}
-		return paleoVisibleRatesCache;
+		return paleoRates;
 	}
 	
 	private double[] slipRatesCache;
@@ -503,76 +514,6 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		return mfd;
 	}
 	
-	
-	/**
-	 * This returns the probability that the given magnitude event will be
-	 * observed at the ground surface. This is based on equation 4 of Youngs et
-	 * al. [2003, A Methodology for Probabilistic Fault Displacement Hazard
-	 * Analysis (PFDHA), Earthquake Spectra 19, 191-219] using the coefficients
-	 * they list in their appendix for "Data from Wells and Coppersmith (1993)
-	 * 276 worldwide earthquakes". Their function has the following
-	 * probabilities:
-	 * 
-	 * mag prob 5 0.10 6 0.45 7 0.87 8 0.98 9 1.00
-	 * 
-	 * @return
-	 */
-	public double getProbPaleoVisible(double mag) {
-		System.out.println("WARNING! You are using the OLD UCERF2 paleo probability model!!!!");
-		// TODO
-		return Math.exp(-12.51 + mag * 2.053)
-				/ (1.0 + Math.exp(-12.51 + mag * 2.053));
-		/*
-		 * Ray & Glenn's equation if(mag <= 5) return 0.0; else if (mag <= 7.6)
-		 * return -0.0608*mag*mag + 1.1366*mag + -4.1314; else return 1.0;
-		 */
-	}
-	
-	/**
-	 * This returns the normalized distance along a rupture that a paleoseismic trench is located (Glenn's x/L).  It is between 0 and 0.5.
-	 * This currently puts the trench in the middle of the subsection.
-	 * We need this for the UCERF3 probability of detecting a rupture in a trench.
-	 * @return
-	 */
-	public static double getDistanceAlongRupture(List<Integer> sectsInRup, List<FaultSectionPrefData> sectionDataList, int paleoSectIndex) {
-		double distanceAlongRup = 0;
-		
-		double totalLength = 0;
-		double lengthToRup = 0;
-		boolean reachConstraintLoc = false;
-		
-		// Find total length (km) of fault trace and length (km) from one end to the paleo trench location
-		for (int i=0; i<sectsInRup.size(); i++) {
-			int sectIndex = sectsInRup.get(i);
-			double sectLength = sectionDataList.get(i).getFaultTrace().getTraceLength();
-			totalLength+=sectLength;
-			if (sectIndex == paleoSectIndex) {
-				reachConstraintLoc = true;
-				lengthToRup+=sectLength/2;  // We're putting the trench in the middle of the subsection for now
-			}
-			if (reachConstraintLoc == false) // We haven't yet gotten to the trench subsection so keep adding to lengthToRup
-				lengthToRup+=sectLength;
-		}
-		
-		if (!reachConstraintLoc) // check to make sure we came across the trench subsection in the rupture
-			throw new IllegalStateException("Paleo site subsection was not included in rupture subsections");
-		
-		// Normalized distance along the rainbow (Glenn's x/L) - between 0 and 1
-		distanceAlongRup = lengthToRup/totalLength;
-		// Adjust to be between 0 and 0.5 (since rainbow is symmetric about 0.5)
-		if (distanceAlongRup>0.5)
-			distanceAlongRup=1-distanceAlongRup;
-		
-		return distanceAlongRup;
-		
-		
-	}
-	
-	
-	
-	
-	
-	
 	/**
 	 * This plots the rupture rates (rate versus rupture index)
 	 */
@@ -668,7 +609,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * Fault System Solution.
 	 * 
 	 */
-	public void plotPaleoObsAndPredPaleoEventRates(List<PaleoRateConstraint> paleoRateConstraints, InversionFaultSystemRupSet rupSet) {
+	public void plotPaleoObsAndPredPaleoEventRates(List<PaleoRateConstraint> paleoRateConstraints, PaleoProbabilityModel paleoProbModel, InversionFaultSystemRupSet rupSet) {
 		int numSections = this.getNumSections();
 		int numRuptures = this.getNumRuptures();
 		ArrayList funcs3 = new ArrayList();		
@@ -683,16 +624,8 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 //				finalPaleoVisibleEventRateFunc.add(rup.get(i),this.getProbPaleoVisible(this.getMagForRup(r))*getRateForRup(r));  
 				
 				// UCERF3 Paleo Prob Model
-				try {
-					PaleoProbabilityModel paleoProbModel = InversionInputGenerator.loadDefaultPaleoProbabilityModel();
-					double distAlongRup = getDistanceAlongRupture(sectsInRup, rupSet.getFaultSectionDataList(), sectsInRup.get(i));
-					finalPaleoVisibleEventRateFunc.add(sectsInRup.get(i),paleoProbModel.getForMag(this.getMagForRup(r), distAlongRup)*getRateForRup(r));  
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
+				double paleoProb = paleoProbModel.getProbPaleoVisible(this, r, sectsInRup.get(i));
+				finalPaleoVisibleEventRateFunc.add(sectsInRup.get(i),paleoProb*getRateForRup(r));  
 				
 			}
 		}	

@@ -40,7 +40,6 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class UCERF3_PaleoRateConstraintFetcher {
@@ -168,7 +167,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		
 		PaleoProbabilityModel paleoProbModel = null;
 		try {
-			paleoProbModel = PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
+			paleoProbModel = UCERF3_PaleoProbabilityModel.load();
 		} catch (IOException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
@@ -290,11 +289,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			PaleoProbabilityModel paleoProbModel, Map<Integer, Double> traceLengthCache) {
 		double rate = 0;
 		for (int rupID : sol.getRupturesForSection(sectIndex)) {
-			double distAlongRup = InversionInputGenerator.getDistanceAlongRupture(
-					sol.getSectionsIndicesForRup(rupID), sol.getFaultSectionDataList(), sectIndex, traceLengthCache);
-			
-			double probPaleoVisible = paleoProbModel.getForSlip(
-					sol.getAveSlipForRup(rupID), distAlongRup);
+			double probPaleoVisible = paleoProbModel.getProbPaleoVisible(sol, rupID, sectIndex);
 //			rate += sol.getRateForRup(rupID) * sol.getProbPaleoVisible(sol.getMagForRup(rupID));
 			rate += sol.getRateForRup(rupID) * probPaleoVisible;
 		}

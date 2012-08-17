@@ -23,8 +23,8 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -208,7 +208,7 @@ public class RunInversion {
 		long startTime = System.currentTimeMillis();
 		solution.plotRuptureRates();
 		solution.plotSlipRates();
-		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints, rupSet);
+		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints, paleoProbabilityModel, rupSet);
 		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(solution);
 		invSol.plotMFDs();
 		try {

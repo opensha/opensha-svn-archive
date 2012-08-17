@@ -19,7 +19,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 
@@ -71,7 +71,7 @@ public class CommandLineInputGenerator {
 			
 			double[] improbabilityConstraint = null;
 			
-			PaleoProbabilityModel paleoProbabilityModel = PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
+			PaleoProbabilityModel paleoProbabilityModel = InversionInputGenerator.loadDefaultPaleoProbabilityModel();
 			
 			InversionInputGenerator gen = new InversionInputGenerator(rupSet, config, paleoRateConstraints,
 					improbabilityConstraint, paleoProbabilityModel);

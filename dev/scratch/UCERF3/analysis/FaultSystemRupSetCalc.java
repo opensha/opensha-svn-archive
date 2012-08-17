@@ -54,6 +54,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
 /**
  * This class hosts various calculations for a FaultSystemRupSet
@@ -1520,7 +1521,7 @@ public class FaultSystemRupSetCalc {
 	 * @param probPaleoVisible
 	 * @return
 	 */
-	public static double calcTotRateMultiplyNamedFaults(FaultSystemSolution sol, double minMag, boolean probPaleoVisible) {
+	public static double calcTotRateMultiplyNamedFaults(FaultSystemSolution sol, double minMag, PaleoProbabilityModel paleoProbModel) {
 		double rate = 0;
 		
 		for (int rupIndex=0; rupIndex<sol.getNumRuptures(); rupIndex++) {
@@ -1529,8 +1530,8 @@ public class FaultSystemRupSetCalc {
 				continue;
 			if (isRupMultiplyNamed(sol, rupIndex)) {
 				double rupRate = sol.getRateForRup(rupIndex);
-				if (probPaleoVisible)
-					rupRate *= sol.getProbPaleoVisible(mag);
+				if (paleoProbModel != null)
+					rupRate *= paleoProbModel.getProbPaleoVisible(mag, 0.5);
 				rate += rupRate;
 			}
 		}
@@ -1546,15 +1547,15 @@ public class FaultSystemRupSetCalc {
 	 * @param probPaleoVisible
 	 * @return
 	 */
-	public static double calcTotRateAboveMag(FaultSystemSolution sol, double minMag, boolean probPaleoVisible) {
+	public static double calcTotRateAboveMag(FaultSystemSolution sol, double minMag, PaleoProbabilityModel paleoProbModel) {
 		double rate = 0;
 		for (int rupIndex=0; rupIndex<sol.getNumRuptures(); rupIndex++) {
 			double mag = sol.getMagForRup(rupIndex);
 			if (mag < minMag)
 				continue;
 			double rupRate = sol.getRateForRup(rupIndex);
-			if (probPaleoVisible)
-				rupRate *= sol.getProbPaleoVisible(mag);
+			if (paleoProbModel != null)
+				rupRate *= paleoProbModel.getProbPaleoVisible(mag, 0.5);
 			rate += rupRate;
 		}
 		return rate;

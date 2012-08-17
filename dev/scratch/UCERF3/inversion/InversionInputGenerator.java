@@ -27,8 +27,9 @@ import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 
 /**
  * This class is used to generate inversion inputs (A/A_ineq matrices, d/d_ineq vectors) for a given
@@ -84,6 +85,8 @@ public class InversionInputGenerator {
 		this.paleoProbabilityModel = paleoProbabilityModel;
 	}
 	
+	private static PaleoProbabilityModel defaultProbModel = null;
+	
 	/**
 	 * Loads the default paleo probability model for UCERF3 (Glenn's file). Can be turned into
 	 * an enum if we get alternatives
@@ -91,7 +94,9 @@ public class InversionInputGenerator {
 	 * @throws IOException 
 	 */
 	public static PaleoProbabilityModel loadDefaultPaleoProbabilityModel() throws IOException {
-		return PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
+		if (defaultProbModel == null)
+			defaultProbModel = UCERF3_PaleoProbabilityModel.load();
+		return defaultProbModel;
 	}
 	
 	public void generateInputs() {
@@ -374,12 +379,7 @@ public class InversionInputGenerator {
 				List<Integer> rupsForSect = rupSet.getRupturesForSection(constraint.getSectionIndex());
 				for (int rupIndex=0; rupIndex<rupsForSect.size(); rupIndex++) {
 					int rup = rupsForSect.get(rupIndex);
-					// Glenn's x/L
-					double distAlongRup = getDistanceAlongRupture(rupSet.getSectionsIndicesForRup(rup),
-							rupSet.getFaultSectionDataList(), constraint.getSectionIndex());
-//					double probPaleoVisible = getProbPaleoVisible(rupMeanMag[rup]); // OLD UCERF2 version!
-					// UCERF3 version!
-					double probPaleoVisible = paleoProbabilityModel.getForSlip(rupMeanSlip[rup], distAlongRup);	
+					double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, constraint.getSectionIndex());	
 					double setVal = (relativePaleoRateWt * probPaleoVisible / constraint.getStdDevOfMeanRate());
 					if (QUICK_GETS_SETS)
 						A.setQuick(i, rup, setVal);
@@ -853,13 +853,13 @@ public class InversionInputGenerator {
 	 * We need this for the UCERF3 probability of detecting a rupture in a trench.
 	 * @return
 	 */
-	public static double getDistanceAlongRupture(List<Integer> sectsInRup,
-			List<FaultSectionPrefData> sectionDataList, int targetSectIndex) {
-		return getDistanceAlongRupture(sectsInRup, sectionDataList, targetSectIndex, null);
+	public static double getDistanceAlongRupture(
+			List<FaultSectionPrefData> sectsInRup, int targetSectIndex) {
+		return getDistanceAlongRupture(sectsInRup, targetSectIndex, null);
 	}
 	
-	public static double getDistanceAlongRupture(List<Integer> sectsInRup,
-			List<FaultSectionPrefData> sectionDataList, int targetSectIndex,
+	public static double getDistanceAlongRupture(
+			List<FaultSectionPrefData> sectsInRup, int targetSectIndex,
 			Map<Integer, Double> traceLengthCache) {
 		double distanceAlongRup = 0;
 		
@@ -869,16 +869,17 @@ public class InversionInputGenerator {
 		
 		// Find total length (km) of fault trace and length (km) from one end to the paleo trench location
 		for (int i=0; i<sectsInRup.size(); i++) {
-			int sectIndex = sectsInRup.get(i);
+			FaultSectionPrefData sect = sectsInRup.get(i);
+			int sectIndex = sect.getSectionId();
 			Double sectLength = null;
 			if (traceLengthCache != null) {
 				sectLength = traceLengthCache.get(sectIndex);
 				if (sectLength == null) {
-					sectLength = sectionDataList.get(sectIndex).getFaultTrace().getTraceLength();
+					sectLength = sect.getFaultTrace().getTraceLength();
 					traceLengthCache.put(sectIndex, sectLength);
 				}
 			} else {
-				sectLength = sectionDataList.get(sectIndex).getFaultTrace().getTraceLength();
+				sectLength = sect.getFaultTrace().getTraceLength();
 			}
 			totalLength+=sectLength;
 			if (sectIndex == targetSectIndex) {

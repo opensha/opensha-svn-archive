@@ -92,6 +92,8 @@ public class UCERF2_PaleoRateConstraintFetcher {
 
 	public static void showSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
 			ArrayList<FaultSystemSolution> solutions) {
+		
+		PaleoProbabilityModel paleoProbModel = new UCERF2_PaleoProbabilityModel();
 
 		Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
 		Preconditions.checkState(solutions.size() > 0, "Must have at least one solution");
@@ -183,7 +185,7 @@ public class UCERF2_PaleoRateConstraintFetcher {
 						int mySectID = minSect + j;
 						for (int rupID : sol.getRupturesForSection(mySectID))
 							// TODO is this the right value here?
-							rate += sol.getRateForRup(rupID) * sol.getProbPaleoVisible(sol.getMagForRup(rupID));
+							rate += sol.getRateForRup(rupID) * paleoProbModel.getProbPaleoVisible(sol.getMagForRup(rupID), Double.NaN);
 						func.set(j, rate);
 					}
 					funcs.add(func);

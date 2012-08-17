@@ -14,7 +14,7 @@ import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
@@ -41,7 +41,7 @@ public class GRMemTest {
 			
 			ArrayList<PaleoRateConstraint> paleoConstraints =
 					UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
-			PaleoProbabilityModel paleoModel = PaleoProbabilityModel.loadUCERF3PaleoProbabilityModel();
+			PaleoProbabilityModel paleoModel = InversionInputGenerator.loadDefaultPaleoProbabilityModel();
 			
 			InversionInputGenerator gen =
 					new InversionInputGenerator(rupSet, config, paleoConstraints, null, paleoModel);

@@ -46,7 +46,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.VariableSubTimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
-import scratch.UCERF3.utils.PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
