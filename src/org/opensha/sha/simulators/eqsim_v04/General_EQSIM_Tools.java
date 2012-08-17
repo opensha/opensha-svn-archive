@@ -203,7 +203,7 @@ public class General_EQSIM_Tools {
 	}
 	
 	public void read_EQSIMv04_EventsFile(File file) throws IOException {
-		read_EQSIMv04_EventsFile(file);
+		read_EQSIMv04_EventsFile(file.getAbsolutePath());
 	}
 	
 	

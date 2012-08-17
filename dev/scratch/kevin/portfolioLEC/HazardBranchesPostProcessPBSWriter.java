@@ -25,7 +25,7 @@ public class HazardBranchesPostProcessPBSWriter {
 		classpath.add(new File("/home/scec-02/kmilner/hazMaps/svn/dist/OpenSHA_complete.jar"));
 		
 		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 7000, classpath);
-		USC_HPCC_ScriptWriter pbsWrite = new USC_HPCC_ScriptWriter();
+		USC_HPCC_ScriptWriter pbsWrite = new USC_HPCC_ScriptWriter("dodecacore");
 		
 		int mins = 60;
 		int nodes = 1;

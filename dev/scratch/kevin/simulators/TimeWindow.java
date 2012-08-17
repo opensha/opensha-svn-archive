@@ -10,6 +10,14 @@ public class TimeWindow {
 		this.initiatorID = initiatorID;
 	}
 	
+	public boolean isBefore(double time) {
+		return time < start;
+	}
+	
+	public boolean isAfter(double time) {
+		return time > end;
+	}
+	
 	public boolean isContained(double time) {
 		return time >= start && time <= end;
 	}

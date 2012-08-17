@@ -114,6 +114,8 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle, ArrayList<PlotCurveCharacterstics> plotChars,
 			boolean setVisible) {
 		this.funcs=funcs;
+		if (plotChars == null)
+			plotChars = generateDefaultChars(funcs);
 		this.plotChars = plotChars;
 		graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel(plotTitle);

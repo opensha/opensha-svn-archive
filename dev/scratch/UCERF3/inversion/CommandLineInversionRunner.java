@@ -77,8 +77,9 @@ public class CommandLineInversionRunner {
 		PALEO_WT("paleo", "paleo-wt", "Paleo", true, "Paleoconstraint weight"),
 //		NO_SUBSEIS_RED("nosub", "no-subseismo", "NoSubseismo", false,
 //				"Flag to turn off subseimogenic reductions"),
-		MFD_WT("mfd", "mfd-wt", "MFDWt", true, "MFD constraint wt"),
-		INITIAL_ZERO("zeros", "initial-zeros", "Zeros", false, "Force initial state to zeros");
+		MFD_WT("mfd", "mfd-wt", "MFDWt", true, "MFD constraint weight"),
+		INITIAL_ZERO("zeros", "initial-zeros", "Zeros", false, "Force initial state to zeros"),
+		EVENT_SMOOTH_WT("eventsm", "event-smooth-wt", "EventSmoothWt", true, "Relative Event Rate Smoothness weight");
 		
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -257,6 +258,12 @@ public class CommandLineInversionRunner {
 				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.PALEO_WT.argName));
 				System.out.println("Setting paleo constraint wt: "+wt);
 				config.setRelativePaleoRateWt(wt);
+			}
+			
+			if (cmd.hasOption(InversionOptions.EVENT_SMOOTH_WT.argName)) {
+				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.EVENT_SMOOTH_WT.argName));
+				System.out.println("Setting event rate smoothness constraint wt: "+wt);
+				config.setEventRateSmoothnessWt(wt);
 			}
 			
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getValue(FaultModels.class), rupSet);

@@ -38,6 +38,10 @@ public class HazardBranchesPostProcess {
 	public static void main(String[] args) throws FileNotFoundException, IOException, DocumentException {
 		File dir = new File(args[0]);
 		File regionFile = new File(dir.getParent(), "regions.kml");
+		File outputFile = new File(dir, dir.getName()+".csv");
+		
+		if (outputFile.exists())
+			System.exit(0);
 		
 		//Line, IMR, Deformation Model, A-Fault Solution Type,  Wt On A-Priori Rates, Mag-Area Relationship,
 		//B-Faults b-value, Connect More B Faults?, Probability Model, Aperiodocity, IMT, Exceedance Probability, Lat, Lon, IML
@@ -164,7 +168,6 @@ public class HazardBranchesPostProcess {
 			}
 		}
 		
-		File outputFile = new File(dir, dir.getName()+".csv");
 		csv.writeToFile(outputFile);
 	}
 	

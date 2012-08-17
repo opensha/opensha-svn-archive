@@ -882,7 +882,7 @@ public class InversionConfiguration {
 		return relativeEventRateSmoothnessWt;
 	}
 
-	public void setEventRateSmoothnessWt(double relativeSmoothnessWt) {
+	public void setEventRateSmoothnessWt(double relativeEventRateSmoothnessWt) {
 		this.relativeEventRateSmoothnessWt = relativeEventRateSmoothnessWt;
 	}
 	

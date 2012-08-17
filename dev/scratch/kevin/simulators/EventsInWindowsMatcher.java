@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.math.distribution.PoissonDistributionImpl;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
@@ -118,11 +119,11 @@ public class EventsInWindowsMatcher {
 		}
 		
 		totalWindowDurationYears = windowDurationSum / General_EQSIM_Tools.SECONDS_PER_YEAR;
-		double rate = 1d / windowDurationYears;
+		double rate = 1d / totalWindowDurationYears;
 		
 		System.out.println("Got "+matches.size()+" matches in "+timeWindows.size()+" windows ("
 				+overlaps+" overlaps).");
-		System.out.println("Total window duration: "+windowDurationYears+" years");
+		System.out.println("Total window duration: "+totalWindowDurationYears+" years");
 		System.out.println("In-window event rate: "+rate);
 		
 		int windowIndex = 0;
@@ -140,7 +141,10 @@ public class EventsInWindowsMatcher {
 			TimeWindow matchingWindow = null;
 			for (int i=windowIndex; i<timeWindows.size(); i++) {
 				TimeWindow window = timeWindows.get(i);
-				if (window.isContained(time) && !window.isInitiator(e.getID())) {
+				if (window.isBefore(time))
+					// this means that the time is before the start of the first window, therefore not in a window
+					break;
+				if (!window.isAfter(time) && !window.isInitiator(e.getID())) {
 					matchingWindow = window;
 					break;
 				}
@@ -148,25 +152,25 @@ public class EventsInWindowsMatcher {
 			if (matchingWindow == null)
 				continue;
 			
-			if (matchIDs.contains(e.getID())) {
-				System.out.print("Matching event "+e.getID()
-						+" made it in due to "+matchingWindow.getInitiatorID()+"'s window! ");
-				double diff = e.getTime() - matchingWindow.getStart();
-				double diffMins = diff / 60d;
-				double diffHours = diffMins / 60d;
-				double diffDays = diffHours / 24;
-				double diffYears = diffDays / 365;
-				if (Math.abs(diffYears) > 1)
-					System.out.println("Diff time: "+(float)diffYears+" years");
-				else if (Math.abs(diffDays) > 1)
-					System.out.println("Diff time: "+(float)diffDays+" days");
-				else if (Math.abs(diffHours) > 1)
-					System.out.println("Diff time: "+(float)diffHours+" hours");
-				else if (Math.abs(diffMins) > 1)
-					System.out.println("Diff time: "+(float)diffMins+" mins");
-				else
-					System.out.println("Diff time: "+(float)diff+" secs");
-			}
+//			if (matchIDs.contains(e.getID())) {
+//				System.out.print("Matching event "+e.getID()
+//						+" made it in due to "+matchingWindow.getInitiatorID()+"'s window! ");
+//				double diff = e.getTime() - matchingWindow.getStart();
+//				double diffMins = diff / 60d;
+//				double diffHours = diffMins / 60d;
+//				double diffDays = diffHours / 24;
+//				double diffYears = diffDays / 365;
+//				if (Math.abs(diffYears) > 1)
+//					System.out.println("Diff time: "+(float)diffYears+" years");
+//				else if (Math.abs(diffDays) > 1)
+//					System.out.println("Diff time: "+(float)diffDays+" days");
+//				else if (Math.abs(diffHours) > 1)
+//					System.out.println("Diff time: "+(float)diffHours+" hours");
+//				else if (Math.abs(diffMins) > 1)
+//					System.out.println("Diff time: "+(float)diffMins+" mins");
+//				else
+//					System.out.println("Diff time: "+(float)diff+" secs");
+//			}
 			
 			numEventsInWindows++;
 			eventsInWindows.add(e);

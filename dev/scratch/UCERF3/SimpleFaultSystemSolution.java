@@ -298,7 +298,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		return fromZipFile(zipFile, simpleRupSet);
 	}
 	
-	private static SimpleFaultSystemSolution fromZipFile(File zipFile, SimpleFaultSystemRupSet simpleRupSet)
+	public static SimpleFaultSystemSolution fromZipFile(File zipFile, FaultSystemRupSet rupSet)
 	throws ZipException, IOException, DocumentException {
 		ZipFile zip = new ZipFile(zipFile);
 		
@@ -306,7 +306,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		double[] rates = MatrixIO.doubleArrayFromInputStream(
 				new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
 		
-		return new SimpleFaultSystemSolution(simpleRupSet, rates);
+		return new SimpleFaultSystemSolution(rupSet, rates);
 	}
 
 	@Override

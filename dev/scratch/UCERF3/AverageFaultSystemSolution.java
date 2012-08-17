@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -42,7 +43,7 @@ import com.google.common.collect.Lists;
  * @author kevin
  *
  */
-public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
+public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implements Iterable<FaultSystemSolution> {
 	
 	private int numSols;
 	private double[][] ratesByRup;
@@ -265,10 +266,16 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 	}
 	
 	public void writePaleoBoundsPlot(File dir) throws IOException {
-		String prefix = new InversionFaultSystemSolution(this).getBranch().buildFileName();
-		
-		ArrayList<PaleoRateConstraint> paleoRateConstraints =
-				UCERF3_PaleoRateConstraintFetcher.getConstraints(getFaultSectionDataList());
+		writePaleoBoundsPlot(dir, this);
+	}
+	
+	public static void writePaleoBoundsPlot(File dir, AverageFaultSystemSolution avgSol) throws IOException {
+		String prefix = new InversionFaultSystemSolution(avgSol).getBranch().buildFileName();
+		writePaleoBoundsPlot(dir, prefix, avgSol);
+	}
+	
+	public static void writePaleoBoundsPlot(File dir, String prefix, Iterable<? extends FaultSystemSolution> sols) throws IOException {
+		ArrayList<PaleoRateConstraint> paleoRateConstraints = null;
 		
 		ArrayList<DiscretizedFunc> otherFuncs = Lists.newArrayList();
 		ArrayList<PlotCurveCharacterstics> otherChars = Lists.newArrayList();
@@ -278,17 +285,21 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		ArrayList<Integer> solFuncIndexes = Lists.newArrayList();
 		
-		for (int i=0; i<getNumSolutions(); i++) {
-			SimpleFaultSystemSolution sol = getSolution(i);
+		int numSols = 0;
+		for (FaultSystemSolution sol : sols) {
+			numSols++;
 			
-			ArrayList<FaultSystemSolution> sols = Lists.newArrayList();
-			sols.add(sol);
+			if (paleoRateConstraints == null)
+				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
+			
+			ArrayList<FaultSystemSolution> solList = Lists.newArrayList();
+			solList.add(sol);
 			PlotSpec spec = UCERF3_PaleoRateConstraintFetcher.getSegRateComparisonSpec(
-					paleoRateConstraints, sols);
+					paleoRateConstraints, solList);
 			
 			ArrayList<? extends DiscretizedFunc> funcs = spec.getFuncs();
 			
-			if (i == 0) {
+			if (otherFuncs.isEmpty()) {
 				for (int j=0; j<funcs.size(); j++) {
 					DiscretizedFunc func = funcs.get(j);
 					if (func.getInfo().contains("Solution")) {
@@ -334,7 +345,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 		for (int i=0; i<meanFuncs.size(); i++) {
 			EvenlyDiscretizedFunc meanFunc = meanFuncs.get(i);
 			for (int index=0; index<meanFunc.getNum(); index++)
-				meanFunc.set(index, meanFunc.getY(index) / (double)getNumSolutions());
+				meanFunc.set(index, meanFunc.getY(index) / (double)numSols);
 		}
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -508,10 +519,15 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 				"InversionSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_" +
 				"SpatSeisU3_VarPaleo0.1_mean_sol.zip");
 		
-		AverageFaultSystemSolution avg = fromZipFile(file);
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_21-zeng-ref-lowpaleo-100runs/paleo");
-		avg.writePaleoBoundsPlot(dir);
+//		AverageFaultSystemSolution avg = fromZipFile(file);
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_21-zeng-ref-lowpaleo-100runs/paleo");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_31-zeng-ref-char-unconst-lowpaleo-100runs/results");
+		FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(new File(dir,
+				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_run00_sol.zip"));
+		AverageFaultSystemSolution avg = fromDirectory(rupSet, dir,
+				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1");
 		avg.writePaleoPlots(dir);
+		avg.writePaleoBoundsPlot(dir);
 		
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/" +
 //				"results/VarAPrioriZero_VarAPrioriWt1000_VarWaterlevel0");
@@ -531,6 +547,28 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution {
 //		}
 //		
 //		Preconditions.checkState(SimpleFaultSystemSolution.fromFileAsApplicable(avgFile) instanceof AverageFaultSystemSolution);
+	}
+
+	@Override
+	public Iterator<FaultSystemSolution> iterator() {
+		return new Iterator<FaultSystemSolution>() {
+			private int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < getNumSolutions();
+			}
+
+			@Override
+			public FaultSystemSolution next() {
+				return getSolution(index++);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Not supported by this iterator");
+			}
+		};
 	}
 
 }
