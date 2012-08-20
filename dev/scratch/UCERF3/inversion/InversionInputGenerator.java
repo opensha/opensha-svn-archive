@@ -17,6 +17,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import cern.colt.function.tdouble.IntIntDoubleFunction;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
@@ -723,28 +724,27 @@ public class InversionInputGenerator {
 			numNonZeroElements = 0;
 			
 			// Get list of parent IDs
-			List<Integer> parentIDs = new ArrayList<Integer>();
+			Map<Integer, List<FaultSectionPrefData>> parentSectsMap = Maps.newHashMap();
+			
 			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
-				int parentID = sect.getParentSectionId();
-				if (!parentIDs.contains(parentID))
-					parentIDs.add(parentID);
+				Integer parentID = sect.getParentSectionId();
+				List<FaultSectionPrefData> parentSects = parentSectsMap.get(parentID);
+				if (parentSects == null) {
+					parentSects = Lists.newArrayList();
+					parentSectsMap.put(parentID, parentSects);
+				}
+				parentSects.add(sect);
 			}
 
-			for (int parentID: parentIDs) {		
-		
-				// Find subsection IDs for given parent section
-				ArrayList<Integer> sectsForParent = new ArrayList<Integer>();
-				for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
-					int sectParentID = sect.getParentSectionId();
-					if (sectParentID == parentID)
-						sectsForParent.add(sect.getSectionId());
-				}
+			for (List<FaultSectionPrefData> sectsForParent : parentSectsMap.values()) {		
 				
-				Collections.sort(sectsForParent); // sort subsection IDs (so they will be consecutive along a section)  (not sure this is needed if subsections are already in order, but can't hurt)
+				// not needed
+//				Collections.sort(sectsForParent); // sort subsection IDs (so they will be consecutive along a section)  (not sure this is needed if subsections are already in order, but can't hurt)
+				
 				// Constrain the event rate of each neighboring subsection pair (with same parent section) to be approximately equal
 				for (int j=0; j<sectsForParent.size()-1; j++) {
-					int sect1 = sectsForParent.get(j);
-					int sect2 = sectsForParent.get(j+1);
+					int sect1 = sectsForParent.get(j).getSectionId();
+					int sect2 = sectsForParent.get(j+1).getSectionId();
 					List<Integer> sect1Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect1));  
 					List<Integer> sect2Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect2));
 					
