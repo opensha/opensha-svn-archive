@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -735,6 +736,10 @@ public class InversionInputGenerator {
 				}
 				parentSects.add(sect);
 			}
+			
+			List<HashSet<Integer>> sectRupsHashes = Lists.newArrayList();
+			for (int s=0; s<rupSet.getNumSections(); s++)
+				sectRupsHashes.add(new HashSet<Integer>(rupSet.getRupturesForSection(s)));
 
 			for (List<FaultSectionPrefData> sectsForParent : parentSectsMap.values()) {		
 				
@@ -745,13 +750,21 @@ public class InversionInputGenerator {
 				for (int j=0; j<sectsForParent.size()-1; j++) {
 					int sect1 = sectsForParent.get(j).getSectionId();
 					int sect2 = sectsForParent.get(j+1).getSectionId();
-					List<Integer> sect1Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect1));  
-					List<Integer> sect2Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect2));
+					HashSet<Integer> sect1Hash = sectRupsHashes.get(sect1);
+					HashSet<Integer> sect2Hash = sectRupsHashes.get(sect2);
 					
-					// Remove ruptures that are on both sect1 & sect2
-					List<Integer> temp = new ArrayList<Integer>(sect1Rups);
-					sect1Rups.removeAll(sect2Rups);
-					sect2Rups.removeAll(temp);
+					List<Integer> sect1Rups = Lists.newArrayList();  
+					List<Integer> sect2Rups = Lists.newArrayList();
+					
+					// only rups that involve sect 1 but not sect 2
+					for (Integer sect1Rup : sect1Hash)
+						if (!sect2Hash.contains(sect1Rup))
+							sect1Rups.add(sect1Rup);
+
+					// only rups that involve sect 2 but not sect 1
+					for (Integer sect2Rup : sect2Hash)
+						if (!sect1Hash.contains(sect2Rup))
+							sect2Rups.add(sect2Rup);
 					
 					for (int rup: sect1Rups) { 
 						if (QUICK_GETS_SETS) 
