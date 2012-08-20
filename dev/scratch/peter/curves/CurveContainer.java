@@ -88,9 +88,9 @@ public class CurveContainer {
 	static class CurveFileProcessor implements LineProcessor<CurveContainer> {
 		
 		private Splitter split;
-		private int numX = -1;
 		private int xCount = 0;
-		
+		private int headCount = 0;
+		private int headLines = 3;
 		private CurveContainer cc;
 		
 		CurveFileProcessor(GriddedRegion region) {
@@ -109,21 +109,19 @@ public class CurveContainer {
 		@Override
 		public boolean processLine(String line) throws IOException {
 			
-			// num is -1 at start; get number of points on curves
-			if (numX == -1) {
-				if (line.startsWith("#GM")) {
-					numX = Integer.parseInt(line.substring(line.length() - 2));
-				}
+			// skip first 3 lines for either format
+			if (headCount < headLines) {
+				headCount++;
 				return true;
 			}
 			
-			// filling x values first
-			if (xCount != numX) {
+			// short lines are going to be x values
+			if (line.length() < 20) {
 				cc.xs.add(Double.parseDouble(line));
 				xCount++;
 				return true;
 			}
-			
+						
 			addCurve(line);
 			return true;
 		}
@@ -133,8 +131,8 @@ public class CurveContainer {
 			// read location
 			Location loc = new Location(toNum(it.next()), toNum(it.next()));
 			int idx = cc.region.indexForLocation(loc);
-			double[] vals = new double[numX];
-			for (int i=0; i<numX; i++) {
+			double[] vals = new double[xCount];
+			for (int i=0; i<xCount; i++) {
 				vals[i] = toNum(it.next());
 			}
 			cc.ysMap.put(idx, Doubles.asList(vals));
@@ -157,6 +155,11 @@ public class CurveContainer {
 	private static Location usHazLoc1 = new Location(minLat, minLon);
 	private static Location usHazLoc2 = new Location(maxLat, maxLon);
 	
+	public static GriddedRegion getNSHMP_Region() {
+		return new GriddedRegion(usHazLoc1, usHazLoc2, spacing,
+			GriddedRegion.ANCHOR_0_0);
+	}
+
 	public static void main(String[] args) {
 		File f = new File(path);
 		GriddedRegion gr = new GriddedRegion(usHazLoc1, usHazLoc2, spacing, GriddedRegion.ANCHOR_0_0);
@@ -172,6 +175,8 @@ public class CurveContainer {
 	}
 }
 
+
+// NOTE, data files can be formatted as...
 
 //#Pgm hazallXL.v4.f (harmsen) sums  2 hazard curves from ../conf/combine/curves_us.pga 
 //#Lat Long   Rex for spectral period 0.00
@@ -201,4 +206,32 @@ public class CurveContainer {
 //   50.000  -124.850 5.23902E-02 4.30591E-02 3.38673E-02 2.55895E-02 1.86229E-02 1.31892E-02 9.17283E-03 6.23128E-03 4.10218E-03 2.56377E-03 1.44840E-03 7.38148E-04 3.32114E-04 1.30299E-04 4.29240E-05 1.13473E-05 1.99972E-06 2.04181E-07 2.86878E-08
 //   50.000  -124.800 5.31954E-02 4.36733E-02 3.42956E-02 2.58554E-02 1.87597E-02 1.32349E-02 9.16121E-03 6.18811E-03 4.04668E-03 2.50984E-03 1.40552E-03 7.09720E-04 3.16390E-04 1.23029E-04 4.01896E-05 1.05434E-05 1.85012E-06 2.11104E-07 3.01653E-08
 
-   
+// ... OR ...
+
+//CEUShazard.200809.pga                                                           
+//WUShazard.2008.pga                                                              
+// 0.0E+0
+//0.5000E-02
+//0.7000E-02
+//0.9800E-02
+//0.1370E-01
+//0.1920E-01
+//0.2690E-01
+//0.3760E-01
+//0.5270E-01
+//0.7380E-01
+//0.1030E+00
+//0.1450E+00
+//0.2030E+00
+//0.2840E+00
+//0.3970E+00
+//0.5560E+00
+//0.7780E+00
+//0.1090E+01
+//0.1520E+01
+//0.2130E+01
+//50.00 -125.00 0.4950E-01 0.4074E-01 0.3212E-01 0.2435E-01 0.1782E-01 0.1271E-01 0.8927E-02 0.6140E-02 0.4105E-02 0.2613E-02 0.1507E-02 0.7847E-03 0.3606E-03 0.1444E-03 0.4850E-04 0.1305E-04 0.2349E-05 0.1625E-06 0.1919E-07
+//50.00 -124.95 0.5031E-01 0.4135E-01 0.3254E-01 0.2461E-01 0.1794E-01 0.1275E-01 0.8905E-02 0.6090E-02 0.4046E-02 0.2557E-02 0.1463E-02 0.7555E-03 0.3443E-03 0.1367E-03 0.4552E-04 0.1213E-04 0.2146E-05 0.1643E-06 0.2013E-07
+//50.00 -124.90 0.5112E-01 0.4197E-01 0.3296E-01 0.2487E-01 0.1807E-01 0.1278E-01 0.8883E-02 0.6040E-02 0.3986E-02 0.2501E-02 0.1419E-02 0.7262E-03 0.3279E-03 0.1290E-03 0.4254E-04 0.1122E-04 0.1942E-05 0.1660E-06 0.2107E-07
+//50.00 -124.85 0.5192E-01 0.4257E-01 0.3338E-01 0.2513E-01 0.1820E-01 0.1282E-01 0.8869E-02 0.5996E-02 0.3932E-02 0.2449E-02 0.1378E-02 0.6995E-03 0.3132E-03 0.1223E-03 0.4000E-04 0.1048E-04 0.1802E-05 0.1723E-06 0.2221E-07
+

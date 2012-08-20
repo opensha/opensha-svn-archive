@@ -114,23 +114,57 @@ public class CurveComparisonPlotter {
 		GMT_MapGenerator map = GMT_CA_Maps.getDefaultGMT_MapGenerator();
 		
 		//override default scale
-		map.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -8.0);
-		map.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, -1.0);
+		map.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, 0.0);
+		map.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 2.0);
 		
 		CPTParameter cptParam = (CPTParameter) map.getAdjustableParamsList()
 			.getParameter(CPT_PARAM_NAME);
-		cptParam.setValue(GMT_CPT_Files.UCERF2_FIGURE_35.getFileName());
+		cptParam.setValue(GMT_CPT_Files.GMT_NO_GREEN.getFileName());
 
-		GeoDataSet xyz = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+		map.setParameter(LOG_PLOT_NAME, false);
+		
+//		GeoDataSet xyz = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+		
+		GeoDataSet xyz = CurveComparisons.test();
+		
 		try {
-			makeMap(xyz, "UCERF3_SmoothSeisPDF", "No metadata", "PP_test", map);
+			makeMap(xyz, "2p50", "No metadata", "PP_test2", map);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 	
 	}
 	
+	public static void testPlot2() {
+		GMT_MapGenerator map = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		//override default scale
+		map.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -0.05);
+		map.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 0.05);
+		
+		CPTParameter cptParam = (CPTParameter) map.getAdjustableParamsList()
+			.getParameter(CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.GMT_POLAR.getFileName());
+
+		map.setParameter(LOG_PLOT_NAME, false);
+		
+//		GeoDataSet xyz = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+		
+//		GeoDataSet xyz = CurveComparisons.test();
+		GeoDataSet xyz = CurveComparisons.getFortranOverR3();
+		for (int i=0;i<xyz.size();i++) {
+			xyz.set(i, 1 - xyz.get(i));
+		}
+		
+		try {
+			makeMap(xyz, "2p50", "No metadata", "PP_test2", map);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	
+	}
+
 	public static void main(String[] args) {
-		testPlot();
+		testPlot2();
 	}
 }
