@@ -32,6 +32,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import org.opensha.commons.geo.Location;
+import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 /**
  * <p>Title: SitesOfInterest </p>
@@ -76,9 +78,16 @@ public class SitesOfInterestControlPanel extends ControlPanel {
 			/*
 			 * add interesting sites
 			 */
+			
+			for (NEHRP_TestCity city : NEHRP_TestCity.getShortListCA()) {
+				sitesComboBox.addItem("NEHRP city: " + city.toString());
+				Location loc = city.location();
+				latVector.add(loc.getLatitude());
+				lonVector.add(loc.getLongitude());
+			}
 
 			//GEM test site
-			this.sitesComboBox.addItem("GEM test site");
+			sitesComboBox.addItem("GEM test site");
 			latVector.add(new Double(40.0));
 			lonVector.add(new Double(70.0));
 

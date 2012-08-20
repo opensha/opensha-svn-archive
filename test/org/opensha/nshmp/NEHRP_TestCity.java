@@ -3,6 +3,7 @@ package org.opensha.nshmp;
 import java.util.EnumSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.math.util.MathUtils;
 
 import org.opensha.commons.data.Site;
@@ -136,6 +137,11 @@ public enum NEHRP_TestCity {
 		}
 	}
 	
+
+	@Override
+	public String toString() {
+		return WordUtils.capitalizeFully(name().replace('_',' '));
+	}
 
 
 }
