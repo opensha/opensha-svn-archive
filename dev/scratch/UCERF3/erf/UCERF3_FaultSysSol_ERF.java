@@ -83,6 +83,7 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	//		System.out.println("rateTest=" + totalRate);
 	
 			// KLUDGY need to have Inversion view of fault system solution
+			// TODO hold on to InversionFSSS reference instead of constructing
 			
 			InversionFaultSystemSolution ifss = new InversionFaultSystemSolution(faultSysSolution);
 			ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(ifss);
