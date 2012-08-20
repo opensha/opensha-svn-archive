@@ -1365,8 +1365,10 @@ public class FaultSystemRupSetCalc {
 			UCERF2_MFD_ConstraintFetcher u2fetcher = new UCERF2_MFD_ConstraintFetcher(RELM_RegionUtils.getGriddedRegionInstance());
 			mfds.add(u2fetcher.getTotalMFD());
 			mfds.add(u2fetcher.getBackgroundSeisMFD());
+			mfds.add(u2fetcher.getFaultMFD());
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.RED));
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.MAGENTA));
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED,2f,Color.RED));
 		}
 
 		// plot orig GR nucleation MFD if GR branch
@@ -1636,19 +1638,26 @@ public class FaultSystemRupSetCalc {
 		
 		
 		
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+
+		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
+
 		
-		String PATH_TO_FILE_BELOW = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/FM3_1_NEOK_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
-		SimpleFaultSystemSolution tmp = null;
-		try {
-			File f = new File(PATH_TO_FILE_BELOW);
-			System.out.println(f.exists());
-			tmp = SimpleFaultSystemSolution.fromFile(f);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
-		List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
-		System.out.println(list.size());
+		
+//		String PATH_TO_FILE_BELOW = "/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/FM3_1_NEOK_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
+//		SimpleFaultSystemSolution tmp = null;
+//		try {
+//			File f = new File(PATH_TO_FILE_BELOW);
+//			System.out.println(f.exists());
+//			tmp = SimpleFaultSystemSolution.fromFile(f);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
+//		List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
+//		System.out.println(list.size());
 
 		
 		
