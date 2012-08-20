@@ -376,12 +376,26 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	@Override
 	public ProbEqkSource getSource(int iSource) {
-		if (bgInclude.equals(ONLY)) return getOtherSource(iSource);
-		if (bgInclude.equals(EXCLUDE)) return makeFaultSystemSource(iSource);
-		if (iSource < numFaultSystemSources) {
-			return makeFaultSystemSource(iSource);
+		if (iSource == lastSrcRequested) return currentSrc;
+		
+		if (bgInclude.equals(ONLY)) {
+			currentSrc = getOtherSource(iSource);
+		} else if (bgInclude.equals(EXCLUDE)) {
+			currentSrc = makeFaultSystemSource(iSource);
+		} else if (iSource < numFaultSystemSources) {
+			currentSrc = makeFaultSystemSource(iSource);
+		} else {
+			currentSrc = getOtherSource(iSource - numFaultSystemSources);
 		}
-		return getOtherSource(iSource - numFaultSystemSources);
+		lastSrcRequested = iSource;
+		return currentSrc;
+		
+//		if (bgInclude.equals(ONLY)) return getOtherSource(iSource);
+//		if (bgInclude.equals(EXCLUDE)) return makeFaultSystemSource(iSource);
+//		if (iSource < numFaultSystemSources) {
+//			return makeFaultSystemSource(iSource);
+//		}
+//		return getOtherSource(iSource - numFaultSystemSources);
 		
 //		if(iSource == lastSrcRequested)
 //			return currentSrc;
