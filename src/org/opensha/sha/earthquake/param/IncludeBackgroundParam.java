@@ -13,8 +13,10 @@ import org.opensha.commons.param.impl.EnumParameter;
  */
 public class IncludeBackgroundParam extends EnumParameter<IncludeBackgroundOption> {
 	
+	public static final String NAME = "Background Seismicity";
+	
 	public IncludeBackgroundParam() {
-		super("Background Seismicity", EnumSet
+		super(NAME, EnumSet
 			.allOf(IncludeBackgroundOption.class),
 			IncludeBackgroundOption.EXCLUDE, null);
 	}
