@@ -157,7 +157,7 @@ public class BatchPlotGen {
 		boolean hasPaleoPlots = CommandLineInversionRunner.doPaleoPlotsExist(dir, prefix);
 		boolean hasSAFSegPlots = CommandLineInversionRunner.doSAFSegPlotsExist(dir, prefix);
 //		boolean hasMFDPlots = 
-		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasSAFSegPlots) {
+		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasPaleoPlots && hasSAFSegPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
