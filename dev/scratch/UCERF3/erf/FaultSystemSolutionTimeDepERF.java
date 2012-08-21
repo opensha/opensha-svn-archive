@@ -83,7 +83,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	boolean timeSpanChangeFlag=true;
 	
 	// aperiodicity parameter and primitive
-	BPT_AperiodicityParam bpt_AperiodicityParam;
+	protected BPT_AperiodicityParam bpt_AperiodicityParam;
 	double bpt_Aperiodicity;
 	boolean bpt_AperiodicityChanged;
 	

@@ -1,4 +1,4 @@
-package scratch.UCERF3.erf;
+package scratch.UCERF3.erf.UCERF2_Mapped;
 
 import java.util.ArrayList;
 
@@ -7,6 +7,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 
 import java.awt.Toolkit;
@@ -14,6 +15,7 @@ import java.io.File;
 
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
 
@@ -43,7 +45,7 @@ public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionTime
 	
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
-		return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - numFaultSystemSources, timeSpan.getDuration());
+		return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource, timeSpan.getDuration());
 	}
 	
 	/**
@@ -52,7 +54,8 @@ public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionTime
 	public static void main(String[] args) {
 		UCERF2_FM2pt1_FaultSysSolTimeDepERF erf = new UCERF2_FM2pt1_FaultSysSolTimeDepERF();
 		erf.aleatoryMagAreaStdDevParam.setValue(0.0);
-		erf.bpt_AperiodicityParam.setValue(0.2);
+		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
+//		erf.bpt_AperiodicityParam.setValue(0.2);
 		erf.getTimeSpan().setStartTimeInMillis(0);
 		erf.getTimeSpan().setDuration(1);
 		long runtime = System.currentTimeMillis();

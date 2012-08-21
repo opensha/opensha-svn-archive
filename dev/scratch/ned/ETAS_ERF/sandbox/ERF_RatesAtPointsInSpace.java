@@ -22,8 +22,8 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
+import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 
 public class ERF_RatesAtPointsInSpace {
 	

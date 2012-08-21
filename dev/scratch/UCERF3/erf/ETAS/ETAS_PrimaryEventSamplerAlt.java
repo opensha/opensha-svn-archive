@@ -32,7 +32,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
+import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 
 public class ETAS_PrimaryEventSamplerAlt {
 	

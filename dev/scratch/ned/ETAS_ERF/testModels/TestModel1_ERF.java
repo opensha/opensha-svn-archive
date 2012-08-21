@@ -149,7 +149,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 	
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
-		int regionIndex = iSource-numFaultSystemSources;
+		int regionIndex = iSource;
 		ArbIncrementalMagFreqDist mfd;
 		if(locIndicesOnFault.contains(regionIndex))
 			mfd = onFaultPointMFD;

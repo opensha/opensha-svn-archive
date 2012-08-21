@@ -54,7 +54,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 
 	public static final String NAME = "Fault System Solution Poisson ERF";
 	
@@ -71,9 +71,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected ApplyGardnerKnopoffAftershockFilterParam applyAftershockFilterParam;
 	protected boolean applyAftershockFilter;
 	protected IncludeBackgroundParam bgIncludeParam;
-	protected IncludeBackgroundOption bgInclude;
+	protected IncludeBackgroundOption bgInclude; // this is the primitive field
 	protected BackgroundRupParam bgRupTypeParam;
-	protected BackgroundRupType bgRupType;
+	protected BackgroundRupType bgRupType; // this is the primitive field
 
 	
 	// these help keep track of what's changed
@@ -207,6 +207,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			System.out.println("numFaultSystemSources="+numFaultSystemSources);
 			System.out.println("totNumRupsFromFaultSystem="+totNumRupsFromFaultSystem);
 			System.out.println("totNumRups="+totNumRups);
+			System.out.println("numOtherSources="+this.numOtherSources);
+			System.out.println("getNumSources()="+this.getNumSources());
 		}
 		
 	}
@@ -379,7 +381,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 		if (bgInclude.equals(ONLY)) {
 			currentSrc = getOtherSource(iSource);
-		} else if (bgInclude.equals(EXCLUDE)) {
+		} else if(bgInclude.equals(EXCLUDE)) {
 			currentSrc = makeFaultSystemSource(iSource);
 		} else if (iSource < numFaultSystemSources) {
 			currentSrc = makeFaultSystemSource(iSource);
@@ -388,24 +390,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		}
 		lastSrcRequested = iSource;
 		return currentSrc;
-		
-//		if (bgInclude.equals(ONLY)) return getOtherSource(iSource);
-//		if (bgInclude.equals(EXCLUDE)) return makeFaultSystemSource(iSource);
-//		if (iSource < numFaultSystemSources) {
-//			return makeFaultSystemSource(iSource);
-//		}
-//		return getOtherSource(iSource - numFaultSystemSources);
-		
-//		if(iSource == lastSrcRequested)
-//			return currentSrc;
-//		else if (iSource <numFaultSystemSources) {
-//			ProbEqkSource src = makeFaultSystemSource(iSource);
-//			currentSrc = src;
-//			lastSrcRequested = iSource;		
-//			return src;
-//		}
-//		else	// this is where non-fault system sources can can go
-//			return getOtherSource(iSource);
 	}
 
 
@@ -466,8 +450,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	/**
 	 * This provides a mechanism for adding other sources in subclasses
-	 * (and make sure iSource>=fltSysRupIndexForSource.length )
-	 * @param iSource
+	 * @param iSource - note that this index is relative to the other sources list (numFaultSystemSources has already been subtracted out)
 	 * @return
 	 */
 	protected ProbEqkSource getOtherSource(int iSource) {

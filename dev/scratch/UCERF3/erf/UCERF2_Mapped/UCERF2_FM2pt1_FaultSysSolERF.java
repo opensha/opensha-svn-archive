@@ -1,12 +1,14 @@
-package scratch.UCERF3.erf;
+package scratch.UCERF3.erf.UCERF2_Mapped;
 
 import java.util.ArrayList;
 
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
 
@@ -18,6 +20,8 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
  *
  */
 public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF {
+	
+	private static final boolean D = false;
 
 	NSHMP_GridSourceGenerator nshmp_gridSrcGen;
 	
@@ -29,20 +33,24 @@ public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF 
 	public UCERF2_FM2pt1_FaultSysSolERF() {
 		super(UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1));
 		nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
+		initOtherSources();
+		
+		// CHANGE THIS:
+		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
 	}
 	
 	
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
 		
-		if(iSource < numFaultSystemSources+numGridSources) {
+		if(iSource < numGridSources) {
 			if(bgRupType.equals(BackgroundRupType.CROSSHAIR))
-				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - numFaultSystemSources, timeSpan.getDuration());	
+				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource, timeSpan.getDuration());	
 			else
-				return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - numFaultSystemSources, timeSpan.getDuration());			
+				return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource, timeSpan.getDuration());			
 		}
 		else {
-			return fixedStrikeSources.get(iSource - numFaultSystemSources - numGridSources);
+			return fixedStrikeSources.get(iSource - numGridSources);
 		}
 	}
 	
@@ -61,10 +69,12 @@ public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF 
 			numGridSources = nshmp_gridSrcGen.getNumSources();
 			numOtherSources = numGridSources+fixedStrikeSources.size();
 			
-			System.out.println("numFaultSystemSources="+numFaultSystemSources);
-			System.out.println("numOtherSources="+numOtherSources);
-			System.out.println("numGridSources="+numGridSources);
-			System.out.println("numFixedStrikeSources="+fixedStrikeSources.size());
+			if(D) {
+				System.out.println("numFaultSystemSources="+numFaultSystemSources);
+				System.out.println("numOtherSources="+numOtherSources);
+				System.out.println("numGridSources="+numGridSources);
+				System.out.println("numFixedStrikeSources="+fixedStrikeSources.size());
+			}
 	}
 
 	

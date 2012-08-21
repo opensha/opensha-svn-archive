@@ -56,7 +56,7 @@ import com.google.common.collect.Table;
  */
 public class DeformationModelFetcher {
 
-	protected final static boolean D = true;  // for debugging
+	protected final static boolean D = false;  // for debugging
 	
 	private final static boolean CUSTOM_PARKFIELD_CREEPING_SECTION_MOMENT_REDUCTIONS = true;
 	private final static double[] creep_mo_reds = {0.9112, 0.9361, 0.9557, 0.9699, 0.9786, 0.9819, 0.9796, 0.9719, 0.9585, 0.9396, 0.9150, 0.8847, 0.8487,
