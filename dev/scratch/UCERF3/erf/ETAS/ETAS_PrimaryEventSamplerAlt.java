@@ -32,7 +32,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
+import scratch.UCERF3.erf.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 
 public class ETAS_PrimaryEventSamplerAlt {
 	
@@ -853,7 +853,7 @@ System.out.println("testSum="+testSum);
 	public static void main(String[] args) {
 		
 		System.out.println("Instantiating ERF");
-		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF();
+		UCERF2_FM2pt1_FaultSysSolTimeDepERF erf = new UCERF2_FM2pt1_FaultSysSolTimeDepERF();
 		erf.updateForecast();
 		
 		double sourceRates[] = new double[erf.getNumSources()];

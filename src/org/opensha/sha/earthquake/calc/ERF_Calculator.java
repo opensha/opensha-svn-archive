@@ -83,9 +83,30 @@ public class ERF_Calculator {
    * @return
    */
   public static SummedMagFreqDist getTotalMFD_ForERF(ERF eqkRupForecast, double min,double max,int num, boolean preserveRates) {
+	  return getTotalMFD_ForSourceRange(eqkRupForecast, min, max, num, preserveRates, 
+			  0, eqkRupForecast.getNumSources());
+  }
+  
+
+  /**
+   * This computes the annualized total magnitude frequency distribution for the ERF for
+   * the specified range of sources. Magnitudes that are out of the range specified are 
+   * ignored.
+   * @param eqkRupForecast - assumed to be updated before being passed in
+   * @param min - for MagFreqDist x axis
+   * @param max - for MagFreqDist x axis
+   * @param num - for MagFreqDist x axis
+   * @param preserveRates - if true rates are assigned to nearest discrete magnitude
+   *        without modification,if false rates are adjusted to preserve moment rate.
+   * @param firstSourceIndex - first index of sources to be included 
+   * @param lastSourceIndex - last index of sources to be included 
+   * @return
+   */
+  public static SummedMagFreqDist getTotalMFD_ForSourceRange(ERF eqkRupForecast, double min,double max,int num, 
+		  boolean preserveRates, int firstSourceIndex, int lastSourceIndex) {
 	  SummedMagFreqDist mfd = new SummedMagFreqDist(min,max,num);
 	  double duration = eqkRupForecast.getTimeSpan().getDuration();
-	  for(int s=0;s<eqkRupForecast.getNumSources();s++) {
+	  for(int s=firstSourceIndex;s<=lastSourceIndex;s++) {
 		  ProbEqkSource src = eqkRupForecast.getSource(s);
 		  for(int r=0;r<src.getNumRuptures();r++) {
 			  ProbEqkRupture rup = src.getRupture(r);
@@ -94,6 +115,7 @@ public class ERF_Calculator {
 	  }
 		 return mfd;
   }
+
   
   
   /**

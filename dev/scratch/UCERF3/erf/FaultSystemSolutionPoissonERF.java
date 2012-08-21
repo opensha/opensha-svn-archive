@@ -193,14 +193,13 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		if(fileParamChanged) {
 			readFaultSysSolutionFromFile();	// this will not re-read the file if the name has not changed
 			setupArraysAndLists();
-			initOtherSources();
-//			if (!bgInclude.equals(ONLY)) setupArraysAndLists();
-//			if (!bgInclude.equals(EXCLUDE)) initOtherSources();
 		}
 		else if (aleatoryMagAreaStdDevChanged) {	// faultGridSpacingChanged not influential here
 			setupArraysAndLists();
 			aleatoryMagAreaStdDevChanged = false;
 		}
+		
+		initOtherSources();
 				
 		runTime = (System.currentTimeMillis()-runTime)/1000;
 		if(D) {
