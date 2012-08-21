@@ -232,16 +232,27 @@ public class UCERF3_PaleoRateConstraintFetcher {
 					FaultSystemSolution sol = solutions.get(i);
 					Color color = GraphPanel.defaultColor[i % GraphPanel.defaultColor.length];
 					
-					EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
-					func.setName("(x="+x+") Solution "+i+" rates for: "+name);
+					EvenlyDiscretizedFunc paleoRtFunc = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
+					EvenlyDiscretizedFunc origRtFunc = null;
+					if (solutions.size() == 1)
+						origRtFunc = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
+					paleoRtFunc.setName("(x="+x+") Solution "+i+" paleo rates for: "+name);
+					origRtFunc.setName("(x="+x+") Solution "+i+" original rates for: "+name);
 					for (int j=0; j<numSects; j++) {
 						int mySectID = minSect + j;
-						double rate = getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache);
-						func.set(j, rate);
+						paleoRtFunc.set(j, getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache));
+						if (origRtFunc != null)
+							origRtFunc.set(j, getPaleoRateForSect(sol, mySectID, null, traceLengthCache));
 					}
-					funcs.add(func);
-					funcParentsMap.put(parentID, func);
+					funcs.add(paleoRtFunc);
 					plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+					if (origRtFunc != null) {
+						funcs.add(origRtFunc);
+						Color origColor = GraphPanel.defaultColor[(i+1) % GraphPanel.defaultColor.length];
+						plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, origColor));
+					}
+					
+					funcParentsMap.put(parentID, paleoRtFunc);
 				}
 				
 				xIndForParentMap.put(parentID, x);
@@ -289,9 +300,10 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			PaleoProbabilityModel paleoProbModel, Map<Integer, Double> traceLengthCache) {
 		double rate = 0;
 		for (int rupID : sol.getRupturesForSection(sectIndex)) {
-			double probPaleoVisible = paleoProbModel.getProbPaleoVisible(sol, rupID, sectIndex);
-//			rate += sol.getRateForRup(rupID) * sol.getProbPaleoVisible(sol.getMagForRup(rupID));
-			rate += sol.getRateForRup(rupID) * probPaleoVisible;
+			double rupRate = sol.getRateForRup(rupID);
+			if (paleoProbModel != null)
+				rupRate *= paleoProbModel.getProbPaleoVisible(sol, rupID, sectIndex);
+			rate += rupRate;
 		}
 		return rate;
 	}
