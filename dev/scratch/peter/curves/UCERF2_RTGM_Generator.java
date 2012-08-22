@@ -33,7 +33,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.nshmp.Period;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF2_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 
 import com.google.common.collect.Lists;
@@ -142,12 +141,13 @@ class UCERF2_RTGM_Generator {
 	}
 	
 	private ERF newU2_ERF(File zip) {
-		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF(zip);
-		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-		ts.setDuration(1);
-		erf.setTimeSpan(ts);
-		erf.updateForecast();
-		return erf;
+//		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF(zip);
+//		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+//		ts.setDuration(1);
+//		erf.setTimeSpan(ts);
+//		erf.updateForecast();
+//		return erf;
+		return null;
 	}
 	
 
