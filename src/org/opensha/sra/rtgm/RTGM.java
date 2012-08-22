@@ -86,20 +86,22 @@ public class RTGM implements Callable<RTGM> {
 	private List<Double> rtgmIters = null;
 	private List<Double> riskIters = null;
 	private Frequency sa;
+	private int index = -1;
 	
 	private RTGM() {}
 	
 	/**
-	 * Creates a new RTGM result for the supplied hazard curve.
+	 * Creates a new RTGM calculation and result container for the supplied
+	 * hazard curve. Users must call {@code call()} to initiate calculation of a
+	 * risk-targeted ground motion that can be retreived using {@code get()}.
+	 * 
 	 * @param hazCurve to process
 	 * @param sa specifies the period of the supplied curve; if not {@code null}
 	 *        a conversion factor of 1.1 (for 0.2sec) or 1.3 (for 1sec) will be
 	 *        applied to the RTGM returned by {@code get()}
 	 * @param beta the fragility curve standard deviation; if {@code null} the
 	 *        default value, 0.6, is used
-	 * @return an RTGM result container
-	 * @throws RuntimeException if internal RTGM calculation exceeds 6
-	 *         iterations
+	 * @return an RTGM calculation and result container
 	 */
 	public static RTGM create(DiscretizedFunc hazCurve, Frequency sa, Double beta) {
 		checkNotNull(hazCurve, "Supplied curve is null");
@@ -113,6 +115,36 @@ public class RTGM implements Callable<RTGM> {
 		return instance;
 	}
 	
+	/**
+	 * Creates a new RTGM calculation and result container for the supplied
+	 * hazard curve that stores an internal index. The index may be used to
+	 * identify the RTGM container when
+	 *  working with an {@code ExecutorService}.
+	 * Users must call {@code call()} to initiate calculation of a risk-targeted
+	 * ground motion that can be retreived using {@code get()}.
+	 * 
+	 * @param hazCurve to process
+	 * @param sa specifies the period of the supplied curve; if not {@code null}
+	 *        a conversion factor of 1.1 (for 0.2sec) or 1.3 (for 1sec) will be
+	 *        applied to the RTGM returned by {@code get()}
+	 * @param beta the fragility curve standard deviation; if {@code null} the
+	 *        default value, 0.6, is used
+	 * @param index of
+	 * @return an RTGM calculation and result container
+	 */
+	public static RTGM createIndexed(DiscretizedFunc hazCurve, Frequency sa,
+			Double beta, int index) {
+		RTGM instance = create(hazCurve, sa, beta);
+		instance.index = index;
+		return instance;
+	}
+	
+	/**
+	 * Triggers the internal iterative RTGM calculation.
+	 * @return a reference to {@code this}
+	 * @throws RuntimeException if internal RTGM calculation exceeds 6
+	 *         iterations
+	 */
 	@Override
 	public RTGM call() {
 		calculate(hazCurve);
@@ -131,6 +163,14 @@ public class RTGM implements Callable<RTGM> {
 		// frequency dependent factor. If a frequency was supplied at creation,
 		// the corresponding scale factor is applied here to the rtgm value.
 		return (sa != null) ? rtgm * sa.scale : rtgm;
+	}
+	
+	/**
+	 * Returns the optionally supplied index or -1 if none was supplied.
+	 * @return the RTGM index
+	 */
+	public int getIndex() {
+		return index;
 	}
 		
 	/**

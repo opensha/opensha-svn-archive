@@ -78,9 +78,9 @@ class UCERF2_RTGM_Processor implements Runnable {
 				
 				RTGM.Frequency freq = per.equals(Period.GM0P20)
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
-				RTGM rtgm = RTGM.create(f, freq, 0.8);
+				RTGM rtgm = RTGM.create(f, freq, 0.8).call();
 				
-				addResults(loc, f, rtgm.call());
+				addResults(loc, f, rtgm.get());
 
 			} catch (Exception e) {
 				e.printStackTrace();

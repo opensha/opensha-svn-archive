@@ -83,11 +83,11 @@ class RTGM_ListProcessor implements Runnable {
 				
 				RTGM.Frequency freq = per.equals(Period.GM0P20)
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
-				RTGM rtgm = RTGM.create(f, freq, 0.8);
+				RTGM rtgm = RTGM.create(f, freq, 0.8).call();
 				
 				double wt = erfs.getERF_RelativeWeight(i);
 				
-				addResults(i, wt, erf, f, rtgm.call());
+				addResults(i, wt, erf, f, rtgm.get());
 
 			} catch (Exception e) {
 				e.printStackTrace();
