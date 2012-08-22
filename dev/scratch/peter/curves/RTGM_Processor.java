@@ -73,7 +73,7 @@ class RTGM_Processor implements Runnable {
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
 				RTGM rtgm = RTGM.create(f, freq, 0.8);
 				
-				addResults(loc, f, rtgm.get());
+				addResults(loc, f, rtgm.call());
 
 			} catch (Exception e) {
 				e.printStackTrace();

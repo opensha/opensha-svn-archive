@@ -31,7 +31,7 @@ import com.google.common.collect.Sets;
  */
 class RTGM_ListGenerator {
 
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2-TimeIndep";
+	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2-TimeDep";
 	private static AttenRelRef[] imrRefs = { AttenRelRef.NSHMP_2008 };
 	private static Period[] periods = { Period.GM0P20, Period.GM1P00 };
 //	private static Period[] periods = { Period.GM0P20};
@@ -72,8 +72,8 @@ class RTGM_ListGenerator {
 	}
 
 	static EpistemicListERF newERF() {
-		AbstractEpistemicListERF erf = new UCERF2_TimeIndependentEpistemicList();
-//		AbstractEpistemicListERF erf = new UCERF2_TimeDependentEpistemicList();
+//		AbstractEpistemicListERF erf = new UCERF2_TimeIndependentEpistemicList();
+		AbstractEpistemicListERF erf = new UCERF2_TimeDependentEpistemicList();
 		
 		Parameter bgSrcParam = erf.getParameter(UCERF2.BACK_SEIS_RUP_NAME);
 		bgSrcParam.setValue(UCERF2.BACK_SEIS_RUP_POINT);

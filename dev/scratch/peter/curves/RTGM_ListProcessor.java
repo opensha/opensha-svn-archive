@@ -87,7 +87,7 @@ class RTGM_ListProcessor implements Runnable {
 				
 				double wt = erfs.getERF_RelativeWeight(i);
 				
-				addResults(i, wt, erf, f, rtgm.get());
+				addResults(i, wt, erf, f, rtgm.call());
 
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -86,8 +86,8 @@ public class RTGM_Tests {
 	public final void test() {
 		for (ResultSet result : results) {
 			RTGM rtgm = RTGM.create(result.hc, result.freq, BETA);
-			double rtgmDiff = pDiff(result.rtgm, rtgm.get());
-			assertTrue("rtgm diff % is: " + rtgmDiff + " " + result.rtgm + " " +rtgm.get() , rtgmDiff < TOL);
+			double rtgmDiff = pDiff(result.rtgm, rtgm.call());
+			assertTrue("rtgm diff % is: " + rtgmDiff + " " + result.rtgm + " " +rtgm.call() , rtgmDiff < TOL);
 			double riskDiff = pDiff(result.risk, rtgm.riskCoeff());
 			assertTrue("risk diff % is: " + riskDiff, riskDiff < TOL);
 		}

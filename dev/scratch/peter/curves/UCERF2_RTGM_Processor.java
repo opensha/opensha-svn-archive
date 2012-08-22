@@ -14,6 +14,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
@@ -21,12 +22,16 @@ import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.nshmp.Period;
 import org.opensha.sha.nshmp.Utils;
 import org.opensha.sra.rtgm.RTGM;
+
+import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -35,7 +40,7 @@ import com.google.common.collect.Maps;
 class UCERF2_RTGM_Processor implements Runnable {
 
 	private ScalarIMR imr;
-	private ERF erfFlt, erfBg;
+	private ERF erf;
 	private Iterable<NEHRP_TestCity> locs;
 	private Period per;
 	
@@ -45,14 +50,13 @@ class UCERF2_RTGM_Processor implements Runnable {
 	
 	private List<List<String>> curveData;
 
-	UCERF2_RTGM_Processor(ScalarIMR imr, ERF erfFlt, ERF erfBg,
+	UCERF2_RTGM_Processor(ScalarIMR imr, ERF erf,
 		Iterable<NEHRP_TestCity> locs, Period per, String outDir) {
 		this.outDir = outDir;
 		
 		checkArgument(per.equals(Period.GM0P20) || per.equals(Period.GM1P00));
 		this.imr = imr;
-		this.erfFlt = erfFlt;
-		this.erfBg = erfBg;
+		this.erf = erf;
 		this.locs = locs;
 		this.per = per;
 	}
@@ -64,26 +68,19 @@ class UCERF2_RTGM_Processor implements Runnable {
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
 		for (NEHRP_TestCity loc : locs) {
-			DiscretizedFunc fFlt = per.getLogFunction();
-			DiscretizedFunc fBg = per.getLogFunction();
+			DiscretizedFunc f = per.getLogFunction();
 			Site site = loc.getSite();
 			try {
-				fFlt = calc.getHazardCurve(fFlt, site, imr, erfFlt);
-				fFlt = deLog(fFlt);
-				fFlt = calc.getAnnualizedRates(fFlt, TIME);
-
-				fBg = calc.getHazardCurve(fBg, site, imr, erfBg);
-				fBg = deLog(fBg);
-				fBg = calc.getAnnualizedRates(fBg, TIME);
-
-				Utils.addFunc(fFlt, fBg);
-				// System.out.println(fFlt);
+				f = calc.getHazardCurve(f, site, imr, erf);
+				f = deLog(f);
+				System.out.println(f);
+				f = calc.getAnnualizedRates(f, TIME);
 				
 				RTGM.Frequency freq = per.equals(Period.GM0P20)
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
-				RTGM rtgm = RTGM.create(fFlt, freq, 0.8);
+				RTGM rtgm = RTGM.create(f, freq, 0.8);
 				
-				addResults(loc, fFlt, rtgm.get());
+				addResults(loc, f, rtgm.call());
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -140,9 +137,8 @@ class UCERF2_RTGM_Processor implements Runnable {
 	
 	@Override
 	public String toString() {
-		return "  " + imr.getShortName() + " " + per;
-	}
-	
+		return imr.getShortName() + " " + per;
+	}	
 	
 	private static final String MAP = "Min Fraction for Unlikely Ruptures=11, Mag-Area Relationship=12, Truncation Level=14, % Char vs GR=16, Probability Model=25, Fract MoRate to Background=1, Seg Dependent Aperiodicity=26, Coupling Coefficient=2, A-Fault Slip Model=6, Fraction Smaller Events & Aftershocks=3, B-Faults b-value=18, A-Faults b-value=28, Min Fraction for Unknown Ruptures=10, Deformation Model=0, Mag Sigma=13, Mean Mag Correction=15, C-Zone Weight=23, Segmented A-Fault Solution Types=5, Aperiodicity=27, Connect More B Faults?=20, Wt On A-Priori Rates=7, Background Seismicity=21, MFD for Background=24, Floater Type=17, Relative Wt On Segment Rates=8, A-Fault Solution Type=4, B-Faults Min Mag=19, Treat Background Seismicity As=22, Weighted Inversion?=9";
 	private static final String HEADER = "Deformation Model, Fract MoRate to Background, Coupling Coefficient, Fraction Smaller Events & Aftershocks, A-Fault Solution Type, Segmented A-Fault Solution Types, A-Fault Slip Model, Wt On A-Priori Rates, Relative Wt On Segment Rates, Weighted Inversion?, Min Fraction for Unknown Ruptures, Min Fraction for Unlikely Ruptures, Mag-Area Relationship, Mag Sigma, Truncation Level, Mean Mag Correction, % Char vs GR, Floater Type, B-Faults b-value, B-Faults Min Mag, Connect More B Faults?, Background Seismicity, Treat Background Seismicity As, C-Zone Weight, MFD for Background, Probability Model, Seg Dependent Aperiodicity, Aperiodicity, A-Faults b-value";
@@ -152,7 +148,6 @@ class UCERF2_RTGM_Processor implements Runnable {
 	 * Initialize output lists, one for param values and another for curves
 	 */
 	private void init() {
-		
 		curveData = Lists.newArrayList();
 		List<String> curveHeader = Lists.newArrayList();
 		curveHeader.add("city");

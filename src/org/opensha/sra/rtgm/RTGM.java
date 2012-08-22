@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.math.MathException;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -18,11 +19,11 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 /**
- * Utility class for calculating risk-targeted ground motions (RTGM).
+ * Threadable utility class for calculating risk-targeted ground motions (RTGM).
  * Implementation is an adaptation of Matlab codes provided by N. Luco. Class
- * supplies one static utility method to {@code create()} a new RTGM result
- * instance. Upon creation with a supplied hazard curve, class iteratively
- * computes a risk-targeted ground motion based on a target risk and supplied
+ * supplies one static utility method to {@code create()} a new RTGM 
+ * instance. Once created, invokation of {@code call()} will iteratively
+ * compute a risk-targeted ground motion based on a target risk and supplied
  * hazard curve. It can then be queried for stepwise and final results.
  * 
  * <p><i>Note:</i> Calculation is currently only for the probabilistic
@@ -44,7 +45,7 @@ import com.google.common.primitives.Doubles;
  * @author Peter Powers (pmpowers@usgs.gov)
  * @version $Id:$
  */
-public class RTGM {
+public class RTGM implements Callable<Double> {
 
 	// Target risk in terms of annual frequency
 	private static final double TARGET_RISK = -Math.log(1 - 0.01) / 50;
@@ -73,6 +74,9 @@ public class RTGM {
 	// Tolerance when comparing calculated risk to target
 	private static final double TOLERANCE = 0.01;
 
+	// hazard curve reference
+	private DiscretizedFunc hazCurve;
+	
 	// retreivables
 	private double riskCoeff = Double.NaN;
 	private double rtgm = Double.NaN;
@@ -97,35 +101,22 @@ public class RTGM {
 	public static RTGM create(DiscretizedFunc hazCurve, Frequency sa, Double beta) {
 		checkNotNull(hazCurve, "Supplied curve is null");
 		RTGM instance = new RTGM();
+		instance.hazCurve = hazCurve;
 		// geoMean to maxHorizDir component conversion
 		//    this could be done afterwards meaning scale the rtgm after
 		//    rather than incur the overhead of creating a new function
 		if (sa != null) instance.sa = sa; //hazCurve = scaleHC(hazCurve, sa.scale);
 		if (beta != null) instance.beta = beta;
-		instance.calculate(hazCurve);
 		return instance;
 	}
 	
-//	private static DiscretizedFunc scaleHC(DiscretizedFunc f, double scale) {
-//		ArbitrarilyDiscretizedFunc adf = new ArbitrarilyDiscretizedFunc();
-//		for (Point2D p : f) {
-//			adf.set(p.getX()*scale, p.getY());
-//		}
-//		return adf;
-//	}
-	
-	
-	
-	/**
-	 * Returns the risk-targeted ground motion for the hazard curve supplied at
-	 * creation.
-	 * @return the risk targeted ground motion
-	 */
-	public double get() {
-//		return rtgm;
+	@Override
+	public Double call() {
+		calculate(hazCurve);
+		// return rtgm;
 		return (sa != null) ? rtgm * sa.scale : rtgm;
 	}
-	
+		
 	/**
 	 * Returns the risk coefficient for this RTGM calculation.
 	 * @return the risk coefficient
@@ -342,7 +333,7 @@ public class RTGM {
 		}
 		
 		RTGM rtgm = RTGM.create(f, Frequency.SA_1P00, 0.8);
-		System.out.println(rtgm.get());
+		System.out.println(rtgm.call());
 		System.out.println(rtgm.riskCoeff());
 		System.out.println(rtgm.rtgmIterations());
 		System.out.println(rtgm.riskIterations());
