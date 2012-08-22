@@ -399,7 +399,7 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static SummedMagFreqDist calcImpliedGR_NucleationMFD(FaultSystemRupSet faultSysRupSet, double minMag, int numMag, double deltaMag) {
 		
-		ArrayList<GutenbergRichterMagFreqDist> gr_mfds = calcImpliedNuclMFD_ForEachSection(faultSysRupSet, minMag, numMag, deltaMag);
+		ArrayList<GutenbergRichterMagFreqDist> gr_mfds = calcImpliedGR_NuclMFD_ForEachSection(faultSysRupSet, minMag, numMag, deltaMag);
 		SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, numMag, deltaMag);
 		double totMoRate=0;
 		double mMaxInRegion=0;
@@ -422,7 +422,7 @@ public class FaultSystemRupSetCalc {
 	 * @param faultSysRupSet
 	 * @return
 	 */
-	public static ArrayList<GutenbergRichterMagFreqDist> calcImpliedNuclMFD_ForEachSection(FaultSystemRupSet faultSysRupSet,
+	public static ArrayList<GutenbergRichterMagFreqDist> calcImpliedGR_NuclMFD_ForEachSection(FaultSystemRupSet faultSysRupSet,
 			double minMag, int numMag, double deltaMag) {
 		List<FaultSectionPrefData> sectDataList = faultSysRupSet.getFaultSectionDataList();
 		ArrayList<GutenbergRichterMagFreqDist> mfds = new ArrayList<GutenbergRichterMagFreqDist>();
@@ -447,6 +447,7 @@ public class FaultSystemRupSetCalc {
 		}
 		return mfds;
 	}
+	
 
 	
 	public static void plotAllImpliedTotalSectGR_MFD() {
@@ -1631,6 +1632,71 @@ public class FaultSystemRupSetCalc {
 		}
 	}
 
+	
+	/**
+	 * This method writes out any zero mag bins between the lower and upper magnitudes for each parent section
+	 * @param faultSystemRupSet
+	 * @param minMag
+	 * @param numMag
+	 * @param deltaMag
+	 */
+	public static void writeZeroMagBinsForEachParentSection(FaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag) {
+		String prevParSectName="junk";
+		double minSectMag=-1, maxSectMag=-1, minParSectMag=-1, maxParSectMag=-1;
+		ArrayList<Double> sectMagList=null;
+		List<FaultSectionPrefData> sectDataList = faultSystemRupSet.getFaultSectionDataList();
+		for(int s=0; s< sectDataList.size();s++) {
+			String parSectName = sectDataList.get(s).getParentSectionName();
+			minSectMag = faultSystemRupSet.getMinMagForSection(s);
+			maxSectMag = faultSystemRupSet.getMaxMagForSection(s);
+			if(!parSectName.equals(prevParSectName)) { // if it's a new parent section
+				if(!prevParSectName.equals("junk")) { // Process results
+					// print out previous result
+					HistogramFunction mfd = new HistogramFunction(minMag, numMag, deltaMag);
+					for(double mag:sectMagList)
+						mfd.add(mag, 1.0);
+					ArrayList<Double> missingMagList = new ArrayList<Double>();
+					for(int m = mfd.getClosestXIndex(minParSectMag); m <= mfd.getClosestXIndex(maxParSectMag); m++) {
+						if(mfd.getY(m) <0.5) 
+							missingMagList.add(mfd.getX(m));
+					}
+					if(missingMagList.size()>0) {
+						System.out.print("\n"+prevParSectName);
+//						System.out.print("\n"+prevParSectName+"\t"+(float)mfd.getX(mfd.getClosestXIndex(minParSectMag))
+//								+"\t"+(float)mfd.getX(mfd.getClosestXIndex(maxParSectMag)));
+						for(double mag: missingMagList)
+							System.out.print("\t"+(float)mag);
+					}
+				}
+				prevParSectName = parSectName;
+				sectMagList = new ArrayList<Double>();
+				minParSectMag = minSectMag;
+				maxParSectMag = maxSectMag;
+			}
+			if(minSectMag<minParSectMag) minParSectMag = minSectMag;
+			if(maxSectMag>maxParSectMag) maxParSectMag = maxSectMag;
+			for(int r: faultSystemRupSet.getRupturesForSection(s)) {
+				sectMagList.add(faultSystemRupSet.getMagForRup(r));
+			}
+		}
+		// print out last result (not caught in above loop)
+		HistogramFunction mfd = new HistogramFunction(minMag, numMag, deltaMag);
+		for(double mag:sectMagList)
+			mfd.add(mag, 1.0);
+		ArrayList<Double> missingMagList = new ArrayList<Double>();
+		for(int m = mfd.getClosestXIndex(minParSectMag); m <= mfd.getClosestXIndex(maxParSectMag); m++) {
+			if(mfd.getY(m) <0.5) 
+				missingMagList.add(mfd.getX(m));
+		}
+		if(missingMagList.size()>0) {
+			System.out.print("\n"+prevParSectName);
+//			System.out.print("\n"+prevParSectName+"\t"+(float)mfd.getX(mfd.getClosestXIndex(minParSectMag))
+//					+"\t"+(float)mfd.getX(mfd.getClosestXIndex(maxParSectMag)));
+			for(double mag: missingMagList)
+				System.out.print("\t"+(float)mag);
+		}
+	}
+
 	/**
 	 * @param args
 	 */
@@ -1641,8 +1707,11 @@ public class FaultSystemRupSetCalc {
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
 				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		
+		writeZeroMagBinsForEachParentSection(rupSet, 0.05, 90, 0.1);
+//		writeZeroMagBinsForEachParentSection(rupSet, 0.1, 45, 0.2);
 
-		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
+//		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
 
 		
 		

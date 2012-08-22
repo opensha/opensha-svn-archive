@@ -3,8 +3,10 @@ package scratch.UCERF3.erf.UCERF2_Mapped;
 import java.util.ArrayList;
 
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -34,9 +36,8 @@ public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF 
 		super(UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1));
 		nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 		initOtherSources();
-		
-		// CHANGE THIS:
-		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
+		setParameter(AleatoryMagAreaStdDevParam.NAME, 0.12);
+		setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
 	}
 	
 	

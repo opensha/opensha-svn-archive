@@ -1,6 +1,14 @@
 package scratch.UCERF3.erf.UCERF2_Mapped;
 
+import java.util.ArrayList;
+
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
 
@@ -12,11 +20,27 @@ public class tests {
 		System.out.println("ADJUSTABLE PARAMS FOR UCERF2_FM2pt1_FaultSysSolERF:");
 		System.out.println(erf.getAdjustableParameterList().getParameterListMetadataString("\n"));
 		
+		SummedMagFreqDist fltMFD = ERF_Calculator.getTotalMFD_ForSourceRange(erf, 4.05, 8.95, 50, true, 0, 6978);
+		fltMFD.setName("fltMFD");
+		SummedMagFreqDist bgMFD = ERF_Calculator.getTotalMFD_ForSourceRange(erf, 4.05, 8.95, 50, true, 6979, erf.getNumSources()-1);
+		bgMFD.setName("bgMFD");
+	
 		ModMeanUCERF2_FM2pt1_wOutAftershocks erf_orig = getModMeanUCERF2_FM2pt1_wOutAftershocks();
 		System.out.println("ADJUSTABLE PARAMS FOR ModMeanUCERF2_FM2pt1_wOutAftershocks:");
 		System.out.println(erf_orig.getAdjustableParameterList().getParameterListMetadataString("\n"));
+		
+		SummedMagFreqDist fltMFD_orig = ERF_Calculator.getTotalMFD_ForSourceRange(erf_orig, 4.05, 8.95, 50, true, 0, 274);
+		fltMFD_orig.setName("fltMFD_orig");
+		SummedMagFreqDist bgMFD_orig = ERF_Calculator.getTotalMFD_ForSourceRange(erf_orig, 4.05, 8.95, 50, true, 394, erf_orig.getNumSources()-1);
+		bgMFD_orig.setName("bgMFD_orig");
 
-
+		// plot functions
+		ArrayList funcs = new ArrayList();
+		funcs.add(fltMFD);
+		funcs.add(bgMFD);
+		funcs.add(fltMFD_orig);
+		funcs.add(bgMFD_orig);
+		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
 	}
 	
 	/**

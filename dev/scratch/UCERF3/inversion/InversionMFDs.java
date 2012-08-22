@@ -207,7 +207,7 @@ public class InversionMFDs {
 			}
 
 			// split the on-fault MFDs into supra- vs sub-seismo MFDs, and apply tempCoupCoeff
-			ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = FaultSystemRupSetCalc.calcImpliedNuclMFD_ForEachSection(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
+			ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = FaultSystemRupSetCalc.calcImpliedGR_NuclMFD_ForEachSection(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
 			subSeismoOnFaultMFD_List = new ArrayList<GutenbergRichterMagFreqDist>();
 			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
