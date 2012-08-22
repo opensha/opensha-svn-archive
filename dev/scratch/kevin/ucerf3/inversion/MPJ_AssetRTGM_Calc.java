@@ -153,7 +153,7 @@ public class MPJ_AssetRTGM_Calc extends MPJ_EAL_Calc {
 				func = HazardCurveSetCalculator.unLogFunction(func, logFunc);
 				DiscretizedFunc rates = curveCalc.getAnnualizedRates(func, erf.getTimeSpan().getDuration());
 				
-				double rtgm = RTGM.create(rates, Frequency.SA_0P20, null).call();
+				double rtgm = RTGM.create(rates, Frequency.SA_0P20, null).call().get();
 				
 //				try {
 //					Location loc = asset.getLocation();

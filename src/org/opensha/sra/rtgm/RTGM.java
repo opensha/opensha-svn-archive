@@ -6,11 +6,13 @@ import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.math.MathException;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.Direction;
 
@@ -22,9 +24,10 @@ import com.google.common.primitives.Doubles;
  * Threadable utility class for calculating risk-targeted ground motions (RTGM).
  * Implementation is an adaptation of Matlab codes provided by N. Luco. Class
  * supplies one static utility method to {@code create()} a new RTGM 
- * instance. Once created, invokation of {@code call()} will iteratively
- * compute a risk-targeted ground motion based on a target risk and supplied
- * hazard curve. It can then be queried for stepwise and final results.
+ * instance. Invokation of {@code call()} triggers an iterative calculation of
+ * risk-targeted ground motion based on a target risk and the hazard curve
+ * supplied at construction, returning a reference to the {@code this} instance.
+ * It can then be queried for stepwise and final results.
  * 
  * <p><i>Note:</i> Calculation is currently only for the probabilistic
  * component of hazard. Deterministic will be added in time.</p>
@@ -45,7 +48,7 @@ import com.google.common.primitives.Doubles;
  * @author Peter Powers (pmpowers@usgs.gov)
  * @version $Id:$
  */
-public class RTGM implements Callable<Double> {
+public class RTGM implements Callable<RTGM> {
 
 	// Target risk in terms of annual frequency
 	private static final double TARGET_RISK = -Math.log(1 - 0.01) / 50;
@@ -111,9 +114,22 @@ public class RTGM implements Callable<Double> {
 	}
 	
 	@Override
-	public Double call() {
+	public RTGM call() {
 		calculate(hazCurve);
+		return this;
+	}
+	
+	/**
+	 * Returns the risk-targeted ground motion for the hazard curve supplied at
+	 * creation.
+	 * @return the risk targeted ground motion
+	 */
+	public double get() {
 		// return rtgm;
+		
+		// In the USGS seismic design maps, hazard curves are scaled by a
+		// frequency dependent factor. If a frequency was supplied at creation,
+		// the corresponding scale factor is applied here to the rtgm value.
 		return (sa != null) ? rtgm * sa.scale : rtgm;
 	}
 		
@@ -126,7 +142,8 @@ public class RTGM implements Callable<Double> {
 	}
 	
 	/**
-	 * Returns the RTGM result history.
+	 * Returns the RTGM result history. Calls to this method prior
+	 * to invoking {@code call()} will return {@code null}.
 	 * @return a {@code List} of the iteratively determined RTGM values
 	 */
 	public List<Double> rtgmIterations() {
@@ -134,13 +151,21 @@ public class RTGM implements Callable<Double> {
 	}
 	
 	/**
-	 * Returns the risk value result history.
+	 * Returns the risk value result history. Calls to this method prior
+	 * to invoking {@code call()} will return {@code null}.
 	 * @return a {@code List} of the iteratively determined risk values
 	 */
 	public List<Double> riskIterations() {
 		return riskIters;
 	}
 	
+	/**
+	 * Return the originally supplied hazard curve.
+	 * @return the source hazard curve
+	 */
+	public DiscretizedFunc hazardCurve() {
+		return hazCurve;
+	}
 
 	private void calculate(DiscretizedFunc hazCurve) {
 		
