@@ -199,10 +199,10 @@ public class RegionTest {
 		
 		// test that addition of additional N and E offset for insidedness
 		// testing is not applied to borders at 90N and 180E
-		Location L4 = new Location(80,170);
-		Location L5 = new Location(90,170);
+		Location L4 = new Location(-90,-180);
+		Location L5 = new Location(90,-180);
 		Location L6 = new Location(90,180);
-		Location L7 = new Location(80,180);
+		Location L7 = new Location(-90,180);
 		Region r1 = new Region(L4, L6);
 		LocationList locList1 = new LocationList();
 		locList1.add(L4);
@@ -550,17 +550,18 @@ public class RegionTest {
 		// compare two differently constructed gridded regions
 		// need to take into account offset for rectangular region
 		Location l1 = new Location(0, 0);
-		Location l2 = new Location(0, 5.000000000001);
-		Location l3 = new Location(5.000000000001, 5.000000000001);
-		Location l4 = new Location(5.000000000001, 0);
-		Location l5 = new Location(5, 5);
+		Location l2 = new Location(5, 5);
+		Location l3 = new Location(-0.000000000001, -0.000000000001);
+		Location l4 = new Location(-0.000000000001, 5.000000000001);
+		Location l5 = new Location(5.000000000001, 5.000000000001);
+		Location l6 = new Location(5.000000000001, -0.000000000001);
 		Location anchor = new Location (0.6, 0.6);
 		LocationList ll = new LocationList();
-		ll.add(l1);
-		ll.add(l2);
 		ll.add(l3);
 		ll.add(l4);
-		GriddedRegion gr1 = new GriddedRegion(l1, l5, 0.1, anchor);
+		ll.add(l5);
+		ll.add(l6);
+		GriddedRegion gr1 = new GriddedRegion(l1, l2, 0.1, anchor);
 		GriddedRegion gr2 = new GriddedRegion(ll, null, 0.1, anchor);
 		assertTrue(gr1.equalsRegion(gr2));
 
@@ -819,10 +820,10 @@ public class RegionTest {
 	// close kml polygons but not needed internally for the region
 	// class to define a border shape
 	private static double[] regionLocLocDat = new double[] {
-		-117.0,39.0,0.0,
-		-112.999999999999,39.0,0.0,
+		-117.000000000001,38.999999999999,0.0,
+		-112.999999999999,38.999999999999,0.0,
 		-112.999999999999,41.000000000001,0.0,
-		-117.0,41.000000000001,0.0};
+		-117.000000000001,41.000000000001,0.0};
 	
 	private static double[] regionLocListMercatorDat = new double[] {
 		-125.00000000000001,35.0,0.0,
@@ -1063,10 +1064,10 @@ public class RegionTest {
 		-125.00000000000001,31.402717641688902,0.0};
 	
 	private static double[] regionSmRectLgRectIntersectDat = new double[] {
-		-117.0,39.0,0.0,
-		-117.0,41.000000000001,0.0,
+		-117.000000000001,38.999999999999,0.0,
+		-117.000000000001,41.000000000001,0.0,
 		-112.999999999999,41.000000000001,0.0,
-		-112.999999999999,39.0,0.0};
+		-112.999999999999,38.999999999999,0.0};
 	
 	private static double[] regionSmRectLgRectUnionDat = new double[] {
 		-125.00000000000001,35.0,0.0,
