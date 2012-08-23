@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 
 import static org.opensha.commons.geo.LocationUtils.TOLERANCE;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

@@ -108,7 +108,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	private double[] latNodeEdges;
 
 	// Location at lower left corner of region bounding rect
-	private Location anchor;
+	public Location anchor;
 
 	// lookup array for grid nodes; has length of master grid spanning
 	// region bounding box; all nodes outside region have values of -1;
@@ -894,22 +894,18 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	}
 
 	/*
-	 * Sets the grid anchor value. If null, the anchor is the min lat and lon of
-	 * the region. If not null, the Location provided is adjusted to be the
+	 * Sets the grid anchor value. The Location provided is adjusted to be the
 	 * lower left corner (min lat-lon) of the region bounding grid. If the
 	 * region grid extended infinitely, both the input and adjusted anchor
 	 * Locations would coincide with grid nodes.
 	 */
 	private void setAnchor(Location anchor) {
-		if (anchor == null) {
-			this.anchor = new Location(getMinLat(), getMinLon());
-		} else {
-			double newLat = computeAnchor(getMinLat(), anchor.getLatitude(),
-				latSpacing);
-			double newLon = computeAnchor(getMinLon(), anchor.getLongitude(),
-				lonSpacing);
-			this.anchor = new Location(newLat, newLon);
-		}
+		if (anchor == null) anchor = new Location(getMinLat(), getMinLon());
+		double newLat = computeAnchor(getMinLat(), anchor.getLatitude(),
+			latSpacing);
+		double newLon = computeAnchor(getMinLon(), anchor.getLongitude(),
+			lonSpacing);
+		this.anchor = new Location(newLat, newLon);
 	}
 
 	/* Computes adjusted anchor values. */
