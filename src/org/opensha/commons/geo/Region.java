@@ -109,51 +109,55 @@ public class Region implements Serializable, XMLSaveable, Named {
 	private Region() {}
 
 	/**
-	 * Initializes a {@code Region} from a pair of <code>Location
-	 * </code>s. When viewed in a Mercator projection, the {@code Region} will
-	 * be a rectangle. If either both latitude or both longitude values in the
-	 * {@code Location}s are the same, an exception is thrown.<br/>
-	 * <br/>
-	 * <b>Note:</b> Internally, a very small value (~1m) is added to the maximum
-	 * latitude and longitude of the locations provided. This ensures that calls
-	 * to {@link Region#contains(Location)} for any {@code Location} on the
-	 * north or east border of the region will return {@code true}. See also the
-	 * rules governing insidedness in the {@link Shape} interface.
+	 * Initializes a <code>Region</code> from a pair of <code>Location </code>s.
+	 * When viewed in a Mercator projection, the <code>Region</code> will be a
+	 * rectangle. If either both latitude or both longitude values in the
+	 * <code>Location</code>s are the same, an exception is thrown.
 	 * 
-	 * @param loc1 the first {@code Location}
-	 * @param loc2 the second {@code Location}
+	 * <p><b>Note:</b> Internally, the size of the region is expanded by a very
+	 * small value (~1m) to ensure that calls to
+	 * {@link Region#contains(Location)} for any <code>Location</code> on the
+	 * north or east border of the region will return <code>true</code> and that
+	 * any double precision rounding issues do not clip the south and west
+	 * borders (e.g. 45.0 may be interpreted as 44.9999...). See also the rules
+	 * governing insidedness in the {@link Shape} interface.</p>
+	 * 
+	 * @param loc1 the first <code>Location</code>
+	 * @param loc2 the second <code>Location</code>
 	 * @throws IllegalArgumentException if the latitude or longitude values in
-	 *         the {@code Location}s provided are the same
-	 * @throws NullPointerException if either {@code Location} argument is
-	 *         {@code null}
+	 *         the <code>Location</code>s provided are the same
+	 * @throws NullPointerException if either <code>Location</code> argument is
+	 *         <code>null</code>
 	 */
 	public Region(Location loc1, Location loc2) {
-
+		
 		checkNotNull(loc1, "Supplied location (1) is null");
 		checkNotNull(loc1, "Supplied location (2) is null");
-
+		
 		double lat1 = loc1.getLatitude();
 		double lat2 = loc2.getLatitude();
 		double lon1 = loc1.getLongitude();
 		double lon2 = loc2.getLongitude();
-
+		
 		checkArgument(lat1 != lat2, "Input lats cannot be the same");
 		checkArgument(lon1 != lon2, "Input lons cannot be the same");
 
 		LocationList ll = new LocationList();
-		double minLat = Math.min(lat1, lat2);
-		double minLon = Math.min(lon1, lon2);
-		double maxLat = Math.max(lat1, lat2);
-		double maxLon = Math.max(lon1, lon2);
+		double minLat = Math.min(lat1,lat2);
+		double minLon = Math.min(lon1,lon2);
+		double maxLat = Math.max(lat1,lat2);
+		double maxLon = Math.max(lon1,lon2);
 		double offset = LocationUtils.TOLERANCE;
-		// ternaries prevent exceedance of max lat-lon values
-		maxLat += (maxLat <= 90.0 - offset) ? offset : 0.0;
-		maxLon += (maxLon <= 180.0 - offset) ? offset : 0.0;
+		// ternaries prevent exceedance of max lat-lon values 
+		maxLat += (maxLat <= 90.0-offset) ? offset : 0.0;
+		maxLon += (maxLon <= 180.0-offset) ? offset : 0.0;
+		minLat -= (minLat >= -90.0+offset) ? offset : 0.0;
+		minLon -= (minLon >= -180.0+offset) ? offset : 0.0;
 		ll.add(new Location(minLat, minLon));
 		ll.add(new Location(minLat, maxLon));
 		ll.add(new Location(maxLat, maxLon));
 		ll.add(new Location(maxLat, minLon));
-
+		
 		initBorderedRegion(ll, BorderType.MERCATOR_LINEAR);
 	}
 
