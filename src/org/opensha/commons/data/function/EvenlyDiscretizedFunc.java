@@ -273,48 +273,31 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	public double getY(double x){ return getY( getXIndex( x) ); }
 
 	/**
-	 * Returns the index of the supplied value provided it's within the tolerance
-	 * of one of the dicretized values.
+	 * Returns the index of the supplied value provided it's within the
+	 * tolerance of one of the discretized values.
 	 */
 	public int getXIndex( double x) throws Point2DException{
-		if (x < (minX-tolerance) || x > (maxX+tolerance))
-			return -1;
-		// single value functions with delta=0 causes problems
-		int i = (delta == 0) ? 0 : (int) Math.round((x-minX)/delta);
-		//int i = (int)Math.round((double)((x-minX)/delta));
-		double closeX = getX(i);
-		if( withinTolerance(x, closeX))
-			return i;
-		else
-			return -1;
-//			throw new Point2DException(C + ": set(): This point doesn't match a permitted x value (your x="+x+"; closest X="
-//						+closeX+"; tol="+tolerance+"; diff="+Math.abs( x - closeX)+").");
-		/*
-        // Steve's old approach:
-
-        double xx = x;              // Why this?
-        double xxMin = this.minX;   // Why this?
-
-        for( int i = 0; i < num; i++){
-            if( withinTolerance(xx, ( xxMin + i*delta ) ) ) return i;
-        }
-       throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
-		 */
+		int i = getClosestXIndex(x);
+		double closestX = getX(i);
+		return withinTolerance(x, closestX) ? i : -1;
 	}
 	
+	
+	private static final double PRECISION_SCALE = 1 + 1e-14;
+	
 	/**
-	 * Returns the index of the supplied value (ignoring tolerance)
+	 * Returns the index of the supplied value (ignoring tolerance). It should
+	 * be noted that this method uses a very small internal scale factor to
+	 * provide accurate results. Double precision errors can result in x-values
+	 * that fall on the boundary between adject values in the function to be
+	 * placed in the lower bin, when a value equivalent to a bin edge should
+	 * always be placed in the higher bin.
 	 */
-	public int getClosestXIndex( double x) throws Point2DException{
-		// single value functions with delta=0 causes problems
-		int i = (delta == 0) ? 0 : (int) Math.round((x-minX)/delta);
-		//int i = (int)Math.round((double)((x-minX)/delta));
+	public int getClosestXIndex( double x) throws Point2DException {
+		double iVal = PRECISION_SCALE * (x - minX) / delta;
+		int i = (delta == 0) ? 0 : (int) Math.round(iVal);
 		return (i<0) ? 0 : (i>=num) ? num-1 : i;
-//		if(i<0) i=0;
-//		else if(i>=num) i = num-1;
-//		return i;
 	}
-
 
 	/**
 	 * Calls set( x value, y value ). A DataPoint2DException is thrown
