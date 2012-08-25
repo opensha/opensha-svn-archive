@@ -118,6 +118,8 @@ public abstract class FaultSystemRupSet {
 		return minMag;
 	}
 	
+	
+	
 	/**
 	 * This returns the magnitude of the largest rupture involving this section or NaN
 	 * if no ruptures involve this section.

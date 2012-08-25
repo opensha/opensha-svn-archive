@@ -1,12 +1,19 @@
 package scratch.UCERF3.utils;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 /**
@@ -40,6 +47,9 @@ public class SectionMFD_constraint {
 	
 	double maxMag, minMag, origMinMag;
 	double upperDelta=Double.NaN;
+	
+	SummedMagFreqDist targetMFD;
+	EvenlyDiscretizedFunc targetCumMFD;
 
 	
 	// the following assumes first mag has area=2A, where A= subsection area, 
@@ -70,76 +80,98 @@ public class SectionMFD_constraint {
 	 * @param minMag
 	 * @param maxMag
 	 */
-	public SectionMFD_constraint(double minMag, double maxMag, double totMoRate) {
+	public SectionMFD_constraint(double minMag, double maxMag, double totMoRate, double fractGR) {
 		this(minMag,maxMag);
-		
-		double bValue = 1;
+
 		double targetDelta = 0.01;
 		double magRange = magEdges.get(magEdges.size()-1)-magEdges.get(0);	// includes bin widths
 		int numPts = (int)Math.round(magRange/targetDelta);
 		double delta = magRange/numPts;
-		double grMinMag = magEdges.get(0)+delta/2;
-		double grMaxMag = magEdges.get(magEdges.size()-1)-delta/2;
-		double grMoment = totMoRate/3;
-		if(D)
-			System.out.println("grMinMag="+(float)grMinMag+"\tgrMaxMag="+(float)grMaxMag+"\tnumPts="+numPts+"\tdelta="+(float)delta+"\tgrMoment="+(float)grMoment+"\tbValue="+bValue);
-		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(grMinMag, numPts, delta, grMoment, bValue);
-		testFractDifference(grDist.getMagUpper(), grMaxMag, "test of grMaxMag");
-//		if(D) System.out.println(grDist);
-		
+		double distMinMag = magEdges.get(0)+delta/2;
+		double distMaxMag = magEdges.get(magEdges.size()-1)-delta/2;
 		rates = new double[mags.size()];
-		EvenlyDiscretizedFunc cumDist = grDist.getCumRateDistWithOffset();
-//		if(D) System.out.println(cumDist);
 
-		for(int i=0; i<mags.size(); i++) {
-			double rate1 = cumDist.getInterpolatedY_inLogYDomain(magEdges.get(i));
-			double rate2;
-			if(i==mags.size()-1)	// it's the last point
-				rate2 =0;
-			else
-				rate2 = cumDist.getInterpolatedY_inLogYDomain(magEdges.get(i+1));
-				rates[i] = rate1-rate2;
-		}
-		
-		double totRate=0;
-		for(double rate:rates) totRate += rate;
-		
-		if(D) {
-			testFractDifference(totRate, grDist.getTotalIncrRate(), "testing GR rates");
-			System.out.println("totRate="+totRate+"\tgrDist.getTotalIncrRate()="+grDist.getTotalIncrRate());
-		}
-		
-		// now add the Characteristic rates
-		double charMag = mags.get(mags.size()-1);
-		double charMoRate = (2.0/3.0)*totMoRate;
-		double charRateAtMaxMag = charMoRate/MagUtils.magToMoment(charMag);
-		if(D) System.out.println("charMag="+charMag+"\tcharMoRate="+(float)charMoRate+"\tcharRateAtMaxMag="+(float)charRateAtMaxMag);
-		rates[rates.length-1] += charRateAtMaxMag;
-		
-		if(D) {
-			totRate=0;
-			for(double rate:rates) totRate += rate;
-			double testTotalRate=grDist.getTotalIncrRate()+charRateAtMaxMag;
-			testFractDifference(totRate, testTotalRate, "testing total rates");
-			System.out.println("totRate="+(float)totRate+"\ttestTotalRate="+(float)testTotalRate);
-		}
-		
+
 		// now make total target MFD
-		SummedMagFreqDist targetMFD = new SummedMagFreqDist(grMinMag, numPts, delta);
-		targetMFD.addIncrementalMagFreqDist(grDist);
-		targetMFD.addResampledMagRate(charMag, charRateAtMaxMag, true);
-
-
-//		// this test is only valid if there is only one bin
-//		double singleMagRate = grMoment/MagUtils.magToMoment(origMinMag);
-//		if(D) System.out.println("singleMagRate="+singleMagRate+"\tfractDiff="+(singleMagRate-totRate)/totRate);
+		targetMFD = new SummedMagFreqDist(distMinMag, numPts, delta);
+		targetMFD.setName("Target MFD");
+		targetMFD.setInfo(" ");
 		
-//		EvenlyDiscretizedFunc moDist = grDist.getMomentRateDist();
-//		double sumMo=0;
-//		for(int i=0;i<moDist.getNum();i++) {
-//			sumMo += moDist.getY(i);
-//			System.out.println((float)moDist.getX(i)+"\t"+(float)sumMo);
-//		}
+		double totGRdistRate=0;
+
+		if(fractGR>0) {
+
+			double bValue = 1;
+			double grMoment = totMoRate*fractGR;
+			if(D)
+				System.out.println("grMinMag="+(float)distMinMag+"\tgrMaxMag="+(float)distMaxMag+"\tnumPts="+numPts+"\tdelta="+(float)delta+"\tgrMoment="+(float)grMoment+"\tbValue="+bValue);
+			GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(distMinMag, numPts, delta, grMoment, bValue);
+			testFractDifference(grDist.getMagUpper(), distMaxMag, "test of grMaxMag");
+			//		if(D) System.out.println(grDist);
+
+			EvenlyDiscretizedFunc cumDist = grDist.getCumRateDistWithOffset();
+			//		if(D) System.out.println(cumDist);
+
+			for(int i=0; i<mags.size(); i++) {
+				double rate1 = cumDist.getInterpolatedY_inLogYDomain(magEdges.get(i));
+				double rate2;
+				if(i==mags.size()-1)	// it's the last point
+					rate2 =0;
+				else
+					rate2 = cumDist.getInterpolatedY_inLogYDomain(magEdges.get(i+1));
+				rates[i] = rate1-rate2;
+			}
+
+			targetMFD.addIncrementalMagFreqDist(grDist);
+
+			totGRdistRate = grDist.getTotalIncrRate();
+			if(D) {
+				double totRate=0;
+				for(double rate:rates) totRate += rate;
+				testFractDifference(totRate, grDist.getTotalIncrRate(), "testing GR rates");
+				System.out.println("totRate="+totRate+"\tgrDist.getTotalIncrRate()="+totGRdistRate);
+			}
+
+		}
+
+		if(fractGR <1) {
+
+			// now add the Characteristic rates
+			double charMag = mags.get(mags.size()-1);
+			double charMoRate = totMoRate*(1-fractGR);
+			double charRateAtMaxMag = charMoRate/MagUtils.magToMoment(charMag);
+			if(D) System.out.println("charMag="+charMag+"\tcharMoRate="+(float)charMoRate+"\tcharRateAtMaxMag="+(float)charRateAtMaxMag);
+			rates[rates.length-1] += charRateAtMaxMag;
+
+			targetMFD.addResampledMagRate(charMag, charRateAtMaxMag, true);
+
+			if(D) {
+				double totRate=0;
+				for(double rate:rates) totRate += rate;
+				double testTotalRate=totGRdistRate+charRateAtMaxMag;
+				testFractDifference(totRate, testTotalRate, "testing total rates");
+				System.out.println("totRate="+(float)totRate+"\ttestTotalRate="+(float)testTotalRate);
+			}
+
+		}
+
+		// get cumulative dist
+		targetCumMFD = targetMFD.getCumRateDistWithOffset();
+		targetCumMFD.setName("Cumulative Target MFD");
+
+		// scale incremental target to be a density distribution (so it can be compared with the other)
+		targetMFD.scale(1.0/targetMFD.getDelta());
+
+		//		// this test is only valid if there is only one bin
+		//		double singleMagRate = grMoment/MagUtils.magToMoment(origMinMag);
+		//		if(D) System.out.println("singleMagRate="+singleMagRate+"\tfractDiff="+(singleMagRate-totRate)/totRate);
+
+		//		EvenlyDiscretizedFunc moDist = grDist.getMomentRateDist();
+		//		double sumMo=0;
+		//		for(int i=0;i<moDist.getNum();i++) {
+		//			sumMo += moDist.getY(i);
+		//			System.out.println((float)moDist.getX(i)+"\t"+(float)sumMo);
+		//		}
 
 	}
 
@@ -277,6 +309,87 @@ public class SectionMFD_constraint {
 		return (double)Math.floor(edgeMag*10.0)/10.0;
 	}
 	
+	public IncrementalMagFreqDist getTargetMFD() {
+		return targetMFD;
+	}
+	
+	public EvenlyDiscretizedFunc getTargetCumMFD() {
+		return targetCumMFD;
+	}
+	
+	
+	/**
+	 * This returns the cumulative MFD (the rate of events above
+	 * the lower edge of each bin)
+	 */
+	public ArbitrarilyDiscretizedFunc getCumMFD() {
+		double[] cumRates = new double[rates.length];
+		cumRates[cumRates.length-1] = rates[rates.length-1];	// setting the last one
+		for(int i=rates.length-2; i>=0; i--)
+			cumRates[i] = rates[i] + cumRates[i+1];
+		
+		ArbitrarilyDiscretizedFunc cumMFD = new ArbitrarilyDiscretizedFunc("Cumulative MFD Constraint");
+		for(int i=0; i<rates.length;i++)
+			cumMFD.set(magEdges.get(i), cumRates[i]);
+		
+		return cumMFD;
+	}
+	
+	
+	/**
+	 * This returns a representation of the MFD that plots well
+	 * (by splitting internal bin edges to make each bin and actual
+	 * boxcar rather than straight lines between bin centers)
+	 */
+	public ArbitrarilyDiscretizedFunc getMFD() {
+		
+		// scale rates to make it a density distribution
+		double[] scaledRates = new double[rates.length];
+		for(int i=0; i<rates.length;i++) scaledRates[i] = rates[i]/getBinWidth(i);
+		
+		ArbitrarilyDiscretizedFunc mfd = new ArbitrarilyDiscretizedFunc("MFD Constraint");
+		mfd.set(magEdges.get(0), scaledRates[0]);
+		for(int i=0; i<rates.length;i++) {
+			double mag = magEdges.get(i+1);
+			if(i == rates.length-1) {	// if it's the last point
+				mfd.set(mag, scaledRates[i]);
+			}
+			else {
+				mfd.set(mag-0.001, scaledRates[i]);
+				mfd.set(mag+0.001, scaledRates[i+1]);
+			}
+		}
+		
+		return mfd;
+	}
+	
+	
+	
+	private double getBinWidth(int ithBin) {
+		return magEdges.get(ithBin+1)-magEdges.get(ithBin);
+	}
+
+	
+	public void plotMFDs() {
+		ArrayList<AbstractDiscretizedFunc> funcs = new ArrayList<AbstractDiscretizedFunc>();
+		funcs.add(getCumMFD());
+		funcs.add(getMFD());
+		funcs.add(getTargetCumMFD());
+		funcs.add(getTargetMFD());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, PlotSymbol.CIRCLE,4, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLUE));
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Section Constraint MFDs", plotChars); 
+		graph.setX_AxisLabel("Mangitude");
+		graph.setY_AxisLabel("Rate (per year)");
+		graph.setYLog(true);
+
+	}
+
+	
 
 	/**
 	 * @param args
@@ -284,7 +397,8 @@ public class SectionMFD_constraint {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		new SectionMFD_constraint(6.14, 8, 1e18);
+		SectionMFD_constraint test = new SectionMFD_constraint(6.14, 7, 1e18, 1);
+		test.plotMFDs();
 		
 		
 //		double minX=6.05;

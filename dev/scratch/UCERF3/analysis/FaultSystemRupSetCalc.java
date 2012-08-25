@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -1696,6 +1697,102 @@ public class FaultSystemRupSetCalc {
 				System.out.print("\t"+(float)mag);
 		}
 	}
+	
+	
+	
+	public static void tempSubsectionAreaTest(FaultSystemRupSet faultSystemRupSet) {
+		String prevParSectName="junk";
+		double minSectArea=1e10, maxSectArea=0, aveArea=0;
+		int numArea=0;
+		List<FaultSectionPrefData> sectDataList = faultSystemRupSet.getFaultSectionDataList();
+		for(int s=0; s< sectDataList.size();s++) {
+			String parSectName = sectDataList.get(s).getParentSectionName();
+			double area = sectDataList.get(s).getReducedDownDipWidth()*sectDataList.get(s).getTraceLength();
+			if(!parSectName.equals(prevParSectName)) { // if it's a new parent section
+				if(!prevParSectName.equals("junk")) { // Process last results
+					aveArea /= numArea;
+					System.out.print("\n"+prevParSectName+"\t"+minSectArea+"\t"+maxSectArea+"\t"+
+							(float)((maxSectArea-minSectArea)/minSectArea)+"\t"+numArea+"\t"+aveArea);
+				}
+				prevParSectName = parSectName;
+				minSectArea = area;
+				maxSectArea = area;
+				aveArea = area;
+				numArea = 1;
+			}
+			else {
+				if(minSectArea>area) minSectArea=area;
+				if(maxSectArea<area) maxSectArea=area;
+				aveArea += area;
+				numArea += 1;
+			}
+		}
+		aveArea /= numArea;
+		// print out last result (not caught in above loop)
+		System.out.print("\n"+prevParSectName+"\t"+minSectArea+"\t"+maxSectArea+"\t"+
+				(float)((maxSectArea-minSectArea)/minSectArea)+"\t"+numArea+"\t"+aveArea);
+	}
+	
+	
+	public static void tempTest(InversionFaultSystemRupSet faultSystemRupSet) {
+				
+		String prevParSectName="junk";
+		double cumSectArea=0, firstArea=0, firstWidth=0;
+		ScalingRelationships scalingRel = faultSystemRupSet.getLogicTreeBranch().getValue(ScalingRelationships.class);
+		System.out.println("scalingRel="+scalingRel);
+		List<FaultSectionPrefData> sectDataList = faultSystemRupSet.getFaultSectionDataList();
+		for(int s=0; s< sectDataList.size();s++) {
+			String parSectName = sectDataList.get(s).getParentSectionName();
+			double width = sectDataList.get(s).getReducedDownDipWidth();
+			double area = width*sectDataList.get(s).getTraceLength();
+			if(!parSectName.equals(prevParSectName)) { // it's a new parent section
+				System.out.print("\n"+parSectName+"\t"+(float)area+"\t"+(float)width);
+				cumSectArea = area;
+				firstArea = area;
+				firstWidth = width;
+				prevParSectName = parSectName;
+				// don't write first because it only has one subsection
+			}
+			else {
+				double areaDiff = Math.abs((firstArea-area)/firstArea);
+				if(areaDiff>0.01)
+					throw new RuntimeException("Areas differ: "+firstArea+"\t"+area+"; widths are:  "+firstWidth+"\t"+width);
+				cumSectArea += area;
+				double mag = scalingRel.getMag(cumSectArea*1e6, width*1e3);
+				System.out.print("\t"+(float)mag+"\t"+(float)(cumSectArea*1e6));
+				prevParSectName = parSectName;				
+			}
+		}
+	}
+
+	
+	public static void tempTest2(InversionFaultSystemRupSet faultSystemRupSet) {
+		for (int r=0;r<faultSystemRupSet.getNumRuptures(); r++) {
+			double mag = faultSystemRupSet.getMagForRup(r);
+			if(mag<6.0) {
+				double rupLength = faultSystemRupSet.getLengthForRup(r)*1e-3;
+				double sqrtRupArea = Math.sqrt(faultSystemRupSet.getAreaForRup(r))*1e-3;
+				int numSubSect = faultSystemRupSet.getSectionsIndicesForRup(r).size();
+				System.out.print("\n"+r+"\t"+mag+"\t"+rupLength+"\t"+sqrtRupArea+"\t"+numSubSect);
+				// make list of parent sections involved
+				ArrayList<String> parentNameList = new ArrayList<String>();
+				for (int s : faultSystemRupSet.getSectionsIndicesForRup(r)) {
+					String parentName = faultSystemRupSet.getFaultSectionData(s).getParentSectionName();
+					if (!parentNameList.contains(parentName))
+						parentNameList.add(parentName);
+				}
+				for(String name : parentNameList) {
+					System.out.print("\t"+name);
+				}
+			}
+		}
+
+	}
+	
+	
+	
+
+
 
 	/**
 	 * @param args
@@ -1708,7 +1805,17 @@ public class FaultSystemRupSetCalc {
 				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
-		writeZeroMagBinsForEachParentSection(rupSet, 0.05, 90, 0.1);
+		rupSet.computeMinSeismoMagForSections(6.0);
+		
+//		tempTest2(rupSet);;
+		
+//		System.out.println(getMagHistogram(rupSet, 0.05, 90, 0.1));
+		
+//		tempSubsectionAreaTest(rupSet);
+		
+//		tempTest(rupSet);
+		
+//		writeZeroMagBinsForEachParentSection(rupSet, 0.05, 90, 0.1);
 //		writeZeroMagBinsForEachParentSection(rupSet, 0.1, 45, 0.2);
 
 //		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");

@@ -173,7 +173,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	 public abstract double getAveSlip(double area, double length);
 	 
 	 /**
-	  * This returns the slip (m) for the given rupture area (m-sq) (and width (m)
+	  * This returns the magnitude for the given rupture area (m-sq) (and width (m)
 	  * for the Shaw09 Mod relationship).
 	  * @param area (m)
 	  * @param width (m)

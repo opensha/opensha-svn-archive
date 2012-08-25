@@ -354,6 +354,127 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");
 	}
 	
+	
+	/**
+	 * This computes the final minimum seismigenic rupture mag for each section,
+	 * where every subsection is given the greatest among all those of the parent section,
+	 * or 6.0 if the latter is below 6.0.  This way all subsections of a parent have the
+	 * same value, and each subsection has a rupture at that magnitude.
+	 * 
+	 * TODO - give a buffer below systemWideMinMinSeismoMag (for bin width) 
+	 * @param systemWideMinMinSeismoMag
+	 */
+	
+	public void computeMinSeismoMagForSections(double systemWideMinMinSeismoMag) {
+		double[] minMagForSectionArray = new double[getNumSections()];
+		boolean[] rupIsBelowSectMinSeismoMag = new boolean[getNumRuptures()];
+		String prevParSectName = "junk";
+		List<FaultSectionPrefData> sectDataList = getFaultSectionDataList();
+		HashMap<String,Double> magForParSectMap = new HashMap<String,Double>();
+		double maxMinSeismoMag=0;
+		double minMinSeismoMag=0;	// this is for testing
+		for(int s=0; s< sectDataList.size();s++) {
+			String parSectName = sectDataList.get(s).getParentSectionName();
+			double minSeismoMag = getMinMagForSection(s);
+			if(!parSectName.equals(prevParSectName)) { // it's a new parent section
+				// set the previous result
+				if(!prevParSectName.equals("junk")) {
+					magForParSectMap.put(prevParSectName, maxMinSeismoMag);
+//					System.out.println(prevParSectName+"\t"+minMinSeismoMag+"\t"+maxMinSeismoMag);
+				}
+				// reset maxMinSeismoMag & prevParSectName
+				maxMinSeismoMag = minSeismoMag;
+				minMinSeismoMag = minSeismoMag;
+				prevParSectName = parSectName;
+			}
+			else {
+				if(maxMinSeismoMag<minSeismoMag)
+					maxMinSeismoMag=minSeismoMag;
+				if(minMinSeismoMag>minSeismoMag)
+					minMinSeismoMag=minSeismoMag;
+			}
+		}
+		// do the last one:
+		magForParSectMap.put(prevParSectName, maxMinSeismoMag);
+//		System.out.println(prevParSectName+"\t"+minMinSeismoMag+"\t"+maxMinSeismoMag);
+
+		
+//		for(String parName:magForParSectMap.keySet())
+//			System.out.println(parName+"\t"+magForParSectMap.get(parName));
+		
+		// now set the value for each section in the array, giving a value of systemWideMinMinSeismoMag 
+		// if the parent section value falls below this
+		for(int s=0; s< sectDataList.size();s++) {
+			double minMag = magForParSectMap.get(sectDataList.get(s).getParentSectionName());
+			if(minMag>systemWideMinMinSeismoMag)
+				minMagForSectionArray[s] = minMag;
+			else
+				minMagForSectionArray[s] = systemWideMinMinSeismoMag;
+		}
+		
+//		// test result:
+//		try {
+//			FileWriter fw = new FileWriter("TestHereItIs");
+//			for(int s=0; s< sectDataList.size();s++) {
+//				String sectName = sectDataList.get(s).getSectionName();
+//				double tempMag = magForParSectMap.get(sectDataList.get(s).getParentSectionName());
+//				double origSlipRate = sectDataList.get(s).getOrigAveSlipRate();
+//				double aseisSlipFactor = sectDataList.get(s).getAseismicSlipFactor();
+//				fw.write(sectName+"\t"+getMinMagForSection(s)+"\t"+tempMag+"\t"+minMagForSectionArray[s]+"\t"+origSlipRate+"\t"+aseisSlipFactor+"\n");
+//			}
+//			fw.close ();
+//		}
+//		catch (IOException e) {
+//			System.out.println ("IO exception = " + e );
+//		}
+
+		
+		// now loop over ruptures and tag those that fall below the min-mag threshold
+		for(int r=0; r<getNumRuptures(); r++) {
+			double rupMag = getMagForRup(r);
+			ArrayList<Integer> indicesForRup = getSectionsIndicesForRup(r);
+			boolean magTooSmall = false;
+			for(int s:indicesForRup) {
+				if(rupMag < minMagForSectionArray[s]) {
+					magTooSmall = true;
+				}
+			}
+			rupIsBelowSectMinSeismoMag[r] = magTooSmall;
+		}
+		
+		// test result:
+		try {
+			FileWriter fw = new FileWriter("TestHereItIs.txt");
+			fw.write("rup\trupMag\tminRupCutoff\tdiff\tfirstSubsectName\tlastSubsectName+\n");
+			for(int r=0; r<getNumRuptures(); r++) {
+				double rupMag = getMagForRup(r);
+				if(rupMag < systemWideMinMinSeismoMag && rupIsBelowSectMinSeismoMag[r] == false)
+					throw new RuntimeException("Problem");
+				if(rupIsBelowSectMinSeismoMag[r] == true) {
+					ArrayList<Integer> indicesForRup = getSectionsIndicesForRup(r);
+					// find minimum cutoff among all parent sections
+					double sectMax = 0;
+					for(int s:indicesForRup) {
+						double magForParSect = magForParSectMap.get(sectDataList.get(s).getParentSectionName());
+						if(sectMax < magForParSect)
+							sectMax = magForParSect;
+					}
+					String firstSubsectName = sectDataList.get(indicesForRup.get(0)).getSectionName();
+					String lastSubsectName = sectDataList.get(indicesForRup.get(indicesForRup.size()-1)).getSectionName();
+					fw.write(r+"\t"+rupMag+"\t"+sectMax+"\t"+(sectMax-rupMag)+"\t"+firstSubsectName+"\t"+lastSubsectName+"\n");
+				}
+			}
+			fw.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
+
+		
+
+	}
+
+	
 
 	/**
 	   * This writes the rupture sections to an ASCII file
