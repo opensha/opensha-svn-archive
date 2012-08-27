@@ -1,0 +1,34 @@
+#ID	Name
+236	Whittier alt 1
+296	Elsinore (Glen Ivy) rev
+102	Elsinore (Julian)
+103	Elsinore (Coyote Mountains)
+48	Garlock (East)
+341	Garlock (Central)
+49	Garlock (West)
+119	San Jacinto (San Bernardino)
+289	San Jacinto (San Jacinto Valley) rev
+293	San Jacinto (Anza) rev
+292	San Jacinto (Clark) rev
+101	San Jacinto (Coyote Creek)
+99	San Jacinto (Borrego)
+653	San Andreas (Offshore) 2011 CFM
+654	San Andreas (North Coast) 2011 CFM
+655	San Andreas (Peninsula) 2011 CFM
+657	San Andreas (Santa Cruz Mts) 2011 CFM
+32	San Andreas (Parkfield)
+285	San Andreas (Cholame) rev
+300	San Andreas (Carrizo) rev
+287	San Andreas (Big Bend)
+286	San Andreas (Mojave N)
+301	San Andreas (Mojave S)
+282	San Andreas (San Bernardino N)
+283	San Andreas (San Bernardino S)
+284	San Andreas (San Gorgonio Pass-Garnet HIll)
+295	San Andreas (Coachella) rev
+651	Rodgers Creek - Healdsburg 2011 CFM
+639	Hayward (No) 2011 CFM
+638	Hayward (So) 2011 CFM
+601	Calaveras (No) 2011 CFM
+602	Calaveras (Central) 2011 CFM
+603	Calaveras (So) 2011 CFM
