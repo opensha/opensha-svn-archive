@@ -1,6 +1,8 @@
 #ID	Name
 236	Whittier alt 1
 296	Elsinore (Glen Ivy) rev
+402	Elsinore (Stepovers Combined)
+299	Elsinore (Temecula) rev
 102	Elsinore (Julian)
 103	Elsinore (Coyote Mountains)
 48	Garlock (East)
@@ -8,10 +10,12 @@
 49	Garlock (West)
 119	San Jacinto (San Bernardino)
 289	San Jacinto (San Jacinto Valley) rev
+401	San Jacinto (Stepovers Combined)
 293	San Jacinto (Anza) rev
 292	San Jacinto (Clark) rev
 101	San Jacinto (Coyote Creek)
 99	San Jacinto (Borrego)
+28	San Jacinto (Superstition Mtn)
 653	San Andreas (Offshore) 2011 CFM
 654	San Andreas (North Coast) 2011 CFM
 655	San Andreas (Peninsula) 2011 CFM

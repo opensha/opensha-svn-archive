@@ -10,7 +10,9 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
@@ -62,9 +64,14 @@ public class UCERF2_A_FaultMapper {
 			if (!sects.containsKey(sect.getSectionId()))
 				sects.put(sect.getSectionId(), sect);
 		
-		Map<String, FaultSectionPrefData> sectsByName = Maps.newHashMap();
+		Map<String, Integer> sectsByName = Maps.newHashMap();
 		for (FaultSectionPrefData sect : sects.values())
-			sectsByName.put(sect.getSectionName().trim(), sect);
+			sectsByName.put(sect.getSectionName().trim(), sect.getSectionId());
+		
+//		for (FaultSectionSummary summary : new FaultSectionVer2_DB_DAO(
+//				FaultModels.FM3_1.getDBAccess()).getAllFaultSectionsSummary()) {
+//			sectsByName.put(summary.getSectionName(), summary.getSectionId());
+//		}
 		
 		fw.write("#ID\tName\n");
 		
@@ -87,8 +94,8 @@ public class UCERF2_A_FaultMapper {
 				if (fm3_2_changes.containsKey(name))
 					name = fm3_2_changes.get(name);
 				
-				FaultSectionPrefData sect = sectsByName.get(name);
-				if (sect == null) {
+				Integer sectID = sectsByName.get(name);
+				if (sectID == null) {
 					System.out.println("WARNING: sect not found with name: "+name);
 					int min = Integer.MAX_VALUE;
 					String closest = null;
@@ -104,7 +111,7 @@ public class UCERF2_A_FaultMapper {
 				}
 //				Preconditions.checkNotNull(sect, "Sect not found: "+name);
 				
-				fw.write(sect.getSectionId()+"\t"+sect.getSectionName()+"\n");
+				fw.write(sectID+"\t"+name+"\n");
 			}
 		}
 		
@@ -127,12 +134,12 @@ public class UCERF2_A_FaultMapper {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File dir = new File("/tmp");
-		
-		writeDataFile(new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(), DIR),
-				"a_faults.txt"), new File(dir, "SegmentModels.txt"),
-				new File(dir, "FM2to3_1_sectionNameChanges.txt"),
-				new File(dir, "FM2to3_2_sectionNameChanges.txt"));
+//		File dir = new File("/tmp");
+//		
+//		writeDataFile(new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(), DIR),
+//				"a_faults.txt"), new File(dir, "SegmentModels.txt"),
+//				new File(dir, "FM2to3_1_sectionNameChanges.txt"),
+//				new File(dir, "FM2to3_2_sectionNameChanges.txt"));
 		
 		// now test
 		for (FaultSectionPrefData sect : FaultModels.FM3_1.fetchFaultSections()) {
