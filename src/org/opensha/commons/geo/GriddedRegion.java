@@ -108,7 +108,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 	private double[] latNodeEdges;
 
 	// Location at lower left corner of region bounding rect
-	public Location anchor;
+	private Location anchor;
 
 	// lookup array for grid nodes; has length of master grid spanning
 	// region bounding box; all nodes outside region have values of -1;
