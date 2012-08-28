@@ -48,6 +48,7 @@ import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.SmoothSeismicitySpatialPDF_Fetcher;
+import scratch.UCERF3.utils.UCERF2_A_FaultMapper;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
@@ -1174,6 +1175,23 @@ public class DeformationModelsCalc {
 //	}
 	
 	
+	
+	public static void writeFaultsThatWereTypeA_InUCERF2(FaultModels fm, DeformationModels dm) {
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		
+		ArrayList<String> parNameList = new ArrayList<String>();
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
+				String parName = data.getParentSectionName();
+				if(!parNameList.contains(parName))
+					parNameList.add(parName);
+			}
+		}
+		System.out.println("Fault sections that were on type-A faults in UCERF2:");
+		for(String name:parNameList)
+			System.out.println(name);
+	}
+
 
 	
 
@@ -1183,9 +1201,12 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
+		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
+		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM3_1, DeformationModels.ZENG);
+		
 //		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.SF_BOX()); 
 //		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.LA_BOX()); 
-		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.ZENG, new CaliforniaRegions.LA_BOX()); 
+//		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.ZENG, new CaliforniaRegions.LA_BOX()); 
 		
 //		calcMoRateAndMmaxDataForDefModels();
 		
