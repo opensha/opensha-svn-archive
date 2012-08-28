@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -14,8 +16,10 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class UCERF2_A_FaultMapper {
@@ -56,63 +60,70 @@ public class UCERF2_A_FaultMapper {
 		Map<String, String> fm3_1_changes = loadNameChanges(fm3_1_nameChangeFile);
 		Map<String, String> fm3_2_changes = loadNameChanges(fm3_2_nameChangeFile);
 		
+		Map<Integer, String> aFaults = Maps.newHashMap();
+		
+		List<String> segLines = FileUtils.readLines(segFile);
+		
+		for (FaultModels fm : FaultModels.values()) {
+			Map<Integer, FaultSectionPrefData> sects = fm.fetchFaultSectionsMap();
+			
+			Map<String, Integer> sectsByName = Maps.newHashMap();
+			for (FaultSectionPrefData sect : sects.values())
+				sectsByName.put(sect.getSectionName().trim(), sect.getSectionId());
+			
+			for (String line : segLines) {
+				line = line.trim();
+				if (line.isEmpty() || line.startsWith("#") || line.startsWith("-"))
+					continue;
+				line = line.substring(line.indexOf(":")+1);
+				String[] names;
+				if (line.contains(";")) {
+					names = line.split(";");
+				} else {
+					names = new String[1];
+					names[0] = line;
+				}
+				for (String name : names) {
+					name = name.trim();
+					if (fm == FaultModels.FM3_1 && fm3_1_changes.containsKey(name))
+						name = fm3_1_changes.get(name);
+					if (fm == FaultModels.FM3_2 && fm3_2_changes.containsKey(name))
+						name = fm3_2_changes.get(name);
+					
+					Integer sectID = sectsByName.get(name);
+					if (sectID == null) {
+						System.out.println("WARNING: sect not found with name: "+name+", FM: "+fm);
+						int min = Integer.MAX_VALUE;
+						String closest = null;
+						for (String matchName : sectsByName.keySet()) {
+							int dist = StringUtils.getLevenshteinDistance(name, matchName);
+							if (dist < min) {
+								min = dist;
+								closest = matchName;
+							}
+						}
+						System.out.println("Possible match: "+closest);
+						continue;
+					}
+//					Preconditions.checkNotNull(sect, "Sect not found: "+name);
+					
+					if (!aFaults.containsKey(sectID))
+						aFaults.put(sectID, name);
+				}
+			}
+		}
+		
 		FileWriter fw = new FileWriter(outputFile);
-		
-		Map<Integer, FaultSectionPrefData> sects = FaultModels.FM3_1.fetchFaultSectionsMap();
-		for (FaultSectionPrefData sect : FaultModels.FM3_2.fetchFaultSections())
-			// add 3.2 sections
-			if (!sects.containsKey(sect.getSectionId()))
-				sects.put(sect.getSectionId(), sect);
-		
-		Map<String, Integer> sectsByName = Maps.newHashMap();
-		for (FaultSectionPrefData sect : sects.values())
-			sectsByName.put(sect.getSectionName().trim(), sect.getSectionId());
-		
-//		for (FaultSectionSummary summary : new FaultSectionVer2_DB_DAO(
-//				FaultModels.FM3_1.getDBAccess()).getAllFaultSectionsSummary()) {
-//			sectsByName.put(summary.getSectionName(), summary.getSectionId());
-//		}
 		
 		fw.write("#ID\tName\n");
 		
-		for (String line : FileUtils.readLines(segFile)) {
-			line = line.trim();
-			if (line.isEmpty() || line.startsWith("#") || line.startsWith("-"))
-				continue;
-			line = line.substring(line.indexOf(":")+1);
-			String[] names;
-			if (line.contains(";")) {
-				names = line.split(";");
-			} else {
-				names = new String[1];
-				names[0] = line;
-			}
-			for (String name : names) {
-				name = name.trim();
-				if (fm3_1_changes.containsKey(name))
-					name = fm3_1_changes.get(name);
-				if (fm3_2_changes.containsKey(name))
-					name = fm3_2_changes.get(name);
-				
-				Integer sectID = sectsByName.get(name);
-				if (sectID == null) {
-					System.out.println("WARNING: sect not found with name: "+name);
-					int min = Integer.MAX_VALUE;
-					String closest = null;
-					for (String matchName : sectsByName.keySet()) {
-						int dist = StringUtils.getLevenshteinDistance(name, matchName);
-						if (dist < min) {
-							min = dist;
-							closest = matchName;
-						}
-					}
-					System.out.println("Possible match: "+closest);
-					continue;
-				}
-//				Preconditions.checkNotNull(sect, "Sect not found: "+name);
-				
-				fw.write(sectID+"\t"+name+"\n");
-			}
+		List<Integer> sectIDs = Lists.newArrayList(aFaults.keySet());
+		Collections.sort(sectIDs);
+		
+		for (Integer sectID : sectIDs) {
+			String name = aFaults.get(sectID);
+			
+			fw.write(sectID+"\t"+name+"\n");
 		}
 		
 		fw.close();
@@ -134,18 +145,26 @@ public class UCERF2_A_FaultMapper {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-//		File dir = new File("/tmp");
-//		
+		File dir = new File("/tmp");
+		
 //		writeDataFile(new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(), DIR),
 //				"a_faults.txt"), new File(dir, "SegmentModels.txt"),
 //				new File(dir, "FM2to3_1_sectionNameChanges.txt"),
 //				new File(dir, "FM2to3_2_sectionNameChanges.txt"));
 		
 		// now test
-		for (FaultSectionPrefData sect : FaultModels.FM3_1.fetchFaultSections()) {
-			if (wasUCERF2_TypeAFault(sect.getSectionId()))
-				System.out.println("A Fault: "+sect.getSectionId()+". "+sect.getSectionName());
+		for (FaultModels fm : FaultModels.values()) {
+			DeformationModels dm = DeformationModels.forFaultModel(fm).get(0);
+			
+			for (FaultSectionPrefData sect : new DeformationModelFetcher(
+					fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1).getParentSectionList())
+				if (wasUCERF2_TypeAFault(sect.getSectionId()))
+					System.out.println("A Fault: "+sect.getSectionId()+". "+sect.getSectionName());
 		}
+//		for (FaultSectionPrefData sect : FaultModels.FM3_1.fetchFaultSections()) {
+//			if (wasUCERF2_TypeAFault(sect.getSectionId()))
+//				System.out.println("A Fault: "+sect.getSectionId()+". "+sect.getSectionName());
+//		}
 	}
 
 }

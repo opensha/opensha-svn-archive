@@ -87,6 +87,7 @@ public class DeformationModelFetcher {
 	String fileNamePrefix;
 	File precomputedDataDir;
 
+	ArrayList<FaultSectionPrefData> faultSectPrefDataList;
 	ArrayList<FaultSectionPrefData> faultSubSectPrefDataList;
 	HashMap<Integer, FaultSectionPrefData> faultSubSectPrefDataIDMap;
 
@@ -125,7 +126,7 @@ public class DeformationModelFetcher {
 				if (D) System.out.println("Applying moment reductions to: "+deformationModel);
 				DeformationModelFileParser.applyMomentReductions(model, deformationModel, MOMENT_REDUCTION_MAX);
 				if (D) System.out.println("Loading fault model: "+faultModel);
-				ArrayList<FaultSectionPrefData> sections = faultModel.fetchFaultSections();
+				faultSectPrefDataList = faultModel.fetchFaultSections();
 				if (D) System.out.println("Combining model with sections...");
 				Map<Integer,DeformationSection> rakesModel = null;
 				
@@ -136,7 +137,7 @@ public class DeformationModelFetcher {
 //					rakesModel = DeformationModelFileParser.load(faultModel.getFilterBasis().getDataFileURL(faultModel));
 //				}
 				
-				faultSubSectPrefDataList = loadUCERF3DefModel(sections, model, maxSubSectionLength, rakesModel, defaultAseismicityValue);
+				faultSubSectPrefDataList = loadUCERF3DefModel(faultSectPrefDataList, model, maxSubSectionLength, rakesModel, defaultAseismicityValue);
 				if (deformationModel == DeformationModels.GEOLOGIC)
 					applyCustomGeologicTapers();
 				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
@@ -202,6 +203,10 @@ public class DeformationModelFetcher {
 		return faultSubSectPrefDataList;
 	}
 
+	public ArrayList<FaultSectionPrefData> getParentSectionList() {
+		return faultSectPrefDataList;
+	}
+
 
 	/**
 	 * This gets creates UCERF2 subsections for the entire region.
@@ -235,7 +240,8 @@ public class DeformationModelFetcher {
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectionIndex);
 			subSectionIndex += subSectData.size();
 			subSectionPrefDataList.addAll(subSectData);
-		}		
+		}
+		faultSectPrefDataList = allFaultSectionPrefData;
 
 		return subSectionPrefDataList;
 	}
@@ -268,6 +274,8 @@ public class DeformationModelFetcher {
 			if(mod_relm_nocal_reg.contains(endLoc1) || mod_relm_nocal_reg.contains(endLoc2))
 				nCalFaultSectionPrefData.add(sectData);
 		}
+		
+		faultSectPrefDataList = allFaultSectionPrefData;
 
 		// write sections IDs and names
 		if (D) {
@@ -413,8 +421,10 @@ public class DeformationModelFetcher {
 
 		ArrayList<FaultSectionPrefData> subSectionPrefDataList = new ArrayList<FaultSectionPrefData>();
 		int subSectIndex = 0;
+		faultSectPrefDataList = Lists.newArrayList();
 		for (int i = 0; i < faultSectionIds.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB.getFaultSectionPrefData(ucerf2_DefModelId, faultSectionIds.get(i));
+			faultSectPrefDataList.add(faultSectionPrefData);
 			double maxSectLength = faultSectionPrefData.getOrigDownDipWidth()*maxSubSectionLength;
 			ArrayList<FaultSectionPrefData> subSectData = faultSectionPrefData.getSubSectionsList(maxSectLength, subSectIndex);
 			subSectIndex += subSectData.size();
