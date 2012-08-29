@@ -275,6 +275,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	/**
 	 * Returns the index of the supplied value provided it's within the
 	 * tolerance of one of the discretized values.
+	 * @see #getClosestXIndex(double)
 	 */
 	public int getXIndex( double x) throws Point2DException{
 		int i = getClosestXIndex(x);
@@ -289,9 +290,10 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * Returns the index of the supplied value (ignoring tolerance). It should
 	 * be noted that this method uses a very small internal scale factor to
 	 * provide accurate results. Double precision errors can result in x-values
-	 * that fall on the boundary between adject values in the function to be
+	 * that fall on the boundary between adjacent values in the function to be
 	 * placed in the lower bin, when a value equivalent to a bin edge should
-	 * always be placed in the higher bin.
+	 * always be placed in the higher bin. This is the convention followed in
+	 * other data analysis software (e.g. Matlab).
 	 */
 	public int getClosestXIndex( double x) throws Point2DException {
 		double iVal = PRECISION_SCALE * (x - minX) / delta;
