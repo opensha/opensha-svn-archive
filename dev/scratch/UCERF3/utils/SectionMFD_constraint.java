@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -16,41 +15,63 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
+
 /**
  * This class essentially represents a magnitude frequency distribution with 
- * non evenly discretized mags.  This is to ensure that there are no zero bins
- * at lower magnitudes given our fault system discretization into lengths that
- * are half the down-dip widths.  For reasons described below, only the first 
- * two bins have widths greater than 0.1, so subsequent bins are given a width of 0.1
- * (or just less so that the maximum magnitude is bin centered).
- * The first edge of the first bin is chosen so that it is an integer when multiplied
- * by 10, and such that it is somewhere between 0.05 and 0.1 below the first descrete 
- * magnitude values.
+ * non-evenly discretized mags.  This is to ensure that there are no bins with zero
+ * grand-inversion ruptures at lower magnitudes (due to our fault discretization into 
+ * lengths that are half the down-dip widths).  For reasons described below, only the  
+ * first two bins have widths greater than 0.1, and subsequent bins are given a width of 0.1
+ * (or just less so that the maximum magnitude is always bin centered).
  * 
  * For the distances between the first three discrete mags, we assume the first mag has
  * an area=2A, where A = subsection area, the second mag has area=3A, and the third mag 
- * has area=4A.  We also assume M is proportional to log(A), which gives the following
- * distances between the first three discrete mags: 0.18 and 0.12, respectively.  The 
- * third distance is 0.1, so all spacings after the first two are given 0.1 (or less).
+ * has area=4A.  We also assume M is proportional to log(A), which gives a spacing of 0.18
+ * between the first and second mag, and a distance of 0.12 between the second and third
+ * mag.  Because the third spacing would be 0.1, all spacings after the first two are given 
+ * 0.1 (or less, so that magMag is exactly the final mag).
  * 
- * Values on bin boundaries are assigned to the next highest bin
+ * Magnitudes that are exactly on a bin boundary are assigned to the next highest bin 
+ * (as with our discretized funtions).
+ * 
+ * The given minMag is adjusted slightly (up to 0.05) so the lower edge of the first bin
+ * (minMag-0.09) is a perfect integer when multiplied by 10 (ensuring a perfect match with 
+ * the upper bin-edge for sub-seismogenic ruptures).  This adjustment also influences the higher
+ * magnitudes, although the shift becomes less at higher bins and is non-existent at the very
+ * last bin (unless there are only two or three bins).  This means...
+ * 
+ * After the above shift, all mags are bin centered except for the second one (and the third
+ * one if the maxMag falls in there).
+ * 
+ * The bottom line is that final bin rates or moment rates may be biased by up to 20% depending
+ * on where the exact rupture mags fall.
+ * 
+ * Notes:
+ * 
+ * targetMFD is scaled by 1/delta to make it comparable to what's returned by getMFD() (where the
+ * latter is also scaled by 1/delta to make the two comparable in a plot). targetCumMFD is computed
+ * before the scaling of targetMFD.
+ * 
  * @author field
  *
  */
 public class SectionMFD_constraint {
 	
-	final static boolean D = true; // for debugging
+	final static boolean D = false; // for debugging
 	
-	ArrayList<Double> mags = new ArrayList<Double>();
-	double[] rates;
-	ArrayList<Double> magEdges = new ArrayList<Double>();
+	ArrayList<Double> mags = new ArrayList<Double>();		// the bin-center mags (although 2nd one is not perfectly centered)
+	double[] rates;											// the rate of events in each bin
+	ArrayList<Double> magEdges = new ArrayList<Double>();	// the edges of the bins (this has one more element than mags)
 	
 	double maxMag, minMag, origMinMag;
 	double upperDelta=Double.NaN;
 	
 	SummedMagFreqDist targetMFD;
 	EvenlyDiscretizedFunc targetCumMFD;
-
 	
 	// the following assumes first mag has area=2A, where A= subsection area, 
 	// second mag has area=3A, and third mag has area=4A, and the spacing also
@@ -60,28 +81,122 @@ public class SectionMFD_constraint {
 	public final static double MAX_UPPER_DELTA = 0.1;
 
 	
+	
+//	This is not needed (or not useful without an external way of setting rates):
+	
+//	/**
+//	 * This constructor just creates the bins (sets no rates)
+//	 * @param minMag
+//	 * @param maxMag
+//	 */
+//	public SectionMFD_constraint(double minMag, double maxMag) {
+//		this.origMinMag=minMag;
+//		this.maxMag=maxMag;
+//		makeMagBinArrays();
+//		if(D)  testMagBinArrays();
+//	}
+	
+	
 	/**
-	 * This constructor just creates the bins (sets no rates)
-	 * @param minMag
-	 * @param maxMag
+	 * This makes the MFD nucleation constraint for the specified subSectIndex from the given
+	 * fault system solution (typeically the UCERF2 mapped fault system solution).  The min 
+	 * and max magnitudes are determined from the list given by 
+	 * fltSysSol.getRupturesForSection(subSectIndex), and then nucleation rates are computed 
+	 * for each of these ruptures and the values are added to the rate in each bin here.  No rate
+	 * corrections are applied if the mag of a given rupture differs from that at bin center 
+	 * (need to think about this more carefully before doing any such thing).
+	 * @param fltSysSol
+	 * @param subSectIndex
 	 */
-	public SectionMFD_constraint(double minMag, double maxMag) {
+	public SectionMFD_constraint(FaultSystemSolution fltSysSol, int subSectIndex) {
+		origMinMag = 100;
+		maxMag = 0;
+		ArrayList<Double> rupMags = new ArrayList<Double>();
+		ArrayList<Double> rupNuclRates = new ArrayList<Double>();
+		
+		for (int r : fltSysSol.getRupturesForSection(subSectIndex)) {
+			double rate = fltSysSol.getRateForRup(r);
+			if(rate>0) {
+				rupNuclRates.add(rate*fltSysSol.getAreaForSection(subSectIndex)/fltSysSol.getAreaForRup(r));
+				double mag = fltSysSol.getMagForRup(r);
+//				System.out.println(rate+"\t"+mag);
+				rupMags.add(mag);
+				if(origMinMag>mag) 
+					origMinMag = mag;
+				else if(maxMag<mag) 
+					maxMag = mag;
+			}
+		}
+		
+		// now make mag bins
+		makeMagBinArrays();
+		if(D)  testMagBinArrays();
+		
+		if(D) System.out.println("origMinMag="+origMinMag+"\tmaxMag="+maxMag+"\trupMags.size()="+rupMags.size()+"\trupNuclRates.size()="+rupNuclRates.size());
+		
+		// now fill in the rates
+		rates = new double[mags.size()];
+		for(int r=0;r<rupNuclRates.size();r++) {
+			double mag = rupMags.get(r);
+//			System.out.println(mag+"\t"+rupNuclRates.get(r));
+			for(int i=0;i<mags.size();i++) {	// loop over mag bins
+				if(isMagInBin(mag, i))	// check if it's in this bin
+					rates[i] += rupNuclRates.get(r);
+			}
+		}
+		
+		// check to make sure each bin has a non-zero rate
+		for(int i=0;i<rates.length;i++) {	// loop over mag bins
+			if(rates[i] <=0 )
+				throw new RuntimeException("Non-zero rate at bin # "+i+";\tmag="+mags.get(i));
+		}
+		
+		// now make target MFDs
+		double targetDelta = 0.01;
+		double magRange = magEdges.get(magEdges.size()-1)-magEdges.get(0);	// includes bin widths
+		int numPts = (int)Math.round(magRange/targetDelta);
+		double delta = magRange/numPts;
+		double distMinMag = magEdges.get(0)+delta/2;
+		double distMaxMag = magEdges.get(magEdges.size()-1)-delta/2;
+		targetMFD = new SummedMagFreqDist(distMinMag, numPts, delta);
+		targetMFD.setName("Target MFD");
+		targetMFD.setInfo("(mags and rates from fault system solution)");
+		for(int r=0;r<rupNuclRates.size();r++) {
+			targetMFD.addResampledMagRate(rupMags.get(r), rupNuclRates.get(r), true);
+		}
+
+		// get cumulative dist
+		targetCumMFD = targetMFD.getCumRateDistWithOffset();
+		targetCumMFD.setName("Cumulative Target MFD");
+		targetCumMFD.setInfo("(mags and cumulative rates from fault system solution)");
+
+
+		// scale incremental target to be a density distribution (so it can be compared with the other)
+		targetMFD.scale(1.0/targetMFD.getDelta());
+
+	}
+
+	
+
+	/**
+	 * This constructor sets the rates for a GR plus characteristic MFD (the latter being
+	 * a spike at the maximum magnitude: mags.get(mags.size()-1). For a UCERF2 type-B-fault-
+	 * like constraint, set fractGR=0.333.
+	 * 
+	 * Note that unlike UCERF2, b=1 (since aftershocks are included), there is no b=0 option 
+	 * included (since the grand inversion takes care of this), and no aleatory variability
+	 * is applied to the characteristic part (because this should be added later as in UCERF2).
+	 * 
+	 * @param minMag - the smallest fault-system magnitude that can nucleate on the section 
+	 * @param maxMag - the largest fault-system magnitude that can nucleate on the section
+	 * @param totMoRate
+	 * @param fractGR - fraction moment rate put into GR (vs Char) MFD
+	 */
+	public SectionMFD_constraint(double minMag, double maxMag, double totMoRate, double fractGR) {
 		this.origMinMag=minMag;
 		this.maxMag=maxMag;
 		makeMagBinArrays();
 		if(D)  testMagBinArrays();
-	}
-	
-
-	/**
-	 * This constructor makes a UCERF2 fault section MFD (assuming 2/3 of the moment 
-	 * goes in the max magnitude and 1/3 goes into GR between the min and max mags
-	 * 
-	 * @param minMag
-	 * @param maxMag
-	 */
-	public SectionMFD_constraint(double minMag, double maxMag, double totMoRate, double fractGR) {
-		this(minMag,maxMag);
 
 		double targetDelta = 0.01;
 		double magRange = magEdges.get(magEdges.size()-1)-magEdges.get(0);	// includes bin widths
@@ -176,7 +291,9 @@ public class SectionMFD_constraint {
 	}
 
 	
-	
+	/**
+	 * This tests various attributes of the bins (throwing exceptions for failures)
+	 */
 	private void testMagBinArrays() {
 
 		System.out.println("minMag="+minMag+"\tmaxMag="+maxMag);
@@ -222,6 +339,10 @@ public class SectionMFD_constraint {
 			testFractDifference(mags.get(mags.size()-1)+DIST_BET_SECOND_AND_THIRD_BIN/2, magEdges.get(magEdges.size()-1), "test mag bin edge for index: "+(magEdges.size()-1));	
 	}
 	
+	
+	/**
+	 * This constructs the mags and binEdges
+	 */
 	private void makeMagBinArrays() {
 		if(maxMag<origMinMag)
 			throw new RuntimeException("minMag must be less than maxMag)");
@@ -232,7 +353,7 @@ public class SectionMFD_constraint {
 		// set first edge of first bin and then adjust origMinMag to minMag
 		double firstEdge = getLowerEdgeOfFirstBin(origMinMag);
 		minMag = firstEdge+DIST_BET_FIRST_AND_SECOND_BIN/2;
-		// seems to need rounding
+		// seems to need rounding to look nice
 		minMag = (double)(Math.round(minMag*100.0))/100.0;
 		
 		if(D) System.out.println("origMinMag="+(float)origMinMag+"\t"+"minMag="+(float)minMag+"\tdiff="+(float)(minMag-origMinMag));
@@ -276,12 +397,20 @@ public class SectionMFD_constraint {
 		}
 	}
 	
+	/**
+	 * This tells whether the given mag is in the ith bin;
+	 * true if:  magEdges.get(ithBin)<=mag<magEdges.get(ithBin+1)
+	 * @param mag
+	 * @param ithBin
+	 * @return
+	 */
 	private boolean isMagInBin(double mag, int ithBin) {
-		if(mag<magEdges.get(ithBin) || mag>=magEdges.get(ithBin+1))
-			return false;
-		else
+		if(mag<magEdges.get(ithBin+1) && magEdges.get(ithBin)<=mag)
 			return true;
+		else
+			return false;
 	}
+	
 	
 	/**
 	 * This throws a runtime exception if the absolute value of the fractional difference
@@ -305,14 +434,24 @@ public class SectionMFD_constraint {
 	 */
 	private static double getLowerEdgeOfFirstBin(double origMinMag) {
 		double edgeMag = origMinMag-DIST_BET_FIRST_AND_SECOND_BIN/2; 
-		// round to nice value (eqauls int when mult by 10)
 		return (double)Math.floor(edgeMag*10.0)/10.0;
 	}
 	
+	
+	/**
+	 * This returns the target MFD, and note that this has been scaled by
+	 * 1/delta to make it comparable to what's returned by getMFD().
+	 * @return
+	 */
 	public IncrementalMagFreqDist getTargetMFD() {
 		return targetMFD;
 	}
 	
+	
+	/**
+	 * This returns the target cumulative MFD
+	 * @return
+	 */
 	public EvenlyDiscretizedFunc getTargetCumMFD() {
 		return targetCumMFD;
 	}
@@ -320,7 +459,8 @@ public class SectionMFD_constraint {
 	
 	/**
 	 * This returns the cumulative MFD (the rate of events above
-	 * the lower edge of each bin)
+	 * the lower edge of each bin, where the latter are the x-axis
+	 * values here).
 	 */
 	public ArbitrarilyDiscretizedFunc getCumMFD() {
 		double[] cumRates = new double[rates.length];
@@ -328,7 +468,7 @@ public class SectionMFD_constraint {
 		for(int i=rates.length-2; i>=0; i--)
 			cumRates[i] = rates[i] + cumRates[i+1];
 		
-		ArbitrarilyDiscretizedFunc cumMFD = new ArbitrarilyDiscretizedFunc("Cumulative MFD Constraint");
+		ArbitrarilyDiscretizedFunc cumMFD = new ArbitrarilyDiscretizedFunc("Cumulative MFD Constraint (red circles)");
 		for(int i=0; i<rates.length;i++)
 			cumMFD.set(magEdges.get(i), cumRates[i]);
 		
@@ -339,7 +479,9 @@ public class SectionMFD_constraint {
 	/**
 	 * This returns a representation of the MFD that plots well
 	 * (by splitting internal bin edges to make each bin and actual
-	 * boxcar rather than straight lines between bin centers)
+	 * boxcar rather than straight lines between bin centers).  This
+	 * also scales the rates by 1/getBinWidth(i) to make it comparable
+	 * to what's returned by getTargetMFD().
 	 */
 	public ArbitrarilyDiscretizedFunc getMFD() {
 		
@@ -348,6 +490,7 @@ public class SectionMFD_constraint {
 		for(int i=0; i<rates.length;i++) scaledRates[i] = rates[i]/getBinWidth(i);
 		
 		ArbitrarilyDiscretizedFunc mfd = new ArbitrarilyDiscretizedFunc("MFD Constraint");
+		mfd.setInfo("(origMinMag="+origMinMag+"\tminMag="+minMag+"\tmaxMag="+maxMag+")");
 		mfd.set(magEdges.get(0), scaledRates[0]);
 		for(int i=0; i<rates.length;i++) {
 			double mag = magEdges.get(i+1);
@@ -397,8 +540,36 @@ public class SectionMFD_constraint {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		SectionMFD_constraint test = new SectionMFD_constraint(6.14, 7, 1e18, 1);
+		
+		SimpleFaultSystemSolution testFltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		
+		// list the parent names
+//		ArrayList<String> parSectNames = new ArrayList<String>();
+//		for(int s=0; s<testFltSysSol.getNumSections();s++) {
+//			String name = testFltSysSol.getFaultSectionData(s).getParentSectionName();
+//			if(!parSectNames.contains(name))
+//				parSectNames.add(name);
+//		}
+//		for(String name:parSectNames) {
+//			System.out.println(name);
+//		}
+		
+		// list the subsection for the target parent
+//		String targetParName = 	"San Andreas (Mojave S)";
+//		for(int s=0; s<testFltSysSol.getNumSections();s++) {
+//			if(testFltSysSol.getFaultSectionData(s).getParentSectionName().equals(targetParName))
+//				System.out.println(s+"\t"+testFltSysSol.getFaultSectionData(s).getSectionId()+
+//						"\t"+testFltSysSol.getFaultSectionData(s).getSectionName());
+//		}
+		
+		int sectIndex = 1159; // "San Andreas (Mojave S), Subsection 0"
+		SectionMFD_constraint test = new SectionMFD_constraint(testFltSysSol,1159);
 		test.plotMFDs();
+		
+		
+		
+//		SectionMFD_constraint test = new SectionMFD_constraint(6.14, 7, 1e18, 1);
+//		test.plotMFDs();
 		
 		
 //		double minX=6.05;

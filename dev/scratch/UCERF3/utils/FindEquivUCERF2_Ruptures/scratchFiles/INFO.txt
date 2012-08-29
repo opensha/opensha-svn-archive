@@ -6,7 +6,7 @@ AllFM3_sectNames.txt came from writing out unique names from:
 
 	FileMakingStuff.writeAllFM3_sectNames();
 
-I then checked whether each UCERF2 fault section listed in (preComputedData/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt, 
+I then checked whether each UCERF2 fault section listed in (data/FindEquivUCERF2_Ruptures/FM2_SectionsForUCERF2_Sources.txt, 
 which I obtained using the method FindEquivUCERF2_FM2pt1_Ruptures.getAllSectionNames()) still exist in AllFM3_sectNames.txt, and wrote 
 those that didn't to the first column of the file:
 
