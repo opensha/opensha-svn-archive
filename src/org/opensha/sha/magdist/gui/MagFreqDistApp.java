@@ -77,6 +77,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.MagPDF_Parameter;
@@ -431,6 +432,7 @@ ParameterChangeListener{
 				ArrayList distNames = new ArrayList();
 				distNames.add(SingleMagFreqDist.NAME);
 				distNames.add(GutenbergRichterMagFreqDist.NAME);
+				distNames.add(TaperedGR_MagFreqDist.NAME);
 				distNames.add(GaussianMagFreqDist.NAME);
 				distNames.add(YC_1985_CharMagFreqDist.NAME);
 				distNames.add(SummedMagFreqDist.NAME);

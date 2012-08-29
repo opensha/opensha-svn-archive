@@ -43,6 +43,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 
@@ -147,11 +148,17 @@ implements java.io.Serializable
 	public static final String TRUNCATE_ON_BOTH_SIDES= new String("Upper and Lower");
 	public static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation Level(# of Std Devs)");
 	public static final String NONE= new String("None");
+	
+	// Tapered GR stuff:
+	public static final String TAPERED_GR_CORNER_MAG=new String("Corner Mag");
+	public static final String TAPERED_GR_CORNER_MAG_INFO=new String("Corner magnitude of the exponential taper");
+
+
 
 
 	// String Constraints
 	private StringConstraint sdFixOptions,  grSetAllButOptions, grFixOptions,
-	ycSetAllButOptions, gdSetAllButOptions;
+	ycSetAllButOptions, gdSetAllButOptions, tap_grSetAllButOptions;
 	private boolean summedMagDistSelected;
 	private SummedMagFreqDist summedMagDist;
 	private String summedMagDistMetadata;
@@ -454,6 +461,14 @@ implements java.io.Serializable
 		 vStrings1.add(FIX_TO_CUM_RATE);
 		 vStrings1.add(FIX_TOT_MO_RATE);
 		 grFixOptions = new StringConstraint(vStrings1);
+		 
+		 /**
+		  * Make parameters for the tapered GR dist
+		  */
+		 DoubleParameter cornerMag = new DoubleParameter(TAPERED_GR_CORNER_MAG, new Double(8));
+		 cornerMag.setInfo(TAPERED_GR_CORNER_MAG_INFO);
+
+
 
 		 /**
 		  * Make paramters for Youngs and Coppersmith 1985 char distribution
@@ -487,6 +502,14 @@ implements java.io.Serializable
 		 vStrings.add(MagFreqDistParameter.TOT_CUM_RATE);
 		 vStrings.add(MagFreqDistParameter.GR_MAG_UPPER);
 		 grSetAllButOptions = new StringConstraint(vStrings);
+		 
+		 // for Tapered Gutenberg-Richter SET ALL BUT option
+		 vStrings=new ArrayList();
+		 vStrings.add(MagFreqDistParameter.TOT_MO_RATE);
+		 vStrings.add(MagFreqDistParameter.TOT_CUM_RATE);
+		 vStrings.add(MagFreqDistParameter.TAPERED_GR_CORNER_MAG);
+		 tap_grSetAllButOptions = new StringConstraint(vStrings);
+
 
 
 		 // Add the parameters to the list (order is preserved)
@@ -497,6 +520,7 @@ implements java.io.Serializable
 		 // put ones that are always shown next
 		 parameterList.addParameter(magLower);
 		 parameterList.addParameter(magUpper);
+		 parameterList.addParameter(cornerMag);
 		 parameterList.addParameter(bValue);
 		 parameterList.addParameter(deltaMagChar);
 		 parameterList.addParameter(magPrime);
@@ -908,6 +932,116 @@ implements java.io.Serializable
 				}
 				magDist = (IncrementalMagFreqDist) gR;
 			}
+			
+			/*
+			 * If Tapered Gutenberg Richter MagDist is selected
+			 */
+			else if (distributionName.equalsIgnoreCase(TaperedGR_MagFreqDist.NAME)) {
+				TaperedGR_MagFreqDist tapGR =
+					new TaperedGR_MagFreqDist(min.doubleValue(), max.doubleValue(),
+							num.intValue());
+
+				Double magLower = (Double) parameterList.getParameter(
+						MagFreqDistParameter.GR_MAG_LOWER).getValue();
+				Double bValue = (Double) parameterList.getParameter(
+						MagFreqDistParameter.GR_BVALUE).getValue();
+				String setAllParamsBut = parameterList.getParameter(
+						MagFreqDistParameter.SET_ALL_PARAMS_BUT).getValue().toString();
+				if (magLower.doubleValue() > max.doubleValue() ||
+						magLower.doubleValue() < min.doubleValue()) {
+					throw new java.lang.RuntimeException(
+							"Value of MagLower must lie between the min and max value");
+				}
+
+				independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+						GR_MAG_LOWER));
+				independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+						GR_BVALUE));
+				independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+						SET_ALL_PARAMS_BUT));
+
+				// if set all parameters except total moment rate
+				if (setAllParamsBut.equalsIgnoreCase(MagFreqDistParameter.TOT_MO_RATE)) {
+					Double cornerMag = (Double) parameterList.getParameter(
+							MagFreqDistParameter.TAPERED_GR_CORNER_MAG).getValue();
+					Double totCumRate = (Double) parameterList.getParameter(
+							MagFreqDistParameter.TOT_CUM_RATE).getValue();
+
+					if (cornerMag.doubleValue() > max.doubleValue() ||
+							cornerMag.doubleValue() < min.doubleValue()) {
+						throw new java.lang.RuntimeException(
+								"Value of MagUpper must lie between the min and max value");
+					}
+					if (magLower.doubleValue() > cornerMag.doubleValue()) {
+						throw new java.lang.RuntimeException(
+								"Value of MagLower must be <= to MagUpper");
+					}
+					try {
+						tapGR.setAllButTotMoRate(magLower.doubleValue(), cornerMag.doubleValue(),
+								totCumRate.doubleValue(), bValue.doubleValue());
+					}
+					catch (RuntimeException e) {
+						throw new java.lang.RuntimeException(
+								"magUpper and MagLower must fall on one of the discrete x-axis values");
+					}
+
+					independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+							TAPERED_GR_CORNER_MAG));
+					independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+							TOT_CUM_RATE));
+				}
+				// if set all parameters except total cumulative rate
+				else if (setAllParamsBut.equalsIgnoreCase(MagFreqDistParameter.TOT_CUM_RATE)) {
+					Double cornerMag = (Double) parameterList.getParameter(
+							MagFreqDistParameter.TAPERED_GR_CORNER_MAG).getValue();
+					Double toMoRate = (Double) parameterList.getParameter(
+							MagFreqDistParameter.TOT_MO_RATE).getValue();
+					if (cornerMag.doubleValue() > max.doubleValue() ||
+							cornerMag.doubleValue() < min.doubleValue()) {
+						throw new java.lang.RuntimeException(
+								"Value of MagUpper must lie between the min and max value");
+					}
+					if (magLower.doubleValue() > cornerMag.doubleValue()) {
+						throw new java.lang.RuntimeException(
+								"Value of MagLower must be <= to MagUpper");
+					}
+					try {
+						tapGR.setAllButTotCumRate(magLower.doubleValue(), cornerMag.doubleValue(),
+								toMoRate.doubleValue(), bValue.doubleValue());
+					}
+					catch (RuntimeException e) {
+						throw new java.lang.RuntimeException(
+								"magUpper and MagLower must fall on one of the discrete x-axis values");
+					}
+					independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+							TAPERED_GR_CORNER_MAG));
+					independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+							TOT_MO_RATE));
+				}
+				// if set all parameters except mag upper
+				else if (setAllParamsBut.equalsIgnoreCase(MagFreqDistParameter.TAPERED_GR_CORNER_MAG)) {
+					Double toCumRate = (Double) parameterList.getParameter(
+							MagFreqDistParameter.TOT_CUM_RATE).getValue();
+					Double toMoRate = (Double) parameterList.getParameter(
+							MagFreqDistParameter.TOT_MO_RATE).getValue();
+					getValue().toString();
+					boolean relaxTotMoRate = true;
+					try {
+						tapGR.setAllButCornerMag(magLower.doubleValue(), toMoRate.doubleValue(),
+								toCumRate.doubleValue(), bValue.doubleValue());					
+					}
+					catch (RuntimeException e) {
+						throw new java.lang.RuntimeException(
+								"MagLower must fall on one of the discrete x-axis values");
+					}
+					independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+							TOT_CUM_RATE));
+					independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+							TOT_MO_RATE));
+				}
+				magDist = (IncrementalMagFreqDist) tapGR;
+			}
+
 
 			/*
 			 * If Young and Coppersmith 1985 MagDist is selected
@@ -1058,6 +1192,8 @@ implements java.io.Serializable
 	public StringConstraint getGRFixOptions() { return this.grFixOptions; }
 	public StringConstraint getYCSetAllButOptions() { return this.ycSetAllButOptions; }
 	public StringConstraint getGaussianDistSetAllButOptions() { return this.gdSetAllButOptions; }
+	public StringConstraint getTapGRSetAllButOptions() { return this.tap_grSetAllButOptions; }
+
 
 
 	public boolean setIndividualParamValueFromXML(Element el) {

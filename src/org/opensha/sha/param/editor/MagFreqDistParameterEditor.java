@@ -49,6 +49,7 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.magdist.gui.MagFreqDistApp;
 import org.opensha.sha.param.MagFreqDistParameter;
@@ -105,7 +106,7 @@ public class MagFreqDistParameterEditor
 
   // String Constraints
   private StringConstraint sdFixOptions, grSetAllButOptions, grFixOptions,
-      ycSetAllButOptions, gdSetAllButOptions;
+      ycSetAllButOptions, gdSetAllButOptions, tap_grSetAllButOptions;
 
 
   /**
@@ -242,6 +243,7 @@ public class MagFreqDistParameterEditor
       grFixOptions = magDistParam.getGRFixOptions();
       ycSetAllButOptions = magDistParam.getYCSetAllButOptions();
       gdSetAllButOptions = magDistParam.getGaussianDistSetAllButOptions();
+      tap_grSetAllButOptions = magDistParam.getTapGRSetAllButOptions();
   }
 
   /**
@@ -317,6 +319,27 @@ public class MagFreqDistParameterEditor
 
       setGR_DistParamsVisible();
     }
+    
+
+    /**
+     *  If TaperedGR_MagFreqDist is selected
+     */
+    if (distributionName.equalsIgnoreCase(TaperedGR_MagFreqDist.NAME)) {
+
+      // change the constraints in set all but parameter
+      param2 = new StringParameter(setAllButParam.getName(),
+                                   tap_grSetAllButOptions,
+                                   (String) tap_grSetAllButOptions.
+                                   getAllowedStrings().get(0));
+      param2.addParameterChangeListener(this);
+      // swap editors
+      editor.replaceParameterForEditor(setAllButParam.getName(), param2);
+
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
+
+      setTapGR_DistParamsVisible();
+    }
+
 
     /**
      * If Gaussian Freq dist is selected
@@ -474,6 +497,44 @@ public class MagFreqDistParameterEditor
       editor.setParameterVisible(MagFreqDistParameter.GR_MAG_UPPER, false);
     }
   }
+  
+  /**
+   * make the parameters related to Gutenberg Richter Mag dist visible
+   */
+  private void setTapGR_DistParamsVisible() {
+
+    editor.setParameterVisible(MagFreqDistParameter.SET_ALL_PARAMS_BUT, true);
+    editor.setParameterVisible(MagFreqDistParameter.GR_MAG_LOWER, true);
+    editor.setParameterVisible(MagFreqDistParameter.GR_BVALUE, true);
+    editor.setParameterVisible(MagFreqDistParameter.FIX, false);
+
+    // now make the params visible/invisible based on params desired to be set by user
+    StringParameter param = (StringParameter) parameterList.getParameter(
+        MagFreqDistParameter.SET_ALL_PARAMS_BUT);
+    String paramToSet = param.getValue().toString();
+
+    // set all paramerts except total Mo rate
+    if (paramToSet.equalsIgnoreCase(MagFreqDistParameter.TOT_MO_RATE)) {
+      editor.setParameterVisible(MagFreqDistParameter.TOT_CUM_RATE, true);
+      editor.setParameterVisible(MagFreqDistParameter.TAPERED_GR_CORNER_MAG, true);
+      editor.setParameterVisible(MagFreqDistParameter.TOT_MO_RATE, false);
+    }
+
+    // set all parameters except cumulative rate
+    if (paramToSet.equalsIgnoreCase(MagFreqDistParameter.TOT_CUM_RATE)) {
+      editor.setParameterVisible(MagFreqDistParameter.TAPERED_GR_CORNER_MAG, true);
+      editor.setParameterVisible(MagFreqDistParameter.TOT_MO_RATE, true);
+      editor.setParameterVisible(MagFreqDistParameter.TOT_CUM_RATE, false);
+    }
+
+    // set all parameters except mag upper
+    if (paramToSet.equalsIgnoreCase(MagFreqDistParameter.TAPERED_GR_CORNER_MAG)) {
+      editor.setParameterVisible(MagFreqDistParameter.TOT_CUM_RATE, true);
+      editor.setParameterVisible(MagFreqDistParameter.TOT_MO_RATE, true);
+      editor.setParameterVisible(MagFreqDistParameter.TAPERED_GR_CORNER_MAG, false);
+    }
+  }
+
 
   /**
    * make the parameters related to Youngs and Coppersmith Mag dist visible
@@ -560,6 +621,10 @@ public class MagFreqDistParameterEditor
       /** If Gutenberg Richter Freq dist is selected */
       if (distributionName.equalsIgnoreCase(GutenbergRichterMagFreqDist.NAME))
         setGR_DistParamsVisible();
+
+      /** If Gutenberg Richter Freq dist is selected */
+      if (distributionName.equalsIgnoreCase(TaperedGR_MagFreqDist.NAME))
+    	  setTapGR_DistParamsVisible();
 
       /**If Gaussian Freq dist is selected*/
       if (distributionName.equalsIgnoreCase(GaussianMagFreqDist.NAME))
