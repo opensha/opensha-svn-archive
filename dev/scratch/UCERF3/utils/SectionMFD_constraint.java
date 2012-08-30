@@ -270,6 +270,13 @@ public class SectionMFD_constraint {
 			}
 
 		}
+		
+		// check to make sure each bin has a non-zero rate
+		for(int i=0;i<rates.length;i++) {	// loop over mag bins
+			if(rates[i] <=0 )
+				throw new RuntimeException("Non-zero rate at bin # "+i+";\tmag="+mags.get(i));
+		}
+
 
 		// get cumulative dist
 		targetCumMFD = targetMFD.getCumRateDistWithOffset();
