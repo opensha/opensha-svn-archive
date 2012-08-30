@@ -2014,7 +2014,7 @@ public class FaultSystemRupSetCalc {
 		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
 			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
 			
-			System.out.println(s+"\t"+data.getSectionName());
+//			System.out.println(s+"\t"+data.getSectionName());
 
 			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
 				 int ucerf2_equivIndex = s;
