@@ -790,7 +790,7 @@ public class CommandLineInversionRunner {
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		mfd.setName("Incremental MFD");
 		funcs.add(mfd);
-		EvenlyDiscretizedFunc cmlFunc = mfd.getCumMomentRateDist();
+		EvenlyDiscretizedFunc cmlFunc = mfd.getCumRateDist();
 		cmlFunc.setName("Cumulative MFD");
 		funcs.add(cmlFunc);
 
@@ -798,7 +798,7 @@ public class CommandLineInversionRunner {
 		if (minX < 5)
 			minX = 5;
 		gp.setUserBounds(minX, mfd.getMaxX(),
-				1e-6, 1.0);
+				1e-10, 1.0);
 		String title;
 		String yAxisLabel;
 		
