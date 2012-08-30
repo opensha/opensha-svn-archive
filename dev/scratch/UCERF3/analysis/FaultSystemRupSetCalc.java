@@ -49,6 +49,7 @@ import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemSolutionInterface;
 import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
@@ -77,19 +78,29 @@ public class FaultSystemRupSetCalc {
 	 * @param wtByMoRate - determines whether or not it's a weighted average based on orignal moment rate
 	 */
 	public static double getMeanMinMag(InversionFaultSystemRupSet faultSystemRupSet, boolean wtByMoRate) {
+		return getMeanMinMag(faultSystemRupSet, faultSystemRupSet, wtByMoRate);
+	}
+	
+	/**
+	 * This the mean final minimum magnitude among all the fault 
+	 * sections in the given FaultSystemRupSet
+	 * @param faultSystemRupSet
+	 * @param wtByMoRate - determines whether or not it's a weighted average based on orignal moment rate
+	 */
+	public static double getMeanMinMag(FaultSystemRupSet fltSysRupSet, InversionFaultSystemSolutionInterface invRupSet, boolean wtByMoRate) {
 		double wt=1;
 		double totWt=0;
 		double sum=0;
-		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
+		for(int i=0;i<fltSysRupSet.getNumSections();i++) {
 			if(wtByMoRate) {
-				wt = faultSystemRupSet.getFaultSectionData(i).calcMomentRate(true);
+				wt = fltSysRupSet.getFaultSectionData(i).calcMomentRate(true);
 				if(Double.isNaN(wt)) {
 					wt=0;
-					if(D) System.out.println(i+" has NaN moRate; "+faultSystemRupSet.getFaultSectionData(i).getName()+
-							"\tarea="+(float)faultSystemRupSet.getAreaForSection(i)+"\tslipRate="+(float)faultSystemRupSet.getSlipRateForSection(i));
+					if(D) System.out.println(i+" has NaN moRate; "+fltSysRupSet.getFaultSectionData(i).getName()+
+							"\tarea="+(float)fltSysRupSet.getAreaForSection(i)+"\tslipRate="+(float)fltSysRupSet.getSlipRateForSection(i));
 				}
 			}
-			sum += faultSystemRupSet.getFinalMinMagForSection(i)*wt;
+			sum += invRupSet.getFinalMinMagForSection(i)*wt;
 			totWt+=wt;
 		}
 		if(D) System.out.println("meanMinMag="+(sum/totWt));
@@ -1282,7 +1293,26 @@ public class FaultSystemRupSetCalc {
 	 * @return
 	 */
 	public static ArrayList<GutenbergRichterMagFreqDist> getCharSubSeismoOnFaultMFD_forEachSection(
-			InversionFaultSystemRupSet fltSysRupSet, 
+			InversionFaultSystemRupSet fltSysRupSet,
+			GriddedSeisUtils gridSeisUtils,
+			GutenbergRichterMagFreqDist totalTargetGR) {
+		return getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, fltSysRupSet, gridSeisUtils, totalTargetGR);
+	}
+
+
+	/**
+	 * This gets the sub-seismogenic MFD for each fault section for the characteristic model,
+	 * where each fault gets a GR up to just below the minimum seismogenic magnitude, with a total rate
+	 * equal to the rate of events inside the fault section polygon (as determined by the
+	 * spatialSeisPDF and tatal regional rate).
+	 * @param fltSysRupSet
+	 * @param spatialSeisPDF
+	 * @param totalTargetGR
+	 * @return
+	 */
+	public static ArrayList<GutenbergRichterMagFreqDist> getCharSubSeismoOnFaultMFD_forEachSection(
+			FaultSystemRupSet fltSysRupSet,
+			InversionFaultSystemSolutionInterface invRupSet,
 			GriddedSeisUtils gridSeisUtils,
 			GutenbergRichterMagFreqDist totalTargetGR) {
 		
@@ -1291,8 +1321,8 @@ public class FaultSystemRupSetCalc {
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
 //			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap
-			int mMaxIndex = totalTargetGR.getXIndex(fltSysRupSet.getUpperMagForSubseismoRuptures(s));
-			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "+fltSysRupSet.getUpperMagForSubseismoRuptures(s));
+			int mMaxIndex = totalTargetGR.getXIndex(invRupSet.getUpperMagForSubseismoRuptures(s));
+			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "+invRupSet.getUpperMagForSubseismoRuptures(s));
 			double mMax = totalTargetGR.getX(mMaxIndex); // rounded to nearest MFD value
 			GutenbergRichterMagFreqDist tempOnFaultGR = new GutenbergRichterMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), 
 					totalTargetGR.getDelta(), totalTargetGR.getMagLower(), mMax, 1.0, 1.0);
@@ -1970,7 +2000,7 @@ public class FaultSystemRupSetCalc {
 
 		ArrayList<SectionMFD_constraint> mfdConstraintList = new ArrayList<SectionMFD_constraint>();
 				
-		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet.getFaultModel());
 		
 
 		// first compute momentRate and number of sub-sections for each parent section

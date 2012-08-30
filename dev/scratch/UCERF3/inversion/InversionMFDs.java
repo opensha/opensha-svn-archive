@@ -33,6 +33,7 @@ public class InversionMFDs {
 	String debugString;
 
 	FaultSystemRupSet fltSysRupSet;
+	InversionFaultSystemSolutionInterface invRupSet;
 	double totalRegionRateMgt5, onFaultRegionRateMgt5, offFaultRegionRateMgt5;
 	double mMaxOffFault;
 	boolean applyImpliedCouplingCoeff;
@@ -75,13 +76,14 @@ public class InversionMFDs {
 	 * @param spatialSeisPDF
 	 * @param inversionModel
 	 */
-	public InversionMFDs(InversionFaultSystemRupSet fltSysRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
+	public InversionMFDs(FaultSystemRupSet fltSysRupSet, InversionFaultSystemSolutionInterface invRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
 			boolean applyImpliedCouplingCoeff, SpatialSeisPDF spatialSeisPDF, InversionModels inversionModel) {
 		
 		// convert mMaxOffFault to bin center
 		mMaxOffFault -= DELTA_MAG/2;
 		
 		this.fltSysRupSet=fltSysRupSet;
+		this.invRupSet=invRupSet;
 		this.totalRegionRateMgt5 = totalRegionRateMgt5;
 		this.mMaxOffFault = mMaxOffFault;
 		this.applyImpliedCouplingCoeff = applyImpliedCouplingCoeff;
@@ -129,7 +131,7 @@ public class InversionMFDs {
 		totalTargetGR_SoCal.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRegionRateMgt5*fractSeisInSoCal*1e5, 1.0);
 		
 		// get ave min seismo mag for region
-		double tempMag = FaultSystemRupSetCalc.getMeanMinMag(fltSysRupSet, true);
+		double tempMag = FaultSystemRupSetCalc.getMeanMinMag(fltSysRupSet, invRupSet, true);
 		aveMinSeismoMag = totalTargetGR.getX(totalTargetGR.getClosestXIndex(tempMag));	// round to nearest MFD value
 
 
@@ -158,7 +160,7 @@ public class InversionMFDs {
 			trulyOffFaultMFD = FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(totalTargetGR, onFaultRegionRateMgt5, aveMinSeismoMag, mMaxOffFault);
 
 //			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, spatialSeisPDF, totalTargetGR);
-			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, gridSeisUtils, totalTargetGR);
+			subSeismoOnFaultMFD_List = FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, invRupSet, gridSeisUtils, totalTargetGR);
 
 			totalSubSeismoOnFaultMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			for(int m=0; m<subSeismoOnFaultMFD_List.size(); m++) {
@@ -218,7 +220,7 @@ public class InversionMFDs {
 				GutenbergRichterMagFreqDist grNuclMFD = grNuclMFD_List.get(s);
 //				int minSupraMagIndex = grNuclMFD.getClosestXIndex(fltSysRupSet.getMinMagForSection(s));
 //				double maxMagSubSeismo = grNuclMFD.getX(minSupraMagIndex-1);
-				double maxMagSubSeismo = fltSysRupSet.getUpperMagForSubseismoRuptures(s);
+				double maxMagSubSeismo = invRupSet.getUpperMagForSubseismoRuptures(s);
 				int minSupraMagIndex = grNuclMFD.getXIndex(maxMagSubSeismo)+1;
 				GutenbergRichterMagFreqDist subSeisGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, maxMagSubSeismo, 1.0, 1.0);
 				double rateAtZeroMagBin = grNuclMFD.getY(0)*tempCoupCoeff;

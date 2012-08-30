@@ -99,7 +99,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			double mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
 			boolean applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
 			SpatialSeisPDF spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
-			inversionMFDs = new InversionMFDs(solution, totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF, invModel);
+			inversionMFDs = new InversionMFDs(solution, this, totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF, invModel);
 		} catch (RuntimeException e) {
 			// can be uncommented for debugging string parse errors
 //			System.out.println("******* EXCEPTION CAUGHT INSTANTIATING IFSS - PRINTING METADATA *********");
