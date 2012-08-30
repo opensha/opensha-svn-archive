@@ -798,7 +798,7 @@ public class CommandLineInversionRunner {
 		if (minX < 5)
 			minX = 5;
 		gp.setUserBounds(minX, mfd.getMaxX(),
-				1e-10, 1.0);
+				1e-10, 1e-1);
 		String title;
 		String yAxisLabel;
 		
@@ -814,7 +814,11 @@ public class CommandLineInversionRunner {
 			fname += "_participation";
 		}
 		title += " for "+name+" ("+id+")";
-		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, true, title);
+		
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
 		
 		File file = new File(dir, fname);
 		gp.getCartPanel().setSize(1000, 800);
