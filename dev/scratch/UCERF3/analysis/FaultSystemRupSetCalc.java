@@ -51,9 +51,12 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.LaughTestFilter;
+import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.SectionMFD_constraint;
+import scratch.UCERF3.utils.UCERF2_A_FaultMapper;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
@@ -68,12 +71,12 @@ public class FaultSystemRupSetCalc {
 	
 	
 	/**
-	 * This the mean minimum magnitude among all the fault 
+	 * This the mean final minimum magnitude among all the fault 
 	 * sections in the given FaultSystemRupSet
 	 * @param faultSystemRupSet
 	 * @param wtByMoRate - determines whether or not it's a weighted average based on orignal moment rate
 	 */
-	public static double getMeanMinMag(FaultSystemRupSet faultSystemRupSet, boolean wtByMoRate) {
+	public static double getMeanMinMag(InversionFaultSystemRupSet faultSystemRupSet, boolean wtByMoRate) {
 		double wt=1;
 		double totWt=0;
 		double sum=0;
@@ -86,7 +89,7 @@ public class FaultSystemRupSetCalc {
 							"\tarea="+(float)faultSystemRupSet.getAreaForSection(i)+"\tslipRate="+(float)faultSystemRupSet.getSlipRateForSection(i));
 				}
 			}
-			sum += faultSystemRupSet.getMinMagForSection(i)*wt;
+			sum += faultSystemRupSet.getFinalMinMagForSection(i)*wt;
 			totWt+=wt;
 		}
 		if(D) System.out.println("meanMinMag="+(sum/totWt));
@@ -95,14 +98,14 @@ public class FaultSystemRupSetCalc {
 
 	
 	/**
-	 * This computes a histogram of the minimum magnitude among all the fault 
-	 * sections in the given FaultSystemRupSet
+	 * This computes a histogram of the original minimum magnitude (before any filtering) 
+	 * among all the fault sections in the given FaultSystemRupSet
 	 * @param faultSystemRupSet
 	 * @param minMag
 	 * @param numMag
 	 * @param deltaMag
 	 */
-	public static HistogramFunction getMinMagHistogram(FaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag, boolean wtByMoRate) {
+	public static HistogramFunction getOrigMinMagHistogram(FaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag, boolean wtByMoRate) {
 		HistogramFunction hist = new HistogramFunction(minMag, numMag, deltaMag);
 		double wt=1;
 		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
@@ -112,17 +115,48 @@ public class FaultSystemRupSetCalc {
 				System.out.println(i+" has NaN moRate; "+faultSystemRupSet.getFaultSectionData(i).getName()+
 						"\tarea="+(float)faultSystemRupSet.getAreaForSection(i)+"\tslipRate="+(float)faultSystemRupSet.getSlipRateForSection(i));
 			}
-			double min = faultSystemRupSet.getMinMagForSection(i);
+			double min = faultSystemRupSet.getOrigMinMagForSection(i);
 			if(!Double.isNaN(wt)) {
 				hist.add(min, wt);
 			}
 		}
 		if(D) System.out.println(hist);
-		hist.setName("Min Mag Histogram for FaultSystemRupSet");
+		hist.setName("Orig Min Mag Histogram for FaultSystemRupSet");
 		hist.setInfo("(among the "+faultSystemRupSet.getNumSections()+" sections; wtByMoRate="+wtByMoRate+")");
 		hist.normalizeBySumOfY_Vals();
 		return hist;
 	}
+	
+	/**
+	 * This computes a histogram of the final minimum magnitude (before any filtering) 
+	 * among all the fault sections in the given FaultSystemRupSet
+	 * @param faultSystemRupSet
+	 * @param minMag
+	 * @param numMag
+	 * @param deltaMag
+	 */
+	public static HistogramFunction getFinalMinMagHistogram(InversionFaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag, boolean wtByMoRate) {
+		HistogramFunction hist = new HistogramFunction(minMag, numMag, deltaMag);
+		double wt=1;
+		for(int i=0;i<faultSystemRupSet.getNumSections();i++) {
+			if(wtByMoRate)
+				wt = faultSystemRupSet.getAreaForSection(i)*faultSystemRupSet.getSlipRateForSection(i);
+			if(D && Double.isNaN(wt)) {
+				System.out.println(i+" has NaN moRate; "+faultSystemRupSet.getFaultSectionData(i).getName()+
+						"\tarea="+(float)faultSystemRupSet.getAreaForSection(i)+"\tslipRate="+(float)faultSystemRupSet.getSlipRateForSection(i));
+			}
+			double min = faultSystemRupSet.getFinalMinMagForSection(i);
+			if(!Double.isNaN(wt)) {
+				hist.add(min, wt);
+			}
+		}
+		if(D) System.out.println(hist);
+		hist.setName("Final Min Mag Histogram for FaultSystemRupSet");
+		hist.setInfo("(among the "+faultSystemRupSet.getNumSections()+" sections; wtByMoRate="+wtByMoRate+")");
+		hist.normalizeBySumOfY_Vals();
+		return hist;
+	}
+
 	
 	
 	/**
@@ -200,12 +234,20 @@ public class FaultSystemRupSetCalc {
 		return hist;
 	}
 
-	
+	/**
+	 * Note that this is plotting the OrigMinMagHistogram, and not the FinalMinMagHistogram
+	 * (difference between these was implemented after this method was created)
+	 * @param faultSystemRupSet
+	 * @param minMag
+	 * @param numMag
+	 * @param deltaMag
+	 * @param wtByMoRate
+	 */
 	public static void plotAllHistograms(FaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag, boolean wtByMoRate) {
 		ArrayList<HistogramFunction> hists = new ArrayList<HistogramFunction>();
 		hists.add(getMagHistogram(faultSystemRupSet, minMag, numMag, deltaMag));
 		hists.add(getMaxMagHistogram(faultSystemRupSet, minMag, numMag, deltaMag, wtByMoRate));
-		hists.add(getMinMagHistogram(faultSystemRupSet, minMag, numMag, deltaMag, wtByMoRate));
+		hists.add(getOrigMinMagHistogram(faultSystemRupSet, minMag, numMag, deltaMag, wtByMoRate));
 		
 		hists.add(hists.get(0).getCumulativeDistFunction());
 		hists.get(3).setName("Cumulative "+hists.get(0).getName());
@@ -231,7 +273,18 @@ public class FaultSystemRupSetCalc {
 
 	}
 	
-	public static HistogramFunction getMomentRateReductionHistogram(FaultSystemRupSet faultSystemRupSet, boolean wtByMoRate, boolean plotResult) {
+	/**
+	 * Note that this now uses faultSystemRupSet.getFinalMinMagForSection(i) rather than 
+	 * faultSystemRupSet.getOrigMinMagForSection(i); the distinction was added after this
+	 * method was created and we haven't studied which is more appropriate here
+	 * 
+	 * 
+	 * @param faultSystemRupSet
+	 * @param wtByMoRate
+	 * @param plotResult
+	 * @return
+	 */
+	public static HistogramFunction getMomentRateReductionHistogram(InversionFaultSystemRupSet faultSystemRupSet, boolean wtByMoRate, boolean plotResult) {
 		HistogramFunction hist = new HistogramFunction(0.005, 100, 0.01);
 		double wt=1;
 		double mean=0, totWt=0;;
@@ -249,7 +302,7 @@ public class FaultSystemRupSetCalc {
 					totWt +=wt;
 					if(reduction>0.5)
 						System.out.println(reduction+"\t"+faultSystemRupSet.getFaultSectionData(i).getName()+
-								"\tmagLower="+(float)faultSystemRupSet.getMinMagForSection(i)
+								"\tmagLower="+(float)faultSystemRupSet.getFinalMinMagForSection(i)
 								+"\tmagUpper="+(float)faultSystemRupSet.getMaxMagForSection(i));
 				}
 			}
@@ -490,7 +543,7 @@ public class FaultSystemRupSetCalc {
 	
 	
 	public static String oldTestInversionGR_Setup(double totRegionalM5_Rate, double fractSeisOffFault, double mMaxOffFault,
-			FaultSystemRupSet faultSysRupSet) {
+			InversionFaultSystemRupSet faultSysRupSet) {
 		
 		FaultModels fm = faultSysRupSet.getFaultModel();
 		DeformationModels dm = faultSysRupSet.getDeformationModel();
@@ -579,7 +632,7 @@ public class FaultSystemRupSetCalc {
 	
 	
 	public static String oldTestInversionCharSetup(double totRegionalM5_Rate, double fractSeisOffFault, double mMaxOffFault,
-			FaultSystemRupSet faultSysRupSet) {
+			InversionFaultSystemRupSet faultSysRupSet) {
 		
 		FaultModels fm = faultSysRupSet.getFaultModel();
 		DeformationModels dm = faultSysRupSet.getDeformationModel();
@@ -1202,7 +1255,7 @@ public class FaultSystemRupSetCalc {
 	 * @param totalTargetGR
 	 * @return
 	 */
-	public static SummedMagFreqDist getCharSubSeismoOnFaultMFD(FaultSystemRupSet fltSysRupSet, GriddedSeisUtils gridSeisUtils, 
+	public static SummedMagFreqDist getCharSubSeismoOnFaultMFD(InversionFaultSystemRupSet fltSysRupSet, GriddedSeisUtils gridSeisUtils, 
 			GutenbergRichterMagFreqDist totalTargetGR) {
 		SummedMagFreqDist mfd = new SummedMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), totalTargetGR.getDelta());
 		for(GutenbergRichterMagFreqDist gr : getCharSubSeismoOnFaultMFD_forEachSection(fltSysRupSet, gridSeisUtils, totalTargetGR)) {
@@ -1229,7 +1282,7 @@ public class FaultSystemRupSetCalc {
 	 * @return
 	 */
 	public static ArrayList<GutenbergRichterMagFreqDist> getCharSubSeismoOnFaultMFD_forEachSection(
-			FaultSystemRupSet fltSysRupSet, 
+			InversionFaultSystemRupSet fltSysRupSet, 
 			GriddedSeisUtils gridSeisUtils,
 			GutenbergRichterMagFreqDist totalTargetGR) {
 		
@@ -1237,8 +1290,9 @@ public class FaultSystemRupSetCalc {
 		double totMgt5_rate = totalTargetGR.getCumRate(0);
 		for(int s=0; s<fltSysRupSet.getNumSections(); s++) {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
-			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap
-			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "+fltSysRupSet.getMinMagForSection(s));
+//			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap
+			int mMaxIndex = totalTargetGR.getXIndex(fltSysRupSet.getUpperMagForSubseismoRuptures(s));
+			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "+fltSysRupSet.getUpperMagForSubseismoRuptures(s));
 			double mMax = totalTargetGR.getX(mMaxIndex); // rounded to nearest MFD value
 			GutenbergRichterMagFreqDist tempOnFaultGR = new GutenbergRichterMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), 
 					totalTargetGR.getDelta(), totalTargetGR.getMagLower(), mMax, 1.0, 1.0);
@@ -1636,6 +1690,11 @@ public class FaultSystemRupSetCalc {
 	
 	/**
 	 * This method writes out any zero mag bins between the lower and upper magnitudes for each parent section
+	 * 
+	 * Note that this is using the faultSystemRupSet.getOrigMinMagForSection(s) method rather than the newly added
+	 * faultSystemRupSet.getFinalMinMagForSection(s), as the latter option was added after this method was created,
+	 * and we haven't studied which is more appropriate.
+	 * 
 	 * @param faultSystemRupSet
 	 * @param minMag
 	 * @param numMag
@@ -1648,7 +1707,7 @@ public class FaultSystemRupSetCalc {
 		List<FaultSectionPrefData> sectDataList = faultSystemRupSet.getFaultSectionDataList();
 		for(int s=0; s< sectDataList.size();s++) {
 			String parSectName = sectDataList.get(s).getParentSectionName();
-			minSectMag = faultSystemRupSet.getMinMagForSection(s);
+			minSectMag = faultSystemRupSet.getOrigMinMagForSection(s);
 			maxSectMag = faultSystemRupSet.getMaxMagForSection(s);
 			if(!parSectName.equals(prevParSectName)) { // if it's a new parent section
 				if(!prevParSectName.equals("junk")) { // Process results
@@ -1790,6 +1849,190 @@ public class FaultSystemRupSetCalc {
 	}
 	
 	
+	/**
+	 * This computes the final minimum seismogenic rupture mag for each section,
+	 * where every subsection is given the greatest among all those of the parent section,
+	 * or 6.0 if the latter is below 6.0.  This way all subsections of a parent have the
+	 * same value, and each subsection has a rupture at that magnitude.
+	 * 
+	 */
+	
+	public static double[] computeMinSeismoMagForSections(FaultSystemRupSet fltSystRupSet, double systemWideMinSeismoMag) {
+		double[] minMagForSect = new double[fltSystRupSet.getNumSections()];
+		String prevParSectName = "junk";
+		List<FaultSectionPrefData> sectDataList = fltSystRupSet.getFaultSectionDataList();
+		
+		// make map between parent section name and maximum magnitude (magForParSectMap)
+		HashMap<String,Double> magForParSectMap = new HashMap<String,Double>();
+		double maxMinSeismoMag=0;
+		double minMinSeismoMag=0;	// this is for testing
+		for(int s=0; s< sectDataList.size();s++) {
+			String parSectName = sectDataList.get(s).getParentSectionName();
+			double minSeismoMag = fltSystRupSet.getOrigMinMagForSection(s);
+			if(!parSectName.equals(prevParSectName)) { // it's a new parent section
+				// set the previous result
+				if(!prevParSectName.equals("junk")) {
+					magForParSectMap.put(prevParSectName, maxMinSeismoMag);
+//					System.out.println(prevParSectName+"\t"+minMinSeismoMag+"\t"+maxMinSeismoMag);
+				}
+				// reset maxMinSeismoMag & prevParSectName
+				maxMinSeismoMag = minSeismoMag;
+				minMinSeismoMag = minSeismoMag;
+				prevParSectName = parSectName;
+			}
+			else {
+				if(maxMinSeismoMag<minSeismoMag)
+					maxMinSeismoMag=minSeismoMag;
+				if(minMinSeismoMag>minSeismoMag)
+					minMinSeismoMag=minSeismoMag;
+			}
+		}
+		// do the last one:
+		magForParSectMap.put(prevParSectName, maxMinSeismoMag);
+//		System.out.println(prevParSectName+"\t"+minMinSeismoMag+"\t"+maxMinSeismoMag);
+
+		
+//		for(String parName:magForParSectMap.keySet())
+//			System.out.println(parName+"\t"+magForParSectMap.get(parName));
+		
+		// now set the value for each section in the array, giving a value of systemWideMinMinSeismoMag 
+		// if the parent section value falls below this
+		for(int s=0; s< sectDataList.size();s++) {
+			double minMag = magForParSectMap.get(sectDataList.get(s).getParentSectionName());
+			if(minMag>systemWideMinSeismoMag)
+				minMagForSect[s] = minMag;
+			else
+				minMagForSect[s] = systemWideMinSeismoMag;
+		}
+		
+		return minMagForSect;
+		
+//		// test result:
+//		try {
+//			FileWriter fw = new FileWriter("TestHereItIs");
+//			for(int s=0; s< sectDataList.size();s++) {
+//				String sectName = sectDataList.get(s).getSectionName();
+//				double tempMag = magForParSectMap.get(sectDataList.get(s).getParentSectionName());
+//				double origSlipRate = sectDataList.get(s).getOrigAveSlipRate();
+//				double aseisSlipFactor = sectDataList.get(s).getAseismicSlipFactor();
+//				fw.write(sectName+"\t"+getMinMagForSection(s)+"\t"+tempMag+"\t"+minMagForSectionArray[s]+"\t"+origSlipRate+"\t"+aseisSlipFactor+"\n");
+//			}
+//			fw.close ();
+//		}
+//		catch (IOException e) {
+//			System.out.println ("IO exception = " + e );
+//		}
+
+	}
+	
+	
+	/**
+	 * This computes whether each rupture has a magnitude below any of the final minimum mags
+	 * for the sections the rupture utilizes. Actually, the magnitude must be below the lower
+	 * bin edge implied by the minimum magnitude (since minimum magnitudes are at the bin centers),
+	 * so this really tests whether rupMag is below SectionMFD_constraint.getLowerEdgeOfFirstBin(rupMag).
+	 * 
+	 * Need to pass in finalMinMagForSectArray because this is not available from a FaultSystemRupSet
+	 */
+	public static boolean[] computeWhichRupsFallBelowSectionMinMags(FaultSystemRupSet fltSystRupSet,
+			double[] finalMinMagForSectArray) {
+		boolean[] rupBelowSectMinMag = new boolean[fltSystRupSet.getNumRuptures()];
+		
+		for(int r=0; r<fltSystRupSet.getNumRuptures(); r++) {
+			double rupMag = fltSystRupSet.getMagForRup(r);
+			List<Integer> indicesForRup = fltSystRupSet.getSectionsIndicesForRup(r);
+			boolean magTooSmall = false;
+			for(int s:indicesForRup) {
+				// lower bin edge for this min mag
+				double lowerBinEdge = SectionMFD_constraint.getLowerEdgeOfFirstBin(finalMinMagForSectArray[s]);
+				if(rupMag < lowerBinEdge) {	// equal ones would be kept
+					magTooSmall = true;
+				}
+			}
+			rupBelowSectMinMag[r] = magTooSmall;
+		}
+		
+		return rupBelowSectMinMag;
+		
+	}
+
+
+	
+	public static ArrayList<SectionMFD_constraint> getCharInversionSectMFD_Constraints(InversionFaultSystemRupSet fltSystRupSet) {
+		
+		double fractGR = 0.33333;
+		
+		HashMap<Integer,Integer> numSectMap = new HashMap<Integer,Integer>();
+		HashMap<Integer,Double> moRateMap = new HashMap<Integer,Double>();
+//		HashMap<Integer,String> parName = new HashMap<Integer,String>();
+
+		ArrayList<SectionMFD_constraint> mfdConstraintList = new ArrayList<SectionMFD_constraint>();
+				
+		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		
+
+		// first compute momentRate and number of sub-sections for each parent section
+		int lastParentIndex = - 1;
+		int numSubSec=0;
+		double totalMomentRate=0;		
+		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
+			
+			// check that subsection names are the same
+			String name1 = fltSystRupSet.getFaultSectionData(s).getSectionName();
+			String name2 = fltSystRupSet.getFaultSectionData(s).getSectionName();
+			if(!name1.equals(name2)) {
+				throw new RuntimeException("Problem - method currenly only works for UCERF2 deformation models"+
+						" because we don't yet have a subsection mapping for other deformation models");
+			}
+			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
+			if(data.getParentSectionId() != lastParentIndex) {
+				if(lastParentIndex != -1) {	// if it's not the first
+					numSectMap.put(lastParentIndex, numSubSec);
+					moRateMap.put(lastParentIndex, totalMomentRate);
+				}
+				// reset sums
+				numSubSec=0;
+				totalMomentRate=0;
+			}
+			numSubSec += 1;
+			totalMomentRate += data.calcMomentRate(true);
+			lastParentIndex = data.getParentSectionId();
+		}
+		// add the last one
+		numSectMap.put(lastParentIndex, numSubSec);
+		moRateMap.put(lastParentIndex, totalMomentRate);
+
+		
+		
+//		for(int parSectIndex : numSectMap.keySet())
+//			System.out.println(numSectMap.get(parSectIndex)+"\t"+moRateMap.get(parSectIndex));
+	
+		// test of problem
+//		SectionMFD_constraint test = new SectionMFD_constraint(UCERF2_FltSysSol, 76);
+//		test.plotMFDs();
+		
+		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
+			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
+			
+			System.out.println(s+"\t"+data.getSectionName());
+
+			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
+				 int ucerf2_equivIndex = s;
+				 mfdConstraintList.add(new SectionMFD_constraint(UCERF2_FltSysSol, ucerf2_equivIndex));
+
+			}
+			else {
+				double minMag = fltSystRupSet.getFinalMinMagForSection(s);
+				double maxMag = fltSystRupSet.getMaxMagForSection(s);
+				// each subsection gets the same moment rate to keep rates constant along the section
+				// note that we could save memory by creating only one SectionMFD_constraint per parent section
+				double moRate = moRateMap.get(data.getParentSectionId()) / (double)numSectMap.get(data.getParentSectionId());
+				mfdConstraintList.add(new SectionMFD_constraint(minMag, maxMag, moRate, fractGR));
+			}
+		}
+		
+		return mfdConstraintList;
+	}
 	
 
 
@@ -1801,11 +2044,14 @@ public class FaultSystemRupSetCalc {
 		
 		
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.NEOKINEMA, 
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
-		rupSet.computeMinSeismoMagForSections(6.0);
+		getCharInversionSectMFD_Constraints(rupSet);
+		
+		
+//		computeMinSeismoMagForSections(rupSet, InversionFaultSystemRupSet.MIN_MAG_FOR_SEISMOGENIC_RUPS);
 		
 //		tempTest2(rupSet);;
 		

@@ -75,7 +75,7 @@ public class InversionMFDs {
 	 * @param spatialSeisPDF
 	 * @param inversionModel
 	 */
-	public InversionMFDs(FaultSystemRupSet fltSysRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
+	public InversionMFDs(InversionFaultSystemRupSet fltSysRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
 			boolean applyImpliedCouplingCoeff, SpatialSeisPDF spatialSeisPDF, InversionModels inversionModel) {
 		
 		// convert mMaxOffFault to bin center
@@ -213,10 +213,13 @@ public class InversionMFDs {
 			targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			noCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			soCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			// loop over sections
 			for(int s=0;s<grNuclMFD_List.size();s++) {
 				GutenbergRichterMagFreqDist grNuclMFD = grNuclMFD_List.get(s);
-				int minSupraMagIndex = grNuclMFD.getClosestXIndex(fltSysRupSet.getMinMagForSection(s));
-				double maxMagSubSeismo = grNuclMFD.getX(minSupraMagIndex-1);
+//				int minSupraMagIndex = grNuclMFD.getClosestXIndex(fltSysRupSet.getMinMagForSection(s));
+//				double maxMagSubSeismo = grNuclMFD.getX(minSupraMagIndex-1);
+				double maxMagSubSeismo = fltSysRupSet.getUpperMagForSubseismoRuptures(s);
+				int minSupraMagIndex = grNuclMFD.getXIndex(maxMagSubSeismo)+1;
 				GutenbergRichterMagFreqDist subSeisGR = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, maxMagSubSeismo, 1.0, 1.0);
 				double rateAtZeroMagBin = grNuclMFD.getY(0)*tempCoupCoeff;
 				subSeisGR.scaleToIncrRate(0, rateAtZeroMagBin);

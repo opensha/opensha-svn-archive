@@ -101,11 +101,13 @@ public abstract class FaultSystemRupSet {
 	
 	/**
 	 * This returns the magnitude of the smallest rupture involving this section or NaN
-	 * if no ruptures involve this section.
+	 * if no ruptures involve this section.  This is called "Orig" because subclasses
+	 * may filter the minimum magnitudes further (e.g., so the don't fall below some
+	 * threshold).
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getMinMagForSection(int sectIndex) {
+	public double getOrigMinMagForSection(int sectIndex) {
 		List<Integer> rups = getRupturesForSection(sectIndex);
 		if (rups.isEmpty())
 			return Double.NaN;
@@ -117,7 +119,6 @@ public abstract class FaultSystemRupSet {
 		}
 		return minMag;
 	}
-	
 	
 	
 	/**

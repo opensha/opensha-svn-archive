@@ -38,6 +38,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.SectionMFD_constraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
@@ -53,7 +54,7 @@ import com.google.common.collect.Maps;
  * @author kevin
  *
  */
-public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
+public class InversionFaultSystemSolution extends SimpleFaultSystemSolution implements InversionFaultSystemSolutionInterface {
 	
 	private InversionModels invModel;
 	private LogicTreeBranch branch;
@@ -71,6 +72,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	private double minimumRuptureRateFraction = Double.NaN;
 	
 	private InversionMFDs inversionMFDs;
+	
+	double[] minMagForSectArray;
+	boolean[] isRupBelowMinMagsForSects;
 
 	/**
 	 * Parses the info string for inversion parameters
@@ -504,7 +508,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 	
 	
 	/**
-	 * This computes the subseismogenic MFD for each sections using the final (post-inversion) slip rates
+	 * This computes the subseismogenic MFD for each section using the final (post-inversion) slip rates
 	 * assuming the section nucleates a perfect GR (after moment balancing, values above and equal to
 	 * getMinMagForSection(s) are set to zero).
 	 * @return
@@ -525,7 +529,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 			int mMaxIndex = tempGR.getClosestXIndex(getMaxMagForSection(s));
 			double mMax = tempGR.getX(mMaxIndex);
 			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag, minMag, mMax, newMoRate, 1.0);
-			double minSeismoMag = getMinMagForSection(s);
+//			double minSeismoMag = getMinMagForSection(s);
+			double minSeismoMag = getUpperMagForSubseismoRuptures(s)+deltaMag/2;
 			if(Double.isNaN(minSeismoMag))
 				gr.scaleToCumRate(0, 0d);
 			else {
@@ -536,6 +541,57 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution {
 		}
 		return grNuclMFD_List;
 	}
+	
+	// Methods from InversionFaultSystemSolutionInterface:
+	
+	/**
+	 * This returns the final minimum mag for a given fault section.
+	 * See doc for computeMinSeismoMagForSections() for details.
+	 * @param sectIndex
+	 * @return
+	 */
+	public double getFinalMinMagForSection(int sectIndex) {
+		if(minMagForSectArray == null) {
+			minMagForSectArray = FaultSystemRupSetCalc.computeMinSeismoMagForSections(this,InversionFaultSystemRupSet.MIN_MAG_FOR_SEISMOGENIC_RUPS);
+		}
+		return minMagForSectArray[sectIndex];
+	}
+	
+	
+	/**
+	 * This tells whether the given rup is below any of the final minimum magnitudes 
+	 * of the sections utilized by the rup.  Actually, the test is really whether the
+	 * mag falls below the lower bin edge implied by the section min mags; see doc for
+	 * computeWhichRupsFallBelowSectionMinMags()).
+	 * @param rupIndex
+	 * @return
+	 */
+	public boolean isRuptureBelowSectMinMag(int rupIndex) {
+		
+		// see if it needs to be computed
+		if(isRupBelowMinMagsForSects == null) {
+			if(minMagForSectArray == null) {
+				minMagForSectArray = FaultSystemRupSetCalc.computeMinSeismoMagForSections(this,InversionFaultSystemRupSet.MIN_MAG_FOR_SEISMOGENIC_RUPS);
+			}
+			isRupBelowMinMagsForSects = FaultSystemRupSetCalc.computeWhichRupsFallBelowSectionMinMags(this, minMagForSectArray);
+		}
+		
+		return isRupBelowMinMagsForSects[rupIndex];
+
+	}
+	
+	
+	/**
+	 * This returns the upper magnitude of sub-seismogenic ruptures
+	 * (at the bin center).  This is the lower bin edge of the minimum
+	 * seismogenic rupture minus half the MFD discretization.
+	 * @param sectIndex
+	 * @return
+	 */
+	public double getUpperMagForSubseismoRuptures(int sectIndex) {
+		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionMFDs.DELTA_MAG/2;
+	}
+
 	
 	
 	public static void main(String args[]) throws IOException, DocumentException {

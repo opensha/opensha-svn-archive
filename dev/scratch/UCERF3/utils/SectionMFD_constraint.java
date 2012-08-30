@@ -99,12 +99,13 @@ public class SectionMFD_constraint {
 	
 	/**
 	 * This makes the MFD nucleation constraint for the specified subSectIndex from the given
-	 * fault system solution (typeically the UCERF2 mapped fault system solution).  The min 
+	 * fault system solution (typically the UCERF2 mapped fault system solution).  The min 
 	 * and max magnitudes are determined from the list given by 
 	 * fltSysSol.getRupturesForSection(subSectIndex), and then nucleation rates are computed 
 	 * for each of these ruptures and the values are added to the rate in each bin here.  No rate
 	 * corrections are applied if the mag of a given rupture differs from that at bin center 
-	 * (need to think about this more carefully before doing any such thing).
+	 * (need to think about this more carefully before doing any such thing).  Note that this can
+	 * have zero rate bins (depends on what is given by the fltSysSol)
 	 * @param fltSysSol
 	 * @param subSectIndex
 	 */
@@ -123,7 +124,7 @@ public class SectionMFD_constraint {
 				rupMags.add(mag);
 				if(origMinMag>mag) 
 					origMinMag = mag;
-				else if(maxMag<mag) 
+				if(maxMag<mag) 
 					maxMag = mag;
 			}
 		}
@@ -146,10 +147,10 @@ public class SectionMFD_constraint {
 		}
 		
 		// check to make sure each bin has a non-zero rate
-		for(int i=0;i<rates.length;i++) {	// loop over mag bins
-			if(rates[i] <=0 )
-				throw new RuntimeException("Non-zero rate at bin # "+i+";\tmag="+mags.get(i));
-		}
+//		for(int i=0;i<rates.length;i++) {	// loop over mag bins
+//			if(rates[i] <=0 )
+//				throw new RuntimeException("Non-zero rate at bin # "+i+";\tmag="+mags.get(i)+"\tsectIndex="+subSectIndex);
+//		}
 		
 		// now make target MFDs
 		double targetDelta = 0.01;
@@ -344,8 +345,10 @@ public class SectionMFD_constraint {
 	 * This constructs the mags and binEdges
 	 */
 	private void makeMagBinArrays() {
-		if(maxMag<origMinMag)
-			throw new RuntimeException("minMag must be less than maxMag)");
+		
+		if(maxMag<origMinMag) {
+			throw new RuntimeException("minMag must be less than maxMag); origMinMag="+origMinMag+"\tmaxmag="+maxMag);
+		}
 		
 		// set first bin value and the two edges
 		int currentBin=0;
@@ -432,7 +435,7 @@ public class SectionMFD_constraint {
 	 * @param orgMinMag
 	 * @return
 	 */
-	private static double getLowerEdgeOfFirstBin(double origMinMag) {
+	public static double getLowerEdgeOfFirstBin(double origMinMag) {
 		double edgeMag = origMinMag-DIST_BET_FIRST_AND_SECOND_BIN/2; 
 		return (double)Math.floor(edgeMag*10.0)/10.0;
 	}
