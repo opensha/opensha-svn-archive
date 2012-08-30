@@ -25,7 +25,7 @@ public class PoissonTest {
 			if (i <= mean)
 				prob = p.cumulativeProbability(i);
 			else
-				prob = 1 - p.cumulativeProbability(i-1); 
+				prob = 1 - p.cumulativeProbability(i); 
 			System.out.println(i+": "+prob);
 		}
 	}

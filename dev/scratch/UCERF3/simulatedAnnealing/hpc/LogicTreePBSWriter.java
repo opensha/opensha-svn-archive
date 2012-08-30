@@ -476,12 +476,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "fm2-event-smooth-param-sweep";
+		String runName = "newdir-test";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
 //		int constrained_run_mins = 250;
-		int constrained_run_mins = 500;
+//		int constrained_run_mins = 500;
+		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
@@ -521,6 +522,8 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noRefBranches, noUCERF2);
 		
+		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
+		
 		
 //		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
@@ -532,13 +535,16 @@ public class LogicTreePBSWriter {
 		List<CustomArg[]> variations = null;
 		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
+		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
 		String[] paleoWts = { "0.1", "1.0", "10" };
-		String[] eventSmoothWts = { "0", "1000", "10000", "100000" };
+//		String[] eventSmoothWts = { "0", "1000", "10000", "100000" };
+//		String[] paleoWts = { "100", "1000" };
+		String[] eventSmoothWts = { "1000", "10000" };
 		for (String paleoWt : paleoWts)
 			for (String eventSmoothWt : eventSmoothWts)
-				variationBranches.add(buildVariationBranch(ops, toArray(paleoWt, eventSmoothWt)));
+				variationBranches.add(buildVariationBranch(ops, toArray(paleoWt, eventSmoothWt, "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
@@ -724,7 +730,7 @@ public class LogicTreePBSWriter {
 					File pbs = new File(writeDir, jobName+".pbs");
 					System.out.println("Writing: "+pbs.getName());
 
-					int jobMins = mins+30;
+					int jobMins = mins+60;
 
 					String className = CommandLineInversionRunner.class.getName();
 					String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);

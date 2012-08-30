@@ -14,18 +14,24 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import javax.swing.JFrame;
+
 import org.apache.commons.math.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -240,6 +246,141 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
 		comp.computThreaded();
+	}
+	
+	public IncrementalMagFreqDist[] calcSectionNucleationMFDs(int sectionID) {
+		return calcMFDs(false, true, sectionID);
+	}
+	
+	public IncrementalMagFreqDist[] calcParentSectionNucleationMFDs(int parentSectionID) {
+		return calcMFDs(true, true, parentSectionID);
+	}
+	
+	public IncrementalMagFreqDist[] calcSectionParticipationMFDs(int sectionID) {
+		return calcMFDs(false, false, sectionID);
+	}
+	
+	public IncrementalMagFreqDist[] calcParentSectionParticipationMFDs(int parentSectionID) {
+		return calcMFDs(true, false, parentSectionID);
+	}
+	
+	private IncrementalMagFreqDist[] calcMFDs(final boolean parent, final boolean nucleation, final int id) {
+		final FaultSystemRupSet rupSet = this.rupSet;
+		final double minMag = getMinMag();
+		final double maxMag = getMaxMag();
+		final int numMag = (int)((maxMag - minMag) / 0.1d)+1;
+		
+		List<Task> tasks = Lists.newArrayList();
+		
+		final IncrementalMagFreqDist[] mfds = new IncrementalMagFreqDist[getNumSolutions()];
+		
+		for (int i=0; i<getNumSolutions(); i++) {
+			final int solIndex = i;
+			tasks.add(new Task() {
+				
+				@Override
+				public void compute() {
+					FaultSystemSolution mySol = getSolution(solIndex);
+					mySol.copyCacheFrom(rupSet);
+					IncrementalMagFreqDist mfd;
+					if (nucleation) {
+						if (parent)
+							mfd = mySol.calcNucleationMFD_forParentSect(id, minMag, maxMag, numMag);
+						else
+							mfd = mySol.calcNucleationMFD_forSect(id, minMag, maxMag, numMag);
+					} else {
+						if (parent)
+							mfd = mySol.calcParticipationMFD_forParentSect(id, minMag, maxMag, numMag);
+						else
+							mfd = mySol.calcParticipationMFD_forSect(id, minMag, maxMag, numMag);
+					}
+					mySol.clearSolutionCacheOnly();
+					
+					mfds[solIndex] = mfd;
+				}
+			});
+		}
+		
+		try {
+			new ThreadedTaskComputer(tasks).computThreaded();
+		} catch (InterruptedException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
+		for (int i=0; i<getNumSolutions(); i++)
+			Preconditions.checkNotNull(mfds[i], "MFD is null at solution index "+i);
+		
+		return mfds;
+	}
+	
+	public static PlotSpec getMFDConvergencePlotSpec(IncrementalMagFreqDist[] mfds, boolean nucleation, String sectName) {
+		return getMFDConvergencePlotSpec(mfds, nucleation, sectName, mfds.length);
+	}
+	
+	public static PlotSpec getMFDConvergencePlotSpec(IncrementalMagFreqDist[] mfds, boolean nucleation, String sectName, int n) {
+		double minX = mfds[0].getMinX();
+		double maxX = mfds[0].getMaxX();
+		int num = mfds[0].getNum();
+		
+		EvenlyDiscretizedFunc meanFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
+		meanFunc.setName("Mean");
+		EvenlyDiscretizedFunc minFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
+		minFunc.setName("Minimum");
+		EvenlyDiscretizedFunc maxFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
+		maxFunc.setName("Maximum");
+		EvenlyDiscretizedFunc meanPlusStdDevFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
+		meanPlusStdDevFunc.setName("Mean + Std Dev");
+		EvenlyDiscretizedFunc meanMinusStdDevFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
+		meanMinusStdDevFunc.setName("Mean - Std Dev");
+		EvenlyDiscretizedFunc meanPlusStdDevOfMeanFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
+		meanPlusStdDevOfMeanFunc.setName("Mean + Std Dev of Mean (n="+n+")");
+		EvenlyDiscretizedFunc meanMinusStdDevOfMeanFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
+		meanMinusStdDevOfMeanFunc.setName("Mean - Std Dev of Mean (n="+n+")");
+		
+		for (int i=0; i<num; i++) {
+			double[] vals = new double[mfds.length];
+			for (int j=0; j<mfds.length; j++)
+				vals[j] = mfds[j].getY(i);
+			
+			double mean = StatUtils.mean(vals);
+			double min = StatUtils.min(vals);
+			double max = StatUtils.max(vals);
+			double stdDev = Math.sqrt(StatUtils.variance(vals, mean));
+			double sdom = stdDev / Math.sqrt(n);
+			
+			meanFunc.set(i, mean);
+			minFunc.set(i, min);
+			maxFunc.set(i, max);
+			meanPlusStdDevFunc.set(i, mean+stdDev);
+			meanMinusStdDevFunc.set(i, mean-stdDev);
+			meanPlusStdDevOfMeanFunc.set(i, mean+sdom);
+			meanMinusStdDevOfMeanFunc.set(i, mean-sdom);
+		}
+		
+		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList(meanFunc, minFunc, maxFunc,
+				meanPlusStdDevFunc, meanMinusStdDevFunc, meanPlusStdDevOfMeanFunc, meanMinusStdDevOfMeanFunc); 
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		float meanWidth = 4f;
+		float normalWidth = 2f;
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, meanWidth, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, normalWidth, Color.RED));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, normalWidth, Color.RED));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, normalWidth, Color.GREEN));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, normalWidth, Color.GREEN));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, normalWidth, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, normalWidth, Color.BLUE));
+		
+		String title;
+		if (nucleation)
+			title = "Nucleation";
+		else
+			title = "Participation";
+		title += " MFD Convergence: "+sectName+", "+mfds.length+" Solutions";
+		if (n != mfds.length)
+			title += " (N="+n+", for SDOM)";
+		String xAxisLabel = "Magnitude";
+		String yAxisLabel = "Rate";
+		return new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 	}
 	
 	public void writePaleoPlots(File dir) throws IOException {
@@ -526,8 +667,17 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_run00_sol.zip"));
 		AverageFaultSystemSolution avg = fromDirectory(rupSet, dir,
 				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1");
-		avg.writePaleoPlots(dir);
-		avg.writePaleoBoundsPlot(dir);
+//		avg.writePaleoPlots(dir);
+//		avg.writePaleoBoundsPlot(dir);
+		
+		IncrementalMagFreqDist[] mfds = avg.calcParentSectionNucleationMFDs(301);
+		PlotSpec spec = getMFDConvergencePlotSpec(mfds, true, "SAF Mojave", 10);
+		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), false);
+		gw.setX_AxisLabel(spec.getxAxisLabel());
+		gw.setY_AxisLabel(spec.getyAxisLabel());
+		gw.getGraphWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gw.getGraphWindow().setVisible(true);
+		
 		
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/" +
 //				"results/VarAPrioriZero_VarAPrioriWt1000_VarWaterlevel0");

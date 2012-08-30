@@ -449,6 +449,23 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * @param numMag - number of mags in MFD
 	 * @return IncrementalMagFreqDist
 	 */
+	public IncrementalMagFreqDist calcParticipationMFD_forParentSect(int parentSectionID, double minMag, double maxMag, int numMag) {
+		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
+		for (int r : getRupturesForParentSection(parentSectionID))
+			mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
+		return mfd;
+	}
+	
+	
+	/**
+	 * This give a Participation Mag Freq Dist for the specified section.
+	 * This preserves rates rather than moRates (can't have both).
+	 * @param sectIndex
+	 * @param minMag - lowest mag in MFD
+	 * @param maxMag - highest mag in MFD
+	 * @param numMag - number of mags in MFD
+	 * @return IncrementalMagFreqDist
+	 */
 	public IncrementalMagFreqDist calcParticipationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		for (int r : getRupturesForSection(sectIndex))
