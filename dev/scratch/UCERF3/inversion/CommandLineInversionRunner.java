@@ -755,6 +755,9 @@ public class CommandLineInversionRunner {
 
 	public static void writeParentSectionMFDPlots(FaultSystemSolution sol, File dir) throws IOException {
 		Map<Integer, String> parentSects = Maps.newHashMap();
+		
+		if (!dir.exists())
+			dir.mkdir();
 
 		for (FaultSectionPrefData sect : sol.getFaultSectionDataList())
 			if (!parentSects.containsKey(sect.getParentSectionId()))
