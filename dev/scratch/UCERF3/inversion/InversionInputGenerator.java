@@ -13,6 +13,7 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
@@ -27,8 +28,10 @@ import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.SparseRCDoubleMatrix2D;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.SectionMFD_constraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
@@ -57,7 +60,7 @@ public class InversionInputGenerator {
 	private boolean excludeParkfieldRupsFromMfdEqualityConstraints = true; // If true, rates of Parkfield M~6 ruptures do not count toward MFD Equality Constraint misfit
 	
 	// inputs
-	private FaultSystemRupSet rupSet;
+	private InversionFaultSystemRupSet rupSet;
 	private InversionConfiguration config;
 	private List<PaleoRateConstraint> paleoRateConstraints;
 	private double[] improbabilityConstraint; // TODO may become an object of some sort
@@ -75,7 +78,7 @@ public class InversionInputGenerator {
 	private ArrayList<String> rangeNames;
 	
 	public InversionInputGenerator(
-			FaultSystemRupSet rupSet,
+			InversionFaultSystemRupSet rupSet,
 			InversionConfiguration config,
 			List<PaleoRateConstraint> paleoRateConstraints,
 			double[] improbabilityConstraint, // may become an object in the future
@@ -252,6 +255,20 @@ public class InversionInputGenerator {
 					+ totalNumMagParticipationConstraints);
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Participation");
+		}
+		ArrayList<SectionMFD_constraint> MFDConstraints = null;
+		if (config.getRelativeNucleationMFDConstraintWt() > 0.0) {
+			int totalNumNucleationMFDConstraints = 0;
+			MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
+			for (int sect=0; sect<numSections; sect++) { 
+				SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect);
+				int numMagBins = sectMFDConstraint.getNumMags();
+				totalNumNucleationMFDConstraints+=numMagBins;
+				numRows+=numMagBins;
+			}
+			if(D) System.out.println("Number of Nucleation MFD constraints: "+totalNumNucleationMFDConstraints);
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("MFD Nucleation");
 		}
 		if (config.getRelativeMomentConstraintWt() > 0.0) {
 			numRows++;
@@ -637,10 +654,58 @@ public class InversionInputGenerator {
 						rowIndex++;
 					}	
 					magBinIndex++;				
-				}		
+				}	
+				
 			}
 			if (D) {
 				System.out.println("Adding Participation MFD Constraints took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+			}
+		}
+		
+		
+		// MFD Smoothness Constraint - Constrain participation MFD to be uniform for each fault subsection
+		if (config.getRelativeNucleationMFDConstraintWt() > 0.0) {
+			double relativeNucleationMFDConstraintWt = config.getRelativeNucleationMFDConstraintWt();
+			if(D) System.out.println("\nAdding Subsection Nucleation MFD constraints to A matrix ...");
+			numNonZeroElements = 0;
+			
+			// Loop over all subsections
+			for (int sect=0; sect<numSections; sect++) {
+				
+				SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect);
+				int numMagBins = sectMFDConstraint.getNumMags();
+				List<Integer> rupturesForSect = rupSet.getRupturesForSection(sect);
+				
+				// Loop over MFD constraints for this subsection
+				for (int magBin = 0; magBin<numMagBins; magBin++) {
+					
+					// Determine which ruptures are in this magBin
+					List<Integer> rupturesForMagBin = new ArrayList<Integer>();
+					for (int i=0; i<rupturesForSect.size(); i++) {
+						double mag = rupSet.getMagForRup(rupturesForSect.get(i));
+						if (sectMFDConstraint.isMagInBin(mag, magBin))
+							rupturesForMagBin.add(rupturesForSect.get(i));
+					}
+					
+					
+					// Loop over ruptures in this subsection-MFD bin
+					for (int i=0; i<rupturesForMagBin.size(); i++) {
+						int rup  = rupturesForMagBin.get(i);
+						if (QUICK_GETS_SETS)
+							A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt);
+						else
+							A.set(rowIndex,rup,relativeNucleationMFDConstraintWt);
+						numNonZeroElements++;	
+					}
+					d[rowIndex]=relativeNucleationMFDConstraintWt * sectMFDConstraint.getRate(magBin);
+					rowIndex++;
+				}
+			}
+			if (D) {
+				System.out.println("Adding Subsection Nucleation MFD Constraints took "+getTimeStr(watch)+".");
 				watch.reset();
 				watch.start();
 				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
@@ -1019,7 +1084,7 @@ public class InversionInputGenerator {
 		return rupSet;
 	}
 
-	public void setRupSet(FaultSystemRupSet rupSet) {
+	public void setRupSet(InversionFaultSystemRupSet rupSet) {
 		this.rupSet = rupSet;
 	}
 
