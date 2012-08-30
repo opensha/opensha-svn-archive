@@ -1187,7 +1187,7 @@ public class DeformationModelsCalc {
 					parNameList.add(parName);
 			}
 		}
-		System.out.println("Fault sections that were on type-A faults in UCERF2:");
+		System.out.println("Fault sections that were on type-A faults in UCERF2 for Def Mod "+dm+":");
 		for(String name:parNameList)
 			System.out.println(name);
 	}

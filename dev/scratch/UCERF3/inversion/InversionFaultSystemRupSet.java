@@ -362,6 +362,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * same value, and each subsection has a rupture at that magnitude.
 	 * 
 	 * TODO - give a buffer below systemWideMinMinSeismoMag (for bin width) 
+	 * 
+	 * 
 	 * @param systemWideMinMinSeismoMag
 	 */
 	
