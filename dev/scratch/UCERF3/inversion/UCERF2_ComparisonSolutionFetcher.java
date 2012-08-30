@@ -3,6 +3,7 @@ package scratch.UCERF3.inversion;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.exceptions.GMT_MapException;
@@ -21,6 +22,8 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetch
 
 public class UCERF2_ComparisonSolutionFetcher {
 	
+	private static Map<FaultModels, SimpleFaultSystemSolution> cache;
+	
 	/**
 	 * This creates a UCERF2 reference solution for the given Fault Model. It uses
 	 * Magnitudes from UCERF2 where available (when no mapping exists for a rupture, the Average
@@ -32,35 +35,40 @@ public class UCERF2_ComparisonSolutionFetcher {
 	 * @return
 	 */
 	public static SimpleFaultSystemSolution getUCERF2Solution(FaultModels fm) {
-		DeformationModels dm;
-		if (fm == FaultModels.FM2_1)
-			dm = DeformationModels.UCERF2_ALL;
-		else
-			dm = DeformationModels.GEOLOGIC_PLUS_ABM;
-		FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
-				LaughTestFilter.getDefault(), 0, fm, dm, ScalingRelationships.AVE_UCERF2,
-				SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, SpatialSeisPDF.UCERF2);
-		
-		ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
-		
-		SimpleFaultSystemRupSet modRupSet = new SimpleFaultSystemRupSet(rupSet);
-		
-		double[] mags = new double[ucerf2_magsAndRates.size()];
-		double[] rates = new double[ucerf2_magsAndRates.size()];
-		for (int i=0; i<ucerf2_magsAndRates.size(); i++) {
-			double[] ucerf2_vals = ucerf2_magsAndRates.get(i);
-			if (ucerf2_vals == null) {
-				mags[i] = rupSet.getMagForRup(i);
-				rates[i] = 0;
-			} else {
-				mags[i] = ucerf2_vals[0];
-				rates[i] = ucerf2_vals[1];
+		SimpleFaultSystemSolution sol = cache.get(fm);
+		if (sol == null) {
+			DeformationModels dm;
+			if (fm == FaultModels.FM2_1)
+				dm = DeformationModels.UCERF2_ALL;
+			else
+				dm = DeformationModels.GEOLOGIC_PLUS_ABM;
+			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
+					LaughTestFilter.getDefault(), 0, fm, dm, ScalingRelationships.AVE_UCERF2,
+					SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, SpatialSeisPDF.UCERF2);
+
+			ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
+
+			SimpleFaultSystemRupSet modRupSet = new SimpleFaultSystemRupSet(rupSet);
+
+			double[] mags = new double[ucerf2_magsAndRates.size()];
+			double[] rates = new double[ucerf2_magsAndRates.size()];
+			for (int i=0; i<ucerf2_magsAndRates.size(); i++) {
+				double[] ucerf2_vals = ucerf2_magsAndRates.get(i);
+				if (ucerf2_vals == null) {
+					mags[i] = rupSet.getMagForRup(i);
+					rates[i] = 0;
+				} else {
+					mags[i] = ucerf2_vals[0];
+					rates[i] = ucerf2_vals[1];
+				}
 			}
+
+			modRupSet.setMagForallRups(mags);
+
+			sol = new SimpleFaultSystemSolution(modRupSet, rates);
+			cache.put(fm, sol);
 		}
-		
-		modRupSet.setMagForallRups(mags);
-		
-		return new SimpleFaultSystemSolution(modRupSet, rates);
+		return sol;
 	}
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
