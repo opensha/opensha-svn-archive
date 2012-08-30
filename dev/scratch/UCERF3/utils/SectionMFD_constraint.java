@@ -407,7 +407,7 @@ public class SectionMFD_constraint {
 	 * @param ithBin
 	 * @return
 	 */
-	private boolean isMagInBin(double mag, int ithBin) {
+	public boolean isMagInBin(double mag, int ithBin) {
 		if(mag<magEdges.get(ithBin+1) && magEdges.get(ithBin)<=mag)
 			return true;
 		else
@@ -534,6 +534,13 @@ public class SectionMFD_constraint {
 		graph.setYLog(true);
 
 	}
+	
+	public int getNumMags() {return mags.size(); }
+	
+	public double getRate(int ithMag) { return rates[ithMag]; }
+	
+	// this returns the bin-center of the ith mag
+	public double getMag(int ithMag) {return mags.get(ithMag); }
 
 	
 
