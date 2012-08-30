@@ -195,6 +195,10 @@ public class CommandLineInversionRunner {
 			Preconditions.checkState(branch.isFullySpecified(),
 					"Branch is not fully fleshed out! Prefix: "+prefix+", branch: "+branch);
 			
+			File subDir = new File(dir, prefix);
+			if (!subDir.exists())
+				subDir.mkdir();
+			
 			LaughTestFilter laughTest = LaughTestFilter.getDefault();
 			String aseisArg = InversionOptions.DEFAULT_ASEISMICITY.argName;
 			double defaultAseis = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
@@ -287,7 +291,7 @@ public class CommandLineInversionRunner {
 			config.updateRupSetInfoString(rupSet);
 			String info = rupSet.getInfoString();
 			
-			File rupSetFile = new File(dir, prefix+"_rupSet.zip");
+			File rupSetFile = new File(subDir, prefix+"_rupSet.zip");
 			new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
 			// now clear it out of memory
 			config = null;
@@ -322,7 +326,7 @@ public class CommandLineInversionRunner {
 			initialState = Arrays.copyOf(initialState, initialState.length);
 			CompletionCriteria criteria = ThreadedSimulatedAnnealing.parseCompletionCriteria(cmd);
 			if (!(criteria instanceof ProgressTrackingCompletionCriteria)) {
-				File csvFile = new File(dir, prefix+".csv");
+				File csvFile = new File(subDir, prefix+".csv");
 				criteria = new ProgressTrackingCompletionCriteria(criteria, csvFile);
 			}
 			System.out.println("Starting Annealing");
@@ -348,7 +352,7 @@ public class CommandLineInversionRunner {
 					+((double)numPerturbs/(double)rupsPerturbed);
 			info += "\n******************************************";
 			System.out.println("Writing solution bin files");
-			tsa.writeBestSolution(new File(dir, prefix+".bin"));
+			tsa.writeBestSolution(new File(subDir, prefix+".bin"));
 			
 			if (!lightweight) {
 				System.out.println("Loading RupSet");
@@ -359,7 +363,7 @@ public class CommandLineInversionRunner {
 						rupRateSolution, minimumRuptureRates);
 				SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(loadedRupSet, rupRateSolution);
 				
-				File solutionFile = new File(dir, prefix+"_sol.zip");
+				File solutionFile = new File(subDir, prefix+"_sol.zip");
 				
 				// add moments to info string
 				info += "\n\n****** Moment and Rupture Rate Metatdata ******";
@@ -430,7 +434,7 @@ public class CommandLineInversionRunner {
 				for (ParentMomentRecord p : parentMoRates)
 					moRateCSV.addLine(Lists.newArrayList(p.parentID+"", p.name, p.targetMoment+"",
 							p.solutionMoment+"", p.getDiff()+""));
-				moRateCSV.writeToFile(new File(dir, prefix+"_sect_mo_rates.csv"));
+				moRateCSV.writeToFile(new File(subDir, prefix+"_sect_mo_rates.csv"));
 				
 				sol.setInfoString(info);
 				
@@ -438,35 +442,35 @@ public class CommandLineInversionRunner {
 				sol.toZipFile(solutionFile);
 				
 				System.out.println("Writing Plots");
-				tsa.writePlots(criteria, new File(dir, prefix));
+				tsa.writePlots(criteria, new File(subDir, prefix));
 				
 				// 1 km jump plot
 				try {
-					writeJumpPlots(sol, distsMap, dir, prefix);
+					writeJumpPlots(sol, distsMap, subDir, prefix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				
 				// MFD plots
 				try {
-					writeMFDPlots(invSol, dir, prefix);
+					writeMFDPlots(invSol, subDir, prefix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				try {
-					writePaleoPlots(paleoRateConstraints, sol, dir, prefix);
+					writePaleoPlots(paleoRateConstraints, sol, subDir, prefix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				
 				try {
-					writeSAFSegPlots(sol, dir, prefix);
+					writeSAFSegPlots(sol, subDir, prefix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 			
-			FileWriter fw = new FileWriter(new File(dir, prefix+"_metadata.txt"));
+			FileWriter fw = new FileWriter(new File(subDir, prefix+"_metadata.txt"));
 			fw.write(info);
 			fw.close();
 			
