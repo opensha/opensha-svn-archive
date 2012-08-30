@@ -1964,6 +1964,8 @@ public class FaultSystemRupSetCalc {
 		
 		HashMap<Integer,Integer> numSectMap = new HashMap<Integer,Integer>();
 		HashMap<Integer,Double> moRateMap = new HashMap<Integer,Double>();
+		HashMap<Integer,Double> totAreaMap = new HashMap<Integer,Double>();
+		HashMap<Integer,Double> totLengthMap = new HashMap<Integer,Double>();
 //		HashMap<Integer,String> parName = new HashMap<Integer,String>();
 
 		ArrayList<SectionMFD_constraint> mfdConstraintList = new ArrayList<SectionMFD_constraint>();
@@ -1974,7 +1976,7 @@ public class FaultSystemRupSetCalc {
 		// first compute momentRate and number of sub-sections for each parent section
 		int lastParentIndex = - 1;
 		int numSubSec=0;
-		double totalMomentRate=0;		
+		double totalMomentRate=0, totalArea=0, totalLength=0;		
 		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
 			
 			// check that subsection names are the same
@@ -1989,18 +1991,28 @@ public class FaultSystemRupSetCalc {
 				if(lastParentIndex != -1) {	// if it's not the first
 					numSectMap.put(lastParentIndex, numSubSec);
 					moRateMap.put(lastParentIndex, totalMomentRate);
+					totAreaMap.put(lastParentIndex, totalArea);
+					totLengthMap.put(lastParentIndex, totalLength);
 				}
 				// reset sums
 				numSubSec=0;
 				totalMomentRate=0;
+				totalArea=0;
+				totalLength=0;
 			}
 			numSubSec += 1;
 			totalMomentRate += data.calcMomentRate(true);
+			double length = data.getTraceLength();
+			totalArea += data.getReducedDownDipWidth()*length;	// km-sq
+			totalLength += length;	// km
 			lastParentIndex = data.getParentSectionId();
+
 		}
 		// add the last one
 		numSectMap.put(lastParentIndex, numSubSec);
 		moRateMap.put(lastParentIndex, totalMomentRate);
+		totAreaMap.put(lastParentIndex, totalArea);
+		totLengthMap.put(lastParentIndex, totalLength);
 
 		
 		
@@ -2023,7 +2035,12 @@ public class FaultSystemRupSetCalc {
 			}
 			else {
 				double minMag = fltSystRupSet.getFinalMinMagForSection(s);
-				double maxMag = fltSystRupSet.getMaxMagForSection(s);
+				// compute max mag for rupture filling parent section area
+				ScalingRelationships scalingRel = fltSystRupSet.getLogicTreeBranch().getValue(ScalingRelationships.class);
+				double area = totAreaMap.get(data.getParentSectionId());	// km-sq
+				double width = area/totLengthMap.get(data.getParentSectionId());	// km
+				double maxMag = scalingRel.getMag(area*1e6, width*1e3);
+//				double maxMag = fltSystRupSet.getMaxMagForSection(s);
 				// each subsection gets the same moment rate to keep rates constant along the section
 				// note that we could save memory by creating only one SectionMFD_constraint per parent section
 				double moRate = moRateMap.get(data.getParentSectionId()) / (double)numSectMap.get(data.getParentSectionId());
