@@ -169,7 +169,7 @@ public class RTGM implements Callable<RTGM> {
 	 * Returns the optionally supplied index or -1 if none was supplied.
 	 * @return the RTGM index
 	 */
-	public int getIndex() {
+	public int index() {
 		return index;
 	}
 		
