@@ -293,44 +293,44 @@ public class InversionConfiguration {
 		}
 		
 		// modifiers
-		if (modifiers.hasOption(InversionOptions.MFD_WT.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.MFD_WT.getArgName())) {
 			double wt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_WT.getArgName()));
 			System.out.println("Setting MFD constraint wt: "+wt);
 			mfdEqualityConstraintWt = wt;
 			mfdInequalityConstraintWt = wt;
 		}
 		
-		if (modifiers.hasOption(InversionOptions.A_PRIORI_CONST_WT.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.A_PRIORI_CONST_WT.getArgName())) {
 			relativeRupRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.getArgName()));
 			System.out.println("Setting a priori constraint wt: "+ relativeRupRateConstraintWt);
 		}
 
-		if (modifiers.hasOption(InversionOptions.WATER_LEVEL_FRACT.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.WATER_LEVEL_FRACT.getArgName())) {
 			minimumRuptureRateFraction = Double.parseDouble(modifiers.getOptionValue(InversionOptions.WATER_LEVEL_FRACT.getArgName()));
 			System.out.println("Setting waterlevel fract: "+minimumRuptureRateFraction);
 		}
 
-		if (modifiers.hasOption(InversionOptions.PARKFIELD_WT.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.PARKFIELD_WT.getArgName())) {
 			relativeParkfieldConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PARKFIELD_WT.getArgName()));
 			System.out.println("Setting parkfield constraint wt: "+relativeParkfieldConstraintWt);
 		}
 
-		if (modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
 			relativePaleoRateWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
 			System.out.println("Setting paleo constraint wt: "+relativePaleoRateWt);
 		}
 
-		if (modifiers.hasOption(InversionOptions.EVENT_SMOOTH_WT.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.EVENT_SMOOTH_WT.getArgName())) {
 			relativeEventRateSmoothnessWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.EVENT_SMOOTH_WT.getArgName()));
 			System.out.println("Setting event rate smoothness constraint wt: "+relativeEventRateSmoothnessWt);
 		}
 
-		if (modifiers.hasOption(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName())) {
 			relativeNucleationMFDConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName()));
 			System.out.println("Setting section nucleation MFD constraint wt: "+relativeNucleationMFDConstraintWt);
 		}
 
-		if (modifiers.hasOption(InversionOptions.MFD_TRANSITION_MAG.getArgName())) {
+		if (modifiers != null && modifiers.hasOption(InversionOptions.MFD_TRANSITION_MAG.getArgName())) {
 			MFDTransitionMag = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_TRANSITION_MAG.getArgName()));
 			System.out.println("Setting MFD transition mag: "+MFDTransitionMag);
 		}

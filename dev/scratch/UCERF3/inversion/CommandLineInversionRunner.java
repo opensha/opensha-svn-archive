@@ -238,7 +238,7 @@ public class CommandLineInversionRunner {
 
 			System.out.println("Building Inversion Configuration");
 			InversionConfiguration config = InversionConfiguration.forModel(branch.getValue(InversionModels.class),
-					rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt);
+					rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt, cmd);
 
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getValue(FaultModels.class), rupSet);
 
