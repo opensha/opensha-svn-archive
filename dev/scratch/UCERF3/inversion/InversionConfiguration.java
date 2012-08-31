@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -20,6 +21,7 @@ import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.inversion.CommandLineInversionRunner.InversionOptions;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
@@ -153,9 +155,6 @@ public class InversionConfiguration {
 	 * 
 	 * @param model
 	 * @param rupSet
-	 * @param offFaultAseisFactor aseismicity factor for off fault seismicity (affects off fault moment rate)
-	 * @param mfdConstraintModifier multiplier for the a value of the MFD constraint.
-	 * 1 for no modification, 1.3 for a 30 % increase, etc for the MFD constraint values.
 	 * @param mfdEqualityConstraintWt weight of magnitude-distribution EQUALITY constraint relative to
 	 * slip-rate constraint (recommended: 10)
 	 * @param mfdInequalityConstraintWt weight of magnitude-distribution INEQUALITY constraint relative
@@ -164,6 +163,25 @@ public class InversionConfiguration {
 	 */
 	public static InversionConfiguration forModel(InversionModels model, InversionFaultSystemRupSet rupSet,
 			double mfdEqualityConstraintWt, double mfdInequalityConstraintWt) {
+		return forModel(model, rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt, null);
+	}
+	
+
+	
+	/**
+	 * This generates an inversion configuration for the given inversion model and rupture set
+	 * 
+	 * @param model
+	 * @param rupSet
+	 * @param mfdEqualityConstraintWt weight of magnitude-distribution EQUALITY constraint relative to
+	 * slip-rate constraint (recommended: 10)
+	 * @param mfdInequalityConstraintWt weight of magnitude-distribution INEQUALITY constraint relative
+	 * to slip-rate constraint (recommended:  1000)
+	 * @param modifiers command line modifier arguments
+	 * @return
+	 */
+	public static InversionConfiguration forModel(InversionModels model, InversionFaultSystemRupSet rupSet,
+			double mfdEqualityConstraintWt, double mfdInequalityConstraintWt, CommandLine modifiers) {
 		
 		
 		/* *******************************************
@@ -197,8 +215,10 @@ public class InversionConfiguration {
 		// weight of Parkfield rupture rate Constraint (recommended: 1000)
 		double relativeParkfieldConstraintWt = 1000;
 		
-		// get MFC constraints
+		// get MFD constraints
 		List<MFD_InversionConstraint> mfdConstraints = rupSet.getInversionMFDs().getMFD_ConstraintsForNoAndSoCal();
+		
+		double MFDTransitionMag = 7.85; // magnitude to switch from MFD equality to MFD inequality
 		
 		
 		String metadata = "";
@@ -272,12 +292,55 @@ public class InversionConfiguration {
 			minimumRuptureRateFraction = 0;
 		}
 		
+		// modifiers
+		if (modifiers.hasOption(InversionOptions.MFD_WT.getArgName())) {
+			double wt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_WT.getArgName()));
+			System.out.println("Setting MFD constraint wt: "+wt);
+			mfdEqualityConstraintWt = wt;
+			mfdInequalityConstraintWt = wt;
+		}
+		
+		if (modifiers.hasOption(InversionOptions.A_PRIORI_CONST_WT.getArgName())) {
+			relativeRupRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.getArgName()));
+			System.out.println("Setting a priori constraint wt: "+ relativeRupRateConstraintWt);
+		}
+
+		if (modifiers.hasOption(InversionOptions.WATER_LEVEL_FRACT.getArgName())) {
+			minimumRuptureRateFraction = Double.parseDouble(modifiers.getOptionValue(InversionOptions.WATER_LEVEL_FRACT.getArgName()));
+			System.out.println("Setting waterlevel fract: "+minimumRuptureRateFraction);
+		}
+
+		if (modifiers.hasOption(InversionOptions.PARKFIELD_WT.getArgName())) {
+			relativeParkfieldConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PARKFIELD_WT.getArgName()));
+			System.out.println("Setting parkfield constraint wt: "+relativeParkfieldConstraintWt);
+		}
+
+		if (modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
+			relativePaleoRateWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
+			System.out.println("Setting paleo constraint wt: "+relativePaleoRateWt);
+		}
+
+		if (modifiers.hasOption(InversionOptions.EVENT_SMOOTH_WT.getArgName())) {
+			relativeEventRateSmoothnessWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.EVENT_SMOOTH_WT.getArgName()));
+			System.out.println("Setting event rate smoothness constraint wt: "+relativeEventRateSmoothnessWt);
+		}
+
+		if (modifiers.hasOption(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName())) {
+			relativeNucleationMFDConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName()));
+			System.out.println("Setting section nucleation MFD constraint wt: "+relativeNucleationMFDConstraintWt);
+		}
+
+		if (modifiers.hasOption(InversionOptions.MFD_TRANSITION_MAG.getArgName())) {
+			MFDTransitionMag = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_TRANSITION_MAG.getArgName()));
+			System.out.println("Setting MFD transition mag: "+MFDTransitionMag);
+		}
+		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
 		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		
 		if (mfdEqualityConstraintWt>0.0 && mfdInequalityConstraintWt>0.0) {
 			// we have both MFD constraints, apply a transition mag from equality to inequality
-			double MFDTransitionMag = 7.85; // magnitude to switch from MFD equality to MFD inequality
+			
 			metadata += "\nMFDTransitionMag: "+MFDTransitionMag;
 			mfdEqualityConstraints = restrictMFDConstraintMagRange(mfdConstraints, mfdConstraints.get(0).getMagFreqDist().getMinX(), MFDTransitionMag);
 			mfdInequalityConstraints = restrictMFDConstraintMagRange(mfdConstraints, MFDTransitionMag, mfdConstraints.get(0).getMagFreqDist().getMaxX());

@@ -83,7 +83,10 @@ public class CommandLineInversionRunner {
 		//				"Flag to turn off subseimogenic reductions"),
 		MFD_WT("mfd", "mfd-wt", "MFDWt", true, "MFD constraint weight"),
 		INITIAL_ZERO("zeros", "initial-zeros", "Zeros", false, "Force initial state to zeros"),
-		EVENT_SMOOTH_WT("eventsm", "event-smooth-wt", "EventSmoothWt", true, "Relative Event Rate Smoothness weight");
+		EVENT_SMOOTH_WT("eventsm", "event-smooth-wt", "EventSmoothWt", true, "Relative Event Rate Smoothness weight"),
+		SECTION_NUCLEATION_MFD_WT("nuclwt", "sect-nucl-mfd-wt", "SectNuclMFDWt", true,
+				"Relative section nucleation MFD constraint weight"),
+		MFD_TRANSITION_MAG("mfdtrans", "mfd-trans-mag", "MFDTrans", true, "MFD transition magnitude");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -233,46 +236,9 @@ public class CommandLineInversionRunner {
 				mfdInequalityConstraintWt = 1;
 			}
 
-			if (cmd.hasOption(InversionOptions.MFD_WT.argName)) {
-				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.MFD_WT.argName));
-				System.out.println("Setting MFD constraint wt: "+wt);
-				mfdEqualityConstraintWt = wt;
-				mfdInequalityConstraintWt = wt;
-			}
-
 			System.out.println("Building Inversion Configuration");
 			InversionConfiguration config = InversionConfiguration.forModel(branch.getValue(InversionModels.class),
 					rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt);
-
-			if (cmd.hasOption(InversionOptions.A_PRIORI_CONST_WT.argName)) {
-				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.argName));
-				System.out.println("Setting a priori constraint wt: "+wt);
-				config.setRelativeRupRateConstraintWt(wt);
-			}
-
-			if (cmd.hasOption(InversionOptions.WATER_LEVEL_FRACT.argName)) {
-				double fract = Double.parseDouble(cmd.getOptionValue(InversionOptions.WATER_LEVEL_FRACT.argName));
-				System.out.println("Setting waterlevel fract: "+fract);
-				config.setMinimumRuptureRateFraction(fract);
-			}
-
-			if (cmd.hasOption(InversionOptions.PARKFIELD_WT.argName)) {
-				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.PARKFIELD_WT.argName));
-				System.out.println("Setting parkfield constraint wt: "+wt);
-				config.setRelativeParkfieldConstraintWt(wt);
-			}
-
-			if (cmd.hasOption(InversionOptions.PALEO_WT.argName)) {
-				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.PALEO_WT.argName));
-				System.out.println("Setting paleo constraint wt: "+wt);
-				config.setRelativePaleoRateWt(wt);
-			}
-
-			if (cmd.hasOption(InversionOptions.EVENT_SMOOTH_WT.argName)) {
-				double wt = Double.parseDouble(cmd.getOptionValue(InversionOptions.EVENT_SMOOTH_WT.argName));
-				System.out.println("Setting event rate smoothness constraint wt: "+wt);
-				config.setEventRateSmoothnessWt(wt);
-			}
 
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getValue(FaultModels.class), rupSet);
 

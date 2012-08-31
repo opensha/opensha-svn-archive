@@ -476,13 +476,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "newdir-test";
+		String runName = "section-mfd-constraint-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
 //		int constrained_run_mins = 250;
-//		int constrained_run_mins = 500;
-		int constrained_run_mins = 10;
+		int constrained_run_mins = 500;
+//		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
@@ -536,15 +536,25 @@ public class LogicTreePBSWriter {
 		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
-		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
+		InversionOptions[] ops = { InversionOptions.MFD_TRANSITION_MAG, InversionOptions.SECTION_NUCLEATION_MFD_WT,
+				InversionOptions.PALEO_WT, InversionOptions.MFD_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
-		String[] paleoWts = { "0.1", "1.0", "10" };
+		String[] mfdTrans = { "7.85", "8.15" };
+		String[] nuclWts = { "100", "1000", "10000" };
+		String[] paleoWts = { "1", "10", "100", "1000" };
+		String[] mfdWts = { "10", "100" };
+		for (String mfdTran : mfdTrans)
+			for (String nuclWt : nuclWts)
+				for (String paleoWt : paleoWts)
+					for (String mfdWt : mfdWts)
+				variationBranches.add(buildVariationBranch(ops, toArray(mfdTran, nuclWt, paleoWt, mfdWt)));
 //		String[] eventSmoothWts = { "0", "1000", "10000", "100000" };
 //		String[] paleoWts = { "100", "1000" };
 		String[] eventSmoothWts = { "1000", "10000" };
-		for (String paleoWt : paleoWts)
-			for (String eventSmoothWt : eventSmoothWts)
-				variationBranches.add(buildVariationBranch(ops, toArray(paleoWt, eventSmoothWt, "0")));
+//		for (String paleoWt : paleoWts)
+//			for (String eventSmoothWt : eventSmoothWts)
+//				variationBranches.add(buildVariationBranch(ops, toArray(paleoWt, eventSmoothWt, "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		

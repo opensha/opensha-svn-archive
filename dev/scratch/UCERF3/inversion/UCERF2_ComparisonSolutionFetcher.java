@@ -8,6 +8,8 @@ import java.util.Map;
 import org.dom4j.DocumentException;
 import org.opensha.commons.exceptions.GMT_MapException;
 
+import com.google.common.collect.Maps;
+
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
@@ -22,7 +24,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetch
 
 public class UCERF2_ComparisonSolutionFetcher {
 	
-	private static Map<FaultModels, SimpleFaultSystemSolution> cache;
+	private static Map<FaultModels, SimpleFaultSystemSolution> cache = Maps.newHashMap();
 	
 	/**
 	 * This creates a UCERF2 reference solution for the given Fault Model. It uses
