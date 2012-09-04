@@ -666,7 +666,7 @@ public class InversionInputGenerator {
 		}
 		
 		
-		// MFD Smoothness Constraint - Constrain participation MFD to be uniform for each fault subsection
+		// MFD Subsection nucleation MFD constraint
 		if (config.getRelativeNucleationMFDConstraintWt() > 0.0) {
 			double relativeNucleationMFDConstraintWt = config.getRelativeNucleationMFDConstraintWt();
 			if(D) System.out.println("\nAdding Subsection Nucleation MFD constraints to A matrix ...");
@@ -694,10 +694,12 @@ public class InversionInputGenerator {
 					// Loop over ruptures in this subsection-MFD bin
 					for (int i=0; i<rupturesForMagBin.size(); i++) {
 						int rup  = rupturesForMagBin.get(i);
+						double rupArea = rupSet.getAreaForRup(rup);
+						double sectArea = rupSet.getAreaForSection(sect);
 						if (QUICK_GETS_SETS)
-							A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt);
+							A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
 						else
-							A.set(rowIndex,rup,relativeNucleationMFDConstraintWt);
+							A.set(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
 						numNonZeroElements++;	
 					}
 					d[rowIndex]=relativeNucleationMFDConstraintWt * sectMFDConstraint.getRate(magBin);
