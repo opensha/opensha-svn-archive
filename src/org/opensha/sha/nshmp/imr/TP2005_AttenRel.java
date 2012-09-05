@@ -30,15 +30,15 @@ import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
 import org.opensha.sha.imr.AttenuationRelationship;
-//import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.nshmp.Params;
 import org.opensha.sha.nshmp.SiteType;
-import org.opensha.sha.nshmp.SiteTypeParam;
 import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Maps;
@@ -46,32 +46,17 @@ import com.google.common.collect.Maps;
 /**
  * Implementation of the Central and Eastern US attenuation relationship by
  * Tavakoli &amp; Pezeshk (2005). This implementation matches that used in the
- * USGS NSHMP. TODO NOTE that frankel terms are used for soft rock.<br />
+ * 2008 USGS NSHMP. TODO NOTE that frankel terms are used for soft rock.<br />
  * <br />
  * See: Tavakoli, B., and Pezeshk, S., 2005, Empirical-stochastic ground-motion
  * prediction for eastern North America: Bulletin of the Seismological Society
  * of America, v. 95, p. 2283–2296.<br />
- * <br />
  * 
  * TODO
  * 		- needs to support Rrup
  * 		- vs30 param, or kill in favor of hard/soft rock options
  * 		  as other ceus att rels
  * 		- rem: 2km gridded dtor min was removed
- * 
- * Supported Intensity-Measure Parameters: (TODO needs updating)
- * <UL>
- * <LI>pgaParam - Peak Ground Acceleration
- * <LI>saParam - Response Spectral Acceleration
- * </UL>
- * Other Independent Parameters:
- * <UL>
- * <LI>magParam - moment Magnitude
- * <LI>distanceRupParam - closest distance to fault
- * <LI>vs30Param - 30-meter shear wave velocity (Toro et al. is hard rock (Vs30
- * = 6000 ft/sec, Silva (1996) is applied for other cases, this is not yet
- * implemented)
- * </UL>
  * 
  * @author Peter Powers
  * @version $Id$
@@ -123,10 +108,10 @@ public class TP2005_AttenRel extends AttenuationRelationship implements
 	private SiteType siteType;
 	private boolean clampMean, clampStd;
 
-	// secondary clamping in addition to one-sided 3s
+	// clamping in addition to one-sided 3s; unique to nshmp and hidden
 	private BooleanParameter clampMeanParam;
 	private BooleanParameter clampStdParam;
-	private SiteTypeParam siteTypeParam;
+	private EnumParameter<SiteType> siteTypeParam;
 
 	// lowered to 4 from5 for CEUS mblg conversions
 	private final static Double MAG_WARN_MIN = new Double(4);
@@ -155,6 +140,8 @@ public class TP2005_AttenRel extends AttenuationRelationship implements
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); // add the change listeners to the
+		
+		setParamDefaults();
 	}
 
 	@Override
@@ -242,12 +229,12 @@ public class TP2005_AttenRel extends AttenuationRelationship implements
 		// params that the mean depends upon
 		meanIndependentParams.clear();
 		meanIndependentParams.addParameter(distanceRupParam);
-		// meanIndependentParams.addParameter(vs30Param);
+		 meanIndependentParams.addParameter(siteTypeParam);
 		meanIndependentParams.addParameter(magParam);
 
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
-		stdDevIndependentParams.addParameter(distanceRupParam);
+//		stdDevIndependentParams.addParameter(distanceRupParam);
 		stdDevIndependentParams.addParameter(magParam);
 		// stdDevIndependentParams.addParameter(stdDevTypeParam);
 
@@ -263,20 +250,9 @@ public class TP2005_AttenRel extends AttenuationRelationship implements
 		imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
 	}
 
-//	@Override
-//	public void setPropagationEffect(PropagationEffect propEffect)
-//			throws InvalidRangeException, ParameterException {
-//		this.site = propEffect.getSite();
-//		this.eqkRupture = propEffect.getEqkRupture();
-//		siteTypeParam.setValue((SiteType) site.getParameter(
-//			siteTypeParam.getName()).getValue());
-//		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-//		propEffect.setParamValue(distanceRupParam);
-//	}
-
 	@Override
 	protected void initSiteParams() {
-		siteTypeParam = new SiteTypeParam();
+		siteTypeParam = Params.createSiteType();
 		siteParams.clear();
 		siteParams.addParameter(siteTypeParam);
 	}

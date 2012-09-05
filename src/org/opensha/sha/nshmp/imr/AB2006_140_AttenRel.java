@@ -28,12 +28,14 @@ import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.nshmp.Params;
 import org.opensha.sha.nshmp.SiteType;
 import org.opensha.sha.nshmp.SiteTypeParam;
 import org.opensha.sha.nshmp.Utils;
@@ -43,27 +45,11 @@ import com.google.common.collect.Maps;
 /**
  * Implementation of the attenuation relationship for the Central and Eastern US
  * by Atkinson &amp; Booore (2006). This implementation matches that used in the
- * USGS NSHMP.<br />
+ * 2008 USGS NSHMP and sets an internal stress parameter to 140 bars.<br />
  * <br />
  * See: Atkinson, G.M., and Boore, D.M., 2006, Earthquake ground- motion
  * prediction equations for eastern North America: Bulletin of the Seismological
  * Society of America, v. 96, p. 2181–2205.<br />
- * <br />
- * 
- * Includes parameter to specify 140bar or 200bar stress drop Supported
- * Intensity-Measure Parameters: (TODO needs updating)
- * <UL>
- * <LI>pgaParam - Peak Ground Acceleration
- * <LI>saParam - Response Spectral Acceleration
- * </UL>
- * Other Independent Parameters:
- * <UL>
- * <LI>magParam - moment Magnitude
- * <LI>distanceRupParam - closest distance to fault
- * <LI>vs30Param - 30-meter shear wave velocity (Toro et al. is hard rock (Vs30
- * = 6000 ft/sec, Silva (1996) is applied for other cases, this is not yet
- * implemented)
- * </UL>
  * 
  * @author Peter Powers
  * @version $Id$
@@ -118,10 +104,10 @@ public class AB2006_140_AttenRel extends AttenuationRelationship implements
 	private StressDrop stressDrop;
 	private boolean clampMean, clampStd;
 
-	// secondary clamping in addition to one-sided 3s
+	// clamping in addition to one-sided 3s; unique to nshmp and hidden
 	private BooleanParameter clampMeanParam;
 	private BooleanParameter clampStdParam;
-	private SiteTypeParam siteTypeParam;
+	private EnumParameter<SiteType> siteTypeParam;
 	protected EnumParameter<StressDrop> stressDropParam;
 
 	// lowered to 4 from5 for CEUS mblg conversions
@@ -151,6 +137,8 @@ public class AB2006_140_AttenRel extends AttenuationRelationship implements
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); // add the change listeners to the
+		
+		setParamDefaults();
 	}
 
 	@Override
@@ -242,13 +230,13 @@ public class AB2006_140_AttenRel extends AttenuationRelationship implements
 		// params that the mean depends upon
 		meanIndependentParams.clear();
 		meanIndependentParams.addParameter(distanceRupParam);
-		// meanIndependentParams.addParameter(vs30Param);
+		meanIndependentParams.addParameter(siteTypeParam);
 		meanIndependentParams.addParameter(magParam);
 
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
-		stdDevIndependentParams.addParameter(distanceRupParam);
-		stdDevIndependentParams.addParameter(magParam);
+		// stdDevIndependentParams.addParameter(distanceRupParam);
+		// stdDevIndependentParams.addParameter(magParam);
 		// stdDevIndependentParams.addParameter(stdDevTypeParam);
 
 		// params that the exceed. prob. depends upon
@@ -263,20 +251,9 @@ public class AB2006_140_AttenRel extends AttenuationRelationship implements
 		imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
 	}
 
-//	@Override
-//	public void setPropagationEffect(PropagationEffect propEffect)
-//			throws InvalidRangeException, ParameterException {
-//		this.site = propEffect.getSite();
-//		this.eqkRupture = propEffect.getEqkRupture();
-//		siteTypeParam.setValue((SiteType) site.getParameter(
-//			siteTypeParam.getName()).getValue());
-//		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-//		propEffect.setParamValue(distanceRupParam);
-//	}
-
 	@Override
 	protected void initSiteParams() {
-		siteTypeParam = new SiteTypeParam();
+		siteTypeParam = Params.createSiteType();
 		siteParams.clear();
 		siteParams.addParameter(siteTypeParam);
 	}
@@ -440,7 +417,7 @@ public class AB2006_140_AttenRel extends AttenuationRelationship implements
 		// double H1 = Doubles.max(dtor(kk),2.0);
 		// double H1sq = H1*H1;
 
-//		if (magType == LG_PHASE) mag = Utils.mblgToMw(magConvCode, mag);
+		// if (magType == LG_PHASE) mag = Utils.mblgToMw(magConvCode, mag);
 
 		double gndm = c1[24] + c2[24] * mag + c3[24] * mag * mag; // pga
 																	// reference

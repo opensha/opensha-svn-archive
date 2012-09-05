@@ -7,11 +7,12 @@ import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.sha.nshmp.imr.AB2006_140_AttenRel.StressDrop;
 
 /**
- * Kludgy solution tot allow different flavors of the same attenuation
- * relationship to be used at the same time.
+ * Same as {@link AB2006_140_AttenRel} with the internal stress parameter set to
+ * 200 bars.
  * 
  * @author Peter Powers
  * @version $Id:$
+ * @see AB2006_200_AttenRel
  */
 public class AB2006_200_AttenRel extends AB2006_140_AttenRel {
 
@@ -22,7 +23,7 @@ public class AB2006_200_AttenRel extends AB2006_140_AttenRel {
 	public AB2006_200_AttenRel(ParameterChangeWarningListener listener) {
 		super(listener);
 	}
-	
+
 //	@Override
 //	public void setParamDefaults() {
 //		super.setParamDefaults();
@@ -35,7 +36,7 @@ public class AB2006_200_AttenRel extends AB2006_140_AttenRel {
 		stressDropParam = new EnumParameter<StressDrop>("Stress Drop",
 				EnumSet.allOf(StressDrop.class), StressDrop.SD_200, null);
 	}
-	
+
 	@Override
 	public String getName() {
 		return NAME;

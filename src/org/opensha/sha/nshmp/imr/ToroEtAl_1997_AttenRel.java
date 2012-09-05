@@ -29,15 +29,15 @@ import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
 import org.opensha.sha.imr.AttenuationRelationship;
-//import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.nshmp.Params;
 import org.opensha.sha.nshmp.SiteType;
-import org.opensha.sha.nshmp.SiteTypeParam;
 import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Maps;
@@ -45,7 +45,7 @@ import com.google.common.collect.Maps;
 /**
  * Implementation of mid-continent Toro et al. (1997) attenuation relationship
  * with 2002 updates. This is a limited implementation that matches that used in
- * the USGS NSHMP (e.g. it does not include additional epistemic uncertainty
+ * the 2008 USGS NSHMP (e.g. it does not include additional epistemic uncertainty
  * branching.<br />
  * <br />
  * See: Toro, G.R., 2002, Modification of the Toro et al. (1997) attenuation
@@ -58,20 +58,6 @@ import com.google.common.collect.Maps;
  * ground motions from earthquakes in central and eastern North America—Best
  * estimates and uncertain- ties: Seismological Research Letters, v. 68, p.
  * 41–57.<br />
- * 
- * Supported Intensity-Measure Parameters: (TODO needs updating)
- * <UL>
- * <LI>pgaParam - Peak Ground Acceleration
- * <LI>saParam - Response Spectral Acceleration
- * </UL>
- * Other Independent Parameters:
- * <UL>
- * <LI>magParam - moment Magnitude
- * <LI>distanceJBParam - closest distance to surface projection of fault
- * <LI>vs30Param - 30-meter shear wave velocity (Toro et al. is hard rock (Vs30
- * = 6000 ft/sec, Silva (1996) is applied for other cases, this is not yet
- * implemented)
- * </UL>
  * 
  * @author Peter Powers
  * @version $Id$
@@ -127,11 +113,11 @@ public class ToroEtAl_1997_AttenRel extends AttenuationRelationship implements
 	private MagnitudeType magType;
 	private boolean clampMean, clampStd;
 	
-	// secondary clamping in addition to one-sided 3s
+	// clamping in addition to one-sided 3s; unique to nshmp and hidden
 	private BooleanParameter clampMeanParam;
 	private BooleanParameter clampStdParam;
 	private EnumParameter<MagnitudeType> magTypeParam;
-	private SiteTypeParam siteTypeParam;
+	private EnumParameter<SiteType> siteTypeParam;
 
 	// lowered to 4 from5 for CEUS mblg conversions
 	private final static Double MAG_WARN_MIN = new Double(4);
@@ -161,6 +147,8 @@ public class ToroEtAl_1997_AttenRel extends AttenuationRelationship implements
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); // add the change listeners to the
+		
+		setParamDefaults();
 	}
 
 	@Override
@@ -251,13 +239,13 @@ public class ToroEtAl_1997_AttenRel extends AttenuationRelationship implements
 		// params that the mean depends upon
 		meanIndependentParams.clear();
 		meanIndependentParams.addParameter(distanceJBParam);
-		// meanIndependentParams.addParameter(vs30Param);
+		 meanIndependentParams.addParameter(siteTypeParam);
 		meanIndependentParams.addParameter(magParam);
 
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
-		stdDevIndependentParams.addParameter(distanceJBParam);
-		stdDevIndependentParams.addParameter(magParam);
+//		stdDevIndependentParams.addParameter(distanceJBParam);
+//		stdDevIndependentParams.addParameter(magParam);
 //		stdDevIndependentParams.addParameter(stdDevTypeParam);
 
 		// params that the exceed. prob. depends upon
@@ -272,20 +260,9 @@ public class ToroEtAl_1997_AttenRel extends AttenuationRelationship implements
 		imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
 	}
 
-//	@Override
-//	public void setPropagationEffect(PropagationEffect propEffect)
-//			throws InvalidRangeException, ParameterException {
-//		this.site = propEffect.getSite();
-//		this.eqkRupture = propEffect.getEqkRupture();
-//		siteTypeParam.setValue((SiteType) site.getParameter(
-//			siteTypeParam.getName()).getValue());
-//		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-//		propEffect.setParamValue(distanceJBParam);
-//	}
-
 	@Override
 	protected void initSiteParams() {
-		siteTypeParam = new SiteTypeParam();
+		siteTypeParam = Params.createSiteType();
 		siteParams.clear();
 		siteParams.addParameter(siteTypeParam);
 	}

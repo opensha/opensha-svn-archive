@@ -30,7 +30,7 @@ import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
 import org.opensha.sha.imr.AttenuationRelationship;
-//import org.opensha.sha.imr.PropagationEffect;
+import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -38,8 +38,8 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.nshmp.GaussTruncation;
+import org.opensha.sha.nshmp.Params;
 import org.opensha.sha.nshmp.SiteType;
-import org.opensha.sha.nshmp.SiteTypeParam;
 import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Maps;
@@ -47,28 +47,13 @@ import com.google.common.collect.Maps;
 /**
  * Implementation of the hard rock attenuation relationship for the Central and
  * Eastern US by Silva et al. (2002). This implementation matches that used in
- * the USGS NSHMP.<br />
+ * the 2008 USGS NSHMP.<br />
  * <br />
  * See: Silva, W., Gregor, N., and Darragh, R., 2002, Development of hard rock
  * attenuation relations for central and eastern North America, internal report
  * from Pacific Engineering, Novem- ber 1, 2002,
  * http://www.pacificengineering.org/CEUS/
  * Development%20of%20Regional%20Hard_ABC.pdf<br />
- * <br />
- * 
- * Supported Intensity-Measure Parameters: (TODO needs updating)
- * <UL>
- * <LI>pgaParam - Peak Ground Acceleration
- * <LI>saParam - Response Spectral Acceleration
- * </UL>
- * Other Independent Parameters:
- * <UL>
- * <LI>magParam - moment Magnitude
- * <LI>distanceJBParam - closest distance to surface projection of fault
- * <LI>vs30Param - 30-meter shear wave velocity (Toro et al. is hard rock (Vs30
- * = 6000 ft/sec, Silva (1996) is applied for other cases, this is not yet
- * implemented)
- * </UL>
  * 
  * @author Peter Powers
  * @version $Id$
@@ -105,10 +90,10 @@ public class SilvaEtAl_2002_AttenRel extends AttenuationRelationship implements
 	private SiteType siteType;
 	private boolean clampMean, clampStd;
 
-	// secondary clamping in addition to one-sided 3s
+	// clamping in addition to one-sided 3s; unique to nshmp and hidden
 	private BooleanParameter clampMeanParam;
 	private BooleanParameter clampStdParam;
-	private SiteTypeParam siteTypeParam;
+	private EnumParameter<SiteType> siteTypeParam;
 
 	// lowered to 4 from5 for CEUS mblg conversions
 	private final static Double MAG_WARN_MIN = new Double(4);
@@ -137,6 +122,8 @@ public class SilvaEtAl_2002_AttenRel extends AttenuationRelationship implements
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); // add the change listeners to the
+		
+		setParamDefaults();
 	}
 
 	@Override
@@ -225,13 +212,13 @@ public class SilvaEtAl_2002_AttenRel extends AttenuationRelationship implements
 		// params that the mean depends upon
 		meanIndependentParams.clear();
 		meanIndependentParams.addParameter(distanceJBParam);
-		// meanIndependentParams.addParameter(vs30Param);
+		 meanIndependentParams.addParameter(siteTypeParam);
 		meanIndependentParams.addParameter(magParam);
 
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
-		stdDevIndependentParams.addParameter(distanceJBParam);
-		stdDevIndependentParams.addParameter(magParam);
+//		stdDevIndependentParams.addParameter(distanceJBParam);
+//		stdDevIndependentParams.addParameter(magParam);
 		// stdDevIndependentParams.addParameter(stdDevTypeParam);
 
 		// params that the exceed. prob. depends upon
@@ -246,20 +233,9 @@ public class SilvaEtAl_2002_AttenRel extends AttenuationRelationship implements
 		imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
 	}
 
-//	@Override
-//	public void setPropagationEffect(PropagationEffect propEffect)
-//			throws InvalidRangeException, ParameterException {
-//		this.site = propEffect.getSite();
-//		this.eqkRupture = propEffect.getEqkRupture();
-//		siteTypeParam.setValue((SiteType) site.getParameter(
-//			siteTypeParam.getName()).getValue());
-//		magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-//		propEffect.setParamValue(distanceJBParam);
-//	}
-
 	@Override
 	protected void initSiteParams() {
-		siteTypeParam = new SiteTypeParam();
+		siteTypeParam = Params.createSiteType();
 		siteParams.clear();
 		siteParams.addParameter(siteTypeParam);
 	}
