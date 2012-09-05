@@ -458,9 +458,10 @@ public class SectionMFD_constraint {
 	 */
 	private void makeMagBinArrays() {
 		
-		if(maxMag<origMinMag-0.00001) {	// add small amount to avoid numerical precision problems for what is the same mag
-			throw new RuntimeException("minMag must be less than maxMag); origMinMag="+origMinMag+"\tmaxmag="+maxMag);
-		}
+		// this replaced with test against firstEdge below
+//		if(maxMag<origMinMag-0.00001) {	// add small amount to avoid numerical precision problems for what is the same mag
+//			throw new RuntimeException("minMag must be less than maxMag); origMinMag="+origMinMag+"\tmaxmag="+maxMag);
+//		}
 		
 		// set first bin value and the two edges
 		int currentBin=0;
@@ -472,6 +473,10 @@ public class SectionMFD_constraint {
 		minMag = (double)(Math.round(minMag*100.0))/100.0;
 		
 		if(D) System.out.println("origMinMag="+(float)origMinMag+"\t"+"minMag="+(float)minMag+"\tdiff="+(float)(minMag-origMinMag));
+		
+		// check to make sure maxMag>firstEdge
+		if(maxMag<=firstEdge)
+			throw new RuntimeException("maxMag must be greater than first bin edge); firstEdge="+firstEdge+"\tmaxmag="+maxMag);
 				
 		mags.add(minMag);	// first bin value
 		magEdges.add(firstEdge);

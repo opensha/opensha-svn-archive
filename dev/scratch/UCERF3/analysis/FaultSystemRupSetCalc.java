@@ -2073,6 +2073,12 @@ public class FaultSystemRupSetCalc {
 				double area = totAreaMap.get(data.getParentSectionId());	// km-sq
 				double width = area/totLengthMap.get(data.getParentSectionId());	// km
 				double maxMag = scalingRel.getMag(area*1e6, width*1e3);
+				
+				// temp test
+//				if(maxMag<minMag-0.00001) {
+//					System.out.println("maxMag<minMag for"+data.getParentSectionName()+"\tminMag="+minMag+"\tmaxMag="+maxMag);
+//				}
+				
 				// each subsection gets the same moment rate to keep rates constant along the section
 				// note that we could save memory by creating only one SectionMFD_constraint per parent section
 				double moRate = moRateMap.get(data.getParentSectionId()) / (double)numSectMap.get(data.getParentSectionId());
@@ -2121,18 +2127,18 @@ public class FaultSystemRupSetCalc {
 		
 		
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
-		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
+//		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
 		
-//		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
-//		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))
-//			mfd.addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(0.05, 100, 0.1));
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfd, "Test MFD"); 
-//		graph.setX_AxisLabel("Mangitude");
-//		graph.setY_AxisLabel("Rate (per year)");
-//		graph.setYLog(true);
+		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
+		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))
+			mfd.addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(0.05, 100, 0.1));
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfd, "Test MFD"); 
+		graph.setX_AxisLabel("Mangitude");
+		graph.setY_AxisLabel("Rate (per year)");
+		graph.setYLog(true);
 
 
 		
