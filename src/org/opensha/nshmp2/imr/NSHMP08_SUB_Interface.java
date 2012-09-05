@@ -20,6 +20,8 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.nshmp2.imr.impl.AB2003_AttenRel;
 import org.opensha.nshmp2.imr.impl.YoungsEtAl_1997_AttenRel;
 import org.opensha.nshmp2.imr.impl.ZhaoEtAl_2006_AttenRel;
+import org.opensha.nshmp2.util.Period;
+import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -36,8 +38,6 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.TectonicRegionTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.nshmp.Period;
-import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

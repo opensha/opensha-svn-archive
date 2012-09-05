@@ -1,6 +1,6 @@
 package org.opensha.nshmp2.imr;
 
-import static org.opensha.sha.nshmp.Period.GM0P00;
+import static org.opensha.nshmp2.util.Period.GM0P00;
 
 import java.util.Map;
 
@@ -8,7 +8,9 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.nshmp2.util.CurveTable;
 import org.opensha.nshmp2.util.FaultCode;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
@@ -16,8 +18,6 @@ import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.nshmp.CurveTable;
-import org.opensha.sha.nshmp.Period;
 
 import com.google.common.collect.Maps;
 

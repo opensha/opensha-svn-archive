@@ -1,6 +1,6 @@
 package org.opensha.nshmp2.erf;
 
-import static org.opensha.sha.nshmp.SourceRegion.*;
+import static org.opensha.nshmp2.util.SourceRegion.*;
 
 import java.util.EnumSet;
 

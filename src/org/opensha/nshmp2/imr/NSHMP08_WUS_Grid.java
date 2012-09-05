@@ -3,6 +3,8 @@ package org.opensha.nshmp2.imr;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.nshmp2.util.CurveTable;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
@@ -14,8 +16,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
-import org.opensha.sha.nshmp.CurveTable;
-import org.opensha.sha.nshmp.Period;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashBasedTable;

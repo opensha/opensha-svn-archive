@@ -1,8 +1,8 @@
 package org.opensha.nshmp2.imr;
 
+import static org.opensha.nshmp2.util.SiteType.*;
 import static org.opensha.sha.imr.PropagationEffect.*;
 import static org.opensha.sha.imr.AttenRelRef.*;
-import static org.opensha.sha.nshmp.SiteType.*;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -30,6 +30,9 @@ import org.opensha.nshmp2.imr.impl.SilvaEtAl_2002_AttenRel;
 import org.opensha.nshmp2.imr.impl.SomervilleEtAl_2001_AttenRel;
 import org.opensha.nshmp2.imr.impl.TP2005_AttenRel;
 import org.opensha.nshmp2.imr.impl.ToroEtAl_1997_AttenRel;
+import org.opensha.nshmp2.util.Period;
+import org.opensha.nshmp2.util.SiteType;
+import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.imr.AttenuationRelationship;
@@ -42,9 +45,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.nshmp.Period;
-import org.opensha.sha.nshmp.SiteType;
-import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
