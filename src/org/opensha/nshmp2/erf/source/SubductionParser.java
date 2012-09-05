@@ -1,6 +1,6 @@
 package org.opensha.nshmp2.erf.source;
 
-import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils.*;
+import static org.opensha.nshmp2.util.NSHMP_Utils.*;
 import static org.opensha.sha.nshmp.SourceRegion.*;
 import static org.opensha.sha.nshmp.SourceType.*;
 
@@ -15,10 +15,10 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.geo.Location;
+import org.opensha.nshmp2.util.FaultType;
+import org.opensha.nshmp2.util.FocalMech;
+import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.nshmp.SourceIMR;

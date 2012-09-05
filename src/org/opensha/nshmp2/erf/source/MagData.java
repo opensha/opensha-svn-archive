@@ -1,6 +1,6 @@
 package org.opensha.nshmp2.erf.source;
 
-import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils.*;
+import static org.opensha.nshmp2.util.NSHMP_Utils.*;
 
 import java.util.Arrays;
 import java.util.List;

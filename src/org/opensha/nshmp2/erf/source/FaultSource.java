@@ -12,11 +12,11 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.nshmp2.util.FaultType;
+import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;

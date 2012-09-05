@@ -1,6 +1,6 @@
 package org.opensha.nshmp2.erf.source;
 
-import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode.*;
+import static org.opensha.nshmp2.util.FaultCode.*;
 import static org.opensha.sha.nshmp.SourceRegion.CEUS;
 import static org.opensha.sha.nshmp.SourceType.GRIDDED;
 
@@ -19,10 +19,10 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.util.FaultCode;
+import org.opensha.nshmp2.util.FocalMech;
+import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.nshmp.SourceIMR;
 import org.opensha.sha.nshmp.SourceRegion;

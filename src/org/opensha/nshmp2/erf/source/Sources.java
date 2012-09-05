@@ -7,7 +7,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
+import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.sha.nshmp.SourceRegion;
 import org.opensha.sha.nshmp.SourceType;
 

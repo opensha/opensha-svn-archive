@@ -1,10 +1,10 @@
 package org.opensha.nshmp2.erf.source;
 
 import static com.google.common.base.Preconditions.*;
-import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode.*;
-import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech.*;
-import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils.*;
-import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.RateType.*;
+import static org.opensha.nshmp2.util.FaultCode.*;
+import static org.opensha.nshmp2.util.FocalMech.*;
+import static org.opensha.nshmp2.util.NSHMP_Utils.*;
+import static org.opensha.nshmp2.util.RateType.*;
 import static org.opensha.sha.nshmp.SourceRegion.*;
 import static org.opensha.sha.nshmp.SourceType.*;
 
@@ -24,10 +24,10 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.RateType;
+import org.opensha.nshmp2.util.FaultCode;
+import org.opensha.nshmp2.util.FocalMech;
+import org.opensha.nshmp2.util.NSHMP_Utils;
+import org.opensha.nshmp2.util.RateType;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.nshmp.SourceIMR;
