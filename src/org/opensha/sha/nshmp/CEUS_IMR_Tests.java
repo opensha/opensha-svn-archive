@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.Assert;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
@@ -51,7 +54,7 @@ import com.google.common.io.Files;
  * for which the mean and std dev. have been stored. These values are then
  * compared against the man and std. deviation produced by OpenSHA imr
  * implementations. Each NSHMP value et is then used to generate a curve which
- * is compared to that stored in an OpenSHA RateTable for each imr.
+ * is compared to that stored in an OpenSHA CurveTable for each imr.
  * 
  * The NSHMP results were calculated using hazgridXnga5.f which creates lookup
  * arrays of hazard values spannning user specified distances, mags, etc. As
@@ -81,25 +84,26 @@ public class CEUS_IMR_Tests {
 	private static File ceus_j_bc = new File(ceus_j_bc_name);
 
 	private static Map<AttenRelRef, ScalarIMR> imrMap_AB;
-	private static Map<AttenRelRef, RateTable> rateTableMap_AB;
+	private static Map<AttenRelRef, Map<Period, CurveTable>> curveTableMap_AB;
 	private static Map<AttenRelRef, ScalarIMR> imrMap_J;
-	private static Map<AttenRelRef, RateTable> rateTableMap_J;
+	private static Map<AttenRelRef, Map<Period, CurveTable>> curveTableMap_J;
 
 	@BeforeClass
 	public static void setUp() {
 		imrMap_AB = Maps.newEnumMap(AttenRelRef.class);
-		rateTableMap_AB = Maps.newEnumMap(AttenRelRef.class);
+		curveTableMap_AB = Maps.newEnumMap(AttenRelRef.class);
 		imrMap_J = Maps.newEnumMap(AttenRelRef.class);
-		rateTableMap_J = Maps.newEnumMap(AttenRelRef.class);
+		curveTableMap_J = Maps.newEnumMap(AttenRelRef.class);
 
-		init(ceus_ab_bc, imrMap_AB, rateTableMap_AB, M_CONV_AB);
-		init(ceus_j_bc, imrMap_J, rateTableMap_J, M_CONV_J);
+		init(ceus_ab_bc, imrMap_AB, curveTableMap_AB, M_CONV_AB);
+		init(ceus_j_bc, imrMap_J, curveTableMap_J, M_CONV_J);
 
 	}
 
 	private static void init(File nshmResults,
 			Map<AttenRelRef, ScalarIMR> imrMap,
-			Map<AttenRelRef, RateTable> rateTableMap, FaultCode magConv) {
+			Map<AttenRelRef, Map<Period, CurveTable>> curveTableMap,
+			FaultCode magConv) {
 		try {
 			List<String> lines = Files
 				.readLines(nshmResults, Charsets.US_ASCII);
@@ -115,38 +119,49 @@ public class CEUS_IMR_Tests {
 			}
 
 			for (AttenRelRef imrRef : imrRefs) {
+				Map<Period, CurveTable> tableMap = curveTableMap.get(imrRef);
+				if (tableMap == null) {
+					tableMap = Maps.newEnumMap(Period.class);
+					curveTableMap.put(imrRef, tableMap);
+				}
 
-				ScalarIMR imr = imrRef.instance(null);
-				imr.setParamDefaults();
-				imrMap.put(imrRef, imr);
-				
-				Map<ScalarIMR, Double> imrWtMap = Maps.newHashMap();
-				imrWtMap.put(imr, 1.0);
+				for (Period period : periods) {
+					ScalarIMR imr = imrRef.instance(null);
+					imr.setParamDefaults();
+					imr.setIntensityMeasure((period == GM0P00) ? 
+						PGA_Param.NAME : SA_Param.NAME);
+					try {
+						imr.getParameter(PeriodParam.NAME).setValue(period.getValue());
+					}  catch (ConstraintException ce) { /* do nothing */ }
+					imrMap.put(imrRef, imr);
+					
+					
+					Map<ScalarIMR, Double> imrWtMap = Maps.newHashMap();
+					imrWtMap.put(imr, 1.0);
 
-				// CEUS AB mag conv, BC site, M 5.05 to 7.35
-//				RateTable table = RateTable.create(200, 5, 24, 5.05, 0.1,
-//					periods, magConv, imr);
-				RateTable table = RateTable.create(200, 5, 24, 5.05, 0.1,
-					periods, magConv, imrWtMap);
-				rateTableMap.put(imrRef, table);
+					CurveTable table = CurveTable.create(200d, 5d, 5.0, 7.4,
+						0.1, imrWtMap, period.getFunction(), magConv);
+					tableMap.put(period, table);
+				}
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+			Assert.fail();
 		}
 	}
 
 	@Test
 	public void ceus_Jconv_BC_Test() {
-		runTest(ceus_j_bc, imrMap_J, rateTableMap_J, M_CONV_J);
+		runTest(ceus_j_bc, imrMap_J, curveTableMap_J, M_CONV_J);
 	}
 
 	@Test
 	public void ceus_ABconv_BC_Test() {
-		runTest(ceus_ab_bc, imrMap_AB, rateTableMap_AB, M_CONV_AB);
+		runTest(ceus_ab_bc, imrMap_AB, curveTableMap_AB, M_CONV_AB);
 	}
 
 	private void runTest(File nshmpResults, Map<AttenRelRef, ScalarIMR> imrMap,
-			Map<AttenRelRef, RateTable> rateTableMap, FaultCode magConv) {
+			Map<AttenRelRef, Map<Period, CurveTable>> curveTableMap, FaultCode magConv) {
 		try {
 			List<String> lines = Files.readLines(nshmpResults,
 				Charsets.US_ASCII);
@@ -207,6 +222,7 @@ public class CEUS_IMR_Tests {
 				// about 7 to 8 decimal places before conversion to scientific
 				// notation
 				double diff = DataUtils.getPercentDiff(nshmMean, mean);
+				
 				assertTrue(nshmMean + " " + mean + " " + " Diff: " + diff,
 					diff < MEAN_TOL_PCT);
 				assertEquals(nshmMean, mean, MEAN_TOL_ABS);
@@ -215,8 +231,7 @@ public class CEUS_IMR_Tests {
 				String info = per + " " + imrRef + " " + M + " " + R;
 				// System.out.println(info);
 				// create sha curve
-				DiscretizedFunc f1 = rateTableMap.get(imrRef).get(R, M, per);
-				// System.out.println(f1);
+				DiscretizedFunc f1 = curveTableMap.get(imrRef).get(per).get(R, M);
 
 				// there are general rules that can be followed from the nshmp
 				// for additional truncation possibly below 3sigma. For these
@@ -224,13 +239,9 @@ public class CEUS_IMR_Tests {
 				DiscretizedFunc f2 = per.getFunction();
 				double truncVal = (per == GM0P00) ? 3.0 : (per == GM0P20) ? 6.0
 					: 0.0;
+				f2 = Utils.getExceedProbabilities(f2, mean, std, true, truncVal);
 
-				f2 = Utils
-					.getExceedProbabilities(f2, mean, std, true, truncVal);
-				// System.out.println(f2);
-
-				compareCurves(f1, f2, FUNC_TOL, info);
-				boolean test = true;
+				boolean test = false;
 				if (test) {
 					System.out.println("====");
 					System.out.println(M+" "+R);
@@ -238,6 +249,8 @@ public class CEUS_IMR_Tests {
 					System.out.println(f1);
 					System.out.println(f2);
 				}
+				
+				compareCurves(f1, f2, FUNC_TOL, info);
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

@@ -12,12 +12,14 @@ import static org.opensha.sha.nshmp.GaussTruncation.ONE_SIDED;
 import static org.opensha.sha.nshmp.Utils.SQRT_2;
 import static com.google.common.base.Preconditions.*;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -300,9 +302,7 @@ public class Utils {
 		}
 		try {
 			double Pclip = Utils.gaussProbExceed(mean, sigma, clip);
-			Iterator<Point2D> it = imls.iterator();
-			while (it.hasNext()) {
-				Point2D point = it.next();
+			for (Point2D point : imls) {
 				double x = point.getX();
 				double y = Utils.gaussProbExceed(mean, sigma, Math.log(x),
 					Pclip, ONE_SIDED);
@@ -366,24 +366,78 @@ public class Utils {
 	}
 
 	/**
-	 * Adds the y-values of f2 to f1. Assumes functions have identical x-values.
-	 * @param f1
-	 * @param f2
+	 * Adds the y-values of function 2 to function 1 in place. Assumes functions
+	 * have identical x-values.
+	 * @param f1 function to add to
+	 * @param f2 function to add
 	 */
 	public static void addFunc(DiscretizedFunc f1, DiscretizedFunc f2) {
 		for (int i = 0; i < f1.getNum(); i++) {
 			f1.set(i, f1.getY(i) + f2.getY(i));
 		}
 	}
+
+	/**
+	 * Multiplies the y-values of function 1 in place by those of function 2.
+	 * Assumes functions have identical x-values.
+	 * @param f1 function to multiply in place
+	 * @param f2 function to multiple f1 by
+	 */
+	public static void multiplyFunc(DiscretizedFunc f1, DiscretizedFunc f2) {
+		for (int i = 0; i < f1.getNum(); i++) {
+			f1.set(i, f1.getY(i) * f2.getY(i));
+		}
+	}
+
+	/**
+	 * Sets the supplied function to its complement in place. Assumes function
+	 * is a probability function limited to the domain [0 1].
+	 * @param f function to operate on
+	 */
+	public static void complementFunc(DiscretizedFunc f) {
+		for (int i = 0; i < f.getNum(); i++) {
+			f.set(i, 1 - f.getY(i));
+		}
+	}
+
+	/**
+	 * Zeros out the y-values of the supplied <code>function</code>.
+	 * @param f function to be modified
+	 */
+	public static void zeroFunc(DiscretizedFunc f) {
+		setFunc(f, 0);
+	}
 	
 	/**
-	 * Zeros out the y-values of the supplied function
-	 * @param f
+	 * Sets all y-values of the supplied <code>function</code> to one.
+	 * @param f function to be modified
 	 */
-	public static void zero(DiscretizedFunc f) {
+	public static void oneFunc(DiscretizedFunc f) {
+		setFunc(f, 1);
+	}
+
+	/**
+	 * Sets all y-values of the supplied <code>function</code> to the supplied
+	 * <code>value</code>.
+	 * @param f function to be modified
+	 * @param v value to use
+	 */
+	public static void setFunc(DiscretizedFunc f, double v) {
 		for (Point2D p : f) {
-			p.setLocation(p.getX(), 0);
+			p.setLocation(p.getX(), v);
 		}
+	}
+	
+	/**
+	 * Generates a random, saturated color.
+	 * @return a random color
+	 */
+	public static Color randomColor() {
+		Random rand = new Random();
+		float hue = rand.nextFloat();
+		float sat = 0.5f + rand.nextFloat() * 0.3f; // 0.5 to 0.8
+		float brt = 0.8f;
+		return Color.getHSBColor(hue, sat, brt);
 	}
 
 	public static void main(String[] args) {
@@ -455,3 +509,4 @@ public class Utils {
 //
 // }
 // }
+

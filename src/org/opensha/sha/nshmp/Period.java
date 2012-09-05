@@ -1,18 +1,19 @@
 package org.opensha.sha.nshmp;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 /**
  * Enum identifying different commonly used periods. This class provides the
  * period-dependent intensity measure levels for which hazard is calculated in
- * the NSHMP. The arrays are the x-values of any hazard curve and are sorted
- * ascending.
+ * the NSHMP in the Western US. For supported Eastern US periods call . The
+ * arrays are the x-values of any hazard curve and are sorted ascending.
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -101,6 +102,24 @@ public enum Period {
 			f.set(Math.log(d), 1);
 		}
 		return f;
+	}
+
+	/**
+	 * Returns the set of <code>Period</code>s supported by Western US NSHMP
+	 * hazard calculations.
+	 * @return the periods supported in the Western US
+	 */
+	public static EnumSet<Period> getWUS() {
+		return EnumSet.allOf(Period.class);
+	}
+
+	/**
+	 * Returns the set of <code>Period</code>s supported by Central and Eastern
+	 * US NSHMP hazard calculations.
+	 * @return the periods supported in the Central and Eastern US
+	 */
+	public static EnumSet<Period> getCEUS() {
+		return EnumSet.of(GM0P00, GM0P20, GM0P50, GM1P00, GM2P00);
 	}
 
 	private static class Values {

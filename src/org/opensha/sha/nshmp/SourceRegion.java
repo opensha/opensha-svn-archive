@@ -1,15 +1,33 @@
 package org.opensha.sha.nshmp;
 
 /**
- * Add comments here
- *
+ * NSHMP source region identifier. 
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
 public enum SourceRegion {
-	CEUS,
-	WUS,
-	CASC,
-	CA;
+	
+	/** Central and Eastern US region. */
+	CEUS("Centeral & Eastern US"),
+	
+	/** Wester US region. */
+	WUS("Western US"),
+	
+	/** Cascadia region. */
+	CASC("Cascadia"),
+	
+	/** California region. */
+	CA("California");
+	
+	private String label;
+	private SourceRegion(String label) {
+		this.label = label;
+	}
+	
+	@Override
+	public String toString() {
+		return label;
+	}
+	
 }

@@ -14,6 +14,7 @@ import org.opensha.commons.param.impl.EnumParameter;
  * @author Peter Powers
  * @version $Id:$
  */
+@Deprecated
 public class SiteTypeParam extends EnumParameter<SiteType> {
 
 	public SiteTypeParam() {

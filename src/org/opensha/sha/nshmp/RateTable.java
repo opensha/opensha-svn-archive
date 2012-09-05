@@ -8,10 +8,12 @@ import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode.*;
 import java.awt.geom.Point2D;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.math.util.MathUtils;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.eq.cat.util.MagnitudeType;
@@ -40,7 +42,9 @@ import org.opensha.sha.nshmp.imr.ToroEtAl_1997_AttenRel;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 /**
  * Class wraps lookup tables that are used to speed up hazard calculations for
@@ -48,8 +52,9 @@ import com.google.common.collect.Maps;
  * precalculated hazard curves.
  * 
  * @author Peter Powers
- * @version $Id:$
+ * @version $Id$
  */
+@Deprecated
 public class RateTable {
 
 	private static Joiner joiner = Joiner.on('-');
@@ -67,7 +72,7 @@ public class RateTable {
 	// DiscretizedFunc>>>> curves;
 	private Map<String, DiscretizedFunc> curves;
 
-	private int dR = 5;
+	private static int dR = 5;
 
 	private static final double DTOR = 5.0; // rup top for CEUS gridded
 	private static final double DTOR_SQ = DTOR * DTOR;
@@ -157,7 +162,7 @@ public class RateTable {
 	 * @return a lookup table
 	 */
 	public static RateTable create(int R, int dR, int nM, double minM,
-			double dM, Set<Period> periods, FaultCode magConv,
+			double dM, Period p, FaultCode magConv,
 			Map<ScalarIMR, Double> imrs) {
 
 		RateTable table = new RateTable();
@@ -168,72 +173,66 @@ public class RateTable {
 			imr.setParamDefaults();
 			double imrWeight = imrs.get(imr);
 
-			for (Period p : periods) { // period
-				imr.setIntensityMeasure((p == GM0P00) ? PGA_Param.NAME
-					: SA_Param.NAME);
-				imr.getParameter(PeriodParam.NAME).setValue(p.getValue());
-				// System.out.println(imr.getParameter(PeriodParam.NAME).getValue());
+//			for (Period p : periods) { // period
+			imr.setIntensityMeasure((p == GM0P00) ? PGA_Param.NAME
+				: SA_Param.NAME);
+			imr.getParameter(PeriodParam.NAME).setValue(p.getValue());
 
-				for (int j = 0; j < nM; j++) { // magnitude
-					double mag = minM + j * dM;
-					int mIdx = magKey(mag);
-					
-					// mblgToMw passes thru if code is invalid -- this currently
-					// assumes we're working with CEUS
+
+			for (int j = 0; j < nM; j++) { // magnitude
+				double mag = minM + j * dM;
+				int mIdx = magKey(mag);
+				
+				// mblgToMw passes thru if code is invalid -- this currently
+				// assumes we're working with CEUS
 //					if (!(imr instanceof ToroEtAl_1997_AttenRel))
 //						mag = Utils.mblgToMw(magConv, mag);
-					
-					if (magConv == M_CONV_AB || magConv == M_CONV_J) {
-						if (imr instanceof ToroEtAl_1997_AttenRel) {
-							// update hidden Toro param to use mblg coeffs
-							imr.getOtherParams().getParameter("Magnitude Type")
-								.setValue(MagnitudeType.LG_PHASE);
-						} else {
-							// otherwise convert mag to Mw for all other CEUS
-							// imrs
-							mag = Utils.mblgToMw(magConv, mag);
-						}
-					}					
-					
-					imr.getParameter(MagParam.NAME).setValue(mag);
+				
+				if (magConv == M_CONV_AB || magConv == M_CONV_J) {
+					if (imr instanceof ToroEtAl_1997_AttenRel) {
+						// update hidden Toro param to use mblg coeffs
+						imr.getOtherParams().getParameter("Magnitude Type")
+							.setValue(MagnitudeType.LG_PHASE);
+					} else {
+						// otherwise convert mag to Mw for other imrs
+						mag = Utils.mblgToMw(magConv, mag);
+					}
+				}					
+				
+				imr.getParameter(MagParam.NAME).setValue(mag);
 
-					int numDistBins = R / dR;
-					for (int dIdx = 0; dIdx < numDistBins; dIdx++) { // distance
-						double rjb = (dIdx + 0.5) * dR;
-						// try to set rjb first
+				int numDistBins = R / dR;
+				for (int dIdx = 0; dIdx < numDistBins; dIdx++) { // distance
+					double rjb = (dIdx + 0.5) * dR;
+					// try to set rjb first
+					try {
+						Parameter<Double> rjbParam = imr
+							.getParameter(DistanceJBParameter.NAME);
+						rjbParam.setValue(rjb);
+					} catch (ParameterException pe1) {
+						// then try rRup
 						try {
-							Parameter<Double> rjbParam = imr
-								.getParameter(DistanceJBParameter.NAME);
-							rjbParam.setValue(rjb);
-						} catch (ParameterException pe1) {
-							// then try rRup
-							try {
-								Parameter<Double> rrupParam = imr
-									.getParameter(DistanceRupParameter.NAME);
-								rrupParam.setValue(Math.sqrt(rjb * rjb +
-									DTOR_SQ));
-							} catch (ParameterException pe2) {
-								pe2.printStackTrace();
-							}
+							Parameter<Double> rrupParam = imr
+								.getParameter(DistanceRupParameter.NAME);
+							rrupParam.setValue(Math.sqrt(rjb * rjb +
+								DTOR_SQ));
+						} catch (ParameterException pe2) {
+							pe2.printStackTrace();
 						}
+					}
 
-						DiscretizedFunc f = imr.getExceedProbabilities(p
-							.getFunction());
-						f.scale(imrWeight);
-						String key = table.createKey(dIdx, mIdx, p);
-//						System.out.println(key);
-						if (table.curves.containsKey(key)) {
-							Utils.addFunc(table.curves.get(key), f);
-						} else {
+					DiscretizedFunc f = imr.getExceedProbabilities(p
+						.getFunction());
 
-							// System.out.println(key);
-							// System.out.println(f);
-							table.curves.put(key, f);
-						}
-
-					} // distance
-				} // magnitude
-			} // period
+					f.scale(imrWeight);
+					String key = table.createKey(dIdx, mIdx);
+					if (table.curves.containsKey(key)) {
+						Utils.addFunc(table.curves.get(key), f);
+					} else {
+						table.curves.put(key, f);
+					}
+				} // distance
+			} // magnitude
 		}
 		return table;
 	}
@@ -246,13 +245,20 @@ public class RateTable {
 	 * @param p period of interest
 	 * @return the corresponding curve
 	 */
-	public DiscretizedFunc get(double d, double M, Period p) {
+	public DiscretizedFunc get(double d, double M) {
+//	public DiscretizedFunc get(double d, double M, Period p) {
+//		System.out.println(curves.size());
 //		System.out.println("d: " + d);
 //		System.out.println("M: " + M);
 //		System.out.println("p: " + p);
 //		System.out.println("k: " + createKey(d, M, p));
-		
-		return curves.get(createKey(d, M, p));
+//		System.out.println(curves.get(createKey(d, M, p)));
+//		
+//		for (String key : curves.keySet()) {
+//		System.out.println(key);
+//		}
+//		return curves.get(createKey(d, M, p));
+		return curves.get(createKey(d, M));
 	}
 	
 	public int size() {
@@ -270,6 +276,10 @@ public class RateTable {
 
 		Map<ScalarIMR, Double> imrs = Maps.newHashMap();
 
+//		for (int i=0; i<200; i++) {
+//			double rjb = (i + 0.5) * 5;
+//			System.out.println(rjb);
+//		}
 		// XXXXX
 		// ScalarIMR imr = new SomervilleEtAl_2001_AttenRel(null);
 		// imr.setParamDefaults();
@@ -312,25 +322,49 @@ public class RateTable {
 		imrGrdMap.put(TP_2005.instance(null), 0.125);
 		imrGrdMap.put(SILVA_2002.instance(null), 0.125);
 
+		double mMin = 5.05;
+		int mNum = 25;
+		int rMax = 1000;
+
 		Stopwatch sw = new Stopwatch();
 		sw.start();
-		RateTable table = RateTable.create(1000, 5, 24, 5.05, 0.1, periods,
+		RateTable table = RateTable.create(rMax, 5, mNum, mMin, 0.1, Period.GM0P00,
 			FaultCode.M_CONV_AB, imrGrdMap);
 		sw.stop();
 		System.out.println(table.curves.size());
-		System.out.println(sw.elapsedTime(TimeUnit.SECONDS));
-		System.out.println(table.curves.get("2-735-GM0P00"));
+		System.out.println(sw.elapsedTime(TimeUnit.MILLISECONDS));
+		System.out.println(table.curves.get("2-655"));
+		System.out.println(table.curves.get("0-505"));
 
-		// RateTable table = new RateTable();
-		// System.out.println(table.distKey(10.0000011));
-		// System.out.println(table.createKey(400.4, 5.5, Period.GM0P30, NONE));
-		// System.out.println(table.dR);
-		// System.out.println(table.curves.size());
-		// System.out.println(table.get(50, 7.35, GM0P00));
-		// String key = table.createKey(50, 7.35, GM0P00, NONE);
-		// System.out.println(key);
-		// System.out.println("man 10-735-GM0P00-NONE");
-		// System.out.println(table.get(key));
+//		DiscretizedFunc f = table.curves.get("2-735");
+//		int len = 1000000;
+//		List<Double> Rs = Lists.newArrayListWithCapacity(len);
+//		List<Double> Ms = Lists.newArrayListWithCapacity(1000000);
+//		for (int i=0; i<len; i++) {
+////			Ms.add(mMin + mDelta * Math.random());
+//			double m = MathUtils.round(mMin + Math.round(Math.random() * (mNum-1)) * 0.1, 2);
+//			Ms.add(m);
+//			Rs.add(rMax * Math.random());
+//		}
+//		double[] rArray = Doubles.toArray(Rs);
+//		double[] mArray = Doubles.toArray(Ms);
+//		System.out.println("rRange: " + Doubles.min(rArray) + " " + Doubles.max(rArray));
+//		System.out.println("mRange: " + Doubles.min(mArray) + " " + Doubles.max(mArray));
+//		
+//		sw.reset().start();
+//		for (int i=0; i<len; i++) {
+//			try {
+//				Utils.addFunc(f, table.get(rArray[i], mArray[i]));
+//			} catch (NullPointerException npe) {
+//				System.out.println("npe for: " + i + " " + rArray[i] + " " + mArray[i]);
+//				System.out.println(createKey(rArray[i], mArray[i]));
+//				break;
+//			}
+//		}
+//		sw.stop();
+//		System.out.println(sw.elapsedTime(TimeUnit.MILLISECONDS));
+
+		
 	}
 
 	private static int distKey(double d, double interval) {
@@ -347,13 +381,13 @@ public class RateTable {
 	}
 
 	// flavor used when initializing map
-	private String createKey(int rIdx, int mIdx, Period p) {
-		return joiner.join(rIdx, mIdx, p);
+	private static String createKey(int rIdx, int mIdx) {
+		return joiner.join(rIdx, mIdx);
 	}
 
 	// flavor used when fetching curves
-	private String createKey(double r, double m, Period p) {
-		return joiner.join(distKey(r, dR), magKey(m), p);
+	private static String createKey(double r, double m) {
+		return joiner.join(distKey(r, dR), magKey(m));
 	}
 
 	// private static DiscretizedFunc getCurve(ScalarIMR imr, double dist,
@@ -363,7 +397,7 @@ public class RateTable {
 	// double mean = imr.getMean();
 	// DiscretizedFunc func = per.getFunction();
 	//
-	// Iterator<Point2D> it = func.iterator();
+	// Iterator<Point2D> it = func.getPointsIterator();
 	// while (it.hasNext()) {
 	// Point2D point = it.next();
 	// double x = point.getX();

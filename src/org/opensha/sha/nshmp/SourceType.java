@@ -1,6 +1,8 @@
 package org.opensha.sha.nshmp;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
+
+import com.sun.xml.internal.ws.util.StringUtils;
 
 /**
  * Identifier for different earthquake source types.
@@ -10,11 +12,25 @@ import org.apache.commons.lang3.StringUtils;
  */
 public enum SourceType {
 
+	/** Fault source type. */
 	FAULT, 
+	
+	/** Gridded (background) seismicity source type. */
 	GRIDDED,
-	AREA,
+	
+	/** Subduction source type. */
 	SUBDUCTION,
-	CLUSTER;
+	
+	/** Cluster source type. */
+	CLUSTER,
+	
+	/** Area source type. */
+	AREA;
+	
+	@Override
+	public String toString() {
+		return WordUtils.capitalizeFully(name());
+	}
 	
 	public String paramLabel() {
 		StringBuilder sb = new StringBuilder();
