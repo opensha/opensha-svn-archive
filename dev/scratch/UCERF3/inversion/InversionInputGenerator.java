@@ -703,12 +703,12 @@ public class InversionInputGenerator {
 							double rupArea = rupSet.getAreaForRup(rup);
 							double sectArea = rupSet.getAreaForSection(sect);
 							if (QUICK_GETS_SETS)
-								A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
+								A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt * (sectArea / rupArea) / sectMFDConstraint.getRate(magBin));
 							else
-								A.set(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
+								A.set(rowIndex,rup,relativeNucleationMFDConstraintWt * (sectArea / rupArea) / sectMFDConstraint.getRate(magBin));
 							numNonZeroElements++;	
 						}
-						d[rowIndex]=relativeNucleationMFDConstraintWt * sectMFDConstraint.getRate(magBin);
+						d[rowIndex]=relativeNucleationMFDConstraintWt;
 						rowIndex++;
 					}
 				}
