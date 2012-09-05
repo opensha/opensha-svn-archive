@@ -142,10 +142,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	private final static String LAT_LON_PARAM_UNITS = "Degrees";
 	private final static String LAT_LON_PARAM_INFO = "Corner point of mapped region";
 	private final static String GRID_SPACING_PARAM_INFO = "Grid interval in the Region";
-	private final static Double MIN_LAT_PARAM_DEFAULT = new Double(32.5);
-	private final static Double MAX_LAT_PARAM_DEFAULT = new Double(36.6);
-	private final static Double MIN_LON_PARAM_DEFAULT = new Double(-121.5);
-	private final static Double MAX_LON_PARAM_DEFAULT = new Double(-115.0);
+	private final static Double MIN_LAT_PARAM_DEFAULT = new Double(20);
+	private final static Double MAX_LAT_PARAM_DEFAULT = new Double(60);
+	private final static Double MIN_LON_PARAM_DEFAULT = new Double(-130);
+	private final static Double MAX_LON_PARAM_DEFAULT = new Double(-60.0);
 	private final static Double GRID_SPACING_PARAM_DEFAULT = new Double(.1);
 	DoubleParameter minLatParam;
 	DoubleParameter maxLatParam;
