@@ -67,8 +67,8 @@ public class GridUtils {
 	}
 		
 	// write region
-	public static void gridToKML(GridERF grid, String filename, Color c) {
-		GriddedRegion region = grid.getRegion();
+	public static void gridToKML(GridERF grid, String filename, Color c, boolean nodes) {
+		Region region = grid.getBorder();
 		String kmlFileName = filename + ".kml";
 		Document doc = DocumentHelper.createDocument();
 		Element root = new DefaultElement(
@@ -81,8 +81,8 @@ public class GridUtils {
 		e_doc_name.addText(kmlFileName);
 		
 		addBorderStyle(e_doc, c);
-		addBorderVertexStyle(e_doc);
-		addGridNodeStyle(e_doc, c);
+//		addBorderVertexStyle(e_doc);
+		if (nodes) addGridNodeStyle(e_doc, c);
 		
 		Element e_folder = e_doc.addElement("Folder");
 		Element e_folder_name = e_folder.addElement("name");
@@ -91,18 +91,19 @@ public class GridUtils {
 		e_open.addText("1");
 		
 		addBorder(e_folder, region);
-		addPoints(e_folder, "Border Nodes", region.getBorder(), 
-				Style.BORDER_VERTEX);
-		if (region.getInteriors() != null) {
-			for (LocationList interior : region.getInteriors()) {
-				addPoints(e_folder, "Interior Nodes", interior, 
-						Style.BORDER_VERTEX);
-			}
-		}
+//		addPoints(e_folder, "Border Nodes", region.getBorder(), 
+//				Style.BORDER_VERTEX);
+//		if (region.getInteriors() != null) {
+//			for (LocationList interior : region.getInteriors()) {
+//				addPoints(e_folder, "Interior Nodes", interior, 
+//						Style.BORDER_VERTEX);
+//			}
+//		}
 		
 		// pass list of only non-null mfd nodes
-		addPoints(e_folder, "Grid Nodes", grid.getNodes(), Style.GRID_NODE);
-
+		if (nodes) {
+			addPoints(e_folder, "Grid Nodes", grid.getNodes(), Style.GRID_NODE);
+		}
 		// TODO absolutely need to create seom platform specific output directory
 		// that is not in project space (e.g. desktop, Decs and Settings);
 		
@@ -337,13 +338,16 @@ public class GridUtils {
 		Element e_color = e_lineStyle.addElement("color");
 		e_color.addText(colorToHex(c));
 		Element e_width = e_lineStyle.addElement("width");
-		e_width.addText("3");
+		e_width.addText("2");
 		
 		// poly style
 		Element e_polyStyle = e_style.addElement("PolyStyle");
 		e_polyStyle.add((Element) e_color.clone());
 		Element e_fill = e_polyStyle.addElement("fill");
-		e_fill.addText("0");
+		e_fill.addText("1");
+		Element e_fill_color = e_polyStyle.addElement("color");
+		Color fillColor = new Color(c.getRed(), c.getGreen(), c.getBlue(), 128);
+		e_fill_color.addText(colorToHex(fillColor));
 		
 		return e;
 	}
