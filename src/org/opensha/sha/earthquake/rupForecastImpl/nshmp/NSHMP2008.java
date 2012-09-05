@@ -18,10 +18,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
  * @author Peter Powers
  * @version $Id:$
  */
-public class WUS_ERF extends NSHMP_ListERF {
+public class NSHMP2008 extends NSHMP_ListERF {
 
-	public WUS_ERF() {
-		super("NSHMP West");
+	public NSHMP2008() {
+		super("NSHMP 2008");
 		init();
 	}
 
