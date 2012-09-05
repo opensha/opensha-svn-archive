@@ -6,8 +6,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
 import com.google.common.base.Predicate;
 
 /**
- * Add comments here
- * 
+ * Source filtering predicate utilties.
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -15,22 +14,47 @@ import com.google.common.base.Predicate;
 public class SourcePredicates {
 	// @formatter:off
 
+	/**
+	 * Name predicate.
+	 * @param name
+	 * @return the predicate
+	 */
 	public static Predicate<FaultSource> name(String name) {
 		return new SourceName(name);
 	}
 	
+	/**
+	 * Dip predicate.
+	 * @param dip
+	 * @return the predicate
+	 */
 	public static Predicate<FaultSource> dip(double dip) {
 		return new SourceDip(dip);
 	}
 
+	/**
+	 * Fault type predicate.
+	 * @param type
+	 * @return the predicate
+	 */
 	public static Predicate<FaultSource> type(FaultType type) {
 		return new SourceType(type);
 	}
 
+	/**
+	 * Focal mech predicate.
+	 * @param mech
+	 * @return the predicate
+	 */
 	public static Predicate<FaultSource> mech(FocalMech mech) {
 		return new SourceMech(mech);
 	}
 
+	/**
+	 * Floating rupture predicate.
+	 * @param floats
+	 * @return the predicate
+	 */
 	public static Predicate<FaultSource> floats(boolean floats) {
 		return new SourceFloats(floats);
 	}

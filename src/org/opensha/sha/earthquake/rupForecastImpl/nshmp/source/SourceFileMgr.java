@@ -24,14 +24,16 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-/*
- * Container class that manages NSHHMP source file references.
+/**
+ * Container class that manages NSHHMP source file references. Source weights
+ * are hard coded in this class and supplied to each SourceFile generated. This
+ * class also provides the weights used for NMSZ fault models, which can be
+ * retreived by group index [1,2,3,4,5] and recurrence [500,750,1000,1500]; 
  * 
  * @author Peter Powers
- * 
  * @version $Id:$
  */
-class SourceFileMgr {
+public class SourceFileMgr {
 
 	private static String datPath = "/resources/data/nshmp/sources/";
 	private static List<SourceFile> srcFiles;
@@ -45,52 +47,62 @@ class SourceFileMgr {
 		initSrcFiles();
 	}
 
-	/*
+	/**
 	 * Returns an immutable list of all NSHHMP source files.
-	 * 
 	 * @return a list of all source files
 	 */
-	static List<SourceFile> getAll() {
+	public static List<SourceFile> getAll() {
 		return ImmutableList.copyOf(srcFiles);
 	}
 
-	/*
+	/**
 	 * Returns an immutable list of the source files that match the supplied
 	 * <code>SourceRegion</code> and <code>SourceType</code>. If either argument
 	 * is <code>null</code> or empty, method will match all elements of the
 	 * argument class.
+	 * @param region to filter by
+	 * @param type to filter by
+	 * @return the list of matching source files
 	 */
-	static List<SourceFile> get(SourceRegion region, SourceType type) {
+	public static List<SourceFile> get(SourceRegion region, SourceType type) {
 		return get(region, type, null);
 	}
 
-	/*
+	/**
 	 * Returns an immutable list of the source files that match the supplied
 	 * <code>SourceRegion</code>, <code>SourceType</code>, and file name. If
 	 * either argument is <code>null</code>, method will match all elements of
 	 * the argument class.
+	 * @param region to filter by
+	 * @param type to filter by
+	 * @param name to filter by
+	 * @return the list of matching source files
 	 */
-	static List<SourceFile> get(SourceRegion region, SourceType type,
+	public static List<SourceFile> get(SourceRegion region, SourceType type,
 			String name) {
 		return get((region != null) ? EnumSet.of(region) : null, (type != null)
 			? EnumSet.of(type) : null, (StringUtils.isNotBlank(name))
 			? ImmutableSet.of(name) : null);
 	}
 
-	/*
+	/**
 	 * Returns an immutable list of the source files that match the supplied
 	 * <code>SourceRegion</code>s, <code>SourceType</code>s, and file names. If
 	 * either argument is <code>null</code> or empty, method will match all
 	 * elements of the argument class.
+	 * @param regions 
+	 * @param types 
+	 * @param names 
+	 * @return  the list of matching source files
 	 */
-	static List<SourceFile> get(EnumSet<SourceRegion> regions,
+	public static List<SourceFile> get(EnumSet<SourceRegion> regions,
 			EnumSet<SourceType> types, Set<String> names) {
 		List<Predicate<SourceFile>> pList = generateFilters(regions, types,
 			names);
 		Predicate<SourceFile> p = Predicates.and(pList);
 		return ImmutableList.copyOf(Collections2.filter(srcFiles, p));
 	}
-
+	
 	private static List<Predicate<SourceFile>> generateFilters(
 			EnumSet<SourceRegion> regions, EnumSet<SourceType> types,
 			Set<String> names) {
@@ -131,9 +143,8 @@ class SourceFileMgr {
 		} else {
 			srcType = (parts[1].equals("gridded")) ? GRIDDED : FAULT;
 		}
-		srcWts.get(srcFile.getName());
-		return new SourceFile(srcRegion, srcType, srcFile, srcWts.get(srcFile
-			.getName()));
+		Double wt = srcWts.get(srcFile.getName());
+		return new SourceFile(srcRegion, srcType, srcFile, wt);
 	}
 
 	// @formatter:off
@@ -178,10 +189,13 @@ class SourceFileMgr {
 			srcFiles.add(createSourceFile(f));
 		}
 	}
+	
+	
 
 	private static void initSrcWts() {
 		srcWts = Maps.newHashMap();
-		// CA
+		
+		// CA grid and fixed strike
 		srcWts.put("CAdeep.in", 1.0);
 		srcWts.put("CAmap.24.ch.in", 0.3333);
 		srcWts.put("CAmap.21.ch.in", 0.3334);
@@ -198,7 +212,8 @@ class SourceFileMgr {
 		srcWts.put("shear2.in", 1.0);
 		srcWts.put("shear3.in", 1.0);
 		srcWts.put("shear4.in", 1.0);
-		// WUS
+		
+		// WUS grid and fixed strike
 		srcWts.put("WUSmap.ch.in", 0.25);
 		srcWts.put("WUSmap.gr.in", 0.25);
 		srcWts.put("EXTmap.ch.in", 0.6667);
@@ -258,15 +273,19 @@ class SourceFileMgr {
 		srcWts.put("aFault_unseg.in", 0.0500);
 		srcWts.put("aFault_MoBal.in", 0.2250);
 
-		// CLUSTER
-		// TODO these are temporary placeholders with the total weight 
-		// for all New Madrid faults in each branch of the cluster model
-		srcWts.put("newmad.500.cluster.in", 0.2250);
-		srcWts.put("newmad.750.cluster.in", 0.2250);
-		srcWts.put("newmad.1000.cluster.in", 0.05);
-		srcWts.put("newmad.1500.cluster.in", 0.2250);
+		// CLUSTER NOTE: the NNMSZ cluster model is the one case in the 2008
+		// NSHMP where there is not a 1:1 correspondence between input and
+		// output files (there are actually 5 output files per input
+		// representing the different fault geometry models). As such we supply
+		// the weights to the ClusterSource and have the NSHMP hazard calcuator
+		// apply them appropriately; see getClusterWeight(). The inputs are
+		// therefore given full weight.
+		srcWts.put("newmad.500.cluster.in", 1.0);
+		srcWts.put("newmad.750.cluster.in", 1.0);
+		srcWts.put("newmad.1000.cluster.in", 1.0);
+		srcWts.put("newmad.1500.cluster.in", 1.0);
 		
-		// CLUSTER
+		// Original cluster wieghts from NSHMP combine phase
 		// newmad-500-clu.pga.g1 0.01125
 		// newmad-500-clu.pga.g2 0.0225
 		// newmad-500-clu.pga.g3 0.1575
@@ -290,10 +309,37 @@ class SourceFileMgr {
 		// newmad-1500-clu.pga.g3 0.1575
 		// newmad-1500-clu.pga.g4 0.0225
 		// newmad-1500-clu.pga.g5 0.01125
+		
+//		srcWts.put("CarsonKingsDipVar.in", 1.0000);
+//		srcWts.put("CarsonKingsDipVarWt.in", 1.0000);
+//		srcWts.put("CarsonKingsDipVarMagAlt.in", 1.0000);
+//		srcWts.put("CarsonKingsDipVarSlipAlt.in", 1.0000);
+//		
+//		srcWts.put("cascadia.bot.88.in", 0.0051282);
+//		srcWts.put("puente.ch.in", 0.6667);
+
+	}
+	
+	// These are combined the weights of: (un)clustered * location * recurrence
+	// e.g. 0.5 * 0.05 * 0.9 * 0.05 = 0.01125
+	private static final double[] CL_WTS_BASE = { 0.01125, 0.0225, 0.1575, 0.0225, 0.01125 };
+	private static final double[] CL_WTS_1000 = { 0.0025, 0.005, 0.035, 0.005, 0.0025 };
+
+	/*
+	 * Returns the weight for the supplied NMSZ cluster model file name and
+	 * fault model group index (1-5, west to east)
+	 */
+	static double getClusterWeight(String name, int group) {
+		double[] wts = (name.contains(".1000.")) ? CL_WTS_1000 : CL_WTS_BASE;
+		return wts[group-1];
 	}
 
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		List<SourceFile> files = SourceFileMgr.getAll();
+//		List<SourceFile> files = SourceFileMgr.get(WUS, FAULT);
 		for (SourceFile f : files) {
 			System.out.println(f);
 		}

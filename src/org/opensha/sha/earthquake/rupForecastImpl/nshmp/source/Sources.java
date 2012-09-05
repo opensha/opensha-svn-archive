@@ -2,7 +2,6 @@ package org.opensha.sha.earthquake.rupForecastImpl.nshmp.source;
 
 import static org.opensha.sha.nshmp.SourceType.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -28,11 +27,12 @@ public class Sources {
 	private static ListMultimap<SourceRegion, GridERF> gridERFs;
 	private static ListMultimap<SourceRegion, FaultERF> faultERFs;
 	private static ListMultimap<SourceRegion, SubductionERF> subERFs;
-	// private static Map<SourceRegion, List<ClusterSource>> clustERFs;
+	private static ListMultimap<SourceRegion, ClusterERF> clustERFs;
 
 	static {
+		// NSHMP_Utils logger is set to WARNING; probably want to use prefs
 		log = NSHMP_Utils.logger();
-		Level level = Level.WARNING;
+		Level level = Level.SEVERE;
 		log.setLevel(level);
 		for (Handler h : NSHMP_Utils.logger().getHandlers()) {
 			h.setLevel(level);
@@ -40,17 +40,97 @@ public class Sources {
 		gridERFs = ArrayListMultimap.create();
 		faultERFs = ArrayListMultimap.create();
 		subERFs = ArrayListMultimap.create();
+		clustERFs = ArrayListMultimap.create();
 	}
 
-	public static GridERF getGrid(SourceRegion region, SourceType type, String name) {
-		List<SourceFile> files = SourceFileMgr.get(region, type, name);
+	/**
+	 * Returns the ERF with the specified name.
+	 * @param name
+	 * @return a {@code NSHMP_ERF}
+	 */
+	public static NSHMP_ERF get(String name) {
+		SourceRegion region = regionForSource(name);
+		SourceType type = typeForSource(name);
+		if (region == null && type == null) return null;
+		switch (type) {
+			case GRIDDED:
+				return getGrid(name);
+			case FAULT:
+				return getFault(name);
+			case CLUSTER:
+				return getCluster(name);
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Returns the {@code ClusterERF} with the specified name.
+	 * @param name
+	 * @return a {@code ClusterERF}
+	 */
+	public static ClusterERF getCluster(String name) {
+		List<SourceFile> files = SourceFileMgr.get(null, CLUSTER, name);
+		if (files == null) return null;
+		ClusterParser parser = new ClusterParser(log);
+		return parser.parse(files.get(0));
+	}
+
+	/**
+	 * Returns the {@code GridERF} with the specified name.
+	 * @param name
+	 * @return a {@code GridERF}
+	 */
+	public static GridERF getGrid(String name) {
+		List<SourceFile> files = SourceFileMgr.get(null, GRIDDED, name);
 		if (files == null) return null;
 		GridParser parser = new GridParser(log);
-		parser.parse(files.get(0));
-		log.fine(parser.toString());
-		return parser.createGridSource();
+		return parser.parse(files.get(0));
 	}
-	
+
+	/**
+	 * Returns the {@code FaultERF} with the specified name.
+	 * @param name
+	 * @return a {@code FaultERF}
+	 */
+	public static FaultERF getFault(String name) {
+		List<SourceFile> files = SourceFileMgr.get(null, FAULT, name);
+		if (files == null) return null;
+		FaultParser parser = new FaultParser(log);
+		return parser.parse(files.get(0));
+	}
+
+	/**
+	 * Returns the {@code SubductionERF} with the specified name.
+	 * @param name
+	 * @return a {@code SubductionERF}
+	 */
+	public static SubductionERF getSub(String name) {
+		List<SourceFile> files = SourceFileMgr.get(null, SUBDUCTION, name);
+		if (files == null) return null;
+		SubductionParser parser = new SubductionParser(log);
+		return parser.parse(files.get(0));
+	}
+
+	/**
+	 * Returns the <code>GridERF</code>s for the requested region.
+	 * @param region of interest
+	 * @return the <code>List</code> of ERFs
+	 */
+	public static List<ClusterERF> getClusterList(SourceRegion region) {
+		if (clustERFs.get(region).isEmpty()) {
+			List<SourceFile> files = SourceFileMgr.get(region, CLUSTER);
+			if (files == null) return null;
+			for (SourceFile sf : files) {
+				ClusterParser parser = new ClusterParser(log);
+				ClusterERF erf = parser.parse(sf);
+				log.fine(erf.toString());
+				clustERFs.put(region, erf);
+			}
+		}
+		return clustERFs.get(region);
+	}
+
 	/**
 	 * Returns the <code>GridERF</code>s for the requested region.
 	 * @param region of interest
@@ -62,9 +142,9 @@ public class Sources {
 			if (files == null) return null;
 			for (SourceFile sf : files) {
 				GridParser parser = new GridParser(log);
-				parser.parse(sf);
-				log.fine(parser.toString());
-				gridERFs.put(region, parser.createGridSource());
+				GridERF erf = parser.parse(sf);
+				log.fine(erf.toString());
+				gridERFs.put(region, erf);
 			}
 		}
 		return gridERFs.get(region);
@@ -76,12 +156,12 @@ public class Sources {
 	 * @return the <code>List</code> of ERFs
 	 */
 	public static List<FaultERF> getFaultList(SourceRegion region) {
-		if (faultERFs.get(region) == null) {
+		if (faultERFs.get(region).isEmpty()) {
 			List<SourceFile> files = SourceFileMgr.get(region, FAULT);
 			if (files == null) return null;
 			for (SourceFile sf : files) {
 				FaultParser parser = new FaultParser(log);
-				FaultERF ferf = parser.parseFault(sf);
+				FaultERF ferf = parser.parse(sf);
 				faultERFs.put(region, ferf);
 			}
 		}
@@ -94,26 +174,53 @@ public class Sources {
 	 * @return the <code>List</code> of ERFs
 	 */
 	public static List<SubductionERF> getSubductionList(SourceRegion region) {
-		if (subERFs.get(region) == null) {
+		if (subERFs.get(region).isEmpty()) {
 			List<SourceFile> files = SourceFileMgr.get(region, SUBDUCTION);
 			if (files == null) return null;
 			for (SourceFile sf : files) {
 				SubductionParser parser = new SubductionParser(log);
-				SubductionERF serf = parser.parseSubduction(sf);
+				SubductionERF serf = parser.parse(sf);
 				subERFs.put(region, serf);
 			}
 		}
 		return subERFs.get(region);
 	}
 
+	/**
+	 * Returns the region for the source with the supplied name, or
+	 * <code>null</code> if name does nat match any source file
+	 * @param name of the source to lookup
+	 * @return the associated region
+	 */
+	public static SourceRegion regionForSource(String name) {
+		SourceFile sf = SourceFileMgr.get(null, null, name).get(0);
+		return (sf != null) ? sf.getRegion() : null;
+	}
+
+	/**
+	 * Returns the type for the source with the supplied name, or
+	 * <code>null</code> if name does nat match any source file
+	 * @param name of the source to lookup
+	 * @return the associated type
+	 */
+	public static SourceType typeForSource(String name) {
+		SourceFile sf = SourceFileMgr.get(null, null, name).get(0);
+		return (sf != null) ? sf.getType() : null;
+	}
+
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
+		System.out.println(getFaultList(SourceRegion.WUS));
+//		System.out.println(typeForSource("CEUSchar.73.in"));
 		// Map<String, GridSource> gMap = getGridSources(CEUS);
 		// System.out.println(gMap);0
 		// List<GridERF> erfs = getGridList(CA);
-		List<GridERF> erfs = getGridList(SourceRegion.CEUS);
-		 for (GridERF erf : erfs) {
-		 System.out.println(erf.getName());
-		 }
+		// List<GridERF> erfs = getGridList(SourceRegion.CEUS);
+		// for (GridERF erf : erfs) {
+		// System.out.println(erf.getName());
+		// }
 	}
 
 }

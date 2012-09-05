@@ -17,63 +17,67 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.eq.MagUtils;
-import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
-import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.nshmp.CEUSdev;
+import org.opensha.sha.nshmp.SourceIMR;
+import org.opensha.sha.nshmp.SourceRegion;
 import org.opensha.sha.nshmp.SourceType;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
-/*
- * @author Peter Powers
- * @version $Id:$
+/**
+ * 2008 NSHMP fault source parser.
  */
-class FaultParser {
+public class FaultParser {
 
 	static final int TRUNC_TYPE = 2;
 	static final int TRUNC_LEVEL = 2;
 
-	Logger log;
+	private Logger log;
 
 	FaultParser(Logger log) {
 		this.log = log;
 	}
 
-	private List<FaultSource> srcList;
+	FaultERF parse(SourceFile sf) {
+		List<FaultSource> srcList = Lists.newArrayList();
 
-	public FaultERF parseFault(SourceFile sf) {
-		srcList = Lists.newArrayList();
-
+		String name = sf.getName();
+		SourceRegion srcRegion = sf.getRegion();
+		SourceType srcType = sf.getType();
+		SourceIMR srcIMR = SourceIMR.imrForSource(srcType, srcRegion, name, null);
+		double srcWt = sf.getWeight();
+		
 		File f = sf.getFile();
 		List<String> dat = readLines(f, log);
 
-		int srcNameIdx = f.getPath().contains("/CA/") ? 3 : 4;
+		
+		// index from which fault source name starts; general WUS case is 4
+		int srcNameIdx = (srcRegion == CA || srcRegion == CEUS) ? 3 : 4;
 
 		Iterator<String> srcLines = dat.iterator();
-		skipHeader(srcLines);
+		
+		skipHeader1(srcLines);
+		double rMax = readDouble(srcLines.next(), 1);
+		skipHeader2(srcLines);
 
 		// load magnitude uncertainty data
 		MagData md = new MagData(readLines(srcLines, 4));
 		md.toLog(log);
 
 		while (srcLines.hasNext()) {
-			FaultSource fs = createFaultSource(srcLines.next(), sf, srcNameIdx);
+			FaultSource fs = createSource(srcLines.next(), sf, srcNameIdx);
 
 			// read source magnitude data and build mfds; due to peculiarities
 			// of how mfd's are handled with different uncertainty settings
@@ -84,7 +88,7 @@ class FaultParser {
 			List<String> mfdSrcDat = readLines(srcLines, fs.nMag);
 
 			generateMFDs(fs, mfdSrcDat, md.clone());
-			generateFaultTrace(srcLines, fs);
+			generateFaultTrace(srcLines, fs, log);
 			toLog(log, fs);
 
 			if (fs.mfds.size() == 0) {
@@ -99,12 +103,12 @@ class FaultParser {
 			//fs.init();
 		}
 		// KLUDGY
-		if (f.getName().contains("3dip")) cleanStrikeSlip(srcList);
-		FaultERF erf = new FaultERF(f.getName(), srcList);
-		return erf;
+		if (name.contains("3dip")) cleanStrikeSlip(srcList);
+		
+		return new FaultERF(name, srcList, srcRegion, srcIMR, srcWt, rMax);
 	}
 
-	void generateMFDs(FaultSource fs, List<String> lines,
+	private void generateMFDs(FaultSource fs, List<String> lines,
 			MagData md) {
 		switch (fs.type) {
 			case CH:
@@ -123,7 +127,7 @@ class FaultParser {
 			FaultSource fs) {
 		fs.floats = false;
 		for (String line : lines) {
-			CH_Data chData = new CH_Data(line, log);
+			CH_Data chData = new CH_Data(line);
 			chBuilder(chData, md, fs);
 		}
 	}
@@ -149,7 +153,7 @@ class FaultParser {
 				grBuilder(gr, md, fs);
 			} else {
 				CH_Data ch = new CH_Data(gr.mMin, MagUtils.gr_rate(gr.aVal,
-					gr.bVal, gr.mMin), gr.weight, log);
+					gr.bVal, gr.mMin), gr.weight);
 				fs.type = FaultType.CH;
 				fs.floats = true;
 				chBuilder(ch, md, fs);
@@ -337,7 +341,7 @@ class FaultParser {
 		return mfd;
 	}
 
-	private void generateFaultTrace(Iterator<String> it, FaultSource fs) {
+	static void generateFaultTrace(Iterator<String> it, FaultSource fs, Logger log) {
 		readFaultGeom(it.next(), fs);
 
 		int traceCount = readInt(it.next(), 0);
@@ -371,7 +375,7 @@ class FaultParser {
 	// where the starting index would be 4. (The identifying number is
 	// necessary to distinguish some faults, e.g. Seattle Fault in orwa_c.in)
 	// CA files generally start at idx=3
-	private FaultSource createFaultSource(String src, SourceFile file, int nameIdx) {
+	private FaultSource createSource(String src, SourceFile file, int nameIdx) {
 		FaultSource fs = new FaultSource();
 		fs.file = file;
 		String[] fltDat = StringUtils.split(src);
@@ -383,7 +387,7 @@ class FaultParser {
 		return fs;
 	}
 	
-	private void readFaultGeom(String line, FaultSource fs) {
+	private static void readFaultGeom(String line, FaultSource fs) {
 		String[] fltDat = StringUtils.split(line);
 		fs.dip = readDouble(fltDat, 0);
 		fs.width = readDouble(fltDat, 1);
@@ -406,6 +410,53 @@ class FaultParser {
 		}
 	}
 
+	/*
+	 * Strike slip faults with no dip-variation are included in the *.3dip.*
+	 * config files. They are consolidated here for a total of 9 mfds in their
+	 * mfd List
+	 */
+	private void cleanStrikeSlip(List<FaultSource> list) {
+
+		Collection<FaultSource> ssSrcs = Collections2.filter(list,
+			SourcePredicates.mech(FocalMech.STRIKE_SLIP));
+
+		Map<String, FaultSource> cleanSrcs = new HashMap<String, FaultSource>();
+		for (FaultSource fs : ssSrcs) {
+			if (!cleanSrcs.containsKey(fs.name)) {
+				cleanSrcs.put(fs.name, fs);
+				continue;
+			}
+			cleanSrcs.get(fs.name).mfds.addAll(fs.mfds);
+		}
+
+		list.removeAll(ssSrcs);
+		list.addAll(cleanSrcs.values());
+	}
+
+	static void skipHeader1(Iterator<String> it) {
+		int numSta = readInt(it.next(), 0); // grid of sites or station list
+		// skip num station lines or lat lon bounds (2 lines)
+		Iterators.skip(it, (numSta > 0) ? numSta : 2);
+		it.next(); // site data (Vs30) and Campbell basin depth
+	}
+	
+	static void skipHeader2(Iterator<String> it) {
+		int nP = readInt(it.next(), 0); // num periods
+		for (int i = 0; i < nP; i++) {
+			double epi = readDouble(it.next(), 1); // period w/ epi. unc. flag
+			if (epi > 0) Iterators.skip(it, 3); 
+			it.next(); // out file
+			it.next(); // num ground motion values
+			it.next(); // ground motion values
+			int nAR = readInt(it.next(), 0); // num atten. rel.
+			Iterators.skip(it, nAR); // atten rel
+		}
+		it.next(); // distance sampling on fault and dMove
+	}
+
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Logger log = NSHMP_Utils.logger();
 		Level level = Level.FINE;
@@ -450,81 +501,38 @@ class FaultParser {
 			// String srcPath = datPath + "CEUS/faults/NMSZnocl.1000yr.5branch.in";
 			// String srcPath = datPath + "CEUS/faults/NMSZnocl.500yr.5branch.in";
 
-//		SourceFile sf = SourceFileMgr.get(WUS, FAULT, "orwa_n.3dip.ch.in").get(0);
-		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.ch.in").get(0);
+//		SourceFile sf = SourceFileMgr.get(WUS, FAULT, "brange.3dip.gr.in").get(0);
+		SourceFile sf = SourceFileMgr.get(CA, FAULT, "puente.ch.in").get(0);
+//		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.ch.in").get(0);
+//		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
+//		SourceFile sf = SourceFileMgr.get(CEUS, FAULT, "NMSZnocl.500yr.5branch.in").get(0);
+//		SourceFile sf = SourceFileMgr.get(CEUS, CLUSTER, "newmad.500.cluster.in").get(0);
 
 //		File f = FileUtils.toFile(CEUSdev.class.getResource(srcPath));
 
 		log.info("Source: " + sf.getFile().getPath());
-		FaultERF erf = dev.parseFault(sf);
+		FaultERF erf = dev.parse(sf);
 
 //		System.out.println("NumSrcs: " + erf.getNumSources());
-		int count = 0;
-		for (ProbEqkSource source : erf) {
-			((FaultSource) source).init();
-			System.out.println("Source: " + source.getName());
-			System.out.println("  size: " + source.getNumRuptures());
-			count += source.getNumRuptures();
-			if (source.getName().equals("Sierra Madre Connected")) {
-				List<IncrementalMagFreqDist> list = ((FaultSource) source).mfds;
-				for (IncrementalMagFreqDist mfd : list) {
-					System.out.println(mfd);
-				}
-			}
-		}
-		System.out.println(" Count: " + count);
+		//int count = 0;
+		erf.updateForecast();
+		System.out.println("   ERF: " + erf.getName());
+		System.out.println("  srcs: " + erf.getNumSources());
+		System.out.println("  rups: " + erf.getRuptureCount());
+		
+//		for (ProbEqkSource source : erf) {
+//			((FaultSource) source).init();
+//			System.out.println("Source: " + source.getName());
+//			System.out.println("  size: " + source.getNumRuptures());
+//			count += source.getNumRuptures();
+////			if (source.getName().equals("Sierra Madre Connected")) {
+////				List<IncrementalMagFreqDist> list = ((FaultSource) source).mfds;
+////				for (IncrementalMagFreqDist mfd : list) {
+////					System.out.println(mfd);
+////				}
+////			}
+//		}
+//		System.out.println(" Count: " + count);
 	}
 
-	/*
-	 * Strike slip faults with no dip-variation are included in the *.3dip.*
-	 * config files. They are consolidated here for a total of 9 mfds in their
-	 * mfd List
-	 */
-	private void cleanStrikeSlip(List<FaultSource> list) {
-
-		Collection<FaultSource> ssSrcs = Collections2.filter(list,
-			SourcePredicates.mech(FocalMech.STRIKE_SLIP));
-
-		Map<String, FaultSource> cleanSrcs = new HashMap<String, FaultSource>();
-		for (FaultSource fs : ssSrcs) {
-			if (!cleanSrcs.containsKey(fs.name)) {
-				cleanSrcs.put(fs.name, fs);
-				continue;
-			}
-			cleanSrcs.get(fs.name).mfds.addAll(fs.mfds);
-		}
-
-		list.removeAll(ssSrcs);
-		list.addAll(cleanSrcs.values());
-	}
-
-	private void skipHeader(Iterator<String> it) {
-		int nP, nAR;
-		double epi;
-		int numSta = readInt(it.next(), 0); // grid of sites or station list
-		if (numSta > 0) {
-			for (int k=0; k<numSta; k++) {
-				it.next();
-			}
-		} else {
-			it.next(); // lat bounds and discretization
-			it.next(); // lon bounds and discretization
-		}
-		it.next(); // site data (Vs30) and Campbell basin depth
-		it.next(); // delta R and R max
-		nP = readInt(it.next(), 0); // num periods
-		for (int i = 0; i < nP; i++) {
-			epi = readDouble(it.next(), 1); // period w/ epi. unc. flag
-			if (epi > 0) Iterators.skip(it, 3); 
-			it.next(); // out file
-			it.next(); // num ground motion values
-			it.next(); // ground motion values
-			nAR = readInt(it.next(), 0); // num atten. rel.
-			for (int j = 0; j < nAR; j++) {
-				it.next(); // atten rel
-			}
-		}
-		it.next(); // distance sampling on fault and dMove
-	}
-	
 }

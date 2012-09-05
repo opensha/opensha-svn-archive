@@ -7,12 +7,8 @@ import org.apache.commons.math.util.MathUtils;
 import org.opensha.sha.nshmp.SourceRegion;
 import org.opensha.sha.nshmp.SourceType;
 
-/*
- * Package private wrapper for NSHMP source files
- * 
- * @author Peter Powers
- * 
- * @version $Id:$
+/**
+ * Wrapper for NSHMP source files
  */
 class SourceFile {
 
@@ -30,7 +26,7 @@ class SourceFile {
 
 	@Override
 	public String toString() {
-		return new StringBuffer(StringUtils.rightPad(region.toString(), 6))
+		return new StringBuffer(StringUtils.rightPad(region.toString(), 24))
 			.append(StringUtils.rightPad(type.toString(), 12))
 			.append(
 				StringUtils.rightPad(

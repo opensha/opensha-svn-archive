@@ -1,72 +1,60 @@
 package org.opensha.sha.earthquake.rupForecastImpl.nshmp.source;
 
-import static com.google.common.base.Preconditions.*;
 import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils.*;
 import static org.opensha.sha.nshmp.SourceRegion.*;
 import static org.opensha.sha.nshmp.SourceType.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensha.commons.eq.MagUtils;
-import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.nshmp.CEUSdev;
+import org.opensha.sha.nshmp.SourceIMR;
+import org.opensha.sha.nshmp.SourceRegion;
 import org.opensha.sha.nshmp.SourceType;
 
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
 /**
- * Add comments here
- * 
- * 
- * @author Peter Powers
- * @version $Id:$
+ * 2008 NSHMP subduction source parser.
  */
-class SubductionParser extends FaultParser {
+public class SubductionParser {
+
+	private Logger log;
 
 	SubductionParser(Logger log) {
-		super(log);
+		this.log = log;
 	}
 
-	private List<SubductionSource> srcList;
+	SubductionERF parse(SourceFile sf) {
+		List<SubductionSource> srcList = Lists.newArrayList();
 
-	public SubductionERF parseSubduction(SourceFile sf) {
-		srcList = Lists.newArrayList();
-
+		String name = sf.getName();
+		SourceRegion srcRegion = sf.getRegion();
+		SourceType srcType = sf.getType();
+		SourceIMR srcIMR = SourceIMR.imrForSource(srcType, srcRegion, name, null);
+		double srcWt = sf.getWeight();
+		
 		File f = sf.getFile();
 		List<String> dat = readLines(f, log);
 
 		Iterator<String> srcLines = dat.iterator();
 		skipHeader(srcLines);
-
-		// set dummy magnitude uncertainty data; all flags false
-		MagData md = new MagData();
-		md.toLog(log);
+		
+		double rMax = readDouble(srcLines.next(), 1);
 
 		while (srcLines.hasNext()) {
 			// NSHMP subduction sources are processed by two differnt versions
@@ -79,31 +67,57 @@ class SubductionParser extends FaultParser {
 			ss.type = FaultType.typeForID(readInt(fltDat, 0));
 			ss.mech = FocalMech.typeForID(readInt(fltDat, 1));
 			try {
+				// hazSUBXngatest: read a 3rd value for mfd count
 				ss.nMag = readInt(fltDat, 2);
 				ss.name = StringUtils.join(fltDat, ' ', 3, fltDat.length);
 			} catch (NumberFormatException nfe) {
-				// if can't read 3rd int, set name and nMag to 1
+				// hazSUBXnga: if can't read 3rd int, set name and nMag to 1
 				ss.nMag = 1;
 				ss.name = StringUtils.join(fltDat, ' ', 2, fltDat.length);
 			}
+
 			List<String> mfdSrcDat = readLines(srcLines, ss.nMag);
-			generateMFDs(ss, mfdSrcDat, md.clone());
+			generateMFDs(ss, mfdSrcDat);
 			generateTraces(srcLines, ss);
 			toLog(log, ss);
-
-			if (ss.mfds.size() == 0) {
-				StringBuilder sb = new StringBuilder()
-					.append("Source with no mfds");
-				appendFaultDat(sb, ss);
-				log.warning(sb.toString());
-			}
 			srcList.add(ss);
 		}
-
-		SubductionERF erf = new SubductionERF(f.getName(), srcList);
-		return erf;
+		return new SubductionERF(name, srcList, srcRegion, srcIMR, srcWt, rMax);
 	}
 
+	private void generateMFDs(SubductionSource ss, List<String> lines) {
+		// for 2008 NSHMP all sub sources are entered as floating GR, however
+		// any M8.8 or greater events are rupture filling, pseudo-char
+		for (String line : lines) {
+			GR_Data gr = new GR_Data(line, SUBDUCTION);
+			if (gr.nMag > 1 && gr.mMin < 8.8) ss.floats = true;
+
+			// TODO clean
+//			double mMax = gr.mMin + (gr.nMag - 1) * gr.dMag;
+//			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(
+//				gr.bVal, 1.0, gr.mMin, mMax, gr.nMag);
+//			
+//			double mMinRate = gr.weight * Math.pow(10, gr.aVal - gr.bVal * gr.mMin);
+//			System.out.println(gr.aVal+" "+gr.bVal+" "+gr.mMin+" ");
+//			System.out.println(mMinRate);
+//			mfd.scaleToIncrRate(0, mMinRate);
+
+			double tmr = totalMoRate(gr.mMin, gr.nMag, gr.dMag, gr.aVal, gr.bVal);
+			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(
+				gr.mMin, gr.nMag, gr.dMag);
+			// set total moment rate
+			mfd.setAllButTotCumRate(gr.mMin, gr.mMin + (gr.nMag - 1) * gr.dMag,
+				gr.weight * tmr, gr.bVal);
+
+			ss.mfds.add(mfd);
+			if (log.isLoggable(Level.FINE)) {
+				log.fine(new StringBuilder().append(IOUtils.LINE_SEPARATOR)
+					.append("GR MFD: ").append(IOUtils.LINE_SEPARATOR)
+					.append(mfd.getMetadataString()).toString());
+			}
+		}
+	}
+	
 	private void generateTraces(Iterator<String> it, SubductionSource ss) {
 		int upperTraceLen = readInt(it.next(), 0);
 		ss.trace = generateTrace(it, upperTraceLen, ss.name + " Upper Trace");
@@ -115,7 +129,8 @@ class SubductionParser extends FaultParser {
 		}
 	}
 	
-	private static FaultTrace generateTrace(Iterator<String> it, int traceCount, String name) {
+	private static FaultTrace generateTrace(Iterator<String> it, int traceCount,
+			String name) {
 		FaultTrace trace = new FaultTrace(name);
 		List<String> traceDat = readLines(it, traceCount);
 		for (String ptDat : traceDat) {
@@ -126,6 +141,35 @@ class SubductionParser extends FaultParser {
 		return trace;
 	}
 
+	private static void skipHeader(Iterator<String> it) {
+		int numSta = readInt(it.next(), 0); // grid of sites or station list
+		// skip num station lines or lat lon bounds (2 lines)
+		Iterators.skip(it, (numSta > 0) ? numSta : 2);
+		it.next(); // site data (Vs30)
+		int nP = readInt(it.next(), 0); // num periods
+		for (int i = 0; i < nP; i++) {
+			it.next(); // period
+			it.next(); // out file
+			int nAR = readInt(it.next(), 0); // num atten. rel.
+			Iterators.skip(it, nAR); // atten rel
+			it.next(); // num ground motion values
+			it.next(); // ground motion values
+		}
+		it.next(); // discretization
+//		it.next(); // distance sampling to fault and max distance
+	}
+	
+	
+	
+	static void toLog(Logger log, SubductionSource ss) {
+		if (log.isLoggable(Level.INFO)) {
+			log.info(IOUtils.LINE_SEPARATOR + ss.toString());
+		}
+	}
+
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Logger log = NSHMP_Utils.logger();
 		Level level = Level.FINE;
@@ -139,79 +183,24 @@ class SubductionParser extends FaultParser {
 		log.info((new Date()) + " " + FaultParser.class.getName());
 
 		SubductionParser dev = new SubductionParser(log);
-		// String srcPath = datPath + "WUS/faults/brange.3dip.gr.in";
-		// String srcPath = datPath + "WUS/faults/brange.3dip.ch.in";
-		// String srcPath = datPath + "WUS/faults/brange.3dip.65.in";
-		//
-//		 String srcPath = datPath + "WUS/faults/nv.3dip.gr.in";
-//		 String srcPath = datPath + "WUS/faults/nv.3dip.ch.in";
-		// String srcPath = datPath + "WUS/faults/nvut.3dip.65.in";
-		// String srcPath = datPath + "WUS/faults/ut.3dip.gr.in";
-		// String srcPath = datPath + "WUS/faults/ut.3dip.ch.in";
-		//
-		// String srcPath = datPath + "WUS/faults/orwa_n.3dip.gr.in";
-		// String srcPath = datPath + "WUS/faults/orwa_n.3dip.ch.in";
-		// String srcPath = datPath + "WUS/faults/orwa_c.in";
-		//
-		// String srcPath = datPath + "WUS/faults/wasatch.3dip.gr.in";
-		// String srcPath = datPath + "WUS/faults/wasatch.3dip.ch.in";
-		// String srcPath = datPath + "WUS/faults/wasatch.3dip.74.in";
-		//
-//		 String srcPath = datPath + "CA/faults/bFault.gr.in";
-		// String srcPath = datPath + "CA/faults/bFault.ch.in";
-//		 String srcPath = datPath + "CA/faults/aFault_aPriori_D2.1.in";
-		// String srcPath = datPath + "CA/faults/aFault_MoBal.in";
-		// String srcPath = datPath + "CA/faults/aFault_MoBal.in";
-		// String srcPath = datPath + "CA/faults/aFault_unsegEll.in";
-		// String srcPath = datPath + "CA/faults/aFault_unseg_HB.in";
-		// String srcPath = datPath + "CA/faults/creepflt.in";
-
-		// String srcPath = datPath + "CEUS/faults/CEUScm.in";
-			// String srcPath = datPath + "CEUS/faults/NMSZnocl.1000yr.5branch.in";
-			// String srcPath = datPath + "CEUS/faults/NMSZnocl.500yr.5branch.in";
 
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
 		SourceFile sf = SourceFileMgr.get(CASC, SUBDUCTION, "cascadia.bot.8082.in").get(0);
+//		SourceFile sf = SourceFileMgr.get(CASC, SUBDUCTION, "cascadia.bot.9pm.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "aFault_unseg.in").get(0);
 
 //		File f = FileUtils.toFile(CEUSdev.class.getResource(srcPath));
 
 		log.info("Source: " + sf.getFile().getPath());
-		SubductionERF erf = dev.parseSubduction(sf);
+		SubductionERF erf = dev.parse(sf);
 
 //		System.out.println("NumSrcs: " + erf.getNumSources());
 		for (ProbEqkSource source : erf) {
-			((FaultSource) source).init();
+			((SubductionSource) source).init();
 			System.out.println("Source: " + source.getName());
 			System.out.println("  size: " + source.getNumRuptures());
 		}
 	}
 
-	private static void skipHeader(Iterator<String> it) {
-		int nP, nAR;
-		int numSta = readInt(it.next(), 0); // grid of sites or station list
-		if (numSta > 0) {
-			for (int k=0; k<numSta; k++) {
-				it.next();
-			}
-		} else {
-			it.next(); // lat bounds and discretization
-			it.next(); // lon bounds and discretization
-		}
-		it.next(); // site data (Vs30)
-		nP = readInt(it.next(), 0); // num periods
-		for (int i = 0; i < nP; i++) {
-			it.next(); // period
-			it.next(); // out file
-			nAR = readInt(it.next(), 0); // num atten. rel.
-			for (int j = 0; j < nAR; j++) {
-				it.next(); // atten rel
-			}
-			it.next(); // num ground motion values
-			it.next(); // ground motion values
-		}
-		it.next(); // discretization
-		it.next(); // distance sampling to fault and max distance
-	}
 
 }

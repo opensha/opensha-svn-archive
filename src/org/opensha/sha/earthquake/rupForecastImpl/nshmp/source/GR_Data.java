@@ -6,11 +6,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opensha.sha.nshmp.SourceType;
 
 /*
- * Wrapper for GR MFD data; handles all validation and NSHMP corrections to
- * fault GR mfds. Constructor boolean flags whether a fault input is being
- * instantiated (true) or grid input (false).
+ * Wrapper for Gutenberg-Richter MFD data; handles all validation and NSHMP
+ * corrections to fault and subduction GR mfds.
  */
 class GR_Data {
 
@@ -22,21 +22,9 @@ class GR_Data {
 	double weight;
 	int nMag;
 
-	/* Usd for parsing fault sources */
+	/* Usd for parsing WUS fault sources */
 	GR_Data(String src, FaultSource fs, Logger log) {
-		String[] grDat = StringUtils.split(src);
-		aVal = readDouble(grDat, 0);
-		bVal = readDouble(grDat, 1);
-		mMin = readDouble(grDat, 2);
-		mMax = readDouble(grDat, 3);
-		dMag = readDouble(grDat, 4);
-		try {
-			weight = readDouble(grDat, 5);
-		} catch (ArrayIndexOutOfBoundsException oobe) {
-			weight = 1;
-		}
-		nMag = 0;
-
+		readSource(src);
 		// check for too small a dMag
 		validateDeltaMag(log, fs);
 		// check if mags are not the same, center on closest dMag values
@@ -45,13 +33,18 @@ class GR_Data {
 		validateMagCount(log, fs);
 	}
 
-	/* Used for parsing grid sources */
-	GR_Data(String src, Logger log) {
+	/* Used for parsing grid and subduction source inputs */
+	GR_Data(String src, SourceType type) {
+		if (type == SourceType.GRIDDED) {
 		double[] grDat = readDoubles(src, 4);
 		bVal = grDat[0];
 		mMin = grDat[1];
 		mMax = grDat[2];
 		dMag = grDat[3];
+		} else if (type == SourceType.SUBDUCTION) {
+			readSource(src);
+			updateMagCount();
+		}
 	}
 
 	/* Used for building grid MFDs */
@@ -65,6 +58,21 @@ class GR_Data {
 		updateMagCount();
 	}
 
+	private void readSource(String src) {
+		String[] grDat = StringUtils.split(src);
+		aVal = readDouble(grDat, 0);
+		bVal = readDouble(grDat, 1);
+		mMin = readDouble(grDat, 2);
+		mMax = readDouble(grDat, 3);
+		dMag = readDouble(grDat, 4);
+		try {
+			weight = readDouble(grDat, 5);
+		} catch (ArrayIndexOutOfBoundsException oobe) {
+			weight = 1;
+		}
+		nMag = 0;
+	}
+	
 	private void validateDeltaMag(Logger log, FaultSource fs) {
 		if (dMag <= 0.004) {
 			StringBuilder sb = new StringBuilder().append("GR dMag [")

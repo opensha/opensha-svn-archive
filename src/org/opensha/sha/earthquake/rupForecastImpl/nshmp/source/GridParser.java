@@ -8,7 +8,6 @@ import static org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.RateType.*;
 import static org.opensha.sha.nshmp.SourceRegion.*;
 import static org.opensha.sha.nshmp.SourceType.*;
 
-import java.awt.Color;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -20,60 +19,76 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.opensha.commons.geo.Direction;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultCode;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.GridUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.RateType;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.nshmp.SourceIMR;
+import org.opensha.sha.nshmp.SourceRegion;
 import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
 
-/*
- * Wrapper for grid source.
+/**
+ * 2008 NSHMP grid source parser.
  */
-class GridParser {
+public class GridParser {
 
-	private static Logger log;
+	private Logger log;
 	private static final String GRD_PATH = "../conf";
 	private static final String DAT_PATH = "/resources/data/nshmp/sources/";
 
 	// parsed
-	File file;
-	double minLat, maxLat, dLat;
-	double minLon, maxLon, dLon;
-	double[] depths;
-	Map<FocalMech, Double> mechWtMap;
-	// double[] mechWts;
-	double dR, rMax;
-	GR_Data grSrc;
-	FaultCode fltCode;
-	boolean bGrid, mMaxGrid, weightGrid;
-	double mTaper;
-	File aGridFile, bGridFile, mMaxGridFile, weightGridFile;
-	double timeSpan;
-	RateType rateType;
-	double strike = Double.NaN;
+	private File file;
+	private SourceRegion srcRegion;
+	private SourceIMR srcIMR;
+	private double srcWt;
+	private double minLat, maxLat, dLat;
+	private double minLon, maxLon, dLon;
+	private double[] depths;
+	private Map<FocalMech, Double> mechWtMap;
+	private double dR, rMax;
+	private GR_Data grSrc;
+	private FaultCode fltCode;
+	private boolean bGrid, mMaxGrid, weightGrid;
+	private double mTaper;
+	private File aGridFile, bGridFile, mMaxGridFile, weightGridFile;
+	private double timeSpan;
+	private RateType rateType;
+	private double strike = Double.NaN;
 
 	// generated
-	double[] aDat, bDat, mMinDat, mMaxDat, wgtDat;
-	GriddedRegion region;
-	Map<Integer, IncrementalMagFreqDist> mfdMap;
-	List<IncrementalMagFreqDist> mfdList;
+	private double[] aDat, bDat, mMinDat, mMaxDat, wgtDat;
+
+	// build grids using broad region but reduce to src location and mfd lists
+	// and a border (Region) used by custom calculator to skip grid entirely
+	private LocationList srcLocs;
+	private List<IncrementalMagFreqDist> mfdList;
+	private Region border;
+	
+	// temp list of srcIndices used to create bounding region; list is also
+	// referenced when applying craton/margin weighs to mfds
+	private int[] srcIndices; // already sorted when built
 
 	GridParser(Logger log) {
 		this.log = log;
 	}
 
-	public void parse(SourceFile sf) {
+	GridERF parse(SourceFile sf) {
 		file = sf.getFile();
+		srcRegion = sf.getRegion();
+		srcWt = sf.getWeight();
+				
 		List<String> dat = readLines(file, log);
 		Iterator<String> it = dat.iterator();
 
@@ -95,7 +110,7 @@ class GridParser {
 		readSourceLonRange(it.next());
 
 		// mag data
-		grSrc = new GR_Data(it.next(), log);
+		grSrc = new GR_Data(it.next(), GRIDDED);
 
 		// iflt, ibmat, maxMat, Mtaper
 		// iflt = 0 -> no finite faults
@@ -131,15 +146,22 @@ class GridParser {
 		// read strike or rjb array
 		if (fltCode == FIXED) strike = readDouble(it.next(), 0);
 
-		// done; skip atten rel config
+		// done reading; skip atten rel config
+
+		srcIMR = SourceIMR.imrForSource(GRIDDED, srcRegion, file.getName(), fltCode);
+		
+		GridERF erf = createGridSource();
+		return erf;
 	}
 
-	public GridERF createGridSource() {
-		region = new GriddedRegion(new Location(minLat, minLon), new Location(
-			maxLat, maxLon), dLat, dLon, GriddedRegion.ANCHOR_0_0);
-		mfdList = Lists.newArrayListWithCapacity(region.getNodeCount());
+	private GridERF createGridSource() {
 		initDataGrids();
-		generateMFDs();
+
+		// TODO switch to static CEUS & WUS regions
+		GriddedRegion region = new GriddedRegion(new Location(minLat, minLon),
+			new Location(maxLat, maxLon), dLat, dLon, GriddedRegion.ANCHOR_0_0);
+		generateMFDs(region);
+		initSrcRegion(region);
 
 		// KLUDGY: need to post process CEUS grids to handle craton and
 		// extended margin weighting grids
@@ -147,16 +169,55 @@ class GridParser {
 			ceusScaleRates();
 		}
 
-		// GridSource gs = new GridSource(file.getName(), region, mfdList);
-		GridERF gs = new GridERF(file.getName(), region, mfdList, depths,
-			mechWtMap);
+		GridERF gs = new GridERF(file.getName(), generateInfo(), border,
+			srcLocs, mfdList, depths, mechWtMap, fltCode, strike, srcRegion,
+			srcIMR, srcWt, rMax, dR);
 		return gs;
 	}
 
-	private void generateMFDs() {
+	private void initSrcRegion(GriddedRegion region) {
+		LocationList srcLocs = new LocationList();
+		int currIdx = srcIndices[0];
+		srcLocs.add(region.locationForIndex(currIdx));
+		Direction startDir = Direction.WEST;
+		Direction sweepDir = startDir.next();
+		while (sweepDir != startDir) {
+			int sweepIdx = region.move(currIdx, sweepDir);
+			int nextIdx = Arrays.binarySearch(srcIndices, sweepIdx);
+			if (nextIdx >= 0) {
+				Location nextLoc = region.locationForIndex(srcIndices[nextIdx]);
+				//System.out.println(aDat[srcIndices[nextIdx]] + " " + nextLoc);
+				if (nextLoc.equals(srcLocs.get(0))) break;
+				srcLocs.add(nextLoc);
+				currIdx = srcIndices[nextIdx];
+				startDir = sweepDir.opposite().next();
+				sweepDir = startDir.next();
+				continue;
+			}
+			sweepDir = sweepDir.next();
+		}
+		// KLUDGY san gorgonio hack; only 11 grid points whose outline (16 pts)
+		// does not play nice with Region
+		if (srcLocs.size() == 16) {
+			for (int i=0; i < srcLocs.size(); i++) {
+				if (i==0 || i==8) continue;
+				double offset = (i > 8) ? 0.01 : -0.01;
+				Location ol = srcLocs.get(i);
+				Location nl = new Location(ol.getLatitude() + offset, ol.getLongitude());
+				
+				srcLocs.set(i, nl);
+			}
+		}
+		border = new Region(srcLocs, null);
+	}
+
+	private void generateMFDs(GriddedRegion region) {
+		mfdList = Lists.newArrayList();
+		srcLocs = new LocationList();
+		List<Integer> srcIndexList = Lists.newArrayList();
+
 		for (int i = 0; i < aDat.length; i++) {
 			if (aDat[i] == 0) {
-				mfdList.add(null);
 				continue;
 			}
 			// use fixed value if mMax matrix value was 0
@@ -164,29 +225,30 @@ class GridParser {
 			// a-value is stored as log10(a)
 			GR_Data gr = new GR_Data(aDat[i], bDat[i], mMinDat[i], maxM,
 				grSrc.dMag);
-			// double minM = mMinDat[i] + gr.dMag / 2;
-			// double maxM = mMaxDat[i] <= 0 ? gr.mMax : mMaxDat[i];
-			// maxM -= gr.dMag/2;
-			// int nMag = GR_Data.getMagCount(minM, maxM, gr.dMag);
-			double tmr = totalMoRate(gr.mMin, gr.nMag, gr.dMag, gr.aVal,
-				gr.bVal);
-			// System.out.println(minM + " " + nMag + " " + gr.dMag);
-			// System.out.println(region.locationForIndex(i) + " " + gr.aVal +
-			// " " + gr.bVal + " " + gr.mMin + " " + gr.nMag + " " + gr.dMag);
-
 			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(
-				gr.mMin, gr.nMag, gr.dMag);
-			// set total moment rate
-			mfd.setAllButTotCumRate(gr.mMin, gr.mMin + (gr.nMag - 1) * gr.dMag,
-				tmr, gr.bVal);
+				gr.mMin, gr.nMag, gr.dMag, 1.0, gr.bVal);
+			mfd.scaleToIncrRate(gr.mMin, incrRate(gr.aVal, gr.bVal, gr.mMin));
 			// apply weight
 			if (weightGrid && mfd.getMaxX() >= mTaper) {
 				int j = mfd.getXIndex(mTaper + grSrc.dMag / 2);
 				for (; j < mfd.getNum(); j++)
 					mfd.set(j, mfd.getY(j) * wgtDat[i]);
 			}
-			mfdList.add(i, mfd);
+			mfdList.add(mfd);
+			srcLocs.add(region.locationForIndex(i));
+//			if (LocationUtils.areSimilar(region.locationForIndex(i), 
+//				NEHRP_TestCity.SEATTLE.location())) {
+//				System.out.println("aVal: " + aDat[i]);
+//			}
+//			if (i==61222) {
+//				System.out.println("aValMax: " + aDat[i]);
+//				System.out.println(mfd);
+//			}
+			srcIndexList.add(i);
 		}
+		srcIndices = Ints.toArray(srcIndexList);
+//		System.out.println("max aVal: " + Doubles.max(aDat));
+//		System.out.println("max aVal: " + Math.pow(10, Doubles.max(aDat)));
 	}
 
 	private void initDataGrids() {
@@ -280,9 +342,7 @@ class GridParser {
 		rateType = (rateTypeVal == 0) ? INCREMENTAL : CUMULATIVE;
 	}
 
-	// TODO move to GridERF?
-	@Override
-	public String toString() {
+	private String generateInfo() {
 		// @formatter:off
 		return new StringBuilder()
 		.append(IOUtils.LINE_SEPARATOR)
@@ -296,11 +356,11 @@ class GridParser {
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("     [dLat dLon]: ").append(dLat).append(" ").append(dLon)
 		.append(IOUtils.LINE_SEPARATOR)
-//		.append("      Node count: ").append(region.getNodeCount())
-//		.append(IOUtils.LINE_SEPARATOR)
-		.append("   Rup top M\u22646.5: ").append(depths[0])
+		.append("    Source count: ").append(srcLocs.size())
 		.append(IOUtils.LINE_SEPARATOR)
-		.append("   Rup top M\u003E6.5: ").append(depths[1])
+		.append("   Rup top M\u003C6.5: ").append(depths[0])
+		.append(IOUtils.LINE_SEPARATOR)
+		.append("   Rup top M\u22656.5: ").append(depths[1])
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("    Mech weights: ")
 		.append("SS=").append(mechWtMap.get(STRIKE_SLIP))
@@ -363,11 +423,12 @@ class GridParser {
 		double[] weights;
 		
 		// adjust mfds
-		for (int i=0; i<cratonFlags.length; i++) {
+		for (int i=0; i<srcIndices.length; i++) {
 			IncrementalMagFreqDist mfd = mfdList.get(i);
 			if (mfd == null) continue;
-			boolean craFlag = cratonFlags[i];
-			boolean marFlag = marginFlags[i];
+			int flagIdx = srcIndices[i];
+			boolean craFlag = cratonFlags[flagIdx];
+			boolean marFlag = marginFlags[flagIdx];
 			if ((craFlag | marFlag) == false) continue;
 			weights = craFlag ? craWt : marWt;
 			applyWeight(mfd, weights);
@@ -395,6 +456,9 @@ class GridParser {
 		}
 	}
 
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Logger log = NSHMP_Utils.logger();
 		Level level = Level.FINE;
@@ -402,139 +466,31 @@ class GridParser {
 		for (Handler h : NSHMP_Utils.logger().getHandlers()) {
 			h.setLevel(level);
 		}
-		//log.info((new Date()) + " " + FaultParser.class.getName());
-//		File f = FileUtils.toFile(GridConfig.class.getResource(datPath+"CEUS/gridded/"));
-//		String[] fNames = f.list();
-//		for (String name : fNames) {
-//			System.out.println("paths.add(\"CEUS/gridded/" + name + "\");");
-//		}
+
 		List<SourceFile> sources = Lists.newArrayList();
-		Map<String, GridERF> cfgs = Maps.newHashMap();
-		
-//		paths.add("CA/gridded/brawmap.in");
-//		paths.add("CA/gridded/CAdeep.in");
-//		paths.add("CA/gridded/CAmap.21.ch.in");
-//		paths.add("CA/gridded/CAmap.21.gr.in");
-//		paths.add("CA/gridded/CAmap.24.ch.in");
-//		paths.add("CA/gridded/CAmap.24.gr.in");
-//		paths.add("CA/gridded/creepmap.in");
-//		paths.add("CA/gridded/impext.ch.in");
-//		paths.add("CA/gridded/impext.gr.in");
-//		paths.add("CA/gridded/mendo.in");
-//		paths.add("CA/gridded/mojave.in");
-//		paths.add("CA/gridded/sangorg.in");
-//		paths.add("CA/gridded/shear1.in");
-//		paths.add("CA/gridded/shear2.in");
-//		paths.add("CA/gridded/shear3.in");
-//		paths.add("CA/gridded/shear4.in");
-//
-//		paths.add("WUS/gridded/EXTmap.ch.in");
-//		paths.add("WUS/gridded/EXTmap.gr.in");
-//		paths.add("WUS/gridded/nopuget.ch.in");
-//		paths.add("WUS/gridded/nopuget.gr.in");
-//		paths.add("WUS/gridded/pnwdeep.in");
-//		paths.add("WUS/gridded/portdeep.in");
-//		paths.add("WUS/gridded/puget.ch.in");
-//		paths.add("WUS/gridded/puget.gr.in");
-//		paths.add("WUS/gridded/WUSmap.ch.in");
-//		paths.add("WUS/gridded/WUSmap.gr.in");
-
-//		paths.add("CEUS/gridded/CEUS.2007all8.AB.in");
-//		paths.add("CEUS/gridded/CEUS.2007all8.J.in");
-//		paths.add("CEUS/gridded/CEUSchar.68.in");
-//		paths.add("CEUS/gridded/CEUSchar.71.in");
-//		paths.add("CEUS/gridded/CEUSchar.73.in");
-//		paths.add("CEUS/gridded/CEUSchar.75.in");
-
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "EXTmap.gr.in"));
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "EXTmap.ch.in"));
-//
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "WUSmap.gr.in"));
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "WUSmap.ch.in"));
-		
-//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "CAmap.21.ch.in"));
-//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "CAmap.21.gr.in"));
-
-//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "CAmap.24.ch.in"));
-//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "CAmap.24.gr.in"));
-
-//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "impext.ch.in"));
-//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "impext.gr.in"));
-
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "nopuget.gr.in"));
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "puget.ch.in"));
-
+//		sources.addAll(SourceFileMgr.get(null, GRIDDED));
 		sources.addAll(SourceFileMgr.get(CEUS, GRIDDED, "CEUS.2007all8.AB.in"));
+//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "mojave.in"));
+//		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "sangorg.in"));
+//		sources.addAll(SourceFileMgr.get(CEUS, GRIDDED, "CEUSchar.71.in"));
+//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "EXTmap.ch.in"));
+//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "pnwdeep.in"));
 
-		Location loc = new Location(27.9, -96.2);
-		
-		GridERF gs = null;
 		for (SourceFile sf : sources) {
+
 			GridParser parser = new GridParser(log);
-			parser.parse(sf);
-			log.fine(parser.toString());
-			gs = parser.createGridSource();
-			cfgs.put(sf.toString(), gs);
-//			GridUtils.gridToKML(gs, sf.getName(), Color.ORANGE);
-			
-			System.out.println(gs.getMFD(loc));
-			
+			System.out.println("Building: " + sf);
+			GridERF erf = parser.parse(sf);
+			log.fine(erf.toString());
+			//GridUtils.gridToKML(erf, "Grid_" + sf.getName(), Utils.randomColor(), false);
+//			RegionUtils.regionToKML(erf.getBorder(), "Grid_" + sf.getName(),
+//				Utils.randomColor());
+//			System.out.println(gs.getRegion().getNodeCount());
+//			System.out.println(gs.getRegion().indexForLocation(loc));
+//			System.out.println(gs.getMFD(loc));
+			System.out.println(erf.getMFD(new Location(35.6, -90.4)));
+			System.out.println(erf.getMFD(new Location(35.2, -90.1)));
 		}
 		
-		
-//		int mfdCount = 0;
-//		for (IncrementalMagFreqDist mfd:gs.mfds) {
-//			if (mfd != null) mfdCount++;
-//		}
-//		System.out.println(mfdCount);
-		
-//		System.out.println(gs.mfds.size());
-//		System.out.println(gs.region.getNodeCount());
-//		
-//		int idx = gs.region.indexForLocation(new Location(36.5, -115.5));
-//		System.out.println(gs.region.indexForLocation(new Location(36.5, -115.5)));
-//		System.out.println(gs.region.indexForLocation(new Location(36.6, -115.5)));
-//		System.out.println(gs.region.indexForLocation(new Location(36.7, -115.5)));
-//		System.out.println(gs.mfds.get(idx));
-
-//		69959 265 266 264 1 0
-//		69960 265 266 265 2 -1
-		
-//		System.out.println(69959d/264d);
-//		System.out.println(69960d/264d);
-//
-//		System.out.println(69959 % 266);
-//		System.out.println(69960 % 266);
-
-//		while(true) {
-//			continue;
-//		}
-		
-		
-//		GridConfig gc1 = cfgs.get("brawmap.in");
-//		GridConfig gc2 = cfgs.get("impext.ch.in");
-////		GridConfig gc1 = cfgs.get("EXTmap.ch.in");
-////		GridConfig gc2 = cfgs.get("WUSmap.ch.in");
-//		
-//		System.out.println(gc1);
-//		System.out.println(gc2);
-//		
-//		double[] f1 = readBinaryData(gc1.aGridDat);
-//		double[] f2 = readBinaryData(gc2.aGridDat);
-//		
-//		int count = 0;
-//		for (int i=0; i<f1.length; i++) {
-//			if (f1[i] != 0 && f2[i] != 0)  count += 1;
-//		}
-//		System.out.println("Count: " + count);
-
-		
-//		int[] tmp = new int[70490];
-//		for (int i=0; i<tmp.length; i++) {
-//			tmp[calcIndex(i, 265, 266)] = i;
-////			if (i == 1000) break;
-//		}
-//		System.out.println(Arrays.toString(tmp));
-
 	}
 }

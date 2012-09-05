@@ -3,27 +3,26 @@ package org.opensha.sha.earthquake.rupForecastImpl.nshmp.source;
 import static org.opensha.sha.nshmp.SourceRegion.*;
 import static org.opensha.sha.nshmp.SourceType.*;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.math.util.MathUtils;
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.geo.Location;
-import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.util.Interpolate;
+import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.nshmp.Utils;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Utility for plotting mfds for faults or grid sources or both. Utility assumes
@@ -38,159 +37,241 @@ import com.google.common.collect.Maps;
 public class MFD_Plotter {
 
 	// self consistent set of min, max, delta, and num
-	private static final double M_MIN = 4.8;
-	private static final double M_MAX = 8.0;
+	private static final double M_MIN = 6.2;
+	private static final double M_MAX = 8.2;
 	private static final double M_DELTA = 0.05;
-	private static final int M_NUM = 65;
+	private static final int M_NUM = 41;
+	
+//	private static final double grWt = 0.333;
+//	private static final double chWt = 0.667;
+//	private static String title = "Carson Range-Kings Canyon GR 33% CH 67%";
 
-	public static void main(String[] args) {
-		List<SourceFile> grdSrcs = null;
-		Location loc = null;
-		List<SourceFile> fltSrcs = null;
-		List<String> names = null;
+//	private static final double grWt = 0.667;
+//	private static final double chWt = 0.333;
+//	private static String title = "Carson Range-Kings Canyon GR 67% CH 33%";
+
+
+//	private static final double grWt = 0.5;
+//	private static final double chWt = 0.5;
+//	private static String title = "Carson Range-Kings Canyon GR 50% CH 50%";
+
+	private static ArrayList<PlotCurveCharacterstics> plotChars;
+	private static ArrayList<PlotCurveCharacterstics> plotCharsB;
+	private static List<String> titles;
+	private static List<Double> grWts;
+	private static List<Double> chWts;
+	private static String title = "Carson Range-Kings Canyon";
+	
+	static {
+		// init plot characteristics
+		plotChars = Lists.newArrayList(
+			getLineChar(new Color(0, 174, 239)),
+			getLineChar(new Color(0, 84, 166)),
+			getLineChar(new Color(0, 174, 239)),
+			getLineChar(new Color(247, 148, 29)),
+			getLineChar(new Color(242, 101, 34)),
+			getLineChar(new Color(247, 148, 29)),
+			getLineChar(new Color(230, 20, 100)));
 		
-		// grids
-//		grdSrcs = Lists.newArrayList();
-//		grdSrcs.addAll(SourceFileMgr.get(CA, GRIDDED, "CAmap.24.ch.in"));
-//		grdSrcs.addAll(SourceFileMgr.get(CA, GRIDDED, "CAmap.24.gr.in"));
-//		// grid cell spanning Sierra Madre Connected
-//		loc = new Location(34.2, -118.1);
+		plotCharsB = Lists.newArrayList(
+			getLineChar(new Color(0, 84, 166)),
+			getLineChar(new Color(230, 20, 100)),
+			getLineChar(new Color(242, 101, 34)));
 
-		// faults
-		fltSrcs = Lists.newArrayList();
-		fltSrcs.addAll(SourceFileMgr.get(CA, FAULT, "bFault.ch.in"));
-		fltSrcs.addAll(SourceFileMgr.get(CA, FAULT, "bFault.gr.in"));
-//		fltSrcs.addAll(SourceFileMgr.get(WUS, FAULT, "orwa_n.3dip.gr.in"));
-//		fltSrcs.addAll(SourceFileMgr.get(WUS, FAULT, "orwa_n.3dip.ch.in"));
-		names = Lists.newArrayList();
-		names.add("Sierra Madre Connected");
-//		names.add("856abcdef Steens fault zone");
+		titles = Lists.newArrayList(
+			title + " GR 33% CH 67%",
+			title + " GR 50% CH 50%",
+			title + " GR 67% CH 33%");
+	
+		grWts = Lists.newArrayList(0.333, 0.5, 0.667);
+		chWts = Lists.newArrayList(0.667, 0.5, 0.333);
+	}
+	
+	private static PlotCurveCharacterstics getLineChar(Color c) {
+		return new PlotCurveCharacterstics(PlotLineType.SOLID,2f, c);
+	}
+	
+	public static void main(String[] args) {
+		List<SourceFile> fltSrcs = Lists.newArrayList();
+		fltSrcs.addAll(SourceFileMgr.get(WUS, FAULT, "nv.3dip.gr.in"));
+		fltSrcs.addAll(SourceFileMgr.get(WUS, FAULT, "nv.3dip.ch.in")); 
 
-		plot(grdSrcs, loc, fltSrcs, names);
+//		String name = "1136abcd Pleasant Valley fault zone";
+//		double yMin = 3e-8;
+//		double yMax = 4e-5;
 
+		String name = "1285_1654 Carson Range-Kings Canyon faults";
+		double yMin = 1e-6;
+		double yMax = 1e-3;
+		
+		List<IncrementalMagFreqDist> sums = Lists.newArrayList();
+		
+		for (int i = 0; i < titles.size(); i++) {
+			if (i == 0) {
+				List<IncrementalMagFreqDist> mfds = getMFDs(fltSrcs, name,
+					chWts.get(i), grWts.get(i));
+				IncrementalMagFreqDist sum = sum(mfds);
+				sums.add(sum);
+				mfds.add(sum);
+				plot(mfds, plotChars, titles.get(i), yMin, yMax);
+
+//				for (IncrementalMagFreqDist mfd : mfds)
+//					System.out.println(mfd);
+			}
+		}
+		plot(sums, plotCharsB, title, yMin, yMax);
 	}
 
-	public static void plot(List<SourceFile> grids, Location loc,
-			List<SourceFile> faults, List<String> names) {
-		
+	private static List<IncrementalMagFreqDist> getMFDs(
+			List<SourceFile> srcFiles, String name, double chWt, double grWt) {
+
 		Logger log = NSHMP_Utils.logger();
-		Level level = Level.WARNING;
+		Level level = Level.SEVERE;
 		log.setLevel(level);
 		for (Handler h : NSHMP_Utils.logger().getHandlers()) {
 			h.setLevel(level);
 		}
+		List<IncrementalMagFreqDist> mfds = Lists.newArrayList();
+		for (SourceFile sf : srcFiles) {
 
-		ArrayList<IncrementalMagFreqDist> mfds = Lists.newArrayList();
+			FaultParser parser = new FaultParser(log);
+			FaultERF erf = parser.parse(sf);
 
-		if (grids != null) {
-			for (SourceFile sf : grids) {
-				GridParser parser = new GridParser(log);
-				parser.parse(sf);
-				log.fine(parser.toString());
-				GridERF gs = parser.createGridSource();
-				IncrementalMagFreqDist mfd = gs.getMFD(loc);
-				mfd.scale(sf.getWeight());
-				mfds.add(expandGR(mfd));
-				mfds.add(mfd);
-			}
-		}
-
-		if (faults != null) {
-			for (SourceFile sf : faults) {
-				FaultParser parser = new FaultParser(log);
-				FaultERF erf = parser.parseFault(sf);
-				for (ProbEqkSource source : erf) {
-					if (names.contains(source.getName())) {
-						List<IncrementalMagFreqDist> list = ((FaultSource) source).mfds;
-						mfds.addAll(list);
-						for (IncrementalMagFreqDist mfd : list) {
-							IncrementalMagFreqDist tmpMfd = null;
-							tmpMfd = (mfd instanceof GaussianMagFreqDist)
-								? expandCH((GaussianMagFreqDist) mfd)
-								: expandGR(mfd);
-							tmpMfd.scale(sf.getWeight());
-							mfds.add(tmpMfd);
-						}
-					}
+			List<FaultSource> srcs = Lists.newArrayList();
+			for (FaultSource src : erf.getSources()) {
+				if (src.getName().equals(name)) {
+					srcs.add(src);
+					System.out.println(src);
+					System.out.println(src.trace);
 				}
 			}
+
+			mfds.addAll(merge3dipMFDs(srcs, chWt, grWt));
 		}
-
-		SummedMagFreqDist smfd = new SummedMagFreqDist(M_MIN, M_NUM, M_DELTA);
-		for (IncrementalMagFreqDist mfd : mfds) {
-			smfd.addIncrementalMagFreqDist(mfd);
-		}
-		mfds.add(smfd);
-
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds,
-			"Test MFD PLot");
-		graph.setX_AxisLabel("Magnitude");
-		graph.setY_AxisLabel("Incremental Rate");
-		graph.setYLog(true);
-		graph.setY_AxisRange(1e-6, 1e-2);
-
+		return mfds;
 	}
 
 	/*
-	 * This expands a GR mfd to the set min max for this utility and fills in
-	 * medial values, but does not adjust rate as would normally be done when
-	 * densifying and mfd. THis is done solely do facilitate addition of GR and
-	 * CH curves
+	 * Assumes that multiple fault sources with identically discretized MFDs are
+	 * being passed in.
 	 */
-	private static IncrementalMagFreqDist expandGR(IncrementalMagFreqDist mfd) {
-
-		System.out.println(mfd);
-		
-		Preconditions.checkArgument(mfd.getMinX() >= M_MIN,
-			"Supplied MFD min mag too low [" + mfd.getMinX() + "]");
-		Preconditions.checkArgument(mfd.getMaxX() <= M_MAX,
-			"Supplied MFD max mag too high [" + mfd.getMaxX() + "]");
-		Preconditions.checkArgument((int) (mfd.getDelta() * 10) == 1,
-			"Supplied MFD delta != 0.1 [" + mfd.getDelta() + "]");
-		Preconditions.checkArgument(((int) (mfd.getX(0) * 100)) % 5 == 0,
-			"Supplied MFD not centered on 0.05");
-
-		IncrementalMagFreqDist expanded = new IncrementalMagFreqDist(M_MIN,
-			M_NUM, M_DELTA);
-		expanded.setName(mfd.getName());
-		expanded.setInfo(mfd.getInfo());
-		Point2D prevPt = null;
-		for (Point2D p : mfd) {
-			expanded.set(p);
-			if (prevPt != null) {
-				Point2D newPt = interpolate(prevPt, p);
-				expanded.set(newPt);
+	private static List<IncrementalMagFreqDist> merge3dipMFDs(
+			List<FaultSource> srcs, double chWt, double grWt) {
+		List<IncrementalMagFreqDist> mfds = Lists.newArrayList();
+		boolean first = true;
+		int idx = 0;
+		for (FaultSource src : srcs) {
+			double scale = src.type.equals(FaultType.CH) ? chWt : grWt;
+			for (int i = 0; i < src.mfds.size(); i++) {
+				IncrementalMagFreqDist mfd = toIncr(src.mfds.get(i));
+				mfd.scale(scale);
+				if (first) {
+					String info = buildInfo(src, idx++);
+					mfd.setInfo(info);
+					mfds.add(mfd);
+				} else {
+					Utils.addFunc(mfds.get(i), mfd);
+				}
 			}
-			prevPt = p;
+			first = false;
 		}
-		return expanded;
-	}
-
-	/*
-	 * Adjusts (moves) supplied Gaussion CH distribution values to closest 0.05
-	 * bin.
-	 */
-	private static IncrementalMagFreqDist expandCH(GaussianMagFreqDist mfd) {
-		IncrementalMagFreqDist expanded = new IncrementalMagFreqDist(M_MIN,
-			M_NUM, M_DELTA);
-		expanded.setName(mfd.getName());
-		expanded.setInfo(mfd.getInfo());
-		for (Point2D p : mfd) {
-			double newMag = adjustMag(p.getX());
-			expanded.set(newMag, p.getY());
-		}
-		return expanded;
-	}
-
-	private static double adjustMag(double mag) {
-		int intDelta = (int) (M_DELTA * 100);
-		int intMag = (int) (MathUtils.round(mag, 2) * 100);
-		int mod = intMag % intDelta;
-		int intMagBase = intDelta * (intMag / intDelta);
-		intMagBase = (mod > intDelta/2) ? intMagBase + intDelta : intMagBase;
-		return intMagBase / 100.0;
+		return mfds;
 	}
 	
+	private static String buildInfo(FaultSource src, int idx) {
+		StringBuffer sb = new StringBuffer(src.name);
+		FaultType type = src.type;
+		sb.append(" ").append(src.type.name());
+		String unc = "epi";
+		if (idx == 0) unc += "-";
+		if (idx == 1) unc = "";
+		if (idx == 2) unc += "+";
+		sb.append(" ").append(unc);
+		return sb.toString();
+	}
+
+	private static void plot(List<? extends DiscretizedFunc> mfds,
+			ArrayList<PlotCurveCharacterstics> plotChars, String title,
+			double yMin, double yMax) {
+		ArrayList funcs = Lists.newArrayList();
+		funcs.addAll(mfds);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs,
+				title, plotChars);
+			graph.setX_AxisLabel("Magnitude");
+			graph.setY_AxisLabel("Incremental Rate");
+			graph.setYLog(true);
+			graph.setX_AxisRange(M_MIN, M_MAX);
+			graph.setY_AxisRange(yMin, yMax);
+	}
+
+	
+	private static IncrementalMagFreqDist sum(List<IncrementalMagFreqDist> mfds) {		
+		// convert all mfds to match domain of 'out' and sum
+		SummedMagFreqDist sum = new SummedMagFreqDist(M_MIN, M_NUM, M_DELTA);
+		for (IncrementalMagFreqDist src : mfds) {
+			IncrementalMagFreqDist dest = createTarget();
+			resample(src, dest);
+			sum.addIncrementalMagFreqDist(dest);
+		}
+		return sum;
+	}
+	
+	private static IncrementalMagFreqDist createTarget() {
+		return new IncrementalMagFreqDist(M_MIN, M_NUM, M_DELTA);
+	}
+	
+	/*
+	 * fills out dest with y-values resampled from src
+	 * @param src
+	 * @param dest
+	 */
+	private static void resample(IncrementalMagFreqDist src,
+			IncrementalMagFreqDist dest) {
+
+		// for all points in dest, skip points above and below domain of src
+		// and interpolate others
+		
+		// src mfd points sued as basis for interpolation
+		double[] xSrc = new double[src.getNum()];
+		double[] ySrc = new double[src.getNum()];
+		int idx = 0;
+		for (Point2D p : src) {
+			xSrc[idx] = p.getX();
+			ySrc[idx++] = p.getY();
+		}
+		
+		// iterate dest
+		double min = src.getMinX();
+		double max = src.getMaxX();
+		idx = 0;
+		for (Point2D p : dest) {
+			double x = p.getX();
+			// we've added near-zero values above and below each
+			// mfd so we don't worry about extrapolation
+			if (x < min || x > max) continue;
+			double y = Interpolate.findLogLogY(xSrc, ySrc, x);
+			dest.set(x, y);
+		}
+	}
+		
+	/*
+	 * Rewrites an IncrMFD. Needed to convert signature of GaussMFDs which can
+	 * not be added
+	 */
+	private static IncrementalMagFreqDist toIncr(IncrementalMagFreqDist in) {
+		double delta = in.getDelta();
+		double min = in.getMinX() - delta;
+		double max = in.getMaxX() + delta;
+		int num = in.getNum() + 2;
+		IncrementalMagFreqDist out = new IncrementalMagFreqDist(min, max, num);
+		out.set(0, 1e-30);
+		out.set(num-1, 1e-30);
+		for (Point2D p : in) {
+			out.set(p);
+		}
+		return out;
+	}
+
 	/*
 	 * Returns the midpoint between two points.
 	 */

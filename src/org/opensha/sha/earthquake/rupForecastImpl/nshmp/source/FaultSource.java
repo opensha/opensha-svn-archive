@@ -18,7 +18,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
 import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -27,9 +26,12 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.collect.Lists;
 
 /**
- * Each fault source wraps one or more FloatingPoissonFaultSources.
- * 
+ * This class is used to represent all fault sources in the 2008 NSHMP. Each
+ * {@code FaultSource} wraps one or more {@code FloatingPoissonFaultSource}s.
  * There is a 1 to 1 mapping of mfds to wrapped sources.
+ * 
+ * <p>A fault source can not be created directly; it may only be created by
+ * a private parser.</p>
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -54,14 +56,16 @@ public class FaultSource extends ProbEqkSource {
 
 	int size = 0;
 	// TODO this should not be using abstract impl
-	AbstractEvenlyGriddedSurfaceWithSubsets surface;
+	StirlingGriddedSurface surface;
 
 	List<FloatingPoissonFaultSource> sources;
-	List<Integer> rupCount;
+	List<Integer> rupCount; // cumulative index list for iterating ruptures
 
-	// package private constructor
 	FaultSource() {}
 
+	/**
+	 * Initialize intrnal fault sources.
+	 */
 	public void init() {
 		// init fault surface
 		double lowerSeis = top + width * Math.sin(dip * GeoTools.TO_RAD);
@@ -70,16 +74,19 @@ public class FaultSource extends ProbEqkSource {
 		if (mfds.size() == 0) return;
 		sources = Lists.newArrayList();
 		rupCount = Lists.newArrayList();
+		rupCount.add(0);
+		size = 0;
 		MagScalingRelationship msr = ((file.getType() == FAULT) &&
 			(file.getRegion() == CA) && floats) ? CAFmsr : WCLmsr;
 		FloatingPoissonFaultSource source;
 		for (IncrementalMagFreqDist mfd : mfds) {
-			source = new FloatingPoissonFaultSource(mfd, // IncrementalMagFreqDist
+			source = new FloatingPoissonFaultSource(
+				mfd, // IncrementalMagFreqDist
 				surface, // EvenlyGriddedSurface
 				msr, // MagScalingRelationship
 				0d, // sigma of the mag-scaling relationship
 				1d, // floating rupture aspect ratio (length/width)
-				5d, // floating rupture offset
+				1d, // floating rupture offset
 				mech.rake(), // average rake of the ruptures
 				1d, // duration of forecast
 				0d, // minimum mag considered
@@ -94,7 +101,7 @@ public class FaultSource extends ProbEqkSource {
 
 	@Override
 	public LocationList getAllSourceLocs() {
-		return null; //surface.getLocationList();
+		return surface.getEvenlyDiscritizedListOfLocsOnSurface();
 	}
 
 	@Override
@@ -117,20 +124,38 @@ public class FaultSource extends ProbEqkSource {
 	@Override
 	public ProbEqkRupture getRupture(int idx) {
 		if (getNumRuptures() == 0) return null;
+		// zero is built in to rupCount array; unless a negative idx is
+		// supplied, if statement below should never be entered on first i
 		for (int i = 0; i < rupCount.size(); i++) {
-			int count = rupCount.get(i);
-			if (idx < count) return sources.get(i).getRupture(idx - count);
+			if (idx < rupCount.get(i)) {
+				return sources.get(i-1).getRupture(idx - rupCount.get(i-1));
+			}
 		}
 		return null; // shouldn't get here
+	}
+	
+	/*
+	 * Overriden due to uncertainty on how getRuptureList() is constructed in
+	 * parent. Looks clucky and uses cloning which can be error prone if
+	 * implemented incorrectly. Was building custom NSHMP calculator
+	 * using enhanced for-loops and was losing class information when iterating
+	 * over sources and ruptures.
+	 */
+	@Override
+	public List<ProbEqkRupture> getRuptureList() {
+		throw new UnsupportedOperationException(
+			"A FaultSource does not allow access to the list "
+				+ "of all possible sources.");
 	}
 
 	@Override
 	public Iterator<ProbEqkRupture> iterator() {
 		// @formatter:off
 		return new Iterator<ProbEqkRupture>() {
+			int size = getNumRuptures();
 			int caret = 0;
 			@Override public boolean hasNext() {
-				return (caret < size) ? true : false;
+				return caret < size;
 			}
 			@Override public ProbEqkRupture next() {
 				return getRupture(caret++);
@@ -151,7 +176,7 @@ public class FaultSource extends ProbEqkSource {
 	public String toString() {
 		// @formatter:off
 		return new StringBuilder()
-		.append("=============  Source  =============")
+		.append("==========  Fault Source  ==========")
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("   Fault name: ").append(name)
 		.append(IOUtils.LINE_SEPARATOR)
@@ -177,6 +202,15 @@ public class FaultSource extends ProbEqkSource {
 	static {
 		WCLmsr = new WC1994_MagLengthRelationship();
 		CAFmsr = new CA_MagAreaRelationship();
+	}
+	
+	/**
+	 * Returns the list of magnitude frequency distributions that this source
+	 * represents
+	 * @return the source MFD's
+	 */
+	public List<IncrementalMagFreqDist> getMFDs() {
+		return mfds;
 	}
 
 }

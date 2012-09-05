@@ -11,35 +11,37 @@ import org.opensha.sha.nshmp.SourceType;
 import com.google.common.collect.Lists;
 
 /**
- * The ERF for NHSMP subduction (Cascadia) sources.
+ * The ERF for NHSMP cluster (New Madrid seismic zone) sources.
  * 
  * @author Peter Powers
  * @version $Id:$
  */
-public class SubductionERF extends NSHMP_ERF {
+public class ClusterERF extends NSHMP_ERF {
 
 	private String name;
-	private List<SubductionSource> sources;
+	private List<ClusterSource> sources;
 	private List<ProbEqkSource> sourcesAsEqs;
 	private SourceRegion srcRegion;
 	private SourceIMR srcIMR;
 	private double weight;
 	private double maxR;
 
-	SubductionERF(String name, List<SubductionSource> sources,
-		SourceRegion srcRegion, SourceIMR srcIMR, double weight, double maxR) {
+	ClusterERF(String name, List<ClusterSource> sources, SourceRegion srcRegion,
+		SourceIMR srcIMR, double weight, double maxR) {
 		this.name = name;
 		this.sources = sources;
 		this.srcRegion = srcRegion;
 		this.srcIMR = srcIMR;
 		this.weight = weight;
 		this.maxR = maxR;
+		
 
-		// nshmp defaults
+		// nshmp defaults TODO move to NSHMP_ERF
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(1);
 		timeSpan.addParameterChangeListener(this);
 	}
+
 
 	@Override
 	public int getNumSources() {
@@ -56,6 +58,14 @@ public class SubductionERF extends NSHMP_ERF {
 		}
 		return sourcesAsEqs;
 	}
+	
+	/**
+	 * Convenience method to return a source list characterized as
+	 * <code>ClusterSource</code>s rather than <code>ProbEqkSource</code>s.
+	 * @return the list of <code>ClusterSource</code>s.
+	 * @see #getSourceList()
+	 */
+	public List<ClusterSource> getSources() { return sources; } 
 
 	@Override
 	public ProbEqkSource getSource(int idx) {
@@ -64,24 +74,21 @@ public class SubductionERF extends NSHMP_ERF {
 
 	@Override
 	public void updateForecast() {
-		int count = 0;
-		for (FaultSource source : sources) {
+		for (ClusterSource source : sources) {
 			source.init();
-			count += source.getNumRuptures();
 		}
-//		System.out.println("Update forecast: " + getName() + " " + getNumSources() + " " + count);
 	}
 
 	@Override
 	public String getName() {
 		return name;
 	}
-
+	
 	@Override
 	public int getRuptureCount() {
 		int count = 0;
-		for (FaultSource source : sources) {
-			count += source.getNumRuptures();
+		for (ClusterSource cs : sources) {
+			count += cs.getNumRuptures();
 		}
 		return count;
 	}
@@ -93,7 +100,7 @@ public class SubductionERF extends NSHMP_ERF {
 
 	@Override
 	public SourceType getSourceType() {
-		return SourceType.SUBDUCTION;
+		return SourceType.CLUSTER;
 	}
 
 	@Override
@@ -111,4 +118,17 @@ public class SubductionERF extends NSHMP_ERF {
 		return maxR;
 	}
 	
+	// in calculator
+	// each cluster ERF is composed of 5 cluster sources
+	//		- weighted fault models
+	// get each source (cluster)
+	//		for each source
+	//			calc PE looping and weighting
+	//				gmpe	weighted in grouped gmpe
+	//				M		rate already weighted when mfd created but not used
+	//						until after cluster algorithm; rate used to extract
+	//						magnitude weight from mfd 
+	//				
+	
+
 }

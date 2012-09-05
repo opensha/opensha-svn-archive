@@ -18,13 +18,13 @@
 
 package org.opensha.sha.earthquake.rupForecastImpl.nshmp.source;
 
-import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 
 /*
  * This is an implementation of the GeoMatrix mag length scaling relation
  * that is used for Cascadia sources
  */
-class GeoMat_MagLenthRelationship extends MagAreaRelationship {
+class GeoMat_MagLenthRelationship extends MagLengthRelationship {
 
 	private final static String NAME = "NSHMP CA Mag-Area Relation";
 
@@ -43,12 +43,12 @@ class GeoMat_MagLenthRelationship extends MagAreaRelationship {
 	}
 
 	@Override
-	public double getMedianArea(double mag) {
+	public double getMedianLength(double mag) {
         return Math.pow(10.0, (mag - 4.94) / 1.39);
 	}
 
 	@Override
-	public double getAreaStdDev() {
+	public double getLengthStdDev() {
 		throw new UnsupportedOperationException();
 	}
 

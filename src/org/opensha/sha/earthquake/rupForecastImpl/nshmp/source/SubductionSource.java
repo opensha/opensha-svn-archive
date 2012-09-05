@@ -1,27 +1,17 @@
 package org.opensha.sha.earthquake.rupForecastImpl.nshmp.source;
 
-import static org.opensha.sha.nshmp.SourceType.*;
-import static org.opensha.sha.nshmp.SourceRegion.*;
-
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FaultType;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.FocalMech;
-import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.ApproxEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.collect.Lists;
@@ -47,13 +37,16 @@ public class SubductionSource extends FaultSource {
 	// package private constructor
 	SubductionSource() {}
 
+	@Override
 	public void init() {
 		// init fault surface
-		surface = new ApproxEvenlyGriddedSurface(trace, lowerTrace, 11.0);
+		surface = new ApproxEvenlyGriddedSurface(trace, lowerTrace, 5.0);
 		// create a floating poisson source for each mfd
 		if (mfds.size() == 0) return;
 		sources = Lists.newArrayList();
 		rupCount = Lists.newArrayList();
+		rupCount.add(0);
+		size = 0;
 		FloatingPoissonFaultSource source;
 		for (IncrementalMagFreqDist mfd : mfds) {
 			source = new FloatingPoissonFaultSource(mfd, // IncrementalMagFreqDist
@@ -76,7 +69,7 @@ public class SubductionSource extends FaultSource {
 
 	@Override
 	public LocationList getAllSourceLocs() {
-		return null; //surface.getLocationList();
+		return surface.getEvenlyDiscritizedListOfLocsOnSurface();
 	}
 
 	@Override
@@ -99,11 +92,15 @@ public class SubductionSource extends FaultSource {
 	@Override
 	public ProbEqkRupture getRupture(int idx) {
 		if (getNumRuptures() == 0) return null;
+		// zero is built in to rupCount array; unless a negative idx is
+		// supplied, if statement below should never be entered on first i
 		for (int i = 0; i < rupCount.size(); i++) {
-			int count = rupCount.get(i);
-			if (idx < count) return sources.get(i).getRupture(idx - count);
+			if (idx < rupCount.get(i)) {
+				return sources.get(i-1).getRupture(idx - rupCount.get(i-1));
+			}
 		}
 		return null; // shouldn't get here
+
 	}
 
 	@Override
