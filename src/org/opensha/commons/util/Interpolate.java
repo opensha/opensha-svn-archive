@@ -1,4 +1,4 @@
-package org.opensha.sra.rtgm;
+package org.opensha.commons.util;
 
 import java.util.Arrays;
 

@@ -1,7 +1,7 @@
-package org.opensha.sra.rtgm;
+package org.opensha.commons.util;
 
 import static org.junit.Assert.*;
-import static org.opensha.sra.rtgm.Interpolate.*;
+import static org.opensha.commons.util.Interpolate.*;
 
 import java.util.Arrays;
 

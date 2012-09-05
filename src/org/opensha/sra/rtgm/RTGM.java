@@ -14,6 +14,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.DataUtils;
+import org.opensha.commons.util.Interpolate;
 import org.opensha.commons.util.DataUtils.Direction;
 
 import com.google.common.collect.Lists;

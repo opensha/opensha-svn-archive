@@ -29,7 +29,8 @@ import org.opensha.commons.util.binFile.GeolocatedBinaryMesh2DTest;
 	DataUtilsTest.class,
 	FaultUtilsTests.class,
 	BinaryMesh2DTest.class,
-	GeolocatedBinaryMesh2DTest.class
+	GeolocatedBinaryMesh2DTest.class,
+	InterpolateTests.class
 })
 
 
