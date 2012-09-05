@@ -22,6 +22,7 @@ package org.opensha.sha.earthquake;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.geo.LocationList;
@@ -85,7 +86,7 @@ public interface EqkSource extends Named, Serializable {
    *
    * @return ArrayList consisting of
    */
-  public ArrayList<ProbEqkRupture> getRuptureList();
+  public List<ProbEqkRupture> getRuptureList();
 
   /**
    * It returns a list of all the locations which make up the surface for this

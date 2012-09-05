@@ -21,6 +21,7 @@ package org.opensha.sha.earthquake;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
@@ -169,7 +170,7 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 	 *
 	 * @return ArrayList consisting of the rupture clones
 	 */
-	public ArrayList<ProbEqkRupture> getRuptureList() {
+	public List<ProbEqkRupture> getRuptureList() {
 		ArrayList<ProbEqkRupture> v= new ArrayList<ProbEqkRupture>();
 		for(int i=0; i<getNumRuptures();i++)
 			v.add(getRuptureClone(i));

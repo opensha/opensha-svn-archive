@@ -2,6 +2,7 @@ package scratch.marco;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.Site;
@@ -96,7 +97,7 @@ public class Fhcc {
 				imr.setSite(siteArr.get(siteIdx));
 			
 				// Rupture list for the current source
-				ArrayList<ProbEqkRupture> rupList = source.getRuptureList();
+				List<ProbEqkRupture> rupList = source.getRuptureList();
 				
 				// Create an arbitrarily discretized func to calculate the 
 				ArbitrarilyDiscretizedFunc srcHazFun = new ArbitrarilyDiscretizedFunc();
