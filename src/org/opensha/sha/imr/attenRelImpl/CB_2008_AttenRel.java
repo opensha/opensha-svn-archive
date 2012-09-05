@@ -117,9 +117,9 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 	private static final long serialVersionUID = 1234567890987654358L;
 	public final static String NAME = "Campbell & Bozorgnia (2008)";
 
-	double s_lnAF = 0.3;
-	double n = 1.18;
-	double c = 1.88;
+	public final static double s_lnAF = 0.3;
+	public final static double n = 1.18;
+	public final static double c = 1.88;
 
 	private HashMap indexFromPerHashMap;
 
