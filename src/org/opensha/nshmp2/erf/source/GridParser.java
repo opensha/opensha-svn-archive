@@ -5,8 +5,8 @@ import static org.opensha.nshmp2.util.FaultCode.*;
 import static org.opensha.nshmp2.util.FocalMech.*;
 import static org.opensha.nshmp2.util.NSHMP_Utils.*;
 import static org.opensha.nshmp2.util.RateType.*;
-import static org.opensha.sha.nshmp.SourceRegion.*;
-import static org.opensha.sha.nshmp.SourceType.*;
+import static org.opensha.nshmp2.util.SourceRegion.*;
+import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,11 +28,11 @@ import org.opensha.nshmp2.util.FaultCode;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.nshmp2.util.RateType;
+import org.opensha.nshmp2.util.SourceIMR;
+import org.opensha.nshmp2.util.SourceRegion;
+import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.nshmp.SourceIMR;
-import org.opensha.sha.nshmp.SourceRegion;
-import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;

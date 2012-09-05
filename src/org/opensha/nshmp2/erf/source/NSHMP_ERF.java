@@ -1,9 +1,9 @@
 package org.opensha.nshmp2.erf.source;
 
+import org.opensha.nshmp2.util.SourceIMR;
+import org.opensha.nshmp2.util.SourceRegion;
+import org.opensha.nshmp2.util.SourceType;
 import org.opensha.sha.earthquake.AbstractERF;
-import org.opensha.sha.nshmp.SourceIMR;
-import org.opensha.sha.nshmp.SourceRegion;
-import org.opensha.sha.nshmp.SourceType;
 
 /**
  * Parent class for NSHMP ERFs that supplies 

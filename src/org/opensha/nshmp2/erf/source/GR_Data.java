@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opensha.sha.nshmp.SourceType;
+import org.opensha.nshmp2.util.SourceType;
 
 /*
  * Wrapper for Gutenberg-Richter MFD data; handles all validation and NSHMP

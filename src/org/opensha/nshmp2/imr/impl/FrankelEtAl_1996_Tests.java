@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.nshmp2.imr.impl.FrankelEtAl_1996_AttenRel.GM_Table;
-import org.opensha.sha.nshmp.Utils;
+import org.opensha.nshmp2.util.Utils;
 
 /**
  * Add comments here

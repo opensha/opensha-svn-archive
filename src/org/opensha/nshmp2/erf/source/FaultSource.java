@@ -1,7 +1,7 @@
 package org.opensha.nshmp2.erf.source;
 
-import static org.opensha.sha.nshmp.SourceType.*;
-import static org.opensha.sha.nshmp.SourceRegion.*;
+import static org.opensha.nshmp2.util.SourceRegion.*;
+import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.util.Iterator;
 import java.util.List;

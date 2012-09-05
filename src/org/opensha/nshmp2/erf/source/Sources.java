@@ -1,6 +1,6 @@
 package org.opensha.nshmp2.erf.source;
 
-import static org.opensha.sha.nshmp.SourceType.*;
+import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.util.List;
 import java.util.logging.Handler;
@@ -8,8 +8,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.opensha.nshmp2.util.NSHMP_Utils;
-import org.opensha.sha.nshmp.SourceRegion;
-import org.opensha.sha.nshmp.SourceType;
+import org.opensha.nshmp2.util.SourceRegion;
+import org.opensha.nshmp2.util.SourceType;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;

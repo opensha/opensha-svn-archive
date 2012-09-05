@@ -1,8 +1,8 @@
 package org.opensha.nshmp2.erf.source;
 
 import static org.opensha.nshmp2.util.FaultCode.*;
-import static org.opensha.sha.nshmp.SourceRegion.CEUS;
-import static org.opensha.sha.nshmp.SourceType.GRIDDED;
+import static org.opensha.nshmp2.util.SourceRegion.CEUS;
+import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
 import java.util.Iterator;
 import java.util.List;
@@ -22,11 +22,11 @@ import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.util.FaultCode;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.nshmp2.util.NSHMP_Utils;
+import org.opensha.nshmp2.util.SourceIMR;
+import org.opensha.nshmp2.util.SourceRegion;
+import org.opensha.nshmp2.util.SourceType;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.nshmp.SourceIMR;
-import org.opensha.sha.nshmp.SourceRegion;
-import org.opensha.sha.nshmp.SourceType;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

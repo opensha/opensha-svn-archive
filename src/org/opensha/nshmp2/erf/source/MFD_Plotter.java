@@ -1,7 +1,7 @@
 package org.opensha.nshmp2.erf.source;
 
-import static org.opensha.sha.nshmp.SourceRegion.*;
-import static org.opensha.sha.nshmp.SourceType.*;
+import static org.opensha.nshmp2.util.SourceRegion.*;
+import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
@@ -16,11 +16,11 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.Interpolate;
 import org.opensha.nshmp2.util.FaultType;
 import org.opensha.nshmp2.util.NSHMP_Utils;
+import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
-import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Lists;
 

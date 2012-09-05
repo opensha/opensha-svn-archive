@@ -1,7 +1,7 @@
 package org.opensha.nshmp2.erf.source;
 
-import static org.opensha.sha.nshmp.SourceRegion.*;
-import static org.opensha.sha.nshmp.SourceType.*;
+import static org.opensha.nshmp2.util.SourceRegion.*;
+import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.io.File;
 import java.util.Collection;
@@ -13,8 +13,8 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensha.sha.nshmp.SourceRegion;
-import org.opensha.sha.nshmp.SourceType;
+import org.opensha.nshmp2.util.SourceRegion;
+import org.opensha.nshmp2.util.SourceType;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;

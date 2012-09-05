@@ -1,9 +1,9 @@
 package org.opensha.nshmp2.imr.impl;
 
 import static org.opensha.nshmp2.util.FaultCode.*;
-import static org.opensha.sha.nshmp.SiteType.*;
+import static org.opensha.nshmp2.util.GaussTruncation.*;
+import static org.opensha.nshmp2.util.SiteType.*;
 import static org.opensha.commons.eq.cat.util.MagnitudeType.*;
-import static org.opensha.sha.nshmp.GaussTruncation.*;
 
 import java.awt.geom.Point2D;
 import java.net.MalformedURLException;
@@ -26,6 +26,10 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.nshmp2.util.FaultCode;
+import org.opensha.nshmp2.util.Params;
+import org.opensha.nshmp2.util.SiteType;
+import org.opensha.nshmp2.util.SiteTypeParam;
+import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
@@ -35,10 +39,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
-import org.opensha.sha.nshmp.Params;
-import org.opensha.sha.nshmp.SiteType;
-import org.opensha.sha.nshmp.SiteTypeParam;
-import org.opensha.sha.nshmp.Utils;
 
 import com.google.common.collect.Maps;
 

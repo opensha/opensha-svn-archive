@@ -1,6 +1,6 @@
 package org.opensha.nshmp2.imr.impl;
 
-import static org.opensha.sha.nshmp.Utils.SQRT_2;
+import static org.opensha.nshmp2.util.Utils.SQRT_2;
 import static org.opensha.sha.util.TectonicRegionType.*;
 
 import java.net.MalformedURLException;
@@ -17,6 +17,8 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.EnumParameter;
+import org.opensha.nshmp2.util.Params;
+import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.PropagationEffect;
@@ -28,8 +30,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.nshmp.Params;
-import org.opensha.sha.nshmp.Utils;
 import org.opensha.sha.util.TectonicRegionType;
 
 import com.google.common.collect.Maps;

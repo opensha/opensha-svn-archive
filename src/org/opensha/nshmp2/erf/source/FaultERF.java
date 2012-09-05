@@ -3,10 +3,10 @@ package org.opensha.nshmp2.erf.source;
 import java.util.List;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.nshmp2.util.SourceIMR;
+import org.opensha.nshmp2.util.SourceRegion;
+import org.opensha.nshmp2.util.SourceType;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.nshmp.SourceIMR;
-import org.opensha.sha.nshmp.SourceRegion;
-import org.opensha.sha.nshmp.SourceType;
 
 import com.google.common.collect.Lists;
 

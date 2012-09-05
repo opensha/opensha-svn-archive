@@ -4,8 +4,8 @@ import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math.util.MathUtils;
-import org.opensha.sha.nshmp.SourceRegion;
-import org.opensha.sha.nshmp.SourceType;
+import org.opensha.nshmp2.util.SourceRegion;
+import org.opensha.nshmp2.util.SourceType;
 
 /**
  * Wrapper for NSHMP source files
