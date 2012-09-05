@@ -45,6 +45,14 @@ public class ArbIncrementalMagFreqDist
     super(min, max, num);
   }
 
+  public ArbIncrementalMagFreqDist(double min,int num,double delta) throws
+  XY_DataSetException, InvalidRangeException {
+super(min, num, delta);
+}
+
+  
+  
+  
 
   /**
    * This sets each mag & rate value here according to the function passed in.  Each x-axis value of

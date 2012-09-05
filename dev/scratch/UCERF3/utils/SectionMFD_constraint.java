@@ -2,6 +2,7 @@ package scratch.UCERF3.utils;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -9,8 +10,10 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -97,6 +100,8 @@ public class SectionMFD_constraint {
 //	}
 	
 	
+	
+	
 	/**
 	 * This makes the MFD nucleation constraint for the specified subSectIndex from the given
 	 * fault system solution (typically the UCERF2 mapped fault system solution).  The min 
@@ -164,6 +169,106 @@ public class SectionMFD_constraint {
 		targetMFD.setInfo("(mags and rates from fault system solution)");
 		for(int r=0;r<rupNuclRates.size();r++) {
 			targetMFD.addResampledMagRate(rupMags.get(r), rupNuclRates.get(r), true);
+		}
+
+		// get cumulative dist
+		targetCumMFD = targetMFD.getCumRateDistWithOffset();
+		targetCumMFD.setName("Cumulative Target MFD");
+		targetCumMFD.setInfo("(mags and cumulative rates from fault system solution)");
+
+
+		// scale incremental target to be a density distribution (so it can be compared with the other)
+		targetMFD.scale(1.0/targetMFD.getDelta());
+
+	}
+	
+	
+	
+	/**
+	 * This makes the MFD nucleation constraint for the specified subSectIndex from the given
+	 * fault system solution (typically the UCERF2 mapped fault system solution).  This makes
+	 * sure that all subsections of a given parent will have the exact same nucleation MFD. The
+	 * maximum magnitude bin is set from the mags of the passed in FaultSystemSolution (which 
+	 * probably uses a different mag-scaling relationship than what's being applied in an inversion).
+	 * 
+	 * Note that bins here can have zero rates because:
+	 * 1) mimMag is below the minimum floater magnitude in UCERF2 (occurs on all sections)
+	 * 2) largest non-zero rate mag in UCERF2 is less than the maximum mag of the fault system solution (occurs on all sections)
+	 * 3) bin widths can be less than 0.1, and therefore can fall between the discrete floater mags in UCERF2 (occurs on one section)
+	 * 4) for Superstition Mountain and Borrego, the full-fault rupture in UCERF2 is greater than the floater Mmax because the
+	 * fault forks and different branches were handled separately for floaters.  (occurs on two section)
+	 * 
+	 * @param minMag 
+	 * @param fltSysSol
+	 * @param subSectIndex
+	 */
+
+	public SectionMFD_constraint(double minMag, FaultSystemSolution fltSysSol, int subSectIndex) {
+		this.origMinMag=minMag;
+		this.maxMag=0; // computed below
+		
+		ArrayList<Integer> allSubsectIndicesForParent = new ArrayList<Integer>();
+		List<FaultSectionPrefData> sectDataList = fltSysSol.getFaultSectionDataList();
+		int parIndex = sectDataList.get(subSectIndex).getParentSectionId();
+		double totParSectArea = 0;
+		for(FaultSectionPrefData sectData : sectDataList) {
+			if(sectData.getParentSectionId() == parIndex) {
+				allSubsectIndicesForParent.add(sectData.getSectionId());
+				totParSectArea += sectData.getReducedDownDipWidth()*sectData.getTraceLength();
+				double mMax = fltSysSol.getMaxMagForSection(sectData.getSectionId());
+				if(maxMag<mMax) maxMag=mMax;
+			}
+		}
+
+		makeMagBinArrays();
+		if(D)  testMagBinArrays();
+		rates = new double[mags.size()];
+		
+		// these only used for making the target MFD
+		ArrayList<Double> rupMags = new ArrayList<Double>();
+		ArrayList<Double> rupNuclRates = new ArrayList<Double>();
+
+		for(int sthSubSectIndex:allSubsectIndicesForParent) {
+			for (int r : fltSysSol.getRupturesForSection(sthSubSectIndex)) {
+				double rate = fltSysSol.getRateForRup(r);
+				if(rate>0) {
+					double rupNuclRate = rate*fltSysSol.getAreaForSection(subSectIndex)/fltSysSol.getAreaForRup(r);
+					double mag = fltSysSol.getMagForRup(r);
+					rupMags.add(mag);
+					rupNuclRates.add(rupNuclRate);
+					for(int i=0;i<mags.size();i++) {	// loop over mag bins
+						if(isMagInBin(mag, i))	// check if it's in this bin
+							rates[i] += rupNuclRate;
+					}
+				}
+			}
+		}
+	
+		// weight rates by fractional area
+//		double fractionalRate = fltSysSol.getAreaForSection(subSectIndex)/(totParSectArea*1e6);	// convert latter to m-sq
+
+		// weight rates equally on all subsections
+		double fractionalRate = 1.0/allSubsectIndicesForParent.size();
+		for(int i=0;i<rates.length;i++)
+			rates[i] = rates[i]*fractionalRate;
+		
+		// check to make sure each bin has a non-zero rate
+//		for(int i=0;i<rates.length;i++) {	// loop over mag bins
+//			if(rates[i] <=0 )
+//				throw new RuntimeException("Non-zero rate at bin # "+i+";\tmag="+mags.get(i)+"\tsectIndex="+subSectIndex);
+//		}
+		
+		// now make target MFDs
+		double targetDelta = 0.01;
+		double magRange = magEdges.get(magEdges.size()-1)-magEdges.get(0);	// includes bin widths
+		int numPts = (int)Math.round(magRange/targetDelta);
+		double delta = magRange/numPts;
+		double distMinMag = magEdges.get(0)+delta/2;
+		targetMFD = new SummedMagFreqDist(distMinMag, numPts, delta);
+		targetMFD.setName("Target MFD");
+		targetMFD.setInfo("(mags and rates from fault system solution)");
+		for(int r=0;r<rupNuclRates.size();r++) {
+			targetMFD.addResampledMagRate(rupMags.get(r), rupNuclRates.get(r)*fractionalRate, true);
 		}
 
 		// get cumulative dist
@@ -353,7 +458,7 @@ public class SectionMFD_constraint {
 	 */
 	private void makeMagBinArrays() {
 		
-		if(maxMag<origMinMag) {
+		if(maxMag<origMinMag-0.00001) {	// add small amount to avoid numerical precision problems for what is the same mag
 			throw new RuntimeException("minMag must be less than maxMag); origMinMag="+origMinMag+"\tmaxmag="+maxMag);
 		}
 		
@@ -487,6 +592,48 @@ public class SectionMFD_constraint {
 	
 	
 	/**
+	 * This resamples the MFD constraint to an evenly discretized MFD treating each bin as a boxcar of rates.
+	 */
+	public ArbIncrementalMagFreqDist getResampledToEventlyDiscrMFD(double minMag, int numMag, double deltaMag) {
+		ArbitrarilyDiscretizedFunc cumFunc = getCumMFD();
+		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, numMag, deltaMag);
+		for(int i=0;i<mfd.getNum();i++) {
+			double magBinLower = mfd.getX(i) - deltaMag/2.0;
+			double magBinUpper = mfd.getX(i) + deltaMag/2.0;
+			double rateLower, rateUpper;
+			
+			if(magBinLower<=cumFunc.getX(0))
+				rateLower = cumFunc.getY(0);
+			else if(magBinLower>cumFunc.getX(cumFunc.getNum()-1))
+				rateLower = 0;
+			else
+				rateLower = cumFunc.getInterpolatedY_inLogYDomain(magBinLower);
+			
+			if(magBinUpper<=cumFunc.getX(0))
+				rateUpper = cumFunc.getY(0);
+			else if(magBinUpper>cumFunc.getX(cumFunc.getNum()-1))
+				rateUpper = 0;
+			else
+				rateUpper = cumFunc.getInterpolatedY_inLogYDomain(magBinUpper);
+			
+			mfd.set(i,rateLower-rateUpper);
+		}
+		
+//		ArrayList<AbstractDiscretizedFunc> funcs = new ArrayList<AbstractDiscretizedFunc>();
+//		funcs.add(cumFunc);
+//		funcs.add(mfd.getCumRateDistWithOffset());
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Test MFDs"); 
+//		graph.setX_AxisLabel("Mangitude");
+//		graph.setY_AxisLabel("Rate (per year)");
+//		graph.setYLog(true);
+
+		
+		return mfd;
+	}
+
+	
+	
+	/**
 	 * This returns a representation of the MFD that plots well
 	 * (by splitting internal bin edges to make each bin and actual
 	 * boxcar rather than straight lines between bin centers).  This
@@ -582,6 +729,7 @@ public class SectionMFD_constraint {
 		int sectIndex = 1159; // "San Andreas (Mojave S), Subsection 0"
 		SectionMFD_constraint test = new SectionMFD_constraint(testFltSysSol,1159);
 		test.plotMFDs();
+		test.getResampledToEventlyDiscrMFD(0.05, 100, 0.1);
 		
 		
 		

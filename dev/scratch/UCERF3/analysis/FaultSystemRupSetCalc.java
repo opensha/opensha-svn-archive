@@ -1987,7 +1987,12 @@ public class FaultSystemRupSetCalc {
 	}
 
 
-	
+	/**
+	 * This gets a list of SectionMFD_constraint objects (one for each sub-section in InversionFaultSystemRupSet).
+	 * Note that some bins will have zero rates on fault sections that were type A in UCERF2.
+	 * @param fltSystRupSet
+	 * @return
+	 */
 	public static ArrayList<SectionMFD_constraint> getCharInversionSectMFD_Constraints(InversionFaultSystemRupSet fltSystRupSet) {
 		
 		double fractGR = 0.33333;
@@ -2011,10 +2016,9 @@ public class FaultSystemRupSetCalc {
 			
 			// check that subsection names are the same
 			String name1 = fltSystRupSet.getFaultSectionData(s).getSectionName();
-			String name2 = fltSystRupSet.getFaultSectionData(s).getSectionName();
+			String name2 = UCERF2_FltSysSol.getFaultSectionData(s).getSectionName();
 			if(!name1.equals(name2)) {
-				throw new RuntimeException("Problem - method currenly only works for UCERF2 deformation models"+
-						" because we don't yet have a subsection mapping for other deformation models");
+				throw new RuntimeException("Problem - names differ");
 			}
 			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
 			if(data.getParentSectionId() != lastParentIndex) {
@@ -2036,15 +2040,12 @@ public class FaultSystemRupSetCalc {
 			totalArea += data.getReducedDownDipWidth()*length;	// km-sq
 			totalLength += length;	// km
 			lastParentIndex = data.getParentSectionId();
-
 		}
 		// add the last one
 		numSectMap.put(lastParentIndex, numSubSec);
 		moRateMap.put(lastParentIndex, totalMomentRate);
 		totAreaMap.put(lastParentIndex, totalArea);
 		totLengthMap.put(lastParentIndex, totalLength);
-
-		
 		
 //		for(int parSectIndex : numSectMap.keySet())
 //			System.out.println(numSectMap.get(parSectIndex)+"\t"+moRateMap.get(parSectIndex));
@@ -2053,30 +2054,58 @@ public class FaultSystemRupSetCalc {
 //		SectionMFD_constraint test = new SectionMFD_constraint(UCERF2_FltSysSol, 76);
 //		test.plotMFDs();
 		
+		ScalingRelationships scalingRel = fltSystRupSet.getLogicTreeBranch().getValue(ScalingRelationships.class);
+		
 		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
 			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
 			
 //			System.out.println(s+"\t"+data.getSectionName());
+			
+			double minMag = fltSystRupSet.getFinalMinMagForSection(s);
 
 			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
 				 int ucerf2_equivIndex = s;
-				 mfdConstraintList.add(new SectionMFD_constraint(UCERF2_FltSysSol, ucerf2_equivIndex));
-
+				 mfdConstraintList.add(new SectionMFD_constraint(minMag, UCERF2_FltSysSol, ucerf2_equivIndex));
+//				 mfdConstraintList.add(new SectionMFD_constraint(UCERF2_FltSysSol, ucerf2_equivIndex));
 			}
 			else {
-				double minMag = fltSystRupSet.getFinalMinMagForSection(s);
 				// compute max mag for rupture filling parent section area
-				ScalingRelationships scalingRel = fltSystRupSet.getLogicTreeBranch().getValue(ScalingRelationships.class);
 				double area = totAreaMap.get(data.getParentSectionId());	// km-sq
 				double width = area/totLengthMap.get(data.getParentSectionId());	// km
 				double maxMag = scalingRel.getMag(area*1e6, width*1e3);
-//				double maxMag = fltSystRupSet.getMaxMagForSection(s);
 				// each subsection gets the same moment rate to keep rates constant along the section
 				// note that we could save memory by creating only one SectionMFD_constraint per parent section
 				double moRate = moRateMap.get(data.getParentSectionId()) / (double)numSectMap.get(data.getParentSectionId());
 				mfdConstraintList.add(new SectionMFD_constraint(minMag, maxMag, moRate, fractGR));
 			}
 		}
+		
+		
+		// test a-fault results (plot all subsect results for each parent section)
+		lastParentIndex = - 1;
+		String parSectName = null;
+		ArrayList<ArbitrarilyDiscretizedFunc> funcList = null;
+		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
+			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
+			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
+				if(data.getParentSectionId() != lastParentIndex) { // it's a new parent section, plot funcs and create new list
+					if(lastParentIndex != -1) { // plot result
+						GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
+						graph.setX_AxisLabel("Magnitude");
+						graph.setY_AxisLabel("Rate");
+					}
+					funcList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+					parSectName = data.getParentSectionName();
+				} 
+				funcList.add(mfdConstraintList.get(s).getMFD());
+				lastParentIndex = data.getParentSectionId();
+			}
+		}
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Rate");
+
+
 		
 		return mfdConstraintList;
 	}
@@ -2092,10 +2121,21 @@ public class FaultSystemRupSetCalc {
 		
 		
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
-		getCharInversionSectMFD_Constraints(rupSet);
+		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
+		
+//		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
+//		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))
+//			mfd.addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(0.05, 100, 0.1));
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfd, "Test MFD"); 
+//		graph.setX_AxisLabel("Mangitude");
+//		graph.setY_AxisLabel("Rate (per year)");
+//		graph.setYLog(true);
+
+
+		
 		
 		
 //		computeMinSeismoMagForSections(rupSet, InversionFaultSystemRupSet.MIN_MAG_FOR_SEISMOGENIC_RUPS);

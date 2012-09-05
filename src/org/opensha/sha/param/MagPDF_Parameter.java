@@ -430,7 +430,7 @@ implements java.io.Serializable
 	 * Initialisez the Arb. Incremental MagFreq Func
 	 */
 	private void initArbIncrementalMagFreqDist(){
-		ArbIncrementalMagFreqDist arbIncrDist = new ArbIncrementalMagFreqDist(0,10,101);
+		ArbIncrementalMagFreqDist arbIncrDist = new ArbIncrementalMagFreqDist(0d,10d,101);
 		evenlyDiscrtizedFunc = new EvenlyDiscretizedFuncParameter(ARB_INCR_PARAM_NAME,
 				arbIncrDist);
 	}
