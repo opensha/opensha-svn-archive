@@ -6,6 +6,7 @@ package org.opensha.sha.faultSurface;
 import java.io.FileWriter;
 import java.util.Iterator;
 
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -28,7 +29,11 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWith
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	FaultTrace upperFaultTrace=null,lowerFaultTrace=null;
+	private FaultTrace upperFaultTrace = null;
+	private FaultTrace lowerFaultTrace = null;
+	
+	// lazily initialized on first call to getAvgDip()
+	double avgDip = Double.NaN;
 
 
 	/**
@@ -335,7 +340,21 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWith
 
 	@Override
 	public double getAveDip() {
-		throw new RuntimeException("Method not yet implemented");
+		if (!Double.isNaN(avgDip)) return avgDip;
+		// (lazy) average the dips of lines connecting the first 
+		// and last points ofthe upper and lower traces
+		LocationList ut = upperFaultTrace;
+		LocationList lt = lowerFaultTrace;
+		Location pUp = ut.get(0);
+		Location pLo = lt.get(0);
+		LocationVector v = LocationUtils.vector(pUp, pLo);
+		double d1 = Math.atan(v.getVertDistance() / v.getHorzDistance());
+		pUp = ut.get(ut.size()-1);
+		pLo = lt.get(lt.size()-1);
+		v = LocationUtils.vector(pUp, pLo);
+		double d2 = Math.atan(v.getVertDistance() / v.getHorzDistance());
+		avgDip = ((d1 + d2) / 2) * GeoTools.TO_DEG;
+		return avgDip;
 	}
 
 
