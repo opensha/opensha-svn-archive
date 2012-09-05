@@ -84,6 +84,18 @@ public enum NEHRP_TestCity {
 	}
 	
 	/**
+	 * Returns the location of the city shifted to the nearest 0.1 lat lon
+	 * unit.
+	 * @return the shifted location
+	 */
+	public Location shiftedLocation() {
+		// MathUtils rounds negatives down
+		double lat = MathUtils.round(loc.getLatitude(), 1);
+		double lon = MathUtils.round(loc.getLongitude(), 1);
+		return new Location(lat, lon, loc.getDepth());
+	}
+
+	/**
 	 * Returns all California cities.
 	 * @return a {@code Set} of California cities
 	 */
