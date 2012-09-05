@@ -2082,28 +2082,28 @@ public class FaultSystemRupSetCalc {
 		
 		
 		// test a-fault results (plot all subsect results for each parent section)
-		lastParentIndex = - 1;
-		String parSectName = null;
-		ArrayList<ArbitrarilyDiscretizedFunc> funcList = null;
-		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
-			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
-			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
-				if(data.getParentSectionId() != lastParentIndex) { // it's a new parent section, plot funcs and create new list
-					if(lastParentIndex != -1) { // plot result
-						GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
-						graph.setX_AxisLabel("Magnitude");
-						graph.setY_AxisLabel("Rate");
-					}
-					funcList = new ArrayList<ArbitrarilyDiscretizedFunc>();
-					parSectName = data.getParentSectionName();
-				} 
-				funcList.add(mfdConstraintList.get(s).getMFD());
-				lastParentIndex = data.getParentSectionId();
-			}
-		}
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
-		graph.setX_AxisLabel("Magnitude");
-		graph.setY_AxisLabel("Rate");
+//		lastParentIndex = - 1;
+//		String parSectName = null;
+//		ArrayList<ArbitrarilyDiscretizedFunc> funcList = null;
+//		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
+//			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
+//			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
+//				if(data.getParentSectionId() != lastParentIndex) { // it's a new parent section, plot funcs and create new list
+//					if(lastParentIndex != -1) { // plot result
+//						GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
+//						graph.setX_AxisLabel("Magnitude");
+//						graph.setY_AxisLabel("Rate");
+//					}
+//					funcList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+//					parSectName = data.getParentSectionName();
+//				} 
+//				funcList.add(mfdConstraintList.get(s).getMFD());
+//				lastParentIndex = data.getParentSectionId();
+//			}
+//		}
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
+//		graph.setX_AxisLabel("Magnitude");
+//		graph.setY_AxisLabel("Rate");
 
 
 		
