@@ -773,7 +773,7 @@ public class InversionInputGenerator {
 		}
 		
 		
-		
+/*		
 		// Constraint event rates along parent sections to be smooth
 		if (config.getEventRateSmoothnessWt() > 0.0) {
 			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
@@ -834,6 +834,65 @@ public class InversionInputGenerator {
 							A.setQuick(rowIndex,rup,-relativeEventRateSmoothnessWt);
 						else
 							A.set(rowIndex,rup,-relativeEventRateSmoothnessWt);
+						numNonZeroElements++;
+					}
+					d[rowIndex] = 0;
+					rowIndex++;
+				}
+			}
+			System.out.println("Adding Event-Rate Smoothness Constraint took "+getTimeStr(watch)+".");
+			watch.reset();
+			watch.start();
+			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
+			
+		}
+*/		
+		
+		// Constraint paleoseismically-visible event rates along parent sections to be smooth
+		if (config.getEventRateSmoothnessWt() > 0.0) {
+			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
+			double relativeEventRateSmoothnessWt = config.getEventRateSmoothnessWt();
+			numNonZeroElements = 0;
+			
+			// Get list of parent IDs
+			List<Integer> parentIDs = new ArrayList<Integer>();
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+				int parentID = sect.getParentSectionId();
+				if (!parentIDs.contains(parentID))
+					parentIDs.add(parentID);
+			}
+
+			for (int parentID: parentIDs) {		
+		
+				// Find subsection IDs for given parent section
+				ArrayList<Integer> sectsForParent = new ArrayList<Integer>();
+				for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+					int sectParentID = sect.getParentSectionId();
+					if (sectParentID == parentID)
+						sectsForParent.add(sect.getSectionId());
+				}
+				
+				// Constrain the event rate of each neighboring subsection pair (with same parent section) to be approximately equal
+				for (int j=0; j<sectsForParent.size()-1; j++) {
+					int sect1 = sectsForParent.get(j);
+					int sect2 = sectsForParent.get(j+1);
+					List<Integer> sect1Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect1));  
+					List<Integer> sect2Rups = Lists.newArrayList(rupSet.getRupturesForSection(sect2));
+					
+					for (int rup: sect1Rups) { 
+						double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, sect1);	
+						if (QUICK_GETS_SETS) 
+							A.setQuick(rowIndex,rup,probPaleoVisible*relativeEventRateSmoothnessWt); 
+						else
+							A.set(rowIndex,rup,probPaleoVisible*relativeEventRateSmoothnessWt);
+						numNonZeroElements++;
+					}
+					for (int rup: sect2Rups) {
+						double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, sect2);
+						if (QUICK_GETS_SETS) 
+							A.setQuick(rowIndex,rup,-probPaleoVisible*relativeEventRateSmoothnessWt);
+						else
+							A.set(rowIndex,rup,-probPaleoVisible*relativeEventRateSmoothnessWt);
 						numNonZeroElements++;
 					}
 					d[rowIndex] = 0;
