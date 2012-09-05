@@ -48,7 +48,7 @@ public class RunInversion {
 
 	public static void main(String[] args) {
 		// flags!
-		String fileName = "UCERF2_EventRateSmoothingWt10000_PaleoWt10_1HR";
+		String fileName = "UCERF2-Test2";
 		boolean writeMatrixZipFiles = false;
 		boolean writeSolutionZipFile = true;
 		

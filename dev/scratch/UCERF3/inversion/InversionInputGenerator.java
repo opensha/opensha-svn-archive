@@ -262,9 +262,12 @@ public class InversionInputGenerator {
 			MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
 			for (int sect=0; sect<numSections; sect++) { 
 				SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect);
-				int numMagBins = sectMFDConstraint.getNumMags();
-				totalNumNucleationMFDConstraints+=numMagBins;
-				numRows+=numMagBins;
+				for (int i=0; i<sectMFDConstraint.getNumMags(); i++) {
+					if (sectMFDConstraint.getRate(i) > 0) {
+						totalNumNucleationMFDConstraints++;
+						numRows++;
+					}
+				}
 			}
 			if(D) System.out.println("Number of Nucleation MFD constraints: "+totalNumNucleationMFDConstraints);
 			rangeEndRows.add(numRows-1);
@@ -682,28 +685,32 @@ public class InversionInputGenerator {
 				// Loop over MFD constraints for this subsection
 				for (int magBin = 0; magBin<numMagBins; magBin++) {
 					
-					// Determine which ruptures are in this magBin
-					List<Integer> rupturesForMagBin = new ArrayList<Integer>();
-					for (int i=0; i<rupturesForSect.size(); i++) {
-						double mag = rupSet.getMagForRup(rupturesForSect.get(i));
-						if (sectMFDConstraint.isMagInBin(mag, magBin))
-							rupturesForMagBin.add(rupturesForSect.get(i));
-					}
+					// Only include non-empty magBins in constraint
+					if (sectMFDConstraint.getRate(magBin) > 0) {
+					
+						// Determine which ruptures are in this magBin
+						List<Integer> rupturesForMagBin = new ArrayList<Integer>();
+						for (int i=0; i<rupturesForSect.size(); i++) {
+							double mag = rupSet.getMagForRup(rupturesForSect.get(i));
+							if (sectMFDConstraint.isMagInBin(mag, magBin))
+								rupturesForMagBin.add(rupturesForSect.get(i));
+						}
 					
 					
-					// Loop over ruptures in this subsection-MFD bin
-					for (int i=0; i<rupturesForMagBin.size(); i++) {
-						int rup  = rupturesForMagBin.get(i);
-						double rupArea = rupSet.getAreaForRup(rup);
-						double sectArea = rupSet.getAreaForSection(sect);
-						if (QUICK_GETS_SETS)
-							A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
-						else
-							A.set(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
-						numNonZeroElements++;	
+						// Loop over ruptures in this subsection-MFD bin
+						for (int i=0; i<rupturesForMagBin.size(); i++) {
+							int rup  = rupturesForMagBin.get(i);
+							double rupArea = rupSet.getAreaForRup(rup);
+							double sectArea = rupSet.getAreaForSection(sect);
+							if (QUICK_GETS_SETS)
+								A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
+							else
+								A.set(rowIndex,rup,relativeNucleationMFDConstraintWt * sectArea / rupArea);
+							numNonZeroElements++;	
+						}
+						d[rowIndex]=relativeNucleationMFDConstraintWt * sectMFDConstraint.getRate(magBin);
+						rowIndex++;
 					}
-					d[rowIndex]=relativeNucleationMFDConstraintWt * sectMFDConstraint.getRate(magBin);
-					rowIndex++;
 				}
 			}
 			if (D) {
@@ -743,27 +750,9 @@ public class InversionInputGenerator {
 			if(D) System.out.println("\nAdding Parkfield rupture-rate constraints to A matrix ...");
 			double relativeParkfieldConstraintWt = config.getRelativeParkfieldConstraintWt();
 			double ParkfieldMeanRate = 1.0/25.0; // Bakun et al. (2005)
-			int parkfieldParentSectID = 32;
 			
 			// Find Parkfield M~6 ruptures
-			List<Integer> potentialRups = rupSet.getRupturesForParentSection(parkfieldParentSectID);
-			List<Integer> parkfieldRups = new ArrayList<Integer>();
-			rupLoop:
-			for (int i=0; i<potentialRups.size(); i++) {
-				List<Integer> sects = rupSet.getSectionsIndicesForRup(potentialRups.get(i));
-				// Make sure there are 6-8 subsections
-				if (sects.size()<6 || sects.size()>8)
-					continue rupLoop;
-				// Make sure each section in rup is in Parkfield parent section
-				for (int s=0; s<sects.size(); s++) {
-					int parent = rupSet.getFaultSectionData(sects.get(s)).getParentSectionId();
-					if (parent != parkfieldParentSectID)
-						continue rupLoop;
-				}
-				parkfieldRups.add(potentialRups.get(i));
-				if (D) System.out.println("Parkfield rup: "+potentialRups.get(i));
-			}
-			if (D) System.out.println("Number of M~6 Parkfield rups = "+parkfieldRups.size());
+			List<Integer> parkfieldRups = findParkfieldRups(rupSet);
 			
 			// Put together A, d elements
 			numNonZeroElements = 0;
@@ -1146,5 +1135,29 @@ public class InversionInputGenerator {
 			boolean aPrioriConstraintForZeroRates) {
 		this.aPrioriConstraintForZeroRates = aPrioriConstraintForZeroRates;
 	}
-
+	
+	public List<Integer> findParkfieldRups(InversionFaultSystemRupSet rupSet) {
+		int parkfieldParentSectID = 32;
+		
+		// Find Parkfield M~6 ruptures
+		List<Integer> potentialRups = rupSet.getRupturesForParentSection(parkfieldParentSectID);
+		List<Integer> parkfieldRups = new ArrayList<Integer>();
+		rupLoop:
+			for (int i=0; i<potentialRups.size(); i++) {
+				List<Integer> sects = rupSet.getSectionsIndicesForRup(potentialRups.get(i));
+				// Make sure there are 6-8 subsections
+				if (sects.size()<6 || sects.size()>8)
+					continue rupLoop;
+				// Make sure each section in rup is in Parkfield parent section
+				for (int s=0; s<sects.size(); s++) {
+					int parent = rupSet.getFaultSectionData(sects.get(s)).getParentSectionId();
+					if (parent != parkfieldParentSectID)
+						continue rupLoop;
+				}
+				parkfieldRups.add(potentialRups.get(i));
+				if (D) System.out.println("Parkfield rup: "+potentialRups.get(i));
+			}
+		if (D) System.out.println("Number of M~6 Parkfield rups = "+parkfieldRups.size());
+		return parkfieldRups;
+	}
 }

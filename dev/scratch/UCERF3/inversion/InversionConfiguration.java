@@ -259,7 +259,7 @@ public class InversionConfiguration {
 				relativeParticipationSmoothnessConstraintWt = 0;
 				relativeNucleationMFDConstraintWt = 1000;
 				relativeEventRateSmoothnessWt = 0;
-				relativeRupRateConstraintWt = 100;
+				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
 				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
 				minimumRuptureRateFraction = 0.01;
