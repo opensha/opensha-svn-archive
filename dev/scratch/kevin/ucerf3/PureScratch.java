@@ -18,6 +18,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.nshmp2.imr.impl.AB2006_140_AttenRel;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
@@ -35,7 +36,6 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.nshmp.imr.AB2006_140_AttenRel;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;

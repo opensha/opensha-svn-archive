@@ -1,9 +1,9 @@
 package scratch.olsen;
 
+import static org.opensha.nshmp2.util.Period.*;
 import static org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2.*;
 import static org.opensha.sha.imr.param.OtherParams.StdDevTypeParam.*;
 import static org.opensha.sha.imr.AttenRelRef.*;
-import static org.opensha.sha.nshmp.Period.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,6 +18,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
@@ -30,7 +31,6 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
-import org.opensha.sha.nshmp.Period;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
