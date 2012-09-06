@@ -17,6 +17,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 
 import util.TestUtils;
 
@@ -43,6 +45,8 @@ public class TestGMT_Operational {
 		for (int i=0; i<xyz.size(); i++) {
 			System.out.println(xyz.getLocation(i) + ": " + xyz.get(i));
 		}
+		map.setRegion(new Region(new Location(xyz.getMaxLat(), xyz.getMaxLon()),
+				new Location(xyz.getMinLat(), xyz.getMinLon())));
 		map.setCustomScaleMin(null);
 		map.setCustomScaleMax(null);
 		String metadata = "My Map Metadata";
