@@ -103,7 +103,8 @@ public class TestGMT_Operational {
 				"there are " + colors.size() + " unique colors.");
 		int minUnique = 10000; // standard real test
 //		int minUnique = 30000; // temp test to fail
-		assertTrue("there should be at least " + minUnique + " unique colors", colors.size() > minUnique);
+		assertTrue("there should be at least "+minUnique
+				+" unique colors (found: "+colors.size()+")", colors.size() > minUnique);
 	}
 
 }
