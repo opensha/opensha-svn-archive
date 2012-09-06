@@ -13,7 +13,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.nshmp.NEHRP_TestCity;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
+import org.opensha.nshmp2.util.NSHMP_Utils;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -33,6 +33,7 @@ import com.google.common.primitives.Doubles;
  * @author Peter Powers
  * @version $Id:$
  */
+@Deprecated
 public class CurveContainer {
 	
 	private GriddedRegion region;
@@ -114,6 +115,7 @@ public class CurveContainer {
 				headCount++;
 				return true;
 			}
+//			if (line.startsWith("#") ||| line.startsWith(prefix)) return true;
 			
 			// short lines are going to be x values
 			if (line.length() < 20) {

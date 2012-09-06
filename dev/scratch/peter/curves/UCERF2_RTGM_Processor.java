@@ -19,15 +19,15 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.util.NSHMP_Utils;
+import org.opensha.nshmp2.util.Period;
+import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
-import org.opensha.sha.earthquake.rupForecastImpl.nshmp.util.NSHMP_Utils;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.nshmp.Period;
-import org.opensha.sha.nshmp.Utils;
 import org.opensha.sra.rtgm.RTGM;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;

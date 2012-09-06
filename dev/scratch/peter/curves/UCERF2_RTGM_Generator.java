@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
@@ -30,7 +31,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.nshmp.Period;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;

@@ -16,12 +16,12 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.nshmp.Period;
 
 import scratch.peter.curves.UcerfBranchGenerator.TestLoc;
 

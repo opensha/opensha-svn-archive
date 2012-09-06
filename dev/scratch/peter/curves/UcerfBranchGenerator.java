@@ -26,6 +26,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
@@ -38,7 +39,6 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
-import org.opensha.sha.nshmp.Period;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

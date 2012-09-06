@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -18,7 +19,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
-import org.opensha.sha.nshmp.Period;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
