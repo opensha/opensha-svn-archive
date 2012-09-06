@@ -301,7 +301,8 @@ public class GridERF extends NSHMP_ERF {
 //	}
 
 	public static void main(String[] args) {
-		getTestGrid(new Location(35.6,-90.4));
+		GridERF tmpERF = Sources.getGrid("CEUS.2007all8.AB.in");
+		getTestGrid(new Location(35.6,-90.4), tmpERF);
 	}
 	
 	/**
@@ -309,7 +310,7 @@ public class GridERF extends NSHMP_ERF {
 	 * customization.
 	 * @return the ERF
 	 */
-	public static GridERF getTestGrid(Location loc) {
+	public static GridERF getTestGrid(Location loc, GridERF erf) {
 		
 		Logger log = NSHMP_Utils.logger();
 		Level level = Level.FINE;
@@ -317,17 +318,16 @@ public class GridERF extends NSHMP_ERF {
 		for (Handler h : NSHMP_Utils.logger().getHandlers()) {
 			h.setLevel(level);
 		}
-		GridERF tmpERF = Sources.getGrid("CEUS.2007all8.AB.in");
 
-		IncrementalMagFreqDist mfd = tmpERF.getMFD(loc);
-		tmpERF.mfds.clear();
-		tmpERF.mfds.add(mfd);
-		tmpERF.locs.clear();
-		tmpERF.locs.add(loc);
-		tmpERF.name = "Small Test GridERF";
-		tmpERF.initIndices();
+		IncrementalMagFreqDist mfd = erf.getMFD(loc);
+		erf.mfds.clear();
+		erf.mfds.add(mfd);
+		erf.locs.clear();
+		erf.locs.add(loc);
+		erf.name = "Small Test GridERF";
+		erf.initIndices();
 		
-		return tmpERF;
+		return erf;
 	}
 
 }
