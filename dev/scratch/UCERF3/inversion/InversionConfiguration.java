@@ -53,6 +53,7 @@ public class InversionConfiguration {
 	private double relativeParticipationSmoothnessConstraintWt;
 	private double participationConstraintMagBinSize;
 	private double relativeNucleationMFDConstraintWt;
+	private double relativeMFDSmoothnessConstraintWt;
 	private double relativeMinimizationConstraintWt;
 	private double relativeMomentConstraintWt;
 	private double relativeParkfieldConstraintWt;
@@ -80,6 +81,7 @@ public class InversionConfiguration {
 			double relativeParticipationSmoothnessConstraintWt,
 			double participationConstraintMagBinSize,
 			double relativeNucleationMFDConstraintWt,
+			double relativeMFDSmoothnessConstraintWt,
 			double relativeMinimizationConstraintWt,
 			double relativeMomentConstraintWt,
 			double relativeParkfieldConstraintWt,
@@ -112,6 +114,8 @@ public class InversionConfiguration {
 		metadata += "\nparticipationConstraintMagBinSize: "+participationConstraintMagBinSize;
 		this.relativeNucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
 		metadata += "\nrelativeNucleationMFDConstraintWt: "+relativeNucleationMFDConstraintWt;
+		this.relativeMFDSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
+		metadata += "\nrelativeMFDSmoothnessConstraintWt: "+relativeMFDSmoothnessConstraintWt;
 		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
 		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
 		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
@@ -233,11 +237,14 @@ public class InversionConfiguration {
 		// 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
 		double relativeRupRateConstraintWt;
 		
-		// weight of participation MFD smoothness weight - applied on subsection basis (recommended:  1000)
+		// weight of participation MFD smoothness - applied on subsection basis (recommended:  0.01)
 		double relativeParticipationSmoothnessConstraintWt;
 		
-		// weight of nucleation MFD constraint weight - applied on subsection basis
+		// weight of nucleation MFD constraint - applied on subsection basis
 		double relativeNucleationMFDConstraintWt;
+		
+		// weight of spatial MFD smoothness constraint
+		double relativeMFDSmoothnessConstraintWt;
 		
 		// weight of parent-section event-rate smoothness constraint
 		double relativeEventRateSmoothnessWt;
@@ -258,7 +265,8 @@ public class InversionConfiguration {
 			if (model == InversionModels.CHAR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 0;
 				relativeNucleationMFDConstraintWt = 0.01;
-				relativeEventRateSmoothnessWt = 0;
+				relativeMFDSmoothnessConstraintWt = 1;
+				relativeEventRateSmoothnessWt = 1000;
 				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
 				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
@@ -270,6 +278,7 @@ public class InversionConfiguration {
 			} else if (model == InversionModels.GR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 1000;
 				relativeNucleationMFDConstraintWt = 0;
+				relativeMFDSmoothnessConstraintWt = 0;
 				relativeEventRateSmoothnessWt = 0;
 				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = null;
@@ -284,6 +293,7 @@ public class InversionConfiguration {
 			// UNCONSTRAINED BRANCHES
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeNucleationMFDConstraintWt = 0;
+			relativeMFDSmoothnessConstraintWt = 0;
 			relativeEventRateSmoothnessWt = 0;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
@@ -361,6 +371,7 @@ public class InversionConfiguration {
 				relativeParticipationSmoothnessConstraintWt,
 				participationConstraintMagBinSize,
 				relativeNucleationMFDConstraintWt,
+				relativeMFDSmoothnessConstraintWt,
 				relativeMinimizationConstraintWt,
 				relativeMomentConstraintWt,
 				relativeParkfieldConstraintWt,
@@ -921,7 +932,14 @@ public class InversionConfiguration {
 	public void setRelativeNucleationMFDConstraintWt(double relativeNucleationMFDConstraintWt) {
 		this.relativeNucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
 	}
+	
+	public double getRelativeMFDSmoothnessConstraintWt() {
+		return relativeMFDSmoothnessConstraintWt;
+	}
 
+	public void setRelativeMFDSmoothnessConstraintWt(double relativeMFDSmoothnessConstraintWt) {
+		this.relativeMFDSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
+	}
 	public List<MFD_InversionConstraint> getMfdEqualityConstraints() {
 		return mfdEqualityConstraints;
 	}

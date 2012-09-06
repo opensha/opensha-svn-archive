@@ -225,7 +225,6 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Equality");
 		}
-		
 		if (config.getRelativeParticipationSmoothnessConstraintWt() > 0.0) {
 			int totalNumMagParticipationConstraints = 0;
 			for (int sect=0; sect<numSections; sect++) { 
@@ -272,6 +271,37 @@ public class InversionInputGenerator {
 			if(D) System.out.println("Number of Nucleation MFD constraints: "+totalNumNucleationMFDConstraints);
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Nucleation");
+		}
+		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0) {
+			int totalNumMFDSmoothnessConstraints = 0;
+			// Get list of parent sections
+			ArrayList<Integer> parentIDs = new ArrayList<Integer>();
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+				int parentID = sect.getParentSectionId();
+				if (!parentIDs.contains(parentID))
+					parentIDs.add(parentID);
+			}
+			for (int parentID: parentIDs) {
+				// Get list of subsections for parent 
+				ArrayList<Integer> sectsForParent = new ArrayList<Integer>();
+				for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+					int sectParentID = sect.getParentSectionId();
+					if (sectParentID == parentID)
+						sectsForParent.add(sect.getSectionId());
+				}
+				// For each beginning section of subsection-pair, there will be numMagBins # of constraints
+				for (int j=0; j<sectsForParent.size()-1; j++) {
+					int sect1 = sectsForParent.get(j);
+					MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
+					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect1);
+					int numMagBins = sectMFDConstraint.getNumMags();
+					totalNumMFDSmoothnessConstraints+=numMagBins;
+					numRows+=numMagBins;
+				}
+			}
+			if(D) System.out.println("Number of MFD Smoothness constraints: "+totalNumMFDSmoothnessConstraints);
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("MFD Smoothness");
 		}
 		if (config.getRelativeMomentConstraintWt() > 0.0) {
 			numRows++;
@@ -722,6 +752,103 @@ public class InversionInputGenerator {
 		}
 		
 		
+		// MFD Smoothing constraint - MFDs spatially smooth along adjacent subsections on a parent section
+		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0) {  
+			double relativeMFDSmoothingConstraintWt = config.getRelativeMFDSmoothnessConstraintWt();
+			if(D) System.out.println("\nAdding Subsection Nucleation MFD constraints to A matrix ...");
+			numNonZeroElements = 0;
+			
+			
+			// Get list of parent IDs
+			Map<Integer, List<FaultSectionPrefData>> parentSectsMap = Maps.newHashMap();
+			
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+				Integer parentID = sect.getParentSectionId();
+				List<FaultSectionPrefData> parentSects = parentSectsMap.get(parentID);
+				if (parentSects == null) {
+					parentSects = Lists.newArrayList();
+					parentSectsMap.put(parentID, parentSects);
+				}
+				parentSects.add(sect);
+			}
+			
+			List<HashSet<Integer>> sectRupsHashes = Lists.newArrayList();
+			for (int s=0; s<rupSet.getNumSections(); s++)
+				sectRupsHashes.add(new HashSet<Integer>(rupSet.getRupturesForSection(s)));
+
+			for (List<FaultSectionPrefData> sectsForParent : parentSectsMap.values()) {		
+				
+				// Constrain the event rate of each neighboring subsection pair (with same parent section) to be approximately equal
+				for (int j=0; j<sectsForParent.size()-1; j++) {
+					int sect1 = sectsForParent.get(j).getSectionId();
+					int sect2 = sectsForParent.get(j+1).getSectionId();
+					HashSet<Integer> sect1Hash = sectRupsHashes.get(sect1);
+					HashSet<Integer> sect2Hash = sectRupsHashes.get(sect2);
+					
+					List<Integer> sect1Rups = Lists.newArrayList();  
+					List<Integer> sect2Rups = Lists.newArrayList();
+					
+					// only rups that involve sect 1 but not sect 2
+					for (Integer sect1Rup : sect1Hash)
+						if (!sect2Hash.contains(sect1Rup))
+							sect1Rups.add(sect1Rup);
+
+					// only rups that involve sect 2 but not sect 1
+					for (Integer sect2Rup : sect2Hash)
+						if (!sect1Hash.contains(sect2Rup))
+							sect2Rups.add(sect2Rup);
+					
+					// Get section MFD constraint -- we will use the irregular mag binning for the constraint (but not the rates)
+					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect1);
+					int numMagBins = sectMFDConstraint.getNumMags();
+				
+				
+					// Loop over MFD constraints for this subsection
+					for (int magBin = 0; magBin<numMagBins; magBin++) {
+					
+						// Determine which ruptures are in this magBin
+						List<Integer> sect1RupsForMagBin = new ArrayList<Integer>();
+						for (int i=0; i<sect1Rups.size(); i++) {
+							double mag = rupSet.getMagForRup(sect1Rups.get(i));
+							if (sectMFDConstraint.isMagInBin(mag, magBin))
+								sect1RupsForMagBin.add(sect1Rups.get(i));
+						}
+						List<Integer> sect2RupsForMagBin = new ArrayList<Integer>();
+						for (int i=0; i<sect2Rups.size(); i++) {
+							double mag = rupSet.getMagForRup(sect2Rups.get(i));
+							if (sectMFDConstraint.isMagInBin(mag, magBin))
+								sect2RupsForMagBin.add(sect2Rups.get(i));
+						}
+						
+						// Loop over ruptures in this subsection-MFD bin
+						for (int rup: sect1RupsForMagBin) { 
+							if (QUICK_GETS_SETS) 
+								A.setQuick(rowIndex,rup,relativeMFDSmoothingConstraintWt); 
+							else
+								A.set(rowIndex,rup,relativeMFDSmoothingConstraintWt);
+							numNonZeroElements++;
+						}
+						for (int rup: sect2RupsForMagBin) {
+							if (QUICK_GETS_SETS) 
+								A.setQuick(rowIndex,rup,-relativeMFDSmoothingConstraintWt);
+							else
+								A.set(rowIndex,rup,-relativeMFDSmoothingConstraintWt);
+							numNonZeroElements++;
+						}
+						d[rowIndex]=0;
+						rowIndex++;
+					}
+				}
+			}
+			if (D) {
+				System.out.println("Adding MFD Smoothness Constraints took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+			}
+		}
+		
+		
 		// Constraint solution moment to equal deformation-model moment
 		if (config.getRelativeMomentConstraintWt() > 0.0) {
 			double relativeMomentConstraintWt = config.getRelativeMomentConstraintWt();
@@ -848,7 +975,7 @@ public class InversionInputGenerator {
 		}
 */		
 		
-		// Constraint paleoseismically-visible event rates along parent sections to be smooth
+		// Constrain paleoseismically-visible event rates along parent sections to be smooth
 		if (config.getEventRateSmoothnessWt() > 0.0) {
 			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
 			double relativeEventRateSmoothnessWt = config.getEventRateSmoothnessWt();
