@@ -50,6 +50,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemSolutionInterface;
+import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
@@ -1883,17 +1884,29 @@ public class FaultSystemRupSetCalc {
 	 * This computes the final minimum seismogenic rupture mag for each section,
 	 * where every subsection is given the greatest among all those of the parent section,
 	 * or 6.0 if the latter is below 6.0.  This way all subsections of a parent have the
-	 * same value, and each subsection has a rupture at that magnitude.
+	 * same value, and each subsection has a rupture at that magnitude.  The only exception
+	 * to the systemWideMinSeismoMag threshold is Parkfield, where the minimum is the average
+	 * of the "Parkfield" ruptures (defined by InversionInputGenerator.findParkfieldRups(fltSystRupSet)) 
+	 * if this average falls below systemWideMinSeismoMag.
 	 * 
 	 */
-	
 	public static double[] computeMinSeismoMagForSections(FaultSystemRupSet fltSystRupSet, double systemWideMinSeismoMag) {
 		double[] minMagForSect = new double[fltSystRupSet.getNumSections()];
 		String prevParSectName = "junk";
 		List<FaultSectionPrefData> sectDataList = fltSystRupSet.getFaultSectionDataList();
 		
+		// lets first compute the average magnitude for Parkfield events
+		double aveParkfieldMag=0;
+		List<Integer> parkRupIndexList = InversionInputGenerator.findParkfieldRups(fltSystRupSet);
+		for( int parkRupIndex: InversionInputGenerator.findParkfieldRups(fltSystRupSet)) {
+			aveParkfieldMag += fltSystRupSet.getMagForRup(parkRupIndex)/(double)parkRupIndexList.size();
+		}
+		if(D) System.out.println("aveParkfieldMag = "+aveParkfieldMag);
+		
 		// make map between parent section name and maximum magnitude (magForParSectMap)
 		HashMap<String,Double> magForParSectMap = new HashMap<String,Double>();
+		int PARKFIELD_PAR_SECT_ID = 32;
+		String parkfieldParSectName = null;
 		double maxMinSeismoMag=0;
 		double minMinSeismoMag=0;	// this is for testing
 		for(int s=0; s< sectDataList.size();s++) {
@@ -1909,6 +1922,8 @@ public class FaultSystemRupSetCalc {
 				maxMinSeismoMag = minSeismoMag;
 				minMinSeismoMag = minSeismoMag;
 				prevParSectName = parSectName;
+				if(sectDataList.get(s).getParentSectionId() == PARKFIELD_PAR_SECT_ID)
+					parkfieldParSectName = prevParSectName;
 			}
 			else {
 				if(maxMinSeismoMag<minSeismoMag)
@@ -1920,6 +1935,8 @@ public class FaultSystemRupSetCalc {
 		// do the last one:
 		magForParSectMap.put(prevParSectName, maxMinSeismoMag);
 //		System.out.println(prevParSectName+"\t"+minMinSeismoMag+"\t"+maxMinSeismoMag);
+		
+		if(D) System.out.println("parkfieldParSectName = "+parkfieldParSectName);
 
 		
 //		for(String parName:magForParSectMap.keySet())
@@ -1933,6 +1950,11 @@ public class FaultSystemRupSetCalc {
 				minMagForSect[s] = minMag;
 			else
 				minMagForSect[s] = systemWideMinSeismoMag;
+			
+			// allow Parkfield to go below systemWideMinSeismoMag if aveParkfieldMag<systemWideMinSeismoMag
+			if(sectDataList.get(s).getParentSectionName().equals(parkfieldParSectName) && aveParkfieldMag<systemWideMinSeismoMag)
+				minMagForSect[s] = aveParkfieldMag;
+
 		}
 		
 		return minMagForSect;
@@ -2064,9 +2086,8 @@ public class FaultSystemRupSetCalc {
 			double minMag = fltSystRupSet.getFinalMinMagForSection(s);
 
 			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
-				 int ucerf2_equivIndex = s;
-				 mfdConstraintList.add(new SectionMFD_constraint(minMag, UCERF2_FltSysSol, ucerf2_equivIndex));
-//				 mfdConstraintList.add(new SectionMFD_constraint(UCERF2_FltSysSol, ucerf2_equivIndex));
+				 mfdConstraintList.add(new SectionMFD_constraint(minMag, UCERF2_FltSysSol, s));
+//				 mfdConstraintList.add(new SectionMFD_constraint(UCERF2_FltSysSol, s));
 			}
 			else {
 				// compute max mag for rupture filling parent section area
@@ -2116,6 +2137,58 @@ public class FaultSystemRupSetCalc {
 		return mfdConstraintList;
 	}
 	
+	
+	/**
+	 * This writes out the Parkfield rupture mags (plus other stuff) as well as 
+	 * whether these ruptures fall below the section minimum magnitude.  The "Parkfield"
+	 * ruptures are defined by the method: InversionInputGenerator.findParkfieldRups(rupSet)
+	 */
+	public static void writeParkfieldMags() {
+		
+		ArrayList<ScalingRelationships> scaleRelList = new ArrayList<ScalingRelationships>();
+		scaleRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scaleRelList.add(ScalingRelationships.ELLSWORTH_B);
+		scaleRelList.add(ScalingRelationships.SHAW_2009_MOD);
+		
+		String info = "index\tmagitude\tnumSect\t1stSect\tlastSect\n";
+		
+		String rupsBelowMinMag = "\nRups (indices) of those that fall below section min mag:\n";
+		
+		for(ScalingRelationships scaleRel:scaleRelList) {
+			
+			info += scaleRel.getName()+"\n";
+			
+			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
+					InversionModels.CHAR_CONSTRAINED, scaleRel, SlipAlongRuptureModels.TAPERED, 
+					TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+
+			List<Integer> parkfileRupIndexList = InversionInputGenerator.findParkfieldRups(rupSet);
+			
+			ArrayList<Integer> parkfileRupThatFallBelowMinMag = new ArrayList<Integer>();
+			
+			for(int index:parkfileRupIndexList) {
+				ArrayList<Integer> sectIndicesList =rupSet.getSectionsIndicesForRup(index);
+				info += index+"\t"+(float)rupSet.getMagForRup(index)+"\t"+sectIndicesList.size()+"\t";
+				info += rupSet.getFaultSectionData(sectIndicesList.get(0)).getSectionName()+"\t";
+				info += rupSet.getFaultSectionData(sectIndicesList.get(sectIndicesList.size()-1)).getSectionName()+"\n";
+				
+				if(rupSet.isRuptureBelowSectMinMag(index)) {
+					parkfileRupThatFallBelowMinMag.add(index);
+				}
+			}
+			
+			if(parkfileRupThatFallBelowMinMag.size()>0) {
+				rupsBelowMinMag += scaleRel.getName()+"\n";
+				for(int index:parkfileRupThatFallBelowMinMag)
+					rupsBelowMinMag += "\t"+index+"\n";
+			}
+		}
+		
+		System.out.println(info);
+		System.out.println(rupsBelowMinMag);
+		
+	}
+	
 
 
 
@@ -2124,21 +2197,25 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void main(String[] args) {
 		
-		
+//		writeParkfieldMags();
 		
 		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC, 
+//				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
+//				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
 //		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
 		
-		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
-		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))
-			mfd.addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(0.05, 100, 0.1));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfd, "Test MFD"); 
-		graph.setX_AxisLabel("Mangitude");
-		graph.setY_AxisLabel("Rate (per year)");
-		graph.setYLog(true);
+//		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
+//		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))
+//			mfd.addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(0.05, 100, 0.1));
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfd, "Test MFD"); 
+//		graph.setX_AxisLabel("Mangitude");
+//		graph.setY_AxisLabel("Rate (per year)");
+//		graph.setYLog(true);
 
 
 		

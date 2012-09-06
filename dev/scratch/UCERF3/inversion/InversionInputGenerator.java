@@ -1195,7 +1195,7 @@ public class InversionInputGenerator {
 		this.aPrioriConstraintForZeroRates = aPrioriConstraintForZeroRates;
 	}
 	
-	public List<Integer> findParkfieldRups(InversionFaultSystemRupSet rupSet) {
+	public static List<Integer> findParkfieldRups(FaultSystemRupSet rupSet) {
 		int parkfieldParentSectID = 32;
 		
 		// Find Parkfield M~6 ruptures
