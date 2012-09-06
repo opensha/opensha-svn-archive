@@ -3,6 +3,10 @@ package org.opensha.nshmp2.erf.source;
 import java.util.List;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
+import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.nshmp2.util.SourceIMR;
 import org.opensha.nshmp2.util.SourceRegion;
 import org.opensha.nshmp2.util.SourceType;
@@ -25,6 +29,7 @@ public class ClusterERF extends NSHMP_ERF {
 	private SourceIMR srcIMR;
 	private double weight;
 	private double maxR;
+	private Region bounds;
 
 	ClusterERF(String name, List<ClusterSource> sources, SourceRegion srcRegion,
 		SourceIMR srcIMR, double weight, double maxR) {
@@ -35,7 +40,8 @@ public class ClusterERF extends NSHMP_ERF {
 		this.weight = weight;
 		this.maxR = maxR;
 		
-
+		initBounds();
+		
 		// nshmp defaults TODO move to NSHMP_ERF
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(1);
@@ -116,6 +122,28 @@ public class ClusterERF extends NSHMP_ERF {
 	@Override
 	public double getMaxDistance() {
 		return maxR;
+	}
+
+	@Override
+	public Region getBounds() {
+		return bounds;
+	}
+	
+	private void initBounds() {
+		double minLat = Double.MAX_VALUE;
+		double maxLat = Double.MIN_VALUE;
+		double minLon = Double.MAX_VALUE;
+		double maxLon = Double.MIN_VALUE;
+		for (ClusterSource cSrc : sources) {
+			for (FaultSource fSrc : cSrc.sources) {
+				LocationList locs = fSrc.getAllSourceLocs();
+				minLat = Math.min(minLat, LocationUtils.calcMinLat(locs));
+				maxLat = Math.min(maxLat, LocationUtils.calcMinLat(locs));
+				minLon = Math.min(minLon, LocationUtils.calcMinLat(locs));
+				maxLon = Math.min(maxLon, LocationUtils.calcMinLat(locs));
+			}
+		}
+		bounds = NSHMP_Utils.creatBounds(minLat, maxLat, minLon, maxLon, maxR);
 	}
 	
 	// in calculator

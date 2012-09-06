@@ -4,6 +4,7 @@ import static org.opensha.nshmp2.util.FaultCode.*;
 import static org.opensha.nshmp2.util.SourceRegion.CEUS;
 import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
+import java.awt.Color;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.util.FaultCode;
 import org.opensha.nshmp2.util.FocalMech;
@@ -47,6 +49,7 @@ public class GridERF extends NSHMP_ERF {
 	private String info; // summary of data used to build erf
 	private LocationList locs;
 	private Region border; // region connecting outer edge of valid nodes
+	private Region bounds;
 	private List<IncrementalMagFreqDist> mfds;
 	private int[] srcIndices;
 	private Map<FocalMech, Double> mechWtMap;
@@ -78,7 +81,9 @@ public class GridERF extends NSHMP_ERF {
 		this.weight = weight;
 		this.maxR = maxR;
 		this.dR = dR;
+		
 		initIndices();
+		initBounds();
 
 		// nshmp defaults
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
@@ -94,6 +99,10 @@ public class GridERF extends NSHMP_ERF {
 			if (mfds.get(i) != null) list.add(i);
 		}
 		srcIndices = Ints.toArray(list);
+	}
+	
+	private void initBounds() {
+		bounds = NSHMP_Utils.createBounds(border.getBorder(), maxR + 10);
 	}
 
 	/**
@@ -153,6 +162,11 @@ public class GridERF extends NSHMP_ERF {
 	@Override
 	public double getMaxDistance() {
 		return maxR;
+	}
+	
+	@Override
+	public Region getBounds() {
+		return bounds;
 	}
 	
 	/**
@@ -302,7 +316,14 @@ public class GridERF extends NSHMP_ERF {
 
 	public static void main(String[] args) {
 		GridERF tmpERF = Sources.getGrid("CEUS.2007all8.AB.in");
-		getTestGrid(new Location(35.6,-90.4), tmpERF);
+		RegionUtils.regionToKML(tmpERF.getBorder(), "CEUSborder", Color.RED);
+		RegionUtils.regionToKML(tmpERF.getBounds(), "CEUSbounds", Color.ORANGE);
+		
+		tmpERF = Sources.getGrid("pnwdeep.in");
+		RegionUtils.regionToKML(tmpERF.getBorder(), "PNWdeepBorder", Color.RED);
+		RegionUtils.regionToKML(tmpERF.getBounds(), "PNWdeepBounds", Color.ORANGE);
+		
+//		getTestGrid(new Location(35.6,-90.4), tmpERF);
 	}
 	
 	/**

@@ -21,8 +21,13 @@ import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
+import org.opensha.commons.geo.Region;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -416,5 +421,77 @@ public class NSHMP_Utils {
 			a1[i] += a2[i];
 		}
 	}
+	
+	
 
+	/**
+	 * Returns a trapezoidal region that encloses the supplied location list
+	 * with the supplied buffer. 
+	 * 
+	 * @param locs to create bounds for
+	 * @param buffer for bounds
+	 * @return a bounding region
+	 * @see NSHMP_Utils#creatBounds(double, double, double, double, double)
+	 */
+	public static Region createBounds(LocationList locs, double buffer) {
+		double minLat = LocationUtils.calcMinLat(locs);
+		double maxLat = LocationUtils.calcMaxLat(locs);
+		double minLon = LocationUtils.calcMinLon(locs);
+		double maxLon = LocationUtils.calcMaxLon(locs);
+		return creatBounds(minLat, maxLat, minLon, maxLon, buffer);
+	}
+	
+	/**
+	 * Returns a trapezoidal region that encloses the supplied lat-lon limits
+	 * with the supplied buffer. Method builds region out laterally first to set
+	 * edges that will not be parallel to geographic parallels, and then
+	 * determines top and bottom edges. Such a regions could be used as a coarse
+	 * filter for determining if an ERF should be included in a hazard
+	 * calculation.
+	 * 
+	 * @param minLat 
+	 * @param maxLat 
+	 * @param minLon 
+	 * @param maxLon 
+	 * @param buffer for bounds
+	 * @return a bounding region
+	 */
+	public static Region creatBounds(double minLat, double maxLat,
+			double minLon, double maxLon, double buffer) {
+		
+		// inner bounds corners
+		Location isw = new Location(minLat, minLon);
+		Location ise = new Location(minLat, maxLon);
+		Location inw = new Location(maxLat, minLon);
+		Location ine = new Location(maxLat, maxLon);
+		
+		// build 2 points on east edge
+		LocationVector v = new LocationVector(90, buffer, 0);
+		Location seEdge = LocationUtils.location(ise, v);
+		Location neEdge = LocationUtils.location(ine, v);
+		
+		// build 2 points on west edge
+		v.reverse();
+		Location swEdge = LocationUtils.location(isw, v);
+		Location nwEdge = LocationUtils.location(inw, v);
+		
+		// outer bounds corners
+		v.setAzimuth(LocationUtils.azimuth(seEdge, neEdge));
+		v.reverse();
+		Location ose = LocationUtils.location(seEdge, v);
+		v.setAzimuth(LocationUtils.azimuth(neEdge, seEdge));
+		v.reverse();
+		Location one = LocationUtils.location(neEdge, v);
+		v.setAzimuth(LocationUtils.azimuth(swEdge, nwEdge));
+		v.reverse();
+		Location osw = LocationUtils.location(swEdge, v);
+		v.setAzimuth(LocationUtils.azimuth(nwEdge, swEdge));
+		v.reverse();
+		Location onw = LocationUtils.location(nwEdge, v);
+		
+		LocationList corners = new LocationList();
+		corners.addAll(Lists.newArrayList(onw, one, ose, osw));
+		return new Region(corners, BorderType.MERCATOR_LINEAR);
+	}
+	
 }

@@ -16,6 +16,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.erf.NSHMP_ListERF;
 import org.opensha.nshmp2.erf.WUS_ERF;
 import org.opensha.nshmp2.erf.source.ClusterERF;
@@ -38,6 +39,7 @@ import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
@@ -91,8 +93,11 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 	public HazardCalcResult call() {
 		init();
 		DiscretizedFunc utilFunc = period.getFunction();
-		for (NSHMP_ERF erf : erfList) {
-//			System.out.println("ERF start: " + erf.getName());
+		for (NSHMP_ERF erf : erfList.asFilteredIterable(site.getLocation())) {
+			
+			if (!erf.getBounds().contains(site.getLocation())) continue;
+			
+			System.out.println("ERF start: " + erf.getName());
 			ScalarIMR imr = imrMap.get(erf.getSourceIMR());
 //			imr.getParameter(NSHMP08_WUS_Grid.IMR_UNCERT_PARAM_NAME).setValue(false);
 //			System.out.println(erf.getName());
@@ -123,6 +128,7 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 		curve = period.getFunction();
 		Utils.zeroFunc(curve);
 		calc = new HazardCurveCalculator();
+		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
 		// set site
 		for (ScalarIMR imr : imrMap.values()) {
 			imr.setSite(site);
@@ -314,10 +320,12 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 		sw.start();
 		
 		WUS_ERF erf = new WUS_ERF();
+//		NSHMP2008 erf = NSHMP2008.create();
 		erf.updateForecast();
 		System.out.println(erf);
+
 		System.out.println("Seconds: " + sw.elapsedTime(TimeUnit.SECONDS));
-		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.location());
+		Site site = new Site(NEHRP_TestCity.SEATTLE.location());
 //		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
 //		Site site = new Site(new Location(35.2, -90.1)); // memphis shifted
 //		Site site = new Site(new Location(35.6, -90.4));

@@ -20,9 +20,11 @@ import org.opensha.nshmp2.util.FocalMech;
  */
 public class NSHMP2008 extends NSHMP_ListERF {
 
-	public NSHMP2008() {
-		super("NSHMP 2008");
-		init();
+	private static final String BASE_NAME = "USGS NSHMP 2008";
+	
+	private NSHMP2008(String name) {
+		super(name == null ? BASE_NAME : BASE_NAME + ": " + name);
+		System.out.println("Loading sources...");
 	}
 
 	// want to get param group/list for each source type and add
@@ -47,6 +49,36 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		
 	}
 
+	/**
+	 * Creates an NSHMP ERF instance with only the single named source file.
+	 * 
+	 * @param name of source file
+	 * @return the ERF
+	 */
+	public static NSHMP2008 createSingleSource(String name) {
+		NSHMP2008 erf = new NSHMP2008(name);
+		erf.addERF(Sources.get(name));
+		return erf;
+	}
+	
+	public static NSHMP2008 create() {
+		NSHMP2008 erf = new NSHMP2008(null);
+
+		erf.addERFs(Sources.getGridList(CEUS));
+		erf.addERFs(Sources.getFaultList(CEUS));
+		erf.addERFs(Sources.getClusterList(CEUS));
+		
+		erf.addERFs(Sources.getGridList(WUS));
+		erf.addERFs(Sources.getFaultList(WUS));
+		erf.addERFs(Sources.getGridList(CA));
+		erf.addERFs(Sources.getFaultList(CA));
+		erf.addERFs(Sources.getSubductionList(CASC));
+		
+		return erf;
+	}
+	
+	// should be able to filter sources of erf via custom iterators
+	
 	private void init() {
 		
 		addERFs(Sources.getGridList(CEUS));

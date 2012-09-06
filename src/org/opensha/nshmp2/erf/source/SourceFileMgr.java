@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-/**
+/*
  * Container class that manages NSHHMP source file references. Source weights
  * are hard coded in this class and supplied to each SourceFile generated. This
  * class also provides the weights used for NMSZ fault models, which can be
@@ -33,7 +33,7 @@ import com.google.common.collect.Maps;
  * @author Peter Powers
  * @version $Id:$
  */
-public class SourceFileMgr {
+class SourceFileMgr {
 
 	private static String datPath = "/resources/data/nshmp/sources/";
 	private static List<SourceFile> srcFiles;

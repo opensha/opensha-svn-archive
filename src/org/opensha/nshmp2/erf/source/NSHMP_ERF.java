@@ -1,5 +1,6 @@
 package org.opensha.nshmp2.erf.source;
 
+import org.opensha.commons.geo.Region;
 import org.opensha.nshmp2.util.SourceIMR;
 import org.opensha.nshmp2.util.SourceRegion;
 import org.opensha.nshmp2.util.SourceType;
@@ -33,6 +34,8 @@ public abstract class NSHMP_ERF extends AbstractERF {
 	public abstract double getSourceWeight();
 	
 	public abstract double getMaxDistance();
+	
+	public abstract Region getBounds();
 	
 	
 	
