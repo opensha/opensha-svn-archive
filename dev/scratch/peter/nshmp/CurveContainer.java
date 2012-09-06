@@ -13,6 +13,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.tmp.TestGrid;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;

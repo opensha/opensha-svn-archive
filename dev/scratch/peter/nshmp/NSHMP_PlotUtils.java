@@ -4,9 +4,9 @@
 package scratch.peter.nshmp;
 
 import static org.opensha.commons.mapping.gmt.GMT_MapGenerator.*;
-import static org.opensha.sha.nshmp.Period.*;
+import static org.opensha.nshmp2.tmp.TestGrid.*;
+import static org.opensha.nshmp2.util.Period.*;
 import static scratch.peter.curves.ProbOfExceed.*;
-import static scratch.peter.nshmp.TestGrid.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,8 +20,9 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.nshmp2.tmp.TestGrid;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
-import org.opensha.sha.nshmp.Period;
 import org.opensha.sra.rtgm.RTGM;
 import org.opensha.sra.rtgm.RTGM.Frequency;
 

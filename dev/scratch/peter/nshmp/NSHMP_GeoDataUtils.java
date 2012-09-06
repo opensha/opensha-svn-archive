@@ -3,7 +3,7 @@
  */
 package scratch.peter.nshmp;
 
-import static org.opensha.sha.nshmp.Period.*;
+import static org.opensha.nshmp2.util.Period.*;
 import static scratch.peter.curves.ProbOfExceed.*;
 
 import java.io.File;
@@ -14,7 +14,8 @@ import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
-import org.opensha.sha.nshmp.Period;
+import org.opensha.nshmp2.tmp.TestGrid;
+import org.opensha.nshmp2.util.Period;
 
 import scratch.peter.curves.ProbOfExceed;
 
