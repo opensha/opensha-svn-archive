@@ -274,6 +274,7 @@ public class InversionInputGenerator {
 		}
 		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0) {
 			int totalNumMFDSmoothnessConstraints = 0;
+			MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
 			// Get list of parent sections
 			ArrayList<Integer> parentIDs = new ArrayList<Integer>();
 			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
@@ -292,7 +293,6 @@ public class InversionInputGenerator {
 				// For each beginning section of subsection-pair, there will be numMagBins # of constraints
 				for (int j=0; j<sectsForParent.size()-1; j++) {
 					int sect1 = sectsForParent.get(j);
-					MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
 					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect1);
 					int numMagBins = sectMFDConstraint.getNumMags();
 					totalNumMFDSmoothnessConstraints+=numMagBins;
@@ -755,7 +755,7 @@ public class InversionInputGenerator {
 		// MFD Smoothing constraint - MFDs spatially smooth along adjacent subsections on a parent section
 		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0) {  
 			double relativeMFDSmoothingConstraintWt = config.getRelativeMFDSmoothnessConstraintWt();
-			if(D) System.out.println("\nAdding Subsection Nucleation MFD constraints to A matrix ...");
+			if(D) System.out.println("\nAdding MFD spatial smoothness constraints to A matrix ...");
 			numNonZeroElements = 0;
 			
 			
@@ -899,82 +899,7 @@ public class InversionInputGenerator {
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
 		}
 		
-		
-/*		
-		// Constraint event rates along parent sections to be smooth
-		if (config.getEventRateSmoothnessWt() > 0.0) {
-			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
-			double relativeEventRateSmoothnessWt = config.getEventRateSmoothnessWt();
-			numNonZeroElements = 0;
-			
-			// Get list of parent IDs
-			Map<Integer, List<FaultSectionPrefData>> parentSectsMap = Maps.newHashMap();
-			
-			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
-				Integer parentID = sect.getParentSectionId();
-				List<FaultSectionPrefData> parentSects = parentSectsMap.get(parentID);
-				if (parentSects == null) {
-					parentSects = Lists.newArrayList();
-					parentSectsMap.put(parentID, parentSects);
-				}
-				parentSects.add(sect);
-			}
-			
-			List<HashSet<Integer>> sectRupsHashes = Lists.newArrayList();
-			for (int s=0; s<rupSet.getNumSections(); s++)
-				sectRupsHashes.add(new HashSet<Integer>(rupSet.getRupturesForSection(s)));
 
-			for (List<FaultSectionPrefData> sectsForParent : parentSectsMap.values()) {		
-				
-				// not needed
-//				Collections.sort(sectsForParent); // sort subsection IDs (so they will be consecutive along a section)  (not sure this is needed if subsections are already in order, but can't hurt)
-				
-				// Constrain the event rate of each neighboring subsection pair (with same parent section) to be approximately equal
-				for (int j=0; j<sectsForParent.size()-1; j++) {
-					int sect1 = sectsForParent.get(j).getSectionId();
-					int sect2 = sectsForParent.get(j+1).getSectionId();
-					HashSet<Integer> sect1Hash = sectRupsHashes.get(sect1);
-					HashSet<Integer> sect2Hash = sectRupsHashes.get(sect2);
-					
-					List<Integer> sect1Rups = Lists.newArrayList();  
-					List<Integer> sect2Rups = Lists.newArrayList();
-					
-					// only rups that involve sect 1 but not sect 2
-					for (Integer sect1Rup : sect1Hash)
-						if (!sect2Hash.contains(sect1Rup))
-							sect1Rups.add(sect1Rup);
-
-					// only rups that involve sect 2 but not sect 1
-					for (Integer sect2Rup : sect2Hash)
-						if (!sect1Hash.contains(sect2Rup))
-							sect2Rups.add(sect2Rup);
-					
-					for (int rup: sect1Rups) { 
-						if (QUICK_GETS_SETS) 
-							A.setQuick(rowIndex,rup,relativeEventRateSmoothnessWt); 
-						else
-							A.set(rowIndex,rup,relativeEventRateSmoothnessWt);
-						numNonZeroElements++;
-					}
-					for (int rup: sect2Rups) {
-						if (QUICK_GETS_SETS) 
-							A.setQuick(rowIndex,rup,-relativeEventRateSmoothnessWt);
-						else
-							A.set(rowIndex,rup,-relativeEventRateSmoothnessWt);
-						numNonZeroElements++;
-					}
-					d[rowIndex] = 0;
-					rowIndex++;
-				}
-			}
-			System.out.println("Adding Event-Rate Smoothness Constraint took "+getTimeStr(watch)+".");
-			watch.reset();
-			watch.start();
-			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
-			
-		}
-*/		
-		
 		// Constrain paleoseismically-visible event rates along parent sections to be smooth
 		if (config.getEventRateSmoothnessWt() > 0.0) {
 			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
