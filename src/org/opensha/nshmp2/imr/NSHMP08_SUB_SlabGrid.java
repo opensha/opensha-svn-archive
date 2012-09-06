@@ -1,28 +1,29 @@
 package org.opensha.nshmp2.imr;
 
-import static org.opensha.nshmp2.util.Period.GM0P00;
-
 import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.nshmp2.util.CurveTable;
-import org.opensha.nshmp2.util.FaultCode;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.imr.PropagationEffect;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 
 import com.google.common.collect.Maps;
 
 /**
  * The grid implementation of {@link NSHMP08_SUB_Slab}.
+ * 
+ * <p> Note that parent uses rRup for distance. Although rRup is used to build
+ * this class' {@code CurveTable}, rJB is used for lookups and the corresponding
+ * parameter is initialized here. Formerly, a {@code PropagationEffect} was used
+ * that could be queried for any distance as needed.</p>
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -62,6 +63,26 @@ public class NSHMP08_SUB_SlabGrid extends NSHMP08_SUB_Slab implements GridIMR {
 		// overridden as its unnecessary to push Site down to child imrs
 		// only needed in getExceedProbabilities(f)
 		this.eqkRupture = eqkRupture;
+	}
+
+	@Override
+	public void setParamDefaults() {
+		distanceJBParam.setValueAsDefault();
+		super.setParamDefaults();
+	}
+	
+	@Override
+	protected void initPropagationEffectParams() {
+		distanceJBParam = new DistanceJBParameter(0.0);
+		distanceJBParam.setNonEditable();
+		propagationEffectParams.addParameter(distanceJBParam);
+		super.initPropagationEffectParams();
+	}
+
+	@Override
+	protected void initParameterEventListeners() {
+		distanceJBParam.addParameterChangeListener(this);
+		super.initParameterEventListeners();
 	}
 
 	@Override

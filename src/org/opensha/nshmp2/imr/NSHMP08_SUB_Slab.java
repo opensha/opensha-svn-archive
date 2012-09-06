@@ -271,7 +271,7 @@ public class NSHMP08_SUB_Slab extends AttenuationRelationship implements
 	@Override
 	protected void setPropagationEffectParams() {
 		if (site != null && eqkRupture != null) {
-			distanceJBParam.setValue(eqkRupture, site);
+			distanceRupParam.setValue(eqkRupture, site);
 		}
 	}
 
