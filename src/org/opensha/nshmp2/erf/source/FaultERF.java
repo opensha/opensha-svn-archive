@@ -41,8 +41,6 @@ public class FaultERF extends NSHMP_ERF {
 		this.weight = weight;
 		this.maxR = maxR;
 		
-		initBounds();
-
 		// nshmp defaults
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(1);
@@ -131,7 +129,7 @@ public class FaultERF extends NSHMP_ERF {
 			count += source.getNumRuptures();
 		}
 		rupCount = count;
-//		System.out.println("Update forecast: " + getName() + " " + getNumSources() + " " + count);
+		initBounds();
 	}
 
 	@Override

@@ -95,7 +95,7 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 		DiscretizedFunc utilFunc = period.getFunction();
 		for (NSHMP_ERF erf : erfList.asFilteredIterable(site.getLocation())) {
 			
-			if (!erf.getBounds().contains(site.getLocation())) continue;
+//			if (!erf.getBounds().contains(site.getLocation())) continue;
 			
 			System.out.println("ERF start: " + erf.getName());
 			ScalarIMR imr = imrMap.get(erf.getSourceIMR());
@@ -319,8 +319,8 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 		Stopwatch sw = new Stopwatch();
 		sw.start();
 		
-		WUS_ERF erf = new WUS_ERF();
-//		NSHMP2008 erf = NSHMP2008.create();
+//		WUS_ERF erf = new WUS_ERF();
+		NSHMP2008 erf = NSHMP2008.create();
 		erf.updateForecast();
 		System.out.println(erf);
 

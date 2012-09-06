@@ -40,8 +40,6 @@ public class ClusterERF extends NSHMP_ERF {
 		this.weight = weight;
 		this.maxR = maxR;
 		
-		initBounds();
-		
 		// nshmp defaults TODO move to NSHMP_ERF
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(1);
@@ -83,6 +81,7 @@ public class ClusterERF extends NSHMP_ERF {
 		for (ClusterSource source : sources) {
 			source.init();
 		}
+		initBounds();
 	}
 
 	@Override

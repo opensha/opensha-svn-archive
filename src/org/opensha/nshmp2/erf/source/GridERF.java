@@ -83,8 +83,6 @@ public class GridERF extends NSHMP_ERF {
 		this.dR = dR;
 		
 		initIndices();
-		initBounds();
-
 		// nshmp defaults
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(1);
@@ -276,7 +274,7 @@ public class GridERF extends NSHMP_ERF {
 
 	@Override
 	public void updateForecast() {
-		// does nothing as yet
+		initBounds();
 	}
 
 	@Override

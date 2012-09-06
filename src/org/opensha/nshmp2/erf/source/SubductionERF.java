@@ -40,8 +40,6 @@ public class SubductionERF extends NSHMP_ERF {
 		this.weight = weight;
 		this.maxR = maxR;
 
-		initBounds();
-		
 		// nshmp defaults
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(1);
@@ -76,7 +74,7 @@ public class SubductionERF extends NSHMP_ERF {
 			source.init();
 			count += source.getNumRuptures();
 		}
-//		System.out.println("Update forecast: " + getName() + " " + getNumSources() + " " + count);
+		initBounds();
 	}
 
 	@Override
