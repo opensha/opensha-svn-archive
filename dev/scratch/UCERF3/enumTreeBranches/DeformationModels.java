@@ -29,15 +29,15 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	NEOKINEMA(				"Neokinema",			"NEOK",		0.35d,	FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2012_08_18.csv",
 																		FaultModels.FM3_2,	"neokinema_slip_rake_fm_3_2_2012_08_18.csv"),
 	// ZENG
-	ZENG(					"Zeng",					"ZENG",		0.30d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_06_08.csv",
-																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_2012_06_08.csv"),
+	ZENG(					"Zeng",					"ZENG",		0.30d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_09_07.csv",
+																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_2012_09_07.csv"),
 	// GEOLOGIC
-	GEOLOGIC(				"Geologic",				"GEOL", 	0.15d,	FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2012_08_14.csv",
-																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_2012_08_13.csv"),
-	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_upperbound_2012_08_14.csv",
-																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_upperbound_2012_08_13.csv"),
-	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_lowerbound_2012_08_14.csv",
-																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_lowerbound_2012_08_13.csv"),
+	GEOLOGIC(				"Geologic",				"GEOL", 	0.15d,	FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2012_09_06.csv",
+																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_2012_09_06.csv"),
+	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_upperbound_2012_09_06.csv",
+																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_upperbound_2012_09_06.csv"),
+	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_lowerbound_2012_09_06.csv",
+																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_lowerbound_2012_09_06.csv"),
 	// GEOLOGIC + ABM
 	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	0d,		FaultModels.FM3_1,	"geologic_plus_ABM_slip_rake_fm_3_1_2012_06_08.csv",
 																		FaultModels.FM3_2,	"geologic_plus_ABM_slip_rake_fm_3_2_2012_06_08.csv"),

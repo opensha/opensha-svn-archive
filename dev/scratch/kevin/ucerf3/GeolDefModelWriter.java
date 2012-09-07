@@ -19,8 +19,9 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class GeolDefModelWriter {
 	
 	public static void main(String[] args) throws IOException {
-		FaultModels fm = FaultModels.FM3_1;
-		File inputFile = new File("D:\\Documents\\temp\\Geologic_Def_model_3_1_2012_08_14.csv");
+		FaultModels fm = FaultModels.FM3_2;
+//		File inputFile = new File("D:\\Documents\\temp\\Geologic_Def_model_3_1_2012_08_14.csv");
+		File inputFile = new File("/tmp/Geologic_Def_model_3_2_2012_09_06.csv");
 		CSVFile<String> inputCSV = CSVFile.readFile(inputFile, true);
 		
 		Map<Integer, FaultSectionPrefData> fmSects = fm.fetchFaultSectionsMap();
@@ -87,9 +88,9 @@ public class GeolDefModelWriter {
 		
 		File outputDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(), "DeformationModels");
 		
-		dmCSV.writeToFile(new File(outputDir, "geologic_slip_rake_fm_3_1_2012_08_14.csv"));
-		minCSV.writeToFile(new File(outputDir, "geologic_slip_rake_fm_3_1_lowerbound_2012_08_14.csv"));
-		maxCSV.writeToFile(new File(outputDir, "geologic_slip_rake_fm_3_1_upperbound_2012_08_14.csv"));
+		dmCSV.writeToFile(new File(outputDir, "geologic_slip_rake_fm_3_2_2012_09_06.csv"));
+		minCSV.writeToFile(new File(outputDir, "geologic_slip_rake_fm_3_2_lowerbound_2012_09_06.csv"));
+		maxCSV.writeToFile(new File(outputDir, "geologic_slip_rake_fm_3_2_upperbound_2012_09_06.csv"));
 	}
 
 }

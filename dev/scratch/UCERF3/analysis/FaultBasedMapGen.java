@@ -535,12 +535,19 @@ public class FaultBasedMapGen {
 	
 	public static void plotDeformationModelSlips(Region region, File saveDir, boolean display)
 			throws IOException, GMT_MapException, RuntimeException {
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, "dm_ucerf2");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC, "dm_geol");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ABM, "dm_abm");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.NEOKINEMA, "dm_neok");
-//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOBOUND, "dm_geob");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ZENG, "dm_zeng");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, "fm2_1_ucerf2");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC, "fm3_1_geol");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC_UPPER, "fm3_1_geol_upper");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC_LOWER, "fm3_1_geol_lower");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ABM, "fm3_1_abm");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.NEOKINEMA, "fm3_1_neok");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ZENG, "fm3_1_zeng");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC, "fm3_2_geol");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, "fm3_2_geol_upper");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_LOWER, "fm3_2_geol_lower");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.ABM, "fm3_2_abm");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.NEOKINEMA, "fm3_2_neok");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.ZENG, "fm3_2_zeng");
 		
 		// now make geologic pts plot
 		CPT cpt = getSlipRateCPT();
@@ -573,7 +580,7 @@ public class FaultBasedMapGen {
 	public static void plotDeformationModelSlip(
 			Region region, File saveDir, boolean display, FaultModels fm, DeformationModels dm, String prefix)
 			throws IOException, GMT_MapException, RuntimeException {
-		CPT cpt = getSlipRateCPT().rescale(0, 10);
+		CPT cpt = getSlipRateCPT();
 		
 		List<LocationList> faults = Lists.newArrayList();
 		List<Double> valsList = Lists.newArrayList();
@@ -796,8 +803,8 @@ public class FaultBasedMapGen {
 		String prefix = solFile.getName().replaceAll(".zip", "");
 		boolean display = true;
 		
-//		plotDeformationModelSlips(region, saveDir, display);
-		plotDeformationModelSlipRatiosToGeol(region, saveDir, display);
+		plotDeformationModelSlips(region, saveDir, display);
+//		plotDeformationModelSlipRatiosToGeol(region, saveDir, display);
 		System.exit(0);
 		
 //		plotOrigNonReducedSlipRates(sol, region, saveDir, prefix, display);
