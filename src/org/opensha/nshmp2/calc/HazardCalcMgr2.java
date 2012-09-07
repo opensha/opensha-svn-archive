@@ -22,6 +22,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.erf.WUS_ERF;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.NSHMP_Utils;
@@ -40,7 +41,7 @@ import com.google.common.collect.Lists;
  */
 public class HazardCalcMgr2 {
 
-	private static final String OUT_DIR = "/Volumes/Scratch/nshmp-sha-test";
+	private static final String OUT_DIR = "/Volumes/Scratch/nshmp-opensha-trunk2";
 	private static final String S = File.separator;
 	private static Logger log;
 	private static final Level LEVEL;
@@ -49,9 +50,6 @@ public class HazardCalcMgr2 {
 
 	private Period per;
 	private String name;
-//	private String dataName = "SF_BOX";
-//	private String dataName = "LA_BOX";
-//	private String dataName = "cybershake";
 
 	static {
 		LEVEL = Level.INFO;
@@ -75,7 +73,8 @@ public class HazardCalcMgr2 {
 				ex);
 
 			// init erf
-			WUS_ERF erf = new WUS_ERF();
+//			WUS_ERF erf = new WUS_ERF();
+			NSHMP2008 erf = NSHMP2008.create();
 			erf.updateForecast();
 
 			// init results; requires that period be set
@@ -165,7 +164,7 @@ public class HazardCalcMgr2 {
 	public static void main(String[] args) {
 //		new HazardCalcMgr2();
 		
-		Set<Period> periods = EnumSet.of(Period.GM0P20, Period.GM1P00);
+		Set<Period> periods = EnumSet.of(Period.GM0P20, Period.GM1P00, Period.GM0P00);
 		List<LocationList> locLists = Lists.newArrayList();
 		List<String> names = Lists.newArrayList();
 		TestGrid tg = null;
@@ -179,30 +178,30 @@ public class HazardCalcMgr2 {
 //		locLists.add(gr.getNodeList());
 //		names.add("LA_BOX");
 
-//		tg = TestGrid.LOS_ANGELES;
-//		gr = tg.grid();
-//		locLists.add(gr.getNodeList());
-//		names.add(tg.name());
-//		
-//		tg = TestGrid.SAN_FRANCISCO;
-//		gr = tg.grid();
-//		locLists.add(gr.getNodeList());
-//		names.add(tg.name());
+		tg = TestGrid.LOS_ANGELES;
+		gr = tg.grid();
+		locLists.add(gr.getNodeList());
+		names.add(tg.name());
+		
+		tg = TestGrid.SAN_FRANCISCO;
+		gr = tg.grid();
+		locLists.add(gr.getNodeList());
+		names.add(tg.name());
 
 		tg = TestGrid.SEATTLE;
 		gr = tg.grid();
 		locLists.add(gr.getNodeList());
 		names.add(tg.name());
 		
-//		tg = TestGrid.MEMPHIS;
-//		gr = tg.grid();
-//		locLists.add(gr.getNodeList());
-//		names.add(tg.name());
-//		
-//		tg = TestGrid.SALT_LAKE_CITY;
-//		gr = tg.grid();
-//		locLists.add(gr.getNodeList());
-//		names.add(tg.name());
+		tg = TestGrid.MEMPHIS;
+		gr = tg.grid();
+		locLists.add(gr.getNodeList());
+		names.add(tg.name());
+		
+		tg = TestGrid.SALT_LAKE_CITY;
+		gr = tg.grid();
+		locLists.add(gr.getNodeList());
+		names.add(tg.name());
 		
 //		LocationList locList = new LocationList();
 //		for (NEHRP_TestCity city : NEHRP_TestCity.values()) {

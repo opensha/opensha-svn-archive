@@ -4,8 +4,10 @@ import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.awt.geom.Point2D;
 import java.rmi.RemoteException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -97,7 +99,7 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 			
 //			if (!erf.getBounds().contains(site.getLocation())) continue;
 			
-			System.out.println("ERF start: " + erf.getName());
+//			System.out.println("ERF start: " + erf.getName());
 			ScalarIMR imr = imrMap.get(erf.getSourceIMR());
 //			imr.getParameter(NSHMP08_WUS_Grid.IMR_UNCERT_PARAM_NAME).setValue(false);
 //			System.out.println(erf.getName());
@@ -323,21 +325,37 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 		NSHMP2008 erf = NSHMP2008.create();
 		erf.updateForecast();
 		System.out.println(erf);
-
+		sw.stop();
 		System.out.println("Seconds: " + sw.elapsedTime(TimeUnit.SECONDS));
-		Site site = new Site(NEHRP_TestCity.SEATTLE.location());
-//		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
-//		Site site = new Site(new Location(35.2, -90.1)); // memphis shifted
-//		Site site = new Site(new Location(35.6, -90.4));
-		System.out.println(site.getLocation());
 		Period p = Period.GM0P00;
+
+		sw.reset().start();
+		Site site = new Site(NEHRP_TestCity.SEATTLE.shiftedLocation());
 		HazardCalc2 hc = HazardCalc2.create(erf, site, p);
-		System.out.println("Seconds: " + sw.elapsedTime(TimeUnit.SECONDS));
 		HazardCalcResult result = hc.call();
 		System.out.println(result.curve());
+		sw.stop();
 		System.out.println("Seconds: " + sw.elapsedTime(TimeUnit.SECONDS));
-		System.exit(0);
 		
+//		Set<NEHRP_TestCity> cities = EnumSet.of(
+//			NEHRP_TestCity.LOS_ANGELES,
+//			NEHRP_TestCity.SEATTLE,
+//			NEHRP_TestCity.SALT_LAKE_CITY,
+//			NEHRP_TestCity.MEMPHIS);
+//		
+//		for (NEHRP_TestCity city : cities) {
+//			sw.reset().start();
+//			Site site = new Site(city.shiftedLocation());
+//			System.out.println(city.name() + " " + site.getLocation());
+//			HazardCalc2 hc = HazardCalc2.create(erf, site, p);
+//			HazardCalcResult result = hc.call();
+//			System.out.println(result.curve());
+//			sw.stop();
+//			System.out.println("Time: " + sw.elapsedTime(TimeUnit.SECONDS) + " sec");
+//		}
+		
+		System.exit(0);
+
 	}
 	
 }
