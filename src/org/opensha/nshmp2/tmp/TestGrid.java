@@ -1,6 +1,8 @@
 package org.opensha.nshmp2.tmp;
 
 import java.awt.Color;
+import java.util.EnumSet;
+import java.util.Set;
 
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
@@ -87,6 +89,11 @@ public enum TestGrid {
 		for (TestGrid tg : TestGrid.values()) {
 			RegionUtils.regionToKML(tg.grid(), "TEST GRID " + tg, Color.ORANGE);
 		}
+	}
+	
+	public static Set<TestGrid> getLocals() {
+		return EnumSet.of(LOS_ANGELES, SAN_FRANCISCO, SEATTLE, SALT_LAKE_CITY,
+			MEMPHIS);
 	}
 
 }
