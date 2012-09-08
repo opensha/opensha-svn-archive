@@ -11,8 +11,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -27,6 +29,8 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.sra.rtgm.RTGM;
 import org.opensha.sra.rtgm.RTGM.Frequency;
@@ -44,7 +48,8 @@ import scratch.peter.curves.ProbOfExceed;
  */
 public class NSHMP_DataUtils {
 
-	private static final String SRC_PATH = "/Volumes/Scratch/nshmp-sources/";
+	private static final String NSHMP_SRC_PATH = "/Volumes/Scratch/nshmp-sources/";
+	private static final String SHA_SRC_PATH = "/Volumes/Scratch/nshmp-opensha-";
 	private static final String SEP = File.separator;
 	private static final String RTGM_OUT = "RTGM.dat";
 	private static final String RTGM_HEADER = "# lat lon 1hz 5hz\n";
@@ -55,8 +60,12 @@ public class NSHMP_DataUtils {
 	 */
 	public static void main(String[] args) {
 		
-		deriveDesignMapRTGM();
-		generateRTGM();
+		// national scale data
+//		deriveDesignMapRTGM();
+//		generateRTGM_NSHMP();
+		
+		// regional grids
+		generateRTGM_SHA();
 		
 	}
 	
@@ -77,41 +86,85 @@ public class NSHMP_DataUtils {
 	 */
 	
 	private static String dataName = "curves.dat";
+	private static String csvName = "curves.csv";
 	private static String dataR3 = "DataR3";
 	private static String hTool = "HazardTool";
 	private static String fortran1 = "FortranLatest";
 	private static String fortran2 = "FortranUpdate";
+	private static String shaDev = "dev";
+	private static String shaTrunk = "trunk";
+	private static Set<TestGrid> grids = TestGrid.getLocals();
 	private static final double DEF_GM_1HZ = 0.0033;
 	private static final double DEF_GM_5HZ = 0.0055;
 	
+	
+	public static void generateRTGM_SHA() {
+//		TestGrid tg = TestGrid.LOS_ANGELES;
+//		processRTGM_SHA(SHA_SRC_PATH + shaDev + SEP + tg.name() + SEP, tg);
+		for (TestGrid grid : grids) {
+			processRTGM_SHA(SHA_SRC_PATH + shaDev + SEP + grid.name() + SEP, grid);
+			processRTGM_SHA(SHA_SRC_PATH + shaTrunk + SEP + grid.name() + SEP, grid);
+		}
+	}
+	
+	private static void processRTGM_SHA(String dataPath, TestGrid tg) {
+		File f1hz = new File(dataPath, GM1P00 + SEP + csvName);
+		File f5hz = new File(dataPath, GM0P20 + SEP + csvName);
+		File out = new File(dataPath, RTGM_OUT);
+
+		GriddedRegion gr = tg.grid();
+
+		System.out.println("Processing 1hz...");
+		CurveContainer cc_1hz = CurveContainer.create(f1hz, tg);
+		Map<Integer, Double> rtgmMap1hz = calcRTGM(gr, cc_1hz, SA_1P00, DEF_GM_1HZ);
+
+		System.out.println("Processing 5hz...");
+		CurveContainer cc_5hz = CurveContainer.create(f5hz, tg);
+		Map<Integer, Double> rtgmMap5hz = calcRTGM(gr, cc_5hz, SA_0P20, DEF_GM_5HZ);
+		
+		System.out.println("Writing output...");
+		try {
+			Formatter formatter = new Formatter(out);
+			formatter.format("%s", RTGM_HEADER);
+		
+			for (int i=0; i<gr.getNodeCount(); i++) {
+				Location loc = gr.locationForIndex(i);
+				formatter.format(RTGM_FORMAT,
+					String.format("%.2f", loc.getLatitude()),
+					String.format("%.2f", loc.getLongitude()),
+					rtgmMap1hz.get(i), rtgmMap5hz.get(i));
+			}
+			formatter.flush();
+			formatter.close();
+		} catch (FileNotFoundException fnfe) {
+			fnfe.printStackTrace();
+		}
+	}
+
 	/**
 	 * Utility method to generate RTGM values from hazard curve data sets and
 	 * output them to file.
 	 */
-	public static void generateRTGM() {
-		processRTGM1(SRC_PATH + dataR3 + SEP);
-		processRTGM1(SRC_PATH + hTool + SEP);
-		processRTGM1(SRC_PATH + fortran1 + SEP);
-		processRTGM1(SRC_PATH + fortran2 + SEP);
+	public static void generateRTGM_NSHMP() {
+		processRTGM_NSHMP(NSHMP_SRC_PATH + dataR3 + SEP);
+		processRTGM_NSHMP(NSHMP_SRC_PATH + hTool + SEP);
+		processRTGM_NSHMP(NSHMP_SRC_PATH + fortran1 + SEP);
+		processRTGM_NSHMP(NSHMP_SRC_PATH + fortran2 + SEP);
 	}
 		
-	private static void processRTGM1(String dataPath) {
+	private static void processRTGM_NSHMP(String dataPath) {
 		File f1hz = new File(dataPath, GM1P00 + SEP + dataName);
 		File f5hz = new File(dataPath, GM0P20 + SEP + dataName);
 		File out = new File(dataPath, RTGM_OUT);
-		processRTGM2(f1hz, f5hz, out);
-		
-	}
-	private static void processRTGM2(File curves1hz, File curves5hz, File out) {
-		
+
 		GriddedRegion gr = NSHMP_UtilsDev.getNSHMP_Region(0.1);
 
 		System.out.println("Processing 1hz...");
-		CurveContainer cc_1hz = CurveContainer.create(curves1hz);
+		CurveContainer cc_1hz = CurveContainer.create(f1hz);
 		Map<Integer, Double> rtgmMap1hz = calcRTGM(gr, cc_1hz, SA_1P00, DEF_GM_1HZ);
 
 		System.out.println("Processing 5hz...");
-		CurveContainer cc_5hz = CurveContainer.create(curves5hz);
+		CurveContainer cc_5hz = CurveContainer.create(f5hz);
 		Map<Integer, Double> rtgmMap5hz = calcRTGM(gr, cc_5hz, SA_0P20, DEF_GM_5HZ);
 		
 		System.out.println("Writing output...");
@@ -231,7 +284,7 @@ public class NSHMP_DataUtils {
 	 * for the conterminous US.
 	 */
 	public static void deriveDesignMapRTGM() {
-		String dataPath = SRC_PATH + "DesignMap/";
+		String dataPath = NSHMP_SRC_PATH + "DesignMap/";
 		
 		BufferedReader br_p1hz = null;
 		BufferedReader br_p5hz = null;
@@ -347,5 +400,29 @@ public class NSHMP_DataUtils {
 	}
 	
 
+	/**
+	 * Utility method to extract RTGM values from a RTGM data set
+	 * and return them in a GeoDataSet.
+	 * @param rc RTGM data container
+	 * @param region gridded region for which RTGM values should be extracted
+	 * @param f the frequency of interest
+	 * @return the PE results in a GeoDataSet
+	 */
+	public static GeoDataSet extractRTGM(RTGM_Container rc,
+			GriddedRegion region, Frequency f) {
+		GriddedGeoDataSet gDat = new GriddedGeoDataSet(region, true);
+		for (Location loc : region) {
+			double val = 0;
+			try {
+				val = rc.getValue(loc, f);
+			} catch (Exception e) {
+				System.out.println(loc);
+				// do nothing; let gm be 0
+			}
+			gDat.set(loc, val);
+		}
+		return gDat;
+	}
+	
 
 }

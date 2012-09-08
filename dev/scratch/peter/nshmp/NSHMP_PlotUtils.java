@@ -49,32 +49,44 @@ public class NSHMP_PlotUtils {
 //		makeNationalPE("HazardTool", "DataR3", 0.05, GM0P20, PE2IN50);
 //		makeNationalPE("DataR1", "DataR3", 0.05, GM0P20, PE2IN50);
 //		makeNationalPE("FortranUpdate", "HazardTool", 0.05, GM1P00, PE2IN50);
+
+//		makeRegionalPE(LOS_ANGELES, "trunk", "FortranUpdate", 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE(LOS_ANGELES, "trunk", "FortranUpdate", 0.1, GM0P20, PE2IN50);
+//		makeRegionalPE(LOS_ANGELES, "trunk", "FortranUpdate", 0.1, GM1P00, PE2IN50);
+
+//		makeRegionalPE(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.05, GM0P00, PE2IN50);
+//		makeRegionalPE(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.05, GM0P20, PE2IN50);
+//		makeRegionalPE(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.05, GM1P00, PE2IN50);
+//
+//		makeRegionalPE(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.05, GM0P00, PE2IN50);
+//		makeRegionalPE(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.05, GM0P20, PE2IN50);
+//		makeRegionalPE(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.05, GM1P00, PE2IN50);
+//
+//		makeRegionalPE(SEATTLE, "trunk", "FortranUpdate", 0.05, GM0P00, PE2IN50);
+//		makeRegionalPE(SEATTLE, "trunk", "FortranUpdate", 0.05, GM0P20, PE2IN50);
+//		makeRegionalPE(SEATTLE, "trunk", "FortranUpdate", 0.05, GM1P00, PE2IN50);
+//
+//		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM0P00, PE2IN50);
+//		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM0P20, PE2IN50);
+//		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM1P00, PE2IN50);
+
+
+//		makeNationalRTGM("HazardTool", "DesignMap", 0.05, Frequency.SA_0P20);
+//		makeNationalRTGM("HazardTool", "DesignMap", 0.05, Frequency.SA_1P00);
+//		makeNationalRTGM("FortranLatest", "HazardTool", 0.05, Frequency.SA_0P20);
+//		makeNationalRTGM("FortranLatest", "HazardTool", 0.05, Frequency.SA_1P00);
 		
-		makeRegionalPE(LOS_ANGELES, "FortranUpdate", 0.1, GM0P00, PE2IN50);
-		makeRegionalPE(LOS_ANGELES, "FortranUpdate", 0.1, GM0P20, PE2IN50);
-		makeRegionalPE(LOS_ANGELES, "FortranUpdate", 0.1, GM1P00, PE2IN50);
-
-//		makeRegionalPE(SAN_FRANCISCO, "FortranUpdate", 0.05, GM0P00, PE2IN50);
-//		makeRegionalPE(SAN_FRANCISCO, "FortranUpdate", 0.05, GM0P20, PE2IN50);
-//		makeRegionalPE(SAN_FRANCISCO, "FortranUpdate", 0.05, GM1P00, PE2IN50);
-
-//		makeRegionalPE(SALT_LAKE_CITY, "FortranUpdate", 0.05, GM0P00, PE2IN50);
-//		makeRegionalPE(SALT_LAKE_CITY, "FortranUpdate", 0.05, GM0P20, PE2IN50);
-//		makeRegionalPE(SALT_LAKE_CITY, "FortranUpdate", 0.05, GM1P00, PE2IN50);
-
-//		makeRegionalPE(SEATTLE, "FortranUpdate", 0.05, GM0P00, PE2IN50);
-//		makeRegionalPE(SEATTLE, "FortranUpdate", 0.05, GM0P20, PE2IN50);
-//		makeRegionalPE(SEATTLE, "FortranUpdate", 0.05, GM1P00, PE2IN50);
-
-//		makeRegionalPE(MEMPHIS, "FortranUpdate", 0.05, GM0P00, PE2IN50);
-//		makeRegionalPE(MEMPHIS, "FortranUpdate", 0.05, GM0P20, PE2IN50);
-//		makeRegionalPE(MEMPHIS, "FortranUpdate", 0.05, GM1P00, PE2IN50);
-
-
-
-		//		makeRegionalPE(SEATTLE, "FortranUpdate", 0.05, GM0P00, PE2IN50);
-//		makeRegionalPE(LOS_ANGELES, "HazardTool", 0.1, GM1P00, PE2IN50);
-//		makeRegionalPE(LOS_ANGELES, "FortranLatest", 0.1, GM1P00, PE2IN50);
+//		makeRegionalRTGM(LOS_ANGELES, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
+//		makeRegionalRTGM(LOS_ANGELES, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
+		makeRegionalRTGM(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
+		makeRegionalRTGM(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
+		makeRegionalRTGM(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
+		makeRegionalRTGM(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
+//		makeRegionalRTGM(SEATTLE, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
+//		makeRegionalRTGM(SEATTLE, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
+//		makeRegionalRTGM(MEMPHIS, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
+//		makeRegionalRTGM(MEMPHIS, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
+		
 	}
 	
 
@@ -95,26 +107,40 @@ public class NSHMP_PlotUtils {
 	/*
 	 * Make a regional over national plot
 	 */
-	private static void makeRegionalPE(TestGrid over, String under,
+	private static void makeRegionalPE(TestGrid over, String shaDir, String under,
 			double maxScale, Period p, ProbOfExceed pe) {
-		String name = over + " over " + under + " " + pe + " " + p;
-		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio(over, under,
+		String name = over + " SHA" + shaDir + " over " + under + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio(over, shaDir, under,
 			p, pe);
 		NSHMP_GeoDataUtils.minusOne(xyz);
 		makeRatioPlot(xyz, over.bounds(), -maxScale, maxScale, name);
 	}
 
+	/*
+	 * Make national scale RTGM comparison map
+	 */
+	private static void makeNationalRTGM(String over, String under,
+			double maxScale, Frequency f) {
+		String name = "RTGM " + over + " over " + under + " " + f;
+		GriddedRegion gr = NSHMP_UtilsDev.getNSHMP_Region(0.1);
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getRTGM_Ratio(over, under, f, gr);
+		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(xyz, NATIONAL.bounds(), -maxScale, maxScale, name);
+	}
+	
+	/*
+	 * Make regional scale RTGM comparison map
+	 *
+	 */
+	private static void makeRegionalRTGM(TestGrid over, String shaDir, String under,
+			double maxScale, Frequency f) {
+		String name = "RTGM " + over + " SHA" + shaDir + " over " + under + " " + f;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getRTGM_Ratio(over, shaDir, under, f);
+		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(xyz, over.bounds(), -maxScale, maxScale, name);
+	}
 	
 
-//	private static void makeNationalRTGM(String over, String under,
-//			double maxScale, Frequency f) {
-//		String name = over + " over " + under + " " + f;
-//		GriddedRegion gr = NSHMP_UtilsDev.getNSHMP_Region(0.1);
-//		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio(over, under, p, pe, gr);
-//		NSHMP_GeoDataUtils.minusOne(xyz);
-//		makeRatioPlot(xyz, NATIONAL.bounds(), -maxScale, maxScale, name);
-//	}	
-	
 	private static void makeRatioPlot(GeoDataSet xyz, double[] bounds,
 			double scaleMin, double scaleMax, String name) {
 		GMT_MapGenerator map = create(bounds);

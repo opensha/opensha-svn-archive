@@ -16,6 +16,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.sra.rtgm.RTGM.Frequency;
 
 import scratch.peter.curves.ProbOfExceed;
 
@@ -28,10 +29,12 @@ import scratch.peter.curves.ProbOfExceed;
 public class NSHMP_GeoDataUtils {
 	
 	private static final String NSHMP_SRC_DIR = "/Volumes/Scratch/nshmp-sources/";
-	private static final String SHA_SRC_DIR = "/Volumes/Scratch/nshmp-opensha/";
+	private static final String SHA_SRC_DIR = "/Volumes/Scratch/nshmp-opensha-";
 	private static final String SEP = File.separator;
 	private static final String CURVE_CSV = "curves.csv";
 	private static final String CURVE_DAT = "curves.dat";
+	private static final String RTGM_DAT = "RTGM.dat";
+	
 
 
 //	public static void main(String[] args) {
@@ -71,10 +74,30 @@ public class NSHMP_GeoDataUtils {
 //	}
 	
 	
-	
-	public static GeoDataSet getPE_Ratio(TestGrid tg, String nd, Period p,
+//	public static GeoDataSet getPE_Ratio(TestGrid grid, String nd, Period p,
+//			ProbOfExceed pe) {
+//		File f1 = new File(SHA_SRC_DIR + tg + SEP + p + SEP + CURVE_CSV);
+//		File f2 = new File(NSHMP_SRC_DIR + nd + SEP + p + SEP + CURVE_DAT);
+//		
+//		GriddedRegion gr = tg.grid();
+//		
+//		CurveContainer cc = null;
+//		cc = CurveContainer.create(f1, tg);
+//		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, gr, pe);
+////		System.out.println(xyz1.getValueList());
+////		System.out.println(xyz1.get(new Location(35.6, -90.4)));
+//		
+//		cc = CurveContainer.create(f2);
+//		GeoDataSet xyz2 = NSHMP_DataUtils.extractPE(cc, gr, pe);
+////		System.out.println(xyz2.getValueList());
+////		System.out.println(xyz2.get(new Location(35.6, -90.4)));
+//		
+//		return GeoDataSetMath.divide(xyz1, xyz2);
+//	}
+
+	public static GeoDataSet getPE_Ratio(TestGrid tg, String shaDir, String nd, Period p,
 			ProbOfExceed pe) {
-		File f1 = new File(SHA_SRC_DIR + tg + SEP + p + SEP + CURVE_CSV);
+		File f1 = new File(SHA_SRC_DIR + shaDir + "/" + tg + SEP + p + SEP + CURVE_CSV);
 		File f2 = new File(NSHMP_SRC_DIR + nd + SEP + p + SEP + CURVE_DAT);
 		
 		GriddedRegion gr = tg.grid();
@@ -93,9 +116,10 @@ public class NSHMP_GeoDataUtils {
 		return GeoDataSetMath.divide(xyz1, xyz2);
 	}
 	
-	/**
-	 * Returns a data set that is the % difference between two probability of
-	 * exceedence level data sets. i.e. 1 - d1/d2. The data sets to be used
+
+/**
+	 * Returns a data set that is the ratio of two probability of
+	 * exceedence level data sets (d1/d2). The data sets to be used
 	 * are indicated by their folder name and period. A Region of data to
 	 * extract must also be provided.
 	 * @param d1 
@@ -122,9 +146,42 @@ public class NSHMP_GeoDataUtils {
 		return GeoDataSetMath.divide(xyz1, xyz2);
 	}
 	
-	public static GeoDataSet getRTGM_Ratio(String d1, String d2, Period p,
-			ProbOfExceed pe, GriddedRegion gr) {
-		return null;
+	public static GeoDataSet getRTGM_Ratio(String d1, String d2,
+			Frequency f, GriddedRegion gr) {
+		File f1 = new File(NSHMP_SRC_DIR + d1 + SEP + RTGM_DAT);
+		File f2 = new File(NSHMP_SRC_DIR + d2 + SEP + RTGM_DAT);
+
+		RTGM_Container rc = null;
+		rc = RTGM_Container.create(f1);
+		GeoDataSet xyz1 = NSHMP_DataUtils.extractRTGM(rc, gr, f);
+//		System.out.println(xyz1.get(new Location(34.1, -118.3)));
+		
+		rc = RTGM_Container.create(f2);
+		GeoDataSet xyz2 = NSHMP_DataUtils.extractRTGM(rc, gr, f);
+//		System.out.println(xyz1.get(new Location(34.1, -118.3)));
+		
+		return GeoDataSetMath.divide(xyz1, xyz2);
+	}
+	
+	public static GeoDataSet getRTGM_Ratio(TestGrid tg, String shaDir, 
+			String nd, Frequency f) {
+		File f1 = new File(SHA_SRC_DIR + shaDir + "/" + tg + SEP + RTGM_DAT);
+		File f2 = new File(NSHMP_SRC_DIR + nd + SEP + RTGM_DAT);
+		
+		GriddedRegion gr = tg.grid();
+		
+		RTGM_Container rc = null;
+		rc = RTGM_Container.create(f1);
+		GeoDataSet xyz1 = NSHMP_DataUtils.extractRTGM(rc, gr, f);
+//		System.out.println(xyz1.getValueList());
+//		System.out.println(xyz1.get(new Location(35.6, -90.4)));
+		
+		rc = RTGM_Container.create(f2);
+		GeoDataSet xyz2 = NSHMP_DataUtils.extractRTGM(rc, gr, f);
+//		System.out.println(xyz2.getValueList());
+//		System.out.println(xyz2.get(new Location(35.6, -90.4)));
+		
+		return GeoDataSetMath.divide(xyz1, xyz2);
 	}
 
 	

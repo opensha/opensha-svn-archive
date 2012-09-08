@@ -166,8 +166,8 @@ public class RTGM_Container implements Iterable<Location> {
 		sw.stop();
 		System.out.println("time: " + sw.elapsedMillis());
 		System.out.println("size: " + rc.size());
-		System.out.println(rc.getValue(NEHRP_TestCity.MEMPHIS.location(), Frequency.SA_0P20));
-		System.out.println(rc.getValue(NEHRP_TestCity.MEMPHIS.location(), Frequency.SA_1P00));
+		System.out.println(rc.getValue(NEHRP_TestCity.MEMPHIS.shiftedLocation(), Frequency.SA_0P20));
+		System.out.println(rc.getValue(NEHRP_TestCity.MEMPHIS.shiftedLocation(), Frequency.SA_1P00));
 		
 //		sw.start();
 //		CurveContainer cc = RTGM_Container.create(f, TestGrid.MEMPHIS);
