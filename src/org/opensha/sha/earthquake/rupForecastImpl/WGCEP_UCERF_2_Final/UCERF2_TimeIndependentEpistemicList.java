@@ -320,12 +320,26 @@ public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListER
 		UCERF2_TimeIndependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeIndependentEpistemicList();
 		int numERFs = ucerf2EpistemicList.getNumERFs();
 		System.out.println("Num Branches="+numERFs);
+		ArrayList<String> srcNames = new ArrayList<String>();
+		ucerf2EpistemicList.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
 		for(int i=0; i<numERFs; ++i) {
-			System.out.println("Weight of Branch "+i+"="+ucerf2EpistemicList.getERF_RelativeWeight(i));
-			System.out.println("Parameters of Branch "+i+":");
-			System.out.println(ucerf2EpistemicList.getParameterList(i).getParameterListMetadataString("\n"));
+//		for(int i=72; i<73; ++i) {
+			System.out.println(i);
+			ERF erf = ucerf2EpistemicList.getERF(i);
+			for(int s=0;s<erf.getNumSources();s++) {
+				String name = erf.getSource(s).getName();
+				if(!srcNames.contains(name)) {
+					srcNames.add(name);
+//					System.out.println(name);
+				}
+			}
+//			System.out.println("\nWeight of Branch "+i+"="+ucerf2EpistemicList.getERF_RelativeWeight(i));
+//			System.out.println("Parameters of Branch "+i+":");
+//			System.out.println(ucerf2EpistemicList.getParameterList(i).getParameterListMetadataString("\n"));
 			
 		}
+		
+		for(String name:srcNames) System.out.println(name);
 		
 	}
 

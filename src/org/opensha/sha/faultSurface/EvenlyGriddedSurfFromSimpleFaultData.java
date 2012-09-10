@@ -269,7 +269,8 @@ extends AbstractEvenlyGriddedSurfaceWithSubsets{
 		else
 			throw new RuntimeException(" method not yet implemented where depths in the " +
 					"trace differ from upperSeismogenicDepth (and projecting will cleate " +
-					"loops for FrankelGriddedSurface projections");
+					"loops for FrankelGriddedSurface projections; aveTraceDepth="+aveTraceDepth+
+					"\tupperSeismogenicDepth="+upperSeismogenicDepth);
 	}
 
 }

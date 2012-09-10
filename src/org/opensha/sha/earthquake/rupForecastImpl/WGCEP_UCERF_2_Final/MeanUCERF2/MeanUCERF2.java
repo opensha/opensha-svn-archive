@@ -1103,23 +1103,32 @@ public class MeanUCERF2 extends AbstractERF {
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
+
 		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
 		meanFinalUCERF2.calcSummedMFDs  =false;
-		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
-		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanFinalUCERF2.updateForecast();
-		
-		NSHMP_GridSourceGenerator gridGen = meanFinalUCERF2.nshmp_gridSrcGen;
-		Location loc = new Location(33.9917, -116.608);
-		GriddedRegion region = gridGen.getGriddedRegion();
-		int idx = region.indexForLocation(loc);
-		System.out.println(region.locationForIndex(idx));
-		IncrementalMagFreqDist mfd = gridGen.getTotMFD_atLoc(idx, false, true, true, false, false);
-		System.out.println("------");
-		System.out.println(mfd);
-		mfd = gridGen.getTotMFD_atLoc(idx, true, true, true, false, false);
-		System.out.println("------");
-		System.out.println(mfd);
+		for(int s=0;s<meanFinalUCERF2.getNumSources();s++) {
+			System.out.println(meanFinalUCERF2.getSource(s).getName());
+		}
+
+//		MeanUCERF2 meanFinalUCERF2 = new MeanUCERF2();
+//		meanFinalUCERF2.calcSummedMFDs  =false;
+//		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
+//		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+//		meanFinalUCERF2.updateForecast();
+//		
+//		NSHMP_GridSourceGenerator gridGen = meanFinalUCERF2.nshmp_gridSrcGen;
+//		Location loc = new Location(33.9917, -116.608);
+//		GriddedRegion region = gridGen.getGriddedRegion();
+//		int idx = region.indexForLocation(loc);
+//		System.out.println(region.locationForIndex(idx));
+//		IncrementalMagFreqDist mfd = gridGen.getTotMFD_atLoc(idx, false, true, true, false, false);
+//		System.out.println("------");
+//		System.out.println(mfd);
+//		mfd = gridGen.getTotMFD_atLoc(idx, true, true, true, false, false);
+//		System.out.println("------");
+//		System.out.println(mfd);
 		
 		//int indexOfInterest = meanFinalUCERF2.nshmp_gridSrcGen.getGriddedRegion();
 
