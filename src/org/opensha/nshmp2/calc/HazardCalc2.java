@@ -1,13 +1,11 @@
 package org.opensha.nshmp2.calc;
 
-import static org.opensha.nshmp2.util.SourceType.*;
+import static org.opensha.nshmp2.util.SourceType.CLUSTER;
+import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
 import java.awt.geom.Point2D;
-import java.rmi.RemoteException;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -15,12 +13,9 @@ import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.erf.NSHMP_ListERF;
-import org.opensha.nshmp2.erf.WUS_ERF;
 import org.opensha.nshmp2.erf.source.ClusterERF;
 import org.opensha.nshmp2.erf.source.ClusterSource;
 import org.opensha.nshmp2.erf.source.FaultSource;
@@ -39,8 +34,6 @@ import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -70,7 +63,6 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 	private Map<SourceIMR, ScalarIMR> imrMap;
 	
 	private HazardCurveCalculator calc;
-	private HazardCalcResult result;
 		
 	/**
 	 * Creates a new calculation instance. Currently, NSHMP calculations use a
@@ -97,13 +89,9 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 		DiscretizedFunc utilFunc = period.getFunction();
 		for (NSHMP_ERF erf : erfList.asFilteredIterable(site.getLocation())) {
 			
-//			if (!erf.getBounds().contains(site.getLocation())) continue;
+			// if (!erf.getBounds().contains(site.getLocation())) continue;
 			
-//			System.out.println("ERF start: " + erf.getName());
 			ScalarIMR imr = imrMap.get(erf.getSourceIMR());
-//			imr.getParameter(NSHMP08_WUS_Grid.IMR_UNCERT_PARAM_NAME).setValue(false);
-//			System.out.println(erf.getName());
-
 			SourceType st = erf.getSourceType();
 			
 			if (st == GRIDDED) initGridIMR(imr, (GridERF) erf); // set tables
@@ -113,13 +101,9 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 			} else {
 				utilFunc = basicCalc(calc, utilFunc, site, imr, erf);
 			}
-//			if (LocationUtils.areSimilar(site.getLocation(), NEHRP_TestCity.LOS_ANGELES.location())) {
-//				System.out.println(erf.getName());
-//				System.out.println(utilFunc);
-//			}
+
 			utilFunc.scale(erf.getSourceWeight());
 			Utils.addFunc(curve, utilFunc);
-//			System.out.println("ERF end: " + erf.getName());
 		}
 		return new HazardCalcResult(curve, site.getLocation());
 	}
@@ -321,21 +305,23 @@ public class HazardCalc2 implements Callable<HazardCalcResult> {
 		Stopwatch sw = new Stopwatch();
 		sw.start();
 		
+		TimeUnit tu = TimeUnit.MILLISECONDS;
 //		WUS_ERF erf = new WUS_ERF();
-		NSHMP2008 erf = NSHMP2008.create();
+//		NSHMP2008 erf = NSHMP2008.create();
+		NSHMP2008 erf = NSHMP2008.createSingleSource("CEUS.2007all8.AB.in");
 		erf.updateForecast();
 		System.out.println(erf);
 		sw.stop();
-		System.out.println("Seconds: " + sw.elapsedTime(TimeUnit.SECONDS));
+		System.out.println("Seconds: " + sw.elapsedTime(tu));
 		Period p = Period.GM0P00;
 
 		sw.reset().start();
-		Site site = new Site(NEHRP_TestCity.SEATTLE.shiftedLocation());
+		Site site = new Site(NEHRP_TestCity.MEMPHIS.shiftedLocation());
 		HazardCalc2 hc = HazardCalc2.create(erf, site, p);
 		HazardCalcResult result = hc.call();
 		System.out.println(result.curve());
 		sw.stop();
-		System.out.println("Seconds: " + sw.elapsedTime(TimeUnit.SECONDS));
+		System.out.println("Seconds: " + sw.elapsedTime(tu));
 		
 //		Set<NEHRP_TestCity> cities = EnumSet.of(
 //			NEHRP_TestCity.LOS_ANGELES,
