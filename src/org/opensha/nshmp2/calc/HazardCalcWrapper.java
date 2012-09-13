@@ -2,8 +2,10 @@ package org.opensha.nshmp2.calc;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -79,6 +81,11 @@ public class HazardCalcWrapper {
 
 	}
 	
+	HazardCalcWrapper(TestGrid grid, Period period, String name) {
+		this(grid.grid().getNodeList(), period, name);
+	}
+	
+	
 //	private void initResultFile() {
 //		String outDirName = OUT_DIR + S + name + S + per + S + "curves.csv";
 //		File outDir = new File(outDirName);
@@ -92,7 +99,6 @@ public class HazardCalcWrapper {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		new HazardCalcMgr2();
 		
 //		Set<Period> periods = EnumSet.of(Period.GM0P20, Period.GM1P00, Period.GM0P00);
 		Set<Period> periods = EnumSet.of(Period.GM0P20);
@@ -133,21 +139,13 @@ public class HazardCalcWrapper {
 //		gr = tg.grid();
 //		locLists.add(gr.getNodeList());
 //		names.add(tg.name());
-		
+//		
 //		LocationList locList = new LocationList();
 //		for (NEHRP_TestCity city : NEHRP_TestCity.values()) {
 //			locList.add(city.location());
 //		}
 //		locLists.add(locList);
 //		names.add("NEHRPcities");
-
-		LocationList locList = new LocationList();
-		locList.add(NEHRP_TestCity.MEMPHIS.location());
-		locList.add(NEHRP_TestCity.MEMPHIS.location());
-		locList.add(NEHRP_TestCity.MEMPHIS.location());
-		locList.add(NEHRP_TestCity.MEMPHIS.location());
-		locLists.add(locList);
-		names.add("testMEMPhis");
 //
 //		locList = new LocationList();
 //		locList.add(NEHRP_TestCity.LOS_ANGELES.location());
@@ -155,19 +153,40 @@ public class HazardCalcWrapper {
 //		names.add("testLA2");
 
 		
-		Stopwatch sw = new Stopwatch();
+//		Stopwatch sw = new Stopwatch();
+//		
+//		for (Period per : periods) {
+//			for (int i=0; i<locLists.size(); i++) {
+//				System.out.println("Starting: " + names.get(i) + " " + per);
+//				sw.reset().start();
+//				
+//				new HazardCalcWrapper(locLists.get(i), per, names.get(i));
+//				sw.stop();
+//				System.out.println("Finishing: " + names.get(i) + " " + per + 
+//					" " + sw.elapsedTime(TimeUnit.SECONDS));
+//			}
+//		}
 		
-		for (Period per : periods) {
-			for (int i=0; i<locLists.size(); i++) {
-				System.out.println("Starting: " + names.get(i) + " " + per);
-				sw.reset().start();
-				
-				new HazardCalcWrapper(locLists.get(i), per, names.get(i));
-				sw.stop();
-				System.out.println("Finishing: " + names.get(i) + " " + per + 
-					" " + sw.elapsedTime(TimeUnit.SECONDS));
-			}
+		
+		try {
+			InputStream is = HazardCalcWrapper.class.getResourceAsStream("calc.properties");
+			Properties props = new Properties();
+			props.load(is);
+			
+			TestGrid grid = TestGrid.valueOf(props.getProperty("grid"));
+			Period period = Period.valueOf(props.getProperty("period"));
+			String name = props.getProperty("name");
+			
+			System.out.println(grid);
+			System.out.println(period);
+			System.out.println(name);
+			
+			new HazardCalcWrapper(grid, period, name);
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
 		}
+
 
 	}
 
