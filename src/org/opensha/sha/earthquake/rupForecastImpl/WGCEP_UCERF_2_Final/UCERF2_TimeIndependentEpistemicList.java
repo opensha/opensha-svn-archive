@@ -322,12 +322,13 @@ public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListER
 		System.out.println("Num Branches="+numERFs);
 		ArrayList<String> srcNames = new ArrayList<String>();
 		ucerf2EpistemicList.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
-		for(int i=0; i<numERFs; ++i) {
-//		for(int i=72; i<73; ++i) {
+//		for(int i=0; i<numERFs; ++i) {
+		for(int i=0; i<1; ++i) {
 			System.out.println(i);
 			ERF erf = ucerf2EpistemicList.getERF(i);
 			for(int s=0;s<erf.getNumSources();s++) {
 				String name = erf.getSource(s).getName();
+				System.out.println(name);
 				if(!srcNames.contains(name)) {
 					srcNames.add(name);
 //					System.out.println(name);
@@ -339,7 +340,7 @@ public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListER
 			
 		}
 		
-		for(String name:srcNames) System.out.println(name);
+//		for(String name:srcNames) System.out.println(name);
 		
 	}
 

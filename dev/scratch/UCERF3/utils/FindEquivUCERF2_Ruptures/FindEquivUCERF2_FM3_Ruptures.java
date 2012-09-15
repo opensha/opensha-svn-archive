@@ -640,12 +640,14 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		try {
 			int numUnassociated=0;
 			if (info_fw != null) {
-				info_fw.write("\nUnassociated UCERF2 ruptures (not from other FM nor subseismogenic, so there should be a mapping?)\n\n");
-				info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
+				info_fw.write("\nUnassociated UCERF2 ruptures (not from other FM nor subseismogenic, so there should be a mapping?)\n");
+				info_fw.write("\n(because these do not pass the laugh-test filter?)\n");
+				info_fw.write("\n\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
 				for(int r=0;r<ucerf2_fm.numRuptures;r++) {
 					int srcIndex = srcIndexOfUCERF2_Rup[r];
 					if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
 						boolean onlyOneSubsectOfSect = false;
+						// this doesn't really test whether only one subsection of parent is used
 						if(isFirstOrLastSubsectInSect(firstSectOfUCERF2_Rup[r]) || isFirstOrLastSubsectInSect(lastSectOfUCERF2_Rup[r]))
 							onlyOneSubsectOfSect = true;
 

@@ -50,7 +50,7 @@ Following our preliminary model (and before the final model), two additional fau
 	
 I update the FM3_1_SectionsForUCERF2_Sources.txt and FM3_2_SectionsForUCERF2_Sources.txt files accordingly 
 (only the first one exists in these files), but I did not redo all the above (meaning the files in this 
-directory are out of data).
+directory are out of date).
 
 Results for FM3.1:
 ------------------

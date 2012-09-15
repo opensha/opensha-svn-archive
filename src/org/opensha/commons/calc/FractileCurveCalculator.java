@@ -149,6 +149,53 @@ public class FractileCurveCalculator {
 
     return result;
   }
+  
+  
+  /**
+   * This returns a curve with the minimum value among all the curves.
+   * @return
+   */
+  public AbstractXY_DataSet getMinimumCurve() {
+	  AbstractXY_DataSet result = (AbstractXY_DataSet) funcList.get(0).deepClone();
+
+    // initialize function to large values
+    for(int i=0;i<result.getNum();i++)
+      result.set(i,Double.MAX_VALUE);
+
+    // loop over functions & x-axis values
+    for(int f=0;f<funcList.size();f++) {
+       for(int i=0;i<result.getNum();i++) {
+    	   if(funcList.get(f).getY(i)<result.getY(i))
+    		   result.set(i, funcList.get(f).getY(i) );
+       }
+    }
+      result.setName("Minimum");
+    return result;
+  }
+
+  
+  /**
+   * This returns a curve with the maximum value among all the curves.
+   * @return
+   */
+  public AbstractXY_DataSet getMaximumCurve() {
+	  AbstractXY_DataSet result = (AbstractXY_DataSet) funcList.get(0).deepClone();
+
+    // initialize function to large values
+    for(int i=0;i<result.getNum();i++)
+      result.set(i,-Double.MAX_VALUE);
+
+    // loop over functions & x-axis values
+    for(int f=0;f<funcList.size();f++) {
+       for(int i=0;i<result.getNum();i++) {
+    	   if(funcList.get(f).getY(i)>result.getY(i))
+    		   result.set(i, funcList.get(f).getY(i) );
+       }
+    }
+      result.setName("Maximum");
+    return result;
+  }
+
 
 
 

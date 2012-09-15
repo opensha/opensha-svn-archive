@@ -88,6 +88,9 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
  * these subseismogenic ruptures constitute for the source.  Finally, the very end of this file also lists
  * any UCERF2 ruptures that went un-associated (but not reported as a "problem" source above, meaning 
  * sections were assigned to the rup ends so some corresponding FaultSystemRuptureSet rupture should exist).
+ * All ruptures in this category should utilize only one sub-section of a parent section (which are filtered
+ * out of the inversion rupture set as of 2/22/12) or they violate some other rule (such as cumulative azimuth
+ * change).
  * 
  * This class also compute various MFDs for verification.
  * 
@@ -595,8 +598,9 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		try {
 			if (info_fw != null) {
 				int numUnassociated=0;
-				info_fw.write("\nUnassociated UCERF2 ruptures (not from FM 2.2 or subseismogenic, so there should be a mapping?)\n\n");
-				info_fw.write("\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
+				info_fw.write("\nUnassociated UCERF2 ruptures (not from FM 2.2 or subseismogenic, so there should be a mapping?)\n");
+				info_fw.write("\n(because these do not pass the laugh-test filter?)\n");
+				info_fw.write("\n\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
 				for(int r=0;r<ucerf2_fm.numRuptures;r++) {
 					int srcIndex = srcIndexOfUCERF2_Rup[r];
 					if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
@@ -1191,7 +1195,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		
 		test.plotMFD_Test();
 
-//		test.plotGMT_MapRatio_Tests();
+		test.plotGMT_MapRatio_Tests();
 		
 		/*   // The Code To Make The Statewide InversionFaultSystemRuptureSet XML **********************
 		double maxJumpDist = 5.0;

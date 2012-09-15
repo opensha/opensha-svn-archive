@@ -591,8 +591,9 @@ public class A_FaultSegmentedSourceGenerator {
 						getCombinedGriddedSurface(i, false),
 						getAveRake(i),
 						duration);
-				faultRupSrc.setName(this.getLongRupName(i));
-				
+//				faultRupSrc.setName(this.getLongRupName(i));
+				faultRupSrc.setName(segmentData.getFaultName() +";"+this.getLongRupName(i));
+								
 				if(faultRupSrc.getNumRuptures() == 0)
 					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
 				rupSrcMapping.put(i, sourceList.size());
@@ -657,7 +658,9 @@ public class A_FaultSegmentedSourceGenerator {
 						rupSurf,
 						getAveRake(i),
 						duration);
-				faultRupSrc.setName(this.getLongRupName(i));
+//				faultRupSrc.setName(this.getLongRupName(i));
+				faultRupSrc.setName(segmentData.getFaultName() +";"+this.getLongRupName(i));
+
 				
 				if(faultRupSrc.getNumRuptures() == 0)
 					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
@@ -757,7 +760,8 @@ public class A_FaultSegmentedSourceGenerator {
 			if (rupProb[i] > MIN_RUP_RATE) {		
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupProb[i], rupMagFreqDist[i], 
 						getCombinedGriddedSurface(i, false), getAveRake(i));
-				faultRupSrc.setName(this.getLongRupName(i));
+//				faultRupSrc.setName(this.getLongRupName(i));
+				faultRupSrc.setName(segmentData.getFaultName() +";"+this.getLongRupName(i));
 				rupSrcMapping.put(i, sourceList.size());
 				srcRupMapping.put(sourceList.size(),i);
 				sourceList.add(faultRupSrc);
