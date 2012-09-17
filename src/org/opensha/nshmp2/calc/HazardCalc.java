@@ -317,7 +317,7 @@ public class HazardCalc implements Callable<HazardResult> {
 
 		sw.reset().start();
 		Site site = new Site(NEHRP_TestCity.MEMPHIS.shiftedLocation());
-		HazardCalc2 hc = HazardCalc2.create(erf, site, p);
+		HazardCalc hc = HazardCalc.create(erf, site, p);
 		HazardResult result = hc.call();
 		System.out.println(result.curve());
 		sw.stop();

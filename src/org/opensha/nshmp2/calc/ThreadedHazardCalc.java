@@ -66,7 +66,7 @@ public class ThreadedHazardCalc {
 
 		for (int index : indices) {
 			Site site = new Site(locs.get(index));
-			HazardCalc2 hc = HazardCalc2.create(erf, site, period);
+			HazardCalc hc = HazardCalc.create(erf, site, period);
 			ecs.submit(hc);
 		}
 		ex.shutdown();
