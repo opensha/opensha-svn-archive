@@ -27,13 +27,13 @@ import com.google.common.collect.Lists;
 @Deprecated
 public class HazardCalcWrapper {
 
-	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
+//	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
 	private static final String S = File.separator;
 
-	HazardCalcWrapper(LocationList locs, Period period, String name) {
+	HazardCalcWrapper(LocationList locs, Period period, File out) {
 	
 		// init result file
-		File out = new File(OUT_DIR + S + name + S + period + S + "curves.csv");
+//		File out = new File(OUT_DIR + S + name + S + period + S + "curves.csv");
 		
 		ThreadedHazardCalc thc = null;
 		
@@ -48,11 +48,10 @@ public class HazardCalcWrapper {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		
 	}
 	
-	HazardCalcWrapper(TestGrid grid, Period period, String name) {
-		this(grid.grid().getNodeList(), period, name);
+	HazardCalcWrapper(TestGrid grid, Period period, File out) {
+		this(grid.grid().getNodeList(), period, out);
 	}
 	
 //	HazardCalcWrapper(File config) {
@@ -68,7 +67,7 @@ public class HazardCalcWrapper {
 	public static void main(String[] args) {
 		
 //		Set<Period> periods = EnumSet.of(Period.GM0P20, Period.GM1P00, Period.GM0P00);
-		Set<Period> periods = EnumSet.of(Period.GM0P20);
+		Set<Period> periods = EnumSet.of(Period.GM0P00);
 		List<LocationList> locLists = Lists.newArrayList();
 		List<String> names = Lists.newArrayList();
 		TestGrid tg = null;
@@ -143,12 +142,16 @@ public class HazardCalcWrapper {
 			TestGrid grid = TestGrid.valueOf(props.getProperty("grid"));
 			Period period = Period.valueOf(props.getProperty("period"));
 			String name = props.getProperty("name");
+			String out = props.getProperty("out");
 			
 			System.out.println(grid);
 			System.out.println(period);
 			System.out.println(name);
+			System.out.println(out);
 			
-			new HazardCalcWrapper(grid, period, name);
+			File outFile = new File(out + period + File.separator + "curves.csv");
+			
+			new HazardCalcWrapper(grid, period, outFile);
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

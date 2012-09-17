@@ -67,7 +67,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		String out = config.out;
 		Preconditions.checkArgument(StringUtils.isNotBlank(out));
-		File outDir = new File(out);
+		File outDir = new File(out + period);
 		
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
 		calc = new ThreadedHazardCalc(grid.grid().getNodeList(), period, writer);
