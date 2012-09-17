@@ -32,7 +32,7 @@ public class LaughTestFilter {
 
 		double maxAzimuthChange = 60;
 		double maxJumpDist = 5d;
-		double maxCumJumpDist = 5d;
+		double maxCumJumpDist = Double.POSITIVE_INFINITY;
 		double maxTotAzimuthChange = 60d;
 		double maxRakeDiff = Double.POSITIVE_INFINITY;
 		int minNumSectInRup = 2;
