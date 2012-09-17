@@ -54,8 +54,7 @@ import com.google.common.collect.Lists;
  * @author Peter Powers
  * @version $Id:$
  */
-@Deprecated
-public class HazardCalc2 implements Callable<HazardResult> {
+public class HazardCalc implements Callable<HazardResult> {
 
 	private NSHMP_ListERF erfList;
 	private Site site;
@@ -76,8 +75,8 @@ public class HazardCalc2 implements Callable<HazardResult> {
 	 * @param period
 	 * @return a calculation instance
 	 */
-	public static HazardCalc2 create(NSHMP_ListERF erfList, Site site, Period period) {
-		HazardCalc2 hc = new HazardCalc2();
+	public static HazardCalc create(NSHMP_ListERF erfList, Site site, Period period) {
+		HazardCalc hc = new HazardCalc();
 		hc.erfList = erfList;
 		hc.site = site;
 		hc.period = period;

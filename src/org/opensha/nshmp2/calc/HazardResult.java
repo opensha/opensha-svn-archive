@@ -9,8 +9,7 @@ import org.opensha.commons.geo.Location;
  * @author Peter Powers
  * @version $Id:$
  */
-@Deprecated
-public class HazardCalcResult {
+public class HazardResult {
 
 	private DiscretizedFunc curve;
 	private Location loc;
@@ -20,7 +19,7 @@ public class HazardCalcResult {
 	 * @param curve
 	 * @param loc
 	 */
-	public HazardCalcResult(DiscretizedFunc curve, Location loc) {
+	HazardResult(DiscretizedFunc curve, Location loc) {
 		this.curve = curve;
 		this.loc = loc;
 	}

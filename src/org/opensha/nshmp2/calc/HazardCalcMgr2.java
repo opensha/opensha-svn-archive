@@ -39,6 +39,7 @@ import com.google.common.collect.Lists;
  * @author Peter Powers
  * @version $Id:$
  */
+@Deprecated
 public class HazardCalcMgr2 {
 
 	private static final String OUT_DIR = "/Volumes/Scratch/nshmp-opensha-trunk2";
@@ -69,7 +70,7 @@ public class HazardCalcMgr2 {
 			// init thread mgr
 			int numProc = Runtime.getRuntime().availableProcessors();
 			ExecutorService ex = Executors.newFixedThreadPool(numProc);
-			CompletionService<HazardCalcResult> ecs = new ExecutorCompletionService<HazardCalcResult>(
+			CompletionService<HazardResult> ecs = new ExecutorCompletionService<HazardResult>(
 				ex);
 
 			// init erf
@@ -91,7 +92,7 @@ public class HazardCalcMgr2 {
 			// process results as they come in
 			System.out.println("Jobs submitted: " + locs.size());
 			for (int i = 0; i < locs.size(); i++) {
-				HazardCalcResult result = ecs.take().get();
+				HazardResult result = ecs.take().get();
 				if (i % 10 == 0) System.out.println("Jobs completed: " + i);
 				addResult(result.location(), result.curve());
 			}

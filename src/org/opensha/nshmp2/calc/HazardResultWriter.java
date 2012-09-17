@@ -1,5 +1,7 @@
 package org.opensha.nshmp2.calc;
 
+import java.io.IOException;
+
 /**
  * Manages the writing of {@code HazardCalcResult}s . Implementations of this
  * interface are not necessarily {@code java.io.Writer}s, although they may make
@@ -8,10 +10,22 @@ package org.opensha.nshmp2.calc;
  * @author Peter Powers
  * @version $Id:$
  */
-@Deprecated
-public interface HazardCalcWriter  {
+public interface HazardResultWriter  {
 
-	public void write(HazardCalcResult result);
+	/**
+	 * Writes a {@code HazardResult} throwing any exceptions encountered
+	 * @param result to write
+	 * @throws IOException if error encountered
+	 */
+	public void write(HazardResult result) throws IOException;
+	
+	/**
+	 * Flushes and closes any resources that may have been used, throwing any
+	 * exceptions encountered
+	 * @throws IOException
+	 */
+	public void close() throws IOException;
+	
 	
 //	private static final Joiner J = Joiner.on(',').useForNull(" ");
 //	private BlockingQueue<HazardCalcResult> queue;

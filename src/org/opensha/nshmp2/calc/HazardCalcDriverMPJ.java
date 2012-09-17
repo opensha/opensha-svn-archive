@@ -1,6 +1,7 @@
 package org.opensha.nshmp2.calc;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
@@ -11,12 +12,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.hpc.mpj.taskDispatch.DispatcherThread;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.XMLUtils;
+import org.opensha.nshmp2.tmp.TestGrid;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.calc.hazardMap.ThreadedHazardCurveSetCalculator;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
@@ -25,67 +30,67 @@ import com.google.common.base.Preconditions;
 
 public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	
-	protected static final int TAG_READY_FOR_BATCH = 1;
-	protected static final int TAG_NEW_BATCH_LENGH = 2;
-	protected static final int TAG_NEW_BATCH = 3;
-	
 	private static final int MIN_DISPATCH_DEFAULT = 5;
 	private static final int MAX_DISPATCH_DEFAULT = 100;
 	
-	public static final boolean D = true;
-	protected static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
-	
-	private ThreadedHazardCurveSetCalculator calc;
-	private List<Site> sites;
+	private ThreadedHazardCalc calc;
+	private LocationList locs;
 	
 	private int rank;
 	
-	public HazardCalcDriverMPJ(CommandLine cmd, String[] args) throws IOException, DocumentException, InvocationTargetException {
+	public HazardCalcDriverMPJ(CommandLine cmd, String[] args)
+			throws IOException, InvocationTargetException, FileNotFoundException {
+		
 		super(cmd);
 		if (args.length != 1) {
-			System.err.println("USAGE: HazardCurveDriver [<options>] <XML input file>");
+			System.err.println("USAGE: HazardCalcDriver [<options>] <properties file>");
 			abortAndExit(2);
 		}
+
+		Preconditions.checkArgument(getNumThreads() >= 1, 
+				"threads must be >= 1. you supplied: "+getNumThreads());
+		debug(rank, "setup for "+getNumThreads()+" threads");
 		
-		File xmlFile = new File(args[0]);
+		File props = new File(args[0]);
+		// throws FNF exceptions
+		HazardCalcConfig config = new HazardCalcConfig(props);
 		
-		if (!xmlFile.exists()) {
-			throw new IOException("XML Input file '" + args[0] + "' not found!");
-		}
+		TestGrid grid = config.grid;
+		Preconditions.checkNotNull(grid);
+		locs = grid.grid().getNodeList();
 		
-		Document doc = XMLUtils.loadDocument(xmlFile.getAbsolutePath());
+		Period period = config.period;
+		Preconditions.checkNotNull(period);
 		
-		Preconditions.checkArgument(getNumThreads() >= 1, "threads must be >= 1. you supplied: "+getNumThreads());
+		String name = config.name;
+		Preconditions.checkArgument(StringUtils.isNotBlank(name));
 		
-		boolean multERFs = cmd.hasOption("mult-erfs");
+		String out = config.out;
+		Preconditions.checkArgument(StringUtils.isNotBlank(out));
+		File outDir = new File(out);
 		
-		debug(rank, "loading inputs for "+getNumThreads()+" threads");
-		CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, getNumThreads(), multERFs);
-		sites = inputs[0].getSites();
-		HazardCurveSetCalculator[] calcs = new HazardCurveSetCalculator[getNumThreads()];
-		for (int i=0; i<inputs.length; i++)
-			calcs[i] = new HazardCurveSetCalculator(inputs[i]);
-		
-		Preconditions.checkNotNull(calcs, "calcs cannot be null!");
-		Preconditions.checkArgument(calcs.length > 0, "calcs cannot be empty!");
-		for (HazardCurveSetCalculator calc : calcs)
-			Preconditions.checkNotNull(calc, "calc cannot be null!");
-		Preconditions.checkNotNull(sites, "sites cannot be null!");
-		Preconditions.checkArgument(!sites.isEmpty(), "sites cannot be empty!");
-		
-		calc = new ThreadedHazardCurveSetCalculator(calcs);
+		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
+		calc = new ThreadedHazardCalc(grid.grid().getNodeList(), period, writer);
 	}
 	
 	@Override
 	public int getNumTasks() {
-		return sites.size();
+		return locs.size();
 	}
 	
 	@Override
 	public void calculateBatch(int[] batch) throws Exception, InterruptedException {
-		calc.calculateCurves(sites, batch);
+		calc.calculate(batch);
 	}
 	
+
+	@Override
+	protected void doFinalAssembly() throws Exception {
+		// do nothing
+	}
+	
+	
+	// overridden for testing
 	public static Options createOptions() {
 		Options ops = MPJTaskCalculator.createOptions();
 		
@@ -101,26 +106,16 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		try {
 			Options options = createOptions();
-			
 			CommandLine cmd = parse(options, args, HazardCalcDriverMPJ.class);
-			
 			args = cmd.getArgs();
-			
 			HazardCalcDriverMPJ driver = new HazardCalcDriverMPJ(cmd, args);
-			
 			driver.run();
-			
 			finalizeMPJ();
-			
 			System.exit(0);
 		} catch (Throwable t) {
 			abortAndExit(t);
 		}
 	}
-
-	@Override
-	protected void doFinalAssembly() throws Exception {
-		// do nothing
-	}
+	
 
 }

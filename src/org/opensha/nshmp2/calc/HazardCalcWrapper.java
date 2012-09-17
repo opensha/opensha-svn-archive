@@ -7,11 +7,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.LocationList;
@@ -19,9 +15,7 @@ import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
 
 /**
  * Add comments here
@@ -30,71 +24,44 @@ import com.google.common.collect.Queues;
  * @author Peter Powers
  * @version $Id:$
  */
+@Deprecated
 public class HazardCalcWrapper {
 
 	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
 	private static final String S = File.separator;
 
-//	private BlockingQueue<HazardCalcResult> queue;
-	
 	HazardCalcWrapper(LocationList locs, Period period, String name) {
-		
-		// init result queue
-		BlockingQueue<HazardCalcResult> queue = Queues.newLinkedBlockingQueue();
-		
+	
 		// init result file
 		File out = new File(OUT_DIR + S + name + S + period + S + "curves.csv");
 		
-		// init and start results writer
-		HazardCalcWriter hcw = null;
-		try {
-			hcw = new HazardCalcWriter(queue, out, period);
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-		ExecutorService ex = Executors.newSingleThreadExecutor();
-		ex.submit(hcw);
-		
 		ThreadedHazardCalc thc = null;
+		
 		try {
-			thc = new ThreadedHazardCalc(locs, period, queue);
-			thc.start();
+			HazardResultWriterLocal writer = new HazardResultWriterLocal(out, period);
+			thc = new ThreadedHazardCalc(locs, period, writer);
+			thc.calculate(null);
 		} catch (ExecutionException ee) {
 			ee.printStackTrace();
 		} catch (InterruptedException ie) {
 			ie.printStackTrace();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
 		}
 		
-		// start() returns when all calculations are complete (i.e. all
-		// CompletionService.take() calls have completed). Closing the result
-		// writer flushes and closes open streams
-		hcw.close();
-		
-		
-		// in MPJ, does a Barrier return indicating a job is complete
-		
-		// a call to the writer FuterTask.get() will pick up any exceptions that
-		// may have been thrown but I'm not sure how to monitor for them
-		// during calculations.
-		
-		System.exit(0);
-
 	}
 	
 	HazardCalcWrapper(TestGrid grid, Period period, String name) {
 		this(grid.grid().getNodeList(), period, name);
 	}
 	
-	
-//	private void initResultFile() {
-//		String outDirName = OUT_DIR + S + name + S + per + S + "curves.csv";
-//		File outDir = new File(outDirName);
-//		outDir.mkdirs();
-//		String curveFile = outDirName + "curves.csv";
-//		toCSV(new File(curveFile), curveData);
+//	HazardCalcWrapper(File config) {
+//		try {
+//			HazardCalcConfig hcConfig = new HazardCalcConfig(config);
+//			this(hcConfig.grid, hcConfig.period, hc.name);
 //	}
-
-	// one approach to determining if tasks are done is to wait for 
+	
+	
 	/**
 	 * @param args
 	 */
