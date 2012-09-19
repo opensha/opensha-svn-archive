@@ -9,6 +9,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.util.FaultUtils;
@@ -28,6 +29,16 @@ public class AveSlipConstraint {
 	
 	public static final String DIR_NAME = "aveSlip";
 	public static final String FILE_NAME = "Table R5v4.xls";
+	
+	private static ArbitrarilyDiscretizedFunc probObsSlipModel;
+	static {
+		probObsSlipModel = new ArbitrarilyDiscretizedFunc();
+		// meters, probability
+		// TODO this is different from Ramon's proposed values, maxes out at 90%
+		probObsSlipModel.set(0d, 0.01d);
+		probObsSlipModel.set(0.25d, 0.01d);
+		probObsSlipModel.set(2d, 0.90d);
+	}
 	
 	private int subSectionIndex;
 	private double weightedMean;
@@ -74,6 +85,12 @@ public class AveSlipConstraint {
 	 */
 	public double getLowerUncertaintyBound() {
 		return lowerUncertaintyBound;
+	}
+	
+	public double getProbabilityOfObservedSlip(double meters) {
+		if (meters > probObsSlipModel.getMaxX())
+			return probObsSlipModel.getY(probObsSlipModel.getNum()-1);
+		return probObsSlipModel.getInterpolatedY(meters);
 	}
 	
 	@Override
