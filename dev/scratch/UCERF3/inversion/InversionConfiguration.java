@@ -47,6 +47,7 @@ public class InversionConfiguration {
 	
 	private boolean weightSlipRates;
 	private double relativePaleoRateWt; 
+	private double relativePaleoSlipWt;
 	private double relativeMagnitudeEqualityConstraintWt;
 	private double relativeMagnitudeInequalityConstraintWt;
 	private double relativeRupRateConstraintWt;
@@ -74,7 +75,8 @@ public class InversionConfiguration {
 	
 	public InversionConfiguration(
 			boolean weightSlipRates,
-			double relativePaleoRateWt, 
+			double relativePaleoRateWt,
+			double relativePaleoSlipWt,
 			double relativeMagnitudeEqualityConstraintWt,
 			double relativeMagnitudeInequalityConstraintWt,
 			double relativeRupRateConstraintWt, 
@@ -102,6 +104,8 @@ public class InversionConfiguration {
 		metadata += "weightSlipRates: "+weightSlipRates;
 		this.relativePaleoRateWt = relativePaleoRateWt;
 		metadata += "\nrelativePaleoRateWt: "+relativePaleoRateWt;
+		this.relativePaleoSlipWt = relativePaleoSlipWt;
+		metadata += "\nrelativePaleoSlipWt: "+relativePaleoSlipWt;
 		this.relativeMagnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
 		metadata += "\nrelativeMagnitudeEqualityConstraintWt: "+relativeMagnitudeEqualityConstraintWt;
 		this.relativeMagnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
@@ -198,6 +202,9 @@ public class InversionConfiguration {
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double relativePaleoRateWt = 1.0;
 		
+		// weight of mean paleo slip constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
+		double relativePaleoSlipWt = 1.0;
+		
 		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended: 10)
 //		double mfdEqualityConstraintWt = 10;
 		
@@ -243,7 +250,7 @@ public class InversionConfiguration {
 		// weight of nucleation MFD constraint - applied on subsection basis
 		double relativeNucleationMFDConstraintWt;
 		
-		// weight of spatial MFD smoothness constraint
+		// weight of spatial MFD smoothness constraint (recommended:  1000)
 		double relativeMFDSmoothnessConstraintWt;
 		
 		// weight of parent-section event-rate smoothness constraint
@@ -365,6 +372,7 @@ public class InversionConfiguration {
 		return new InversionConfiguration(
 				weightSlipRates,
 				relativePaleoRateWt,
+				relativePaleoSlipWt,
 				mfdEqualityConstraintWt,
 				mfdInequalityConstraintWt,
 				relativeRupRateConstraintWt,
@@ -821,6 +829,14 @@ public class InversionConfiguration {
 		this.relativePaleoRateWt = relativePaleoRateWt;
 	}
 
+	public double getRelativePaleoSlipWt() {
+		return relativePaleoSlipWt;
+	}
+
+	public void setRelativePaleoSlipWt(double relativePaleoSlipWt) {
+		this.relativePaleoSlipWt = relativePaleoSlipWt;
+	}
+	
 	public double getRelativeMagnitudeEqualityConstraintWt() {
 		return relativeMagnitudeEqualityConstraintWt;
 	}

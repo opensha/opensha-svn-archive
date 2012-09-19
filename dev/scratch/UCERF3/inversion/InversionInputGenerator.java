@@ -32,6 +32,7 @@ import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.SectionMFD_constraint;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
@@ -187,7 +188,22 @@ public class InversionInputGenerator {
 		if (numPaleoRows > 0) {
 			numRows += numPaleoRows;
 			rangeEndRows.add(numRows-1);
-			rangeNames.add("Paleo");
+			rangeNames.add("Paleo Event Rates");
+		}
+		
+		List<AveSlipConstraint> aveSlipConstraints = null;
+		if (config.getRelativePaleoSlipWt() > 0.0) {
+			try {
+				aveSlipConstraints = AveSlipConstraint.load(rupSet.getFaultSectionDataList());
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new RuntimeException("Error loading in paleo mean slip data");
+			}
+			int numPaleoSlipRows = aveSlipConstraints.size();
+			if(D) System.out.println("Number of paleo section-rate constraints: "+numPaleoSlipRows);
+			numRows += numPaleoSlipRows;
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Paleo Slips");
 		}
 		
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
@@ -330,6 +346,8 @@ public class InversionInputGenerator {
 			rangeNames.add("Event-Rate Smoothness");	
 		}
 		
+		
+		
 		// Components of matrix equation to invert (Ax=d)
 		A = buildMatrix(clazz, numRows, numRuptures); // A matrix
 		d = new double[numRows];	// data vector d
@@ -353,6 +371,8 @@ public class InversionInputGenerator {
 		if(D) System.out.println("Total number of constraints (rows): " + numRows);
 		if(D) System.out.println("\nNumber of fault sections: "
 				+ numSections + ". Number of ruptures (columns): " + numRuptures + ".");
+		
+		
 		
 		
 		// Put together "A" Matrix and data vector "d"
@@ -422,7 +442,6 @@ public class InversionInputGenerator {
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (config.getRelativePaleoRateWt() > 0.0) {
 			double relativePaleoRateWt = config.getRelativePaleoRateWt();
-			double[] rupMeanSlip = rupSet.getAveSlipForAllRups();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+paleoRateConstraints.size(); i++) {
@@ -449,8 +468,45 @@ public class InversionInputGenerator {
 		}
 
 		
-		// Rupture-Rate Constraint
+		// Mean paleo slip at a point
 		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previous 2 constraints)
+		if (config.getRelativePaleoSlipWt() > 0.0) {
+			double relativePaleoRateWt = config.getRelativePaleoSlipWt();
+			numNonZeroElements = 0;
+			if(D) System.out.println("\nAdding paleo mean slip constraints to A matrix ...");
+			for (int i=0; i<aveSlipConstraints.size(); i++) {
+				AveSlipConstraint constraint = aveSlipConstraints.get(i);
+				double constraintError = constraint.getUpperUncertaintyBound() - constraint.getLowerUncertaintyBound();
+				int subsectionIndex = constraint.getSubSectionIndex();
+				double meanRate = sectSlipRateReduced[subsectionIndex] / constraint.getWeightedMean();
+				
+				d[i]=relativePaleoRateWt * meanRate / constraintError;
+				List<Integer> rupsForSect = rupSet.getRupturesForSection(subsectionIndex);
+				for (int rupIndex=0; rupIndex<rupsForSect.size(); rupIndex++) {
+					int rup = rupsForSect.get(rupIndex);
+					double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, subsectionIndex);				
+					int sectIndexInRup = rupSet.getSectionsIndicesForRup(rupIndex).indexOf(subsectionIndex);
+					double slipOnSect = rupSet.getSlipOnSectionsForRup(rupIndex)[sectIndexInRup];
+					double probVisible = constraint.getProbabilityOfObservedSlip(slipOnSect);
+					double setVal = (relativePaleoRateWt * probVisible / constraintError);
+					if (QUICK_GETS_SETS)
+						A.setQuick(i, rup, setVal);
+					else
+						A.set(i, rup, setVal);
+					numNonZeroElements++;
+					rowIndex++;
+				}
+			}
+			if (D) {
+				System.out.println("Adding Paleo Mean-Slip Constraints took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+			}
+		}
+		
+		
+		// Rupture-Rate Constraint
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
 			double relativeRupRateConstraintWt = config.getRelativeRupRateConstraintWt();
 			double zeroRupRateConstraintWt = config.getRelativeRupRateConstraintWt()*aPrioriConstraintForZeroRatesWtFactor;  // This is the RupRateConstraintWt for ruptures not in UCERF2 
