@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.EnumSet;
 import java.util.Set;
 
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -27,9 +28,14 @@ public enum TestGrid {
 	CA(
 		new double[] {31.5, 43.0},
 		new double[] {-125.4, -113.1}),
+	CA_RELM(
+		new CaliforniaRegions.RELM_TESTING_GRIDDED()),
 	LOS_ANGELES(
-		new double[] {35.15,34.23,32.94,33.86,},
+		new double[] {35.15,34.23,32.94,33.86},
 		new double[] {-119.07,-116.70,-117.42,-119.80}),
+	LOS_ANGELES_BIG(
+		new double[] {32.0,35.0},
+		new double[] {-120.0,-115.0}),
 	SAN_FRANCISCO(
 		new double[] {37.19,36.43,38.23,39.02},
 		new double[] {-120.61,-122.09,-123.61,-122.08}),
@@ -41,15 +47,28 @@ public enum TestGrid {
 		new double[] {-113.0,-111.0}),
 	MEMPHIS(
 		new double[] {34.0,36.5},
-		new double[] {-91.5,-89.0});
+		new double[] {-91.5,-89.0}),
+	MEMPHIS_BIG(
+		new double[] {33.0,39.0},
+		new double[] {-93.0,-88.0}),
+	TEST( // small 6 node test grid
+		new double[] {33.0, 33.1},
+		new double[] {-117.9, -118.1});
 	// @formatter:on
 
 	private static final double BOUNDS_OFFSET = 0.0;
-	double[] lats, lons;
-
+	private double[] lats, lons;
+	private GriddedRegion grid;
+	
 	private TestGrid(double[] lats, double[] lons) {
 		this.lats = lats;
 		this.lons = lons;
+	}
+	
+	private TestGrid(GriddedRegion grid) {
+		lats = new double[] {grid.getMinLat(), grid.getMaxLat()};
+		lons = new double[] {grid.getMinLon(), grid.getMaxLon()};
+		this.grid = grid;
 	}
 
 	/**
@@ -58,6 +77,7 @@ public enum TestGrid {
 	 * @return the grid
 	 */
 	public GriddedRegion grid() {
+		if (grid != null) return grid;
 		if (lats.length == 2) {
 			return new GriddedRegion(new Location(lats[0], lons[0]),
 				new Location(lats[1], lons[1]), 0.1, GriddedRegion.ANCHOR_0_0);
