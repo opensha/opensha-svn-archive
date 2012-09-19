@@ -28,9 +28,10 @@ import com.google.common.collect.Lists;
 public class HazardCalcWrapper {
 
 //	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
+//	private static final String OUT_DIR = "/Volumes/Scratch/nshmp-opensha-trunk";
 	private static final String S = File.separator;
 
-	HazardCalcWrapper(LocationList locs, Period period, File out) {
+	HazardCalcWrapper(LocationList locs, Period period, HazardResultWriter writer) {
 	
 		// init result file
 //		File out = new File(OUT_DIR + S + name + S + period + S + "curves.csv");
@@ -38,7 +39,6 @@ public class HazardCalcWrapper {
 		ThreadedHazardCalc thc = null;
 		
 		try {
-			HazardResultWriterLocal writer = new HazardResultWriterLocal(out, period);
 			thc = new ThreadedHazardCalc(locs, period, writer);
 			thc.calculate(null);
 		} catch (ExecutionException ee) {
@@ -50,9 +50,9 @@ public class HazardCalcWrapper {
 		}
 	}
 	
-	HazardCalcWrapper(TestGrid grid, Period period, File out) {
-		this(grid.grid().getNodeList(), period, out);
-	}
+//	HazardCalcWrapper(TestGrid grid, Period period, File out) {
+//		this(grid.grid().getNodeList(), period, out);
+//	}
 	
 //	HazardCalcWrapper(File config) {
 //		try {
@@ -149,9 +149,19 @@ public class HazardCalcWrapper {
 			System.out.println(name);
 			System.out.println(out);
 			
-			File outFile = new File(out + period + File.separator + "curves.csv");
+			String outPath = out + S + name + S + grid + S + period + S;
+			File localOutFile = new File(outPath + "curves.csv");
+			File mpjOutDir = new File(outPath);
 			
-			new HazardCalcWrapper(grid, period, outFile);
+			HazardResultWriter writer = null;
+			try {
+				 writer = new HazardResultWriterLocal(localOutFile, period);
+//				 writer = new HazardResultWriterMPJ(mpjOutDir);
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+			
+			new HazardCalcWrapper(grid.grid().getNodeList(), period, writer);
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
