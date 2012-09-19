@@ -43,7 +43,7 @@ public class AveSlipConstraint {
 		this.lowerUncertaintyBound = lowerUncertaintyBound;
 	}
 
-	protected int getSubSectionIndex() {
+	public int getSubSectionIndex() {
 		return subSectionIndex;
 	}
 
@@ -52,7 +52,7 @@ public class AveSlipConstraint {
 	 * 
 	 * @return
 	 */
-	protected double getWeightedMean() {
+	public double getWeightedMean() {
 		return weightedMean;
 	}
 
@@ -62,7 +62,7 @@ public class AveSlipConstraint {
 	 * 
 	 * @return
 	 */
-	protected double getUpperUncertaintyBound() {
+	public double getUpperUncertaintyBound() {
 		return upperUncertaintyBound;
 	}
 
@@ -72,7 +72,7 @@ public class AveSlipConstraint {
 	 * 
 	 * @return
 	 */
-	protected double getLowerUncertaintyBound() {
+	public double getLowerUncertaintyBound() {
 		return lowerUncertaintyBound;
 	}
 	
