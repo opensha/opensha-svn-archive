@@ -27,7 +27,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class AveSlipConstraint {
 	
 	public static final String DIR_NAME = "aveSlip";
-	public static final String FILE_NAME = "Table R5v3.xls";
+	public static final String FILE_NAME = "Table R5v4.xls";
 	
 	private int subSectionIndex;
 	private double weightedMean;
