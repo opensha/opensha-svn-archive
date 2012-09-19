@@ -4,34 +4,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.StringUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.hpc.mpj.taskDispatch.DispatcherThread;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
-import org.opensha.commons.util.XMLUtils;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
-import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
-import org.opensha.sha.calc.hazardMap.ThreadedHazardCurveSetCalculator;
-import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 
 import com.google.common.base.Preconditions;
 
 public class HazardCalcDriverMPJ extends MPJTaskCalculator {
-	
-	private static final int MIN_DISPATCH_DEFAULT = 5;
-	private static final int MAX_DISPATCH_DEFAULT = 100;
 	
 	private ThreadedHazardCalc calc;
 	private LocationList locs;
