@@ -397,18 +397,18 @@ public class LogicTreePBSWriter {
 //		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM3_1, DeformationModels.ZENG, ScalingRelationships.SHAW_2009_MOD));
 //		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM3_1, DeformationModels.ZENG, ScalingRelationships.SHAW_CONST_STRESS_DROP));
 		
-		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
-				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
-		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
-				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
+//		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+//				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
+//		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+//				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
-		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
-				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
+//		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+//				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		
 		return new DiscreteListTreeTrimmer(branches);
 	}
@@ -476,12 +476,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "section-mfd-constraint-tests";
+		String runName = "mfd-smoothness-4hr";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-//		int constrained_run_mins = 250;
-		int constrained_run_mins = 500;
+		int constrained_run_mins = 250;
+//		int constrained_run_mins = 360;
+//		int constrained_run_mins = 500;
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
@@ -522,7 +523,7 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noRefBranches, noUCERF2);
 		
-		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
+//		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
 //		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
@@ -537,21 +538,22 @@ public class LogicTreePBSWriter {
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
-		InversionOptions[] ops = { InversionOptions.MFD_TRANSITION_MAG, InversionOptions.SECTION_NUCLEATION_MFD_WT,
-				InversionOptions.PALEO_WT, InversionOptions.MFD_WT };
+		InversionOptions[] ops = { InversionOptions.SECTION_NUCLEATION_MFD_WT,
+				InversionOptions.PALEO_WT, InversionOptions.MFD_SMOOTHNESS_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
-		String[] mfdTrans = { "7.85", "8.15" };
-		String[] nuclWts = { "100", "1000", "10000" };
-		String[] paleoWts = { "1", "10", "100", "1000" };
-		String[] mfdWts = { "10", "100" };
-		for (String mfdTran : mfdTrans)
+//		String[] mfdTrans = { "7.85" };
+//		String[] aPrioriWts = { "0" };
+		String[] nuclWts = { "0.001", "0.01", "0.1" };
+		String[] paleoWts = { "0.1", "1", "10" };
+		String[] mfdWts = { "100", "1000", "10000" };
+//		String[] eventSmoothWts = { "0", "100", "1000", "10000" };
+//		for (String aPrioriWt : aPrioriWts)
 			for (String nuclWt : nuclWts)
 				for (String paleoWt : paleoWts)
 					for (String mfdWt : mfdWts)
-				variationBranches.add(buildVariationBranch(ops, toArray(mfdTran, nuclWt, paleoWt, mfdWt)));
+						variationBranches.add(buildVariationBranch(ops, toArray(nuclWt, paleoWt, mfdWt)));
 //		String[] eventSmoothWts = { "0", "1000", "10000", "100000" };
 //		String[] paleoWts = { "100", "1000" };
-		String[] eventSmoothWts = { "1000", "10000" };
 //		for (String paleoWt : paleoWts)
 //			for (String eventSmoothWt : eventSmoothWts)
 //				variationBranches.add(buildVariationBranch(ops, toArray(paleoWt, eventSmoothWt, "0")));

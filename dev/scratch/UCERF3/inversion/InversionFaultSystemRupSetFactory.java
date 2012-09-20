@@ -232,6 +232,7 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, InversionModels.CHAR);
+			cachedForBranch(true, DeformationModels.UCERF2_ALL);
 			InversionFaultSystemRupSet rupSet = forBranch(LogicTreeBranch.UCERF2);
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,

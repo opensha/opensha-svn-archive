@@ -64,8 +64,6 @@ Mount Diablo Thrust	MULTIPLE:	Mount Diablo Thrust North CFM	Mount Diablo Thrust 
 Newport-Inglewood, alt 1	Newport-Inglewood alt 1
 Newport-Inglewood, alt 2	Newport-Inglewood alt 2
 North Tahoe	North Tahoe 2011 CFM
-Oak Ridge (Offshore), west extension	Oak Ridge (Offshore) west extension
-Oceanic 2011 CFM	Oceanic - West Huasna
 Ortigalita	MULTIPLE:	Ortigalita (North)	Ortigalita (South)
 Pitas Point (Lower, West)	Pitas Point (Lower West)
 Point Reyes	Point Reyes 2011 CFM

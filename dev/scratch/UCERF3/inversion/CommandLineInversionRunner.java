@@ -56,6 +56,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoProbabilityModel;
@@ -86,7 +87,8 @@ public class CommandLineInversionRunner {
 		EVENT_SMOOTH_WT("eventsm", "event-smooth-wt", "EventSmoothWt", true, "Relative Event Rate Smoothness weight"),
 		SECTION_NUCLEATION_MFD_WT("nuclwt", "sect-nucl-mfd-wt", "SectNuclMFDWt", true,
 				"Relative section nucleation MFD constraint weight"),
-		MFD_TRANSITION_MAG("mfdtrans", "mfd-trans-mag", "MFDTrans", true, "MFD transition magnitude");
+		MFD_TRANSITION_MAG("mfdtrans", "mfd-trans-mag", "MFDTrans", true, "MFD transition magnitude"),
+		MFD_SMOOTHNESS_WT("mfdsmooth", "mfd-smooth-wt", "MFDSmooth", true, "MFD smoothness constraint weight");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -738,13 +740,16 @@ public class CommandLineInversionRunner {
 
 			SummedMagFreqDist nuclMFD = sol.calcNucleationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
 			IncrementalMagFreqDist partMFD = sol.calcParticipationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
+			
+			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
+			ArrayList<IncrementalMagFreqDist> ucerf2PArtMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
 
-			writeParentSectMFDPlot(dir, nuclMFD, parentSectionID, parentSectName, true);
-			writeParentSectMFDPlot(dir, partMFD, parentSectionID, parentSectName, false);
+			writeParentSectMFDPlot(dir, nuclMFD, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
+			writeParentSectMFDPlot(dir, partMFD, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
 		}
 	}
 
-	private static void writeParentSectMFDPlot(File dir, IncrementalMagFreqDist mfd,
+	private static void writeParentSectMFDPlot(File dir, IncrementalMagFreqDist mfd, List<IncrementalMagFreqDist> ucerf2MFDs,
 			int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setTickLabelFontSize(14);
@@ -754,6 +759,22 @@ public class CommandLineInversionRunner {
 		gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
 
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		if (ucerf2MFDs != null) {
+			for (IncrementalMagFreqDist ucerf2MFD : ucerf2MFDs)
+				ucerf2MFD.setName("UCERF2 "+ucerf2MFD.getName());
+			IncrementalMagFreqDist meanMFD = ucerf2MFDs.get(0);
+			funcs.add(meanMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+			Color lightRed = new Color (255, 100, 100);
+			IncrementalMagFreqDist minMFD = ucerf2MFDs.get(1);
+			funcs.add(minMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
+			IncrementalMagFreqDist maxMFD = ucerf2MFDs.get(2);
+			funcs.add(maxMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
+		}
 		mfd.setName("Incremental MFD");
 		funcs.add(mfd);
 		EvenlyDiscretizedFunc cmlFunc = mfd.getCumRateDist();
@@ -781,7 +802,6 @@ public class CommandLineInversionRunner {
 		}
 		title += " for "+name+" ("+id+")";
 		
-		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);

@@ -39,6 +39,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 
@@ -147,7 +148,7 @@ public class UCERF2_Section_MFDsCalc {
 	/**
 	 * This method returns an ArrayList<IncrementalMagFreqDist> giving the mean, min, and max (in that order) 
 	 * UCERF2 section MFD for the specified attributes (over the 144 time-independent logic tree branches).
-	 * @param parID
+	 * @param parID parent section ID (either UCERF2 or UCERF3, which will be mapped to a UCERF2 ID)
 	 * @param isParticipation - specifies whether to get participation vs nucleation MFDs
 	 * @param cumDist - specifies whether to return cumulative vs nucleation MFDs
 	 * @return - null is returned if parID is not one in UCERF2
@@ -155,9 +156,15 @@ public class UCERF2_Section_MFDsCalc {
 	public static ArrayList<IncrementalMagFreqDist> getMeanMinAndMaxMFD(int parID, boolean isParticipation, boolean cumDist) {
 		HashMap<Integer, String> sectionNamesMap = getSectionNamesMap();
 		
-		if (!sectionNamesMap.containsKey(parID))
-			// no UCERF3 data for this parent ID
-			return null;
+		if (!sectionNamesMap.containsKey(parID)) {
+			HashMap<Integer, Integer> idMapping = getUCERF3toUCERF2ParentSectionIDMap();
+			if (idMapping.containsKey(parID))
+				// renamed in UCERF3
+				parID = idMapping.get(parID);
+			else
+				// no UCERF2 data for this parent ID
+				return null;
+		}
 		
 		String subDirName;
 		if(isParticipation)
@@ -889,6 +896,89 @@ public class UCERF2_Section_MFDsCalc {
 		return sectionNamesCache;
 	}
 	
+	private static HashMap<Integer, Integer> UCERF3toUCERF2ParentSectionIDMap;
+	
+	/**
+	 * This gets the mapping of UCERF3 parent section IDs to UCERF2 parent section IDs. Note that this only includes
+	 * IDs which changed (does not include IDs which are identical in both models), and omits any mapping where a fault
+	 * was subdivided or combined from UCERF2 to UCERF3.
+	 * @return
+	 */
+	private synchronized static HashMap<Integer, Integer> getUCERF3toUCERF2ParentSectionIDMap() {
+		if (UCERF3toUCERF2ParentSectionIDMap == null) {
+			UCERF3toUCERF2ParentSectionIDMap = Maps.newHashMap();
+			
+			// needed to get UCERF2 IDs for mapping
+			HashMap<Integer, String> ucerf2SectIDsToNamesMap = getSectionNamesMap();
+			HashMap<String, Integer> ucerf2SectNamesToIDsMap = Maps.newHashMap();
+			for (Integer id : ucerf2SectIDsToNamesMap.keySet())
+				ucerf2SectNamesToIDsMap.put(ucerf2SectIDsToNamesMap.get(id), id);
+			
+			// now get UCERF3 IDs for mapping
+			HashMap<String, Integer> ucerf3SectNamesToIDsMap = Maps.newHashMap();
+			for (FaultSectionPrefData sect : FaultModels.FM3_1.fetchFaultSections())
+				ucerf3SectNamesToIDsMap.put(sect.getName(), sect.getSectionId());
+			for (FaultSectionPrefData sect : FaultModels.FM3_2.fetchFaultSections())
+				if (!ucerf3SectNamesToIDsMap.containsKey(sect.getSectionName()))
+					ucerf3SectNamesToIDsMap.put(sect.getName(), sect.getSectionId());
+			
+			try {
+				// load in ucerf3 section name mapping files
+				HashMap<String, String> namesUCERF3toUCERF2Map = loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_1);
+				namesUCERF3toUCERF2Map.putAll(loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_2));
+				
+				// now create ID mapping
+				for (String ucerf3Name : namesUCERF3toUCERF2Map.keySet()) {
+					String ucerf2Name = namesUCERF3toUCERF2Map.get(ucerf3Name);
+					Integer ucerf2ID = ucerf2SectNamesToIDsMap.get(ucerf2Name);
+					Preconditions.checkNotNull(ucerf2ID, "UCERF3 to UCERF2 mapping has incorrect name (UCERF2 name incorrect): '"
+									+ucerf3Name+"' => '"+ucerf2Name+"'");
+					Integer ucerf3ID = ucerf3SectNamesToIDsMap.get(ucerf3Name);
+					Preconditions.checkNotNull(ucerf2ID, "UCERF3 to UCERF2 mapping has incorrect name (UCERF3 name incorrect): '"
+							+ucerf3Name+"' => '"+ucerf2Name+"'");
+					UCERF3toUCERF2ParentSectionIDMap.put(ucerf3ID, ucerf2ID);
+				}
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+		return UCERF3toUCERF2ParentSectionIDMap;
+	}
+	
+	private static HashMap<String, String> loadUCERF3toUCER2NameMappingFile(FaultModels fm) throws IOException {
+		String subDir = "FindEquivUCERF2_Ruptures";
+		String fName;
+		switch (fm) {
+		case FM3_1:
+			fName = "FM2to3_1_sectionNameChanges.txt";
+			break;
+		case FM3_2:
+			fName = "FM2to3_1_sectionNameChanges.txt";
+			break;
+
+		default:
+			throw new IllegalArgumentException("No mapping for "+fm+" to UCERF2 parent sections");
+		}
+		BufferedReader br = new BufferedReader(UCERF3_DataUtils.getReader(subDir, fName));
+		
+		HashMap<String, String> mapping = Maps.newHashMap();
+		
+		String line;
+		while ((line = br.readLine()) != null) {
+			line = line.trim();
+			if (line.contains("REMOVED") || line.contains("COMBINED") || line.contains("MULTIPLE"))
+				continue;
+			String[] split = line.split("\t");
+			Preconditions.checkState(split.length == 2, "incorrectly formatted line (should have exaclty" +
+					" 2 items separated by a tab): "+line);
+			String ucerf2Name = split[0];
+			String ucerf3Name = split[1];
+			mapping.put(ucerf3Name, ucerf2Name);
+		}
+		
+		return mapping;
+	}
+	
 	
 	/**
 	 * This returns an instance with the background seismicity turned off
@@ -1002,13 +1092,17 @@ public class UCERF2_Section_MFDsCalc {
 //			System.out.println(mfd);
 //		}
 		
-		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true);
-		test.saveAllTestMFD_Plots(true);
-		test.saveAllTestMFD_Plots(false);
-		test = new UCERF2_Section_MFDsCalc(false);
-		test.saveAllTestMFD_Plots(true);
-		test.saveAllTestMFD_Plots(false);
-		System.out.println("DONE");
+		for (FaultSectionPrefData sect : FaultModels.FM3_2.fetchFaultSections())
+			if (getMeanMinAndMaxMFD(sect.getSectionId(), true, false) == null)
+				System.out.println("NO MAPPING FOR: "+sect.getSectionId()+". "+sect.getSectionName());
+		
+//		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true);
+//		test.saveAllTestMFD_Plots(true);
+//		test.saveAllTestMFD_Plots(false);
+//		test = new UCERF2_Section_MFDsCalc(false);
+//		test.saveAllTestMFD_Plots(true);
+//		test.saveAllTestMFD_Plots(false);
+//		System.out.println("DONE");
 		
 //		writeListOfAllFaultSections();
 

@@ -30,7 +30,7 @@ public class FileMakingStuff {
 	public static void mkNewFilesBySubstitutingNames() {
 		
 		// read the name changes file
-		File nameChangeFile = new File("dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/scratchFiles/FM2to3_1_sectionNameChanges.txt");
+		File nameChangeFile = new File("dev/scratch/UCERF3/data/FindEquivUCERF2_Ruptures/FM2to3_1_sectionNameChanges.txt");
 		Hashtable<String,String> namesMap = new Hashtable<String,String>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(nameChangeFile.getPath()));
@@ -99,7 +99,7 @@ public class FileMakingStuff {
 		
 		
 		// read the name changes file
-		nameChangeFile = new File("dev/scratch/UCERF3/utils/FindEquivUCERF2_Ruptures/scratchFiles/FM2to3_2_sectionNameChanges.txt");
+		nameChangeFile = new File("dev/scratch/UCERF3/data/FindEquivUCERF2_Ruptures/FM2to3_2_sectionNameChanges.txt");
 		namesMap = new Hashtable<String,String>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(nameChangeFile.getPath()));
