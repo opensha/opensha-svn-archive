@@ -14,6 +14,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.calc.FractileCurveCalculator;
+import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
@@ -34,35 +35,54 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 
 /**
- * Note that for the stitched together, unsegmented type-A fault, the following stepover substitutions were made:
- * ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID = 402; replace the following two:
- * GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
- * TEMECULA_STEPOVER_FAULT_SECTION_ID = 298;
+ * This class generates the min, max, and mean parent-section MFDs implied by all time-independent UCERF2 
+ * branches, for either nucleation or participation and for either incremental or cumulative MFDs.
  * 
- * and
+ * Note that the MFDs for ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID, GLEN_IVY_STEPOVER_FAULT_SECTION_ID, and
+ * TEMECULA_STEPOVER_FAULT_SECTION_ID are all identical, so only one should be used (e.g., if summing all nucleation
+ * MFDs to get a total for the region).  Likewise for the 3 overlapping/redundant SJ sections below.
  * 
- * SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401; replaced the following two:
- * SJ_VALLEY_STEPOVER_FAULT_SECTION_ID = 290;
- * SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
+ * The saveAllMFDPlot() method makes plots of the mean, min, and max nucleation (or participation 
+ * depending on constructor argument) for each parent section from UCERF2_TimeIndependentEpistemicList, 
+ * plus the average implied by MeanUCERF2.  The means agree on both participation and nucleation.
  * 
- * Type-A segmented sources are of type: FaultRuptureSource
-
+ * The saveAllMFDPlotComparisonsWithMappedUCERF2_FM2pt1_FltSysSol(*) method compares the mean, min, and max from
+ * UCERF2_TimeIndependentEpistemicList to the MFDs implied by the FM 2.1 UCERF2 mapped fault system solution
+ * (from UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1)).  Differences are listed and explained
+ * in a file name "" available from Ned Field.
+ * 
  * @author field
  *
  */
 public class UCERF2_Source_MFDsCalc {
 	
-	final static File DATAFILE = new File("dev/scratch/UCERF3/utils/UCERF2_Section_MFDs/UCERF2_sectionIDs_AndNames.txt");
-	String MFD_PLOTS_DIR = "dev/scratch/UCERF3/data/scratch/UCERF2_SectionMFDs";
+	private static boolean D = true; // debug flag
+	
+	public static int ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID = 402; // replaces the following two:
+	public static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
+	public static int TEMECULA_STEPOVER_FAULT_SECTION_ID = 298;
+
+	public static int SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401; // replaced the following two:
+	public static int SJ_VALLEY_STEPOVER_FAULT_SECTION_ID = 290;
+	public static int SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
+
+	final static String DATA_SUB_DIR = "UCERF2_Section_MFDs";
+	final static String PART_SUB_DIR = "ParticipationFiles";
+	final static String NUCL_SUB_DIR = "NucleationFiles";
+	final static String SECT_LIST_FILE_NAME = "UCERF2_sectionIDs_AndNames.txt";
+	final static String MFD_PLOTS_DIR = "dev/scratch/UCERF3/data/scratch/UCERF2_SectionMFD_Plots";
 	HashMap<String,Integer> sectionIDfromNameMap;
 	HashMap<Integer,String> sectionNamefromID_Map;
 	
@@ -87,87 +107,257 @@ public class UCERF2_Source_MFDsCalc {
 	final public static double MIN_MAG = 5.05;
 	final public static int NUM_MAG = 40;
 	final public static double DELTA_MAG = 0.1;
+	
+	File precomputedDataDir;
 
 	
 	/**
 	 * 
 	 * @param isParticipation - set true for participation MFDs and false for nucleation MFDs
 	 */
-	public UCERF2_Source_MFDsCalc(boolean isParticipation) {
+	public UCERF2_Source_MFDsCalc(boolean isParticipation, File precomputedDataDir) {
 		this.isParticipation = isParticipation;
+		this.precomputedDataDir = precomputedDataDir;
 		
+		System.out.println("UCERF2_Source_MFDsCalc is creating data; this will take some time...");
+		
+		// make data dir if it doesn't exist
+		File dataDir = new File(precomputedDataDir,DATA_SUB_DIR);
+		if(!dataDir.exists())dataDir.mkdirs();
+		
+		// check for fault sections list data
+		File sectListFile = new File(dataDir,SECT_LIST_FILE_NAME);
+		if(!sectListFile.exists())
+			writeListOfAllFaultSections(sectListFile);
+
+		// populate sectionIDfromNameMap and sectionNamefromID_Map
+		readListOfAllFaultSections(sectListFile);
+		
+//		System.out.println(dataDir);
+
 		makeMFD_Lists();
 		
-//		writeSectionsWithWtLessThanOne();
-		
-		makeMeanUCERF2_MFD_List();
+		writeMinMaxMeanMFDsToFiles(dataDir);
+				
 	}
 	
-	public void writeSectionsWithWtLessThanOne() {
+	
+	/**
+	 * This method returns an ArrayList<IncrementalMagFreqDist> giving the mean, min, and max (in that order) 
+	 * UCERF2 section MFD for the specified attributes (over the 144 time-independent logic tree branches).
+	 * @param parID
+	 * @param isParticipation - specifies whether to get participation vs nucleation MFDs
+	 * @param cumDist - specifies whether to return cumulative vs nucleation MFDs
+	 * @param precomputedDataDir - e.g., UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR
+	 * @return - null is returned if parID is not one in UCERF2
+	 */
+	public static ArrayList<IncrementalMagFreqDist> getMeanMinAndMaxMFD(int parID, boolean isParticipation,boolean cumDist, File precomputedDataDir) {
+
+		File dataDir = new File(precomputedDataDir,DATA_SUB_DIR);
+
+		File subDir;
+		if(isParticipation)
+			subDir=new File(dataDir,PART_SUB_DIR);
+		else
+			subDir=new File(dataDir,NUCL_SUB_DIR);
+		
+		// check that subDir exists and make data if not
+		if(!subDir.exists()) {	// make the data if not
+			UCERF2_Source_MFDsCalc test = new UCERF2_Source_MFDsCalc(isParticipation, precomputedDataDir);
+		}
+
+		File fileName;
+		String distType;
+		if(cumDist)
+			distType = "cum";
+		else
+			distType = "incr";
+		
+		fileName = new File(subDir,distType+parID+".txt");
+
+
+		// check that file exists & return null if not
+		if(!fileName.exists()) {	
+			return null;
+		}
+
+		ArrayList<IncrementalMagFreqDist> mfdList = null;
+
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+			ArrayList<String> lineList = new ArrayList<String>();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				lineList.add(line);
+			}
+			String[] strArray = StringUtils.split(lineList.get(0),"\t");
+			String name = strArray[0];
+
+			strArray = StringUtils.split(lineList.get(2),"\t");
+			double minMag = Double.valueOf(strArray[0]);
+			strArray = StringUtils.split(lineList.get(lineList.size()-1),"\t");
+			double maxmag = Double.valueOf(strArray[0]);
+			int numMag = lineList.size()-2;
+
+			IncrementalMagFreqDist meanMFD = new IncrementalMagFreqDist(minMag, maxmag, numMag);
+			IncrementalMagFreqDist minMFD = new IncrementalMagFreqDist(minMag, maxmag, numMag);
+			IncrementalMagFreqDist maxMFD = new IncrementalMagFreqDist(minMag, maxmag, numMag);
+
+			for(int l=2;l<lineList.size();l++) {
+				strArray = StringUtils.split(lineList.get(l),"\t");
+				meanMFD.set(l-2, Double.valueOf(strArray[1]));
+				minMFD.set(l-2, Double.valueOf(strArray[2]));
+				maxMFD.set(l-2, Double.valueOf(strArray[3]));
+			}
+
+			meanMFD.setName(name+" mean "+distType+" MFD");
+			meanMFD.setInfo("section ID = "+parID);
+			minMFD.setName(name+" min "+distType+" MFD");
+			minMFD.setInfo("section ID = "+parID);
+			maxMFD.setName(name+" max "+distType+" MFD");
+			maxMFD.setInfo("section ID = "+parID);
+
+			mfdList = new ArrayList<IncrementalMagFreqDist>();
+			mfdList.add(meanMFD);
+			mfdList.add(minMFD);
+			mfdList.add(maxMFD);
+
+
+		} catch (Exception e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
+		return mfdList;
+
+	}
+
+	
+	/**
+	 * Note that MFDs are divided by the total weight (which is either 1.0 or 05) in order to
+	 * give full weight to results that are only on FM 2.1 or Fm 2.2.
+	 * @param dataDir
+	 */
+	private void writeMinMaxMeanMFDsToFiles(File dataDir) {
+		// make the directory
+		File directory;
+		if(isParticipation) {
+			directory=new File(dataDir,PART_SUB_DIR);
+			if(!directory.exists())directory.mkdirs();
+		}
+		else {
+			directory=new File(dataDir,NUCL_SUB_DIR);
+			if(!directory.exists())directory.mkdirs();			
+		}
+		
+		for(int parID : mfdList_ForSectID_Map.keySet()) {
+			XY_DataSetList mfdList = mfdList_ForSectID_Map.get(parID);
+			double weight = totWtForSectID_Map.get(parID);
+			if(mfdList != null) {
+				// write incremental file
+				FractileCurveCalculator frCurveCalc = new FractileCurveCalculator(mfdList,mfdWts_ForSectID_Map.get(parID));
+				AbstractXY_DataSet meanCurve = frCurveCalc.getMeanCurve();
+				AbstractXY_DataSet minCurve = frCurveCalc.getMinimumCurve();
+				AbstractXY_DataSet maxCurve = frCurveCalc.getMaximumCurve();
+				File fileName = new File(directory,"incr"+parID+".txt");
+				
+				try {
+					FileWriter fw = new FileWriter(fileName);
+					fw.write(sectionNamefromID_Map.get(parID)+"\n");
+					fw.write("mag\tmean\tmin\tmax\n");
+					for(int i=0;i<meanCurve.getNum();i++) {
+						// note that we are dividing by weight
+						fw.write(meanCurve.getX(i)+"\t"+meanCurve.getY(i)/weight+"\t"+minCurve.getY(i)/weight+"\t"+maxCurve.getY(i)/weight+"\n");
+					}
+					fw.close ();
+				}
+				catch (IOException e) {
+					System.out.println ("IO exception = " + e );
+				}
+				
+				// write cumulative file
+				FractileCurveCalculator frCurveCalcCum = new FractileCurveCalculator(getCumMFD_ListForSect(parID),mfdWts_ForSectID_Map.get(parID));
+				AbstractXY_DataSet meanCurveCum = frCurveCalcCum.getMeanCurve();
+				AbstractXY_DataSet minCurveCum = frCurveCalcCum.getMinimumCurve();
+				AbstractXY_DataSet maxCurveCum = frCurveCalcCum.getMaximumCurve();
+				File fileNameCum = new File(directory,"cum"+parID+".txt");
+				
+				try {
+					FileWriter fwCum = new FileWriter(fileNameCum);
+					fwCum.write(sectionNamefromID_Map.get(parID)+"\n");
+					fwCum.write("mag\tmean\tmin\tmax\n");
+					for(int i=0;i<meanCurve.getNum();i++) {
+						// note that we are dividing by weight
+						fwCum.write(meanCurveCum.getX(i)+"\t"+meanCurveCum.getY(i)/weight+"\t"+minCurveCum.getY(i)/weight+"\t"+maxCurveCum.getY(i)/weight+"\n");
+					}
+					fwCum.close ();
+				}
+				catch (IOException e) {
+					System.out.println ("IO exception = " + e );
+				}
+			}
+			else {
+				System.out.println("Null MFD List for: id = "+parID+";  name = "+sectionNamefromID_Map.get(parID));
+			}
+		}
+	}
+	
+	private XY_DataSetList getCumMFD_ListForSect(int parID) {
+		XY_DataSetList mfdList = mfdList_ForSectID_Map.get(parID);
+		XY_DataSetList cumMFD_List = new XY_DataSetList();
+		for(XY_DataSet mfd:mfdList)
+			cumMFD_List.add(((SummedMagFreqDist)mfd).getCumRateDistWithOffset());
+		return cumMFD_List;
+	}
+	
+	/**
+	 * This writes out the total weight for each section (should be 0.5 if section is only on 
+	 * FM 2.1 or FM 2.2).  Otherwise this should be 1.0.
+	 */
+	public void writeSectionWeights() {
 		for(int parIndex:sectionNamefromID_Map.keySet()) {
 			double wt = totWtForSectID_Map.get(parIndex);
-			if(wt < 0.99999999)
-				System.out.println((float)wt+"\t"+sectionNamefromID_Map.get(parIndex)+"\t"+parIndex);
+			System.out.println((float)wt+"\t"+sectionNamefromID_Map.get(parIndex)+"\t"+parIndex);
 		}
-	}
-	
-	
-	public void saveAllMFDPlot() {
-		
-		for(int sectID:sectionNamefromID_Map.keySet()) {
-			ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
-			FractileCurveCalculator frCurveCalc = new FractileCurveCalculator(mfdList_ForSectID_Map.get(sectID),
-					mfdWts_ForSectID_Map.get(sectID));
-			funcs.add(frCurveCalc.getMeanCurve());
-			funcs.add(frCurveCalc.getMinimumCurve());
-			funcs.add(frCurveCalc.getMaximumCurve());
-			funcs.add(meanUCERF2_MFD_ForSectID_Map.get(sectionNamefromID_Map.get(sectID)));
-			
-			ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
-			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLACK));
-			
-			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			gp.setTickLabelFontSize(14);
-			gp.setAxisLabelFontSize(16);
-			gp.setPlotLabelFontSize(18);
-			gp.setYLog(true);
-			gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
-			gp.setUserBounds(5, 9, 1e-7, 1.0);
-			float totWt=totWtForSectID_Map.get(sectID).floatValue();
-			String title;
-			if(isParticipation)
-				title = sectionNamefromID_Map.get(sectID)+" Participation MFDs (totWt="+totWt+")";
-			else
-				title = sectionNamefromID_Map.get(sectID)+" Nucleation MFDs (totWt="+totWt+")";
-
-			gp.drawGraphPanel("Magnitude", "Rate (per year)", funcs, chars, true, title);
-
-			String fileName = sectionNamefromID_Map.get(sectID).replace("\\s+","");
-			File file = new File(MFD_PLOTS_DIR, fileName);
-			gp.getCartPanel().setSize(1000, 800);
-			try {
-				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-//			gp.saveAsPNG(file.getAbsolutePath()+".png");
-
-		}
-
 	}
 	
 	
 	public static void tempTest() {
-		// get the UCERF2 mapped fault system solution
-		SimpleFaultSystemSolution fltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
 		
-		int subsect=216;
-		System.out.println(fltSysSol.getFaultSectionData(subsect).getSectionName());
-		System.out.println(fltSysSol.getFaultSectionData(234).getSectionName());
+		String subDir = "/testDir";
+		File file = new File(MFD_PLOTS_DIR+subDir);
+		if(!file.exists())file.mkdirs();
+
+
+		
+//		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+//		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+//		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+//		meanUCERF2.updateForecast();
+//		double duration = meanUCERF2.getTimeSpan().getDuration();
+////		for(int s=0;s<meanUCERF2.getNumSources(); s++)
+////			System.out.println(s+"\t"+meanUCERF2.getSource(s).getName());
+//		
+//		int[] srces = {2,3,4,123};
+//		for(int s : srces) {
+//			ProbEqkSource src = meanUCERF2.getSource(s);
+//			for(int r=0;r<src.getNumRuptures();r++)
+//				System.out.println(s+"\t"+r+"\t"+(float)src.getRupture(r).getMag()+"\t"+
+//						(float)src.getRupture(r).getMeanAnnualRate(duration)+"\t"+src.getName());
+//
+//		}
+
+		// get the UCERF2 mapped fault system solution
+//		SimpleFaultSystemSolution fltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+//		ArrayList<String> parSectNameList = new ArrayList<String>();
+//		for(FaultSectionPrefData data : fltSysSol.getFaultSectionDataList())
+//			if(!parSectNameList.contains(data.getParentSectionName()))
+//				parSectNameList.add(data.getParentSectionName());
+//		for(String name: parSectNameList)
+//			System.out.println(name);
+		
+//		int subsect=216;
+//		System.out.println(fltSysSol.getFaultSectionData(subsect).getSectionName());
+//		System.out.println(fltSysSol.getFaultSectionData(234).getSectionName());
 //		for(int r=0; r<fltSysSol.getNumRuptures();r++) {
 //			List<Integer>  subsectIDs = fltSysSol.getSectionsIndicesForRup(r);
 //			if(subsectIDs.get(0) == subsect || subsectIDs.get(subsectIDs.size()-1) == subsect) {
@@ -214,9 +404,21 @@ public class UCERF2_Source_MFDsCalc {
 	
 	
 	/**
-	 * Note that step-overs on San Jacinto and Elsinore are not taken care of
+	 * This class writes pdf plots of min, max, and mean results for all parent sections in UCERF2 FM 2.1 (blue lines).
+	 * For comparison, this also plots the results from MeanUCERF2 (blue circle, which agree with the means computed
+	 * from logic-tree branches).  This also adds the min, max, and mean as read from files (using the static method);
+	 * these are plotted as blue crosses.  Finally, this also plots the MFD implied by the UCERF2 model mapped into a 
+	 * fault system solution (UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1)).
+	 * 
+	 * This scales MFDs that have a total weight of 0.5 by this value in order to make a fair comparison (meaning 
+	 * weights are applied here).
+	 * 
+	 * This has not been tested for FM 2.2 (would need to add this as method argument).
 	 */
-	public void saveAllMFDPlotComparisonsWithMappedUCERF2_FM2pt1_FltSysSol() {
+	public void saveAllTestMFD_Plots(boolean plotCumDist) {
+		
+		if(meanUCERF2_MFD_ForSectID_Map == null)
+			makeMeanUCERF2_MFD_List();
 		
 		// get the UCERF2 mapped fault system solution
 		SimpleFaultSystemSolution fltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
@@ -230,7 +432,8 @@ public class UCERF2_Source_MFDsCalc {
 				if(sectionNamefromID_Map.keySet().contains(parID))
 					u2_parIds.add(parID);
 				else {
-					System.out.println("Not including "+data.getParentSectionName());
+					if(D)
+						System.out.println("Not including "+data.getParentSectionName());
 
 				}
 				
@@ -238,23 +441,27 @@ public class UCERF2_Source_MFDsCalc {
 		}
 		
 		for(Integer parID : u2_parIds) {
-			System.out.println("Working on "+sectionNamefromID_Map.get(parID));
+			if(D) System.out.println("Working on "+sectionNamefromID_Map.get(parID));
 			
 			EvenlyDiscretizedFunc mappedMFD;
 			if(isParticipation) {
-				mappedMFD = fltSysSol.calcParticipationMFD_forParentSect(parID, MIN_MAG, MIN_MAG+DELTA_MAG*(NUM_MAG-1), NUM_MAG).getCumRateDistWithOffset();
+				if(plotCumDist)
+					mappedMFD = fltSysSol.calcParticipationMFD_forParentSect(parID, MIN_MAG, MIN_MAG+DELTA_MAG*(NUM_MAG-1), NUM_MAG).getCumRateDistWithOffset();
+				else
+					mappedMFD = fltSysSol.calcParticipationMFD_forParentSect(parID, MIN_MAG, MIN_MAG+DELTA_MAG*(NUM_MAG-1), NUM_MAG);
 				mappedMFD.setName("UCERF2 Mapped Participation MFD for "+sectionNamefromID_Map.get(parID));
 			}
 			else {
-				mappedMFD = fltSysSol.calcNucleationMFD_forParentSect(parID, MIN_MAG, MIN_MAG+DELTA_MAG*(NUM_MAG-1), NUM_MAG).getCumRateDistWithOffset();
+				if(plotCumDist)
+					mappedMFD = fltSysSol.calcNucleationMFD_forParentSect(parID, MIN_MAG, MIN_MAG+DELTA_MAG*(NUM_MAG-1), NUM_MAG).getCumRateDistWithOffset();
+				else
+					mappedMFD = fltSysSol.calcNucleationMFD_forParentSect(parID, MIN_MAG, MIN_MAG+DELTA_MAG*(NUM_MAG-1), NUM_MAG);
 				mappedMFD.setName("UCERF2 Mapped Nucleation MFD for "+sectionNamefromID_Map.get(parID));				
 			}
-			
-			// apply 50% weight if that's what totWtForSectID_Map says it is (indicating it's either exclusive to FM 2.1 or 2.2)
-			// this is neede for a meaningful comparison
-			double tempWt = totWtForSectID_Map.get(parID);
-			if(tempWt>0.49 && tempWt<0.51)	// to avoid numerical precision problems
-				mappedMFD.scale(0.5);
+	
+			// apply the weight (1.0 or 0.5) for a meaningful comparison
+			double totWeight = totWtForSectID_Map.get(parID);
+			mappedMFD.scale(totWeight);
 				
 			ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
 			funcs.add(mappedMFD);
@@ -263,11 +470,22 @@ public class UCERF2_Source_MFDsCalc {
 
 			
 			XY_DataSetList mfdList = mfdList_ForSectID_Map.get(parID);
+//			double totalWeight = totWtForSectID_Map.get(parID);
 			if(mfdList != null) {
-				XY_DataSetList cumMFD_List = new XY_DataSetList();
-				for(XY_DataSet mfd:mfdList)
-					cumMFD_List.add(((SummedMagFreqDist)mfd).getCumRateDistWithOffset());
-				FractileCurveCalculator frCurveCalc = new FractileCurveCalculator(cumMFD_List,mfdWts_ForSectID_Map.get(parID));
+				FractileCurveCalculator frCurveCalc;
+				if(plotCumDist)
+					frCurveCalc = new FractileCurveCalculator(getCumMFD_ListForSect(parID),mfdWts_ForSectID_Map.get(parID));
+				else
+					frCurveCalc = new FractileCurveCalculator(mfdList,mfdWts_ForSectID_Map.get(parID));
+//				
+//				XY_DataSetList tempMFD_List = new XY_DataSetList();
+//				for(XY_DataSet mfd:mfdList)
+//					if(plotCumDist)
+//						tempMFD_List.add(((SummedMagFreqDist)mfd).getCumRateDistWithOffset());
+//					else
+//						tempMFD_List.add(((SummedMagFreqDist)mfd));
+//
+//				FractileCurveCalculator frCurveCalc = new FractileCurveCalculator(tempMFD_List,mfdWts_ForSectID_Map.get(parID));
 				funcs.add(frCurveCalc.getMeanCurve());
 				funcs.add(frCurveCalc.getMinimumCurve());
 				funcs.add(frCurveCalc.getMaximumCurve());				
@@ -280,6 +498,25 @@ public class UCERF2_Source_MFDsCalc {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
 			
+			// add the mean from meanUCERF2_MFD_ForSectID_Map
+			if(plotCumDist)
+				funcs.add(meanUCERF2_MFD_ForSectID_Map.get(sectionNamefromID_Map.get(parID)).getCumRateDistWithOffset());
+			else
+				funcs.add(meanUCERF2_MFD_ForSectID_Map.get(sectionNamefromID_Map.get(parID)));
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, Color.BLUE));
+			
+			// add the MFDs read from static files (and apply totWeight for meaningful comparison)
+			ArrayList<IncrementalMagFreqDist> mfds = getMeanMinAndMaxMFD(parID, isParticipation, plotCumDist, precomputedDataDir);
+			if(totWeight < 0.99999) {	// reapply weight if less that 1
+				for(IncrementalMagFreqDist mfd : mfds)
+					mfd.scale(totWeight);
+			}
+			funcs.addAll(mfds);
+			
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
+
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
 			gp.setTickLabelFontSize(14);
 			gp.setAxisLabelFontSize(16);
@@ -297,7 +534,23 @@ public class UCERF2_Source_MFDsCalc {
 			gp.drawGraphPanel("Magnitude", "Rate (per year)", funcs, chars, true, title);
 
 			String fileName = sectionNamefromID_Map.get(parID).replace("\\s+","");
-			File file = new File(MFD_PLOTS_DIR, fileName);
+			String subDir;
+			if(plotCumDist) {
+				if(isParticipation)
+					subDir = "/CumulativeParticipation";
+				else
+					subDir = "/CumulativeNucleation";
+			}
+			else {
+				if(isParticipation)
+					subDir = "/IncrementalParticipation";
+				else
+					subDir = "/IncrementalNucleation";
+			}
+			File filePath = new File(MFD_PLOTS_DIR+subDir);
+			if(!filePath.exists())filePath.mkdirs();
+			
+			File file = new File(MFD_PLOTS_DIR+subDir, fileName);
 			gp.getCartPanel().setSize(1000, 800);
 			try {
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
@@ -317,9 +570,6 @@ public class UCERF2_Source_MFDsCalc {
 	
 	private void makeMFD_Lists() {
 		
-		// populate sectionIDfromNameMap and sectionNamefromID_Map
-		readListOfAllFaultSections();
-		
 		mfdList_ForSectID_Map = new HashMap<Integer,XY_DataSetList>();
 		mfdBranches_ForSectID_Map = new HashMap<Integer,ArrayList<Integer>>();
 		mfdWts_ForSectID_Map = new HashMap<Integer,ArrayList<Double>>();
@@ -327,11 +577,11 @@ public class UCERF2_Source_MFDsCalc {
 		
 		UCERF2_TimeIndependentEpistemicList ucerf2EpistemicList = getUCERF2_TimeIndependentEpistemicList();
 		int numERFs = ucerf2EpistemicList.getNumERFs();
-		System.out.println("Num Branches="+numERFs);
+		if(D) System.out.println("Num Branches="+numERFs);
 
 		for(int branch=0; branch<numERFs; ++branch) {
 //		for(int branch=0; branch<1; ++branch) {
-			System.out.println(branch);
+			if(D) System.out.println(branch);
 			ERF erf = ucerf2EpistemicList.getERF(branch);
 			double duration = erf.getTimeSpan().getDuration();
 			
@@ -384,7 +634,7 @@ public class UCERF2_Source_MFDsCalc {
 						processSource(src, dataList, mfd_ForSectName_Map, duration);
 					}
 				}
-				else {
+				else {	// type-A source
 					String name = src.getName();
 					if(sectionsForTypeA_RupsMap.keySet().contains(name)) {	// check whether it's a type A source
 						processSource(src, sectionsForTypeA_RupsMap.get(name), mfd_ForSectName_Map, duration);
@@ -398,11 +648,11 @@ public class UCERF2_Source_MFDsCalc {
 			double branchWt = ucerf2EpistemicList.getERF_RelativeWeight(branch);
 			for(String name:mfd_ForSectName_Map.keySet()) {
 				int id = sectionIDfromNameMap.get(name);
+				// add lists if it's the first element
 				if(!mfdList_ForSectID_Map.keySet().contains(id)) {
 					mfdList_ForSectID_Map.put(id, new XY_DataSetList());
 					mfdBranches_ForSectID_Map.put(id, new ArrayList<Integer>());
 					mfdWts_ForSectID_Map.put(id, new ArrayList<Double>());
-
 				}
 				mfdList_ForSectID_Map.get(id).add(mfd_ForSectName_Map.get(name));
 				mfdBranches_ForSectID_Map.get(id).add(branch);
@@ -457,10 +707,31 @@ public class UCERF2_Source_MFDsCalc {
 			}
 			else {
 				mfd = getNewSummedMagFreqDist();
-				mfd_ForSectName_Map.put(name, mfd);
 				mfd.setName(name);
 				mfd.setInfo("Section ID = "+sectionIDfromNameMap.get(name));
-
+				
+				// make sure stepover/overlapping sections point to same MFD
+				if( name.equals(sectionNamefromID_Map.get(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID)) ||
+					name.equals(sectionNamefromID_Map.get(GLEN_IVY_STEPOVER_FAULT_SECTION_ID)) ||
+					name.equals(sectionNamefromID_Map.get(TEMECULA_STEPOVER_FAULT_SECTION_ID))) {
+//System.out.println(name);
+						mfd.setName(sectionNamefromID_Map.get(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID));
+						mfd_ForSectName_Map.put(sectionNamefromID_Map.get(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID), mfd);
+						mfd_ForSectName_Map.put(sectionNamefromID_Map.get(GLEN_IVY_STEPOVER_FAULT_SECTION_ID), mfd);
+						mfd_ForSectName_Map.put(sectionNamefromID_Map.get(TEMECULA_STEPOVER_FAULT_SECTION_ID), mfd);
+				}
+				else if( name.equals(sectionNamefromID_Map.get(SJ_COMBINED_STEPOVER_FAULT_SECTION_ID)) ||
+						 name.equals(sectionNamefromID_Map.get(SJ_ANZA_STEPOVER_FAULT_SECTION_ID)) ||
+						 name.equals(sectionNamefromID_Map.get(SJ_VALLEY_STEPOVER_FAULT_SECTION_ID))) {
+//System.out.println(name);
+							mfd.setName(sectionNamefromID_Map.get(SJ_COMBINED_STEPOVER_FAULT_SECTION_ID));
+							mfd_ForSectName_Map.put(sectionNamefromID_Map.get(SJ_COMBINED_STEPOVER_FAULT_SECTION_ID), mfd);
+							mfd_ForSectName_Map.put(sectionNamefromID_Map.get(SJ_ANZA_STEPOVER_FAULT_SECTION_ID), mfd);
+							mfd_ForSectName_Map.put(sectionNamefromID_Map.get(SJ_VALLEY_STEPOVER_FAULT_SECTION_ID), mfd);
+				}
+				else {
+					mfd_ForSectName_Map.put(name, mfd);
+				}
 			}
 			mfdList.add(mfd);
 		}
@@ -471,16 +742,46 @@ public class UCERF2_Source_MFDsCalc {
 		
 		// now process each rupture of the source
 		for(ProbEqkRupture rup : src) {
-			double[] rateOnEachSect;
+			double[] fracOnEachSect;
 			
 			if(isParticipation)
-				rateOnEachSect = getSectionParticipationsForRup(rup, dataList);
+				fracOnEachSect = getSectionParticipationsForRup(rup, dataList);
 			else
-				rateOnEachSect = getFractionOfRupOnEachSection(rup, dataList);
+				fracOnEachSect = getFractionOfRupOnEachSection(rup, dataList);
 			double mag = rup.getMag();
+			boolean stepoverDone= false;
 			for(int i=0;i<mfdList.size();i++) {
-				if(rateOnEachSect[i] > 0)
-					mfdList.get(i).addResampledMagRate(mag, rateOnEachSect[i]*rup.getMeanAnnualRate(duration), true);
+				if(fracOnEachSect[i] > 0) {
+					String name = dataList.get(i).getSectionName();	// get name to check for stepover
+					if( name.equals(sectionNamefromID_Map.get(GLEN_IVY_STEPOVER_FAULT_SECTION_ID)) ||
+						name.equals(sectionNamefromID_Map.get(TEMECULA_STEPOVER_FAULT_SECTION_ID))) {
+							if(!stepoverDone) {		// avoid double counting the stepovers
+								mfdList.get(i).addResampledMagRate(mag, fracOnEachSect[i]*rup.getMeanAnnualRate(duration), true);	
+								stepoverDone=true;
+							}
+					}
+					else if(name.equals(sectionNamefromID_Map.get(SJ_ANZA_STEPOVER_FAULT_SECTION_ID)) ||
+							name.equals(sectionNamefromID_Map.get(SJ_VALLEY_STEPOVER_FAULT_SECTION_ID))) {
+								if(!stepoverDone) { 	// avoid double counting the stepovers
+									mfdList.get(i).addResampledMagRate(mag, fracOnEachSect[i]*rup.getMeanAnnualRate(duration), true);	
+									stepoverDone=true;
+								}
+					}
+					else {
+						mfdList.get(i).addResampledMagRate(mag, fracOnEachSect[i]*rup.getMeanAnnualRate(duration), true);	
+					}
+
+					
+//if(dataList.get(i).getSectionName().equals("San Jacinto (Anza, stepover)"))
+//	System.out.println(dataList.get(i).getSectionName()+"\t"+mfdList.get(i).getName());
+//if(dataList.get(i).getSectionName().equals("San Jacinto (San Jacinto Valley, stepover)"))
+//	System.out.println(dataList.get(i).getSectionName()+"\t"+mfdList.get(i).getName());
+//if(dataList.get(i).getSectionName().equals("San Jacinto (Stepovers Combined)"))
+//	System.out.println(dataList.get(i).getSectionName()+"\t"+mfdList.get(i).getName());
+
+//	if(mag <6.1)
+//		System.out.println((float)mag+"\t"+(float)(rateOnEachSect[i]*rup.getMeanAnnualRate(duration))+"\t"+dataList.get(i).getSectionName()+"\t"+src.getName());
+				}
 			}
 		}
 	}
@@ -499,8 +800,8 @@ public class UCERF2_Source_MFDsCalc {
 		
 		FaultTrace rupTrace = rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
 		
-		// loop over each location on rupture trace
-		for(int l=0;l<rupTrace.size();l++) {
+		// loop over each location on rupture trace; exclude endpoints because the association may be ambiguous for ruptures confined to one parent
+		for(int l=1;l<rupTrace.size()-1;l++) {
 			Location loc = rupTrace.get(l);
 			double minDist = Double.MAX_VALUE;
 			int minLocSectIndex = -1;
@@ -511,7 +812,7 @@ public class UCERF2_Source_MFDsCalc {
 					minLocSectIndex = s;
 				}
 			}
-			fracOnEachSect[minLocSectIndex] += 1d/(double)rupTrace.size();
+			fracOnEachSect[minLocSectIndex] += 1d/(double)(rupTrace.size()-2);
 		}
 		
 		// test sum
@@ -536,8 +837,8 @@ public class UCERF2_Source_MFDsCalc {
 		
 		FaultTrace rupTrace = rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
 		
-		// loop over each location on rupture trace
-		for(int l=0;l<rupTrace.size();l++) {
+		// loop over each location on rupture trace, but skip first and last point because this could get mapped to neighbor
+		for(int l=1;l<rupTrace.size()-1;l++) {
 			Location loc = rupTrace.get(l);
 			double minDist = Double.MAX_VALUE;
 			int minLocSectIndex = -1;
@@ -563,10 +864,10 @@ public class UCERF2_Source_MFDsCalc {
 	/**
 	 * This writes out a list of all fault sections among all ERF branches
 	 */
-	public static void writeListOfAllFaultSections() {
+	private static void writeListOfAllFaultSections(File sectListFile) {
 		UCERF2_TimeIndependentEpistemicList ucerf2EpistemicList = getUCERF2_TimeIndependentEpistemicList();
 		int numERFs = ucerf2EpistemicList.getNumERFs();
-		System.out.println("Num Branches="+numERFs);
+		if(D) System.out.println("Num Branches="+numERFs);
 		ArrayList<String> sectionNames = new ArrayList<String>();
 		ArrayList<Integer> sectionIDs = new ArrayList<Integer>();
 
@@ -577,7 +878,7 @@ public class UCERF2_Source_MFDsCalc {
 //			System.out.println("\nWeight of Branch "+i+"="+ucerf2EpistemicList.getERF_RelativeWeight(i));
 //			System.out.println("Parameters of Branch "+i+":");
 //			System.out.println(ucerf2EpistemicList.getParameterList(i).getParameterListMetadataString("\n"));
-			System.out.println(i);
+			if(D) System.out.println(i);
 			ERF erf = ucerf2EpistemicList.getERF(i);
 						
 			// Get sections names for Type-A sections:
@@ -624,9 +925,9 @@ public class UCERF2_Source_MFDsCalc {
 		
 		// write out results
 		try {
-			FileWriter fw = new FileWriter(DATAFILE);
+			FileWriter fw = new FileWriter(sectListFile);
 			for(int i=0;i<sectionNames.size();i++) {
-				System.out.println(sectionIDs.get(i)+"\t"+sectionNames.get(i));
+				if(D) System.out.println(sectionIDs.get(i)+"\t"+sectionNames.get(i));
 				fw.write(sectionIDs.get(i)+"\t"+sectionNames.get(i)+"\n");
 			}
 			fw.close ();
@@ -637,11 +938,11 @@ public class UCERF2_Source_MFDsCalc {
 	}
 	
 	
-	private void readListOfAllFaultSections() {
+	private void readListOfAllFaultSections(File sectListFile) {
 		sectionIDfromNameMap = new HashMap<String,Integer>();
 		sectionNamefromID_Map = new HashMap<Integer,String>();
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(DATAFILE));
+			BufferedReader reader = new BufferedReader(new FileReader(sectListFile));
 			int l=-1;
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -658,7 +959,7 @@ public class UCERF2_Source_MFDsCalc {
 		
 		for(String name : sectionIDfromNameMap.keySet()){
 			Integer id = sectionIDfromNameMap.get(name);
-			System.out.println(id+"\t"+name);
+			if(D) System.out.println(id+"\t"+name);
 			if(!name.equals(sectionNamefromID_Map.get(id)))
 				throw new RuntimeException("Problem");
 		}
@@ -669,7 +970,7 @@ public class UCERF2_Source_MFDsCalc {
 	 * This returns an instance with the background seismicity turned off
 	 * @return
 	 */
-	public static UCERF2_TimeIndependentEpistemicList getUCERF2_TimeIndependentEpistemicList() {
+	private static UCERF2_TimeIndependentEpistemicList getUCERF2_TimeIndependentEpistemicList() {
 		UCERF2_TimeIndependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeIndependentEpistemicList();
 		ucerf2EpistemicList.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
 		return ucerf2EpistemicList;
@@ -699,7 +1000,7 @@ public class UCERF2_Source_MFDsCalc {
 //		System.out.println("keys for sectionsForTypeA_RupsMap");
 //		for(String srcName:sectionsForTypeA_RupsMap.keySet())
 //			System.out.println(srcName);
-
+//System.exit(1);
 		
 		meanUCERF2_MFD_ForSectID_Map = new HashMap<String,SummedMagFreqDist>();
 
@@ -709,7 +1010,7 @@ public class UCERF2_Source_MFDsCalc {
 		meanUCERF2.updateForecast();
 		duration = meanUCERF2.getTimeSpan().getDuration();
 		
-		System.out.println(meanUCERF2.getAdjustableParameterList().toString());
+		if(D) System.out.println(meanUCERF2.getAdjustableParameterList().toString());
 
 		if(sectionsForTypeA_RupsMap == null)
 			throw new RuntimeException("Error: sectionsForTypeA_RupsMap is null; need to run makeMFD_Lists()");
@@ -756,7 +1057,7 @@ public class UCERF2_Source_MFDsCalc {
 					processSource(src, sectionsForTypeA_RupsMap.get(name), meanUCERF2_MFD_ForSectID_Map, duration);
 				}
 				else
-					System.out.println("Ignored source: " + name);
+					if(D) System.out.println("Ignored source: " + name);
 			}
 		}
 		
@@ -771,9 +1072,15 @@ public class UCERF2_Source_MFDsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		UCERF2_Source_MFDsCalc.tempTest();
-//		UCERF2_Source_MFDsCalc test = new UCERF2_Source_MFDsCalc(true);
-//		test.saveAllMFDPlotComparisonsWithMappedUCERF2_FM2pt1_FltSysSol();
+		// 68	Hayward (No)
+//		ArrayList<IncrementalMagFreqDist> list = UCERF2_Source_MFDsCalc.getMeanMinAndMaxMFD(68, false, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+//		for(IncrementalMagFreqDist mfd:list) {
+//			System.out.println(mfd);
+//		}
+//		UCERF2_Source_MFDsCalc.tempTest();
+		UCERF2_Source_MFDsCalc test = new UCERF2_Source_MFDsCalc(true, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		test.saveAllTestMFD_Plots(true);
+		test.saveAllTestMFD_Plots(false);
 		System.out.println("DONE");
 		
 //		writeListOfAllFaultSections();

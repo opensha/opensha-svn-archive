@@ -135,7 +135,6 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 	
 	FaultModels faultModel;
 	
-	Hashtable<String,ArrayList<String>> subsectsForSect;
 	
 	// the following hold info about each UCERF2 rupture
 	int[] firstSectOfUCERF2_Rup, lastSectOfUCERF2_Rup, srcIndexOfUCERF2_Rup, rupIndexOfUCERF2_Rup, invRupIndexForUCERF2_Rup;
@@ -646,16 +645,16 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 				for(int r=0;r<ucerf2_fm.numRuptures;r++) {
 					int srcIndex = srcIndexOfUCERF2_Rup[r];
 					if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
-						boolean onlyOneSubsectOfSect = false;
+						boolean isFirstOrLastSubsect = false;
 						// this doesn't really test whether only one subsection of parent is used
 						if(isFirstOrLastSubsectInSect(firstSectOfUCERF2_Rup[r]) || isFirstOrLastSubsectInSect(lastSectOfUCERF2_Rup[r]))
-							onlyOneSubsectOfSect = true;
+							isFirstOrLastSubsect = true;
 
 						info_fw.write("\t"+r+"\t"+srcIndexOfUCERF2_Rup[r]+"\t"+rupIndexOfUCERF2_Rup[r]+
 								"\t"+subSeismoUCERF2_Rup[r]+"\t"+invRupIndexForUCERF2_Rup[r]+"\t"+
 								modifiedUCERF2.getSource(srcIndexOfUCERF2_Rup[r]).getName()+
 								"\t("+faultSectionData.get(firstSectOfUCERF2_Rup[r]).getName()+
-								"\t"+faultSectionData.get(lastSectOfUCERF2_Rup[r]).getName()+");  onlyOneSubsectOfSect = "+onlyOneSubsectOfSect+"\n");
+								"\t"+faultSectionData.get(lastSectOfUCERF2_Rup[r]).getName()+");  atLeastOneIsFirstOrLastSubsectInSect = "+isFirstOrLastSubsect+"\n");
 						numUnassociated+=1;
 					}
 				}
@@ -669,41 +668,6 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		if(D) System.out.println("Done with associations");
 	}
 	
-	
-	/**
-	 * This tells whether a give section is the first or last in a list of subsections from the parent section
-	 * @param sectIndex
-	 * @return
-	 */
-	private boolean isFirstOrLastSubsectInSect(int sectIndex) {
-
-		if(subsectsForSect == null) {
-			subsectsForSect = new Hashtable<String,ArrayList<String>>();
-			for(FaultSectionPrefData data : faultSectionData) {
-				if(subsectsForSect.containsKey(data.getParentSectionName())) {
-					subsectsForSect.get(data.getParentSectionName()).add(data.getSectionName());
-				}
-				else {
-					ArrayList<String> list = new ArrayList<String>();
-					list.add(data.getSectionName());
-					subsectsForSect.put(data.getParentSectionName(), list);
-				}
-			}			
-		}
-		
-		FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
-		ArrayList<String> subSectList = subsectsForSect.get(sectData.getParentSectionName());
-		String firstName = subSectList.get(0);
-		String lastName = subSectList.get(subSectList.size()-1);
-		boolean result = false;
-		if(firstName.equals(sectData.getSectionName()))
-			result=true;
-		else if(lastName.equals(sectData.getSectionName()))
-			result=true;
-		
-		return result;
-
-	}
 	
 	
 	/**

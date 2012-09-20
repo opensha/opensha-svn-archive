@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -597,22 +598,46 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		// write un-associated UCERF2 ruptures
 		try {
 			if (info_fw != null) {
+				HashMap<String,Double> srcRateExcluded = new HashMap<String,Double>();
 				int numUnassociated=0;
 				info_fw.write("\nUnassociated UCERF2 ruptures (not from FM 2.2 or subseismogenic, so there should be a mapping?)\n");
 				info_fw.write("\n(because these do not pass the laugh-test filter?)\n");
 				info_fw.write("\n\tu2_rup\tsrcIndex\trupIndex\tsubSeis\tinvRupIndex\tsrcName\t(first-subsect-name\tlast-subsect-name\n");
+				double duration = modifiedUCERF2.getTimeSpan().getDuration();
 				for(int r=0;r<ucerf2_fm.numRuptures;r++) {
 					int srcIndex = srcIndexOfUCERF2_Rup[r];
 					if(!subSeismoUCERF2_Rup[r] && (invRupIndexForUCERF2_Rup[r] == -1 && problemUCERF2_Source[srcIndex] == false)) { // first make sure it's not for fault model 2.2
+						boolean isFirstOrLastSubsect = false;
+						// this doesn't really test whether only one subsection of parent is used
+						if(isFirstOrLastSubsectInSect(firstSectOfUCERF2_Rup[r]) || isFirstOrLastSubsectInSect(lastSectOfUCERF2_Rup[r]))
+							isFirstOrLastSubsect = true;
+
 						info_fw.write("\t"+r+"\t"+srcIndexOfUCERF2_Rup[r]+"\t"+rupIndexOfUCERF2_Rup[r]+
-										"\t"+subSeismoUCERF2_Rup[r]+"\t"+invRupIndexForUCERF2_Rup[r]+"\t"+
-										modifiedUCERF2.getSource(srcIndexOfUCERF2_Rup[r]).getName()+
-										"\t("+faultSectionData.get(firstSectOfUCERF2_Rup[r]).getName()+
-										"\t"+faultSectionData.get(lastSectOfUCERF2_Rup[r]).getName()+")\n");
-								numUnassociated+=1;
+								"\t"+subSeismoUCERF2_Rup[r]+"\t"+invRupIndexForUCERF2_Rup[r]+"\t"+
+								modifiedUCERF2.getSource(srcIndexOfUCERF2_Rup[r]).getName()+
+								"\t("+faultSectionData.get(firstSectOfUCERF2_Rup[r]).getName()+
+								"\t"+faultSectionData.get(lastSectOfUCERF2_Rup[r]).getName()+");  atLeastOneIsFirstOrLastSubsectInSect = "+isFirstOrLastSubsect+"\n");
+						numUnassociated+=1;
+						
+						// add rate of rupture
+						String srcName = modifiedUCERF2.getSource(srcIndexOfUCERF2_Rup[r]).getName();
+						double rate = modifiedUCERF2.getSource(srcIndexOfUCERF2_Rup[r]).getRupture(rupIndexOfUCERF2_Rup[r]).getMeanAnnualRate(duration);
+						if(srcRateExcluded.containsKey(srcName)) {
+							double oldRate = srcRateExcluded.get(srcName);
+							srcRateExcluded.put(srcName, oldRate+rate);
+						}
+						else {
+							srcRateExcluded.put(srcName, rate);
+						}
 					}
 				}
 				info_fw.write("\tTot Num of Above Problems = "+numUnassociated+" (of "+ucerf2_fm.numRuptures+")\n\n");
+				
+				info_fw.write("\nRates of filtered ruptures from each UCERF2 source:\n\n");
+				for(String name:srcRateExcluded.keySet()) {
+					info_fw.write("\t"+name+"\t"+srcRateExcluded.get(name).floatValue()+"\n");
+				}
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace(); // an exception here isn't worth killing everything!

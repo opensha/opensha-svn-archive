@@ -5,6 +5,7 @@ package scratch.UCERF3.utils.FindEquivUCERF2_Ruptures;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -49,6 +50,8 @@ public abstract class FindEquivUCERF2_Ruptures {
 	
 	protected FaultSystemRupSet faultSysRupSet;
 	
+	Hashtable<String,ArrayList<String>> subsectsForSect;
+	
 	protected final static String SUB_DIR_NAME = "FindEquivUCERF2_Ruptures";
 	protected File scratchDir;
 	
@@ -81,6 +84,43 @@ public abstract class FindEquivUCERF2_Ruptures {
 			else
 				return UCERF2_FaultModel.FM2_2;
 	}
+	
+	
+	/**
+	 * This tells whether a give section is the first or last in a list of subsections from the parent section
+	 * @param sectIndex
+	 * @return
+	 */
+	protected boolean isFirstOrLastSubsectInSect(int sectIndex) {
+
+		if(subsectsForSect == null) {
+			subsectsForSect = new Hashtable<String,ArrayList<String>>();
+			for(FaultSectionPrefData data : faultSectionData) {
+				if(subsectsForSect.containsKey(data.getParentSectionName())) {
+					subsectsForSect.get(data.getParentSectionName()).add(data.getSectionName());
+				}
+				else {
+					ArrayList<String> list = new ArrayList<String>();
+					list.add(data.getSectionName());
+					subsectsForSect.put(data.getParentSectionName(), list);
+				}
+			}			
+		}
+		
+		FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
+		ArrayList<String> subSectList = subsectsForSect.get(sectData.getParentSectionName());
+		String firstName = subSectList.get(0);
+		String lastName = subSectList.get(subSectList.size()-1);
+		boolean result = false;
+		if(firstName.equals(sectData.getSectionName()))
+			result=true;
+		else if(lastName.equals(sectData.getSectionName()))
+			result=true;
+		
+		return result;
+
+	}
+
 	
 	/**
 	 * This generates the UCERF2 instance used here (for a specific set of adjustable params).

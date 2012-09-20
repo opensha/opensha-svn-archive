@@ -736,10 +736,11 @@ public class ModMeanUCERF2 extends AbstractERF {
 			 else // Empirical Model
 				sources.addAll(aFaultSourceGenerator.getTimeDepEmpiricalSources(duration, empiricalModel));
 			
-			String faultName = segmentData.getFaultName();
+//			String faultName = segmentData.getFaultName();
 			for(int srcIndex=0; srcIndex<sources.size(); ++srcIndex) {
 				FaultRuptureSource source  = sources.get(srcIndex);
-				String key = faultName +";"+source.getName();
+//				String key = faultName +";"+source.getName();
+				String key = source.getName();
 				if(!sourceMFDMapping.containsKey(key)) {
 					sourceMFDMapping.put(key, new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG));
 
