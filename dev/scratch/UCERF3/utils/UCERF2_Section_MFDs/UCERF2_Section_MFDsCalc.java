@@ -313,86 +313,7 @@ public class UCERF2_Section_MFDsCalc {
 	}
 	
 	
-	public static void tempTest() {
-		
-		String subDir = "/testDir";
-		File file = new File(MFD_PLOTS_DIR+subDir);
-		if(!file.exists())file.mkdirs();
 
-
-		
-//		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
-//		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-//		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-//		meanUCERF2.updateForecast();
-//		double duration = meanUCERF2.getTimeSpan().getDuration();
-////		for(int s=0;s<meanUCERF2.getNumSources(); s++)
-////			System.out.println(s+"\t"+meanUCERF2.getSource(s).getName());
-//		
-//		int[] srces = {2,3,4,123};
-//		for(int s : srces) {
-//			ProbEqkSource src = meanUCERF2.getSource(s);
-//			for(int r=0;r<src.getNumRuptures();r++)
-//				System.out.println(s+"\t"+r+"\t"+(float)src.getRupture(r).getMag()+"\t"+
-//						(float)src.getRupture(r).getMeanAnnualRate(duration)+"\t"+src.getName());
-//
-//		}
-
-		// get the UCERF2 mapped fault system solution
-//		SimpleFaultSystemSolution fltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
-//		ArrayList<String> parSectNameList = new ArrayList<String>();
-//		for(FaultSectionPrefData data : fltSysSol.getFaultSectionDataList())
-//			if(!parSectNameList.contains(data.getParentSectionName()))
-//				parSectNameList.add(data.getParentSectionName());
-//		for(String name: parSectNameList)
-//			System.out.println(name);
-		
-//		int subsect=216;
-//		System.out.println(fltSysSol.getFaultSectionData(subsect).getSectionName());
-//		System.out.println(fltSysSol.getFaultSectionData(234).getSectionName());
-//		for(int r=0; r<fltSysSol.getNumRuptures();r++) {
-//			List<Integer>  subsectIDs = fltSysSol.getSectionsIndicesForRup(r);
-//			if(subsectIDs.get(0) == subsect || subsectIDs.get(subsectIDs.size()-1) == subsect) {
-//				System.out.println(r+"\t"+fltSysSol.getMagForRup(r)+"\t"+(float)fltSysSol.getRateForRup(r)+"\t"+
-//						subsectIDs.get(0)+"\t"+subsectIDs.get(subsectIDs.size()-1));
-//			}
-//		}
-		
-//		245	Death Valley (Black Mtns Frontal)
-//		45	Death Valley (No of Cucamongo)
-//		46	Death Valley (No)
-//		246	Death Valley (So)
-		
-//		int parID = 245;
-//		
-//		for(int rupID:fltSysSol.getRupturesForParentSection(245)){
-//			List<Integer>  subsectIDs = fltSysSol.getSectionsIndicesForRup(rupID);
-//			System.out.println(rupID+"\t"+fltSysSol.getMagForRup(rupID)+"\t"+(float)fltSysSol.getRateForRup(rupID)+"\t"+
-//					subsectIDs.get(0)+"\t"+subsectIDs.get(subsectIDs.size()-1));
-//		}
-		
-//		EvenlyDiscretizedFunc mappedMFD;
-//		mappedMFD = fltSysSol.calcParticipationMFD_forParentSect(parID, MIN_MAG, MIN_MAG+DELTA_MAG*(NUM_MAG-1), NUM_MAG);
-//		mappedMFD.setName("UCERF2 Mapped Participation MFD for "+parID);
-//		
-//		ArrayList<Integer> rupIDs = new ArrayList<Integer>();
-//		for(FaultSectionPrefData data: fltSysSol.getFaultSectionDataList()) {
-//			if(data.getParentSectionId() == parID) {
-//				for(Integer rupID : fltSysSol.getRupturesForSection(data.getSectionId())) {
-//					if(!rupIDs.contains(rupID)) rupIDs.add(rupID);
-//				}
-//			}
-//		}
-//		SummedMagFreqDist testMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-//		for(int rupID:rupIDs) {
-//			testMFD.addResampledMagRate(fltSysSol.getMagForRup(rupID), fltSysSol.getRateForRup(rupID), true);
-//		}
-//		
-//		System.out.println(mappedMFD);
-//		System.out.println(testMFD);
-
-
-	}
 	
 	
 	/**
@@ -946,7 +867,7 @@ public class UCERF2_Section_MFDsCalc {
 	
 	private static HashMap<Integer, String> sectionNamesCache;
 	
-	private static HashMap<Integer, String> getSectionNamesMap() {
+	private synchronized static HashMap<Integer, String> getSectionNamesMap() {
 		if (sectionNamesCache == null) {
 			sectionNamesCache = Maps.newHashMap();
 			
@@ -1076,18 +997,18 @@ public class UCERF2_Section_MFDsCalc {
 	public static void main(String[] args) {
 		
 		// 68	Hayward (No)
-		ArrayList<IncrementalMagFreqDist> list = getMeanMinAndMaxMFD(68, false, false);
-		for(IncrementalMagFreqDist mfd:list) {
-			System.out.println(mfd);
-		}
-//		UCERF2_Source_MFDsCalc.tempTest();
-//		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true);
-//		test.saveAllTestMFD_Plots(true);
-//		test.saveAllTestMFD_Plots(false);
-//		test = new UCERF2_Section_MFDsCalc(false);
-//		test.saveAllTestMFD_Plots(true);
-//		test.saveAllTestMFD_Plots(false);
-//		System.out.println("DONE");
+//		ArrayList<IncrementalMagFreqDist> list = getMeanMinAndMaxMFD(68, false, false);
+//		for(IncrementalMagFreqDist mfd:list) {
+//			System.out.println(mfd);
+//		}
+		
+		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true);
+		test.saveAllTestMFD_Plots(true);
+		test.saveAllTestMFD_Plots(false);
+		test = new UCERF2_Section_MFDsCalc(false);
+		test.saveAllTestMFD_Plots(true);
+		test.saveAllTestMFD_Plots(false);
+		System.out.println("DONE");
 		
 //		writeListOfAllFaultSections();
 
