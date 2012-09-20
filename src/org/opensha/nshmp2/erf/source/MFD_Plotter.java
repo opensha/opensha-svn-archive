@@ -93,8 +93,8 @@ public class MFD_Plotter {
 	
 	public static void main(String[] args) {
 		List<SourceFile> fltSrcs = Lists.newArrayList();
-		fltSrcs.addAll(SourceFileMgr.get(WUS, FAULT, "nv.3dip.gr.in"));
-		fltSrcs.addAll(SourceFileMgr.get(WUS, FAULT, "nv.3dip.ch.in")); 
+		fltSrcs.addAll(SourceMgr.get(WUS, FAULT, "nv.3dip.gr.in"));
+		fltSrcs.addAll(SourceMgr.get(WUS, FAULT, "nv.3dip.ch.in")); 
 
 //		String name = "1136abcd Pleasant Valley fault zone";
 //		double yMin = 3e-8;

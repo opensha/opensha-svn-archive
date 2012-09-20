@@ -57,6 +57,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
+import com.google.common.io.Resources;
 
 /**
  * Implementation of the attenuation relationship for the Central and Eastern US
@@ -135,9 +136,9 @@ public class FrankelEtAl_1996_AttenRel extends AttenuationRelationship implement
 		gmTablesHard = Lists.newArrayList();
 		try {
 			for (int i = 0; i < pd.length; i++) {
-				File fSoft = Utils.getResource("/imr/" + srTableNames[i]);
+				URL fSoft = Utils.getResource("/imr/" + srTableNames[i]);
 				gmTablesSoft.add(new GM_Table(fSoft));
-				File fHard = Utils.getResource("/imr/" + hrTableNames[i]);
+				URL fHard = Utils.getResource("/imr/" + hrTableNames[i]);
 				gmTablesHard.add(new GM_Table(fHard));
 			}
 		} catch (IOException ioe) {
@@ -416,8 +417,8 @@ public class FrankelEtAl_1996_AttenRel extends AttenuationRelationship implement
 
 		List<List<Double>> gmTable;
 
-		GM_Table(File data) throws IOException {
-			gmTable = Files.readLines(data, Charsets.US_ASCII,
+		GM_Table(URL data) throws IOException {
+			gmTable = Resources.readLines(data, Charsets.US_ASCII,
 				new TableParser());
 		}
 

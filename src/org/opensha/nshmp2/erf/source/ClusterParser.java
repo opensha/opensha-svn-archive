@@ -45,8 +45,7 @@ public class ClusterParser {
 		SourceIMR srcIMR = SourceIMR.imrForSource(srcType, srcRegion, name, null);
 		double srcWt = sf.getWeight();
 
-		File f = sf.getFile();
-		List<String> dat = readLines(f, log);
+		List<String> dat = sf.readLines();
 
 		Iterator<String> srcLines = dat.iterator();
 		FaultParser.skipHeader1(srcLines);
@@ -77,7 +76,7 @@ public class ClusterParser {
 				cs.name = "NMSZ Cluster: " + createGroupName(groupNum);
 				cs.file = sf;
 				cs.rate = readReturnPeriod(sf.getName());
-				cs.weight = SourceFileMgr.getClusterWeight(sf.getName(),
+				cs.weight = SourceMgr.getClusterWeight(sf.getName(),
 					groupNum);
 				srcMap.put(groupNum, cs);
 			}
@@ -180,11 +179,11 @@ public class ClusterParser {
 //		SourceFile sf = SourceFileMgr.get(WUS, FAULT, "orwa_n.3dip.gr.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CEUS, FAULT, "NMSZnocl.500yr.5branch.in").get(0);
-		SourceFile sf = SourceFileMgr.get(CEUS, CLUSTER, "newmad.750.cluster.in").get(0);
+		SourceFile sf = SourceMgr.get(CEUS, CLUSTER, "newmad.750.cluster.in").get(0);
 
 //		File f = FileUtils.toFile(CEUSdev.class.getResource(srcPath));
 
-		log.info("Source: " + sf.getFile().getPath());
+		log.info("Source: " + sf.getName());
 //		ClusterERF erf = dev.parse(sf);
 
 //		System.out.println("NumSrcs: " + erf.getNumSources());

@@ -70,7 +70,7 @@ public class Sources {
 	 * @return a {@code ClusterERF}
 	 */
 	public static ClusterERF getCluster(String name) {
-		List<SourceFile> files = SourceFileMgr.get(null, CLUSTER, name);
+		List<SourceFile> files = SourceMgr.get(null, CLUSTER, name);
 		if (files == null) return null;
 		ClusterParser parser = new ClusterParser(log);
 		return parser.parse(files.get(0));
@@ -82,7 +82,7 @@ public class Sources {
 	 * @return a {@code GridERF}
 	 */
 	public static GridERF getGrid(String name) {
-		List<SourceFile> files = SourceFileMgr.get(null, GRIDDED, name);
+		List<SourceFile> files = SourceMgr.get(null, GRIDDED, name);
 		if (files == null) return null;
 		GridParser parser = new GridParser(log);
 		return parser.parse(files.get(0));
@@ -94,7 +94,7 @@ public class Sources {
 	 * @return a {@code FaultERF}
 	 */
 	public static FaultERF getFault(String name) {
-		List<SourceFile> files = SourceFileMgr.get(null, FAULT, name);
+		List<SourceFile> files = SourceMgr.get(null, FAULT, name);
 		if (files == null) return null;
 		FaultParser parser = new FaultParser(log);
 		return parser.parse(files.get(0));
@@ -106,7 +106,7 @@ public class Sources {
 	 * @return a {@code SubductionERF}
 	 */
 	public static SubductionERF getSub(String name) {
-		List<SourceFile> files = SourceFileMgr.get(null, SUBDUCTION, name);
+		List<SourceFile> files = SourceMgr.get(null, SUBDUCTION, name);
 		if (files == null) return null;
 		SubductionParser parser = new SubductionParser(log);
 		return parser.parse(files.get(0));
@@ -119,7 +119,7 @@ public class Sources {
 	 */
 	public static List<ClusterERF> getClusterList(SourceRegion region) {
 		if (clustERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceFileMgr.get(region, CLUSTER);
+			List<SourceFile> files = SourceMgr.get(region, CLUSTER);
 			if (files == null) return null;
 			for (SourceFile sf : files) {
 				ClusterParser parser = new ClusterParser(log);
@@ -138,7 +138,7 @@ public class Sources {
 	 */
 	public static List<GridERF> getGridList(SourceRegion region) {
 		if (gridERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceFileMgr.get(region, GRIDDED);
+			List<SourceFile> files = SourceMgr.get(region, GRIDDED);
 			if (files == null) return null;
 			for (SourceFile sf : files) {
 				GridParser parser = new GridParser(log);
@@ -157,7 +157,7 @@ public class Sources {
 	 */
 	public static List<FaultERF> getFaultList(SourceRegion region) {
 		if (faultERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceFileMgr.get(region, FAULT);
+			List<SourceFile> files = SourceMgr.get(region, FAULT);
 			if (files == null) return null;
 			for (SourceFile sf : files) {
 				FaultParser parser = new FaultParser(log);
@@ -175,7 +175,7 @@ public class Sources {
 	 */
 	public static List<SubductionERF> getSubductionList(SourceRegion region) {
 		if (subERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceFileMgr.get(region, SUBDUCTION);
+			List<SourceFile> files = SourceMgr.get(region, SUBDUCTION);
 			if (files == null) return null;
 			for (SourceFile sf : files) {
 				SubductionParser parser = new SubductionParser(log);
@@ -193,7 +193,7 @@ public class Sources {
 	 * @return the associated region
 	 */
 	public static SourceRegion regionForSource(String name) {
-		SourceFile sf = SourceFileMgr.get(null, null, name).get(0);
+		SourceFile sf = SourceMgr.get(null, null, name).get(0);
 		return (sf != null) ? sf.getRegion() : null;
 	}
 
@@ -204,7 +204,7 @@ public class Sources {
 	 * @return the associated type
 	 */
 	public static SourceType typeForSource(String name) {
-		SourceFile sf = SourceFileMgr.get(null, null, name).get(0);
+		SourceFile sf = SourceMgr.get(null, null, name).get(0);
 		return (sf != null) ? sf.getType() : null;
 	}
 

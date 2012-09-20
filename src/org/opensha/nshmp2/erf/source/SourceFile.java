@@ -1,11 +1,17 @@
 package org.opensha.nshmp2.erf.source;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.opensha.nshmp2.util.SourceRegion;
 import org.opensha.nshmp2.util.SourceType;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 
 /**
  * Wrapper for NSHMP source files
@@ -14,14 +20,16 @@ class SourceFile {
 
 	private SourceRegion region;
 	private SourceType type;
-	private File file;
+	private URL url;
 	private double weight;
+	private String name;
 
-	SourceFile(SourceRegion region, SourceType type, File file, double weight) {
+	SourceFile(URL url, SourceRegion region, SourceType type, double weight) {
+		this.url = url;
 		this.region = region;
 		this.type = type;
-		this.file = file;
 		this.weight = weight;
+		name = StringUtils.substringAfterLast(url.toString(), "/");
 	}
 
 	@Override
@@ -31,7 +39,7 @@ class SourceFile {
 			.append(
 				StringUtils.rightPad(
 					new Double(MathUtils.round(weight, 7)).toString(), 11))
-			.append(file.getName()).toString();
+			.append(name).toString();
 	}
 
 	SourceRegion getRegion() {
@@ -42,20 +50,22 @@ class SourceFile {
 		return type;
 	}
 
-	File getFile() {
-		return file;
-	}
-
 	String getName() {
-		return file.getName();
-	}
-
-	String getPath() {
-		return file.getPath();
+		return name;
 	}
 
 	double getWeight() {
 		return weight;
+	}
+	
+	List<String> readLines() {
+		List<String> lines = null;
+		try {
+			lines = Resources.readLines(url, Charsets.US_ASCII);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		return lines;
 	}
 
 }

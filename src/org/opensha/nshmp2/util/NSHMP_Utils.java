@@ -175,24 +175,24 @@ public class NSHMP_Utils {
 	 * @return a <code>List</code> of <code>String</code>s or <code>null</code>
 	 *         if an error occurs
 	 */
-	public static List<String> readLines(File f, Logger log) {
-		try {
-			List<String> list = new ArrayList<String>();
-			LineIterator it = FileUtils.lineIterator(f);
-			String line;
-			while (it.hasNext()) {
-				if ((line = it.next()).startsWith("#")) continue;
-				list.add(line);
-			}
-			return list;
-		} catch (IOException ioe) {
-			if (log != null) {
-				log.log(Level.SEVERE,
-					"Error reading lines from file: " + f.getPath(), ioe);
-			}
-			return null;
-		}
-	}
+//	public static List<String> readLines(File f, Logger log) {
+//		try {
+//			List<String> list = new ArrayList<String>();
+//			LineIterator it = FileUtils.lineIterator(f);
+//			String line;
+//			while (it.hasNext()) {
+//				if ((line = it.next()).startsWith("#")) continue;
+//				list.add(line);
+//			}
+//			return list;
+//		} catch (IOException ioe) {
+//			if (log != null) {
+//				log.log(Level.SEVERE,
+//					"Error reading lines from file: " + f.getPath(), ioe);
+//			}
+//			return null;
+//		}
+//	}
 
 	private static Logger log;
 
@@ -246,17 +246,17 @@ public class NSHMP_Utils {
 	 * places values at their proper index. <i><b>NOTE</b></i>: NSHMP binary
 	 * grid files are all currently little-endian. The grid files in some other
 	 * parts of the USGS seismic hazard world are big-endian. Beware.
-	 * @param file to read
+	 * @param url to read
 	 * @param nRows
 	 * @param nCols
 	 * @return a 1D array of appropriately ordered values
 	 */
-	public static double[] readGrid(File file, int nRows, int nCols) {
+	public static double[] readGrid(URL url, int nRows, int nCols) {
 		int count = nRows * nCols;
 		double[] data = new double[count];
 		try {
 			LittleEndianDataInputStream in = new LittleEndianDataInputStream(
-				FileUtils.openInputStream(file));
+				url.openStream());
 			for (int i = 0; i < count; i++) {
 				double value = new Float(in.readFloat()).doubleValue();
 				data[calcIndex(i, nRows, nCols)] = value;
@@ -275,17 +275,16 @@ public class NSHMP_Utils {
 	 * 4*128000 bytes, the CEUS mMax files are used in cra.f when generating so
 	 * only 4*127755 are filled. The reamining slots are false and not
 	 * considered.
-	 * @param file to read
+	 * @param url to read
 	 * @param nRows
 	 * @param nCols
 	 * @return a 1D array of appropriately ordered values
 	 */
-	public static boolean[] readBoolGrid(File file, int nRows, int nCols) {
+	public static boolean[] readBoolGrid(URL url, int nRows, int nCols) {
 		int count = nRows * nCols;
 		boolean[] data = new boolean[count];
 		try {
-			DataInputStream in = new DataInputStream(
-				FileUtils.openInputStream(file));
+			DataInputStream in = new DataInputStream(url.openStream());
 			// skip first four bytes
 			in.skipBytes(4);
 			for (int i = 0; i < count; i++) {
@@ -294,6 +293,7 @@ public class NSHMP_Utils {
 				data[iCor] = (in.readByte() == 0) ? false : true;
 				in.skipBytes(3);
 			}
+			in.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -372,11 +372,8 @@ public class NSHMP_Utils {
 		double[] gridSum = null;
 		
 		for (String gridName : gridNames) {
-			File gridFile = new File("src/resources/data/nshmp/sources/" + 
-				gridName);
-//			System.out.println(gridFile);
-//			System.out.println(gridFile.exists());
-			double[] aDat = readGrid(gridFile, nRows, nCols);
+			URL gridURL = Utils.getResource("/sources/" + gridName);
+			double[] aDat = readGrid(gridURL, nRows, nCols);
 			if (gridSum == null) {
 				gridSum = aDat;
 				continue;

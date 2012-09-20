@@ -59,8 +59,7 @@ public class FaultParser {
 		SourceIMR srcIMR = SourceIMR.imrForSource(srcType, srcRegion, name, null);
 		double srcWt = sf.getWeight();
 		
-		File f = sf.getFile();
-		List<String> dat = readLines(f, log);
+		List<String> dat = sf.readLines();
 
 		
 		// index from which fault source name starts; general WUS case is 4
@@ -465,8 +464,6 @@ public class FaultParser {
 			h.setLevel(level);
 		}
 
-		// log.setLevel(Level.FINE);
-		// log date and class as these are suppressed by custom formatter
 		log.info((new Date()) + " " + FaultParser.class.getName());
 
 		FaultParser dev = new FaultParser(log);
@@ -502,16 +499,18 @@ public class FaultParser {
 			// String srcPath = datPath + "CEUS/faults/NMSZnocl.500yr.5branch.in";
 
 //		SourceFile sf = SourceFileMgr.get(WUS, FAULT, "brange.3dip.gr.in").get(0);
-		SourceFile sf = SourceFileMgr.get(CA, FAULT, "puente.ch.in").get(0);
+//		SourceFile sf = SourceMgr.get(CA, FAULT, "puente.ch.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.ch.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CEUS, FAULT, "NMSZnocl.500yr.5branch.in").get(0);
-//		SourceFile sf = SourceFileMgr.get(CEUS, CLUSTER, "newmad.500.cluster.in").get(0);
+//		NSHMP_ERF erf = Sources.get("newmad.500.cluster.in");
+//		NSHMP_ERF erf = Sources.get("bFault.gr.in");
+		NSHMP_ERF erf = Sources.get("brange.3dip.gr.in");
 
 //		File f = FileUtils.toFile(CEUSdev.class.getResource(srcPath));
 
-		log.info("Source: " + sf.getFile().getPath());
-		FaultERF erf = dev.parse(sf);
+//		log.info("Source: " + sf.getName());
+//		FaultERF erf = dev.parse(sf);
 
 //		System.out.println("NumSrcs: " + erf.getNumSources());
 		//int count = 0;

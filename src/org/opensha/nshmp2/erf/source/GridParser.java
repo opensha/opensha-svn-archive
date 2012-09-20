@@ -9,6 +9,7 @@ import static org.opensha.nshmp2.util.SourceRegion.*;
 import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.geo.Direction;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -45,11 +47,11 @@ import com.google.common.primitives.Ints;
 public class GridParser {
 
 	private Logger log;
-	private static final String GRD_PATH = "../conf";
+	private static final String GRD_PATH = "../conf/";
 	private static final String DAT_PATH = "/resources/data/nshmp/sources/";
 
 	// parsed
-	private File file;
+	private String srcName;
 	private SourceRegion srcRegion;
 	private SourceIMR srcIMR;
 	private double srcWt;
@@ -62,7 +64,7 @@ public class GridParser {
 	private FaultCode fltCode;
 	private boolean bGrid, mMaxGrid, weightGrid;
 	private double mTaper;
-	private File aGridFile, bGridFile, mMaxGridFile, weightGridFile;
+	private URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
 	private double timeSpan;
 	private RateType rateType;
 	private double strike = Double.NaN;
@@ -85,11 +87,11 @@ public class GridParser {
 	}
 
 	GridERF parse(SourceFile sf) {
-		file = sf.getFile();
+		srcName = sf.getName();
 		srcRegion = sf.getRegion();
 		srcWt = sf.getWeight();
 				
-		List<String> dat = readLines(file, log);
+		List<String> dat = sf.readLines();
 		Iterator<String> it = dat.iterator();
 
 		// grid of sites (1-30) or station list (0)
@@ -134,10 +136,10 @@ public class GridParser {
 		mTaper = readDouble(grdDatRaw, 3);
 		weightGrid = mTaper > 0 ? true : false;
 
-		if (bGrid) bGridFile = readSourceFile(it.next());
-		if (mMaxGrid) mMaxGridFile = readSourceFile(it.next());
-		if (weightGrid) weightGridFile = readSourceFile(it.next());
-		aGridFile = readSourceFile(it.next());
+		if (bGrid) bGridURL = readSourceURL(it.next());
+		if (mMaxGrid) mMaxGridURL = readSourceURL(it.next());
+		if (weightGrid) weightGridURL = readSourceURL(it.next());
+		aGridURL = readSourceURL(it.next());
 
 		// read rate information if rateType is CUMULATIVE
 		// it will require conversion to INCREMENTAL
@@ -148,7 +150,7 @@ public class GridParser {
 
 		// done reading; skip atten rel config
 
-		srcIMR = SourceIMR.imrForSource(GRIDDED, srcRegion, file.getName(), fltCode);
+		srcIMR = SourceIMR.imrForSource(GRIDDED, srcRegion, srcName, fltCode);
 		
 		GridERF erf = createGridSource();
 		return erf;
@@ -165,11 +167,11 @@ public class GridParser {
 
 		// KLUDGY: need to post process CEUS grids to handle craton and
 		// extended margin weighting grids
-		if (file.getName().contains("2007all8")) {
+		if (srcName.contains("2007all8")) {
 			ceusScaleRates();
 		}
 
-		GridERF gs = new GridERF(file.getName(), generateInfo(), border,
+		GridERF gs = new GridERF(srcName, generateInfo(), border,
 			srcLocs, mfdList, depths, mechWtMap, fltCode, strike, srcRegion,
 			srcIMR, srcWt, rMax, dR);
 		return gs;
@@ -255,9 +257,9 @@ public class GridParser {
 		int nRows = (int) Math.rint((maxLat - minLat) / dLat) + 1;
 		int nCols = (int) Math.rint((maxLon - minLon) / dLon) + 1;
 		// always have an a-grid file
-		aDat = readGrid(aGridFile, nRows, nCols);
+		aDat = readGrid(aGridURL, nRows, nCols);
 		// might have a b-grid file, but not likely
-		bDat = bGrid ? readGrid(bGridFile, nRows, nCols) : makeGrid(
+		bDat = bGrid ? readGrid(bGridURL, nRows, nCols) : makeGrid(
 			aDat.length, grSrc.bVal);
 
 		// KLUDGY numerous b-values are 0 but there is a hook in hazgridXnga5
@@ -270,10 +272,10 @@ public class GridParser {
 		// don't have variable mMin, but combined grids could
 		mMinDat = makeGrid(aDat.length, grSrc.mMin);
 		// variable mMax is common
-		mMaxDat = mMaxGrid ? readGrid(mMaxGridFile, nRows, nCols) : makeGrid(
+		mMaxDat = mMaxGrid ? readGrid(mMaxGridURL, nRows, nCols) : makeGrid(
 			aDat.length, grSrc.mMax);
 		// weights; mostly for CA
-		wgtDat = weightGrid ? readGrid(weightGridFile, nRows, nCols) : null;
+		wgtDat = weightGrid ? readGrid(weightGridURL, nRows, nCols) : null;
 	}
 
 	private double[] makeGrid(int size, double value) {
@@ -330,10 +332,10 @@ public class GridParser {
 		dLon = lonDat[2];
 	}
 
-	private File readSourceFile(String path) {
+	private URL readSourceURL(String path) {
 		checkArgument(path.startsWith(GRD_PATH), "Bad file path: " + path);
-		return FileUtils.toFile(GridParser.class.getResource(DAT_PATH +
-			path.substring(GRD_PATH.length())));
+		return GridParser.class.getResource(DAT_PATH +
+			path.substring(GRD_PATH.length()));
 	}
 
 	private void readRateInfo(String line) {
@@ -348,7 +350,7 @@ public class GridParser {
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("=========== Grid Config ============")
 		.append(IOUtils.LINE_SEPARATOR)
-		.append("            Name: ").append(file.getName())
+		.append("            Name: ").append(srcName)
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("       Lat range: ").append(minLat).append(" ").append(maxLat)
 		.append(IOUtils.LINE_SEPARATOR)
@@ -372,16 +374,16 @@ public class GridParser {
 		.append(" GR [b M- M+ dM]: ").append(grSrc.bVal).append(" ").append(grSrc.mMin)
 		.append(" ").append(grSrc.mMax).append(" ").append(grSrc.dMag)
 		.append(IOUtils.LINE_SEPARATOR)
-		.append("          a grid: ").append(aGridFile.getName())
+		.append("          a grid: ").append(StringUtils.substringAfter(aGridURL.toString(), "/"))
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("          b grid: ").append(bGrid)
-		.append(" ").append((bGridFile != null) ? bGridFile.getName() : "")
+		.append(" ").append((bGridURL != null) ? StringUtils.substringAfter(bGridURL.toString(), "/") : "")
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("       mMax grid: ").append(mMaxGrid)
-		.append(" ").append((mMaxGridFile != null) ? mMaxGridFile.getName() : "")
+		.append(" ").append((mMaxGridURL != null) ? StringUtils.substringAfter(mMaxGridURL.toString(), "/") : "")
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("     weight grid: ").append(weightGrid)
-		.append(" ").append((weightGridFile != null) ? weightGridFile.getName() : "")
+		.append(" ").append((weightGridURL != null) ? StringUtils.substringAfter(weightGridURL.toString(), "/") : "")
 		.append(IOUtils.LINE_SEPARATOR)
 		.append("         M taper: ").append(mTaper)
 		.append(IOUtils.LINE_SEPARATOR)
@@ -416,7 +418,7 @@ public class GridParser {
 		// set weights by file name
 		double[] craWt = wtmj_cra;
 		double[] marWt = wtmj_ext;
-		if (file.getName().contains(".AB.")) {
+		if (srcName.contains(".AB.")) {
 			craWt = wtmab_cra;
 			marWt = wtmab_ext;
 		}
@@ -447,8 +449,8 @@ public class GridParser {
 		// this is only used for CEUS so we don't have to worry about having
 		// the wrong dimensions set for these static fields
 		if (cratonFlags == null) {
-			File craton = Utils.getResource("/imr/craton");
-			File margin = Utils.getResource("/imr/margin");
+			URL craton = Utils.getResource("/imr/craton");
+			URL margin = Utils.getResource("/imr/margin");
 			int nRows = (int) Math.rint((maxLat - minLat) / dLat) + 1;
 			int nCols = (int) Math.rint((maxLon - minLon) / dLon) + 1;
 			cratonFlags = NSHMP_Utils.readBoolGrid(craton, nRows, nCols);
@@ -469,7 +471,7 @@ public class GridParser {
 
 		List<SourceFile> sources = Lists.newArrayList();
 //		sources.addAll(SourceFileMgr.get(null, GRIDDED));
-		sources.addAll(SourceFileMgr.get(CEUS, GRIDDED, "CEUS.2007all8.AB.in"));
+		sources.addAll(SourceMgr.get(CEUS, GRIDDED, "CEUS.2007all8.AB.in"));
 //		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "mojave.in"));
 //		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "sangorg.in"));
 //		sources.addAll(SourceFileMgr.get(CEUS, GRIDDED, "CEUSchar.71.in"));

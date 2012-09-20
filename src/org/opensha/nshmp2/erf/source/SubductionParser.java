@@ -48,8 +48,7 @@ public class SubductionParser {
 		SourceIMR srcIMR = SourceIMR.imrForSource(srcType, srcRegion, name, null);
 		double srcWt = sf.getWeight();
 		
-		File f = sf.getFile();
-		List<String> dat = readLines(f, log);
+		List<String> dat = sf.readLines();
 
 		Iterator<String> srcLines = dat.iterator();
 		skipHeader(srcLines);
@@ -185,13 +184,13 @@ public class SubductionParser {
 		SubductionParser dev = new SubductionParser(log);
 
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
-		SourceFile sf = SourceFileMgr.get(CASC, SUBDUCTION, "cascadia.bot.8082.in").get(0);
+		SourceFile sf = SourceMgr.get(CASC, SUBDUCTION, "cascadia.bot.8082.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CASC, SUBDUCTION, "cascadia.bot.9pm.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "aFault_unseg.in").get(0);
 
 //		File f = FileUtils.toFile(CEUSdev.class.getResource(srcPath));
 
-		log.info("Source: " + sf.getFile().getPath());
+		log.info("Source: " + sf.getName());
 		SubductionERF erf = dev.parse(sf);
 
 //		System.out.println("NumSrcs: " + erf.getNumSources());

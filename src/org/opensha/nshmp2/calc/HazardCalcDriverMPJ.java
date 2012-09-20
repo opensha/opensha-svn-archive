@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 
 public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	
+	private static final String S = File.separator;
 	private ThreadedHazardCalc calc;
 	private LocationList locs;
 	
@@ -52,7 +53,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		String out = config.out;
 		Preconditions.checkArgument(StringUtils.isNotBlank(out));
-		File outDir = new File(out + period);
+		File outDir = new File(out + S + name + S + period);
 		
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
 		calc = new ThreadedHazardCalc(grid.grid().getNodeList(), period, writer);

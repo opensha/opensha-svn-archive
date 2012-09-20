@@ -4,13 +4,18 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 
 /**
  * NSHMP Utilities. These methods are primarily used by {@link NSHMP_2008_CA}.
@@ -32,10 +37,9 @@ public class NSHMP_IMR_Util {
 	private static Map<Integer, Map<Integer, Map<Integer, Double>>> cbhw_map;
 	private static Map<Integer, Map<Integer, Map<Integer, Double>>> cyhw_map;
 
-	private static String datPath = "/resources/data/nshmp/";
-	private static String rjbDatPath = datPath + "rjbmean.dat";
-	private static String cbhwDatPath = datPath + "avghw_cb.dat";
-	private static String cyhwDatPath = datPath + "avghw_cy.dat";
+	private static String rjbDatPath = "/rjbmean.dat";
+	private static String cbhwDatPath = "/avghw_cb.dat";
+	private static String cyhwDatPath = "/avghw_cy.dat";
 
 	static {
 		rjb_map = new HashMap<Integer, Map<Integer, Double>>();
@@ -47,14 +51,12 @@ public class NSHMP_IMR_Util {
 	}
 
 	private static void readRjbDat() {
-
 		String magID = "#Mag";
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-				NSHMP_IMR_Util.class.getResourceAsStream(rjbDatPath)));
-			String line;
+			URL url = Utils.getResource(rjbDatPath);
+			List<String> lines = Resources.readLines(url, Charsets.US_ASCII);
 			HashMap<Integer, Double> magMap = null;
-			while ((line = br.readLine()) != null) {
+			for (String line : lines) {
 				if (line.startsWith(magID)) {
 					double mag = Double.parseDouble(line.substring(
 						magID.length() + 1).trim());
@@ -78,11 +80,10 @@ public class NSHMP_IMR_Util {
 			Map<Integer, Map<Integer, Map<Integer, Double>>> map, String path,
 			double startMag) {
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-				NSHMP_IMR_Util.class.getResourceAsStream(path)));
-			String line;
+			URL url = Utils.getResource(path);
+			List<String> lines = Resources.readLines(url, Charsets.US_ASCII);
 			Map<Integer, Map<Integer, Double>> periodMap = null;
-			while ((line = br.readLine()) != null) {
+			for (String line : lines) {
 				if (line.startsWith("C")) {
 					// period map
 					double per = Double.parseDouble(StringUtils.split(line)[4]);

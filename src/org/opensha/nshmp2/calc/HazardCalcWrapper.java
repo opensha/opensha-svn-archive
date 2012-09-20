@@ -1,6 +1,7 @@
 package org.opensha.nshmp2.calc;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumSet;
@@ -135,7 +136,13 @@ public class HazardCalcWrapper {
 		
 		
 		try {
-			InputStream is = HazardCalcWrapper.class.getResourceAsStream("calc.properties");
+			InputStream is = null;
+			if (args.length > 0) {
+				is = new FileInputStream(args[0]);
+			} else {
+				is = HazardCalcWrapper.class.getResourceAsStream("calc.properties");
+			}
+			
 			Properties props = new Properties();
 			props.load(is);
 			

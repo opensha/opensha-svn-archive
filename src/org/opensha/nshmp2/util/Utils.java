@@ -15,6 +15,7 @@ import static com.google.common.base.Preconditions.*;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -248,14 +249,14 @@ public class Utils {
 	public static final String NSHMP_DAT_PATH = "/resources/data/nshmp";
 
 	/**
-	 * Returns an NSHMP resource. Path should be specified as absolute from
-	 * NSHMP resource directory (e.g. "/sources/WUS/...").
+	 * Returns the URL of an NSHMP resource. Path should be specified as
+	 * absolute from NSHMP resource directory (e.g. "/sources/WUS/...").
 	 * @param path to resource (absolute from resource dir.)
-	 * @return the resource
+	 * @return the resource URL
 	 */
-	public static File getResource(String path) {
-		StringBuffer sb = new StringBuffer(NSHMP_DAT_PATH).append(path);
-		return FileUtils.toFile(Utils.class.getResource(sb.toString()));
+	public static URL getResource(String path) {
+		String fullPath = NSHMP_DAT_PATH + path;
+		return Utils.class.getResource(fullPath);
 	}
 
 	/**
