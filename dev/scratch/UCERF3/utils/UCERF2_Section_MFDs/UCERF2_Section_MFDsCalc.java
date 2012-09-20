@@ -66,7 +66,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  * @author field
  *
  */
-public class UCERF2_Source_MFDsCalc {
+public class UCERF2_Section_MFDsCalc {
 	
 	private static boolean D = false; // debug flag
 	
@@ -115,7 +115,7 @@ public class UCERF2_Source_MFDsCalc {
 	 * 
 	 * @param isParticipation - set true for participation MFDs and false for nucleation MFDs
 	 */
-	public UCERF2_Source_MFDsCalc(boolean isParticipation, File precomputedDataDir) {
+	public UCERF2_Section_MFDsCalc(boolean isParticipation, File precomputedDataDir) {
 		this.isParticipation = isParticipation;
 		this.precomputedDataDir = precomputedDataDir;
 		
@@ -163,7 +163,7 @@ public class UCERF2_Source_MFDsCalc {
 		
 		// check that subDir exists and make data if not
 		if(!subDir.exists()) {	// make the data if not
-			UCERF2_Source_MFDsCalc test = new UCERF2_Source_MFDsCalc(isParticipation, precomputedDataDir);
+			UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(isParticipation, precomputedDataDir);
 		}
 
 		File fileName;
@@ -1078,7 +1078,7 @@ public class UCERF2_Source_MFDsCalc {
 //			System.out.println(mfd);
 //		}
 //		UCERF2_Source_MFDsCalc.tempTest();
-		UCERF2_Source_MFDsCalc test = new UCERF2_Source_MFDsCalc(true, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 		test.saveAllTestMFD_Plots(true);
 		test.saveAllTestMFD_Plots(false);
 		System.out.println("DONE");
