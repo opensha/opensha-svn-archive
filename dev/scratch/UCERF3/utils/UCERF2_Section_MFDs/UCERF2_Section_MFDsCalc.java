@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+
+import com.google.common.collect.Maps;
 
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
@@ -115,9 +118,9 @@ public class UCERF2_Section_MFDsCalc {
 	 * 
 	 * @param isParticipation - set true for participation MFDs and false for nucleation MFDs
 	 */
-	public UCERF2_Section_MFDsCalc(boolean isParticipation, File precomputedDataDir) {
+	private UCERF2_Section_MFDsCalc(boolean isParticipation) {
 		this.isParticipation = isParticipation;
-		this.precomputedDataDir = precomputedDataDir;
+		this.precomputedDataDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(); // main data dir
 		
 		System.out.println("UCERF2_Source_MFDsCalc is creating data; this will take some time...");
 		
@@ -131,7 +134,7 @@ public class UCERF2_Section_MFDsCalc {
 			writeListOfAllFaultSections(sectListFile);
 
 		// populate sectionIDfromNameMap and sectionNamefromID_Map
-		readListOfAllFaultSections(sectListFile);
+		readListOfAllFaultSections();
 		
 //		System.out.println(dataDir);
 
@@ -141,53 +144,42 @@ public class UCERF2_Section_MFDsCalc {
 				
 	}
 	
-	
 	/**
 	 * This method returns an ArrayList<IncrementalMagFreqDist> giving the mean, min, and max (in that order) 
 	 * UCERF2 section MFD for the specified attributes (over the 144 time-independent logic tree branches).
 	 * @param parID
 	 * @param isParticipation - specifies whether to get participation vs nucleation MFDs
 	 * @param cumDist - specifies whether to return cumulative vs nucleation MFDs
-	 * @param precomputedDataDir - e.g., UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR
 	 * @return - null is returned if parID is not one in UCERF2
 	 */
-	public static ArrayList<IncrementalMagFreqDist> getMeanMinAndMaxMFD(int parID, boolean isParticipation,boolean cumDist, File precomputedDataDir) {
-
-		File dataDir = new File(precomputedDataDir,DATA_SUB_DIR);
-
-		File subDir;
-		if(isParticipation)
-			subDir=new File(dataDir,PART_SUB_DIR);
-		else
-			subDir=new File(dataDir,NUCL_SUB_DIR);
+	public static ArrayList<IncrementalMagFreqDist> getMeanMinAndMaxMFD(int parID, boolean isParticipation, boolean cumDist) {
+		HashMap<Integer, String> sectionNamesMap = getSectionNamesMap();
 		
-		// check that subDir exists and make data if not
-		if(!subDir.exists()) {	// make the data if not
-			UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(isParticipation, precomputedDataDir);
-		}
-
-		File fileName;
+		if (!sectionNamesMap.containsKey(parID))
+			// no UCERF3 data for this parent ID
+			return null;
+		
+		String subDirName;
+		if(isParticipation)
+			subDirName = PART_SUB_DIR;
+		else
+			subDirName = NUCL_SUB_DIR;
+		
 		String distType;
 		if(cumDist)
 			distType = "cum";
 		else
 			distType = "incr";
 		
-		fileName = new File(subDir,distType+parID+".txt");
-
-
-		// check that file exists & return null if not
-		if(!fileName.exists()) {	
-			return null;
-		}
+		String fileName = distType+parID+".txt";
 
 		ArrayList<IncrementalMagFreqDist> mfdList = null;
 
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+			BufferedReader br = new BufferedReader(UCERF3_DataUtils.getReader(DATA_SUB_DIR, subDirName, fileName));
 			ArrayList<String> lineList = new ArrayList<String>();
 			String line;
-			while ((line = reader.readLine()) != null) {
+			while ((line = br.readLine()) != null) {
 				lineList.add(line);
 			}
 			String[] strArray = StringUtils.split(lineList.get(0),"\t");
@@ -506,7 +498,7 @@ public class UCERF2_Section_MFDsCalc {
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, Color.BLUE));
 			
 			// add the MFDs read from static files (and apply totWeight for meaningful comparison)
-			ArrayList<IncrementalMagFreqDist> mfds = getMeanMinAndMaxMFD(parID, isParticipation, plotCumDist, precomputedDataDir);
+			ArrayList<IncrementalMagFreqDist> mfds = getMeanMinAndMaxMFD(parID, isParticipation, plotCumDist);
 			if(totWeight < 0.99999) {	// reapply weight if less that 1
 				for(IncrementalMagFreqDist mfd : mfds)
 					mfd.scale(totWeight);
@@ -938,24 +930,11 @@ public class UCERF2_Section_MFDsCalc {
 	}
 	
 	
-	private void readListOfAllFaultSections(File sectListFile) {
+	private void readListOfAllFaultSections() {
 		sectionIDfromNameMap = new HashMap<String,Integer>();
-		sectionNamefromID_Map = new HashMap<Integer,String>();
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(sectListFile));
-			int l=-1;
-			String line;
-			while ((line = reader.readLine()) != null) {
-				l+=1;
-				String[] st = StringUtils.split(line,"\t");
-				Integer id = Integer.valueOf(st[0]);
-				String name = st[1];
-				sectionIDfromNameMap.put(name, id);
-				sectionNamefromID_Map.put(id,name);
-			}
-		} catch (Exception e) {
-			ExceptionUtils.throwAsRuntimeException(e);
-		}
+		sectionNamefromID_Map = getSectionNamesMap();
+		for (Integer id : sectionNamefromID_Map.keySet())
+			sectionIDfromNameMap.put(sectionNamefromID_Map.get(id), id);
 		
 		for(String name : sectionIDfromNameMap.keySet()){
 			Integer id = sectionIDfromNameMap.get(name);
@@ -963,6 +942,30 @@ public class UCERF2_Section_MFDsCalc {
 			if(!name.equals(sectionNamefromID_Map.get(id)))
 				throw new RuntimeException("Problem");
 		}
+	}
+	
+	private static HashMap<Integer, String> sectionNamesCache;
+	
+	private static HashMap<Integer, String> getSectionNamesMap() {
+		if (sectionNamesCache == null) {
+			sectionNamesCache = Maps.newHashMap();
+			
+			try {
+				BufferedReader reader = new BufferedReader(UCERF3_DataUtils.getReader(DATA_SUB_DIR, SECT_LIST_FILE_NAME));
+				int l=-1;
+				String line;
+				while ((line = reader.readLine()) != null) {
+					l+=1;
+					String[] st = StringUtils.split(line,"\t");
+					Integer id = Integer.valueOf(st[0]);
+					String name = st[1];
+					sectionNamesCache.put(id, name);
+				}
+			} catch (Exception e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+		return sectionNamesCache;
 	}
 	
 	
@@ -1073,15 +1076,18 @@ public class UCERF2_Section_MFDsCalc {
 	public static void main(String[] args) {
 		
 		// 68	Hayward (No)
-//		ArrayList<IncrementalMagFreqDist> list = UCERF2_Source_MFDsCalc.getMeanMinAndMaxMFD(68, false, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
-//		for(IncrementalMagFreqDist mfd:list) {
-//			System.out.println(mfd);
-//		}
+		ArrayList<IncrementalMagFreqDist> list = getMeanMinAndMaxMFD(68, false, false);
+		for(IncrementalMagFreqDist mfd:list) {
+			System.out.println(mfd);
+		}
 //		UCERF2_Source_MFDsCalc.tempTest();
-		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
-		test.saveAllTestMFD_Plots(true);
-		test.saveAllTestMFD_Plots(false);
-		System.out.println("DONE");
+//		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true);
+//		test.saveAllTestMFD_Plots(true);
+//		test.saveAllTestMFD_Plots(false);
+//		test = new UCERF2_Section_MFDsCalc(false);
+//		test.saveAllTestMFD_Plots(true);
+//		test.saveAllTestMFD_Plots(false);
+//		System.out.println("DONE");
 		
 //		writeListOfAllFaultSections();
 

@@ -21,39 +21,29 @@ public class UCERF3_DataUtils {
 		new File("dev"+s+"scratch"+s+"UCERF3"+s+"data"+s+"scratch");
 	
 	/**
-	 * The URL prefix for loading file from the persistant data directory.
+	 * The URL prefix for loading file from the persistent data directory. This MUST have forward slashes
+	 * as it is for jar file loading. It cannot use File.separator.
 	 */
 	public static String DATA_URL_PREFIX = "/scratch/UCERF3/data";
 	
 	/**
-	 * This gives the URL of a file in our UCERF3 data directory.
+	 * This gives the URL of a file in the specified sub directory of our UCERF3 data directory.
 	 * 
-	 * @param fileName
+	 * @param pathElements array of path elements (sub directories) with the file name last
 	 * @return
 	 */
-	public static URL locateResource(String fileName) {
-		return locateResource(null, fileName);
-	}
-	
-	/**
-	 * This gives the URL of a file in the specified sub directory if our UCERF3 data directory.
-	 * 
-	 * @param dataSubDirName
-	 * @param fileName
-	 * @return
-	 */
-	public static URL locateResource(String dataSubDirName, String fileName) {
-		String relativePath = getRelativePath(dataSubDirName, fileName);
+	public static URL locateResource(String... pathElements) {
+		String relativePath = getRelativePath(pathElements);
 		URL url = UCERF3_DataUtils.class.getResource(relativePath);
-		Preconditions.checkNotNull(url, "Resource '"+fileName+"' could not be located: "+relativePath);
+		Preconditions.checkNotNull(url, "Resource '"+pathElements[pathElements.length-1]+"' could not be located: "+relativePath);
 		return url;
 	}
 	
-	private static String getRelativePath(String dataSubDirName, String fileName) {
+	private static String getRelativePath(String... pathElements) {
 		String relativePath = DATA_URL_PREFIX;
-		if (dataSubDirName != null && !dataSubDirName.isEmpty())
-			relativePath += "/"+dataSubDirName;
-		relativePath += "/"+fileName;
+		for (String pathElement : pathElements)
+			if (pathElement != null)
+				relativePath += "/"+pathElement;
 		return relativePath;
 	}
 	
@@ -68,16 +58,15 @@ public class UCERF3_DataUtils {
 	}
 	
 	/**
-	 * This loads the given file in the given sub directory as a stream from our data directory
+	 * This loads the given file as a stream from our data directory.
 	 * 
-	 * @param dataSubDirName
-	 * @param fileName
+	 * @param pathElements
 	 * @return
 	 */
-	public static InputStream locateResourceAsStream(String dataSubDirName, String fileName) {
-		String relativePath = getRelativePath(dataSubDirName, fileName);
+	public static InputStream locateResourceAsStream(String... pathElements) {
+		String relativePath = getRelativePath(pathElements);
 		InputStream stream = UCERF3_DataUtils.class.getResourceAsStream(relativePath);
-		Preconditions.checkNotNull(stream, "Resource '"+fileName+"' could not be located: "+relativePath);
+		Preconditions.checkNotNull(stream, "Resource '"+pathElements[pathElements.length-1]+"' could not be located: "+relativePath);
 		return stream;
 	}
 	
@@ -111,24 +100,12 @@ public class UCERF3_DataUtils {
 	/**
 	 * This loads the given resource as a reader
 	 * 
-	 * @param fileName
+	 * @param pathElements
 	 * @return
 	 * @throws IOException 
 	 */
-	public static Reader getReader(String fileName) throws IOException {
-		return getReader(null, fileName);
-	}
-	
-	/**
-	 * This loads the given resource as a reader
-	 * 
-	 * @param subDirName
-	 * @param fileName
-	 * @return
-	 * @throws IOException 
-	 */
-	public static Reader getReader(String subDirName, String fileName) throws IOException {
-		InputStream stream = locateResourceAsStream(subDirName, fileName);
+	public static Reader getReader(String... pathElements) throws IOException {
+		InputStream stream = locateResourceAsStream(pathElements);
 		return getReader(stream);
 	}
 
