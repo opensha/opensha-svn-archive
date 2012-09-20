@@ -48,7 +48,7 @@ Honey Lake	Honey Lake 2011 CFM
 Hunting Creek-Berryessa	Hunting Creek - Berryessa 2011 CFM
 Independence	Independence rev 2011
 Johnson Valley (No)	Johnson Valley (No) 2011 rev
-Landers	MULTIPLE:	Johnson Valley (No) 2011 rev	Landers 2011 rev	Homestead Valley 2011	Emerson-Copper Mtn 2011	Camp Rock 2011
+Landers	MULTIPLE:	Johnson Valley (No) 2011 rev	Kickapoo	Homestead Valley 2011	Emerson-Copper Mtn 2011	Camp Rock 2011
 Likely	Likely 2011 CFM
 Lions Head	Lions Head 2011 CFM
 Los Alamos-West Baseline	Los Alamos 2011 CFM
@@ -65,6 +65,7 @@ Newport-Inglewood, alt 1	Newport-Inglewood alt 1
 Newport-Inglewood, alt 2	Newport-Inglewood alt 2
 North Tahoe	North Tahoe 2011 CFM
 Oak Ridge (Offshore), west extension	Oak Ridge (Offshore) west extension
+Oceanic 2011 CFM	Oceanic - West Huasna
 Ortigalita	MULTIPLE:	Ortigalita (North)	Ortigalita (South)
 Pitas Point (Lower, West)	Pitas Point (Lower West)
 Point Reyes	Point Reyes 2011 CFM
