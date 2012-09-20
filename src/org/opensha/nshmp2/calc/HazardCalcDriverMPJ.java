@@ -1,21 +1,27 @@
 package org.opensha.nshmp2.calc;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
 
 public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	
@@ -23,7 +29,10 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	private ThreadedHazardCalc calc;
 	private LocationList locs;
 	
-	private int rank;
+	// these will only end up getting used by the dispatch (root)
+	// node during doFinalAssembly(); ignored on other nodes
+	private File outDir;
+	private Period period;
 	
 	public HazardCalcDriverMPJ(CommandLine cmd, String[] args)
 			throws IOException, InvocationTargetException, FileNotFoundException {
@@ -46,7 +55,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		Preconditions.checkNotNull(grid);
 		locs = grid.grid().getNodeList();
 		
-		Period period = config.period;
+		period = config.period;
 		Preconditions.checkNotNull(period);
 		
 		String name = config.name;
@@ -54,7 +63,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		String out = config.out;
 		Preconditions.checkArgument(StringUtils.isNotBlank(out));
-		File outDir = new File(out + S + name + S + grid + S + period);
+		outDir = new File(out + S + name + S + grid + S + period);
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
@@ -69,11 +78,13 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	@Override
 	public void calculateBatch(int[] batch) throws Exception, InterruptedException {
 		calc.calculate(batch);
+		System.out.println("Batch complete");
 	}
 	
 
 	@Override
 	protected void doFinalAssembly() throws Exception {
+		
 		// do nothing
 	}
 	
@@ -102,6 +113,33 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 			System.exit(0);
 		} catch (Throwable t) {
 			abortAndExit(t);
+		}
+	}
+	
+	/**
+	 * Utility method to aggregate hazard curves stored in indivudual files
+	 * with names lat_lon.txt.
+	 * 
+	 * @param dir containing curve files
+	 */
+	public static void aggregateResults(File dir, Period period) {
+		String[] exts = {"txt"};
+		try {
+			Collection<File> files = FileUtils.listFiles(dir, exts, false);
+			File curves = new File(dir, "curves.csv");
+			BufferedWriter br = Files.newWriter(curves, Charsets.US_ASCII);
+			HazardResultWriterLocal.writeCurveHeader(br, period);
+			for (File file : files) {
+				StringBuilder sb = new StringBuilder();
+				String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
+					file.getName(), "."), '_', ',');
+				sb.append(latlon).append(",");
+				Files.copy(file, Charsets.US_ASCII, sb);
+				br.write(sb.toString());
+				br.newLine();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

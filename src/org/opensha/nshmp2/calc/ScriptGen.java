@@ -14,6 +14,7 @@ public class ScriptGen {
 
 	static final File MPJ_HOME = new File("/home/rcf-40/pmpowers/mpj-v0_38");
 	static final String LOCAL_OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
+	static final String REMOTE_OUT_DIR = "/home/scec-00/pmpowers/hazmaps";
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -24,7 +25,7 @@ public class ScriptGen {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(ScriptGen.class)
 					+" <jobName> <minutes> <nodes> <queue>");
 //			System.exit(2);
-			args = new String[] {"pmp-test", "20", "1", "nbns"};
+			args = new String[] {"pmp-test", "20", "2", "nbns"};
 		}
 		
 		String jobName = args[0];
@@ -34,8 +35,7 @@ public class ScriptGen {
 		if (queue.toLowerCase().equals("null"))
 			queue = null;
 		
-		String mapPath = "/home/scec-00/pmpowers/hazmaps";
-		File mapDir = new File(mapPath);
+		File mapDir = new File(REMOTE_OUT_DIR);
 		File configFile = new File(mapDir, "calc.properties");
 		
 		File jobDir = new File(mapDir, jobName);
@@ -49,7 +49,7 @@ public class ScriptGen {
 		classpath.add(jarFile);
 		classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 		
-		MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 7000,
+		MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 4096,
 			classpath, MPJ_HOME, false);		
 		
 		String cliArgs = configFile.getAbsolutePath();

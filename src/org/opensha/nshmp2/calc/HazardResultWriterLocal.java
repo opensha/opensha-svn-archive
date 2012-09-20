@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import org.opensha.commons.geo.Location;
@@ -37,7 +38,7 @@ public class HazardResultWriterLocal implements HazardResultWriter {
 			throws IOException {
 		Files.createParentDirs(outFile);
 		writer = Files.newWriter(outFile, Charsets.US_ASCII);
-		writeHeader(period);
+		writeCurveHeader(writer, period);
 	}
 
 	@Override
@@ -64,11 +65,18 @@ public class HazardResultWriterLocal implements HazardResultWriter {
 		return J.join(dat);
 	}
 
-	private void writeHeader(Period p) throws IOException {
+	/**
+	 * Utility method to write header for a set of curves into a {@code Writer}.
+	 * @param writer to add header to
+	 * @param period for reference x (ground motion) values
+	 * @throws IOException
+	 */
+	public static void writeCurveHeader(BufferedWriter writer, Period period)
+			throws IOException {
 		List<String> headerVals = Lists.newArrayList();
 		headerVals.add("lat");
 		headerVals.add("lon");
-		for (Double d : p.getIMLs()) {
+		for (Double d : period.getIMLs()) {
 			headerVals.add(d.toString());
 		}
 		writer.write(J.join(headerVals));

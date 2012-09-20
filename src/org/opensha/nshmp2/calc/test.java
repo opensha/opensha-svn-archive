@@ -1,5 +1,6 @@
 package org.opensha.nshmp2.calc;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Deque;
@@ -29,24 +30,27 @@ public class test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try {
-			InputStream is = test.class.getResourceAsStream("calc.properties");
-			Properties props = new Properties();
-			props.load(is);
-			
-			TestGrid grid = TestGrid.valueOf(props.getProperty("grid"));
-			Period period = Period.valueOf(props.getProperty("period"));
-			String name = props.getProperty("name");
-			
-			System.out.println(grid);
-			System.out.println(period);
-			System.out.println(name);
-			// set up HCM2 to process one location list/site set
-			
-			
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+		String pathToCurves = args[0];
+		File dir = new File(pathToCurves);
+		HazardCalcDriverMPJ.aggregateResults(dir, Period.GM0P00);
+//		try {
+//			InputStream is = test.class.getResourceAsStream("calc.properties");
+//			Properties props = new Properties();
+//			props.load(is);
+//			
+//			TestGrid grid = TestGrid.valueOf(props.getProperty("grid"));
+//			Period period = Period.valueOf(props.getProperty("period"));
+//			String name = props.getProperty("name");
+//			
+//			System.out.println(grid);
+//			System.out.println(period);
+//			System.out.println(name);
+//			// set up HCM2 to process one location list/site set
+//			
+//			
+//		} catch (IOException ioe) {
+//			ioe.printStackTrace();
+//		}
 	}
 
 }
