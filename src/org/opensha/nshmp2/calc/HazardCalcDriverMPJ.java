@@ -21,7 +21,9 @@ import org.opensha.nshmp2.util.Period;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import com.google.common.io.Flushables;
 
 public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	
@@ -139,6 +141,8 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 				br.write(sb.toString());
 				br.newLine();
 			}
+			Flushables.flushQuietly(br);
+			Closeables.closeQuietly(br);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
