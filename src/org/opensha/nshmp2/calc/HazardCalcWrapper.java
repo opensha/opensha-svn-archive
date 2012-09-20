@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
@@ -15,6 +16,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.nshmp2.util.Utils;
 
 import com.google.common.collect.Lists;
 
@@ -136,27 +138,24 @@ public class HazardCalcWrapper {
 		
 		
 		try {
-			InputStream is = null;
-			if (args.length > 0) {
-				is = new FileInputStream(args[0]);
-			} else {
-				System.out.println("hello");
-				is = HazardCalcWrapper.class.getResourceAsStream("calc.properties");
-			}
+			URL propsURL = (args.length > 0) ? 
+				new File(args[0]).toURI().toURL() : 
+				Utils.getResource("/calc.properties");
 			
-			Properties props = new Properties();
-			props.load(is);
-			is.close();
+			HazardCalcConfig config = new HazardCalcConfig(propsURL);
 			
-			TestGrid grid = TestGrid.valueOf(props.getProperty("grid"));
-			Period period = Period.valueOf(props.getProperty("period"));
-			String name = props.getProperty("name");
-			String out = props.getProperty("out");
+			TestGrid grid = config.grid;
+			Period period = config.period;
+			String name = config.name;
+			String out = config.out;
+			boolean isMPJ = config.mpj;
 			
 			System.out.println(grid);
 			System.out.println(period);
 			System.out.println(name);
 			System.out.println(out);
+			System.out.println(isMPJ);
+			
 			
 			String outPath = out + S + name + S + grid + S + period + S;
 			File localOutFile = new File(outPath + "curves.csv");
@@ -164,8 +163,9 @@ public class HazardCalcWrapper {
 			
 			HazardResultWriter writer = null;
 			try {
-				 writer = new HazardResultWriterLocal(localOutFile, period);
-//				 writer = new HazardResultWriterMPJ(mpjOutDir);
+				writer = isMPJ ? 
+					new HazardResultWriterMPJ(mpjOutDir) :
+					new HazardResultWriterLocal(localOutFile, period);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}

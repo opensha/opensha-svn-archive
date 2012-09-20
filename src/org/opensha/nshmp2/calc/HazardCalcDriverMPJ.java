@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -37,7 +38,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 				"threads must be >= 1. you supplied: "+getNumThreads());
 		debug(rank, "setup for "+getNumThreads()+" threads");
 		
-		File props = new File(args[0]);
+		URL props = new File(args[0]).toURI().toURL();
 		// throws FNF exceptions
 		HazardCalcConfig config = new HazardCalcConfig(props);
 		
@@ -53,8 +54,9 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		String out = config.out;
 		Preconditions.checkArgument(StringUtils.isNotBlank(out));
-		File outDir = new File(out + S + name + S + period);
+		File outDir = new File(out + S + name + S + grid + S + period);
 		
+		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
 		calc = new ThreadedHazardCalc(grid.grid().getNodeList(), period, writer);
 	}

@@ -5,10 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
+
+import com.google.common.io.Resources;
 
 /**
  * Wrapper for NSHMP calculation configuration.
@@ -22,6 +25,7 @@ public class HazardCalcConfig {
 	Period period;
 	String name;
 	String out;
+	boolean mpj;
 
 	/**
 	 * Creates a new config instance from the supplied {@code File}.
@@ -29,10 +33,10 @@ public class HazardCalcConfig {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public HazardCalcConfig(File propfile) throws FileNotFoundException,
+	public HazardCalcConfig(URL propfile) throws FileNotFoundException,
 			IOException {
 		Properties props = new Properties();
-		InputStream is = new FileInputStream(propfile);
+		InputStream is = propfile.openStream();
 		props.load(is);		
 		is.close();
 		
@@ -40,5 +44,6 @@ public class HazardCalcConfig {
 		period = Period.valueOf(props.getProperty("period"));
 		name = props.getProperty("name");
 		out = props.getProperty("out");
+		mpj = Boolean.valueOf(props.getProperty("mpj"));
 	}
 }
