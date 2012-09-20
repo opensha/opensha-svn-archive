@@ -33,11 +33,12 @@ public class HazardCalcConfig {
 			IOException {
 		Properties props = new Properties();
 		InputStream is = new FileInputStream(propfile);
-		props.load(is);			
+		props.load(is);		
+		is.close();
 		
-		TestGrid grid = TestGrid.valueOf(props.getProperty("grid"));
-		Period period = Period.valueOf(props.getProperty("period"));
-		String name = props.getProperty("name");
-		String out = props.getProperty("out");
+		grid = TestGrid.valueOf(props.getProperty("grid"));
+		period = Period.valueOf(props.getProperty("period"));
+		name = props.getProperty("name");
+		out = props.getProperty("out");
 	}
 }

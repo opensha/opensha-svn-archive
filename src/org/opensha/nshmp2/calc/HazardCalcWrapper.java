@@ -140,11 +140,13 @@ public class HazardCalcWrapper {
 			if (args.length > 0) {
 				is = new FileInputStream(args[0]);
 			} else {
+				System.out.println("hello");
 				is = HazardCalcWrapper.class.getResourceAsStream("calc.properties");
 			}
 			
 			Properties props = new Properties();
 			props.load(is);
+			is.close();
 			
 			TestGrid grid = TestGrid.valueOf(props.getProperty("grid"));
 			Period period = Period.valueOf(props.getProperty("period"));
