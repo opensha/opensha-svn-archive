@@ -68,7 +68,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  */
 public class UCERF2_Source_MFDsCalc {
 	
-	private static boolean D = true; // debug flag
+	private static boolean D = false; // debug flag
 	
 	public static int ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID = 402; // replaces the following two:
 	public static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
