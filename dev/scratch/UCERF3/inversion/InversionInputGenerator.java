@@ -200,7 +200,7 @@ public class InversionInputGenerator {
 				throw new RuntimeException("Error loading in paleo mean slip data");
 			}
 			int numPaleoSlipRows = aveSlipConstraints.size();
-			if(D) System.out.println("Number of paleo section-rate constraints: "+numPaleoSlipRows);
+			if(D) System.out.println("Number of paleo average slip constraints: "+numPaleoSlipRows);
 			numRows += numPaleoSlipRows;
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("Paleo Slips");
@@ -476,26 +476,28 @@ public class InversionInputGenerator {
 			if(D) System.out.println("\nAdding paleo mean slip constraints to A matrix ...");
 			for (int i=0; i<aveSlipConstraints.size(); i++) {
 				AveSlipConstraint constraint = aveSlipConstraints.get(i);
-				double constraintError = constraint.getUpperUncertaintyBound() - constraint.getLowerUncertaintyBound();
 				int subsectionIndex = constraint.getSubSectionIndex();
 				double meanRate = sectSlipRateReduced[subsectionIndex] / constraint.getWeightedMean();
-				
+				double lowRateBound = sectSlipRateReduced[subsectionIndex] / constraint.getUpperUncertaintyBound();
+				double highRateBound = sectSlipRateReduced[subsectionIndex] / constraint.getLowerUncertaintyBound();
+				double constraintError = highRateBound - lowRateBound;
+				System.out.println("meanRate = "+meanRate);
+				System.out.println("constraintError = "+constraintError);
 				d[i]=relativePaleoRateWt * meanRate / constraintError;
 				List<Integer> rupsForSect = rupSet.getRupturesForSection(subsectionIndex);
 				for (int rupIndex=0; rupIndex<rupsForSect.size(); rupIndex++) {
 					int rup = rupsForSect.get(rupIndex);
-					double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, subsectionIndex);				
-					int sectIndexInRup = rupSet.getSectionsIndicesForRup(rupIndex).indexOf(subsectionIndex);
-					double slipOnSect = rupSet.getSlipOnSectionsForRup(rupIndex)[sectIndexInRup];
+					int sectIndexInRup = rupSet.getSectionsIndicesForRup(rup).indexOf(subsectionIndex);
+					double slipOnSect = rupSet.getSlipOnSectionsForRup(rup)[sectIndexInRup]; 
 					double probVisible = constraint.getProbabilityOfObservedSlip(slipOnSect);
 					double setVal = (relativePaleoRateWt * probVisible / constraintError);
 					if (QUICK_GETS_SETS)
-						A.setQuick(i, rup, setVal);
+						A.setQuick(rowIndex, rup, setVal);
 					else
-						A.set(i, rup, setVal);
+						A.set(rowIndex, rup, setVal);
 					numNonZeroElements++;
-					rowIndex++;
 				}
+				rowIndex++;
 			}
 			if (D) {
 				System.out.println("Adding Paleo Mean-Slip Constraints took "+getTimeStr(watch)+".");
