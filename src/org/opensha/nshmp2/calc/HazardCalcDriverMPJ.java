@@ -121,6 +121,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	 * with names lat_lon.txt.
 	 * 
 	 * @param dir containing curve files
+	 * @param period for which curves were calculated
 	 */
 	public static void aggregateResults(File dir, Period period) {
 		String[] exts = {"txt"};
