@@ -217,7 +217,7 @@ public class BatchPlotGen {
 	}
 	
 	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
-		CommandLineInversionRunner.writeParentSectionMFDPlots(avgSol, dir);
+		CommandLineInversionRunner.writeParentSectionMFDPlots(avgSol, new File(dir, "parent_sect_mfds"));
 		Region region = RELM_RegionUtils.getGriddedRegionInstance();
 		if (avgSol.getNumSolutions() <= 10)
 			FaultBasedMapGen.plotSolutionSlipRateStdDevs(avgSol, avgSol.calcSlipRates(), region, dir, prefix, false);
