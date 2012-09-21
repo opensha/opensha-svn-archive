@@ -142,7 +142,7 @@ public class BatchPlotGen {
 				}
 				// this is an average of many run
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
-				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, meanSolDir, prefix);
+				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, myDir, prefix);
 				if (!doAvgPlotsExist(meanSolDir, meanPrefix))
 					try {
 						writeAvgSolPlots(avgSol, meanSolDir, meanPrefix);
