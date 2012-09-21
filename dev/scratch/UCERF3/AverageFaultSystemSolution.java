@@ -619,8 +619,12 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		System.out.println("Prefix: "+prefix);
 		
 		for (File file : dir.listFiles()) {
-			if (file.isDirectory())
-				continue;
+			if (file.isDirectory()) {
+				// see if it's in it's own directory
+				file = new File(file, file.getName()+".bin");
+				if (!file.exists())
+					continue;
+			}
 			String name = file.getName();
 			if (!name.endsWith(".bin"))
 				continue;
