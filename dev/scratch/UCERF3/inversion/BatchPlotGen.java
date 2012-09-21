@@ -213,7 +213,7 @@ public class BatchPlotGen {
 	}
 	
 	private static boolean doAvgPlotsExist(File dir, String prefix) {
-		return new File(dir, prefix+"_partic_mean_over_std_dev_6.0_7.0.png").exists();
+		return new File(dir, prefix+"_partic_rates_8.0+.png").exists();
 	}
 	
 	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
