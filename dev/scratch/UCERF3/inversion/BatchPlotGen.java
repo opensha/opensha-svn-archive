@@ -132,23 +132,26 @@ public class BatchPlotGen {
 					continue;
 				}
 				String meanPrefix = prefix + "_mean";
-				File avgSolFile = new File(myDir, meanPrefix+"_sol.zip");
-				if (avgSolFile.exists() && doAvgPlotsExist(myDir, meanPrefix)) {
+				File meanSolDir = new File(myDir, meanPrefix);
+				if (!meanSolDir.exists())
+					meanSolDir.mkdir();
+				File avgSolFile = new File(meanSolDir, meanPrefix+"_sol.zip");
+				if (avgSolFile.exists() && doAvgPlotsExist(meanSolDir, meanPrefix)) {
 					System.out.println("Skipping (mean sol already done): "+meanPrefix);
 					continue;
 				}
 				// this is an average of many run
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
-				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, myDir, prefix);
-				if (!doAvgPlotsExist(myDir, meanPrefix))
+				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, meanSolDir, prefix);
+				if (!doAvgPlotsExist(meanSolDir, meanPrefix))
 					try {
-						writeAvgSolPlots(avgSol, myDir, meanPrefix);
+						writeAvgSolPlots(avgSol, meanSolDir, meanPrefix);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				avgSol.toZipFile(avgSolFile);
 				// write bin file as well
-				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(myDir, meanPrefix+".bin"));
+				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(meanSolDir, meanPrefix+".bin"));
 				handleSolutionFile(avgSolFile, meanPrefix, avgSol);
 			}
 		}
