@@ -86,8 +86,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 
 	@Override
 	protected void doFinalAssembly() throws Exception {
-		
-		// do nothing
+		aggregateResults(outDir, period);
 	}
 	
 	

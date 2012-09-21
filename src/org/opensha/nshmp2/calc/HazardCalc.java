@@ -103,6 +103,9 @@ public class HazardCalc implements Callable<HazardResult> {
 			}
 
 			utilFunc.scale(erf.getSourceWeight());
+			System.out.println(erf.getName());
+			System.out.println(utilFunc);
+			System.out.println("-------------");
 			Utils.addFunc(curve, utilFunc);
 		}
 		return new HazardResult(curve, site.getLocation());
@@ -307,8 +310,8 @@ public class HazardCalc implements Callable<HazardResult> {
 		
 		TimeUnit tu = TimeUnit.MILLISECONDS;
 //		WUS_ERF erf = new WUS_ERF();
-//		NSHMP2008 erf = NSHMP2008.create();
-		NSHMP2008 erf = NSHMP2008.createSingleSource("CEUS.2007all8.AB.in");
+		NSHMP2008 erf = NSHMP2008.create();
+//		NSHMP2008 erf = NSHMP2008.createSingleSource("bFault.gr.in");
 		erf.updateForecast();
 		System.out.println(erf);
 		sw.stop();
@@ -316,7 +319,7 @@ public class HazardCalc implements Callable<HazardResult> {
 		Period p = Period.GM0P00;
 
 		sw.reset().start();
-		Site site = new Site(NEHRP_TestCity.MEMPHIS.shiftedLocation());
+		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
 		HazardCalc hc = HazardCalc.create(erf, site, p);
 		HazardResult result = hc.call();
 		System.out.println(result.curve());
