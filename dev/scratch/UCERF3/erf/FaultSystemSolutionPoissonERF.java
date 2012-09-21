@@ -30,6 +30,7 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
 
 /**
@@ -256,8 +257,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		// count number of non-zero rate inversion ruptures (each will be a source)
 		numFaultSystemSources =0;
 		for(int r=0; r< faultSysSolution.getNumRuptures();r++){
+			boolean rupTooSmall = false;	// filter out the too-small ruptures
+			if(faultSysSolution instanceof InversionFaultSystemSolution)
+				rupTooSmall = ((InversionFaultSystemSolution)faultSysSolution).isRuptureBelowSectMinMag(r);
 //			System.out.println("rate="+faultSysSolution.getRateForRup(r));
-			if(faultSysSolution.getRateForRup(r) > 0.0)
+			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall)
 				numFaultSystemSources +=1;			
 		}
 		
@@ -273,13 +277,16 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			srcIndexForFltSysRup[i] = -1;				// initialize values to -1 (no mapping due to zero rate)
 		fltSysRupIndexForSource = new int[numFaultSystemSources];
 		int srcIndex = 0;
-		for(int r=0; r< faultSysSolution.getNumRuptures();r++)
-			if(faultSysSolution.getRateForRup(r) > 0.0) {
+		for(int r=0; r< faultSysSolution.getNumRuptures();r++) {
+			boolean rupTooSmall = false;	// filter out the too-small ruptures
+			if(faultSysSolution instanceof InversionFaultSystemSolution)
+				rupTooSmall = ((InversionFaultSystemSolution)faultSysSolution).isRuptureBelowSectMinMag(r);
+			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall) {
 				fltSysRupIndexForSource[srcIndex] = r;
 				srcIndexForFltSysRup[r] = srcIndex;
 				srcIndex += 1;
 			}
-		
+		}
 		// now populate the following (requires making each source):
 //							int totNumRups;
 //							int[] srcIndexForNthRup;

@@ -1099,6 +1099,15 @@ public class MeanUCERF2 extends AbstractERF {
 //		System.out.println("OLD tot rate ="+totRateOld);
 //		System.out.println("NEW tot rate ="+totRateNew);
 //	}
+	
+	
+	/**
+	 * This includes the time dependence (if applied)
+	 */
+	public IncrementalMagFreqDist getB_FaultMFD() {
+		return bFaultSummedMFD;
+	}
+
 //	
 //	
 
