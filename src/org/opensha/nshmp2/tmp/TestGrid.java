@@ -25,6 +25,8 @@ public enum TestGrid {
 	NATIONAL(
 		new double[] {24.6, 50.0},
 		new double[] {-125.0, -65.0 }),
+	NATIONAL_POLY(
+		getNational()),
 	CA(
 		new double[] {31.5, 43.0},
 		new double[] {-125.4, -113.1}),
@@ -106,14 +108,70 @@ public enum TestGrid {
 	}
 
 	public static void main(String[] args) {
-		for (TestGrid tg : TestGrid.values()) {
-			RegionUtils.regionToKML(tg.grid(), "TEST GRID " + tg, Color.ORANGE);
-		}
+		System.out.println(TestGrid.NATIONAL.grid().getNodeCount());
+//		System.out.println();
+//		RegionUtils.locListToKML(getNationalPoly(), "NationalPoly", Color.ORANGE);
+		
+//		for (TestGrid tg : TestGrid.values()) {
+//			RegionUtils.regionToKML(tg.grid(), "TEST GRID " + tg, Color.ORANGE);
+//		}
 	}
 	
 	public static Set<TestGrid> getLocals() {
 		return EnumSet.of(LOS_ANGELES, SAN_FRANCISCO, SEATTLE, SALT_LAKE_CITY,
 			MEMPHIS);
+	}
+	
+	
+	private static GriddedRegion getNational() {
+		return new GriddedRegion(getNationalPoly(), BorderType.MERCATOR_LINEAR,
+			0.1, GriddedRegion.ANCHOR_0_0);
+	}
+
+	private static LocationList getNationalPoly() {
+		LocationList locs = new LocationList();
+		locs.add(new Location(25.6, -98.2));
+		locs.add(new Location(25.6, -96.7));
+		locs.add(new Location(27.5, -96.5));
+		locs.add(new Location(29.1, -93.5));
+		locs.add(new Location(28.7, -90.5));
+		locs.add(new Location(28.9, -88.4));
+		locs.add(new Location(29.7, -87.7));
+		locs.add(new Location(29.2, -83.9));
+		locs.add(new Location(25.0, -81.3));
+		locs.add(new Location(25.0, -80.0));
+		locs.add(new Location(26.7, -79.7));
+		locs.add(new Location(30.7, -81.0));
+		locs.add(new Location(31.8, -80.6));
+		locs.add(new Location(35.3, -75.0));
+		locs.add(new Location(37.0, -75.4));
+		locs.add(new Location(40.3, -73.3));
+		locs.add(new Location(41.2, -69.7));
+		locs.add(new Location(43.2, -70.1));
+		locs.add(new Location(44.7, -66.5));
+		locs.add(new Location(45.9, -67.5));
+		locs.add(new Location(46.5, -67.7));
+		locs.add(new Location(47.5, -69.4));
+		locs.add(new Location(45.2, -71.8));
+		locs.add(new Location(45.2, -75.4));
+		locs.add(new Location(44.0, -77.2));
+		locs.add(new Location(43.9, -81.2));
+		locs.add(new Location(46.6, -83.6));
+		locs.add(new Location(48.4, -88.4));
+		locs.add(new Location(49.6, -95.2));
+		locs.add(new Location(49.6, -125.8));
+		locs.add(new Location(45.6, -124.8));
+		locs.add(new Location(40.0, -125.2));
+		locs.add(new Location(33.0, -119.9));
+		locs.add(new Location(32.2, -117.0));
+		locs.add(new Location(32.2, -115.0));
+		locs.add(new Location(31.0, -111.0));
+		locs.add(new Location(31.0, -106.8));
+		locs.add(new Location(28.6, -103.3));
+		locs.add(new Location(28.6, -101.3));
+		locs.add(new Location(26.2, -99.5));
+		locs.add(new Location(25.6, -98.2));
+		return locs;
 	}
 
 }
