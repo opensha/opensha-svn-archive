@@ -32,7 +32,6 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -56,7 +55,13 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * Efficiently manages all indexing for subclasses. Subclasses need only
  * implement updateRupture()
  * 
- * Point sources should not be reused (e.g. at different locations)
+ * Point sources should not be reused (e.g. at different locations) and there
+ * would be threading issues as the internal rupture reference would be
+ * updated asynchronously.
+ * 
+ * Could probably implement a slightly speedier subclass that would ignore
+ * mechWeights as the weighting is actually handled in the lookup tables
+ * of the GridIMRs that get used during hazard calcs.
  * 
  * @author P. Powers
  * @version: $Id$

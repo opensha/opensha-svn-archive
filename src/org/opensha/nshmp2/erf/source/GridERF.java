@@ -129,7 +129,8 @@ public class GridERF extends NSHMP_ERF {
 	@Override
 	public int getRuptureCount() {
 		// ths number of ruptures in a grid source can be gleaned by tallying
-		// the magnitude count in all mfds
+		// the magnitude count in all mfds; however this doesn't account for
+		// focal mech variations
 		int count = 0;
 		for (IncrementalMagFreqDist mfd : mfds) {
 			count += mfd.getNum();
