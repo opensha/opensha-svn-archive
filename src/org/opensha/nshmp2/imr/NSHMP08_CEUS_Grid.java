@@ -151,8 +151,8 @@ public class NSHMP08_CEUS_Grid extends NSHMP08_CEUS implements GridIMR {
 	@Override
 	public DiscretizedFunc getExceedProbabilities(DiscretizedFunc imls)
 			throws ParameterException {
-		// double d = propEffect.getDistanceJB();
-		double d = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
+		double d = eqkRupture.getRuptureSurface().getDistanceJB(
+			site.getLocation());
 		return table.get(d, utilMag);
 	}
 

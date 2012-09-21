@@ -88,7 +88,8 @@ public class NSHMP08_SUB_SlabGrid extends NSHMP08_SUB_Slab implements GridIMR {
 	@Override
 	public DiscretizedFunc getExceedProbabilities(DiscretizedFunc imls)
 			throws ParameterException {
-		double d = distanceJBParam.getValue(eqkRupture, site);
+		double d = eqkRupture.getRuptureSurface().getDistanceJB(
+			site.getLocation());
 		double m = eqkRupture.getMag();
 		return table.get(d, m);
 	}

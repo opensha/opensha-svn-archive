@@ -87,7 +87,8 @@ public class NSHMP08_WUS_Grid extends NSHMP08_WUS implements GridIMR {
 	@Override
 	public DiscretizedFunc getExceedProbabilities(DiscretizedFunc imls)
 			throws ParameterException {
-		double d = distanceJBParam.getValue(eqkRupture, site);
+		double d = eqkRupture.getRuptureSurface().getDistanceJB(
+			site.getLocation());
 		double m = eqkRupture.getMag();
 		return table.get(d, m);
 	}
