@@ -306,6 +306,10 @@ implements Serializable {
 	public Iterator<Point2D> getPointsIterator(){
 		return points.iterator();
 	}
+	
+	public Iterator<Point2D> iterator() {
+		return points.iterator();
+	}
 
 	/**
 	 * Given the imput y value, finds the two sequential
