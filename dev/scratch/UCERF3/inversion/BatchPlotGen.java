@@ -109,14 +109,21 @@ public class BatchPlotGen {
 			if (prefix.contains("_run")) {
 				// make sure that every run is done
 				prefix = prefix.substring(0, prefix.indexOf("_run"));
+				// if we're in a subdirectory, skip out to main
+				File myDir;
+				if (file.getParentFile().getName().startsWith(prefix))
+					myDir = dir.getParentFile();
+				else
+					myDir = dir;
 				int total = 0;
 				int completed = 0;
-				for (File testFile : dir.listFiles()) {
+				for (File testFile : myDir.listFiles()) {
 					String testName = testFile.getName();
 					if (testName.startsWith(prefix) && testName.endsWith(".pbs")) {
 						total++;
-						File binFile = new File(dir, testName.substring(0, testName.indexOf(".pbs"))+".bin");
-						if (binFile.exists())
+						testName = testName.substring(0, testName.indexOf(".pbs"));
+						File binFile = new File(myDir, testName+".bin");
+						if (binFile.exists() || new File(new File(myDir, testName), testName+".bin").exists())
 							completed++;
 					}
 				}
@@ -125,23 +132,23 @@ public class BatchPlotGen {
 					continue;
 				}
 				String meanPrefix = prefix + "_mean";
-				File avgSolFile = new File(dir, meanPrefix+"_sol.zip");
-				if (avgSolFile.exists() && doAvgPlotsExist(dir, meanPrefix)) {
+				File avgSolFile = new File(myDir, meanPrefix+"_sol.zip");
+				if (avgSolFile.exists() && doAvgPlotsExist(myDir, meanPrefix)) {
 					System.out.println("Skipping (mean sol already done): "+meanPrefix);
 					continue;
 				}
 				// this is an average of many run
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
-				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, dir, prefix);
-				if (!doAvgPlotsExist(dir, meanPrefix))
+				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, myDir, prefix);
+				if (!doAvgPlotsExist(myDir, meanPrefix))
 					try {
-						writeAvgSolPlots(avgSol, dir, meanPrefix);
+						writeAvgSolPlots(avgSol, myDir, meanPrefix);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				avgSol.toZipFile(avgSolFile);
 				// write bin file as well
-				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(dir, meanPrefix+".bin"));
+				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(myDir, meanPrefix+".bin"));
 				handleSolutionFile(avgSolFile, meanPrefix, avgSol);
 			}
 		}
