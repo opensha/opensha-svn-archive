@@ -29,6 +29,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FaultUtils;
+import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
@@ -39,7 +40,13 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
  *
  * <b>Description:</b> This is a special case of RuptureSurface
  * that is a point surface (has only one Location). <p>
+ * 
+ * This class has been modified to have threadsafe distance methods that are
+ * not synchronized like those of the finite fault sources.
  *
+ * A PointSurface should only be used with a threadsafe EqkRupture; users
+ * should ensure that new surfaces or parent ruptures are being created
+ * for each calculation loop and each calculator.
  *
  * @author     Ned Field (completely rewritten)
  * @created    February 26, 2002
@@ -48,29 +55,17 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
 
 public class PointSurface implements RuptureSurface {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private Location pointLocation;
 	
-	// for distance measures
-	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
-	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
-	double distanceJB, distanceSeis, distanceRup, distanceX;
 	
 	final static double SEIS_DEPTH = DistanceSeisParameter.SEIS_DEPTH;   // minimum depth for Campbell model
 	
-	// flag to indicate that the ptLocChanged
-	boolean ptLocChanged;
-	
-	double vertDist;
-	
-	/** variables for the point-source distance correction */
-	PtSrcDistCorr.Type corrType = PtSrcDistCorr.Type.NONE;
-	double corrMag = Double.NaN;
-	
+	// variables for the point-source distance correction; these
+	// are set by HazardCurveCalcs
+	private PtSrcDistCorr.Type corrType = PtSrcDistCorr.Type.NONE;
+	private double corrMag = Double.NaN;
 
 	/**
 	 * The average strike of this surface on the Earth. Even though this is a
@@ -118,7 +113,7 @@ public class PointSurface implements RuptureSurface {
 	 * Even though this is a point source, an average strike can be assigned to
 	 * it to assist with particular scientific caculations.
 	 */
-	public void setAveStrike( double aveStrike ) throws InvalidRangeException{
+	public void setAveStrike( double aveStrike ) throws InvalidRangeException {
 		FaultUtils.assertValidStrike( aveStrike );
 		this.aveStrike = aveStrike ;
 	}
@@ -134,7 +129,7 @@ public class PointSurface implements RuptureSurface {
 	 * Even though this is a point source, an average dip can be assigned to
 	 * it to assist with particular scientific caculations.
 	 */
-	public void setAveDip( double aveDip ) throws InvalidRangeException{
+	public void setAveDip( double aveDip ) throws InvalidRangeException {
 		FaultUtils.assertValidDip( aveDip );
 		this.aveDip =  aveDip ;
 	}
@@ -144,9 +139,8 @@ public class PointSurface implements RuptureSurface {
 
 
 	/** Since this is a point source, the single Location can be set without indexes. Does a clone copy. */
-	public void setLocation(Location location ) {
+	public void setLocation(Location location) {
 		pointLocation = location;
-		ptLocChanged = true;
 	}
 	
 
@@ -255,63 +249,48 @@ public class PointSurface implements RuptureSurface {
 	 * This sets the three propagation distances (distanceJB, distanceRup, & distanceSeis)
 	 * @param siteLoc
 	 */
-	private void calcPropagationDistances(Location siteLoc) {
-
-		// calc distances if either location has changed
-		// IS THIS REALLY SAVING MUCH TIME (is the check faster than recomputing the distances)?
-		if(!siteLocForDistCalcs.equals(siteLoc) || ptLocChanged) {
-			siteLocForDistCalcs = siteLoc;
-			vertDist = LocationUtils.vertDistance(pointLocation, siteLocForDistCalcs);
-			distanceJB = LocationUtils.horzDistanceFast(pointLocation, siteLocForDistCalcs);
-		}
-		
-		// always do this point source-distance correction since mag is generally always changing 
-		// (looping over point source) & type NONE returns 1.0
-		distanceJB *= PtSrcDistCorr.getCorrection(distanceJB, corrMag, corrType);		
-		
-		// set distanceRup & distanceSeis
-		distanceRup = Math.sqrt(distanceJB * distanceJB + vertDist * vertDist);
-		if (pointLocation.getDepth() < SEIS_DEPTH)
-			distanceSeis = Math.sqrt(distanceJB * distanceJB + SEIS_DEPTH * SEIS_DEPTH);
-		else
-			distanceSeis = distanceRup;
-	}
+//	@Deprecated
+//	private void calcPropagationDistances(Location siteLoc) {
+//
+//		// calc distances if either location has changed
+//		// IS THIS REALLY SAVING MUCH TIME (is the check faster than recomputing the distances)?
+//		if(!siteLocForDistCalcs.equals(siteLoc) || ptLocChanged) {
+//			siteLocForDistCalcs = siteLoc;
+//			vertDist = LocationUtils.vertDistance(pointLocation, siteLocForDistCalcs);
+//			distanceJB = LocationUtils.horzDistanceFast(pointLocation, siteLocForDistCalcs);
+//		}
+//		
+//		// always do this point source-distance correction since mag is generally always changing 
+//		// (looping over point source) & type NONE returns 1.0
+//		distanceJB *= PtSrcDistCorr.getCorrection(distanceJB, corrMag, corrType);		
+//		
+//		// set distanceRup & distanceSeis
+//		distanceRup = Math.sqrt(distanceJB * distanceJB + vertDist * vertDist);
+//		if (pointLocation.getDepth() < SEIS_DEPTH)
+//			distanceSeis = Math.sqrt(distanceJB * distanceJB + SEIS_DEPTH * SEIS_DEPTH);
+//		else
+//			distanceSeis = distanceRup;
+//	}
 	
-	
-	/**
-	 * This returns rupture distance (kms to closest point on the 
-	 * rupture surface), assuming the location has zero depth (for numerical 
-	 * expediency).
-	 * @return 
-	 */
 	@Override
-	public synchronized double getDistanceRup(Location siteLoc){
-		calcPropagationDistances(siteLoc);
-		return distanceRup;
+	public double getDistanceRup(Location siteLoc){
+		double depth = pointLocation.getDepth();
+		double djb = getDistanceJB(siteLoc);
+		return Math.sqrt(depth * depth + djb * djb);
 	}
 
-	/**
-	 * This returns distance JB (shortest horz distance in km to surface projection 
-	 * of rupture), assuming the location has zero depth (for numerical 
-	 * expediency).
-	 * @return
-	 */
 	@Override
-	public synchronized double getDistanceJB(Location siteLoc){
-		calcPropagationDistances(siteLoc);
-		return distanceJB;
+	public double getDistanceJB(Location siteLoc){
+		double djb = LocationUtils.horzDistanceFast(pointLocation, siteLoc);
+		double corr = PtSrcDistCorr.getCorrection(djb, corrMag, corrType);
+		return djb * corr;
 	}
 
-	/**
-	 * This returns "distance seis" (shortest distance in km to point on rupture 
-	 * deeper than 3 km), assuming the location has zero depth (for numerical 
-	 * expediency).
-	 * @return
-	 */
 	@Override
-	public synchronized double getDistanceSeis(Location siteLoc){
-		calcPropagationDistances(siteLoc);
-		return distanceSeis;
+	public double getDistanceSeis(Location siteLoc){
+		double depth = Math.max(SEIS_DEPTH, pointLocation.getDepth());
+		double djb = getDistanceJB(siteLoc);
+		return Math.sqrt(depth * depth + djb * djb);
 	}
 
 	/**
@@ -414,6 +393,15 @@ public class PointSurface implements RuptureSurface {
 	@Override
 	public double getMinDistance(RuptureSurface surface) {
 		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
+	}
+	
+	public static void main(String[] args) {
+		PointSurface pt = new PointSurface(34.2, -118.02, 5.0);
+		Location loc = NEHRP_TestCity.LOS_ANGELES.location();
+		System.out.println(pt.getDistanceJB(loc));
+		System.out.println(pt.getDistanceRup(loc));
+		System.out.println(pt.getDistanceSeis(loc));
+		System.out.println(pt.getDistanceX(loc));
 	}
 
 }
