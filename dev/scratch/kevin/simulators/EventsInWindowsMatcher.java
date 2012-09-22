@@ -23,6 +23,7 @@ public class EventsInWindowsMatcher {
 	
 	// outputs
 	private List<EQSIM_Event> eventsInWindows;
+	private List<Double> timeFromStarts;
 	private List<TimeWindow> timeWindows;
 	private HashSet<Integer> matchIDs;
 	private double totalWindowDurationYears;
@@ -43,6 +44,7 @@ public class EventsInWindowsMatcher {
 	
 	private List<EQSIM_Event> update() {
 		eventsInWindows = Lists.newArrayList();
+		timeFromStarts = Lists.newArrayList();
 		
 		if (events == null || events.isEmpty())
 			return null;
@@ -146,7 +148,7 @@ public class EventsInWindowsMatcher {
 					break;
 				if (!window.isAfter(time) && !window.isInitiator(e.getID())) {
 					matchingWindow = window;
-					break;
+//					break; // don't break here, we want the last window that it fits into for time from start calcs
 				}
 			}
 			if (matchingWindow == null)
@@ -174,6 +176,10 @@ public class EventsInWindowsMatcher {
 			
 			numEventsInWindows++;
 			eventsInWindows.add(e);
+			double matchTime = e.getTime() - matchingWindow.getStart();
+			Preconditions.checkState(matchTime > 0);
+			Preconditions.checkState(matchTime < duration);
+			timeFromStarts.add(e.getTime() - matchingWindow.getStart());
 		}
 		System.out.println("Found "+numEventsInWindows+" events in the given windows/mag range");
 		
@@ -202,6 +208,10 @@ public class EventsInWindowsMatcher {
 
 	public List<EQSIM_Event> getEventsInWindows() {
 		return eventsInWindows;
+	}
+	
+	public List<Double> getEventTimesFromWindowStarts() {
+		return timeFromStarts;
 	}
 
 	public List<TimeWindow> getTimeWindows() {

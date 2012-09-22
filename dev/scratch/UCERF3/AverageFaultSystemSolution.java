@@ -402,7 +402,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			if (CommandLineInversionRunner.doPaleoPlotsExist(dir, myPrefix))
 				continue;
 			
-			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, sol, dir, myPrefix);
+			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, null, sol, dir, myPrefix);
 		}
 	}
 	
@@ -436,7 +436,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			ArrayList<FaultSystemSolution> solList = Lists.newArrayList();
 			solList.add(sol);
 			PlotSpec spec = UCERF3_PaleoRateConstraintFetcher.getSegRateComparisonSpec(
-					paleoRateConstraints, solList);
+					paleoRateConstraints, null, solList);
 			
 			ArrayList<? extends DiscretizedFunc> funcs = spec.getFuncs();
 			

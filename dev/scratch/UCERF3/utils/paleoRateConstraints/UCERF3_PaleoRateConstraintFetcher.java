@@ -41,6 +41,7 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 public class UCERF3_PaleoRateConstraintFetcher {
 	
@@ -129,8 +130,17 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		return paleoRateConstraints;
 	}
 	
-	public static PlotSpec getSegRateComparisonSpec(ArrayList<PaleoRateConstraint> paleoRateConstraint,
-			ArrayList<FaultSystemSolution> solutions) {
+	private static class AveSlipFakePaleoConstraint extends PaleoRateConstraint {
+		private AveSlipFakePaleoConstraint(AveSlipConstraint aveSlip, int sectIndex, double slipRate) {
+			super(null, sectIndex, slipRate/aveSlip.getWeightedMean(), Double.NaN,
+					slipRate/aveSlip.getLowerUncertaintyBound(), slipRate/aveSlip.getUpperUncertaintyBound());
+		}
+	}
+	
+	public static PlotSpec getSegRateComparisonSpec(
+			List<PaleoRateConstraint> paleoRateConstraint,
+			List<AveSlipConstraint> aveSlipConstraints,
+			List<FaultSystemSolution> solutions) {
 		Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
 		Preconditions.checkState(solutions.size() > 0, "Must have at least one solution");
 		
@@ -159,9 +169,40 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		funcs.add(paleoRateUpper);
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, Color.BLACK));
 		ArbitrarilyDiscretizedFunc paleoRateLower = new ArbitrarilyDiscretizedFunc();
-		paleoRateLower.setName("Paleo Rate Constraint: Upper 95% Confidence");
+		paleoRateLower.setName("Paleo Rate Constraint: Lower 95% Confidence");
 		funcs.add(paleoRateLower);
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, Color.BLACK));
+		
+		ArbitrarilyDiscretizedFunc aveSlipRateMean = null;
+		ArbitrarilyDiscretizedFunc aveSlipRateUpper = null;
+		ArbitrarilyDiscretizedFunc aveSlipRateLower = null;
+		
+		// create new list since we might modify it
+		paleoRateConstraint = Lists.newArrayList(paleoRateConstraint);
+		
+		if (aveSlipConstraints != null) {
+			Color aveSlipColor = new Color(10, 100, 55);
+			
+			aveSlipRateMean = new ArbitrarilyDiscretizedFunc();
+			aveSlipRateMean.setName("Ave Slip Rate Constraint: Mean");
+			funcs.add(aveSlipRateMean);
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, aveSlipColor));
+			
+			aveSlipRateUpper = new ArbitrarilyDiscretizedFunc();
+			aveSlipRateUpper.setName("Ave Slip Rate Constraint: Upper 95% Confidence");
+			funcs.add(aveSlipRateUpper);
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+			
+			aveSlipRateLower = new ArbitrarilyDiscretizedFunc();
+			aveSlipRateLower.setName("Ave Slip Rate Constraint: Lower 95% Confidence");
+			funcs.add(aveSlipRateLower);
+			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+			
+			for (AveSlipConstraint aveSlip : aveSlipConstraints) {
+				paleoRateConstraint.add(new AveSlipFakePaleoConstraint(aveSlip, aveSlip.getSubSectionIndex(),
+						solutions.get(0).getSlipRateForSection(aveSlip.getSubSectionIndex())));
+			}
+		}
 		
 		final int xGap = 5;
 		
@@ -261,25 +302,31 @@ public class UCERF3_PaleoRateConstraintFetcher {
 				x += xGap;
 			}
 			
-			for (int i=0; i<solutions.size(); i++) {
-				DiscretizedFunc func = funcParentsMapsList.get(i).get(parentID);
-				double rate = getPaleoRateForSect(solutions.get(i), sectID, paleoProbModel, traceLengthCache);
-//				double misfit = Math.pow(constr.getMeanRate() - rate, 2) / Math.pow(constr.getStdDevOfMeanRate(), 2);
-				double misfit = Math.pow((constr.getMeanRate() - rate) / constr.getStdDevOfMeanRate(), 2);
-				String info = func.getInfo();
-				if (info == null || info.isEmpty())
-					info = "";
-				else
-					info += "\n";
-				info += "\tSect "+sectID+". Mean: "+constr.getMeanRate()+"\tStd Dev: "
-					+constr.getStdDevOfMeanRate()+"\tSolution: "+rate+"\tMisfit: "+misfit;
-				runningMisfitTotals.set(i, runningMisfitTotals.get(i)+misfit);
-				func.setInfo(info);
+			if (constr instanceof AveSlipFakePaleoConstraint) {
+				aveSlipRateMean.set(paleoRateX, constr.getMeanRate());
+				aveSlipRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
+				aveSlipRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
+			} else {
+				for (int i=0; i<solutions.size(); i++) {
+					DiscretizedFunc func = funcParentsMapsList.get(i).get(parentID);
+					double rate = getPaleoRateForSect(solutions.get(i), sectID, paleoProbModel, traceLengthCache);
+//					double misfit = Math.pow(constr.getMeanRate() - rate, 2) / Math.pow(constr.getStdDevOfMeanRate(), 2);
+					double misfit = Math.pow((constr.getMeanRate() - rate) / constr.getStdDevOfMeanRate(), 2);
+					String info = func.getInfo();
+					if (info == null || info.isEmpty())
+						info = "";
+					else
+						info += "\n";
+					info += "\tSect "+sectID+". Mean: "+constr.getMeanRate()+"\tStd Dev: "
+						+constr.getStdDevOfMeanRate()+"\tSolution: "+rate+"\tMisfit: "+misfit;
+					runningMisfitTotals.set(i, runningMisfitTotals.get(i)+misfit);
+					func.setInfo(info);
+				}
+				
+				paleoRateMean.set(paleoRateX, constr.getMeanRate());
+				paleoRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
+				paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 			}
-			
-			paleoRateMean.set(paleoRateX, constr.getMeanRate());
-			paleoRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
-			paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 		}
 		
 		int lastIndex = funcs.size() - solutions.size();
@@ -308,18 +355,20 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		return rate;
 	}
 	
-	public static void showSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
+	public static void showSegRateComparison(List<PaleoRateConstraint> paleoRateConstraint,
+			List<AveSlipConstraint> aveSlipConstraints,
 			ArrayList<FaultSystemSolution> solutions) {
-		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, solutions);
+		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, solutions);
 		
 		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), true);
 		w.setX_AxisLabel(spec.getxAxisLabel());
 		w.setY_AxisLabel(spec.getyAxisLabel());
 	}
 	
-	public static HeadlessGraphPanel getHeadlessSegRateComparison(ArrayList<PaleoRateConstraint> paleoRateConstraint,
+	public static HeadlessGraphPanel getHeadlessSegRateComparison(List<PaleoRateConstraint> paleoRateConstraint,
+			List<AveSlipConstraint> aveSlipConstraints,
 			ArrayList<FaultSystemSolution> solutions, boolean yLog) {
-		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, solutions);
+		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, solutions);
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
 		gp.setYLog(yLog);

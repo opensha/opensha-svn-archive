@@ -35,8 +35,9 @@ import com.google.common.collect.Maps;
 
 public class BatchPlotGen {
 	
-	private static final double DAYS_PER_YEAR = 365.242;
+	static final double DAYS_PER_YEAR = 365.242;
 	private static final DecimalFormat df_hundreths = new DecimalFormat("0.00");
+	private static final boolean PLOT_MFD_FAULT_COMPONENTS = false;
 
 	/**
 	 * @param args
@@ -66,6 +67,56 @@ public class BatchPlotGen {
 		elementsOfInterest.put(ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, "SAF Coachella");
 		elementsOfInterest.put(ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, "San Jacinto");
 		elementsOfInterest.put(ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID, "Garlock West");
+		
+		Region reg = new CaliforniaRegions.RELM_SOCAL();
+		HashSet<Integer> elementsInRegion = MFDCalc.getElementsInsideRegion(tools.getElementsList(), reg);
+		
+		// These are special faults whose MFDs we want to plot separately
+		List<List<Integer>> mfdSpecialFaultParents = Lists.newArrayList();
+		List<String> mfdSpecialFaultNames = Lists.newArrayList();
+		List<Color> mfdSpecialFaultColors = Lists.newArrayList();
+		List<HashSet<Integer>> mfdSpecialFaultSections = Lists.newArrayList();
+		
+		if (PLOT_MFD_FAULT_COMPONENTS) {
+			mfdSpecialFaultNames.add("San Andreas");
+			List<Integer> safParents = Lists.newArrayList();
+			// sections 1-18
+			for (int i=1; i<=18; i++)
+				safParents.add(i);
+			mfdSpecialFaultParents.add(safParents);
+			mfdSpecialFaultColors.add(Color.GREEN);
+
+			mfdSpecialFaultNames.add("San Jacinto");
+			List<Integer> sjParents = Lists.newArrayList();
+			// sections 23-28
+			for (int i=23; i<=28; i++)
+				sjParents.add(i);
+			mfdSpecialFaultParents.add(sjParents);
+			mfdSpecialFaultColors.add(Color.MAGENTA);
+
+			mfdSpecialFaultNames.add("Garlock");
+			// sections 71, 72
+			mfdSpecialFaultParents.add(Lists.newArrayList(71, 72));
+			mfdSpecialFaultColors.add(Color.CYAN);
+
+			for (List<Integer> parents : mfdSpecialFaultParents) {
+				HashSet<Integer> sections = new HashSet<Integer>();
+				for (RectangularElement elem : tools.getElementsList()) {
+					if (parents.contains(elem.getSectionID()) && elementsInRegion.contains(elem.getID()))
+						sections.add(elem.getID());
+				}
+				mfdSpecialFaultSections.add(sections);
+			}
+
+			// now add other
+			HashSet<Integer> otherElems = new HashSet<Integer>(elementsInRegion);
+			for (HashSet<Integer> elems : mfdSpecialFaultSections)
+				otherElems.removeAll(elems);
+
+			mfdSpecialFaultNames.add("Other So Cal");
+			mfdSpecialFaultColors.add(Color.GRAY);
+			mfdSpecialFaultSections.add(otherElems);
+		}
 		
 		double mfdPlotMinMag = 5.5;
 		double mfdPlotMaxMag = 8.0;
@@ -122,9 +173,6 @@ public class BatchPlotGen {
 				indepFaultParticRates.put(faultID, faultParticRates);
 			}
 		}
-		
-		Region reg = new CaliforniaRegions.RELM_SOCAL();
-		HashSet<Integer> elementsInRegion = MFDCalc.getElementsInsideRegion(tools.getElementsList(), reg);
 		
 		IncrementalMagFreqDist eventMFD =
 				MFDCalc.calcMFD(events, elementsInRegion, totalEventDuration*DAYS_PER_YEAR, mfdPlotMinMag, mfdPlotNumMag, delta);
@@ -196,7 +244,7 @@ public class BatchPlotGen {
 								new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED.darker())),
 								plotTitle+" Matched Event MFD", "Magnitude", "Count");
 				
-				writeMFDPlot(matchSpec, plotDir, plotDirName+"_match_mfd");
+				writeMFDPlot(matchSpec, plotDir, plotDirName+"_match_mfd", mfdPlotMinMag, mfdPlotMaxMag, 1e1, 1e4);
 				
 				for (double windowDurationYears : durations) {
 					RangePlotter rp = new RangePlotter(mfdPlotMinMag, delta, mfdPlotNumMag,
@@ -204,7 +252,8 @@ public class BatchPlotGen {
 							minWindowDurationYears, randomizeEventTimes,
 							matches, elementsInRegion, eventMFDs,
 							eventMFDChars, windowDurationYears,
-							particRanges, elemsByFaultMap, faultNameMap, indepFaultParticRatesList);
+							particRanges, elemsByFaultMap, faultNameMap, indepFaultParticRatesList,
+							mfdSpecialFaultSections, mfdSpecialFaultNames, mfdSpecialFaultColors);
 					
 					tasks.add(rp);
 				}
@@ -243,6 +292,9 @@ public class BatchPlotGen {
 		private Map<Integer, List<Integer>> elemsByFaultMap;
 		private Map<Integer, String> faultNameMap;
 		private List<Map<Integer, double[]>> indepFaultParticRatesList;
+		private List<HashSet<Integer>> mfdSpecialFaultSections;
+		private List<String> mfdSpecialFaultNames;
+		private List<Color> mfdSpecialFaultColors;
 		
 		public RangePlotter(double mfdPlotMinMag, double delta,
 				int mfdPlotNumMag, ArrayList<EQSIM_Event> events,
@@ -256,7 +308,10 @@ public class BatchPlotGen {
 				List<double[]> particRanges,
 				Map<Integer, List<Integer>> elemsByFaultMap,
 				Map<Integer, String> faultNameMap,
-				List<Map<Integer, double[]>> indepFaultParticRatesList) {
+				List<Map<Integer, double[]>> indepFaultParticRatesList,
+				List<HashSet<Integer>> mfdSpecialFaultSections,
+				List<String> mfdSpecialFaultNames,
+				List<Color> mfdSpecialFaultColors) {
 			this.mfdPlotMinMag = mfdPlotMinMag;
 			this.delta = delta;
 			this.mfdPlotNumMag = mfdPlotNumMag;
@@ -276,6 +331,9 @@ public class BatchPlotGen {
 			this.elemsByFaultMap = elemsByFaultMap;
 			this.faultNameMap = faultNameMap;
 			this.indepFaultParticRatesList = indepFaultParticRatesList;
+			this.mfdSpecialFaultSections = mfdSpecialFaultSections;
+			this.mfdSpecialFaultNames = mfdSpecialFaultNames;
+			this.mfdSpecialFaultColors = mfdSpecialFaultColors;
 		}
 
 		@Override
@@ -300,6 +358,19 @@ public class BatchPlotGen {
 			funcs.add(timeDepCmlMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED.darker()));
 			
+			// now special faults
+			for (int i=0; i<mfdSpecialFaultSections.size(); i++) {
+				HashSet<Integer> elements = mfdSpecialFaultSections.get(i);
+				Color color = mfdSpecialFaultColors.get(i);
+				String faultName = mfdSpecialFaultNames.get(i);
+				
+				IncrementalMagFreqDist specialMFD =
+						MFDCalc.calcMFD(eventsInWindows.getEventsInWindows(), elements, timeDepDuration*DAYS_PER_YEAR, mfdPlotMinMag, mfdPlotNumMag, delta);
+				specialMFD.setName("Time Dep MFD for: "+faultName);
+				funcs.add(0, specialMFD);
+				chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, color));
+			}
+			
 			String durationStr;
 			if (windowDurationYears < 1d) {
 				durationStr = (int)(windowDurationYears*DAYS_PER_YEAR+0.5)+" Day";
@@ -317,8 +388,10 @@ public class BatchPlotGen {
 			
 			String durationStrFName = durationStr.replaceAll(" ", "_").toLowerCase();
 			
+			double mfdPlotMaxMag = mfdPlotMinMag + delta * (mfdPlotNumMag-1);
+			
 			try {
-				writeMFDPlot(spec, plotDir, plotDirName+"_mfds_"+durationStrFName);
+				writeMFDPlot(spec, plotDir, plotDirName+"_mfds_"+durationStrFName, mfdPlotMinMag, mfdPlotMaxMag, 1e-7, 1e1);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -434,23 +507,30 @@ public class BatchPlotGen {
 		}
 	}
 	
-	private static void writeMFDPlot(PlotSpec spec, File dir, String prefix) throws IOException {
+	private static void writeMFDPlot(PlotSpec spec, File dir, String prefix, double minX, double maxX, double minY, double maxY) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
 		gp.setYLog(true);
 		
-		MinMaxAveTracker xTrack = new MinMaxAveTracker();
-		MinMaxAveTracker yTrack = new MinMaxAveTracker();
+//		MinMaxAveTracker xTrack = new MinMaxAveTracker();
+//		MinMaxAveTracker yTrack = new MinMaxAveTracker();
+//		
+//		for (DiscretizedFunc func : spec.getFuncs()) {
+//			for (Point2D pt : func) {
+//				xTrack.addValue(pt.getX());
+//				if (pt.getY() > 0)
+//					yTrack.addValue(pt.getY());
+//			}
+//		}
+//		
+//		gp.setUserBounds(xTrack.getMin(), xTrack.getMax(), yTrack.getMin()*0.9d, yTrack.getMax()*1.1d);
 		
-		for (DiscretizedFunc func : spec.getFuncs()) {
-			for (Point2D pt : func) {
-				xTrack.addValue(pt.getX());
-				if (pt.getY() > 0)
-					yTrack.addValue(pt.getY());
-			}
-		}
-		
-		gp.setUserBounds(xTrack.getMin(), xTrack.getMax(), yTrack.getMin()*0.9d, yTrack.getMax()*1.1d);
+//		gp.setUserBounds(5.5d, 8d, 1e-7, 1e1);
+		gp.setUserBounds(minX, maxX, minY, maxY);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(14);
+		gp.setAxisLabelFontSize(16);
+		gp.setPlotLabelFontSize(18);
 		
 		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), true, spec.getTitle());
 		

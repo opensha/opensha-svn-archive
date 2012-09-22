@@ -1016,7 +1016,7 @@ public class ManyRunCompilation {
 		CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
 		
 		ArrayList<PaleoRateConstraint> paleoConstraints = CommandLineInversionRunner.getPaleoConstraints(meanSol.getFaultModel(), meanSol);
-		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, meanSol, dir, prefix+"_mean");
+		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, meanSol, dir, prefix+"_mean");
 		
 		BatchPlotGen.makeMapPlots(meanSol, dir, prefix+"_mean");
 		

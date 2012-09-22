@@ -36,7 +36,7 @@ public class PaleoReplot {
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = CommandLineInversionRunner.getPaleoConstraints(branch.getValue(FaultModels.class),
 					sol);
 			
-			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, sol, dir, prefix);
+			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, null, sol, dir, prefix);
 		}
 	}
 

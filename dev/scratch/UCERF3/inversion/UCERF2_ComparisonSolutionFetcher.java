@@ -83,7 +83,7 @@ public class UCERF2_ComparisonSolutionFetcher {
 		sol.toZipFile(new File(dir, prefix+".zip"));
 		
 		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
-		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, sol, dir, prefix);
+		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, sol, dir, prefix);
 		
 //		SimpleFaultSystemSolution sol = getUCERF2Solution(FaultModels.FM3_1);
 //		BatchPlotGen.makeMapPlots(sol, new File("/tmp"), "ucerf2_fm3_compare");

@@ -16,8 +16,12 @@ public class MFDCalc {
 			double duration, double minMag, int num, double delta) {
 		
 		IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(minMag, num, delta);
+		double myMin = minMag-0.5*delta;
+		double myMax = mfd.getMaxX()+0.5*delta;
 		for (EQSIM_Event e : events) {
 			double mag = e.getMagnitude();
+			if (mag < myMin || mag > myMax)
+				continue;
 			int ind = mfd.getClosestXIndex(mag);
 			double eventRate;
 			if (elementsInRegion == null)

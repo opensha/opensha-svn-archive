@@ -57,6 +57,7 @@ import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoProbabilityModel;
@@ -265,7 +266,6 @@ public class CommandLineInversionRunner {
 			File rupSetFile = new File(subDir, prefix+"_rupSet.zip");
 			new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
 			// now clear it out of memory
-			config = null;
 			rupSet = null;
 			gen.setRupSet(null);
 			System.gc();
@@ -429,7 +429,12 @@ public class CommandLineInversionRunner {
 					e.printStackTrace();
 				}
 				try {
-					writePaleoPlots(paleoRateConstraints, sol, subDir, prefix);
+					List<AveSlipConstraint> aveSlipConstraints;
+					if (config.getRelativePaleoSlipWt() > 0d)
+						aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+					else
+						aveSlipConstraints = null;
+					writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, subDir, prefix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -614,17 +619,19 @@ public class CommandLineInversionRunner {
 		return UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 	}
 
-	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, FaultSystemSolution sol,
+	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints,
+			List<AveSlipConstraint> aveSlipConstraints, FaultSystemSolution sol,
 			File dir, String prefix)
 	throws IOException {
-		writePaleoPlots(paleoRateConstraints, Lists.newArrayList(sol), dir, prefix);
+		writePaleoPlots(paleoRateConstraints, aveSlipConstraints, Lists.newArrayList(sol), dir, prefix);
 	}
 
-	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints, ArrayList<FaultSystemSolution> sols,
+	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints,
+			List<AveSlipConstraint> aveSlipConstraints, ArrayList<FaultSystemSolution> sols,
 			File dir, String prefix)
 	throws IOException {
 		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(
-				paleoRateConstraints, sols, true);
+				paleoRateConstraints, aveSlipConstraints, sols, true);
 
 		File file = new File(dir, prefix+"_paleo_fit");
 		gp.getCartPanel().setSize(1000, 800);

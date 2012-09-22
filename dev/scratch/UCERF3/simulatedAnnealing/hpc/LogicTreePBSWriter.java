@@ -283,7 +283,7 @@ public class LogicTreePBSWriter {
 	private static LogicTreeBranch getUCERF2_noIM() {
 		LogicTreeBranch UCERF2_noIM = (LogicTreeBranch) LogicTreeBranch.UCERF2.clone();
 		UCERF2_noIM.clearValue(InversionModels.class);
-		UCERF2_noIM.clearValue(MomentRateFixes.class);
+//		UCERF2_noIM.clearValue(MomentRateFixes.class);
 		return UCERF2_noIM;
 	}
 	
@@ -476,13 +476,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "mfd-smoothness-4hr";
+		String runName = "normal-initial-solution";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-		int constrained_run_mins = 250;
+//		int constrained_run_mins = 250;
 //		int constrained_run_mins = 360;
-//		int constrained_run_mins = 500;
+		int constrained_run_mins = 500;
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
@@ -494,15 +494,15 @@ public class LogicTreePBSWriter {
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 1;
+		int numRuns = 100;
 		int runStart = 0;
 
 		boolean lightweight = numRuns > 10;
 
 //		TreeTrimmer trimmer = getCustomTrimmer();
 //		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
-//		TreeTrimmer trimmer = getUCERF2Trimmer();
-		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
+		TreeTrimmer trimmer = getUCERF2Trimmer();
+//		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
 		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
 		TreeTrimmer charUnconstOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_UNCONSTRAINED);
@@ -535,23 +535,23 @@ public class LogicTreePBSWriter {
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
-		InversionOptions[] ops = { InversionOptions.SECTION_NUCLEATION_MFD_WT,
-				InversionOptions.PALEO_WT, InversionOptions.MFD_SMOOTHNESS_WT };
+//		InversionOptions[] ops = { InversionOptions.SECTION_NUCLEATION_MFD_WT,
+//				InversionOptions.PALEO_WT, InversionOptions.MFD_SMOOTHNESS_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
 //		String[] mfdTrans = { "7.85" };
 //		String[] aPrioriWts = { "0" };
-		String[] nuclWts = { "0.001", "0.01", "0.1" };
-		String[] paleoWts = { "0.1", "1", "10" };
-		String[] mfdWts = { "100", "1000", "10000" };
+//		String[] nuclWts = { "0.001", "0.01", "0.1" };
+//		String[] paleoWts = { "0.1", "1", "10" };
+//		String[] mfdWts = { "100", "1000", "10000" };
 //		String[] eventSmoothWts = { "0", "100", "1000", "10000" };
 //		for (String aPrioriWt : aPrioriWts)
-			for (String nuclWt : nuclWts)
-				for (String paleoWt : paleoWts)
-					for (String mfdWt : mfdWts)
-						variationBranches.add(buildVariationBranch(ops, toArray(nuclWt, paleoWt, mfdWt)));
+//			for (String nuclWt : nuclWts)
+//				for (String paleoWt : paleoWts)
+//					for (String mfdWt : mfdWts)
+//						variationBranches.add(buildVariationBranch(ops, toArray(nuclWt, paleoWt, mfdWt)));
 //		String[] eventSmoothWts = { "0", "1000", "10000", "100000" };
 //		String[] paleoWts = { "100", "1000" };
 //		for (String paleoWt : paleoWts)
@@ -559,6 +559,10 @@ public class LogicTreePBSWriter {
 //				variationBranches.add(buildVariationBranch(ops, toArray(paleoWt, eventSmoothWt, "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
+		
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.NO_SUBSEIS_RED,

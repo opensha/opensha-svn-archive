@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.dom4j.DocumentException;
@@ -28,6 +29,7 @@ import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
 public class BatchPlotGen {
@@ -201,7 +203,8 @@ public class BatchPlotGen {
 		if (!hasPaleoPlots) {
 			ArrayList<PaleoRateConstraint> paleoRateConstraints =
 					CommandLineInversionRunner.getPaleoConstraints(sol.getFaultModel(), sol);
-			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, sol, dir, prefix);
+			List<AveSlipConstraint> aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, dir, prefix);
 		}
 		if (!hasSAFSegPlots) {
 			try {
