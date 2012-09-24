@@ -144,7 +144,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
 		Preconditions.checkNotNull(sol, "Solution cannot me null!");
 		
-		boolean plotAveSlipBars = false;
+		boolean plotAveSlipBars = true;
 		
 		List<FaultSectionPrefData> datas = sol.getFaultSectionDataList();
 		
