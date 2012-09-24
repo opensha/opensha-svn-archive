@@ -35,8 +35,8 @@ public class AveSlipConstraint {
 		probObsSlipModel = new ArbitrarilyDiscretizedFunc();
 		// meters, probability
 		// TODO this is different from Ramon's proposed values, maxes out at 90%
-		probObsSlipModel.set(0d, 0.01d);
-		probObsSlipModel.set(0.25d, 0.01d);
+		probObsSlipModel.set(0d, 0.0d);
+		probObsSlipModel.set(0.25d, 0.1d);
 		probObsSlipModel.set(2d, 0.90d);
 	}
 	
