@@ -32,7 +32,7 @@ public class test {
 	public static void main(String[] args) {
 		String pathToCurves = args[0];
 		File dir = new File(pathToCurves);
-		HazardCalcDriverMPJ.aggregateResults(dir, Period.GM0P00);
+		HazardCalcDriverMPJ.aggregateResults(dir, Period.GM0P20);
 //		try {
 //			InputStream is = test.class.getResourceAsStream("calc.properties");
 //			Properties props = new Properties();

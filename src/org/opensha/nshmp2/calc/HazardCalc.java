@@ -103,9 +103,6 @@ public class HazardCalc implements Callable<HazardResult> {
 			}
 
 			utilFunc.scale(erf.getSourceWeight());
-			System.out.println(erf.getName());
-			System.out.println(utilFunc);
-			System.out.println("-------------");
 			Utils.addFunc(curve, utilFunc);
 		}
 		return new HazardResult(curve, site.getLocation());

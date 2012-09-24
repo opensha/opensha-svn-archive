@@ -137,6 +137,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 					file.getName(), "."), '_', ',');
 				sb.append(latlon).append(",");
 				Files.copy(file, Charsets.US_ASCII, sb);
+				file.delete();
 				br.write(sb.toString());
 				br.newLine();
 			}

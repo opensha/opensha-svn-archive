@@ -108,7 +108,7 @@ public enum TestGrid {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(TestGrid.NATIONAL.grid().getNodeCount());
+		System.out.println(TestGrid.NATIONAL_POLY.grid().getNodeCount());
 //		System.out.println();
 //		RegionUtils.locListToKML(getNationalPoly(), "NationalPoly", Color.ORANGE);
 		
