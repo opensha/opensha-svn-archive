@@ -140,38 +140,32 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	public static PlotSpec getSegRateComparisonSpec(
 			List<PaleoRateConstraint> paleoRateConstraint,
 			List<AveSlipConstraint> aveSlipConstraints,
-			List<FaultSystemSolution> solutions) {
+			FaultSystemSolution sol) {
 		Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
-		Preconditions.checkState(solutions.size() > 0, "Must have at least one solution");
+		Preconditions.checkNotNull(sol, "Solution cannot me null!");
 		
-		int numSolSects = -1;
-		for (FaultSystemSolution sol : solutions) {
-			if (numSolSects < 0)
-				numSolSects = sol.getNumSections();
-			Preconditions.checkArgument(sol.getNumSections() == numSolSects,
-					"num sections is inconsistant between solutions!");
-		}
+		boolean plotAveSlipBars = false;
 		
-		List<FaultSectionPrefData> datas = solutions.get(0).getFaultSectionDataList();
+		List<FaultSectionPrefData> datas = sol.getFaultSectionDataList();
 		
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
-		List<Map<Integer, DiscretizedFunc>> funcParentsMapsList = Lists.newArrayList();
-		for (int i=0; i<solutions.size(); i++)
-			funcParentsMapsList.add(new HashMap<Integer, DiscretizedFunc>());
+		Map<Integer, DiscretizedFunc> funcParentsMap = Maps.newHashMap();
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		
+		Color paleoProbColor = Color.RED;
 		
 		ArbitrarilyDiscretizedFunc paleoRateMean = new ArbitrarilyDiscretizedFunc();
 		paleoRateMean.setName("Paleo Rate Constraint: Mean");
 		funcs.add(paleoRateMean);
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, paleoProbColor));
 		ArbitrarilyDiscretizedFunc paleoRateUpper = new ArbitrarilyDiscretizedFunc();
 		paleoRateUpper.setName("Paleo Rate Constraint: Upper 95% Confidence");
 		funcs.add(paleoRateUpper);
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, paleoProbColor));
 		ArbitrarilyDiscretizedFunc paleoRateLower = new ArbitrarilyDiscretizedFunc();
 		paleoRateLower.setName("Paleo Rate Constraint: Lower 95% Confidence");
 		funcs.add(paleoRateLower);
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, paleoProbColor));
 		
 		ArbitrarilyDiscretizedFunc aveSlipRateMean = null;
 		ArbitrarilyDiscretizedFunc aveSlipRateUpper = null;
@@ -180,27 +174,29 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		// create new list since we might modify it
 		paleoRateConstraint = Lists.newArrayList(paleoRateConstraint);
 		
+		Color aveSlipColor = new Color(10, 100, 55);
+		
 		if (aveSlipConstraints != null) {
-			Color aveSlipColor = new Color(10, 100, 55);
-			
 			aveSlipRateMean = new ArbitrarilyDiscretizedFunc();
 			aveSlipRateMean.setName("Ave Slip Rate Constraint: Mean");
 			funcs.add(aveSlipRateMean);
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, aveSlipColor));
 			
-			aveSlipRateUpper = new ArbitrarilyDiscretizedFunc();
-			aveSlipRateUpper.setName("Ave Slip Rate Constraint: Upper 95% Confidence");
-			funcs.add(aveSlipRateUpper);
-			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
-			
-			aveSlipRateLower = new ArbitrarilyDiscretizedFunc();
-			aveSlipRateLower.setName("Ave Slip Rate Constraint: Lower 95% Confidence");
-			funcs.add(aveSlipRateLower);
-			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+			if (plotAveSlipBars) {
+				aveSlipRateUpper = new ArbitrarilyDiscretizedFunc();
+				aveSlipRateUpper.setName("Ave Slip Rate Constraint: Upper 95% Confidence");
+				funcs.add(aveSlipRateUpper);
+				plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+				
+				aveSlipRateLower = new ArbitrarilyDiscretizedFunc();
+				aveSlipRateLower.setName("Ave Slip Rate Constraint: Lower 95% Confidence");
+				funcs.add(aveSlipRateLower);
+				plotChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+			}
 			
 			for (AveSlipConstraint aveSlip : aveSlipConstraints) {
 				paleoRateConstraint.add(new AveSlipFakePaleoConstraint(aveSlip, aveSlip.getSubSectionIndex(),
-						solutions.get(0).getSlipRateForSection(aveSlip.getSubSectionIndex())));
+						sol.getSlipRateForSection(aveSlip.getSubSectionIndex())));
 			}
 		}
 		
@@ -217,11 +213,11 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		
 		HashMap<Integer, Integer> xIndForParentMap = new HashMap<Integer, Integer>();
 		
-		ArrayList<Double> runningMisfitTotals = Lists.newArrayList();
-		for (int i=0; i<solutions.size(); i++)
-			runningMisfitTotals.add(0d);
+		double runningMisfitTotal = 0d;
 		
 		Map<Integer, Double> traceLengthCache = Maps.newHashMap();
+		
+		Color origColor = Color.BLACK;
 		
 		for (int p=0; p<paleoRateConstraint.size(); p++) {
 			PaleoRateConstraint constr = paleoRateConstraint.get(p);
@@ -268,33 +264,26 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			} else {
 				paleoRateX = x + relConstSect;
 				
-				for (int i=0; i<solutions.size(); i++) {
-					Map<Integer, DiscretizedFunc> funcParentsMap = funcParentsMapsList.get(i);
-					FaultSystemSolution sol = solutions.get(i);
-					Color color = GraphPanel.defaultColor[i % GraphPanel.defaultColor.length];
-					
-					EvenlyDiscretizedFunc paleoRtFunc = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
-					EvenlyDiscretizedFunc origRtFunc = null;
-					if (solutions.size() == 1)
-						origRtFunc = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
-					paleoRtFunc.setName("(x="+x+") Solution "+i+" paleo rates for: "+name);
-					origRtFunc.setName("(x="+x+") Solution "+i+" original rates for: "+name);
-					for (int j=0; j<numSects; j++) {
-						int mySectID = minSect + j;
-						paleoRtFunc.set(j, getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache));
-						if (origRtFunc != null)
-							origRtFunc.set(j, getPaleoRateForSect(sol, mySectID, null, traceLengthCache));
-					}
-					funcs.add(paleoRtFunc);
-					plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
-					if (origRtFunc != null) {
-						funcs.add(origRtFunc);
-						Color origColor = GraphPanel.defaultColor[(i+1) % GraphPanel.defaultColor.length];
-						plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, origColor));
-					}
-					
-					funcParentsMap.put(parentID, paleoRtFunc);
+				EvenlyDiscretizedFunc paleoRtFunc = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
+				EvenlyDiscretizedFunc aveSlipRtFunc = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
+				EvenlyDiscretizedFunc origRtFunc = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
+				paleoRtFunc.setName("(x="+x+") Solution paleo rates for: "+name);
+				aveSlipRtFunc.setName("(x="+x+") Solution ave slip prob visible rates for: "+name);
+				origRtFunc.setName("(x="+x+") Solution original rates for: "+name);
+				for (int j=0; j<numSects; j++) {
+					int mySectID = minSect + j;
+					paleoRtFunc.set(j, getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache));
+					origRtFunc.set(j, getPaleoRateForSect(sol, mySectID, null, traceLengthCache));
+					aveSlipRtFunc.set(j, getAveSlipProbRateForSect(sol, mySectID));
 				}
+				funcs.add(origRtFunc);
+				plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, origColor));
+				funcs.add(aveSlipRtFunc);
+				plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, aveSlipColor));
+				funcs.add(paleoRtFunc);
+				plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, paleoProbColor));
+				
+				funcParentsMap.put(parentID, paleoRtFunc);
 				
 				xIndForParentMap.put(parentID, x);
 				
@@ -304,24 +293,24 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			
 			if (constr instanceof AveSlipFakePaleoConstraint) {
 				aveSlipRateMean.set(paleoRateX, constr.getMeanRate());
-				aveSlipRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
-				aveSlipRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
-			} else {
-				for (int i=0; i<solutions.size(); i++) {
-					DiscretizedFunc func = funcParentsMapsList.get(i).get(parentID);
-					double rate = getPaleoRateForSect(solutions.get(i), sectID, paleoProbModel, traceLengthCache);
-//					double misfit = Math.pow(constr.getMeanRate() - rate, 2) / Math.pow(constr.getStdDevOfMeanRate(), 2);
-					double misfit = Math.pow((constr.getMeanRate() - rate) / constr.getStdDevOfMeanRate(), 2);
-					String info = func.getInfo();
-					if (info == null || info.isEmpty())
-						info = "";
-					else
-						info += "\n";
-					info += "\tSect "+sectID+". Mean: "+constr.getMeanRate()+"\tStd Dev: "
-						+constr.getStdDevOfMeanRate()+"\tSolution: "+rate+"\tMisfit: "+misfit;
-					runningMisfitTotals.set(i, runningMisfitTotals.get(i)+misfit);
-					func.setInfo(info);
+				if (plotAveSlipBars) {
+					aveSlipRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
+					aveSlipRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 				}
+			} else {
+				DiscretizedFunc func = funcParentsMap.get(parentID);
+				double rate = getPaleoRateForSect(sol, sectID, paleoProbModel, traceLengthCache);
+//					double misfit = Math.pow(constr.getMeanRate() - rate, 2) / Math.pow(constr.getStdDevOfMeanRate(), 2);
+				double misfit = Math.pow((constr.getMeanRate() - rate) / constr.getStdDevOfMeanRate(), 2);
+				String info = func.getInfo();
+				if (info == null || info.isEmpty())
+					info = "";
+				else
+					info += "\n";
+				info += "\tSect "+sectID+". Mean: "+constr.getMeanRate()+"\tStd Dev: "
+					+constr.getStdDevOfMeanRate()+"\tSolution: "+rate+"\tMisfit: "+misfit;
+				runningMisfitTotal += misfit;
+				func.setInfo(info);
 				
 				paleoRateMean.set(paleoRateX, constr.getMeanRate());
 				paleoRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
@@ -329,16 +318,12 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			}
 		}
 		
-		int lastIndex = funcs.size() - solutions.size();
-		for (int i=0; i<solutions.size(); i++) {
-			DiscretizedFunc func = funcs.get(lastIndex++);
-			
-			String info = func.getInfo();
-			double totMisfit = runningMisfitTotals.get(i);
-			info += "\n\n\tTOTAL MISFIT: "+totMisfit;
-			
-			func.setInfo(info);
-		}
+		DiscretizedFunc func = funcs.get(funcs.size()-1);
+		
+		String info = func.getInfo();
+		info += "\n\n\tTOTAL MISFIT: "+runningMisfitTotal;
+		
+		func.setInfo(info);
 		
 		return new PlotSpec(funcs, plotChars, "Paleosiesmic Constraint Fit", "", "Event Rate Per Year");
 	}
@@ -355,10 +340,22 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		return rate;
 	}
 	
+	private static double getAveSlipProbRateForSect(FaultSystemSolution sol, int sectIndex) {
+		double rate = 0;
+		for (int rupID : sol.getRupturesForSection(sectIndex)) {
+			int sectIndexInRup = sol.getSectionsIndicesForRup(rupID).indexOf(sectIndex);
+			double slipOnSect = sol.getSlipOnSectionsForRup(rupID)[sectIndexInRup]; 
+			
+			double rupRate = sol.getRateForRup(rupID) * AveSlipConstraint.getProbabilityOfObservedSlip(slipOnSect);
+			rate += rupRate;
+		}
+		return rate;
+	}
+	
 	public static void showSegRateComparison(List<PaleoRateConstraint> paleoRateConstraint,
 			List<AveSlipConstraint> aveSlipConstraints,
-			ArrayList<FaultSystemSolution> solutions) {
-		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, solutions);
+			FaultSystemSolution sol) {
+		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, sol);
 		
 		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), true);
 		w.setX_AxisLabel(spec.getxAxisLabel());
@@ -367,8 +364,8 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	
 	public static HeadlessGraphPanel getHeadlessSegRateComparison(List<PaleoRateConstraint> paleoRateConstraint,
 			List<AveSlipConstraint> aveSlipConstraints,
-			ArrayList<FaultSystemSolution> solutions, boolean yLog) {
-		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, solutions);
+			FaultSystemSolution sol, boolean yLog) {
+		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, sol);
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
 		gp.setYLog(yLog);

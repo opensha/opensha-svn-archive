@@ -489,7 +489,7 @@ public class InversionInputGenerator {
 					int rup = rupsForSect.get(rupIndex);
 					int sectIndexInRup = rupSet.getSectionsIndicesForRup(rup).indexOf(subsectionIndex);
 					double slipOnSect = rupSet.getSlipOnSectionsForRup(rup)[sectIndexInRup]; 
-					double probVisible = constraint.getProbabilityOfObservedSlip(slipOnSect);
+					double probVisible = AveSlipConstraint.getProbabilityOfObservedSlip(slipOnSect);
 					double setVal = (relativePaleoSlipWt * probVisible / constraintError);
 					if (QUICK_GETS_SETS)
 						A.setQuick(rowIndex, rup, setVal);

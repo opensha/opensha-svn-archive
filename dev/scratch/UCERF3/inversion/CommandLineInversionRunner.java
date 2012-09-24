@@ -623,15 +623,8 @@ public class CommandLineInversionRunner {
 			List<AveSlipConstraint> aveSlipConstraints, FaultSystemSolution sol,
 			File dir, String prefix)
 	throws IOException {
-		writePaleoPlots(paleoRateConstraints, aveSlipConstraints, Lists.newArrayList(sol), dir, prefix);
-	}
-
-	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints,
-			List<AveSlipConstraint> aveSlipConstraints, ArrayList<FaultSystemSolution> sols,
-			File dir, String prefix)
-	throws IOException {
 		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(
-				paleoRateConstraints, aveSlipConstraints, sols, true);
+				paleoRateConstraints, aveSlipConstraints, sol, true);
 
 		File file = new File(dir, prefix+"_paleo_fit");
 		gp.getCartPanel().setSize(1000, 800);

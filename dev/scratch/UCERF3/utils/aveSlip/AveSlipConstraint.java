@@ -87,7 +87,7 @@ public class AveSlipConstraint {
 		return lowerUncertaintyBound;
 	}
 	
-	public double getProbabilityOfObservedSlip(double meters) {
+	public static double getProbabilityOfObservedSlip(double meters) {
 		if (meters > probObsSlipModel.getMaxX())
 			return probObsSlipModel.getY(probObsSlipModel.getNum()-1);
 		return probObsSlipModel.getInterpolatedY(meters);

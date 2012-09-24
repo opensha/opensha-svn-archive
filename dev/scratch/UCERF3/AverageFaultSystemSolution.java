@@ -433,10 +433,8 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			if (paleoRateConstraints == null)
 				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
 			
-			ArrayList<FaultSystemSolution> solList = Lists.newArrayList();
-			solList.add(sol);
 			PlotSpec spec = UCERF3_PaleoRateConstraintFetcher.getSegRateComparisonSpec(
-					paleoRateConstraints, null, solList);
+					paleoRateConstraints, null, sol);
 			
 			ArrayList<? extends DiscretizedFunc> funcs = spec.getFuncs();
 			
