@@ -50,17 +50,9 @@ public class NSHMP2008 extends NSHMP_ListERF {
 	}
 
 	/**
-	 * Creates an NSHMP ERF instance with only the single named source file.
-	 * 
-	 * @param name of source file
-	 * @return the ERF
+	 * Returns an NHSMP {@code ERF} that includes all US sources.
+	 * @return an NSHMP {@code ERF}
 	 */
-	public static NSHMP2008 createSingleSource(String name) {
-		NSHMP2008 erf = new NSHMP2008(name);
-		erf.addERF(Sources.get(name));
-		return erf;
-	}
-	
 	public static NSHMP2008 create() {
 		NSHMP2008 erf = new NSHMP2008(null);
 
@@ -74,6 +66,35 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		erf.addERFs(Sources.getFaultList(CA));
 		erf.addERFs(Sources.getSubductionList(CASC));
 		
+		return erf;
+	}
+	
+	/**
+	 * Returns an NSHMP {@code ERF} that includes only the single named source.
+	 * @param name of source
+	 * @return an NSHMP {@code ERF}
+	 */
+	public static NSHMP2008 createSingleSource(String name) {
+		NSHMP2008 erf = new NSHMP2008(name);
+		erf.addERF(Sources.get(name));
+		return erf;
+	}
+	
+	/**
+	 * Returns an NSHMP {@code ERF} that includes California (i.e. UCERF2)
+	 * sources.
+	 * @return an NSHMP {@code ERF}
+	 */
+	public static NSHMP2008 createCalifornia() {
+		NSHMP2008 erf = new NSHMP2008(null);
+		// add CA sources
+		erf.addERFs(Sources.getGridList(CA));
+		erf.addERFs(Sources.getFaultList(CA));
+		// add additional WUS gridded sources
+		erf.addERF(Sources.get("EXTmap.ch.in"));
+		erf.addERF(Sources.get("EXTmap.gr.in"));
+		erf.addERF(Sources.get("WUSmap.ch.in"));
+		erf.addERF(Sources.get("WUSmap.gr.in"));
 		return erf;
 	}
 	
