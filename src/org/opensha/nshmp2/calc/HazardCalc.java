@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.Site;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.erf.NSHMP2008;
@@ -34,6 +33,7 @@ import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
@@ -56,11 +56,10 @@ import com.google.common.collect.Lists;
  */
 public class HazardCalc implements Callable<HazardResult> {
 
-	private NSHMP_ListERF erfList;
+	private EpistemicListERF erfList;
 	private Site site;
 	private Period period;
 	private DiscretizedFunc curve;
-	private Map<SourceIMR, ScalarIMR> imrMap;
 	
 	private HazardCurveCalculator calc;
 		
@@ -75,7 +74,7 @@ public class HazardCalc implements Callable<HazardResult> {
 	 * @param period
 	 * @return a calculation instance
 	 */
-	public static HazardCalc create(NSHMP_ListERF erfList, Site site, Period period) {
+	public static HazardCalc create(EpistemicListERF erfList, Site site, Period period) {
 		HazardCalc hc = new HazardCalc();
 		hc.erfList = erfList;
 		hc.site = site;
@@ -85,39 +84,53 @@ public class HazardCalc implements Callable<HazardResult> {
 	
 	@Override
 	public HazardResult call() {
-		init();
-		DiscretizedFunc utilFunc = period.getFunction();
-		for (NSHMP_ERF erf : erfList.asFilteredIterable(site.getLocation())) {
-			
-			// if (!erf.getBounds().contains(site.getLocation())) continue;
-			
-			ScalarIMR imr = imrMap.get(erf.getSourceIMR());
-			SourceType st = erf.getSourceType();
-			
-			if (st == GRIDDED) initGridIMR(imr, (GridERF) erf); // set tables
-			
-			if (st == CLUSTER) {
-				utilFunc = clusterCalc(utilFunc, site, imr, (ClusterERF) erf);
-			} else {
-				utilFunc = basicCalc(calc, utilFunc, site, imr, erf);
-			}
-
-			utilFunc.scale(erf.getSourceWeight());
-			Utils.addFunc(curve, utilFunc);
+		initSite(site); // ensure required site parameters are set
+		curve = period.getFunction(); // init output function
+		Utils.zeroFunc(curve);
+		calc = new HazardCurveCalculator(); // init calculator
+		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
+		if (erfList instanceof NSHMP_ListERF) {
+			callNSHMP((NSHMP_ListERF) erfList);
+		} else {
+			callCalc();
 		}
 		return new HazardResult(curve, site.getLocation());
 	}
 	
-	private void init() {
-		initSite(site); // ensures required parameters are set
-		imrMap = SourceIMR.map(period); // map inited to period of interest
-		curve = period.getFunction();
-		Utils.zeroFunc(curve);
-		calc = new HazardCurveCalculator();
-		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
-		// set site
+	private void callCalc() {
+		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period);
+		imr.setSite(site);
+		DiscretizedFunc f = period.getFunction(); // utility function
+		for (int i=0; i<erfList.getNumERFs(); i++) {
+			ERF erf = erfList.getERF(i);
+			f = basicCalc(calc, f, site, imr, erf);
+			f.scale(erfList.getERF_RelativeWeight(i));
+			Utils.addFunc(curve, f);
+		}
+	}
+	
+	// erf recast to NSHMP flavor
+	private void callNSHMP(NSHMP_ListERF erfList) {
+		// IMR map inited to period of interest and site
+		Map<SourceIMR, ScalarIMR> imrMap = SourceIMR.map(period);
 		for (ScalarIMR imr : imrMap.values()) {
 			imr.setSite(site);
+		}
+		DiscretizedFunc f = period.getFunction(); // utility function
+		for (NSHMP_ERF erf : erfList.asFilteredIterable(site.getLocation())) {
+			ScalarIMR imr = imrMap.get(erf.getSourceIMR());
+			SourceType st = erf.getSourceType();
+			if (st == GRIDDED) initGridIMR(imr, (GridERF) erf); // set tables
+			if (st == CLUSTER) {
+				f = clusterCalc(f, site, imr, (ClusterERF) erf);
+			} else {
+				// set max distance on calculator first
+				calc.getAdjustableParams().getParameter(MaxDistanceParam.NAME)
+					.setValue(erf.getMaxDistance());
+				f = basicCalc(calc, f, site, imr, erf);
+			}
+			f.scale(erf.getSourceWeight());
+			Utils.addFunc(curve, f);
 		}
 	}
 	
@@ -157,13 +170,7 @@ public class HazardCalc implements Callable<HazardResult> {
 			NSHMP08_SUB_SlabGrid slabIMR = (NSHMP08_SUB_SlabGrid) imr;
 			slabIMR.getParameter(RupTopDepthParam.NAME).setValue(erf.getDepths()[0]);
 			slabIMR.setTable();
-			
-		} 
-//		else {
-//			System.out.println(" imr skipped" + imr);
-//			// allow this to pass through if no imr match as fixed strike
-//			// sources will be marked as gridded but use fault based erfs
-//		}
+		}
 	}
 	
 	private static DiscretizedFunc basicCalc(
@@ -171,20 +178,15 @@ public class HazardCalc implements Callable<HazardResult> {
 			DiscretizedFunc f,
 			Site s,
 			ScalarIMR imr,
-			NSHMP_ERF erf) {
+			ERF erf) {
 		
-		c.getAdjustableParams().getParameter(MaxDistanceParam.NAME)
-			.setValue(erf.getMaxDistance());
 		c.getHazardCurve(f, s, imr, erf);
-
-
 		// convert to annual rate
 		for (Point2D p : f) {
 			f.set(p.getX(), NSHMP_Utils.probToRate(p.getY(), 1));
 		}
 		return f;
 	}
-	
 	
 	private static DiscretizedFunc clusterCalc(
 			DiscretizedFunc f, 
@@ -193,13 +195,10 @@ public class HazardCalc implements Callable<HazardResult> {
 			ClusterERF erf) {
 		
 		double maxDistance = erf.getMaxDistance();
-		int clustTotal = erf.getNumSources();
-		int clustCount = 0;
 		Utils.zeroFunc(f); //zero for aggregating results
-		DiscretizedFunc peFunc = (ArbitrarilyDiscretizedFunc) f.deepClone();
+		DiscretizedFunc peFunc = f.deepClone();
 		
 		for (ClusterSource cs : erf.getSources()) { // geom variants
-//			System.out.println(cs.getName());
 			
 			// apply distance cutoff to source
 			double dist = cs.getMinDistance(s);
@@ -211,7 +210,7 @@ public class HazardCalc implements Callable<HazardResult> {
 			List<DiscretizedFunc> fltFuncList = Lists.newArrayList();
 
 			for (FaultSource fs : cs.getFaultSources()) { // segments
-				DiscretizedFunc fltFunc = (ArbitrarilyDiscretizedFunc) peFunc.deepClone();
+				DiscretizedFunc fltFunc = peFunc.deepClone();
 				Utils.zeroFunc(fltFunc);
 				// agregate weighted PE curves for mags on each segment
 				for (int i=0; i < fs.getNumRuptures(); i++) { // mag variants
@@ -221,7 +220,6 @@ public class HazardCalc implements Callable<HazardResult> {
 					peFunc.scale(weight);
 					Utils.addFunc(fltFunc, peFunc);
 				} // end mag
-//				System.out.println("fFt: " + fltFunc);
 				fltFuncList.add(fltFunc);
 			} // end segments
 			

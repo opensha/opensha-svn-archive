@@ -21,11 +21,13 @@ import com.google.common.io.Resources;
  */
 public class HazardCalcConfig {
 	
+	String name;
 	TestGrid grid;
 	Period period;
-	String name;
-	String out;
-	boolean mpj;
+	ERF_ID erfID;
+	boolean epiUnc;
+	String outDir;
+	boolean singleFile;
 
 	/**
 	 * Creates a new config instance from the supplied {@code File}.
@@ -40,10 +42,12 @@ public class HazardCalcConfig {
 		props.load(is);		
 		is.close();
 		
+		name = props.getProperty("name");
 		grid = TestGrid.valueOf(props.getProperty("grid"));
 		period = Period.valueOf(props.getProperty("period"));
-		name = props.getProperty("name");
-		out = props.getProperty("out");
-		mpj = Boolean.valueOf(props.getProperty("mpj"));
+		erfID = ERF_ID.valueOf(props.getProperty("erfID"));
+		epiUnc = Boolean.valueOf(props.getProperty("epiUnc"));
+		outDir = props.getProperty("outDir");
+		singleFile = Boolean.valueOf(props.getProperty("singleFile"));
 	}
 }

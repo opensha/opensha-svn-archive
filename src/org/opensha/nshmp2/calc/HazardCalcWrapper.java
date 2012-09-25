@@ -144,28 +144,32 @@ public class HazardCalcWrapper {
 			
 			HazardCalcConfig config = new HazardCalcConfig(propsURL);
 			
+			String name = config.name;
 			TestGrid grid = config.grid;
 			Period period = config.period;
-			String name = config.name;
-			String out = config.out;
-			boolean isMPJ = config.mpj;
+			ERF_ID erfID = config.erfID;
+			boolean epiUnc = config.epiUnc;
+			String outDir = config.outDir;
+			boolean singleFile = config.singleFile;
 			
+			System.out.println(name);
 			System.out.println(grid);
 			System.out.println(period);
-			System.out.println(name);
-			System.out.println(out);
-			System.out.println(isMPJ);
+			System.out.println(erfID);
+			System.out.println(epiUnc);
+			System.out.println(outDir);
+			System.out.println(singleFile);
 			
 			
-			String outPath = out + S + name + S + grid + S + period + S;
+			String outPath = outDir + S + name + S + grid + S + period + S;
 			File localOutFile = new File(outPath + "curves.csv");
 			File mpjOutDir = new File(outPath);
 			
 			HazardResultWriter writer = null;
 			try {
-				writer = isMPJ ? 
-					new HazardResultWriterMPJ(mpjOutDir) :
-					new HazardResultWriterLocal(localOutFile, period);
+				writer = singleFile ? 
+					new HazardResultWriterLocal(localOutFile, period) :
+					new HazardResultWriterMPJ(mpjOutDir);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}

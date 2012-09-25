@@ -63,7 +63,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		String name = config.name;
 		Preconditions.checkArgument(StringUtils.isNotBlank(name));
 		
-		String out = config.out;
+		String out = config.outDir;
 		Preconditions.checkArgument(StringUtils.isNotBlank(out));
 		outDir = new File(out + S + name + S + grid + S + period);
 		
@@ -87,6 +87,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	@Override
 	protected void doFinalAssembly() throws Exception {
 		aggregateResults(outDir, period);
+		//cleanDir
 	}
 	
 	
@@ -137,9 +138,9 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 					file.getName(), "."), '_', ',');
 				sb.append(latlon).append(",");
 				Files.copy(file, Charsets.US_ASCII, sb);
-				file.delete();
 				br.write(sb.toString());
 				br.newLine();
+//				file.delete();
 			}
 			Flushables.flushQuietly(br);
 			Closeables.closeQuietly(br);
