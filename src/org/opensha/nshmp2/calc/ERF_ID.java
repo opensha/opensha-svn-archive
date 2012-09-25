@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolERF;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
+import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
 
 /**
  * Add comments here
@@ -71,7 +72,7 @@ public enum ERF_ID {
 	}
 
 	private static EpistemicListERF getModMeanUC2_FM2P1() {
-		final ModMeanUCERF2_FM2pt1 erf = new ModMeanUCERF2_FM2pt1();
+		final ModMeanUCERF2_FM2pt1 erf = new ModMeanUCERF2_FM2pt1_wOutAftershocks();
 		setParams(erf);
 		return wrapInList(erf);
 	}
