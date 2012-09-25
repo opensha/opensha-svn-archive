@@ -92,9 +92,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 
 	@Override
 	protected void doFinalAssembly() throws Exception {
-		aggregateResults(outDir, period);
-		System.out.println("doingFinalAssembly");
-		//cleanDir
+		if (rank == 0) aggregateResults(outDir, period);
 	}
 	
 	
