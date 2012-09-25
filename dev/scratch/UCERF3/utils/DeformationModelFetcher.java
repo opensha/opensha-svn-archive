@@ -889,18 +889,22 @@ public class DeformationModelFetcher {
 		if (equal)
 			return scalars.get(0);
 
-		double totDist = 0;
 		ArrayList<Double> dists = new ArrayList<Double>();
 
-		for (int i=1; i<locs.size(); i++) {
-			double dist = LocationUtils.linearDistanceFast(locs.get(i-1), locs.get(i));
-			dists.add(dist);
-			totDist += dist;
-		}
-
+		for (int i=1; i<locs.size(); i++)
+			dists.add(LocationUtils.linearDistanceFast(locs.get(i-1), locs.get(i)));
+		
+		return calcLengthBasedAverage(dists, scalars);
+	}
+	
+	public static double calcLengthBasedAverage(List<Double> lengths, List<Double> scalars) {
+		double totDist = 0d;
+		for (double len : lengths)
+			totDist += len;
+		
 		double scaledAvg = 0;
-		for (int i=0; i<dists.size(); i++) {
-			double relative = dists.get(i) / totDist;
+		for (int i=0; i<lengths.size(); i++) {
+			double relative = lengths.get(i) / totDist;
 			scaledAvg += relative * scalars.get(i);
 		}
 

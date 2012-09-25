@@ -784,6 +784,8 @@ public class DeformationModelFileParser {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		FaultSectionDataWriter.writeSectionsToFile(FaultModels.FM3_1.fetchFaultSections(), Lists.newArrayList("Fault Model 3.1"), "D:\\Documents\\temp\\fm_3_1_sects.txt");
+		System.exit(0);
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
 		

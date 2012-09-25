@@ -76,7 +76,7 @@ public class FaultSectionDataWriter {
 		for(int i=0; i<subSectionPrefDataList.size(); i++) {
 			FaultSectionPrefData sectData = subSectionPrefDataList.get(i);
 			FaultTrace faultTrace = sectData.getFaultTrace(); 
-			String str =  i+"\n"+sectData.getSectionName()+"\n"+
+			String str =  sectData.getSectionId()+"\n"+sectData.getSectionName()+"\n"+
 					getValue(sectData.getParentSectionId())+"\n"+
 					getValue(sectData.getParentSectionName())+"\n"+
 					getValue(sectData.getOrigAveUpperDepth())+"\n"+
