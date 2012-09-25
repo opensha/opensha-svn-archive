@@ -34,7 +34,7 @@ public class HazardCalcWrapper {
 //	private static final String OUT_DIR = "/Volumes/Scratch/nshmp-opensha-trunk";
 	private static final String S = File.separator;
 
-	HazardCalcWrapper(LocationList locs, Period period, HazardResultWriter writer) {
+	HazardCalcWrapper(ERF_ID erfID, LocationList locs, Period period, boolean epiUncert, HazardResultWriter writer) {
 	
 		// init result file
 //		File out = new File(OUT_DIR + S + name + S + period + S + "curves.csv");
@@ -42,7 +42,7 @@ public class HazardCalcWrapper {
 		ThreadedHazardCalc thc = null;
 		
 		try {
-			thc = new ThreadedHazardCalc(locs, period, writer);
+			thc = new ThreadedHazardCalc(erfID, locs, period, epiUncert, writer);
 			thc.calculate(null);
 		} catch (ExecutionException ee) {
 			ee.printStackTrace();
@@ -70,11 +70,11 @@ public class HazardCalcWrapper {
 	public static void main(String[] args) {
 		
 //		Set<Period> periods = EnumSet.of(Period.GM0P20, Period.GM1P00, Period.GM0P00);
-		Set<Period> periods = EnumSet.of(Period.GM0P00);
-		List<LocationList> locLists = Lists.newArrayList();
-		List<String> names = Lists.newArrayList();
-		TestGrid tg = null;
-		GriddedRegion gr = null;
+//		Set<Period> periods = EnumSet.of(Period.GM0P00);
+//		List<LocationList> locLists = Lists.newArrayList();
+//		List<String> names = Lists.newArrayList();
+//		TestGrid tg = null;
+//		GriddedRegion gr = null;
 		
 //		gr = new CaliforniaRegions.WG02_GRIDDED();
 //		locLists.add(gr.getNodeList());
@@ -160,7 +160,6 @@ public class HazardCalcWrapper {
 			System.out.println(outDir);
 			System.out.println(singleFile);
 			
-			
 			String outPath = outDir + S + name + S + grid + S + period + S;
 			File localOutFile = new File(outPath + "curves.csv");
 			File mpjOutDir = new File(outPath);
@@ -174,7 +173,7 @@ public class HazardCalcWrapper {
 				ioe.printStackTrace();
 			}
 			
-			new HazardCalcWrapper(grid.grid().getNodeList(), period, writer);
+			new HazardCalcWrapper(erfID, grid.grid().getNodeList(), period, epiUnc, writer);
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

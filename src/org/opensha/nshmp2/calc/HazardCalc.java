@@ -22,6 +22,7 @@ import org.opensha.nshmp2.erf.source.GridERF;
 import org.opensha.nshmp2.erf.source.NSHMP_ERF;
 import org.opensha.nshmp2.imr.NSHMP08_CEUS_Grid;
 import org.opensha.nshmp2.imr.NSHMP08_SUB_SlabGrid;
+import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.imr.NSHMP08_WUS_Grid;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.nshmp2.util.NSHMP_Utils;
@@ -59,6 +60,7 @@ public class HazardCalc implements Callable<HazardResult> {
 	private EpistemicListERF erfList;
 	private Site site;
 	private Period period;
+	private boolean epiUncert;
 	private DiscretizedFunc curve;
 	
 	private HazardCurveCalculator calc;
@@ -72,13 +74,16 @@ public class HazardCalc implements Callable<HazardResult> {
 	 * @param erfList list to use
 	 * @param site
 	 * @param period
+	 * @param epiUncert 
 	 * @return a calculation instance
 	 */
-	public static HazardCalc create(EpistemicListERF erfList, Site site, Period period) {
+	public static HazardCalc create(EpistemicListERF erfList, Site site,
+			Period period, boolean epiUncert) {
 		HazardCalc hc = new HazardCalc();
 		hc.erfList = erfList;
 		hc.site = site;
 		hc.period = period;
+		hc.epiUncert = epiUncert;
 		return hc;
 	}
 	
@@ -99,6 +104,8 @@ public class HazardCalc implements Callable<HazardResult> {
 	
 	private void callCalc() {
 		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period);
+		imr.getParameter(NSHMP08_WUS_Grid.IMR_UNCERT_PARAM_NAME).setValue(
+			epiUncert);
 		imr.setSite(site);
 		DiscretizedFunc f = period.getFunction(); // utility function
 		for (int i=0; i<erfList.getNumERFs(); i++) {
@@ -115,6 +122,10 @@ public class HazardCalc implements Callable<HazardResult> {
 		Map<SourceIMR, ScalarIMR> imrMap = SourceIMR.map(period);
 		for (ScalarIMR imr : imrMap.values()) {
 			imr.setSite(site);
+			if (imr instanceof NSHMP08_WUS) {
+				imr.getParameter(NSHMP08_WUS_Grid.IMR_UNCERT_PARAM_NAME)
+					.setValue(epiUncert);
+			}
 		}
 		DiscretizedFunc f = period.getFunction(); // utility function
 		for (NSHMP_ERF erf : erfList.asFilteredIterable(site.getLocation())) {
@@ -143,10 +154,6 @@ public class HazardCalc implements Callable<HazardResult> {
 		} else if (imr instanceof NSHMP08_WUS_Grid) {
 			NSHMP08_WUS_Grid wusIMR = (NSHMP08_WUS_Grid) imr;
 			
-			// turn off uncertainty for testing because NSHMP stores
-			// epi+ and epi- separately from mean
-			wusIMR.getParameter(NSHMP08_WUS_Grid.IMR_UNCERT_PARAM_NAME).setValue(false);
-
 			// set fault type ; kinda KLUDGY
 			Map<FocalMech, Double> mechMap = erf.getFocalMechs();
 			double sWt = mechMap.get(FocalMech.STRIKE_SLIP);
@@ -305,8 +312,8 @@ public class HazardCalc implements Callable<HazardResult> {
 		
 		TimeUnit tu = TimeUnit.MILLISECONDS;
 //		WUS_ERF erf = new WUS_ERF();
-		NSHMP2008 erf = NSHMP2008.create();
-//		NSHMP2008 erf = NSHMP2008.createSingleSource("bFault.gr.in");
+		EpistemicListERF erf = ERF_ID.NSHMP08.instance();
+//		EpistemicListERF erf = NSHMP2008.createSingleSource("bFault.gr.in");
 		erf.updateForecast();
 		System.out.println(erf);
 		sw.stop();
@@ -315,7 +322,7 @@ public class HazardCalc implements Callable<HazardResult> {
 
 		sw.reset().start();
 		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
-		HazardCalc hc = HazardCalc.create(erf, site, p);
+		HazardCalc hc = HazardCalc.create(erf, site, p, true);
 		HazardResult result = hc.call();
 		System.out.println(result.curve());
 		sw.stop();

@@ -9,8 +9,8 @@ import java.util.concurrent.Executors;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.sha.earthquake.EpistemicListERF;
 
 
 /**
@@ -25,16 +25,21 @@ public class ThreadedHazardCalc {
 
 	private LocationList locs;
 	private Period period;
+	private boolean epiUncert;
 	private HazardResultWriter writer;
+	private EpistemicListERF erfList;
 
 	/*
 	 * Initializes a new threaded hazard calculation.
 	 */
-	ThreadedHazardCalc(LocationList locs, Period period,
-			HazardResultWriter writer) {
+	ThreadedHazardCalc(ERF_ID erfID, LocationList locs, Period period,
+			boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
 		this.period = period;
 		this.writer = writer;
+		this.epiUncert = epiUncert;
+		erfList = erfID.instance();
+		erfList.updateForecast();
 	}
 	
 	/**
@@ -59,14 +64,9 @@ public class ThreadedHazardCalc {
 		CompletionService<HazardResult> ecs = 
 				new ExecutorCompletionService<HazardResult>(ex);
 
-		// init erf
-		NSHMP2008 erf = NSHMP2008.create();
-		erf.updateForecast();
-//		System.out.println(erf);
-
 		for (int index : indices) {
 			Site site = new Site(locs.get(index));
-			HazardCalc hc = HazardCalc.create(erf, site, period);
+			HazardCalc hc = HazardCalc.create(erfList, site, period, epiUncert);
 			ecs.submit(hc);
 		}
 		ex.shutdown();
@@ -80,7 +80,6 @@ public class ThreadedHazardCalc {
 		}
 		
 		writer.close();
-		
 	}
 	
 	private int[] makeIndices(int size) {

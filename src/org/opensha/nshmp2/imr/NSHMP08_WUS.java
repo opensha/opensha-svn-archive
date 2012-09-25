@@ -114,7 +114,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 	
 	// custom params
 	public static final String IMR_UNCERT_PARAM_NAME = "IMR uncertainty";
-	private boolean includeImrUncert = false;
+	private boolean includeImrUncert = true;
 	private static final String HW_EFFECT_PARAM_NAME = "Hanging Wall Effect Approx.";
 	private boolean hwEffectApprox = true;
 	

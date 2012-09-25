@@ -53,6 +53,9 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		// throws FNF exceptions
 		HazardCalcConfig config = new HazardCalcConfig(props);
 		
+		String name = config.name;
+		Preconditions.checkArgument(StringUtils.isNotBlank(name));
+		
 		TestGrid grid = config.grid;
 		Preconditions.checkNotNull(grid);
 		locs = grid.grid().getNodeList();
@@ -60,8 +63,10 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		period = config.period;
 		Preconditions.checkNotNull(period);
 		
-		String name = config.name;
-		Preconditions.checkArgument(StringUtils.isNotBlank(name));
+		ERF_ID erfID = config.erfID;
+		Preconditions.checkNotNull(erfID);
+		
+		boolean epiUncert = config.epiUnc;
 		
 		String out = config.outDir;
 		Preconditions.checkArgument(StringUtils.isNotBlank(out));
@@ -69,7 +74,8 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		calc = new ThreadedHazardCalc(grid.grid().getNodeList(), period, writer);
+		calc = new ThreadedHazardCalc(erfID, grid.grid().getNodeList(), period,
+			epiUncert, writer);
 	}
 	
 	@Override
@@ -87,6 +93,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	@Override
 	protected void doFinalAssembly() throws Exception {
 		aggregateResults(outDir, period);
+		System.out.println("doingFinalAssembly");
 		//cleanDir
 	}
 	
@@ -140,7 +147,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 				Files.copy(file, Charsets.US_ASCII, sb);
 				br.write(sb.toString());
 				br.newLine();
-//				file.delete();
+				file.delete();
 			}
 			Flushables.flushQuietly(br);
 			Closeables.closeQuietly(br);
