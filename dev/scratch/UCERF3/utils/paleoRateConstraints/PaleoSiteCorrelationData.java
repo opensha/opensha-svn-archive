@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3;
+package scratch.UCERF3.utils.paleoRateConstraints;
 
 import java.awt.Color;
 import java.io.File;
@@ -32,11 +32,10 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
-import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
-import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
@@ -44,7 +43,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
-public class PaleoSiteCorrelation {
+public class PaleoSiteCorrelationData {
 	
 	private String site1Name;
 	private Location site1Loc;
@@ -57,7 +56,7 @@ public class PaleoSiteCorrelation {
 	private int numCorrelated;
 	private boolean neighbors;
 
-	public PaleoSiteCorrelation(String site1Name, Location site1Loc, int site1SubSect,
+	public PaleoSiteCorrelationData(String site1Name, Location site1Loc, int site1SubSect,
 			String site2Name, Location site2Loc, int site2SubSect, int site1Events,
 			int site2Events, int numCorrelated, boolean neighbors) {
 		super();
@@ -117,8 +116,8 @@ public class PaleoSiteCorrelation {
 		return neighbors;
 	}
 	
-	public PaleoSiteCorrelation getReversed() {
-		return new PaleoSiteCorrelation(site2Name, site2Loc, site2SubSect, site1Name, site1Loc, site1SubSect,
+	public PaleoSiteCorrelationData getReversed() {
+		return new PaleoSiteCorrelationData(site2Name, site2Loc, site2SubSect, site1Name, site1Loc, site1SubSect,
 				site2Events, site1Events, numCorrelated, neighbors);
 	}
 	
@@ -132,8 +131,13 @@ public class PaleoSiteCorrelation {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-		"FM2_1_UC2ALL_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_VarSectNuclMFDWt0.01_VarPaleo1_VarMFDSmooth1000_sol.zip");
-		FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(solFile);
+//		"FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_VarAveSlip0.1_VarMFDSmooth1000_VarSectNuclMFDWt0.1_sol.zip");
+		"FM2_1_UC2ALL_AveU2_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_VarNone_mean_sol.zip");
+		FaultSystemSolution sol;
+		if (solFile.getName().contains("_mean"))
+			sol = AverageFaultSystemSolution.fromZipFile(solFile);
+		else
+			sol = SimpleFaultSystemSolution.fromFile(solFile);
 		
 		String fileName = solFile.getAbsolutePath().replaceAll(".zip", "")+"_paleo_correlation.xls";
 		File outputFile = new File(fileName);
@@ -147,7 +151,7 @@ public class PaleoSiteCorrelation {
 		vals = get95PercentConfidenceBounds(3, 8);
 		System.out.println(vals[0]+"\t"+vals[1]);
 		
-		Map<String, Table<String, String, PaleoSiteCorrelation>> tables =
+		Map<String, Table<String, String, PaleoSiteCorrelationData>> tables =
 			loadPaleoCorrelationData(sol, outputFile);
 		
 		for (String faultName : tables.keySet()) {
@@ -165,12 +169,12 @@ public class PaleoSiteCorrelation {
 		}
 	}
 	
-	public static Map<String, Table<String, String, PaleoSiteCorrelation>> loadPaleoCorrelationData()
+	public static Map<String, Table<String, String, PaleoSiteCorrelationData>> loadPaleoCorrelationData()
 	throws IOException {
 		return loadPaleoCorrelationData(null, null);
 	}
 	
-	public static Map<String, Table<String, String, PaleoSiteCorrelation>> loadPaleoCorrelationData(
+	public static Map<String, Table<String, String, PaleoSiteCorrelationData>> loadPaleoCorrelationData(
 			FaultSystemSolution sol, File outputFile) throws IOException {
 		return loadPaleoCorrelationData(UCERF3_DataUtils.locateResourceAsStream(SUB_DIR_NAME, FILE_NAME), sol, outputFile);
 	}
@@ -185,7 +189,7 @@ public class PaleoSiteCorrelation {
 		return cell.getStringCellValue();
 	}
 
-	public static Map<String, Table<String, String, PaleoSiteCorrelation>> loadPaleoCorrelationData(
+	public static Map<String, Table<String, String, PaleoSiteCorrelationData>> loadPaleoCorrelationData(
 			InputStream dataIS, FaultSystemSolution sol, File outputFile) throws IOException {
 		List<FaultSectionPrefData> faultSectionData = sol.getFaultSectionDataList();
 
@@ -212,7 +216,7 @@ public class PaleoSiteCorrelation {
 			}
 		}
 		
-		Map<String, Table<String, String, PaleoSiteCorrelation>> resultsMap = Maps.newHashMap();
+		Map<String, Table<String, String, PaleoSiteCorrelationData>> resultsMap = Maps.newHashMap();
 
 		for (int[] range : ranges) {
 			System.out.println("Range: "+range[0]+" => "+range[1]);
@@ -254,7 +258,7 @@ public class PaleoSiteCorrelation {
 			
 			int numSites = subSectIndexMap.size();
 			
-			Table<String, String, PaleoSiteCorrelation> table = HashBasedTable.create(numSites, numSites);
+			Table<String, String, PaleoSiteCorrelationData> table = HashBasedTable.create(numSites, numSites);
 
 			int startCol = 4;
 			int endCol = startCol+numSites-1;
@@ -286,7 +290,7 @@ public class PaleoSiteCorrelation {
 					int site1Count = Integer.parseInt(rawCountsSplit[0]);
 					int site2Count = Integer.parseInt(rawCountsSplit[1]);
 					boolean neighbors = relativeCol == relativeRow + 1;
-					PaleoSiteCorrelation corr = new PaleoSiteCorrelation(name1, siteLocMap.get(name1),
+					PaleoSiteCorrelationData corr = new PaleoSiteCorrelationData(name1, siteLocMap.get(name1),
 							sectIndex1, name2, siteLocMap.get(name2), sectIndex2, site1Count, site2Count,
 							numCorrelated, neighbors);
 					table.put(name1, name2, corr);
@@ -333,23 +337,30 @@ public class PaleoSiteCorrelation {
 			boolean sect2 = rups2.contains(rup);
 			Preconditions.checkState(sect1 || sect2);
 			boolean together = sect1 && sect2;
+			double prob1 = 0; double prob2 = 0;
 
 			if (sect1)
-				rate *= paleoProb.getProbPaleoVisible(sol, rup, sectIndex1);
+				prob1 = paleoProb.getProbPaleoVisible(sol, rup, sectIndex1);
 			if (sect2)
-				rate *= paleoProb.getProbPaleoVisible(sol, rup, sectIndex2);
+				prob2 = paleoProb.getProbPaleoVisible(sol, rup, sectIndex2);
 
+			double myRateTogether = 0;
 			if (together)
-				rateTogether += rate;
+				myRateTogether += rate * prob1 * prob2;
 
-			totRate += rate;
+			// This is [total rate at 1] (rate*prob1) + [total rate at sect2] (rate*prob2) - [rate at both sites]
+			// So we are adding the rates at the 2 sites, then subtracting off the overlap
+			totRate += rate*(prob1+prob2)-myRateTogether;
+			rateTogether += myRateTogether;
 		}
 
 		return rateTogether / totRate;
 	}
 	
-	private static final String CONFIDENCE_BOUNDS_FILE_NAME = "PaleoCorrelation95ConfidenceBounds.csv";
-	private static double[][] correlationConfidenceBounds;
+	private static final String CONFIDENCE_BOUNDS_UPPER_FILE_NAME = "PaleoCorrelation95ConfidenceUpperBounds.csv";
+	private static final String CONFIDENCE_BOUNDS_LOWER_FILE_NAME = "PaleoCorrelation95ConfidenceLowerBounds.csv";
+	private static double[][] correlationConfidenceUpperBounds;
+	private static double[][] correlationConfidenceLowerBounds;
 	
 	/**
 	 * Returns 95% confidence bounds from table generated by Morgan in Matlab.
@@ -358,18 +369,27 @@ public class PaleoSiteCorrelation {
 	 * @return 95% confidence bounds [ lower, upper ]
 	 */
 	public static synchronized double[] get95PercentConfidenceBounds(int numCorrelated, int totalNumEvents) {
-		if (correlationConfidenceBounds == null) {
+		if (correlationConfidenceUpperBounds == null) {
 			try {
-				CSVFile<String> csv = CSVFile.readStream(UCERF3_DataUtils.locateResourceAsStream(
-						SUB_DIR_NAME, CONFIDENCE_BOUNDS_FILE_NAME), true);
-				int len = csv.getNumCols()-1;
-				correlationConfidenceBounds = new double[len][len];
-				for (int row=0; row<len; row++)
-					for (int col=0; col<len; col++)
-						correlationConfidenceBounds[row][col] = Double.NaN;
-				for (int row=1; row<csv.getNumRows(); row++) {
-					for (int col=1; col<csv.getNumCols(); col++) {
-						correlationConfidenceBounds[row-1][col-1] = Double.parseDouble(csv.get(row, col));
+				CSVFile<String> upperCSV = CSVFile.readStream(UCERF3_DataUtils.locateResourceAsStream(
+						SUB_DIR_NAME, CONFIDENCE_BOUNDS_UPPER_FILE_NAME), true);
+				CSVFile<String> lowerCSV = CSVFile.readStream(UCERF3_DataUtils.locateResourceAsStream(
+						SUB_DIR_NAME, CONFIDENCE_BOUNDS_LOWER_FILE_NAME), true);
+				Preconditions.checkState(upperCSV.getNumCols() == lowerCSV.getNumCols());
+				Preconditions.checkState(upperCSV.getNumRows() == lowerCSV.getNumRows());
+				int len = upperCSV.getNumCols()-1;
+				correlationConfidenceUpperBounds = new double[len][len];
+				correlationConfidenceLowerBounds = new double[len][len];
+				for (int row=0; row<len; row++) {
+					for (int col=0; col<len; col++) {
+						correlationConfidenceUpperBounds[row][col] = Double.NaN;
+						correlationConfidenceLowerBounds[row][col] = Double.NaN;
+					}
+				}
+				for (int row=1; row<upperCSV.getNumRows(); row++) {
+					for (int col=1; col<upperCSV.getNumCols(); col++) {
+						correlationConfidenceUpperBounds[row-1][col-1] = Double.parseDouble(upperCSV.get(row, col));
+						correlationConfidenceLowerBounds[row-1][col-1] = Double.parseDouble(lowerCSV.get(row, col));
 					}
 				}
 					
@@ -380,22 +400,23 @@ public class PaleoSiteCorrelation {
 		
 		Preconditions.checkState(numCorrelated <= totalNumEvents, "can't have more correlated than total!");
 		
-		Preconditions.checkState(totalNumEvents < correlationConfidenceBounds.length,
+		Preconditions.checkState(totalNumEvents < correlationConfidenceUpperBounds.length,
 				"Table too small for given num events: "+totalNumEvents);
 		
-		double upper = correlationConfidenceBounds[numCorrelated][totalNumEvents];
-		double[] ret = { 1d-upper, upper };
+		double upper = correlationConfidenceUpperBounds[numCorrelated][totalNumEvents];
+		double lower = correlationConfidenceLowerBounds[numCorrelated][totalNumEvents];
+		double[] ret = { lower, upper };
 		return ret;
 	}
 	
 	public static PlotSpec getCorrelationPlotSpec(String faultName,
-			Table<String, String,PaleoSiteCorrelation> table, FaultSystemSolution sol) throws IOException {
+			Table<String, String,PaleoSiteCorrelationData> table, FaultSystemSolution sol) throws IOException {
 		PaleoProbabilityModel paleoProb = UCERF3_PaleoProbabilityModel.load();
 		return getCorrelationPlotSpec(faultName, table, sol, paleoProb);
 	}
 		
 	public static PlotSpec getCorrelationPlotSpec(String faultName,
-			Table<String, String,PaleoSiteCorrelation> table, FaultSystemSolution sol,
+			Table<String, String,PaleoSiteCorrelationData> table, FaultSystemSolution sol,
 			PaleoProbabilityModel paleoProb) {
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -405,16 +426,17 @@ public class PaleoSiteCorrelation {
 		PlotCurveCharacterstics dataChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED);
 		PlotCurveCharacterstics dataBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED);
 		PlotCurveCharacterstics solChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE);
+		PlotCurveCharacterstics solAvgBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
 		
 		HashSet<String> doneHash = new HashSet<String>();
 		
 		double x = 0;
 		
-		List<PaleoSiteCorrelation> corrs = Lists.newArrayList();
+		List<PaleoSiteCorrelationData> corrs = Lists.newArrayList();
 		
 		for (String name1 : table.rowKeySet()) {
 			for (String name2 : table.columnKeySet()) {
-				PaleoSiteCorrelation corr = table.get(name1, name2);
+				PaleoSiteCorrelationData corr = table.get(name1, name2);
 				if (name1.equals(name2))
 					continue;
 				if (!corr.areNeighbors())
@@ -432,15 +454,15 @@ public class PaleoSiteCorrelation {
 			}
 		}
 		
-		Collections.sort(corrs, new Comparator<PaleoSiteCorrelation>() {
+		Collections.sort(corrs, new Comparator<PaleoSiteCorrelationData>() {
 			@Override
-			public int compare(PaleoSiteCorrelation o1, PaleoSiteCorrelation o2) {
+			public int compare(PaleoSiteCorrelationData o1, PaleoSiteCorrelationData o2) {
 				double lat1 = getNorthernmostLat(o1);
 				double lat2 = getNorthernmostLat(o2);
 				return -Double.compare(lat1, lat2);
 			}
 			
-			private double getNorthernmostLat(PaleoSiteCorrelation p) {
+			private double getNorthernmostLat(PaleoSiteCorrelationData p) {
 				double lat1 = p.getSite1Loc().getLatitude();
 				double lat2 = p.getSite2Loc().getLatitude();
 				if (lat1 > lat2)
@@ -449,7 +471,7 @@ public class PaleoSiteCorrelation {
 			}
 		});
 		
-		for (PaleoSiteCorrelation corr : corrs) {
+		for (PaleoSiteCorrelationData corr : corrs) {
 
 			if (x > 0) {
 				// add spacer
@@ -463,18 +485,37 @@ public class PaleoSiteCorrelation {
 			double dist = LocationUtils.horzDistance(corr.getSite1Loc(), corr.getSite2Loc());
 
 			double newX = x+dist;
-			funcs.add(getHorizontalLine(dataVal, x, newX));
+			String funcNamePrefix = "X: "+x+"=>"+newX+". Site "+corr.getSite1Name()+" to "+corr.getSite2Name();
+			funcs.add(getHorizontalLine(dataVal, x, newX, funcNamePrefix+". Data: "+dataVal));
 			chars.add(dataChar);
-			funcs.add(getHorizontalLine(bounds[0], x, newX));
+			funcs.add(getHorizontalLine(bounds[0], x, newX, funcNamePrefix+". Lower Bound: "+bounds[0]));
 			chars.add(dataBoundsChar);
-			funcs.add(getHorizontalLine(bounds[1], x, newX));
+			funcs.add(getHorizontalLine(bounds[1], x, newX, funcNamePrefix+". Upper Bound: "+bounds[1]));
 			chars.add(dataBoundsChar);
 
 			if (sol != null) {
 				double myRate = getRateCorrelated(
 						paleoProb, sol, corr.getSite1SubSect(), corr.getSite2SubSect());
-				funcs.add(getHorizontalLine(myRate, x, newX));
+				funcs.add(getHorizontalLine(myRate, x, newX, funcNamePrefix+". Inversion: "+myRate));
 				chars.add(solChar);
+				if (sol instanceof AverageFaultSystemSolution) {
+					AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
+					double minAvgRate = Double.MAX_VALUE;
+					double maxAvgRate = 0d;
+					for (FaultSystemSolution subSol : avgSol) {
+						double avgRate = getRateCorrelated(
+								paleoProb, subSol, corr.getSite1SubSect(), corr.getSite2SubSect());
+						if (avgRate < minAvgRate)
+							minAvgRate = avgRate;
+						if (avgRate > maxAvgRate)
+							maxAvgRate = avgRate;
+					}
+					
+					funcs.add(getHorizontalLine(minAvgRate, x, newX, funcNamePrefix+". Inversion Min: "+minAvgRate));
+					chars.add(solAvgBoundsChar);
+					funcs.add(getHorizontalLine(maxAvgRate, x, newX, funcNamePrefix+". Inversion Max: "+maxAvgRate));
+					chars.add(solAvgBoundsChar);
+				}
 			}
 
 			x += dist;
@@ -491,13 +532,19 @@ public class PaleoSiteCorrelation {
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		func.set(x, min);
 		func.set(x+1e-6, max);
+		func.setName("(separator)");
 		return func;
 	}
 	
 	private static ArbitrarilyDiscretizedFunc getHorizontalLine(double y, double min, double max) {
+		return getHorizontalLine(y, min, max, null);
+	}
+	private static ArbitrarilyDiscretizedFunc getHorizontalLine(double y, double min, double max, String name) {
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		func.set(min, y);
 		func.set(max, y);
+		if (name != null)
+			func.setName(name);
 		return func;
 	}
 

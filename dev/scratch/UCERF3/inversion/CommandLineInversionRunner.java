@@ -33,6 +33,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -60,6 +61,7 @@ import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -69,6 +71,7 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 public class CommandLineInversionRunner {
 
@@ -450,6 +453,13 @@ public class CommandLineInversionRunner {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
+				try {
+					writePaleoCorrelationPlots(
+							sol, new File(subDir, "paleo_correlation"), paleoProbabilityModel);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 
 			FileWriter fw = new FileWriter(new File(subDir, prefix+"_metadata.txt"));
@@ -812,4 +822,40 @@ public class CommandLineInversionRunner {
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 
+	public static void writePaleoCorrelationPlots(
+			FaultSystemSolution sol, File dir, PaleoProbabilityModel paleoProb) throws IOException {
+		Map<String, Table<String, String, PaleoSiteCorrelationData>> tables =
+			PaleoSiteCorrelationData.loadPaleoCorrelationData();
+		
+		if (!dir.exists())
+			dir.mkdir();
+		
+		for (String faultName : tables.keySet()) {
+			String fname = faultName.replaceAll("\\W+", "_");
+			
+			PlotSpec spec = PaleoSiteCorrelationData.getCorrelationPlotSpec(
+					faultName, tables.get(faultName), sol, paleoProb);
+			
+			double maxX = 0;
+			for (DiscretizedFunc func : spec.getFuncs()) {
+				double myMaxX = func.getMaxX();
+				if (myMaxX > maxX)
+					maxX = myMaxX;
+			}
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setTickLabelFontSize(14);
+			gp.setAxisLabelFontSize(16);
+			gp.setPlotLabelFontSize(18);
+			gp.setUserBounds(0d, maxX, 0d, 1d);
+			
+			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
+					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+			
+			File file = new File(dir, fname);
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+		}
+	}
 }

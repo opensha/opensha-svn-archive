@@ -189,6 +189,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			while (solsMap.keySet().size() > 3)
 				solsMap.remove(solsMap.keySet().iterator().next());
 			sol = new SimpleFaultSystemSolution(this, ratesBySol[solIndex]);
+			sol.copyCacheFrom(this);
 			solsMap.put(solIndex, sol);
 		}
 		return sol;

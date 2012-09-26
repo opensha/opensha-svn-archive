@@ -31,6 +31,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 
 public class BatchPlotGen {
 	
@@ -221,6 +222,8 @@ public class BatchPlotGen {
 	
 	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
 		CommandLineInversionRunner.writeParentSectionMFDPlots(avgSol, new File(dir, "parent_sect_mfds"));
+		CommandLineInversionRunner.writePaleoCorrelationPlots(
+				avgSol, new File(dir, "paleo_correlation"), UCERF3_PaleoProbabilityModel.load());
 		Region region = RELM_RegionUtils.getGriddedRegionInstance();
 		if (avgSol.getNumSolutions() <= 10)
 			FaultBasedMapGen.plotSolutionSlipRateStdDevs(avgSol, avgSol.calcSlipRates(), region, dir, prefix, false);
