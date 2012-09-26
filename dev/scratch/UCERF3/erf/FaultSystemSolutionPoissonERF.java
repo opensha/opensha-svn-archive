@@ -28,6 +28,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
+import com.google.common.collect.Lists;
+
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -79,8 +81,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	// these help keep track of what's changed
 	protected File prevFile = null;
-	int lastSrcRequested = -1;
-	ProbEqkSource currentSrc=null;
+//	int lastSrcRequested = -1;
+//	ProbEqkSource currentSrc=null;
 
 	
 	protected FaultSystemSolution faultSysSolution;
@@ -99,6 +101,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected int[] rupIndexForNthRup;
 	protected HashMap<String,Integer> nthRupForSrcAndRupIndices;
 	
+	
+	private List<ProbEqkSource> faultSources;
 	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
@@ -304,11 +308,21 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		ArrayList<Integer> tempRupIndexForNthRup = new ArrayList<Integer>();
 		ArrayList<Integer> tempFltSysRupIndexForNthRup = new ArrayList<Integer>();
 		int n=0;
+		
+	
+		// create reference array of all non-gridded sources and ruptures
+		if (!bgInclude.equals(ONLY)) {
+			faultSources = Lists.newArrayList();
+			for (int i=0; i<numFaultSystemSources; i++) {
+				faultSources.add(makeFaultSystemSource(i));
+			}
+		}
+
 		for(int s=0; s<getNumSources(); s++) {
 // ProbEqkSource src = getSource(s);
 // System.out.println("src.getName()="+src.getName()+"\tsrc.getNumRuptures()="+src.getNumRuptures());
 
-			int numRups = getNumRuptures(s);	// prob at 7773
+			int numRups = getSource(s).getNumRuptures();	// prob at 7773
 			totNumRups += numRups;
 			if(s<numFaultSystemSources) {
 				totNumRupsFromFaultSystem += numRups;
@@ -384,19 +398,15 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	@Override
 	public ProbEqkSource getSource(int iSource) {
-		if (iSource == lastSrcRequested) return currentSrc;
-		
 		if (bgInclude.equals(ONLY)) {
-			currentSrc = getOtherSource(iSource);
+			return getOtherSource(iSource);
 		} else if(bgInclude.equals(EXCLUDE)) {
-			currentSrc = makeFaultSystemSource(iSource);
+			return faultSources.get(iSource);
 		} else if (iSource < numFaultSystemSources) {
-			currentSrc = makeFaultSystemSource(iSource);
+			return faultSources.get(iSource);
 		} else {
-			currentSrc = getOtherSource(iSource - numFaultSystemSources);
+			return getOtherSource(iSource - numFaultSystemSources);
 		}
-		lastSrcRequested = iSource;
-		return currentSrc;
 	}
 
 

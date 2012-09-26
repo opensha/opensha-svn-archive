@@ -35,7 +35,7 @@ public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF 
 	public UCERF2_FM2pt1_FaultSysSolERF() {
 		super(UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1));
 		nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
-		initOtherSources();
+//		initOtherSources(); // NOTE called by parent in updateForecast()
 		setParameter(AleatoryMagAreaStdDevParam.NAME, 0.12);
 		setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
 	}

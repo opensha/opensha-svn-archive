@@ -170,7 +170,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		super.updateForecast();	// inefficient if only bpt_Aperiodicity has changed
 		
 		// rest this to be safe
-		lastSrcRequested=-1;
+//		lastSrcRequested=-1;
 		
 		System.out.println("time span duration = "+timeSpan.getDuration());
 
@@ -2090,9 +2090,9 @@ numSpontEvents=0;
 	
 	
 	public ProbEqkSource getSource(int iSource) {
-		if(iSource == lastSrcRequested)
-			return currentSrc;
-		else {
+//		if(iSource == lastSrcRequested)
+//			return currentSrc;
+//		else {
 			ProbEqkSource src = super.getSource(iSource);
 //System.out.println(src.getNumRuptures());
 			if (iSource <numFaultSystemSources) {
@@ -2109,9 +2109,9 @@ numSpontEvents=0;
 //if(probGain != 1.0) System.out.println("non-unit prob gain ("+probGain+") for s="+iSource+" named "+src.getName());
 // if(iSource == 4755) System.out.println("prob gain ="+probGain+" for s="+iSource+" named "+src.getName());
 			}
-			currentSrc = src;
-			lastSrcRequested = iSource;		
+//			currentSrc = src;
+//			lastSrcRequested = iSource;		
 			return src;
-		}
+//		}
 	}
 }
