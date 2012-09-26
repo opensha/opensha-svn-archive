@@ -122,6 +122,12 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(setVisible);
 	}
+	
+	public GraphiWindowAPI_Impl(PlotSpec plotSpec) {
+		this(plotSpec.getFuncs(), plotSpec.getTitle(), plotSpec.getChars(), true);
+		setX_AxisLabel(plotSpec.getxAxisLabel());
+		setY_AxisLabel(plotSpec.getyAxisLabel());
+	}
 
 	/**
 	 * Plot Graph using preferences
