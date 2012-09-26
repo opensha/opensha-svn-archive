@@ -25,6 +25,7 @@ import org.opensha.nshmp2.util.Period;
 import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
+import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
@@ -755,7 +756,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 	
 			//hanging wall effects
 			fhng = 0;
-			if (hwEffectApprox && eqkRupture == null) { //eqkRupture.getRuptureSurface() instanceof PointSurface) { if (dip != 90)
+			if (hwEffectApprox && (eqkRupture == null || (eqkRupture.getRuptureSurface() instanceof PointSurface))) {
 				double hwScale = f_rv + f_nm; // should never both be > 0
 				if (hwScale > 0) {
 					fhng = NSHMP_IMR_Util.getAvgHW_CB(mag, distJB, per[iper]) * hwScale;
@@ -845,7 +846,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 	
 			// point source hw effect approximation
 			double hw_effect = 0;
-			if (hwEffectApprox && eqkRupture == null) { //eqkRupture.getRuptureSurface() instanceof PointSurface && iper != 23) { if (dip != 90)
+			if (hwEffectApprox && (eqkRupture == null || (eqkRupture.getRuptureSurface() instanceof PointSurface))) {
 				double hwScale = f_rv + f_nm; // should never both be > 0
 				if (hwScale > 0) {
 //					System.out.println("hwScale: " + hwScale);
