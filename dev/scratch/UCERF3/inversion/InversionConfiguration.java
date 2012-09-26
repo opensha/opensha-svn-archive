@@ -337,6 +337,11 @@ public class InversionConfiguration {
 			System.out.println("Setting paleo constraint wt: "+relativePaleoRateWt);
 		}
 
+		if (modifiers != null && modifiers.hasOption(InversionOptions.AVE_SLIP_WT.getArgName())) {
+			relativePaleoSlipWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.AVE_SLIP_WT.getArgName()));
+			System.out.println("Setting paleo slip constraint wt: "+relativePaleoSlipWt);
+		}
+
 		if (modifiers != null && modifiers.hasOption(InversionOptions.EVENT_SMOOTH_WT.getArgName())) {
 			relativeEventRateSmoothnessWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.EVENT_SMOOTH_WT.getArgName()));
 			System.out.println("Setting event rate smoothness constraint wt: "+relativeEventRateSmoothnessWt);

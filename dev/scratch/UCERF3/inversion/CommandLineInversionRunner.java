@@ -84,6 +84,7 @@ public class CommandLineInversionRunner {
 		WATER_LEVEL_FRACT("wtlv", "waterlevel", "Waterlevel", true, "Waterlevel fraction"),
 		PARKFIELD_WT("pkfld", "parkfield-wt", "Parkfield", true, "Parkfield constraint weight"),
 		PALEO_WT("paleo", "paleo-wt", "Paleo", true, "Paleoconstraint weight"),
+		AVE_SLIP_WT("aveslip", "ave-slip-wt", "AveSlip", true, "Ave slip weight"),
 		//		NO_SUBSEIS_RED("nosub", "no-subseismo", "NoSubseismo", false,
 		//				"Flag to turn off subseimogenic reductions"),
 		MFD_WT("mfd", "mfd-wt", "MFDWt", true, "MFD constraint weight"),

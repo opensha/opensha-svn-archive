@@ -403,10 +403,12 @@ public class LogicTreePBSWriter {
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
-		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
-				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
-		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
-				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
+//		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM3_1, DeformationModels.ZENG, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+//				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3));
+//		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+//				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
+//		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+//				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 //		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		
@@ -476,7 +478,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "normal-initial-solution";
+		String runName = "ucerf2-ref-initial-normal";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
@@ -501,8 +503,8 @@ public class LogicTreePBSWriter {
 
 //		TreeTrimmer trimmer = getCustomTrimmer();
 //		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
-		TreeTrimmer trimmer = getUCERF2Trimmer();
-//		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
+//		TreeTrimmer trimmer = getUCERF2Trimmer();
+		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
 		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
 		TreeTrimmer charUnconstOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_UNCONSTRAINED);
@@ -535,11 +537,31 @@ public class LogicTreePBSWriter {
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
-//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
-//		InversionOptions[] ops = { InversionOptions.SECTION_NUCLEATION_MFD_WT,
-//				InversionOptions.PALEO_WT, InversionOptions.MFD_SMOOTHNESS_WT };
+		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.AVE_SLIP_WT,
+				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
+				InversionOptions.INITIAL_ZERO};
+		List<String[]> argVals = Lists.newArrayList();
+		// paleo
+		argVals.add(toArray("0.1"));
+		// ave slip
+		argVals.add(toArray("0.1"));
+		// mfd smoothness
+		argVals.add(toArray("1000"));
+		// section mfd
+		argVals.add(toArray("0.1"));
+		// initial zero
+		argVals.add(toArray(TAG_OPTION_OFF));
+		
+		for (String val1 : argVals.get(0))
+			for (String val2 : argVals.get(1))
+				for (String val3 : argVals.get(2))
+					for (String val4 : argVals.get(3))
+						for (String val5 : argVals.get(4))
+							variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3, val4, val5)));
+		
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
 //		String[] mfdTrans = { "7.85" };
 //		String[] aPrioriWts = { "0" };
@@ -560,9 +582,9 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.1", "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.NO_SUBSEIS_RED,
