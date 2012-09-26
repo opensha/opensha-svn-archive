@@ -169,9 +169,9 @@ public class PaleoSiteCorrelationData {
 		}
 	}
 	
-	public static Map<String, Table<String, String, PaleoSiteCorrelationData>> loadPaleoCorrelationData()
-	throws IOException {
-		return loadPaleoCorrelationData(null, null);
+	public static Map<String, Table<String, String, PaleoSiteCorrelationData>> loadPaleoCorrelationData(
+			FaultSystemSolution sol) throws IOException {
+		return loadPaleoCorrelationData(sol, null);
 	}
 	
 	public static Map<String, Table<String, String, PaleoSiteCorrelationData>> loadPaleoCorrelationData(

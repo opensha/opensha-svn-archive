@@ -169,8 +169,10 @@ public class BatchPlotGen {
 		boolean hasJumpPlots = CommandLineInversionRunner.doJumpPlotsExist(dir, prefix);
 		boolean hasPaleoPlots = CommandLineInversionRunner.doPaleoPlotsExist(dir, prefix);
 		boolean hasSAFSegPlots = CommandLineInversionRunner.doSAFSegPlotsExist(dir, prefix);
+		boolean hasPaleoCorrelationPlots = new File(dir, "paleo_correlation").exists();
 //		boolean hasMFDPlots = 
-		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasPaleoPlots && hasSAFSegPlots) {
+		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasPaleoPlots
+				&& hasSAFSegPlots && hasPaleoCorrelationPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
@@ -210,6 +212,14 @@ public class BatchPlotGen {
 		if (!hasSAFSegPlots) {
 			try {
 				CommandLineInversionRunner.writeSAFSegPlots(sol, dir, prefix);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (!hasPaleoCorrelationPlots) {
+			try {
+				CommandLineInversionRunner.writePaleoCorrelationPlots(sol,
+						new File(dir, "paleo_correlation"), UCERF3_PaleoProbabilityModel.load());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

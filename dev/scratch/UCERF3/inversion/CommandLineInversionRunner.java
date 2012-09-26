@@ -826,7 +826,7 @@ public class CommandLineInversionRunner {
 	public static void writePaleoCorrelationPlots(
 			FaultSystemSolution sol, File dir, PaleoProbabilityModel paleoProb) throws IOException {
 		Map<String, Table<String, String, PaleoSiteCorrelationData>> tables =
-			PaleoSiteCorrelationData.loadPaleoCorrelationData();
+			PaleoSiteCorrelationData.loadPaleoCorrelationData(sol);
 		
 		if (!dir.exists())
 			dir.mkdir();
