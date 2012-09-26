@@ -277,6 +277,7 @@ public class InversionInputGenerator {
 			MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
 			for (int sect=0; sect<numSections; sect++) { 
 				SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect);
+				if (sectMFDConstraint == null) continue; // Parent sections with Mmax<6 have no MFD constraint; skip these
 				for (int i=0; i<sectMFDConstraint.getNumMags(); i++) {
 					if (sectMFDConstraint.getRate(i) > 0) {
 						totalNumNucleationMFDConstraints++;
@@ -310,6 +311,7 @@ public class InversionInputGenerator {
 				for (int j=0; j<sectsForParent.size()-1; j++) {
 					int sect1 = sectsForParent.get(j);
 					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect1);
+					if (sectMFDConstraint == null) continue; // Parent sections with Mmax<6 have no MFD constraint; skip these
 					int numMagBins = sectMFDConstraint.getNumMags();
 					totalNumMFDSmoothnessConstraints+=numMagBins;
 					numRows+=numMagBins;
@@ -767,6 +769,7 @@ public class InversionInputGenerator {
 			for (int sect=0; sect<numSections; sect++) {
 				
 				SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect);
+				if (sectMFDConstraint == null) continue; // Parent sections with Mmax<6 have no MFD constraint; skip these
 				int numMagBins = sectMFDConstraint.getNumMags();
 				List<Integer> rupturesForSect = rupSet.getRupturesForSection(sect);
 				
@@ -858,6 +861,7 @@ public class InversionInputGenerator {
 					
 					// Get section MFD constraint -- we will use the irregular mag binning for the constraint (but not the rates)
 					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect1);
+					if (sectMFDConstraint == null) continue; // Parent sections with Mmax<6 have no MFD constraint; skip these
 					int numMagBins = sectMFDConstraint.getNumMags();
 				
 				
