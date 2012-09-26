@@ -126,7 +126,7 @@ public class ScriptGen {
 			pFile = new File(pFileName);
 
 			Properties props = new Properties();
-			props.setProperty("name", name);
+			props.setProperty("name", name + epiStr);
 			props.setProperty("grid", grid.name());
 			props.setProperty("period", period.name());
 			props.setProperty("erfID", erfID);
