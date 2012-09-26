@@ -331,6 +331,7 @@ public class SectionMFD_constraint {
 			//		if(D) System.out.println(grDist);
 
 			EvenlyDiscretizedFunc cumDist = grDist.getCumRateDistWithOffset();
+			cumDist.setTolerance(1e-8); // need this to avoid failure below
 			//		if(D) System.out.println(cumDist);
 
 			for(int i=0; i<mags.size(); i++) {

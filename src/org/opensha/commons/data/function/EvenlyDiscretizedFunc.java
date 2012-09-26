@@ -484,12 +484,15 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 */
 	public double getInterpolatedY(double x){
 		//if passed parameter(x value) is not within range then throw exception
-		if(x>maxX || x<minX)
+		if(x>maxX+tolerance || x<minX-tolerance)
 			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-		if (x == maxX)
+		if (x >= maxX)
 			return getY(getNum()-1);
 		
 		int x1Ind = getIndexBefore(x);
+		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
+			return getY(0);
+		
 		double x1 = getX(x1Ind);
 		double x2 = getX(x1Ind+1);
 		
@@ -557,12 +560,15 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 */
 	public double getInterpolatedY_inLogXLogYDomain(double x){
 		//if passed parameter(x value) is not within range then throw exception
-		if(x>maxX || x<minX)
+		if(x>maxX+tolerance || x<minX-tolerance)
 			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-		if (x == maxX)
+		if (x >= maxX)
 			return getY(getNum()-1);
 		
 		int x1Ind = getIndexBefore(x);
+		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
+			return getY(0);
+		
 		double x1 = getX(x1Ind);
 		double x2 = getX(x1Ind+1);
 		
@@ -588,12 +594,15 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 */
 	public double getInterpolatedY_inLogYDomain(double x){
 		//if passed parameter(x value) is not within range then throw exception
-		if(x>maxX || x<minX)
+		if(x>maxX+tolerance || x<minX-tolerance)
 			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-		if (x == maxX)
+		if (x >= maxX)
 			return getY(getNum()-1);
 		
 		int x1Ind = getIndexBefore(x);
+		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
+			return getY(0);
+		
 		double x1 = getX(x1Ind);
 		double x2 = getX(x1Ind+1);
 		

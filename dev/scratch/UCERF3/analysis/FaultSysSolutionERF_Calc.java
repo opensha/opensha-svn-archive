@@ -203,42 +203,44 @@ public class FaultSysSolutionERF_Calc {
 	public static void plotMFD_InRegion(Region region, String fileName) {
 		
 		// First all UCERF2 branches:
-//		UCERF2_TimeIndependentEpistemicList erf_list = new UCERF2_TimeIndependentEpistemicList();
-//		erf_list.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
-//		erf_list.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
-//		erf_list.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
-//		erf_list.getTimeSpan().setDuration(1d);
-//		erf_list.updateForecast();
-//				
-//		XY_DataSetList wtedFuncList = new XY_DataSetList();
-//		ArrayList<Double> relativeWts = new ArrayList<Double>();
-//		
-//		for(int e=0;e<erf_list.getNumERFs();e++) {
-//			System.out.println(e+" of "+erf_list.getNumERFs());
-//			SummedMagFreqDist mfdPart = ERF_Calculator.getParticipationMagFreqDistInRegion(erf_list.getERF(e), region, 5.05, 40, 0.1, true);
-//			wtedFuncList.add(mfdPart.getCumRateDistWithOffset());
-//			relativeWts.add(erf_list.getERF_RelativeWeight(e));
-//		}
-//		FractileCurveCalculator fractileCalc = new FractileCurveCalculator(wtedFuncList,relativeWts);
+		UCERF2_TimeIndependentEpistemicList erf_list = new UCERF2_TimeIndependentEpistemicList();
+		erf_list.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
+		erf_list.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		erf_list.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		erf_list.getTimeSpan().setDuration(1d);
+		erf_list.updateForecast();
+				
+		XY_DataSetList wtedFuncList = new XY_DataSetList();
+		ArrayList<Double> relativeWts = new ArrayList<Double>();
+		
+		for(int e=0;e<erf_list.getNumERFs();e++) {
+			System.out.println(e+" of "+erf_list.getNumERFs());
+			SummedMagFreqDist mfdPart = ERF_Calculator.getParticipationMagFreqDistInRegion(erf_list.getERF(e), region, 5.05, 40, 0.1, true);
+			wtedFuncList.add(mfdPart.getCumRateDistWithOffset());
+			relativeWts.add(erf_list.getERF_RelativeWeight(e));
+		}
+		FractileCurveCalculator fractileCalc = new FractileCurveCalculator(wtedFuncList,relativeWts);
 		
 		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
-//		funcs.add(fractileCalc.getMeanCurve());
+		funcs.add(fractileCalc.getMeanCurve());
 //		funcs.add(fractileCalc.getFractile(0.025));
-//		funcs.add(fractileCalc.getFractile(0.5));
 //		funcs.add(fractileCalc.getFractile(0.975));	
-		
+		funcs.add(fractileCalc.getMinimumCurve());
+		funcs.add(fractileCalc.getMaximumCurve());
+		funcs.add(fractileCalc.getFractile(0.5));
+
 		// Now mean UCERF2
-//		MeanUCERF2 erf= new MeanUCERF2();
-//		erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-//		erf.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
-//		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
-//		erf.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
-//		erf.getTimeSpan().setDuration(1d);
-//		erf.updateForecast();
-//		SummedMagFreqDist meanPart = ERF_Calculator.getParticipationMagFreqDistInRegion(erf, region, 5.05, 40, 0.1, true);
-//		meanPart.setName("MFD for MeanUCERF2");
-//		meanPart.setInfo(" ");
-//		funcs.add(meanPart.getCumRateDistWithOffset());	
+		MeanUCERF2 erf= new MeanUCERF2();
+		erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		erf.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		erf.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		erf.getTimeSpan().setDuration(1d);
+		erf.updateForecast();
+		SummedMagFreqDist meanPart = ERF_Calculator.getParticipationMagFreqDistInRegion(erf, region, 5.05, 40, 0.1, true);
+		meanPart.setName("MFD for MeanUCERF2");
+		meanPart.setInfo(" ");
+		funcs.add(meanPart.getCumRateDistWithOffset());	
 		
 		
 //		File file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
@@ -249,13 +251,13 @@ public class FaultSysSolutionERF_Calc {
 //		ucerf3_Part.setInfo(" ");
 //		funcs.add(ucerf3_Part.getCumRateDistWithOffset());	
 		
-		File file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
-		UCERF3_FaultSysSol_ERF ucerf3_erf_2 = new UCERF3_FaultSysSol_ERF(file);
-		ucerf3_erf_2.updateForecast();
-		SummedMagFreqDist ucerf3_Part_2 = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf_2, region, 5.05, 40, 0.1, true);
-		ucerf3_Part_2.setName("MFD for UCERF3 Char Reference Branch w/ Zeng");
-		ucerf3_Part_2.setInfo(" ");
-		funcs.add(ucerf3_Part_2.getCumRateDistWithOffset());	
+//		File file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+//		UCERF3_FaultSysSol_ERF ucerf3_erf_2 = new UCERF3_FaultSysSol_ERF(file);
+//		ucerf3_erf_2.updateForecast();
+//		SummedMagFreqDist ucerf3_Part_2 = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf_2, region, 5.05, 40, 0.1, true);
+//		ucerf3_Part_2.setName("MFD for UCERF3 Char Reference Branch w/ Zeng");
+//		ucerf3_Part_2.setInfo(" ");
+//		funcs.add(ucerf3_Part_2.getCumRateDistWithOffset());	
 
 //		file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
 //		UCERF3_FaultSysSol_ERF ucerf3_erf_3 = new UCERF3_FaultSysSol_ERF(file);
@@ -303,8 +305,9 @@ public class FaultSysSolutionERF_Calc {
 		
 //		makeDraftFinalModelReportPartPlots();
 		
-		plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
-		plotMFD_InRegion(new CaliforniaRegions.LA_BOX(), "LA_BoxMFDs.pdf");
+		plotMFD_InRegion(new CaliforniaRegions.NORTHRIDGE_BOX(), "Northridge_BoxMFDs.pdf");
+//		plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
+//		plotMFD_InRegion(new CaliforniaRegions.LA_BOX(), "LA_BoxMFDs.pdf");
 		
 //		makePrelimReportPartPlots();
 		

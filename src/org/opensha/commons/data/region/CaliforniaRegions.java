@@ -234,7 +234,19 @@ public class CaliforniaRegions {
 		}
 	}
 
-	
+	/** 
+	 * Northridge Box (used to demonstrate particularly characteristic MFDs in UCERF2).
+	 */
+	public static final class NORTHRIDGE_BOX extends Region {
+		/** New instance of region. */
+		public NORTHRIDGE_BOX() {
+			super(readCoords("NorthridgeBox.coords"), 
+					BorderType.MERCATOR_LINEAR);
+			this.setName("NORTHRIDGE_BOX Region");
+		}
+	}
+
+
 	/** 
 	 * A box defining the region of the CyberShake 1.0 map region
 	 */

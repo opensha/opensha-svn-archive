@@ -14,6 +14,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_ModifiedMagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -173,8 +174,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	 public abstract double getAveSlip(double area, double length);
 	 
 	 /**
-	  * This returns the magnitude for the given rupture area (m-sq) (and width (m)
-	  * for the Shaw09 Mod relationship).
+	  * This returns the magnitude for the given rupture area (m-sq) and width (m)
 	  * @param area (m)
 	  * @param width (m)
 	  * @return
@@ -270,6 +270,92 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}
 
 	}
+	
+	
+	public static void makeSlipMagPlot(double downDipWidth, int maxLength, boolean saveFiles) {
+		
+		ArbitrarilyDiscretizedFunc heckerEq9b = new ArbitrarilyDiscretizedFunc();
+		heckerEq9b.setName("Hecker Eq 9b");
+		ArbitrarilyDiscretizedFunc sh09_funcMod = new ArbitrarilyDiscretizedFunc();
+		sh09_funcMod.setName("SHAW_2009_MOD");
+		ArbitrarilyDiscretizedFunc ellB_func = new ArbitrarilyDiscretizedFunc();
+		ellB_func.setName("ELLSWORTH_B");
+		ArbitrarilyDiscretizedFunc hb_func = new ArbitrarilyDiscretizedFunc();
+		hb_func.setName("HANKS_BAKUN_08");
+		ArbitrarilyDiscretizedFunc sh12_sqrtL_func = new ArbitrarilyDiscretizedFunc();
+		sh12_sqrtL_func.setName("ELLB_SQRT_LENGTH");
+		ArbitrarilyDiscretizedFunc sh12_csd_func = new ArbitrarilyDiscretizedFunc();
+		sh12_csd_func.setName("SHAW_CONST_STRESS_DROP");
+		
+		
+		ScalingRelationships sh09_Mod = ScalingRelationships.SHAW_2009_MOD;
+		ScalingRelationships ellB = ScalingRelationships.ELLSWORTH_B;
+		ScalingRelationships hb = ScalingRelationships.HANKS_BAKUN_08;
+		ScalingRelationships sh12_sqrtL = ScalingRelationships.ELLB_SQRT_LENGTH;
+		ScalingRelationships sh12_csd = ScalingRelationships.SHAW_CONST_STRESS_DROP;
+		
+		
+		// log10 area from 1 to 5
+    	for(int i=(int)downDipWidth; i<=maxLength; i++) {
+    		double lengthKm = (double)i;
+    		double length = lengthKm*1e3;
+    		double area = length*downDipWidth*1e3;
+    		sh09_funcMod.set(sh09_Mod.getMag(area, downDipWidth*1e3),sh09_Mod.getAveSlip(area, length));
+    		ellB_func.set(ellB.getMag(area, downDipWidth*1e3),ellB.getAveSlip(area, length));
+    		hb_func.set(hb.getMag(area, downDipWidth*1e3),hb.getAveSlip(area, length));
+    		sh12_sqrtL_func.set(ellB.getMag(area, downDipWidth*1e3),sh12_sqrtL.getAveSlip(area, length));
+    		sh12_csd_func.set(sh09_Mod.getMag(area, downDipWidth*1e3),sh12_csd.getAveSlip(area, length));
+    		
+    		double heckerMag = hb.getMag(area, downDipWidth*1e3);
+//    		WC1994_MagAreaRelationship wc94 = new WC1994_MagAreaRelationship();
+//    		double heckerMag = wc94.getMedianMag(area*1e-6);
+    		double heckerSlip = Math.pow(10.0,0.41*heckerMag-2.79);
+    		heckerEq9b.set(heckerMag,heckerSlip);
+    		
+//    		System.out.println((float)area*1e-6+"\t"+(float)length*1e-3+"\t"+(float)(downDipWidth)+
+//    				"\t"+(float)sh09_Mod.getMag(area, downDipWidth*1e3)+
+//    				"\t"+(float)ellB.getMag(area, downDipWidth*1e3)+
+//    				"\t"+(float)hb.getMag(area, downDipWidth*1e3));
+
+    	}
+    	
+    	ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+    	funcs.add(sh09_funcMod);
+    	funcs.add(ellB_func);
+    	funcs.add(hb_func);
+    	funcs.add(sh12_sqrtL_func);
+    	funcs.add(sh12_csd_func);
+    	funcs.add(heckerEq9b);
+    	
+    	ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.GREEN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.MAGENTA));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.CYAN));
+
+    	
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Implied Slip vs Mag Relationships; DDW="+downDipWidth+" km", plotChars); 
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Slip (m)");
+		graph.setX_AxisRange(6.0, 8.5);
+		graph.setY_AxisRange(0.0, 20.0);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(18);
+		graph.setTickLabelFontSize(16);
+		
+		if(saveFiles) {
+			try {
+				graph.saveAsPDF("slipMagScalingPlot.pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
 	
 	
 	/**
@@ -372,8 +458,9 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	//public 
 	public static void main(String[] args) throws IOException {
 
-		 makeSlipLengthPlot(11, 1000, true);
-		 makeMagAreaPlot(true);
+		makeSlipMagPlot(15, 2000, true);
+//		 makeSlipLengthPlot(11, 1000, true);
+//		 makeMagAreaPlot(true);
 		
 	//	testCreepingSectionSlips();
 		

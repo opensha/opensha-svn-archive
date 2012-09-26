@@ -2084,6 +2084,8 @@ public class FaultSystemRupSetCalc {
 //			System.out.println(s+"\t"+data.getSectionName());
 			
 			double minMag = fltSystRupSet.getFinalMinMagForSection(s);
+			
+			double lowerEdgeOfFirstBin = SectionMFD_constraint.getLowerEdgeOfFirstBin(minMag);
 
 			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
 				 mfdConstraintList.add(new SectionMFD_constraint(minMag, UCERF2_FltSysSol, s));
@@ -2092,18 +2094,35 @@ public class FaultSystemRupSetCalc {
 			else {
 				// compute max mag for rupture filling parent section area
 				double area = totAreaMap.get(data.getParentSectionId());	// km-sq
-				double width = area/totLengthMap.get(data.getParentSectionId());	// km
+				double length = totLengthMap.get(data.getParentSectionId());
+				double width = area/length;	// km
 				double maxMag = scalingRel.getMag(area*1e6, width*1e3);
+				
+				// check for too low maxMag
+				if(maxMag>lowerEdgeOfFirstBin) {
+					// each subsection gets the same moment rate to keep rates constant along the section
+					// note that we could save memory by creating only one SectionMFD_constraint per parent section
+					double moRate = moRateMap.get(data.getParentSectionId()) / (double)numSectMap.get(data.getParentSectionId());
+					mfdConstraintList.add(new SectionMFD_constraint(minMag, maxMag, moRate, fractGR));					
+				}
+				else {
+					mfdConstraintList.add(null);
+					System.out.println("Null MFD Constraint for\t"+data.getSectionName()+
+							"\tminMag="+(float)minMag+
+							"\tmaxMag="+(float)maxMag+
+							"\tlowerEdgeOfFirstBin="+(float)lowerEdgeOfFirstBin+
+							"\tarea="+(float)area+
+							"\tlength="+(float)length+
+							"\twidth="+(float)width);
+				}
+
 				
 				// temp test
 //				if(maxMag<minMag-0.00001) {
 //					System.out.println("maxMag<minMag for"+data.getParentSectionName()+"\tminMag="+minMag+"\tmaxMag="+maxMag);
 //				}
+
 				
-				// each subsection gets the same moment rate to keep rates constant along the section
-				// note that we could save memory by creating only one SectionMFD_constraint per parent section
-				double moRate = moRateMap.get(data.getParentSectionId()) / (double)numSectMap.get(data.getParentSectionId());
-				mfdConstraintList.add(new SectionMFD_constraint(minMag, maxMag, moRate, fractGR));
 			}
 		}
 		
@@ -2199,15 +2218,15 @@ public class FaultSystemRupSetCalc {
 		
 //		writeParkfieldMags();
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-
-//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC, 
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 //				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
 //				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_2, DeformationModels.ZENG, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
-//		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
+		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
 		
 //		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
 //		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))
