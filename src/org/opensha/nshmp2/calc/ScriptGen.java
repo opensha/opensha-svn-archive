@@ -79,7 +79,7 @@ public class ScriptGen {
 		String outDir = args[4];
 		System.out.println(outDir);
 		
-		String epi = args[5];
+		boolean epi = Boolean.parseBoolean(args[5]);
 		System.out.println(epi);
 		
 		int hours = Integer.parseInt(args[6]);
@@ -116,12 +116,12 @@ public class ScriptGen {
 	}
 	
 	private static File writeProps(String outDir, String name, TestGrid grid,
-			Period period, String erfID, String epi) {
+			Period period, String erfID, boolean epi) {
 		File pFile = null;
 		try {
 			String freq = period.equals(Period.GM0P00) ? "pga" : period
 				.equals(Period.GM1P00) ? "1hz" : "5hz";
-			String epiStr = (epi.equals("false")) ? "_noepi" : "";
+			String epiStr = (epi) ? "_epi" : "";
 			String pFileName = name + epiStr + "-" + freq + ".props";
 			pFile = new File(pFileName);
 
@@ -130,7 +130,7 @@ public class ScriptGen {
 			props.setProperty("grid", grid.name());
 			props.setProperty("period", period.name());
 			props.setProperty("erfID", erfID);
-			props.setProperty("epiUnc", epi);
+			props.setProperty("epiUnc", Boolean.toString(epi));
 			props.setProperty("outDir", outDir);
 			props.setProperty("singleFile", "false"); // ignored in MPJ clacs
 

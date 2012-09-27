@@ -3,14 +3,19 @@ package org.opensha.nshmp2.erf;
 import static org.opensha.nshmp2.util.SourceRegion.*;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.param.impl.EnumParameter;
+import org.opensha.nshmp2.erf.source.GridERF;
 import org.opensha.nshmp2.erf.source.NSHMP_ERF;
 import org.opensha.nshmp2.erf.source.Sources;
 import org.opensha.nshmp2.util.FaultType;
 import org.opensha.nshmp2.util.FocalMech;
+import org.opensha.sha.earthquake.EpistemicListERF;
+
+import com.google.common.collect.Lists;
 
 /**
  * Wrapper for NSHMP western US earthquake sources.
@@ -82,13 +87,22 @@ public class NSHMP2008 extends NSHMP_ListERF {
 	
 	/**
 	 * Returns an NSHMP {@code ERF} that includes California (i.e. UCERF2)
-	 * sources.
+	 * sources. Note that this excludes the non-CA bFaults that are included
+	 * in MeanUCERF2 as well as the CAdeep grid sources.
 	 * @return an NSHMP {@code ERF}
 	 */
 	public static NSHMP2008 createCalifornia() {
 		NSHMP2008 erf = new NSHMP2008(null);
-		// add CA sources
-		erf.addERFs(Sources.getGridList(CA));
+		List<GridERF> gridERFs = Sources.getGridList(CA);
+		// remove unwanted sources
+		List<GridERF> removals = Lists.newArrayList();
+		for (GridERF gerf : gridERFs) {
+			if (gerf.getName().equals("CAdeep.in")) {
+				removals.add(gerf);
+			}
+		}
+		gridERFs.removeAll(removals);
+		erf.addERFs(gridERFs);
 		erf.addERFs(Sources.getFaultList(CA));
 		// add additional WUS gridded sources
 		erf.addERF(Sources.get("EXTmap.ch.in"));
@@ -174,7 +188,8 @@ public class NSHMP2008 extends NSHMP_ListERF {
 	}
 	
 	public static void main(String[] args) {
-		
+		EpistemicListERF erf = createCalifornia();
+		System.out.println(erf.toString());
 //
 //		WUS_ERF wus = new WUS_ERF();
 //		wus.updateForecast();
