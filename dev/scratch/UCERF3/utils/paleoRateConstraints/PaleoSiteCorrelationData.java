@@ -122,7 +122,7 @@ public class PaleoSiteCorrelationData {
 	}
 	
 	public static final String SUB_DIR_NAME = "paleoRateData";
-	public static final String FILE_NAME = "PaleoCorrelationData_2012_09_25.xls";
+	public static final String FILE_NAME = "PaleoCorrelationData_2012_09_27.xls";
 
 	/**
 	 * @param args
