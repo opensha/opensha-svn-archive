@@ -55,6 +55,7 @@ public class InversionConfiguration {
 	private double participationConstraintMagBinSize;
 	private double relativeNucleationMFDConstraintWt;
 	private double relativeMFDSmoothnessConstraintWt;
+	private double relativeMFDSmoothnessConstraintWtForPaleoParents;
 	private double relativeMinimizationConstraintWt;
 	private double relativeMomentConstraintWt;
 	private double relativeParkfieldConstraintWt;
@@ -84,6 +85,7 @@ public class InversionConfiguration {
 			double participationConstraintMagBinSize,
 			double relativeNucleationMFDConstraintWt,
 			double relativeMFDSmoothnessConstraintWt,
+			double relativeMFDSmoothnessConstraintWtForPaleoParents,
 			double relativeMinimizationConstraintWt,
 			double relativeMomentConstraintWt,
 			double relativeParkfieldConstraintWt,
@@ -120,6 +122,8 @@ public class InversionConfiguration {
 		metadata += "\nrelativeNucleationMFDConstraintWt: "+relativeNucleationMFDConstraintWt;
 		this.relativeMFDSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
 		metadata += "\nrelativeMFDSmoothnessConstraintWt: "+relativeMFDSmoothnessConstraintWt;
+		this.relativeMFDSmoothnessConstraintWtForPaleoParents = relativeMFDSmoothnessConstraintWtForPaleoParents;
+		metadata += "\nrelativeMFDSmoothnessConstraintWtForPaleoParents: "+relativeMFDSmoothnessConstraintWtForPaleoParents;
 		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
 		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
 		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
@@ -200,10 +204,10 @@ public class InversionConfiguration {
 		boolean weightSlipRates = true;
 		
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativePaleoRateWt = 1.0;
+		double relativePaleoRateWt = 1;
 		
 		// weight of mean paleo slip constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativePaleoSlipWt = 1.0;
+		double relativePaleoSlipWt = relativePaleoRateWt*0.1;
 		
 		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended: 10)
 //		double mfdEqualityConstraintWt = 10;
@@ -252,6 +256,7 @@ public class InversionConfiguration {
 		
 		// weight of spatial MFD smoothness constraint (recommended:  1000)
 		double relativeMFDSmoothnessConstraintWt;
+		double relativeMFDSmoothnessConstraintWtForPaleoParents; // weight for parent sections that have paleo constraints
 		
 		// weight of parent-section event-rate smoothness constraint
 		double relativeEventRateSmoothnessWt;
@@ -271,8 +276,9 @@ public class InversionConfiguration {
 			// CONSTRAINED BRANCHES
 			if (model == InversionModels.CHAR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 0;
-				relativeNucleationMFDConstraintWt = 0.01;
-				relativeMFDSmoothnessConstraintWt = 1000;
+				relativeNucleationMFDConstraintWt = 0.1;
+				relativeMFDSmoothnessConstraintWt = 0;
+				relativeMFDSmoothnessConstraintWtForPaleoParents = 100000;
 				relativeEventRateSmoothnessWt = 0;
 				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
@@ -286,6 +292,7 @@ public class InversionConfiguration {
 				relativeParticipationSmoothnessConstraintWt = 1000;
 				relativeNucleationMFDConstraintWt = 0;
 				relativeMFDSmoothnessConstraintWt = 0;
+				relativeMFDSmoothnessConstraintWtForPaleoParents = 0;
 				relativeEventRateSmoothnessWt = 0;
 				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = null;
@@ -301,6 +308,7 @@ public class InversionConfiguration {
 			relativeParticipationSmoothnessConstraintWt = 0;
 			relativeNucleationMFDConstraintWt = 0;
 			relativeMFDSmoothnessConstraintWt = 0;
+			relativeMFDSmoothnessConstraintWtForPaleoParents = 0;
 			relativeEventRateSmoothnessWt = 0;
 			relativeRupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
@@ -356,11 +364,6 @@ public class InversionConfiguration {
 			MFDTransitionMag = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_TRANSITION_MAG.getArgName()));
 			System.out.println("Setting MFD transition mag: "+MFDTransitionMag);
 		}
-
-		if (modifiers != null && modifiers.hasOption(InversionOptions.MFD_SMOOTHNESS_WT.getArgName())) {
-			relativeMFDSmoothnessConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_SMOOTHNESS_WT.getArgName()));
-			System.out.println("Setting MFD moothness wt: "+relativeMFDSmoothnessConstraintWt);
-		}
 		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
 		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
@@ -390,6 +393,7 @@ public class InversionConfiguration {
 				participationConstraintMagBinSize,
 				relativeNucleationMFDConstraintWt,
 				relativeMFDSmoothnessConstraintWt,
+				relativeMFDSmoothnessConstraintWtForPaleoParents,
 				relativeMinimizationConstraintWt,
 				relativeMomentConstraintWt,
 				relativeParkfieldConstraintWt,
@@ -966,6 +970,15 @@ public class InversionConfiguration {
 	public void setRelativeMFDSmoothnessConstraintWt(double relativeMFDSmoothnessConstraintWt) {
 		this.relativeMFDSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
 	}
+	
+	public double getRelativeMFDSmoothnessConstraintWtForPaleoParents() {
+		return relativeMFDSmoothnessConstraintWtForPaleoParents;
+	}
+
+	public void setRelativeMFDSmoothnessConstraintWtForPaleoParents(double relativeMFDSmoothnessConstraintWtForPaleoParents) {
+		this.relativeMFDSmoothnessConstraintWtForPaleoParents = relativeMFDSmoothnessConstraintWtForPaleoParents;
+	}
+	
 	public List<MFD_InversionConstraint> getMfdEqualityConstraints() {
 		return mfdEqualityConstraints;
 	}
