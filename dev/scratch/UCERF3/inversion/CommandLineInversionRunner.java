@@ -318,13 +318,18 @@ public class CommandLineInversionRunner {
 			+((double)numPerturbs/(double)numRups);
 			int rupsPerturbed = 0;
 			double[] solution_no_min_rates = tsa.getBestSolution();
-			for (int i=0; i<numRups; i++)
+			int numAboveWaterlevel =  0;
+			for (int i=0; i<numRups; i++) {
 				if ((float)solution_no_min_rates[i] != (float)initialState[i])
 					rupsPerturbed++;
+				if (solution_no_min_rates[i] > 0)
+					numAboveWaterlevel++;
+			}
 			info += "\nNum rups actually perturbed: "+rupsPerturbed+"/"+numRups+" ("
 			+(float)(100d*((double)rupsPerturbed/(double)numRups))+" %)";
 			info += "\nAvg Perturbs Per Perturbed Rup: "+numPerturbs+"/"+rupsPerturbed+" = "
 			+((double)numPerturbs/(double)rupsPerturbed);
+			info += "\nNum rups above waterlevel: "+numAboveWaterlevel;
 			info += "\n******************************************";
 			System.out.println("Writing solution bin files");
 			tsa.writeBestSolution(new File(subDir, prefix+".bin"));
