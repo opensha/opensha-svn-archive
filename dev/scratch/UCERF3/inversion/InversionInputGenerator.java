@@ -289,9 +289,24 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Nucleation");
 		}
-		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0) {
+		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0 || config.getRelativeMFDSmoothnessConstraintWtForPaleoParents() > 0.0) {
 			int totalNumMFDSmoothnessConstraints = 0;
 			MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
+			
+			// Get list of parent sections with paleo constraints
+			ArrayList<Integer> paleoParents = new ArrayList<Integer>();
+			if (config.getRelativePaleoRateWt() > 0.0) {
+				for (int i=0; i<paleoRateConstraints.size(); i++) {
+					int paleoParentID = rupSet.getFaultSectionDataList().get(paleoRateConstraints.get(i).getSectionIndex()).getParentSectionId();
+					paleoParents.add(paleoParentID);
+				}
+			}
+			if (config.getRelativePaleoSlipWt() > 0.0) {
+				for (int i=0; i<aveSlipConstraints.size(); i++) {
+					int paleoParentID = rupSet.getFaultSectionDataList().get(aveSlipConstraints.get(i).getSubSectionIndex()).getParentSectionId();
+					paleoParents.add(paleoParentID);
+				}
+			}
 			// Get list of parent sections
 			ArrayList<Integer> parentIDs = new ArrayList<Integer>();
 			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
@@ -313,8 +328,12 @@ public class InversionInputGenerator {
 					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect1);
 					if (sectMFDConstraint == null) continue; // Parent sections with Mmax<6 have no MFD constraint; skip these
 					int numMagBins = sectMFDConstraint.getNumMags();
-					totalNumMFDSmoothnessConstraints+=numMagBins;
-					numRows+=numMagBins;
+					// Only add rows if this parent section will be included; it won't if it's not a paleo parent sect & relativeSmoothnessConstraintWt = 0
+					// CASE WHERE relativeSmoothnessConstraintWt != 0 & relativeMFDSmoothnessConstraintWtForPaleoParents 0 IS NOT SUPPORTED
+					if (config.getRelativeMFDSmoothnessConstraintWt()>0.0 || paleoParents.indexOf(parentID) != -1) {
+						totalNumMFDSmoothnessConstraints+=numMagBins;
+						numRows+=numMagBins;
+					}
 				}
 			}
 			if(D) System.out.println("Number of MFD Smoothness constraints: "+totalNumMFDSmoothnessConstraints);
@@ -814,15 +833,15 @@ public class InversionInputGenerator {
 		
 		
 		// MFD Smoothing constraint - MFDs spatially smooth along adjacent subsections on a parent section
-		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0) {  
+		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0 || config.getRelativeMFDSmoothnessConstraintWtForPaleoParents() > 0.0) {  
 			double relativeMFDSmoothingConstraintWt = config.getRelativeMFDSmoothnessConstraintWt();
+			double relativeMFDSmoothingConstraintWtForPaleoParents = config.getRelativeMFDSmoothnessConstraintWtForPaleoParents();
 			if(D) System.out.println("\nAdding MFD spatial smoothness constraints to A matrix ...");
 			numNonZeroElements = 0;
 			
 			
 			// Get list of parent IDs
 			Map<Integer, List<FaultSectionPrefData>> parentSectsMap = Maps.newHashMap();
-			
 			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
 				Integer parentID = sect.getParentSectionId();
 				List<FaultSectionPrefData> parentSects = parentSectsMap.get(parentID);
@@ -833,11 +852,35 @@ public class InversionInputGenerator {
 				parentSects.add(sect);
 			}
 			
+			// Get list of parent IDs that have a paleo data point (paleo event rate or paleo mean slip)
+			ArrayList<Integer> paleoParents = new ArrayList<Integer>();
+			if (config.getRelativePaleoRateWt() > 0.0) {
+				for (int i=0; i<paleoRateConstraints.size(); i++) {
+					int paleoParentID = rupSet.getFaultSectionDataList().get(paleoRateConstraints.get(i).getSectionIndex()).getParentSectionId();
+					paleoParents.add(paleoParentID);
+				}
+			}
+			if (config.getRelativePaleoSlipWt() > 0.0) {
+				for (int i=0; i<aveSlipConstraints.size(); i++) {
+					int paleoParentID = rupSet.getFaultSectionDataList().get(aveSlipConstraints.get(i).getSubSectionIndex()).getParentSectionId();
+					paleoParents.add(paleoParentID);
+				}
+			}
+			
 			List<HashSet<Integer>> sectRupsHashes = Lists.newArrayList();
 			for (int s=0; s<rupSet.getNumSections(); s++)
 				sectRupsHashes.add(new HashSet<Integer>(rupSet.getRupturesForSection(s)));
 
 			for (List<FaultSectionPrefData> sectsForParent : parentSectsMap.values()) {		
+				
+				// Does this parent sect have a paleo constraint?
+				boolean parentSectIsPaleo=false;
+				int parentID = rupSet.getFaultSectionDataList().get(sectsForParent.get(0).getSectionId()).getParentSectionId();
+				if (paleoParents.contains(parentID)) parentSectIsPaleo = true; 
+				// Use correct weight for this parent section depending whether it has paleo constraint or not
+				double constraintWeight = relativeMFDSmoothingConstraintWt;
+				if (parentSectIsPaleo) constraintWeight = relativeMFDSmoothingConstraintWtForPaleoParents;
+				if (constraintWeight==0) continue;
 				
 				// Constrain the event rate of each neighboring subsection pair (with same parent section) to be approximately equal
 				for (int j=0; j<sectsForParent.size()-1; j++) {
@@ -885,16 +928,16 @@ public class InversionInputGenerator {
 						// Loop over ruptures in this subsection-MFD bin
 						for (int rup: sect1RupsForMagBin) { 
 							if (QUICK_GETS_SETS) 
-								A.setQuick(rowIndex,rup,relativeMFDSmoothingConstraintWt); 
+								A.setQuick(rowIndex,rup,constraintWeight); 
 							else
-								A.set(rowIndex,rup,relativeMFDSmoothingConstraintWt);
+								A.set(rowIndex,rup,constraintWeight);
 							numNonZeroElements++;
 						}
 						for (int rup: sect2RupsForMagBin) {
 							if (QUICK_GETS_SETS) 
-								A.setQuick(rowIndex,rup,-relativeMFDSmoothingConstraintWt);
+								A.setQuick(rowIndex,rup,-constraintWeight);
 							else
-								A.set(rowIndex,rup,-relativeMFDSmoothingConstraintWt);
+								A.set(rowIndex,rup,-constraintWeight);
 							numNonZeroElements++;
 						}
 						d[rowIndex]=0;
@@ -1019,6 +1062,13 @@ public class InversionInputGenerator {
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
 			
 		}
+		
+		// Check that the number of rows of A is correct
+		if (numRows != rowIndex) {
+			System.out.println("Current rowIndex = "+rowIndex+"; numRows of A = "+numRows);
+			throw new IllegalStateException("Number of constraints does not match # of rows of A");
+		}
+		
 		
 		
 		if (minimumRuptureRates != null) {
