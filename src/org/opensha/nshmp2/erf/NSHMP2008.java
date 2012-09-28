@@ -112,6 +112,33 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		return erf;
 	}
 	
+	
+	/**
+	 * Returns an NSHMP {@code ERF} that includes California (i.e. UCERF2)
+	 * sources. Note that this excludes the non-CA bFaults that are included
+	 * in MeanUCERF2 as well as the CAdeep grid sources.
+	 * @return an NSHMP {@code ERF}
+	 */
+	public static NSHMP2008 createCaliforniaGridded() {
+		NSHMP2008 erf = new NSHMP2008(null);
+		List<GridERF> gridERFs = Sources.getGridList(CA);
+		// remove unwanted sources
+		List<GridERF> removals = Lists.newArrayList();
+		for (GridERF gerf : gridERFs) {
+			if (gerf.getName().equals("CAdeep.in")) {
+				removals.add(gerf);
+			}
+		}
+		gridERFs.removeAll(removals);
+		erf.addERFs(gridERFs);
+		// add additional WUS gridded sources
+		erf.addERF(Sources.get("EXTmap.ch.in"));
+		erf.addERF(Sources.get("EXTmap.gr.in"));
+		erf.addERF(Sources.get("WUSmap.ch.in"));
+		erf.addERF(Sources.get("WUSmap.gr.in"));
+		return erf;
+	}
+
 	// should be able to filter sources of erf via custom iterators
 	
 	private void init() {
