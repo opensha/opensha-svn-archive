@@ -2011,7 +2011,78 @@ public class FaultSystemRupSetCalc {
 
 	/**
 	 * This gets a list of SectionMFD_constraint objects (one for each sub-section in InversionFaultSystemRupSet).
-	 * Note that some bins will have zero rates on fault sections that were type A in UCERF2.
+	 * Where each has a GR nucleation distribution, and all bins should have at least one rupture represented.
+	 * The constraints for all subsections of a parent are not necessarily the same here.
+	 * 
+	 * NEED TO REDUCE MOMENT FOR RUPTURES BELOW MIN MAG
+	 * @param fltSystRupSet
+	 * @return
+	 */
+	public static ArrayList<SectionMFD_constraint> getGR_InversionSectMFD_Constraints(InversionFaultSystemRupSet fltSystRupSet) {
+		
+//		System.out.println("Working on getGR_InversionSectMFD_Constraints(*)");
+
+		double fractGR = 1.0;
+		ArrayList<SectionMFD_constraint> mfdConstraintList = new ArrayList<SectionMFD_constraint>();
+				
+		
+		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
+			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
+			double minMag = fltSystRupSet.getFinalMinMagForSection(s);
+			double maxMag = fltSystRupSet.getMaxMagForSection(s);
+			double moRate = fltSystRupSet.getReducedMomentRate(s); 	//data.calcMomentRate(true);
+			double lowerEdgeOfFirstBin = SectionMFD_constraint.getLowerEdgeOfFirstBin(minMag);
+				
+			// check for too low maxMag
+			if(maxMag>lowerEdgeOfFirstBin) {
+				mfdConstraintList.add(new SectionMFD_constraint(minMag, maxMag, moRate, fractGR));					
+			}
+			else {
+				mfdConstraintList.add(null);
+				System.out.println("Null MFD Constraint for\t"+data.getSectionName()+
+							"\tminMag="+(float)minMag+
+							"\tmaxMag="+(float)maxMag+
+							"\tlowerEdgeOfFirstBin="+(float)lowerEdgeOfFirstBin);
+			}
+		}
+		
+		// test to make sure there are no bins with zero ruptures
+		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
+			SectionMFD_constraint constr =mfdConstraintList.get(s);
+			ArrayList<Integer> ithMags = new ArrayList<Integer>();
+			for(int i=0;i<constr.getNumMags();i++)
+				ithMags.add(i);
+			for(int rupID : fltSystRupSet.getRupturesForSection(s)){
+				int index = constr.getIndexForMag(fltSystRupSet.getMagForRup(rupID));
+				if(ithMags.contains(index)) {
+					ithMags.remove(new Integer(index));
+				}
+			}
+			if(ithMags.size()>0) {
+				String str = "\n"+fltSystRupSet.getFaultSectionData(s).getName()+" has zero rups at "+ithMags.size()+" mags: ";
+				for(int iMag:ithMags)
+					str += constr.getMag(iMag)+",  ";
+				if(ithMags.size()>3) {
+					str += "\n"+constr.toString() +"\nRupMags:";
+					for(int rupID : fltSystRupSet.getRupturesForSection(s)){
+						str += "\n\t"+fltSystRupSet.getMagForRup(rupID);
+					}
+				}
+				System.out.print(str);
+//				throw new RuntimeException(str);
+			}
+		}
+		
+		return mfdConstraintList;
+	}
+	
+	
+	
+	
+	/**
+	 * This gets a list of SectionMFD_constraint objects (one for each sub-section in InversionFaultSystemRupSet).
+	 * All subsections of a parent get an equivalent constraint to apply uniformity along strike.
+	 * Note that some bins will still have zero rates on fault sections that were type A in UCERF2.
 	 * @param fltSystRupSet
 	 * @return
 	 */
@@ -2057,7 +2128,7 @@ public class FaultSystemRupSetCalc {
 				totalLength=0;
 			}
 			numSubSec += 1;
-			totalMomentRate += data.calcMomentRate(true);
+			totalMomentRate += fltSystRupSet.getReducedMomentRate(s);	//data.calcMomentRate(true);
 			double length = data.getTraceLength();
 			totalArea += data.getReducedDownDipWidth()*length;	// km-sq
 			totalLength += length;	// km
@@ -2208,6 +2279,129 @@ public class FaultSystemRupSetCalc {
 		
 	}
 	
+	
+	
+	public static void plotSumOfCharInversionMFD_Constraints(InversionFaultSystemRupSet fltSystRupSet) {
+		double minMag = 5.05;
+		int numMag = 40;
+		double deltaMag =0.1;
+		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(fltSystRupSet);
+		SummedMagFreqDist summedMFD = new SummedMagFreqDist(minMag, numMag, deltaMag);
+		for(SectionMFD_constraint mfdConstr : constraints) {
+			if(mfdConstr != null)
+				summedMFD.addIncrementalMagFreqDist(mfdConstr.getResampledToEventlyDiscrMFD(minMag, numMag, deltaMag));
+		}
+		summedMFD.setName("Sum of Char MFD Constraints");
+		summedMFD.setInfo("Rate(M>=6.5)="+(float)summedMFD.getCumRate(6.55));
+
+		// make range of target GRs
+		GutenbergRichterMagFreqDist totalTargetGR = fltSystRupSet.getInversionMFDs().getTotalTargetGR();
+		totalTargetGR.setName("totalTargetGR");
+		totalTargetGR.setInfo("Rate(M>=6.5)="+(float)totalTargetGR.getCumRate(6.55));
+
+		// make range of target GRs
+		SummedMagFreqDist subSeisAndOffFaultTarget = fltSystRupSet.getInversionMFDs().getTotalSubSeismoOnPlusTrulyOffFaultMFD();
+		subSeisAndOffFaultTarget.setName("subSeisAndOffFaultTarget");
+		subSeisAndOffFaultTarget.setInfo("Rate(M>=6.5)="+(float)subSeisAndOffFaultTarget.getCumRate(6.55));
+
+		// make plot
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+		funcs.add(summedMFD);
+		funcs.add(totalTargetGR);
+		funcs.add(summedMFD.getCumRateDistWithOffset());
+		funcs.add(totalTargetGR.getCumRateDistWithOffset());
+		funcs.add(subSeisAndOffFaultTarget.getCumRateDistWithOffset());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.GRAY));
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Sum of Char MFD Constraints",plotChars);
+		graph.setX_AxisRange(5, 9);
+		graph.setY_AxisRange(1e-6, 20);
+		graph.setYLog(true);
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate (per year)");
+
+		graph.setTickLabelFontSize(14);
+		graph.setAxisLabelFontSize(16);
+		graph.setPlotLabelFontSize(18);
+		String fileName = "SumOfCharMFD_Constrints.pdf";
+//		if(fileName != null) {
+//			try {
+//				graph.saveAsPDF(fileName);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}			
+//		}			
+	}
+	
+	
+	
+	
+	public static void plotSumOfGR_InversionMFD_Constraints(InversionFaultSystemRupSet fltSystRupSet) {
+		
+
+		System.out.println("Working on plotSumOfGR_InversionMFD_Constraints(*)");
+		double minMag = 5.05;
+		int numMag = 40;
+		double deltaMag =0.1;
+		ArrayList<SectionMFD_constraint> constraints = getGR_InversionSectMFD_Constraints(fltSystRupSet);
+		SummedMagFreqDist summedMFD = new SummedMagFreqDist(minMag, numMag, deltaMag);
+		for(SectionMFD_constraint mfdConstr : constraints) {
+			if(mfdConstr != null)
+				summedMFD.addIncrementalMagFreqDist(mfdConstr.getResampledToEventlyDiscrMFD(minMag, numMag, deltaMag));
+		}
+		summedMFD.setName("Sum of GR MFD Constraints");
+		summedMFD.setInfo("Rate(M>=6.5)="+(float)summedMFD.getCumRate(6.55));
+
+		// add target GR
+		GutenbergRichterMagFreqDist totalTargetGR = fltSystRupSet.getInversionMFDs().getTotalTargetGR();
+		totalTargetGR.setName("totalTargetGR");
+		totalTargetGR.setInfo("Rate(M>=6.5)="+(float)totalTargetGR.getCumRate(6.55));
+
+		// add what's returned by calcImpliedGR_NucleationMFD(*)
+		SummedMagFreqDist altGR = calcImpliedGR_NucleationMFD(fltSystRupSet, minMag, numMag, deltaMag);
+		altGR.setName("calcImpliedGR_NucleationMFD(*)");
+		altGR.setInfo("Rate(M>=6.5)="+(float)altGR.getCumRate(6.55));
+
+		// make plot
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+		funcs.add(summedMFD);
+		funcs.add(summedMFD.getCumRateDistWithOffset());
+		funcs.add(totalTargetGR);
+		funcs.add(totalTargetGR.getCumRateDistWithOffset());
+		funcs.add(altGR);
+		funcs.add(altGR.getCumRateDistWithOffset());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.BLUE));
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Sum of GR MFD Constraints",plotChars);
+		graph.setX_AxisRange(5, 9);
+		graph.setY_AxisRange(1e-6, 20);
+		graph.setYLog(true);
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate (per year)");
+
+		graph.setTickLabelFontSize(14);
+		graph.setAxisLabelFontSize(16);
+		graph.setPlotLabelFontSize(18);
+		String fileName = "SumOfGR_MFD_Constrints.pdf";
+//		if(fileName != null) {
+//			try {
+//				graph.saveAsPDF(fileName);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}			
+//		}			
+	}
 
 
 
@@ -2226,7 +2420,10 @@ public class FaultSystemRupSetCalc {
 				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
 				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
-		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
+//		plotSumOfCharInversionMFD_Constraints(rupSet);
+		plotSumOfGR_InversionMFD_Constraints(rupSet);
+		
+//		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
 		
 //		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
 //		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))

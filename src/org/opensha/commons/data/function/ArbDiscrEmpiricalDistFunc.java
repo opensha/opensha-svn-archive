@@ -209,6 +209,16 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     	return Math.sqrt(stdDev);
     }
     
+    
+    /**
+     * This returns the coefficient of variation (standard deviation divided by the mean)
+     * @return
+     */
+    public double getCOV() {
+    	return getStdDev()/getMean();
+    }
+    
+    
     /**
      *  Get the mode (X value where Y is maximum).
      * Returns throws a runtime exception in the case of a multi-modal distribution
@@ -300,68 +310,86 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
 /*  temp main method to test and to investige numerical precision issues */
 public static void main( String[] args ) {
+	
+	// Uniform distribution test of getMean() and getStdDev() using http://en.wikipedia.org/wiki/Uniform_distribution_(continuous)
+	ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
+	double a = 2;
+	double b = 4;
+	double lastValue=0;
+	for(int i=0; i<100000; i++) {
+		double value = Math.random()*(b-a)+a;	// random values between a and b
+		func.set(value,1.0); 
+		if(i>0) func.set(lastValue,1.0); // random values between a and b
+		lastValue = value;
+	}
+	double trueMean = (b+a)/2;
+	double trueStdDev = (b-a)/Math.sqrt(12);
+	System.out.println("func.getMaxY()="+func.getMaxY()+"\tfunc.getMinY()="+func.getMinY());
+	System.out.println("func.getMean()="+(float)func.getMean()+"\ttrueMean="+(float)trueMean);
+	System.out.println("func.getStdDev()="+(float)func.getStdDev()+"\ttrueStdDev="+(float)trueStdDev);
 
-  ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
- /* func.set(0.0,0);
-  func.set(1.0,0);
-  func.set(1.0,1);
-  func.set(2.0,1);
-  func.set(2.0,1);
-  func.set(3.0,1);
-  func.set(3.0,1);
-  func.set(3.0,1);
-  func.set(4.0,5);
-  func.set(4.0,-1);
-  func.set(5.0,5.0);
-  func.set(5.0+1e-15,6.0);
-  func.set(5.0+1e-16,7.0);*/
-  func.set(0.0042254953,0.1);
-  func.set(0.008433135,0.3);
-  func.set(0.02094968,0.1);
-  func.set(0.002148321,.02);
-  func.set(0.0042920266,0.06);
-  func.set(0.010695551,.02);
-  func.set(0.002150044,.02);
-  func.set(0.0042954655,.06);
-  func.set(0.010704094,.02);
-  func.set(0.0021466056,.02);
-  func.set(0.0042886036,.06);
-  func.set(0.010687049,.02);
-  func.set(0.0021485311,.02);
-  func.set(0.004292446,.06);
-  func.set(0.010696594,.02);
-  func.set(0.0021486057,.02);
-  func.set(0.0042925947,.06);
-  func.set(0.0106969625,.02);
 
-  System.out.println("func:");
-  Iterator it = func.iterator();
-  Point2D point;
-  while( it.hasNext()) {
-    point = (Point2D) it.next();
-    System.out.println(point.getX()+"  "+point.getY());
-  }
-
-  System.out.println("\ncumFunc:");
-  ArbitrarilyDiscretizedFunc cumFunc = func.getNormalizedCumDist();
-  it = cumFunc.iterator();
-  while( it.hasNext()) {
-    point = (Point2D) it.next();
-    System.out.println(point.getX()+"  "+point.getY());
-  }
-/* */
-  System.out.println("\nFractiles from cumFunc:");
-  System.out.println("0.25: " + cumFunc.getFirstInterpolatedX(0.25));
-  System.out.println("0.5: " + cumFunc.getFirstInterpolatedX(0.5));
-  System.out.println("0.75: " + cumFunc.getFirstInterpolatedX(0.75));
-
-  System.out.println("\nFractiles from method:");
-  System.out.println("0.0: " + func.getInterpolatedFractile(0.0));
-  System.out.println("0.05: " + func.getInterpolatedFractile(0.05));
-  System.out.println("0.25: " + func.getInterpolatedFractile(0.25));
-  System.out.println("0.5: " + func.getInterpolatedFractile(0.5));
-  System.out.println("0.75: " + func.getInterpolatedFractile(0.75));
-  System.out.println("1.0: " + func.getInterpolatedFractile(1.0));
+//  ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
+// /* func.set(0.0,0);
+//  func.set(1.0,0);
+//  func.set(1.0,1);
+//  func.set(2.0,1);
+//  func.set(2.0,1);
+//  func.set(3.0,1);
+//  func.set(3.0,1);
+//  func.set(3.0,1);
+//  func.set(4.0,5);
+//  func.set(4.0,-1);
+//  func.set(5.0,5.0);
+//  func.set(5.0+1e-15,6.0);
+//  func.set(5.0+1e-16,7.0);*/
+//  func.set(0.0042254953,0.1);
+//  func.set(0.008433135,0.3);
+//  func.set(0.02094968,0.1);
+//  func.set(0.002148321,.02);
+//  func.set(0.0042920266,0.06);
+//  func.set(0.010695551,.02);
+//  func.set(0.002150044,.02);
+//  func.set(0.0042954655,.06);
+//  func.set(0.010704094,.02);
+//  func.set(0.0021466056,.02);
+//  func.set(0.0042886036,.06);
+//  func.set(0.010687049,.02);
+//  func.set(0.0021485311,.02);
+//  func.set(0.004292446,.06);
+//  func.set(0.010696594,.02);
+//  func.set(0.0021486057,.02);
+//  func.set(0.0042925947,.06);
+//  func.set(0.0106969625,.02);
+//
+//  System.out.println("func:");
+//  Iterator it = func.iterator();
+//  Point2D point;
+//  while( it.hasNext()) {
+//    point = (Point2D) it.next();
+//    System.out.println(point.getX()+"  "+point.getY());
+//  }
+//
+//  System.out.println("\ncumFunc:");
+//  ArbitrarilyDiscretizedFunc cumFunc = func.getNormalizedCumDist();
+//  it = cumFunc.iterator();
+//  while( it.hasNext()) {
+//    point = (Point2D) it.next();
+//    System.out.println(point.getX()+"  "+point.getY());
+//  }
+///* */
+//  System.out.println("\nFractiles from cumFunc:");
+//  System.out.println("0.25: " + cumFunc.getFirstInterpolatedX(0.25));
+//  System.out.println("0.5: " + cumFunc.getFirstInterpolatedX(0.5));
+//  System.out.println("0.75: " + cumFunc.getFirstInterpolatedX(0.75));
+//
+//  System.out.println("\nFractiles from method:");
+//  System.out.println("0.0: " + func.getInterpolatedFractile(0.0));
+//  System.out.println("0.05: " + func.getInterpolatedFractile(0.05));
+//  System.out.println("0.25: " + func.getInterpolatedFractile(0.25));
+//  System.out.println("0.5: " + func.getInterpolatedFractile(0.5));
+//  System.out.println("0.75: " + func.getInterpolatedFractile(0.75));
+//  System.out.println("1.0: " + func.getInterpolatedFractile(1.0));
 
 }
 

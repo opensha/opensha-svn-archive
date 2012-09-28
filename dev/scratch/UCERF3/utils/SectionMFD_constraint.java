@@ -534,6 +534,22 @@ public class SectionMFD_constraint {
 	
 	
 	/**
+	 * This returns the index of the given mag 
+	 * (or -1 if the given mag is not in range)
+	 * @param mag
+	 * @return
+	 */
+	public int getIndexForMag(double mag) {
+		for(int i=0;i<getNumMags();i++) {
+			if(isMagInBin(mag, i))
+				return i;
+		}
+		return -1;
+		
+	}
+	
+	
+	/**
 	 * This throws a runtime exception if the absolute value of the fractional difference
 	 * greater that 1e-6
 	 * @param val1
@@ -701,6 +717,14 @@ public class SectionMFD_constraint {
 	
 	// this returns the bin-center of the ith mag
 	public double getMag(int ithMag) {return mags.get(ithMag); }
+	
+	
+	public String toString() {
+		String str = "Bin edges:\n";
+		for(int i=0;i<mags.size();i++)
+			str += magEdges.get(i)+"\t"+magEdges.get(i+1)+"\n";
+		return str;
+	}
 
 	
 

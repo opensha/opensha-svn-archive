@@ -43,6 +43,7 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 
@@ -118,9 +119,15 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPDFMap =
 		new HashMap<Integer, ArbDiscrEmpiricalDistFunc>();
 	
+	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPaleoObsPDFMap =
+		new HashMap<Integer, ArbDiscrEmpiricalDistFunc>();
+
+	
 	/**
 	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of slips for the 
 	 * specified section index, where the rate of each rupture is taken into account.
+	 * You can get the mean, standard deviation, or COV by calling the associated method
+	 * in the returned object.
 	 * @param sectIndex
 	 * @return
 	 */
@@ -143,7 +150,35 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		return slipPDF;
 	}
 	
-	
+
+	/**
+	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of paleo observable slips for the 
+	 * specified section index, where the rate of each rupture and probability of observance is taken 
+	 * into account (using the model in AveSlipConstraint.getProbabilityOfObservedSlip(slip)).
+	 * You can get the mean, standard deviation, or COV by calling the associated method
+	 * in the returned object.
+	 * @param sectIndex
+	 * @return
+	 */
+	public synchronized ArbDiscrEmpiricalDistFunc calcPaloeObsSlipPFD_ForSect(int sectIndex) {
+		ArbDiscrEmpiricalDistFunc slipPDF = slipPaleoObsPDFMap.get(sectIndex);
+		if (slipPDF != null)
+			return slipPDF;
+		slipPDF = new ArbDiscrEmpiricalDistFunc();
+		for (int r : getRupturesForSection(sectIndex)) {
+			List<Integer> sectIndices = getSectionsIndicesForRup(r);
+			double[] slips = this.getSlipOnSectionsForRup(r);
+			for(int s=0; s<sectIndices.size(); s++) {
+				if(sectIndices.get(s) == sectIndex) {
+					slipPDF.set(slips[s], getRateForRup(r)*AveSlipConstraint.getProbabilityOfObservedSlip(slips[s]));
+					break;
+				}
+			}
+		}
+		slipPaleoObsPDFMap.put(sectIndex, slipPDF);
+		return slipPDF;
+	}
+
 	/**
 	 * This returns the rate that pairs of section rupture together.  
 	 * Most entries are zero because the sections are far from each other, 
