@@ -910,7 +910,7 @@ public class MeanUCERF2 extends AbstractERF {
 	 * Make Non-CA B-Faults Sources
 	 *
 	 */
-	private void mkNonCA_B_FaultSources() {
+	protected void mkNonCA_B_FaultSources() {
 		double magSigma  = UCERF2.MAG_SIGMA_DEFAULT;
 		double magTruncLevel = UCERF2.TRUNC_LEVEL_DEFAULT;
 		double duration = timeSpan.getDuration();
