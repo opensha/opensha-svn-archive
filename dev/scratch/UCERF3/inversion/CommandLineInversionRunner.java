@@ -438,8 +438,8 @@ public class CommandLineInversionRunner {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				List<AveSlipConstraint> aveSlipConstraints = null;
 				try {
-					List<AveSlipConstraint> aveSlipConstraints;
 					if (config.getRelativePaleoSlipWt() > 0d)
 						aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
 					else
@@ -464,6 +464,14 @@ public class CommandLineInversionRunner {
 				try {
 					writePaleoCorrelationPlots(
 							sol, new File(subDir, "paleo_correlation"), paleoProbabilityModel);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				try {
+					writePaleoFaultPlots(
+							paleoRateConstraints, aveSlipConstraints, sol, new File(subDir,
+									"paleo_fault_based"));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -631,8 +639,8 @@ public class CommandLineInversionRunner {
 	}
 
 	public static ArrayList<PaleoRateConstraint> getPaleoConstraints(FaultModels fm, FaultSystemRupSet rupSet) throws IOException {
-		if (fm == FaultModels.FM2_1)
-			return UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+//		if (fm == FaultModels.FM2_1)
+//			return UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 		return UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 	}
 
@@ -784,6 +792,10 @@ public class CommandLineInversionRunner {
 			IncrementalMagFreqDist meanMFD = ucerf2MFDs.get(0);
 			funcs.add(meanMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+			EvenlyDiscretizedFunc cmlMFD = meanMFD.getCumRateDist();
+			cmlMFD.setName("UCERF2 Cumulative");
+			funcs.add(cmlMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 			Color lightRed = new Color (255, 100, 100);
 			IncrementalMagFreqDist minMFD = ucerf2MFDs.get(1);
 			funcs.add(minMFD);
@@ -858,6 +870,38 @@ public class CommandLineInversionRunner {
 			
 			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
 					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+			
+			File file = new File(dir, fname);
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+		}
+	}
+
+	public static void writePaleoFaultPlots(
+			List<PaleoRateConstraint> paleoRateConstraints,
+			List<AveSlipConstraint> aveSlipConstraints, FaultSystemSolution sol, File dir)
+					throws IOException {
+		Map<String, PlotSpec> specs = PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(
+				paleoRateConstraints, aveSlipConstraints, sol);
+		
+		if (!dir.exists())
+			dir.mkdir();
+		
+		for (String faultName : specs.keySet()) {
+			String fname = faultName.replaceAll("\\W+", "_");
+			
+			PlotSpec spec = specs.get(faultName);
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setTickLabelFontSize(14);
+			gp.setAxisLabelFontSize(16);
+			gp.setPlotLabelFontSize(18);
+			gp.setYLog(true);
+			gp.setxAxisInverted(true);
+			
+			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
+					spec.getFuncs(), spec.getChars(), false, spec.getTitle());
 			
 			File file = new File(dir, fname);
 			gp.getCartPanel().setSize(1000, 800);

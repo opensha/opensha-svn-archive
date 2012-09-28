@@ -26,6 +26,8 @@ import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter.AveSlipFakePaleoConstraint;
@@ -367,10 +369,14 @@ public class PaleoFitPlotter {
 			double minLon = Double.POSITIVE_INFINITY;
 			double maxLon = Double.NEGATIVE_INFINITY;
 			
+			double maxSlip = 0d;
+			
 			Map<Integer, List<FaultSectionPrefData>> sectionsForFault = Maps.newHashMap();
 			
 			for (Integer parentID : namedFaults) {
 				List<FaultSectionPrefData> sectionsForParent = allParentsMap.get(parentID);
+				if (sectionsForParent == null)
+					continue;
 				
 				for (FaultSectionPrefData sect : sectionsForParent) {
 					for (Location loc : sect.getFaultTrace()) {
@@ -385,6 +391,12 @@ public class PaleoFitPlotter {
 						if (lon > maxLon)
 							maxLon = lon;
 					}
+					double targetSlip = sol.getSlipRateForSection(sect.getSectionId());
+					double solSlip = sol.calcSlipRateForSect(sect.getSectionId());
+					if (targetSlip > maxSlip)
+						maxSlip = targetSlip;
+					if (solSlip > maxSlip)
+						maxSlip = solSlip;
 				}
 				
 				sectionsForFault.put(parentID, sectionsForParent);
@@ -397,10 +409,14 @@ public class PaleoFitPlotter {
 			PlotCurveCharacterstics sepChar =
 				new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GRAY);
 			
-			String[] parentNames = new String[namedFaults.size()];
+			List<String> parentNames = Lists.newArrayList();
+			int actualCount = 0;
 			for (int i=0; i<namedFaults.size(); i++) {
 				Integer parentID = namedFaults.get(i);
 				List<FaultSectionPrefData> sectionsForParent = sectionsForFault.get(parentID);
+				if (sectionsForParent == null)
+					continue;
+				actualCount++;
 				
 				// add separators
 				List<Location> sepLocs = Lists.newArrayList();
@@ -423,7 +439,7 @@ public class PaleoFitPlotter {
 				}
 				
 				String name = sectionsForParent.get(0).getParentSectionName();
-				parentNames[i] = name;
+				parentNames.add(name);
 				
 				ArbitrarilyDiscretizedFunc paleoRtFunc = new ArbitrarilyDiscretizedFunc();
 				ArbitrarilyDiscretizedFunc aveSlipRtFunc = new ArbitrarilyDiscretizedFunc();
@@ -431,11 +447,25 @@ public class PaleoFitPlotter {
 				paleoRtFunc.setName("Solution paleo rates for: "+name);
 				aveSlipRtFunc.setName("Solution ave slip prob visible rates for: "+name);
 				origRtFunc.setName("Solution original rates for: "+name);
+				ArbitrarilyDiscretizedFunc targetSlipFunc = new ArbitrarilyDiscretizedFunc();
+				ArbitrarilyDiscretizedFunc solSlipFunc = new ArbitrarilyDiscretizedFunc();
+				targetSlipFunc.setName("Target slip rates (normalized by max slip) for: "+name);
+				List<Double> targetSlips = Lists.newArrayList();
+				List<Double> solSlips = Lists.newArrayList();
+				solSlipFunc.setName("Solution slip rates (normalized by max slip) for: "+name);
 				for (FaultSectionPrefData sect : sectionsForParent) {
 					int mySectID = sect.getSectionId();
 					double paleoRate = getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache);
 					double origRate = getPaleoRateForSect(sol, mySectID, null, traceLengthCache);
 					double aveSlipRate = getAveSlipProbRateForSect(sol, mySectID);
+					if (origRate == 0)
+						continue;
+					double targetSlip = sol.getSlipRateForSection(sect.getSectionId());
+					targetSlips.add(targetSlip);
+					targetSlip /= maxSlip;
+					double solSlip = sol.calcSlipRateForSect(sect.getSectionId());
+					solSlips.add(solSlip);
+					solSlip /= maxSlip;
 					for (Location loc : sect.getFaultTrace()) {
 						double x;
 						if (latitudeX)
@@ -445,15 +475,29 @@ public class PaleoFitPlotter {
 						paleoRtFunc.set(x, paleoRate);
 						origRtFunc.set(x, origRate);
 						aveSlipRtFunc.set(x, aveSlipRate);
+						targetSlipFunc.set(x, targetSlip);
+						solSlipFunc.set(x, solSlip);
 					}
+					
 				}
-				funcs.add(origRtFunc);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, origColor));
-				funcs.add(aveSlipRtFunc);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, aveSlipColor));
-				funcs.add(paleoRtFunc);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, paleoProbColor));
+				if (origRtFunc.getNum() > 0) {
+					funcs.add(origRtFunc);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, origColor));
+					funcs.add(aveSlipRtFunc);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, aveSlipColor));
+					funcs.add(paleoRtFunc);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, paleoProbColor));
+					targetSlipFunc.setInfo("Target Slips: "+Joiner.on(",").join(targetSlips));
+					funcs.add(targetSlipFunc);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+					solSlipFunc.setInfo("Solution Slips: "+Joiner.on(",").join(solSlips));
+					funcs.add(solSlipFunc);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
+				}
 			}
+			if (actualCount == 0)
+				// no matching faults in this FM
+				continue;
 			
 			// now add paleo sites
 			for (PaleoRateConstraint constr : constraints) {
@@ -491,23 +535,22 @@ public class PaleoFitPlotter {
 				chars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, paleoProbColor));
 			}
 			
-			String faultName = StringUtils.getCommonPrefix(parentNames);
-			if (parentNames.length > 2 && (
-					parentNames[0].startsWith("San Andreas")
-					|| parentNames[1].startsWith("San Andreas")))
+			String[] parentNameArray = new String[parentNames.size()];
+			for (int i=0; i<parentNames.size(); i++)
+				parentNameArray[i] = parentNames.get(i);
+			String faultName = StringUtils.getCommonPrefix(parentNameArray);
+			if (parentNameArray.length > 2 && (
+					parentNameArray[0].startsWith("San Andreas")
+					|| parentNameArray[1].startsWith("San Andreas")))
 				faultName = "San Andreas";
 			faultName = faultName.replaceAll("\\(", "").replaceAll("\\)", "").trim();
 			if (faultName.length() < 2) {
 				System.out.println("WARNING: couldn't come up with a common name for: "
 						+Joiner.on(", ").join(parentNames));
-				faultName = "Fault which includes "+parentNames[0];
+				faultName = "Fault which includes "+parentNameArray[0];
 			}
 			System.out.println(faultName+"\tDeltaLat: "+deltaLat+"\tDeltaLon: "+deltaLon
 					+"\tLatitudeX ? "+latitudeX);
-			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, faultName, chars);
-			if (latitudeX)
-				gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
-			gw.setYLog(true);
 			
 			String title = "Paleo Rates/Constraints for "+faultName;
 			String xAxisLabel;
@@ -528,13 +571,43 @@ public class PaleoFitPlotter {
 		File solFile = new File(invDir,
 				"FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3" +
 				"_VarPaleo10_VarMFDSmooth1000_VarSectNuclMFDWt0.01_sol.zip");
-		
+//				"FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3" +
+//				"_VarPaleo0.1_VarAveSlip0.1_VarMFDSmooth1000_VarSectNuclMFDWt0.1_VarNone_sol.zip");
+//				"FM2_1_UC2ALL_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2" +
+//				"_VarPaleo10_VarMFDSmooth1000_VarSectNuclMFDWt0.01_sol.zip");
+//				"FM2_1_UC2ALL_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2" +
+//				"_VarPaleo0.1_VarAveSlip0.1_VarMFDSmooth1000_VarSectNuclMFDWt0.1_VarNone_sol.zip");
 		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
+//		FaultSystemSolution sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
 		List<PaleoRateConstraint> paleoRateConstraint =
 			UCERF3_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
 		List<AveSlipConstraint> aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
 		
-		getFaultSpecificPaleoPlotSpec(paleoRateConstraint, aveSlipConstraints, sol);
+		Map<String, PlotSpec> specs =
+				getFaultSpecificPaleoPlotSpec(paleoRateConstraint, aveSlipConstraints, sol);
+		
+//		File plotDir = new File("/tmp/paleo_fault_plots_low_fm2_tapered");
+//		File plotDir = new File("/tmp/paleo_fault_plots_ucerf2");
+//		File plotDir = new File("/tmp/paleo_fault_plots_lowpaleo");
+		File plotDir = new File("/tmp/paleo_fault_plots");
+		if (!plotDir.exists())
+			plotDir.mkdir();
+		
+		for (String faultName : specs.keySet()) {
+			PlotSpec spec = specs.get(faultName);
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setxAxisInverted(true);
+			gp.setYLog(true);
+			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(),
+					spec.getChars(), false, spec.getTitle());
+			
+			String prefix = faultName.replaceAll("\\W+", "_");
+			File file = new File(plotDir, prefix);
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+		}
 	}
 
 }
