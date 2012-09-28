@@ -49,5 +49,9 @@ public class NSHMP08_GridSourceGenerator {
 	public int getNumSources() {
 		return gridListERF.getSourceCount();
 	}
+	
+	public void setForecastDuration(double duration) {
+		gridListERF.getTimeSpan().setDuration(duration);
+	}
 
 }

@@ -51,6 +51,12 @@ public class MeanUCERF2update extends MeanUCERF2 {
 	}
 	
 	@Override
+	public void updateForecast() {
+		super.updateForecast();
+		gridSrcGen.setForecastDuration(timeSpan.getDuration());
+	}
+	
+	@Override
 	public ArrayList<ProbEqkSource>  getSourceList(){
 		throw new UnsupportedOperationException();
 	}
