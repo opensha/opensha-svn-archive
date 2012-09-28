@@ -36,6 +36,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 
@@ -434,7 +435,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			if (paleoRateConstraints == null)
 				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
 			
-			PlotSpec spec = UCERF3_PaleoRateConstraintFetcher.getSegRateComparisonSpec(
+			PlotSpec spec = PaleoFitPlotter.getSegRateComparisonSpec(
 					paleoRateConstraints, null, sol);
 			
 			ArrayList<? extends DiscretizedFunc> funcs = spec.getFuncs();

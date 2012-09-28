@@ -131,8 +131,8 @@ public class PaleoSiteCorrelationData {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-//		"FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_VarAveSlip0.1_VarMFDSmooth1000_VarSectNuclMFDWt0.1_sol.zip");
-		"FM2_1_UC2ALL_AveU2_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_VarNone_mean_sol.zip");
+		"FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_VarAveSlip0.1_VarMFDSmooth1000_VarSectNuclMFDWt0.1_sol.zip");
+//		"FM2_1_UC2ALL_AveU2_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_VarNone_mean_sol.zip");
 		FaultSystemSolution sol;
 		if (solFile.getName().contains("_mean"))
 			sol = AverageFaultSystemSolution.fromZipFile(solFile);
@@ -248,6 +248,10 @@ public class PaleoSiteCorrelationData {
 						closestFaultSectionIndex = sectionIndex;
 					}
 				}
+				
+				FaultSectionPrefData sect = faultSectionData.get(closestFaultSectionIndex);
+				System.out.println("Mapped "+faultName+" site "+name+" to sub sect: "+sect.getSectionId()
+						+". "+sect.getSectionName());
 
 				Preconditions.checkState(minDist < 10d,
 						"Min dist to sub sect greater than 10 KM: "+minDist+"\nloc: "+loc);

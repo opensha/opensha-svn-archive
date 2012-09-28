@@ -59,6 +59,7 @@ import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
@@ -639,7 +640,7 @@ public class CommandLineInversionRunner {
 			List<AveSlipConstraint> aveSlipConstraints, FaultSystemSolution sol,
 			File dir, String prefix)
 	throws IOException {
-		HeadlessGraphPanel gp = UCERF3_PaleoRateConstraintFetcher.getHeadlessSegRateComparison(
+		HeadlessGraphPanel gp = PaleoFitPlotter.getHeadlessSegRateComparison(
 				paleoRateConstraints, aveSlipConstraints, sol, true);
 
 		File file = new File(dir, prefix+"_paleo_fit");
