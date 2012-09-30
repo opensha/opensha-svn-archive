@@ -43,6 +43,7 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 	private int id;
 	private double weight;
 	private Map<Integer, List<Integer>> namedFaultsMap;
+	private Map<String, List<Integer>> namedFaultsMapAlt;
 	
 	private FaultModels(String modelName, int id, double weight) {
 		this.modelName = modelName;
@@ -215,6 +216,61 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 		}
 		return namedFaultsMap;
 	}
+	
+	
+	/**
+	 * This returns a mapping between a named fault (String keys) and the sections included in the
+	 * named fault (sections IDs ids).
+	 * name.
+	 * @return
+	 */
+	public Map<String, List<Integer>> getNamedFaultsMapAlt() {
+		if (namedFaultsMapAlt == null) {
+			synchronized (this) {
+				try {
+					Map<String, List<Integer>> map = Maps.newHashMap();
+					
+					BufferedReader br = new BufferedReader(UCERF3_DataUtils.getReader(FAULT_MODEL_STORE_DIR_NAME,
+							getShortName()+"FaultsByNameAlt.txt"));
+					
+					String line = br.readLine();
+					
+					Splitter s = Splitter.on('\t');
+					
+					while (line != null) {
+						line = line.trim();
+						if (!line.isEmpty()) {
+							ArrayList<Integer> sects = Lists.newArrayList();
+							
+							String faultname = null;
+							boolean isFirst = true;
+							for (String idStr : s.split(line)) {
+								if(isFirst) {
+									faultname = idStr;
+									isFirst=false;
+								}
+								else
+									sects.add(Integer.parseInt(idStr));
+							}
+							
+							Preconditions.checkState(!sects.isEmpty(), "Shouldn't be empty here!");
+							
+							map.put(faultname, sects);
+						}
+						
+						line = br.readLine();
+					}
+					
+					if (namedFaultsMapAlt == null)
+						namedFaultsMapAlt = map;
+				} catch (Throwable t) {
+					throw ExceptionUtils.asRuntimeException(t);
+				}
+			}
+		}
+		return namedFaultsMapAlt;
+	}
+
 	
 	@Override
 	public String toString() {

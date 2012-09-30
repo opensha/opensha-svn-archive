@@ -1602,6 +1602,8 @@ public class FaultSystemRupSetCalc {
 		return false;
 	}
 	
+	
+	
 	/**
 	 * Calculates the rate of ruptures above the given magnitude that occur on multiple named faults. If
 	 * <code>probPaleoVisible</code> is true then rates are convolved with their paleo visible probability.
@@ -2047,6 +2049,7 @@ public class FaultSystemRupSetCalc {
 		}
 		
 		// test to make sure there are no bins with zero ruptures
+		int[] numCases = new int[10];
 		for(int s=0;s <fltSystRupSet.getNumSections(); s++) {
 			SectionMFD_constraint constr =mfdConstraintList.get(s);
 			ArrayList<Integer> ithMags = new ArrayList<Integer>();
@@ -2058,6 +2061,7 @@ public class FaultSystemRupSetCalc {
 					ithMags.remove(new Integer(index));
 				}
 			}
+			numCases[ithMags.size()] += 1;
 			if(ithMags.size()>0) {
 				String str = "\n"+fltSystRupSet.getFaultSectionData(s).getName()+" has zero rups at "+ithMags.size()+" mags: ";
 				for(int iMag:ithMags)
@@ -2072,6 +2076,8 @@ public class FaultSystemRupSetCalc {
 //				throw new RuntimeException(str);
 			}
 		}
+		System.out.print("numCases = "+numCases);
+
 		
 		return mfdConstraintList;
 	}
@@ -2402,7 +2408,6 @@ public class FaultSystemRupSetCalc {
 //			}			
 //		}			
 	}
-
 
 
 	/**

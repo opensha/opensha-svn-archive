@@ -504,8 +504,35 @@ public class GMT_CA_Maps {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(5.0));
 		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);	
-		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_CROSSHAIR);
+		meanUCERF2.getTimeSpan().setDuration(30d);
+		meanUCERF2.updateForecast();
+		
+		GMT_MapGenerator gen = getDefaultGMT_MapGenerator();
+		CPTParameter cptParam = (CPTParameter )gen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		gen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -5.0);
+		gen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, -3.0);
+
+		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(meanUCERF2, defaultGridRegion, 5.0, 10);	
+		makeMap(geoDataSet, "TempTest of UCERF2", "GMT_CA_Maps.tempTestUCERF2()", dirName, gen);
+		
+		
+	}
+	
+	
+	/**
+	 * @param dirName
+	 * @throws IOException
+	 */
+	public static void tempTestUCERF2(String dirName) throws IOException {
+		
+		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(5.0));
+		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);	
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
 		meanUCERF2.getTimeSpan().setDuration(30d);
 		meanUCERF2.updateForecast();
 		
@@ -515,7 +542,7 @@ public class GMT_CA_Maps {
 		gen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -6.0);
 		gen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, -2.0);
 
-		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(meanUCERF2, defaultGridRegion, 6.5, 10);	
+		GriddedGeoDataSet geoDataSet = ERF_Calculator.getNucleationRatesInRegion(meanUCERF2, defaultGridRegion, 6.0, 10);	
 		for(int i=0; i<geoDataSet.size();i++) {	// convert num expected in 5 years
 			double newVal = geoDataSet.get(i)*5.0;
 			geoDataSet.set(i, newVal);
@@ -532,6 +559,7 @@ public class GMT_CA_Maps {
 		makeMap(bulgeDataSet, "Test of UCERF2 Fig 19b", "GMT_CA_Maps.testMakeUCERF2_Fig19()", dirName+"_b", gen);
 	
 	}
+
 	
 	
 	/**
@@ -703,6 +731,8 @@ public class GMT_CA_Maps {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		
+		testMakeUCERF2_Fig19("tempTestHere");
+		
 //		ERF modMeanUCERF2 = FindEquivUCERF2_Ruptures.buildERF(FaultModels.FM3_1);
 //		plot_bValueMap(modMeanUCERF2, Double.NaN, Double.NaN, "UCERF2 bVals","test", "test_bValMap");
 		
@@ -741,7 +771,7 @@ public class GMT_CA_Maps {
 		
 		// ********* TEST OF UCERF2 PLOTS **************
 		
-		testMakeUCERF2_Fig35("ucerf2_Fig35_Test");
+//		testMakeUCERF2_Fig35("ucerf2_Fig35_Test");
 
 //		testMakeUCERF2_Fig19("ucerf2_Fig19_Test");
 
