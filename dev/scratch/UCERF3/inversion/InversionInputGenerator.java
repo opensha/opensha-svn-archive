@@ -323,7 +323,7 @@ public class InversionInputGenerator {
 						sectsForParent.add(sect.getSectionId());
 				}
 				// For each beginning section of subsection-pair, there will be numMagBins # of constraints
-				for (int j=0; j<sectsForParent.size(); j++) {
+				for (int j=1; j<sectsForParent.size()-2; j++) {
 					int sect2 = sectsForParent.get(j);
 					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect2);
 					if (sectMFDConstraint == null) continue; // Parent sections with Mmax<6 have no MFD constraint; skip these
@@ -883,18 +883,13 @@ public class InversionInputGenerator {
 				if (constraintWeight==0) continue;
 				
 				// Laplacian smoothing of event rates: r[i+1]-2*r[i]+r[i-1]=0 (minimize curvature of event rates)
-				// At fault section edges constraint is just simple difference: r[i+1]-r[i]=0 (slope minimization)
-				for (int j=0; j<sectsForParent.size(); j++) {
-					HashSet<Integer> sect1Hash = new HashSet<Integer>(); HashSet<Integer> sect3Hash = new HashSet<Integer>();
-					if (j != 0) {
-						int sect1 = sectsForParent.get(j-1).getSectionId(); 
-						sect1Hash = sectRupsHashes.get(sect1);
-					}
-					int sect2 = sectsForParent.get(j).getSectionId(); HashSet<Integer> sect2Hash = sectRupsHashes.get(sect2);
-					if (j != sectsForParent.size()-1) {
-						int sect3 = sectsForParent.get(j+1).getSectionId(); 
-						sect3Hash = sectRupsHashes.get(sect3);
-					}
+				for (int j=1; j<sectsForParent.size()-2; j++) {
+					int sect1 = sectsForParent.get(j-1).getSectionId(); 
+					HashSet<Integer> sect1Hash = sectRupsHashes.get(sect1);
+					int sect2 = sectsForParent.get(j).getSectionId(); 
+					HashSet<Integer> sect2Hash = sectRupsHashes.get(sect2);
+					int sect3 = sectsForParent.get(j+1).getSectionId(); 
+					HashSet<Integer> sect3Hash = sectRupsHashes.get(sect3);
 					
 					List<Integer> sect1Rups = Lists.newArrayList();  
 					List<Integer> sect2Rups = Lists.newArrayList();
@@ -904,21 +899,20 @@ public class InversionInputGenerator {
 					for (Integer sect1Rup : sect1Hash)
 						if (!sect2Hash.contains(sect1Rup))
 							sect1Rups.add(sect1Rup);
-					
 					// only rups that involve sect 2 but not sect 1, then add in rups that involve sect 2 but not sect 3
 					// Apparent double counting is OK, that is the factor of 2 in the center of the Laplacian
 					// Think of as: (r[i+1]-*r[i]) + (r[i-1]-r[i])=0 
 					for (Integer sect2Rup : sect2Hash)
 						if (!sect1Hash.contains(sect2Rup))
-							sect2Rups.add(sect2Rup);
+							sect2Rups.add(sect2Rup); 
 					for (Integer sect2Rup : sect2Hash)
 						if (!sect3Hash.contains(sect2Rup))
-							sect2Rups.add(sect2Rup);
-					
-					// only rups that involve sect 3 but  sect 2
-					for (Integer sect3Rup : sect3Hash)
-						if (!sect1Hash.contains(sect3Rup) || !sect2Hash.contains(sect3Rup))
+							sect2Rups.add(sect2Rup); 
+					// only rups that involve sect 3 but sect 2
+					for (Integer sect3Rup : sect3Hash) {
+						if (!sect2Hash.contains(sect3Rup))
 							sect3Rups.add(sect3Rup);
+					}
 					
 					// Get section MFD constraint -- we will use the irregular mag binning for the constraint (but not the rates)
 					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect2);
