@@ -1,5 +1,7 @@
 package scratch.UCERF3.inversion;
 
+import java.util.HashSet;
+
 import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter.TestType;
 
@@ -9,6 +11,7 @@ public class LaughTestFilter {
 	maxCmlJumpDist, maxCmlRakeChange, maxCmlAzimuthChange;
 	private int minNumSectInRup;
 	private CoulombRatesFilter coulombFilter;
+	private HashSet<Integer> parentSectsToIgnore;
 	
 	/**
 	 * This returns the current default laugh test filter
@@ -138,6 +141,14 @@ public class LaughTestFilter {
 
 	public void setCoulombFilter(CoulombRatesFilter coulombFilter) {
 		this.coulombFilter = coulombFilter;
+	}
+
+	public HashSet<Integer> getParentSectsToIgnore() {
+		return parentSectsToIgnore;
+	}
+
+	public void setParentSectsToIgnore(HashSet<Integer> parentSectsToIgnore) {
+		this.parentSectsToIgnore = parentSectsToIgnore;
 	}
 
 	@Override

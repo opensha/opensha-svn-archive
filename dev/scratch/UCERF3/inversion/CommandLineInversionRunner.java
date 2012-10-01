@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +95,10 @@ public class CommandLineInversionRunner {
 		SECTION_NUCLEATION_MFD_WT("nuclwt", "sect-nucl-mfd-wt", "SectNuclMFDWt", true,
 				"Relative section nucleation MFD constraint weight"),
 		MFD_TRANSITION_MAG("mfdtrans", "mfd-trans-mag", "MFDTrans", true, "MFD transition magnitude"),
-		MFD_SMOOTHNESS_WT("mfdsmooth", "mfd-smooth-wt", "MFDSmooth", true, "MFD smoothness constraint weight");
+		MFD_SMOOTHNESS_WT("mfdsmooth", "mfd-smooth-wt", "MFDSmooth", true, "MFD smoothness constraint weight"),
+		PALEO_SECT_MFD_SMOOTH("paleomfdsmooth", "paleo-sect-mfd-smooth", "MFDSmoothPaleoSect", true,
+				"MFD smoothness constraint weight for peleo parent sects"),
+		REMOVE_OUTLIER_FAULTS("removefaults", "remove-faults", "RemoveFaults", false, "Remove some outlier high slip faults.");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -227,8 +231,17 @@ public class CommandLineInversionRunner {
 
 			// first build the rupture set
 			System.out.println("Building RupSet");
+			if (cmd.hasOption("remove-faults")) {
+				HashSet<Integer> sectionsToIgnore = new HashSet<Integer>();
+				sectionsToIgnore.add(13); // mendocino
+				sectionsToIgnore.add(97); // imperial
+				sectionsToIgnore.add(172); // cerro prieto
+				sectionsToIgnore.add(104); // laguna salada
+				laughTest.setParentSectsToIgnore(sectionsToIgnore);
+			}
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					laughTest, defaultAseis, branch);
+			System.out.println("Num rups: "+rupSet.getNumRuptures());
 
 			// store distances for jump plot later
 			Map<IDPairing, Double> distsMap = rupSet.getSubSectionDistances();
@@ -456,14 +469,14 @@ public class CommandLineInversionRunner {
 				}
 				
 				try {
-					writeParentSectionMFDPlots(sol, new File(subDir, "parent_sect_mfds"));
+					writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				
 				try {
 					writePaleoCorrelationPlots(
-							sol, new File(subDir, "paleo_correlation"), paleoProbabilityModel);
+							sol, new File(subDir, PALEO_CORRELATION_DIR_NAME), paleoProbabilityModel);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -471,7 +484,7 @@ public class CommandLineInversionRunner {
 				try {
 					writePaleoFaultPlots(
 							paleoRateConstraints, aveSlipConstraints, sol, new File(subDir,
-									"paleo_fault_based"));
+									PALEO_FAULT_BASED_DIR_NAME));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -496,6 +509,10 @@ public class CommandLineInversionRunner {
 		System.out.println("DONE");
 		System.exit(0);
 	}
+	
+	public static final String PALEO_FAULT_BASED_DIR_NAME = "paleo_fault_based";
+	public static final String PALEO_CORRELATION_DIR_NAME = "paleo_correlation";
+	public static final String PARENT_SECT_MFD_DIR_NAME = "parent_sect_mfds";
 
 	public static void writeJumpPlots(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix) throws IOException {
 		// use UCERF2 here because it doesn't depend on distance along
@@ -893,15 +910,30 @@ public class CommandLineInversionRunner {
 			
 			PlotSpec spec = specs.get(faultName);
 			
+			double xMin = Double.POSITIVE_INFINITY;
+			double xMax = Double.NEGATIVE_INFINITY;
+			for (DiscretizedFunc func : spec.getFuncs()) {
+				double myXMin = func.getMinX();
+				double myXMax = func.getMaxX();
+				if (myXMin < xMin)
+					xMin = myXMin;
+				if (myXMax > xMax)
+					xMax = myXMax;
+			}
+			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
 			gp.setTickLabelFontSize(14);
 			gp.setAxisLabelFontSize(16);
 			gp.setPlotLabelFontSize(18);
 			gp.setYLog(true);
-			gp.setxAxisInverted(true);
+			if (xMax > 0)
+				// only when latitudeX, this is a kludgy way of detecting this for CA
+				gp.setxAxisInverted(true);
+			System.out.println("X Range: "+xMin+"=>"+xMax);
+			gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
 			
 			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-					spec.getFuncs(), spec.getChars(), false, spec.getTitle());
+					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
 			
 			File file = new File(dir, fname);
 			gp.getCartPanel().setSize(1000, 800);

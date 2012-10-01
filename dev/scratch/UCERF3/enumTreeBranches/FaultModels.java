@@ -246,7 +246,7 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 							boolean isFirst = true;
 							for (String idStr : s.split(line)) {
 								if(isFirst) {
-									faultname = idStr;
+									faultname = idStr.trim();
 									isFirst=false;
 								}
 								else

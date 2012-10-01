@@ -169,10 +169,12 @@ public class BatchPlotGen {
 		boolean hasJumpPlots = CommandLineInversionRunner.doJumpPlotsExist(dir, prefix);
 		boolean hasPaleoPlots = CommandLineInversionRunner.doPaleoPlotsExist(dir, prefix);
 		boolean hasSAFSegPlots = CommandLineInversionRunner.doSAFSegPlotsExist(dir, prefix);
-		boolean hasPaleoCorrelationPlots = new File(dir, "paleo_correlation").exists();
+		boolean hasPaleoCorrelationPlots = new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME).exists();
+		boolean hasParentMFDPlots = new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME).exists();
+		boolean hasPaleoFaultBasedPlots = new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME).exists();
 //		boolean hasMFDPlots = 
 		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasPaleoPlots
-				&& hasSAFSegPlots && hasPaleoCorrelationPlots) {
+				&& hasSAFSegPlots && hasPaleoCorrelationPlots && hasParentMFDPlots && hasPaleoFaultBasedPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
@@ -203,10 +205,14 @@ public class BatchPlotGen {
 				e.printStackTrace();
 			}
 		}
-		if (!hasPaleoPlots) {
-			ArrayList<PaleoRateConstraint> paleoRateConstraints =
+		ArrayList<PaleoRateConstraint> paleoRateConstraints = null;
+		List<AveSlipConstraint> aveSlipConstraints = null;
+		if (!hasPaleoPlots || !hasPaleoFaultBasedPlots) {
+			paleoRateConstraints =
 					CommandLineInversionRunner.getPaleoConstraints(sol.getFaultModel(), sol);
-			List<AveSlipConstraint> aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+			aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+		}
+		if (!hasPaleoPlots) {
 			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, dir, prefix);
 		}
 		if (!hasSAFSegPlots) {
@@ -219,7 +225,23 @@ public class BatchPlotGen {
 		if (!hasPaleoCorrelationPlots) {
 			try {
 				CommandLineInversionRunner.writePaleoCorrelationPlots(sol,
-						new File(dir, "paleo_correlation"), UCERF3_PaleoProbabilityModel.load());
+						new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME), UCERF3_PaleoProbabilityModel.load());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (!hasParentMFDPlots) {
+			try {
+				CommandLineInversionRunner.writeParentSectionMFDPlots(sol,
+						new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (!hasPaleoFaultBasedPlots) {
+			try {
+				CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, sol,
+						new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

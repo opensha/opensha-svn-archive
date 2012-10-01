@@ -414,16 +414,27 @@ public class LogicTreePBSWriter {
 //		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		
-		ScalingRelationships[] scales = ScalingRelationships.values();
+//		ScalingRelationships[] scales = ScalingRelationships.values();
+		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.SHAW_CONST_STRESS_DROP };
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
+//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
+		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
+//		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
+		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.ZENG };
+		
+		
 		
 		for (ScalingRelationships scale : scales) {
-			LogicTreeBranch ucerf2Branch = LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
-					MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2, scale);
-			LogicTreeBranch zengBranch = LogicTreeBranch.fromValues(true, FaultModels.FM3_1, DeformationModels.ZENG, SlipAlongRuptureModels.UNIFORM, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
-					MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3, scale);
-			branches.add(ucerf2Branch);
-			branches.add(zengBranch);
+			for (SlipAlongRuptureModels dsr : dsrs) {
+				for (DeformationModels dm : dms) {
+					if (dm == DeformationModels.UCERF2_ALL)
+						branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, dm, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+								MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2, scale, dsr));
+					else
+						branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM3_1, dm, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+								MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3, scale, dsr));
+				}
+			}
 		}
 		
 		return new DiscreteListTreeTrimmer(branches);
@@ -492,13 +503,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "scaling-rel-sweeps-8hr";
+		String runName = "new-smooth-constraint";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-//		int constrained_run_mins = 250;
+		int constrained_run_mins = 250;
 //		int constrained_run_mins = 360;
-		int constrained_run_mins = 500;
+//		int constrained_run_mins = 500;
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
@@ -555,14 +566,14 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
 		InversionOptions[] ops = { InversionOptions.PALEO_WT,
-				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
+				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.PALEO_SECT_MFD_SMOOTH };
 		List<String[]> argVals = Lists.newArrayList();
 		// paleo
-		argVals.add(toArray("1.0"));
+		argVals.add(toArray("0.1", "1", "10"));
 		// mfd smoothness
-		argVals.add(toArray("10000"));
-		// section mfd
-		argVals.add(toArray("0.1"));
+		argVals.add(toArray("0"));
+		// mfd smoothness for paleo sects
+		argVals.add(toArray("10", "100", "1000", "10000"));
 		
 		for (String val1 : argVals.get(0))
 			for (String val2 : argVals.get(1))

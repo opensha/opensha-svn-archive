@@ -364,6 +364,16 @@ public class InversionConfiguration {
 			MFDTransitionMag = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_TRANSITION_MAG.getArgName()));
 			System.out.println("Setting MFD transition mag: "+MFDTransitionMag);
 		}
+
+		if (modifiers != null && modifiers.hasOption(InversionOptions.MFD_SMOOTHNESS_WT.getArgName())) {
+			relativeMFDSmoothnessConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_SMOOTHNESS_WT.getArgName()));
+			System.out.println("Setting MFD smoothness wt: "+MFDTransitionMag);
+		}
+
+		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_SECT_MFD_SMOOTH.getArgName())) {
+			relativeMFDSmoothnessConstraintWtForPaleoParents = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_SECT_MFD_SMOOTH.getArgName()));
+			System.out.println("Setting MFD smoothness for paleo sects wt: "+MFDTransitionMag);
+		}
 		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
 		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();

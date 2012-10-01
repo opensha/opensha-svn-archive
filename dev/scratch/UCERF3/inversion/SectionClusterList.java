@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -97,10 +98,29 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 		if(D) System.out.println("Making sectionConnectionsListList");
 		sectionConnectionsListList = computeCloseSubSectionsListList(subSectionDistances);
 		if(D) System.out.println("Done making sectionConnectionsListList");
+		
+		HashSet<Integer> subSectsToIgnore = null;
+		if (filter.getParentSectsToIgnore() != null) {
+			HashSet<Integer> parentSectsToIgnore = filter.getParentSectsToIgnore();
+			subSectsToIgnore = new HashSet<Integer>();
+			for (FaultSectionPrefData sect : faultSectionData)
+				if (parentSectsToIgnore.contains(sect.getParentSectionId()))
+					subSectsToIgnore.add(sect.getSectionId());
+			for (int i=0; i<sectionConnectionsListList.size(); i++) {
+				List<Integer> list = sectionConnectionsListList.get(i);
+				if (subSectsToIgnore.contains(i))
+					list.clear();
+				for (int j=list.size(); --j>=0;)
+					if (subSectsToIgnore.contains(list.get(j)))
+						list.remove(j);
+			}
+		}
 
 		// make an arrayList of section indexes
 		ArrayList<Integer> availableSections = new ArrayList<Integer>();
-		for(int i=0; i<faultSectionData.size(); i++) availableSections.add(i);
+		for(int i=0; i<faultSectionData.size(); i++)
+			if (subSectsToIgnore == null || !subSectsToIgnore.contains(i))
+				availableSections.add(i);
 
 		while(availableSections.size()>0) {
 			if (D) System.out.println("WORKING ON CLUSTER #"+(size()+1));
