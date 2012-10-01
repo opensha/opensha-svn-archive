@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -39,7 +40,7 @@ import com.google.common.io.Files;
  */
 public class NSHMP_PlotUtils {
 
-	private final static String DL_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2/figs/";
+	private final static String DL_DIR = "/Volumes/Sorrento/hazfigs/";
 
 	/**
 	 * @param args
@@ -70,6 +71,24 @@ public class NSHMP_PlotUtils {
 //		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM0P20, PE2IN50);
 //		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM1P00, PE2IN50);
 
+//		makeRegionalPE_Ratio(CA_RELM, "trunk", "FortranUpdate", 0.2, GM0P00, PE2IN50);
+//		makeRegionalPE_Ratio("hpc", "muc2-1", CA_RELM, "FortranUpdate", 0.1, GM0P00, PE2IN50);
+
+//		makeRegionalPE_RatioSHA("hpc", "muc2-1", "muc2-2", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "muc2-1", "muc2-3", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "muc2-2", "muc2-3", CA_RELM, 0.1, GM0P00, PE2IN50);
+		
+//		makeRegionalPE_Ratio("hpc", "nshmp_us", NATIONAL_POLY, "FortranUpdate", 0.1, GM0P00, PE2IN50);
+//		tmpRatio("test", "stripe_test", "hpc", "ca_nshmp", STRIPE, CA_RELM, 0.1, GM0P00, PE2IN50);
+		
+		makeRegionalPE_RatioSHA("hpc", "ca_nshmp", "ca_nshmp_all", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "ca_nshmp_ca_noepi", "ca_nshmp_ca", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "mean_uc2_noepi", "ca_nshmp_ca_noepi", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "muc2-1", "ca_nshmp", CA_RELM, 0.05, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "muc2_fm2p1_noepi", "mean_uc2_noepi", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "mmuc2_fm2p1_noepi", "muc2_fm2p1_noepi", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "uc2_fm2p1_fss_noepi", "mmuc2_fm2p1_noepi", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "uc2_fm2p1_fss_noepi", "ca_nshmp_ca_noepi", CA_RELM, 0.1, GM0P00, PE2IN50);
 
 //		makeNationalRTGM("HazardTool", "DesignMap", 0.05, Frequency.SA_0P20);
 //		makeNationalRTGM("HazardTool", "DesignMap", 0.05, Frequency.SA_1P00);
@@ -78,23 +97,73 @@ public class NSHMP_PlotUtils {
 		
 //		makeRegionalRTGM(LOS_ANGELES, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
 //		makeRegionalRTGM(LOS_ANGELES, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
-		makeRegionalRTGM(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
-		makeRegionalRTGM(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
-		makeRegionalRTGM(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
-		makeRegionalRTGM(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
+//		makeRegionalRTGM(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
+//		makeRegionalRTGM(SAN_FRANCISCO, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
+//		makeRegionalRTGM(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
+//		makeRegionalRTGM(SALT_LAKE_CITY, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
 //		makeRegionalRTGM(SEATTLE, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
 //		makeRegionalRTGM(SEATTLE, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
 //		makeRegionalRTGM(MEMPHIS, "trunk", "FortranUpdate", 0.1, Frequency.SA_0P20);
 //		makeRegionalRTGM(MEMPHIS, "trunk", "FortranUpdate", 0.1, Frequency.SA_1P00);
 		
+//		makeRegionalMap_SHA(MEMPHIS_BIG, "trunk", GM0P00, PE2IN50);
+//		makeRegionalMap_SHA(LOS_ANGELES_BIG, "trunk", GM0P00, PE2IN50);
+		
+		//makeRegionalMap_NSHMP(MEMPHIS_BIG, "FortranUpdate", GM0P00, PE2IN50);
+		//makeRegionalMap_NSHMP(LOS_ANGELES_BIG, "FortranUpdate", GM0P00, PE2IN50);
+//		makeRegionalMap_NSHMP(CA_RELM, "FortranUpdate", GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("test", "stripe_test", STRIPE, GM0P00, PE2IN50);
+		
+//		makeRegionalMap_SHA("hpc", "muc2-1", CA_RELM, GM0P00, PE2IN50);
+//		tmpMap("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "ca_nshmp_ca", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "ca_nshmp_ca_noepi", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "mean_uc2_noepi_cab", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "muc2_fm2p1_noepi", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "mmuc2_fm2p1_noepi", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "uc2_fm2p1_fss_noepi", CA_RELM, GM0P00, PE2IN50);
+		
+		
+//		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM1P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P20, PE2IN50);
 	}
 	
 
+
+	/*
+	 * Make a regional hazard map
+	 */
+	private static void makeRegionalMap_SHA(String shaDir, String runGroup, TestGrid tg, Period p, ProbOfExceed pe) {
+		String name = " " + runGroup + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_SHA(shaDir, runGroup, tg, p, pe);
+		double[] minmax = getRange(p);
+		makeMapPlot(xyz, tg.bounds(), minmax[0], minmax[1], name, getCPT(p));
+	}
 	
+	private static void tmpMap(String shaDir, String runGroup, TestGrid tg, Period p, ProbOfExceed pe) {
+		String name = " " + runGroup + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_SHA(shaDir, runGroup, tg, p, pe);
+		double[] minmax = getRange(p);
+		makeMapPlot(xyz, tg.bounds(), 0.15, 0.4, name, getCPT(p));
+	}
+
+	
+	/*
+	 * Make a regional hazard map
+	 */
+	private static void makeRegionalMap_NSHMP(TestGrid tg, String nshmDir, Period p, ProbOfExceed pe) {
+		String name = tg + " " + nshmDir + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_NSHMP(tg, nshmDir, p, pe);
+		double[] minmax = getRange(p);
+		makeMapPlot(xyz, tg.bounds(), minmax[0], minmax[1], name, getCPT(p));
+	}
+
 	/*
 	 * Make a national scale prob. exceedance map with the supplied datasets.
 	 */
-	private static void makeNationalPE(String over, String under,
+	private static void makeNationalPE_Ratio(String over, String under,
 			double maxScale, Period p, ProbOfExceed pe) {
 		String name = over + " over " + under + " " + pe + " " + p;
 		GriddedRegion gr = NSHMP_UtilsDev.getNSHMP_Region(0.1);
@@ -107,15 +176,35 @@ public class NSHMP_PlotUtils {
 	/*
 	 * Make a regional over national plot
 	 */
-	private static void makeRegionalPE(TestGrid over, String shaDir, String under,
+	private static void makeRegionalPE_Ratio(String shaDir, String dir, TestGrid over, String under,
 			double maxScale, Period p, ProbOfExceed pe) {
-		String name = over + " SHA" + shaDir + " over " + under + " " + pe + " " + p;
-		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio(over, shaDir, under,
+		String name = dir + " over " + under + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio_SHAoNSHMP(shaDir, dir, over, under,
 			p, pe);
 		NSHMP_GeoDataUtils.minusOne(xyz);
 		makeRatioPlot(xyz, over.bounds(), -maxScale, maxScale, name);
 	}
 
+	/*
+	 * Make a sha over sha plot
+	 */
+	private static void makeRegionalPE_RatioSHA(String shaDir, String dir1, String dir2, TestGrid grid,
+			double maxScale, Period p, ProbOfExceed pe) {
+		String name =  dir1 + " over " + dir2 + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio_SHA(shaDir, dir1, dir2, grid,
+			p, pe);
+		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(xyz, grid.bounds(), -maxScale, maxScale, name);
+	}
+
+	private static void tmpRatio(String shaDir1, String dir1, String shaDir2, String dir2, TestGrid grid1, TestGrid grid2,
+			double maxScale, Period p, ProbOfExceed pe) {
+		String name =  dir1 + " over " + dir2 + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.tmpPEratio(shaDir1, dir1, shaDir2, dir2, grid1, grid2, p, pe);
+		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(xyz, grid1.bounds(), -maxScale, maxScale, name);
+	}
+	
 	/*
 	 * Make national scale RTGM comparison map
 	 */
@@ -155,9 +244,32 @@ public class NSHMP_PlotUtils {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		
 	}
 	
+	private static GMT_CPT_Files getCPT(Period p) {
+		return (p == GM1P00) ? GMT_CPT_Files.NSHMP_1hz : GMT_CPT_Files.NSHMP_5hz;
+	}
+	
+	private static double[] getRange(Period p) {
+		return (p == GM1P00) ? new double[] {0.0, 1.0} : new double[] {0.0, 3.0};
+	}
+	
+	private static void makeMapPlot(GeoDataSet xyz, double[] bounds,
+			double scaleMin, double scaleMax, String name, GMT_CPT_Files cpt) {
+		GMT_MapGenerator map = create(bounds);
+		map.setParameter(COLOR_SCALE_MIN_PARAM_NAME, scaleMin);
+		map.setParameter(COLOR_SCALE_MAX_PARAM_NAME, scaleMax);
+		CPTParameter cptParam = (CPTParameter) map.getAdjustableParamsList()
+				.getParameter(CPT_PARAM_NAME);
+		cptParam.setValue(cpt.getFileName());
+		map.setParameter(LOG_PLOT_NAME, false);
+		try {
+			makeMap(xyz, map, name, "No metadata", DL_DIR + name + File.separator);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+
 //	public static void makePolarPlot() {
 //		GMT_MapGenerator map = getMapGenNational();
 //		

@@ -391,7 +391,7 @@ public class NSHMP_DataUtils {
 				DiscretizedFunc f = cc.getCurve(loc);
 				gm = f.getFirstInterpolatedX_inLogXLogYDomain(targetRate);
 			} catch (Exception e) {
-				System.out.println(loc);
+				System.out.println("Problem location: " + loc);
 				// do nothing; let gm be 0
 			}
 			gDat.set(loc, gm);
