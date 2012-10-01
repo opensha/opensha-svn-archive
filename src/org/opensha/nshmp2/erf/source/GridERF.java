@@ -5,6 +5,9 @@ import static org.opensha.nshmp2.util.SourceRegion.CEUS;
 import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
 import java.awt.Color;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.calc.HazardCalc;
 import org.opensha.nshmp2.util.FaultCode;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.nshmp2.util.NSHMP_Utils;
@@ -234,32 +238,22 @@ public class GridERF extends NSHMP_ERF {
 
 	@Override
 	public ProbEqkSource getSource(int idx) {
-		// System.out.println(timeSpan);
-		// System.out.println(printIthSourceInputs(idx));
-		// System.out.println();
-		// translate index
-		// System.out.println("1: " + idx);
+		// @formatter:off
 		idx = srcIndices[idx];
-		// System.out.println("2: " + idx);
-		// return new Point2Vert_FaultPoisSource(region.locationForIndex(idx),
-		// mfds.get(idx), magLenRel, 0.0, timeSpan.getDuration(), 6.0,
-		// ssMechWt, norMechWt, revMechWt);
-		// return new CEUS_PtSource(region.locationForIndex(idx), mfds.get(idx),
-		// timeSpan.getDuration(), depths, mechWtMap, faultCode);
-		// KLUDGY CEUS
-		// else (faultCode == M_CONV_AB || faultCode == M_CONV_J) {
-		// } else
-		if (faultCode == FIXED) {
-			return new FixedStrikeSource(locs.get(idx),
-				mfds.get(idx), MLR, timeSpan.getDuration(), depths, mechWtMap,
-				strike);
-		}
-		return new PointSource(locs.get(idx), mfds.get(idx),
-			timeSpan.getDuration(), depths, mechWtMap);
+		return (faultCode == FIXED)
+				? new FixedStrikeSource(locs.get(idx), mfds.get(idx), MLR,
+					timeSpan.getDuration(), depths, mechWtMap, strike)
+				: new PointSource(locs.get(idx), mfds.get(idx),
+					timeSpan.getDuration(), depths, mechWtMap);
+		// @formatter:on
 	}
 
 	/**
 	 * Returns the magnitude-frequency distribution at the specified location.
+	 * 
+	 * NOTE: this isn't good as the original MFD's are returned, which can be
+	 * manipulated
+	 * 
 	 * @param loc
 	 * @return the MFD at the supplied location or <code>null</code> if none
 	 *         exists
@@ -286,6 +280,18 @@ public class GridERF extends NSHMP_ERF {
 	@Override
 	public String toString() {
 		return info;
+	}
+	
+	/**
+	 * Scales the internal mfd source rates by the {@code NSHMP_ERF} weight.
+	 * Calling this method is only appropriate when not using {@code GridERF}s
+	 * with {@link HazardCalc}.
+	 */
+	public void scaleRatesToWeight() {
+		double wt = getSourceWeight();
+		for (int idx : srcIndices) {
+			mfds.get(idx).scale(wt);
+		}
 	}
 
 //	private String printIthSourceInputs(int idx) {
