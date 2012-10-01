@@ -279,7 +279,7 @@ public class InversionConfiguration {
 				relativeParticipationSmoothnessConstraintWt = 0;
 				relativeNucleationMFDConstraintWt = 0.01;
 				relativeMFDSmoothnessConstraintWt = 0;
-				relativeMFDSmoothnessConstraintWtForPaleoParents = 10000;
+				relativeMFDSmoothnessConstraintWtForPaleoParents = 1000;
 				relativeEventRateSmoothnessWt = 0;
 				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
