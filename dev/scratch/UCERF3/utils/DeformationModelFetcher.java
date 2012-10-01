@@ -1186,7 +1186,9 @@ public class DeformationModelFetcher {
 			try {
 				writePairingsTextFile(pairingsTextFile, faultSubSectPrefDataList, distances, maxDistance);
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Couldn't write pairings file: " + e.getMessage());
+				// TODO this should be using logging
+//				e.printStackTrace();
 			}
 		}
 

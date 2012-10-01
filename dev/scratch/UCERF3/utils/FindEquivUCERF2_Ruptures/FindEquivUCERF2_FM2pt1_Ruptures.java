@@ -259,6 +259,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 						new File(scratchDir,
 								INFO_FILE_PATH_PREFIX+"_"+NUM_SECTIONS+"_"+NUM_INVERSION_RUPTURES+".txt"));
 			} catch (IOException e) {
+				System.out.println("Can't write to scratch dir: " + e.getMessage());
 				e.printStackTrace(); // an exception here isn't worth killing everything!
 			}
 			
