@@ -218,9 +218,12 @@ public class InversionInputGenerator {
 			rangeNames.add("Rupture Rates");
 		}
 		
-		int numMinimizationRows = (int)Math.signum(config.getRelativeMinimizationConstraintWt())*numRuptures;
-		if(D) System.out.println("Number of minimization constraints: "+numMinimizationRows);
-		if (numMinimizationRows > 0) {
+//		int numMinimizationRows = (int)Math.signum(config.getRelativeMinimizationConstraintWt())*numRuptures;	// For Coulomb Improbability Constraint (not currently used)
+		int numMinimizationRows = 0;
+		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
+			for(int rup=0; rup<numRuptures; rup++) 
+				if (rupSet.isRuptureBelowSectMinMag(rup) == true) numMinimizationRows++;
+			if(D) System.out.println("Number of minimization constraints: "+numMinimizationRows);
 			numRows += numMinimizationRows;
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("Minimization");
@@ -529,7 +532,7 @@ public class InversionInputGenerator {
 		}
 		
 		
-		// Rupture-Rate Constraint
+		// Rupture-Rate Constraint - close to UCERF2 rates
 		if (config.getRelativeRupRateConstraintWt() > 0.0) {
 			double relativeRupRateConstraintWt = config.getRelativeRupRateConstraintWt();
 			double zeroRupRateConstraintWt = config.getRelativeRupRateConstraintWt()*aPrioriConstraintForZeroRatesWtFactor;  // This is the RupRateConstraintWt for ruptures not in UCERF2 
@@ -569,7 +572,32 @@ public class InversionInputGenerator {
 			}
 		}
 		
-		// Penalize Ruptures with small Coulomb weights
+		// Rupture rate minimization constraint
+		// Minimize the rates of ruptures below SectMinMag (strongly so that they have zero rates)
+		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
+			double relativeRupRateMinimizationWt = config.getRelativeMinimizationConstraintWt();
+			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
+			numNonZeroElements = 0;
+			for(int rup=0; rup<numRuptures; rup++) {
+				if (rupSet.isRuptureBelowSectMinMag(rup) == true) { 
+					if (QUICK_GETS_SETS)
+						A.setQuick(rowIndex,rup,relativeRupRateMinimizationWt);
+					else
+						A.set(rowIndex,rup,relativeRupRateMinimizationWt);
+					d[rowIndex] = 0;
+					numNonZeroElements++; rowIndex++;
+				}
+			}
+			if (D) {
+				System.out.println("Adding rupture-rate minimization took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+			}
+		}
+		
+/*		// Rupture rate minimization constraint
+		// Penalize Ruptures with small Coulomb weights (Improbability constraint)
 		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
 			double relativeMinimizationConstraintWt = config.getRelativeMinimizationConstraintWt();
 			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
@@ -588,7 +616,7 @@ public class InversionInputGenerator {
 				watch.start();
 				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 			}
-		}
+		}	*/
 		
 		
 		// Constrain Solution MFD to equal the Target MFD 
@@ -883,6 +911,7 @@ public class InversionInputGenerator {
 				if (constraintWeight==0) continue;
 				
 				// Laplacian smoothing of event rates: r[i+1]-2*r[i]+r[i-1]=0 (minimize curvature of event rates)
+				// Don't need to worry about smoothing for subsection pairs at edges b/c they always share the same ruptures (no ruptures have only 1 subsection in a given parent section)
 				for (int j=1; j<sectsForParent.size()-2; j++) {
 					int sect1 = sectsForParent.get(j-1).getSectionId(); 
 					HashSet<Integer> sect1Hash = sectRupsHashes.get(sect1);

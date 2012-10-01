@@ -204,7 +204,7 @@ public class InversionConfiguration {
 		boolean weightSlipRates = true;
 		
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativePaleoRateWt = 1;
+		double relativePaleoRateWt = 10;
 		
 		// weight of mean paleo slip constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double relativePaleoSlipWt = relativePaleoRateWt*0.1;
@@ -219,7 +219,8 @@ public class InversionConfiguration {
 		double participationConstraintMagBinSize = 0.1;
 		
 		// weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
-		double relativeMinimizationConstraintWt = 0;
+		// (currently used to minimization rates of rups below sectMinMag)
+		double relativeMinimizationConstraintWt = 10000;
 		
 		// weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
 		double relativeSmoothnessWt = 0;
@@ -276,9 +277,9 @@ public class InversionConfiguration {
 			// CONSTRAINED BRANCHES
 			if (model == InversionModels.CHAR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 0;
-				relativeNucleationMFDConstraintWt = 0.1;
+				relativeNucleationMFDConstraintWt = 0.01;
 				relativeMFDSmoothnessConstraintWt = 0;
-				relativeMFDSmoothnessConstraintWtForPaleoParents = 100000;
+				relativeMFDSmoothnessConstraintWtForPaleoParents = 10000;
 				relativeEventRateSmoothnessWt = 0;
 				relativeRupRateConstraintWt = 0;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
@@ -288,6 +289,7 @@ public class InversionConfiguration {
 				initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
 				if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 				initialRupModel = adjustParkfield(rupSet, initialRupModel);
+				initialRupModel = removeRupsBelowMinMag(rupSet, initialRupModel);
 			} else if (model == InversionModels.GR_CONSTRAINED) {
 				relativeParticipationSmoothnessConstraintWt = 1000;
 				relativeNucleationMFDConstraintWt = 0;
@@ -301,6 +303,7 @@ public class InversionConfiguration {
 				minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 				if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
 				initialRupModel = adjustParkfield(rupSet, initialRupModel);
+				initialRupModel = removeRupsBelowMinMag(rupSet, initialRupModel);
 			} else
 				throw new IllegalStateException("Unknown inversion model: "+model);
 		} else {
@@ -417,6 +420,13 @@ public class InversionConfiguration {
 				metadata);
 	}
 	
+	// Set rates of rups with minimum magnitude below fault section minimum magnitude to 0 initial solution
+	private static double[] removeRupsBelowMinMag(InversionFaultSystemRupSet rupSet, double[] initialRupModel) {
+		for (int rup=0; rup<rupSet.getNumRuptures(); rup++) 
+			if (rupSet.isRuptureBelowSectMinMag(rup)) initialRupModel[rup] = 0;		
+		return initialRupModel;
+	}
+
 	// Adjust rates of 6 Parkfield M~6 ruptures (6- 7- and 8- subsection ruptures on the Parkfield section)
 	// So that they sum to 1/25 per year for the initial model
 	private static double[] adjustParkfield(FaultSystemRupSet rupSet,
