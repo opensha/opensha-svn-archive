@@ -404,10 +404,10 @@ public class PaleoFitPlotter {
 						if (lon > maxLon)
 							maxLon = lon;
 					}
-					double targetSlip = sol.getSlipRateForSection(sect.getSectionId());
+					double origSlip = sect.getOrigAveSlipRate()*1e-3;
 					double solSlip = sol.calcSlipRateForSect(sect.getSectionId());
-					if (targetSlip > maxSlip)
-						maxSlip = targetSlip;
+					if (origSlip > maxSlip)
+						maxSlip = origSlip;
 					if (solSlip > maxSlip)
 						maxSlip = solSlip;
 				}
@@ -458,10 +458,13 @@ public class PaleoFitPlotter {
 				origRtFunc.setName("Solution original rates for: "+name);
 				ArbitrarilyDiscretizedFunc targetSlipFunc = new ArbitrarilyDiscretizedFunc();
 				ArbitrarilyDiscretizedFunc solSlipFunc = new ArbitrarilyDiscretizedFunc();
+				ArbitrarilyDiscretizedFunc origSlipFunc = new ArbitrarilyDiscretizedFunc();
+				origSlipFunc.setName("Original nonreduced slip rates (normalized by max slip) for: "+name);
 				targetSlipFunc.setName("Target slip rates (normalized by max slip) for: "+name);
+				solSlipFunc.setName("Solution slip rates (normalized by max slip) for: "+name);
+				List<Double> origSlips = Lists.newArrayList();
 				List<Double> targetSlips = Lists.newArrayList();
 				List<Double> solSlips = Lists.newArrayList();
-				solSlipFunc.setName("Solution slip rates (normalized by max slip) for: "+name);
 				for (FaultSectionPrefData sect : sectionsForParent) {
 					int mySectID = sect.getSectionId();
 					double paleoRate = getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache);
@@ -469,6 +472,9 @@ public class PaleoFitPlotter {
 					double aveSlipRate = getAveSlipProbRateForSect(sol, mySectID);
 					if (origRate == 0)
 						continue;
+					double origSlip = sect.getOrigAveSlipRate()*1e-3;
+					origSlips.add(origSlip);
+					origSlip /= maxSlip;
 					double targetSlip = sol.getSlipRateForSection(sect.getSectionId());
 					targetSlips.add(targetSlip);
 					targetSlip /= maxSlip;
@@ -484,6 +490,7 @@ public class PaleoFitPlotter {
 						paleoRtFunc.set(x, paleoRate);
 						origRtFunc.set(x, origRate);
 						aveSlipRtFunc.set(x, aveSlipRate);
+						origSlipFunc.set(x, origSlip);
 						targetSlipFunc.set(x, targetSlip);
 						solSlipFunc.set(x, solSlip);
 					}
@@ -496,6 +503,9 @@ public class PaleoFitPlotter {
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, aveSlipColor));
 					funcs.add(paleoRtFunc);
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, paleoProbColor));
+					origSlipFunc.setInfo("Original Slips: "+Joiner.on(",").join(origSlips));
+					funcs.add(origSlipFunc);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.CYAN));
 					targetSlipFunc.setInfo("Target Slips: "+Joiner.on(",").join(targetSlips));
 					funcs.add(targetSlipFunc);
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));

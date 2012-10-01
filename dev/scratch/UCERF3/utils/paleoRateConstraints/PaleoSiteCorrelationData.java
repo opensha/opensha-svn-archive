@@ -35,6 +35,7 @@ import org.opensha.sha.gui.infoTools.PlotSpec;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.base.Preconditions;
@@ -131,7 +132,8 @@ public class PaleoSiteCorrelationData {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-		"FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_VarAveSlip0.1_VarMFDSmooth1000_VarSectNuclMFDWt0.1_sol.zip");
+//		"FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_VarAveSlip0.1_VarMFDSmooth1000_VarSectNuclMFDWt0.1_sol.zip");
+		"FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo10_VarMFDSmooth1000_VarSectNuclMFDWt0.01_sol.zip");
 //		"FM2_1_UC2ALL_AveU2_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_VarNone_mean_sol.zip");
 		FaultSystemSolution sol;
 		if (solFile.getName().contains("_mean"))
@@ -141,8 +143,6 @@ public class PaleoSiteCorrelationData {
 		
 		String fileName = solFile.getAbsolutePath().replaceAll(".zip", "")+"_paleo_correlation.xls";
 		File outputFile = new File(fileName);
-		
-		InputStream is = new FileInputStream(new File("D:\\Documents\\temp\\PaleoseisSiteDistancefinal.xls"));
 		
 		double[] vals = get95PercentConfidenceBounds(5, 8);
 		System.out.println(vals[0]+"\t"+vals[1]);
@@ -431,6 +431,11 @@ public class PaleoSiteCorrelationData {
 		PlotCurveCharacterstics dataBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED);
 		PlotCurveCharacterstics solChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE);
 		PlotCurveCharacterstics solAvgBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
+		PlotCurveCharacterstics ucerf2Char = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, new Color(130, 86, 5));
+		
+		FaultSystemSolution ucerf2Sol = null;
+		if (sol != null)
+			ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(sol.getFaultModel());
 		
 		HashSet<String> doneHash = new HashSet<String>();
 		
@@ -520,6 +525,10 @@ public class PaleoSiteCorrelationData {
 					funcs.add(getHorizontalLine(maxAvgRate, x, newX, funcNamePrefix+". Inversion Max: "+maxAvgRate));
 					chars.add(solAvgBoundsChar);
 				}
+				double ucerf2Rate = getRateCorrelated(
+						paleoProb, ucerf2Sol, corr.getSite1SubSect(), corr.getSite2SubSect());
+				funcs.add(getHorizontalLine(ucerf2Rate, x, newX, funcNamePrefix+". UCERF2: "+myRate));
+				chars.add(ucerf2Char);
 			}
 
 			x += dist;

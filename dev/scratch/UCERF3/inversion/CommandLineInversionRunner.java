@@ -95,8 +95,8 @@ public class CommandLineInversionRunner {
 		SECTION_NUCLEATION_MFD_WT("nuclwt", "sect-nucl-mfd-wt", "SectNuclMFDWt", true,
 				"Relative section nucleation MFD constraint weight"),
 		MFD_TRANSITION_MAG("mfdtrans", "mfd-trans-mag", "MFDTrans", true, "MFD transition magnitude"),
-		MFD_SMOOTHNESS_WT("mfdsmooth", "mfd-smooth-wt", "MFDSmooth", true, "MFD smoothness constraint weight"),
-		PALEO_SECT_MFD_SMOOTH("paleomfdsmooth", "paleo-sect-mfd-smooth", "MFDSmoothPaleoSect", true,
+		MFD_SMOOTHNESS_WT("mfdsmooth", "mfd-smooth-wt", "Smooth", true, "MFD smoothness constraint weight"),
+		PALEO_SECT_MFD_SMOOTH("paleomfdsmooth", "paleo-sect-mfd-smooth", "SmoothPaleoSect", true,
 				"MFD smoothness constraint weight for peleo parent sects"),
 		REMOVE_OUTLIER_FAULTS("removefaults", "remove-faults", "RemoveFaults", false, "Remove some outlier high slip faults.");
 
