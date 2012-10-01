@@ -3,8 +3,11 @@ package scratch.UCERF3.inversion;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -24,6 +27,8 @@ import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
@@ -85,14 +90,12 @@ public class RunInversion {
 		
 		// get the paleo rate constraints
 		List<PaleoRateConstraint> paleoRateConstraints = null;
-		try {	
-			if (rupSet.getFaultModel() == FaultModels.FM2_1) 
-				paleoRateConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
-			else
-				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+		try {
+			paleoRateConstraints = CommandLineInversionRunner.getPaleoConstraints(
+					rupSet.getFaultModel(), rupSet);
 		} catch (IOException e1) {
 			e1.printStackTrace();
-			// this is a critical error, need to exit
+			// exit
 			System.exit(1);
 		}
 		
@@ -211,8 +214,15 @@ public class RunInversion {
 		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints, paleoProbabilityModel, rupSet);
 		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(solution);
 		invSol.plotMFDs();
+		List<AveSlipConstraint> aveSlipConstraints;
 		try {
-			CommandLineInversionRunner.writeMFDPlots(invSol, new File("/tmp"), rupSet.getLogicTreeBranch().buildFileName());
+			aveSlipConstraints = AveSlipConstraint.load(solution.getFaultSectionDataList());
+			Map<String, PlotSpec> plotSpecs =
+					PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(paleoRateConstraints, aveSlipConstraints, solution);
+			// display SAF plots
+			PlotSpec plotSpec = plotSpecs.get("San Andreas");
+			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(plotSpec);
+			gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
