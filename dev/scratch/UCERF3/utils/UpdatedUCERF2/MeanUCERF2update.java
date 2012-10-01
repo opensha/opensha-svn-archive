@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
  */
 public class MeanUCERF2update extends MeanUCERF2 {
 
-	private NSHMP08_GridSourceGenerator gridSrcGen;
+	private NSHMP08_GridSourceGenerator gridSrcGen = new NSHMP08_GridSourceGenerator();
 
 	/**
 	 * Returns the  ith earthquake source

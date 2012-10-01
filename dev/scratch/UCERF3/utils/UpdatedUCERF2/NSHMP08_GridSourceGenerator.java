@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.opensha.nshmp2.erf.NSHMP2008;
+import org.opensha.nshmp2.erf.source.GridERF;
+import org.opensha.nshmp2.erf.source.NSHMP_ERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
@@ -29,21 +31,51 @@ public class NSHMP08_GridSourceGenerator {
 	
 	public NSHMP08_GridSourceGenerator() {
 		gridListERF = NSHMP2008.createCaliforniaGridded();
-		int prevValue = 0;
+		System.out.println(gridListERF);
 		List<Integer> indexList = Lists.newArrayList();
+		int total = 0;
 		for (ERF erf : gridListERF) {
-			int currentTotal = erf.getNumSources() + prevValue;
-			indexList.add(currentTotal);
-			prevValue = currentTotal;
+			// need to include an initial 0 value
+			// and can skip last value
+			indexList.add(total);
+			total += erf.getNumSources();
 		}
 		erfIndices = Ints.toArray(indexList);
+		
+		// NOTE:
+		// adjust mfd rates of sources; this is possible becuase the mfds can
+		// be accessed publicly without cloning (and therefore adjusted),
+		// this isn't good
+		
+		for (NSHMP_ERF erf : gridListERF) {
+			GridERF gerf = (GridERF) erf;
+			gerf.scaleRatesToWeight();
+		}
 	}
 	
-	public ProbEqkSource getSource(int i) {
-		int erfIdx = Arrays.binarySearch(erfIndices, i);
-		if (erfIdx < 0) erfIdx = -(i+2);
-		int srcIdx = i - erfIndices[erfIdx];
+	public ProbEqkSource getSource(int srcIdx) {
+		int erfIdx = Arrays.binarySearch(erfIndices, srcIdx);
+		// for index matches, select the next highest erf
+		erfIdx = (erfIdx < 0) ? -(erfIdx + 2) : erfIdx;
+		srcIdx = srcIdx - erfIndices[erfIdx];
 		return gridListERF.getERF(erfIdx).getSource(srcIdx);
+		
+//		int erfIdx2 = -1, srcIdx2 = -1;
+//		int erfIdx1 = Arrays.binarySearch(erfIndices, srcIdx);
+//		try {
+//			erfIdx2 = erfIdx1;
+//			if (erfIdx1 < 0) erfIdx2 = -(erfIdx1 + 1);
+//			srcIdx2 = srcIdx - erfIndices[erfIdx2];
+//			return gridListERF.getERF(erfIdx2).getSource(srcIdx);
+//		} catch (ArrayIndexOutOfBoundsException e) {
+//			System.out.println(srcIdx);
+//			System.out.println(erfIdx1);
+//			System.out.println(erfIdx2);
+//			System.out.println(srcIdx2);
+//			System.out.println(Arrays.toString(erfIndices));
+//			e.printStackTrace();
+//		}
+//		return null;
 	}
 	
 	public int getNumSources() {
