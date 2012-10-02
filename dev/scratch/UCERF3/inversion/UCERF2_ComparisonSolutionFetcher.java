@@ -8,7 +8,9 @@ import java.util.Map;
 import org.dom4j.DocumentException;
 import org.opensha.commons.exceptions.GMT_MapException;
 
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
@@ -24,7 +26,9 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetch
 
 public class UCERF2_ComparisonSolutionFetcher {
 	
-	private static Map<FaultModels, SimpleFaultSystemSolution> cache = Maps.newHashMap();
+//	private static Map<FaultModels, SimpleFaultSystemSolution> cache = Maps.newHashMap();
+	private static Table<FaultModels, SlipAlongRuptureModels,
+			SimpleFaultSystemSolution> cache= HashBasedTable.create();
 	
 	/**
 	 * This creates a UCERF2 reference solution for the given Fault Model. It uses
@@ -37,16 +41,20 @@ public class UCERF2_ComparisonSolutionFetcher {
 	 * @return
 	 */
 	public static SimpleFaultSystemSolution getUCERF2Solution(FaultModels fm) {
-		SimpleFaultSystemSolution sol = cache.get(fm);
+		return getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
+	}
+	
+	public static SimpleFaultSystemSolution getUCERF2Solution(FaultModels fm, SlipAlongRuptureModels slipModel) {
+		SimpleFaultSystemSolution sol = cache.get(fm, slipModel);
 		if (sol == null) {
 			DeformationModels dm;
 			if (fm == FaultModels.FM2_1)
 				dm = DeformationModels.UCERF2_ALL;
 			else
-				dm = DeformationModels.GEOLOGIC_PLUS_ABM;
+				dm = DeformationModels.GEOLOGIC;
 			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					LaughTestFilter.getDefault(), 0, fm, dm, ScalingRelationships.AVE_UCERF2,
-					SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, SpatialSeisPDF.UCERF2);
+					slipModel, InversionModels.CHAR_CONSTRAINED, SpatialSeisPDF.UCERF2);
 
 			ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
 
@@ -68,22 +76,22 @@ public class UCERF2_ComparisonSolutionFetcher {
 			modRupSet.setMagForallRups(mags);
 
 			sol = new SimpleFaultSystemSolution(modRupSet, rates);
-			cache.put(fm, sol);
+			cache.put(fm, slipModel, sol);
 		}
 		return sol;
 	}
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		FaultModels fm = FaultModels.FM3_1;
-		String prefix = "ucerf2_fm3_compare";
+		String prefix = "FM3_1_UCERF2_DsrUni_CharConst_COMPARE";
 		File dir = new File("/tmp");
 		
-		SimpleFaultSystemSolution sol = getUCERF2Solution(fm);
-		BatchPlotGen.makeMapPlots(sol, dir, prefix);
-		sol.toZipFile(new File(dir, prefix+".zip"));
+		SimpleFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.UNIFORM);
+//		BatchPlotGen.makeMapPlots(sol, dir, prefix);
+		sol.toZipFile(new File(dir, prefix+"_sol.zip"));
 		
-		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
-		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, sol, dir, prefix);
+//		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
+//		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, sol, dir, prefix);
 		
 //		SimpleFaultSystemSolution sol = getUCERF2Solution(FaultModels.FM3_1);
 //		BatchPlotGen.makeMapPlots(sol, new File("/tmp"), "ucerf2_fm3_compare");
