@@ -169,15 +169,8 @@ public class AveSlipConstraint {
 				// we're done
 				break;
 //			System.out.println(rowIndex+": "+row.getCell(0));
-			List<Integer> parentIDs = Lists.newArrayList();
 			HSSFCell parentCell = row.getCell(1);
-			if (parentCell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
-				String[] parentSplits = parentCell.getStringCellValue().trim().split(",");
-				for (String parentStr : parentSplits)
-					parentIDs.add(Integer.parseInt(parentStr.trim()));
-			} else {
-				parentIDs.add((int)row.getCell(1).getNumericCellValue());
-			}
+			List<Integer> parentIDs = loadParentIDs(parentCell);
 			
 			double lat = row.getCell(2).getNumericCellValue();
 			double lon = row.getCell(3).getNumericCellValue();
@@ -226,6 +219,21 @@ public class AveSlipConstraint {
 			wb.write(new FileOutputStream(mappingFile));
 		
 		return constraints;
+	}
+	
+	public static List<Integer> loadParentIDs(HSSFCell parentCell) {
+		List<Integer> parentIDs = Lists.newArrayList();
+		if (parentCell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+			String[] parentSplits = parentCell.getStringCellValue().trim().split(",");
+			for (String parentStr : parentSplits)
+				parentIDs.add(Integer.parseInt(parentStr.trim()));
+		} else {
+//			System.out.println("Numeric!");
+			int val = (int)parentCell.getNumericCellValue();
+			if (val > 0)
+				parentIDs.add(val);
+		}
+		return parentIDs;
 	}
 	
 	public static void main(String[] args) throws IOException {

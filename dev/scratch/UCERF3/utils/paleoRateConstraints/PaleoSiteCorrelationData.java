@@ -37,7 +37,9 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -237,16 +239,19 @@ public class PaleoSiteCorrelationData {
 				Location loc = new Location(lat, lon);
 				
 				HSSFCell parentOverrideCell = theRow.getCell(3);
-				int parentOverride = -1;
-				if (parentOverrideCell != null && parentOverrideCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC)
-					parentOverride = (int)parentOverrideCell.getNumericCellValue();
+				List<Integer> parentOverrides = null;
+				if (parentOverrideCell != null) {
+					parentOverrides = AveSlipConstraint.loadParentIDs(parentOverrideCell);
+					if (parentOverrides.isEmpty())
+						parentOverrides = null;
+				}
 
 				double minDist = Double.MAX_VALUE, dist;
 				int closestFaultSectionIndex=-1;
 
 				for(int sectionIndex=0; sectionIndex<faultSectionData.size(); ++sectionIndex) {
 					FaultSectionPrefData data = faultSectionData.get(sectionIndex);
-					if (parentOverride >= 0 && parentOverride != data.getParentSectionId())
+					if (parentOverrides != null && !parentOverrides.contains(data.getParentSectionId()))
 						continue;
 
 					dist  = data.getFaultTrace().minDistToLine(loc);
@@ -256,6 +261,9 @@ public class PaleoSiteCorrelationData {
 					}
 				}
 				
+				System.out.println(name);
+				if (parentOverrides != null)
+					System.out.println(Joiner.on(", ").join(parentOverrides));
 				FaultSectionPrefData sect = faultSectionData.get(closestFaultSectionIndex);
 //				System.out.println("Mapped "+faultName+" site "+name+" to sub sect: "+sect.getSectionId()
 //						+". "+sect.getSectionName());
