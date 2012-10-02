@@ -123,7 +123,7 @@ public class PaleoSiteCorrelationData {
 	}
 	
 	public static final String SUB_DIR_NAME = "paleoRateData";
-	public static final String FILE_NAME = "PaleoCorrelationData_2012_09_27.xls";
+	public static final String FILE_NAME = "PaleoCorrelationData_2012_09_28.xls";
 
 	/**
 	 * @param args
@@ -235,12 +235,19 @@ public class PaleoSiteCorrelationData {
 				double lat = theRow.getCell(1).getNumericCellValue();
 				double lon = theRow.getCell(2).getNumericCellValue();
 				Location loc = new Location(lat, lon);
+				
+				HSSFCell parentOverrideCell = theRow.getCell(3);
+				int parentOverride = -1;
+				if (parentOverrideCell != null && parentOverrideCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC)
+					parentOverride = (int)parentOverrideCell.getNumericCellValue();
 
 				double minDist = Double.MAX_VALUE, dist;
 				int closestFaultSectionIndex=-1;
 
 				for(int sectionIndex=0; sectionIndex<faultSectionData.size(); ++sectionIndex) {
 					FaultSectionPrefData data = faultSectionData.get(sectionIndex);
+					if (parentOverride >= 0 && parentOverride != data.getParentSectionId())
+						continue;
 
 					dist  = data.getFaultTrace().minDistToLine(loc);
 					if(dist<minDist) {
@@ -250,8 +257,8 @@ public class PaleoSiteCorrelationData {
 				}
 				
 				FaultSectionPrefData sect = faultSectionData.get(closestFaultSectionIndex);
-				System.out.println("Mapped "+faultName+" site "+name+" to sub sect: "+sect.getSectionId()
-						+". "+sect.getSectionName());
+//				System.out.println("Mapped "+faultName+" site "+name+" to sub sect: "+sect.getSectionId()
+//						+". "+sect.getSectionName());
 
 				Preconditions.checkState(minDist < 10d,
 						"Min dist to sub sect greater than 10 KM: "+minDist+"\nloc: "+loc);
@@ -264,7 +271,7 @@ public class PaleoSiteCorrelationData {
 			
 			Table<String, String, PaleoSiteCorrelationData> table = HashBasedTable.create(numSites, numSites);
 
-			int startCol = 4;
+			int startCol = 5;
 			int endCol = startCol+numSites-1;
 
 			for (int row=range[0]; row<=range[1]; row++) {
