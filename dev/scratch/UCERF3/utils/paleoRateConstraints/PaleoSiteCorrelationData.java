@@ -261,10 +261,10 @@ public class PaleoSiteCorrelationData {
 					}
 				}
 				
-				System.out.println(name);
-				if (parentOverrides != null)
-					System.out.println(Joiner.on(", ").join(parentOverrides));
-				FaultSectionPrefData sect = faultSectionData.get(closestFaultSectionIndex);
+//				System.out.println(name);
+//				if (parentOverrides != null)
+//					System.out.println(Joiner.on(", ").join(parentOverrides));
+//				FaultSectionPrefData sect = faultSectionData.get(closestFaultSectionIndex);
 //				System.out.println("Mapped "+faultName+" site "+name+" to sub sect: "+sect.getSectionId()
 //						+". "+sect.getSectionName());
 
