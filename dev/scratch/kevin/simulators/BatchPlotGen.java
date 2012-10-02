@@ -30,6 +30,8 @@ import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
 
+import scratch.UCERF3.inversion.CommandLineInversionRunner;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -509,7 +511,7 @@ public class BatchPlotGen {
 	
 	private static void writeMFDPlot(PlotSpec spec, File dir, String prefix, double minX, double maxX, double minY, double maxY) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		
+		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setYLog(true);
 		
 //		MinMaxAveTracker xTrack = new MinMaxAveTracker();

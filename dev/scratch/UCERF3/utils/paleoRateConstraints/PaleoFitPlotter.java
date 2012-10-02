@@ -254,7 +254,7 @@ public class PaleoFitPlotter {
 			FaultSystemSolution sol, boolean yLog) {
 		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, sol);
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		
+		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setYLog(yLog);
 		
 		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), false, spec.getTitle());

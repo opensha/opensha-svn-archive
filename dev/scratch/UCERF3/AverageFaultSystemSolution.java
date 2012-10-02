@@ -510,6 +510,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		}
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
 		
 		gp.setYLog(true);
 		

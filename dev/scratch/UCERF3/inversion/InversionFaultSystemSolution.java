@@ -331,9 +331,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.setTickLabelFontSize(14);
-		gp.setAxisLabelFontSize(16);
-		gp.setPlotLabelFontSize(18);
+		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setYLog(true);
 		gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
 		double minX = totalMFD.getMinX();

@@ -33,6 +33,7 @@ import com.google.common.collect.Maps;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class FaultSpecificSegmentationPlotGen {
@@ -52,6 +53,7 @@ public class FaultSpecificSegmentationPlotGen {
 		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
 		
 		gp.setxAxisInverted(true);
 		

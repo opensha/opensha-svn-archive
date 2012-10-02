@@ -46,6 +46,7 @@ import com.google.common.collect.Maps;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
@@ -438,9 +439,7 @@ public class UCERF2_Section_MFDsCalc {
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			gp.setTickLabelFontSize(14);
-			gp.setAxisLabelFontSize(16);
-			gp.setPlotLabelFontSize(18);
+			CommandLineInversionRunner.setFontSizes(gp);
 			gp.setYLog(true);
 			gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
 			gp.setUserBounds(5, 9, 1e-7, 1.0);

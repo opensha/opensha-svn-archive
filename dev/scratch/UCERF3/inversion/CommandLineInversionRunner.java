@@ -637,7 +637,6 @@ public class CommandLineInversionRunner {
 	public static void writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
 			IncrementalMagFreqDist targetMFD, Region region, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) throws IOException {
 		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(totalMFD, targetMFD, region, ucerf2Fetch);
-		setFontSizes(gp);
 		File file = new File(dir, getMFDPrefix(prefix, region));
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
@@ -668,7 +667,6 @@ public class CommandLineInversionRunner {
 	throws IOException {
 		HeadlessGraphPanel gp = PaleoFitPlotter.getHeadlessSegRateComparison(
 				paleoRateConstraints, aveSlipConstraints, sol, true);
-		setFontSizes(gp);
 
 		File file = new File(dir, prefix+"_paleo_fit");
 		gp.getCartPanel().setSize(1000, 800);
@@ -692,7 +690,6 @@ public class CommandLineInversionRunner {
 	public static void writeSAFSegPlot(FaultSystemSolution sol, File dir, String prefix,
 			List<Integer> parentSects, double minMag, boolean endsOnly) throws IOException {
 		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(parentSects, sol, minMag, endsOnly);
-		setFontSizes(gp);
 		
 		prefix = getSAFSegPrefix(prefix, minMag, endsOnly);
 
