@@ -467,9 +467,12 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public  IncrementalMagFreqDist calcNucleationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
-		for (int r : getRupturesForSection(sectIndex)) {
-			double nucleationRate = getRateForRup(r)*getAreaForSection(sectIndex)/getAreaForRup(r);
-			mfd.addResampledMagRate(getMagForRup(r), nucleationRate, true);
+		List<Integer> rups = getRupturesForSection(sectIndex);
+		if (rups != null) {
+			for (int r : rups) {
+				double nucleationRate = getRateForRup(r)*getAreaForSection(sectIndex)/getAreaForRup(r);
+				mfd.addResampledMagRate(getMagForRup(r), nucleationRate, true);
+			}
 		}
 		return mfd;
 	}
@@ -486,8 +489,11 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public IncrementalMagFreqDist calcParticipationMFD_forParentSect(int parentSectionID, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
-		for (int r : getRupturesForParentSection(parentSectionID))
-			mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
+		List<Integer> rups = getRupturesForParentSection(parentSectionID);
+		if (rups != null) {
+			for (int r : rups)
+				mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
+		}
 		return mfd;
 	}
 	
@@ -503,8 +509,11 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public IncrementalMagFreqDist calcParticipationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
-		for (int r : getRupturesForSection(sectIndex))
-			mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
+		List<Integer> rups = getRupturesForSection(sectIndex);
+		if (rups != null) {
+			for (int r : rups)
+				mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
+		}
 		return mfd;
 	}
 	
