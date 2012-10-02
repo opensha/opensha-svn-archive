@@ -1,5 +1,8 @@
 package scratch.UCERF3.utils.aveSlip;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -30,8 +33,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class AveSlipConstraint {
 	
 	public static final String DIR_NAME = "aveSlip";
-	public static final String TABLE_5_FILE_NAME = "Table R5v4.xls";
-	public static final String TABLE_6_FILE_NAME = "Table R6v4.xls";
+	public static final String TABLE_5_FILE_NAME = "Table R5v4_withMappings.xls";
+	public static final String TABLE_6_FILE_NAME = "Table R6v4_withMappings.xls";
 	
 	private static ArbitrarilyDiscretizedFunc probObsSlipModel;
 	static {
@@ -121,6 +124,12 @@ public class AveSlipConstraint {
 	
 	public static List<AveSlipConstraint> load(
 			InputStream is, List<FaultSectionPrefData> subSectData) throws IOException {
+		return load(is, subSectData, -1, null);
+	}
+	
+	private static List<AveSlipConstraint> load(
+			InputStream is, List<FaultSectionPrefData> subSectData,
+			int mappingCol, File mappingFile) throws IOException {
 		Map<Integer, List<FaultSectionPrefData>> parentSectsMap = Maps.newHashMap();
 		for (FaultSectionPrefData data : subSectData) {
 			Integer parentID = data.getParentSectionId();
@@ -206,19 +215,39 @@ public class AveSlipConstraint {
 			
 			constraints.add(new AveSlipConstraint(matchSect.getSectionId(), mean,
 					mean+uncertaintyPlus, mean-uncertaintyMinus, loc));
+			
+			if (mappingCol > 0) {
+				HSSFCell mappingCell = row.getCell(mappingCol);
+				mappingCell.setCellValue(matchSect.getName());
+			}
 		}
+		
+		if (mappingCol > 0)
+			wb.write(new FileOutputStream(mappingFile));
 		
 		return constraints;
 	}
 	
 	public static void main(String[] args) throws IOException {
-		FaultModels fm = FaultModels.FM3_1;
-		DeformationModels dm = DeformationModels.forFaultModel(fm).get(0);
-		List<FaultSectionPrefData> subSects = new DeformationModelFetcher(
-						fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
-		for (AveSlipConstraint constr : load(subSects)) {
-			System.out.println(constr);
+		int mappingCol = 25;
+		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(), DIR_NAME);
+		File tableR5File = new File(dir, TABLE_5_FILE_NAME);
+		File tableR6File = new File(dir, TABLE_6_FILE_NAME);
+		for (FaultModels fm : FaultModels.values()) {
+			DeformationModels dm = DeformationModels.forFaultModel(fm).get(0);
+			List<FaultSectionPrefData> subSects = new DeformationModelFetcher(
+					fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
+			load(new FileInputStream(tableR5File), subSects, mappingCol, tableR5File);
+			load(new FileInputStream(tableR6File), subSects, mappingCol, tableR6File);
+			mappingCol++;
 		}
+//		FaultModels fm = FaultModels.FM3_1;
+//		DeformationModels dm = DeformationModels.forFaultModel(fm).get(0);
+//		List<FaultSectionPrefData> subSects = new DeformationModelFetcher(
+//						fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
+//		for (AveSlipConstraint constr : load(subSects)) {
+//			System.out.println(constr);
+//		}
 	}
 
 }
