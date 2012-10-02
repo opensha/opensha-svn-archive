@@ -859,16 +859,16 @@ public class InversionConfiguration {
 		return paleoRateWt;
 	}
 
-	public void setPaleoRateWt(double relativePaleoRateWt) {
-		this.paleoRateWt = relativePaleoRateWt;
+	public void setPaleoRateWt(double paleoRateWt) {
+		this.paleoRateWt = paleoRateWt;
 	}
 
 	public double getPaleoSlipWt() {
 		return paleoSlipWt;
 	}
 
-	public void setPaleoSlipWt(double relativePaleoSlipWt) {
-		this.paleoSlipWt = relativePaleoSlipWt;
+	public void setPaleoSlipWt(double paleoSlipWt) {
+		this.paleoSlipWt = paleoSlipWt;
 	}
 	
 	public double getMagnitudeEqualityConstraintWt() {
@@ -876,8 +876,8 @@ public class InversionConfiguration {
 	}
 
 	public void setMagnitudeEqualityConstraintWt(
-			double relativeMagnitudeEqualityConstraintWt) {
-		this.magnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
+			double magnitudeEqualityConstraintWt) {
+		this.magnitudeEqualityConstraintWt = magnitudeEqualityConstraintWt;
 	}
 
 	public double getMagnitudeInequalityConstraintWt() {
@@ -885,16 +885,16 @@ public class InversionConfiguration {
 	}
 
 	public void setMagnitudeInequalityConstraintWt(
-			double relativeMagnitudeInequalityConstraintWt) {
-		this.magnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
+			double magnitudeInequalityConstraintWt) {
+		this.magnitudeInequalityConstraintWt = magnitudeInequalityConstraintWt;
 	}
 
 	public double getRupRateConstraintWt() {
 		return rupRateConstraintWt;
 	}
 
-	public void setRupRateConstraintWt(double relativeRupRateConstraintWt) {
-		this.rupRateConstraintWt = relativeRupRateConstraintWt;
+	public void setRupRateConstraintWt(double rupRateConstraintWt) {
+		this.rupRateConstraintWt = rupRateConstraintWt;
 	}
 
 	public double getParticipationSmoothnessConstraintWt() {
@@ -902,8 +902,8 @@ public class InversionConfiguration {
 	}
 
 	public void setParticipationSmoothnessConstraintWt(
-			double relativeParticipationSmoothnessConstraintWt) {
-		this.participationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
+			double participationSmoothnessConstraintWt) {
+		this.participationSmoothnessConstraintWt = participationSmoothnessConstraintWt;
 	}
 
 	public double getParticipationConstraintMagBinSize() {
@@ -920,8 +920,8 @@ public class InversionConfiguration {
 	}
 
 	public void setMinimizationConstraintWt(
-			double relativeMinimizationConstraintWt) {
-		this.minimizationConstraintWt = relativeMinimizationConstraintWt;
+			double minimizationConstraintWt) {
+		this.minimizationConstraintWt = minimizationConstraintWt;
 	}
 	
 	
@@ -930,8 +930,8 @@ public class InversionConfiguration {
 	}
 
 	public void setMomentConstraintWt(
-			double relativeMomentConstraintWt) {
-		this.momentConstraintWt = relativeMomentConstraintWt;
+			double momentConstraintWt) {
+		this.momentConstraintWt = momentConstraintWt;
 	}
 
 	public double getParkfieldConstraintWt() {
@@ -939,8 +939,8 @@ public class InversionConfiguration {
 	}
 
 	public void setParkfieldConstraintWt(
-			double relativeParkfieldConstraintWt) {
-		this.parkfieldConstraintWt = relativeParkfieldConstraintWt;
+			double parkfieldConstraintWt) {
+		this.parkfieldConstraintWt = parkfieldConstraintWt;
 	}
 	
 	public double[] getA_PrioriRupConstraint() {
@@ -971,32 +971,32 @@ public class InversionConfiguration {
 		return smoothnessWt;
 	}
 
-	public void setSmoothnessWt(double relativeSmoothnessWt) {
-		this.smoothnessWt = relativeSmoothnessWt;
+	public void setSmoothnessWt(double smoothnessWt) {
+		this.smoothnessWt = smoothnessWt;
 	}
 
 	public double getNucleationMFDConstraintWt() {
 		return nucleationMFDConstraintWt;
 	}
 
-	public void setNucleationMFDConstraintWt(double relativeNucleationMFDConstraintWt) {
-		this.nucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
+	public void setNucleationMFDConstraintWt(double nucleationMFDConstraintWt) {
+		this.nucleationMFDConstraintWt = nucleationMFDConstraintWt;
 	}
 	
 	public double getMFDSmoothnessConstraintWt() {
 		return mfdSmoothnessConstraintWt;
 	}
 
-	public void setMFDSmoothnessConstraintWt(double relativeMFDSmoothnessConstraintWt) {
-		this.mfdSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
+	public void setMFDSmoothnessConstraintWt(double mfdSmoothnessConstraintWt) {
+		this.mfdSmoothnessConstraintWt = mfdSmoothnessConstraintWt;
 	}
 	
 	public double getMFDSmoothnessConstraintWtForPaleoParents() {
 		return mfdSmoothnessConstraintWtForPaleoParents;
 	}
 
-	public void setMFDSmoothnessConstraintWtForPaleoParents(double relativeMFDSmoothnessConstraintWtForPaleoParents) {
-		this.mfdSmoothnessConstraintWtForPaleoParents = relativeMFDSmoothnessConstraintWtForPaleoParents;
+	public void setMFDSmoothnessConstraintWtForPaleoParents(double mfdSmoothnessConstraintWtForPaleoParents) {
+		this.mfdSmoothnessConstraintWtForPaleoParents = mfdSmoothnessConstraintWtForPaleoParents;
 	}
 	
 	public List<MFD_InversionConstraint> getMfdEqualityConstraints() {
@@ -1041,8 +1041,8 @@ public class InversionConfiguration {
 		return eventRateSmoothnessWt;
 	}
 
-	public void setEventRateSmoothnessWt(double relativeEventRateSmoothnessWt) {
-		this.eventRateSmoothnessWt = relativeEventRateSmoothnessWt;
+	public void setEventRateSmoothnessWt(double eventRateSmoothnessWt) {
+		this.eventRateSmoothnessWt = eventRateSmoothnessWt;
 	}
 	
 
