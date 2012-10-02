@@ -46,19 +46,19 @@ import com.google.common.base.Preconditions;
 public class InversionConfiguration {
 	
 	private boolean weightSlipRates;
-	private double relativePaleoRateWt; 
-	private double relativePaleoSlipWt;
-	private double relativeMagnitudeEqualityConstraintWt;
-	private double relativeMagnitudeInequalityConstraintWt;
-	private double relativeRupRateConstraintWt;
-	private double relativeParticipationSmoothnessConstraintWt;
+	private double paleoRateWt; 
+	private double paleoSlipWt;
+	private double magnitudeEqualityConstraintWt;
+	private double magnitudeInequalityConstraintWt;
+	private double rupRateConstraintWt;
+	private double participationSmoothnessConstraintWt;
 	private double participationConstraintMagBinSize;
-	private double relativeNucleationMFDConstraintWt;
-	private double relativeMFDSmoothnessConstraintWt;
-	private double relativeMFDSmoothnessConstraintWtForPaleoParents;
-	private double relativeMinimizationConstraintWt;
-	private double relativeMomentConstraintWt;
-	private double relativeParkfieldConstraintWt;
+	private double nucleationMFDConstraintWt;
+	private double mfdSmoothnessConstraintWt;
+	private double mfdSmoothnessConstraintWtForPaleoParents;
+	private double minimizationConstraintWt;
+	private double momentConstraintWt;
+	private double parkfieldConstraintWt;
 	private double[] aPrioriRupConstraint;
 	private double[] initialRupModel;
 	// these are the rates that should be used for water level computation. this will
@@ -68,32 +68,32 @@ public class InversionConfiguration {
 	private List<MFD_InversionConstraint> mfdInequalityConstraints;
 	private double minimumRuptureRateFraction;
 
-	private double relativeSmoothnessWt; // rupture rate smoothness (entropy)
-	private double relativeEventRateSmoothnessWt; // parent section event-rate smoothing
+	private double smoothnessWt; // rupture rate smoothness (entropy)
+	private double eventRateSmoothnessWt; // parent section event-rate smoothing
 	protected final static boolean D = true;  // for debugging
 	
 	private String metadata;
 	
 	public InversionConfiguration(
 			boolean weightSlipRates,
-			double relativePaleoRateWt,
-			double relativePaleoSlipWt,
-			double relativeMagnitudeEqualityConstraintWt,
-			double relativeMagnitudeInequalityConstraintWt,
-			double relativeRupRateConstraintWt, 
-			double relativeParticipationSmoothnessConstraintWt,
+			double paleoRateWt,
+			double paleoSlipWt,
+			double magnitudeEqualityConstraintWt,
+			double magnitudeInequalityConstraintWt,
+			double rupRateConstraintWt, 
+			double participationSmoothnessConstraintWt,
 			double participationConstraintMagBinSize,
-			double relativeNucleationMFDConstraintWt,
-			double relativeMFDSmoothnessConstraintWt,
-			double relativeMFDSmoothnessConstraintWtForPaleoParents,
-			double relativeMinimizationConstraintWt,
-			double relativeMomentConstraintWt,
-			double relativeParkfieldConstraintWt,
+			double nucleationMFDConstraintWt,
+			double mfdSmoothnessConstraintWt,
+			double mfdSmoothnessConstraintWtForPaleoParents,
+			double minimizationConstraintWt,
+			double momentConstraintWt,
+			double parkfieldConstraintWt,
 			double[] aPrioriRupConstraint,
 			double[] initialRupModel,
 			double[] minimumRuptureRateBasis, 
-			double relativeSmoothnessWt,
-			double relativeEventRateSmoothnessWt,
+			double smoothnessWt,
+			double eventRateSmoothnessWt,
 			List<MFD_InversionConstraint> mfdEqualityConstraints,
 			List<MFD_InversionConstraint> mfdInequalityConstraints,
 			double minimumRuptureRateFraction,
@@ -104,39 +104,39 @@ public class InversionConfiguration {
 			metadata += "\n";
 		this.weightSlipRates = weightSlipRates;
 		metadata += "weightSlipRates: "+weightSlipRates;
-		this.relativePaleoRateWt = relativePaleoRateWt;
-		metadata += "\nrelativePaleoRateWt: "+relativePaleoRateWt;
-		this.relativePaleoSlipWt = relativePaleoSlipWt;
-		metadata += "\nrelativePaleoSlipWt: "+relativePaleoSlipWt;
-		this.relativeMagnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
-		metadata += "\nrelativeMagnitudeEqualityConstraintWt: "+relativeMagnitudeEqualityConstraintWt;
-		this.relativeMagnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
-		metadata += "\nrelativeMagnitudeInequalityConstraintWt: "+relativeMagnitudeInequalityConstraintWt;
-		this.relativeRupRateConstraintWt = relativeRupRateConstraintWt;
-		metadata += "\nrelativeRupRateConstraintWt: "+relativeRupRateConstraintWt;
-		this.relativeParticipationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
-		metadata += "\nrelativeParticipationSmoothnessConstraintWt: "+relativeParticipationSmoothnessConstraintWt;
+		this.paleoRateWt = paleoRateWt;
+		metadata += "\npaleoRateWt: "+paleoRateWt;
+		this.paleoSlipWt = paleoSlipWt;
+		metadata += "\npaleoSlipWt: "+paleoSlipWt;
+		this.magnitudeEqualityConstraintWt = magnitudeEqualityConstraintWt;
+		metadata += "\nmagnitudeEqualityConstraintWt: "+magnitudeEqualityConstraintWt;
+		this.magnitudeInequalityConstraintWt = magnitudeInequalityConstraintWt;
+		metadata += "\nmagnitudeInequalityConstraintWt: "+magnitudeInequalityConstraintWt;
+		this.rupRateConstraintWt = rupRateConstraintWt;
+		metadata += "\nrupRateConstraintWt: "+rupRateConstraintWt;
+		this.participationSmoothnessConstraintWt = participationSmoothnessConstraintWt;
+		metadata += "\nparticipationSmoothnessConstraintWt: "+participationSmoothnessConstraintWt;
 		this.participationConstraintMagBinSize = participationConstraintMagBinSize;
 		metadata += "\nparticipationConstraintMagBinSize: "+participationConstraintMagBinSize;
-		this.relativeNucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
-		metadata += "\nrelativeNucleationMFDConstraintWt: "+relativeNucleationMFDConstraintWt;
-		this.relativeMFDSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
-		metadata += "\nrelativeMFDSmoothnessConstraintWt: "+relativeMFDSmoothnessConstraintWt;
-		this.relativeMFDSmoothnessConstraintWtForPaleoParents = relativeMFDSmoothnessConstraintWtForPaleoParents;
-		metadata += "\nrelativeMFDSmoothnessConstraintWtForPaleoParents: "+relativeMFDSmoothnessConstraintWtForPaleoParents;
-		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
-		metadata += "\nrelativeMinimizationConstraintWt: "+relativeMinimizationConstraintWt;
-		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
-		metadata += "\nrelativeMomentConstraintWt: "+relativeMomentConstraintWt;
-		this.relativeParkfieldConstraintWt = relativeParkfieldConstraintWt;
-		metadata += "\nrelativeParkfieldConstraintWt: "+relativeParkfieldConstraintWt;
+		this.nucleationMFDConstraintWt = nucleationMFDConstraintWt;
+		metadata += "\nnucleationMFDConstraintWt: "+nucleationMFDConstraintWt;
+		this.mfdSmoothnessConstraintWt = mfdSmoothnessConstraintWt;
+		metadata += "\nmfdSmoothnessConstraintWt: "+mfdSmoothnessConstraintWt;
+		this.mfdSmoothnessConstraintWtForPaleoParents = mfdSmoothnessConstraintWtForPaleoParents;
+		metadata += "\nmfdSmoothnessConstraintWtForPaleoParents: "+mfdSmoothnessConstraintWtForPaleoParents;
+		this.minimizationConstraintWt = minimizationConstraintWt;
+		metadata += "\nminimizationConstraintWt: "+minimizationConstraintWt;
+		this.momentConstraintWt = momentConstraintWt;
+		metadata += "\nmomentConstraintWt: "+momentConstraintWt;
+		this.parkfieldConstraintWt = parkfieldConstraintWt;
+		metadata += "\nparkfieldConstraintWt: "+parkfieldConstraintWt;
 		this.aPrioriRupConstraint = aPrioriRupConstraint;
 		this.initialRupModel = initialRupModel;
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
-		this.relativeSmoothnessWt = relativeSmoothnessWt;
-		metadata += "\nrelativeSmoothnessWt: "+relativeSmoothnessWt;
-		this.relativeEventRateSmoothnessWt = relativeEventRateSmoothnessWt;
-		metadata += "\nrelativeEventRateSmoothnessWt: "+relativeEventRateSmoothnessWt;
+		this.smoothnessWt = smoothnessWt;
+		metadata += "\nsmoothnessWt: "+smoothnessWt;
+		this.eventRateSmoothnessWt = eventRateSmoothnessWt;
+		metadata += "\neventRateSmoothnessWt: "+eventRateSmoothnessWt;
 		this.mfdEqualityConstraints = mfdEqualityConstraints;
 		this.mfdInequalityConstraints = mfdInequalityConstraints;
 		this.minimumRuptureRateFraction = minimumRuptureRateFraction;
@@ -204,10 +204,10 @@ public class InversionConfiguration {
 		boolean weightSlipRates = true;
 		
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativePaleoRateWt = 10;
+		double paleoRateWt = 10;
 		
 		// weight of mean paleo slip constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double relativePaleoSlipWt = relativePaleoRateWt*0.1;
+		double paleoSlipWt = paleoRateWt*0.1;
 		
 		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended: 10)
 //		double mfdEqualityConstraintWt = 10;
@@ -220,16 +220,16 @@ public class InversionConfiguration {
 		
 		// weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
 		// (currently used to minimization rates of rups below sectMinMag)
-		double relativeMinimizationConstraintWt = 10000;
+		double minimizationConstraintWt = 10000;
 		
 		// weight of entropy-maximization constraint (should smooth rupture rates) (recommended: 10000)
-		double relativeSmoothnessWt = 0;
+		double smoothnessWt = 0;
 		
 		// weight of Moment Constraint (set solution moment to equal deformation model moment) (recommended: 1e-17)
-		double relativeMomentConstraintWt = 0;
+		double momentConstraintWt = 0;
 		
 		// weight of Parkfield rupture rate Constraint (recommended: 1000)
-		double relativeParkfieldConstraintWt = 1000;
+		double parkfieldConstraintWt = 1000;
 		
 		// get MFD constraints
 		List<MFD_InversionConstraint> mfdConstraints = rupSet.getInversionMFDs().getMFD_ConstraintsForNoAndSoCal();
@@ -247,20 +247,20 @@ public class InversionConfiguration {
 		
 		// weight of rupture rate constraint (recommended strong weight: 5.0, weak weight: 0.1;
 		// 100X those weights if weightSlipRates=true) - can be UCERF2 rates or Smooth G-R rates
-		double relativeRupRateConstraintWt;
+		double rupRateConstraintWt;
 		
 		// weight of participation MFD smoothness - applied on subsection basis (recommended:  0.01)
-		double relativeParticipationSmoothnessConstraintWt;
+		double participationSmoothnessConstraintWt;
 		
 		// weight of nucleation MFD constraint - applied on subsection basis
-		double relativeNucleationMFDConstraintWt;
+		double nucleationMFDConstraintWt;
 		
 		// weight of spatial MFD smoothness constraint (recommended:  1000)
-		double relativeMFDSmoothnessConstraintWt;
-		double relativeMFDSmoothnessConstraintWtForPaleoParents; // weight for parent sections that have paleo constraints
+		double mfdSmoothnessConstraintWt;
+		double mfdSmoothnessConstraintWtForPaleoParents; // weight for parent sections that have paleo constraints
 		
 		// weight of parent-section event-rate smoothness constraint
-		double relativeEventRateSmoothnessWt;
+		double eventRateSmoothnessWt;
 		
 		// fraction of the minimum rupture rate basis to be used as initial rates
 		double minimumRuptureRateFraction;
@@ -276,12 +276,12 @@ public class InversionConfiguration {
 		if (model.isConstrained()) {
 			// CONSTRAINED BRANCHES
 			if (model == InversionModels.CHAR_CONSTRAINED) {
-				relativeParticipationSmoothnessConstraintWt = 0;
-				relativeNucleationMFDConstraintWt = 0.01;
-				relativeMFDSmoothnessConstraintWt = 0;
-				relativeMFDSmoothnessConstraintWtForPaleoParents = 1000;
-				relativeEventRateSmoothnessWt = 0;
-				relativeRupRateConstraintWt = 0;
+				participationSmoothnessConstraintWt = 0;
+				nucleationMFDConstraintWt = 0.01;
+				mfdSmoothnessConstraintWt = 0;
+				mfdSmoothnessConstraintWtForPaleoParents = 1000;
+				eventRateSmoothnessWt = 0;
+				rupRateConstraintWt = 0;
 				aPrioriRupConstraint = getUCERF2Solution(rupSet);
 				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
 				minimumRuptureRateFraction = 0.01;
@@ -291,12 +291,12 @@ public class InversionConfiguration {
 				initialRupModel = adjustParkfield(rupSet, initialRupModel);
 				initialRupModel = removeRupsBelowMinMag(rupSet, initialRupModel);
 			} else if (model == InversionModels.GR_CONSTRAINED) {
-				relativeParticipationSmoothnessConstraintWt = 1000;
-				relativeNucleationMFDConstraintWt = 0;
-				relativeMFDSmoothnessConstraintWt = 0;
-				relativeMFDSmoothnessConstraintWtForPaleoParents = 0;
-				relativeEventRateSmoothnessWt = 0;
-				relativeRupRateConstraintWt = 0;
+				participationSmoothnessConstraintWt = 1000;
+				nucleationMFDConstraintWt = 0;
+				mfdSmoothnessConstraintWt = 0;
+				mfdSmoothnessConstraintWtForPaleoParents = 0;
+				eventRateSmoothnessWt = 0;
+				rupRateConstraintWt = 0;
 				aPrioriRupConstraint = null;
 				initialRupModel = getSmoothStartingSolution(rupSet,targetOnFaultMFD);
 				minimumRuptureRateFraction = 0.01;
@@ -308,12 +308,12 @@ public class InversionConfiguration {
 				throw new IllegalStateException("Unknown inversion model: "+model);
 		} else {
 			// UNCONSTRAINED BRANCHES
-			relativeParticipationSmoothnessConstraintWt = 0;
-			relativeNucleationMFDConstraintWt = 0;
-			relativeMFDSmoothnessConstraintWt = 0;
-			relativeMFDSmoothnessConstraintWtForPaleoParents = 0;
-			relativeEventRateSmoothnessWt = 0;
-			relativeRupRateConstraintWt = 0;
+			participationSmoothnessConstraintWt = 0;
+			nucleationMFDConstraintWt = 0;
+			mfdSmoothnessConstraintWt = 0;
+			mfdSmoothnessConstraintWtForPaleoParents = 0;
+			eventRateSmoothnessWt = 0;
+			rupRateConstraintWt = 0;
 			aPrioriRupConstraint = null;
 			initialRupModel = new double[rupSet.getNumRuptures()];
 			minimumRuptureRateBasis = null;
@@ -329,8 +329,8 @@ public class InversionConfiguration {
 		}
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.A_PRIORI_CONST_WT.getArgName())) {
-			relativeRupRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.getArgName()));
-			System.out.println("Setting a priori constraint wt: "+ relativeRupRateConstraintWt);
+			rupRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.A_PRIORI_CONST_WT.getArgName()));
+			System.out.println("Setting a priori constraint wt: "+ rupRateConstraintWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.WATER_LEVEL_FRACT.getArgName())) {
@@ -339,28 +339,28 @@ public class InversionConfiguration {
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PARKFIELD_WT.getArgName())) {
-			relativeParkfieldConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PARKFIELD_WT.getArgName()));
-			System.out.println("Setting parkfield constraint wt: "+relativeParkfieldConstraintWt);
+			parkfieldConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PARKFIELD_WT.getArgName()));
+			System.out.println("Setting parkfield constraint wt: "+parkfieldConstraintWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
-			relativePaleoRateWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
-			System.out.println("Setting paleo constraint wt: "+relativePaleoRateWt);
+			paleoRateWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
+			System.out.println("Setting paleo constraint wt: "+paleoRateWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.AVE_SLIP_WT.getArgName())) {
-			relativePaleoSlipWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.AVE_SLIP_WT.getArgName()));
-			System.out.println("Setting paleo slip constraint wt: "+relativePaleoSlipWt);
+			paleoSlipWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.AVE_SLIP_WT.getArgName()));
+			System.out.println("Setting paleo slip constraint wt: "+paleoSlipWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.EVENT_SMOOTH_WT.getArgName())) {
-			relativeEventRateSmoothnessWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.EVENT_SMOOTH_WT.getArgName()));
-			System.out.println("Setting event rate smoothness constraint wt: "+relativeEventRateSmoothnessWt);
+			eventRateSmoothnessWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.EVENT_SMOOTH_WT.getArgName()));
+			System.out.println("Setting event rate smoothness constraint wt: "+eventRateSmoothnessWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName())) {
-			relativeNucleationMFDConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName()));
-			System.out.println("Setting section nucleation MFD constraint wt: "+relativeNucleationMFDConstraintWt);
+			nucleationMFDConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SECTION_NUCLEATION_MFD_WT.getArgName()));
+			System.out.println("Setting section nucleation MFD constraint wt: "+nucleationMFDConstraintWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.MFD_TRANSITION_MAG.getArgName())) {
@@ -369,12 +369,12 @@ public class InversionConfiguration {
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.MFD_SMOOTHNESS_WT.getArgName())) {
-			relativeMFDSmoothnessConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_SMOOTHNESS_WT.getArgName()));
+			mfdSmoothnessConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_SMOOTHNESS_WT.getArgName()));
 			System.out.println("Setting MFD smoothness wt: "+MFDTransitionMag);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_SECT_MFD_SMOOTH.getArgName())) {
-			relativeMFDSmoothnessConstraintWtForPaleoParents = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_SECT_MFD_SMOOTH.getArgName()));
+			mfdSmoothnessConstraintWtForPaleoParents = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_SECT_MFD_SMOOTH.getArgName()));
 			System.out.println("Setting MFD smoothness for paleo sects wt: "+MFDTransitionMag);
 		}
 		
@@ -397,23 +397,23 @@ public class InversionConfiguration {
 		
 		return new InversionConfiguration(
 				weightSlipRates,
-				relativePaleoRateWt,
-				relativePaleoSlipWt,
+				paleoRateWt,
+				paleoSlipWt,
 				mfdEqualityConstraintWt,
 				mfdInequalityConstraintWt,
-				relativeRupRateConstraintWt,
-				relativeParticipationSmoothnessConstraintWt,
+				rupRateConstraintWt,
+				participationSmoothnessConstraintWt,
 				participationConstraintMagBinSize,
-				relativeNucleationMFDConstraintWt,
-				relativeMFDSmoothnessConstraintWt,
-				relativeMFDSmoothnessConstraintWtForPaleoParents,
-				relativeMinimizationConstraintWt,
-				relativeMomentConstraintWt,
-				relativeParkfieldConstraintWt,
+				nucleationMFDConstraintWt,
+				mfdSmoothnessConstraintWt,
+				mfdSmoothnessConstraintWtForPaleoParents,
+				minimizationConstraintWt,
+				momentConstraintWt,
+				parkfieldConstraintWt,
 				aPrioriRupConstraint,
 				initialRupModel,
 				minimumRuptureRateBasis,
-				relativeSmoothnessWt, relativeEventRateSmoothnessWt,
+				smoothnessWt, eventRateSmoothnessWt,
 				mfdEqualityConstraints,
 				mfdInequalityConstraints,
 				minimumRuptureRateFraction,
@@ -855,55 +855,55 @@ public class InversionConfiguration {
 		this.weightSlipRates = weightSlipRates;
 	}
 
-	public double getRelativePaleoRateWt() {
-		return relativePaleoRateWt;
+	public double getPaleoRateWt() {
+		return paleoRateWt;
 	}
 
-	public void setRelativePaleoRateWt(double relativePaleoRateWt) {
-		this.relativePaleoRateWt = relativePaleoRateWt;
+	public void setPaleoRateWt(double relativePaleoRateWt) {
+		this.paleoRateWt = relativePaleoRateWt;
 	}
 
-	public double getRelativePaleoSlipWt() {
-		return relativePaleoSlipWt;
+	public double getPaleoSlipWt() {
+		return paleoSlipWt;
 	}
 
-	public void setRelativePaleoSlipWt(double relativePaleoSlipWt) {
-		this.relativePaleoSlipWt = relativePaleoSlipWt;
+	public void setPaleoSlipWt(double relativePaleoSlipWt) {
+		this.paleoSlipWt = relativePaleoSlipWt;
 	}
 	
-	public double getRelativeMagnitudeEqualityConstraintWt() {
-		return relativeMagnitudeEqualityConstraintWt;
+	public double getMagnitudeEqualityConstraintWt() {
+		return magnitudeEqualityConstraintWt;
 	}
 
-	public void setRelativeMagnitudeEqualityConstraintWt(
+	public void setMagnitudeEqualityConstraintWt(
 			double relativeMagnitudeEqualityConstraintWt) {
-		this.relativeMagnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
+		this.magnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
 	}
 
-	public double getRelativeMagnitudeInequalityConstraintWt() {
-		return relativeMagnitudeInequalityConstraintWt;
+	public double getMagnitudeInequalityConstraintWt() {
+		return magnitudeInequalityConstraintWt;
 	}
 
-	public void setRelativeMagnitudeInequalityConstraintWt(
+	public void setMagnitudeInequalityConstraintWt(
 			double relativeMagnitudeInequalityConstraintWt) {
-		this.relativeMagnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
+		this.magnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
 	}
 
-	public double getRelativeRupRateConstraintWt() {
-		return relativeRupRateConstraintWt;
+	public double getRupRateConstraintWt() {
+		return rupRateConstraintWt;
 	}
 
-	public void setRelativeRupRateConstraintWt(double relativeRupRateConstraintWt) {
-		this.relativeRupRateConstraintWt = relativeRupRateConstraintWt;
+	public void setRupRateConstraintWt(double relativeRupRateConstraintWt) {
+		this.rupRateConstraintWt = relativeRupRateConstraintWt;
 	}
 
-	public double getRelativeParticipationSmoothnessConstraintWt() {
-		return relativeParticipationSmoothnessConstraintWt;
+	public double getParticipationSmoothnessConstraintWt() {
+		return participationSmoothnessConstraintWt;
 	}
 
-	public void setRelativeParticipationSmoothnessConstraintWt(
+	public void setParticipationSmoothnessConstraintWt(
 			double relativeParticipationSmoothnessConstraintWt) {
-		this.relativeParticipationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
+		this.participationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
 	}
 
 	public double getParticipationConstraintMagBinSize() {
@@ -915,32 +915,32 @@ public class InversionConfiguration {
 		this.participationConstraintMagBinSize = participationConstraintMagBinSize;
 	}
 
-	public double getRelativeMinimizationConstraintWt() {
-		return relativeMinimizationConstraintWt;
+	public double getMinimizationConstraintWt() {
+		return minimizationConstraintWt;
 	}
 
-	public void setRelativeMinimizationConstraintWt(
+	public void setMinimizationConstraintWt(
 			double relativeMinimizationConstraintWt) {
-		this.relativeMinimizationConstraintWt = relativeMinimizationConstraintWt;
+		this.minimizationConstraintWt = relativeMinimizationConstraintWt;
 	}
 	
 	
-	public double getRelativeMomentConstraintWt() {
-		return relativeMomentConstraintWt;
+	public double getMomentConstraintWt() {
+		return momentConstraintWt;
 	}
 
-	public void setRelativeMomentConstraintWt(
+	public void setMomentConstraintWt(
 			double relativeMomentConstraintWt) {
-		this.relativeMomentConstraintWt = relativeMomentConstraintWt;
+		this.momentConstraintWt = relativeMomentConstraintWt;
 	}
 
-	public double getRelativeParkfieldConstraintWt() {
-		return relativeParkfieldConstraintWt;
+	public double getParkfieldConstraintWt() {
+		return parkfieldConstraintWt;
 	}
 
-	public void setRelativeParkfieldConstraintWt(
+	public void setParkfieldConstraintWt(
 			double relativeParkfieldConstraintWt) {
-		this.relativeParkfieldConstraintWt = relativeParkfieldConstraintWt;
+		this.parkfieldConstraintWt = relativeParkfieldConstraintWt;
 	}
 	
 	public double[] getA_PrioriRupConstraint() {
@@ -967,36 +967,36 @@ public class InversionConfiguration {
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
 	}
 
-	public double getRelativeSmoothnessWt() {
-		return relativeSmoothnessWt;
+	public double getSmoothnessWt() {
+		return smoothnessWt;
 	}
 
-	public void setRelativeSmoothnessWt(double relativeSmoothnessWt) {
-		this.relativeSmoothnessWt = relativeSmoothnessWt;
+	public void setSmoothnessWt(double relativeSmoothnessWt) {
+		this.smoothnessWt = relativeSmoothnessWt;
 	}
 
-	public double getRelativeNucleationMFDConstraintWt() {
-		return relativeNucleationMFDConstraintWt;
+	public double getNucleationMFDConstraintWt() {
+		return nucleationMFDConstraintWt;
 	}
 
-	public void setRelativeNucleationMFDConstraintWt(double relativeNucleationMFDConstraintWt) {
-		this.relativeNucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
+	public void setNucleationMFDConstraintWt(double relativeNucleationMFDConstraintWt) {
+		this.nucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
 	}
 	
-	public double getRelativeMFDSmoothnessConstraintWt() {
-		return relativeMFDSmoothnessConstraintWt;
+	public double getMFDSmoothnessConstraintWt() {
+		return mfdSmoothnessConstraintWt;
 	}
 
-	public void setRelativeMFDSmoothnessConstraintWt(double relativeMFDSmoothnessConstraintWt) {
-		this.relativeMFDSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
+	public void setMFDSmoothnessConstraintWt(double relativeMFDSmoothnessConstraintWt) {
+		this.mfdSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
 	}
 	
-	public double getRelativeMFDSmoothnessConstraintWtForPaleoParents() {
-		return relativeMFDSmoothnessConstraintWtForPaleoParents;
+	public double getMFDSmoothnessConstraintWtForPaleoParents() {
+		return mfdSmoothnessConstraintWtForPaleoParents;
 	}
 
-	public void setRelativeMFDSmoothnessConstraintWtForPaleoParents(double relativeMFDSmoothnessConstraintWtForPaleoParents) {
-		this.relativeMFDSmoothnessConstraintWtForPaleoParents = relativeMFDSmoothnessConstraintWtForPaleoParents;
+	public void setMFDSmoothnessConstraintWtForPaleoParents(double relativeMFDSmoothnessConstraintWtForPaleoParents) {
+		this.mfdSmoothnessConstraintWtForPaleoParents = relativeMFDSmoothnessConstraintWtForPaleoParents;
 	}
 	
 	public List<MFD_InversionConstraint> getMfdEqualityConstraints() {
@@ -1038,11 +1038,11 @@ public class InversionConfiguration {
 	}
 
 	public double getEventRateSmoothnessWt() {
-		return relativeEventRateSmoothnessWt;
+		return eventRateSmoothnessWt;
 	}
 
 	public void setEventRateSmoothnessWt(double relativeEventRateSmoothnessWt) {
-		this.relativeEventRateSmoothnessWt = relativeEventRateSmoothnessWt;
+		this.eventRateSmoothnessWt = relativeEventRateSmoothnessWt;
 	}
 	
 

@@ -153,7 +153,7 @@ public class RunInversion {
 //		criteria = new IterationCompletionCriteria(1); 
 
 		SimulatedAnnealing sa;
-		double relativeSmoothnessWt = config.getRelativeSmoothnessWt();
+		double relativeSmoothnessWt = config.getSmoothnessWt();
 		boolean threading = true;
 			
 		if (threading) {

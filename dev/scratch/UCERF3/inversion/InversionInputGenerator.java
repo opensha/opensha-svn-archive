@@ -183,7 +183,7 @@ public class InversionInputGenerator {
 			rangeNames.add("Slip Rate");
 		}
 		
-		int numPaleoRows = (int)Math.signum(config.getRelativePaleoRateWt())*paleoRateConstraints.size();
+		int numPaleoRows = (int)Math.signum(config.getPaleoRateWt())*paleoRateConstraints.size();
 		if(D) System.out.println("Number of paleo section-rate constraints: "+numPaleoRows);
 		if (numPaleoRows > 0) {
 			numRows += numPaleoRows;
@@ -192,7 +192,7 @@ public class InversionInputGenerator {
 		}
 		
 		List<AveSlipConstraint> aveSlipConstraints = null;
-		if (config.getRelativePaleoSlipWt() > 0.0) {
+		if (config.getPaleoSlipWt() > 0.0) {
 			try {
 				aveSlipConstraints = AveSlipConstraint.load(rupSet.getFaultSectionDataList());
 			} catch (IOException e) {
@@ -206,7 +206,7 @@ public class InversionInputGenerator {
 			rangeNames.add("Paleo Slips");
 		}
 		
-		if (config.getRelativeRupRateConstraintWt() > 0.0) {
+		if (config.getRupRateConstraintWt() > 0.0) {
 			double[] aPrioriRupRates = config.getA_PrioriRupConstraint();
 			int numRupRateRows = 0;
 			for (int i=0; i<numRuptures; i++) 
@@ -218,9 +218,9 @@ public class InversionInputGenerator {
 			rangeNames.add("Rupture Rates");
 		}
 		
-//		int numMinimizationRows = (int)Math.signum(config.getRelativeMinimizationConstraintWt())*numRuptures;	// For Coulomb Improbability Constraint (not currently used)
+//		int numMinimizationRows = (int)Math.signum(config.getMinimizationConstraintWt())*numRuptures;	// For Coulomb Improbability Constraint (not currently used)
 		int numMinimizationRows = 0;
-		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
+		if (config.getMinimizationConstraintWt() > 0.0) {
 			for(int rup=0; rup<numRuptures; rup++) 
 				if (rupSet.isRuptureBelowSectMinMag(rup) == true) numMinimizationRows++;
 			if(D) System.out.println("Number of minimization constraints: "+numMinimizationRows);
@@ -230,7 +230,7 @@ public class InversionInputGenerator {
 		}
 		
 		IncrementalMagFreqDist targetMagFreqDist=null;
-		if (config.getRelativeMagnitudeEqualityConstraintWt() > 0.0) {
+		if (config.getMagnitudeEqualityConstraintWt() > 0.0) {
 			int totalNumMagFreqConstraints = 0;
 			for (MFD_InversionConstraint constr : config.getMfdEqualityConstraints()) {
 				targetMagFreqDist=constr.getMagFreqDist();
@@ -244,7 +244,7 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Equality");
 		}
-		if (config.getRelativeParticipationSmoothnessConstraintWt() > 0.0) {
+		if (config.getParticipationSmoothnessConstraintWt() > 0.0) {
 			int totalNumMagParticipationConstraints = 0;
 			for (int sect=0; sect<numSections; sect++) { 
 				List<Integer> rupturesForSection = rupSet.getRupturesForSection(sect);
@@ -275,7 +275,7 @@ public class InversionInputGenerator {
 			rangeNames.add("MFD Participation");
 		}
 		ArrayList<SectionMFD_constraint> MFDConstraints = null;
-		if (config.getRelativeNucleationMFDConstraintWt() > 0.0) {
+		if (config.getNucleationMFDConstraintWt() > 0.0) {
 			int totalNumNucleationMFDConstraints = 0;
 			MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
 			for (int sect=0; sect<numSections; sect++) { 
@@ -292,19 +292,19 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Nucleation");
 		}
-		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0 || config.getRelativeMFDSmoothnessConstraintWtForPaleoParents() > 0.0) {
+		if (config.getMFDSmoothnessConstraintWt() > 0.0 || config.getMFDSmoothnessConstraintWtForPaleoParents() > 0.0) {
 			int totalNumMFDSmoothnessConstraints = 0;
 			MFDConstraints = FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
 			
 			// Get list of parent sections with paleo constraints
 			ArrayList<Integer> paleoParents = new ArrayList<Integer>();
-			if (config.getRelativePaleoRateWt() > 0.0) {
+			if (config.getPaleoRateWt() > 0.0) {
 				for (int i=0; i<paleoRateConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(paleoRateConstraints.get(i).getSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);
 				}
 			}
-			if (config.getRelativePaleoSlipWt() > 0.0) {
+			if (config.getPaleoSlipWt() > 0.0) {
 				for (int i=0; i<aveSlipConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(aveSlipConstraints.get(i).getSubSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);
@@ -333,7 +333,7 @@ public class InversionInputGenerator {
 					int numMagBins = sectMFDConstraint.getNumMags();
 					// Only add rows if this parent section will be included; it won't if it's not a paleo parent sect & relativeSmoothnessConstraintWt = 0
 					// CASE WHERE relativeSmoothnessConstraintWt != 0 & relativeMFDSmoothnessConstraintWtForPaleoParents 0 IS NOT SUPPORTED
-					if (config.getRelativeMFDSmoothnessConstraintWt()>0.0 || paleoParents.indexOf(parentID) != -1) {
+					if (config.getMFDSmoothnessConstraintWt()>0.0 || paleoParents.indexOf(parentID) != -1) {
 						totalNumMFDSmoothnessConstraints+=numMagBins;
 						numRows+=numMagBins;
 					}
@@ -343,13 +343,13 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("MFD Smoothness");
 		}
-		if (config.getRelativeMomentConstraintWt() > 0.0) {
+		if (config.getMomentConstraintWt() > 0.0) {
 			numRows++;
 			if(D) System.out.println("Number of Moment constraints: 1");
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("Moment");
 		}
-		if (config.getRelativeParkfieldConstraintWt() > 0.0) {
+		if (config.getParkfieldConstraintWt() > 0.0) {
 			numRows++;
 			if(D) System.out.println("Number of Parkfield constraints: 1");
 			rangeEndRows.add(numRows-1);
@@ -379,7 +379,7 @@ public class InversionInputGenerator {
 		// MFD inequality constraint matrix and data vector (A_MFD * x <= d_MFD)
 		// to be passed to SA algorithm
 		int numMFDRows=0;
-		if (config.getRelativeMagnitudeInequalityConstraintWt() > 0.0) {
+		if (config.getMagnitudeInequalityConstraintWt() > 0.0) {
 			for (MFD_InversionConstraint constr : config.getMfdInequalityConstraints()) {
 				targetMagFreqDist=constr.getMagFreqDist();
 				// Add number of rows used for magnitude distribution constraint - only include mag bins between minimum and maximum magnitudes in rupture set				
@@ -464,8 +464,8 @@ public class InversionInputGenerator {
 		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
-		if (config.getRelativePaleoRateWt() > 0.0) {
-			double relativePaleoRateWt = config.getRelativePaleoRateWt();
+		if (config.getPaleoRateWt() > 0.0) {
+			double relativePaleoRateWt = config.getPaleoRateWt();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+paleoRateConstraints.size(); i++) {
@@ -494,8 +494,8 @@ public class InversionInputGenerator {
 		
 		// Mean paleo slip at a point
 		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previous 2 constraints)
-		if (config.getRelativePaleoSlipWt() > 0.0) {
-			double relativePaleoSlipWt = config.getRelativePaleoSlipWt();
+		if (config.getPaleoSlipWt() > 0.0) {
+			double relativePaleoSlipWt = config.getPaleoSlipWt();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding paleo mean slip constraints to A matrix ...");
 			for (int i=0; i<aveSlipConstraints.size(); i++) {
@@ -533,9 +533,9 @@ public class InversionInputGenerator {
 		
 		
 		// Rupture-Rate Constraint - close to UCERF2 rates
-		if (config.getRelativeRupRateConstraintWt() > 0.0) {
-			double relativeRupRateConstraintWt = config.getRelativeRupRateConstraintWt();
-			double zeroRupRateConstraintWt = config.getRelativeRupRateConstraintWt()*aPrioriConstraintForZeroRatesWtFactor;  // This is the RupRateConstraintWt for ruptures not in UCERF2 
+		if (config.getRupRateConstraintWt() > 0.0) {
+			double relativeRupRateConstraintWt = config.getRupRateConstraintWt();
+			double zeroRupRateConstraintWt = config.getRupRateConstraintWt()*aPrioriConstraintForZeroRatesWtFactor;  // This is the RupRateConstraintWt for ruptures not in UCERF2 
 			if(D) System.out.println("\nAdding rupture-rate constraint to A matrix ...");
 			double[] aPrioriRupConstraint = config.getA_PrioriRupConstraint();
 			numNonZeroElements = 0;
@@ -574,8 +574,8 @@ public class InversionInputGenerator {
 		
 		// Rupture rate minimization constraint
 		// Minimize the rates of ruptures below SectMinMag (strongly so that they have zero rates)
-		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
-			double relativeRupRateMinimizationWt = config.getRelativeMinimizationConstraintWt();
+		if (config.getMinimizationConstraintWt() > 0.0) {
+			double relativeRupRateMinimizationWt = config.getMinimizationConstraintWt();
 			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
@@ -598,8 +598,8 @@ public class InversionInputGenerator {
 		
 /*		// Rupture rate minimization constraint
 		// Penalize Ruptures with small Coulomb weights (Improbability constraint)
-		if (config.getRelativeMinimizationConstraintWt() > 0.0) {
-			double relativeMinimizationConstraintWt = config.getRelativeMinimizationConstraintWt();
+		if (config.getMinimizationConstraintWt() > 0.0) {
+			double relativeMinimizationConstraintWt = config.getMinimizationConstraintWt();
 			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
@@ -622,8 +622,8 @@ public class InversionInputGenerator {
 		// Constrain Solution MFD to equal the Target MFD 
 		// This is for equality constraints only -- inequality constraints must be
 		// encoded into the A_ineq matrix instead since they are nonlinear
-		if (config.getRelativeMagnitudeEqualityConstraintWt() > 0.0) {
-			double relativeMagnitudeEqualityConstraintWt = config.getRelativeMagnitudeEqualityConstraintWt();
+		if (config.getMagnitudeEqualityConstraintWt() > 0.0) {
+			double relativeMagnitudeEqualityConstraintWt = config.getMagnitudeEqualityConstraintWt();
 			List<MFD_InversionConstraint> mfdEqualityConstraints = config.getMfdEqualityConstraints();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding " + mfdEqualityConstraints.size()
@@ -631,7 +631,7 @@ public class InversionInputGenerator {
 			
 			// Find Parkfield M~6 ruptures (if we're excluding them)
 			List<Integer> parkfieldRups = new ArrayList<Integer>();
-			if (config.getRelativeParkfieldConstraintWt() > 0.0) {
+			if (config.getParkfieldConstraintWt() > 0.0) {
 				int parkfieldParentSectID = 32;
 				List<Integer> potentialRups = rupSet.getRupturesForParentSection(parkfieldParentSectID);
 				rupLoop:
@@ -688,8 +688,8 @@ public class InversionInputGenerator {
 		
 		
 		// Prepare MFD Inequality Constraint (not added to A matrix directly since it's nonlinear)
-		if (config.getRelativeMagnitudeInequalityConstraintWt() > 0.0) {	
-			double relativeMagnitudeInequalityConstraintWt = config.getRelativeMagnitudeInequalityConstraintWt();
+		if (config.getMagnitudeInequalityConstraintWt() > 0.0) {	
+			double relativeMagnitudeInequalityConstraintWt = config.getMagnitudeInequalityConstraintWt();
 			List<MFD_InversionConstraint> mfdInequalityConstraints = config.getMfdInequalityConstraints();
 			int rowIndex_ineq = 0; 
 			if(D) System.out.println("\nPreparing " + mfdInequalityConstraints.size()
@@ -729,9 +729,9 @@ public class InversionInputGenerator {
 		
 		
 		// MFD Smoothness Constraint - Constrain participation MFD to be uniform for each fault subsection
-		if (config.getRelativeParticipationSmoothnessConstraintWt() > 0.0) {
+		if (config.getParticipationSmoothnessConstraintWt() > 0.0) {
 			double relativeParticipationSmoothnessConstraintWt =
-				config.getRelativeParticipationSmoothnessConstraintWt();
+				config.getParticipationSmoothnessConstraintWt();
 			if(D) System.out.println("\nAdding MFD participation smoothness constraints to A matrix ...");
 			numNonZeroElements = 0;
 			ArrayList<Integer> numRupsForMagBin = new ArrayList<Integer>();
@@ -807,8 +807,8 @@ public class InversionInputGenerator {
 		
 		
 		// MFD Subsection nucleation MFD constraint
-		if (config.getRelativeNucleationMFDConstraintWt() > 0.0) {
-			double relativeNucleationMFDConstraintWt = config.getRelativeNucleationMFDConstraintWt();
+		if (config.getNucleationMFDConstraintWt() > 0.0) {
+			double relativeNucleationMFDConstraintWt = config.getNucleationMFDConstraintWt();
 			if(D) System.out.println("\nAdding Subsection Nucleation MFD constraints to A matrix ...");
 			numNonZeroElements = 0;
 			
@@ -861,9 +861,9 @@ public class InversionInputGenerator {
 		
 		
 		// MFD Smoothing constraint - MFDs spatially smooth along adjacent subsections on a parent section (Laplacian smoothing)
-		if (config.getRelativeMFDSmoothnessConstraintWt() > 0.0 || config.getRelativeMFDSmoothnessConstraintWtForPaleoParents() > 0.0) {  
-			double relativeMFDSmoothingConstraintWt = config.getRelativeMFDSmoothnessConstraintWt();
-			double relativeMFDSmoothingConstraintWtForPaleoParents = config.getRelativeMFDSmoothnessConstraintWtForPaleoParents();
+		if (config.getMFDSmoothnessConstraintWt() > 0.0 || config.getMFDSmoothnessConstraintWtForPaleoParents() > 0.0) {  
+			double relativeMFDSmoothingConstraintWt = config.getMFDSmoothnessConstraintWt();
+			double relativeMFDSmoothingConstraintWtForPaleoParents = config.getMFDSmoothnessConstraintWtForPaleoParents();
 			if(D) System.out.println("\nAdding MFD spatial smoothness constraints to A matrix ...");
 			numNonZeroElements = 0;
 			
@@ -882,13 +882,13 @@ public class InversionInputGenerator {
 			
 			// Get list of parent IDs that have a paleo data point (paleo event rate or paleo mean slip)
 			ArrayList<Integer> paleoParents = new ArrayList<Integer>();
-			if (config.getRelativePaleoRateWt() > 0.0) {
+			if (config.getPaleoRateWt() > 0.0) {
 				for (int i=0; i<paleoRateConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(paleoRateConstraints.get(i).getSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);
 				}
 			}
-			if (config.getRelativePaleoSlipWt() > 0.0) {
+			if (config.getPaleoSlipWt() > 0.0) {
 				for (int i=0; i<aveSlipConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(aveSlipConstraints.get(i).getSubSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);
@@ -1007,8 +1007,8 @@ public class InversionInputGenerator {
 		
 		
 		// Constraint solution moment to equal deformation-model moment
-		if (config.getRelativeMomentConstraintWt() > 0.0) {
-			double relativeMomentConstraintWt = config.getRelativeMomentConstraintWt();
+		if (config.getMomentConstraintWt() > 0.0) {
+			double relativeMomentConstraintWt = config.getMomentConstraintWt();
 			double totalMomentTarget = rupSet.getTotalReducedMomentRate();
 			numNonZeroElements = 0;
 			for (int rup=0; rup<numRuptures; rup++)  {
@@ -1030,9 +1030,9 @@ public class InversionInputGenerator {
 		// Constraint rupture-rate for M~6 Parkfield earthquakes
 		// The Parkfield eqs are defined as rates of 6, 7, and 8 subsection ruptures in the Parkfield parent section (which has 8 subsections in total)
 		// THIS CONSTRAINT WILL NOT WORK IF SUBSECTIONS DRASTICALLY CHANGE IN SIZE OR IF PARENT-SECT-IDS CHANGE!
-		if (config.getRelativeParkfieldConstraintWt() > 0.0) {
+		if (config.getParkfieldConstraintWt() > 0.0) {
 			if(D) System.out.println("\nAdding Parkfield rupture-rate constraints to A matrix ...");
-			double relativeParkfieldConstraintWt = config.getRelativeParkfieldConstraintWt();
+			double relativeParkfieldConstraintWt = config.getParkfieldConstraintWt();
 			double ParkfieldMeanRate = 1.0/25.0; // Bakun et al. (2005)
 			
 			// Find Parkfield M~6 ruptures
