@@ -1,5 +1,8 @@
 package scratch.UCERF3.inversion;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,9 +48,10 @@ import com.google.common.base.Preconditions;
  */
 public class InversionConfiguration {
 	
+	private double slipRateConstraintWt;
 	private boolean weightSlipRates;
-	private double paleoRateWt; 
-	private double paleoSlipWt;
+	private double paleoRateConstraintWt; 
+	private double paleoSlipConstraintWt;
 	private double magnitudeEqualityConstraintWt;
 	private double magnitudeInequalityConstraintWt;
 	private double rupRateConstraintWt;
@@ -75,9 +79,10 @@ public class InversionConfiguration {
 	private String metadata;
 	
 	public InversionConfiguration(
+			double slipRateConstraintWt,
 			boolean weightSlipRates,
-			double paleoRateWt,
-			double paleoSlipWt,
+			double paleoRateConstraintWt,
+			double paleoSlipConstraintWt,
 			double magnitudeEqualityConstraintWt,
 			double magnitudeInequalityConstraintWt,
 			double rupRateConstraintWt, 
@@ -104,10 +109,10 @@ public class InversionConfiguration {
 			metadata += "\n";
 		this.weightSlipRates = weightSlipRates;
 		metadata += "weightSlipRates: "+weightSlipRates;
-		this.paleoRateWt = paleoRateWt;
-		metadata += "\npaleoRateWt: "+paleoRateWt;
-		this.paleoSlipWt = paleoSlipWt;
-		metadata += "\npaleoSlipWt: "+paleoSlipWt;
+		this.paleoRateConstraintWt = paleoRateConstraintWt;
+		metadata += "\npaleoRateConstraintWt: "+paleoRateConstraintWt;
+		this.paleoSlipConstraintWt = paleoSlipConstraintWt;
+		metadata += "\npaleoSlipConstraintWt: "+paleoSlipConstraintWt;
 		this.magnitudeEqualityConstraintWt = magnitudeEqualityConstraintWt;
 		metadata += "\nmagnitudeEqualityConstraintWt: "+magnitudeEqualityConstraintWt;
 		this.magnitudeInequalityConstraintWt = magnitudeInequalityConstraintWt;
@@ -201,13 +206,13 @@ public class InversionConfiguration {
 		 * ******************************************* */
 		// If true, slip rate misfit is % difference for each section (recommended since
 		// it helps fit slow-moving faults).  If false, misfit is absolute difference.
+		double slipRateConstraintWt = 1;
 		boolean weightSlipRates = true;
 		
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double paleoRateWt = 10;
-		
-		// weight of mean paleo slip constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double paleoSlipWt = paleoRateWt*0.1;
+		double paleoRateConstraintWt = 1;
+		// weight of mean paleo slip constraint relative to slip-rate constraint 
+		double paleoSlipConstraintWt = paleoRateConstraintWt*0.1;
 		
 		// weight of magnitude-distribution EQUALITY constraint relative to slip-rate constraint (recommended: 10)
 //		double mfdEqualityConstraintWt = 10;
@@ -344,13 +349,13 @@ public class InversionConfiguration {
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
-			paleoRateWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
-			System.out.println("Setting paleo constraint wt: "+paleoRateWt);
+			paleoRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
+			System.out.println("Setting paleo constraint wt: "+paleoRateConstraintWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.AVE_SLIP_WT.getArgName())) {
-			paleoSlipWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.AVE_SLIP_WT.getArgName()));
-			System.out.println("Setting paleo slip constraint wt: "+paleoSlipWt);
+			paleoSlipConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.AVE_SLIP_WT.getArgName()));
+			System.out.println("Setting paleo slip constraint wt: "+paleoSlipConstraintWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.EVENT_SMOOTH_WT.getArgName())) {
@@ -396,9 +401,10 @@ public class InversionConfiguration {
 		}
 		
 		return new InversionConfiguration(
+				slipRateConstraintWt,
 				weightSlipRates,
-				paleoRateWt,
-				paleoSlipWt,
+				paleoRateConstraintWt,
+				paleoSlipConstraintWt,
 				mfdEqualityConstraintWt,
 				mfdInequalityConstraintWt,
 				rupRateConstraintWt,
@@ -847,6 +853,14 @@ public class InversionConfiguration {
 		
 	}
 
+	public double getSlipRateConstraintWt() {
+		return slipRateConstraintWt;
+	}
+	
+	public void setSlipRateConstraintWt(double slipRateConstraintWt) {
+		this.slipRateConstraintWt = slipRateConstraintWt ;
+	}
+	
 	public boolean isWeightSlipRates() {
 		return weightSlipRates;
 	}
@@ -855,20 +869,20 @@ public class InversionConfiguration {
 		this.weightSlipRates = weightSlipRates;
 	}
 
-	public double getPaleoRateWt() {
-		return paleoRateWt;
+	public double getPaleoRateConstraintWt() {
+		return paleoRateConstraintWt;
 	}
 
-	public void setPaleoRateWt(double paleoRateWt) {
-		this.paleoRateWt = paleoRateWt;
+	public void setPaleoRateConstraintWt(double paleoRateConstraintWt) {
+		this.paleoRateConstraintWt = paleoRateConstraintWt;
 	}
 
-	public double getPaleoSlipWt() {
-		return paleoSlipWt;
+	public double getPaleoSlipConstraintWt() {
+		return paleoSlipConstraintWt;
 	}
 
-	public void setPaleoSlipWt(double paleoSlipWt) {
-		this.paleoSlipWt = paleoSlipWt;
+	public void setPaleoSlipWt(double paleoSlipConstraintWt) {
+		this.paleoSlipConstraintWt = paleoSlipConstraintWt;
 	}
 	
 	public double getMagnitudeEqualityConstraintWt() {
@@ -876,8 +890,8 @@ public class InversionConfiguration {
 	}
 
 	public void setMagnitudeEqualityConstraintWt(
-			double magnitudeEqualityConstraintWt) {
-		this.magnitudeEqualityConstraintWt = magnitudeEqualityConstraintWt;
+			double relativeMagnitudeEqualityConstraintWt) {
+		this.magnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
 	}
 
 	public double getMagnitudeInequalityConstraintWt() {
@@ -885,16 +899,16 @@ public class InversionConfiguration {
 	}
 
 	public void setMagnitudeInequalityConstraintWt(
-			double magnitudeInequalityConstraintWt) {
-		this.magnitudeInequalityConstraintWt = magnitudeInequalityConstraintWt;
+			double relativeMagnitudeInequalityConstraintWt) {
+		this.magnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
 	}
 
 	public double getRupRateConstraintWt() {
 		return rupRateConstraintWt;
 	}
 
-	public void setRupRateConstraintWt(double rupRateConstraintWt) {
-		this.rupRateConstraintWt = rupRateConstraintWt;
+	public void setRupRateConstraintWt(double relativeRupRateConstraintWt) {
+		this.rupRateConstraintWt = relativeRupRateConstraintWt;
 	}
 
 	public double getParticipationSmoothnessConstraintWt() {
@@ -902,8 +916,8 @@ public class InversionConfiguration {
 	}
 
 	public void setParticipationSmoothnessConstraintWt(
-			double participationSmoothnessConstraintWt) {
-		this.participationSmoothnessConstraintWt = participationSmoothnessConstraintWt;
+			double relativeParticipationSmoothnessConstraintWt) {
+		this.participationSmoothnessConstraintWt = relativeParticipationSmoothnessConstraintWt;
 	}
 
 	public double getParticipationConstraintMagBinSize() {
@@ -920,8 +934,8 @@ public class InversionConfiguration {
 	}
 
 	public void setMinimizationConstraintWt(
-			double minimizationConstraintWt) {
-		this.minimizationConstraintWt = minimizationConstraintWt;
+			double relativeMinimizationConstraintWt) {
+		this.minimizationConstraintWt = relativeMinimizationConstraintWt;
 	}
 	
 	
@@ -930,8 +944,8 @@ public class InversionConfiguration {
 	}
 
 	public void setMomentConstraintWt(
-			double momentConstraintWt) {
-		this.momentConstraintWt = momentConstraintWt;
+			double relativeMomentConstraintWt) {
+		this.momentConstraintWt = relativeMomentConstraintWt;
 	}
 
 	public double getParkfieldConstraintWt() {
@@ -939,8 +953,8 @@ public class InversionConfiguration {
 	}
 
 	public void setParkfieldConstraintWt(
-			double parkfieldConstraintWt) {
-		this.parkfieldConstraintWt = parkfieldConstraintWt;
+			double relativeParkfieldConstraintWt) {
+		this.parkfieldConstraintWt = relativeParkfieldConstraintWt;
 	}
 	
 	public double[] getA_PrioriRupConstraint() {
@@ -971,32 +985,32 @@ public class InversionConfiguration {
 		return smoothnessWt;
 	}
 
-	public void setSmoothnessWt(double smoothnessWt) {
-		this.smoothnessWt = smoothnessWt;
+	public void setSmoothnessWt(double relativeSmoothnessWt) {
+		this.smoothnessWt = relativeSmoothnessWt;
 	}
 
 	public double getNucleationMFDConstraintWt() {
 		return nucleationMFDConstraintWt;
 	}
 
-	public void setNucleationMFDConstraintWt(double nucleationMFDConstraintWt) {
-		this.nucleationMFDConstraintWt = nucleationMFDConstraintWt;
+	public void setNucleationMFDConstraintWt(double relativeNucleationMFDConstraintWt) {
+		this.nucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
 	}
 	
 	public double getMFDSmoothnessConstraintWt() {
 		return mfdSmoothnessConstraintWt;
 	}
 
-	public void setMFDSmoothnessConstraintWt(double mfdSmoothnessConstraintWt) {
-		this.mfdSmoothnessConstraintWt = mfdSmoothnessConstraintWt;
+	public void setMFDSmoothnessConstraintWt(double relativeMFDSmoothnessConstraintWt) {
+		this.mfdSmoothnessConstraintWt = relativeMFDSmoothnessConstraintWt;
 	}
 	
 	public double getMFDSmoothnessConstraintWtForPaleoParents() {
 		return mfdSmoothnessConstraintWtForPaleoParents;
 	}
 
-	public void setMFDSmoothnessConstraintWtForPaleoParents(double mfdSmoothnessConstraintWtForPaleoParents) {
-		this.mfdSmoothnessConstraintWtForPaleoParents = mfdSmoothnessConstraintWtForPaleoParents;
+	public void setMFDSmoothnessConstraintWtForPaleoParents(double relativeMFDSmoothnessConstraintWtForPaleoParents) {
+		this.mfdSmoothnessConstraintWtForPaleoParents = relativeMFDSmoothnessConstraintWtForPaleoParents;
 	}
 	
 	public List<MFD_InversionConstraint> getMfdEqualityConstraints() {
@@ -1041,8 +1055,8 @@ public class InversionConfiguration {
 		return eventRateSmoothnessWt;
 	}
 
-	public void setEventRateSmoothnessWt(double eventRateSmoothnessWt) {
-		this.eventRateSmoothnessWt = eventRateSmoothnessWt;
+	public void setEventRateSmoothnessWt(double relativeEventRateSmoothnessWt) {
+		this.eventRateSmoothnessWt = relativeEventRateSmoothnessWt;
 	}
 	
 

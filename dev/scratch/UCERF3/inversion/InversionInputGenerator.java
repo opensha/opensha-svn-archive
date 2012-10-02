@@ -183,7 +183,7 @@ public class InversionInputGenerator {
 			rangeNames.add("Slip Rate");
 		}
 		
-		int numPaleoRows = (int)Math.signum(config.getPaleoRateWt())*paleoRateConstraints.size();
+		int numPaleoRows = (int)Math.signum(config.getPaleoRateConstraintWt())*paleoRateConstraints.size();
 		if(D) System.out.println("Number of paleo section-rate constraints: "+numPaleoRows);
 		if (numPaleoRows > 0) {
 			numRows += numPaleoRows;
@@ -192,7 +192,7 @@ public class InversionInputGenerator {
 		}
 		
 		List<AveSlipConstraint> aveSlipConstraints = null;
-		if (config.getPaleoSlipWt() > 0.0) {
+		if (config.getPaleoSlipConstraintWt() > 0.0) {
 			try {
 				aveSlipConstraints = AveSlipConstraint.load(rupSet.getFaultSectionDataList());
 			} catch (IOException e) {
@@ -298,13 +298,13 @@ public class InversionInputGenerator {
 			
 			// Get list of parent sections with paleo constraints
 			ArrayList<Integer> paleoParents = new ArrayList<Integer>();
-			if (config.getPaleoRateWt() > 0.0) {
+			if (config.getPaleoRateConstraintWt() > 0.0) {
 				for (int i=0; i<paleoRateConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(paleoRateConstraints.get(i).getSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);
 				}
 			}
-			if (config.getPaleoSlipWt() > 0.0) {
+			if (config.getPaleoSlipConstraintWt() > 0.0) {
 				for (int i=0; i<aveSlipConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(aveSlipConstraints.get(i).getSubSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);
@@ -412,6 +412,7 @@ public class InversionInputGenerator {
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
+		double slipRateConstraintWt = config.getSlipRateConstraintWt();
 		// A matrix component of slip-rate constraint 
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = rupSet.getSlipOnSectionsForRup(rup);
@@ -434,21 +435,21 @@ public class InversionInputGenerator {
 					throw new IllegalStateException("A["+row+"]["+col+"] is NaN! sectSlipRateReduced["+row
 							+"] = "+sectSlipRateReduced[row]+" and slips["+i+"] = "+slips[i]);
 				if (QUICK_GETS_SETS)
-					A.setQuick(row, col, val);
+					A.setQuick(row, col, slipRateConstraintWt* val);
 				else
-					A.set(row, col, val);
+					A.set(row, col, slipRateConstraintWt* val);
 				if(D) numNonZeroElements++;
 			}
 		}
 		// d vector component of slip-rate constraint
 		for (int sect=0; sect<numSections; sect++) {
 			if (!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) 
-				d[sect] = sectSlipRateReduced[sect];			
+				d[sect] = slipRateConstraintWt * sectSlipRateReduced[sect];			
 			else {
 				if (sectSlipRateReduced[sect]<1E-4)  // For very small slip rates, do not normalize by slip rate (normalize by 0.0001 instead) so they don't dominate misfit
-					d[sect] = sectSlipRateReduced[sect]/0.0001;
+					d[sect] = slipRateConstraintWt * sectSlipRateReduced[sect]/0.0001;
 				else  // Normalize by slip rate
-					d[sect] = 1;
+					d[sect] = slipRateConstraintWt;
 			}
 			if (Double.isNaN(sectSlipRateReduced[sect]))  // Treat NaN slip rates as 0 (minimize)
 				d[sect] = 0;
@@ -464,8 +465,8 @@ public class InversionInputGenerator {
 		
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
-		if (config.getPaleoRateWt() > 0.0) {
-			double relativePaleoRateWt = config.getPaleoRateWt();
+		if (config.getPaleoRateConstraintWt() > 0.0) {
+			double relativePaleoRateWt = config.getPaleoRateConstraintWt();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+paleoRateConstraints.size(); i++) {
@@ -494,8 +495,8 @@ public class InversionInputGenerator {
 		
 		// Mean paleo slip at a point
 		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previous 2 constraints)
-		if (config.getPaleoSlipWt() > 0.0) {
-			double relativePaleoSlipWt = config.getPaleoSlipWt();
+		if (config.getPaleoSlipConstraintWt() > 0.0) {
+			double relativePaleoSlipWt = config.getPaleoSlipConstraintWt();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding paleo mean slip constraints to A matrix ...");
 			for (int i=0; i<aveSlipConstraints.size(); i++) {
@@ -882,13 +883,13 @@ public class InversionInputGenerator {
 			
 			// Get list of parent IDs that have a paleo data point (paleo event rate or paleo mean slip)
 			ArrayList<Integer> paleoParents = new ArrayList<Integer>();
-			if (config.getPaleoRateWt() > 0.0) {
+			if (config.getPaleoRateConstraintWt() > 0.0) {
 				for (int i=0; i<paleoRateConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(paleoRateConstraints.get(i).getSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);
 				}
 			}
-			if (config.getPaleoSlipWt() > 0.0) {
+			if (config.getPaleoSlipConstraintWt() > 0.0) {
 				for (int i=0; i<aveSlipConstraints.size(); i++) {
 					int paleoParentID = rupSet.getFaultSectionDataList().get(aveSlipConstraints.get(i).getSubSectionIndex()).getParentSectionId();
 					paleoParents.add(paleoParentID);

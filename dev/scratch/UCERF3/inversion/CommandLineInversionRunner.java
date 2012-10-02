@@ -452,7 +452,7 @@ public class CommandLineInversionRunner {
 				}
 				List<AveSlipConstraint> aveSlipConstraints = null;
 				try {
-					if (config.getPaleoSlipWt() > 0d)
+					if (config.getPaleoSlipConstraintWt() > 0d)
 						aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
 					else
 						aveSlipConstraints = null;
