@@ -343,7 +343,8 @@ public class CommandLineInversionRunner {
 			+(float)(100d*((double)rupsPerturbed/(double)numRups))+" %)";
 			info += "\nAvg Perturbs Per Perturbed Rup: "+numPerturbs+"/"+rupsPerturbed+" = "
 			+((double)numPerturbs/(double)rupsPerturbed);
-			info += "\nNum rups above waterlevel: "+numAboveWaterlevel;
+			info += "\nNum rups above waterlevel: "+numAboveWaterlevel+"/"+numRups+" ("
+			+(float)(100d*((double)numAboveWaterlevel/(double)numRups))+" %)";
 			info += "\n******************************************";
 			System.out.println("Writing solution bin files");
 			tsa.writeBestSolution(new File(subDir, prefix+".bin"));
@@ -396,13 +397,11 @@ public class CommandLineInversionRunner {
 					System.out.println("WARNING: InversionFaultSystemSolution could not be instantiated!");
 				}
 
-				PaleoProbabilityModel ucerf2PaleoProb = new UCERF2_PaleoProbabilityModel();
-
 				double totalMultiplyNamedM7Rate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 7d, null);
-				double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, ucerf2PaleoProb);
+				double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, paleoProbabilityModel);
 
 				double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, null);
-				double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, ucerf2PaleoProb);
+				double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, paleoProbabilityModel);
 
 				info += "\n\nTotal rupture rate (M7+): "+totalM7Rate;
 				info += "\nTotal multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate;
@@ -592,6 +591,7 @@ public class CommandLineInversionRunner {
 
 
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		setFontSizes(gp);
 		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, false, title);
 
 		File file = new File(dir, prefix);
@@ -637,6 +637,7 @@ public class CommandLineInversionRunner {
 	public static void writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
 			IncrementalMagFreqDist targetMFD, Region region, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) throws IOException {
 		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(totalMFD, targetMFD, region, ucerf2Fetch);
+		setFontSizes(gp);
 		File file = new File(dir, getMFDPrefix(prefix, region));
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
@@ -667,6 +668,7 @@ public class CommandLineInversionRunner {
 	throws IOException {
 		HeadlessGraphPanel gp = PaleoFitPlotter.getHeadlessSegRateComparison(
 				paleoRateConstraints, aveSlipConstraints, sol, true);
+		setFontSizes(gp);
 
 		File file = new File(dir, prefix+"_paleo_fit");
 		gp.getCartPanel().setSize(1000, 800);
@@ -690,7 +692,8 @@ public class CommandLineInversionRunner {
 	public static void writeSAFSegPlot(FaultSystemSolution sol, File dir, String prefix,
 			List<Integer> parentSects, double minMag, boolean endsOnly) throws IOException {
 		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(parentSects, sol, minMag, endsOnly);
-
+		setFontSizes(gp);
+		
 		prefix = getSAFSegPrefix(prefix, minMag, endsOnly);
 
 		File file = new File(dir, prefix);
@@ -794,9 +797,7 @@ public class CommandLineInversionRunner {
 	private static void writeParentSectMFDPlot(File dir, IncrementalMagFreqDist mfd, List<IncrementalMagFreqDist> ucerf2MFDs,
 			int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.setTickLabelFontSize(14);
-		gp.setAxisLabelFontSize(16);
-		gp.setPlotLabelFontSize(18);
+		setFontSizes(gp);
 		gp.setYLog(true);
 		gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
 
@@ -880,9 +881,7 @@ public class CommandLineInversionRunner {
 			}
 			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			gp.setTickLabelFontSize(14);
-			gp.setAxisLabelFontSize(16);
-			gp.setPlotLabelFontSize(18);
+			setFontSizes(gp);
 			gp.setUserBounds(0d, maxX, 0d, 1d);
 			
 			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
@@ -922,9 +921,7 @@ public class CommandLineInversionRunner {
 			}
 			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			gp.setTickLabelFontSize(14);
-			gp.setAxisLabelFontSize(16);
-			gp.setPlotLabelFontSize(18);
+			setFontSizes(gp);
 			gp.setYLog(true);
 			if (xMax > 0)
 				// only when latitudeX, this is a kludgy way of detecting this for CA
@@ -940,5 +937,11 @@ public class CommandLineInversionRunner {
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
+	}
+	
+	public static void setFontSizes(HeadlessGraphPanel gp) {
+		gp.setTickLabelFontSize(16);
+		gp.setAxisLabelFontSize(18);
+		gp.setPlotLabelFontSize(20);
 	}
 }
