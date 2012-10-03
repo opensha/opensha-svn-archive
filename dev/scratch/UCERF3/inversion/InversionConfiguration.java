@@ -107,6 +107,8 @@ public class InversionConfiguration {
 			metadata = "";
 		else
 			metadata += "\n";
+		this.slipRateConstraintWt = slipRateConstraintWt;
+		metadata += "slipRateConstraintWt: "+slipRateConstraintWt;
 		this.weightSlipRates = weightSlipRates;
 		metadata += "weightSlipRates: "+weightSlipRates;
 		this.paleoRateConstraintWt = paleoRateConstraintWt;
@@ -858,7 +860,7 @@ public class InversionConfiguration {
 	}
 	
 	public void setSlipRateConstraintWt(double slipRateConstraintWt) {
-		this.slipRateConstraintWt = slipRateConstraintWt ;
+		this.slipRateConstraintWt = slipRateConstraintWt;
 	}
 	
 	public boolean isWeightSlipRates() {
