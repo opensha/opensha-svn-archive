@@ -457,8 +457,52 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	
 	//public 
 	public static void main(String[] args) throws IOException {
+		
+		ArrayList<ScalingRelationships> ScRelList = new ArrayList<ScalingRelationships>();
+		ScRelList.add(ScalingRelationships.ELLSWORTH_B);
+		ScRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		ScRelList.add(ScalingRelationships.SHAW_2009_MOD);
+		ScRelList.add(ScalingRelationships.ELLB_SQRT_LENGTH);
+		ScRelList.add(ScalingRelationships.SHAW_CONST_STRESS_DROP);
+		double ddw = 11e3;
+		double length = 11e3;
+		double area = ddw*length;
+		for(ScalingRelationships scRel : ScRelList) {
+			System.out.println("\n"+scRel+":");
+			System.out.println("\tOld Way:");
+			System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, ddw));
+			double aveSlip = (float)scRel.getAveSlip(length*ddw, length);
+			System.out.println("\t\taveSlip = "+(float)aveSlip);
+			double moment = FaultMomentCalc.getMoment(area, aveSlip);
+			double magFromMoment = MagUtils.momentToMag(moment);
+			System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
+			System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
+			
+//			System.out.println("\tNew Way:");
+//			System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, ddw));
+//			aveSlip = (float)scRel.getAveSlip((length*ddw)/2.0, length);
+//			System.out.println("\t\taveSlip = "+(float)aveSlip);
+//			moment = FaultMomentCalc.getMoment(area, aveSlip);
+//			magFromMoment = MagUtils.momentToMag(moment);
+//			System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
+//			System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
 
-		makeSlipMagPlot(15, 2000, true);
+		}
+		
+
+		
+//		ddw = 2.33*1e3;
+//		length = area/ddw;
+//		System.out.println("length = "+(float)length);
+//		System.out.println(sh09_Mod+"\tmag = "+sh09_Mod.getMag(length*ddw, ddw));
+//		System.out.println(sh09_Mod+"\taveD = "+sh09_Mod.getAveSlip(length*ddw, length));
+//		System.out.println(hb_Mod+"\tmag = "+hb_Mod.getMag(length*ddw, ddw));
+//		System.out.println(hb_Mod+"\taveD = "+hb_Mod.getAveSlip(length*ddw, length));
+
+
+
+		
+//		makeSlipMagPlot(15, 2000, true);
 //		 makeSlipLengthPlot(11, 1000, true);
 //		 makeMagAreaPlot(true);
 		
