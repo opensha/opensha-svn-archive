@@ -55,7 +55,10 @@ public enum TestGrid {
 		new double[] {-93.0,-88.0}),
 	TEST( // small 6 node test grid
 		new double[] {33.0, 33.1},
-		new double[] {-117.9, -118.1});
+		new double[] {-117.9, -118.1}),
+	GRID_TEST(
+		new double[] {30.0, 50.0},
+		new double[] {-125.0, -100.0});
 	// @formatter:on
 
 	private static final double BOUNDS_OFFSET = 0.0;
