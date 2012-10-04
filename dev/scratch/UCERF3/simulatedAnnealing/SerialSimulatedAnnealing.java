@@ -703,6 +703,12 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		slowerOption.setRequired(false);
 		ops.addOption(slowerOption);
 		
+		Option energyScaleOption = new Option("energyscale", "energy-scale", true, "If supplied, this effectively" +
+				" makes changes in energies smaller (increasing the prob a jump will be taken to higher E). " +
+				"Increase to take more jumps early in annealing");
+		energyScaleOption.setRequired(false);
+		ops.addOption(energyScaleOption);
+		
 		return ops;
 	}
 	
@@ -725,6 +731,8 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 		if (cmd.hasOption("curbest")) {
 			keepCurrentAsBest = true;
 		}
+		if (cmd.hasOption("energyscale"))
+			energyScaleFactor = Double.parseDouble(cmd.getOptionValue("energyscale"));
 	}
 
 }

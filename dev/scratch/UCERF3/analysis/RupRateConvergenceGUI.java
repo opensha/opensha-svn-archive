@@ -82,7 +82,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	private enum SortTypes {
 		INDEX("Rupture Index") {
 			@Override
-			public Comparator<Integer> getComparator(AverageFaultSystemSolution sol) {
+			public Comparator<Integer> getComparator(AverageFaultSystemSolution sol, int n) {
 				return new Comparator<Integer>() {
 
 					@Override
@@ -94,7 +94,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		},
 		MAG_INCREASING("Mag (Increasing)") {
 			@Override
-			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol) {
+			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol, int n) {
 				return new Comparator<Integer>() {
 
 					@Override
@@ -109,7 +109,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		},
 		MAG_DECREASING("Mag (Decreasing)") {
 			@Override
-			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol) {
+			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol, int n) {
 				return new Comparator<Integer>() {
 
 					@Override
@@ -124,13 +124,34 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		},
 		STD_DEV_OVER_MEAN("Std Dev / Mean") {
 			@Override
-			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol) {
+			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol, int n) {
 				return new Comparator<Integer>() {
 
 					@Override
 					public int compare(Integer o1, Integer o2) {
 						double d1 = sol.getRateStdDev(o1) / sol.getRateForRup(o1);
 						double d2 = sol.getRateStdDev(o2) / sol.getRateForRup(o2);
+						return Double.compare(d1, d2);
+					}
+					
+				};
+			}
+		},
+		STD_DEV_OF_MEAN_OVER_MEAN("SDOM / Mean") {
+			@Override
+			public Comparator<Integer> getComparator(final AverageFaultSystemSolution sol, final int n) {
+				return new Comparator<Integer>() {
+
+					@Override
+					public int compare(Integer o1, Integer o2) {
+						double stdDev1 = sol.getRateStdDev(o1);
+						double stdDev2 = sol.getRateStdDev(o2);
+						double mean1 = sol.getRateForRup(o1);
+						double mean2 = sol.getRateForRup(o2);
+						double sdom1 = stdDev1 / Math.sqrt(n);
+						double sdom2 = stdDev2 / Math.sqrt(n);
+						double d1 = sdom1 / mean1;
+						double d2 = sdom2 / mean2;
 						return Double.compare(d1, d2);
 					}
 					
@@ -148,7 +169,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			return name;
 		}
 		
-		public abstract Comparator<Integer> getComparator(AverageFaultSystemSolution sol);
+		public abstract Comparator<Integer> getComparator(AverageFaultSystemSolution sol, int n);
 	}
 	private EnumParameter<SortTypes> sortParam = new EnumParameter<RupRateConvergenceGUI.SortTypes>(
 			SORT_PARAM_NAME, EnumSet.allOf(SortTypes.class), SortTypes.INDEX, null);
@@ -437,7 +458,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 				chars = Lists.newArrayList();
 			} else {
 				// now sort
-				Collections.sort(curRups, sortParam.getValue().getComparator(sol));
+				Collections.sort(curRups, sortParam.getValue().getComparator(sol, sdomNParam.getValue()));
 				
 				funcs = getForSubset();
 				

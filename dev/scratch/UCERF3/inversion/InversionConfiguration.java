@@ -385,6 +385,11 @@ public class InversionConfiguration {
 			System.out.println("Setting MFD smoothness for paleo sects wt: "+MFDTransitionMag);
 		}
 		
+		if (modifiers != null && modifiers.hasOption(InversionOptions.SLIP_WT.getArgName())) {
+			slipRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SLIP_WT.getArgName()));
+			System.out.println("Setting slip rate constraint wt: "+slipRateConstraintWt);
+		}
+		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
 		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		

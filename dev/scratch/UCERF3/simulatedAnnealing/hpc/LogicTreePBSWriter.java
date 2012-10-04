@@ -58,7 +58,7 @@ public class LogicTreePBSWriter {
 
 	public static ArrayList<File> getClasspath(RunSites runSite) {
 		ArrayList<File> jars = new ArrayList<File>();
-		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete.jar"));
+		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete_newjar.jar"));
 		jars.add(new File(runSite.RUN_DIR, "parallelcolt-0.9.4.jar"));
 		jars.add(new File(runSite.RUN_DIR, "commons-cli-1.2.jar"));
 		jars.add(new File(runSite.RUN_DIR, "csparsej.jar"));
@@ -181,6 +181,18 @@ public class LogicTreePBSWriter {
 				Preconditions.checkState(arg == null || arg.isEmpty());
 			this.arg = arg;
 		}
+	}
+	
+	private static class InversionArg {
+		
+		private String arg;
+		private String prefix;
+		
+		public InversionArg(String arg, String prefix) {
+			this.arg = arg;
+			this.prefix = prefix;
+		}
+		
 	}
 
 	private static CustomArg[] forOptions(InversionOptions op, String... args) {
@@ -415,12 +427,15 @@ public class LogicTreePBSWriter {
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		
 //		ScalingRelationships[] scales = ScalingRelationships.values();
-		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.SHAW_CONST_STRESS_DROP };
-//		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
+//		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.SHAW_CONST_STRESS_DROP };
+//		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_CONST_STRESS_DROP };
+		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
 //		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
+//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED };
 		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
 //		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
-		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.ZENG };
+//		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.ZENG };
+		DeformationModels[] dms = { DeformationModels.ZENG };
 		
 		
 		
@@ -503,11 +518,12 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "new-smooth-constraint";
+		String runName = "local-min-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-		int constrained_run_mins = 250;
+		int constrained_run_mins = 180;
+//		int constrained_run_mins = 250;
 //		int constrained_run_mins = 360;
 //		int constrained_run_mins = 500;
 //		int constrained_run_mins = 10;
@@ -562,23 +578,45 @@ public class LogicTreePBSWriter {
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
+		/*
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
-		InversionOptions[] ops = { InversionOptions.PALEO_WT,
-				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.PALEO_SECT_MFD_SMOOTH };
+		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
+				InversionOptions.PARKFIELD_WT };
+//				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.PALEO_SECT_MFD_SMOOTH };
 		List<String[]> argVals = Lists.newArrayList();
 		// paleo
 		argVals.add(toArray("0.1", "1", "10"));
-		// mfd smoothness
-		argVals.add(toArray("0"));
-		// mfd smoothness for paleo sects
-		argVals.add(toArray("10", "100", "1000", "10000"));
+		// section nucleation
+		argVals.add(toArray("0.001", "0.01", "0.1"));
+		// slip wt
+		argVals.add(toArray("10000"));
+//		// mfd smoothness
+//		argVals.add(toArray("0"));
+//		// mfd smoothness for paleo sects
+//		argVals.add(toArray("10", "100", "1000", "10000"));
 		
 		for (String val1 : argVals.get(0))
 			for (String val2 : argVals.get(1))
 				for (String val3 : argVals.get(2))
 					variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3)));
+		*/
+		
+		
+		List<InversionArg[]> saOptions = null;
+		
+		saOptions = Lists.newArrayList();
+		String[] coolingSlowdowns = { "1", "10", "100", "1000", "10000", "100000" };
+		String[] energyScaleFactors = { "1", "10", "100", "1000", "10000", "100000" };
+		
+		for (String coolingSlow : coolingSlowdowns) {
+			for (String energyScale : energyScaleFactors) {
+				InversionArg[] invOps = { new InversionArg("--slower-cooling "+coolingSlow, "SlowCool"+coolingSlow),
+						new InversionArg("--energy-scale "+energyScale, "EScale"+energyScale) };
+				saOptions.add(invOps);
+			}
+		}
 		
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
 //		String[] mfdTrans = { "7.85" };
@@ -700,10 +738,12 @@ public class LogicTreePBSWriter {
 		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 		//		String threads = "1";
 		CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
-		CompletionCriteria subCompletion = TimeCompletionCriteria.getInSeconds(1);
+//		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1) };
+		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1),
+				TimeCompletionCriteria.getInSeconds(2), TimeCompletionCriteria.getInSeconds(5),
+				TimeCompletionCriteria.getInSeconds(20) };
 		//		CompletionCriteria subCompletion = VariableSubTimeCompletionCriteria.instance("5s", "300");
 		boolean keepCurrentAsBest = false;
-		System.out.println("SUB: "+subCompletion);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath(site));
 		javaWriter.setHeadless(true);
 		if (site.FM_STORE != null) {
@@ -716,105 +756,129 @@ public class LogicTreePBSWriter {
 		int cnt = 0;
 
 		LogicTreeBranchIterator it = new LogicTreeBranchIterator(trimmer);
+		
+		if (saOptions == null)
+			saOptions = Lists.newArrayList();
+		if (saOptions.isEmpty())
+			saOptions.add(new InversionArg[0]);
 
 		for (LogicTreeBranch br : it) {
 			for (CustomArg[] variationBranch : variationBranches) {
-				VariableLogicTreeBranch branch = new VariableLogicTreeBranch(variationBranch, br);
+				for (InversionArg[] invArgs : saOptions) {
+					for (CompletionCriteria subCompletion : subCompletions) {
+						if (subCompletions.length == 1)
+							System.out.println("SUB: "+subCompletion);
+						
+						VariableLogicTreeBranch branch = new VariableLogicTreeBranch(variationBranch, br);
 
-				InversionModels im = branch.getValue(InversionModels.class);
+						InversionModels im = branch.getValue(InversionModels.class);
 
-				if (defaultBranches != null && defaultBranches.length > 0) {
-					int closest = Integer.MAX_VALUE;
-					for (LogicTreeBranch defaultBranch : defaultBranches) {
-						int away = defaultBranch.getNumAwayFrom(branch);
-						if (away < closest)
-							closest = away;
+						if (defaultBranches != null && defaultBranches.length > 0) {
+							int closest = Integer.MAX_VALUE;
+							for (LogicTreeBranch defaultBranch : defaultBranches) {
+								int away = defaultBranch.getNumAwayFrom(branch);
+								if (away < closest)
+									closest = away;
+							}
+							if (closest > maxAway.get(im))
+								continue;
+						}
+						String name = branch.buildFileName();
+						for (CustomArg variation : variationBranch) {
+							if (variation == null)
+								// this is the "off" state for a flag option
+								name += "_VarNone";
+							else
+								name += "_Var"+variation.op.getFileName(variation.arg);
+						}
+						
+						for (InversionArg invArg : invArgs) {
+							if (invArg != null)
+								name += "_Var"+invArg.prefix;
+						}
+
+						if (nameAdd != null && !nameAdd.isEmpty()) {
+							if (!nameAdd.startsWith("_"))
+								nameAdd = "_"+nameAdd;
+							name += nameAdd;
+						}
+						
+						if (subCompletions.length > 1)
+							name += "_VarSubComp"+ThreadedSimulatedAnnealing.subCompletionArgVal(subCompletion);
+
+						int mins;
+						NonnegativityConstraintType nonNeg;
+
+						BatchScriptWriter batch = site.forBranch(branch);
+						TimeCompletionCriteria checkPointCriteria;
+						if (im == InversionModels.GR_CONSTRAINED) {
+							mins = constrained_run_mins;
+							nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
+							batch = site.forBranch(branch);
+							//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
+							checkPointCriteria = null;
+						} else if (im == InversionModels.CHAR_CONSTRAINED) {
+							mins = constrained_run_mins;
+							nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+							//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
+							checkPointCriteria = null;
+						} else { // UNCONSTRAINED
+							mins = 60;
+							nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
+							checkPointCriteria = null;
+						}
+						int ppn = site.getPPN(branch); // minimum number of cpus
+						CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
+						javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
+						javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
+
+						for (int r=runStart; r<numRuns; r++) {
+							String jobName = name;
+							if (numRuns > 1) {
+								String rStr = r+"";
+								while (rStr.length() < runDigits)
+									rStr = "0"+rStr;
+								jobName += "_run"+rStr;
+							}
+
+							File pbs = new File(writeDir, jobName+".pbs");
+							System.out.println("Writing: "+pbs.getName());
+
+							int jobMins = mins+60;
+
+							String className = CommandLineInversionRunner.class.getName();
+							String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
+							classArgs += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
+							if (keepCurrentAsBest)
+								classArgs += " --cur-as-best";
+							classArgs += " --cool "+cool.name();
+							classArgs += " --nonneg "+nonNeg.name();
+							classArgs += " --num-threads "+threads;
+							if (checkPointCriteria != null)
+								classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
+							classArgs += " --branch-prefix "+jobName;
+							classArgs += " --directory "+runSubDir.getAbsolutePath();
+							if (lightweight && r > 0)
+								classArgs += " --lightweight";
+							//										classArgs += " --slower-cooling 1000";
+							for (CustomArg variation : variationBranch) {
+								if (variation != null)
+									// this is the "off" state for a flag option
+									classArgs += " "+variation.op.getCommandLineArgs(variation.arg);
+							}
+							for (InversionArg invArg : invArgs) {
+								if (invArg != null)
+									classArgs += " "+invArg.arg;
+							}
+
+							batch.writeScript(pbs, javaWriter.buildScript(className, classArgs),
+									jobMins, 1, ppn, queue);
+
+							nodeHours += (double)mins / 60d;
+
+							cnt++;
+						}
 					}
-					if (closest > maxAway.get(im))
-						continue;
-				}
-				String name = branch.buildFileName();
-				for (CustomArg variation : variationBranch) {
-					if (variation == null)
-						// this is the "off" state for a flag option
-						name += "_VarNone";
-					else
-						name += "_Var"+variation.op.getFileName(variation.arg);
-				}
-
-				if (nameAdd != null && !nameAdd.isEmpty()) {
-					if (!nameAdd.startsWith("_"))
-						nameAdd = "_"+nameAdd;
-					name += nameAdd;
-				}
-
-				int mins;
-				NonnegativityConstraintType nonNeg;
-
-				BatchScriptWriter batch = site.forBranch(branch);
-				TimeCompletionCriteria checkPointCriteria;
-				if (im == InversionModels.GR_CONSTRAINED) {
-					mins = constrained_run_mins;
-					nonNeg = NonnegativityConstraintType.PREVENT_ZERO_RATES;
-					batch = site.forBranch(branch);
-					//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
-					checkPointCriteria = null;
-				} else if (im == InversionModels.CHAR_CONSTRAINED) {
-					mins = constrained_run_mins;
-					nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-					//											checkPointCritera = TimeCompletionCriteria.getInHours(2);
-					checkPointCriteria = null;
-				} else { // UNCONSTRAINED
-					mins = 60;
-					nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
-					checkPointCriteria = null;
-				}
-				int ppn = site.getPPN(branch); // minimum number of cpus
-				CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
-				javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
-				javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
-
-				for (int r=runStart; r<numRuns; r++) {
-					String jobName = name;
-					if (numRuns > 1) {
-						String rStr = r+"";
-						while (rStr.length() < runDigits)
-							rStr = "0"+rStr;
-						jobName += "_run"+rStr;
-					}
-
-					File pbs = new File(writeDir, jobName+".pbs");
-					System.out.println("Writing: "+pbs.getName());
-
-					int jobMins = mins+60;
-
-					String className = CommandLineInversionRunner.class.getName();
-					String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
-					classArgs += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
-					if (keepCurrentAsBest)
-						classArgs += " --cur-as-best";
-					classArgs += " --cool "+cool.name();
-					classArgs += " --nonneg "+nonNeg.name();
-					classArgs += " --num-threads "+threads;
-					if (checkPointCriteria != null)
-						classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
-					classArgs += " --branch-prefix "+jobName;
-					classArgs += " --directory "+runSubDir.getAbsolutePath();
-					if (lightweight && r > 0)
-						classArgs += " --lightweight";
-					//										classArgs += " --slower-cooling 1000";
-					for (CustomArg variation : variationBranch) {
-						if (variation != null)
-							// this is the "off" state for a flag option
-							classArgs += " "+variation.op.getCommandLineArgs(variation.arg);
-					}
-
-					batch.writeScript(pbs, javaWriter.buildScript(className, classArgs),
-							jobMins, 1, ppn, queue);
-
-					nodeHours += (double)mins / 60d;
-
-					cnt++;
 				}
 			}
 

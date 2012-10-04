@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.math.stat.StatUtils;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.CSVFile;
@@ -38,6 +40,7 @@ import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
@@ -98,7 +101,8 @@ public class CommandLineInversionRunner {
 		MFD_SMOOTHNESS_WT("mfdsmooth", "mfd-smooth-wt", "Smooth", true, "MFD smoothness constraint weight"),
 		PALEO_SECT_MFD_SMOOTH("paleomfdsmooth", "paleo-sect-mfd-smooth", "SmoothPaleoSect", true,
 				"MFD smoothness constraint weight for peleo parent sects"),
-		REMOVE_OUTLIER_FAULTS("removefaults", "remove-faults", "RemoveFaults", false, "Remove some outlier high slip faults.");
+		REMOVE_OUTLIER_FAULTS("removefaults", "remove-faults", "RemoveFaults", false, "Remove some outlier high slip faults."),
+		SLIP_WT("slipwt", "slip-wt", "SlipWt", true, "Slip rate constraint wt");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -776,22 +780,137 @@ public class CommandLineInversionRunner {
 		double minMag = 5.05;
 		double maxMag = 9.05;
 		int numMag = (int)((maxMag - minMag) / 0.1d) + 1;
+		
+		CSVFile<String> sdomOverMeansCSV = null;
 
 		for (int parentSectionID : parentSects.keySet()) {
 			String parentSectName = parentSects.get(parentSectionID);
 
+			List<IncrementalMagFreqDist> nuclMFDs = Lists.newArrayList();
+			List<IncrementalMagFreqDist> partMFDs = Lists.newArrayList();
+			
 			SummedMagFreqDist nuclMFD = sol.calcNucleationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
+			nuclMFDs.add(nuclMFD);
 			IncrementalMagFreqDist partMFD = sol.calcParticipationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
+			partMFDs.add(partMFD);
+			
+			if (sol instanceof AverageFaultSystemSolution) {
+				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
+				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, partMFDs, parentSectionID, minMag, maxMag, numMag);
+				calcAveSolMFDs(avgSol, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
+				
+				if (sdomOverMeansCSV == null) {
+					sdomOverMeansCSV = new CSVFile<String>(true);
+					
+					List<String> header = Lists.newArrayList("Parent ID", "Parent Name");
+					for (int i=0; i<numMag; i++)
+						header.add((float)nuclMFD.getX(i)+"");
+					sdomOverMeansCSV.addLine(header);
+				}
+				
+				List<String> line = Lists.newArrayList();
+				line.add(parentSectionID+"");
+				line.add(parentSectName);
+				
+				for (int i=0; i<numMag; i++) {
+					line.add(sdom_over_means[i]+"");
+				}
+				sdomOverMeansCSV.addLine(line);
+			}
 			
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
 			ArrayList<IncrementalMagFreqDist> ucerf2PArtMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
 
-			writeParentSectMFDPlot(dir, nuclMFD, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
-			writeParentSectMFDPlot(dir, partMFD, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
+			writeParentSectMFDPlot(dir, nuclMFDs, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
+			writeParentSectMFDPlot(dir, partMFDs, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
+		}
+		
+		if (sdomOverMeansCSV != null) {
+			sdomOverMeansCSV.sort(1, 1, new Comparator<String>() {
+				
+				@Override
+				public int compare(String o1, String o2) {
+					return o1.compareTo(o2);
+				}
+			});
+			
+			sdomOverMeansCSV.writeToFile(new File(dir, "participation_sdom_over_means.csv"));
 		}
 	}
+	
+	/**
+	 * Calculates MFDs for average solutions, adding them to the MFD list. Also returns a list of SDOM/mean values
+	 * for each mag bin.
+	 * 
+	 * @param avgSol
+	 * @param participation
+	 * @param mfds
+	 * @param parentSectionID
+	 * @param minMag
+	 * @param maxMag
+	 * @param numMag
+	 * @returnist of SDOM/mean values for each mag bin.
+	 */
+	private static double[] calcAveSolMFDs(AverageFaultSystemSolution avgSol, boolean participation,
+			List<IncrementalMagFreqDist> mfds, int parentSectionID, double minMag, double maxMag, int numMag) {
+		IncrementalMagFreqDist meanMFD = mfds.get(0);
+		double[] means = new double[numMag];
+		for (int i=0; i<numMag; i++)
+			means[i] = meanMFD.getY(i);
+		
+		double[] sdom_over_means = new double[numMag];
+		
+		int numSols = avgSol.getNumSolutions();
+		double mfdVals[][] = new double[numMag][numSols];
+		int cnt = 0;
+		for (FaultSystemSolution sol : avgSol) {
+			IncrementalMagFreqDist mfd;
+			if (participation)
+				mfd = sol.calcParticipationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
+			else
+				mfd = sol.calcNucleationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
+			for (int i=0; i<numMag; i++) {
+				mfdVals[i][cnt] = mfd.getY(i);
+			}
+			cnt++;
+		}
+		
+		IncrementalMagFreqDist meanPlusSDOM = new IncrementalMagFreqDist(minMag, maxMag, numMag);
+		IncrementalMagFreqDist meanMinusSDOM = new IncrementalMagFreqDist(minMag, maxMag, numMag);
+		IncrementalMagFreqDist meanPlusStdDev = new IncrementalMagFreqDist(minMag, maxMag, numMag);
+		IncrementalMagFreqDist meanMinusStdDev = new IncrementalMagFreqDist(minMag, maxMag, numMag);
+		IncrementalMagFreqDist minFunc = new IncrementalMagFreqDist(minMag, maxMag, numMag);
+		IncrementalMagFreqDist maxFunc = new IncrementalMagFreqDist(minMag, maxMag, numMag);
+		for (int i=0; i<numMag; i++) {
+			double mean = means[i];
+			if (mean == 0)
+				continue;
+			double stdDev = Math.sqrt(StatUtils.variance(mfdVals[i], mean));
+			double sdom = stdDev / Math.sqrt(numSols);
+			double min = StatUtils.min(mfdVals[i]);
+			double max = StatUtils.max(mfdVals[i]);
+			
+			meanPlusSDOM.set(i, mean + sdom);
+			meanMinusSDOM.set(i, mean - sdom);
+			meanPlusStdDev.set(i, mean + stdDev);
+			meanMinusStdDev.set(i, mean - stdDev);
+			minFunc.set(i, min);
+			maxFunc.set(i, max);
+			
+			sdom_over_means[i] = sdom / mean;
+		}
+		
+		mfds.add(meanPlusSDOM);
+		mfds.add(meanMinusSDOM);
+		mfds.add(meanPlusStdDev);
+		mfds.add(meanMinusStdDev);
+		mfds.add(minFunc);
+		mfds.add(maxFunc);
+		
+		return sdom_over_means;
+	}
 
-	private static void writeParentSectMFDPlot(File dir, IncrementalMagFreqDist mfd, List<IncrementalMagFreqDist> ucerf2MFDs,
+	private static void writeParentSectMFDPlot(File dir, List<IncrementalMagFreqDist> mfds, List<IncrementalMagFreqDist> ucerf2MFDs,
 			int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
@@ -819,11 +938,39 @@ public class CommandLineInversionRunner {
 			funcs.add(maxMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
 		}
+		IncrementalMagFreqDist mfd = mfds.get(0);
 		mfd.setName("Incremental MFD");
 		funcs.add(mfd);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		EvenlyDiscretizedFunc cmlFunc = mfd.getCumRateDist();
 		cmlFunc.setName("Cumulative MFD");
 		funcs.add(cmlFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		if (mfds.size() > 1) {
+			// this is an average fault system solution
+			
+			// mean +/- SDOM
+			funcs.add(mfds.get(1));
+			funcs.add(mfds.get(2));
+			PlotCurveCharacterstics pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
+			chars.add(pchar);
+			chars.add(pchar);
+			
+			// mean +/- Std Dev
+			funcs.add(mfds.get(3));
+			funcs.add(mfds.get(4));
+			pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN);
+			chars.add(pchar);
+			chars.add(pchar);
+			
+			// min/max
+			funcs.add(mfds.get(5));
+			funcs.add(mfds.get(6));
+			pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY);
+			chars.add(pchar);
+			chars.add(pchar);
+		}
 
 		double minX = mfd.getMinX();
 		if (minX < 5)
@@ -846,8 +993,6 @@ public class CommandLineInversionRunner {
 		}
 		title += " for "+name+" ("+id+")";
 		
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
 		
 		File file = new File(dir, fname);
