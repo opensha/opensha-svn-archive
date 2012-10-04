@@ -464,8 +464,10 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		ScRelList.add(ScalingRelationships.SHAW_2009_MOD);
 		ScRelList.add(ScalingRelationships.ELLB_SQRT_LENGTH);
 		ScRelList.add(ScalingRelationships.SHAW_CONST_STRESS_DROP);
-		double ddw = 11e3;
-		double length = 11e3;
+		double origDDW = 4e3;
+		double asiesFactor = 0;
+		double ddw = origDDW*(1-asiesFactor);
+		double length = 20e3;
 		double area = ddw*length;
 		for(ScalingRelationships scRel : ScRelList) {
 			System.out.println("\n"+scRel+":");
@@ -478,14 +480,14 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 			System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
 			System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
 			
-//			System.out.println("\tNew Way:");
-//			System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, ddw));
-//			aveSlip = (float)scRel.getAveSlip((length*ddw)/2.0, length);
-//			System.out.println("\t\taveSlip = "+(float)aveSlip);
-//			moment = FaultMomentCalc.getMoment(area, aveSlip);
-//			magFromMoment = MagUtils.momentToMag(moment);
-//			System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
-//			System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
+			System.out.println("\tNew Way:");
+			System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, ddw));
+			aveSlip = (float)scRel.getAveSlip((length*ddw)/2.0, length);
+			System.out.println("\t\taveSlip = "+(float)aveSlip);
+			moment = FaultMomentCalc.getMoment(area, aveSlip);
+			magFromMoment = MagUtils.momentToMag(moment);
+			System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
+			System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
 
 		}
 		

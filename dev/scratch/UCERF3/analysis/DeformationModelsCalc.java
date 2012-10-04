@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -318,6 +319,36 @@ public class DeformationModelsCalc {
 			}
 
 	}
+	
+	
+	public static void writeAveReducedSlipRateOfParentSections(FaultModels fm, DeformationModels dm) {
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		
+		String lastName = "";
+		double slipRate=0;
+		double aseisFact=0;
+		int numSubSect =0;
+
+		System.out.println("Sect Name\tSlipRate\tAsiesFactor");
+		for(FaultSectionPrefData data:defFetch.getSubSectionList())
+			if(data.getParentSectionName().equals(lastName)) {
+				slipRate += data.getReducedAveSlipRate();
+				aseisFact += data.getAseismicSlipFactor();
+				numSubSect += 1;
+			}
+			else {
+				if(!lastName.equals("")) {
+					System.out.println(lastName+"\t"+(float)(slipRate/(double)numSubSect)+"\t"+(float)(aseisFact/(double)numSubSect));
+				}
+				// set first values for new parent section
+				slipRate = data.getReducedAveSlipRate();
+				numSubSect = 1;
+				lastName = data.getParentSectionName();
+				aseisFact = data.getAseismicSlipFactor();
+
+			}
+	}
+
 	
 	public static void writeParentSectionsInsideRegion(FaultModels fm, DeformationModels dm, Region region) {
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
@@ -1201,8 +1232,10 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
-		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM3_1, DeformationModels.ZENG);
+		writeAveReducedSlipRateOfParentSections(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
+		
+//		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
+//		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM3_1, DeformationModels.ZENG);
 		
 //		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.SF_BOX()); 
 //		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.LA_BOX()); 

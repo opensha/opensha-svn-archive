@@ -2287,6 +2287,43 @@ public class FaultSystemRupSetCalc {
 	
 	
 	
+	/**
+	 * This writes out the mag and average slip for the parkfield ruptures, looping over
+	 * all scaling relationships.  This only used FM3.1 and ZENG deformation model.
+	 */
+	public static void writeParkfieldAveSlips() {
+		
+		ArrayList<ScalingRelationships> scaleRelList = new ArrayList<ScalingRelationships>();
+		scaleRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scaleRelList.add(ScalingRelationships.ELLSWORTH_B);
+		scaleRelList.add(ScalingRelationships.SHAW_2009_MOD);
+		scaleRelList.add(ScalingRelationships.ELLB_SQRT_LENGTH);
+		scaleRelList.add(ScalingRelationships.SHAW_CONST_STRESS_DROP);
+		
+		String info = "RupID\tMagitude\tAveSlip\tArea\tLength\n";
+				
+		for(ScalingRelationships scaleRel:scaleRelList) {
+			
+			info += scaleRel.getName()+"\n";
+			
+			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+					InversionModels.CHAR_CONSTRAINED, scaleRel, SlipAlongRuptureModels.TAPERED, 
+					TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+
+			List<Integer> parkfileRupIndexList = InversionInputGenerator.findParkfieldRups(rupSet);
+			
+			for(int index:parkfileRupIndexList) {
+				info += "\t"+index+"\t"+(float)rupSet.getMagForRup(index)+"\t"+(float)rupSet.getAveSlipForRup(index)+
+				"\t"+(float)rupSet.getAreaForRup(index)+"\t"+(float)rupSet.getLengthForRup(index)+"\n";
+			}
+			
+		}
+		System.out.println(info);
+	}
+
+	
+	
+	
 	public static void plotSumOfCharInversionMFD_Constraints(InversionFaultSystemRupSet fltSystRupSet) {
 		double minMag = 5.05;
 		int numMag = 40;
@@ -2415,18 +2452,20 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void main(String[] args) {
 		
+		writeParkfieldAveSlips();
+		
 //		writeParkfieldMags();
 		
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
 //				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
 //				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_2, DeformationModels.ZENG, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_2, DeformationModels.ZENG, 
+//				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
+//				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
 //		plotSumOfCharInversionMFD_Constraints(rupSet);
-		plotSumOfGR_InversionMFD_Constraints(rupSet);
+//		plotSumOfGR_InversionMFD_Constraints(rupSet);
 		
 //		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
 		

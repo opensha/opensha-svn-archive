@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
@@ -13,7 +14,8 @@ public class FaultModelsCalc {
 	
 	
 	/**
-	 * 	 
+	 * This writes out sections names for Morgan's named-faults data file,
+	 * which she uses in her multi-fault rupture statistics.
 	 * 
 	 * @return
 	 */
@@ -68,13 +70,38 @@ public class FaultModelsCalc {
 				System.out.print("\n");			
 		}
 	}
+	
+	
+	/**
+	 * 
+	 * @param fm
+	 */
+	public static void writeSectionsNamesAndSomeAttributes(FaultModels fm, boolean includeTrace) {
+		ArrayList<FaultSectionPrefData> sects = fm.fetchFaultSections();
+		for(FaultSectionPrefData data : fm.fetchFaultSections()) {
+			System.out.print(data.getName()+"\t"+(float)data.getOrigDownDipWidth()+"\t"+(float)data.getReducedDownDipWidth()+
+					"\t"+(float)data.getFaultTrace().getTraceLength()+"\t"+(float)data.getAseismicSlipFactor());
+			if(includeTrace) {
+				FaultTrace trace = data.getFaultTrace();
+				System.out.print("\t"+trace.size());
+				for(int l=0; l<trace.size();l++) {
+					System.out.print("\t"+(float)trace.get(l).getLatitude()+"\t"+ (float)trace.get(l).getLongitude());
+				}
+				System.out.print("\n");
+			}
+				
+		}
+	}
+
 
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		writeSectionsForEachNamedFaultAlt(FaultModels.FM3_2);
+		
+		writeSectionsNamesAndSomeAttributes(FaultModels.FM3_1, true);
+//		writeSectionsForEachNamedFaultAlt(FaultModels.FM2_1);
 
 	}
 

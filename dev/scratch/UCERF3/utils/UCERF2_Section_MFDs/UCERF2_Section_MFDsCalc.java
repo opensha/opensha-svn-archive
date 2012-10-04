@@ -546,7 +546,7 @@ public class UCERF2_Section_MFDsCalc {
 							mfd.setInfo("Section ID = "+sectionIDfromNameMap.get(name));
 						}
 						for(ProbEqkRupture rup : src) {
-							mfd.addResampledMagRate(rup.getMag(), rup.getMeanAnnualRate(duration), true);
+							mfd.addResampledMagRate(rup.getMag(), rup.getMeanAnnualRate(duration), true);  // nucleation and participation is the same
 						}
 					}
 					else {	// it's a stitched together unsegmented source
@@ -709,13 +709,16 @@ public class UCERF2_Section_MFDsCalc {
 	/**
 	 * This computes the fraction of nucleations for the given rupture on each 
 	 * section in the dataList (assuming a uniform distribution of nucleation
-	 * poriints)
+	 * points), where nucleation probability is based on parent section area
 	 * @param rup
 	 * @param dataList
 	 * @return
 	 */
 	private double[] getFractionOfRupOnEachSection(ProbEqkRupture rup, ArrayList<FaultSectionPrefData> dataList) {
 		double[] fracOnEachSect = new double[dataList.size()];
+		double[] ddwForSect =  new double[dataList.size()];
+		for(int i=0;i<dataList.size();i++)
+			ddwForSect[i] = dataList.get(i).getReducedDownDipWidth();
 		
 		FaultTrace rupTrace = rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge();
 		
@@ -731,14 +734,16 @@ public class UCERF2_Section_MFDsCalc {
 					minLocSectIndex = s;
 				}
 			}
-			fracOnEachSect[minLocSectIndex] += 1d/(double)(rupTrace.size()-2);
+			fracOnEachSect[minLocSectIndex] += ddwForSect[minLocSectIndex];	// wted by down-dip width (so nucleation faction is by area)
+//			fracOnEachSect[minLocSectIndex] += 1d/(double)(rupTrace.size()-2);
 		}
 		
-		// test sum
-		double sum=0;
-		for(double val:fracOnEachSect) sum += val;
-		if(sum<0.99999 || sum>1.00001)
-			throw new RuntimeException("Problem");
+		// normalize so sum is 1.0
+		double total=0;
+		for(int i=0;i<dataList.size();i++)
+			total += fracOnEachSect[i];
+		for(int i=0;i<dataList.size();i++)
+			fracOnEachSect[i] = fracOnEachSect[i]/total;
 		
 		return fracOnEachSect;
 	}
@@ -1091,20 +1096,18 @@ public class UCERF2_Section_MFDsCalc {
 //			System.out.println(mfd);
 //		}
 		
-		for (FaultSectionPrefData sect : FaultModels.FM3_2.fetchFaultSections())
-			if (getMeanMinAndMaxMFD(sect.getSectionId(), true, false) == null)
-				System.out.println("NO MAPPING FOR: "+sect.getSectionId()+". "+sect.getSectionName());
+		
+//		for (FaultSectionPrefData sect : FaultModels.FM3_2.fetchFaultSections())
+//			if (getMeanMinAndMaxMFD(sect.getSectionId(), true, false) == null)
+//				System.out.println("NO MAPPING FOR: "+sect.getSectionId()+". "+sect.getSectionName());
 		
 //		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(true);
 //		test.saveAllTestMFD_Plots(true);
 //		test.saveAllTestMFD_Plots(false);
-//		test = new UCERF2_Section_MFDsCalc(false);
-//		test.saveAllTestMFD_Plots(true);
-//		test.saveAllTestMFD_Plots(false);
-//		System.out.println("DONE");
-		
-//		writeListOfAllFaultSections();
-
+		UCERF2_Section_MFDsCalc test = new UCERF2_Section_MFDsCalc(false);
+		test.saveAllTestMFD_Plots(false);
+		test.saveAllTestMFD_Plots(true);
+		System.out.println("DONE");
 		
 	}
 
