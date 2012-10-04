@@ -43,7 +43,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 
 	private static CoolingScheduleType COOLING_FUNC_DEFAULT = CoolingScheduleType.FAST_SA;
 	private CoolingScheduleType coolingFunc = COOLING_FUNC_DEFAULT;
-	private double coolingFuncSlowdown = 1; // iters will be divided by this for the cooling func
+	private static double coolingFuncSlowdown = 1; // Increase this to slow down annealing process (allowing for more time at high temp)
 	
 	private static NonnegativityConstraintType NONNEGATIVITY_CONST_DEFAULT =
 		NonnegativityConstraintType.LIMIT_ZERO_RATES;
@@ -56,6 +56,9 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 	 * If true, the current model will always be kept as the best model instead of the best model seen. This allows
 	 * the SA algorithm to avoid local minimums in threaded mode where only the "best" solution is passed between threads.
 	 */
+	
+	private double energyScaleFactor = 1; // This effectively makes changes in energies smaller (increasing the prob a jump will be taken to higher E).  Increase to take more jumps early in annealing
+	
 	private boolean keepCurrentAsBest = false;
 	
 	private double[] variablePerturbBasis;
@@ -497,7 +500,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 					P = 1; // Always keep new model if better OR if element was originally zero
 				} else {
 					// Sometimes keep new model if worse (depends on T)
-					P = Math.exp((E[0] - Enew[0]) / (double) T); 
+					P = Math.exp(((E[0] - Enew[0])*energyScaleFactor) / (double) T); 
 				}
 			break;
 			default:
@@ -505,7 +508,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 					P = 1; // Always keep new model if better
 				} else {
 					// Sometimes keep new model if worse (depends on T)
-					P = Math.exp((E[0] - Enew[0]) / (double) T); 
+					P = Math.exp(((E[0] - Enew[0])*energyScaleFactor) / (double) T); 
 				}
 			}
 			
