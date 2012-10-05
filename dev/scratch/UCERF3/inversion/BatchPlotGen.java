@@ -177,8 +177,9 @@ public class BatchPlotGen {
 	public static void handleDir(File dir, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap, int maxDepth)
 			throws IOException, DocumentException, GMT_MapException {
 		for (File file : dir.listFiles()) {
-			if (file.isDirectory() && maxDepth > 0) {
-				handleDir(file, misfitsMap, maxDepth - 1);
+			if (file.isDirectory()) {
+				if (maxDepth > 0)
+					handleDir(file, misfitsMap, maxDepth - 1);
 				continue;
 			}
 			String fileName = file.getName();
