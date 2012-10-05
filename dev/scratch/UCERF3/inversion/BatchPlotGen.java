@@ -267,6 +267,8 @@ public class BatchPlotGen {
 					misfitsMap.put(branch, misfits);
 				} else {
 					try {
+						if (sol == null)
+							sol = SimpleFaultSystemSolution.fromFile(file);
 						invSol = new InversionFaultSystemSolution(sol);
 						Map<String, Double> misfits = invSol.getMisfits();
 						FileWriter fw = new FileWriter(misfitsFile);
