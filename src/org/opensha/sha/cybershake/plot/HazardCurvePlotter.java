@@ -854,7 +854,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				Color compCurveColor = plotChars.getCyberShakeColor();
 				if (compCurveColor == null)
 					if (noVMColors)
-						curveColor = getNextCSColor();
+						compCurveColor = getNextCSColor();
 					else
 						compCurveColor = getColorForVM(compRun.getVelModelID());
 				chars.add(new PlotCurveCharacterstics(compCurveLineType, plotChars.getLineWidth(),
