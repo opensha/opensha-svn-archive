@@ -8,21 +8,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.FaultMomentCalc;
-import org.opensha.commons.calc.magScalingRelations.MagAreaRelDepthDep;
-import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_ModifiedMagAreaRel;
-import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
-import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 /**
@@ -34,14 +28,14 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	
 	AVE_UCERF2("Average UCERF2", "AveU2") {
 		
-		public double getAveSlip(double area, double length) {
+		public double getAveSlip(double area, double length, double origWidth) {
 			double areaKm = area/1e6;
 			double mag = (ellB_magArea.getMedianMag(areaKm) + hb_magArea.getMedianMag(areaKm))/2;
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
 		}
 		
-		public double getMag(double area, double width) {
+		public double getMag(double area, double origWidth) {
 			double areaKm = area/1e6;
 			return (ellB_magArea.getMedianMag(areaKm) + hb_magArea.getMedianMag(areaKm))/2;
 		}		
@@ -56,16 +50,14 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	
 	SHAW_2009_MOD("Shaw (2009) Modified", "Shaw09Mod") {
 		
-		public double getAveSlip(double area, double length) {
-			double areaKm = area/1e6;
-			double lengthKm = length/1e3;
-			double mag = sh09_ModMagArea.getWidthDepMedianMag(areaKm, areaKm/lengthKm);
+		public double getAveSlip(double area, double length, double origWidth) {
+			double mag = getMag(area, origWidth);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
 		}
 		
-		public double getMag(double area, double width) {
-			return sh09_ModMagArea.getWidthDepMedianMag(area*1e-6, width*1e-3);
+		public double getMag(double area, double origWidth) {
+			return sh09_ModMagArea.getWidthDepMedianMag(area*1e-6, origWidth*1e-3);
 		}		
 		
 		@Override
@@ -76,13 +68,13 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 
 	HANKS_BAKUN_08("Hanks & Bakun (2008)", "HB08") {
 		
-		public double getAveSlip(double area, double length) {
+		public double getAveSlip(double area, double length, double origWidth) {
 			double mag = hb_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
 		}
 		
-		public double getMag(double area, double width) {
+		public double getMag(double area, double origWidth) {
 			return hb_magArea.getMedianMag(area*1e-6);
 		}		
 		
@@ -96,13 +88,13 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 
 	ELLSWORTH_B("Ellsworth B", "EllB") {
 		
-		public double getAveSlip(double area, double length) {
+		public double getAveSlip(double area, double length, double origWidth) {
 			double mag = ellB_magArea.getMedianMag(area/1e6);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area, moment);
 		}
 		
-		public double getMag(double area, double width) {
+		public double getMag(double area, double origWidth) {
 			return ellB_magArea.getMedianMag(area*1e-6);
 		}		
 		
@@ -114,15 +106,22 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	
 	
 	ELLB_SQRT_LENGTH("EllB M(A) & Shaw12 Sqrt Length D(L)", "EllBsqrtLen") {
-		public double getAveSlip(double area, double length) {
+		
+		public double getAveSlip(double area, double length, double origWidth) {
+			double impliedAseis = 1.0 - (area/length)/origWidth;
+//System.out.println("impliedAseis="+impliedAseis);
+			if(impliedAseis>=0.2) {
+				double moment = MagUtils.magToMoment(getMag(area, origWidth));
+				return FaultMomentCalc.getSlip(area, moment);
+			}
 			double c6 = 5.69e-5;
 			double xi = 1.25;
-//			double w = 15e3;  // units of m
-			double w = xi*area/length;  // units of m
+			double w = 15e3;  // units of m
+//			double w = xi*area/length;  // units of m
 			return c6*Math.sqrt(length*w);
 		}
 		
-		public double getMag(double area, double width) {
+		public double getMag(double area, double origWidth) {
 			return ellB_magArea.getMedianMag(area*1e-6);
 		}		
 		
@@ -133,17 +132,23 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	},
 
 	SHAW_CONST_STRESS_DROP("Shaw09 M(A) & Shaw12 Const Stress Drop D(L)", "ShConStrDrp") {
-		public double getAveSlip(double area, double length) {
+		
+		public double getAveSlip(double area, double length, double origWidth) {
+			double impliedAseis = 1.0 - (area/length)/origWidth;
+			if(impliedAseis>=0.2) {
+				double moment = MagUtils.magToMoment(getMag(area, origWidth));
+				return FaultMomentCalc.getSlip(area, moment);
+			}
 			double stressDrop = 4.54;  // MPa
 			double xi = 1.25;
-//			double w = 15e3; // unit of meters
-			double w = xi*area/length; // unit of meters
+			double w = 15e3; // unit of meters
+//			double w = xi*area/length; // unit of meters
 			double temp = 1.0/(7.0/(3.0*length) + 1.0/(2.0*w))*1e6;
 			return stressDrop*temp/FaultMomentCalc.SHEAR_MODULUS;
 		}
 		
-		public double getMag(double area, double width) {
-			return sh09_ModMagArea.getWidthDepMedianMag(area*1e-6, width*1e3);
+		public double getMag(double area, double origWidth) {
+			return sh09_ModMagArea.getWidthDepMedianMag(area*1e-6, origWidth*1e-3);
 		}		
 		
 		@Override
@@ -169,17 +174,18 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	 * This returns the slip (m) for the given rupture area (m-sq) or rupture length (m)
 	 * @param area (m)
 	 * @param length (m)
+	  * @param origWidth (m) - the original down-dip width (before reducing by aseismicity factor)
 	 * @return
 	 */
-	 public abstract double getAveSlip(double area, double length);
+	 public abstract double getAveSlip(double area, double length, double origWidth);
 	 
 	 /**
 	  * This returns the magnitude for the given rupture area (m-sq) and width (m)
 	  * @param area (m)
-	  * @param width (m)
+	  * @param origWidth (m) - the original down-dip width (before reducing by aseismicity factor)
 	  * @return
 	  */
-	 public abstract double getMag(double area, double width);
+	 public abstract double getMag(double area, double origWidth);
 
 	
 	@Override
@@ -230,12 +236,12 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
     		double lengthKm = (double)i;
     		double length = lengthKm*1e3;
     		double area = length*downDipWidth*1e3;
-    		u2_func.set(lengthKm,u2.getAveSlip(area, length));
-    		sh09_funcMod.set(lengthKm,sh09_Mod.getAveSlip(area, length));
-    		ellB_func.set(lengthKm,ellB.getAveSlip(area, length));
-    		hb_func.set(lengthKm,hb.getAveSlip(area, length));
-    		sh12_sqrtL_func.set(lengthKm,sh12_sqrtL.getAveSlip(area, length));
-    		sh12_csd_func.set(lengthKm,sh12_csd.getAveSlip(area, length));
+    		u2_func.set(lengthKm,u2.getAveSlip(area, length, downDipWidth*1e3));
+    		sh09_funcMod.set(lengthKm,sh09_Mod.getAveSlip(area, length, downDipWidth*1e3));
+    		ellB_func.set(lengthKm,ellB.getAveSlip(area, length, downDipWidth*1e3));
+    		hb_func.set(lengthKm,hb.getAveSlip(area, length, downDipWidth*1e3));
+    		sh12_sqrtL_func.set(lengthKm,sh12_sqrtL.getAveSlip(area, length, downDipWidth*1e3));
+    		sh12_csd_func.set(lengthKm,sh12_csd.getAveSlip(area, length, downDipWidth*1e3));
     	}
     	
     	ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
@@ -300,11 +306,11 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
     		double lengthKm = (double)i;
     		double length = lengthKm*1e3;
     		double area = length*downDipWidth*1e3;
-    		sh09_funcMod.set(sh09_Mod.getMag(area, downDipWidth*1e3),sh09_Mod.getAveSlip(area, length));
-    		ellB_func.set(ellB.getMag(area, downDipWidth*1e3),ellB.getAveSlip(area, length));
-    		hb_func.set(hb.getMag(area, downDipWidth*1e3),hb.getAveSlip(area, length));
-    		sh12_sqrtL_func.set(ellB.getMag(area, downDipWidth*1e3),sh12_sqrtL.getAveSlip(area, length));
-    		sh12_csd_func.set(sh09_Mod.getMag(area, downDipWidth*1e3),sh12_csd.getAveSlip(area, length));
+    		sh09_funcMod.set(sh09_Mod.getMag(area, downDipWidth*1e3),sh09_Mod.getAveSlip(area, length, downDipWidth*1e3));
+    		ellB_func.set(ellB.getMag(area, downDipWidth*1e3),ellB.getAveSlip(area, length, downDipWidth*1e3));
+    		hb_func.set(hb.getMag(area, downDipWidth*1e3),hb.getAveSlip(area, length, downDipWidth*1e3));
+    		sh12_sqrtL_func.set(ellB.getMag(area, downDipWidth*1e3),sh12_sqrtL.getAveSlip(area, length, downDipWidth*1e3));
+    		sh12_csd_func.set(sh09_Mod.getMag(area, downDipWidth*1e3),sh12_csd.getAveSlip(area, length, downDipWidth*1e3));
     		
     		double heckerMag = hb.getMag(area, downDipWidth*1e3);
 //    		WC1994_MagAreaRelationship wc94 = new WC1994_MagAreaRelationship();
@@ -364,6 +370,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	 */
 	public static void testCreepingSectionSlips() {
 		double lengthKm = 150;
+		double origWidthKm = 11;
 		double widthKm = 1.2;
 		double areaKm = lengthKm*widthKm;
 		
@@ -383,11 +390,11 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		FaultModels fm = FaultModels.FM3_1;
 		DeformationModels dm = DeformationModels.GEOLOGIC;
 		
-		String result = "CREEPING SECTION Mag and AveSlip (assuming length=150 and DDW=1.2 km):\n";
+		String result = "CREEPING SECTION Mag and AveSlip (assuming length=150, origDDW=11, and DDW=1.2 km):\n";
 		
 		for(ScalingRelationships scale : ScalingRelationships.values()) {
-			double mag = scale.getMag(areaKm*1e6, widthKm*1e3);
-			double slip = scale.getAveSlip(areaKm*1e6, lengthKm*1e3);
+			double mag = scale.getMag(areaKm*1e6, origWidthKm*1e3);
+			double slip = scale.getAveSlip(areaKm*1e6, lengthKm*1e3, origWidthKm*1e3);
 			mag = Math.round(mag*100)/100.;
 			slip = Math.round(slip*100)/100.;
 			result += (float)mag+"\t"+(float)slip+"\tfor\t"+scale.getShortName()+"\n";
@@ -399,9 +406,13 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	}
 	
 	
+	/**
+	 * This assumes no aseismicity
+	 * @param saveFiles
+	 */
 	public static void makeMagAreaPlot(boolean saveFiles) {
 		
-		double downDipWidth=11;
+		double downDipWidth=11;	// orig down-dip width equals reduced
 		
 		ArbitrarilyDiscretizedFunc sh09mod_func = new ArbitrarilyDiscretizedFunc();
 		sh09mod_func.setName("SHAW_2009_Mod; downDipWidth="+downDipWidth);
@@ -464,33 +475,38 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		ScRelList.add(ScalingRelationships.SHAW_2009_MOD);
 		ScRelList.add(ScalingRelationships.ELLB_SQRT_LENGTH);
 		ScRelList.add(ScalingRelationships.SHAW_CONST_STRESS_DROP);
-		double origDDW = 4e3;
-		double asiesFactor = 0;
-		double ddw = origDDW*(1-asiesFactor);
-		double length = 20e3;
-		double area = ddw*length;
-		for(ScalingRelationships scRel : ScRelList) {
-			System.out.println("\n"+scRel+":");
-			System.out.println("\tOld Way:");
-			System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, ddw));
-			double aveSlip = (float)scRel.getAveSlip(length*ddw, length);
-			System.out.println("\t\taveSlip = "+(float)aveSlip);
-			double moment = FaultMomentCalc.getMoment(area, aveSlip);
-			double magFromMoment = MagUtils.momentToMag(moment);
-			System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
-			System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
-			
-			System.out.println("\tNew Way:");
-			System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, ddw));
-			aveSlip = (float)scRel.getAveSlip((length*ddw)/2.0, length);
-			System.out.println("\t\taveSlip = "+(float)aveSlip);
-			moment = FaultMomentCalc.getMoment(area, aveSlip);
-			magFromMoment = MagUtils.momentToMag(moment);
-			System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
-			System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
+		double[] lengthArray = {11e3, 36e3};
 
+		double origDDW = 11e3;
+		double[] aseisFactorArray = {0,0.8};
+		for(double length:lengthArray) {
+			for(double aseisFactor:aseisFactorArray) {
+				double ddw = origDDW*(1-aseisFactor);
+				double area = ddw*length;
+				System.out.println("Results for\tlength="+length+"\torigDDW="+origDDW+"\taseisFactor="+aseisFactor+":");
+				for(ScalingRelationships scRel : ScRelList) {
+					System.out.println("\t"+scRel+":");
+					//					System.out.println("\tOld Way:");
+					System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, origDDW));
+					double aveSlip = (float)scRel.getAveSlip(length*ddw, length, origDDW);
+					System.out.println("\t\taveSlip = "+(float)aveSlip);
+					double moment = FaultMomentCalc.getMoment(area, aveSlip);
+					double magFromMoment = MagUtils.momentToMag(moment);
+					System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
+					System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
+
+					//					System.out.println("\tNew Way:");
+					//					System.out.println("\t\tmagnitue = "+(float)scRel.getMag(length*ddw, origDDW));
+					//					aveSlip = (float)scRel.getAveSlip((length*ddw)/2.0, length, origDDW);
+					//					System.out.println("\t\taveSlip = "+(float)aveSlip);
+					//					moment = FaultMomentCalc.getMoment(area, aveSlip);
+					//					magFromMoment = MagUtils.momentToMag(moment);
+					//					System.out.println("\t\tmomentFromAreaAndAveSlip = "+(float)moment);
+					//					System.out.println("\t\tmagFromMoment = "+(float)magFromMoment);
+				}			
+			}
 		}
-		
+
 
 		
 //		ddw = 2.33*1e3;

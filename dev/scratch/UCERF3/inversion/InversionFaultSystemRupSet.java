@@ -101,7 +101,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	double[] sectSlipRateStdDevReduced;	// this gets reduced by moRateReduction (if non zero)
 	
 	// rupture attributes (all in SI units)
-	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupMeanSlip, rupRake;
+	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupOrigDDW, rupMeanSlip, rupRake;
 	int[] clusterIndexForRup, rupIndexInClusterForRup;
 	ArrayList<ArrayList<Integer>> clusterRupIndexList;
 	int numRuptures=0;
@@ -246,6 +246,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		rupTotMoRateAvail = new double[numRuptures];
 		rupArea = new double[numRuptures];
 		rupLength = new double[numRuptures];
+		rupOrigDDW = new double[numRuptures];	// down-dip width before aseismicity reduction
 		rupRake = new double[numRuptures];
 		clusterIndexForRup = new int[numRuptures];
 		rupIndexInClusterForRup = new int[numRuptures];
@@ -265,6 +266,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 				rupIndexInClusterForRup[rupIndex] = r;
 				clusterRupIndexes.add(r);
 				double totArea=0;
+				double totOrigArea=0;
 				double totLength=0;
 				ArrayList<Integer> sectsInRup = clusterRups.get(r);
 				ArrayList<Double> areas = new ArrayList<Double>();
@@ -272,15 +274,17 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 				for(Integer sectID:sectsInRup) {
 					double length = faultSectionData.get(sectID).getTraceLength()*1e3;	// km --> m
 					totLength += length;
-					double area = getAreaForSection(sectID);
+					double area = getAreaForSection(sectID);	// sq-m
 					totArea += area;
+					totOrigArea += getOrigAreaForSection(sectID);	// sq-m
 					areas.add(area);
 					rakes.add(faultSectionData.get(sectID).getAveRake());
 				}
 				rupArea[rupIndex] = totArea;
 				rupLength[rupIndex] = totLength;
 				rupRake[rupIndex] = FaultUtils.getInRakeRange(FaultUtils.getScaledAngleAverage(areas, rakes));
-				double mag = scalingRelationship.getMag(totArea, (totArea/totLength));
+				double origDDW = totOrigArea/totLength;
+				double mag = scalingRelationship.getMag(totArea, origDDW);
 //				for(MagAreaRelationship magArea: magAreaRelList) {
 //					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
 //						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
@@ -298,7 +302,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 				// (mean moment != moment of mean mag if aleatory uncertainty included)
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
 //				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
-				rupMeanSlip[rupIndex] = scalingRelationship.getAveSlip(totArea, totLength);
+				rupMeanSlip[rupIndex] = scalingRelationship.getAveSlip(totArea, totLength, origDDW);
 			}
 		}
 		
@@ -516,7 +520,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	}
 	
 	/**
-	 * Area is in sq-m (SI units)
+	 * Area is in sq-m (SI units), reduced by aseismicity
 	 */
 	@Override
 	public double getAreaForSection(int sectIndex) {
@@ -524,6 +528,15 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		return sectData.getTraceLength()*1e3*sectData.getReducedDownDipWidth()*1e3;	// aseismicity reduces area; km --> m on length & DDW
 	}
 	
+	
+	/**
+	 * Original area (unreduced by aseismicity) is in sq-m (SI units) 
+	 */
+	public double getOrigAreaForSection(int sectIndex) {
+		FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
+		return sectData.getTraceLength()*1e3*sectData.getOrigDownDipWidth()*1e3;	// ; km --> m on length & DDW
+	}
+
 	
 	/**
 	 * Area is in m (SI units)
