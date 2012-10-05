@@ -1,19 +1,24 @@
 package scratch.UCERF3.inversion;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ClassUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
@@ -24,6 +29,9 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
@@ -96,9 +104,78 @@ public class BatchPlotGen {
 	}
 	
 	public static void handleDir(File dir) throws IOException, DocumentException, GMT_MapException {
+		Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap = Maps.newHashMap();
+		
+		handleDir(dir, misfitsMap, 1);
+		
+		if (!misfitsMap.isEmpty()) {
+			List<String> misfitNames = Lists.newArrayList();
+			for (Map<String, Double> misfits : misfitsMap.values())
+				for (String name : misfits.keySet())
+					if (!misfitNames.contains(name))
+						misfitNames.add(name);
+			Collections.sort(misfitNames);
+			
+			File misfitsCSV = new File(dir, "branch_misfits.csv");
+			
+			int numLogicTreeElems = -1;
+			for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
+				int num = branch.size() + branch.getVariations().size();
+				if (numLogicTreeElems < 0)
+					numLogicTreeElems = num;
+				else
+					Preconditions.checkState(numLogicTreeElems == num, "Logic Tree Branch Lengths Inconsistent!");
+			}
+			
+			Map<String, Integer> misfitCols = Maps.newHashMap();
+			CSVFile<String> csv = new CSVFile<String>(true);
+			List<String> header = Lists.newArrayList();
+
+			VariableLogicTreeBranch branch1 = misfitsMap.keySet().iterator().next();
+
+			for (LogicTreeBranchNode<?> node : branch1)
+				header.add(node.name());
+
+			for (int i=0; i<branch1.getVariations().size(); i++)
+				header.add("Variation "+(i+1));
+
+			for (String misfitName : misfitNames) {
+				int col = header.size();
+				header.add(misfitName);
+				misfitCols.put(misfitName, col);
+			}
+			
+			int numCols = csv.getNumCols();
+			
+			for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
+				Map<String, Double> misfits = misfitsMap.get(branch);
+				
+				List<String> line = Lists.newArrayList();
+				
+				for (LogicTreeBranchNode<?> node : branch)
+					line.add(node.getShortName());
+				
+				for (int i=0; i<branch.getVariations().size(); i++)
+					line.add(branch.getVariations().get(i));
+				
+				while (line.size() < numCols)
+					line.add("");
+				
+				for (String misfitName : misfits.keySet())
+					line.set(misfitCols.get(misfitName), misfits.get(misfitName)+"");
+				
+				csv.addLine(line);
+			}
+			
+			csv.writeToFile(misfitsCSV);
+		}
+	}
+	
+	public static void handleDir(File dir, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap, int maxDepth)
+			throws IOException, DocumentException, GMT_MapException {
 		for (File file : dir.listFiles()) {
-			if (file.isDirectory()) {
-				handleDir(file);
+			if (file.isDirectory() && maxDepth > 0) {
+				handleDir(file, misfitsMap, maxDepth - 1);
 				continue;
 			}
 			String fileName = file.getName();
@@ -107,7 +184,7 @@ public class BatchPlotGen {
 			
 			String prefix = fileName.substring(0, fileName.indexOf("_sol.zip"));
 			
-			handleSolutionFile(file, prefix, null);
+			handleSolutionFile(file, prefix, null, misfitsMap);
 			
 			if (prefix.contains("_run")) {
 				// make sure that every run is done
@@ -143,7 +220,7 @@ public class BatchPlotGen {
 					System.out.println("Skipping (mean sol already done): "+meanPrefix);
 					continue;
 				}
-				// this is an average of many run
+				// this is an average of many runs
 				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
 				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, myDir, prefix);
 				if (!doAvgPlotsExist(meanSolDir, meanPrefix))
@@ -155,13 +232,57 @@ public class BatchPlotGen {
 				avgSol.toZipFile(avgSolFile);
 				// write bin file as well
 				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(meanSolDir, meanPrefix+".bin"));
-				handleSolutionFile(avgSolFile, meanPrefix, avgSol);
+				handleSolutionFile(avgSolFile, meanPrefix, avgSol, null);
 			}
 		}
 	}
 	
-	private static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol) throws GMT_MapException, RuntimeException, IOException, DocumentException {
+	private static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol,
+			Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap)
+			throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		File dir = file.getParentFile();
+		
+		InversionFaultSystemSolution invSol = null;
+		if (misfitsMap != null) {
+			VariableLogicTreeBranch branch = null;
+			try {
+				branch = VariableLogicTreeBranch.fromName(prefix);
+			} catch (Exception e) {
+				System.err.println("WARNING: Couldn't parse prefix into branch: "+prefix);
+				e.printStackTrace();
+			}
+			if (branch != null) {
+				File misfitsFile = new File(file.getAbsolutePath()+".misfits");
+				if (misfitsFile.exists()) {
+					Map<String, Double> misfits = Maps.newHashMap();
+					for (String line : FileUtils.readLines(misfitsFile)) {
+						line = line.trim();
+						if (line.isEmpty())
+							continue;
+						int ind = line.indexOf(":");
+						String name = line.substring(0, ind);
+						Double val = Double.parseDouble(line.substring(ind+1).trim());
+						misfits.put(name, val);
+					}
+					misfitsMap.put(branch, misfits);
+				} else {
+					try {
+						invSol = new InversionFaultSystemSolution(sol);
+						Map<String, Double> misfits = invSol.getMisfits();
+						FileWriter fw = new FileWriter(misfitsFile);
+						for (String misfit : misfits.keySet()) {
+							double val = misfits.get(misfit);
+							fw.write(misfit+": "+val+"\n");
+						}
+						fw.close();
+						misfitsMap.put(branch, misfits);
+					} catch (Exception e) {
+						System.err.println("WARNING: Couldn't load InversionFaultSystemSolution for: "+prefix);
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 		
 		File testMapDoneFile = new File(dir, prefix+"_sect_pairs.png");
 		boolean hasMapPlots = testMapDoneFile.exists();
@@ -189,7 +310,8 @@ public class BatchPlotGen {
 		}
 		if (!hasMFDPlots) {
 			try {
-				InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(sol);
+				if (invSol == null)
+					invSol = new InversionFaultSystemSolution(sol);
 				CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
 			} catch (Exception e) {
 				e.printStackTrace();

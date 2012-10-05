@@ -110,7 +110,7 @@ public class InversionConfiguration {
 		this.slipRateConstraintWt = slipRateConstraintWt;
 		metadata += "slipRateConstraintWt: "+slipRateConstraintWt;
 		this.weightSlipRates = weightSlipRates;
-		metadata += "weightSlipRates: "+weightSlipRates;
+		metadata += "\nweightSlipRates: "+weightSlipRates;
 		this.paleoRateConstraintWt = paleoRateConstraintWt;
 		metadata += "\npaleoRateConstraintWt: "+paleoRateConstraintWt;
 		this.paleoSlipConstraintWt = paleoSlipConstraintWt;

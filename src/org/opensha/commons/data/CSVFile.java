@@ -302,5 +302,11 @@ public class CSVFile<E> implements Iterable<List<E>> {
 		}
 		
 	}
+	
+	public void addColumn() {
+		for (List<E> line : values) {
+			line.add(null);
+		}
+	}
 
 }

@@ -59,22 +59,33 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	private InversionModels invModel;
 	private LogicTreeBranch branch;
 	
-	private boolean ucerf3MFDs = true;
 	private double MFDTransitionMag = Double.NaN;
+	private double slipRateConstraintWt;
 	private boolean weightSlipRates = true;
-	private double relativePaleoRateWt = Double.NaN;
-	private double relativeMagnitudeEqualityConstraintWt = Double.NaN;
-	private double relativeMagnitudeInequalityConstraintWt = Double.NaN;
-	private double relativeRupRateConstraintWt = Double.NaN;
-	private double relativeParticipationSmoothnessConstraintWt = Double.NaN;
-	private double relativeMinimizationConstraintWt = Double.NaN;
-	private double relativeMomentConstraintWt = Double.NaN;
+	private double paleoRateConstraintWt = Double.NaN;
+	private double paleoSlipConstraintWt = Double.NaN;
+	private double magnitudeEqualityConstraintWt = Double.NaN;
+	private double magnitudeInequalityConstraintWt = Double.NaN;
+	private double rupRateConstraintWt = Double.NaN;
+	private double participationSmoothnessConstraintWt = Double.NaN;
+	private double participationConstraintMagBinSize = Double.NaN;
+	private double nucleationMFDConstraintWt = Double.NaN;
+	private double mfdSmoothnessConstraintWt = Double.NaN;
+	private double mfdSmoothnessConstraintWtForPaleoParents = Double.NaN;
+	private double minimizationConstraintWt = Double.NaN;
+	private double momentConstraintWt = Double.NaN;
+	private double parkfieldConstraintWt = Double.NaN;
+	private double smoothnessWt = Double.NaN;
+	private double eventRateSmoothnessWt = Double.NaN;
 	private double minimumRuptureRateFraction = Double.NaN;
 	
 	private InversionMFDs inversionMFDs;
 	
 	double[] minMagForSectArray;
 	boolean[] isRupBelowMinMagsForSects;
+	
+	private Map<String, Double> energies;
+	private Map<String, Double> misfits;
 
 	/**
 	 * Parses the info string for inversion parameters
@@ -91,9 +102,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		try {
 			Map<String, String> invProps = loadProperties(getMetedataSection(infoLines, "Inversion Configuration Metadata"));
 			Map<String, String> branchProps = loadProperties(getMetedataSection(infoLines, "Logic Tree Branch"));
+			Map<String, String> saProps = loadProperties(getMetedataSection(infoLines, "Simulated Annealing Metadata"));
 			branch = loadBranch(branchProps);
 			invModel = branch.getValue(InversionModels.class);
 			loadInvParams(invProps);
+			loadEnergies(saProps);
 			
 			double totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
 			double mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
@@ -119,7 +132,22 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			if (ind < 0)
 				continue;
 			String key = line.substring(0, ind);
+			if (key.startsWith("relative")) {
+				key = key.substring(8);
+				if (key.startsWith("MFD"))
+					key = "mfd"+key.substring(3);
+				else if (Character.isUpperCase(key.charAt(0)))
+					key = new String(key.charAt(0)+"").toLowerCase()+key.substring(1);
+			}
 			String value = line.substring(ind+1).trim();
+			// this is a special case for a bug Morgan had where she didn't add a new line to the metadata field
+			if (value.contains("weightSlipRates:")) {
+				int badInd = value.indexOf("weightSlipRates:");
+				String weightSlipsStr = value.substring(badInd);
+				String weightVal = weightSlipsStr.substring(weightSlipsStr.indexOf(":")+1).trim();
+				props.put("weightSlipRates", weightVal);
+				value = value.substring(0, badInd);
+			}
 			props.put(key, value);
 		}
 		
@@ -196,28 +224,114 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	private void loadInvParams(Map<String, String> props) {
 		if (props.containsKey("MFDTransitionMag"))
 			MFDTransitionMag = Double.parseDouble(props.get("MFDTransitionMag"));
-		if (props.containsKey("relativePaleoRateWt"))
-			relativePaleoRateWt = Double.parseDouble(props.get("relativePaleoRateWt"));
-		if (props.containsKey("relativeMagnitudeEqualityConstraintWt"))
-			relativeMagnitudeEqualityConstraintWt = Double.parseDouble(props.get("relativeMagnitudeEqualityConstraintWt"));
-		if (props.containsKey("relativeMagnitudeInequalityConstraintWt"))
-			relativeMagnitudeInequalityConstraintWt = Double.parseDouble(props.get("relativeMagnitudeInequalityConstraintWt"));
-		if (props.containsKey("relativeRupRateConstraintWt"))
-			relativeRupRateConstraintWt = Double.parseDouble(props.get("relativeRupRateConstraintWt"));
-		if (props.containsKey("relativeParticipationSmoothnessConstraintWt"))
-			relativeParticipationSmoothnessConstraintWt = Double.parseDouble(props.get("relativeParticipationSmoothnessConstraintWt"));
-		if (props.containsKey("relativeMinimizationConstraintWt"))
-			relativeMinimizationConstraintWt = Double.parseDouble(props.get("relativeMinimizationConstraintWt"));
-		if (props.containsKey("relativeMinimizationConstraintWt"))
-			relativeMinimizationConstraintWt = Double.parseDouble(props.get("relativeMinimizationConstraintWt"));
-		if (props.containsKey("relativeMomentConstraintWt"))
-			relativeMomentConstraintWt = Double.parseDouble(props.get("relativeMomentConstraintWt"));
-		if (props.containsKey("minimumRuptureRateFraction"))
-			minimumRuptureRateFraction = Double.parseDouble(props.get("minimumRuptureRateFraction"));
-		if (props.containsKey("ucerf3MFDs"))
-			ucerf3MFDs = Boolean.parseBoolean(props.get("ucerf3MFDs"));
 		if (props.containsKey("weightSlipRates"))
 			weightSlipRates = Boolean.parseBoolean(props.get("weightSlipRates"));
+		if (props.containsKey("slipRateConstraintWt"))
+			slipRateConstraintWt = Double.parseDouble(props.get("slipRateConstraintWt"));
+		if (props.containsKey("paleoRateConstraintWt"))
+			paleoRateConstraintWt = Double.parseDouble(props.get("paleoRateConstraintWt"));
+		if (props.containsKey("paleoSlipConstraintWt"))
+			paleoSlipConstraintWt = Double.parseDouble(props.get("paleoSlipConstraintWt"));
+		if (props.containsKey("magnitudeEqualityConstraintWt"))
+			magnitudeEqualityConstraintWt = Double.parseDouble(props.get("magnitudeEqualityConstraintWt"));
+		if (props.containsKey("magnitudeInequalityConstraintWt"))
+			magnitudeInequalityConstraintWt = Double.parseDouble(props.get("magnitudeInequalityConstraintWt"));
+		if (props.containsKey("rupRateConstraintWt"))
+			rupRateConstraintWt = Double.parseDouble(props.get("rupRateConstraintWt"));
+		if (props.containsKey("participationSmoothnessConstraintWt"))
+			participationSmoothnessConstraintWt = Double.parseDouble(props.get("participationSmoothnessConstraintWt"));
+		if (props.containsKey("participationConstraintMagBinSize"))
+			participationConstraintMagBinSize = Double.parseDouble(props.get("participationConstraintMagBinSize"));
+		if (props.containsKey("nucleationMFDConstraintWt"))
+			nucleationMFDConstraintWt = Double.parseDouble(props.get("nucleationMFDConstraintWt"));
+		if (props.containsKey("mfdSmoothnessConstraintWt"))
+			mfdSmoothnessConstraintWt = Double.parseDouble(props.get("mfdSmoothnessConstraintWt"));
+		if (props.containsKey("mfdSmoothnessConstraintWtForPaleoParents"))
+			mfdSmoothnessConstraintWtForPaleoParents = Double.parseDouble(props.get("mfdSmoothnessConstraintWtForPaleoParents"));
+		if (props.containsKey("minimizationConstraintWt"))
+			minimizationConstraintWt = Double.parseDouble(props.get("minimizationConstraintWt"));
+		if (props.containsKey("momentConstraintWt"))
+			momentConstraintWt = Double.parseDouble(props.get("momentConstraintWt"));
+		if (props.containsKey("parkfieldConstraintWt"))
+			parkfieldConstraintWt = Double.parseDouble(props.get("parkfieldConstraintWt"));
+		if (props.containsKey("smoothnessWt"))
+			smoothnessWt = Double.parseDouble(props.get("smoothnessWt"));
+		if (props.containsKey("eventRateSmoothnessWt"))
+			eventRateSmoothnessWt = Double.parseDouble(props.get("eventRateSmoothnessWt"));
+		if (props.containsKey("minimumRuptureRateFraction"))
+			minimumRuptureRateFraction = Double.parseDouble(props.get("minimumRuptureRateFraction"));
+	}
+	
+	private void loadEnergies(Map<String, String> props) {
+		energies = Maps.newHashMap();
+		
+		for (String key : props.keySet()) {
+			if (!key.contains("energy"))
+				continue;
+			if (key.contains("Best") || key.contains("breakdown"))
+				continue;
+			double val = Double.parseDouble(props.get(key));
+			key = key.trim();
+			energies.put(key, val);
+		}
+	}
+	
+	public Map<String, Double> getEnergies() {
+		return energies;
+	}
+	
+	/**
+	 * This returns the energies scaled by their weights, should be a fair comparison amung runs even with different weights.
+	 * @return
+	 */
+	public synchronized Map<String, Double> getMisfits() {
+		if (misfits == null) {
+			misfits = Maps.newHashMap();
+			
+			for (String energyStr : energies.keySet()) {
+				double eVal = energies.get(energyStr);
+				double wt;
+				energyStr = energyStr.substring(0, energyStr.indexOf("energy")).trim();
+				if (energyStr.equals("Slip Rate"))
+					wt = slipRateConstraintWt;
+				else if (energyStr.equals("Paleo Event Rates"))
+					wt = paleoRateConstraintWt;
+				else if (energyStr.equals("Paleo Slips"))
+					wt = paleoSlipConstraintWt;
+				else if (energyStr.equals("Rupture Rates"))
+					wt = rupRateConstraintWt;
+				else if (energyStr.equals("Minimization"))
+					wt = minimizationConstraintWt;
+				else if (energyStr.equals("MFD Equality"))
+					wt = magnitudeEqualityConstraintWt;
+				else if (energyStr.equals("MFD Participation"))
+					wt = participationSmoothnessConstraintWt;
+				else if (energyStr.equals("MFD Nucleation"))
+					wt = nucleationMFDConstraintWt;
+				else if (energyStr.equals("MFD Smoothness")) {
+					if (mfdSmoothnessConstraintWt > 0 && mfdSmoothnessConstraintWtForPaleoParents > 0)
+						wt = Double.NaN; // impossible to make a fair comparison here when both weights are mixed
+					else if (mfdSmoothnessConstraintWt > 0)
+						wt = mfdSmoothnessConstraintWt;
+					else if (mfdSmoothnessConstraintWtForPaleoParents > 0)
+						wt = mfdSmoothnessConstraintWtForPaleoParents;
+					else
+						wt = 0d;
+				} else if (energyStr.equals("Moment"))
+					wt = momentConstraintWt;
+				else if (energyStr.equals("Parkfield"))
+					wt = parkfieldConstraintWt;
+				else if (energyStr.equals("Event-Rate Smoothness"))
+					wt = eventRateSmoothnessWt;
+				else
+					throw new IllegalStateException("Unknown Energy Type: "+energyStr);
+				double misfit = eVal / (wt*wt);
+				System.out.println(energyStr+": "+eVal+" / ("+wt+")^2 = "+misfit);
+				misfits.put(energyStr, misfit);
+			}
+		}
+		
+		return misfits;
 	}
 
 	public InversionModels getInvModel() {
@@ -228,10 +342,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return branch;
 	}
 
-	public boolean isUcerf3MFDs() {
-		return ucerf3MFDs;
-	}
-
 	public double getMFDTransitionMag() {
 		return MFDTransitionMag;
 	}
@@ -240,32 +350,32 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return weightSlipRates;
 	}
 
-	public double getRelativePaleoRateWt() {
-		return relativePaleoRateWt;
+	public double getPaleoRateConstraintWt() {
+		return paleoRateConstraintWt;
 	}
 
-	public double getRelativeMagnitudeEqualityConstraintWt() {
-		return relativeMagnitudeEqualityConstraintWt;
+	public double getPaleoSlipConstraintWt() {
+		return paleoSlipConstraintWt;
 	}
 
-	public double getRelativeMagnitudeInequalityConstraintWt() {
-		return relativeMagnitudeInequalityConstraintWt;
+	public double getMagnitudeEqualityConstraintWt() {
+		return magnitudeEqualityConstraintWt;
 	}
 
-	public double getRelativeRupRateConstraintWt() {
-		return relativeRupRateConstraintWt;
+	public double getMagnitudeInequalityConstraintWt() {
+		return magnitudeInequalityConstraintWt;
 	}
 
-	public double getRelativeParticipationSmoothnessConstraintWt() {
-		return relativeParticipationSmoothnessConstraintWt;
+	public double getRupRateConstraintWt() {
+		return rupRateConstraintWt;
 	}
 
-	public double getRelativeMinimizationConstraintWt() {
-		return relativeMinimizationConstraintWt;
+	public double getParticipationSmoothnessConstraintWt() {
+		return participationSmoothnessConstraintWt;
 	}
-
-	public double getRelativeMomentConstraintWt() {
-		return relativeMomentConstraintWt;
+	
+	public double getParticipationConstraintMagBinSize() {
+		return participationConstraintMagBinSize;
 	}
 
 	public double getMinimumRuptureRateFraction() {
@@ -276,6 +386,42 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return inversionMFDs;
 	}
 	
+	public double getSlipRateConstraintWt() {
+		return slipRateConstraintWt;
+	}
+	
+	public double getNucleationMFDConstraintWt() {
+		return nucleationMFDConstraintWt;
+	}
+
+	public double getMfdSmoothnessConstraintWt() {
+		return mfdSmoothnessConstraintWt;
+	}
+
+	public double getMfdSmoothnessConstraintWtForPaleoParents() {
+		return mfdSmoothnessConstraintWtForPaleoParents;
+	}
+
+	public double getMinimizationConstraintWt() {
+		return minimizationConstraintWt;
+	}
+
+	public double getMomentConstraintWt() {
+		return momentConstraintWt;
+	}
+
+	public double getParkfieldConstraintWt() {
+		return parkfieldConstraintWt;
+	}
+
+	public double getSmoothnessWt() {
+		return smoothnessWt;
+	}
+
+	public double getEventRateSmoothnessWt() {
+		return eventRateSmoothnessWt;
+	}
+
 	/**
 	 * This compares the MFDs in the given MFD constraints with the MFDs 
 	 * implied by the Fault System Solution
@@ -596,13 +742,20 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 //		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(
 //				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
 //						"FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip"));
-		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(new File(
-						"/tmp/ucerf2_fm2_compare.zip"));
+//		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(new File(
+//						"/tmp/ucerf2_fm2_compare.zip"));
 //		simple.plotMFDs(Lists.newArrayList(OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850)));
 		
+		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(new File(
+				"/tmp/FM2_1_UC2ALL_ShConStrDrp_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_" +
+				"SpatSeisU2_VarPaleo0.1_VarSectNuclMFDWt0.01_VarParkfield10000_sol.zip"));
 		
 		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
-		inv.plotMFDs();
+		Map<String, Double> misfits = inv.getMisfits();
+		for (String name : misfits.keySet()) {
+			System.out.println(name+": "+misfits.get(name));
+		}
+//		inv.plotMFDs();
 		
 //		CommandLineInversionRunner.writeMFDPlots(inv, new File("/tmp"), "test_plots");
 	}
