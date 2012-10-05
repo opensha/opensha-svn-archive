@@ -99,6 +99,8 @@ import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
+import com.google.common.collect.Lists;
+
 
 public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
@@ -472,6 +474,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			atLeastOne = true;
 		}
 		
+		boolean noVMColors = cmd.hasOption("no-vm-colors");
+		
 //		String optStr = null;
 //		for (Option opt : cmd.getOptions()) {
 //			if (optStr == null)
@@ -529,7 +533,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				continue;
 			boolean textOnly = types.size() == 1 && types.get(0) == PlotType.TXT;
 			ArrayList<DiscretizedFunc> curves = this.plotCurve(curveID, run,
-					compCurveIDs, runCompares, textOnly);
+					compCurveIDs, runCompares, textOnly, noVMColors);
 			if (curves == null) {
 				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
 				continue;
@@ -712,19 +716,30 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		System.out.println("Max source distance for site " + siteID + " is " + this.maxSourceDistance);
 	}
 	
-	public void plotCurve(CybershakeRun run, int imTypeID) {
-		int curveID = curve2db.getHazardCurveID(run.getRunID(), imTypeID);
-		this.plotCurve(curveID, run);
-	}
-	
 	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run) {
-		return plotCurve(curveID, run, false);
+		return plotCurve(curveID, run, false, false);
 	}
 	
 	ArrayList<String> curveNames = new ArrayList<String>();
 	
-	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run, boolean textOnly) {
-		return plotCurve(curveID, run, null, null, textOnly);
+	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run, boolean textOnly, boolean noVMColor) {
+		return plotCurve(curveID, run, null, null, textOnly, noVMColor);
+	}
+	
+	private static List<Color> csPlotColors;
+	private int csColorIndex = 0;
+	
+	private Color getNextCSColor() {
+		if (csPlotColors == null) {
+			csPlotColors = Lists.newArrayList();
+			for (int i=3; i<7; i++)
+				csPlotColors.add(getColorForVM(i));
+		}
+		
+		if (csColorIndex == csPlotColors.size())
+			csColorIndex = 0;
+		
+		return csPlotColors.get(csColorIndex++);
 	}
 	
 	private static Color getColorForVM(int vmID) {
@@ -766,7 +781,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run,
-			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly) {
+			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly, boolean noVMColors) {
 		curveNames.clear();
 		System.out.println("Fetching Curve!");
 		DiscretizedFunc curve = curve2db.getHazardCurve(curveID);
@@ -785,10 +800,15 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		if (curve == null)
 			return null;
 		
+		
+		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		Color curveColor = plotChars.getCyberShakeColor();
 		if (curveColor == null)
-			curveColor = getColorForVM(run.getVelModelID());
+			if (noVMColors)
+				curveColor = getNextCSColor();
+			else
+				curveColor = getColorForVM(run.getVelModelID());
 		PlotLineType curveLineType = this.plotChars.getCyberShakeLineType();
 		PlotSymbol curveSymbol = this.plotChars.getCyberShakeSymbol();
 		if (curveSymbol == null)
@@ -833,7 +853,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				curveNames.add(curveName);
 				Color compCurveColor = plotChars.getCyberShakeColor();
 				if (compCurveColor == null)
-					compCurveColor = getColorForVM(compRun.getVelModelID());
+					if (noVMColors)
+						curveColor = getNextCSColor();
+					else
+						compCurveColor = getColorForVM(compRun.getVelModelID());
 				chars.add(new PlotCurveCharacterstics(compCurveLineType, plotChars.getLineWidth(),
 						compSymbol, plotChars.getLineWidth()*4f, compCurveColor));
 				CybershakeVelocityModel velModel = runs2db.getVelocityModel(compRun.getVelModelID());
@@ -1320,6 +1343,9 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		Option plotChars = new Option("pl", "plot-chars-file", true, "Specify the path to a plot characteristics XML file");
 		ops.addOption(plotChars);
+		
+		Option noVMChars = new Option("novm", "no-vm-colors", false, "Disables Velocity Model coloring");
+		ops.addOption(noVMChars);
 		
 		return ops;
 	}
