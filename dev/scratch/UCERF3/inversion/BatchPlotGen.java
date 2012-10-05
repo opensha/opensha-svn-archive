@@ -246,16 +246,16 @@ public class BatchPlotGen {
 			throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		File dir = file.getParentFile();
 		
-		System.out.println("Handling solution file: "+file.getAbsolutePath());
+//		System.out.println("Handling solution file: "+file.getAbsolutePath());
 		
 		InversionFaultSystemSolution invSol = null;
 		if (misfitsMap != null) {
 			VariableLogicTreeBranch branch = null;
 			try {
-				System.out.println("Prefix: "+prefix);
+//				System.out.println("Prefix: "+prefix);
 				branch = VariableLogicTreeBranch.fromName(prefix);
-				if (!branch.getVariations().isEmpty())
-					System.out.println("Variations: "+Joiner.on(",").join(branch.getVariations()));
+//				if (!branch.getVariations().isEmpty())
+//					System.out.println("Variations: "+Joiner.on(",").join(branch.getVariations()));
 			} catch (Exception e) {
 				System.err.println("WARNING: Couldn't parse prefix into branch: "+prefix);
 				e.printStackTrace();
