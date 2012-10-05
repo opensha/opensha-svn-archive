@@ -60,7 +60,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	private LogicTreeBranch branch;
 	
 	private double MFDTransitionMag = Double.NaN;
-	private double slipRateConstraintWt;
+	private double slipRateConstraintWt = Double.NaN;
 	private boolean weightSlipRates = true;
 	private double paleoRateConstraintWt = Double.NaN;
 	private double paleoSlipConstraintWt = Double.NaN;
@@ -228,10 +228,16 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			weightSlipRates = Boolean.parseBoolean(props.get("weightSlipRates"));
 		if (props.containsKey("slipRateConstraintWt"))
 			slipRateConstraintWt = Double.parseDouble(props.get("slipRateConstraintWt"));
+		else
+			slipRateConstraintWt = 1d;
 		if (props.containsKey("paleoRateConstraintWt"))
 			paleoRateConstraintWt = Double.parseDouble(props.get("paleoRateConstraintWt"));
+		else if (props.containsKey("paleoRateWt"))
+			paleoRateConstraintWt = Double.parseDouble(props.get("paleoRateWt"));
 		if (props.containsKey("paleoSlipConstraintWt"))
 			paleoSlipConstraintWt = Double.parseDouble(props.get("paleoSlipConstraintWt"));
+		else if (props.containsKey("paleoSlipWt"))
+			paleoSlipConstraintWt = Double.parseDouble(props.get("paleoSlipWt"));
 		if (props.containsKey("magnitudeEqualityConstraintWt"))
 			magnitudeEqualityConstraintWt = Double.parseDouble(props.get("magnitudeEqualityConstraintWt"));
 		if (props.containsKey("magnitudeInequalityConstraintWt"))
