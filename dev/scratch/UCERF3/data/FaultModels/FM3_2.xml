@@ -3428,7 +3428,7 @@
         <Location Latitude="38.75121" Longitude="-122.44815" Depth="0.0"/>
       </FaultTrace>
     </i132>
-    <i133 sectionId="97" sectionName="Imperial" aveLongTermSlipRate="35.0" slipRateStdDev="0.0" aveDip="82.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="14.600000381469727" aseismicSlipFactor="0.10000000149011612" couplingCoeff="1.0" dipDirection="54.78326" parentSectionId="-1" connector="false">
+    <i133 sectionId="97" sectionName="Imperial" aveLongTermSlipRate="35.0" slipRateStdDev="0.0" aveDip="82.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="11.0" aseismicSlipFactor="0.10000000149011612" couplingCoeff="1.0" dipDirection="54.78326" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="32.479242" Longitude="-115.161517" Depth="0.0"/>
@@ -8340,7 +8340,7 @@
         <Location Latitude="34.284" Longitude="-118.48890000000002" Depth="0.0"/>
       </FaultTrace>
     </i290>
-    <i291 sectionId="210" sectionName="Sierra Nevada  (No Extension)" aveLongTermSlipRate="0.30000001192092896" slipRateStdDev="0.0" aveDip="50.0" aveRake="90.0" aveUpperDepth="0.0" aveLowerDepth="13.800000190734863" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="73.80133" parentSectionId="-1" connector="false">
+    <i291 sectionId="210" sectionName="Sierra Nevada  (No Extension)" aveLongTermSlipRate="0.30000001192092896" slipRateStdDev="0.0" aveDip="50.0" aveRake="-90.0" aveUpperDepth="0.0" aveLowerDepth="13.800000190734863" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="73.80133" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="36.214312" Longitude="-117.99841700000002" Depth="0.0"/>
@@ -8683,7 +8683,7 @@
         <Location Latitude="41.90839" Longitude="-120.16256" Depth="0.0"/>
       </FaultTrace>
     </i301>
-    <i302 sectionId="695" sectionName="Swain Ravine - Spenceville" aveLongTermSlipRate="0.10000000149011612" slipRateStdDev="0.0" aveDip="60.0" aveRake="90.0" aveUpperDepth="0.0" aveLowerDepth="12.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="63.223705" parentSectionId="-1" connector="false">
+    <i302 sectionId="695" sectionName="Swain Ravine - Spenceville" aveLongTermSlipRate="0.10000000149011612" slipRateStdDev="0.0" aveDip="60.0" aveRake="-90.0" aveUpperDepth="0.0" aveLowerDepth="12.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="63.223705" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="38.723915" Longitude="-120.92359700000002" Depth="0.0"/>
