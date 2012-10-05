@@ -58,7 +58,7 @@ public class LogicTreePBSWriter {
 
 	public static ArrayList<File> getClasspath(RunSites runSite) {
 		ArrayList<File> jars = new ArrayList<File>();
-		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete_newjar.jar"));
+		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete.jar"));
 		jars.add(new File(runSite.RUN_DIR, "parallelcolt-0.9.4.jar"));
 		jars.add(new File(runSite.RUN_DIR, "commons-cli-1.2.jar"));
 		jars.add(new File(runSite.RUN_DIR, "csparsej.jar"));
@@ -426,16 +426,16 @@ public class LogicTreePBSWriter {
 //		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		
-//		ScalingRelationships[] scales = ScalingRelationships.values();
+		ScalingRelationships[] scales = ScalingRelationships.values();
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.SHAW_CONST_STRESS_DROP };
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_CONST_STRESS_DROP };
-		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
-//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
+//		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
+		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
 //		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED };
-		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
-//		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
+//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
+		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
 //		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.ZENG };
-		DeformationModels[] dms = { DeformationModels.ZENG };
+//		DeformationModels[] dms = { DeformationModels.ZENG };
 		
 		
 		
@@ -518,7 +518,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "local-min-tests";
+		String runName = "dm-scale-paleo-sweep";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
@@ -578,45 +578,46 @@ public class LogicTreePBSWriter {
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
-		/*
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT };
+		InversionOptions[] ops = { InversionOptions.PALEO_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
-		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
-				InversionOptions.PARKFIELD_WT };
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
+//				InversionOptions.PARKFIELD_WT };
 //				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.PALEO_SECT_MFD_SMOOTH };
 		List<String[]> argVals = Lists.newArrayList();
 		// paleo
-		argVals.add(toArray("0.1", "1", "10"));
-		// section nucleation
-		argVals.add(toArray("0.001", "0.01", "0.1"));
-		// slip wt
-		argVals.add(toArray("10000"));
+		argVals.add(toArray("2", "4", "6", "8"));
+//		// section nucleation
+//		argVals.add(toArray("0.001", "0.01", "0.1"));
+//		// slip wt
+//		argVals.add(toArray("10000"));
 //		// mfd smoothness
 //		argVals.add(toArray("0"));
 //		// mfd smoothness for paleo sects
 //		argVals.add(toArray("10", "100", "1000", "10000"));
 		
 		for (String val1 : argVals.get(0))
-			for (String val2 : argVals.get(1))
-				for (String val3 : argVals.get(2))
-					variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3)));
-		*/
+			variationBranches.add(buildVariationBranch(ops, toArray(val1)));
+		
+//		for (String val1 : argVals.get(0))
+//			for (String val2 : argVals.get(1))
+//				for (String val3 : argVals.get(2))
+//					variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3)));
 		
 		
 		List<InversionArg[]> saOptions = null;
 		
-		saOptions = Lists.newArrayList();
-		String[] coolingSlowdowns = { "1", "10", "100", "1000", "10000", "100000" };
-		String[] energyScaleFactors = { "1", "10", "100", "1000", "10000", "100000" };
-		
-		for (String coolingSlow : coolingSlowdowns) {
-			for (String energyScale : energyScaleFactors) {
-				InversionArg[] invOps = { new InversionArg("--slower-cooling "+coolingSlow, "SlowCool"+coolingSlow),
-						new InversionArg("--energy-scale "+energyScale, "EScale"+energyScale) };
-				saOptions.add(invOps);
-			}
-		}
+//		saOptions = Lists.newArrayList();
+//		String[] coolingSlowdowns = { "1", "10", "100", "1000", "10000", "100000" };
+//		String[] energyScaleFactors = { "1", "10", "100", "1000", "10000", "100000" };
+//		
+//		for (String coolingSlow : coolingSlowdowns) {
+//			for (String energyScale : energyScaleFactors) {
+//				InversionArg[] invOps = { new InversionArg("--slower-cooling "+coolingSlow, "SlowCool"+coolingSlow),
+//						new InversionArg("--energy-scale "+energyScale, "EScale"+energyScale) };
+//				saOptions.add(invOps);
+//			}
+//		}
 		
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
 //		String[] mfdTrans = { "7.85" };
@@ -738,10 +739,10 @@ public class LogicTreePBSWriter {
 		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 		//		String threads = "1";
 		CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
-//		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1) };
-		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1),
-				TimeCompletionCriteria.getInSeconds(2), TimeCompletionCriteria.getInSeconds(5),
-				TimeCompletionCriteria.getInSeconds(20) };
+		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1) };
+//		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1),
+//				TimeCompletionCriteria.getInSeconds(2), TimeCompletionCriteria.getInSeconds(5),
+//				TimeCompletionCriteria.getInSeconds(20) };
 		//		CompletionCriteria subCompletion = VariableSubTimeCompletionCriteria.instance("5s", "300");
 		boolean keepCurrentAsBest = false;
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath(site));
