@@ -213,6 +213,12 @@ public class InversionConfiguration {
 		
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
 		double paleoRateConstraintWt = 1;
+		
+		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
+			paleoRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
+			System.out.println("Setting paleo constraint wt: "+paleoRateConstraintWt);
+		}
+		
 		// weight of mean paleo slip constraint relative to slip-rate constraint 
 		double paleoSlipConstraintWt = paleoRateConstraintWt*0.1;
 		
@@ -348,11 +354,6 @@ public class InversionConfiguration {
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PARKFIELD_WT.getArgName())) {
 			parkfieldConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PARKFIELD_WT.getArgName()));
 			System.out.println("Setting parkfield constraint wt: "+parkfieldConstraintWt);
-		}
-
-		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
-			paleoRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
-			System.out.println("Setting paleo constraint wt: "+paleoRateConstraintWt);
 		}
 
 		if (modifiers != null && modifiers.hasOption(InversionOptions.AVE_SLIP_WT.getArgName())) {
