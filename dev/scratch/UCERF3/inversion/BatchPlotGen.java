@@ -246,6 +246,8 @@ public class BatchPlotGen {
 			throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		File dir = file.getParentFile();
 		
+		System.out.println("Handling solution file: "+file.getAbsolutePath());
+		
 		InversionFaultSystemSolution invSol = null;
 		if (misfitsMap != null) {
 			VariableLogicTreeBranch branch = null;
