@@ -63,7 +63,8 @@ public class DeformationModelFetcher {
 	    0.8069, 0.7593, 0.7059, 0.6466, 0.5814, 0.5103, 0.4331, 0.3500};
 
 	private final static double[] parkfield_mo_reds = {0.7000,    0.7286,    0.7571,    0.7857,    0.8143,    0.8429,    0.8714,    0.9000};
-
+	// coupling coefficient for each mini ection
+	private final static double[] custom_mendocino_couplings = { 1.0, 1.0, 0.15, 0.15, 0.15 };
 
 	private final static double MOMENT_REDUCTION_THRESHOLD = 0.9;
 	public final static double MOMENT_REDUCTION_MAX = 0.95;
@@ -436,7 +437,13 @@ public class DeformationModelFetcher {
 
 	private static ArrayList<FaultSectionPrefData> buildSubSections(
 			FaultSectionPrefData section, double maxSubSectionLength, int subSectIndex) {
-		double maxSectLength = section.getOrigDownDipWidth()*maxSubSectionLength;
+		double ddw = section.getOrigDownDipWidth();
+		if (section.getSectionId() == 97) {
+			// TODO fix this
+			System.err.println("*** WARNING: USING OLD IMPERIAL DDW FOR SUBSECTIONING! HACK HACK HACK!!! ***");
+			ddw = (14.600000381469727)/Math.sin(section.getAveDip()*Math.PI/ 180);
+		}
+		double maxSectLength = ddw*maxSubSectionLength;
 		// the "2" here sets a minimum number of sub sections
 		return section.getSubSectionsList(maxSectLength, subSectIndex, 2);
 	}
@@ -838,6 +845,16 @@ public class DeformationModelFetcher {
 //						System.out.println("Keeping default aseis of "+subSect.getAseismicSlipFactor()+" for: "+subSect.getName());
 					// otherwise keep UCERF2 aseismicity value as recommended by Tim Dawson
 					// via e-mail 3/2/12 (subject: Moment Rate Reductions)
+				}
+				
+				boolean customMendocino = parentID == 13;
+				
+				if (customMendocino) {
+					List<Double> subCouplingCoeffs = Lists.newArrayList();
+					for (int i=traceIndexBefore; i<traceIndexAfter; i++)
+						subCouplingCoeffs.add(custom_mendocino_couplings[i]);
+					double couplingCoeff = getLengthBasedAverage(subLocs, subCouplingCoeffs);
+					subSect.setCouplingCoeff(couplingCoeff);
 				}
 			}
 

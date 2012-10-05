@@ -284,6 +284,8 @@ public class CommandLineInversionRunner {
 			System.out.println("Writing RupSet");
 			config.updateRupSetInfoString(rupSet);
 			String info = rupSet.getInfoString();
+			info += "\n\n"+getPreInversionInfo(rupSet);
+			
 
 			File rupSetFile = new File(subDir, prefix+"_rupSet.zip");
 			new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
@@ -511,6 +513,24 @@ public class CommandLineInversionRunner {
 		}
 		System.out.println("DONE");
 		System.exit(0);
+	}
+	
+	private static String getPreInversionInfo(InversionFaultSystemRupSet rupSet) {
+		// 2 lines, tab delimeted
+		String data = rupSet.getPreInversionAnalysisData(true);
+		String[] dataLines = data.split("\n");
+		String header = dataLines[0];
+		data = dataLines[1];
+		String[] headerVals = header.trim().split("\t");
+		String[] dataVals = data.trim().split("\t");
+		Preconditions.checkState(headerVals.length == dataVals.length);
+		
+		String info = "****** Pre Inversion Analysis ******";
+		for (int i=0; i<headerVals.length; i++)
+			info += "\n"+headerVals[i]+": "+dataVals[i];
+		info += "\n***********************************************";
+		
+		return info;
 	}
 	
 	public static final String PALEO_FAULT_BASED_DIR_NAME = "paleo_fault_based";

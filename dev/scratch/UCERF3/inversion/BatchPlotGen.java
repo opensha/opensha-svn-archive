@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,74 +105,99 @@ public class BatchPlotGen {
 		return sol;
 	}
 	
+	private static void writeMisfitsCSV(File dir, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap) throws IOException {
+		List<String> misfitNames = Lists.newArrayList();
+		for (Map<String, Double> misfits : misfitsMap.values())
+			for (String name : misfits.keySet())
+				if (!misfitNames.contains(name))
+					misfitNames.add(name);
+		Collections.sort(misfitNames);
+
+		File misfitsCSV = new File(dir, dir.getName()+"_misfits.csv");
+
+		int numLogicTreeElems = -1;
+		for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
+			int num = branch.size() + branch.getVariations().size();
+			if (numLogicTreeElems < 0)
+				numLogicTreeElems = num;
+			else
+				Preconditions.checkState(numLogicTreeElems == num, "Logic Tree Branch Lengths Inconsistent!");
+		}
+
+		Map<String, Integer> misfitCols = Maps.newHashMap();
+		CSVFile<String> csv = new CSVFile<String>(true);
+		List<String> header = Lists.newArrayList();
+
+		VariableLogicTreeBranch branch1 = misfitsMap.keySet().iterator().next();
+
+		for (LogicTreeBranchNode<?> node : branch1)
+			header.add(ClassUtils.getClassNameWithoutPackage(node.getClass()));
+
+		for (int i=0; i<branch1.getVariations().size(); i++)
+			header.add("Variation "+(i+1));
+
+		for (String misfitName : misfitNames) {
+			int col = header.size();
+			header.add(misfitName);
+			misfitCols.put(misfitName, col);
+		}
+
+		csv.addLine(header);
+
+		int numCols = csv.getNumCols();
+
+		for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
+			Map<String, Double> misfits = misfitsMap.get(branch);
+
+			List<String> line = Lists.newArrayList();
+
+			for (LogicTreeBranchNode<?> node : branch)
+				line.add(node.getShortName());
+
+			for (int i=0; i<branch.getVariations().size(); i++)
+				line.add(branch.getVariations().get(i));
+
+			while (line.size() < numCols)
+				line.add("");
+
+			for (String misfitName : misfits.keySet())
+				line.set(misfitCols.get(misfitName), misfits.get(misfitName)+"");
+
+			csv.addLine(line);
+		}
+		
+		// now sort
+		Comparator<String> comparator = new Comparator<String>() {
+			
+			@Override
+			public int compare(String o1, String o2) {
+				try {
+					double d1 = Double.parseDouble(o1);
+					double d2 = Double.parseDouble(o2);
+					return Double.compare(d1, d2);
+				} catch (NumberFormatException e) {
+					return o1.compareTo(o2);
+				}
+			}
+		};
+		
+		int cols = csv.getNumCols();
+		for (int col=cols; --col>=0;)
+			csv.sort(col, 1, comparator);
+		
+		for (int row=0; row<csv.getNumRows(); row++)
+			System.out.println(Joiner.on(",").join(csv.getLine(row)));
+
+		csv.writeToFile(misfitsCSV);
+	}
+	
 	public static void handleDir(File dir) throws IOException, DocumentException, GMT_MapException {
 		Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap = Maps.newHashMap();
 		
 		handleDir(dir, misfitsMap, 1);
 		
-		if (!misfitsMap.isEmpty()) {
-			List<String> misfitNames = Lists.newArrayList();
-			for (Map<String, Double> misfits : misfitsMap.values())
-				for (String name : misfits.keySet())
-					if (!misfitNames.contains(name))
-						misfitNames.add(name);
-			Collections.sort(misfitNames);
-			
-			File misfitsCSV = new File(dir, dir.getName()+"_misfits.csv");
-			
-			int numLogicTreeElems = -1;
-			for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
-				int num = branch.size() + branch.getVariations().size();
-				if (numLogicTreeElems < 0)
-					numLogicTreeElems = num;
-				else
-					Preconditions.checkState(numLogicTreeElems == num, "Logic Tree Branch Lengths Inconsistent!");
-			}
-			
-			Map<String, Integer> misfitCols = Maps.newHashMap();
-			CSVFile<String> csv = new CSVFile<String>(true);
-			List<String> header = Lists.newArrayList();
-
-			VariableLogicTreeBranch branch1 = misfitsMap.keySet().iterator().next();
-
-			for (LogicTreeBranchNode<?> node : branch1)
-				header.add(ClassUtils.getClassNameWithoutPackage(node.getClass()));
-
-			for (int i=0; i<branch1.getVariations().size(); i++)
-				header.add("Variation "+(i+1));
-
-			for (String misfitName : misfitNames) {
-				int col = header.size();
-				header.add(misfitName);
-				misfitCols.put(misfitName, col);
-			}
-			
-			csv.addLine(header);
-			
-			int numCols = csv.getNumCols();
-			
-			for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
-				Map<String, Double> misfits = misfitsMap.get(branch);
-				
-				List<String> line = Lists.newArrayList();
-				
-				for (LogicTreeBranchNode<?> node : branch)
-					line.add(node.getShortName());
-				
-				for (int i=0; i<branch.getVariations().size(); i++)
-					line.add(branch.getVariations().get(i));
-				
-				while (line.size() < numCols)
-					line.add("");
-				
-				for (String misfitName : misfits.keySet())
-					line.set(misfitCols.get(misfitName), misfits.get(misfitName)+"");
-				
-				csv.addLine(line);
-			}
-			
-			csv.writeToFile(misfitsCSV);
-		}
+		if (!misfitsMap.isEmpty())
+			writeMisfitsCSV(dir, misfitsMap);
 	}
 	
 	public static void handleDir(File dir, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap, int maxDepth)

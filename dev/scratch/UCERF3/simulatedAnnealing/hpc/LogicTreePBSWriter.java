@@ -426,10 +426,11 @@ public class LogicTreePBSWriter {
 //		branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, ScalingRelationships.SHAW_CONST_STRESS_DROP, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2));
 		
-		ScalingRelationships[] scales = ScalingRelationships.values();
+//		ScalingRelationships[] scales = ScalingRelationships.values();
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.SHAW_CONST_STRESS_DROP };
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_CONST_STRESS_DROP };
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
+		ScalingRelationships[] scales = { ScalingRelationships.ELLB_SQRT_LENGTH, ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP };
 		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
 //		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED };
 //		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
@@ -518,7 +519,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "dm-scale-paleo-sweep";
+		String runName = "dm-scale-paleo-sweep-shaw-ellbsqrt-redo";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
