@@ -145,6 +145,8 @@ public class BatchPlotGen {
 				misfitCols.put(misfitName, col);
 			}
 			
+			csv.addLine(header);
+			
 			int numCols = csv.getNumCols();
 			
 			for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
