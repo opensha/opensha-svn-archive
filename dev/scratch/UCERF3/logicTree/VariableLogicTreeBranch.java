@@ -86,7 +86,10 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 	
 	public static void main(String[] args) {
 		String name = "FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo10_VarSectNuclMFDWt0.01";
-		for (String var : parseVariations(name))
+//		for (String var : parseVariations(name))
+//			System.out.println(var);
+		VariableLogicTreeBranch branch = VariableLogicTreeBranch.fromName(name);
+		for (String var : branch.getVariations())
 			System.out.println(var);
 	}
 	

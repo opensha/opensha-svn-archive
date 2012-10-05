@@ -135,7 +135,7 @@ public class BatchPlotGen {
 			VariableLogicTreeBranch branch1 = misfitsMap.keySet().iterator().next();
 
 			for (LogicTreeBranchNode<?> node : branch1)
-				header.add(node.name());
+				header.add(ClassUtils.getClassNameWithoutPackage(node.getClass()));
 
 			for (int i=0; i<branch1.getVariations().size(); i++)
 				header.add("Variation "+(i+1));
