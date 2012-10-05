@@ -249,6 +249,7 @@ public class BatchPlotGen {
 		if (misfitsMap != null) {
 			VariableLogicTreeBranch branch = null;
 			try {
+				System.out.println("Prefix: "+prefix);
 				branch = VariableLogicTreeBranch.fromName(prefix);
 				if (!branch.getVariations().isEmpty())
 					System.out.println("Variations: "+Joiner.on(",").join(branch.getVariations()));
