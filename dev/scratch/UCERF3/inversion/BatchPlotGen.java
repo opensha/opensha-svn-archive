@@ -17,6 +17,7 @@ import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ClassUtils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -249,6 +250,8 @@ public class BatchPlotGen {
 			VariableLogicTreeBranch branch = null;
 			try {
 				branch = VariableLogicTreeBranch.fromName(prefix);
+				if (!branch.getVariations().isEmpty())
+					System.out.println("Variations: "+Joiner.on(",").join(branch.getVariations()));
 			} catch (Exception e) {
 				System.err.println("WARNING: Couldn't parse prefix into branch: "+prefix);
 				e.printStackTrace();
