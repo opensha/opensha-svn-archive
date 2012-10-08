@@ -154,6 +154,7 @@ public enum TestGrid {
 		locs.add(new Location(44.7, -66.5));
 		locs.add(new Location(45.9, -67.5));
 		locs.add(new Location(46.5, -67.7));
+		locs.add(new Location(47.5, -67.7));
 		locs.add(new Location(47.5, -69.4));
 		locs.add(new Location(45.2, -71.8));
 		locs.add(new Location(45.2, -75.4));
