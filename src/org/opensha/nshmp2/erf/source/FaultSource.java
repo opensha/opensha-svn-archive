@@ -20,6 +20,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -69,7 +70,9 @@ public class FaultSource extends ProbEqkSource {
 	public void init() {
 		// init fault surface
 		double lowerSeis = top + width * Math.sin(dip * GeoTools.TO_RAD);
-		surface = new StirlingGriddedSurface(trace, dip, top, lowerSeis, 1);
+		SimpleFaultData sfd = new SimpleFaultData(dip, lowerSeis, top, trace);
+		surface = new StirlingGriddedSurface(sfd, 1.0, 1.0);
+//		surface = new StirlingGriddedSurface(trace, dip, top, lowerSeis, 1);
 		// create a floating poisson source for each mfd
 		if (mfds.size() == 0) return;
 		sources = Lists.newArrayList();
