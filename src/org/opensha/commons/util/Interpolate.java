@@ -80,13 +80,30 @@ public class Interpolate {
 	}
 
 	/**
+	 * Returns the log interpolated or extrapolated y-value using the
+	 * supplied x- and y-value arrays.
+	 * 
+	 * TODO needs unit test
+	 * 
+	 * @param xs x-values of some function
+	 * @param ys y-values of some function
+	 * @param x value at which to find y
+	 * @return the interpolated y-value
+	 */
+	public static double findLogY(double[] xs, double[] ys, double x) {
+		int i = dataIndex(xs, x);
+		return Math.exp(findY(xs[i], Math.log(ys[i]), xs[i + 1],
+			Math.log(ys[i + 1]), x));
+	}
+	
+	/**
 	 * Returns the log-log interpolated or extrapolated y-value using the
 	 * supplied x- and y-value arrays.
 	 * 
 	 * @param xs x-values of some function
 	 * @param ys y-values of some function
 	 * @param x value at which to find y
-	 * @return the interpolated y-value
+	 * @return the log-log interpolated y-value
 	 */
 	public static double findLogLogY(double[] xs, double[] ys, double x) {
 		int i = dataIndex(xs, x);
@@ -113,13 +130,31 @@ public class Interpolate {
 	}
 
 	/**
+	 * Returns the log interpolated or extrapolated y-values using the
+	 * supplied x- and y-value arrays.
+	 * 
+	 * @param xs x-values of some function
+	 * @param ys y-values of some function
+	 * @param x value at which to find y
+	 * @return the log interpolated y-values
+	 */
+	public static double[] findLogY(double[] xs, double[] ys, double[] x) {
+		double[] y = new double[x.length];
+		int i = 0;
+		for (double xVal : x) {
+			y[i++] = findLogY(xs, ys, xVal);
+		}
+		return y;
+	}
+
+	/**
 	 * Returns the log-log interpolated or extrapolated y-values using the
 	 * supplied x- and y-value arrays.
 	 * 
 	 * @param xs x-values of some function
 	 * @param ys y-values of some function
 	 * @param x value at which to find y
-	 * @return the interpolated y-value
+	 * @return the log-log interpolated y-values
 	 */
 	public static double[] findLogLogY(double[] xs, double[] ys, double[] x) {
 		double[] y = new double[x.length];
