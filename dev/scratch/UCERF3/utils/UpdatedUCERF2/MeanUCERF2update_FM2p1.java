@@ -4,30 +4,23 @@ import java.util.ArrayList;
 
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2_FM2pt1;
 
 import com.google.common.collect.Lists;
 
 /**
- * Due to discrepanices between the current NSHMP background seismsicity model
- * and that implemented in UCERF2, this updated version of {@code MeanUCERF2}
- * supplies the current NSHMP model to facilitate comparisons between the NSHMP,
- * UCERF2, and UCERF3.
- * 
- * This implementation also ignores the non-California b-Fault sources.
- * 
- * the current NSHMP background
+ * Add comments here
  *
  * 
  * @author Peter Powers
  * @version $Id:$
  */
-public class MeanUCERF2update extends MeanUCERF2 {
+public class MeanUCERF2update_FM2p1 extends MeanUCERF2_FM2pt1 {
 
 	private NSHMP08_GridSourceGenerator gridSrcGen;
 
-	public MeanUCERF2update(GridSources id) {
-		gridSrcGen = new NSHMP08_GridSourceGenerator(id);
+	public MeanUCERF2update_FM2p1() {
+		gridSrcGen = new NSHMP08_GridSourceGenerator(GridSources.ALL);
 	}
 	
 	@Override

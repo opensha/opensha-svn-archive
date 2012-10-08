@@ -1,5 +1,7 @@
 package scratch.UCERF3.utils.UpdatedUCERF2;
 
+import static scratch.UCERF3.utils.UpdatedUCERF2.GridSources.*;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,9 +31,13 @@ public class NSHMP08_GridSourceGenerator {
 	// indexing of nested erfs
 	private int[] erfIndices;
 	
-	public NSHMP08_GridSourceGenerator() {
-		gridListERF = NSHMP2008.createCaliforniaGridded();
-		System.out.println(gridListERF);
+	public NSHMP08_GridSourceGenerator(GridSources id) {
+		gridListERF = (id == ALL)
+			? NSHMP2008.createCaliforniaGridded()
+			: (id == FIX_STRK)
+				? NSHMP2008.createCaliforniaFixedStrk()
+				: NSHMP2008.createCaliforniaPointSrc();
+//		System.out.println(gridListERF);
 		List<Integer> indexList = Lists.newArrayList();
 		int total = 0;
 		for (ERF erf : gridListERF) {
