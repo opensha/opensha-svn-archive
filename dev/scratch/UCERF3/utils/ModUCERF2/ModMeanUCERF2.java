@@ -414,14 +414,9 @@ public class ModMeanUCERF2 extends AbstractERF {
 		return bFaultSummedMFD;
 	}
 	
-
-	/**
-	 * update the forecast
-	 **/
-
+	@Override
 	public void updateForecast() {
 		if(this.parameterChangeFlag)  {
-			
 			String backSeis = (String)backSeisParam.getValue();
 			allSources = new ArrayList<ProbEqkSource>();
 			if(calcSummedMFDs) { // IF MFDs need to be calculated for verification purposes
@@ -431,70 +426,53 @@ public class ModMeanUCERF2 extends AbstractERF {
 				totBackgroundMFD = ucerf2.getTotal_BackgroundMFD();
 				nonCA_B_FaultsSummedMFD = ucerf2.getTotal_NonCA_B_FaultsMFD();
 			}
-
-			
-//			long startTime, endTime;
-//			double totTime;
-
-			// if "background only" is not selected
-			if(!backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
-//				startTime = System.currentTimeMillis();
-				mkA_FaultSources();
-//				endTime = System.currentTimeMillis();
-//				totTime = ((double)(endTime-startTime))/1000.0;
-//				System.out.println("A_Flt source runtime = "+totTime);
-			
-//				startTime = System.currentTimeMillis();
-				mkB_FaultSources();
-//				endTime = System.currentTimeMillis();
-//				totTime = ((double)(endTime-startTime))/1000.0;
-//				System.out.println("B_Flt source runtime = "+totTime);
-				
-//				startTime = System.currentTimeMillis();
-				mkNonCA_B_FaultSources();
-//				endTime = System.currentTimeMillis();
-//				totTime = ((double)(endTime-startTime))/1000.0;
-//				System.out.println("NonCA_B_Flt source runtime = "+totTime);
-				
-				// sort the arrays alphabetically
-				Collections.sort(aFaultSegmentedSources, new EqkSourceNameComparator());
-				Collections.sort(aFaultUnsegmentedSources, new EqkSourceNameComparator());
-				Collections.sort(bFaultSources, new EqkSourceNameComparator());
-				Collections.sort(nonCA_bFaultSources, new EqkSourceNameComparator());
-				
-				// add to the master list
-				allSources.addAll(this.aFaultSegmentedSources);
-				allSources.addAll(this.aFaultUnsegmentedSources);
-				allSources.addAll(this.bFaultSources);
-				allSources.addAll(nonCA_bFaultSources);
-					
-			}
-			
-			// if background sources are included
-			if(backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_INCLUDE) || 
-					backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
-				String backSeisRup = (String)this.backSeisRupParam.getValue();
-				if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
-					nshmp_gridSrcGen.setAsPointSources(true);
-					//allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
-					
-				} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
-					nshmp_gridSrcGen.setAsPointSources(false);
-					//allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
-
-				} else { // Cross hair ruptures
-					nshmp_gridSrcGen.setAsPointSources(false);
-					//allSources.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
-
-				}
-				
-				// Add C-zone sources
-				allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
-			}
-			
+			updateFaultSources();
+			updateGridSources();
 		}
 		parameterChangeFlag = false;
 	}
+	
+	protected void updateFaultSources() {
+		String backSeis = (String)backSeisParam.getValue();
+
+		if(!backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
+			mkA_FaultSources();
+			mkB_FaultSources();
+			mkNonCA_B_FaultSources();
+
+			// sort the arrays alphabetically
+			Collections.sort(aFaultSegmentedSources, new EqkSourceNameComparator());
+			Collections.sort(aFaultUnsegmentedSources, new EqkSourceNameComparator());
+			Collections.sort(bFaultSources, new EqkSourceNameComparator());
+			Collections.sort(nonCA_bFaultSources, new EqkSourceNameComparator());
+			
+			// add to the master list
+			allSources.addAll(this.aFaultSegmentedSources);
+			allSources.addAll(this.aFaultUnsegmentedSources);
+			allSources.addAll(this.bFaultSources);
+			allSources.addAll(nonCA_bFaultSources);
+		}
+	}
+	
+	protected void updateGridSources() {
+		String backSeis = (String)backSeisParam.getValue();
+		
+		if(backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_INCLUDE) || 
+				backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
+			String backSeisRup = (String)this.backSeisRupParam.getValue();
+			if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
+				nshmp_gridSrcGen.setAsPointSources(true);
+			} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
+				nshmp_gridSrcGen.setAsPointSources(false);
+			} else { // Cross hair ruptures
+				nshmp_gridSrcGen.setAsPointSources(false);
+			}
+			
+			// Add C-zone sources
+			allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
+		}
+	}
+
 	
 	/**
 	 * Make A_Fault Sources
@@ -941,7 +919,7 @@ public class ModMeanUCERF2 extends AbstractERF {
 	 * Make Non-CA B-Faults Sources
 	 *
 	 */
-	private void mkNonCA_B_FaultSources() {
+	protected void mkNonCA_B_FaultSources() {
 		double magSigma  = UCERF2.MAG_SIGMA_DEFAULT;
 		double magTruncLevel = UCERF2.TRUNC_LEVEL_DEFAULT;
 		double duration = timeSpan.getDuration();

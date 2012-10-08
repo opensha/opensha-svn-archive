@@ -34,10 +34,6 @@ public class ModMeanUCERF2_FM2pt1 extends ModMeanUCERF2 {
 	// name of this ERF
 	public final static String NAME = new String("WGCEP (2007) UCERF2 - Single Branch, Modified, Fault Model 2.1 only");
 
-
-
-
-	
 	/**
 	 * Make B-Faults sources and caluculate B-Faults Total Summed MFD
 	 */
@@ -131,52 +127,27 @@ public class ModMeanUCERF2_FM2pt1 extends ModMeanUCERF2 {
 		}
 	}
 	
-	/**
-	 * Return the name for this class
-	 *
-	 * @return : return the name for this class
-	 */
+	@Override
 	public String getName(){
 		return NAME;
 	}
 
-
-	/**
-	 * update the forecast
-	 **/
-
-	public void updateForecast() {
-		if(this.parameterChangeFlag)  {
-			
-			super.updateForecast();
-			allSources = new ArrayList<ProbEqkSource>();
-			
-			String backSeis = (String)backSeisParam.getValue();
-			
-			// if "background only" is not selected
-			if(!backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
-				mkB_FaultSources();
-				Collections.sort(bFaultSources, new EqkSourceNameComparator());
-				
-				// add to the master list
-				allSources.addAll(this.aFaultSegmentedSources);
-				allSources.addAll(this.aFaultUnsegmentedSources);
-				allSources.addAll(this.bFaultSources);
-				allSources.addAll(nonCA_bFaultSources);
-					
-			}
-			
-			// if background sources are included
-			if(backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_INCLUDE) || 
-					backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
-				// Add C-zone sources
-				allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
-			}
-			
+	@Override 
+	protected void updateFaultSources() {
+		super.updateFaultSources();
+		// recreate allSources with new bFault array
+		allSources = new ArrayList<ProbEqkSource>();
+		String backSeis = backSeisParam.getValue();
+		if(!backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
+			mkB_FaultSources(); // local variant
+			Collections.sort(bFaultSources, new EqkSourceNameComparator());
+			// add to the master list
+			allSources.addAll(aFaultSegmentedSources);
+			allSources.addAll(aFaultUnsegmentedSources);
+			allSources.addAll(bFaultSources);
+			allSources.addAll(nonCA_bFaultSources);
 		}
-		parameterChangeFlag = false;
 	}
-
 	
 
 	// this is temporary for testing purposes
