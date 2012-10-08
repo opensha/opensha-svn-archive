@@ -11,10 +11,16 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2_FM2pt1;
 
+import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolERF;
+import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
+import scratch.UCERF3.utils.UpdatedUCERF2.GridSources;
 import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update;
+import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update_FM2p1;
+import scratch.UCERF3.utils.UpdatedUCERF2.ModMeanUCERF2update_FM2p1;
+import scratch.UCERF3.utils.UpdatedUCERF2.UCERF2_FM2pt1_FSS_ERFupdate;
 
 /**
  * Add comments here
@@ -35,9 +41,39 @@ public enum ERF_ID {
 			return NSHMP2008.createCalifornia();
 		}
 	},
+	NSHMP08_CA_GRD() {
+		public EpistemicListERF instance() {
+			return NSHMP2008.createCaliforniaGridded();
+		}
+	},
+	NSHMP08_CA_FIX() {
+		public EpistemicListERF instance() {
+			return NSHMP2008.createCaliforniaFixedStrk();
+		}
+	},
+	NSHMP08_CA_PT() {
+		public EpistemicListERF instance() {
+			return NSHMP2008.createCaliforniaPointSrc();
+		}
+	},
 	MEAN_UCERF2() {
 		public EpistemicListERF instance() {
 			return getMeanUC2();
+		}
+	},
+	MEAN_UCERF2_GRD() {
+		public EpistemicListERF instance() {
+			return getMeanUC2_GRD();
+		}
+	},
+	MEAN_UCERF2_FIX() {
+		public EpistemicListERF instance() {
+			return getMeanUC2_FIX();
+		}
+	},
+	MEAN_UCERF2_PT() {
+		public EpistemicListERF instance() {
+			return getMeanUC2_PT();
 		}
 	},
 	MEAN_UCERF2_FM2P1() {
@@ -61,25 +97,46 @@ public enum ERF_ID {
 	public abstract EpistemicListERF instance();
 
 	private static EpistemicListERF getMeanUC2() {
-		final MeanUCERF2update erf = new MeanUCERF2update();
+		final MeanUCERF2 erf = new MeanUCERF2update(GridSources.ALL);
 		setParams(erf);
+		return wrapInList(erf);
+	}
+	
+	private static EpistemicListERF getMeanUC2_GRD() {
+		final MeanUCERF2 erf = new MeanUCERF2update(GridSources.ALL);
+		setParams(erf);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
+		return wrapInList(erf);
+	}
+
+	private static EpistemicListERF getMeanUC2_FIX() {
+		final MeanUCERF2 erf = new MeanUCERF2update(GridSources.FIX_STRK);
+		setParams(erf);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
+		return wrapInList(erf);
+	}
+
+	private static EpistemicListERF getMeanUC2_PT() {
+		final MeanUCERF2 erf = new MeanUCERF2update(GridSources.PT_SRC);
+		setParams(erf);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
 		return wrapInList(erf);
 	}
 
 	private static EpistemicListERF getMeanUC2_FM2P1() {
-		final MeanUCERF2_FM2pt1 erf = new MeanUCERF2_FM2pt1();
+		final MeanUCERF2 erf = new MeanUCERF2update_FM2p1();
 		setParams(erf);
 		return wrapInList(erf);
 	}
 
 	private static EpistemicListERF getModMeanUC2_FM2P1() {
-		final ModMeanUCERF2_FM2pt1 erf = new ModMeanUCERF2_FM2pt1_wOutAftershocks();
+		final ModMeanUCERF2 erf = new ModMeanUCERF2update_FM2p1();
 		setParams(erf);
 		return wrapInList(erf);
 	}
 
 	private static EpistemicListERF getUC2_FM2P1_FSS() {
-		final UCERF2_FM2pt1_FaultSysSolERF erf = new UCERF2_FM2pt1_FaultSysSolERF();
+		final FaultSystemSolutionPoissonERF erf = new UCERF2_FM2pt1_FSS_ERFupdate();
 		erf.getTimeSpan().setDuration(1.0);
 		return wrapInList(erf);
 	}

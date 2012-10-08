@@ -139,6 +139,65 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		return erf;
 	}
 
+	public static NSHMP2008 createCaliforniaFixedStrk() {
+		NSHMP2008 erf = new NSHMP2008(null);
+		List<GridERF> gridERFs = Lists.newArrayList();
+		erf.addERF(Sources.get("brawmap.in"));
+		erf.addERF(Sources.get("creepmap.in"));
+		erf.addERF(Sources.get("sangorg.in"));
+		erf.addERF(Sources.get("mendo.in"));
+		erf.addERF(Sources.get("mojave.in"));
+		erf.addERF(Sources.get("shear1.in"));
+		erf.addERF(Sources.get("shear2.in"));
+		erf.addERF(Sources.get("shear3.in"));
+		erf.addERF(Sources.get("shear4.in"));
+		return erf;
+	}
+	
+	public static NSHMP2008 createCaliforniaPointSrc() {
+		NSHMP2008 erf = new NSHMP2008(null);
+		List<GridERF> gridERFs = Lists.newArrayList();
+//		erf.addERF(Sources.get("CAmap.24.ch.in"));
+//		erf.addERF(Sources.get("CAmap.21.ch.in"));
+//		erf.addERF(Sources.get("CAmap.21.gr.in"));
+//		erf.addERF(Sources.get("CAmap.24.gr.in"));
+//		erf.addERF(Sources.get("impext.ch.in"));
+//		erf.addERF(Sources.get("impext.gr.in"));
+		erf.addERF(Sources.get("EXTmap.ch.in"));
+//		erf.addERF(Sources.get("EXTmap.gr.in"));
+//		erf.addERF(Sources.get("WUSmap.ch.in"));
+//		erf.addERF(Sources.get("WUSmap.gr.in"));
+		return erf;
+	}
+
+//	erf.addERF(Sources.get("CAmap.24.ch.in"));
+//	erf.addERF(Sources.get("CAmap.21.ch.in"));
+//	erf.addERF(Sources.get("CAmap.21.gr.in"));
+//	erf.addERF(Sources.get("CAmap.24.gr.in"));
+//	erf.addERF(Sources.get("impext.ch.in"));
+//	erf.addERF(Sources.get("impext.gr.in"));
+//	erf.addERF(Sources.get("EXTmap.ch.in"));
+//	erf.addERF(Sources.get("EXTmap.gr.in"));
+//	erf.addERF(Sources.get("WUSmap.ch.in"));
+//	erf.addERF(Sources.get("WUSmap.gr.in"));
+
+//	srcFiles.add(create("CA/gridded/CAdeep.in", 1.0));
+//	srcFiles.add(create("CA/gridded/CAmap.24.ch.in", 0.3333));
+//	srcFiles.add(create("CA/gridded/CAmap.21.ch.in", 0.3334));
+//	srcFiles.add(create("CA/gridded/CAmap.21.gr.in", 0.1666));
+//	srcFiles.add(create("CA/gridded/CAmap.24.gr.in", 0.1667));
+//	srcFiles.add(create("CA/gridded/brawmap.in", 1.0));
+//	srcFiles.add(create("CA/gridded/creepmap.in", 1.0));
+//	srcFiles.add(create("CA/gridded/sangorg.in", 1.0));
+//	srcFiles.add(create("CA/gridded/mendo.in", 1.0));
+//	srcFiles.add(create("CA/gridded/mojave.in", 1.0));
+//	srcFiles.add(create("CA/gridded/impext.ch.in", 0.6667));
+//	srcFiles.add(create("CA/gridded/impext.gr.in", 0.3333));
+//	srcFiles.add(create("CA/gridded/shear1.in", 1.0));
+//	srcFiles.add(create("CA/gridded/shear2.in", 1.0));
+//	srcFiles.add(create("CA/gridded/shear3.in", 1.0));
+//	srcFiles.add(create("CA/gridded/shear4.in", 1.0));
+
 	// should be able to filter sources of erf via custom iterators
 	
 	private void init() {
