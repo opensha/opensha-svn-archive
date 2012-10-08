@@ -43,14 +43,15 @@ public class Shaw_2009_ModifiedMagAreaRel extends MagAreaRelationship implements
 	public final static double cZero = 3.98;
 	
     /**
-     * Computes the median magnitude from rupture area and down-dip width
+     * Computes the median magnitude from rupture area and original down-dip width
+     * (not reduced by any aseismicity)
      * @param area in km-squared
-     * @param width in km
+     * @param origWidth in km
      * @return median magnitude
      */
-    public  double getWidthDepMedianMag(double area, double width) {
-    	double numer= Math.max(1.0,Math.sqrt(area/(width*width)));
-    	double denom= (1 + Math.max(1.0,(area/(beta*width*width))))/2;
+    public  double getWidthDepMedianMag(double area, double origWidth) {
+    	double numer= Math.max(1.0,Math.sqrt(area/(origWidth*origWidth)));
+    	double denom= (1 + Math.max(1.0,(area/(beta*origWidth*origWidth))))/2;
     	return  cZero + Math.log10(area) + 0.6667*Math.log10(numer/denom);
     }
 
