@@ -47,7 +47,7 @@ class CA_MagAreaRelationship extends MagAreaRelationship {
 
 	@Override
 	public double getMedianArea(double mag) {
-		return (mag <= mag_cut) ? Math.pow(10.0, mag - 4.2) : // EllB
+		return (mag >= mag_cut) ? Math.pow(10.0, mag - 4.2) : // EllB
 			Math.pow(10.0, (mag - 4.07) / 0.98); // WC94
 	}
 
