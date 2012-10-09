@@ -33,7 +33,7 @@ import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 public class UCERF3_PaleoRateConstraintFetcher {
 	
 	private final static String PALEO_DATA_SUB_DIR = "paleoRateData";
-	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v07_withMappings.xls";
+	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v08_withMappings.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -77,8 +77,12 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			if(row==null) continue;
 			HSSFCell cell = row.getCell(1);
 			if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
+			HSSFCell nameCell = row.getCell(0);
+			if (nameCell == null || nameCell.getCellType()!=HSSFCell.CELL_TYPE_STRING
+					|| nameCell.getStringCellValue().trim().isEmpty())
+				continue;
 			lat = cell.getNumericCellValue();
-			siteName = row.getCell(0).getStringCellValue().trim();
+			siteName = nameCell.getStringCellValue().trim();
 			lon = row.getCell(2).getNumericCellValue();
 			// skipping MRI cells
 			meanRate = row.getCell(6).getNumericCellValue();
@@ -138,6 +142,9 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			
 			if (mappingCol > 0) {
 				HSSFCell mappingCell = row.getCell(mappingCol);
+				if (mappingCell == null)
+					mappingCell = row.createCell(mappingCol, HSSFCell.CELL_TYPE_STRING);
+//				System.out.println("Writing mapping at "+r+","+mappingCol+": "+name);
 				mappingCell.setCellValue(name);
 			}
 		}
@@ -148,7 +155,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {
-		int mappingCol = 9;
+		int mappingCol = 14;
 		for (FaultModels fm : FaultModels.values()) {
 			FaultSystemRupSet faultSysRupSet =
 				InversionFaultSystemRupSetFactory.cachedForBranch(fm, DeformationModels.forFaultModel(fm).get(0));

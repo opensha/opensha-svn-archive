@@ -433,12 +433,14 @@ public class LogicTreePBSWriter {
 //				ScalingRelationships.SHAW_CONST_STRESS_DROP, ScalingRelationships.SHAW_2009_MOD,
 //				ScalingRelationships.ELLB_SQRT_LENGTH };
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
-		ScalingRelationships[] scales = { ScalingRelationships.ELLB_SQRT_LENGTH, ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP };
+		ScalingRelationships[] scales = { ScalingRelationships.SHAW_2009_MOD };
+//		ScalingRelationships[] scales = { ScalingRelationships.ELLB_SQRT_LENGTH, ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP };
 //		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
-		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED };
-//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
-		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
+//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED };
+		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
+//		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
 //		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.ZENG };
+		DeformationModels[] dms = { DeformationModels.UCERF2_ALL };
 //		DeformationModels[] dms = { DeformationModels.ZENG };
 		
 		
@@ -522,14 +524,14 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ref-branches-in-between";
+		String runName = "dm2-1-ref-branch-convergence";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
-		int constrained_run_mins = 180;
+//		int constrained_run_mins = 180;
 //		int constrained_run_mins = 250;
 //		int constrained_run_mins = 360;
-//		int constrained_run_mins = 500;
+		int constrained_run_mins = 500;
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
@@ -541,7 +543,7 @@ public class LogicTreePBSWriter {
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 1;
+		int numRuns = 100;
 		int runStart = 0;
 
 		boolean lightweight = numRuns > 10;
@@ -590,7 +592,7 @@ public class LogicTreePBSWriter {
 //				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.PALEO_SECT_MFD_SMOOTH };
 		List<String[]> argVals = Lists.newArrayList();
 		// paleo
-		argVals.add(toArray("3"));
+		argVals.add(toArray("1"));
 //		argVals.add(toArray("0.1", "1", "10"));
 //		// section nucleation
 //		argVals.add(toArray("0.001", "0.01", "0.1"));
