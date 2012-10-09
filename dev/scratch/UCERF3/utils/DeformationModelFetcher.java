@@ -139,8 +139,9 @@ public class DeformationModelFetcher {
 //				}
 				
 				faultSubSectPrefDataList = loadUCERF3DefModel(faultSectPrefDataList, model, maxSubSectionLength, rakesModel, defaultAseismicityValue);
-				if (deformationModel == DeformationModels.GEOLOGIC)
-					applyCustomGeologicTapers();
+//				if (deformationModel == DeformationModels.GEOLOGIC)
+				// now applied to all as per e-mail from Tom Parsons 10/9 subject "STATUS Re: Grand Inversion To Do List (URGENT ITEMS)
+				applyCustomGeologicTapers();
 				fileNamePrefix = deformationModel.name()+"_"+faultModel.name()+"_"+faultSubSectPrefDataList.size();
 				if (D) System.out.println("DONE.");
 			} catch (IOException e) {

@@ -267,6 +267,20 @@ public class BatchPlotGen {
 		}
 	}
 	
+	public static Map<String, Double> loadMisfitsFile(File misfitsFile) throws IOException {
+		Map<String, Double> misfits = Maps.newHashMap();
+		for (String line : FileUtils.readLines(misfitsFile)) {
+			line = line.trim();
+			if (line.isEmpty())
+				continue;
+			int ind = line.indexOf(":");
+			String name = line.substring(0, ind);
+			Double val = Double.parseDouble(line.substring(ind+1).trim());
+			misfits.put(name, val);
+		}
+		return misfits;
+	}
+	
 	private static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol,
 			Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap)
 			throws GMT_MapException, RuntimeException, IOException, DocumentException {
@@ -289,17 +303,7 @@ public class BatchPlotGen {
 			if (branch != null) {
 				File misfitsFile = new File(file.getAbsolutePath()+".misfits");
 				if (misfitsFile.exists()) {
-					Map<String, Double> misfits = Maps.newHashMap();
-					for (String line : FileUtils.readLines(misfitsFile)) {
-						line = line.trim();
-						if (line.isEmpty())
-							continue;
-						int ind = line.indexOf(":");
-						String name = line.substring(0, ind);
-						Double val = Double.parseDouble(line.substring(ind+1).trim());
-						misfits.put(name, val);
-					}
-					misfitsMap.put(branch, misfits);
+					misfitsMap.put(branch, loadMisfitsFile(misfitsFile));
 				} else {
 					try {
 						if (sol == null)
