@@ -212,7 +212,7 @@ public class InversionConfiguration {
 		boolean weightSlipRates = true;
 		
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double paleoRateConstraintWt = 1;
+		double paleoRateConstraintWt = 2;
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
 			paleoRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
