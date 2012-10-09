@@ -468,77 +468,14 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		// get and sum curves
 		Utils.zeroFunc(imls);
 		DiscretizedFunc f = imls.deepClone();
-
-//		double mtmp = magParam.getValue();
-//		double dtmp = distanceJBParam.getValue();
-//		if (mtmp == 6.65 && dtmp == 10.5) {
-//			System.out.println(Arrays.toString(means));
-//			System.out.println(Arrays.toString(sigmas));
-//			System.out.println(Arrays.toString(weights));
-//			for (ScalarIMR imr : imrMap.keySet()) {
-//				System.out.println(imr);
-//				System.out.println(imr.getAllParamMetadata());
-//			}
-//		}
 		for (int i=0; i<means.length; i++) {
 			f = Utils.getExceedProbabilities(f, means[i], sigmas[i], false, 0.0);
-//			System.out.println("mean: " + means[i] + " weight: " + weights[i]);
-//			System.out.println(f);
 			f.scale(weights[i]);
 			Utils.addFunc(imls, f);
 		}
-//		System.out.println("yo");
 		return imls;
-		
-		
-//		// function collator with associated weights
-//		Map<DiscretizedFunc, Double> funcs = new HashMap<DiscretizedFunc, Double>();
-//		
-//		double imrWeight = 1 / (double) arList.size();
-//		
-//		// flag for epistemic uncertainty
-//		if (includeImrUncert) {
-//			// lookup M and dist
-//			double mag = propEffect.getEqkRupture().getMag();
-//			double dist = propEffect.getDistanceJB();
-//			double uncert = getUncertainty(mag, dist);
-//			for (AttenuationRelationship ar : arList) {
-//				for (int i=0; i<3; i++) {
-//					imrUncert = imrUncertSign[i] * uncert;
-//					DiscretizedFunc func = (DiscretizedFunc) imls.deepClone();
-//					funcs.put(ar.getExceedProbabilities(func), imrWeight * imrUncertWeights[i]);
-//				}
-//			}
-//		} else {
-//			imrUncert = 0;
-//			for (AttenuationRelationship ar : arList) {
-//				DiscretizedFunc func = (DiscretizedFunc) imls.deepClone();
-//				funcs.put(ar.getExceedProbabilities(func), imrWeight);
-//			}
-//		}
-//		
-//		// populate original
-//		for (int i=0; i<imls.getNum(); i++) {
-//			double val = 0.0;
-//			for (DiscretizedFunc f : funcs.keySet()) {
-//				val += f.getY(i) * funcs.get(f);
-//			}
-//			imls.set(i, val);
-//		}
-//		
-//		return imls;
 	}
 	
-//	public static void main(String[] args) {
-//		
-//		-1.8230113      -1.5980113      -1.3730112       1.2493054
-//		-1.5662893      -1.3412893      -1.1162893      0.52079755
-//		-1.4223362      -1.1973362     -0.97233617      0.55895984
-//		
-//		DiscretizedFunc f = new DIscretizedF;
-//		f = Utils.getExceedProbabilities(f, -1.8230113, 1.2493054, false, 0.0);
-//		
-//	}
 	@Override
 	public double getExceedProbability() throws ParameterException,
 			IMRException {
