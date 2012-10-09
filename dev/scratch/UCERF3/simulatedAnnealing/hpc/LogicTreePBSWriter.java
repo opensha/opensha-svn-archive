@@ -429,10 +429,13 @@ public class LogicTreePBSWriter {
 //		ScalingRelationships[] scales = ScalingRelationships.values();
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.SHAW_CONST_STRESS_DROP };
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_CONST_STRESS_DROP };
+//		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08,
+//				ScalingRelationships.SHAW_CONST_STRESS_DROP, ScalingRelationships.SHAW_2009_MOD,
+//				ScalingRelationships.ELLB_SQRT_LENGTH };
 //		ScalingRelationships[] scales = { ScalingRelationships.ELLSWORTH_B };
 		ScalingRelationships[] scales = { ScalingRelationships.ELLB_SQRT_LENGTH, ScalingRelationships.SHAW_2009_MOD, ScalingRelationships.SHAW_CONST_STRESS_DROP };
-		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
-//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED };
+//		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED, SlipAlongRuptureModels.UNIFORM };
+		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.TAPERED };
 //		SlipAlongRuptureModels[] dsrs = { SlipAlongRuptureModels.UNIFORM };
 		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG };
 //		DeformationModels[] dms = { DeformationModels.UCERF2_ALL, DeformationModels.ZENG };
@@ -519,7 +522,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "dm-scale-paleo-sweep-shaw-ellbsqrt-redo";
+		String runName = "ref-branches-in-between";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
@@ -581,13 +584,14 @@ public class LogicTreePBSWriter {
 		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 		InversionOptions[] ops = { InversionOptions.PALEO_WT };
-//		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.EVENT_SMOOTH_WT, InversionOptions.A_PRIORI_CONST_WT };
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
 //				InversionOptions.PARKFIELD_WT };
 //				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.PALEO_SECT_MFD_SMOOTH };
 		List<String[]> argVals = Lists.newArrayList();
 		// paleo
-		argVals.add(toArray("2", "4", "6", "8"));
+		argVals.add(toArray("3"));
+//		argVals.add(toArray("0.1", "1", "10"));
 //		// section nucleation
 //		argVals.add(toArray("0.001", "0.01", "0.1"));
 //		// slip wt
@@ -599,6 +603,10 @@ public class LogicTreePBSWriter {
 		
 		for (String val1 : argVals.get(0))
 			variationBranches.add(buildVariationBranch(ops, toArray(val1)));
+		
+//		for (String val1 : argVals.get(0))
+//			for (String val2 : argVals.get(1))
+//				variationBranches.add(buildVariationBranch(ops, toArray(val1, val2)));
 		
 //		for (String val1 : argVals.get(0))
 //			for (String val2 : argVals.get(1))
