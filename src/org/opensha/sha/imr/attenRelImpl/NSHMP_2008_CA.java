@@ -265,8 +265,10 @@ ParameterChangeListener {
 		otherParams.addParameter(imrUncertParam);
 		otherParams.addParameter(hwEffectApproxParam);
 		
-		sigmaTruncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-		sigmaTruncLevelParam.setValue(3.0);
+		// override parent truncation param to default to 1-sided 3s
+		sigmaTruncTypeParam = new SigmaTruncTypeParam(
+			SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+		sigmaTruncLevelParam = new SigmaTruncLevelParam(3.0);
 		
 		sigmaTruncTypeParam.addParameterChangeListener(this);
 		sigmaTruncLevelParam.addParameterChangeListener(this);
