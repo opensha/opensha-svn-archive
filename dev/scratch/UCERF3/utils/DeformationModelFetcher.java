@@ -62,7 +62,8 @@ public class DeformationModelFetcher {
 	private final static double[] creep_mo_reds = {0.9112, 0.9361, 0.9557, 0.9699, 0.9786, 0.9819, 0.9796, 0.9719, 0.9585, 0.9396, 0.9150, 0.8847, 0.8487,
 	    0.8069, 0.7593, 0.7059, 0.6466, 0.5814, 0.5103, 0.4331, 0.3500};
 
-	private final static double[] parkfield_mo_reds = {0.7000,    0.7286,    0.7571,    0.7857,    0.8143,    0.8429,    0.8714,    0.9000};
+//	private final static double[] parkfield_mo_reds = {0.7000,    0.7286,    0.7571,    0.7857,    0.8143,    0.8429,    0.8714,    0.9000};
+	private final static double[] parkfield_mo_reds = {0.5000,    0.5571,    0.6143,    0.6714,    0.7286,    0.7857,    0.8429,    0.9000};
 	// coupling coefficient for each mini ection
 	private final static double[] custom_mendocino_couplings = { 1.0, 1.0, 0.15, 0.15, 0.15 };
 
