@@ -117,7 +117,9 @@ public class BatchPlotGen {
 
 		int numLogicTreeElems = -1;
 		for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {
-			int num = branch.size() + branch.getVariations().size();
+			int num = branch.size();
+			if (branch.getVariations() != null)
+				num += branch.getVariations().size();
 			if (numLogicTreeElems < 0)
 				numLogicTreeElems = num;
 			else
@@ -133,8 +135,9 @@ public class BatchPlotGen {
 		for (LogicTreeBranchNode<?> node : branch1)
 			header.add(ClassUtils.getClassNameWithoutPackage(node.getClass()));
 
-		for (int i=0; i<branch1.getVariations().size(); i++)
-			header.add("Variation "+(i+1));
+		if (branch1.getVariations() != null)
+			for (int i=0; i<branch1.getVariations().size(); i++)
+				header.add("Variation "+(i+1));
 
 		for (String misfitName : misfitNames) {
 			int col = header.size();
@@ -154,8 +157,9 @@ public class BatchPlotGen {
 			for (LogicTreeBranchNode<?> node : branch)
 				line.add(node.getShortName());
 
-			for (int i=0; i<branch.getVariations().size(); i++)
-				line.add(branch.getVariations().get(i));
+			if (branch.getVariations() != null)
+				for (int i=0; i<branch.getVariations().size(); i++)
+					line.add(branch.getVariations().get(i));
 
 			while (line.size() < numCols)
 				line.add("");
