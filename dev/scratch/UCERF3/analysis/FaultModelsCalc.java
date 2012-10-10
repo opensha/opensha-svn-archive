@@ -80,7 +80,8 @@ public class FaultModelsCalc {
 		ArrayList<FaultSectionPrefData> sects = fm.fetchFaultSections();
 		for(FaultSectionPrefData data : fm.fetchFaultSections()) {
 			System.out.print(data.getName()+"\t"+(float)data.getOrigDownDipWidth()+"\t"+(float)data.getReducedDownDipWidth()+
-					"\t"+(float)data.getFaultTrace().getTraceLength()+"\t"+(float)data.getAseismicSlipFactor());
+					"\t"+(float)data.getFaultTrace().getTraceLength()+"\t"+(float)data.getAseismicSlipFactor()+"\t"+
+					data.getAveLowerDepth()+"\t"+data.getOrigAveUpperDepth());
 			if(includeTrace) {
 				FaultTrace trace = data.getFaultTrace();
 				System.out.print("\t"+trace.size());
@@ -89,6 +90,8 @@ public class FaultModelsCalc {
 				}
 				System.out.print("\n");
 			}
+			else
+				System.out.print("\n");
 				
 		}
 	}
@@ -100,7 +103,7 @@ public class FaultModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeSectionsNamesAndSomeAttributes(FaultModels.FM3_1, true);
+		writeSectionsNamesAndSomeAttributes(FaultModels.FM3_1, false);
 //		writeSectionsForEachNamedFaultAlt(FaultModels.FM2_1);
 
 	}
