@@ -20,6 +20,7 @@
 package org.opensha.commons.calc;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
@@ -39,11 +40,11 @@ public class FractileCurveCalculator {
   // function list to save the curves
   private XY_DataSetList funcList;
   // save the relative weight of each curve
-  private ArrayList<Double> relativeWeights;
+  private List<Double> relativeWeights;
   // save the number of X values
   private int num;
   // vector to save the empirical distributions
-  private ArrayList<ArbDiscrEmpiricalDistFunc> empiricalDists;
+  private List<ArbDiscrEmpiricalDistFunc> empiricalDists;
 
   // Error Strings to be dispalyed
   private final static String ERROR_WEIGHTS =
@@ -60,7 +61,7 @@ public class FractileCurveCalculator {
    *  to contain Double values
    */
   public FractileCurveCalculator(XY_DataSetList functionList,
-                               ArrayList<Double> relativeWts) {
+                               List<Double> relativeWts) {
     set(functionList, relativeWts);
   }
 
@@ -83,7 +84,7 @@ public class FractileCurveCalculator {
    * be normalized (they don't have to sum to 1.0) - this normalization is taken care of internally.
    */
   public void set(XY_DataSetList functionList,
-                                 ArrayList<Double> relativeWts) {
+                                 List<Double> relativeWts) {
 
     // check that number of weights are equal to number of curves give
     if(functionList.size()!=relativeWts.size()) throw new RuntimeException(ERROR_WEIGHTS);
