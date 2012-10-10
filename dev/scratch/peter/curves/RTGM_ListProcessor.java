@@ -18,6 +18,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
@@ -73,17 +74,24 @@ class RTGM_ListProcessor implements Runnable {
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
 		for (int i = 0; i < erfs.getNumERFs(); ++i) {
-			DiscretizedFunc f = per.getLogFunction();
+			DiscretizedFunc f = per.getFunction();
+//			DiscretizedFunc f = per.getLogFunction();
 			try {
 				ERF erf = erfs.getERF(i);
 				f = calc.getHazardCurve(f, site, imr, erf);
-				f = deLog(f);
+//				f = deLog(f);
+				
 				f = calc.getAnnualizedRates(f, TIME);
-				// System.out.println(f);
+				// convert to annual rate
+				for (Point2D p : f) {
+					f.set(p.getX(), NSHMP_Utils.probToRate(p.getY(), 1));
+				}
+
+//				 System.out.println(f);
 				
 				RTGM.Frequency freq = per.equals(Period.GM0P20)
 					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
-				RTGM rtgm = RTGM.create(f, freq, 0.8).call();
+				RTGM rtgm = RTGM.create(f.deepClone(), freq, 0.8).call();
 				
 				double wt = erfs.getERF_RelativeWeight(i);
 				
@@ -214,7 +222,7 @@ class RTGM_ListProcessor implements Runnable {
 //	}
 		
 	private static void buildParamHeaders() {
-		EpistemicListERF erfs = UcerfBranchGenerator2.newERF();
+		EpistemicListERF erfs = RTGM_ListGenerator.newERF();
 		HashMap<String, Integer> map = Maps.newHashMap();
 		List<String> header = Lists.newArrayList();
 		for (int i = 0; i < erfs.getNumERFs(); i++) {

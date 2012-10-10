@@ -173,24 +173,24 @@ class UCERF2_RTGM_Processor implements Runnable {
 ////		p.writeFiles();
 //	}
 		
-	private static void buildParamHeaders() {
-		EpistemicListERF erfs = UcerfBranchGenerator2.newERF();
-		HashMap<String, Integer> map = Maps.newHashMap();
-		List<String> header = Lists.newArrayList();
-		for (int i = 0; i < erfs.getNumERFs(); i++) {
-			ERF erf = erfs.getERF(i);
-			System.out.print(StringUtils.leftPad(Integer.toString(i), 4));
-			if (i % 20 == 0) System.out.print(R);
-			for (Parameter<?> param : erf.getAdjustableParameterList()) {
-				if (!map.containsKey(param.getName())) {
-					map.put(param.getName(), map.size());
-					header.add(param.getName());
-				}
-			}
-		}
-		System.out.println("MAP: " + R + map);
-		System.out.println("HEADER: " + R + header);
-	}
+//	private static void buildParamHeaders() {
+//		EpistemicListERF erfs = UcerfBranchGenerator2.newERF();
+//		HashMap<String, Integer> map = Maps.newHashMap();
+//		List<String> header = Lists.newArrayList();
+//		for (int i = 0; i < erfs.getNumERFs(); i++) {
+//			ERF erf = erfs.getERF(i);
+//			System.out.print(StringUtils.leftPad(Integer.toString(i), 4));
+//			if (i % 20 == 0) System.out.print(R);
+//			for (Parameter<?> param : erf.getAdjustableParameterList()) {
+//				if (!map.containsKey(param.getName())) {
+//					map.put(param.getName(), map.size());
+//					header.add(param.getName());
+//				}
+//			}
+//		}
+//		System.out.println("MAP: " + R + map);
+//		System.out.println("HEADER: " + R + header);
+//	}
 	
 
 }

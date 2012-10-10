@@ -169,7 +169,7 @@ class RTGM_Processor implements Runnable {
 //	}
 		
 	private static void buildParamHeaders() {
-		EpistemicListERF erfs = UcerfBranchGenerator2.newERF();
+		EpistemicListERF erfs = RTGM_ListGenerator.newERF();
 		HashMap<String, Integer> map = Maps.newHashMap();
 		List<String> header = Lists.newArrayList();
 		for (int i = 0; i < erfs.getNumERFs(); i++) {
