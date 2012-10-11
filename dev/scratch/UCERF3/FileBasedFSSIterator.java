@@ -37,7 +37,7 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 			if (file.isDirectory() && maxDepth > 0) {
 				Map<LogicTreeBranch, File> subFiles = solFilesForDirectory(file, maxDepth-1);
 				for (LogicTreeBranch branch : subFiles.keySet()) {
-					checkNoDuplicates(branch, subFiles.get(branch), subFiles);
+					checkNoDuplicates(branch, subFiles.get(branch), files);
 					files.put(branch, subFiles.get(branch));
 				}
 				continue;
