@@ -102,7 +102,10 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		try {
 			Map<String, String> invProps = loadProperties(getMetedataSection(infoLines, "Inversion Configuration Metadata"));
 			Map<String, String> branchProps = loadProperties(getMetedataSection(infoLines, "Logic Tree Branch"));
-			Map<String, String> saProps = loadProperties(getMetedataSection(infoLines, "Simulated Annealing Metadata"));
+			ArrayList<String> saMetadata = getMetedataSection(infoLines, "Simulated Annealing Metadata");
+			if (saMetadata == null)
+				saMetadata = Lists.newArrayList();
+			Map<String, String> saProps = loadProperties(saMetadata);
 			branch = loadBranch(branchProps);
 			invModel = branch.getValue(InversionModels.class);
 			loadInvParams(invProps);
