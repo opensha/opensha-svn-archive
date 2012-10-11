@@ -203,14 +203,17 @@ public class BatchPlotGen {
 	}
 	
 	public static void writeCombinedFSS(File dir) throws IOException {
-		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1);
-		
 		File compoundFile = new File(dir, dir.getName()+"_COMPOUND_SOL.zip");
 		
-		if (compoundFile.exists())
+		if (compoundFile.exists()) {
 			System.out.println("Compound solution already exists: "+compoundFile.getName());
-		else
-			CompoundFaultSystemSolution.toZipFile(compoundFile, it);
+		} else {
+			FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1);
+			if (it.getBranches().size() > 1)
+				CompoundFaultSystemSolution.toZipFile(compoundFile, it);
+			else
+				System.out.println("Skipping compound solution, only 1 unique branch!");
+		}
 	}
 	
 	public static void handleDir(File dir) throws IOException, DocumentException, GMT_MapException {
