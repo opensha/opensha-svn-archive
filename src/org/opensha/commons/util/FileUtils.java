@@ -48,6 +48,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -249,7 +250,7 @@ public class FileUtils {
 	 * @param files
 	 * @throws IOException
 	 */
-	public static void createZipFile(String zipFile, String dir, ArrayList<String> fileNames) throws IOException {
+	public static void createZipFile(String zipFile, String dir, Collection<String> fileNames) throws IOException {
 
 		byte[] buffer = new byte[18024];
 

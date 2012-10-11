@@ -84,6 +84,15 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 		return new VariableLogicTreeBranch(branch, variations);
 	}
 	
+	@Override
+	public String buildFileName() {
+		String name = super.buildFileName();
+		if (variations != null)
+			for (String variation : variations)
+				name += "_Var"+variation;
+		return name;
+	}
+
 	public static void main(String[] args) {
 		String name = "FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo10_VarSectNuclMFDWt0.01";
 //		for (String var : parseVariations(name))

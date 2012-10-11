@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -76,6 +77,10 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 				rupRateSolution == null || rupRateSolution.length == rupSet.getNumRuptures(),
 				"solution must either be null, or the correct size!");
 		this.rupRateSolution = rupRateSolution;
+	}
+	
+	public FaultSystemRupSet getRupSet() {
+		return rupSet;
 	}
 
 	@Override
@@ -278,7 +283,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	public void toZipFile(File file) throws IOException {
 		File tempDir = FileUtils.createTempDir();
 		
-		ArrayList<String> zipFileNames = new ArrayList<String>();
+		HashSet<String> zipFileNames = new HashSet<String>();
 		
 		File ratesFile = new File(tempDir, "rates.bin");
 		MatrixIO.doubleArrayToFile(getRateForAllRups(), ratesFile);

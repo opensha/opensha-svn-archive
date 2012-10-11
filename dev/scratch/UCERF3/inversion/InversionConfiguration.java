@@ -337,8 +337,9 @@ public class InversionConfiguration {
 		if (modifiers != null && modifiers.hasOption(InversionOptions.MFD_WT.getArgName())) {
 			double wt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.MFD_WT.getArgName()));
 			System.out.println("Setting MFD constraint wt: "+wt);
+			// keep inequality same proportions
+			mfdInequalityConstraintWt *= (wt / mfdEqualityConstraintWt);
 			mfdEqualityConstraintWt = wt;
-			mfdInequalityConstraintWt = wt;
 		}
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.A_PRIORI_CONST_WT.getArgName())) {

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -204,7 +205,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	public void toZipFile(File file) throws IOException {
 		File tempDir = FileUtils.createTempDir();
 		
-		ArrayList<String> zipFileNames = new ArrayList<String>();
+		HashSet<String> zipFileNames = new HashSet<String>();
 		
 		File ratesFile = new File(tempDir, "rates.bin"); // mean rates
 		MatrixIO.doubleArrayToFile(getRateForAllRups(), ratesFile);

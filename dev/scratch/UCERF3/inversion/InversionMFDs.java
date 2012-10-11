@@ -94,7 +94,7 @@ public class InversionMFDs {
 		if(spatialSeisPDF == SpatialSeisPDF.UCERF2 || spatialSeisPDF == SpatialSeisPDF.UCERF3)
 			spatialSeisPDFforOnFaultRates = spatialSeisPDF;
 		else
-			spatialSeisPDFforOnFaultRates = spatialSeisPDF.UCERF3;
+			spatialSeisPDFforOnFaultRates = SpatialSeisPDF.UCERF3;
 
 		
 		// test to make sure it's a statewide deformation model

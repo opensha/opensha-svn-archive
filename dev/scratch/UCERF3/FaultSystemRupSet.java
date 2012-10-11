@@ -67,9 +67,12 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	public void copyCacheFrom(FaultSystemRupSet rupSet) {
+		if (rupSet.getNumRuptures() != getNumRuptures() || rupSet.getNumSections() != getNumSections())
+			return;
 		rupturesForSectionCache = rupSet.rupturesForSectionCache;
 		rupturesForParentSectionCache = rupSet.rupturesForParentSectionCache;
-		rupSectionSlipsCache = rupSet.rupSectionSlipsCache;
+		if (rupSet.getSlipAlongRuptureModel() == getSlipAlongRuptureModel())
+			rupSectionSlipsCache = rupSet.rupSectionSlipsCache;
 		fractRupsInsideRegions = rupSet.fractRupsInsideRegions;
 	}
 	
@@ -265,7 +268,7 @@ public abstract class FaultSystemRupSet {
 		return slips;
 	}
 	
-	protected HashMap<Integer, double[]> rupSectionSlipsCache = new HashMap<Integer, double[]>();
+	protected Map<Integer, double[]> rupSectionSlipsCache = new HashMap<Integer, double[]>();
 	
 	/**
 	 * This gives the slip (SI untis: m) on each section for the rth rupture
@@ -668,7 +671,7 @@ public abstract class FaultSystemRupSet {
 	/**
 	 * this caches the ruptures involving each section
 	 */
-	private ArrayList<List<Integer>> rupturesForSectionCache = null;
+	private List<List<Integer>> rupturesForSectionCache = null;
 	
 	/**
 	 * This returns the a list of all ruptures that occur on each section

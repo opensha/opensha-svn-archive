@@ -9,7 +9,9 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -707,121 +709,158 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	public void toZipFile(File file) throws IOException {
 		File tempDir = FileUtils.createTempDir();
 		
-		ArrayList<String> zipFileNames = new ArrayList<String>();
+		HashSet<String> zipFileNames = new HashSet<String>();
 		
 		toZipFile(file, tempDir, zipFileNames);
 	}
 	
-	protected void toZipFile(File file, File tempDir, ArrayList<String> zipFileNames) throws IOException {
-		final boolean D = true;
-		if (D) System.out.println("Saving rup set with "+getNumRuptures()+" rups to: "+file.getAbsolutePath());
-		
+	private static String getRemappedName(String name, Map<String, String> nameRemappings) {
+		if (nameRemappings == null)
+			return name;
+		return nameRemappings.get(name);
+	}
+	
+	void writeFilesForZip(File tempDir, HashSet<String> zipFileNames, Map<String, String> nameRemappings) throws IOException {
 		// first save fault section data as XML
 		if (D) System.out.println("Saving fault section xml");
-		File fsdFile = new File(tempDir, "fault_sections.xml");
-		Document doc = XMLUtils.createDocumentWithRoot();
-		Element root = doc.getRootElement();
-		fsDataToXML(root, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List", faultModel, defModName);
-		XMLUtils.writeDocumentToFile(fsdFile, doc);
-		zipFileNames.add(fsdFile.getName());
+		File fsdFile = new File(tempDir, getRemappedName("fault_sections.xml", nameRemappings));
+		if (!zipFileNames.contains(fsdFile.getName())) {
+			Document doc = XMLUtils.createDocumentWithRoot();
+			Element root = doc.getRootElement();
+			fsDataToXML(root, faultSectionData, FaultSectionPrefData.XML_METADATA_NAME+"List", faultModel, defModName);
+			XMLUtils.writeDocumentToFile(fsdFile, doc);
+			zipFileNames.add(fsdFile.getName());
+		}
 		
 		// write mags
 		if (D) System.out.println("Saving mags");
-		File magFile = new File(tempDir, "mags.bin");
-		MatrixIO.doubleArrayToFile(mags, magFile);
-		zipFileNames.add(magFile.getName());
+		File magFile = new File(tempDir, getRemappedName("mags.bin", nameRemappings));
+		if (!zipFileNames.contains(magFile.getName())) {
+			MatrixIO.doubleArrayToFile(mags, magFile);
+			zipFileNames.add(magFile.getName());
+		}
 		
 		// write rup slips
 		if (rupAveSlips != null) {
 			if (D) System.out.println("Saving rup avg slips");
-			File rupSlipsFile = new File(tempDir, "rup_avg_slips.bin");
-			MatrixIO.doubleArrayToFile(rupAveSlips, rupSlipsFile);
-			zipFileNames.add(rupSlipsFile.getName());
+			File rupSlipsFile = new File(tempDir, getRemappedName("rup_avg_slips.bin", nameRemappings));
+			if (!zipFileNames.contains(rupSlipsFile.getName())) {
+				MatrixIO.doubleArrayToFile(rupAveSlips, rupSlipsFile);
+				zipFileNames.add(rupSlipsFile.getName());
+			}
 		}
 		
 		// write rup section slips
 		if (getSlipAlongRuptureModel() != null) {
 			if (D) System.out.println("Saving rup sec slips type");
-			File rupSectionSlipsFile = new File(tempDir, "rup_sec_slip_type.txt");
-			FileWriter fw = new FileWriter(rupSectionSlipsFile);
-			fw.write(getSlipAlongRuptureModel().name());
-			fw.close();
-			zipFileNames.add(rupSectionSlipsFile.getName());
+			File rupSectionSlipsFile = new File(tempDir, getRemappedName("rup_sec_slip_type.txt", nameRemappings));
+			if (!zipFileNames.contains(rupSectionSlipsFile.getName())) {
+				FileWriter fw = new FileWriter(rupSectionSlipsFile);
+				fw.write(getSlipAlongRuptureModel().name());
+				fw.close();
+				zipFileNames.add(rupSectionSlipsFile.getName());
+			}
 		}
 		
 		// write sect slips
 		if (sectSlipRates != null) {
 			if (D) System.out.println("Saving section slips");
-			File sectSlipsFile = new File(tempDir, "sect_slips.bin");
-			MatrixIO.doubleArrayToFile(sectSlipRates, sectSlipsFile);
-			zipFileNames.add(sectSlipsFile.getName());
+			File sectSlipsFile = new File(tempDir, getRemappedName("sect_slips.bin", nameRemappings));
+			if (!zipFileNames.contains(sectSlipsFile.getName())) {
+				MatrixIO.doubleArrayToFile(sectSlipRates, sectSlipsFile);
+				zipFileNames.add(sectSlipsFile.getName());
+			}
 		}
 		
 		if (sectSlipRateStdDevs != null) {
 			// write sec slip std devs
 			if (D) System.out.println("Saving slip std devs");
-			File sectSlipStdDevsFile = new File(tempDir, "sect_slips_std_dev.bin");
-			MatrixIO.doubleArrayToFile(sectSlipRateStdDevs, sectSlipStdDevsFile);
-			zipFileNames.add(sectSlipStdDevsFile.getName());
+			File sectSlipStdDevsFile = new File(tempDir, getRemappedName("sect_slips_std_dev.bin", nameRemappings));
+			if (!zipFileNames.contains(sectSlipStdDevsFile.getName())) {
+				MatrixIO.doubleArrayToFile(sectSlipRateStdDevs, sectSlipStdDevsFile);
+				zipFileNames.add(sectSlipStdDevsFile.getName());
+			}
 		}
 		
 		// write rakes
 		if (D) System.out.println("Saving rakes");
-		File rakesFile = new File(tempDir, "rakes.bin");
-		MatrixIO.doubleArrayToFile(rakes, rakesFile);
-		zipFileNames.add(rakesFile.getName());
+		File rakesFile = new File(tempDir, getRemappedName("rakes.bin", nameRemappings));
+		if (!zipFileNames.contains(rakesFile.getName())) {
+			MatrixIO.doubleArrayToFile(rakes, rakesFile);
+			zipFileNames.add(rakesFile.getName());
+		}
 		
 		// write rup areas
 		if (D) System.out.println("Saving rup areas");
-		File rupAreasFile = new File(tempDir, "rup_areas.bin");
-		MatrixIO.doubleArrayToFile(rupAreas, rupAreasFile);
-		zipFileNames.add(rupAreasFile.getName());
+		File rupAreasFile = new File(tempDir, getRemappedName("rup_areas.bin", nameRemappings));
+		if (!zipFileNames.contains(rupAreasFile.getName())) {
+			MatrixIO.doubleArrayToFile(rupAreas, rupAreasFile);
+			zipFileNames.add(rupAreasFile.getName());
+		}
 		
 		// write sect areas
 		if (D) System.out.println("Saving sect areas");
-		File sectAreasFile = new File(tempDir, "sect_areas.bin");
-		MatrixIO.doubleArrayToFile(sectAreas, sectAreasFile);
-		zipFileNames.add(sectAreasFile.getName());
+		File sectAreasFile = new File(tempDir, getRemappedName("sect_areas.bin", nameRemappings));
+		if (!zipFileNames.contains(sectAreasFile.getName())) {
+			MatrixIO.doubleArrayToFile(sectAreas, sectAreasFile);
+			zipFileNames.add(sectAreasFile.getName());
+		}
 		
 		// write sections for rups
 		if (D) System.out.println("Saving rup sections");
-		File sectionsForRupsFile = new File(tempDir, "rup_sections.bin");
-		MatrixIO.intListListToFile(sectionForRups, sectionsForRupsFile);
-		zipFileNames.add(sectionsForRupsFile.getName());
+		File sectionsForRupsFile = new File(tempDir, getRemappedName("rup_sections.bin", nameRemappings));
+		if (!zipFileNames.contains(sectionsForRupsFile.getName())) {
+			MatrixIO.intListListToFile(sectionForRups, sectionsForRupsFile);
+			zipFileNames.add(sectionsForRupsFile.getName());
+		}
 		
 		if (closeSections != null) {
 			// write close sections
 			if (D) System.out.println("Saving close sections");
-			File closeSectionsFile = new File(tempDir, "close_sections.bin");
-			MatrixIO.intListListToFile(closeSections, closeSectionsFile);
-			zipFileNames.add(closeSectionsFile.getName());
+			File closeSectionsFile = new File(tempDir, getRemappedName("close_sections.bin", nameRemappings));
+			if (!zipFileNames.contains(closeSectionsFile.getName())) {
+				MatrixIO.intListListToFile(closeSections, closeSectionsFile);
+				zipFileNames.add(closeSectionsFile.getName());
+			}
 		}
 		
 		if (clusterRups != null) {
 			// write close sections
 			if (D) System.out.println("Saving cluster rups");
-			File clusterRupsFile = new File(tempDir, "cluster_rups.bin");
-			MatrixIO.intListListToFile(clusterRups, clusterRupsFile);
-			zipFileNames.add(clusterRupsFile.getName());
+			File clusterRupsFile = new File(tempDir, getRemappedName("cluster_rups.bin", nameRemappings));
+			if (!zipFileNames.contains(clusterRupsFile.getName())) {
+				MatrixIO.intListListToFile(clusterRups, clusterRupsFile);
+				zipFileNames.add(clusterRupsFile.getName());
+			}
 		}
 		
 		if (clusterSects != null) {
 			// write close sections
 			if (D) System.out.println("Saving cluster sects");
-			File clusterSectsFile = new File(tempDir, "cluster_sects.bin");
-			MatrixIO.intListListToFile(clusterSects, clusterSectsFile);
-			zipFileNames.add(clusterSectsFile.getName());
+			File clusterSectsFile = new File(tempDir, getRemappedName("cluster_sects.bin", nameRemappings));
+			if (!zipFileNames.contains(clusterSectsFile.getName())) {
+				MatrixIO.intListListToFile(clusterSects, clusterSectsFile);
+				zipFileNames.add(clusterSectsFile.getName());
+			}
 		}
 		
 		String info = getInfoString();
 		if (info != null && !info.isEmpty()) {
 			if (D) System.out.println("Saving info");
-			File infoFile = new File(tempDir, "info.txt");
-			FileWriter fw = new FileWriter(infoFile);
-			fw.write(info+"\n");
-			fw.close();
-			zipFileNames.add(infoFile.getName());
+			File infoFile = new File(tempDir, getRemappedName("info.txt", nameRemappings));
+			if (!zipFileNames.contains(infoFile.getName())) {
+				FileWriter fw = new FileWriter(infoFile);
+				fw.write(info+"\n");
+				fw.close();
+				zipFileNames.add(infoFile.getName());
+			}
 		}
+	}
+	
+	protected void toZipFile(File file, File tempDir, HashSet<String> zipFileNames) throws IOException {
+		final boolean D = true;
+		if (D) System.out.println("Saving rup set with "+getNumRuptures()+" rups to: "+file.getAbsolutePath());
+		writeFilesForZip(tempDir, zipFileNames, null);
 		
 		if (D) System.out.println("Making zip file: "+file.getName());
 		FileUtils.createZipFile(file.getAbsolutePath(), tempDir.getAbsolutePath(), zipFileNames);
@@ -835,11 +874,17 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 	public static SimpleFaultSystemRupSet fromZipFile(File file) throws ZipException, IOException, DocumentException {
 		ZipFile zip = new ZipFile(file);
 		
-		ZipEntry magEntry = zip.getEntry("mags.bin");
+		return fromZipFile(zip, null);
+	}
+	
+	public static SimpleFaultSystemRupSet fromZipFile(ZipFile zip, Map<String, String> nameRemappings)
+			throws ZipException, IOException, DocumentException {
+		
+		ZipEntry magEntry = zip.getEntry(getRemappedName("mags.bin", nameRemappings));
 		double[] mags = MatrixIO.doubleArrayFromInputStream(
 				new BufferedInputStream(zip.getInputStream(magEntry)), magEntry.getSize());
 		
-		ZipEntry rupSlipsEntry = zip.getEntry("rup_avg_slips.bin");
+		ZipEntry rupSlipsEntry = zip.getEntry(getRemappedName("rup_avg_slips.bin", nameRemappings));
 		double[] rupAveSlips;
 		if (rupSlipsEntry != null)
 			rupAveSlips = MatrixIO.doubleArrayFromInputStream(
@@ -848,6 +893,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			rupAveSlips = null;
 		
+		// don't use remapping here - this is legacy and new files will never have it
 		ZipEntry rupSectionSlipsEntry = zip.getEntry("rup_sec_slips.bin");
 		List<double[]> rupSectionSlips;
 		if (rupSectionSlipsEntry != null)
@@ -856,7 +902,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			rupSectionSlips = null;
 		
-		ZipEntry rupSectionSlipModelEntry = zip.getEntry("rup_sec_slip_type.txt");
+		ZipEntry rupSectionSlipModelEntry = zip.getEntry(getRemappedName("rup_sec_slip_type.txt", nameRemappings));
 		SlipAlongRuptureModels slipModelType = null;
 		if (rupSectionSlipModelEntry != null) {
 			StringWriter writer = new StringWriter();
@@ -869,7 +915,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 			}
 		}
 		
-		ZipEntry sectSlipsEntry = zip.getEntry("sect_slips.bin");
+		ZipEntry sectSlipsEntry = zip.getEntry(getRemappedName("sect_slips.bin", nameRemappings));
 		double[] sectSlipRates;
 		if (sectSlipsEntry != null)
 			sectSlipRates = MatrixIO.doubleArrayFromInputStream(
@@ -878,7 +924,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			sectSlipRates = null;
 
-		ZipEntry sectSlipStdDevsEntry = zip.getEntry("sect_slips_std_dev.bin");
+		ZipEntry sectSlipStdDevsEntry = zip.getEntry(getRemappedName("sect_slips_std_dev.bin", nameRemappings));
 		double[] sectSlipRateStdDevs;
 		if (sectSlipStdDevsEntry != null)
 			sectSlipRateStdDevs = MatrixIO.doubleArrayFromInputStream(
@@ -887,11 +933,11 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			sectSlipRateStdDevs = null;
 		
-		ZipEntry rakesEntry = zip.getEntry("rakes.bin");
+		ZipEntry rakesEntry = zip.getEntry(getRemappedName("rakes.bin", nameRemappings));
 		double[] rakes = MatrixIO.doubleArrayFromInputStream(
 				new BufferedInputStream(zip.getInputStream(rakesEntry)), rakesEntry.getSize());
 		
-		ZipEntry rupAreasEntry = zip.getEntry("rup_areas.bin");
+		ZipEntry rupAreasEntry = zip.getEntry(getRemappedName("rup_areas.bin", nameRemappings));
 		double[] rupAreas;
 		if (rupAreasEntry != null)
 			rupAreas = MatrixIO.doubleArrayFromInputStream(
@@ -900,7 +946,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			rupAreas = null;
 
-		ZipEntry sectAreasEntry = zip.getEntry("sect_areas.bin");
+		ZipEntry sectAreasEntry = zip.getEntry(getRemappedName("sect_areas.bin", nameRemappings));
 		double[] sectAreas;
 		if (sectAreasEntry != null)
 			sectAreas = MatrixIO.doubleArrayFromInputStream(
@@ -909,7 +955,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			sectAreas = null;
 
-		ZipEntry rupSectionsEntry = zip.getEntry("rup_sections.bin");
+		ZipEntry rupSectionsEntry = zip.getEntry(getRemappedName("rup_sections.bin", nameRemappings));
 		List<List<Integer>> sectionForRups;
 		if (rupSectionsEntry != null)
 			sectionForRups = MatrixIO.intListListFromInputStream(
@@ -917,7 +963,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			sectionForRups = null;
 
-		ZipEntry closeSectionsEntry = zip.getEntry("close_sections.bin");
+		ZipEntry closeSectionsEntry = zip.getEntry(getRemappedName("close_sections.bin", nameRemappings));
 		List<List<Integer>> closeSections;
 		if (closeSectionsEntry != null)
 			closeSections = MatrixIO.intListListFromInputStream(
@@ -925,7 +971,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			closeSections = null;
 
-		ZipEntry clusterRupsEntry = zip.getEntry("cluster_rups.bin");
+		ZipEntry clusterRupsEntry = zip.getEntry(getRemappedName("cluster_rups.bin", nameRemappings));
 		List<List<Integer>> clusterRups;
 		if (clusterRupsEntry != null)
 			clusterRups = MatrixIO.intListListFromInputStream(
@@ -933,7 +979,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			clusterRups = null;
 		
-		ZipEntry clusterSectsEntry = zip.getEntry("cluster_sects.bin");
+		ZipEntry clusterSectsEntry = zip.getEntry(getRemappedName("cluster_sects.bin", nameRemappings));
 		List<List<Integer>> clusterSects;
 		if (clusterSectsEntry != null)
 			clusterSects = MatrixIO.intListListFromInputStream(
@@ -941,7 +987,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			clusterSects = null;
 		
-		ZipEntry fsdEntry = zip.getEntry("fault_sections.xml");
+		ZipEntry fsdEntry = zip.getEntry(getRemappedName("fault_sections.xml", nameRemappings));
 		Document doc = XMLUtils.loadDocument(
 				new BufferedInputStream(zip.getInputStream(fsdEntry)));
 		Element fsEl = doc.getRootElement().element(FaultSectionPrefData.XML_METADATA_NAME+"List");
@@ -981,7 +1027,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 				faultModel = defModName.getApplicableFaultModels().get(0);
 		}
 		
-		ZipEntry infoEntry = zip.getEntry("info.txt");
+		ZipEntry infoEntry = zip.getEntry(getRemappedName("info.txt", nameRemappings));
 		String info;
 		if (infoEntry != null) {
 			StringBuilder text = new StringBuilder();

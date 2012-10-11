@@ -28,6 +28,7 @@ import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.CommandLineInversionRunner.InversionOptions;
 import scratch.UCERF3.logicTree.DiscreteListTreeTrimmer;
@@ -337,7 +338,7 @@ public class LogicTreePBSWriter {
 //				else
 //					momFix = MomentRateFixes.APPLY_IMPLIED_CC;
 				branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM3_1, dm, im,
-						ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.UNIFORM, TotalMag5Rate.RATE_8p7,
+						ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
 						MaxMagOffFault.MAG_7p6, momFix, SpatialSeisPDF.UCERF3));
 			}
 		}
@@ -351,8 +352,8 @@ public class LogicTreePBSWriter {
 //			else
 //				momFix = MomentRateFixes.APPLY_IMPLIED_CC;
 			branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, im,
-					ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
-					MaxMagOffFault.MAG_7p6, momFix, SpatialSeisPDF.UCERF2));
+					ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_8p7,
+					MaxMagOffFault.MAG_7p6, momFix, SpatialSeisPDF.UCERF3));
 		}
 		
 		return new DiscreteListTreeTrimmer(branches);
@@ -524,14 +525,15 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "dm2-1-ref-branch-convergence";
+		String runName = "fm3-ref-branch-convergence-redo";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;
 //		int constrained_run_mins = 180;
 //		int constrained_run_mins = 250;
+		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;
-		int constrained_run_mins = 500;
+//		int constrained_run_mins = 500;
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
@@ -549,9 +551,9 @@ public class LogicTreePBSWriter {
 		boolean lightweight = numRuns > 10;
 
 //		TreeTrimmer trimmer = getCustomTrimmer();
-//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
-		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
+//		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
 		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
 		TreeTrimmer charUnconstOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_UNCONSTRAINED);
@@ -575,24 +577,52 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
-		TreeTrimmer defaultBranchesTrimmer = null;
+//		TreeTrimmer defaultBranchesTrimmer = null;
 
 		// this is a somewhat kludgy way of passing in a special variation to the input generator
 		ArrayList<CustomArg[]> variationBranches = null;
 		List<CustomArg[]> variations = null;
 		
+		/*
+		// this is for varying each weight one at a time
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+		InversionOptions[] ops = { 	InversionOptions.SLIP_WT,
+									InversionOptions.PALEO_WT,
+									InversionOptions.MFD_WT,
+									InversionOptions.SECTION_NUCLEATION_MFD_WT,
+									InversionOptions.PALEO_SECT_MFD_SMOOTH };
+		
+		String[] defaults_weights = {	"1", // slip
+										"2", // paleo
+										""+InversionConfiguration.DEFAULT_MFD_EQUALITY_WT, // MFD
+										"0.01", // section nucleation
+										"1000" }; // paleo sect smoothness
+		
+		// first add branch with defaults
+		variationBranches.add(buildVariationBranch(ops, defaults_weights));
+		// now add one offs
+		for (int i=0; i<defaults_weights.length; i++) {
+			String[] myWeightsHigh = Arrays.copyOf(defaults_weights, defaults_weights.length);
+			String[] myWeightsLow = Arrays.copyOf(defaults_weights, defaults_weights.length);
+			double myWeight = Double.parseDouble(defaults_weights[i]);
+			myWeightsHigh[i] = ""+(float)(myWeight*10d);
+			myWeightsLow[i] = ""+(float)(myWeight*0.1d);
+			variationBranches.add(buildVariationBranch(ops, myWeightsHigh));
+			variationBranches.add(buildVariationBranch(ops, myWeightsLow));
+		} */
+		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
 //				InversionOptions.PARKFIELD_WT };
 //				InversionOptions.MFD_SMOOTHNESS_WT, InversionOptions.PALEO_SECT_MFD_SMOOTH };
-		List<String[]> argVals = Lists.newArrayList();
+//		List<String[]> argVals = Lists.newArrayList();
 		// paleo
-		argVals.add(toArray("1"));
+//		argVals.add(toArray("1"));
 //		argVals.add(toArray("0.1", "1", "10"));
 //		// section nucleation
 //		argVals.add(toArray("0.001", "0.01", "0.1"));
@@ -602,9 +632,9 @@ public class LogicTreePBSWriter {
 //		argVals.add(toArray("0"));
 //		// mfd smoothness for paleo sects
 //		argVals.add(toArray("10", "100", "1000", "10000"));
-		
-		for (String val1 : argVals.get(0))
-			variationBranches.add(buildVariationBranch(ops, toArray(val1)));
+//		
+//		for (String val1 : argVals.get(0))
+//			variationBranches.add(buildVariationBranch(ops, toArray(val1)));
 		
 //		for (String val1 : argVals.get(0))
 //			for (String val2 : argVals.get(1))
@@ -689,6 +719,8 @@ public class LogicTreePBSWriter {
 		maxAway.put(InversionModels.GR_CONSTRAINED, 0);
 		maxAway.put(InversionModels.GR_UNCONSTRAINED, 0);
 		VariableLogicTreeBranch[] defaultBranches = null;
+		
+		boolean extraDM2Away = true;
 		
 		if (defaultBranchesTrimmer != null) {
 			List<LogicTreeBranch> defBranches = Lists.newArrayList();
@@ -778,7 +810,7 @@ public class LogicTreePBSWriter {
 			for (CustomArg[] variationBranch : variationBranches) {
 				for (InversionArg[] invArgs : saOptions) {
 					for (CompletionCriteria subCompletion : subCompletions) {
-						if (subCompletions.length == 1)
+						if (subCompletions.length > 1)
 							System.out.println("SUB: "+subCompletion);
 						
 						VariableLogicTreeBranch branch = new VariableLogicTreeBranch(variationBranch, br);
@@ -792,7 +824,13 @@ public class LogicTreePBSWriter {
 								if (away < closest)
 									closest = away;
 							}
-							if (closest > maxAway.get(im))
+							int myMaxAway = maxAway.get(im);
+							if (extraDM2Away && myMaxAway > 0 &&
+									branch.getValue(FaultModels.class) == FaultModels.FM2_1) {
+								myMaxAway++;
+//								System.out.println("Incrementing maxAway (closest="+closest+")");
+							}
+							if (closest > myMaxAway)
 								continue;
 						}
 						String name = branch.buildFileName();
