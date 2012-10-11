@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -506,6 +507,8 @@ public class BatchPlotGen {
 			FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(8, 10), region, dir, prefix, false, 8, 10);
 		}
 	}
+	
+	static File lockFile;
 
 	/**
 	 * @param args
@@ -516,16 +519,40 @@ public class BatchPlotGen {
 			System.exit(2);
 		}
 		
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				deleteLock();
+			}
+		});
+		
 		try {
 			File dir = new File(args[0]);
 			Preconditions.checkArgument(dir.exists(), dir.getAbsolutePath()+" doesn't exist!");
 			
+			lockFile = new File(dir, "__batch_plot_gen.lock");
+			createLock();
+			
 			handleDir(dir);
 		} catch (Exception e) {
 			e.printStackTrace();
+			deleteLock();
 			System.exit(1);
 		}
+		deleteLock();
 		System.exit(0);
+	}
+	
+	private static void createLock() throws IOException {
+		FileWriter fw = new FileWriter(lockFile);
+		fw.write("batch plot gen lock!");
+		fw.close();
+	}
+	
+	private static void deleteLock() {
+		if (lockFile != null && lockFile.exists())
+			lockFile.delete();
 	}
 
 }
