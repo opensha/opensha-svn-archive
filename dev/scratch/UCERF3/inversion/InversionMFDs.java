@@ -294,9 +294,9 @@ public class InversionMFDs {
 	 * This returns the sum of the truly off-fault and total sub-seismo MFDs
 	 * @return
 	 */
-	public SummedMagFreqDist getTotalSubSeismoOnPlusTrulyOffFaultMFD() {
+	public SummedMagFreqDist getTotalTargetSubSeismoOnPlusTrulyOffFaultMFD() {
 		SummedMagFreqDist mfd =new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);		
-		mfd.addIncrementalMagFreqDist(getTrulyOffFaultMFD());
+		mfd.addIncrementalMagFreqDist(getTargetTrulyOffFaultMFD());
 		mfd.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
 		return mfd;
 	}
@@ -320,9 +320,9 @@ public class InversionMFDs {
 	
 	public SummedMagFreqDist getTargetOnFaultSupraSeisMFD() {return targetOnFaultSupraSeisMFD;}
 	
-	public IncrementalMagFreqDist getTrulyOffFaultMFD() {return trulyOffFaultMFD;}
+	public IncrementalMagFreqDist getTargetTrulyOffFaultMFD() {return trulyOffFaultMFD;}
 	
-	public ArrayList<GutenbergRichterMagFreqDist> getSubSeismoOnFaultMFD_List() {return subSeismoOnFaultMFD_List;}
+	public ArrayList<GutenbergRichterMagFreqDist> getTargetSubSeismoOnFaultMFD_List() {return subSeismoOnFaultMFD_List;}
 	
 	public SummedMagFreqDist getTotalSubSeismoOnFaultMFD() {return totalSubSeismoOnFaultMFD;}
 	

@@ -90,7 +90,7 @@ public class UCERF3_GridSourceGenerator {
 		branch = fss.getBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
 		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
-		realOffFaultMFD = fss.getInversionMFDs().getTrulyOffFaultMFD();
+		realOffFaultMFD = fss.getFinalTrulyOffFaultMFD();
 
 		mfdMin = realOffFaultMFD.getMinX();
 		mfdMax = realOffFaultMFD.getMaxX();
@@ -116,17 +116,7 @@ public class UCERF3_GridSourceGenerator {
 	 */
 	private void initSectionMFDs() {
 
-		List<GutenbergRichterMagFreqDist> subSeisMFD_list;
-		// make sure we deal with special case for GR moFix branch
-		boolean noFix = branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE;
-		boolean gr = branch.getValue(InversionModels.class).isGR();
-		// get post-inversion MFDs
-		if (noFix && gr) {
-			subSeisMFD_list = fss.getImpliedSubSeisGR_MFD_List();
-		} else {
-			subSeisMFD_list = fss.getInversionMFDs()
-				.getSubSeismoOnFaultMFD_List();
-		}
+		List<GutenbergRichterMagFreqDist> subSeisMFD_list = fss.getFinalSubSeismoOnFaultMFD_List();
 
 		sectSubSeisMFDs = Maps.newHashMap();
 		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();

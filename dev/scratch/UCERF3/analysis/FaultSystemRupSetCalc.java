@@ -519,17 +519,17 @@ public class FaultSystemRupSetCalc {
 	public static void plotAllImpliedTotalSectGR_MFD() {
 		
 		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
-//		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
-//		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
 		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
 
 		ArrayList<DeformationModels> defModList= new ArrayList<DeformationModels>();
 		FaultModels fm = FaultModels.FM3_1;
 		
-//		defModList.add(DeformationModels.ABM);
+		defModList.add(DeformationModels.ABM);
 		defModList.add(DeformationModels.GEOLOGIC);
-//		defModList.add(DeformationModels.NEOKINEMA);
-//		defModList.add(DeformationModels.ZENG);
+		defModList.add(DeformationModels.NEOKINEMA);
+		defModList.add(DeformationModels.ZENG);
 		
 		// for UCERF3
 		for(DeformationModels dm :defModList) {
@@ -1325,6 +1325,8 @@ public class FaultSystemRupSetCalc {
 			int mMaxIndex = totalTargetGR.getXIndex(invRupSet.getUpperMagForSubseismoRuptures(s));
 			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "+invRupSet.getUpperMagForSubseismoRuptures(s));
 			double mMax = totalTargetGR.getX(mMaxIndex); // rounded to nearest MFD value
+if(mMax<5.85)
+	System.out.println("PROBLEM SubSesMmax=\t"+mMax+"\tMinSeismoRupMag=\t"+invRupSet.getFinalMinMagForSection(s)+"\t"+fltSysRupSet.getFaultSectionData(s).getName());
 			GutenbergRichterMagFreqDist tempOnFaultGR = new GutenbergRichterMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), 
 					totalTargetGR.getDelta(), totalTargetGR.getMagLower(), mMax, 1.0, 1.0);
 			tempOnFaultGR.scaleToCumRate(0, sectRate);
@@ -1359,7 +1361,7 @@ public class FaultSystemRupSetCalc {
 		targetOnFaultSupraSeisMFD.setName("targetOnFaultSupraSeisMFD");
 		targetOnFaultSupraSeisMFD.setInfo("Rate(M>=5)="+(float)targetOnFaultSupraSeisMFD.getCumRate(5.05)+"\tMoRate="+(float)targetOnFaultSupraSeisMFD.getTotalMomentRate());
 		
-		IncrementalMagFreqDist trulyOffFaultMFD = inversionMFDs.getTrulyOffFaultMFD();
+		IncrementalMagFreqDist trulyOffFaultMFD = inversionMFDs.getTargetTrulyOffFaultMFD();
 		trulyOffFaultMFD.setName("trulyOffFaultMFD");
 		String infoString = "Rate(M>=5)="+(float)trulyOffFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)trulyOffFaultMFD.getTotalMomentRate();
 		if(trulyOffFaultMFD instanceof TaperedGR_MagFreqDist) {
@@ -1455,7 +1457,7 @@ public class FaultSystemRupSetCalc {
 			mfds.add(u2fetcher.getFaultMFD());
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.RED));
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.MAGENTA));
-			plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED,2f,Color.RED));
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLUE));
 		}
 
 		// plot orig GR nucleation MFD if GR branch
@@ -2089,6 +2091,8 @@ public class FaultSystemRupSetCalc {
 	 * This gets a list of SectionMFD_constraint objects (one for each sub-section in InversionFaultSystemRupSet).
 	 * All subsections of a parent get an equivalent constraint to apply uniformity along strike.
 	 * Note that some bins will still have zero rates on fault sections that were type A in UCERF2.
+	 * This is null SectionMFD_constraint for any sections where the maximum magnitude falls below
+	 * the lower edge of the constraint.
 	 * @param fltSystRupSet
 	 * @return
 	 */
@@ -2241,44 +2245,54 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void writeParkfieldMags() {
 		
+		ArrayList<DeformationModels> defModList = new ArrayList<DeformationModels>();
+		defModList.add(DeformationModels.ZENG);
+		defModList.add(DeformationModels.GEOLOGIC);
+		defModList.add(DeformationModels.NEOKINEMA);
+		defModList.add(DeformationModels.ABM);
+		
 		ArrayList<ScalingRelationships> scaleRelList = new ArrayList<ScalingRelationships>();
 		scaleRelList.add(ScalingRelationships.HANKS_BAKUN_08);
 		scaleRelList.add(ScalingRelationships.ELLSWORTH_B);
 		scaleRelList.add(ScalingRelationships.SHAW_2009_MOD);
 		
-		String info = "index\tmagitude\tnumSect\t1stSect\tlastSect\n";
+		String info = "DefMod\tScRel\tRupID\tmagitude\tnumSect\t1stSect\tlastSect\n";
 		
 		String rupsBelowMinMag = "\nRups (indices) of those that fall below section min mag:\n";
 		
-		for(ScalingRelationships scaleRel:scaleRelList) {
-			
-			info += scaleRel.getName()+"\n";
-			
-			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
-					InversionModels.CHAR_CONSTRAINED, scaleRel, SlipAlongRuptureModels.TAPERED, 
-					TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-
-			List<Integer> parkfileRupIndexList = InversionInputGenerator.findParkfieldRups(rupSet);
-			
-			ArrayList<Integer> parkfileRupThatFallBelowMinMag = new ArrayList<Integer>();
-			
-			for(int index:parkfileRupIndexList) {
-				ArrayList<Integer> sectIndicesList =rupSet.getSectionsIndicesForRup(index);
-				info += index+"\t"+(float)rupSet.getMagForRup(index)+"\t"+sectIndicesList.size()+"\t";
-				info += rupSet.getFaultSectionData(sectIndicesList.get(0)).getSectionName()+"\t";
-				info += rupSet.getFaultSectionData(sectIndicesList.get(sectIndicesList.size()-1)).getSectionName()+"\n";
+		for(DeformationModels defMod:defModList) {
+			for(ScalingRelationships scaleRel:scaleRelList) {
 				
-				if(rupSet.isRuptureBelowSectMinMag(index)) {
-					parkfileRupThatFallBelowMinMag.add(index);
+//				info += scaleRel.getName()+"\n";
+				
+				InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, defMod, 
+						InversionModels.CHAR_CONSTRAINED, scaleRel, SlipAlongRuptureModels.TAPERED, 
+						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+				
+				List<Integer> parkfileRupIndexList = InversionInputGenerator.findParkfieldRups(rupSet);
+				
+				ArrayList<Integer> parkfileRupThatFallBelowMinMag = new ArrayList<Integer>();
+				
+				for(int index:parkfileRupIndexList) {
+					ArrayList<Integer> sectIndicesList =rupSet.getSectionsIndicesForRup(index);
+					info += defMod+"\t"+scaleRel+"\t";
+					info += index+"\t"+(float)rupSet.getMagForRup(index)+"\t"+sectIndicesList.size()+"\t";
+					info += rupSet.getFaultSectionData(sectIndicesList.get(0)).getSectionName()+"\t";
+					info += rupSet.getFaultSectionData(sectIndicesList.get(sectIndicesList.size()-1)).getSectionName()+"\n";
+					
+					if(rupSet.isRuptureBelowSectMinMag(index)) {
+						parkfileRupThatFallBelowMinMag.add(index);
+					}
 				}
-			}
-			
-			if(parkfileRupThatFallBelowMinMag.size()>0) {
-				rupsBelowMinMag += scaleRel.getName()+"\n";
-				for(int index:parkfileRupThatFallBelowMinMag)
-					rupsBelowMinMag += "\t"+index+"\n";
-			}
+				
+				if(parkfileRupThatFallBelowMinMag.size()>0) {
+					rupsBelowMinMag += scaleRel.getName()+"\n";
+					for(int index:parkfileRupThatFallBelowMinMag)
+						rupsBelowMinMag += "\t"+index+"\n";
+				}
+			}			
 		}
+		
 		
 		System.out.println(info);
 		System.out.println(rupsBelowMinMag);
@@ -2343,7 +2357,7 @@ public class FaultSystemRupSetCalc {
 		totalTargetGR.setInfo("Rate(M>=6.5)="+(float)totalTargetGR.getCumRate(6.55));
 
 		// make range of target GRs
-		SummedMagFreqDist subSeisAndOffFaultTarget = fltSystRupSet.getInversionMFDs().getTotalSubSeismoOnPlusTrulyOffFaultMFD();
+		SummedMagFreqDist subSeisAndOffFaultTarget = fltSystRupSet.getInversionMFDs().getTotalTargetSubSeismoOnPlusTrulyOffFaultMFD();
 		subSeisAndOffFaultTarget.setName("subSeisAndOffFaultTarget");
 		subSeisAndOffFaultTarget.setInfo("Rate(M>=6.5)="+(float)subSeisAndOffFaultTarget.getCumRate(6.55));
 
@@ -2452,7 +2466,21 @@ public class FaultSystemRupSetCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeParkfieldAveSlips();
+//		writeParkfieldMags();
+		
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+
+		System.out.println(rupSet.getPreInversionAnalysisData(true));
+		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
+		
+//		plotOffFaultTaperedGR_Comparisons(rupSet, "GR_MaxAndTaperComparison");
+
+		
+//		plotAllImpliedTotalSectGR_MFD();
+	
+//		writeParkfieldAveSlips();
 		
 //		writeParkfieldMags();
 		

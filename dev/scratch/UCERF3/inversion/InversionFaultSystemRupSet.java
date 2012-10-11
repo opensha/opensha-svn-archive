@@ -310,7 +310,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		inversionMFDs = new InversionMFDs(this, this, totalRegionRateMgt5,  mMaxOffFault, 
 				 applyImpliedCouplingCoeff,  spatialSeisPDF,  inversionModel);	
 		
-		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getSubSeismoOnFaultMFD_List();
+		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getTargetSubSeismoOnFaultMFD_List();
 		double impliedOnFaultCouplingCoeff = inversionMFDs.getImpliedOnFaultCouplingCoeff();
 
 		// compute sectSlipRateReduced

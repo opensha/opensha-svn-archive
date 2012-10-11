@@ -394,7 +394,7 @@ public class CommandLineInversionRunner {
 					//							+(totalOffFaultMomentRate-momRed);
 					//					info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
 					//							+totalOffFaultMomentRate;
-					info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedOffFaultStatewideMFD().getTotalMomentRate();
+					info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedTrulyOffFaultMFD().getTotalMomentRate();
 					//					info += "\nTotal Model Seis Moment Rate: "
 					//							+(totalOffFaultMomentRate+totalSolutionMoment);
 				} catch (Exception e1) {

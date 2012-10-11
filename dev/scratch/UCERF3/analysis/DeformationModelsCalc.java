@@ -321,12 +321,13 @@ public class DeformationModelsCalc {
 	}
 	
 	
-	public static void writeAveReducedSlipRateOfParentSections(FaultModels fm, DeformationModels dm) {
+	public static void writeAveReducedSlipRateEtcOfParentSections(FaultModels fm, DeformationModels dm) {
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		
 		String lastName = "";
 		double slipRate=0;
 		double aseisFact=0;
+		double reducedDDW=0;
 		int numSubSect =0;
 
 		System.out.println("Sect Name\tSlipRate\tAsiesFactor");
@@ -334,20 +335,37 @@ public class DeformationModelsCalc {
 			if(data.getParentSectionName().equals(lastName)) {
 				slipRate += data.getReducedAveSlipRate();
 				aseisFact += data.getAseismicSlipFactor();
+				reducedDDW += data.getReducedDownDipWidth();
 				numSubSect += 1;
 			}
 			else {
 				if(!lastName.equals("")) {
-					System.out.println(lastName+"\t"+(float)(slipRate/(double)numSubSect)+"\t"+(float)(aseisFact/(double)numSubSect));
+					System.out.println(lastName+"\t"+(float)(slipRate/(double)numSubSect)+"\t"+(float)(aseisFact/(double)numSubSect)+
+							"\t"+(float)(reducedDDW/(double)numSubSect));
 				}
 				// set first values for new parent section
 				slipRate = data.getReducedAveSlipRate();
-				numSubSect = 1;
 				lastName = data.getParentSectionName();
 				aseisFact = data.getAseismicSlipFactor();
-
+				reducedDDW = data.getReducedDownDipWidth();
+				numSubSect = 1;
 			}
 	}
+	
+	
+	public static void writeSubSectDataForParent(String parentSectionName, FaultModels fm, DeformationModels dm) {
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		
+		System.out.println("Sect Name\tSlipRate\tAveDip\tAsiesFactor\tOrigUpperDepth+\tLowerDepth\tOrigDDW\tReducedDDW\tCouplingCoeff");
+		for(FaultSectionPrefData data:defFetch.getSubSectionList())
+			if(data.getParentSectionName().equals(parentSectionName)) {
+				System.out.println(data.getName()+"\t"+(float)data.getReducedAveSlipRate()+"\t"+(float)data.getAveDip()+
+						"\t"+(float)data.getAseismicSlipFactor()+"\t"+(float)data.getOrigAveUpperDepth()+
+						"\t"+(float)data.getAveLowerDepth()+"\t"+(float)data.getOrigDownDipWidth()+
+						"\t"+(float)data.getReducedDownDipWidth()+"\t"+data.getCouplingCoeff());
+			}
+	}
+
 
 	
 	public static void writeParentSectionsInsideRegion(FaultModels fm, DeformationModels dm, Region region) {
@@ -1232,7 +1250,10 @@ public class DeformationModelsCalc {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		writeAveReducedSlipRateOfParentSections(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
+//		writeSubSectDataForParent("Imperial", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+		writeSubSectDataForParent("Mendocino", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+		
+//		writeAveReducedSlipRateEtcOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
 //		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM2_1, DeformationModels.UCERF2_ALL);
 //		writeFaultsThatWereTypeA_InUCERF2(FaultModels.FM3_1, DeformationModels.ZENG);
