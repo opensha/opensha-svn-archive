@@ -37,7 +37,7 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 			if (file.isDirectory() && maxDepth > 0) {
 				Map<LogicTreeBranch, File> subFiles = solFilesForDirectory(file, maxDepth-1);
 				for (LogicTreeBranch branch : subFiles.keySet()) {
-					Preconditions.checkState(!files.containsKey(branch), "Duplicate branch found! "+branch);
+					checkNoDuplicates(branch, subFiles.get(branch), subFiles);
 					files.put(branch, subFiles.get(branch));
 				}
 				continue;
@@ -49,10 +49,31 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 				// mean solutions allowed, individual runs not allowed
 				continue;
 			LogicTreeBranch branch = VariableLogicTreeBranch.fromFileName(name);
+			checkNoDuplicates(branch, file, files);
 			files.put(branch, file);
 		}
 		
 		return files; 
+	}
+	
+	private static void checkNoDuplicates(
+			LogicTreeBranch branch, File file, Map<LogicTreeBranch, File> files) {
+		if (files.containsKey(branch)) {
+			LogicTreeBranch origBranch = null;
+			File origFile = files.get(branch);
+			for (LogicTreeBranch candidateBranch : files.keySet()) {
+				if (origFile == files.get(candidateBranch)) {
+					origBranch = candidateBranch;
+					break;
+				}
+			}
+			String err = "Duplicate branch found!";
+			err += "\nOrig branch:\t"+origBranch;
+			err += "\nOrig file:\t"+files.get(branch);
+			err += "\nNew branch:\t"+branch;
+			err += "\nNew file:\t"+file;
+			throw new IllegalStateException(err);
+		}
 	}
 
 	@Override
