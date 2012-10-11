@@ -532,6 +532,10 @@ public class BatchPlotGen {
 			Preconditions.checkArgument(dir.exists(), dir.getAbsolutePath()+" doesn't exist!");
 			
 			lockFile = new File(dir, "__batch_plot_gen.lock");
+			if (lockFile.exists()) {
+				System.out.println("Directory locked: "+dir.getAbsolutePath());
+				System.exit(0);
+			}
 			createLock();
 			
 			handleDir(dir);
