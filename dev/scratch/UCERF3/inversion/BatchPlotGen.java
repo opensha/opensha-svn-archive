@@ -218,6 +218,9 @@ public class BatchPlotGen {
 		
 		if (!misfitsMap.isEmpty())
 			writeMisfitsCSV(dir, misfitsMap);
+		
+		if (done)
+			writeCombinedFSS(dir);
 	}
 	
 	/**
