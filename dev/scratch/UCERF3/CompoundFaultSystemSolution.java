@@ -199,7 +199,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 				ZipEntry entry = zipEnum.nextElement();
 				
 				if (entry.getName().endsWith("_rates.bin"))
-					branches.add(VariableLogicTreeBranch.fromName(entry.getName()));
+					branches.add(VariableLogicTreeBranch.fromFileName(entry.getName()));
 			}
 			
 			System.out.println("Detected "+branches.size()+" branches in zip file!");

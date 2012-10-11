@@ -252,7 +252,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			if (!name.endsWith(".csv"))
 				continue;
 //			System.out.println("Parsing: "+name);
-			VariableLogicTreeBranch candidate = VariableLogicTreeBranch.fromName(name);
+			VariableLogicTreeBranch candidate = VariableLogicTreeBranch.fromFileName(name);
 			if (!branch.matchesNonNulls(candidate)) {
 				continue;
 			}
@@ -273,7 +273,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			String name = file.getName();
 			if (!name.endsWith(".csv"))
 				continue;
-			VariableLogicTreeBranch candidate = VariableLogicTreeBranch.fromName(name);
+			VariableLogicTreeBranch candidate = VariableLogicTreeBranch.fromFileName(name);
 			if (!branch.matchesNonNulls(candidate)) {
 				continue;
 			}

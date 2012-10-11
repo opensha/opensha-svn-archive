@@ -3,6 +3,8 @@ package scratch.UCERF3.logicTree;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Joiner;
+
 
 public class VariableLogicTreeBranch extends LogicTreeBranch {
 	
@@ -78,7 +80,11 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 		return vars;
 	}
 	
-	public static VariableLogicTreeBranch fromName(String name) {
+	public static LogicTreeBranch fromStringValues(List<String> strings) {
+		return fromFileName(Joiner.on("_").join(strings));
+	}
+	
+	public static VariableLogicTreeBranch fromFileName(String name) {
 		List<String> variations = parseVariations(name);
 		LogicTreeBranch branch = LogicTreeBranch.fromFileName(name);
 		return new VariableLogicTreeBranch(branch, variations);
@@ -97,7 +103,7 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 		String name = "FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo10_VarSectNuclMFDWt0.01";
 //		for (String var : parseVariations(name))
 //			System.out.println(var);
-		VariableLogicTreeBranch branch = VariableLogicTreeBranch.fromName(name);
+		VariableLogicTreeBranch branch = VariableLogicTreeBranch.fromFileName(name);
 		for (String var : branch.getVariations())
 			System.out.println(var);
 	}
