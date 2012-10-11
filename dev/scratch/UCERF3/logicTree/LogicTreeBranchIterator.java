@@ -131,12 +131,15 @@ public class LogicTreeBranchIterator implements Iterable<LogicTreeBranch>, Itera
 //		TreeTrimmer trimmer = ListBasedTreeTrimmer;
 		LogicTreeBranchIterator it = new LogicTreeBranchIterator(trimmer);
 		
+		double wtTotal = 0;
 		int cnt = 0;
 		for (LogicTreeBranch br : it) {
 			Preconditions.checkNotNull(br);
 			cnt++;
+			wtTotal += br.getAprioriBranchWt();
 		}
 		System.out.println("TOTAL: "+cnt);
+		System.out.println("WEIGHT SUM: "+wtTotal);
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.util.ClassUtils;
 
@@ -19,7 +20,9 @@ import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 
 public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>, Cloneable {
 	
@@ -58,6 +61,8 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		
 		return logicTreeClasses;
 	}
+	
+	private static Table<Class<? extends LogicTreeBranchNode<?>>, InversionModels, Double> classWeightTotals;
 	
 	private List<LogicTreeBranchNode<? extends Enum<?>>> branch;
 	
@@ -385,6 +390,41 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 			newBranches.add(branch.get(i));
 		
 		return new LogicTreeBranch(newBranches);
+	}
+	
+	/**
+	 * This returns the branch weight using a priori weights specified in the logic tree branch
+	 * node enums.
+	 * @return
+	 */
+	public double getAprioriBranchWt() {
+		double wt = 1;
+		InversionModels im = getValue(InversionModels.class);
+		for (LogicTreeBranchNode<?> node : branch)
+			wt *= getNormalizedWt(node, im);
+		return wt;
+	}
+	
+	private static double getNormalizedWt(
+			LogicTreeBranchNode<? extends Enum<?>> node, InversionModels im) {
+		if (classWeightTotals == null) {
+			synchronized(LogicTreeBranch.class) {
+				// this if looks redundant, but it's possible that we need this when threading
+				if (classWeightTotals == null) {
+					classWeightTotals = HashBasedTable.create();
+					for (Class<? extends LogicTreeBranchNode<?>> clazz : getLogicTreeNodeClasses()) {
+						for (InversionModels myIM : InversionModels.values()) {
+							double tot = 0;
+							for (LogicTreeBranchNode<?> val : clazz.getEnumConstants())
+								tot += val.getRelativeWeight(myIM);
+							classWeightTotals.put(clazz, myIM, tot);
+						}
+					}
+				}
+			}
+		}
+		Class<? extends LogicTreeBranchNode> clazz = getEnumEnclosingClass(node.getClass());
+		return node.getRelativeWeight(im) / classWeightTotals.get(clazz, im);
 	}
 
 }
