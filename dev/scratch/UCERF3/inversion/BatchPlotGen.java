@@ -199,7 +199,7 @@ public class BatchPlotGen {
 	}
 	
 	public static void writeCombinedFSS(File dir) throws IOException {
-		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir);
+		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1);
 		
 		File compoundFile = new File(dir, dir.getName()+"_COMPOUND_SOL.zip");
 		
