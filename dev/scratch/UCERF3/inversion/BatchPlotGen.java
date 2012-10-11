@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +25,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.FileBasedFSSIterator;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
@@ -195,28 +198,76 @@ public class BatchPlotGen {
 		csv.writeToFile(misfitsCSV);
 	}
 	
+	public static void writeCombinedFSS(File dir) throws IOException {
+		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir);
+		
+		File compoundFile = new File(dir, dir.getName()+"_COMPOUND_SOL.zip");
+		
+		if (compoundFile.exists())
+			System.out.println("Compound solution already exists: "+compoundFile.getName());
+		else
+			CompoundFaultSystemSolution.toZipFile(compoundFile, it);
+	}
+	
 	public static void handleDir(File dir) throws IOException, DocumentException, GMT_MapException {
+		System.out.println("Handling directory: "+dir.getName());
 		Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap = Maps.newHashMap();
 		
-		handleDir(dir, misfitsMap, 1);
+		boolean done = handleDir(dir, misfitsMap, 1);
+		System.out.println("DONE? "+ done);
 		
 		if (!misfitsMap.isEmpty())
 			writeMisfitsCSV(dir, misfitsMap);
 	}
 	
-	public static void handleDir(File dir, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap, int maxDepth)
+	/**
+	 * 
+	 * @param dir
+	 * @param misfitsMap
+	 * @param maxDepth
+	 * @return true is every PBS file has a matching solution (which means we're done)
+	 * @throws IOException
+	 * @throws DocumentException
+	 * @throws GMT_MapException
+	 */
+	public static boolean handleDir(
+			File dir,
+			Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap,
+			int maxDepth)
+			throws IOException, DocumentException, GMT_MapException {
+		HashSet<String> pbsPrefixes = new HashSet<String>();
+		HashSet<String> donePrefixes = new HashSet<String>();
+		handleDir(dir, misfitsMap, maxDepth, pbsPrefixes, donePrefixes);
+		for (String prefix : pbsPrefixes)
+			if (!donePrefixes.contains(prefix))
+				return false;
+		return true;
+	}
+	
+	public static void handleDir(File dir,
+			Map<VariableLogicTreeBranch,
+			Map<String, Double>> misfitsMap,
+			int maxDepth,
+			HashSet<String> pbsPrefixes,
+			HashSet<String> donePrefixes)
 			throws IOException, DocumentException, GMT_MapException {
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory()) {
 				if (maxDepth > 0)
-					handleDir(file, misfitsMap, maxDepth - 1);
+					handleDir(file, misfitsMap, maxDepth - 1, pbsPrefixes, donePrefixes);
 				continue;
 			}
 			String fileName = file.getName();
+			if (fileName.endsWith(".pbs")) {
+				String prefix = fileName.substring(0, fileName.indexOf(".pbs"));
+				pbsPrefixes.add(prefix);
+				continue;
+			}
 			if (!fileName.endsWith("_sol.zip"))
 				continue;
 			
 			String prefix = fileName.substring(0, fileName.indexOf("_sol.zip"));
+			donePrefixes.add(prefix);
 			
 			handleSolutionFile(file, prefix, null, misfitsMap);
 			

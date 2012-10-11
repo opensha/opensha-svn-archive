@@ -20,9 +20,12 @@ import org.opensha.commons.util.FileUtils;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
@@ -72,8 +75,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * rup_sec_slip_type.txt		N/A
 	 * rup_sections.bin				FM
 	 * sect_areas.bin				FM, DM
-	 * sect_slips.bin				ALL (almost all, but simpler this way)
-	 * sect_slips_std_dev.bin		ALL (almost all, but simpler this way)
+	 * sect_slips.bin				ALL BUT Dsr
+	 * sect_slips_std_dev.bin		ALL BUT Dsr
 	 * 
 	 * null entry in map means ALL!
 	 */
@@ -95,39 +98,19 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("rup_sections.bin", buildList(FaultModels.class));
 		dependencyMap.put("rakes.bin", buildList(FaultModels.class, DeformationModels.class));
 		dependencyMap.put("sect_areas.bin", buildList(FaultModels.class, DeformationModels.class));
-		dependencyMap.put("sect_slips.bin", null);
-		dependencyMap.put("sect_slips_std_dev.bin", null);
+		dependencyMap.put("sect_slips.bin", buildList(FaultModels.class, DeformationModels.class,
+				ScalingRelationships.class, InversionModels.class, TotalMag5Rate.class,
+				MaxMagOffFault.class, MomentRateFixes.class, SpatialSeisPDF.class));
+		dependencyMap.put("sect_slips_std_dev.bin", buildList(FaultModels.class, DeformationModels.class,
+				ScalingRelationships.class, InversionModels.class, TotalMag5Rate.class,
+				MaxMagOffFault.class, MomentRateFixes.class, SpatialSeisPDF.class));
 	}
 	
-	// we do it this way instead of a ... varargs method because of generics/arrays
 	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
-			Class<? extends LogicTreeBranchNode<?>> val1) {
-		return buildList(val1, null, null, null);
-	}
-	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
-			Class<? extends LogicTreeBranchNode<?>> val1,
-			Class<? extends LogicTreeBranchNode<?>> val2) {
-		return buildList(val1, val2, null, null);
-	}
-	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
-			Class<? extends LogicTreeBranchNode<?>> val1,
-			Class<? extends LogicTreeBranchNode<?>> val2,
-			Class<? extends LogicTreeBranchNode<?>> val3) {
-		return buildList(val1, val2, val3, null);
-	}
-	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
-				Class<? extends LogicTreeBranchNode<?>> val1,
-				Class<? extends LogicTreeBranchNode<?>> val2,
-				Class<? extends LogicTreeBranchNode<?>> val3,
-				Class<? extends LogicTreeBranchNode<?>> val4) {
+			Class<? extends LogicTreeBranchNode<?>>... vals) {
 		List<Class<? extends LogicTreeBranchNode<?>>> list = Lists.newArrayList();
-		list.add(val1);
-		if (val2 != null)
-			list.add(val2);
-		if (val3 != null)
-			list.add(val3);
-		if (val4 != null)
-			list.add(val4);
+		for (Class<? extends LogicTreeBranchNode<?>> val : vals)
+			list.add(val);
 		return list;
 	}
 	
@@ -234,6 +217,12 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		if (args.length == 1) {
+			// command line run
+			File dir = new File(args[0]);
+			BatchPlotGen.writeCombinedFSS(dir);
+			System.exit(0);
+		}
 		File dir = new File("/tmp/sol_zip");
 		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir);
 		
