@@ -21,6 +21,8 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	// this is for copying caches from previous rup sets of the same fault model
 	private Map<FaultModels, FaultSystemRupSet> rupSetCacheMap = Maps.newHashMap();
 	
+	private Map<LogicTreeBranch, Map<String, Double>> misfitsCache = Maps.newHashMap();
+	
 	public abstract Collection<LogicTreeBranch> getBranches();
 	
 	protected abstract FaultSystemSolution fetchSolution(LogicTreeBranch branch);
@@ -39,6 +41,24 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 			}
 		}
 		return sol;
+	}
+	
+	protected abstract Map<String, Double> fetchMisfits(LogicTreeBranch branch);
+	
+	/**
+	 * Returns a map of misfit values, if available, else null
+	 * 
+	 * @param branch
+	 * @return
+	 */
+	public synchronized Map<String, Double> getMisfits(LogicTreeBranch branch) {
+		Map<String, Double> misfits = misfitsCache.get(branch);
+		if (misfits == null) {
+			misfits = fetchMisfits(branch);
+			if (misfits != null)
+				misfitsCache.put(branch, misfits);
+		}
+		return misfits;
 	}
 
 	public boolean isCacheCopyingEnabled() {

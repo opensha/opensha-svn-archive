@@ -1,8 +1,12 @@
 package scratch.UCERF3.inversion;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -326,8 +330,16 @@ public class BatchPlotGen {
 	}
 	
 	public static Map<String, Double> loadMisfitsFile(File misfitsFile) throws IOException {
+		return loadMisfitsFile(new FileInputStream(misfitsFile));
+	}
+	
+	public static Map<String, Double> loadMisfitsFile(InputStream is) throws IOException {
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader br = new BufferedReader(isr);
 		Map<String, Double> misfits = Maps.newHashMap();
-		for (String line : FileUtils.readLines(misfitsFile)) {
+		
+		String line;
+		while ((line = br.readLine()) != null) {
 			line = line.trim();
 			if (line.isEmpty())
 				continue;
@@ -337,6 +349,16 @@ public class BatchPlotGen {
 			misfits.put(name, val);
 		}
 		return misfits;
+	}
+	
+	public static void writeMisfitsFile(Map<String, Double> misfits, File misfitsFile)
+			throws IOException {
+		FileWriter fw = new FileWriter(misfitsFile);
+		for (String misfit : misfits.keySet()) {
+			double val = misfits.get(misfit);
+			fw.write(misfit+": "+val+"\n");
+		}
+		fw.close();
 	}
 	
 	private static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol,
@@ -368,12 +390,7 @@ public class BatchPlotGen {
 							sol = SimpleFaultSystemSolution.fromFile(file);
 						invSol = new InversionFaultSystemSolution(sol);
 						Map<String, Double> misfits = invSol.getMisfits();
-						FileWriter fw = new FileWriter(misfitsFile);
-						for (String misfit : misfits.keySet()) {
-							double val = misfits.get(misfit);
-							fw.write(misfit+": "+val+"\n");
-						}
-						fw.close();
+						writeMisfitsFile(misfits, misfitsFile);
 						misfitsMap.put(branch, misfits);
 					} catch (Exception e) {
 						System.err.println("WARNING: Couldn't load InversionFaultSystemSolution for: "+prefix);

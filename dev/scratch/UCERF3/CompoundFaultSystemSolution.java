@@ -49,9 +49,15 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	public Collection<LogicTreeBranch> getBranches() {
 		return fetcher.getBranches();
 	}
+	
 	@Override
 	protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 		return fetcher.fetchSolution(branch);
+	}
+
+	@Override
+	public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
+		return fetcher.fetchMisfits(branch);
 	}
 	
 	/* *******************************************
@@ -136,6 +142,14 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			File ratesFile = new File(tempDir, remappings.get("rates.bin"));
 			MatrixIO.doubleArrayToFile(sol.getRateForAllRups(), ratesFile);
 			zipFileNames.add(ratesFile.getName());
+			
+			// now write misfits, if applicable
+			Map<String, Double> misfits = fetcher.getMisfits(branch);
+			if (misfits != null && !misfits.isEmpty()) {
+				File misfitsFile = new File(tempDir, branch.buildFileName()+".misfits");
+				BatchPlotGen.writeMisfitsFile(misfits, misfitsFile);
+				zipFileNames.add(misfitsFile.getName());
+			}
 		}
 		
 		FileUtils.createZipFile(file.getAbsolutePath(), tempDir.getAbsolutePath(), zipFileNames);
@@ -212,6 +226,20 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			} catch (Exception e) {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
+		}
+
+		@Override
+		public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
+			String fName = branch.buildFileName()+".misfits";
+			ZipEntry entry = zip.getEntry(fName);
+			if (entry != null) {
+				try {
+					return BatchPlotGen.loadMisfitsFile(zip.getInputStream(entry));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+			return null;
 		}
 		
 	}

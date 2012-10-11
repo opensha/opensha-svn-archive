@@ -1,11 +1,13 @@
 package scratch.UCERF3;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
 import org.opensha.commons.util.ExceptionUtils;
 
+import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 
@@ -65,6 +67,19 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 		} catch (Exception e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
+	}
+
+	@Override
+	public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
+		File misfitsFile = new File(filesMap.get(branch).getAbsolutePath()+".misfits");
+		if (misfitsFile.exists()) {
+			try {
+				return BatchPlotGen.loadMisfitsFile(misfitsFile);
+			} catch (Exception e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+		return null;
 	}
 
 }
