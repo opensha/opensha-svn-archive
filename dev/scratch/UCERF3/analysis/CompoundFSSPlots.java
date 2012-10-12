@@ -309,7 +309,7 @@ public abstract class CompoundFSSPlots {
 		maxFunc.setName(name+" (maximum)");
 		funcs.add(maxFunc);
 		DiscretizedFunc meanFunc = (DiscretizedFunc) calc.getMeanCurve();
-		meanFunc.setName(name+" (mean)");
+		meanFunc.setName(name+" (weighted mean)");
 		funcs.add(meanFunc);
 		
 		return funcs;

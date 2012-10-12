@@ -1060,8 +1060,10 @@ public class CommandLineInversionRunner {
 			List<PaleoRateConstraint> paleoRateConstraints,
 			List<AveSlipConstraint> aveSlipConstraints, FaultSystemSolution sol, File dir)
 					throws IOException {
-		Map<String, PlotSpec> specs = PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(
+		Map<String, PlotSpec[]> specs = PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(
 				paleoRateConstraints, aveSlipConstraints, sol);
+		
+		String[] fname_adds = { "paleo", "slips", "combined" };
 		
 		if (!dir.exists())
 			dir.mkdir();
@@ -1069,11 +1071,11 @@ public class CommandLineInversionRunner {
 		for (String faultName : specs.keySet()) {
 			String fname = faultName.replaceAll("\\W+", "_");
 			
-			PlotSpec spec = specs.get(faultName);
+			PlotSpec[] specArray = specs.get(faultName);
 			
 			double xMin = Double.POSITIVE_INFINITY;
 			double xMax = Double.NEGATIVE_INFINITY;
-			for (DiscretizedFunc func : spec.getFuncs()) {
+			for (DiscretizedFunc func : specArray[2].getFuncs()) {
 				double myXMin = func.getMinX();
 				double myXMax = func.getMaxX();
 				if (myXMin < xMin)
@@ -1082,22 +1084,26 @@ public class CommandLineInversionRunner {
 					xMax = myXMax;
 			}
 			
-			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			setFontSizes(gp);
-			gp.setYLog(true);
-			if (xMax > 0)
-				// only when latitudeX, this is a kludgy way of detecting this for CA
-				gp.setxAxisInverted(true);
-			System.out.println("X Range: "+xMin+"=>"+xMax);
-			gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
-			
-			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
-			
-			File file = new File(dir, fname);
-			gp.getCartPanel().setSize(1000, 800);
-			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			for (int i=0; i<specArray.length; i++) {
+				String fname_add = fname_adds[i];
+				PlotSpec spec = specArray[i];
+				HeadlessGraphPanel gp = new HeadlessGraphPanel();
+				setFontSizes(gp);
+				gp.setYLog(true);
+				if (xMax > 0)
+					// only when latitudeX, this is a kludgy way of detecting this for CA
+					gp.setxAxisInverted(true);
+				System.out.println("X Range: "+xMin+"=>"+xMax);
+				gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
+				
+				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
+						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+				
+				File file = new File(dir, fname);
+				gp.getCartPanel().setSize(1000, 800);
+				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+				gp.saveAsPNG(file.getAbsolutePath()+".png");
+			}
 		}
 	}
 	

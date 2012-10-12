@@ -217,10 +217,10 @@ public class RunInversion {
 		List<AveSlipConstraint> aveSlipConstraints;
 		try {
 			aveSlipConstraints = AveSlipConstraint.load(solution.getFaultSectionDataList());
-			Map<String, PlotSpec> plotSpecs =
+			Map<String, PlotSpec[]> plotSpecs =
 					PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(paleoRateConstraints, aveSlipConstraints, solution);
 			// display SAF plots
-			PlotSpec plotSpec = plotSpecs.get("San Andreas");
+			PlotSpec plotSpec = plotSpecs.get("San Andreas")[2];
 			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(plotSpec);
 			gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
 		} catch (IOException e) {
