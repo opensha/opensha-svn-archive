@@ -2,11 +2,14 @@ package scratch.UCERF3;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -30,14 +33,16 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	public FaultSystemSolution getSolution(LogicTreeBranch branch) {
 		FaultSystemSolution sol = fetchSolution(branch);
 		if (cacheCopying) {
-			FaultModels fm = sol.getFaultModel();
-			if (rupSetCacheMap.containsKey(fm)) {
-				sol.copyCacheFrom(rupSetCacheMap.get(fm));
-			} else {
-				if (sol instanceof SimpleFaultSystemSolution)
-					rupSetCacheMap.put(fm, ((SimpleFaultSystemSolution)sol).getRupSet());
-				else
-					rupSetCacheMap.put(fm, sol);
+			synchronized (this) {
+				FaultModels fm = sol.getFaultModel();
+				if (rupSetCacheMap.containsKey(fm)) {
+					sol.copyCacheFrom(rupSetCacheMap.get(fm));
+				} else {
+					if (sol instanceof SimpleFaultSystemSolution)
+						rupSetCacheMap.put(fm, ((SimpleFaultSystemSolution)sol).getRupSet());
+					else
+						rupSetCacheMap.put(fm, sol);
+				}
 			}
 		}
 		return sol;
@@ -88,6 +93,34 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException("Not supported by this iterator");
+			}
+		};
+	}
+	
+	public static FaultSystemSolutionFetcher getRandomSample(
+			final FaultSystemSolutionFetcher fetch, int num) {
+		List<LogicTreeBranch> origBranches = Lists.newArrayList();
+		origBranches.addAll(fetch.getBranches());
+		final List<LogicTreeBranch> branches = Lists.newArrayList();
+		Random r = new Random();
+		for (int i=0; i<num; i++) {
+			branches.add(origBranches.get(r.nextInt(origBranches.size())));
+		}
+		return new FaultSystemSolutionFetcher() {
+			
+			@Override
+			public Collection<LogicTreeBranch> getBranches() {
+				return branches;
+			}
+			
+			@Override
+			protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+				return fetch.fetchSolution(branch);
+			}
+			
+			@Override
+			protected Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
+				return fetch.fetchMisfits(branch);
 			}
 		};
 	}

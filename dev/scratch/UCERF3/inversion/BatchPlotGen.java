@@ -197,8 +197,8 @@ public class BatchPlotGen {
 		for (int col=cols; --col>=0;)
 			csv.sort(col, 1, comparator);
 		
-		for (int row=0; row<csv.getNumRows(); row++)
-			System.out.println(Joiner.on(",").join(csv.getLine(row)));
+//		for (int row=0; row<csv.getNumRows(); row++)
+//			System.out.println(Joiner.on(",").join(csv.getLine(row)));
 
 		csv.writeToFile(misfitsCSV);
 	}
