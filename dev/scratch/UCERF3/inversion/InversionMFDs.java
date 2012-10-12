@@ -440,7 +440,8 @@ public class InversionMFDs {
 	}
 	
 	/**
-	 * This returns an incremental GR with b=1 up to Mag 9 for the given rate above M 5.
+	 * This returns an incremental GR with b=1 up to Mag 9 for the given rate above M 5
+	 * (e.g., useful for guiding eyes in plots).
 	 * @param totalRegionRateMgt5
 	 * @return
 	 */

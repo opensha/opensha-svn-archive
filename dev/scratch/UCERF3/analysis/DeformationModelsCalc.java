@@ -1248,10 +1248,11 @@ public class DeformationModelsCalc {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
+//		calcMoRateAndMmaxDataForDefModels();
 		
 //		writeSubSectDataForParent("Imperial", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
-		writeSubSectDataForParent("Mendocino", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+//		writeSubSectDataForParent("Mendocino", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
 //		writeAveReducedSlipRateEtcOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
@@ -1262,7 +1263,6 @@ public class DeformationModelsCalc {
 //		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.GEOLOGIC, new CaliforniaRegions.LA_BOX()); 
 //		writeParentSectionsInsideRegion(FaultModels.FM3_1, DeformationModels.ZENG, new CaliforniaRegions.LA_BOX()); 
 		
-//		calcMoRateAndMmaxDataForDefModels();
 		
 //		plotMoreSpatialMaps();
 
@@ -1293,7 +1293,7 @@ public class DeformationModelsCalc {
 		
 //		plotAllSpatialMoRateMaps();
 		
-//		writeMoRateOfParentSections(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
+		writeMoRateOfParentSections(FaultModels.FM3_1,DeformationModels.GEOLOGIC);
 		
 //		File default_scratch_dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "FaultSystemRupSets");
 		

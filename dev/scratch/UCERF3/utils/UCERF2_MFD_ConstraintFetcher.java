@@ -55,7 +55,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 
 		long startRunTime=System.currentTimeMillis();
 
-		System.out.println("Starting MeanUCERF2_ETAS instantiation");
+//		System.out.println("Starting MeanUCERF2 instantiation");
 		double forecastDuration = 1.0;	// years
 		meanUCERF2_ETAS = new ModMeanUCERF2();
 		meanUCERF2_ETAS.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
@@ -67,7 +67,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 		meanUCERF2_ETAS.getTimeSpan().setDuration(forecastDuration);
 		meanUCERF2_ETAS.updateForecast();
 		double runtime = (System.currentTimeMillis()-startRunTime)/1000;
-		System.out.println("MeanUCERF2_ETAS instantiation took "+runtime+" seconds");
+//		System.out.println("MeanUCERF2 instantiation took "+runtime+" seconds");
 		
 		
 		
@@ -255,7 +255,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 
 		
 		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
-//		fetcher.computeMomentRates();
-		fetcher.plotMFDs();
+		fetcher.computeMomentRates();
+//		fetcher.plotMFDs();
 	}
 }

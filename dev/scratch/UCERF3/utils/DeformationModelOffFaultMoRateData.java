@@ -20,8 +20,12 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 /**
  * This reads and provides the off-fault gridded moment rates provided by Kaj Johnson 
- * for each deformation model at each RELM region grid point.  Kaj assumed a seismogenic 
- * thickness of 11 km.
+ * for each deformation model at each RELM region grid point.  He sent the latest
+ * files via email to Ned Field on Oct 11, 2012.  
+ * 
+ * Kaj assumed a seismogenic thickness of 11 km.
+ * 
+ * Note that the FM3.1 vs 3.2 results from Zeng are identical (that's what he told us his were)
  * 
  * Note that the NeoKinema model has zero values in SE California (276 of the 7637 points are zero; 3.6%).
  *
@@ -42,10 +46,11 @@ public class DeformationModelOffFaultMoRateData {
 	}
 	
 	public static final String SUBDIR = "DeformationModels";
-	public static final String FILENAME_FM3_1 = "gridded_moment_fm_3_1_june11.txt";
-	public static final String FILENAME_FM3_2 = "gridded_moment_fm_3_2_june11.txt";
+	public static final String FILENAME_FM3_1 = "gridded_moment_fm_3_1_oct11.txt";
+	public static final String FILENAME_FM3_2 = "gridded_moment_fm_3_2_oct11.txt";
 	public static final double KAJ_SEISMO_THICKNESS = 11d;
 	public static final double REVISED_SEISMO_THICKNESS = 11d;
+	public static final double NEOK_ZERO_VALS = Math.pow(10, -1000)*REVISED_SEISMO_THICKNESS/KAJ_SEISMO_THICKNESS;
 	
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	
@@ -136,12 +141,12 @@ public class DeformationModelOffFaultMoRateData {
 				l+=1;
 				if (l == 0)
 					continue;	// skip header
-				String[] st = StringUtils.split(line,"\t");
+				String[] st = StringUtils.split(line,",");
 				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
 				int index = griddedRegion.indexForLocation(loc);
-				neok_Fm3pt1_xyzData.set(index, Double.valueOf(st[2])*CONVERSION);
-				zeng_Fm3pt1_xyzData.set(index, Double.valueOf(st[3])*CONVERSION);
-				abm_Fm3pt1_xyzData.set(index, Double.valueOf(st[4])*CONVERSION);
+				neok_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[2]))*CONVERSION);
+				zeng_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[3]))*CONVERSION);
+				abm_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[4]))*CONVERSION);
 			}
 		} catch (Exception e) {
 			ExceptionUtils.throwAsRuntimeException(e);
@@ -156,17 +161,17 @@ public class DeformationModelOffFaultMoRateData {
 				l+=1;
 				if (l == 0)
 					continue;
-				String[] st = StringUtils.split(line,"\t");
+				String[] st = StringUtils.split(line,",");
 				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
 				int index = griddedRegion.indexForLocation(loc);
-				neok_Fm3pt2_xyzData.set(index, Double.valueOf(st[2])*CONVERSION);
-				zeng_Fm3pt2_xyzData.set(index, Double.valueOf(st[3])*CONVERSION);
-				abm_Fm3pt2_xyzData.set(index, Double.valueOf(st[4])*CONVERSION);
+				neok_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[2]))*CONVERSION);
+				zeng_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[3]))*CONVERSION);
+				abm_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[4]))*CONVERSION);
 			}
 		} catch (Exception e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
-		}
+	}
 	
 	
 	/**
@@ -206,20 +211,20 @@ public class DeformationModelOffFaultMoRateData {
 		for(int i=0;i<aveData.size();i++) {
 			double val=0;
 			int num =0;
-			if(neok_xyzData.get(i) !=0) {
+			if(neok_xyzData.get(i) > 2*NEOK_ZERO_VALS) {
 				val += neok_xyzData.get(i);
 				num+=1;
 			}
-			if(zeng_xyzData.get(i) !=0) {
+			if(zeng_xyzData.get(i) > 2*NEOK_ZERO_VALS) {
 				val += zeng_xyzData.get(i);
 				num+=1;
 			}
-			if(abm_xyzData.get(i) !=0) {
+			if(abm_xyzData.get(i) > 2*NEOK_ZERO_VALS) {
 				val += abm_xyzData.get(i);
 				num+=1;
 			}
 			if(includeGeologic) {
-				if(geol_xyzData.get(i) !=0) {
+				if(geol_xyzData.get(i) > 2*NEOK_ZERO_VALS) {
 					val += geol_xyzData.get(i);
 					num+=1;
 				}
@@ -362,7 +367,7 @@ public class DeformationModelOffFaultMoRateData {
 	
 	/**
 	 * This returns the spatial PDF of off-fault moment rate (values sum to 1.0)
-	 * Note that the NeoKinema model has zero values in SE California (276 of the 7637 points are zero; 3.6%).
+	 * Note that the NeoKinema model has ~zero values in SE California (276 of the 7637 points are zero; 3.6%).
 	 * at each RELM region grid point 
 	 * @param fm - Fault Model
 	 * @param dm - Deformation Model
@@ -381,7 +386,7 @@ public class DeformationModelOffFaultMoRateData {
 		int numZeros = 0;
 		double sum=0;
 		for(int i=0; i<data.size();i++) {
-			if(data.get(i) == 0) {
+			if(data.get(i) <= 2*NEOK_ZERO_VALS) {	// factor of two to avoid rounding errors
 				numZeros += 1;
 			}
 			else{
@@ -494,13 +499,11 @@ public class DeformationModelOffFaultMoRateData {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-//		plotAveDefModPDF_Map();
 		
 		DeformationModelOffFaultMoRateData test = DeformationModelOffFaultMoRateData.getInstance();
 //		test.testAveMapDiffs();
-//		test.plotAveDefModPDF_Map(false);
-		test.listNumZeroValues();
+		test.plotAveDefModPDF_Map(false);
+//		test.listNumZeroValues();
 //		test.writeAllTotalMomentRates();
 //		test.testPlotMaps();
 	}
