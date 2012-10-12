@@ -40,19 +40,20 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 public class PaleoFitPlotter {
 
 	public static class AveSlipFakePaleoConstraint extends PaleoRateConstraint {
 		private boolean isMultiple;
 		
-		private AveSlipFakePaleoConstraint(AveSlipConstraint aveSlip, int sectIndex, double slipRate) {
+		public AveSlipFakePaleoConstraint(AveSlipConstraint aveSlip, int sectIndex, double slipRate) {
 			super(null, aveSlip.getSiteLocation(), sectIndex, slipRate/aveSlip.getWeightedMean(),
 					slipRate/aveSlip.getLowerUncertaintyBound(), slipRate/aveSlip.getUpperUncertaintyBound());
 			isMultiple = false;
 		}
 		
-		private AveSlipFakePaleoConstraint(
+		public AveSlipFakePaleoConstraint(
 				AveSlipConstraint aveSlip, int sectIndex, double[] slipRates, double[] weights) {
 			super(null, aveSlip.getSiteLocation(), sectIndex,
 					calcScaledAverage(slipRates, weights)/aveSlip.getWeightedMean(),
@@ -343,6 +344,8 @@ public class PaleoFitPlotter {
 			allArraysList.add(paleoRatesMap);
 			allArraysList.add(origRatesMap);
 			allArraysList.add(aveSlipRatesMap);
+			
+			this.weight = weight;
 		}
 		
 		public static DataForPaleoFaultPlots build(
@@ -480,14 +483,14 @@ public class PaleoFitPlotter {
 	}
 	
 	private static List<PlotCurveCharacterstics> getCharsForFuncs(
-			List<DiscretizedFunc> funcs, Color color) {
+			List<DiscretizedFunc> funcs, Color color, float mainThickness) {
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		if (funcs.size() == 1) {
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, mainThickness, color));
 		} else {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, color));
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, color));
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, mainThickness, color));
 		}
 		return chars;
 	}
@@ -523,6 +526,7 @@ public class PaleoFitPlotter {
 			
 			for (int i=0; i<weights.length; i++)
 				weights[i] = weights[i] / totWeight;
+			Preconditions.checkState(totWeight > 0);
 			
 			ArbitrarilyDiscretizedFunc minFunc = new ArbitrarilyDiscretizedFunc();
 			minFunc.setName(name+" (minimum)");
@@ -536,6 +540,9 @@ public class PaleoFitPlotter {
 				double[] array = arrayVals[s];
 				
 				double mean = calcScaledAverage(array, weights);
+				if (Double.isInfinite(mean))
+					System.out.println("INFINITE! array=["+Joiner.on(",").join(Doubles.asList(array))
+							+"], weights=["+Joiner.on(",").join(Doubles.asList(weights)));
 				double min = StatUtils.min(array);
 				double max = StatUtils.max(array);
 				for (double x : myXvals) {
@@ -544,6 +551,8 @@ public class PaleoFitPlotter {
 					meanFunc.set(x, mean);
 				}
 			}
+			
+//			System.out.println("Max mean for "+arrayIndex+": "+meanFunc.getMaxY());
 			
 			funcs.add(minFunc);
 			funcs.add(maxFunc);
@@ -682,87 +691,23 @@ public class PaleoFitPlotter {
 						"Solution ave slip prob visible rates for: "+name);
 				
 				// skip if no rate on any of the sections
-				boolean skip = origRtFuncs.get(origRtFuncs.size()-1).getMaxX() <= 0;
+				boolean skip = origRtFuncs.get(origRtFuncs.size()-1).getMaxY() <= 0;
 				if (!skip) {
 					rateFuncs.addAll(paleoRtFuncs);
-					rateChars.addAll(getCharsForFuncs(paleoRtFuncs, paleoProbColor));
+					rateChars.addAll(getCharsForFuncs(paleoRtFuncs, paleoProbColor, 2f));
 					rateFuncs.addAll(origRtFuncs);
-					rateChars.addAll(getCharsForFuncs(origRtFuncs, origColor));
+					rateChars.addAll(getCharsForFuncs(origRtFuncs, origColor, 1f));
 					rateFuncs.addAll(aveSlipRtFuncs);
-					rateChars.addAll(getCharsForFuncs(aveSlipRtFuncs, aveSlipColor));
+					rateChars.addAll(getCharsForFuncs(aveSlipRtFuncs, aveSlipColor, 2f));
 					if (datas.size() == 1) {
 						slipFuncs.addAll(origSlipFuncs);
-						slipChars.addAll(getCharsForFuncs(origSlipFuncs, Color.CYAN));
+						slipChars.addAll(getCharsForFuncs(origSlipFuncs, Color.CYAN, 1f));
 					}
 					slipFuncs.addAll(targetSlipFuncs);
-					slipChars.addAll(getCharsForFuncs(targetSlipFuncs, Color.BLUE));
+					slipChars.addAll(getCharsForFuncs(targetSlipFuncs, Color.BLUE, 2f));
 					slipFuncs.addAll(solSlipFuncs);
-					slipChars.addAll(getCharsForFuncs(solSlipFuncs, Color.MAGENTA));
+					slipChars.addAll(getCharsForFuncs(solSlipFuncs, Color.MAGENTA, 2f));
 				}
-				
-//				ArbitrarilyDiscretizedFunc paleoRtFunc = new ArbitrarilyDiscretizedFunc();
-//				ArbitrarilyDiscretizedFunc aveSlipRtFunc = new ArbitrarilyDiscretizedFunc();
-//				ArbitrarilyDiscretizedFunc origRtFunc = new ArbitrarilyDiscretizedFunc();
-//				paleoRtFunc.setName("Solution paleo rates for: "+name);
-//				aveSlipRtFunc.setName("Solution ave slip prob visible rates for: "+name);
-//				origRtFunc.setName("Solution original rates for: "+name);
-//				ArbitrarilyDiscretizedFunc targetSlipFunc = new ArbitrarilyDiscretizedFunc();
-//				ArbitrarilyDiscretizedFunc solSlipFunc = new ArbitrarilyDiscretizedFunc();
-//				ArbitrarilyDiscretizedFunc origSlipFunc = new ArbitrarilyDiscretizedFunc();
-//				origSlipFunc.setName("Original nonreduced slip rates (normalized by max slip) for: "+name);
-//				targetSlipFunc.setName("Target slip rates (normalized by max slip) for: "+name);
-//				solSlipFunc.setName("Solution slip rates (normalized by max slip) for: "+name);
-//				List<Double> origSlips = Lists.newArrayList();
-//				List<Double> targetSlips = Lists.newArrayList();
-//				List<Double> solSlips = Lists.newArrayList();
-//				for (FaultSectionPrefData sect : sectionsForParent) {
-//					int mySectID = sect.getSectionId();
-//					double paleoRate = getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache);
-//					double origRate = getPaleoRateForSect(sol, mySectID, null, traceLengthCache);
-//					double aveSlipRate = getAveSlipProbRateForSect(sol, mySectID);
-//					if (origRate == 0)
-//						continue;
-//					double origSlip = sect.getOrigAveSlipRate()*1e-3;
-//					origSlips.add(origSlip);
-//					origSlip /= maxSlip;
-//					double targetSlip = sol.getSlipRateForSection(sect.getSectionId());
-//					targetSlips.add(targetSlip);
-//					targetSlip /= maxSlip;
-//					double solSlip = sol.calcSlipRateForSect(sect.getSectionId());
-//					solSlips.add(solSlip);
-//					solSlip /= maxSlip;
-//					for (Location loc : sect.getFaultTrace()) {
-//						double x;
-//						if (latitudeX)
-//							x = loc.getLatitude();
-//						else
-//							x = loc.getLongitude();
-//						paleoRtFunc.set(x, paleoRate);
-//						origRtFunc.set(x, origRate);
-//						aveSlipRtFunc.set(x, aveSlipRate);
-//						origSlipFunc.set(x, origSlip);
-//						targetSlipFunc.set(x, targetSlip);
-//						solSlipFunc.set(x, solSlip);
-//					}
-//					
-//				}
-//				if (origRtFunc.getNum() > 0) {
-//					funcs.add(origRtFunc);
-//					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, origColor));
-//					funcs.add(aveSlipRtFunc);
-//					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, aveSlipColor));
-//					funcs.add(paleoRtFunc);
-//					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, paleoProbColor));
-//					origSlipFunc.setInfo("Original Slips: "+Joiner.on(",").join(origSlips));
-//					funcs.add(origSlipFunc);
-//					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.CYAN));
-//					targetSlipFunc.setInfo("Target Slips: "+Joiner.on(",").join(targetSlips));
-//					funcs.add(targetSlipFunc);
-//					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-//					solSlipFunc.setInfo("Solution Slips: "+Joiner.on(",").join(solSlips));
-//					funcs.add(solSlipFunc);
-//					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
-//				}
 			}
 			if (actualCount == 0)
 				// no matching faults in this FM
@@ -855,7 +800,7 @@ public class PaleoFitPlotter {
 				paleoFunc.set(x, 1e-1);
 				paleoFunc.set(x+0.0001, 1e-4);
 				slipFunc.set(x, 5e1);
-				slipFunc.set(x+0.0001, 1e-2);
+				slipFunc.set(x+0.0001, 1e-1);
 				paleoOnlyFuncs.add(paleoFunc);
 				paleoOnlyChars.add(sepChar);
 				slipOnlyFuncs.add(slipFunc);

@@ -71,7 +71,8 @@ public abstract class FaultSystemRupSet {
 			return;
 		rupturesForSectionCache = rupSet.rupturesForSectionCache;
 		rupturesForParentSectionCache = rupSet.rupturesForParentSectionCache;
-		if (rupSet.getSlipAlongRuptureModel() == getSlipAlongRuptureModel())
+		if (rupSet.getSlipAlongRuptureModel() == getSlipAlongRuptureModel()
+				&& rupSet.getDeformationModel() == getDeformationModel())
 			rupSectionSlipsCache = rupSet.rupSectionSlipsCache;
 		fractRupsInsideRegions = rupSet.fractRupsInsideRegions;
 	}
@@ -334,8 +335,9 @@ public abstract class FaultSystemRupSet {
 		double[] sectMoRate = new double[numSects];
 		int index=0;
 		for(Integer sectID: sectionIndices) {	
-			FaultSectionPrefData sectData = getFaultSectionData(sectID);
-			sectArea[index] = sectData.getTraceLength()*sectData.getReducedDownDipWidth()*1e6;	// aseismicity reduces area; 1e6 for sq-km --> sq-m
+//			FaultSectionPrefData sectData = getFaultSectionData(sectID);
+//			sectArea[index] = sectData.getTraceLength()*sectData.getReducedDownDipWidth()*1e6;	// aseismicity reduces area; 1e6 for sq-km --> sq-m
+			sectArea[index] = getAreaForSection(sectID);
 			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], getSlipRateForSection(sectID));
 			index += 1;
 		}
@@ -387,7 +389,8 @@ public abstract class FaultSystemRupSet {
 			for(int s=0; s<slipsForRup.length; s++) {
 				normEnd = normBegin + sectArea[s]/getAreaForRup(rthRup);
 				// fix normEnd values that are just past 1.0
-				if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
+//				if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
+				if(normEnd > 1 && normEnd < 1.01) normEnd = 1.0;
 				scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
 				scaleFactor /= (normEnd-normBegin);
 				slipsForRup[s] = aveSlip*scaleFactor;

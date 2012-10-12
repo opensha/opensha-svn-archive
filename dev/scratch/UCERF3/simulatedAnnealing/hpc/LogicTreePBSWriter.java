@@ -535,9 +535,9 @@ public class LogicTreePBSWriter {
 //		int constrained_run_mins = 60;	// 1 hour
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
-//		int constrained_run_mins = 300; // 5 hours
+		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
-		int constrained_run_mins = 480;	// 8 hours
+//		int constrained_run_mins = 480;	// 8 hours
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";

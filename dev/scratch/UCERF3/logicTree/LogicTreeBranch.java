@@ -411,15 +411,17 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 			synchronized(LogicTreeBranch.class) {
 				// this if looks redundant, but it's possible that we need this when threading
 				if (classWeightTotals == null) {
-					classWeightTotals = HashBasedTable.create();
+					Table<Class<? extends LogicTreeBranchNode<?>>, InversionModels, Double>
+						myClassWeightTotals = HashBasedTable.create();
 					for (Class<? extends LogicTreeBranchNode<?>> clazz : getLogicTreeNodeClasses()) {
 						for (InversionModels myIM : InversionModels.values()) {
 							double tot = 0;
 							for (LogicTreeBranchNode<?> val : clazz.getEnumConstants())
 								tot += val.getRelativeWeight(myIM);
-							classWeightTotals.put(clazz, myIM, tot);
+							myClassWeightTotals.put(clazz, myIM, tot);
 						}
 					}
+					classWeightTotals = myClassWeightTotals;
 				}
 			}
 		}

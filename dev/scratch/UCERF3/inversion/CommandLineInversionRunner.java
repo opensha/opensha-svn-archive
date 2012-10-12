@@ -1063,6 +1063,13 @@ public class CommandLineInversionRunner {
 		Map<String, PlotSpec[]> specs = PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(
 				paleoRateConstraints, aveSlipConstraints, sol);
 		
+		writePaleoFaultPlots(specs, null, dir);
+	}
+	
+	public static void writePaleoFaultPlots(
+			Map<String, PlotSpec[]> specs, String prefix, File dir)
+					throws IOException {
+		
 		String[] fname_adds = { "paleo", "slips", "combined" };
 		
 		if (!dir.exists())
@@ -1070,6 +1077,9 @@ public class CommandLineInversionRunner {
 		
 		for (String faultName : specs.keySet()) {
 			String fname = faultName.replaceAll("\\W+", "_");
+			
+			if (prefix != null && !prefix.isEmpty())
+				fname = prefix+"_"+fname;
 			
 			PlotSpec[] specArray = specs.get(faultName);
 			
@@ -1094,12 +1104,20 @@ public class CommandLineInversionRunner {
 					// only when latitudeX, this is a kludgy way of detecting this for CA
 					gp.setxAxisInverted(true);
 				System.out.println("X Range: "+xMin+"=>"+xMax);
-				gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
+				if (i == 0)
+					// just paleo
+					gp.setUserBounds(xMin, xMax, 1e-5, 1e-1);
+				if (i == 1)
+					// just slip
+					gp.setUserBounds(xMin, xMax, 1e-1, 5e1);
+				else
+					// combined
+					gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
 				
 				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
 						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
 				
-				File file = new File(dir, fname);
+				File file = new File(dir, fname+"_"+fname_add);
 				gp.getCartPanel().setSize(1000, 800);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
