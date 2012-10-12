@@ -13,6 +13,7 @@ import org.opensha.nshmp2.util.SourceType;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 
 /**
  * Utility class to fetch NSHMP sources. Sources are generally wrapped in
@@ -24,10 +25,6 @@ import com.google.common.collect.ListMultimap;
 public class Sources {
 
 	private static Logger log;
-	private static ListMultimap<SourceRegion, GridERF> gridERFs;
-	private static ListMultimap<SourceRegion, FaultERF> faultERFs;
-	private static ListMultimap<SourceRegion, SubductionERF> subERFs;
-	private static ListMultimap<SourceRegion, ClusterERF> clustERFs;
 
 	static {
 		// NSHMP_Utils logger is set to WARNING; probably want to use prefs
@@ -37,10 +34,6 @@ public class Sources {
 		for (Handler h : NSHMP_Utils.logger().getHandlers()) {
 			h.setLevel(level);
 		}
-		gridERFs = ArrayListMultimap.create();
-		faultERFs = ArrayListMultimap.create();
-		subERFs = ArrayListMultimap.create();
-		clustERFs = ArrayListMultimap.create();
 	}
 
 	/**
@@ -118,17 +111,16 @@ public class Sources {
 	 * @return the <code>List</code> of ERFs
 	 */
 	public static List<ClusterERF> getClusterList(SourceRegion region) {
-		if (clustERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceMgr.get(region, CLUSTER);
-			if (files == null) return null;
-			for (SourceFile sf : files) {
-				ClusterParser parser = new ClusterParser(log);
-				ClusterERF erf = parser.parse(sf);
-				log.fine(erf.toString());
-				clustERFs.put(region, erf);
-			}
+		List<ClusterERF> erfs = Lists.newArrayList();
+		List<SourceFile> files = SourceMgr.get(region, CLUSTER);
+		if (files == null) return null;
+		for (SourceFile sf : files) {
+			ClusterParser parser = new ClusterParser(log);
+			ClusterERF erf = parser.parse(sf);
+			log.fine(erf.toString());
+			erfs.add(erf);
 		}
-		return clustERFs.get(region);
+		return erfs;
 	}
 
 	/**
@@ -137,17 +129,16 @@ public class Sources {
 	 * @return the <code>List</code> of ERFs
 	 */
 	public static List<GridERF> getGridList(SourceRegion region) {
-		if (gridERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceMgr.get(region, GRIDDED);
-			if (files == null) return null;
-			for (SourceFile sf : files) {
-				GridParser parser = new GridParser(log);
-				GridERF erf = parser.parse(sf);
-				log.fine(erf.toString());
-				gridERFs.put(region, erf);
-			}
+		List<GridERF> erfs = Lists.newArrayList();
+		List<SourceFile> files = SourceMgr.get(region, GRIDDED);
+		if (files == null) return null;
+		for (SourceFile sf : files) {
+			GridParser parser = new GridParser(log);
+			GridERF erf = parser.parse(sf);
+			log.fine(erf.toString());
+			erfs.add(erf);
 		}
-		return gridERFs.get(region);
+		return erfs;
 	}
 
 	/**
@@ -156,16 +147,15 @@ public class Sources {
 	 * @return the <code>List</code> of ERFs
 	 */
 	public static List<FaultERF> getFaultList(SourceRegion region) {
-		if (faultERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceMgr.get(region, FAULT);
-			if (files == null) return null;
-			for (SourceFile sf : files) {
-				FaultParser parser = new FaultParser(log);
-				FaultERF ferf = parser.parse(sf);
-				faultERFs.put(region, ferf);
-			}
+		List<FaultERF> erfs = Lists.newArrayList();
+		List<SourceFile> files = SourceMgr.get(region, FAULT);
+		if (files == null) return null;
+		for (SourceFile sf : files) {
+			FaultParser parser = new FaultParser(log);
+			FaultERF erf = parser.parse(sf);
+			erfs.add(erf);
 		}
-		return faultERFs.get(region);
+		return erfs;
 	}
 
 	/**
@@ -174,16 +164,15 @@ public class Sources {
 	 * @return the <code>List</code> of ERFs
 	 */
 	public static List<SubductionERF> getSubductionList(SourceRegion region) {
-		if (subERFs.get(region).isEmpty()) {
-			List<SourceFile> files = SourceMgr.get(region, SUBDUCTION);
-			if (files == null) return null;
-			for (SourceFile sf : files) {
-				SubductionParser parser = new SubductionParser(log);
-				SubductionERF serf = parser.parse(sf);
-				subERFs.put(region, serf);
-			}
+		List<SubductionERF> erfs = Lists.newArrayList();
+		List<SourceFile> files = SourceMgr.get(region, SUBDUCTION);
+		if (files == null) return null;
+		for (SourceFile sf : files) {
+			SubductionParser parser = new SubductionParser(log);
+			SubductionERF erf = parser.parse(sf);
+			erfs.add(erf);
 		}
-		return subERFs.get(region);
+		return erfs;
 	}
 
 	/**
