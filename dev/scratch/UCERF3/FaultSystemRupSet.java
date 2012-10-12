@@ -366,23 +366,27 @@ public abstract class FaultSystemRupSet {
 
 			// make the taper function if hasn't been done yet
 			if(taperedSlipCDF == null) {
-				taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
-				taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
-				double x,y, sum=0;
-				int num = taperedSlipPDF.getNum();
-				for(int i=0; i<num;i++) {
-					x = taperedSlipPDF.getX(i);
-					y = Math.pow(Math.sin(x*Math.PI), 0.5);
-					taperedSlipPDF.set(i,y);
-					sum += y;
-				}
-				// now make final PDF & CDF
-				y=0;
-				for(int i=0; i<num;i++) {
-						y += taperedSlipPDF.getY(i);
-						taperedSlipCDF.set(i,y/sum);
-						taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
-//						System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
+				synchronized (FaultSystemRupSet.class) {
+					if (taperedSlipCDF == null) {
+						taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+						taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+						double x,y, sum=0;
+						int num = taperedSlipPDF.getNum();
+						for(int i=0; i<num;i++) {
+							x = taperedSlipPDF.getX(i);
+							y = Math.pow(Math.sin(x*Math.PI), 0.5);
+							taperedSlipPDF.set(i,y);
+							sum += y;
+						}
+						// now make final PDF & CDF
+						y=0;
+						for(int i=0; i<num;i++) {
+								y += taperedSlipPDF.getY(i);
+								taperedSlipCDF.set(i,y/sum);
+								taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
+//								System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
+						}
+					}
 				}
 			}
 			double normBegin=0, normEnd, scaleFactor;
