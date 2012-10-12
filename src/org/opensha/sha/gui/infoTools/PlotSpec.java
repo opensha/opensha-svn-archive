@@ -1,5 +1,6 @@
 package org.opensha.sha.gui.infoTools;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -10,7 +11,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
  * @author kevin
  *
  */
-public class PlotSpec {
+public class PlotSpec implements Serializable {
 	private ArrayList<? extends DiscretizedFunc> funcs;
 	private ArrayList<PlotCurveCharacterstics> chars;
 	private String title, xAxisLabel, yAxisLabel;

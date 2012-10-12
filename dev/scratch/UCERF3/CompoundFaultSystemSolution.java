@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -195,12 +197,20 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			branches = Lists.newArrayList();
 			
 			Enumeration<? extends ZipEntry> zipEnum = zip.entries();
-			while (zipEnum.hasMoreElements()) {
-				ZipEntry entry = zipEnum.nextElement();
-				
+			// need to sort to ensure consistant iteration order for parallel runs
+			List<ZipEntry> entriesList = Lists.newArrayList();
+			while (zipEnum.hasMoreElements())
+				entriesList.add(zipEnum.nextElement());
+			Collections.sort(entriesList, new Comparator<ZipEntry>() {
+
+				@Override
+				public int compare(ZipEntry o1, ZipEntry o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
+			for (ZipEntry entry : entriesList)
 				if (entry.getName().endsWith("_rates.bin"))
 					branches.add(VariableLogicTreeBranch.fromFileName(entry.getName()));
-			}
 			
 			System.out.println("Detected "+branches.size()+" branches in zip file!");
 		}

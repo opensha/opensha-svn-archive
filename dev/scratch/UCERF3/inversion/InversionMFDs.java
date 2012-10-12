@@ -446,7 +446,10 @@ public class InversionMFDs {
 	 * @return
 	 */
 	public static GutenbergRichterMagFreqDist getTotalTargetGR_upToM9(double totalRegionRateMgt5) {
-		return new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, totalRegionRateMgt5*1e5, 1.0);
+		GutenbergRichterMagFreqDist gr =
+				new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, 1.0, 1.0);
+		gr.scaleToCumRate(0, totalRegionRateMgt5*1e5);
+		return gr;
 	}
 
 

@@ -35,14 +35,14 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class MPJDistributedAnalysis extends MPJTaskCalculator {
+public class MPJDistributedPreInversionAnalysis extends MPJTaskCalculator {
 
 	private File file;
 	private List<LogicTreeBranch> branches;
 
 	private Map<Integer, String> results;
 
-	public MPJDistributedAnalysis(CommandLine cmd, File file, boolean ucerf2) {
+	public MPJDistributedPreInversionAnalysis(CommandLine cmd, File file, boolean ucerf2) {
 		super(cmd);
 
 		this.file = file;
@@ -82,9 +82,9 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 		limitationsList.add(toList(MaxMagOffFault.MAG_7p2, MaxMagOffFault.MAG_7p6, MaxMagOffFault.MAG_8p0));
 		limitationsList.add(toList(MomentRateFixes.NONE, MomentRateFixes.APPLY_IMPLIED_CC));
 		if (ucerf2)
-			limitationsList.add(toList(SpatialSeisPDF.UCERF2, SpatialSeisPDF.UCERF3));
-		else
 			limitationsList.add(toList(SpatialSeisPDF.UCERF2));
+		else
+			limitationsList.add(toList(SpatialSeisPDF.UCERF2, SpatialSeisPDF.UCERF3));
 		
 //		limitationsList.add(toList(FaultModels.FM3_1));
 //		limitationsList.add(toList(DeformationModels.GEOLOGIC));
@@ -265,7 +265,7 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 		try {
 			Options options = createOptions();
 
-			CommandLine cmd = parse(options, args, MPJDistributedAnalysis.class);
+			CommandLine cmd = parse(options, args, MPJDistributedPreInversionAnalysis.class);
 
 			args = cmd.getArgs();
 
@@ -277,7 +277,7 @@ public class MPJDistributedAnalysis extends MPJTaskCalculator {
 			
 			boolean ucerf2 = cmd.hasOption("ucerf2");
 			
-			MPJDistributedAnalysis driver = new MPJDistributedAnalysis(cmd, file, ucerf2);
+			MPJDistributedPreInversionAnalysis driver = new MPJDistributedPreInversionAnalysis(cmd, file, ucerf2);
 			
 			driver.run();
 			

@@ -20,6 +20,7 @@
 package org.opensha.sha.gui.infoTools;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -36,7 +37,7 @@ import com.google.common.base.Preconditions;
  * @version 1.0
  */
 
-public class PlotCurveCharacterstics implements Named, Cloneable {
+public class PlotCurveCharacterstics implements Named, Cloneable, Serializable {
 
 	// type of line
 	private PlotLineType lineType;

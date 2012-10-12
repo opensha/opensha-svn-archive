@@ -26,13 +26,13 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	// GEOBOUNDED INVERSION
 	GEOBOUND(				"Geobounded",			"GEOB",		0d,		FaultModels.FM3_1,	"geobound_slip_rake__MAPPED_2012_06_05.csv"),
 	// NEOKINEMA
-	NEOKINEMA(				"Neokinema",			"NEOK",		0.35d,	FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2012_10_09.csv",
+	NEOKINEMA(				"Neokinema",			"NEOK",		0.20d,	FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2012_10_09.csv",
 																		FaultModels.FM3_2,	"neokinema_slip_rake_fm_3_2_2012_10_09.csv"),
 	// ZENG
 	ZENG(					"Zeng",					"ZENG",		0.30d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_10_11.csv",
 																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_2012_10_11.csv"),
 	// GEOLOGIC
-	GEOLOGIC(				"Geologic",				"GEOL", 	0.15d,	FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2012_09_06.csv",
+	GEOLOGIC(				"Geologic",				"GEOL", 	0.30d,	FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2012_09_06.csv",
 																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_2012_09_06.csv"),
 	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_upperbound_2012_09_06.csv",
 																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_upperbound_2012_09_06.csv"),

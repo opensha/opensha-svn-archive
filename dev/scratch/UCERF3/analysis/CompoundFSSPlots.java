@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
@@ -29,8 +31,10 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -47,7 +51,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
-public abstract class CompoundFSSPlots {
+public abstract class CompoundFSSPlots implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private static final Color BROWN = new Color(130, 86, 5);
 	
@@ -112,14 +121,24 @@ public abstract class CompoundFSSPlots {
 	 */
 	public static class RegionalMFDPlot extends CompoundFSSPlots {
 		
-		private BranchWeightProvider weightProvider;
+		public static List<Region> getDefaultRegions() {
+			List<Region> regions = Lists.newArrayList();
+			regions.add(new CaliforniaRegions.RELM_TESTING());
+			regions.add(new CaliforniaRegions.RELM_NOCAL());
+			regions.add(new CaliforniaRegions.RELM_SOCAL());
+			regions.add(new CaliforniaRegions.LA_BOX());
+			regions.add(new CaliforniaRegions.SF_BOX());
+			return regions;
+		}
+		
+		private transient BranchWeightProvider weightProvider;
 		private List<Region> regions;
 		private List<Double> weights;
 		
 		// none (except min/mean/max which are always included)
 		private double[] fractiles;
 				
-				// these are organized as (region, solution)
+		// these are organized as (region, solution)
 		private List<XY_DataSetList> solMFDs;
 		private List<XY_DataSetList> solOffMFDs;
 		private List<XY_DataSetList> solTotalMFDs;
@@ -182,7 +201,7 @@ public abstract class CompoundFSSPlots {
 					// we only have off fault for statewide right now
 					if (invSol == null)
 						invSol = new InversionFaultSystemSolution(sol);
-					IncrementalMagFreqDist offMFD = invSol.getFinalTrulyOffFaultMFD();
+					IncrementalMagFreqDist offMFD = invSol.getFinalTotalGriddedSeisMFD();
 					EvenlyDiscretizedFunc trimmedOffMFD = new EvenlyDiscretizedFunc(
 							onMFD.getMinX(), onMFD.getMaxX(), onMFD.getNum());
 					EvenlyDiscretizedFunc totMFD = new EvenlyDiscretizedFunc(
@@ -216,6 +235,8 @@ public abstract class CompoundFSSPlots {
 		protected void finalizePlot() {
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch = null;
 			
+			System.out.println("Finalizing MFD plot for "+solMFDs.get(0).size()+" branches!");
+			
 			specs = Lists.newArrayList();
 			for (int i=0; i<regions.size(); i++) {
 				Region region = regions.get(i);
@@ -241,6 +262,14 @@ public abstract class CompoundFSSPlots {
 				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.MAGENTA));
 				
 				if (!solOffMFDsForRegion.isEmpty()) {
+					// now add target GRs
+					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_10p6.getRateMag5()));
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
+					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_8p7.getRateMag5()));
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p1.getRateMag5()));
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
+					
 					funcs.addAll(getFractiles(solOffMFDsForRegion, weights, "Solution Off Fault MFDs", fractiles));
 					chars.addAll(getFractileChars(Color.GRAY, fractiles));
 				}
@@ -271,6 +300,28 @@ public abstract class CompoundFSSPlots {
 				if (isStatewide(region))
 					return true;
 			return false;
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				RegionalMFDPlot o = (RegionalMFDPlot)otherCalc;
+				weights.addAll(o.weights);
+				for (int r=0; r<regions.size(); r++) {
+					solMFDs.get(r).addAll(o.solMFDs.get(r));
+					solOffMFDs.get(r).addAll(o.solOffMFDs.get(r));
+					solTotalMFDs.get(r).addAll(o.solTotalMFDs.get(r));
+				}
+			}
+		}
+
+		protected List<Region> getRegions() {
+			return regions;
+		}
+
+		protected List<PlotSpec> getSpecs() {
+			return specs;
 		}
 		
 	}
@@ -303,8 +354,8 @@ public abstract class CompoundFSSPlots {
 	
 	public static class PaleoFaultPlot extends CompoundFSSPlots {
 		
-		private PaleoProbabilityModel paleoProbModel;
-		private BranchWeightProvider weightProvider;
+		private transient PaleoProbabilityModel paleoProbModel;
+		private transient BranchWeightProvider weightProvider;
 		
 		// on demand
 		private Map<FaultModels, Map<String, List<Integer>>> namedFaultsMaps = Maps.newHashMap();
@@ -467,6 +518,50 @@ public abstract class CompoundFSSPlots {
 		protected boolean usesInversionFSS() {
 			return false;
 		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				PaleoFaultPlot o = (PaleoFaultPlot )otherCalc;
+				for (FaultModels fm : o.allParentsMaps.keySet()) {
+					if (!allParentsMaps.containsKey(fm)) {
+						// add the fault model specific values
+						namedFaultsMaps.put(fm, o.namedFaultsMaps.get(fm));
+						paleoConstraintMaps.put(fm, o.paleoConstraintMaps.get(fm));
+						slipConstraintMaps.put(fm, o.slipConstraintMaps.get(fm));
+						allParentsMaps.put(fm, o.allParentsMaps.get(fm));
+						traceLengthCaches.put(fm, o.traceLengthCaches.get(fm));
+						fsdsMap.put(fm, o.fsdsMap.get(fm));
+					}
+					// now add data
+					List<DataForPaleoFaultPlots> datasList = datasMap.get(fm);
+					if (datasList == null) {
+						datasList = Lists.newArrayList();
+						datasMap.put(fm, datasList);
+					}
+					datasList.addAll(o.datasMap.get(fm));
+
+					List<List<Double>> slipRatesList = slipRatesMap.get(fm);
+					if (slipRatesList == null) {
+						slipRatesList = Lists.newArrayList();
+						slipRatesMap.put(fm, slipRatesList);
+					}
+					slipRatesList.addAll(o.slipRatesMap.get(fm));
+
+					List<Double> weightsList = weightsMap.get(fm);
+					if (weightsList == null) {
+						weightsList = Lists.newArrayList();
+						weightsMap.put(fm, weightsList);
+					}
+					weightsList.addAll(o.weightsMap.get(fm));
+				}
+			}
+		}
+
+		protected Map<FaultModels, Map<String, PlotSpec[]>> getPlotsMap() {
+			return plotsMap;
+		}
 		
 	}
 	
@@ -514,6 +609,13 @@ public abstract class CompoundFSSPlots {
 	 * @param sol
 	 */
 	protected abstract void processSolution(LogicTreeBranch branch, FaultSystemSolution sol);
+
+	/**
+	 * This is used when doing distributed calculations. This method will be called on the
+	 * root method to combine all of the other plots with this one.
+	 * @param otherCalcs
+	 */
+	protected abstract void combineDistributedCalcs(Collection<CompoundFSSPlots> otherCalcs);
 	
 	/**
 	 * Called at the end to finalize the plot
@@ -532,7 +634,9 @@ public abstract class CompoundFSSPlots {
 	 * @param fetcher
 	 */
 	public void buildPlot(FaultSystemSolutionFetcher fetcher) {
-		batchPlot(Lists.newArrayList(this), fetcher);
+		ArrayList<CompoundFSSPlots> plots = new ArrayList<CompoundFSSPlots>();
+		plots.add(this);
+		batchPlot(plots, fetcher);
 	}
 	
 	/**
@@ -546,13 +650,14 @@ public abstract class CompoundFSSPlots {
 			Collection<CompoundFSSPlots> plots,
 			FaultSystemSolutionFetcher fetcher) {
 		int threads = Runtime.getRuntime().availableProcessors();
-		threads /= 2;
+		threads *= 3;
+		threads /= 4;
 		if (threads < 1)
 			threads = 1;
 		batchPlot(plots, fetcher, threads);
 	}
 	
-	private static class PlotSolComputeTask implements Task {
+	protected static class PlotSolComputeTask implements Task {
 		
 		private Collection<CompoundFSSPlots> plots;
 		private FaultSystemSolutionFetcher fetcher;
@@ -624,21 +729,20 @@ public abstract class CompoundFSSPlots {
 	public static void main(String[] args) throws ZipException, IOException {
 		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution.fromZipFile(file);
-//		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 3);
+		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 3);
 		
-		List<Region> regions = Lists.newArrayList();
-		regions.add(new CaliforniaRegions.RELM_TESTING());
-		regions.add(new CaliforniaRegions.RELM_NOCAL());
-		regions.add(new CaliforniaRegions.RELM_SOCAL());
-		regions.add(new CaliforniaRegions.LA_BOX());
-		regions.add(new CaliforniaRegions.SF_BOX());
+		List<Region> regions = RegionalMFDPlot.getDefaultRegions();
 		
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		File dir = new File("/tmp");
 		String prefix = "2012_10_10-fm3-logic-tree-sample-first-247";
+		for (PlotSpec spec : getRegionalMFDPlotSpecs(fetch, weightProvider, regions)) {
+			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec);
+			gw.setYLog(true);
+		}
 //		writeRegionalMFDPlots(fetch, weightProvider, regions, dir, prefix);
-		File paleoDir = new File(dir, prefix+"-paleo-faults");
-		writePaleoFaultPlots(fetch, weightProvider, paleoDir);
+//		File paleoDir = new File(dir, prefix+"-paleo-faults");
+//		writePaleoFaultPlots(fetch, weightProvider, paleoDir);
 	}
 
 }

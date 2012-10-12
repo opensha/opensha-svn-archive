@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -316,7 +317,7 @@ public class PaleoFitPlotter {
 		return rate;
 	}
 	
-	public static class DataForPaleoFaultPlots {
+	public static class DataForPaleoFaultPlots implements Serializable {
 		
 		private Map<Integer, double[]> origSlipsMap;
 		private Map<Integer, double[]> targetSlipsMap;
@@ -383,6 +384,19 @@ public class PaleoFitPlotter {
 						origSlips[s] = sect.getOrigAveSlipRate();
 						targetSlips[s] = sol.getSlipRateForSection(sect.getSectionId())*1e3;
 						solSlips[s] = sol.calcSlipRateForSect(sect.getSectionId())*1e3;
+					}
+					
+					if (parentID == 301) {
+						if (StatUtils.min(solSlips) < 1) {
+							System.out.println("Solution slip less than 1 on Mojave S...WTF?");
+							System.out.println("origSlips: ["+Joiner.on(",").join(Doubles.asList(origSlips))+"]");
+							System.out.println("targetSlips: ["+Joiner.on(",").join(Doubles.asList(targetSlips))+"]");
+							System.out.println("solSlips: ["+Joiner.on(",").join(Doubles.asList(solSlips))+"]");
+							System.out.println("paleoRates: ["+Joiner.on(",").join(Doubles.asList(paleoRates))+"]");
+							System.out.println("origRates: ["+Joiner.on(",").join(Doubles.asList(origRates))+"]");
+							System.out.println("aveSlipRates: ["+Joiner.on(",").join(Doubles.asList(aveSlipRates))+"]");
+							System.exit(1);
+						}
 					}
 					
 					data.origSlipsMap.put(parentID, origSlips);

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
-public class AveSlipConstraint {
+public class AveSlipConstraint implements Serializable {
 	
 	public static final String DIR_NAME = "aveSlip";
 	public static final String TABLE_5_FILE_NAME = "Table R5v4_withMappings.xls";
