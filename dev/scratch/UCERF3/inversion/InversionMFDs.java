@@ -325,7 +325,19 @@ public class InversionMFDs {
 	public ArrayList<GutenbergRichterMagFreqDist> getTargetSubSeismoOnFaultMFD_List() {return subSeismoOnFaultMFD_List;}
 	
 	public SummedMagFreqDist getTotalSubSeismoOnFaultMFD() {return totalSubSeismoOnFaultMFD;}
-	
+
+	/**
+	 * This returns the sum of totalSubSeismoOnFaultMFD and trulyOffFaultMFD
+	 * @return
+	 */
+	public SummedMagFreqDist getTotalGriddedSeisMFD() {
+		SummedMagFreqDist totGridSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		totGridSeisMFD.addIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
+		totGridSeisMFD.addIncrementalMagFreqDist(trulyOffFaultMFD);
+		totGridSeisMFD.setName("InversionMFDs.getTotalGriddedSeisMFD()");
+		return totGridSeisMFD;
+	}
+
 	public GutenbergRichterMagFreqDist getTotalTargetGR() {return totalTargetGR;}
 	
 	public GutenbergRichterMagFreqDist getTotalTargetGR_NoCal() {return totalTargetGR_NoCal;}
@@ -426,6 +438,17 @@ public class InversionMFDs {
 	public GriddedSeisUtils getGridSeisUtils() {
 		return gridSeisUtils;
 	}
+	
+	/**
+	 * This returns an incremental GR with b=1 up to Mag 9 for the given rate above M 5.
+	 * @param totalRegionRateMgt5
+	 * @return
+	 */
+	public static GutenbergRichterMagFreqDist getTotalTargetGR_upToM9(double totalRegionRateMgt5) {
+		return new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, totalRegionRateMgt5*1e5, 1.0);
+	}
+
+
 
 
 }

@@ -133,7 +133,7 @@ public class GridSrcMFDPlotter {
 		funcs.add(incremental ? tOnIncr : tOnCum);
 		
 		// Total off fault
-		IncrementalMagFreqDist tOffIncr = fss.getImpliedTrulyOffFaultMFD();
+		IncrementalMagFreqDist tOffIncr = fss.getImpliedTotalGriddedSeisMFD();
 		tOffIncr.setName("Total off-fault MFD from inversion");
 		EvenlyDiscretizedFunc tOffCum = tOffIncr.getCumRateDist();
 		funcs.add(incremental ? tOffIncr : tOffCum);
@@ -213,7 +213,7 @@ public class GridSrcMFDPlotter {
 		funcs.add(incremental ? tOnIncr : tOnCum);
 		
 		// Total off fault
-		IncrementalMagFreqDist tOffIncr = fss.getImpliedTrulyOffFaultMFD();
+		IncrementalMagFreqDist tOffIncr = fss.getImpliedTotalGriddedSeisMFD();
 		tOffIncr.setName("Total off-fault MFD from inversion");
 		EvenlyDiscretizedFunc tOffCum = tOffIncr.getCumRateDist();
 		funcs.add(incremental ? tOffIncr : tOffCum);

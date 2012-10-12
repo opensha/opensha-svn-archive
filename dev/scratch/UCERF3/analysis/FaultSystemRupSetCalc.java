@@ -2468,17 +2468,9 @@ if(mMax<5.85)
 		
 //		writeParkfieldMags();
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-
-		System.out.println(rupSet.getPreInversionAnalysisData(true));
-		plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
-		
 //		plotOffFaultTaperedGR_Comparisons(rupSet, "GR_MaxAndTaperComparison");
 
-		
-//		plotAllImpliedTotalSectGR_MFD();
+		plotAllImpliedTotalSectGR_MFD();
 	
 //		writeParkfieldAveSlips();
 		
